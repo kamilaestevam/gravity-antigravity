@@ -32,8 +32,8 @@ interface PedidoForm {
   importacao_exportador_id: string
   fabricante_id: string
   incoterm: string
-  cobertura_cambial: string
-  condicao_pagamento: string
+  cobertura_cambial_pedido: string
+  condicao_pagamento_pedido: string
   numero_proforma: string
   numero_invoice: string
   referencia_importador: string
@@ -56,8 +56,8 @@ const FORM_VAZIO: PedidoForm = {
   importacao_exportador_id: '',
   fabricante_id: '',
   incoterm: 'FOB',
-  cobertura_cambial: 'com_cobertura',
-  condicao_pagamento: '',
+  cobertura_cambial_pedido: 'com_cobertura',
+  condicao_pagamento_pedido: '',
   numero_proforma: '',
   numero_invoice: '',
   referencia_importador: '',
@@ -357,7 +357,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
           part_number: it.part_number,
           ncm: it.ncm,
           descricao_item: it.descricao_item,
-          quantidade_inicial_pedido: parseFloat(it.quantidade_inicial_item_pedido) || 0,
+          quantidade_inicial_item_pedido: parseFloat(it.quantidade_inicial_item_pedido) || 0,
         }))
 
       // Converter data para ISO 8601 completo (z.string().datetime() no backend)
@@ -510,8 +510,8 @@ function Passo1Dados({
           <SelectGlobal
             label="Cobertura Cambial"
             opcoes={OPCOES_COBERTURA}
-            valor={form.cobertura_cambial}
-            aoMudarValor={v => onChange('cobertura_cambial', String(v ?? 'com_cobertura'))}
+            valor={form.cobertura_cambial_pedido}
+            aoMudarValor={v => onChange('cobertura_cambial_pedido', String(v ?? 'com_cobertura'))}
           />
         </div>
         <div style={s.campo}>
@@ -519,8 +519,8 @@ function Passo1Dados({
           <input
             id="mnp-pagamento"
             style={s.input}
-            value={form.condicao_pagamento}
-            onChange={e => onChange('condicao_pagamento', e.target.value)}
+            value={form.condicao_pagamento_pedido}
+            onChange={e => onChange('condicao_pagamento_pedido', e.target.value)}
             placeholder="Ex: 30% Antecipado"
           />
         </div>

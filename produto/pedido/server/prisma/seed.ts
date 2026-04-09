@@ -55,9 +55,9 @@ const pedidos = [
     referencia_exportador: 'SO-GRAVITY-001',
     referencia_fabricante: 'FAB-GR-2026-001',
 
-    moeda_cambio:         'BRL',
-    taxa_cambio_estimada: new Decimal('5.8500'),
-    valor_total_cambio:   new Decimal('117000.000000'),
+    moeda_cambio_pedido:         'BRL',
+    taxa_cambio_estimada_pedido: new Decimal('5.8500'),
+    valor_total_cambio_pedido:   new Decimal('117000.000000'),
 
     data_emissao_pedido: new Date('2026-02-10'),
 
@@ -152,9 +152,9 @@ const pedidos = [
     referencia_importador: 'IMP-QUIM-2026-002',
     referencia_exportador: 'BOSCH-ORDER-45200',
 
-    moeda_cambio:         'BRL',
-    taxa_cambio_estimada: new Decimal('6.2100'),
-    valor_total_cambio:   new Decimal('93150.000000'),
+    moeda_cambio_pedido:         'BRL',
+    taxa_cambio_estimada_pedido: new Decimal('6.2100'),
+    valor_total_cambio_pedido:   new Decimal('93150.000000'),
 
     data_emissao_pedido: new Date('2026-01-15'),
 
@@ -230,9 +230,9 @@ const pedidos = [
     referencia_importador: 'IMP-EPI-2026-003',
     referencia_exportador: '3M-BR-2026-00112',
 
-    moeda_cambio:         'BRL',
-    taxa_cambio_estimada: new Decimal('5.7800'),
-    valor_total_cambio:   new Decimal('57800.000000'),
+    moeda_cambio_pedido:         'BRL',
+    taxa_cambio_estimada_pedido: new Decimal('5.7800'),
+    valor_total_cambio_pedido:   new Decimal('57800.000000'),
 
     data_emissao_pedido: new Date('2025-12-20'),
 
@@ -327,7 +327,7 @@ const pedidos = [
     referencia_importador: 'IMP-MAQ-2026-004',
     referencia_exportador: 'BOSCH-ORDER-89700',
 
-    taxa_cambio_estimada: new Decimal('6.1500'),
+    taxa_cambio_estimada_pedido: new Decimal('6.1500'),
 
     data_emissao_pedido: new Date('2026-03-01'),
 
@@ -404,9 +404,9 @@ const pedidos = [
     referencia_importador: 'ZAPATOS-PO-2026-1100',
     referencia_exportador: 'EXP-CALC-2026-501',
 
-    moeda_cambio:         'BRL',
-    taxa_cambio_estimada: new Decimal('5.9000'),
-    valor_total_cambio:   new Decimal('35400.000000'),
+    moeda_cambio_pedido:         'BRL',
+    taxa_cambio_estimada_pedido: new Decimal('5.9000'),
+    valor_total_cambio_pedido:   new Decimal('35400.000000'),
 
     data_emissao_pedido: new Date('2026-03-10'),
 
@@ -483,9 +483,9 @@ const pedidos = [
     referencia_importador: 'NIDERA-PO-612',
     referencia_exportador: 'EXP-SOJA-2026-612',
 
-    moeda_cambio:         'BRL',
-    taxa_cambio_estimada: new Decimal('5.8700'),
-    valor_total_cambio:   new Decimal('469600.000000'),
+    moeda_cambio_pedido:         'BRL',
+    taxa_cambio_estimada_pedido: new Decimal('5.8700'),
+    valor_total_cambio_pedido:   new Decimal('469600.000000'),
 
     data_emissao_pedido: new Date('2026-02-28'),
 
@@ -538,7 +538,7 @@ async function main() {
       data: {
         ...pedidoData,
         valor_total_pedido:     valor_total,
-        quantidade_total_pedido: qtd_total,
+        quantidade_total_inicial_pedido: qtd_total,
         itens: {
           create: itens.map(({ id, pedido_id: _ignored, ...item }, index) => ({
             id,

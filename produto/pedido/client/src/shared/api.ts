@@ -384,9 +384,9 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
           part_number: item.part_number,
           descricao_item: item.descricao_item,
           ncm: item.ncm,
-          unidade_comercializada_item: item.unidade_comercializada_item,
+          unidade_comercializada_item: item.unidade_comercializada_item ?? null,
           moeda_item: item.moeda_item,
-          valor_unitario_item: item.valor_unitario_item,
+          valor_unitario_item: item.valor_unitario_item ?? null,
           quantidade_total: item.saldo_item_pedido,
           pedidos_origem: [pedido.numero_pedido],
           pode_fundir: false,
@@ -465,9 +465,6 @@ export const pedidoTransferirApi = {
     request<TransferPreview>('/api/v1/pedidos/transferir/preview', {
       method: 'POST',
       body: JSON.stringify(payload),
-    }).catch(err => {
-      if (import.meta.env.DEV) return mockTransferirPreview(payload)
-      throw err
     }),
 
   /** Confirmação — executa a transferência */
@@ -475,25 +472,16 @@ export const pedidoTransferirApi = {
     request<TransferResultado>('/api/v1/pedidos/transferir/confirmar', {
       method: 'POST',
       body: JSON.stringify(payload),
-    }).catch(err => {
-      if (import.meta.env.DEV) return mockTransferirConfirmar(payload)
-      throw err
     }),
 
   /** Lista histórico de transferências de um pedido (para reversão) */
   historico: (pedido_id: string) =>
-    request<TransferHistorico[]>(`/api/v1/pedidos/${pedido_id}/transferencias`).catch(err => {
-      if (import.meta.env.DEV) return mockTransferirHistorico(pedido_id)
-      throw err
-    }),
+    request<TransferHistorico[]>(`/api/v1/pedidos/${pedido_id}/transferencias`),
 
   /** Reverter uma transferência específica */
   reverter: (transfer_id: string) =>
     request<TransferResultado>(`/api/v1/pedidos/transferir/${transfer_id}/reverter`, {
       method: 'POST',
-    }).catch(err => {
-      if (import.meta.env.DEV) return mockTransferirReverter(transfer_id)
-      throw err
     }),
 }
 
@@ -932,7 +920,7 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     company_id: 'company-demo',
     tipo_operacao: 'importacao' as const,
     numero_pedido: `PO-IMP-${Date.now()}-${i + 1}`,
-    status: 'rascunho',
+    status: 'draft' as const,
     importacao_exportador_id: null,
     exportacao_importador_id: null,
     nome_exportador: 'Importado via Smart Import',
@@ -945,7 +933,7 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     unidade_comercializada_pedido: 'UN',
     quantidade_total_inicial_pedido: 0,
     quantidade_transferida_total: 0,
-    cobertura_cambial_pedido: null,
+    cobertura_cambial_pedido: 'sem_cobertura',
     condicao_pagamento_pedido: null,
     data_emissao_pedido: new Date().toISOString().split('T')[0],
     numero_proforma: null,

@@ -72,7 +72,7 @@ interface DashboardState {
 // ── Widgets padrão ────────────────────────────────────────────────────────────
 
 export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
-  // ── Linha 1 — KPIs ────────────────────────────────────────────────────────
+  // ── Linha 1 — KPIs Operacionais ───────────────────────────────────────────
   {
     id: 'kpi_total_pedidos',
     title: 'Total de Pedidos',
@@ -85,13 +85,23 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
   },
   {
     id: 'kpi_pedidos_abertos',
-    title: 'Pedidos Abertos',
+    title: 'Pedidos em Aberto',
     chart_type: 'KPI_CARD',
     query_spec: {
       fields: [{ key: 'pedidos_abertos', operation: 'COUNT' }],
       filters: { period: '30d' },
     },
     position: { x: 3, y: 0, w: 3, h: 2 },
+  },
+  {
+    id: 'kpi_saldo_total',
+    title: 'Saldo Total (Qtd)',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'qtd_saldo_total', operation: 'SUM' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 6, y: 0, w: 3, h: 2 },
   },
   {
     id: 'kpi_valor_total',
@@ -101,19 +111,9 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'valor_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 6, y: 0, w: 3, h: 2 },
-  },
-  {
-    id: 'kpi_ticket_medio',
-    title: 'Ticket Médio',
-    chart_type: 'KPI_CARD',
-    query_spec: {
-      fields: [{ key: 'valor_total', operation: 'SUM' }, { key: 'total_pedidos', operation: 'COUNT' }],
-      filters: { period: '30d' },
-    },
-    config: { derivedMetricId: 'ticket_medio' },
     position: { x: 9, y: 0, w: 3, h: 2 },
   },
+
   // ── Linha 2 — Séries temporais ────────────────────────────────────────────
   {
     id: 'pedidos_por_mes',
@@ -135,7 +135,49 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
     },
     position: { x: 6, y: 2, w: 6, h: 3 },
   },
-  // ── Linha 3 — Distribuição ────────────────────────────────────────────────
+
+  // ── Divisor — Alertas Operacionais ───────────────────────────────────────
+  {
+    id: 'section_alertas',
+    title: 'Alertas Operacionais',
+    chart_type: 'SECTION_LABEL',
+    query_spec: { fields: [], filters: { period: '30d' } },
+    position: { x: 0, y: 5, w: 12, h: 1 },
+  },
+
+  // ── Linha 3 — Alertas Operacionais ───────────────────────────────────────
+  {
+    id: 'kpi_pedidos_atrasados',
+    title: 'Pedidos Atrasados',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'pedidos_atrasados', operation: 'COUNT' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 0, y: 6, w: 4, h: 2 },
+  },
+  {
+    id: 'kpi_sem_exportador',
+    title: 'Sem Exportador',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'pedidos_sem_exportador', operation: 'COUNT' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 4, y: 6, w: 4, h: 2 },
+  },
+  {
+    id: 'kpi_qtd_pronta',
+    title: 'Qtd. Pronta',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'qtd_pronta_total', operation: 'SUM' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 8, y: 6, w: 4, h: 2 },
+  },
+
+  // ── Linha 4 — Distribuição por Status e Tipo ──────────────────────────────
   {
     id: 'status_dist',
     title: 'Distribuição por Status',
@@ -150,8 +192,23 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       ],
       filters: { period: '30d' },
     },
-    position: { x: 0, y: 5, w: 4, h: 3 },
+    position: { x: 0, y: 8, w: 6, h: 3 },
   },
+  {
+    id: 'tipo_operacao_dist',
+    title: 'Importação vs Exportação',
+    chart_type: 'DISTRIBUTION',
+    query_spec: {
+      fields: [
+        { key: 'pedidos_importacao', operation: 'COUNT' },
+        { key: 'pedidos_exportacao', operation: 'COUNT' },
+      ],
+      filters: { period: '30d' },
+    },
+    position: { x: 6, y: 8, w: 6, h: 3 },
+  },
+
+  // ── Linha 5 — KPIs de Quantidade ──────────────────────────────────────────
   {
     id: 'kpi_qtd_inicial',
     title: 'Qtd. Inicial Total',
@@ -160,7 +217,17 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'qtd_inicial_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 4, y: 5, w: 4, h: 2 },
+    position: { x: 0, y: 11, w: 4, h: 2 },
+  },
+  {
+    id: 'kpi_qtd_transferida',
+    title: 'Qtd. Transferida',
+    chart_type: 'KPI_CARD',
+    query_spec: {
+      fields: [{ key: 'qtd_transferida_total', operation: 'SUM' }],
+      filters: { period: '30d' },
+    },
+    position: { x: 4, y: 11, w: 4, h: 2 },
   },
   {
     id: 'kpi_valor_itens',
@@ -170,7 +237,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'valor_itens_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 8, y: 5, w: 4, h: 2 },
+    position: { x: 8, y: 11, w: 4, h: 2 },
   },
 ]
 
@@ -227,7 +294,7 @@ export const useDashboardStore = create<DashboardState>()(
     }),
     {
       name: 'gravity:pedido:dashboard',
-      version: 6,  // bump: distribuição com todos os status (consolidado, cancelado, draft)
+      version: 8,  // bump: refinamento visual — ícones, bordas, section label, hover effect
       partialize: (s) => ({
         widgets: s.widgets,
         slicers: s.slicers,

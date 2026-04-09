@@ -37,8 +37,8 @@ beforeAll(async () => {
       numero_pedido:          'PO-TEST-EDICAO-MASSA',
       status:                 'aberto',
       moeda_pedido:           'USD',
-      cobertura_cambial:      'com_cobertura',
-      quantidade_total_pedido: 100,
+      cobertura_cambial_pedido: 'com_cobertura',
+      quantidade_total_inicial_pedido: 100,
       valor_total_pedido:     999,
     },
   })
@@ -53,16 +53,16 @@ beforeAll(async () => {
       part_number:                   'TEST-PART-001',
       ncm:                           '0000.00.00',
       descricao_item:                'Item de Teste',
-      quantidade_inicial_pedido:     100,
-      quantidade_saldo_pedido:       100,
-      quantidade_pronta_pedido:      10,
-      quantidade_transferida_pedido: 20,
-      quantidade_cancelada_pedido:   5,
+      quantidade_inicial_item_pedido:     100,
+      saldo_item_pedido:       100,
+      quantidade_pronta_total_item_pedido:      10,
+      quantidade_transferida_item_pedido: 20,
+      quantidade_cancelada_item_pedido:   5,
       casas_decimais_quantidade_item: 2,
       moeda_item:                    'USD',
-      valor_por_unidade_item:        9.99,
-      valor_total_item:              999,
-      casas_decimais_total_item:     2,
+      valor_unitario_item:        9.99,
+      valor_total_itens:              999,
+      casas_decimais_valor_item:     2,
     },
   })
 })
@@ -143,7 +143,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_inicial_pedido)).toBe(777)
+      expect(Number(item?.quantidade_inicial_item_pedido)).toBe(777)
     })
 
     it('persiste quantidade_transferida via alias "quantidade_transferida_item"', async () => {
@@ -160,7 +160,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_transferida_pedido)).toBe(50)
+      expect(Number(item?.quantidade_transferida_item_pedido)).toBe(50)
     })
 
     it('persiste quantidade_pronta via alias "quantidade_pronta_total"', async () => {
@@ -177,7 +177,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_pronta_pedido)).toBe(30)
+      expect(Number(item?.quantidade_pronta_total_item_pedido)).toBe(30)
     })
 
     it('persiste quantidade_cancelada via alias "quantidade_cancelada_item_pedido"', async () => {
@@ -194,14 +194,14 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_cancelada_pedido)).toBe(2)
+      expect(Number(item?.quantidade_cancelada_item_pedido)).toBe(2)
     })
 
     it('operação "somar" usa o valor atual do banco (não alias undefined)', async () => {
       // Resetar para valor conhecido
       await prisma.pedidoItem.update({
         where: { id: ITEM_ID, tenant_id: TENANT },
-        data: { quantidade_inicial_pedido: 100 },
+        data: { quantidade_inicial_item_pedido: 100 },
       })
 
       await service.confirmar(TENANT, 'user-test', prisma, {
@@ -217,7 +217,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_inicial_pedido)).toBe(150) // 100 + 50
+      expect(Number(item?.quantidade_inicial_item_pedido)).toBe(150) // 100 + 50
     })
 
     it('retorna contadores reais: pedidos_atualizados=1, itens_atualizados=1, erros=[]', async () => {
@@ -238,10 +238,10 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       expect(resultado.erros).toHaveLength(0)
     })
 
-    it('recalcularAgregados atualiza quantidade_total_pedido no Pedido sem erro', async () => {
+    it('recalcularAgregados atualiza quantidade_total_inicial_pedido no Pedido sem erro', async () => {
       await prisma.pedidoItem.update({
         where: { id: ITEM_ID, tenant_id: TENANT },
-        data: { quantidade_inicial_pedido: 500, valor_por_unidade_item: 10 },
+        data: { quantidade_inicial_item_pedido: 500, valor_unitario_item: 10 },
       })
 
       const resultado = await service.confirmar(TENANT, 'user-test', prisma, {
@@ -259,13 +259,13 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       expect(resultado.erros).toHaveLength(0)
 
       const pedido = await lerPedido()
-      expect(Number(pedido?.quantidade_total_pedido)).toBe(300)
+      expect(Number(pedido?.quantidade_total_inicial_pedido)).toBe(300)
     })
 
     it('UPDATE de item inclui tenant_id no where (tenant isolation)', async () => {
       // Salvar valor antes
       const itemAntes = await lerItem()
-      const valorAntes = Number(itemAntes?.quantidade_inicial_pedido)
+      const valorAntes = Number(itemAntes?.quantidade_inicial_item_pedido)
 
       // Tentar editar com tenant diferente — service rejeita porque não encontra o pedido
       await expect(
@@ -284,8 +284,8 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
 
       // Valor do banco permanece intacto
       const itemDepois = await lerItem()
-      expect(Number(itemDepois?.quantidade_inicial_pedido)).toBe(valorAntes)
-      expect(Number(itemDepois?.quantidade_inicial_pedido)).not.toBe(9999)
+      expect(Number(itemDepois?.quantidade_inicial_item_pedido)).toBe(valorAntes)
+      expect(Number(itemDepois?.quantidade_inicial_item_pedido)).not.toBe(9999)
     })
 
     it('rejeita campo bloqueado com erro (saldo_item_pedido)', async () => {

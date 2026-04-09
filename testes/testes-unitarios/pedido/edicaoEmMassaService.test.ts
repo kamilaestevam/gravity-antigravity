@@ -23,7 +23,7 @@ function criarPedidoMock(id: string, overrides: Record<string, unknown> = {}) {
     numero_pedido: `PO-${id}`,
     incoterm: 'FOB',
     moeda_pedido: 'USD',
-    condicao_pagamento: '30/60/90',
+    condicao_pagamento_pedido: '30/60/90',
     data_emissao_pedido: '2026-04-01T00:00:00.000Z',
     valor_total_pedido: 1000,
     itens: [],
@@ -40,8 +40,8 @@ function criarItemMock(id: string, overrides: Record<string, unknown> = {}) {
     quantidade_inicial_item_pedido: 100,
     saldo_item_pedido: 100,
     quantidade_transferida_item: 0,
-    valor_por_unidade_item: 10,
-    valor_total_item: 1000,
+    valor_unitario_item: 10,
+    valor_total_itens: 1000,
     ...overrides,
   }
 }

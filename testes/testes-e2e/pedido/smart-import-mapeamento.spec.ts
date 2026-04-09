@@ -19,7 +19,7 @@ const PRINTS_DIR = path.join(
 )
 mkdirSync(PRINTS_DIR, { recursive: true })
 
-const CSV_PATH = path.join(process.cwd(), 'test_import_temp.csv')
+const CSV_PATH = path.join(process.cwd(), 'testes/fixtures/pedido/test_import_temp.csv')
 
 test.describe('Smart Import — Etapa Mapeamento @critico', () => {
 

@@ -39,8 +39,8 @@ export interface ItemImportado {
   descricao_item: string
   quantidade_inicial_pedido: number
   unidade_comercializada_item?: string
-  valor_por_unidade_item?: number
-  valor_total_item?: number
+  valor_unitario_item?: number
+  valor_total_itens?: number
 }
 
 interface MapeamentoColunas {
@@ -67,8 +67,8 @@ const MAPEAMENTO_PADRAO: MapeamentoColunas = {
   descricao_item: 'descricao|description|desc|produto|product|item',
   quantidade_inicial_pedido: 'quantidade|qty|quantity|qtd|quantidade_inicial_pedido',
   unidade_comercializada_item: 'unidade|uom|unit|um|medida',
-  valor_por_unidade_item: 'valor_unitario_item|unit_price|preco|price|unit_value',
-  valor_total_item: 'valor_total|total|valor_item|total_value|amount',
+  valor_unitario_item: 'valor_unitario_item|unit_price|preco|price|unit_value',
+  valor_total_itens: 'valor_total|total|valor_item|total_value|amount',
 }
 
 // ── Engine ────────────────────────────────────────────────────────────────────
@@ -145,8 +145,8 @@ export const importEngine = {
           descricao_item: asString(descricaoItem) || 'Sem descricao',
           quantidade_inicial_pedido: asNumber(quantidade) || 0,
           unidade_comercializada_item: asString(resolverCampo(row, map, 'unidade_comercializada_item')) || 'UN',
-          valor_por_unidade_item: asNumber(resolverCampo(row, map, 'valor_por_unidade_item')),
-          valor_total_item: asNumber(resolverCampo(row, map, 'valor_total_item')),
+          valor_unitario_item: asNumber(resolverCampo(row, map, 'valor_unitario_item')),
+          valor_total_itens: asNumber(resolverCampo(row, map, 'valor_total_itens')),
         })
       }
     }

@@ -139,8 +139,8 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
     const pedidoTyped = pedido as {
       numero_pedido: string
       tipo_operacao: string
-      exportador_nome?: string | null
-      fabricante_nome?: string | null
+      nome_exportador?: string | null
+      nome_fabricante?: string | null
       incoterm?: string | null
       moeda_pedido: string
       data_emissao_pedido: string
@@ -154,8 +154,8 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
         quantidade_inicial_item_pedido: number
         unidade_comercializada_item?: string | null
         moeda_item: string
-        valor_por_unidade_item?: number | null
-        valor_total_item?: number | null
+        valor_unitario_item?: number | null
+        valor_total_itens?: number | null
       }>
       [key: string]: unknown
     }
@@ -251,8 +251,8 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
     const pedidoTyped = pedido as {
       numero_pedido: string
       tipo_operacao: string
-      exportador_nome?: string | null
-      fabricante_nome?: string | null
+      nome_exportador?: string | null
+      nome_fabricante?: string | null
       incoterm?: string | null
       moeda_pedido: string
       data_emissao_pedido: string
@@ -266,8 +266,8 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
         quantidade_inicial_item_pedido: number
         unidade_comercializada_item?: string | null
         moeda_item: string
-        valor_por_unidade_item?: number | null
-        valor_total_item?: number | null
+        valor_unitario_item?: number | null
+        valor_total_itens?: number | null
       }>
     }
 

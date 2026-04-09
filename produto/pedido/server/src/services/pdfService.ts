@@ -21,8 +21,8 @@ import Handlebars from 'handlebars'
 interface PedidoParaTemplate {
   numero_pedido: string
   tipo_operacao: string
-  exportador_nome?: string | null
-  fabricante_nome?: string | null
+  nome_exportador?: string | null
+  nome_fabricante?: string | null
   incoterm?: string | null
   data_emissao_pedido: string
   valor_total_pedido?: number | null
@@ -76,8 +76,8 @@ export function compilarVariaveis(
   const vars: VariaveisTemplate = {
     numero_pedido: pedido.numero_pedido,
     tipo_operacao: pedido.tipo_operacao,
-    exportador: pedido.exportador_nome ?? '',
-    fabricante: pedido.fabricante_nome ?? '',
+    exportador: pedido.nome_exportador ?? '',
+    fabricante: pedido.nome_fabricante ?? '',
     incoterm: pedido.incoterm ?? '',
     data_emissao: dataEmissao,
     valor_total: pedido.valor_total_pedido != null

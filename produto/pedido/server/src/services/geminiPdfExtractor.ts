@@ -25,7 +25,7 @@ const GEMINI_API_KEY      = process.env.GEMINI_API_KEY ?? ''
 const GEMINI_PDF_ENABLED  = process.env.GEMINI_PDF_ENABLED === 'true'
 
 // Modelo para extração estruturada
-const MODEL = 'gemini-2.5-flash'
+const MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash'
 
 // ── Timeout para chamada Gemini (ms) ─────────────────────────────────────────
 
@@ -104,18 +104,36 @@ export async function extrairPdfComGemini(
       setTimeout(() => reject(new Error(`Gemini timeout após ${GEMINI_TIMEOUT_MS / 1000}s`)), GEMINI_TIMEOUT_MS)
     )
 
-    const result = await Promise.race([
-      model.generateContent([
-        { text: SYSTEM_PROMPT },
-        {
-          inlineData: {
-            mimeType: 'application/pdf',
-            data: buffer.toString('base64'),
-          },
-        },
-      ]),
-      timeoutPromise,
-    ])
+    // Retry automático em caso de 503 (alta demanda) — até 3 tentativas com backoff
+    let lastErr: unknown
+    let result: Awaited<ReturnType<typeof model.generateContent>> | undefined
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        result = await Promise.race([
+          model.generateContent([
+            { text: SYSTEM_PROMPT },
+            {
+              inlineData: {
+                mimeType: 'application/pdf',
+                data: buffer.toString('base64'),
+              },
+            },
+          ]),
+          timeoutPromise,
+        ])
+        break // sucesso
+      } catch (e: unknown) {
+        lastErr = e
+        const msg = e instanceof Error ? e.message : String(e)
+        if (msg.includes('503') && attempt < 3) {
+          console.warn(`[GeminiPDF] 503 — tentativa ${attempt}/3, aguardando ${attempt * 3}s...`)
+          await new Promise(r => setTimeout(r, attempt * 3000))
+        } else {
+          throw e
+        }
+      }
+    }
+    if (!result) throw lastErr
 
     const usage = result.response.usageMetadata
     const tokensUsados = (usage?.promptTokenCount ?? 0) + (usage?.candidatesTokenCount ?? 0)
@@ -180,10 +198,10 @@ function mapearCampos(item: InvoiceItem): Record<string, string | number | null>
     // Itens
     part_number:            item.code              ?? null,
     descricao_item:         item.description       ?? null,
-    unidade:                item.unit              ?? null,
+    unidade_comercializada_item: item.unit          ?? null,
     quantidade_inicial_item_pedido: item.quantity  ?? null,
-    valor_por_unidade_item: item.unit_price        ?? null,
-    valor_total_item:       item.total_amount      ?? null,
+    valor_unitario_item: item.unit_price        ?? null,
+    valor_total_itens:   item.total_amount      ?? null,
     ncm:                    item.customs_tariff    ?? null,
 
     // Metadados (para exibição na etapa de mapeamento)

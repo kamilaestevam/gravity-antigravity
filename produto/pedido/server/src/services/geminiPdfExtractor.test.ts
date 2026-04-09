@@ -140,7 +140,7 @@ describe('extrairPdfComGemini — fluxo com env ativa', () => {
     // Campos do sistema NAO devem existir como chaves
     expect(linha['numero_pedido']).toBeUndefined()
     expect(linha['exportador']).toBeUndefined()
-    expect(linha['valor_por_unidade_item']).toBeUndefined()
+    expect(linha['valor_unitario_item']).toBeUndefined()
   })
 
   it('converte todos os valores para string (LinhaArquivo)', async () => {

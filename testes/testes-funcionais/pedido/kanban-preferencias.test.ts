@@ -54,7 +54,7 @@ function mkPreferencias(overrides = {}) {
           aba: 'pedido',
           campos: [
             { campo: 'numero_pedido', label: 'Número', visivel: true, ordem: 0 },
-            { campo: 'exportador_nome', label: 'Exportador', visivel: true, ordem: 1 },
+            { campo: 'nome_exportador', label: 'Exportador', visivel: true, ordem: 1 },
           ],
         },
         {

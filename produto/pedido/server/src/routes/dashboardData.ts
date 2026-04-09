@@ -14,11 +14,11 @@
  *   model Pedido     → db.pedido      → campos: status, valor_total_pedido,
  *                                               quantidade_total_pedido,
  *                                               data_emissao_pedido, deleted_at
- *   model PedidoItem → db.pedidoItem  → campos: quantidade_inicial_pedido,
- *                                               quantidade_saldo_pedido,
- *                                               quantidade_transferida_pedido,
- *                                               quantidade_pronta_pedido,
- *                                               valor_total_item
+ *   model PedidoItem → db.pedidoItem  → campos: quantidade_inicial_item_pedido,
+ *                                               saldo_item_pedido,
+ *                                               quantidade_transferida_item_pedido,
+ *                                               quantidade_pronta_total_item_pedido,
+ *                                               valor_total_itens
  *
  * Status reais: 'draft' | 'aberto' | 'transferencia' | 'consolidado' | 'cancelado'
  *
@@ -90,7 +90,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
         select: {
           status: true,
           valor_total_pedido: true,
-          quantidade_total_pedido: true,
+          quantidade_total_inicial_pedido: true,
           moeda_pedido: true,
         },
       }),
@@ -102,11 +102,11 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
           },
         },
         select: {
-          quantidade_inicial_pedido: true,
-          quantidade_saldo_pedido: true,
-          quantidade_transferida_pedido: true,
-          quantidade_pronta_pedido: true,
-          valor_total_item: true,
+          quantidade_inicial_item_pedido: true,
+          saldo_item_pedido: true,
+          quantidade_transferida_item_pedido: true,
+          quantidade_pronta_total_item_pedido: true,
+          valor_total_itens: true,
         },
       }),
       buscarTaxasVenda(),
@@ -125,7 +125,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
 
     // ── Financeiro ────────────────────────────────────────────────────────────
     const valor_total        = pedidos.reduce((s: number, p: any) => s + Number(p.valor_total_pedido ?? 0), 0)
-    const qtd_total          = pedidos.reduce((s: number, p: any) => s + Number(p.quantidade_total_pedido ?? 0), 0)
+    const qtd_total          = pedidos.reduce((s: number, p: any) => s + Number(p.quantidade_total_inicial_pedido ?? 0), 0)
 
     // Sem campo cobertura_pendente no schema — retorna 0
     const cobertura_pendente = 0
@@ -147,11 +147,11 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
     }
 
     // ── Itens ─────────────────────────────────────────────────────────────────
-    const qtd_inicial_total     = itens.reduce((s: number, i: any) => s + Number(i.quantidade_inicial_pedido ?? 0), 0)
-    const qtd_atual_total       = itens.reduce((s: number, i: any) => s + Number(i.quantidade_saldo_pedido ?? 0), 0)
-    const qtd_transferida_total = itens.reduce((s: number, i: any) => s + Number(i.quantidade_transferida_pedido ?? 0), 0)
-    const itens_prontos         = itens.reduce((s: number, i: any) => s + Number(i.quantidade_pronta_pedido ?? 0), 0)
-    const valor_itens_total     = itens.reduce((s: number, i: any) => s + Number(i.valor_total_item ?? 0), 0)
+    const qtd_inicial_total     = itens.reduce((s: number, i: any) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+    const qtd_atual_total       = itens.reduce((s: number, i: any) => s + Number(i.saldo_item_pedido ?? 0), 0)
+    const qtd_transferida_total = itens.reduce((s: number, i: any) => s + Number(i.quantidade_transferida_item_pedido ?? 0), 0)
+    const itens_prontos         = itens.reduce((s: number, i: any) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
+    const valor_itens_total     = itens.reduce((s: number, i: any) => s + Number(i.valor_total_itens ?? 0), 0)
 
     res.json({
       period,

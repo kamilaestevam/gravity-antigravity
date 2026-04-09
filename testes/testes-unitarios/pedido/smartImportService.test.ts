@@ -679,3 +679,53 @@ describe('SmartImportService — importacao incremental (FEAT.6)', () => {
     expect(resultado.erros).toHaveLength(0)
   })
 })
+
+// ── Testes: Aggregate update (quantidade_total_inicial_pedido) ────────────────
+
+describe('SmartImportService — aggregate update', () => {
+  it('deve chamar pedido.update com quantidade_total_inicial_pedido (campo Prisma JS correto)', async () => {
+    const csv = ['PO Number,Part No.,NCM,Qty', 'PO-AGG,SKU-1,8471.30.19,50'].join('\n')
+    const db = makeMockPrisma()
+    const svc = new SmartImportService(db)
+    const preview = await svc.analisar('tenant1', toBuffer(csv), 'pedido.csv')
+
+    // Configurar transacao para criar pedido
+    db.$transaction.mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
+      pedido: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({ id: 'pedido-agg-id' }),
+        update: vi.fn(),
+      },
+      pedidoItem: { count: vi.fn().mockResolvedValue(0), create: vi.fn().mockResolvedValue({}) },
+    }))
+
+    // Configurar findMany pos-transacao (busca itens para calcular qtd total)
+    db.pedidoItem.findMany.mockResolvedValue([
+      { quantidade_inicial_item_pedido: 50 },
+    ])
+
+    const pedidoUpdateSpy = vi.fn().mockResolvedValue({ id: 'pedido-agg-id' })
+    db.pedido.update = pedidoUpdateSpy
+
+    await svc.confirmar('tenant1', 'user1', {
+      preview_id: preview.preview_id,
+      mapeamento_confirmado: preview.mapeamento,
+      decisoes_duplicatas: {},
+      linhas_incluidas: preview.linhas.map(l => l.linha_arquivo),
+      salvar_mapeamento: false,
+    })
+
+    // Verificar que o update usa o nome do campo Prisma JS (nao o nome da coluna DB)
+    expect(pedidoUpdateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ quantidade_total_inicial_pedido: 50 }),
+      })
+    )
+    // Garantir que o nome errado (coluna DB) NAO foi usado
+    expect(pedidoUpdateSpy).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ quantidade_total_pedido: expect.anything() }),
+      })
+    )
+  })
+})

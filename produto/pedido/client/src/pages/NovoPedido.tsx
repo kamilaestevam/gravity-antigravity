@@ -35,8 +35,8 @@ interface PedidoForm {
   fabricante_id: string
   incoterm: string
   moeda_pedido: string
-  cobertura_cambial: string
-  condicao_pagamento: string
+  cobertura_cambial_pedido: string
+  condicao_pagamento_pedido: string
   numero_proforma: string
   numero_invoice: string
   referencia_importador: string
@@ -52,7 +52,7 @@ interface ItemForm {
   descricao_item: string
   quantidade_inicial_item_pedido: string
   unidade_comercializada_item: string
-  valor_por_unidade_item: string
+  valor_unitario_item: string
 }
 
 const FORM_VAZIO: PedidoForm = {
@@ -62,8 +62,8 @@ const FORM_VAZIO: PedidoForm = {
   fabricante_id: '',
   incoterm: 'FOB',
   moeda_pedido: 'USD',
-  cobertura_cambial: 'com_cobertura',
-  condicao_pagamento: '',
+  cobertura_cambial_pedido: 'com_cobertura',
+  condicao_pagamento_pedido: '',
   numero_proforma: '',
   numero_invoice: '',
   referencia_importador: '',
@@ -79,7 +79,7 @@ const ITEM_VAZIO = (): ItemForm => ({
   descricao_item: '',
   quantidade_inicial_item_pedido: '',
   unidade_comercializada_item: 'UN',
-  valor_por_unidade_item: '',
+  valor_unitario_item: '',
 })
 
 // ── Estilos ───────────────────────────────────────────────────────────────────
@@ -154,8 +154,8 @@ export default function NovoPedido() {
           fabricante_id: '',
           incoterm: pedido.incoterm ?? 'FOB',
           moeda_pedido: pedido.moeda_pedido,
-          cobertura_cambial: pedido.cobertura_cambial,
-          condicao_pagamento: pedido.condicao_pagamento ?? '',
+          cobertura_cambial_pedido: pedido.cobertura_cambial_pedido,
+          condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? '',
           numero_proforma: pedido.numero_proforma ?? '',
           numero_invoice: pedido.numero_invoice ?? '',
           referencia_importador: pedido.referencia_importador ?? '',
@@ -171,7 +171,7 @@ export default function NovoPedido() {
             descricao_item: item.descricao_item,
             quantidade_inicial_item_pedido: String(item.quantidade_inicial_item_pedido),
             unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
-            valor_por_unidade_item: item.valor_por_unidade_item != null ? String(item.valor_por_unidade_item) : '',
+            valor_unitario_item: item.valor_unitario_item != null ? String(item.valor_unitario_item) : '',
           })))
         }
       })
@@ -187,7 +187,7 @@ export default function NovoPedido() {
         descricao_item: item.descricao_item,
         quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
         unidade_comercializada_item: item.unidade_comercializada_item,
-        valor_por_unidade_item: item.valor_por_unidade_item ? parseFloat(item.valor_por_unidade_item) : undefined,
+        valor_unitario_item: item.valor_unitario_item ? parseFloat(item.valor_unitario_item) : undefined,
       }))
       const payload = {
         ...form,
@@ -331,8 +331,8 @@ export default function NovoPedido() {
             <label style={labelStyle}>Cobertura Cambial</label>
             <select
               style={inputStyle}
-              value={form.cobertura_cambial}
-              onChange={(e) => handleChange('cobertura_cambial', e.target.value)}
+              value={form.cobertura_cambial_pedido}
+              onChange={(e) => handleChange('cobertura_cambial_pedido', e.target.value)}
             >
               <option value="com_cobertura">Com Cobertura</option>
               <option value="sem_cobertura">Sem Cobertura</option>
@@ -342,8 +342,8 @@ export default function NovoPedido() {
             <label style={labelStyle}>Condicao Pagamento</label>
             <input
               style={inputStyle}
-              value={form.condicao_pagamento}
-              onChange={(e) => handleChange('condicao_pagamento', e.target.value)}
+              value={form.condicao_pagamento_pedido}
+              onChange={(e) => handleChange('condicao_pagamento_pedido', e.target.value)}
               placeholder="Ex: 30% Antecipado"
             />
           </div>
@@ -501,8 +501,8 @@ export default function NovoPedido() {
                 <input
                   type="number"
                   style={{ ...inputStyle, textAlign: 'right' }}
-                  value={item.valor_por_unidade_item}
-                  onChange={(e) => handleItemChange(index, 'valor_por_unidade_item', e.target.value)}
+                  value={item.valor_unitario_item}
+                  onChange={(e) => handleItemChange(index, 'valor_unitario_item', e.target.value)}
                   placeholder="0,00"
                   min="0"
                   step="0.01"

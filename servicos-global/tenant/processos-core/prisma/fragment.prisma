@@ -34,10 +34,9 @@ model Pedido {
   peso_bruto_total_pedido       Decimal? @db.Decimal(18,6)
   cubagem_total_pedido          Decimal? @db.Decimal(18,6)
   casas_decimais_peso_pedido    Int      @default(3)
-  casas_decimais_cubagem_pedido Int      @default(4)
+  casas_decimais_cubagem_pedido Int      @default(3)
 
   // DADOS FINANCEIROS & FECHAMENTO DE CÂMBIO (FX)
-  cobertura_cambial_pedido  String  @default("com_cobertura") // com_cobertura | sem_cobertura
   condicao_pagamento_pedido String? // Ex: 30% Antecipado, 70% Contra-Documento
 
   // Referências Documentais
@@ -110,6 +109,7 @@ model PedidoItem {
   valor_total_itens       Decimal? @db.Decimal(18,6) // somatório desta linha (unitário × quantidade)
   valor_unitario_item     Decimal? @db.Decimal(18,6)
   casas_decimais_valor_item Int    @default(2)
+  cobertura_cambial         String @default("com_cobertura") // com_cobertura | sem_cobertura
 
   // Dados Físicos Unitários (usados para calcular totais do pedido)
   peso_liquido_unitario_item  Decimal? @db.Decimal(18,6)

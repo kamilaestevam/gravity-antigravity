@@ -47,8 +47,8 @@ const ROTULOS_CAMPO: Record<string, string> = {
   descricao_item:      'Descrição do Item',
   quantidade_inicial_item_pedido:  'Quantidade',
   unidade:             'Unidade',
-  valor_por_unidade_item:   'Valor Unit.',
-  valor_total_item:    'Valor Total',
+  valor_unitario_item:   'Valor Unit.',
+  valor_total_itens:   'Valor Total',
 }
 
 function rotulo(campo: string): string {

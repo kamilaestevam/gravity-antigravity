@@ -462,7 +462,7 @@ describe('POST /lote/exportar', () => {
       .send({
         ids: ['pedi-001'],
         formato: 'json',
-        colunas: ['numero_pedido', 'exportador_nome', 'valor_total_pedido'],
+        colunas: ['numero_pedido', 'nome_exportador', 'valor_total_pedido'],
       })
 
     expect(res.status).toBe(200)

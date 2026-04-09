@@ -34,6 +34,41 @@ import { KANBAN_PADRAO } from '../shared/types'
 import { useNavigate } from 'react-router-dom'
 import './KanbanPedidos.css'
 
+// ── Mapa campo kanban → { aba do drawer, id do campo no DrawerPedido } ────────
+// Garante que clicar em um campo no modal abre o drawer já com o campo em foco.
+// 'dados' é a aba padrão do DrawerPedido que contém todos os campos abaixo.
+const CAMPO_DRAWER_MAP: Record<string, { tab: 'dados' | 'itens'; fieldId: string }> = {
+  // Aba Pedido
+  numero_pedido:          { tab: 'dados', fieldId: 'dp-numero-pedido'  },
+  tipo_operacao:          { tab: 'dados', fieldId: 'dp-tipo-operacao'  },
+  nome_exportador:        { tab: 'dados', fieldId: 'dp-exportador'     },
+  nome_importador:        { tab: 'dados', fieldId: 'dp-exportador'     },
+  valor_total_pedido:     { tab: 'dados', fieldId: 'dp-tipo-operacao'  }, // seção financeira
+  moeda_pedido:           { tab: 'dados', fieldId: 'dp-tipo-operacao'  },
+  incoterm:               { tab: 'dados', fieldId: 'dp-incoterm'       },
+  numero_invoice:         { tab: 'dados', fieldId: 'dp-invoice'        },
+  numero_proforma:        { tab: 'dados', fieldId: 'dp-proforma'       },
+  referencia_importador:  { tab: 'dados', fieldId: 'dp-ref-imp'        },
+  referencia_exportador:  { tab: 'dados', fieldId: 'dp-ref-exp'        },
+  referencia_fabricante:  { tab: 'dados', fieldId: 'dp-ref-fab'        },
+  cobertura_cambial_pedido: { tab: 'dados', fieldId: 'dp-cobertura'    },
+  condicao_pagamento_pedido: { tab: 'dados', fieldId: 'dp-pagamento'   },
+  fabricante_id:          { tab: 'dados', fieldId: 'dp-fabricante'     },
+  // Aba Datas
+  data_emissao_pedido:              { tab: 'dados', fieldId: 'dp-data-emissao' },
+  data_prevista_coleta_pedido:      { tab: 'dados', fieldId: 'dp-data-emissao' },
+  data_confirmada_coleta_pedido:    { tab: 'dados', fieldId: 'dp-data-emissao' },
+  data_prevista_pedido_pronto:      { tab: 'dados', fieldId: 'dp-data-emissao' },
+  data_confirmada_pedido_pronto:    { tab: 'dados', fieldId: 'dp-data-emissao' },
+  data_prevista_inspecao_pedido:    { tab: 'dados', fieldId: 'dp-data-emissao' },
+  // Quantidades — vivem nos itens
+  quantidade_total_inicial_pedido:      { tab: 'itens', fieldId: 'dp-panel-itens' },
+  quantidade_pronta_itens_pedido_total: { tab: 'itens', fieldId: 'dp-panel-itens' },
+  quantidade_transferida_total:         { tab: 'itens', fieldId: 'dp-panel-itens' },
+  quantidade_cancelada_total_pedido:    { tab: 'itens', fieldId: 'dp-panel-itens' },
+  saldo_itens_do_pedido:                { tab: 'itens', fieldId: 'dp-panel-itens' },
+}
+
 // ── Colunas ───────────────────────────────────────────────────────────────────
 
 const COLUNAS = [
@@ -211,6 +246,28 @@ function ModalKanbanPedido({
     onFechar()
   }
 
+  function abrirNoCampo(campo: string) {
+    const destino = CAMPO_DRAWER_MAP[campo]
+    navigate(`/pedidos`, {
+      state: {
+        openPedidoId: pedido!.id,
+        initialTab:   destino?.tab    ?? 'dados',
+        focusField:   destino?.fieldId ?? undefined,
+      },
+    })
+    onFechar()
+  }
+
+  function abrirCompleto(tab?: 'dados' | 'itens' | 'transferencias') {
+    navigate(`/pedidos`, {
+      state: {
+        openPedidoId: pedido!.id,
+        initialTab:   tab ?? (abaAtiva === 'quantidades' ? 'itens' : 'dados'),
+      },
+    })
+    onFechar()
+  }
+
   const ABAS: { id: ModalAba; label: string }[] = [
     { id: 'pedido',      label: 'Pedido'      },
     { id: 'quantidades', label: 'Quantidades' },
@@ -269,11 +326,17 @@ function ModalKanbanPedido({
           {abaAtiva === 'pedido' && (
             <div className="kbp-modal-aba-grid">
               {camposPedido.map(cfg => (
-                <div key={cfg.campo} className="kbp-modal-campo">
+                <div
+                  key={cfg.campo}
+                  className="kbp-modal-campo kbp-modal-campo--clicavel"
+                  onClick={() => abrirNoCampo(cfg.campo)}
+                  title="Clique para editar"
+                >
                   <span className="kbp-modal-campo-label">{cfg.label}</span>
                   <span className="kbp-modal-campo-valor">
                     {formatarValorCampo(pedido, cfg.campo)}
                   </span>
+                  <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                 </div>
               ))}
             </div>
@@ -286,7 +349,12 @@ function ModalKanbanPedido({
                 const val = (pedido as unknown as Record<string, unknown>)[cfg.campo]
                 const isSaldo = cfg.campo === 'saldo_itens_do_pedido'
                 return (
-                  <div key={cfg.campo} className={`kbp-modal-qtd-row${isSaldo ? ' kbp-modal-qtd-row--saldo' : ''}`}>
+                  <div
+                    key={cfg.campo}
+                    className={`kbp-modal-qtd-row kbp-modal-campo--clicavel${isSaldo ? ' kbp-modal-qtd-row--saldo' : ''}`}
+                    onClick={() => abrirNoCampo(cfg.campo)}
+                    title="Clique para ver itens"
+                  >
                     <span className="kbp-modal-qtd-label">
                       {isSaldo ? <Scales size={13} weight="duotone" /> : <Package size={13} weight="duotone" />}
                       {cfg.label}
@@ -294,6 +362,7 @@ function ModalKanbanPedido({
                     <span className="kbp-modal-qtd-valor">
                       {val != null ? Number(val).toLocaleString('pt-BR') : '—'}
                     </span>
+                    <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                   </div>
                 )
               })}
@@ -312,7 +381,12 @@ function ModalKanbanPedido({
                 const hoje = new Date()
                 const vencida = d && d < hoje && cfg.campo.includes('prevista')
                 return (
-                  <div key={cfg.campo} className="kbp-modal-data-row">
+                  <div
+                    key={cfg.campo}
+                    className="kbp-modal-data-row kbp-modal-campo--clicavel"
+                    onClick={() => abrirNoCampo(cfg.campo)}
+                    title="Clique para editar"
+                  >
                     <span className="kbp-modal-data-label">
                       {vencida
                         ? <CalendarX size={13} weight="duotone" style={{ color: '#ef4444' }} />
@@ -323,6 +397,7 @@ function ModalKanbanPedido({
                     <span className={`kbp-modal-data-valor${vencida ? ' kbp-modal-data-valor--vencida' : ''}`}>
                       {d ? d.toLocaleDateString('pt-BR') : '—'}
                     </span>
+                    <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                   </div>
                 )
               })}
@@ -338,7 +413,7 @@ function ModalKanbanPedido({
               <button
                 type="button"
                 className="kbp-modal-btn-abrir"
-                onClick={() => { navigate(`/pedidos/${pedido.id}`); onFechar() }}
+                onClick={() => abrirCompleto('dados')}
               >
                 <ArrowSquareOut size={15} weight="duotone" />
                 Abrir pedido completo
@@ -352,7 +427,7 @@ function ModalKanbanPedido({
           <button
             type="button"
             className="kbp-modal-btn-abrir"
-            onClick={() => { navigate(`/pedidos/${pedido.id}`); onFechar() }}
+            onClick={() => abrirCompleto()}
           >
             <ArrowSquareOut size={15} weight="duotone" />
             Abrir pedido completo
@@ -407,6 +482,16 @@ export default function KanbanPedidos() {
     window.addEventListener('pedido:atualizado', handleAtualizado)
     return () => window.removeEventListener('pedido:atualizado', handleAtualizado)
   }, [carregar])
+
+  useEffect(() => {
+    const handlePrefsAtualizadas = () => {
+      kanbanConfigApi.obterPreferencias()
+        .then(res => setPreferencias(res.data))
+        .catch(() => {})
+    }
+    window.addEventListener('kanban:preferencias:atualizadas', handlePrefsAtualizadas)
+    return () => window.removeEventListener('kanban:preferencias:atualizadas', handlePrefsAtualizadas)
+  }, [])
 
   const colunasComputadas = useMemo(() => {
     const chavesBase = new Set(COLUNAS.map(c => c.key))

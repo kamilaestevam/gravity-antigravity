@@ -11,7 +11,7 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 import {
   Package,
@@ -3204,7 +3204,7 @@ const CAMPOS_PAI_TEXTO = new Set([
   'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'numero_proforma', 'numero_invoice',
-  'incoterm', 'condicao_pagamento_pedido',
+  'incoterm', 'condicao_pagamento_pedido', 'cobertura_cambial_pedido',
 ])
 
 // Tipo auxiliar: item enriquecido com dados do pedido pai para renderização
@@ -3949,6 +3949,7 @@ export default function ListaPedidos() {
   const { t } = useTranslation()
   const { visiveis: cardsVisiveis } = useCardPreferences()
   const navigate = useNavigate()
+  const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
@@ -4127,6 +4128,22 @@ export default function ListaPedidos() {
   // ── Estado dos modais de criação ─────────────────────────────────────────────
   const [drawerAberto, setDrawerAberto]           = useState(false)
   const [pedidoEditandoId, setPedidoEditandoId]   = useState<string | undefined>(undefined)
+  const [drawerInitialTab, setDrawerInitialTab]   = useState<'dados' | 'itens' | 'transferencias'>('dados')
+  const [drawerFocusField, setDrawerFocusField]   = useState<string | undefined>(undefined)
+
+  // Abre drawer ao chegar via navigate com state { openPedidoId, initialTab, focusField }
+  // (ex: modal do Kanban clicando em um campo)
+  useEffect(() => {
+    const st = location.state as { openPedidoId?: string; initialTab?: string; focusField?: string } | null
+    if (!st?.openPedidoId) return
+    const tab = (st.initialTab as 'dados' | 'itens' | 'transferencias') ?? 'dados'
+    setPedidoEditandoId(st.openPedidoId)
+    setDrawerInitialTab(tab)
+    setDrawerFocusField(st.focusField)
+    setDrawerAberto(true)
+    // Limpa o state para não reabrir em navegações futuras
+    window.history.replaceState({}, '')
+  }, [location.state])
   const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
   const [modalNovoItemAberto, setModalNovoItemAberto]     = useState(false)
   const [smartImportAberto, setSmartImportAberto] = useState(false)
@@ -4462,8 +4479,8 @@ export default function ListaPedidos() {
 
     // Campos do pedido pai → atualiza o pedido, não o item
     if (CAMPOS_PAI_TEXTO.has(campo)) {
-      // nome_exportador e nome_fabricante ficam em detalhes_operacionais → usar PATCH inline
-      const pedidoAtualizado = (campo === 'nome_exportador' || campo === 'nome_importador' || campo === 'nome_fabricante')
+      // nome_exportador, nome_fabricante e cobertura_cambial_pedido → usar PATCH inline /:id/campo
+      const pedidoAtualizado = (campo === 'nome_exportador' || campo === 'nome_importador' || campo === 'nome_fabricante' || campo === 'cobertura_cambial_pedido')
         ? await pedidoVirtualApi.editarCampo(pedido.id, campo, valor as string)
             .catch(() => {
               if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
@@ -5051,11 +5068,14 @@ export default function ListaPedidos() {
       <DrawerPedido
         aberto={drawerAberto}
         pedidoId={pedidoEditandoId}
-        onFechar={() => setDrawerAberto(false)}
+        onFechar={() => { setDrawerAberto(false); setDrawerFocusField(undefined) }}
         onSalvo={() => {
           setDrawerAberto(false)
+          setDrawerFocusField(undefined)
           carregarInicial()
         }}
+        initialTab={drawerInitialTab}
+        focusField={drawerFocusField}
       />
 
       {/* ── Smart Import Modal ── */}

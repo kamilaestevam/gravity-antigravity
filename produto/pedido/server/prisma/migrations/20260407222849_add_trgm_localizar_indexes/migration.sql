@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- 2. Índice GIN trigram nos campos textuais do Pedido mais buscados
 --    Concatena os campos em uma string para um único índice eficiente
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_pedido_localizar_trgm
+CREATE INDEX IF NOT EXISTS idx_pedido_localizar_trgm
 ON pedidos_comerciais USING GIN (
   (
     COALESCE(numero_pedido, '')         || ' ' ||
@@ -27,7 +27,7 @@ ON pedidos_comerciais USING GIN (
 );
 
 -- 3. Índice GIN trigram nos campos textuais do PedidoItem
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_pedido_item_localizar_trgm
+CREATE INDEX IF NOT EXISTS idx_pedido_item_localizar_trgm
 ON pedido_itens USING GIN (
   (
     COALESCE(part_number, '')                 || ' ' ||
@@ -39,13 +39,13 @@ ON pedido_itens USING GIN (
 );
 
 -- 4. Índice GIN trigram no valor de colunas customizadas do usuário
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_valor_coluna_usuario_localizar_trgm
+CREATE INDEX IF NOT EXISTS idx_valor_coluna_usuario_localizar_trgm
 ON valores_colunas_usuario_pedido USING GIN (valor gin_trgm_ops);
 
 -- 5. Índice GIN no JSONB detalhes_operacionais para busca de exportador/importador/fabricante
 --    jsonb_path_ops cobre operadores de containment; para ILIKE precisamos do cast ::text
 --    Índice trigram no cast textual do JSONB completo
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_pedido_detalhes_trgm
+CREATE INDEX IF NOT EXISTS idx_pedido_detalhes_trgm
 ON pedidos_comerciais USING GIN (
   (detalhes_operacionais::text) gin_trgm_ops
 );

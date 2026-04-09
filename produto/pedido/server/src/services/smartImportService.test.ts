@@ -44,7 +44,7 @@ describe('mapearComIA', () => {
     const camposGemini = [
       'numero_pedido', 'exportador', 'fabricante', 'incoterm',
       'moeda_pedido', 'data_emissao_pedido', 'part_number', 'ncm',
-      'descricao_item', 'quantidade_inicial_item_pedido', 'valor_por_unidade_item', 'valor_total_item',
+      'descricao_item', 'quantidade_inicial_item_pedido', 'valor_unitario_item', 'valor_total_item',
     ]
     const amostra = [Object.fromEntries(camposGemini.map(c => [c, 'valor']))]
     const resultado = mapearComIA(service, camposGemini, amostra)
@@ -60,9 +60,9 @@ describe('mapearComIA', () => {
     expect(resultado[0].confianca).toBeGreaterThanOrEqual(90)
   })
 
-  it('mapeia "Unit Price" para valor_por_unidade_item via alias', () => {
+  it('mapeia "Unit Price" para valor_unitario_item via alias', () => {
     const resultado = mapearComIA(service, ['Unit Price'], [{ 'Unit Price': '10.00' }])
-    expect(resultado[0].campo_sistema).toBe('valor_por_unidade_item')
+    expect(resultado[0].campo_sistema).toBe('valor_unitario_item')
     expect(resultado[0].confianca).toBeGreaterThanOrEqual(90)
   })
 
@@ -71,11 +71,11 @@ describe('mapearComIA', () => {
     expect(resultado[0].campo_sistema).toBe('numero_pedido')
   })
 
-  it('"Unit" mapeia para valor_por_unidade_item via partial match de "unit price"', () => {
-    // "unit price".includes("unit") = true → score 80 → campo valor_por_unidade_item
+  it('"Unit" mapeia para valor_unitario_item via partial match de "unit price"', () => {
+    // "unit price".includes("unit") = true → score 80 → campo valor_unitario_item
     // comportamento esperado: coluna chamada "Unit" é interpretada como possível valor unitário
     const resultado = mapearComIA(service, ['Unit'], [{ Unit: '10.00' }])
-    expect(resultado[0].campo_sistema).toBe('valor_por_unidade_item')
+    expect(resultado[0].campo_sistema).toBe('valor_unitario_item')
     expect(resultado[0].nivel).toBe('confirmado') // score 80 → confirmado (não auto)
   })
 
@@ -161,7 +161,7 @@ describe('inferirPorDados', () => {
   it('detecta valor unitario com numeros grandes', () => {
     const resultado = inferirPorDados(service, 'amt', ['100.50', '250.00', '75.00', '1200.00'])
     expect(resultado).not.toBeNull()
-    expect(resultado!.campo).toBe('valor_por_unidade_item')
+    expect(resultado!.campo).toBe('valor_unitario_item')
   })
 
   it('retorna null para coluna vazia', () => {

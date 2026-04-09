@@ -195,55 +195,22 @@
 
 /* ── Passo 1: Seleção de Cenário ── */
 
-.modal-transferir__cenarios {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
+.modal-transferir__cenario-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.modal-transferir__cenario-card {
-  background-color: var(--color-surface-2, #0f172a);
-  border: 1px solid var(--color-border, #334155);
-  border-radius: 8px;
-  padding: 14px;
-  cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
-  text-align: left;
-  width: 100%;
-}
-
-.modal-transferir__cenario-card:hover {
-  border-color: var(--color-primary, #3b82f6);
-  background-color: rgba(59, 130, 246, 0.05);
-}
-
-.modal-transferir__cenario-card--selecionado {
-  border-color: var(--color-primary, #3b82f6);
-  background-color: rgba(59, 130, 246, 0.1);
-}
-
-.modal-transferir__cenario-card:focus-visible {
-  outline: 2px solid var(--color-primary, #3b82f6);
-  outline-offset: 2px;
-}
-
-.modal-transferir__cenario-icone {
-  font-size: 22px;
-  margin-bottom: 8px;
-  display: block;
-}
-
-.modal-transferir__cenario-nome {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-primary, #f1f5f9);
-  margin-bottom: 4px;
-}
-
-.modal-transferir__cenario-descricao {
+.modal-transferir__cenario-descricao-inline {
   font-size: 12px;
   color: var(--color-text-muted, #64748b);
   line-height: 1.4;
+  margin: 0;
+}
+
+.modal-transferir__badge-irreversivel {
+  color: var(--color-warning, #f59e0b);
+  font-weight: 600;
 }
 
 /* ── Passo 2: Seleção de Item e Quantidade ── */

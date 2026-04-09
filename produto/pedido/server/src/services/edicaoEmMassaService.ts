@@ -55,14 +55,6 @@ const CAMPOS_QUANTIDADE_ITEM = new Set([
   'saldo_item_pedido',
 ])
 
-// ── Após renomear o schema, os nomes Prisma coincidem com os nomes do frontend ──
-// ALIAS_PARA_PRISMA não tem mais entradas — kept vazio para backward compat.
-
-const ALIAS_PARA_PRISMA: Record<string, string> = {}
-
-function traduzirCampoItem(campo: string): string {
-  return ALIAS_PARA_PRISMA[campo] ?? campo
-}
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
 
@@ -172,7 +164,7 @@ export class EdicaoEmMassaService {
         pedidos.forEach((p: Record<string, unknown>) => {
           const itens = (p.itens as Record<string, unknown>[]) ?? []
           itens.forEach(item => {
-            valores.push(String(item[traduzirCampoItem(c.campo)] ?? ''))
+            valores.push(String(item[c.campo] ?? ''))
           })
         })
       }
@@ -303,10 +295,7 @@ export class EdicaoEmMassaService {
             for (const item of itens) {
               const dadosItem: Record<string, unknown> = {}
               for (const c of camposItem) {
-                // Traduz alias do frontend (ex: 'quantidade_inicial_item_pedido')
-                // para o nome real do campo no Prisma/banco (ex: 'quantidade_inicial_pedido')
-                const campoPrisma = traduzirCampoItem(c.campo)
-                dadosItem[campoPrisma] = this.aplicarOperacao(item[campoPrisma], c.operacao, c.valor)
+                dadosItem[c.campo] = this.aplicarOperacao(item[c.campo], c.operacao, c.valor)
               }
               const resultado = await (tx as Record<string, Record<string, unknown>>).pedidoItem.update({
                 where: { id: item.id as string, tenant_id: tenantId },

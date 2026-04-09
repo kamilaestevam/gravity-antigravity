@@ -56,12 +56,11 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
 
   // Exportador
   // exportador_nome: editável somente em importacao (fornecedor estrangeiro)
-  { campo: 'exportador_nome',                         rotulo: 'Exportador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador',
+  { campo: 'nome_exportador',                         rotulo: 'Exportador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador',
     visivel: (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'importacao') },
-  // importador_nome: editável somente em exportacao (cliente estrangeiro)
-  { campo: 'importador_nome',                         rotulo: 'Importador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Importador',
+  // nome_importador: editável somente em exportacao (cliente estrangeiro)
+  { campo: 'nome_importador',                         rotulo: 'Importador — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Importador',
     visivel: (pedidos: Pedido[]) => pedidos.every(p => p.tipo_operacao === 'exportacao') },
-  { campo: 'id_exportador',                           rotulo: 'Exportador — ID',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
   { campo: 'endereco_exportador',                     rotulo: 'Exportador — Endereço',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
   { campo: 'pais_exportador',                         rotulo: 'Exportador — País',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
   { campo: 'estado_exportador',                       rotulo: 'Exportador — Estado',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
@@ -76,8 +75,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'departamento_contato_exportador',         rotulo: 'Contato Export. — Depto.',               tipo: 'texto',  nivel: 'pedido', grupo: 'Exportador' },
 
   // Fabricante
-  { campo: 'fabricante_nome',                         rotulo: 'Fabricante — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
-  { campo: 'id_fabricante',                           rotulo: 'Fabricante — ID',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
+  { campo: 'nome_fabricante',                         rotulo: 'Fabricante — Nome',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'endereco_fabricante',                     rotulo: 'Fabricante — Endereço',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'pais_fabricante',                         rotulo: 'Fabricante — País',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
   { campo: 'estado_fabricante',                       rotulo: 'Fabricante — Estado',                    tipo: 'texto',  nivel: 'pedido', grupo: 'Fabricante' },
@@ -101,8 +99,8 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   // Dados comerciais
   { campo: 'incoterm',                                rotulo: 'Incoterm',                               tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'quantidade_volumes_pedido',               rotulo: 'Qtd. Volumes',                           tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
-  { campo: 'cobertura_cambial',                       rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
-  { campo: 'condicao_pagamento',                      rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'cobertura_cambial_pedido',                rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'condicao_pagamento_pedido',               rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
 
   // Dados físicos
   { campo: 'peso_liquido_total_pedido',               rotulo: 'Peso Líquido Total',                     tipo: 'numero', nivel: 'pedido', grupo: 'Físico' },
@@ -115,8 +113,6 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'referencia_importador',                   rotulo: 'Referência Importador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
   { campo: 'referencia_exportador',                   rotulo: 'Referência Exportador',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
   { campo: 'referencia_fabricante',                   rotulo: 'Referência Fabricante',                  tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
-  { campo: 'partnumber_produto_pedido',               rotulo: 'Part Number (Pedido)',                   tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
-  { campo: 'referencia_interna_produto_catalogo',     rotulo: 'Referência Interna Catálogo',            tipo: 'texto',  nivel: 'pedido', grupo: 'Documentos' },
 
   // Portos / Logística
   { campo: 'porto_origem',                            rotulo: 'Porto Origem',                           tipo: 'texto',  nivel: 'pedido', grupo: 'Logística' },
@@ -182,29 +178,29 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'part_number',                             rotulo: 'Part Number',                            tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'ncm',                                     rotulo: 'NCM',                                    tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'descricao_item',                          rotulo: 'Descrição do Item',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_completa',                      rotulo: 'Descrição Completa',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_en',                            rotulo: 'Descrição (EN)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_es',                            rotulo: 'Descrição (ES)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'descricao_espelho_nf',                    rotulo: 'Descrição Espelho NF',                   tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_completa_item_pt',               rotulo: 'Descrição Completa',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_completa_item_en',              rotulo: 'Descrição (EN)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_completa_item_es',              rotulo: 'Descrição (ES)',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'descricao_completa_item_nf',              rotulo: 'Descrição Espelho NF',                   tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'texto_posicao_ncm',                       rotulo: 'Texto Posição NCM',                      tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'grupo_produto',                           rotulo: 'Grupo Produto',                          tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'subgrupo_produto',                        rotulo: 'Subgrupo Produto',                       tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
-  { campo: 'campo_especial',                          rotulo: 'Campo Especial',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'grupo_item',                              rotulo: 'Grupo Produto',                          tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'subgrupo_item',                           rotulo: 'Subgrupo Produto',                       tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
+  { campo: 'campo_especial_item',                     rotulo: 'Campo Especial',                         tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
   { campo: 'atributos_catalogo',                      rotulo: 'Atributos Catálogo',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
 
   // Quantidades
   { campo: 'quantidade_inicial_item_pedido',           rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_transferida_item',             rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_pronta_total',                 rotulo: 'Qtd. Pronta',                            tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_transferida_item_pedido',       rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_pronta_total_item_pedido',     rotulo: 'Qtd. Pronta',                            tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'quantidade_cancelada_item_pedido',        rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'casas_decimais_quantidade_item',           rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
   // Financeiro
 
   // Pesos e cubagem
-  { campo: 'peso_liquido_unitario',                   rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
-  { campo: 'peso_bruto_unitario',                     rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item', grupo: 'Físico' },
-  { campo: 'cubagem_unitaria',                        rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'peso_liquido_unitario_item',               rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'peso_bruto_unitario_item',                rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'cubagem_unitaria_item',                   rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item', grupo: 'Físico' },
 
   // Embalagem e documentos
   { campo: 'tipo_embalagem',                          rotulo: 'Tipo Embalagem',                         tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },
@@ -235,7 +231,7 @@ const OPERACOES_POR_TIPO: Record<TipoCampoEdicao, { valor: OperacaoCampo; rotulo
 
 // Campos que exigem processamento individual por pedido (merge JSON no backend)
 // Deve espelhar CAMPOS_DETALHES_OPERACIONAIS em edicaoEmMassaService.ts
-const CAMPOS_DETALHES_OPERACIONAIS_LENTO = new Set(['exportador_nome', 'importador_nome', 'fabricante_nome'])
+const CAMPOS_DETALHES_OPERACIONAIS_LENTO = new Set(['nome_exportador', 'nome_importador', 'nome_fabricante'])
 
 const OPERACAO_LABELS: Record<OperacaoCampo, string> = {
   substituir:   'Substituir por',

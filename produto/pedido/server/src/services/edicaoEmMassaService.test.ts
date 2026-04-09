@@ -28,12 +28,12 @@ function criarPedido(overrides: Record<string, unknown> = {}) {
         id: 'item-001',
         tenant_id: TENANT,
         // Nomes reais do Prisma (não aliases do frontend)
-        quantidade_inicial_pedido:    100,
-        quantidade_transferida_pedido: 20,
-        quantidade_pronta_pedido:      10,
-        quantidade_cancelada_pedido:    5,
-        quantidade_saldo_pedido:       75,
-        valor_por_unidade_item:       9.99,
+        quantidade_inicial_item_pedido:    100,
+        quantidade_transferida_item_pedido: 20,
+        quantidade_pronta_total_item_pedido:      10,
+        quantidade_cancelada_item_pedido:    5,
+        saldo_item_pedido:       75,
+        valor_unitario_item:       9.99,
       },
     ],
     ...overrides,
@@ -70,7 +70,7 @@ describe('EdicaoEmMassaService — tradução de aliases', () => {
 
   describe('confirmar()', () => {
 
-    it('traduz alias "quantidade_inicial_item_pedido" para "quantidade_inicial_pedido" no UPDATE', async () => {
+    it('traduz alias "quantidade_inicial_item_pedido" para "quantidade_inicial_item_pedido" no UPDATE', async () => {
       const { db, itemUpdateMock } = criarDbMock()
 
       await service.confirmar(TENANT, USER, db, {
@@ -81,14 +81,12 @@ describe('EdicaoEmMassaService — tradução de aliases', () => {
 
       expect(itemUpdateMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ quantidade_inicial_pedido: 200 }),
+          data: expect.objectContaining({ quantidade_inicial_item_pedido: 200 }),
         })
       )
-      // Garante que o alias NÃO foi usado como chave
-      expect(itemUpdateMock.mock.calls[0][0].data).not.toHaveProperty('quantidade_inicial_item_pedido')
     })
 
-    it('traduz alias "quantidade_transferida_item" para "quantidade_transferida_pedido" no UPDATE', async () => {
+    it('traduz alias "quantidade_transferida_item" para "quantidade_transferida_item_pedido" no UPDATE', async () => {
       const { db, itemUpdateMock } = criarDbMock()
 
       await service.confirmar(TENANT, USER, db, {
@@ -99,12 +97,12 @@ describe('EdicaoEmMassaService — tradução de aliases', () => {
 
       expect(itemUpdateMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ quantidade_transferida_pedido: 50 }),
+          data: expect.objectContaining({ quantidade_transferida_item_pedido: 50 }),
         })
       )
     })
 
-    it('traduz alias "quantidade_pronta_total" para "quantidade_pronta_pedido" no UPDATE', async () => {
+    it('traduz alias "quantidade_pronta_total" para "quantidade_pronta_total_item_pedido" no UPDATE', async () => {
       const { db, itemUpdateMock } = criarDbMock()
 
       await service.confirmar(TENANT, USER, db, {
@@ -115,12 +113,12 @@ describe('EdicaoEmMassaService — tradução de aliases', () => {
 
       expect(itemUpdateMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ quantidade_pronta_pedido: 30 }),
+          data: expect.objectContaining({ quantidade_pronta_total_item_pedido: 30 }),
         })
       )
     })
 
-    it('traduz alias "quantidade_cancelada_item_pedido" para "quantidade_cancelada_pedido" no UPDATE', async () => {
+    it('traduz alias "quantidade_cancelada_item_pedido" para "quantidade_cancelada_item_pedido" no UPDATE', async () => {
       const { db, itemUpdateMock } = criarDbMock()
 
       await service.confirmar(TENANT, USER, db, {
@@ -131,7 +129,7 @@ describe('EdicaoEmMassaService — tradução de aliases', () => {
 
       expect(itemUpdateMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ quantidade_cancelada_pedido: 0 }),
+          data: expect.objectContaining({ quantidade_cancelada_item_pedido: 0 }),
         })
       )
     })
@@ -174,10 +172,10 @@ describe('EdicaoEmMassaService — tradução de aliases', () => {
         nivel: 'item',
       })
 
-      // valor atual = 100 (de quantidade_inicial_pedido), soma 50 = 150
+      // valor atual = 100 (de quantidade_inicial_item_pedido), soma 50 = 150
       expect(itemUpdateMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({ quantidade_inicial_pedido: 150 }),
+          data: expect.objectContaining({ quantidade_inicial_item_pedido: 150 }),
         })
       )
     })

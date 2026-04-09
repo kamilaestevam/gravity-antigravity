@@ -15,7 +15,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { Warning, Spinner, CheckCircle, ArrowRight, Plus, X } from '@phosphor-icons/react'
+import { Warning, Spinner, CheckCircle, ArrowRight } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import type {
@@ -66,68 +66,13 @@ const CENARIOS: CenarioInfo[] = [
     reversivel: true,
     criaDestinos: true,
   },
-  {
-    id: 'multi_split',
-    nome: 'Multi-Split',
-    descricao: 'Divide a quantidade entre múltiplos destinos.',
-    icone: '⇉',
-    reversivel: true,
-    criaDestinos: true,
-  },
-  {
-    id: 'substituicao_pura',
-    nome: 'Substituição Pura',
-    descricao: 'Mesma quantidade, troca apenas o produto (part#).',
-    icone: '⇄',
-    reversivel: true,
-    criaDestinos: false,
-  },
-  {
-    id: 'split_substituicao',
-    nome: 'Split + Substituição',
-    descricao: 'Parte da quantidade vira outro produto.',
-    icone: '✂⇄',
-    reversivel: true,
-    criaDestinos: true,
-  },
-  {
-    id: 'split_data',
-    nome: 'Split por Data',
-    descricao: 'Divide a quantidade em entregas em datas diferentes.',
-    icone: '📅',
-    reversivel: true,
-    criaDestinos: true,
-  },
-  {
-    id: 'split_destino_logistico',
-    nome: 'Split por Destino',
-    descricao: 'Divide por porto/consignatário de destino.',
-    icone: '⚓',
-    reversivel: true,
-    criaDestinos: true,
-  },
-  {
-    id: 'transfer_intercompany',
-    nome: 'Transfer Intercompany',
-    descricao: 'Repassa quantidade para pedido de outra empresa do mesmo tenant.',
-    icone: '🏢',
-    reversivel: false,
-    criaDestinos: true,
-  },
-  {
-    id: 'agrupamento_inverso',
-    nome: 'Agrupamento Inverso',
-    descricao: 'Vários pedidos cedem quantidade para um único destino.',
-    icone: '⇐',
-    reversivel: true,
-    criaDestinos: true,
-  },
 ]
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 interface ModalTransferirProps {
   pedidos: Pedido[]
+  itemIdInicial?: string
   onFechar: () => void
   onConcluido: () => void
 }
@@ -144,22 +89,33 @@ interface SeletorCenarioProps {
 }
 
 function SeletorCenario({ cenarioSelecionado, onChange }: SeletorCenarioProps) {
+  const selecionado = cenarioSelecionado ? CENARIOS.find(c => c.id === cenarioSelecionado) : null
+
   return (
-    <div className="modal-transferir__cenarios" role="radiogroup" aria-label="Selecione o cenário de transferência">
-      {CENARIOS.map(c => (
-        <button
-          key={c.id}
-          type="button"
-          className={`modal-transferir__cenario-card${cenarioSelecionado === c.id ? ' modal-transferir__cenario-card--selecionado' : ''}`}
-          onClick={() => onChange(c.id)}
-          aria-pressed={cenarioSelecionado === c.id}
-          aria-label={`${c.nome}: ${c.descricao}`}
-        >
-          <span className="modal-transferir__cenario-icone" aria-hidden="true">{c.icone}</span>
-          <div className="modal-transferir__cenario-nome">{c.nome}</div>
-          <div className="modal-transferir__cenario-descricao">{c.descricao}</div>
-        </button>
-      ))}
+    <div className="modal-transferir__cenario-select-wrapper">
+      <label className="modal-transferir__label" htmlFor="cenario-select">
+        Tipo de transferência
+      </label>
+      <select
+        id="cenario-select"
+        className="modal-transferir__select"
+        value={cenarioSelecionado ?? ''}
+        onChange={e => onChange(e.target.value as CenarioTransfer)}
+        aria-label="Selecione o tipo de transferência"
+      >
+        <option value="" disabled>Selecione...</option>
+        {CENARIOS.map(c => (
+          <option key={c.id} value={c.id}>{c.nome}</option>
+        ))}
+      </select>
+      {selecionado && (
+        <p className="modal-transferir__cenario-descricao-inline">
+          {selecionado.descricao}
+          {!selecionado.reversivel && (
+            <span className="modal-transferir__badge-irreversivel"> · Irreversível</span>
+          )}
+        </p>
+      )}
     </div>
   )
 }
@@ -257,6 +213,7 @@ interface ConfigurarDestinosProps {
   pedido: Pedido
   destinos: TransferDestino[]
   numeroPedidoNovo: string
+  itemSelecionado: PedidoItem | undefined
   onDestinosChange: (d: TransferDestino[]) => void
   onNumeroPedidoChange: (n: string) => void
 }
@@ -266,57 +223,19 @@ function ConfigurarDestinos({
   pedido,
   destinos,
   numeroPedidoNovo,
+  itemSelecionado,
   onDestinosChange,
   onNumeroPedidoChange,
 }: ConfigurarDestinosProps) {
-  const cenarioInfo = CENARIOS.find(c => c.id === cenario)
-
+  const saldoAtual = itemSelecionado?.saldo_item_pedido ?? 0
+  const casas = itemSelecionado?.casas_decimais_quantidade_item ?? 2
   const atualizarDestino = (idx: number, campo: Partial<TransferDestino>) => {
     const novos = destinos.map((d, i) => (i === idx ? { ...d, ...campo } : d))
     onDestinosChange(novos)
   }
 
-  const adicionarDestino = () => {
-    onDestinosChange([
-      ...destinos,
-      { tipo: 'existente', quantidade: 0 },
-    ])
-  }
-
-  const removerDestino = (idx: number) => {
-    onDestinosChange(destinos.filter((_, i) => i !== idx))
-  }
-
-  // Cenário 5a — substituição pura: somente troca o part_number
-  if (cenario === 'substituicao_pura') {
-    return (
-      <div className="modal-transferir__destinos">
-        <div className="modal-transferir__destino-bloco">
-          <div className="modal-transferir__destino-titulo">Substituição de produto</div>
-          <div className="modal-transferir__destino-linha">
-            <label className="modal-transferir__label" htmlFor="sub-part-number">
-              Novo Part Number
-            </label>
-            <input
-              id="sub-part-number"
-              type="text"
-              className="modal-transferir__input"
-              value={destinos[0]?.part_number ?? ''}
-              onChange={e => atualizarDestino(0, { part_number: e.target.value })}
-              placeholder="Ex: ABC-12345-B"
-              aria-required="true"
-            />
-            <span className="modal-transferir__hint">
-              A quantidade permanece a mesma — apenas o produto é substituído.
-            </span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Cenário redução simples — sem destino
-  if (!cenarioInfo?.criaDestinos) {
+  // Redução simples — sem destino
+  if (cenario === 'reducao_simples') {
     return (
       <div className="modal-transferir__destinos">
         <div className="modal-transferir__alerta">
@@ -331,51 +250,13 @@ function ConfigurarDestinos({
     <div className="modal-transferir__destinos">
       {destinos.map((destino, idx) => (
         <div key={idx} className="modal-transferir__destino-bloco">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="modal-transferir__destino-titulo">
-              Destino {destinos.length > 1 ? idx + 1 : ''}
-            </div>
-            {cenario === 'multi_split' && destinos.length > 1 && (
-              <button
-                type="button"
-                className="modal-transferir__botao-remover-destino"
-                onClick={() => removerDestino(idx)}
-                aria-label={`Remover destino ${idx + 1}`}
-              >
-                <X size={14} aria-hidden="true" />
-              </button>
-            )}
-          </div>
+          <div className="modal-transferir__destino-titulo">Destino</div>
 
-          {/* Tipo de destino */}
-          <div className="modal-transferir__destino-linha">
-            <label className="modal-transferir__label" htmlFor={`destino-tipo-${idx}`}>
-              Tipo
-            </label>
-            <select
-              id={`destino-tipo-${idx}`}
-              className="modal-transferir__select"
-              value={destino.tipo}
-              onChange={e => atualizarDestino(idx, { tipo: e.target.value as 'novo' | 'existente' | 'mesmo' })}
-              aria-label={`Tipo do destino ${idx + 1}`}
-            >
-              {cenario !== 'transfer_intercompany' && (
-                <option value="existente">Pedido existente</option>
-              )}
-              {(cenario === 'split_novo_pedido' || cenario === 'multi_split' || cenario === 'split_data' || cenario === 'split_substituicao' || cenario === 'agrupamento_inverso') && (
-                <option value="novo">Novo pedido</option>
-              )}
-              {cenario === 'transfer_intercompany' && (
-                <option value="existente">Pedido de outra empresa</option>
-              )}
-            </select>
-          </div>
-
-          {/* ID do pedido destino (existente) */}
-          {destino.tipo === 'existente' && (
+          {/* ID do pedido existente */}
+          {cenario === 'split_pedido_existente' && (
             <div className="modal-transferir__destino-linha">
               <label className="modal-transferir__label" htmlFor={`destino-pedido-id-${idx}`}>
-                ID ou número do pedido destino
+                Número ou ID do pedido destino
               </label>
               <input
                 id={`destino-pedido-id-${idx}`}
@@ -390,20 +271,17 @@ function ConfigurarDestinos({
           )}
 
           {/* Número do novo pedido */}
-          {destino.tipo === 'novo' && (
+          {cenario === 'split_novo_pedido' && (
             <div className="modal-transferir__destino-linha">
-              <label className="modal-transferir__label" htmlFor={`destino-numero-novo-${idx}`}>
+              <label className="modal-transferir__label" htmlFor="destino-numero-novo">
                 Número do novo pedido
               </label>
               <input
-                id={`destino-numero-novo-${idx}`}
+                id="destino-numero-novo"
                 type="text"
                 className="modal-transferir__input"
-                value={idx === 0 ? numeroPedidoNovo : (destino.pedido_id ?? '')}
-                onChange={e => {
-                  if (idx === 0) onNumeroPedidoChange(e.target.value)
-                  else atualizarDestino(idx, { pedido_id: e.target.value })
-                }}
+                value={numeroPedidoNovo}
+                onChange={e => onNumeroPedidoChange(e.target.value)}
                 placeholder="Ex: PO-2026/002"
                 aria-required="true"
               />
@@ -425,92 +303,14 @@ function ConfigurarDestinos({
               onChange={e => atualizarDestino(idx, { quantidade: parseFloat(e.target.value) || 0 })}
               aria-required="true"
             />
+            {itemSelecionado && (
+              <div className="modal-transferir__qty-disponivel">
+                Saldo após: {fmtQuantidade(Math.max(0, saldoAtual - destino.quantidade), casas)}
+              </div>
+            )}
           </div>
-
-          {/* Part number (cenários 5b) */}
-          {(cenario === 'split_substituicao') && (
-            <div className="modal-transferir__destino-linha">
-              <label className="modal-transferir__label" htmlFor={`destino-part-${idx}`}>
-                Novo Part Number (opcional — deixe em branco para manter)
-              </label>
-              <input
-                id={`destino-part-${idx}`}
-                type="text"
-                className="modal-transferir__input"
-                value={destino.part_number ?? ''}
-                onChange={e => atualizarDestino(idx, { part_number: e.target.value || undefined })}
-                placeholder="Ex: ABC-12345-B"
-              />
-            </div>
-          )}
-
-          {/* Data de embarque (cenário 6) */}
-          {cenario === 'split_data' && (
-            <div className="modal-transferir__destino-linha">
-              <label className="modal-transferir__label" htmlFor={`destino-data-${idx}`}>
-                Nova data de embarque
-              </label>
-              <input
-                id={`destino-data-${idx}`}
-                type="date"
-                className="modal-transferir__input"
-                value={destino.data_embarque ?? ''}
-                onChange={e => atualizarDestino(idx, { data_embarque: e.target.value })}
-                aria-required="true"
-              />
-            </div>
-          )}
-
-          {/* Porto destino (cenário 7) */}
-          {cenario === 'split_destino_logistico' && (
-            <div className="modal-transferir__destino-linha">
-              <label className="modal-transferir__label" htmlFor={`destino-porto-${idx}`}>
-                Porto / Destino logístico
-              </label>
-              <input
-                id={`destino-porto-${idx}`}
-                type="text"
-                className="modal-transferir__input"
-                value={destino.porto_destino ?? ''}
-                onChange={e => atualizarDestino(idx, { porto_destino: e.target.value })}
-                placeholder="Ex: Porto de Santos / Itajaí"
-                aria-required="true"
-              />
-            </div>
-          )}
-
-          {/* Company ID (cenário 8) */}
-          {cenario === 'transfer_intercompany' && (
-            <div className="modal-transferir__destino-linha">
-              <label className="modal-transferir__label" htmlFor={`destino-company-${idx}`}>
-                ID da empresa destino
-              </label>
-              <input
-                id={`destino-company-${idx}`}
-                type="text"
-                className="modal-transferir__input"
-                value={destino.company_id ?? ''}
-                onChange={e => atualizarDestino(idx, { company_id: e.target.value })}
-                placeholder="Ex: company_filial_rj"
-                aria-required="true"
-              />
-            </div>
-          )}
         </div>
       ))}
-
-      {/* Botão para adicionar destino no multi-split */}
-      {cenario === 'multi_split' && (
-        <button
-          type="button"
-          className="modal-transferir__botao-adicionar-destino"
-          onClick={adicionarDestino}
-          aria-label="Adicionar destino"
-        >
-          <Plus size={14} aria-hidden="true" />
-          Adicionar destino
-        </button>
-      )}
     </div>
   )
 }
@@ -612,13 +412,13 @@ const NOMES_PASSOS: Record<Passo, string> = {
   5: 'Confirmação',
 }
 
-export function ModalTransferir({ pedidos, onFechar, onConcluido }: ModalTransferirProps) {
+export function ModalTransferir({ pedidos, itemIdInicial, onFechar, onConcluido }: ModalTransferirProps) {
   const { addNotification } = useShellStore()
   const pedido = pedidos[0]
 
   const [passo, setPasso] = useState<Passo>(1)
   const [cenario, setCenario] = useState<CenarioTransfer | null>(null)
-  const [itemId, setItemId] = useState<string | null>(null)
+  const [itemId, setItemId] = useState<string | null>(itemIdInicial ?? null)
   const [quantidadeOrigem, setQuantidadeOrigem] = useState<number>(0)
   const [destinos, setDestinos] = useState<TransferDestino[]>([{ tipo: 'existente', quantidade: 0 }])
   const [numeroPedidoNovo, setNumeroPedidoNovo] = useState('')
@@ -639,16 +439,18 @@ export function ModalTransferir({ pedidos, onFechar, onConcluido }: ModalTransfe
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [onFechar])
 
-  // Resetar destinos ao mudar cenário
+  // Resetar destinos ao mudar cenário — pré-preenche quantidade com o valor do passo 2
+  // Nota: quantidadeOrigemRef captura o valor atual sem re-executar o efeito quando ela muda,
+  // evitando que edições manuais no passo 3 sejam sobrescritas.
+  const quantidadeOrigemRef = React.useRef(quantidadeOrigem)
+  useEffect(() => { quantidadeOrigemRef.current = quantidadeOrigem })
+
   useEffect(() => {
     if (!cenario) return
-    const cenarioInfo = CENARIOS.find(c => c.id === cenario)
-    if (!cenarioInfo?.criaDestinos) {
+    if (cenario === 'reducao_simples') {
       setDestinos([])
-    } else if (cenario === 'substituicao_pura') {
-      setDestinos([{ tipo: 'mesmo', quantidade: 0 }])
     } else {
-      setDestinos([{ tipo: cenario === 'split_novo_pedido' ? 'novo' : 'existente', quantidade: 0 }])
+      setDestinos([{ tipo: cenario === 'split_novo_pedido' ? 'novo' : 'existente', quantidade: quantidadeOrigemRef.current }])
     }
   }, [cenario])
 
@@ -664,12 +466,11 @@ export function ModalTransferir({ pedidos, onFechar, onConcluido }: ModalTransfe
   const podeProsseguirPasso3 = (() => {
     if (!cenario) return false
     if (cenario === 'reducao_simples') return true
-    if (cenario === 'substituicao_pura') return !!destinos[0]?.part_number?.trim()
     if (!destinos.length) return false
     return destinos.every(d => {
       if (d.quantidade <= 0) return false
-      if (d.tipo === 'existente' && !d.pedido_id?.trim()) return false
-      if (d.tipo === 'novo' && cenario === 'split_novo_pedido' && !numeroPedidoNovo.trim()) return false
+      if (cenario === 'split_pedido_existente' && !d.pedido_id?.trim()) return false
+      if (cenario === 'split_novo_pedido' && !numeroPedidoNovo.trim()) return false
       return true
     })
   })()
@@ -816,9 +617,41 @@ export function ModalTransferir({ pedidos, onFechar, onConcluido }: ModalTransfe
               <CheckCircle size={48} weight="fill" aria-hidden="true" />
               <div className="modal-transferir__sucesso-titulo">Transferência realizada!</div>
               <div className="modal-transferir__sucesso-descricao">
-                {resultado?.pedidos_criados.length
-                  ? `${resultado.pedidos_criados.length} pedido(s) criado(s) com sucesso.`
-                  : 'Quantidade transferida com sucesso.'}
+                {cenarioInfo?.nome} concluído com sucesso.
+              </div>
+              <div className="modal-transferir__sucesso-detalhes">
+                <div className="modal-transferir__preview-linha">
+                  <span>Cenário</span>
+                  <span className="modal-transferir__preview-valor">{cenarioInfo?.nome}</span>
+                </div>
+                {itemSelecionado && (
+                  <div className="modal-transferir__preview-linha">
+                    <span>Item</span>
+                    <span className="modal-transferir__preview-valor">{itemSelecionado.part_number}</span>
+                  </div>
+                )}
+                <div className="modal-transferir__preview-linha">
+                  <span>Quantidade processada</span>
+                  <span className="modal-transferir__preview-valor">
+                    {fmtQuantidade(quantidadeOrigem, itemSelecionado?.casas_decimais_quantidade_item)}
+                  </span>
+                </div>
+                {resultado && resultado.pedidos_criados.length > 0 && (
+                  <div className="modal-transferir__preview-linha">
+                    <span>Novo pedido</span>
+                    <span className="modal-transferir__preview-valor">
+                      {numeroPedidoNovo || resultado.pedidos_criados[0]}
+                    </span>
+                  </div>
+                )}
+                {resultado && resultado.pedidos_destino_ids.length > 0 && resultado.pedidos_criados.length === 0 && (
+                  <div className="modal-transferir__preview-linha">
+                    <span>Pedido(s) destino</span>
+                    <span className="modal-transferir__preview-valor">
+                      {resultado.pedidos_destino_ids.length} pedido(s) atualizado(s)
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -852,6 +685,7 @@ export function ModalTransferir({ pedidos, onFechar, onConcluido }: ModalTransfe
                   pedido={pedido}
                   destinos={destinos}
                   numeroPedidoNovo={numeroPedidoNovo}
+                  itemSelecionado={itemSelecionado}
                   onDestinosChange={setDestinos}
                   onNumeroPedidoChange={setNumeroPedidoNovo}
                 />

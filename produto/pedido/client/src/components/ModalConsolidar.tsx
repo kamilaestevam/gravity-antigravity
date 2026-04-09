@@ -249,10 +249,10 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: 
                         const rotulos: Record<string, string> = {
                           incoterm: 'Incoterm',
                           moeda_pedido: 'Moeda',
-                          exportador_nome: 'Exportador',
+                          nome_exportador: 'Exportador',
                           data_emissao_pedido: 'Data Emissão do Pedido',
-                          cobertura_cambial: 'Cobertura Cambial',
-                          condicao_pagamento: 'Condição de Pagamento',
+                          cobertura_cambial_pedido: 'Cobertura Cambial',
+                          condicao_pagamento_pedido: 'Condição de Pagamento',
                         }
                         const valor = pedido[campo as keyof Pedido]
                         return (

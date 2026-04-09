@@ -66,8 +66,8 @@ const confirmarSchema = z.object({
       descricao_item: z.string().min(1),
       quantidade_inicial_pedido: z.number().positive(),
       unidade_comercializada_item: z.string().optional(),
-      valor_por_unidade_item: z.number().optional(),
-      valor_total_item: z.number().optional(),
+      valor_unitario_item: z.number().optional(),
+      valor_total_itens: z.number().optional(),
     })).min(1),
   })).min(1),
 })
@@ -88,7 +88,7 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
       for (const pedidoData of result.data.pedidos) {
         const pedidoId = gerarId('pedi')
         const valorTotal = pedidoData.itens.reduce((acc, item) => {
-          return acc + (item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido)
+          return acc + (item.valor_total_itens ?? (item.valor_unitario_item ?? 0) * item.quantidade_inicial_pedido)
         }, 0)
         const qtdTotal = pedidoData.itens.reduce((acc, item) => acc + item.quantidade_inicial_pedido, 0)
 
@@ -104,11 +104,11 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
             moeda_pedido: pedidoData.moeda_pedido ?? 'USD',
             valor_total_pedido: valorTotal || null,
             quantidade_total_pedido: qtdTotal || null,
-            cobertura_cambial: 'com_cobertura',
-            condicao_pagamento: null,
+            cobertura_cambial_pedido: 'com_cobertura',
+            condicao_pagamento_pedido: null,
             detalhes_operacionais: {
-              exportador_nome: pedidoData.exportador,
-              fabricante_nome: pedidoData.fabricante,
+              nome_exportador: pedidoData.exportador,
+              nome_fabricante: pedidoData.fabricante,
               referencia_importador: pedidoData.referencia_importador,
               referencia_exportador: pedidoData.referencia_exportador,
               referencia_fabricante: pedidoData.referencia_fabricante,
@@ -124,17 +124,17 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
                 part_number: item.part_number,
                 ncm: item.ncm,
                 descricao_item: item.descricao_item,
-                quantidade_inicial_pedido: item.quantidade_inicial_pedido,
-                quantidade_saldo_pedido: item.quantidade_inicial_pedido,
-                quantidade_pronta_pedido: 0,
-                quantidade_transferida_pedido: 0,
-                quantidade_cancelada_pedido: 0,
+                quantidade_inicial_item_pedido: item.quantidade_inicial_pedido,
+                saldo_item_pedido: item.quantidade_inicial_pedido,
+                quantidade_pronta_total_item_pedido: 0,
+                quantidade_transferida_item_pedido: 0,
+                quantidade_cancelada_item_pedido: 0,
                 casas_decimais_quantidade_item: 2,
                 unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
                 moeda_item: pedidoData.moeda_pedido ?? 'USD',
-                valor_por_unidade_item: item.valor_por_unidade_item ?? null,
-                valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido,
-                casas_decimais_total_item: 2,
+                valor_unitario_item: item.valor_unitario_item ?? null,
+                valor_total_itens: item.valor_total_itens ?? (item.valor_unitario_item ?? 0) * item.quantidade_inicial_pedido,
+                casas_decimais_valor_item: 2,
               })),
             },
           },
@@ -189,8 +189,8 @@ importacaoRouter.post('/exportar', async (req: Request, res: Response, next: Nex
             p.numero_pedido, p.tipo_operacao, p.status, p.incoterm ?? '', p.moeda_pedido,
             p.valor_total_pedido ?? '', p.quantidade_total_pedido ?? '', p.data_emissao_pedido,
             item.part_number, item.ncm, item.descricao_item,
-            item.quantidade_inicial_pedido, item.quantidade_saldo_pedido, item.quantidade_transferida_pedido,
-            item.unidade_comercializada_item ?? '', item.valor_total_item ?? '',
+            item.quantidade_inicial_item_pedido, item.saldo_item_pedido, item.quantidade_transferida_item_pedido,
+            item.unidade_comercializada_item ?? '', item.valor_total_itens ?? '',
           ].map((v) => `"${String(v).replace(/"/g, '""')}"`)
            .join(',')
         )

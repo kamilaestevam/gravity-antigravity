@@ -88,35 +88,46 @@ const ConfirmarSchema = z.object({
 })
 
 // ── GET /template — Download de planilha modelo ───────────────────────────────
+// Padrão visual idêntico ao exportarExcel() do frontend (exportUtils.ts):
+//   Header: fundo #1e3256, fonte Calibri 11 bold azul #38bdf8, centralizado
+//   Sem linhas de dados — template vazio para o usuário preencher
 
 smartImportRouter.get('/template', (_req: Request, res: Response, next: NextFunction) => {
-  try {
-    import('xlsx').then(XLSX => {
-      const cabecalhos = [
-        'PO Number', 'Supplier', 'Manufacturer', 'Incoterms', 'Currency',
-        'Order Date', 'Ship Date', 'Part Number', 'NCM', 'Description',
-        'Qty', 'Unit', 'Unit Price', 'Total Value',
-      ]
-      const exemplos = [
-        'PO-2026/001', 'Supplier Name Ltd.', 'Manufacturer Co.', 'FOB', 'USD',
-        '2026-01-15', '2026-03-01', 'PART-001', '8471.30.19', 'Product description',
-        '100', 'UN', '10.50', '1050.00',
-      ]
-      const ws = XLSX.utils.aoa_to_sheet([cabecalhos, exemplos])
-      ws['!cols'] = cabecalhos.map(() => ({ wch: 20 }))
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'Pedidos')
-      const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
-      res.set({
-        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename="template-importacao-pedidos.xlsx"',
-        'Content-Length': String(buf.length),
-      })
-      res.send(buf)
-    }).catch(next)
-  } catch (err) {
-    next(err)
-  }
+  import('exceljs').then(async ({ default: ExcelJS }) => {
+    const cabecalhos = [
+      'PO Number', 'Supplier', 'Manufacturer', 'Incoterms', 'Currency',
+      'Order Date', 'Ship Date', 'Part Number', 'NCM', 'Description',
+      'Qty', 'Unit', 'Unit Price', 'Total Value',
+    ]
+
+    const wb = new ExcelJS.Workbook()
+    wb.creator = 'Gravity Platform'
+    wb.created = new Date()
+
+    const ws = wb.addWorksheet('Pedidos', { views: [{ showGridLines: true }] })
+
+    ws.columns = cabecalhos.map(h => ({
+      key: h,
+      width: Math.max(h.length + 4, 18),
+    }))
+
+    const headerRow = ws.addRow(cabecalhos)
+    headerRow.height = 22
+    headerRow.eachCell(cell => {
+      cell.fill   = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1e3256' } }
+      cell.font   = { name: 'Calibri', bold: true, size: 11, color: { argb: 'FF38bdf8' } }
+      cell.alignment = { horizontal: 'center', vertical: 'middle' }
+      cell.border = { bottom: { style: 'medium', color: { argb: 'FF38bdf8' } } }
+    })
+
+    const buf = await wb.xlsx.writeBuffer()
+    res.set({
+      'Content-Type':        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="template-importacao-pedidos.xlsx"',
+      'Content-Length':      String((buf as Buffer).length),
+    })
+    res.send(buf)
+  }).catch(next)
 })
 
 // ── POST /analisar ─────────────────────────────────────────────────────────────
@@ -234,17 +245,21 @@ smartImportRouter.get('/mapeamento/:hash', async (req: Request, res: Response, n
 
 smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextFunction) => {
   const camposPadrao = [
-    { valor: 'numero_pedido',        rotulo: 'Numero do Pedido'     },
-    { valor: 'tipo_operacao',        rotulo: 'Tipo de Operacao'     },
-    { valor: 'exportador',           rotulo: 'Exportador (Shipper)' },
-    { valor: 'fabricante',           rotulo: 'Fabricante'           },
-    { valor: 'incoterm',             rotulo: 'Incoterm'             },
-    { valor: 'data_emissao_pedido',  rotulo: 'Data de Emissao'      },
-    { valor: 'data_embarque',        rotulo: 'Data de Embarque'     },
-    { valor: 'part_number',          rotulo: 'Part Number'          },
-    { valor: 'ncm',                  rotulo: 'NCM'                  },
-    { valor: 'descricao_item',        rotulo: 'Descricao do Item'    },
-    { valor: 'quantidade_inicial_item_pedido', rotulo: 'Quantidade'           },
+    { valor: 'numero_pedido',                    rotulo: 'Numero do Pedido'       },
+    { valor: 'tipo_operacao',                    rotulo: 'Tipo de Operacao'       },
+    { valor: 'exportador',                       rotulo: 'Exportador (Shipper)'   },
+    { valor: 'fabricante',                       rotulo: 'Fabricante'             },
+    { valor: 'incoterm',                         rotulo: 'Incoterm'               },
+    { valor: 'moeda_pedido',                     rotulo: 'Moeda'                  },
+    { valor: 'data_emissao_pedido',              rotulo: 'Data de Emissao'        },
+    { valor: 'data_embarque',                    rotulo: 'Data de Embarque'       },
+    { valor: 'part_number',                      rotulo: 'Part Number'            },
+    { valor: 'ncm',                              rotulo: 'NCM'                    },
+    { valor: 'descricao_item',                   rotulo: 'Descricao do Item'      },
+    { valor: 'quantidade_inicial_item_pedido',   rotulo: 'Quantidade'             },
+    { valor: 'unidade_comercializada_item',      rotulo: 'Unidade'                },
+    { valor: 'valor_unitario_item',              rotulo: 'Valor por Unidade'      },
+    { valor: 'valor_total_itens',                rotulo: 'Valor Total Item'       },
   ]
 
   const tenantId = (req as Request & { tenantId: string }).tenantId

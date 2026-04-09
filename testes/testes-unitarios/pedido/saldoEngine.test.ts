@@ -2,7 +2,7 @@
  * Testes unitarios — Pedido / saldoEngine.ts
  *
  * Testa a Matematica de Saldo Imutavel:
- *   quantidade_inicial_pedido = quantidade_saldo_pedido + quantidade_transferida_pedido + quantidade_cancelada_pedido
+ *   quantidade_inicial_item_pedido = saldo_item_pedido + quantidade_transferida_item_pedido + quantidade_cancelada_item_pedido
  *
  * Cenarios:
  *   - Transferencia valida
@@ -26,11 +26,11 @@ function criarItemMock(overrides = {}) {
     tenant_id: 'tenant-001',
     company_id: 'company-001',
     pedido_id: 'pedi_id_0000001/26',
-    quantidade_inicial_pedido: 1000,
-    quantidade_saldo_pedido: 1000,
-    quantidade_pronta_pedido: 0,
-    quantidade_transferida_pedido: 0,
-    quantidade_cancelada_pedido: 0,
+    quantidade_inicial_item_pedido: 1000,
+    saldo_item_pedido: 1000,
+    quantidade_pronta_total_item_pedido: 0,
+    quantidade_transferida_item_pedido: 0,
+    quantidade_cancelada_item_pedido: 0,
     ...overrides,
   }
 }
@@ -62,7 +62,7 @@ function criarPrismaMock(itemData = criarItemMock()) {
 
 describe('saldoEngine.transferir', () => {
   it('deve transferir quantidade e debitar saldo atual', async () => {
-    const item = criarItemMock({ quantidade_saldo_pedido: 1000, quantidade_transferida_pedido: 0 })
+    const item = criarItemMock({ saldo_item_pedido: 1000, quantidade_transferida_item_pedido: 0 })
     const prisma = criarPrismaMock(item)
 
     const result = await saldoEngine.transferir(prisma as never, {
@@ -72,13 +72,13 @@ describe('saldoEngine.transferir', () => {
       company_id: 'company-001',
     })
 
-    expect(result.quantidade_saldo_pedido).toBe(600)
-    expect(result.quantidade_transferida_pedido).toBe(400)
-    expect(result.quantidade_inicial_pedido).toBe(1000)
+    expect(result.saldo_item_pedido).toBe(600)
+    expect(result.quantidade_transferida_item_pedido).toBe(400)
+    expect(result.quantidade_inicial_item_pedido).toBe(1000)
   })
 
   it('deve transferir toda a quantidade disponivel', async () => {
-    const item = criarItemMock({ quantidade_saldo_pedido: 500, quantidade_transferida_pedido: 500 })
+    const item = criarItemMock({ saldo_item_pedido: 500, quantidade_transferida_item_pedido: 500 })
     const prisma = criarPrismaMock(item)
 
     const result = await saldoEngine.transferir(prisma as never, {
@@ -88,12 +88,12 @@ describe('saldoEngine.transferir', () => {
       company_id: 'company-001',
     })
 
-    expect(result.quantidade_saldo_pedido).toBe(0)
-    expect(result.quantidade_transferida_pedido).toBe(1000)
+    expect(result.saldo_item_pedido).toBe(0)
+    expect(result.quantidade_transferida_item_pedido).toBe(1000)
   })
 
   it('deve REJEITAR transferencia quando saldo insuficiente (anti-sobre-execucao)', async () => {
-    const item = criarItemMock({ quantidade_saldo_pedido: 100, quantidade_transferida_pedido: 900 })
+    const item = criarItemMock({ saldo_item_pedido: 100, quantidade_transferida_item_pedido: 900 })
     const prisma = criarPrismaMock(item)
 
     await expect(
@@ -157,7 +157,7 @@ describe('saldoEngine.transferir', () => {
 
 describe('saldoEngine.cancelar', () => {
   it('deve cancelar quantidade e debitar saldo atual', async () => {
-    const item = criarItemMock({ quantidade_saldo_pedido: 1000, quantidade_cancelada_pedido: 0 })
+    const item = criarItemMock({ saldo_item_pedido: 1000, quantidade_cancelada_item_pedido: 0 })
     const prisma = criarPrismaMock(item)
 
     const result = await saldoEngine.cancelar(prisma as never, {
@@ -167,13 +167,13 @@ describe('saldoEngine.cancelar', () => {
       company_id: 'company-001',
     })
 
-    expect(result.quantidade_saldo_pedido).toBe(800)
-    expect(result.quantidade_cancelada_pedido).toBe(200)
-    expect(result.quantidade_inicial_pedido).toBe(1000)
+    expect(result.saldo_item_pedido).toBe(800)
+    expect(result.quantidade_cancelada_item_pedido).toBe(200)
+    expect(result.quantidade_inicial_item_pedido).toBe(1000)
   })
 
   it('deve REJEITAR cancelamento quando saldo insuficiente', async () => {
-    const item = criarItemMock({ quantidade_saldo_pedido: 50, quantidade_transferida_pedido: 950 })
+    const item = criarItemMock({ saldo_item_pedido: 50, quantidade_transferida_item_pedido: 950 })
     const prisma = criarPrismaMock(item)
 
     await expect(
@@ -204,25 +204,25 @@ describe('saldoEngine.cancelar', () => {
 
 describe('saldoEngine.atualizarPronta', () => {
   it('deve atualizar quantidade pronta sem afetar saldo', async () => {
-    const item = criarItemMock({ quantidade_saldo_pedido: 1000, quantidade_pronta_pedido: 0 })
+    const item = criarItemMock({ saldo_item_pedido: 1000, quantidade_pronta_total_item_pedido: 0 })
     const prisma = criarPrismaMock(item)
     // Override para nao usar $transaction
     ;(prisma as { pedidoItem: { findFirst: ReturnType<typeof vi.fn> } }).pedidoItem.findFirst = vi.fn().mockResolvedValue(item)
     ;(prisma as { pedidoItem: { update: ReturnType<typeof vi.fn> } }).pedidoItem.update = vi.fn().mockResolvedValue({
       ...item,
-      quantidade_pronta_pedido: 600,
+      quantidade_pronta_total_item_pedido: 600,
     })
 
     const result = await saldoEngine.atualizarPronta(prisma as never, {
       pedido_item_id: 'pite_id_0000001/26',
-      quantidade_pronta_pedido: 600,
+      quantidade_pronta_total_item_pedido: 600,
       tenant_id: 'tenant-001',
       company_id: 'company-001',
     })
 
-    expect(result.quantidade_pronta_pedido).toBe(600)
-    expect(result.quantidade_saldo_pedido).toBe(1000) // nao afeta saldo
-    expect(result.quantidade_transferida_pedido).toBe(0)
+    expect(result.quantidade_pronta_total_item_pedido).toBe(600)
+    expect(result.saldo_item_pedido).toBe(1000) // nao afeta saldo
+    expect(result.quantidade_transferida_item_pedido).toBe(0)
   })
 
   it('deve REJEITAR quantidade pronta negativa', async () => {
@@ -245,11 +245,11 @@ describe('saldoEngine.validarIntegridade', () => {
   it('deve validar formula imutavel (1000 = 600 + 200 + 200)', () => {
     const result = saldoEngine.validarIntegridade({
       id: 'test',
-      quantidade_inicial_pedido: 1000,
-      quantidade_saldo_pedido: 600,
-      quantidade_transferida_pedido: 200,
-      quantidade_cancelada_pedido: 200,
-      quantidade_pronta_pedido: 0,
+      quantidade_inicial_item_pedido: 1000,
+      saldo_item_pedido: 600,
+      quantidade_transferida_item_pedido: 200,
+      quantidade_cancelada_item_pedido: 200,
+      quantidade_pronta_total_item_pedido: 0,
     })
     expect(result).toBe(true)
   })
@@ -257,11 +257,11 @@ describe('saldoEngine.validarIntegridade', () => {
   it('deve validar formula com saldo totalmente transferido (1000 = 0 + 1000 + 0)', () => {
     const result = saldoEngine.validarIntegridade({
       id: 'test',
-      quantidade_inicial_pedido: 1000,
-      quantidade_saldo_pedido: 0,
-      quantidade_transferida_pedido: 1000,
-      quantidade_cancelada_pedido: 0,
-      quantidade_pronta_pedido: 0,
+      quantidade_inicial_item_pedido: 1000,
+      saldo_item_pedido: 0,
+      quantidade_transferida_item_pedido: 1000,
+      quantidade_cancelada_item_pedido: 0,
+      quantidade_pronta_total_item_pedido: 0,
     })
     expect(result).toBe(true)
   })
@@ -269,11 +269,11 @@ describe('saldoEngine.validarIntegridade', () => {
   it('deve validar formula com saldo totalmente cancelado', () => {
     const result = saldoEngine.validarIntegridade({
       id: 'test',
-      quantidade_inicial_pedido: 500,
-      quantidade_saldo_pedido: 0,
-      quantidade_transferida_pedido: 0,
-      quantidade_cancelada_pedido: 500,
-      quantidade_pronta_pedido: 0,
+      quantidade_inicial_item_pedido: 500,
+      saldo_item_pedido: 0,
+      quantidade_transferida_item_pedido: 0,
+      quantidade_cancelada_item_pedido: 500,
+      quantidade_pronta_total_item_pedido: 0,
     })
     expect(result).toBe(true)
   })
@@ -281,11 +281,11 @@ describe('saldoEngine.validarIntegridade', () => {
   it('deve detectar integridade violada (soma nao bate)', () => {
     const result = saldoEngine.validarIntegridade({
       id: 'test',
-      quantidade_inicial_pedido: 1000,
-      quantidade_saldo_pedido: 600,
-      quantidade_transferida_pedido: 200,
-      quantidade_cancelada_pedido: 100, // 600 + 200 + 100 = 900 != 1000
-      quantidade_pronta_pedido: 0,
+      quantidade_inicial_item_pedido: 1000,
+      saldo_item_pedido: 600,
+      quantidade_transferida_item_pedido: 200,
+      quantidade_cancelada_item_pedido: 100, // 600 + 200 + 100 = 900 != 1000
+      quantidade_pronta_total_item_pedido: 0,
     })
     expect(result).toBe(false)
   })
@@ -293,11 +293,11 @@ describe('saldoEngine.validarIntegridade', () => {
   it('deve tolerar diferenca de arredondamento (<0.001)', () => {
     const result = saldoEngine.validarIntegridade({
       id: 'test',
-      quantidade_inicial_pedido: 100,
-      quantidade_saldo_pedido: 33.333,
-      quantidade_transferida_pedido: 33.333,
-      quantidade_cancelada_pedido: 33.334,
-      quantidade_pronta_pedido: 0,
+      quantidade_inicial_item_pedido: 100,
+      saldo_item_pedido: 33.333,
+      quantidade_transferida_item_pedido: 33.333,
+      quantidade_cancelada_item_pedido: 33.334,
+      quantidade_pronta_total_item_pedido: 0,
     })
     expect(result).toBe(true)
   })
@@ -305,11 +305,11 @@ describe('saldoEngine.validarIntegridade', () => {
   it('deve aceitar item intacto (saldo = inicial)', () => {
     const result = saldoEngine.validarIntegridade({
       id: 'test',
-      quantidade_inicial_pedido: 5000,
-      quantidade_saldo_pedido: 5000,
-      quantidade_transferida_pedido: 0,
-      quantidade_cancelada_pedido: 0,
-      quantidade_pronta_pedido: 3000,
+      quantidade_inicial_item_pedido: 5000,
+      saldo_item_pedido: 5000,
+      quantidade_transferida_item_pedido: 0,
+      quantidade_cancelada_item_pedido: 0,
+      quantidade_pronta_total_item_pedido: 3000,
     })
     expect(result).toBe(true)
   })

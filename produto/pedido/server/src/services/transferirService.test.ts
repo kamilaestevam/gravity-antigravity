@@ -71,7 +71,7 @@ function criarPedidoPrisma(overrides: Record<string, unknown> = {}) {
     importacao_exportador_id: null,
     exportacao_importador_id: null,
     fabricante_id: null,
-    quantidade_total_pedido: 111,
+    quantidade_total_inicial_pedido: 111,
     valor_total_pedido: 1110,
     itens: [criarItemPrisma()],
     ...overrides,
@@ -554,7 +554,7 @@ describe('TransferirService — recalcularAgregados', () => {
 
     await (service as any).recalcularAgregados(TENANT, 'pedi_id_0000001-26', txBase)
 
-    // O campo Prisma é quantidade_total_inicial_pedido (@map("quantidade_total_pedido"))
+    // quantidade_total_inicial_pedido — nome direto no banco (sem @map)
     expect(mocks.pedidoUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: { quantidade_total_inicial_pedido: 150 },

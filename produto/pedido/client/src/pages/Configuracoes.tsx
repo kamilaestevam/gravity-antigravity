@@ -1162,7 +1162,9 @@ export default function Configuracoes() {
     setKanbanPrefs(novasPrefs)
     if (kanbanSaveRef.current) clearTimeout(kanbanSaveRef.current)
     kanbanSaveRef.current = setTimeout(() => {
-      kanbanConfigApi.salvarPreferencias(novasPrefs).catch(() => {})
+      kanbanConfigApi.salvarPreferencias(novasPrefs)
+        .then(() => window.dispatchEvent(new CustomEvent('kanban:preferencias:atualizadas')))
+        .catch(() => {})
     }, 500)
   }
 
@@ -1202,6 +1204,7 @@ export default function Configuracoes() {
   async function kanbanRestaurarPadrao() {
     await kanbanConfigApi.restaurarPadrao().catch(() => {})
     setKanbanPrefs(null)
+    window.dispatchEvent(new CustomEvent('kanban:preferencias:atualizadas'))
   }
 
   function kanbanCamposEmUso(): Set<string> {
@@ -2136,11 +2139,11 @@ export default function Configuracoes() {
                           <label className="cfg-num-campo__label">Variáveis disponíveis — clique para inserir no cursor</label>
                           <div className="cfg-tpl-variaveis">
                             {[
-                              { grupo: 'Pedido',      vars: ['{{numero_pedido}}','{{tipo_operacao}}','{{status}}','{{incoterm}}','{{moeda_pedido}}','{{numero_proforma}}','{{numero_invoice}}','{{referencia_importador}}','{{referencia_exportador}}','{{condicao_pagamento}}'] },
+                              { grupo: 'Pedido',      vars: ['{{numero_pedido}}','{{tipo_operacao}}','{{status}}','{{incoterm}}','{{moeda_pedido}}','{{numero_proforma}}','{{numero_invoice}}','{{referencia_importador}}','{{referencia_exportador}}','{{condicao_pagamento_pedido}}'] },
                               { grupo: 'Parceiros',   vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
                               { grupo: 'Financeiro',  vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
                               { grupo: 'Datas',       vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
-                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_item_pedido}}','{{quantidade_saldo_pedido}}','{{unidade}}','{{valor_por_unidade_item}}','{{valor_total_item}}','{{/each}}'] },
+                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_unitario_item}}','{{valor_total_itens}}','{{/each}}'] },
                             ].map(({ grupo, vars }) => (
                               <div key={grupo} className="cfg-tpl-variaveis__grupo">
                                 <span className="cfg-tpl-variaveis__grupo-label">{grupo}</span>

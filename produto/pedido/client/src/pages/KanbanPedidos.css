@@ -486,3 +486,25 @@
   transition: background 0.15s;
 }
 .kbp-modal-btn-salvar:hover { background: rgba(99, 102, 241, 1); }
+
+/* ── Campos clicáveis no modal (Nível 2 — leva ao campo no Drawer) ──────── */
+.kbp-modal-campo--clicavel {
+  cursor: pointer;
+  position: relative;
+  transition: background 0.12s, outline 0.12s;
+  border-radius: 6px;
+}
+.kbp-modal-campo--clicavel:hover {
+  background: rgba(255, 255, 255, 0.06);
+  outline: 1px solid rgba(255, 255, 255, 0.12);
+}
+.kbp-modal-campo-edit-icon {
+  opacity: 0;
+  color: var(--color-accent, #f59e0b);
+  flex-shrink: 0;
+  transition: opacity 0.12s;
+  margin-left: auto;
+}
+.kbp-modal-campo--clicavel:hover .kbp-modal-campo-edit-icon {
+  opacity: 1;
+}

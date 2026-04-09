@@ -116,7 +116,7 @@ function criarPrismaMock() {
         id: 'pref-001',
         tenant_id: 'tenant-test',
         user_id: 'user-test',
-        colunas_visiveis: ['numero_pedido', 'exportador_nome'],
+        colunas_visiveis: ['numero_pedido', 'nome_exportador'],
         colunas_largura: { numero_pedido: 140 },
         updated_at: new Date(),
       }),
@@ -490,7 +490,7 @@ describe('GET /config/preferencias/usuario', () => {
   it('deve retornar preferencias existentes', async () => {
     const prisma = criarPrismaMock()
     prisma.pedidoPreferenciaUsuario.findFirst.mockResolvedValue({
-      colunas_visiveis: ['numero_pedido', 'exportador_nome'],
+      colunas_visiveis: ['numero_pedido', 'nome_exportador'],
       colunas_largura: { numero_pedido: 140 },
       updated_at: new Date(),
     })
@@ -516,7 +516,7 @@ describe('PUT /config/preferencias/usuario', () => {
       .set('x-tenant-id', 'tenant-test')
       .set('x-user-id', 'user-test')
       .send({
-        colunas_visiveis: ['numero_pedido', 'exportador_nome', 'valor_total_pedido'],
+        colunas_visiveis: ['numero_pedido', 'nome_exportador', 'valor_total_pedido'],
         colunas_largura: { numero_pedido: 140, valor_total_pedido: 130 },
       })
 
@@ -591,7 +591,7 @@ describe('PUT /config/preferencias/padrao', () => {
     const res = await request(app)
       .put('/api/v1/pedidos/config/preferencias/padrao')
       .set('x-tenant-id', 'tenant-test')
-      .send({ colunas_visiveis: ['numero_pedido', 'exportador_nome', 'data_emissao_pedido'] })
+      .send({ colunas_visiveis: ['numero_pedido', 'nome_exportador', 'data_emissao_pedido'] })
 
     expect(res.status).toBe(200)
     expect(prisma.pedidoPreferenciaPadrao.upsert).toHaveBeenCalledOnce()

@@ -535,6 +535,7 @@ export default function Configuracoes() {
   const acaoParam = searchParams.get('acao')
   const [categoria, setCategoria] = useState<CategoriaId>(tabParam ?? 'cards')
   const [kanbanSub, setKanbanSub]   = useState<'modal' | 'card'>('modal')
+  const [abaAtiva, setAbaAtiva]     = useState<'pedido' | 'quantidades' | 'datas'>('pedido')
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
   // ── Estado: casas decimais ──
@@ -1513,17 +1514,26 @@ export default function Configuracoes() {
         {/* ════════════════════════ CARDS ════════════════════════ */}
         {categoria === 'cards' && (
           <div className="cfg-cards-wrapper">
-
-            {/* ── Período padrão ── */}
             <section className="cfg-secao">
+
+              {/* ── Header unificado ── */}
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Período de comparação</h2>
+                  <h2 className="cfg-secao__titulo">Meus Cards</h2>
                   <p className="cfg-secao__desc">
-                    Define o intervalo padrão exibido nos badges de tendência dos cards
+                    Cards exibidos no topo da tela · arraste para reordenar · olho para ocultar
                   </p>
                 </div>
+                <TooltipGlobal descricao="Restaura os 3 cards padrão do produto">
+                  <button type="button" className="cfg-btn-header--restaurar" onClick={resetar}>
+                    <ArrowCounterClockwise size={13} weight="bold" />
+                    Restaurar padrão
+                  </button>
+                </TooltipGlobal>
               </div>
+
+              {/* ── Período de comparação ── */}
+              <p className="cfg-list-section-label">Período de comparação</p>
               <div className="cfg-periodo-pills">
                 {PERIODOS.map(p => (
                   <button
@@ -1536,27 +1546,47 @@ export default function Configuracoes() {
                   </button>
                 ))}
               </div>
-            </section>
 
-            {/* ── Meus cards ── */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">Meus cards</h2>
-                  <p className="cfg-secao__desc">
-                    Arraste para reordenar · olho para ocultar · × para remover
+              {/* ── Preview ao vivo ── */}
+              {prefs.length > 0 && (
+                <div className="cfg-cards-preview-wrap">
+                  <p className="cfg-cards-preview-label">
+                    <SquaresFour size={12} weight="fill" />
+                    Preview — como ficará na tela
                   </p>
+                  <div className="cfg-cards-preview-grid">
+                    {prefs.map((pref, i) => {
+                      const visual = CARD_VISUAL[pref.id]
+                      const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
+                      return (
+                        <div
+                          key={pref.id}
+                          className={`cfg-kpi-preview-card${!pref.visible ? ' cfg-kpi-preview-card--oculto' : ''}`}
+                          style={{ borderTopColor: visual.cor }}
+                        >
+                          <span className="cfg-kpi-preview-card__pos">{i + 1}</span>
+                          <span className="cfg-kpi-preview-card__icon" style={{ color: visual.cor }}>
+                            {visual.icone}
+                          </span>
+                          <div className="cfg-kpi-preview-card__line" style={{ background: visual.cor }} />
+                          <p className="cfg-kpi-preview-card__label">{t(def.labelKey)}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-                <TooltipGlobal descricao="Restaura os 3 cards padrão do produto">
-                  <button type="button" className="cfg-reset-btn" onClick={resetar}>
-                    <ArrowCounterClockwise size={13} weight="bold" />
-                    Restaurar padrão
-                  </button>
-                </TooltipGlobal>
+              )}
+
+              {/* ── Ativos ── */}
+              <div className="cfg-list-section-header">
+                <p className="cfg-list-section-label">Ativos</p>
+                <span className="cfg-list-section-count">
+                  {prefs.length} card{prefs.length !== 1 ? 's' : ''}
+                </span>
               </div>
 
               {prefs.length === 0 ? (
-                <p className="cfg-empty">Nenhum card adicionado. Escolha na tabela abaixo.</p>
+                <p className="cfg-empty">Nenhum card adicionado. Escolha na lista abaixo.</p>
               ) : (
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={prefs.map(p => p.id)} strategy={verticalListSortingStrategy}>
@@ -1573,65 +1603,62 @@ export default function Configuracoes() {
                   </SortableContext>
                 </DndContext>
               )}
-            </section>
 
-            {/* ── Catálogo — tabela de colunas disponíveis ── */}
-            {disponiveis.length > 0 && (
-              <section className="cfg-secao">
-                <div className="cfg-secao__header">
-                  <div>
-                    <h2 className="cfg-secao__titulo">Colunas disponíveis</h2>
-                    <p className="cfg-secao__desc">
-                      Todas as colunas da tabela de pedidos · clique em + para adicionar como card
-                    </p>
-                  </div>
-                </div>
+              {/* ── Disponíveis para adicionar ── */}
+              <div className="cfg-list-section-header" style={{ marginTop: '1.5rem' }}>
+                <p className="cfg-list-section-label">Disponíveis para adicionar</p>
+                <span className="cfg-list-section-hint">clique em + para adicionar</span>
+              </div>
 
-                <div className="cfg-tabela-head">
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">Origem</span>
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--agg">Agregação</span>
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--acao" />
-                </div>
+              <div className="cfg-tabela-head">
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">Origem</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--agg">Agregação</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--acao" />
+              </div>
 
-                <div className="cfg-cards-lista">
-                  {disponiveis.map(def => {
-                    const visual = CARD_VISUAL[def.id]
-                    return (
-                      <div key={def.id} className="cfg-card-row cfg-card-row--disponivel">
-                        <span className="cfg-drag-handle cfg-drag-handle--ghost">
-                          <DotsSixVertical size={16} weight="bold" />
+              <div className="cfg-cards-lista">
+                {CARDS_CATALOGO.map(def => {
+                  const visual        = CARD_VISUAL[def.id]
+                  const jaAdicionado  = !!prefs.find(p => p.id === def.id)
+                  return (
+                    <div
+                      key={def.id}
+                      className={`cfg-card-row cfg-card-row--disponivel${jaAdicionado ? ' cfg-card-row--ja-adicionado' : ''}`}
+                    >
+                      <span className="cfg-drag-handle cfg-drag-handle--ghost">
+                        <DotsSixVertical size={16} weight="bold" />
+                      </span>
+                      <div className="cfg-card-row__info">
+                        <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
+                          {visual.icone}
                         </span>
-                        <div className="cfg-card-row__info">
-                          <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
-                            {visual.icone}
-                          </span>
-                          <div>
-                            <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
-                            <p className="cfg-card-row__desc">{t(def.descKey)}</p>
-                          </div>
+                        <div>
+                          <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
+                          <p className="cfg-card-row__desc">{t(def.descKey)}</p>
                         </div>
-                        <span className={`cfg-origem-badge cfg-origem-badge--${def.origem === 'Pedido' ? 'pedido' : 'item'}`}>
-                          {def.origem}
-                        </span>
-                        <span className="cfg-agg-badge">{def.tipoAgg}</span>
-                        <TooltipGlobal descricao="Adicionar aos meus cards">
-                          <button
-                            type="button"
-                            className="cfg-add-btn"
-                            onClick={() => adicionar(def.id)}
-                            aria-label="Adicionar card"
-                          >
-                            <Plus size={13} weight="bold" />
-                          </button>
-                        </TooltipGlobal>
                       </div>
-                    )
-                  })}
-                </div>
-              </section>
-            )}
+                      <span className={`cfg-origem-badge ${jaAdicionado ? 'cfg-origem-badge--meus' : def.origem === 'Pedido' ? 'cfg-origem-badge--pedido' : 'cfg-origem-badge--item'}`}>
+                        {def.origem}
+                      </span>
+                      <span className="cfg-agg-badge">{def.tipoAgg}</span>
+                      <TooltipGlobal descricao={jaAdicionado ? 'Já adicionado' : 'Adicionar aos meus cards'}>
+                        <button
+                          type="button"
+                          className={`cfg-add-btn${jaAdicionado ? ' cfg-add-btn--disabled' : ''}`}
+                          onClick={() => { if (!jaAdicionado) adicionar(def.id) }}
+                          disabled={jaAdicionado}
+                          aria-label={jaAdicionado ? 'Já adicionado' : 'Adicionar card'}
+                        >
+                          <Plus size={13} weight="bold" />
+                        </button>
+                      </TooltipGlobal>
+                    </div>
+                  )
+                })}
+              </div>
 
+            </section>
           </div>
         )}
 
@@ -1697,7 +1724,7 @@ export default function Configuracoes() {
           <div className="cfg-kanban-wrapper">
 
             {/* ── Sub: Modal ── */}
-            {kanbanSub === 'modal' && (<>
+            {kanbanSub === 'modal' && (
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
@@ -1708,41 +1735,113 @@ export default function Configuracoes() {
 
               {kanbanLoading && <p className="cfg-loading-msg">Carregando...</p>}
 
-              {!kanbanLoading && ((['pedido', 'quantidades', 'datas'] as const).map(aba => {
-                const campos = kanbanCamposDeAba(aba)
-                const limite = KANBAN_LIMITES[aba] ?? 10
-                const nomeAba = aba === 'pedido' ? 'Pedido' : aba === 'quantidades' ? 'Quantidades' : 'Datas'
+              {!kanbanLoading && (() => {
+                const campos  = kanbanCamposDeAba(abaAtiva)
+                const limite  = KANBAN_LIMITES[abaAtiva] ?? 10
+                const nomeAba = abaAtiva === 'pedido' ? 'Pedido' : abaAtiva === 'quantidades' ? 'Quantidades' : 'Datas'
+                const disponiveis = KANBAN_CAMPOS_DISPONIVEIS.filter(cd => cd.categoria === abaAtiva)
                 return (
-                  <div key={aba} className="cfg-kanban-aba">
-                    <div className="cfg-kanban-aba-header">
-                      <div className="cfg-kanban-aba-titulo-wrap">
-                        <span className="cfg-kanban-aba-titulo">Aba: {nomeAba}</span>
-                        <span className="cfg-kanban-aba-contador">{campos.length}/{limite} campos</span>
+                  <>
+                    {/* ── Preview ao vivo — mini modal ── */}
+                    <div className="cfg-cards-preview-wrap">
+                      <p className="cfg-cards-preview-label">
+                        <SquaresFour size={12} weight="fill" />
+                        Preview — como ficará no modal
+                      </p>
+                      <div className="cfg-modal-preview">
+                        {/* Tab bar */}
+                        <div className="cfg-modal-preview__tabs">
+                          {(['pedido', 'quantidades', 'datas', 'lembrete'] as const).map(tab => {
+                            const nome = tab === 'pedido' ? 'Pedido' : tab === 'quantidades' ? 'Quantidades' : tab === 'datas' ? 'Datas' : 'Lembrete'
+                            return (
+                              <span key={tab} className={`cfg-modal-preview__tab${tab === abaAtiva ? ' cfg-modal-preview__tab--ativo' : ''}`}>
+                                {nome}
+                              </span>
+                            )
+                          })}
+                        </div>
+                        {/* Campos da aba ativa */}
+                        <div className="cfg-modal-preview__campos">
+                          {campos.filter(c => c.visivel).map(c => (
+                            <div key={c.campo} className="cfg-modal-preview__campo">
+                              <span className="cfg-modal-preview__campo-label">{c.label}</span>
+                              <span className="cfg-modal-preview__campo-valor">—</span>
+                            </div>
+                          ))}
+                          {campos.filter(c => !c.visivel).map(c => (
+                            <div key={c.campo} className="cfg-modal-preview__campo cfg-modal-preview__campo--oculto">
+                              <span className="cfg-modal-preview__campo-label">{c.label}</span>
+                              <span className="cfg-modal-preview__campo-valor">—</span>
+                            </div>
+                          ))}
+                          {campos.length === 0 && (
+                            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0.5rem 0' }}>
+                              Nenhum campo ativo
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        className="cfg-kanban-restaurar-btn"
-                        onClick={kanbanRestaurarPadrao}
-                        title="Restaurar padrão"
-                      >
-                        <ArrowCounterClockwise size={13} weight="bold" />
-                        Restaurar padrão
-                      </button>
                     </div>
-                    <p className="cfg-kanban-aba-hint">Arraste para reordenar · olho para ocultar · × para remover</p>
+
+                    {/* ── Seletor de aba ── */}
+                    <div className="cfg-periodo-pills" style={{ marginBottom: '1.25rem' }}>
+                      {(['pedido', 'quantidades', 'datas'] as const).map(aba => {
+                        const qtd = kanbanCamposDeAba(aba).length
+                        const lim = KANBAN_LIMITES[aba] ?? 10
+                        const nome = aba === 'pedido' ? 'Pedido' : aba === 'quantidades' ? 'Quantidades' : 'Datas'
+                        return (
+                          <button
+                            key={aba}
+                            type="button"
+                            className={`cfg-periodo-pill${abaAtiva === aba ? ' cfg-periodo-pill--ativo' : ''}`}
+                            onClick={() => setAbaAtiva(aba)}
+                          >
+                            {nome}
+                            <span style={{ marginLeft: '0.375rem', fontSize: '0.6875rem', opacity: 0.7 }}>
+                              {qtd}/{lim}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    {/* ── Ativos ── */}
+                    <div className="cfg-list-section-header">
+                      <p className="cfg-list-section-label">
+                        ATIVOS
+                        <span style={{ marginLeft: '0.5rem', fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: '0.6875rem' }}>
+                          {campos.length}/{limite} campos
+                        </span>
+                      </p>
+                      <TooltipGlobal descricao={`Restaura os campos padrão da aba ${nomeAba}`}>
+                        <button
+                          type="button"
+                          className="cfg-btn-header--restaurar"
+                          onClick={kanbanRestaurarPadrao}
+                        >
+                          <ArrowCounterClockwise size={13} weight="bold" />
+                          Restaurar padrão
+                        </button>
+                      </TooltipGlobal>
+                    </div>
+                    <p className="cfg-hint">Arraste para reordenar · olho para ocultar · × para remover</p>
 
                     <div className="cfg-kanban-campos-lista">
+                      {campos.length === 0 && (
+                        <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                          Nenhum campo ativo — adicione abaixo
+                        </p>
+                      )}
                       {campos.map(cfg => (
                         <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
                           <span className="cfg-drag-handle" aria-label="Arrastar">
                             <DotsSixVertical size={15} weight="bold" />
                           </span>
                           <span className="cfg-kanban-campo-label">{cfg.label}</span>
-                          <span className="cfg-origem-badge cfg-origem-badge--meus">{aba}</span>
                           <button
                             type="button"
                             className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
-                            onClick={() => kanbanToggleVisivel(aba, cfg.campo)}
+                            onClick={() => kanbanToggleVisivel(abaAtiva, cfg.campo)}
                             aria-label={cfg.visivel ? 'Ocultar campo' : 'Exibir campo'}
                           >
                             {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
@@ -1750,7 +1849,7 @@ export default function Configuracoes() {
                           <button
                             type="button"
                             className="cfg-remove-btn"
-                            onClick={() => kanbanRemoverCampo(aba, cfg.campo)}
+                            onClick={() => kanbanRemoverCampo(abaAtiva, cfg.campo)}
                             aria-label="Remover campo"
                           >
                             <X size={12} weight="bold" />
@@ -1758,60 +1857,50 @@ export default function Configuracoes() {
                         </div>
                       ))}
                     </div>
-                  </div>
-                )
-              }))}
 
-              {/* Aba fixa Lembrete */}
-              <div className="cfg-kanban-aba cfg-kanban-aba--fixa">
-                <div className="cfg-kanban-aba-header">
-                  <span className="cfg-kanban-aba-titulo">Aba: Lembrete</span>
-                  <span className="cfg-kanban-aba-fixa-badge">fixa</span>
-                </div>
-                <p className="cfg-kanban-aba-hint">Aba fixa — comportamento nativo, não configurável</p>
-              </div>
-            </section>
-
-            {/* Campos disponíveis para modal */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">Campos disponíveis</h2>
-                  <p className="cfg-secao__desc">Todas as colunas do pedido · clique em + para adicionar a uma aba</p>
-                </div>
-              </div>
-              <div className="cfg-kanban-disponivel-lista">
-                <div className="cfg-kanban-disponivel-header">
-                  <span>Coluna</span>
-                  <span>Aba</span>
-                  <span></span>
-                </div>
-                {KANBAN_CAMPOS_DISPONIVEIS.filter(cd => !kanbanCamposEmUso().has(cd.campo)).map(cd => {
-                  const aba = cd.categoria
-                  const limite = KANBAN_LIMITES[aba] ?? 10
-                  const atual = kanbanCamposDeAba(aba).length
-                  const cheio = atual >= limite
-                  return (
-                    <div key={cd.campo} className="cfg-kanban-disponivel-row">
-                      <span className="cfg-kanban-disponivel-label">{cd.label}</span>
-                      <span className="cfg-origem-badge cfg-origem-badge--meus">{aba}</span>
-                      <TooltipGlobal descricao={cheio ? `Limite atingido (${atual}/${limite}) — remova um campo` : `Adicionar à aba ${aba}`}>
-                        <button
-                          type="button"
-                          className={`cfg-kanban-add-btn${cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
-                          onClick={() => { if (!cheio) kanbanAdicionarCampo(aba, cd) }}
-                          disabled={cheio}
-                          aria-label="Adicionar campo"
-                        >
-                          <Plus size={13} weight="bold" />
-                        </button>
-                      </TooltipGlobal>
+                    {/* ── Disponíveis para adicionar ── */}
+                    <div className="cfg-list-section-header" style={{ marginTop: '1.5rem' }}>
+                      <p className="cfg-list-section-label">DISPONÍVEIS PARA ADICIONAR</p>
+                      <span className="cfg-list-section-hint">clique em + para adicionar</span>
                     </div>
-                  )
-                })}
-              </div>
+                    <div className="cfg-kanban-disponivel-lista">
+                      {disponiveis.map(cd => {
+                        const cheio        = campos.length >= limite
+                        const jaAdicionado = kanbanCamposEmUso().has(cd.campo)
+                        return (
+                          <div key={cd.campo} className={`cfg-kanban-disponivel-row${jaAdicionado ? ' cfg-card-row--ja-adicionado' : ''}`}>
+                            <span className="cfg-kanban-disponivel-label">{cd.label}</span>
+                            <TooltipGlobal descricao={jaAdicionado ? 'Já adicionado' : cheio ? `Limite atingido (${campos.length}/${limite}) — remova um campo` : `Adicionar à aba ${nomeAba}`}>
+                              <button
+                                type="button"
+                                className={`cfg-kanban-add-btn${jaAdicionado || cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
+                                onClick={() => { if (!jaAdicionado && !cheio) kanbanAdicionarCampo(abaAtiva, cd) }}
+                                disabled={jaAdicionado || cheio}
+                                aria-label={jaAdicionado ? 'Já adicionado' : 'Adicionar campo'}
+                              >
+                                <Plus size={13} weight="bold" />
+                              </button>
+                            </TooltipGlobal>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Aba fixa Lembrete — informativa */}
+                    <div className="cfg-kanban-aba cfg-kanban-aba--fixa" style={{ marginTop: '1.5rem' }}>
+                      <div className="cfg-list-section-header">
+                        <p className="cfg-list-section-label">
+                          ABA LEMBRETE
+                          <span className="cfg-kanban-aba-fixa-badge" style={{ marginLeft: '0.5rem' }}>fixa</span>
+                        </p>
+                      </div>
+                      <p className="cfg-hint">Aba fixa — comportamento nativo, não configurável</p>
+                    </div>
+                  </>
+                )
+              })()}
             </section>
-            </>)}
+            )}
 
             {/* ── Sub: Card ── */}
             {kanbanSub === 'card' && (<>

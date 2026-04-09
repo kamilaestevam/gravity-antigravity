@@ -196,9 +196,9 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   font-weight: 600;
 }
 
-/* ── Botão restaurar ── */
+/* ── Botão restaurar padrão (ghost neutro — não confundir com ação destrutiva) ── */
 
-.cfg-reset-btn {
+.cfg-btn-header--restaurar {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -216,10 +216,10 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   transition: all 0.15s;
 }
 
-.cfg-reset-btn:hover {
-  border-color: rgba(239,68,68,0.3);
-  color: #f87171;
-  background: rgba(239,68,68,0.05);
+.cfg-btn-header--restaurar:hover {
+  border-color: rgba(255,255,255,0.18);
+  color: var(--text-primary, #f1f5f9);
+  background: rgba(255,255,255,0.04);
 }
 
 /* ── Cabeçalho da tabela de colunas ── */
@@ -421,6 +421,186 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
 .cfg-add-btn:hover {
   background: rgba(129,140,248,0.18);
   border-color: rgba(129,140,248,0.4);
+}
+
+.cfg-add-btn--disabled {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Catálogo — row já adicionado ── */
+
+.cfg-card-row--ja-adicionado {
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+/* ── Labels de seção interna (ATIVOS / DISPONÍVEIS) ── */
+
+.cfg-list-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.cfg-list-section-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted, #64748b);
+  margin-bottom: 0.5rem;
+}
+
+.cfg-list-section-count,
+.cfg-list-section-hint {
+  font-size: 0.6875rem;
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Preview ao vivo dos cards ── */
+
+.cfg-cards-preview-wrap {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+  margin: 1.25rem 0;
+}
+
+.cfg-cards-preview-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted, #64748b);
+  margin-bottom: 0.75rem;
+}
+
+.cfg-cards-preview-grid {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cfg-kpi-preview-card {
+  position: relative;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top-width: 2px;
+  border-radius: 8px;
+  padding: 0.625rem 0.75rem 0.5rem;
+  min-width: 110px;
+  transition: opacity 0.2s;
+}
+
+.cfg-kpi-preview-card--oculto {
+  opacity: 0.25;
+  border-style: dashed;
+}
+
+.cfg-kpi-preview-card__pos {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 0.625rem;
+  color: var(--text-muted, #64748b);
+  font-variant-numeric: tabular-nums;
+}
+
+.cfg-kpi-preview-card__icon {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.375rem;
+}
+
+.cfg-kpi-preview-card__line {
+  height: 2px;
+  border-radius: 1px;
+  width: 28px;
+  opacity: 0.7;
+  margin-bottom: 0.375rem;
+}
+
+.cfg-kpi-preview-card__label {
+  font-size: 0.6875rem;
+  color: var(--text-secondary, #94a3b8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+/* ── Preview modal kanban ── */
+
+.cfg-modal-preview {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cfg-modal-preview__tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.02);
+}
+
+.cfg-modal-preview__tab {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted, #64748b);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+
+.cfg-modal-preview__tab--ativo {
+  color: #818cf8;
+  border-bottom-color: #818cf8;
+  font-weight: 600;
+}
+
+.cfg-modal-preview__campos {
+  padding: 0.5rem 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.375rem 1rem;
+}
+
+.cfg-modal-preview__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.cfg-modal-preview__campo--oculto {
+  opacity: 0.25;
+}
+
+.cfg-modal-preview__campo-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cfg-modal-preview__campo-valor {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #94a3b8);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 0.1rem;
 }
 
 /* ── Empty state ── */
@@ -1536,6 +1716,11 @@ body.light-theme .cfg-formula-chip:hover {
   margin-bottom: 0.85rem;
 }
 
+/* label dentro do cfg-kanban-aba não precisa de margin-bottom extra — o padding do container resolve */
+.cfg-kanban-aba .cfg-list-section-label {
+  margin-bottom: 0;
+}
+
 .cfg-kanban-aba--fixa {
   opacity: 0.6;
 }
@@ -1577,23 +1762,10 @@ body.light-theme .cfg-formula-chip:hover {
   letter-spacing: 0.05em;
 }
 
-.cfg-kanban-restaurar-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.72rem;
-  color: var(--text-muted, #64748b);
-  background: none;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 0.2rem 0.55rem;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-.cfg-kanban-restaurar-btn:hover { color: var(--text-main, #e2e8f0); border-color: rgba(255, 255, 255, 0.15); }
+/* cfg-kanban-restaurar-btn removido — usar cfg-btn-header--restaurar */
 
-.cfg-kanban-aba-hint {
-  font-size: 0.7rem;
+.cfg-hint {
+  font-size: 0.72rem;
   color: var(--text-muted, #64748b);
   margin-bottom: 0.6rem;
 }

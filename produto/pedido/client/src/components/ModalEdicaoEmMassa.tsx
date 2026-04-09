@@ -99,7 +99,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   // Dados comerciais
   { campo: 'incoterm',                                rotulo: 'Incoterm',                               tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
   { campo: 'quantidade_volumes_pedido',               rotulo: 'Qtd. Volumes',                           tipo: 'numero', nivel: 'pedido', grupo: 'Comercial' },
-  { campo: 'cobertura_cambial_pedido',                rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'cobertura_cambial',                       rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'item',   grupo: 'Comercial' },
   { campo: 'condicao_pagamento_pedido',               rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
 
   // Dados físicos

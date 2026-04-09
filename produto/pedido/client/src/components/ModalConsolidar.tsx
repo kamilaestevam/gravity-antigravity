@@ -251,7 +251,6 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: 
                           moeda_pedido: 'Moeda',
                           nome_exportador: 'Exportador',
                           data_emissao_pedido: 'Data Emissão do Pedido',
-                          cobertura_cambial_pedido: 'Cobertura Cambial',
                           condicao_pagamento_pedido: 'Condição de Pagamento',
                         }
                         const valor = pedido[campo as keyof Pedido]

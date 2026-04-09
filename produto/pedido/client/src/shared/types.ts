@@ -986,7 +986,7 @@ export const KANBAN_CAMPOS_DISPONIVEIS: KanbanCampoDisponivel[] = [
   { campo: 'referencia_exportador',   label: 'Ref. Exportador',          categoria: 'pedido'      },
   { campo: 'referencia_importador',   label: 'Ref. Importador',          categoria: 'pedido'      },
   { campo: 'condicao_pagamento_pedido', label: 'Cond. Pagamento',        categoria: 'pedido'      },
-  { campo: 'cobertura_cambial_pedido', label: 'Cobertura Cambial',       categoria: 'pedido'      },
+  { campo: 'cobertura_cambial',        label: 'Cobertura Cambial',       categoria: 'item'        },
   { campo: 'peso_liquido_total_pedido', label: 'Peso Líquido',           categoria: 'pedido'      },
   { campo: 'peso_bruto_total_pedido', label: 'Peso Bruto',               categoria: 'pedido'      },
   // Aba Quantidades

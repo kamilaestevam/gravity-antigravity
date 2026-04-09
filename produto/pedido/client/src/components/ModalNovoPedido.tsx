@@ -32,7 +32,6 @@ interface PedidoForm {
   importacao_exportador_id: string
   fabricante_id: string
   incoterm: string
-  cobertura_cambial_pedido: string
   condicao_pagamento_pedido: string
   numero_proforma: string
   numero_invoice: string
@@ -56,7 +55,6 @@ const FORM_VAZIO: PedidoForm = {
   importacao_exportador_id: '',
   fabricante_id: '',
   incoterm: 'FOB',
-  cobertura_cambial_pedido: 'com_cobertura',
   condicao_pagamento_pedido: '',
   numero_proforma: '',
   numero_invoice: '',
@@ -504,14 +502,6 @@ function Passo1Dados({
             opcoes={OPCOES_INCOTERM}
             valor={form.incoterm}
             aoMudarValor={v => onChange('incoterm', String(v ?? 'FOB'))}
-          />
-        </div>
-        <div style={s.campo}>
-          <SelectGlobal
-            label="Cobertura Cambial"
-            opcoes={OPCOES_COBERTURA}
-            valor={form.cobertura_cambial_pedido}
-            aoMudarValor={v => onChange('cobertura_cambial_pedido', String(v ?? 'com_cobertura'))}
           />
         </div>
         <div style={s.campo}>

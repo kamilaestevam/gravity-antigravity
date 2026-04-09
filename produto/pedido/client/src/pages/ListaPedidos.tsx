@@ -58,6 +58,7 @@ import type {
 import { useCardPreferences, CARDS_CATALOGO } from '../shared/useCardPreferences'
 import { CARD_REGISTRY, computeCardStats } from '../shared/cardRegistry'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
+import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
 import type { ColunasExport } from '../shared/exportUtils'
 import {
@@ -4065,6 +4066,9 @@ export default function ListaPedidos() {
   // ── Taxas PTAX (para conversão BRL) — cache singleton por sessão ────────────
   const taxasVenda = useTaxasCambio()
 
+  // ── Rastreamento de comportamento (Gabi Insights Fase 2) ─────────────────────
+  const { trackFilter } = useTrackBehavior()
+
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
   const [carregando, setCarregando]         = useState(true)
@@ -4218,7 +4222,13 @@ export default function ListaPedidos() {
   // ── Handlers de filtro ────────────────────────────────────────────────────────
   const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
     setFiltrosAtivos(prev => ({ ...prev, [campo]: filtro }))
-  }, [])
+    const valor = filtro.tipo === 'texto'
+      ? filtro.valor
+      : filtro.tipo === 'enum'
+        ? [...filtro.valor].join(',')
+        : `${filtro.valor.min ?? ''}-${filtro.valor.max ?? ''}`
+    trackFilter(campo, valor)
+  }, [trackFilter])
 
   const handleLimparFiltro = useCallback((campo: string) => {
     setFiltrosAtivos(prev => {

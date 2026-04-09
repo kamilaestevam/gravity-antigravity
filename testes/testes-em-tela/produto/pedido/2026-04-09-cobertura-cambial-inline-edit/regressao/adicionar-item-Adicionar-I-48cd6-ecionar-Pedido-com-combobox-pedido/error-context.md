@@ -1,0 +1,175 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e5]:
+    - button [ref=e6] [cursor=pointer]:
+      - img [ref=e7]
+    - generic [ref=e9]:
+      - img [ref=e11]
+      - generic [ref=e16]:
+        - generic [ref=e17]: Pedido
+        - generic [ref=e18]: by Gravity
+    - button "M Minha Empresa Pro" [ref=e20] [cursor=pointer]:
+      - generic [ref=e21]: M
+      - generic [ref=e22]:
+        - generic [ref=e23]: Minha Empresa
+        - generic [ref=e24]: Pro
+      - img [ref=e25]
+    - navigation [ref=e27]:
+      - button "Meu Espaço" [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e34]: Meu Espaço
+        - img [ref=e35]
+      - paragraph [ref=e37]: Pedidos
+      - link "Dashboard" [ref=e38] [cursor=pointer]:
+        - /url: /pedidos/dashboard
+        - img [ref=e40]
+        - generic [ref=e43]: Dashboard
+      - link "Lista" [ref=e44] [cursor=pointer]:
+        - /url: /pedidos
+        - img [ref=e46]
+        - generic [ref=e49]: Lista
+      - link "Kanban" [ref=e50] [cursor=pointer]:
+        - /url: /pedidos/kanban
+        - img [ref=e52]
+        - generic [ref=e55]: Kanban
+      - link "Histórico" [ref=e56] [cursor=pointer]:
+        - /url: /historico
+        - img [ref=e58]
+        - generic [ref=e61]: Histórico
+      - link "Configurações" [ref=e62] [cursor=pointer]:
+        - /url: /configuracoes
+        - img [ref=e64]
+        - generic [ref=e67]: Configurações
+  - generic [ref=e68]:
+    - banner [ref=e70]:
+      - generic [ref=e72]: Lista
+      - generic [ref=e73]:
+        - button "Busca global" [ref=e75] [cursor=pointer]:
+          - img [ref=e76]
+        - button "Desabilitar dicas (tooltips)" [ref=e79] [cursor=pointer]:
+          - img [ref=e80]
+        - button "Trocar idioma" [ref=e84] [cursor=pointer]:
+          - img [ref=e85]
+        - button "Onde estou — abrir mapa do ecossistema" [ref=e91] [cursor=pointer]:
+          - img [ref=e93]
+        - button "Voltar ao Hub" [ref=e98] [cursor=pointer]:
+          - img [ref=e99]
+          - text: Hub
+        - button "Ir para o Core" [ref=e107] [cursor=pointer]:
+          - img [ref=e108]
+          - text: Core
+        - button "??" [ref=e116] [cursor=pointer]:
+          - generic [ref=e117]: "??"
+    - main [ref=e118]:
+      - generic [ref=e119]:
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - img [ref=e125]
+              - paragraph [ref=e128]: Total Pedidos
+            - generic [ref=e129]:
+              - generic [ref=e131]: "0"
+              - generic [ref=e132]: 0 itens no total
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - paragraph: Total Pedidos
+              - paragraph:
+                - generic: Abertos
+                - strong: "0"
+              - paragraph:
+                - generic: Em andamento
+                - strong: "0"
+              - paragraph:
+                - generic: Concluídos
+                - strong: "0"
+          - generic [ref=e133]:
+            - generic [ref=e134]:
+              - img [ref=e136]
+              - paragraph [ref=e139]: Valor Total
+            - generic [ref=e140]:
+              - generic [ref=e142]: 0,00
+              - generic [ref=e143]: Soma de todos os pedidos
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - paragraph: Valor Total
+              - paragraph:
+                - generic: Média por pedido
+                - strong: 0,00
+          - generic [ref=e144]:
+            - generic [ref=e145]:
+              - img [ref=e147]
+              - paragraph [ref=e150]: Quantidade Total
+            - generic [ref=e151]:
+              - generic [ref=e153]: 0,00
+              - generic [ref=e154]: 0,00 saldo atual
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - paragraph: Quantidade Total
+              - paragraph:
+                - generic: Pronto
+                - strong: 0,00
+              - paragraph:
+                - generic: Saldo vivo
+                - strong: 0,00
+        - region "Lista de pedidos" [ref=e156]:
+          - tablist [ref=e157]:
+            - tab "Todos" [selected] [ref=e158] [cursor=pointer]
+            - tab "Aberto" [ref=e159] [cursor=pointer]
+            - tab "Em Andamento" [ref=e160] [cursor=pointer]
+            - tab "Aprovado" [ref=e161] [cursor=pointer]
+            - tab "Transferido" [ref=e162] [cursor=pointer]
+            - tab "Consolidado" [ref=e163] [cursor=pointer]
+            - tab "Cancelado" [ref=e164] [cursor=pointer]
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - generic [ref=e168]:
+                - generic:
+                  - img
+                - textbox "Localizar" [ref=e169]:
+                  - /placeholder: Buscar pedido, exportador, referência...
+              - button "Novo" [ref=e171] [cursor=pointer]:
+                - img [ref=e173]
+                - text: Novo
+                - img [ref=e175]
+              - generic [ref=e178] [cursor=pointer]:
+                - button "Transferir" [disabled]:
+                  - generic:
+                    - img
+                  - text: Transferir
+              - generic [ref=e179] [cursor=pointer]:
+                - button [disabled]:
+                  - generic:
+                    - img
+              - generic [ref=e180] [cursor=pointer]:
+                - button [disabled]:
+                  - generic:
+                    - img
+              - generic [ref=e181] [cursor=pointer]:
+                - button [disabled]:
+                  - generic:
+                    - img
+              - generic [ref=e182] [cursor=pointer]:
+                - button "Duplicar" [disabled]:
+                  - generic:
+                    - img
+              - generic [ref=e183] [cursor=pointer]:
+                - button [disabled]:
+                  - generic:
+                    - img
+            - generic [ref=e184]:
+              - button "Gerenciar colunas" [ref=e186] [cursor=pointer]:
+                - img [ref=e187]
+                - text: Colunas
+              - button "Exportar" [ref=e192] [cursor=pointer]:
+                - img [ref=e193]
+                - text: Exportar
+          - generic "Carregando..." [ref=e195]
+```

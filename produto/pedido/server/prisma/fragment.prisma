@@ -171,6 +171,32 @@ model MapeamentoImport {
 }
 
 // ============================================
+// Pedido — Rastreamento de Comportamento (Gabi Insights Fase 2)
+// Produto: produto/pedido
+// ============================================
+
+model UserBehaviorEvent {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String
+
+  /// Tipo: route_visited | filter_applied | widget_clicked | column_viewed | insight_clicked
+  event      String
+
+  /// JSON com dados do evento (rota, campo filtrado, widget_id, insight_id, etc.)
+  payload    Json
+
+  created_at DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, user_id, event])
+  @@index([tenant_id, user_id, created_at])
+  @@map("user_behavior_events")
+}
+
+// ============================================
 // Pedido — Kanban Preferências
 // Produto: produto/pedido
 // ============================================

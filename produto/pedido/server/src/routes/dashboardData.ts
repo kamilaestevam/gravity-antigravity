@@ -30,6 +30,9 @@
  */
 
 import { Router, Request, Response } from 'express'
+import { generateInsights, normalizeRole, type KpiSnapshot } from '../services/gabiInsightsService.js'
+import { getUserBehaviorScores } from '../services/behaviorTrackingService.js'
+import { enhanceWithLlm } from '../services/gabiLlmInsightsService.js'
 
 export const dashboardDataRouter = Router()
 
@@ -255,6 +258,91 @@ dashboardDataRouter.get('/trend', async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[DashboardData/trend]', err)
     res.status(500).json({ error: 'Erro ao calcular série temporal' })
+  }
+})
+
+// ── Insights personalizados da Gabi ───────────────────────────────────────────
+// GET /api/v1/pedidos/dashboard/insights
+// Retorna insights ranqueados por role (Fase 1) + comportamento (Fase 2) + LLM (Fase 3)
+dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
+  const period   = (req.query.period   as string) ?? '30d'
+  const rawRole  = (req.headers['x-user-role'] as string | undefined) ?? (req.query.role as string | undefined)
+  const role     = normalizeRole(rawRole)
+  const tenantId = (req as any).tenantId as string
+  const userId   = (req as any).userId   as string ?? 'anonymous'
+  const db       = (req as any).prisma
+
+  const fromParam = req.query.from as string | undefined
+  const toParam   = req.query.to   as string | undefined
+  const { from, to } = (fromParam && toParam)
+    ? { from: new Date(fromParam), to: new Date(toParam) }
+    : periodToDateRange(period)
+
+  try {
+    // ── 1. Buscar KPIs do período ──────────────────────────────────────────────
+    const [pedidos, itens] = await Promise.all([
+      db.pedido.findMany({
+        where: { data_emissao_pedido: { gte: from, lte: to }, deleted_at: null },
+        select: {
+          status: true,
+          valor_total_pedido: true,
+          moeda_pedido: true,
+          exportador: true,
+        },
+      }),
+      db.pedidoItem.findMany({
+        where: { pedido: { data_emissao_pedido: { gte: from, lte: to }, deleted_at: null } },
+        select: {
+          quantidade_inicial_item_pedido: true,
+          saldo_item_pedido: true,
+          quantidade_transferida_item_pedido: true,
+          quantidade_pronta_total_item_pedido: true,
+          valor_total_itens: true,
+        },
+      }),
+    ])
+
+    const total_pedidos        = pedidos.length
+    const pedidos_abertos      = pedidos.filter((p: any) => p.status === 'aberto').length
+    const pedidos_em_andamento = pedidos.filter((p: any) => p.status === 'transferencia').length
+    const pedidos_consolidados = pedidos.filter((p: any) => p.status === 'consolidado').length
+    const pedidos_cancelados   = pedidos.filter((p: any) => p.status === 'cancelado').length
+    const pedidos_atrasados    = 0  // sem campo prazo no schema atual
+    const pedidos_sem_exportador = pedidos.filter((p: any) => !p.exportador).length
+    const pedidos_importacao   = pedidos.filter((p: any) => p.tipo_operacao === 'importacao').length
+    const pedidos_exportacao   = pedidos.filter((p: any) => p.tipo_operacao === 'exportacao').length
+
+    const valor_total          = pedidos.reduce((s: number, p: any) => s + Number(p.valor_total_pedido ?? 0), 0)
+    const qtd_inicial_total    = itens.reduce((s: number, i: any) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+    const qtd_transferida_total = itens.reduce((s: number, i: any) => s + Number(i.quantidade_transferida_item_pedido ?? 0), 0)
+    const qtd_pronta_total     = itens.reduce((s: number, i: any) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
+    const qtd_saldo_total      = itens.reduce((s: number, i: any) => s + Number(i.saldo_item_pedido ?? 0), 0)
+    const valor_itens_total    = itens.reduce((s: number, i: any) => s + Number(i.valor_total_itens ?? 0), 0)
+    const ticket_medio         = total_pedidos > 0 ? valor_total / total_pedidos : 0
+    const taxa_atraso          = 0
+    const taxa_transferencia   = qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : 0
+
+    const kpis: KpiSnapshot = {
+      total_pedidos, pedidos_abertos, pedidos_em_andamento, pedidos_atrasados,
+      pedidos_sem_exportador, pedidos_cancelados, pedidos_consolidados,
+      pedidos_importacao, pedidos_exportacao, qtd_saldo_total, qtd_pronta_total,
+      qtd_transferida_total, qtd_inicial_total, valor_total, valor_itens_total,
+      ticket_medio, taxa_atraso, taxa_transferencia,
+    }
+
+    // ── 2. Fase 2: scores de comportamento do usuário ──────────────────────────
+    const behaviorScores = await getUserBehaviorScores(db, tenantId, userId)
+
+    // ── 3. Fase 1+2: gerar insights ranqueados ─────────────────────────────────
+    let insights = generateInsights(kpis, role, behaviorScores)
+
+    // ── 4. Fase 3: enriquecer texto via LLM (com fallback automático) ──────────
+    insights = await enhanceWithLlm(insights, kpis, tenantId, userId, role)
+
+    res.json({ period, role, insights })
+  } catch (err) {
+    console.error('[DashboardData/insights]', err)
+    res.status(500).json({ error: 'Erro ao gerar insights' })
   }
 })
 

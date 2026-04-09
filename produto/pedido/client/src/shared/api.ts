@@ -1668,6 +1668,26 @@ export interface DashboardDistributionResponse {
   value: DashboardDistributionGroup[]
 }
 
+// ── Tipos de Insights da Gabi ─────────────────────────────────────────────────
+
+export interface GabiInsightItem {
+  id: string
+  variante: 'default' | 'warn'
+  tag: string
+  texto: string
+  stat?: { label: string; valor: string }
+  textoLink?: string
+  rota?: string
+}
+
+export interface DashboardInsightsResponse {
+  period: string
+  role: string
+  insights: GabiInsightItem[]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const dashboardApi = {
   kpis: (period: string, range?: { from: string; to: string }) => {
     const params = new URLSearchParams({ period })
@@ -1684,6 +1704,13 @@ export const dashboardApi = {
     request<DashboardDistributionResponse>(
       `/api/v1/pedidos/dashboard/distribution?period=${encodeURIComponent(period)}`,
     ),
+
+  /** Fase 1+2+3 — insights ranqueados por role + comportamento + LLM */
+  insights: (period: string, range?: { from: string; to: string }) => {
+    const params = new URLSearchParams({ period })
+    if (range) { params.set('from', range.from); params.set('to', range.to) }
+    return request<DashboardInsightsResponse>(`/api/v1/pedidos/dashboard/insights?${params}`)
+  },
 }
 
 // ── Kanban Preferências ───────────────────────────────────────────────────────

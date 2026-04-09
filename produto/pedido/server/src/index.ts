@@ -30,6 +30,7 @@ import { smartImportRouter } from './routes/smartImport.js'
 import { duplicarExcluirRouter } from './routes/duplicarExcluir.js'
 import { colunasUsuarioRouter } from './routes/colunasUsuario.js'
 import { gabiProxyRouter } from './routes/gabiProxy.js'
+import { behaviorTrackingRouter } from './routes/behaviorTracking.js'
 import { anexosRouter } from './routes/anexos.js'
 import { pdfRouter } from './routes/pdf.js'
 import { loteRouter } from './routes/lote.js'
@@ -122,6 +123,7 @@ app.use('/api/v1/pedidos/edicao-em-massa',   edicaoEmMassaRouter)
 app.use('/api/v1/pedidos/smart-import',      smartImportRouter)
 app.use('/api/v1/pedidos/colunas-usuario',   colunasUsuarioRouter)
 app.use(gabiProxyRouter)
+app.use(behaviorTrackingRouter)
 app.use('/api/v1/pedidos/anexos',            anexosRouter)
 app.use('/api/v1/pedidos/pdf',               pdfRouter)
 app.use('/api/v1/pedidos/lote',              loteRouter)

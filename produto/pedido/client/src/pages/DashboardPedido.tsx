@@ -9,7 +9,7 @@
  * - WidgetEditModal exibe FieldQuerySpec[] com operação por campo
  */
 
-import React, { useMemo, useState, useCallback, useEffect, type ReactNode } from 'react'
+import React, { useMemo, useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import {
   DashboardGrid,
   WidgetContainer,
@@ -39,14 +39,17 @@ import {
   Package, ClipboardText, Scales, CurrencyDollar,
   Warning, UserCircleMinus, CheckCircle,
   ListNumbers, ArrowsLeftRight, Tag,
+  CaretLeft, CaretRight, Sparkle, RocketLaunch,
 } from '@phosphor-icons/react'
+import './DashboardPedido.css'
 
 import { useDashboardStore } from '../stores/dashboardStore'
+import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { DASHBOARD_CATALOG, CATALOG_BY_KEY } from '../shared/dashboardCatalog'
 import { generateSuggestions } from '../shared/dashboardSuggestions'
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
 import { dashboardApi } from '../shared/api'
-import type { DashboardKpis, DashboardTrendBucket } from '../shared/api'
+import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem } from '../shared/api'
 
 // ── Dados reais — converte resposta da API em WidgetResult ────────────────────
 
@@ -198,6 +201,8 @@ export default function DashboardPedido() {
     userDerivedMetrics,
   } = useDashboardStore()
 
+  const { trackWidget, trackInsight } = useTrackBehavior()
+
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [editingWidget,   setEditingWidget]   = useState<DashboardWidgetConfig | null>(null)
   const [editModalOpen,   setEditModalOpen]   = useState(false)
@@ -205,7 +210,17 @@ export default function DashboardPedido() {
   const [kpisData,     setKpisData]     = useState<DashboardKpis | null>(null)
   const [prevKpisData, setPrevKpisData] = useState<DashboardKpis | null>(null)
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
+  const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
+
+  const gabiCarouselRef = useRef<HTMLDivElement>(null)
+  const [gabiPaused, setGabiPaused] = useState(false)
+
+  const scrollGabi = useCallback((dir: 'left' | 'right') => {
+    if (!gabiCarouselRef.current) return
+    const w = gabiCarouselRef.current.clientWidth
+    gabiCarouselRef.current.scrollBy({ left: dir === 'right' ? w : -w, behavior: 'smooth' })
+  }, [])
 
   // allDerived deve vir antes de suggestions (evita TDZ)
   const allDerived: DerivedMetric[] = useMemo(
@@ -232,15 +247,24 @@ export default function DashboardPedido() {
       dashboardApi.kpis(slicers.period),
       dashboardApi.kpis(slicers.period, prevRange),
       dashboardApi.trend('12m', 'month'),
+      // Insights isolados: falha não cancela KPIs nem gráficos
+      dashboardApi.insights(slicers.period).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
     ])
-      .then(([kpis, prevKpis, trend]) => {
+      .then(([kpis, prevKpis, trend, insightsRes]) => {
         setKpisData(kpis)
         setPrevKpisData(prevKpis)
         setTrendData(trend.value)
+        setInsightsData(insightsRes.insights)
       })
       .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
       .finally(() => setLoadingData(false))
   }, [slicers.period])
+
+  useEffect(() => {
+    if (gabiPaused || loadingData) return
+    const timer = setInterval(() => scrollGabi('right'), 5000)
+    return () => clearInterval(timer)
+  }, [gabiPaused, loadingData, scrollGabi])
 
   const activeWidgets = useMemo(() =>
     widgets.map(w => ({
@@ -256,6 +280,114 @@ export default function DashboardPedido() {
 
   const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
     const chartType = widget.chart_type
+
+    // ── GABI_INSIGHTS — carrossel de insights da Gabi AI ────────────────────
+    if (chartType === 'GABI_INSIGHTS') {
+      // Fase 1+2+3: dados vêm do endpoint /dashboard/insights (ranqueados por role + comportamento + LLM)
+      // Fallback local enquanto carrega ou se endpoint falhar
+      const insights = insightsData.length > 0 ? insightsData : [
+        { id: 'ok', variante: 'default' as const, tag: 'Status · Tudo em dia', texto: 'Nenhuma pendência identificada. Operação normalizada no período selecionado.' },
+        { id: 'dica', variante: 'default' as const, tag: 'Dica · Gabi AI', texto: 'Use o filtro de período para explorar tendências históricas dos seus pedidos.', textoLink: 'Explorar dados' },
+      ]
+
+      return (
+        <div
+          key={widget.id}
+          className="dp-gabi-card"
+          onMouseEnter={() => setGabiPaused(true)}
+          onMouseLeave={() => setGabiPaused(false)}
+        >
+          <div className="dp-gabi-watermark" aria-hidden="true">
+            <Sparkle size={120} weight="fill" />
+          </div>
+          <div className="dp-gabi-main">
+            <div className="dp-gabi-top-row">
+              <div className="dp-gabi-header">
+                <div className="dp-gabi-avatar">
+                  <Sparkle weight="fill" size={13} color="#fff" />
+                </div>
+                <span className="dp-gabi-label">Gabi AI · Insights</span>
+              </div>
+              <div className="dp-gabi-header-right">
+                <button
+                  className="dp-gabi-nav-btn"
+                  type="button"
+                  onClick={() => scrollGabi('left')}
+                  disabled={insights.length <= 1}
+                  aria-label="Insight anterior"
+                >
+                  <CaretLeft size={12} weight="bold" />
+                </button>
+                <button
+                  className="dp-gabi-nav-btn"
+                  type="button"
+                  onClick={() => scrollGabi('right')}
+                  disabled={insights.length <= 1}
+                  aria-label="Próximo insight"
+                >
+                  <CaretRight size={12} weight="bold" />
+                </button>
+                <span className="dp-gabi-live-badge">
+                  <span className="dp-gabi-live-dot" />
+                  ao vivo
+                </span>
+              </div>
+            </div>
+
+            {loadingData ? (
+              <div className="dp-gabi-track">
+                {[0, 1].map(i => (
+                  <div key={i} className="dp-gabi-insight-card dp-gabi-insight-card--skeleton">
+                    <div className="dp-gabi-skeleton-line dp-gabi-skeleton-line--short" />
+                    <div className="dp-gabi-skeleton-line" />
+                    <div className="dp-gabi-skeleton-line" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="dp-gabi-track" ref={gabiCarouselRef}>
+                {insights.map(ins => (
+                  <div
+                    key={ins.id}
+                    className={`dp-gabi-insight-card${ins.variante === 'warn' ? ' dp-gabi-insight-card--warn' : ''}`}
+                  >
+                    <div className={`dp-gabi-insight-tag${ins.variante === 'warn' ? ' dp-gabi-insight-tag--warn' : ''}`}>
+                      {ins.variante === 'warn'
+                        ? <Warning size={10} weight="fill" />
+                        : <RocketLaunch size={10} weight="fill" />}
+                      {ins.tag}
+                    </div>
+                    <p className="dp-gabi-insight-text">{ins.texto}</p>
+                    {(ins.stat || ins.textoLink) && (
+                      <div className="dp-gabi-insight-bottom">
+                        {ins.stat && (
+                          <div className="dp-gabi-insight-stat">
+                            <span className="dp-gabi-insight-stat-label">{ins.stat.label}</span>
+                            <span className="dp-gabi-insight-stat-value">{ins.stat.valor}</span>
+                          </div>
+                        )}
+                        {ins.textoLink && (
+                          <button
+                            className="dp-gabi-insight-link"
+                            type="button"
+                            onClick={() => {
+                              trackInsight(ins.id)
+                              if (ins.rota) window.location.href = ins.rota
+                            }}
+                          >
+                            {ins.textoLink} <CaretRight size={10} />
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    }
 
     // ── SECTION_LABEL — divisor de seção sem WidgetContainer ────────────────
     if (chartType === 'SECTION_LABEL') {
@@ -376,6 +508,7 @@ export default function DashboardPedido() {
           onRemove={removeWidget}
           accentColor={visual.accentColor}
           icone={visual.icone}
+          onClick={() => trackWidget(widget.id)}
         >
           <KpiValue
             data={result.data}

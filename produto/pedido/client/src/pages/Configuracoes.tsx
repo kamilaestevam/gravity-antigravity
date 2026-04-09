@@ -40,7 +40,7 @@ import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, type PdfTemplate } from '../shared/api'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel } from '../shared/types'
-import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS } from '../shared/types'
+import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS } from '../shared/types'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
 import type { FormulaAST } from '../shared/formulaEngine'
 import { analisarSemanticaFormula, SEMANTICA_CAMPOS } from '../shared/gabiSemantica'
@@ -1178,7 +1178,7 @@ export default function Configuracoes() {
     const novasAbas = prefs.abas.map(a =>
       a.aba === aba ? { ...a, campos: [...a.campos, novoCampo] } : a,
     )
-    kanbanSalvar({ abas: novasAbas })
+    kanbanSalvar({ ...prefs, abas: novasAbas })
   }
 
   function kanbanRemoverCampo(aba: 'pedido' | 'quantidades' | 'datas', campo: string) {
@@ -1188,7 +1188,7 @@ export default function Configuracoes() {
         ? { ...a, campos: a.campos.filter(c => c.campo !== campo).map((c, i) => ({ ...c, ordem: i })) }
         : a,
     )
-    kanbanSalvar({ abas: novasAbas })
+    kanbanSalvar({ ...prefs, abas: novasAbas })
   }
 
   function kanbanToggleVisivel(aba: 'pedido' | 'quantidades' | 'datas', campo: string) {
@@ -1198,7 +1198,7 @@ export default function Configuracoes() {
         ? { ...a, campos: a.campos.map(c => c.campo === campo ? { ...c, visivel: !c.visivel } : c) }
         : a,
     )
-    kanbanSalvar({ abas: novasAbas })
+    kanbanSalvar({ ...prefs, abas: novasAbas })
   }
 
   async function kanbanRestaurarPadrao() {
@@ -1212,6 +1212,29 @@ export default function Configuracoes() {
     const todos = new Set<string>()
     prefs.abas.forEach(a => a.campos.forEach(c => todos.add(c.campo)))
     return todos
+  }
+
+  function kanbanCardCampos() {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    return prefs.card?.campos ?? KANBAN_PADRAO.card.campos
+  }
+
+  function kanbanCardToggle(campo: string) {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    const card = prefs.card ?? KANBAN_PADRAO.card
+    kanbanSalvar({
+      ...prefs,
+      card: {
+        ...card,
+        campos: card.campos.map(c => c.campo === campo ? { ...c, visivel: !c.visivel } : c),
+      },
+    })
+  }
+
+  function kanbanCardSetDataCritica(valor: string | null) {
+    const prefs = kanbanPrefs ?? KANBAN_PADRAO
+    const card = prefs.card ?? KANBAN_PADRAO.card
+    kanbanSalvar({ ...prefs, card: { ...card, dataCritica: valor } })
   }
 
   // ── Status state ──
@@ -1718,6 +1741,63 @@ export default function Configuracoes() {
                 </div>
                 <p className="cfg-kanban-aba-hint">Aba fixa — comportamento nativo, não configurável</p>
               </div>
+            </section>
+
+            {/* Conteúdo do card */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Conteúdo do card</h2>
+                  <p className="cfg-secao__desc">Escolha o que aparece em cada card do Kanban</p>
+                </div>
+              </div>
+
+              {!kanbanLoading && (
+                <>
+                  {/* Campo fixo */}
+                  <div className="cfg-kanban-aba cfg-kanban-aba--fixa" style={{ marginBottom: 8 }}>
+                    <div className="cfg-kanban-aba-header">
+                      <span className="cfg-kanban-aba-titulo">Nº do Pedido</span>
+                      <span className="cfg-kanban-aba-fixa-badge">fixo</span>
+                    </div>
+                    <p className="cfg-kanban-aba-hint">Sempre exibido no topo do card</p>
+                  </div>
+
+                  {/* Campos toggleáveis */}
+                  <div className="cfg-kanban-campos-lista">
+                    {kanbanCardCampos().map(cfg => (
+                      <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
+                        <span className="cfg-kanban-campo-label">{cfg.label}</span>
+                        <button
+                          type="button"
+                          className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
+                          onClick={() => kanbanCardToggle(cfg.campo)}
+                          aria-label={cfg.visivel ? 'Ocultar' : 'Exibir'}
+                        >
+                          {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Data crítica */}
+                  <div className="cfg-kanban-data-critica-wrap" style={{ marginTop: 16 }}>
+                    <label className="cfg-label">Data crítica exibida no card</label>
+                    <select
+                      className="cfg-select"
+                      value={(kanbanPrefs ?? KANBAN_PADRAO).card?.dataCritica ?? 'data_prevista_coleta_pedido'}
+                      onChange={e => kanbanCardSetDataCritica(e.target.value || null)}
+                    >
+                      <option value="">— Não exibir —</option>
+                      {KANBAN_CAMPOS_DISPONIVEIS.filter(c => c.categoria === 'datas').map(c => (
+                        <option key={c.campo} value={c.campo}>{c.label}</option>
+                      ))}
+                      {/* Datas de colunas customizadas disponíveis via KANBAN_CARD_CAMPOS_DISPONIVEIS */}
+                    </select>
+                    <p className="cfg-kanban-aba-hint">Barra colorida de urgência (ok / alerta / urgente) baseada nesta data</p>
+                  </div>
+                </>
+              )}
             </section>
 
             {/* Campos disponíveis */}

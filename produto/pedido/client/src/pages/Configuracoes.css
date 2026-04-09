@@ -1637,3 +1637,33 @@ body.light-theme .cfg-formula-chip:hover {
   color: var(--text-muted, #64748b);
   padding: 1rem 0;
 }
+
+/* ── Card config ── */
+
+.cfg-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.4rem;
+}
+
+.cfg-select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text-main, #e2e8f0);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  width: 100%;
+  max-width: 360px;
+  cursor: pointer;
+}
+
+.cfg-select:focus { outline: none; border-color: rgba(129,140,248,0.5); }
+
+body.light-theme .cfg-select {
+  background: #f8fafc;
+  border-color: rgba(0,0,0,0.1);
+  color: #0f172a;
+}

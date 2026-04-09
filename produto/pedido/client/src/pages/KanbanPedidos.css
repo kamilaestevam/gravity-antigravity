@@ -125,6 +125,22 @@
 .kbp-card-data-critica--alerta  { color: #fbbf24; background: rgba(251, 191, 36, 0.12); }
 .kbp-card-data-critica--urgente { color: #f87171; background: rgba(248, 113, 113, 0.12); }
 
+.kbp-card-itens {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.kbp-card-status {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .kbp-card-footer {
   display: flex;
   align-items: center;

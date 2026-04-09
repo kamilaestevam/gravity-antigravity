@@ -29,8 +29,8 @@ import {
   CalendarX,
 } from '@phosphor-icons/react'
 import { pedidoApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
-import type { Pedido, StatusPedido, PedidoStatusConfig, KanbanPreferencias } from '../shared/types'
-import { KANBAN_PADRAO } from '../shared/types'
+import type { Pedido, StatusPedido, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
+import { KANBAN_PADRAO, STATUS_PEDIDO_LABELS } from '../shared/types'
 import { useNavigate } from 'react-router-dom'
 import './KanbanPedidos.css'
 
@@ -52,27 +52,23 @@ interface PedidoKanbanItem extends KanbanItem {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Retorna a menor data prevista não-nula entre pronto, inspeção e coleta */
-function dataCritica(p: Pedido): { label: string; urgencia: 'ok' | 'alerta' | 'urgente' } | null {
-  const candidatas = [
-    p.data_prevista_pedido_pronto,
-    p.data_prevista_inspecao_pedido,
-    p.data_prevista_coleta_pedido,
-  ].filter(Boolean) as string[]
+/** Retorna a data crítica do campo configurado (ou null se não configurado / sem valor) */
+function dataCritica(p: Pedido, campo: string | null): { label: string; urgencia: 'ok' | 'alerta' | 'urgente' } | null {
+  if (!campo) return null
+  const val = (p as unknown as Record<string, unknown>)[campo]
+  if (!val) return null
 
-  if (candidatas.length === 0) return null
+  const data = new Date(val as string)
+  if (isNaN(data.getTime())) return null
 
-  const datas = candidatas.map(d => new Date(d)).sort((a, b) => a.getTime() - b.getTime())
-  const menor = datas[0]
   const hoje = new Date()
-  const diffDias = Math.ceil((menor.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24))
+  const diffDias = Math.ceil((data.getTime() - hoje.getTime()) / (1000 * 60 * 60 * 24))
 
   let urgencia: 'ok' | 'alerta' | 'urgente' = 'ok'
   if (diffDias <= 1) urgencia = 'urgente'
   else if (diffDias <= 7) urgencia = 'alerta'
 
-  const label = menor.toLocaleDateString('pt-BR')
-  return { label, urgencia }
+  return { label: data.toLocaleDateString('pt-BR'), urgencia }
 }
 
 function formatarValorCampo(p: Pedido, campo: string): string {
@@ -91,9 +87,12 @@ function formatarValorCampo(p: Pedido, campo: string): string {
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 
-function CardPedido({ item }: { item: PedidoKanbanItem }) {
+function CardPedido({ item, cardConfig }: { item: PedidoKanbanItem; cardConfig: KanbanCardConfig }) {
   const p = item.pedido
-  const critica = dataCritica(p)
+  const campos = cardConfig.campos
+  const isVisivel = (campo: string) => campos.find(c => c.campo === campo)?.visivel ?? false
+
+  const critica = dataCritica(p, cardConfig.dataCritica)
 
   const tipoLabel = p.tipo_operacao === 'importacao' ? '↓ Importação' : '↑ Exportação'
   const tipoColor = p.tipo_operacao === 'importacao' ? '#818cf8' : '#34d399'
@@ -111,6 +110,9 @@ function CardPedido({ item }: { item: PedidoKanbanItem }) {
     ? Math.max(0, Math.min(100, (saldoTotal / qtdInicial) * 100))
     : null
 
+  const exportador = p.nome_exportador
+  const importador = p.nome_importador
+
   return (
     <div className="kbp-card">
       <div className="kbp-card-header">
@@ -118,10 +120,23 @@ function CardPedido({ item }: { item: PedidoKanbanItem }) {
         <span className="kbp-card-tipo" style={{ color: tipoColor }}>{tipoLabel}</span>
       </div>
 
-      {(p.nome_exportador || p.nome_importador) && (
-        <div className="kbp-card-parceiro">
-          {p.nome_exportador || p.nome_importador}
+      {isVisivel('nome_exportador') && exportador && (
+        <div className="kbp-card-parceiro">{exportador}</div>
+      )}
+
+      {isVisivel('nome_importador') && importador && (
+        <div className="kbp-card-parceiro">{importador}</div>
+      )}
+
+      {isVisivel('numero_itens_pedido') && (
+        <div className="kbp-card-itens">
+          <Package size={11} />
+          {String((p as unknown as Record<string, unknown>)['numero_itens_pedido'] ?? '—')} itens
         </div>
+      )}
+
+      {isVisivel('status') && p.status && (
+        <div className="kbp-card-status">{STATUS_PEDIDO_LABELS[p.status] ?? p.status}</div>
       )}
 
       {critica && (
@@ -132,21 +147,27 @@ function CardPedido({ item }: { item: PedidoKanbanItem }) {
       )}
 
       <div className="kbp-card-footer">
-        {valorLabel && (
+        {isVisivel('valor_total_pedido') && valorLabel && (
           <span className="kbp-card-valor">
             <CurrencyDollar size={11} />
             {valorLabel} {p.moeda_pedido || 'USD'}
           </span>
         )}
-        {p.incoterm && (
+        {isVisivel('incoterm') && p.incoterm && (
           <span className="kbp-card-incoterm">
             <ArrowsLeftRight size={10} />
             {p.incoterm}
           </span>
         )}
+        {isVisivel('numero_invoice') && p.numero_invoice && (
+          <span className="kbp-card-incoterm">INV {p.numero_invoice}</span>
+        )}
+        {isVisivel('numero_proforma') && p.numero_proforma && (
+          <span className="kbp-card-incoterm">PRO {p.numero_proforma}</span>
+        )}
       </div>
 
-      {saldoPct !== null && (
+      {isVisivel('saldo_bar') && saldoPct !== null && (
         <div className="kbp-card-saldo-wrap">
           <div className="kbp-card-saldo-bar">
             <div className="kbp-card-saldo-fill" style={{ width: `${saldoPct}%` }} />
@@ -518,7 +539,7 @@ export default function KanbanPedidos() {
       <KanbanGlobal<PedidoKanbanItem>
         colunas={colunasComputadas}
         itens={itensFiltrados}
-        renderCard={(item) => <CardPedido item={item} />}
+        renderCard={(item) => <CardPedido item={item} cardConfig={(preferencias ?? KANBAN_PADRAO).card ?? KANBAN_PADRAO.card} />}
         onMoverItem={handleMover}
         onCardClick={(item) => setModalPedido(item.pedido)}
         isLoading={loading}

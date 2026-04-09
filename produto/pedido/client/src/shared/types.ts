@@ -915,8 +915,20 @@ export interface KanbanAbaConfig {
   campos: KanbanCampoConfig[]
 }
 
+export interface KanbanCardCampo {
+  campo:   string
+  label:   string
+  visivel: boolean
+}
+
+export interface KanbanCardConfig {
+  campos:       KanbanCardCampo[]
+  dataCritica:  string | null
+}
+
 export interface KanbanPreferencias {
   abas: KanbanAbaConfig[]
+  card: KanbanCardConfig
 }
 
 export interface KanbanCampoDisponivel {
@@ -931,8 +943,24 @@ export const KANBAN_LIMITES: Record<string, number> = {
   datas:       8,
 }
 
+export const KANBAN_CARD_CAMPOS_DISPONIVEIS: KanbanCardCampo[] = [
+  { campo: 'nome_exportador',      label: 'Exportador',          visivel: true  },
+  { campo: 'nome_importador',      label: 'Importador',          visivel: false },
+  { campo: 'numero_itens_pedido',  label: 'Nº de Itens',         visivel: false },
+  { campo: 'valor_total_pedido',   label: 'Valor Total',         visivel: true  },
+  { campo: 'incoterm',             label: 'Incoterm',            visivel: true  },
+  { campo: 'numero_invoice',       label: 'Nº Invoice',          visivel: false },
+  { campo: 'numero_proforma',      label: 'Nº Proforma',         visivel: false },
+  { campo: 'status',               label: 'Status',              visivel: false },
+  { campo: 'saldo_bar',            label: 'Saldo (barra)',       visivel: true  },
+]
+
 // Campos padrão quando usuário não configurou nada
 export const KANBAN_PADRAO: KanbanPreferencias = {
+  card: {
+    campos: KANBAN_CARD_CAMPOS_DISPONIVEIS.map(c => ({ ...c })),
+    dataCritica: 'data_prevista_coleta_pedido',
+  },
   abas: [
     {
       aba: 'pedido',
@@ -986,7 +1014,7 @@ export const KANBAN_CAMPOS_DISPONIVEIS: KanbanCampoDisponivel[] = [
   { campo: 'referencia_exportador',   label: 'Ref. Exportador',          categoria: 'pedido'      },
   { campo: 'referencia_importador',   label: 'Ref. Importador',          categoria: 'pedido'      },
   { campo: 'condicao_pagamento_pedido', label: 'Cond. Pagamento',        categoria: 'pedido'      },
-  { campo: 'cobertura_cambial',        label: 'Cobertura Cambial',       categoria: 'item'        },
+  { campo: 'cobertura_cambial',        label: 'Cobertura Cambial',       categoria: 'pedido'      },
   { campo: 'peso_liquido_total_pedido', label: 'Peso Líquido',           categoria: 'pedido'      },
   { campo: 'peso_bruto_total_pedido', label: 'Peso Bruto',               categoria: 'pedido'      },
   // Aba Quantidades

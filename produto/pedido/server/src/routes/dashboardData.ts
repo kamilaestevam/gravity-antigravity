@@ -77,7 +77,11 @@ function periodToDateRange(period: string): { from: Date; to: Date } {
 // ── KPIs agregados ─────────────────────────────────────────────────────────────
 dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
   const period = (req.query.period as string) ?? '30d'
-  const { from, to } = periodToDateRange(period)
+  const fromParam = req.query.from as string | undefined
+  const toParam   = req.query.to   as string | undefined
+  const { from, to } = (fromParam && toParam)
+    ? { from: new Date(fromParam), to: new Date(toParam) }
+    : periodToDateRange(period)
   const db = (req as any).prisma
 
   try {

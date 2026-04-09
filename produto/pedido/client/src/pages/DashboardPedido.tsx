@@ -9,7 +9,7 @@
  * - WidgetEditModal exibe FieldQuerySpec[] com operação por campo
  */
 
-import React, { useMemo, useState, useCallback, useEffect } from 'react'
+import React, { useMemo, useState, useCallback, useEffect, type ReactNode } from 'react'
 import {
   DashboardGrid,
   WidgetContainer,
@@ -35,6 +35,11 @@ import type {
   DerivedMetric,
 } from '@nucleo/dashboard'
 import { resolveAxisAssignment, SERIES_COLORS, formatValueByUnit } from '@nucleo/dashboard'
+import {
+  Package, ClipboardText, Scales, CurrencyDollar,
+  Warning, UserCircleMinus, CheckCircle,
+  ListNumbers, ArrowsLeftRight, Tag,
+} from '@phosphor-icons/react'
 
 import { useDashboardStore } from '../stores/dashboardStore'
 import { DASHBOARD_CATALOG, CATALOG_BY_KEY } from '../shared/dashboardCatalog'
@@ -111,6 +116,76 @@ function buildWidgetResult(
 
 // ── (KpiValue, WidgetEditModal e SuggestionsPanel migrados para @nucleo/dashboard) ──
 
+// ── Período anterior para comparação de tendência ────────────────────────────
+
+function getPrevDateRange(period: string): { from: string; to: string } {
+  const now = new Date()
+  const prevTo   = new Date(now)
+  const prevFrom = new Date(now)
+
+  switch (period) {
+    case '7d':
+      prevTo.setDate(now.getDate() - 7)
+      prevFrom.setDate(now.getDate() - 14)
+      break
+    case '30d':
+      prevTo.setDate(now.getDate() - 30)
+      prevFrom.setDate(now.getDate() - 60)
+      break
+    case '90d':
+      prevTo.setDate(now.getDate() - 90)
+      prevFrom.setDate(now.getDate() - 180)
+      break
+    case '6m':
+      prevTo.setMonth(now.getMonth() - 6)
+      prevFrom.setMonth(now.getMonth() - 12)
+      break
+    case '12m':
+    case 'current_year':
+    case 'ytd':
+      prevTo.setFullYear(now.getFullYear() - 1)
+      prevFrom.setFullYear(now.getFullYear() - 2)
+      break
+    default:
+      prevTo.setDate(now.getDate() - 30)
+      prevFrom.setDate(now.getDate() - 60)
+  }
+
+  return { from: prevFrom.toISOString(), to: prevTo.toISOString() }
+}
+
+function computeDelta(current: number, prev: number): {
+  delta: number
+  percent: number
+  direction: 'up' | 'down' | 'neutral'
+} {
+  const delta = current - prev
+  const percent = prev === 0
+    ? (current > 0 ? 100 : 0)
+    : (delta / prev) * 100
+  const direction = delta > 0 ? 'up' : delta < 0 ? 'down' : 'neutral'
+  return { delta, percent, direction }
+}
+
+// ── Configuração visual por widget ────────────────────────────────────────────
+
+const AMBER  = '#f59e0b'
+const DANGER = '#ef4444'
+const GREEN  = '#22c55e'
+
+const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }> = {
+  kpi_total_pedidos:     { accentColor: AMBER,  icone: <Package          size={15} weight="duotone" /> },
+  kpi_pedidos_abertos:   { accentColor: AMBER,  icone: <ClipboardText    size={15} weight="duotone" /> },
+  kpi_saldo_total:       { accentColor: AMBER,  icone: <Scales           size={15} weight="duotone" /> },
+  kpi_valor_total:       { accentColor: AMBER,  icone: <CurrencyDollar   size={15} weight="duotone" /> },
+  kpi_pedidos_atrasados: { accentColor: DANGER, icone: <Warning          size={15} weight="duotone" /> },
+  kpi_sem_exportador:    { accentColor: AMBER,  icone: <UserCircleMinus  size={15} weight="duotone" /> },
+  kpi_qtd_pronta:        { accentColor: GREEN,  icone: <CheckCircle      size={15} weight="duotone" /> },
+  kpi_qtd_inicial:       {                      icone: <ListNumbers       size={15} weight="duotone" /> },
+  kpi_qtd_transferida:   {                      icone: <ArrowsLeftRight   size={15} weight="duotone" /> },
+  kpi_valor_itens:       {                      icone: <Tag               size={15} weight="duotone" /> },
+}
+
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function DashboardPedido() {
@@ -127,9 +202,10 @@ export default function DashboardPedido() {
   const [editingWidget,   setEditingWidget]   = useState<DashboardWidgetConfig | null>(null)
   const [editModalOpen,   setEditModalOpen]   = useState(false)
 
-  const [kpisData,    setKpisData]    = useState<DashboardKpis | null>(null)
-  const [trendData,   setTrendData]   = useState<DashboardTrendBucket[]>([])
-  const [loadingData, setLoadingData] = useState(true)
+  const [kpisData,     setKpisData]     = useState<DashboardKpis | null>(null)
+  const [prevKpisData, setPrevKpisData] = useState<DashboardKpis | null>(null)
+  const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
+  const [loadingData,  setLoadingData]  = useState(true)
 
   // allDerived deve vir antes de suggestions (evita TDZ)
   const allDerived: DerivedMetric[] = useMemo(
@@ -151,12 +227,15 @@ export default function DashboardPedido() {
 
   useEffect(() => {
     setLoadingData(true)
+    const prevRange = getPrevDateRange(slicers.period)
     Promise.all([
       dashboardApi.kpis(slicers.period),
+      dashboardApi.kpis(slicers.period, prevRange),
       dashboardApi.trend('12m', 'month'),
     ])
-      .then(([kpis, trend]) => {
+      .then(([kpis, prevKpis, trend]) => {
         setKpisData(kpis)
+        setPrevKpisData(prevKpis)
         setTrendData(trend.value)
       })
       .catch(err => console.error('[Dashboard] Erro ao carregar dados:', err))
@@ -176,10 +255,21 @@ export default function DashboardPedido() {
   )
 
   const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
+    const chartType = widget.chart_type
+
+    // ── SECTION_LABEL — divisor de seção sem WidgetContainer ────────────────
+    if (chartType === 'SECTION_LABEL') {
+      return (
+        <div key={widget.id} style={sectionLabelStyle}>
+          <span style={sectionLabelTextStyle}>{widget.title}</span>
+          <div style={sectionLabelLineStyle} />
+        </div>
+      )
+    }
+
     const result = kpisData
       ? buildWidgetResult(widget, kpisData, trendData, allDerived)
       : { data: {}, chartType: widget.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
-    const chartType = widget.chart_type
     const fields = widget.query_spec.fields
 
     // ── DISTRIBUTION ────────────────────────────────────────────────────────
@@ -275,13 +365,26 @@ export default function DashboardPedido() {
         ? allDerived.find(m => m.id === widget.config!.derivedMetricId)
         : undefined
       const fieldType: FieldUnitType = dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
+      const visual = WIDGET_VISUAL[widget.id] ?? {}
+      const currentVal = Number(kpisData?.[fieldKey] ?? 0)
+      const prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
+      const deltaInfo  = computeDelta(currentVal, prevVal)
       return (
         <WidgetContainer key={widget.id} widget={widget} result={result} loading={loadingData} error={null}
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
+          accentColor={visual.accentColor}
+          icone={visual.icone}
         >
-          <KpiValue data={result.data} fieldKey={fieldKey} fieldType={fieldType} />
+          <KpiValue
+            data={result.data}
+            fieldKey={fieldKey}
+            fieldType={fieldType}
+            delta={deltaInfo.delta}
+            deltaPercent={deltaInfo.percent}
+            deltaDirection={deltaInfo.direction}
+          />
         </WidgetContainer>
       )
     }
@@ -297,7 +400,7 @@ export default function DashboardPedido() {
         <KpiValue data={result.data} fieldKey={fieldKey} fieldType="number" />
       </WidgetContainer>
     )
-  }, [editMode, removeWidget, allDerived, kpisData, trendData, loadingData])
+  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData])
 
   function handleQueryBuilderSave(spec: WidgetQuerySpec, title: string, chartType: ChartType) {
     addWidget({
@@ -369,4 +472,27 @@ export default function DashboardPedido() {
   )
 }
 
-// (estilos de toolbar e painel movidos para @nucleo/dashboard)
+// ── Estilos section label ─────────────────────────────────────────────────────
+
+const sectionLabelStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px',
+  height: '100%',
+  padding: '0 4px',
+}
+
+const sectionLabelTextStyle: React.CSSProperties = {
+  fontSize: '11px',
+  fontWeight: 700,
+  color: 'var(--text-muted)',
+  textTransform: 'uppercase',
+  letterSpacing: '0.08em',
+  whiteSpace: 'nowrap',
+}
+
+const sectionLabelLineStyle: React.CSSProperties = {
+  flex: 1,
+  height: '1px',
+  background: 'var(--border-default)',
+}

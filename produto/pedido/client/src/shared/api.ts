@@ -368,7 +368,6 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
   if (verificarCampo('moeda_pedido', 'Moeda')) camposIguais.push('moeda_pedido')
   if (verificarCampo('nome_exportador', 'Exportador')) camposIguais.push('nome_exportador')
   if (verificarCampo('data_emissao_pedido', 'Data Emissão do Pedido')) camposIguais.push('data_emissao_pedido')
-  if (verificarCampo('cobertura_cambial_pedido', 'Cobertura Cambial')) camposIguais.push('cobertura_cambial_pedido')
   if (verificarCampo('condicao_pagamento_pedido', 'Condição de Pagamento')) camposIguais.push('condicao_pagamento_pedido')
 
   // Mapa de itens por part_number
@@ -933,7 +932,6 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     unidade_comercializada_pedido: 'UN',
     quantidade_total_inicial_pedido: 0,
     quantidade_transferida_total: 0,
-    cobertura_cambial_pedido: 'sem_cobertura',
     condicao_pagamento_pedido: null,
     data_emissao_pedido: new Date().toISOString().split('T')[0],
     numero_proforma: null,
@@ -1671,8 +1669,11 @@ export interface DashboardDistributionResponse {
 }
 
 export const dashboardApi = {
-  kpis: (period: string) =>
-    request<DashboardKpis>(`/api/v1/pedidos/dashboard/kpis?period=${encodeURIComponent(period)}`),
+  kpis: (period: string, range?: { from: string; to: string }) => {
+    const params = new URLSearchParams({ period })
+    if (range) { params.set('from', range.from); params.set('to', range.to) }
+    return request<DashboardKpis>(`/api/v1/pedidos/dashboard/kpis?${params}`)
+  },
 
   trend: (period: string, granularity = 'month') =>
     request<DashboardTrendResponse>(

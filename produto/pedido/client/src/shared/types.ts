@@ -62,6 +62,8 @@ export interface PedidoItem {
   valor_unitario_item?: number | null
   casas_decimais_valor_item: number
   cobertura_cambial?: string
+  nome_exportador?: string | null
+  nome_importador?: string | null
 
   // Pesos e cubagem
   peso_liquido_unitario_item?: number | null

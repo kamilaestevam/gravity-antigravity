@@ -81,6 +81,8 @@ const atualizarItemSchema = z.object({
   valor_total_itens: z.number().optional().nullable(),
   quantidade_inicial_item_pedido: z.number().min(0).optional(),
   cobertura_cambial: z.string().optional(),
+  nome_exportador: z.string().optional().nullable(),
+  nome_importador: z.string().optional().nullable(),
   // Dados físicos unitários
   peso_liquido_unitario_item: z.number().optional().nullable(),
   peso_bruto_unitario_item:   z.number().optional().nullable(),

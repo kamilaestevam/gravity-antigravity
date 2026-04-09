@@ -527,7 +527,30 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Exportador',
     tooltipDescricao: 'Fornecedor/exportador estrangeiro na operação de importação',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => <span>{row.nome_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      if (row.tipo_operacao !== 'importacao') return <span>{row.nome_exportador ?? '—'}</span>
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const valores = [...new Set(itens.map(i => i.nome_exportador ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
+          title={diverge ? `Exportadores diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'nome_importador',
@@ -538,7 +561,30 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Importador',
     tooltipDescricao: 'Comprador/importador estrangeiro na operação de exportação',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => <span>{row.nome_importador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      if (row.tipo_operacao !== 'exportacao') return <span>{row.nome_importador ?? '—'}</span>
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const valores = [...new Set(itens.map(i => i.nome_importador ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
+          title={diverge ? `Importadores diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'nome_fabricante',
@@ -820,8 +866,31 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const itens = row.itens ?? []
       if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
       const valores = itens.map(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura')
-      const distintos = [...new Set(valores)].join(', ')
-      return <span style={{ display: 'block', textAlign: 'center' }}>{distintos}</span>
+      const valoresUnicos = [...new Set(valores)]
+      const distintos = valoresUnicos.join(' | ')
+      const diverge = valoresUnicos.length > 1
+      return (
+        <span
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4px',
+            color: diverge ? '#F59E0B' : undefined,
+            fontWeight: diverge ? 600 : undefined,
+          }}
+          title={diverge ? `Itens com coberturas diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
     },
   },
   {
@@ -3208,7 +3277,7 @@ const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
 
 // Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
 const CAMPOS_PAI_TEXTO = new Set([
-  'nome_exportador', 'nome_importador', 'nome_fabricante',
+  'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'numero_proforma', 'numero_invoice',
   'incoterm', 'condicao_pagamento_pedido',
@@ -3273,16 +3342,18 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.nome_exportador ?? '—'}</span>
+      const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
+      if (tipoOp === 'importacao') return <span>{row.nome_exportador ?? '—'}</span>
+      return <span>{(row as PedidoItemEnriquecido)._p?.nome_exportador ?? '—'}</span>
     },
   },
   nome_importador: {
     editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.nome_importador ?? '—'}</span>
+      const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
+      if (tipoOp === 'exportacao') return <span>{row.nome_importador ?? '—'}</span>
+      return <span>{(row as PedidoItemEnriquecido)._p?.nome_importador ?? '—'}</span>
     },
   },
   nome_fabricante: {
@@ -4513,8 +4584,8 @@ export default function ListaPedidos() {
 
     // Campos do pedido pai → atualiza o pedido, não o item
     if (CAMPOS_PAI_TEXTO.has(campo)) {
-      // nome_exportador, nome_fabricante → usar PATCH inline /:id/campo
-      const pedidoAtualizado = (campo === 'nome_exportador' || campo === 'nome_importador' || campo === 'nome_fabricante')
+      // nome_fabricante → usar PATCH inline /:id/campo
+      const pedidoAtualizado = (campo === 'nome_fabricante')
         ? await pedidoVirtualApi.editarCampo(pedido.id, campo, valor as string)
             .catch(() => {
               if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido

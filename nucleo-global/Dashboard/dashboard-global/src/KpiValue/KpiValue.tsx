@@ -44,9 +44,9 @@ export function KpiValue({
 
       {hasDelta && (
         <span style={{ ...styles.badge, ...badgeVariant(deltaDirection!) }}>
-          {deltaDirection === 'up'   && <ArrowUp   size={11} weight="bold" />}
-          {deltaDirection === 'down' && <ArrowDown size={11} weight="bold" />}
-          {deltaDirection === 'neutral' && <Minus size={11} weight="bold" />}
+          {deltaDirection === 'up'   && <ArrowUp   size={14} weight="bold" />}
+          {deltaDirection === 'down' && <ArrowDown size={14} weight="bold" />}
+          {deltaDirection === 'neutral' && <Minus size={14} weight="bold" />}
           {deltaPercent !== undefined
             ? `${Math.abs(deltaPercent).toFixed(1)}%`
             : formatValueByUnit(Math.abs(delta!), fieldType)
@@ -69,14 +69,14 @@ const styles = {
     minWidth: 0, overflow: 'hidden', flexWrap: 'wrap' as const,
   },
   value: {
-    fontSize: 'clamp(1.5rem, 5cqw, 2.25rem)', fontWeight: 700,
+    fontSize: '48px', fontWeight: 700,
     color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1,
     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const,
     minWidth: 0, maxWidth: '100%', display: 'block',
   },
   badge: {
     display: 'inline-flex', alignItems: 'center', gap: '3px',
-    fontSize: '11px', fontWeight: 600,
+    fontSize: '14px', fontWeight: 600,
     borderRadius: '4px', padding: '2px 6px',
     whiteSpace: 'nowrap' as const, lineHeight: 1, marginBottom: '2px',
   },

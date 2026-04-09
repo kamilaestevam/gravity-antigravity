@@ -27,6 +27,8 @@ export interface WidgetContainerProps {
   accentColor?: string
   /** Ícone Phosphor exibido ao lado do título */
   icone?: React.ReactNode
+  /** Callback ao clicar no container (usado para rastrear comportamento) */
+  onClick?: () => void
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -123,6 +125,7 @@ export function WidgetContainer({
   children,
   accentColor,
   icone,
+  onClick,
 }: WidgetContainerProps) {
   const isPartial = result?.partial === true
   const isCached = result?.cached === true
@@ -144,7 +147,7 @@ export function WidgetContainer({
   }
 
   return (
-    <div style={containerStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+    <div style={containerStyle} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} onClick={onClick}>
       {/* Cabeçalho com drag handle */}
       <div className={editMode ? 'db-drag-handle' : undefined} style={headerStyle}>
         <div style={styles.titleArea}>
@@ -215,7 +218,7 @@ const styles = {
     background: 'var(--bg-base)',
     border: '1px solid var(--border-default)',
     borderRadius: 'var(--radius-lg)',
-    padding: '20px 20px 16px',
+    padding: '14px 16px',
     boxShadow: 'var(--shadow-sm)',
     display: 'flex',
     flexDirection: 'column' as const,
@@ -241,9 +244,9 @@ const styles = {
     justifyContent: 'space-between',
     gap: 'var(--space-2)',
     userSelect: 'none' as const,
-    paddingBottom: '12px',
+    paddingBottom: '8px',
     borderBottom: '1px solid var(--border-default)',
-    marginBottom: '16px',
+    marginBottom: '10px',
   },
   titleArea: {
     display: 'flex',

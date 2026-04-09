@@ -222,12 +222,9 @@ function ModalKanbanPedido({
     onFechar()
   }
 
-  function abrirCompleto(tab?: 'dados' | 'itens' | 'transferencias') {
+  function abrirCompleto() {
     navigate(`/pedidos`, {
-      state: {
-        openPedidoId: pedido!.id,
-        initialTab:   tab ?? (abaAtiva === 'quantidades' ? 'itens' : 'dados'),
-      },
+      state: { numeroPedido: pedido!.numero_pedido },
     })
     onFechar()
   }
@@ -377,7 +374,7 @@ function ModalKanbanPedido({
               <button
                 type="button"
                 className="kbp-modal-btn-abrir"
-                onClick={() => abrirCompleto('dados')}
+                onClick={() => abrirCompleto()}
               >
                 <ArrowSquareOut size={15} weight="duotone" />
                 Abrir pedido completo

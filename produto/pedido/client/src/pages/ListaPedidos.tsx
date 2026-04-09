@@ -818,22 +818,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []
-      if (itens.length === 0) return <span>—</span>
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
       const valores = itens.map(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura')
-      const todosIguais = valores.every(v => v === valores[0])
-      if (todosIguais) return <span>{valores[0]}</span>
-      const celula = (
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', cursor: 'help' }}>
-          <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />
-          <span style={{ color: '#fbbf24' }}>divergente</span>
-        </span>
-      )
-      const detalhes = itens.map(i => `${(i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura'}`).join(', ')
-      return (
-        <TooltipGlobal titulo="Cobertura cambial divergente entre itens" descricao={`Itens: ${detalhes}`}>
-          {celula}
-        </TooltipGlobal>
-      )
+      const distintos = [...new Set(valores)].join(', ')
+      return <span style={{ display: 'block', textAlign: 'center' }}>{distintos}</span>
     },
   },
   {
@@ -4152,30 +4140,27 @@ export default function ListaPedidos() {
   const tabelaRef = useRef<GTVirtualHandle | null>(null)
   const pendingInlineEditRef = useRef<{ id: string; campo: string } | null>(null)
 
-  // Navegação via Kanban: { openPedidoId, editCampo, numeroPedido } → edição inline
-  // { openPedidoId, initialTab } → abre drawer (botão "Abrir pedido completo")
+  // Navegação via Kanban:
+  //   { openPedidoId, editCampo, numeroPedido } → edição inline na célula
+  //   { numeroPedido }                          → apenas filtrar na lista (Abrir pedido completo)
   useEffect(() => {
     const st = location.state as {
       openPedidoId?: string
       editCampo?: string
       numeroPedido?: string
-      initialTab?: string
     } | null
-    if (!st?.openPedidoId) return
+    if (!st?.openPedidoId && !st?.numeroPedido) return
     window.history.replaceState({}, '')
 
-    if (st.editCampo) {
-      // Fluxo inline: buscar pedido na tabela e abrir célula para edição
+    if (st.openPedidoId && st.editCampo) {
+      // Fluxo inline: filtrar + abrir célula para edição
       pendingInlineEditRef.current = { id: st.openPedidoId, campo: st.editCampo }
       if (st.numeroPedido) {
         handleBuscar(st.numeroPedido)
       }
-    } else {
-      // Fluxo drawer: "Abrir pedido completo"
-      const tab = (st.initialTab as 'dados' | 'itens' | 'transferencias') ?? 'dados'
-      setPedidoEditandoId(st.openPedidoId)
-      setDrawerInitialTab(tab)
-      setDrawerAberto(true)
+    } else if (st.numeroPedido) {
+      // Fluxo "Abrir pedido completo": apenas filtrar na lista
+      handleBuscar(st.numeroPedido)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state])

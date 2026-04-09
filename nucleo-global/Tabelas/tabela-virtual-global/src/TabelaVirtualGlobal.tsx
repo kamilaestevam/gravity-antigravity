@@ -1222,9 +1222,23 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onErroAoSalvar,
   )
 
-  // Expõe iniciarEdicaoPai ao pai via imperativeRef
+  // Expõe iniciarEdicao ao pai via imperativeRef.
+  // Dispara clique na célula real para acionar o fluxo completo
+  // (setOverlayInfo + iniciarEdicaoPai), garantindo posicionamento correto do popover.
   useImperativeHandle(imperativeRef, () => ({
-    iniciarEdicao: iniciarEdicaoPai,
+    iniciarEdicao: (id: string, campo: string, valorAtual: unknown) => {
+      const celula = document.querySelector<HTMLElement>(
+        `[data-gtv-rowid="${id}"][data-gtv-campo="${campo}"]`
+      )
+      if (celula) {
+        celula.scrollIntoView({ block: 'center', behavior: 'instant' })
+        // Pequeno delay para o scroll terminar antes do clique
+        requestAnimationFrame(() => celula.click())
+      } else {
+        // Fallback quando célula não está no DOM (fora da janela virtual)
+        iniciarEdicaoPai(id, campo, valorAtual)
+      }
+    },
   }), [iniciarEdicaoPai])
 
   const atualizarFilhoCacheCallback = useCallback(
@@ -1580,6 +1594,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         key={col.key}
         className={`gtv-celula${classeAlinhamento}${classeIndent}${classeEditavel}${classeFindMatch}${classeFindAtivo}`}
         style={styleCelula}
+        data-gtv-rowid={podeEditar ? id : undefined}
+        data-gtv-campo={podeEditar ? col.key : undefined}
         tabIndex={podeEditar && !estaEditando ? 0 : undefined}
         onClick={e => {
           if (podeEditar && !estaEditando) {

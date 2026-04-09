@@ -64,6 +64,8 @@ export default defineConfig({
       // ── Modais (extras) ──
       '@nucleo/modal-passo-passo-global': path.resolve(__dirname, '../../nucleo-global/Modais/modal-passo-passo-global/src/index.ts'),
       '@nucleo/modal-gabi-caixa-aviso': path.resolve(__dirname, '../../nucleo-global/Modais/modal-gabi-caixa-aviso/src/index.ts'),
+      '@nucleo/modal-tabela-moeda': path.resolve(__dirname, '../../nucleo-global/Modais/modal-tabela-moeda/src/index.ts'),
+      '@nucleo/modal-tabela-unidades': path.resolve(__dirname, '../../nucleo-global/Modais/modal-tabela-unidades/src/index.ts'),
       // ── Templates ──
       '@nucleo/pagina-dashboard-global': path.resolve(__dirname, '../../nucleo-global/Templates/pagina-dashboard-global/src/index.ts'),
       '@nucleo/pagina-formulario-global': path.resolve(__dirname, '../../nucleo-global/Templates/pagina-formulario-global/src/index.ts'),

@@ -56,7 +56,6 @@ interface PedidoForm {
   fabricante_id: string
   incoterm: string
   moeda_pedido: string
-  cobertura_cambial_pedido: string
   condicao_pagamento_pedido: string
   numero_proforma: string
   numero_invoice: string
@@ -83,7 +82,6 @@ const FORM_VAZIO: PedidoForm = {
   fabricante_id: '',
   incoterm: 'FOB',
   moeda_pedido: 'USD',
-  cobertura_cambial_pedido: 'com_cobertura',
   condicao_pagamento_pedido: '',
   numero_proforma: '',
   numero_invoice: '',
@@ -195,7 +193,6 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
           fabricante_id: '',
           incoterm: pedido.incoterm ?? 'FOB',
           moeda_pedido: pedido.moeda_pedido,
-          cobertura_cambial_pedido: pedido.cobertura_cambial_pedido,
           condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? '',
           numero_proforma: pedido.numero_proforma ?? '',
           numero_invoice: pedido.numero_invoice ?? '',
@@ -469,21 +466,6 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                         aoSelecionar={(sigla) => handleChange('moeda_pedido', sigla)}
                         moedaSelecionada={form.moeda_pedido}
                       />
-                    </div>
-                    <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-cobertura" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                        Cobertura Cambial
-                        <GabiFieldIcon campo="cobertura_cambial_pedido" label="Cobertura Cambial" gabiEndpoint="/api/v1/pedidos/gabi/field-help" />
-                      </label>
-                      <select
-                        id="dp-cobertura"
-                        className="drawer-pedido__select"
-                        value={form.cobertura_cambial_pedido}
-                        onChange={e => handleChange('cobertura_cambial_pedido', e.target.value)}
-                      >
-                        <option value="com_cobertura">Com Cobertura</option>
-                        <option value="sem_cobertura">Sem Cobertura</option>
-                      </select>
                     </div>
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label" htmlFor="dp-pagamento" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>

@@ -53,6 +53,7 @@ import type {
   GTAcaoExport,
   GTAbaTipo,
   GTPreferencias,
+  GTVirtualHandle,
 } from '@nucleo/tabela-virtual-global'
 import { useCardPreferences, CARDS_CATALOGO } from '../shared/useCardPreferences'
 import { CARD_REGISTRY, computeCardStats } from '../shared/cardRegistry'
@@ -808,14 +809,32 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => <span>{row.referencia_fabricante ?? '—'}</span>,
   },
   {
-    key: 'cobertura_cambial_pedido',
+    key: 'cobertura_cambial',
     label: 'Cobertura Cambial',
     tipo: 'texto',
     filtravel: true,
     tooltipTitulo: 'Cobertura Cambial',
-    tooltipDescricao: 'Modalidade de cobertura cambial do pedido (ex: Antecipado, à Vista, a Prazo)',
+    tooltipDescricao: 'Modalidade de cobertura cambial por item (ex: com_cobertura, sem_cobertura). Se os itens divergem, exibe alerta.',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => <span>{row.cobertura_cambial_pedido ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span>—</span>
+      const valores = itens.map(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura')
+      const todosIguais = valores.every(v => v === valores[0])
+      if (todosIguais) return <span>{valores[0]}</span>
+      const celula = (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', cursor: 'help' }}>
+          <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />
+          <span style={{ color: '#fbbf24' }}>divergente</span>
+        </span>
+      )
+      const detalhes = itens.map(i => `${(i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura'}`).join(', ')
+      return (
+        <TooltipGlobal titulo="Cobertura cambial divergente entre itens" descricao={`Itens: ${detalhes}`}>
+          {celula}
+        </TooltipGlobal>
+      )
+    },
   },
   {
     key: 'condicao_pagamento_pedido',
@@ -1780,7 +1799,7 @@ const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'cubagem_total_pedido',
   'incoterm',
   'nome_fabricante',
-  'cobertura_cambial_pedido',
+  'cobertura_cambial',
   'condicao_pagamento_pedido',
   'data_emissao_pedido',
   'numero_proforma',
@@ -3204,7 +3223,7 @@ const CAMPOS_PAI_TEXTO = new Set([
   'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'numero_proforma', 'numero_invoice',
-  'incoterm', 'condicao_pagamento_pedido', 'cobertura_cambial_pedido',
+  'incoterm', 'condicao_pagamento_pedido',
 ])
 
 // Tipo auxiliar: item enriquecido com dados do pedido pai para renderização
@@ -3222,7 +3241,6 @@ type PedidoItemEnriquecido = PedidoItem & {
     numero_invoice: string | null
     incoterm: string | null
     condicao_pagamento_pedido: string | null
-    cobertura_cambial_pedido: string | null
     data_emissao_pedido: string | null
     status: string
     moeda_pedido: string
@@ -3349,11 +3367,10 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       return <span>{p?.referencia_fabricante ?? '—'}</span>
     },
   },
-  cobertura_cambial_pedido: {
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.cobertura_cambial_pedido ?? '—'}</span>
-    },
+  cobertura_cambial: {
+    editavel: true,
+    campo: 'cobertura_cambial',
+    render: (row: PedidoItem) => <span>{(row as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura'}</span>,
   },
   condicao_pagamento_pedido: {
     editavel: true,
@@ -3537,7 +3554,7 @@ const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Peso Líq. Total (kg)',      key: 'peso_liquido_total_pedido',        largura: 18 },
   { header: 'Peso Bruto Total (kg)',     key: 'peso_bruto_total_pedido',          largura: 18 },
   { header: 'Cubagem Total (m³)',        key: 'cubagem_total_pedido',             largura: 16 },
-  { header: 'Cobertura Cambial',        key: 'cobertura_cambial_pedido',        largura: 18 },
+  { header: 'Cobertura Cambial',        key: 'cobertura_cambial',               largura: 18 },
   { header: 'Cond. Pagamento',          key: 'condicao_pagamento_pedido',       largura: 18 },
   { header: 'Data P.O',                 key: 'data_emissao_pedido',              largura: 14 },
   { header: 'Prev. Pronto',             key: 'data_prevista_pedido_pronto',      largura: 14 },
@@ -4131,19 +4148,51 @@ export default function ListaPedidos() {
   const [drawerInitialTab, setDrawerInitialTab]   = useState<'dados' | 'itens' | 'transferencias'>('dados')
   const [drawerFocusField, setDrawerFocusField]   = useState<string | undefined>(undefined)
 
-  // Abre drawer ao chegar via navigate com state { openPedidoId, initialTab, focusField }
-  // (ex: modal do Kanban clicando em um campo)
+  // ── Ref imperativo da tabela + edição inline pendente (navegação via Kanban) ─
+  const tabelaRef = useRef<GTVirtualHandle | null>(null)
+  const pendingInlineEditRef = useRef<{ id: string; campo: string } | null>(null)
+
+  // Navegação via Kanban: { openPedidoId, editCampo, numeroPedido } → edição inline
+  // { openPedidoId, initialTab } → abre drawer (botão "Abrir pedido completo")
   useEffect(() => {
-    const st = location.state as { openPedidoId?: string; initialTab?: string; focusField?: string } | null
+    const st = location.state as {
+      openPedidoId?: string
+      editCampo?: string
+      numeroPedido?: string
+      initialTab?: string
+    } | null
     if (!st?.openPedidoId) return
-    const tab = (st.initialTab as 'dados' | 'itens' | 'transferencias') ?? 'dados'
-    setPedidoEditandoId(st.openPedidoId)
-    setDrawerInitialTab(tab)
-    setDrawerFocusField(st.focusField)
-    setDrawerAberto(true)
-    // Limpa o state para não reabrir em navegações futuras
     window.history.replaceState({}, '')
+
+    if (st.editCampo) {
+      // Fluxo inline: buscar pedido na tabela e abrir célula para edição
+      pendingInlineEditRef.current = { id: st.openPedidoId, campo: st.editCampo }
+      if (st.numeroPedido) {
+        handleBuscar(st.numeroPedido)
+      }
+    } else {
+      // Fluxo drawer: "Abrir pedido completo"
+      const tab = (st.initialTab as 'dados' | 'itens' | 'transferencias') ?? 'dados'
+      setPedidoEditandoId(st.openPedidoId)
+      setDrawerInitialTab(tab)
+      setDrawerAberto(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state])
+
+  // Dispara edição inline assim que o pedido estiver no array e o carregamento terminar
+  useEffect(() => {
+    const pending = pendingInlineEditRef.current
+    if (!pending || carregando) return
+    const pedido = pedidos.find(p => (p as Record<string, unknown>).id === pending.id)
+    if (!pedido) return
+    pendingInlineEditRef.current = null
+    const valorAtual = (pedido as Record<string, unknown>)[pending.campo] ?? null
+    // Aguarda a tabela renderizar a linha antes de disparar a edição
+    setTimeout(() => {
+      tabelaRef.current?.iniciarEdicao(pending.id, pending.campo, valorAtual)
+    }, 200)
+  }, [pedidos, carregando])
   const [modalNovoPedidoAberto, setModalNovoPedidoAberto] = useState(false)
   const [modalNovoItemAberto, setModalNovoItemAberto]     = useState(false)
   const [smartImportAberto, setSmartImportAberto] = useState(false)
@@ -4479,8 +4528,8 @@ export default function ListaPedidos() {
 
     // Campos do pedido pai → atualiza o pedido, não o item
     if (CAMPOS_PAI_TEXTO.has(campo)) {
-      // nome_exportador, nome_fabricante e cobertura_cambial_pedido → usar PATCH inline /:id/campo
-      const pedidoAtualizado = (campo === 'nome_exportador' || campo === 'nome_importador' || campo === 'nome_fabricante' || campo === 'cobertura_cambial_pedido')
+      // nome_exportador, nome_fabricante → usar PATCH inline /:id/campo
+      const pedidoAtualizado = (campo === 'nome_exportador' || campo === 'nome_importador' || campo === 'nome_fabricante')
         ? await pedidoVirtualApi.editarCampo(pedido.id, campo, valor as string)
             .catch(() => {
               if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
@@ -4505,7 +4554,6 @@ export default function ListaPedidos() {
         numero_invoice: pedidoAtualizado.numero_invoice ?? null,
         incoterm: pedidoAtualizado.incoterm ?? null,
         condicao_pagamento_pedido: pedidoAtualizado.condicao_pagamento_pedido ?? null,
-        cobertura_cambial_pedido: pedidoAtualizado.cobertura_cambial_pedido ?? null,
         data_emissao_pedido: pedidoAtualizado.data_emissao_pedido ?? null,
         status: pedidoAtualizado.status,
         moeda_pedido: (pedidoAtualizado as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
@@ -4550,7 +4598,6 @@ export default function ListaPedidos() {
           numero_invoice: pedido.numero_invoice ?? null,
           incoterm: pedido.incoterm ?? null,
           condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? null,
-          cobertura_cambial_pedido: pedido.cobertura_cambial_pedido ?? null,
           data_emissao_pedido: pedido.data_emissao_pedido ?? null,
           status: pedido.status,
           moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
@@ -4602,7 +4649,6 @@ export default function ListaPedidos() {
         numero_invoice: pedido.numero_invoice ?? null,
         incoterm: pedido.incoterm ?? null,
         condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? null,
-        cobertura_cambial_pedido: pedido.cobertura_cambial_pedido ?? null,
         data_emissao_pedido: pedido.data_emissao_pedido ?? null,
         status: pedido.status,
         moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
@@ -4643,7 +4689,6 @@ export default function ListaPedidos() {
         numero_invoice: pedido.numero_invoice ?? null,
         incoterm: pedido.incoterm ?? null,
         condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? null,
-        cobertura_cambial_pedido: pedido.cobertura_cambial_pedido ?? null,
         data_emissao_pedido: pedido.data_emissao_pedido ?? null,
         status: pedido.status,
         moeda_pedido: pedido.moeda_pedido ?? 'USD',
@@ -4789,7 +4834,7 @@ export default function ListaPedidos() {
   }
   const unidadesQtd = Object.keys(qtdPorUnidade)
   const coberturaPend = pedidos
-    .filter(p => p.cobertura_cambial_pedido === 'sem_cobertura' || !p.cobertura_cambial_pedido)
+    .filter(p => (p.itens ?? []).some(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial === 'sem_cobertura'))
     .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
   // Valor total convertido para BRL usando taxa PTAX de venda
   // Number() necessário pois Prisma Decimal serializa como string no JSON
@@ -4906,7 +4951,7 @@ export default function ListaPedidos() {
                 valor={fmtQuantidade(coberturaPend, 2)}
                 variante="erro"
                 subtexto={t('pedido.sem_cobertura')}
-                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidos.filter(p => !p.cobertura_cambial_pedido || p.cobertura_cambial_pedido === 'sem_cobertura').length}</strong></p>}
+                tooltip={<p className="cg-tooltip__row"><span>{t('pedido.aguardando_cobertura')}</span><strong>{pedidos.filter(p => (p.itens ?? []).some(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial === 'sem_cobertura')).length}</strong></p>}
               />
             )
             // Fallback: cards definidos no CARD_REGISTRY mas sem bloco manual acima
@@ -4964,6 +5009,7 @@ export default function ListaPedidos() {
       {/* ── Tabela virtual ── */}
       <div className="lp-tabela-wrapper">
         <TabelaVirtualGlobal<Pedido, PedidoItem>
+          imperativeRef={tabelaRef}
           dados={pedidosFiltrados}
           colunas={colunasComUsuario}
           itemId={pedidoItemId}

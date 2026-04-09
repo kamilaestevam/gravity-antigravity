@@ -37,7 +37,6 @@ beforeAll(async () => {
       numero_pedido:          'PO-TEST-EDICAO-MASSA',
       status:                 'aberto',
       moeda_pedido:           'USD',
-      cobertura_cambial_pedido: 'com_cobertura',
       quantidade_total_inicial_pedido: 100,
       valor_total_pedido:     999,
     },
@@ -63,6 +62,7 @@ beforeAll(async () => {
       valor_unitario_item:        9.99,
       valor_total_itens:              999,
       casas_decimais_valor_item:     2,
+      cobertura_cambial:             'com_cobertura',
     },
   })
 })

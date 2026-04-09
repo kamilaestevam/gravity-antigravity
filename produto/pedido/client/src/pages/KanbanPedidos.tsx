@@ -34,41 +34,6 @@ import { KANBAN_PADRAO } from '../shared/types'
 import { useNavigate } from 'react-router-dom'
 import './KanbanPedidos.css'
 
-// ── Mapa campo kanban → { aba do drawer, id do campo no DrawerPedido } ────────
-// Garante que clicar em um campo no modal abre o drawer já com o campo em foco.
-// 'dados' é a aba padrão do DrawerPedido que contém todos os campos abaixo.
-const CAMPO_DRAWER_MAP: Record<string, { tab: 'dados' | 'itens'; fieldId: string }> = {
-  // Aba Pedido
-  numero_pedido:          { tab: 'dados', fieldId: 'dp-numero-pedido'  },
-  tipo_operacao:          { tab: 'dados', fieldId: 'dp-tipo-operacao'  },
-  nome_exportador:        { tab: 'dados', fieldId: 'dp-exportador'     },
-  nome_importador:        { tab: 'dados', fieldId: 'dp-exportador'     },
-  valor_total_pedido:     { tab: 'dados', fieldId: 'dp-tipo-operacao'  }, // seção financeira
-  moeda_pedido:           { tab: 'dados', fieldId: 'dp-tipo-operacao'  },
-  incoterm:               { tab: 'dados', fieldId: 'dp-incoterm'       },
-  numero_invoice:         { tab: 'dados', fieldId: 'dp-invoice'        },
-  numero_proforma:        { tab: 'dados', fieldId: 'dp-proforma'       },
-  referencia_importador:  { tab: 'dados', fieldId: 'dp-ref-imp'        },
-  referencia_exportador:  { tab: 'dados', fieldId: 'dp-ref-exp'        },
-  referencia_fabricante:  { tab: 'dados', fieldId: 'dp-ref-fab'        },
-  cobertura_cambial_pedido: { tab: 'dados', fieldId: 'dp-cobertura'    },
-  condicao_pagamento_pedido: { tab: 'dados', fieldId: 'dp-pagamento'   },
-  fabricante_id:          { tab: 'dados', fieldId: 'dp-fabricante'     },
-  // Aba Datas
-  data_emissao_pedido:              { tab: 'dados', fieldId: 'dp-data-emissao' },
-  data_prevista_coleta_pedido:      { tab: 'dados', fieldId: 'dp-data-emissao' },
-  data_confirmada_coleta_pedido:    { tab: 'dados', fieldId: 'dp-data-emissao' },
-  data_prevista_pedido_pronto:      { tab: 'dados', fieldId: 'dp-data-emissao' },
-  data_confirmada_pedido_pronto:    { tab: 'dados', fieldId: 'dp-data-emissao' },
-  data_prevista_inspecao_pedido:    { tab: 'dados', fieldId: 'dp-data-emissao' },
-  // Quantidades — vivem nos itens
-  quantidade_total_inicial_pedido:      { tab: 'itens', fieldId: 'dp-panel-itens' },
-  quantidade_pronta_itens_pedido_total: { tab: 'itens', fieldId: 'dp-panel-itens' },
-  quantidade_transferida_total:         { tab: 'itens', fieldId: 'dp-panel-itens' },
-  quantidade_cancelada_total_pedido:    { tab: 'itens', fieldId: 'dp-panel-itens' },
-  saldo_itens_do_pedido:                { tab: 'itens', fieldId: 'dp-panel-itens' },
-}
-
 // ── Colunas ───────────────────────────────────────────────────────────────────
 
 const COLUNAS = [
@@ -247,12 +212,11 @@ function ModalKanbanPedido({
   }
 
   function abrirNoCampo(campo: string) {
-    const destino = CAMPO_DRAWER_MAP[campo]
     navigate(`/pedidos`, {
       state: {
-        openPedidoId: pedido!.id,
-        initialTab:   destino?.tab    ?? 'dados',
-        focusField:   destino?.fieldId ?? undefined,
+        openPedidoId:  pedido!.id,
+        editCampo:     campo,
+        numeroPedido:  pedido!.numero_pedido,
       },
     })
     onFechar()

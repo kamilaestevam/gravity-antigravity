@@ -386,7 +386,6 @@ export class TransferirService {
         casas_decimais_valor_pedido: base.casas_decimais_valor_pedido ?? 2,
         casas_decimais_quantidade_pedido: base.casas_decimais_quantidade_pedido ?? 2,
         unidade_comercializada_pedido: base.unidade_comercializada_pedido ?? null,
-        cobertura_cambial_pedido: base.cobertura_cambial_pedido ?? 'com_cobertura',
         condicao_pagamento_pedido: base.condicao_pagamento_pedido ?? null,
         data_emissao_pedido: new Date(),
         importacao_exportador_id: base.importacao_exportador_id ?? null,

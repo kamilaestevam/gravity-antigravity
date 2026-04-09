@@ -166,7 +166,7 @@ export const CARD_REGISTRY: Record<string, CardRegistryEntry> = {
     subtexto: () => 'Sem cobertura cambial',
     tooltip:  (pedidos) => row(
       'Aguardando cobertura',
-      pedidos.filter(p => !p.cobertura_cambial_pedido || p.cobertura_cambial_pedido === 'sem_cobertura').length,
+      pedidos.filter(p => (p.itens ?? []).some(i => (i as typeof i & { cobertura_cambial?: string }).cobertura_cambial === 'sem_cobertura')).length,
     ),
   },
 
@@ -248,7 +248,7 @@ export function computeCardStats(
   const qtdInicial       = itens.reduce((acc, i)   => acc + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
   const valorItens       = itens.reduce((acc, i)   => acc + (Number(i.valor_total_itens) || 0), 0)
   const coberturaPend    = pedidos
-    .filter(p => !p.cobertura_cambial_pedido || p.cobertura_cambial_pedido === 'sem_cobertura')
+    .filter(p => (p.itens ?? []).some(i => (i as typeof i & { cobertura_cambial?: string }).cobertura_cambial === 'sem_cobertura'))
     .reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)
   const pedidosAtrasados = pedidos.filter(p =>
     p.status !== 'consolidado' &&

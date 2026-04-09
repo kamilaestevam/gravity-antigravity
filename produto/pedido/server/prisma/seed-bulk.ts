@@ -93,7 +93,6 @@ async function main() {
       ),
       incoterm,
       moeda_pedido: moeda,
-      cobertura_cambial_pedido: i % 3 === 0 ? 'sem_cobertura' : 'com_cobertura',
       condicao_pagamento_pedido: i % 2 === 0 ? '30% antecipado, 70% BL' : '100% carta de crédito',
       numero_proforma:       `PI-BULK-${ano}-${num}`,
       numero_invoice:        `CI-BULK-${ano}-${num}`,
@@ -132,6 +131,7 @@ async function main() {
       valor_unitario_item: valorUnit,
       valor_total_itens: valorTotal,
       casas_decimais_valor_item: 2,
+      cobertura_cambial: i % 3 === 0 ? 'sem_cobertura' : 'com_cobertura',
     }
 
     await prisma.pedido.create({

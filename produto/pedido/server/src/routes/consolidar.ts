@@ -60,7 +60,6 @@ const CAMPOS_COMPARAR: Array<{ campo: string; rotulo: string }> = [
   { campo: 'nome_exportador',    rotulo: 'Exportador'             },
   { campo: 'nome_importador',    rotulo: 'Importador'             },
   { campo: 'data_emissao_pedido',rotulo: 'Data Emissão do Pedido' },
-  { campo: 'cobertura_cambial_pedido',  rotulo: 'Cobertura Cambial'      },
   { campo: 'condicao_pagamento_pedido', rotulo: 'Condição de Pagamento'  },
 ]
 
@@ -250,7 +249,6 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       casas_decimais_valor_pedido:     primeiro.casas_decimais_valor_pedido,
       casas_decimais_quantidade_pedido: primeiro.casas_decimais_quantidade_pedido,
       unidade_comercializada_pedido:   primeiro.unidade_comercializada_pedido,
-      cobertura_cambial_pedido:        primeiro.cobertura_cambial_pedido,
       condicao_pagamento_pedido:       primeiro.condicao_pagamento_pedido,
       data_emissao_pedido:             primeiro.data_emissao_pedido,
       // Preservar nomes dos parceiros de detalhes_operacionais do primeiro pedido

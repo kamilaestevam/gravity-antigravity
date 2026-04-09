@@ -613,7 +613,6 @@ export class SmartImportService {
       fabricante_id:     dados['fabricante'] ? String(dados['fabricante']) : null,
       incoterm:          dados['incoterm'] ?? null,
       moeda_pedido:      dados['moeda_pedido'] ?? 'USD',
-      cobertura_cambial_pedido:        'com_cobertura',
       data_emissao_pedido:             normalizarData(dados['data_emissao_pedido']),
       casas_decimais_valor_pedido:     2,
       casas_decimais_quantidade_pedido: 3,

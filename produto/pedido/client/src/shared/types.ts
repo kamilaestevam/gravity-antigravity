@@ -61,6 +61,7 @@ export interface PedidoItem {
   valor_total_itens: number | null
   valor_unitario_item?: number | null
   casas_decimais_valor_item: number
+  cobertura_cambial?: string
 
   // Pesos e cubagem
   peso_liquido_unitario_item?: number | null
@@ -318,7 +319,6 @@ export interface Pedido {
   ncms_distintos_count?: number | null
 
   // Financeiro
-  cobertura_cambial_pedido: string
   condicao_pagamento_pedido: string | null
 
   // Dados físicos

@@ -46,7 +46,6 @@ const pedidos = [
 
     incoterm:       'CIF',
     moeda_pedido:   'USD',
-    cobertura_cambial_pedido: 'com_cobertura',
     condicao_pagamento_pedido: '30% antecipado, 70% contra-entrega',
 
     numero_proforma:       'PI-CHN-2026-0101',
@@ -88,6 +87,7 @@ const pedidos = [
         valor_unitario_item: new Decimal('2.450000'),
         valor_total_itens:         new Decimal('12250.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
       {
         id: gerarId('pite'),
@@ -107,6 +107,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('8.750000'),
         valor_total_itens:         new Decimal('17500.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
       {
         id: gerarId('pite'),
@@ -126,6 +127,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('24.500000'),
         valor_total_itens:         new Decimal('12250.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
     ],
   },
@@ -144,7 +146,6 @@ const pedidos = [
 
     incoterm:       'FOB',
     moeda_pedido:   'EUR',
-    cobertura_cambial_pedido: 'com_cobertura',
     condicao_pagamento_pedido: 'Carta de Crédito à vista',
 
     numero_proforma:       'PI-BOSCH-2026-0045',
@@ -185,6 +186,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('3.750000'),
         valor_total_itens:         new Decimal('15000.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
       {
         id: gerarId('pite'),
@@ -204,6 +206,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('12.800000'),
         valor_total_itens:         new Decimal('2560.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
     ],
   },
@@ -222,7 +225,6 @@ const pedidos = [
 
     incoterm:       'CIF',
     moeda_pedido:   'USD',
-    cobertura_cambial_pedido: 'com_cobertura',
     condicao_pagamento_pedido: '60 dias data embarque',
 
     numero_proforma:       'PI-3M-2026-00112',
@@ -263,6 +265,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('28.600000'),
         valor_total_itens:         new Decimal('14300.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
       {
         id: gerarId('pite'),
@@ -282,6 +285,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('42.000000'),
         valor_total_itens:         new Decimal('12600.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
       {
         id: gerarId('pite'),
@@ -301,6 +305,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('7.900000'),
         valor_total_itens:         new Decimal('7900.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
     ],
   },
@@ -320,7 +325,6 @@ const pedidos = [
 
     incoterm:       'EXW',
     moeda_pedido:   'EUR',
-    cobertura_cambial_pedido: 'sem_cobertura',
     condicao_pagamento_pedido: '50% adiantado, 50% após FAT',
 
     numero_proforma: 'PI-BOSCH-2026-0089',
@@ -359,6 +363,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('78500.000000'),
         valor_total_itens:         new Decimal('78500.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
       {
         id: gerarId('pite'),
@@ -378,6 +383,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('3200.000000'),
         valor_total_itens:         new Decimal('6400.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
     ],
   },
@@ -396,7 +402,6 @@ const pedidos = [
 
     incoterm:       'FOB',
     moeda_pedido:   'USD',
-    cobertura_cambial_pedido: 'com_cobertura',
     condicao_pagamento_pedido: 'Pagamento antecipado 100%',
 
     numero_proforma:       'PROF-EXP-2026-501',
@@ -438,6 +443,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('45.000000'),
         valor_total_itens:         new Decimal('27000.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
       {
         id: gerarId('pite'),
@@ -457,6 +463,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('30.000000'),
         valor_total_itens:         new Decimal('6000.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
     ],
   },
@@ -475,7 +482,6 @@ const pedidos = [
 
     incoterm:       'CFR',
     moeda_pedido:   'USD',
-    cobertura_cambial_pedido: 'com_cobertura',
     condicao_pagamento_pedido: '100% carta de crédito irrevogável',
 
     numero_proforma:       'PROF-EXP-2026-612',
@@ -517,6 +523,7 @@ const pedidos = [
         valor_unitario_item:new Decimal('400.000000'),
         valor_total_itens:         new Decimal('800000.000000'),
         casas_decimais_valor_item: 2,
+        cobertura_cambial: 'com_cobertura',
       },
     ],
   },

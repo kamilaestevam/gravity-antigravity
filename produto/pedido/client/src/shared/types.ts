@@ -919,6 +919,7 @@ export interface KanbanCardCampo {
   campo:   string
   label:   string
   visivel: boolean
+  grupo?:  'parceiro' | 'pedido' | 'documentos' | 'progresso'
 }
 
 export interface KanbanCardConfig {
@@ -944,15 +945,22 @@ export const KANBAN_LIMITES: Record<string, number> = {
 }
 
 export const KANBAN_CARD_CAMPOS_DISPONIVEIS: KanbanCardCampo[] = [
-  { campo: 'nome_exportador',      label: 'Exportador',          visivel: true  },
-  { campo: 'nome_importador',      label: 'Importador',          visivel: false },
-  { campo: 'numero_itens_pedido',  label: 'Nº de Itens',         visivel: false },
-  { campo: 'valor_total_pedido',   label: 'Valor Total',         visivel: true  },
-  { campo: 'incoterm',             label: 'Incoterm',            visivel: true  },
-  { campo: 'numero_invoice',       label: 'Nº Invoice',          visivel: false },
-  { campo: 'numero_proforma',      label: 'Nº Proforma',         visivel: false },
-  { campo: 'status',               label: 'Status',              visivel: false },
-  { campo: 'saldo_bar',            label: 'Saldo (barra)',       visivel: true  },
+  { campo: 'nome_exportador',     label: 'Exportador',    visivel: true,  grupo: 'parceiro'   },
+  { campo: 'nome_importador',     label: 'Importador',    visivel: false, grupo: 'parceiro'   },
+  { campo: 'valor_total_pedido',  label: 'Valor Total',   visivel: true,  grupo: 'pedido'     },
+  { campo: 'incoterm',            label: 'Incoterm',      visivel: true,  grupo: 'pedido'     },
+  { campo: 'numero_itens_pedido', label: 'Nº de Itens',   visivel: false, grupo: 'pedido'     },
+  { campo: 'numero_invoice',      label: 'Nº Invoice',    visivel: false, grupo: 'documentos' },
+  { campo: 'numero_proforma',     label: 'Nº Proforma',   visivel: false, grupo: 'documentos' },
+  { campo: 'saldo_bar',           label: 'Saldo (barra)', visivel: true,  grupo: 'progresso'  },
+  { campo: 'status',              label: 'Status',        visivel: false, grupo: 'progresso'  },
+]
+
+export const KANBAN_CARD_GRUPOS: { key: 'parceiro' | 'pedido' | 'documentos' | 'progresso'; label: string }[] = [
+  { key: 'parceiro',   label: 'Parceiro'        },
+  { key: 'pedido',     label: 'Pedido'          },
+  { key: 'documentos', label: 'Documentos'      },
+  { key: 'progresso',  label: 'Status e Progresso' },
 ]
 
 // Campos padrão quando usuário não configurou nada

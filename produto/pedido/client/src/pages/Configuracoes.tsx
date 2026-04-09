@@ -40,7 +40,7 @@ import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, type PdfTemplate } from '../shared/api'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel } from '../shared/types'
-import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS } from '../shared/types'
+import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
 import type { FormulaAST } from '../shared/formulaEngine'
 import { analisarSemanticaFormula, SEMANTICA_CAMPOS } from '../shared/gabiSemantica'
@@ -1216,7 +1216,12 @@ export default function Configuracoes() {
 
   function kanbanCardCampos() {
     const prefs = kanbanPrefs ?? KANBAN_PADRAO
-    return prefs.card?.campos ?? KANBAN_PADRAO.card.campos
+    const campos = prefs.card?.campos ?? KANBAN_PADRAO.card.campos
+    // Garantir que grupo está sempre presente (JSON do banco pode não ter)
+    return campos.map(c => ({
+      ...c,
+      grupo: c.grupo ?? KANBAN_CARD_CAMPOS_DISPONIVEIS.find(d => d.campo === c.campo)?.grupo,
+    }))
   }
 
   function kanbanCardToggle(campo: string) {
@@ -1763,22 +1768,31 @@ export default function Configuracoes() {
                     <p className="cfg-kanban-aba-hint">Sempre exibido no topo do card</p>
                   </div>
 
-                  {/* Campos toggleáveis */}
-                  <div className="cfg-kanban-campos-lista">
-                    {kanbanCardCampos().map(cfg => (
-                      <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
-                        <span className="cfg-kanban-campo-label">{cfg.label}</span>
-                        <button
-                          type="button"
-                          className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
-                          onClick={() => kanbanCardToggle(cfg.campo)}
-                          aria-label={cfg.visivel ? 'Ocultar' : 'Exibir'}
-                        >
-                          {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
-                        </button>
+                  {/* Campos toggleáveis agrupados */}
+                  {KANBAN_CARD_GRUPOS.map(grupo => {
+                    const camposDoGrupo = kanbanCardCampos().filter(c => c.grupo === grupo.key)
+                    if (camposDoGrupo.length === 0) return null
+                    return (
+                      <div key={grupo.key} className="cfg-card-subsecao">
+                        <span className="cfg-card-subsecao-titulo">{grupo.label}</span>
+                        <div className="cfg-kanban-campos-lista">
+                          {camposDoGrupo.map(cfg => (
+                            <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
+                              <span className="cfg-kanban-campo-label">{cfg.label}</span>
+                              <button
+                                type="button"
+                                className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
+                                onClick={() => kanbanCardToggle(cfg.campo)}
+                                aria-label={cfg.visivel ? 'Ocultar' : 'Exibir'}
+                              >
+                                {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    )
+                  })}
 
                   {/* Data crítica */}
                   <div className="cfg-kanban-data-critica-wrap" style={{ marginTop: 16 }}>

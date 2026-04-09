@@ -534,6 +534,7 @@ export default function Configuracoes() {
   const tabParam = searchParams.get('tab') as CategoriaId | null
   const acaoParam = searchParams.get('acao')
   const [categoria, setCategoria] = useState<CategoriaId>(tabParam ?? 'cards')
+  const [kanbanSub, setKanbanSub]   = useState<'modal' | 'card'>('modal')
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
   // ── Estado: casas decimais ──
@@ -1468,20 +1469,40 @@ export default function Configuracoes() {
         <p className="cfg-sidebar__titulo">Configurações</p>
         <nav className="cfg-sidebar__nav">
           {CATEGORIAS.map(cat => (
-            <button
-              key={cat.id}
-              type="button"
-              className={[
-                'cfg-sidebar__item',
-                categoria === cat.id ? 'cfg-sidebar__item--ativo' : '',
-                !cat.ativo           ? 'cfg-sidebar__item--breve' : '',
-              ].filter(Boolean).join(' ')}
-              onClick={() => { if (cat.ativo) setCategoria(cat.id) }}
-            >
-              <span className="cfg-sidebar__item-icon">{cat.icone}</span>
-              <span className="cfg-sidebar__item-label">{cat.label}</span>
-              {!cat.ativo && <span className="cfg-badge-breve">Em breve</span>}
-            </button>
+            <React.Fragment key={cat.id}>
+              <button
+                type="button"
+                className={[
+                  'cfg-sidebar__item',
+                  categoria === cat.id ? 'cfg-sidebar__item--ativo' : '',
+                  !cat.ativo           ? 'cfg-sidebar__item--breve' : '',
+                ].filter(Boolean).join(' ')}
+                onClick={() => { if (cat.ativo) setCategoria(cat.id) }}
+              >
+                <span className="cfg-sidebar__item-icon">{cat.icone}</span>
+                <span className="cfg-sidebar__item-label">{cat.label}</span>
+                {!cat.ativo && <span className="cfg-badge-breve">Em breve</span>}
+              </button>
+
+              {cat.id === 'kanban' && categoria === 'kanban' && (
+                <div className="cfg-sidebar__subnav">
+                  <button
+                    type="button"
+                    className={`cfg-sidebar__subitem${kanbanSub === 'modal' ? ' cfg-sidebar__subitem--ativo' : ''}`}
+                    onClick={() => setKanbanSub('modal')}
+                  >
+                    Modal
+                  </button>
+                  <button
+                    type="button"
+                    className={`cfg-sidebar__subitem${kanbanSub === 'card' ? ' cfg-sidebar__subitem--ativo' : ''}`}
+                    onClick={() => setKanbanSub('card')}
+                  >
+                    Card
+                  </button>
+                </div>
+              )}
+            </React.Fragment>
           ))}
         </nav>
       </aside>
@@ -1674,6 +1695,9 @@ export default function Configuracoes() {
         {/* ════════════════════════ KANBAN ════════════════════════ */}
         {categoria === 'kanban' && (
           <div className="cfg-kanban-wrapper">
+
+            {/* ── Sub: Modal ── */}
+            {kanbanSub === 'modal' && (<>
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
@@ -1748,7 +1772,49 @@ export default function Configuracoes() {
               </div>
             </section>
 
-            {/* Conteúdo do card */}
+            {/* Campos disponíveis para modal */}
+            <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Campos disponíveis</h2>
+                  <p className="cfg-secao__desc">Todas as colunas do pedido · clique em + para adicionar a uma aba</p>
+                </div>
+              </div>
+              <div className="cfg-kanban-disponivel-lista">
+                <div className="cfg-kanban-disponivel-header">
+                  <span>Coluna</span>
+                  <span>Aba</span>
+                  <span></span>
+                </div>
+                {KANBAN_CAMPOS_DISPONIVEIS.filter(cd => !kanbanCamposEmUso().has(cd.campo)).map(cd => {
+                  const aba = cd.categoria
+                  const limite = KANBAN_LIMITES[aba] ?? 10
+                  const atual = kanbanCamposDeAba(aba).length
+                  const cheio = atual >= limite
+                  return (
+                    <div key={cd.campo} className="cfg-kanban-disponivel-row">
+                      <span className="cfg-kanban-disponivel-label">{cd.label}</span>
+                      <span className="cfg-origem-badge cfg-origem-badge--meus">{aba}</span>
+                      <TooltipGlobal descricao={cheio ? `Limite atingido (${atual}/${limite}) — remova um campo` : `Adicionar à aba ${aba}`}>
+                        <button
+                          type="button"
+                          className={`cfg-kanban-add-btn${cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
+                          onClick={() => { if (!cheio) kanbanAdicionarCampo(aba, cd) }}
+                          disabled={cheio}
+                          aria-label="Adicionar campo"
+                        >
+                          <Plus size={13} weight="bold" />
+                        </button>
+                      </TooltipGlobal>
+                    </div>
+                  )
+                })}
+              </div>
+            </section>
+            </>)}
+
+            {/* ── Sub: Card ── */}
+            {kanbanSub === 'card' && (<>
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
@@ -1806,53 +1872,14 @@ export default function Configuracoes() {
                       {KANBAN_CAMPOS_DISPONIVEIS.filter(c => c.categoria === 'datas').map(c => (
                         <option key={c.campo} value={c.campo}>{c.label}</option>
                       ))}
-                      {/* Datas de colunas customizadas disponíveis via KANBAN_CARD_CAMPOS_DISPONIVEIS */}
                     </select>
                     <p className="cfg-kanban-aba-hint">Barra colorida de urgência (ok / alerta / urgente) baseada nesta data</p>
                   </div>
                 </>
               )}
             </section>
+            </>)}
 
-            {/* Campos disponíveis */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">Campos disponíveis</h2>
-                  <p className="cfg-secao__desc">Todas as colunas do pedido · clique em + para adicionar a uma aba</p>
-                </div>
-              </div>
-              <div className="cfg-kanban-disponivel-lista">
-                <div className="cfg-kanban-disponivel-header">
-                  <span>Coluna</span>
-                  <span>Aba</span>
-                  <span></span>
-                </div>
-                {KANBAN_CAMPOS_DISPONIVEIS.filter(cd => !kanbanCamposEmUso().has(cd.campo)).map(cd => {
-                  const aba = cd.categoria
-                  const limite = KANBAN_LIMITES[aba] ?? 10
-                  const atual = kanbanCamposDeAba(aba).length
-                  const cheio = atual >= limite
-                  return (
-                    <div key={cd.campo} className="cfg-kanban-disponivel-row">
-                      <span className="cfg-kanban-disponivel-label">{cd.label}</span>
-                      <span className="cfg-origem-badge cfg-origem-badge--meus">{aba}</span>
-                      <TooltipGlobal descricao={cheio ? `Limite atingido (${atual}/${limite}) — remova um campo` : `Adicionar à aba ${aba}`}>
-                        <button
-                          type="button"
-                          className={`cfg-kanban-add-btn${cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
-                          onClick={() => { if (!cheio) kanbanAdicionarCampo(aba, cd) }}
-                          disabled={cheio}
-                          aria-label="Adicionar campo"
-                        >
-                          <Plus size={13} weight="bold" />
-                        </button>
-                      </TooltipGlobal>
-                    </div>
-                  )
-                })}
-              </div>
-            </section>
           </div>
         )}
 

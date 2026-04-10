@@ -912,6 +912,36 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
   }
 })
 
+// ── PATCH /:id/itens/:itemId/campo — Editar campo único do item ───────────────
+
+const CAMPOS_EDITAVEIS_ITEM = new Set([
+  'nome_exportador', 'nome_importador',
+  'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
+  'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
+])
+
+pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { campo, valor } = req.body as { campo: string; valor: unknown }
+    if (!campo || !CAMPOS_EDITAVEIS_ITEM.has(campo)) {
+      throw new AppError(400, `Campo "${campo}" nao pode ser editado inline em item`)
+    }
+    const tenant_id = req.headers['x-tenant-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+    const item = await req.prisma.pedidoItem.findFirst({
+      where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id, company_id },
+    })
+    if (!item) throw new AppError(404, 'Item do pedido nao encontrado')
+    const updated = await req.prisma.pedidoItem.update({
+      where: { id: req.params.itemId },
+      data: { [campo]: valor === undefined ? null : valor },
+    })
+    res.json(mapItem(updated))
+  } catch (err) {
+    next(err)
+  }
+})
+
 // ── DELETE /:id/itens/:itemId — Remover item ──────────────────────────────────
 
 pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, next: NextFunction) => {

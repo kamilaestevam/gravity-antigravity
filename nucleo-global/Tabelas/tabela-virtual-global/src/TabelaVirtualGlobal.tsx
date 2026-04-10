@@ -417,6 +417,7 @@ const GTEditPopover = memo(function GTEditPopover({
   const isMoeda   = overlayInfo.colTipo === 'moeda'
   const isUnidade = overlayInfo.colTipo === 'unidade'
   const isNumero  = overlayInfo.colTipo === 'numero'
+  const isNCM     = overlayInfo.campo === 'ncm'
   const popoverRef    = useRef<HTMLDivElement>(null)
   const inputRef      = useRef<HTMLInputElement>(null)
   const moedaTriggerRef    = useRef<HTMLButtonElement>(null)
@@ -725,11 +726,18 @@ const GTEditPopover = memo(function GTEditPopover({
               className="gtv-edit-popover-input"
               value={isNumero ? displayNumero : String(valorEditando ?? '')}
               disabled={salvando}
+              maxLength={isNCM ? 10 : undefined}
               onChange={e => {
                 const raw = e.target.value
                 if (isNumero) {
                   setDisplayNumero(raw)
                   onAtualizar(parseBRNum(raw))
+                } else if (isNCM) {
+                  const digits = raw.replace(/\D/g, '').slice(0, 8)
+                  let masked = digits
+                  if (digits.length > 6) masked = `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6)}`
+                  else if (digits.length > 4) masked = `${digits.slice(0, 4)}.${digits.slice(4)}`
+                  onAtualizar(masked)
                 } else {
                   onAtualizar(raw)
                 }
@@ -1546,9 +1554,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     const confirmarEdicao = isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai
     const cancelarEdicao  = isFilho ? cancelarEdicaoFilho  : cancelarEdicaoPai
 
-    const podeEditar =
-      ((isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key) || col.editavel) &&
-      !!(isFilho ? onEditarFilho : onEditar)
+    // Se col.editavel é função, ela tem prioridade sobre camposEditaveis (pode bloquear mesmo se incluído)
+    const editavelColFn = typeof col.editavel === 'function' ? col.editavel(item) : undefined
+    const podeEditar = (
+      editavelColFn !== undefined
+        ? editavelColFn
+        : ((isFilho ? camposEditaveisFilhos : camposEditaveis).includes(col.key) || !!col.editavel)
+    ) && !!(isFilho ? onEditarFilho : onEditar)
     const estaEditando =
       editandoCelula?.id === id && editandoCelula?.campo === col.key
 
@@ -1578,12 +1590,22 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           : podeEditar ? 'Clique para editar' : undefined)
       : undefined
 
+    // Tooltip de célula bloqueada (editavel retornou false para esta linha)
+    const colU0 = col as GTColuna<unknown>
+    const tooltipBloqueadoMsg = !podeEditar && colU0.tooltipBloqueado
+      ? (typeof colU0.tooltipBloqueado === 'function' ? colU0.tooltipBloqueado(item) : colU0.tooltipBloqueado)
+      : undefined
+
     // Para células com tooltip: o TooltipGlobal envolve um <span> simples.
     // Para células sem tooltip: renderiza o conteúdo diretamente.
     // Não usamos gtv-celula-conteudo (evita dependência circular de width).
     const celConteudo = tooltipDescr ? (
       <TooltipGlobal titulo={col.label} descricao={tooltipDescr}>
         <span className="gtv-celula-text">{innerContent as string}</span>
+      </TooltipGlobal>
+    ) : tooltipBloqueadoMsg ? (
+      <TooltipGlobal titulo={col.label} descricao={tooltipBloqueadoMsg}>
+        <span style={{ display: 'contents' }}>{innerContent}</span>
       </TooltipGlobal>
     ) : (
       <>{innerContent}</>
@@ -1809,8 +1831,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           {colunasFiltradas.map((col, idx) => {
             const mapa = mapaColunasFilho[col.key as string]
             const campo = mapa?.campo ?? (col.key as string)
-            const editavelMapa = typeof mapa?.editavel === 'function' ? mapa.editavel(item) : !!mapa?.editavel
-            const podeEditar = (editavelMapa || camposEditaveisFilhos.includes(col.key as string)) && !!onEditarFilho
+            // Se mapa define editavel (bool ou função), tem prioridade sobre camposEditaveisFilhos
+            const editavelMapaDef = mapa != null && 'editavel' in mapa
+            const editavelMapaVal = editavelMapaDef
+              ? (typeof mapa.editavel === 'function' ? mapa.editavel(item) : !!mapa.editavel)
+              : undefined
+            const podeEditar = (
+              editavelMapaVal !== undefined ? editavelMapaVal : camposEditaveisFilhos.includes(col.key as string)
+            ) && !!onEditarFilho
             const estaEditando = editandoCelulaFilho?.id === id && editandoCelulaFilho?.campo === campo
             const overlayAtivo  = overlayInfo?.id === id && overlayInfo?.campo === campo
 
@@ -1855,9 +1883,14 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                     onBlur={() => confirmarEdicaoFilho()}
                     onClick={e => e.stopPropagation()}
                   />
-                ) : (
-                  mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : '—')
-                )}
+                ) : (() => {
+                  const conteudoFilho = mapa ? mapa.render(item) : ((item as Record<string, unknown>)[campo] != null ? String((item as Record<string, unknown>)[campo]) : '—')
+                  if (!podeEditar && mapa?.tooltipBloqueado) {
+                    const msg = typeof mapa.tooltipBloqueado === 'function' ? mapa.tooltipBloqueado(item) : mapa.tooltipBloqueado
+                    if (msg) return <TooltipGlobal titulo={col.label} descricao={msg}><span style={{ display: 'contents' }}>{conteudoFilho}</span></TooltipGlobal>
+                  }
+                  return <>{conteudoFilho}</>
+                })()}
               </div>
             )
           })}

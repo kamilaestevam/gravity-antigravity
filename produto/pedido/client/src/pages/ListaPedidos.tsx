@@ -547,6 +547,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
+    editavel: (row: Pedido) => row.tipo_operacao === 'importacao',
+    tooltipBloqueado: 'Exportador definido automaticamente pelo workspace — não editável em Exportação',
     tooltipTitulo: 'Nome do Exportador',
     tooltipDescricao: 'Fornecedor/exportador estrangeiro na operação de importação',
     grupo: 'Partes',
@@ -581,6 +583,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
+    editavel: (row: Pedido) => row.tipo_operacao === 'exportacao',
+    tooltipBloqueado: 'Importador definido automaticamente pelo workspace — não editável em Importação',
     tooltipTitulo: 'Nome do Importador',
     tooltipDescricao: 'Comprador/importador estrangeiro na operação de exportação',
     grupo: 'Partes',
@@ -625,6 +629,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Ref. Importador',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Referência do Importador',
     tooltipDescricao: 'Código de referência interna do importador para o pedido',
     grupo: 'Identificação',
@@ -648,6 +653,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Ref. Exportador',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Referência do Exportador',
     tooltipDescricao: 'Código de referência utilizado pelo exportador',
     grupo: 'Identificação',
@@ -675,9 +681,22 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Nomenclatura Comum do Mercosul — quantidade de NCMs distintos nos itens do pedido',
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
-      const count = row.ncms_distintos_count
-      if (!count) return <span>—</span>
-      return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{count}</span>
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const valoresUnicos = [...new Set(itens.map(i => i.ncm ?? null).filter(Boolean) as string[])]
+      if (valoresUnicos.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const formatNCM = (v: string) => {
+        const d = v.replace(/\D/g, '')
+        return d.length === 8 ? `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6)}` : v
+      }
+      const distintos = valoresUnicos.map(formatNCM).join(' | ')
+      const diverge = valoresUnicos.length > 1
+      return (
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined, fontFamily: 'var(--font-mono, monospace)' }} title={diverge ? `NCMs diferentes: ${distintos}` : distintos}>
+          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
+          {distintos}
+        </span>
+      )
     },
   },
   {
@@ -772,7 +791,16 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido'),
+    render: (_val: unknown, row: Pedido) => {
+      const qtd = row.quantidade_pronta_itens_pedido_total
+        ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta_total_item_pedido ?? 0), 0)
+        ?? null
+      return (
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'saldo_itens_do_pedido',
@@ -782,7 +810,16 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Saldo do Pedido',
     tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'saldo_item_pedido'),
+    render: (_val: unknown, row: Pedido) => {
+      const total = row.quantidade_total_inicial_pedido ?? null
+      const transf = row.quantidade_transferida_total ?? null
+      const qtd = row.saldo_itens_do_pedido ?? (total != null && transf != null ? Math.max(0, total - transf) : null)
+      return (
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+          {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+        </span>
+      )
+    },
   },
   {
     key: 'quantidade_transferida_total',
@@ -792,7 +829,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Transferida do Pedido',
     tooltipDescricao: 'Total já transferido para outros pedidos.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_transferida_item_pedido'),
+    render: (_val: unknown, row: Pedido) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.quantidade_transferida_total != null ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+      </span>
+    ),
   },
   {
     key: 'quantidade_cancelada_total_pedido',
@@ -802,7 +843,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Cancelada do Pedido',
     tooltipDescricao: 'Total cancelado permanentemente nos itens do pedido — subtrai do saldo inicial.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_cancelada_item_pedido'),
+    render: (_val: unknown, row: Pedido) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
+        {row.quantidade_cancelada_total_pedido != null ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+      </span>
+    ),
   },
   {
     key: 'data_emissao_pedido',
@@ -844,6 +889,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Ref. Fabricante',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
     grupo: 'Identificação',
@@ -3320,6 +3366,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   // ── NCM do item ───────────────────────────────────────────────────────────
   ncm: {
+    editavel: true,
     render: (row: PedidoItem) => {
       const digits = (row.ncm ?? '').replace(/\D/g, '')
       const formatted = digits.length === 8
@@ -3347,6 +3394,10 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   nome_exportador: {
     editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
+    tooltipBloqueado: (row: PedidoItem) =>
+      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao'
+        ? 'Exportador definido automaticamente pelo workspace — não editável em Exportação'
+        : undefined,
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
@@ -3356,6 +3407,10 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   nome_importador: {
     editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
+    tooltipBloqueado: (row: PedidoItem) =>
+      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao'
+        ? 'Importador definido automaticamente pelo workspace — não editável em Importação'
+        : undefined,
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
@@ -4568,6 +4623,13 @@ export default function ListaPedidos() {
     }, 350)
   }, [abaAtiva, busca])
 
+  // Campos que ao serem editados no pedido propagam para todos os itens
+  const CAMPOS_PROPAGAR_ITENS = new Set([
+    'nome_exportador', 'nome_importador',
+    'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
+    'ncm',
+  ])
+
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
     if (campo === 'status') {
@@ -4579,6 +4641,20 @@ export default function ListaPedidos() {
       })
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
+    }
+    // Campos que vivem nos itens — propagar para todos os itens sem chamar editarCampo no pedido
+    if (CAMPOS_PROPAGAR_ITENS.has(campo)) {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      const itens = pedidoAtual.itens ?? []
+      if (itens.length > 0) {
+        await Promise.all(
+          itens.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor))
+        )
+      }
+      const pedidoAtualizado = { ...pedidoAtual, itens: itens.map(i => ({ ...i, [campo]: valor })) }
+      setPedidos(prev => prev.map(p => p.id === id ? pedidoAtualizado : p))
+      return pedidoAtualizado
     }
     const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
     setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
@@ -4761,12 +4837,12 @@ export default function ListaPedidos() {
       _p: {
         id: pedido.id,
         tipo_operacao: pedido.tipo_operacao,
-        nome_exportador: pedido.nome_exportador ?? null,
-        nome_importador: pedido.nome_importador ?? null,
+        nome_exportador: item.nome_exportador ?? pedido.nome_exportador ?? null,
+        nome_importador: item.nome_importador ?? pedido.nome_importador ?? null,
         nome_fabricante: pedido.nome_fabricante ?? null,
-        referencia_importador: pedido.referencia_importador ?? null,
-        referencia_exportador: pedido.referencia_exportador ?? null,
-        referencia_fabricante: pedido.referencia_fabricante ?? null,
+        referencia_importador: item.referencia_importador ?? pedido.referencia_importador ?? null,
+        referencia_exportador: item.referencia_exportador ?? pedido.referencia_exportador ?? null,
+        referencia_fabricante: item.referencia_fabricante ?? pedido.referencia_fabricante ?? null,
         numero_proforma: pedido.numero_proforma ?? null,
         numero_invoice: pedido.numero_invoice ?? null,
         incoterm: pedido.incoterm ?? null,
@@ -5271,7 +5347,13 @@ export default function ListaPedidos() {
               ? pedidosSelecionados
               : pedidos.filter(p => itensSelecionados.some(i => i.pedido_id === p.id))
           }
-          itemIdInicial={pedidosSelecionados.length === 0 && itensSelecionados.length === 1 ? itensSelecionados[0].id : undefined}
+          itemIdInicial={
+            itensSelecionados.length === 1
+              ? itensSelecionados[0].id
+              : (pedidosSelecionados.length === 1 && pedidosSelecionados[0].itens?.length === 1)
+                ? pedidosSelecionados[0].itens[0].id
+                : undefined
+          }
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {
             setModalTransferirAberto(false)

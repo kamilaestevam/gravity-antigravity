@@ -148,6 +148,12 @@ export const pedidoItemApi = {
       body: JSON.stringify(data),
     }),
 
+  editarCampo: (pedidoId: string, itemId: string, campo: string, valor: unknown) =>
+    request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}/campo`, {
+      method: 'PATCH',
+      body: JSON.stringify({ campo, valor: valor === undefined ? null : valor }),
+    }),
+
   remover: (pedidoId: string, itemId: string) =>
     request<void>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}`, { method: 'DELETE' }),
 

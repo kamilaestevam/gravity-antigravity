@@ -791,16 +791,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => {
-      const qtd = row.quantidade_pronta_itens_pedido_total
-        ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta_total_item_pedido ?? 0), 0)
-        ?? null
-      return (
-        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido'),
   },
   {
     key: 'saldo_itens_do_pedido',
@@ -4766,6 +4757,44 @@ export default function ListaPedidos() {
         return { ...p, itens: p.itens?.map(i => i.id === id ? enriquecidoMv : i) }
       }))
       return enriquecidoMv
+    }
+
+    // quantidade_pronta_total_item_pedido → endpoint dedicado PATCH /pronta
+    if (campo === 'quantidade_pronta_total_item_pedido') {
+      const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
+      const qtd = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
+      const itemAtualPronta = pedido.itens?.find(i => i.id === id)
+      const atualizadoPronta = await pedidoItemApi.atualizarPronta(pedido.id, id, qtd)
+        .catch(() => {
+          if (import.meta.env.DEV && itemAtualPronta) return { ...itemAtualPronta, quantidade_pronta_total_item_pedido: qtd } as PedidoItem
+          throw new Error('Erro ao atualizar quantidade pronta')
+        })
+      const enriquecidoPronta: PedidoItemEnriquecido = {
+        ...atualizadoPronta,
+        _p: {
+          id: pedido.id,
+          tipo_operacao: pedido.tipo_operacao,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+          condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+        },
+      }
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        const itensAtualizados = p.itens?.map(i => i.id === id ? enriquecidoPronta : i) ?? []
+        return { ...p, itens: itensAtualizados, quantidade_pronta_itens_pedido_total: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0) }
+      }))
+      return enriquecidoPronta
     }
 
     let payload: Partial<PedidoItem>

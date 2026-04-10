@@ -120,7 +120,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
     title: 'GABI AI · Insights',
     chart_type: 'GABI_INSIGHTS',
     query_spec: { fields: [], filters: { period: '30d' } },
-    position: { x: 0, y: 3, w: 6, h: 3 },
+    position: { x: 0, y: 3, w: 6, h: 4 },
   },
 
   // ── Linha 3 — Séries temporais ────────────────────────────────────────────
@@ -303,7 +303,7 @@ export const useDashboardStore = create<DashboardState>()(
     }),
     {
       name: 'gravity:pedido:dashboard',
-      version: 13, // bump: GABI w:6 (~600px)
+      version: 14, // bump: GABI h:4 (260px), alinhamento stat row
       partialize: (s) => ({
         widgets: s.widgets,
         slicers: s.slicers,

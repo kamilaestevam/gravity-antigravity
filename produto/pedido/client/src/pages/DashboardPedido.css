@@ -1,11 +1,4 @@
-/* ── GABI AI Insights — card do Dashboard Pedido ── */
-
-/*
- * Tipografia alinhada ao Solid Slate:
- *   .text-micro  = 0.6875rem / 600 / uppercase / ls 0.06em
- *   .text-sm     = 0.8125rem / 400 / lh 1.5
- *   Nenhum tamanho fora dessa escala.
- */
+/* ── GABI AI Insights — idêntico ao Hub (SelecionarWorkspace) ── */
 
 .dp-gabi-card {
   height: 100%;
@@ -27,7 +20,7 @@
   top: 50%;
   right: -40px;
   transform: translateY(-50%) rotate(15deg);
-  color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.06);
   pointer-events: none;
   z-index: 0;
   line-height: 0;
@@ -40,6 +33,7 @@
   flex-direction: column;
   gap: 0.65rem;
   height: 100%;
+  width: 100%;
   min-height: 0;
 }
 
@@ -58,9 +52,9 @@
 
 .dp-gabi-avatar {
   background: rgba(255, 255, 255, 0.2);
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-md);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,9 +62,8 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* .text-micro ✅ */
 .dp-gabi-label {
-  font-size: 0.6875rem;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.07em;
   color: #fff;
@@ -80,10 +73,9 @@
 .dp-gabi-header-right {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
-/* .text-micro ✅ */
 .dp-gabi-live-badge {
   display: flex;
   align-items: center;
@@ -91,8 +83,6 @@
   font-size: 0.6875rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .dp-gabi-live-dot {
@@ -110,33 +100,41 @@
   50%       { opacity: 0.35; }
 }
 
-/* ── Track — grid responsivo ao container ── */
-/*
- * auto-fit: tracks vazios colapsam → cards preenchem toda a largura (sem coluna vazia).
- * overflow: hidden: ao quebrar para 2 colunas só a 1ª linha fica visível.
- *
- *   Widget 12 colunas (~1200px) → 4 cards × 1 linha
- *   Widget 6  colunas (~600px)  → 2 cards visíveis (linha extra oculta)
- */
+/* ── Track — carrossel horizontal (igual ao Hub) ── */
 .dp-gabi-track {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 10px;
-  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding-bottom: 2px;
   flex: 1;
   min-height: 0;
-  align-content: start;
+}
+
+.dp-gabi-track::-webkit-scrollbar {
+  display: none;
+}
+
+.dp-gabi-track > .dp-gabi-insight-card {
+  scroll-snap-align: start;
+  flex: 0 0 280px;
+  min-width: 240px;
+  height: auto;
+  align-self: stretch;
 }
 
 /* skeleton */
 .dp-gabi-skeleton-line {
   background: rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-sm);
-  height: 11px;
+  border-radius: 4px;
+  height: 12px;
   animation: dpShimmer 1.5s ease infinite;
-  margin-bottom: 6px;
 }
-.dp-gabi-skeleton-line--short { width: 40%; }
+.dp-gabi-skeleton-line--short { width: 40%; margin-bottom: 0; }
 
 @keyframes dpShimmer {
   0%, 100% { opacity: 0.5; }
@@ -145,54 +143,42 @@
 
 .dp-gabi-insight-card--skeleton {
   pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 /* ── Insight card ── */
 .dp-gabi-insight-card {
   background: rgba(10, 4, 20, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-md);
-  padding: 0.75rem 0.875rem;
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  transition: border-color 0.15s ease, background 0.15s ease;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.dp-gabi-insight-card:hover {
-  background: rgba(10, 4, 20, 0.45);
-  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .dp-gabi-insight-card--warn {
   border-color: rgba(251, 191, 36, 0.25);
 }
 
-/* .text-micro ✅ */
 .dp-gabi-insight-tag {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #a5f3fc;
-  line-height: 1.4;
 }
 
 .dp-gabi-insight-tag--warn {
   color: #fcd34d;
 }
 
-/* .text-sm ✅ */
 .dp-gabi-insight-text {
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.85);
   margin: 0;
@@ -206,7 +192,7 @@
 .dp-gabi-insight-bottom {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
   margin-top: auto;
 }
 
@@ -216,35 +202,29 @@
   justify-content: space-between;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: var(--radius-md);
-  padding: 0.3rem 0.6rem;
+  border-radius: 7px;
+  padding: 0.4rem 0.75rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* .text-micro ✅ */
 .dp-gabi-insight-stat-label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.65);
 }
 
-/* .text-sm ✅ */
 .dp-gabi-insight-stat-value {
   font-size: 0.8125rem;
   font-weight: 700;
   color: #fff;
+  letter-spacing: 0.01em;
 }
 
-/* .text-micro ✅ */
 .dp-gabi-insight-link {
   background: none;
   border: none;
   padding: 0;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
   color: #fff;
   cursor: pointer;
   display: flex;

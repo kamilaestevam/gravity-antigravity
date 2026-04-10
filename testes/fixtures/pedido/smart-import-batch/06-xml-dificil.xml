@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <meta>
+    <system>ERP-SAP-R3</system>
+    <exportedAt>2026-03-15T14:22:00Z</exportedAt>
+  </meta>
+  <purchaseOrder id="4500089213">
+    <vendor id="V00341">
+      <name>Keiper Automotive Components GmbH</name>
+      <plant>DE-Frankfurt</plant>
+    </vendor>
+    <deliveryConditions>
+      <inco1>CIF</inco1>
+      <currency>EUR</currency>
+    </deliveryConditions>
+    <referenceDoc>
+      <poDate>2026-03-01</poDate>
+      <poRef>4500089213</poRef>
+    </referenceDoc>
+    <positions>
+      <pos number="00010">
+        <material>KAC-SEAT-FRAME-L</material>
+        <text>Seat Frame Left — Aluminum Die Cast</text>
+        <customsTariff>8714.99.90</customsTariff>
+        <quantity unit="ST">250</quantity>
+        <netPrice currency="EUR">48.72</netPrice>
+        <value currency="EUR">12180.00</value>
+      </pos>
+      <pos number="00020">
+        <material>KAC-SEAT-FRAME-R</material>
+        <text>Seat Frame Right — Aluminum Die Cast</text>
+        <customsTariff>8714.99.90</customsTariff>
+        <quantity unit="ST">250</quantity>
+        <netPrice currency="EUR">48.72</netPrice>
+        <value currency="EUR">12180.00</value>
+      </pos>
+      <pos number="00030">
+        <material>KAC-RECLINE-MECH</material>
+        <text>Recliner Mechanism Assembly</text>
+        <customsTariff>8714.99.90</customsTariff>
+        <quantity unit="ST">500</quantity>
+        <netPrice currency="EUR">32.50</netPrice>
+        <value currency="EUR">16250.00</value>
+      </pos>
+    </positions>
+  </purchaseOrder>
+</root>

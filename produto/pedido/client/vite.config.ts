@@ -68,6 +68,13 @@ export default defineConfig({
       '@nucleo/tabela-virtual-global':             nucleo('Tabelas/tabela-virtual-global/src/index.ts'),
       // ── Gabi ──
       '@nucleo/gabi-field-icon-global':            nucleo('Gabi/gabi-field-icon-global/src/index.ts'),
+      '@nucleo/modal-gabi-caixa-aviso':            nucleo('Modais/modal-gabi-caixa-aviso/src/index.ts'),
+      // ── Configuracoes ──
+      '@nucleo/cabecalho-secao-global':            nucleo('Configuracoes/cabecalho-secao-global/src/index.ts'),
+      '@nucleo/painel-preview-global':             nucleo('Configuracoes/painel-preview-global/src/index.ts'),
+      '@nucleo/seletor-abas-global':               nucleo('Configuracoes/seletor-abas-global/src/index.ts'),
+      '@nucleo/bloco-configuracao-global':         nucleo('Configuracoes/bloco-configuracao-global/src/index.ts'),
+      '@nucleo/catalogo-selecao-global':           nucleo('Configuracoes/catalogo-selecao-global/src/index.ts'),
       // ── Utilidades ──
       '@nucleo/utils':                             nucleo('Utilidades/utils/src/index.ts'),
       '@nucleo/Utilidades/localization/i18n':      nucleo('Utilidades/Localization/i18n.ts'),

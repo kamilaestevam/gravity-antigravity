@@ -1,0 +1,64 @@
+{
+  "invoice": {
+    "header": {
+      "reference": "PO-AGR-2026-015",
+      "vendor": "Agro Machines Italia Srl",
+      "origin": "IT",
+      "terms": "FOB La Spezia",
+      "ccy": "EUR",
+      "docDate": "20260220"
+    },
+    "lines": [
+      {
+        "lineNo": 1,
+        "partNo": "AMI-TR-001",
+        "itemDesc": "Tractor 75HP 4WD",
+        "ncm": "8701.92.00",
+        "qty": 3,
+        "uom": "UN",
+        "priceUnit": 28500.00,
+        "lineTotal": 85500.00
+      },
+      {
+        "lineNo": 2,
+        "partNo": "AMI-TR-002",
+        "itemDesc": "Front Loader Attachment",
+        "ncm": "8430.69.90",
+        "qty": 3,
+        "uom": "UN",
+        "priceUnit": 4200.00,
+        "lineTotal": 12600.00
+      },
+      {
+        "lineNo": 3,
+        "partNo": "AMI-TR-003",
+        "itemDesc": "Rear Hydraulic Hitch Cat II",
+        "ncm": "8431.49.90",
+        "qty": 3,
+        "uom": "UN",
+        "priceUnit": 1850.00,
+        "lineTotal": 5550.00
+      },
+      {
+        "lineNo": 4,
+        "partNo": "AMI-SP-001",
+        "itemDesc": "Spare Parts Kit (1 year)",
+        "ncm": "8708.99.90",
+        "qty": 3,
+        "uom": "KIT",
+        "priceUnit": 950.00,
+        "lineTotal": 2850.00
+      },
+      {
+        "lineNo": 5,
+        "partNo": "AMI-DOC-001",
+        "itemDesc": "Technical Manual PT-BR",
+        "ncm": "4901.99.00",
+        "qty": 3,
+        "uom": "UN",
+        "priceUnit": 0.00,
+        "lineTotal": 0.00
+      }
+    ]
+  }
+}

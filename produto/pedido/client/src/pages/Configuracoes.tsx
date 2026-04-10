@@ -172,6 +172,58 @@ interface StatusPedido {
   sistema: boolean
 }
 
+// ─── Coluna sortável (DnD — Colunas Personalizadas) ──────────────────────────
+
+function ColunaSortavel({
+  col, onToggleAtivo, onRemover,
+}: {
+  col: import('../shared/types').ColunaUsuario
+  onToggleAtivo: () => void
+  onRemover: () => void
+}) {
+  const tipoInfo = [
+    { id: 'texto', label: 'Texto' }, { id: 'numero', label: 'Numérico' },
+    { id: 'data', label: 'Data' }, { id: 'percentual', label: 'Percentual %' },
+    { id: 'select', label: 'Select/Lista' }, { id: 'checkbox', label: 'Checkbox' },
+    { id: 'tipo_documento', label: 'Tipo Documento' }, { id: 'formula', label: 'Fórmula' },
+    { id: 'anexo', label: 'Anexo' },
+  ].find(t => t.id === col.tipo)
+
+  const {
+    attributes, listeners, setNodeRef,
+    transform, transition, isDragging,
+  } = useSortable({ id: col.id })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex:  isDragging ? 999 : undefined,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className={`cfg-kanban-campo-row${!col.ativo ? ' cfg-kanban-campo-row--oculto' : ''}`}>
+      <button type="button" className="cfg-drag-handle" {...attributes} {...listeners} aria-label="Arrastar para reordenar">
+        <DotsSixVertical size={15} weight="bold" />
+      </button>
+      <div className="cfg-kanban-campo-row__info">
+        <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
+        <span className="cfg-kanban-campo-row__tipo">{tipoInfo?.label ?? col.tipo}</span>
+      </div>
+      <TooltipGlobal descricao={col.ativo ? 'Ocultar coluna' : 'Exibir coluna'}>
+        <button type="button" className="cfg-kanban-campo-btn" onClick={onToggleAtivo} aria-label={col.ativo ? 'Ocultar' : 'Exibir'}>
+          {col.ativo ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
+        </button>
+      </TooltipGlobal>
+      <TooltipGlobal descricao="Excluir coluna">
+        <button type="button" className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove" onClick={onRemover} aria-label={`Excluir ${col.nome}`}>
+          <X size={13} weight="bold" />
+        </button>
+      </TooltipGlobal>
+    </div>
+  )
+}
+
 function StatusSortavel({
   status,
   editandoId,
@@ -437,20 +489,20 @@ interface NovaColuna {
 
 const COLUNAS_NUMERICAS = [
   // ── Pedido (pai) ──
-  { campo: 'quantidade_total_inicial_pedido',   label: 'Quantidade Inicial',         categoria: 'Pedido', padrao: 0 },
-  { campo: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta',      categoria: 'Pedido', padrao: 0 },
-  { campo: 'quantidade_cancelada_total_pedido', label: 'Quantidade Cancelada',      categoria: 'Pedido', padrao: 0 },
-  { campo: 'quantidade_transferida_total',     label: 'Quantidade Transferida',     categoria: 'Pedido', padrao: 0 },
-  { campo: 'valor_total_pedido',               label: 'Valor Total',                categoria: 'Pedido', padrao: 2 },
-  { campo: 'peso_liquido_total_pedido',        label: 'Peso Líquido Total',         categoria: 'Pedido', padrao: 3 },
-  { campo: 'peso_bruto_total_pedido',          label: 'Peso Bruto Total',           categoria: 'Pedido', padrao: 3 },
-  { campo: 'cubagem_total_pedido',             label: 'Cubagem Total',              categoria: 'Pedido', padrao: 4 },
+  { campo: 'quantidade_total_inicial_pedido',      label: 'Quantidade Inicial',       categoria: 'Pedido', padrao: 2 },
+  { campo: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta',        categoria: 'Pedido', padrao: 2 },
+  { campo: 'quantidade_cancelada_total_pedido',    label: 'Quantidade Cancelada',     categoria: 'Pedido', padrao: 2 },
+  { campo: 'quantidade_transferida_total',         label: 'Quantidade Transferida',   categoria: 'Pedido', padrao: 2 },
+  { campo: 'valor_total_pedido',                   label: 'Valor Total',              categoria: 'Pedido', padrao: 2 },
+  { campo: 'peso_liquido_total_pedido',            label: 'Peso Líquido Total',       categoria: 'Pedido', padrao: 2 },
+  { campo: 'peso_bruto_total_pedido',              label: 'Peso Bruto Total',         categoria: 'Pedido', padrao: 2 },
+  { campo: 'cubagem_total_pedido',                 label: 'Cubagem Total',            categoria: 'Pedido', padrao: 2 },
   // ── Item (filho) ──
-  { campo: 'quantidade_item',                  label: 'Quantidades dos Itens',      categoria: 'Item',   padrao: 0 },
-  { campo: 'peso_liquido_unitario',            label: 'Peso Líquido Unitário',      categoria: 'Item',   padrao: 3 },
-  { campo: 'peso_bruto_unitario',              label: 'Peso Bruto Unitário',        categoria: 'Item',   padrao: 3 },
-  { campo: 'cubagem_unitaria',                 label: 'Cubagem Unitária',           categoria: 'Item',   padrao: 4 },
-  { campo: 'quantidade_unidade_estatistica',   label: 'Qtd. Unidade Estatística',   categoria: 'Item',   padrao: 2 },
+  { campo: 'quantidade_item',                      label: 'Quantidades dos Itens',    categoria: 'Item',   padrao: 2 },
+  { campo: 'peso_liquido_unitario',                label: 'Peso Líquido Unitário',    categoria: 'Item',   padrao: 2 },
+  { campo: 'peso_bruto_unitario',                  label: 'Peso Bruto Unitário',      categoria: 'Item',   padrao: 2 },
+  { campo: 'cubagem_unitaria',                     label: 'Cubagem Unitária',         categoria: 'Item',   padrao: 2 },
+  { campo: 'quantidade_unidade_estatistica',       label: 'Qtd. Unidade Estatística', categoria: 'Item',   padrao: 2 },
 ] as const
 
 const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNode }[] = [
@@ -480,12 +532,23 @@ function carregarExportConfig(): ExportacaoConfig {
   return { formatoPadrao: 'xlsx', incluirColunasUsuario: true, incluirItens: true, apenasSelection: false, incluirCabecalho: true, separadorCsv: 'ponto-virgula' }
 }
 
+const CASAS_KEY     = 'pedido:casas_decimais'
+const CASAS_VERSION = 2  // bump quando os defaults mudarem — invalida dados antigos
+
 function carregarCasasDecimais(): Record<string, number> {
+  const defaults = Object.fromEntries(COLUNAS_NUMERICAS.map(c => [c.campo, 2]))
   try {
-    const raw = localStorage.getItem('pedido:casas_decimais')
-    if (raw) return JSON.parse(raw) as Record<string, number>
+    const raw = localStorage.getItem(CASAS_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw) as Record<string, number> & { _v?: number }
+      if (parsed._v === CASAS_VERSION) {
+        const { _v, ...values } = parsed
+        return { ...defaults, ...values }
+      }
+      // Versão antiga — ignora e começa do zero com defaults novos
+    }
   } catch { /* ignore */ }
-  return Object.fromEntries(COLUNAS_NUMERICAS.map(c => [c.campo, c.padrao]))
+  return defaults
 }
 
 const NOVA_COLUNA_PADRAO: NovaColuna = {
@@ -631,7 +694,7 @@ function ToggleRow({
 
 export default function Configuracoes() {
   const { t } = useTranslation()
-  const { addNotification } = useShellStore()
+  const addNotification = useShellStore(s => s.addNotification)
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as CategoriaId | null
   const acaoParam = searchParams.get('acao')
@@ -648,8 +711,8 @@ export default function Configuracoes() {
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
   // ── Estado: casas decimais ──
-  const [casasDecimais,        setCasasDecimais]        = useState<Record<string, number>>(carregarCasasDecimais)
-  const [pendingCasas,         setPendingCasas]         = useState<Record<string, number>>(carregarCasasDecimais)
+  const [casasDecimais, setCasasDecimais] = useState<Record<string, number>>(carregarCasasDecimais)
+  const [pendingCasas,  setPendingCasas]  = useState<Record<string, number>>(carregarCasasDecimais)
   const casasDirty = JSON.stringify(pendingCasas) !== JSON.stringify(casasDecimais)
 
   function handleCasasDecimaisChange(campo: string, valor: number) {
@@ -658,7 +721,8 @@ export default function Configuracoes() {
 
   function salvarCasasDecimais() {
     setCasasDecimais(pendingCasas)
-    localStorage.setItem('pedido:casas_decimais', JSON.stringify(pendingCasas))
+    localStorage.setItem(CASAS_KEY, JSON.stringify({ _v: CASAS_VERSION, ...pendingCasas }))
+    addNotification({ type: 'success', message: 'Casas decimais salvas com sucesso.' })
   }
 
   function restaurarCasasDecimais() {
@@ -672,6 +736,60 @@ export default function Configuracoes() {
       .then(lista => setColunasUsuarioApi(lista))
       .catch(() => {})
   }, [])
+
+  // ── Estado: gerenciamento de colunas existentes (pending — DnD + ativo) ──
+  const [pendingColunas,    setPendingColunas]    = useState<ColunaUsuarioApi[]>([])
+  const [salvandoColunas,   setSalvandoColunas]   = useState(false)
+
+  // Sincroniza pending quando a lista da API muda (cria, exclui, etc.)
+  useEffect(() => {
+    setPendingColunas([...colunasUsuarioApi_])
+  }, [colunasUsuarioApi_])
+
+  const colunasDirty = useMemo(() => {
+    if (pendingColunas.length !== colunasUsuarioApi_.length) return false
+    return pendingColunas.some((col, i) => {
+      const orig = colunasUsuarioApi_[i]
+      return !orig || orig.id !== col.id || orig.ativo !== col.ativo
+    })
+  }, [pendingColunas, colunasUsuarioApi_])
+
+  function handleToggleAtivoColuna(id: string) {
+    setPendingColunas(prev => prev.map(c => c.id === id ? { ...c, ativo: !c.ativo } : c))
+  }
+
+  function handleDragEndColunas(event: import('@dnd-kit/core').DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    setPendingColunas(prev => {
+      const oldIndex = prev.findIndex(c => c.id === active.id)
+      const newIndex = prev.findIndex(c => c.id === over.id)
+      return arrayMove(prev, oldIndex, newIndex)
+    })
+  }
+
+  async function salvarOrdemColunas() {
+    setSalvandoColunas(true)
+    try {
+      await colunasUsuarioApi.reordenar(pendingColunas.map(c => c.id))
+      const changed = pendingColunas.filter(col => {
+        const orig = colunasUsuarioApi_.find(c => c.id === col.id)
+        return orig && orig.ativo !== col.ativo
+      })
+      await Promise.all(changed.map(col => colunasUsuarioApi.atualizar(col.id, { ativo: col.ativo })))
+      const lista = await colunasUsuarioApi.listar()
+      setColunasUsuarioApi(lista)
+      addNotification({ type: 'success', message: 'Colunas salvas com sucesso.' })
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao salvar colunas.' })
+    } finally {
+      setSalvandoColunas(false)
+    }
+  }
+
+  function cancelarOrdemColunas() {
+    setPendingColunas([...colunasUsuarioApi_])
+  }
 
   // ── Estado: colunas personalizadas (via API) ──
   const [novaColuna, setNovaColuna] = useState<NovaColuna>(NOVA_COLUNA_PADRAO)
@@ -3260,20 +3378,19 @@ export default function Configuracoes() {
                     {(['Pedido', 'Item'] as const).map(cat => (
                       <React.Fragment key={cat}>
                         <p className="cfg-colunas-categoria">{cat}</p>
-                        {COLUNAS_NUMERICAS.filter(c => c.categoria === cat).map(col => (
-                          <div key={col.campo} className="cfg-coluna-row">
-                            <span className="cfg-coluna-row__label">{col.label}</span>
-                            <input
-                              type="number"
-                              min={0}
-                              max={8}
-                              className="cfg-casas-input"
-                              value={pendingCasas[col.campo] ?? col.padrao}
-                              onChange={e => handleCasasDecimaisChange(col.campo, Math.min(8, Math.max(0, Number(e.target.value))))}
-                              aria-label={`Casas decimais para ${col.label}`}
-                            />
-                          </div>
-                        ))}
+                        {COLUNAS_NUMERICAS.filter(c => c.categoria === cat).map(col => {
+                          const val = pendingCasas[col.campo] ?? 2
+                          return (
+                            <div key={col.campo} className="cfg-coluna-row">
+                              <span className="cfg-coluna-row__label">{col.label}</span>
+                              <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.label}`}>
+                                <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.campo, val - 1)} aria-label="Diminuir">−</button>
+                                <span className="cfg-casas-stepper__value">{val}</span>
+                                <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.campo, val + 1)} aria-label="Aumentar">+</button>
+                              </div>
+                            </div>
+                          )
+                        })}
                       </React.Fragment>
                     ))}
                     {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula').length > 0 && (
@@ -3281,20 +3398,19 @@ export default function Configuracoes() {
                         <p className="cfg-colunas-categoria">Personalizadas</p>
                         {colunasUsuarioApi_
                           .filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula')
-                          .map(col => (
-                            <div key={col.id} className="cfg-coluna-row">
-                              <span className="cfg-coluna-row__label">{col.nome}</span>
-                              <input
-                                type="number"
-                                min={0}
-                                max={8}
-                                className="cfg-casas-input"
-                                value={pendingCasas[col.id] ?? 2}
-                                onChange={e => handleCasasDecimaisChange(col.id, Math.min(8, Math.max(0, Number(e.target.value))))}
-                                aria-label={`Casas decimais para ${col.nome}`}
-                              />
-                            </div>
-                          ))
+                          .map(col => {
+                            const val = pendingCasas[col.id] ?? 2
+                            return (
+                              <div key={col.id} className="cfg-coluna-row">
+                                <span className="cfg-coluna-row__label">{col.nome}</span>
+                                <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.nome}`}>
+                                  <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.id, val - 1)} aria-label="Diminuir">−</button>
+                                  <span className="cfg-casas-stepper__value">{val}</span>
+                                  <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.id, val + 1)} aria-label="Aumentar">+</button>
+                                </div>
+                              </div>
+                            )
+                          })
                         }
                       </React.Fragment>
                     )}
@@ -3627,37 +3743,38 @@ export default function Configuracoes() {
                 })()}
               </div>
 
-              {/* Lista de colunas criadas */}
-              {colunasUsuarioApi_.length > 0 && (
-                <div className="cfg-colunas-criadas">
-                  <p className="cfg-colunas-criadas__titulo">Colunas criadas ({colunasUsuarioApi_.length})</p>
-                  <div className="cfg-cards-lista">
-                    {colunasUsuarioApi_.map(col => {
-                      const tipoInfo = TIPOS_COLUNA.find(t => t.id === col.tipo)
-                      return (
-                        <div key={col.id} className="cfg-card-row">
-                          <span className="cfg-coluna-tipo-icone">{tipoInfo?.icone}</span>
-                          <div className="cfg-card-row__info">
-                            <div>
-                              <p className="cfg-card-row__nome">{col.nome}</p>
-                              <p className="cfg-card-row__desc">
-                                {tipoInfo?.label} · {col.escopo} · {col.visibilidade}
-                                {col.obrigatorio && ' · Obrigatório'}
-                                {(col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes && ` · ${col.opcoes.length} opções`}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            className="cfg-remove-btn"
-                            onClick={() => handleRemoverColuna(col.id)}
-                            aria-label={`Remover coluna ${col.nome}`}
-                          >
-                            <X size={13} weight="bold" />
-                          </button>
-                        </div>
-                      )
-                    })}
+              {/* ── Colunas existentes — card gerenciamento ── */}
+              {pendingColunas.length > 0 && (
+                <div className="cfg-campo-calc-item" style={{ marginBottom: '1rem' }}>
+                  <div className="cfg-campo-calc-item__header">
+                    <div className="cfg-campo-calc-item__id">
+                      <Columns size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                      <span className="cfg-campo-calc-item__nome">Colunas criadas</span>
+                      <span className="cfg-campo-calc-item__badge">{pendingColunas.length} coluna{pendingColunas.length !== 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+
+                  <div className="cfg-campo-calc-item__body" style={{ padding: '0.5rem 0' }}>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0 1rem 0.5rem', margin: 0 }}>
+                      Arraste para reordenar · olho para ocultar
+                    </p>
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
+                      <SortableContext items={pendingColunas.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                        {pendingColunas.map(col => (
+                          <ColunaSortavel
+                            key={col.id}
+                            col={col}
+                            onToggleAtivo={() => handleToggleAtivoColuna(col.id)}
+                            onRemover={() => handleRemoverColuna(col.id)}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  </div>
+
+                  <div className="cfg-campo-calc-item__footer">
+                    <BotaoCancelar dirty={colunasDirty} rotulo="Descartar" onClick={cancelarOrdemColunas} />
+                    <BotaoSalvar   dirty={colunasDirty} carregando={salvandoColunas} rotulo="Salvar ordem" onClick={salvarOrdemColunas} />
                   </div>
                 </div>
               )}

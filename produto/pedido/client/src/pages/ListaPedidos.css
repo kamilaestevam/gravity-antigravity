@@ -87,6 +87,23 @@
   padding: 0 0.5rem;
 }
 
+/* Centralizar todas as células, incluindo as numéricas (align: right) */
+.lp-tabela-wrapper .gtv-celula--right {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Quando TooltipGlobal envolve o conteúdo, o tg-trigger ocupa flex:1 e precisa de justify-content */
+.lp-tabela-wrapper .gtv-celula .tg-trigger {
+  justify-content: center;
+}
+
+/* Texto puro dentro de células — herda text-align do pai mas garantimos via width auto */
+.lp-tabela-wrapper .gtv-celula .gtv-celula-text {
+  text-align: center;
+  width: auto;
+}
+
 /* Pai (PO): destaque sutil — semibold + branco total */
 .lp-tabela-wrapper .gtv-linha:not(.gtv-linha--filho) .gtv-celula:not(.gtv-celula--check):not(.gtv-celula--expand):not(.gtv-celula--acoes) {
   font-weight: 600;

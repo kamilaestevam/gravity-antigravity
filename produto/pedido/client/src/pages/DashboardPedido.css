@@ -11,6 +11,17 @@
   border-radius: var(--radius-lg);
 }
 
+/* ── GABI Empty State — pulsação contínua até usuário agir ── */
+
+@keyframes gabiEmptyGlow {
+  0%, 100% { box-shadow: 0 8px 24px rgba(79, 70, 229, 0.35); }
+  50%       { box-shadow: 0 12px 36px rgba(79, 70, 229, 0.65), 0 0 0 3px rgba(99,102,241,0.3); }
+}
+
+.dp-gabi-empty-pulse {
+  animation: gabiEmptyGlow 2.2s ease-in-out infinite;
+}
+
 /* ── GABI AI Insights — idêntico ao Hub (SelecionarWorkspace) ── */
 
 .dp-gabi-card {

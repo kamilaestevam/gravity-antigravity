@@ -48,6 +48,10 @@ const EVENT_TO_INSIGHT_MAP: Record<string, Record<string, string>> = {
     '/pedidos/lista?status=aberto':     'abertos',
     '/pedidos/lista?status=cancelado':  'cancelados',
     '/pedidos/lista?sem_exportador=true': 'sem_exportador',
+    // Features — marcar como "descoberta" quando o usuário acessa
+    '/pedidos/configuracoes':           'feat_colunas',
+    '/pedidos/importar':                'feat_importar',
+    '/pedidos/kanban':                  'feat_kanban',
   },
   filter_applied: {
     'status:atrasado':      'atrasados',
@@ -57,6 +61,21 @@ const EVENT_TO_INSIGHT_MAP: Record<string, Record<string, string>> = {
     'valor_total':          'financeiro',
     'moeda_pedido':         'financeiro',
     'tipo_operacao':        'distribuicao',
+    'incoterm':             'sem_incoterm',
+    'fabricante_id':        'sem_fabricante',
+    'cobertura_cambial':    'exposicao_cambial',
+    'peso_bruto_total_pedido': 'logistica',
+  },
+  column_viewed: {
+    'incoterm':                  'sem_incoterm',
+    'fabricante_id':             'sem_fabricante',
+    'numero_proforma':           'sem_documentos',
+    'numero_invoice':            'sem_documentos',
+    'cobertura_cambial':         'exposicao_cambial',
+    'moeda_pedido':              'multimoeda',
+    'peso_bruto_total_pedido':   'logistica',
+    'cubagem_total_pedido':      'logistica',
+    'valor_total_cambio_pedido': 'exposicao_cambial',
   },
   insight_clicked: {
     // insight_id → direto (1:1)
@@ -74,12 +93,21 @@ function resolveInsightId(event: BehaviorEventType, payload: BehaviorEventInput[
       : payload.filter_field
     return EVENT_TO_INSIGHT_MAP.filter_applied[key] ?? null
   }
+  if (event === 'column_viewed' && payload.column_key) {
+    return EVENT_TO_INSIGHT_MAP.column_viewed?.[payload.column_key] ?? null
+  }
   if (event === 'widget_clicked' && payload.widget_id) {
     // Widgets de financeiro → boost no insight financeiro
     if (['kpi_valor_total', 'kpi_valor_itens', 'valor_total_trend'].includes(payload.widget_id)) return 'financeiro'
     if (['kpi_pedidos_atrasados'].includes(payload.widget_id)) return 'atrasados'
     if (['kpi_pedidos_abertos'].includes(payload.widget_id))   return 'abertos'
     if (['status_dist', 'tipo_operacao_dist'].includes(payload.widget_id)) return 'distribuicao'
+    // Dashboard personalizado — se clicou em "Personalizar", marcamos como descoberto
+    if (payload.widget_id === 'dashboard_custom') return 'feat_dashboard_custom'
+  }
+  // Feature card clicado — marca como descoberta via insight_clicked
+  if (event === 'insight_clicked' && payload.insight_id?.startsWith('feat_')) {
+    return payload.insight_id
   }
   return null
 }

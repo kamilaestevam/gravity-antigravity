@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<commercialInvoice xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <documentInfo>
+    <referenceNumber>PO/2026/BR/077</referenceNumber>
+    <issueDate>10/03/2026</issueDate>
+    <paymentTerms>NET 60</paymentTerms>
+  </documentInfo>
+  <supplierInfo>
+    <companyName>Guangzhou Industrial Supply Co. Ltd</companyName>
+    <country>CN</country>
+    <incotermsCode>EXW</incotermsCode>
+    <invoiceCurrency>USD</invoiceCurrency>
+  </supplierInfo>
+  <lineItems>
+    <lineItem seq="1">
+      <itemCode>GIS-7701</itemCode>
+      <itemDescription>Aluminium Profile 40x40 L=3000mm</itemDescription>
+      <hsCode>7604.29.00</hsCode>
+      <orderedQty>200</orderedQty>
+      <unitOfMeasure>PC</unitOfMeasure>
+      <pricePerUnit>8.50</pricePerUnit>
+      <lineValue>1700.00</lineValue>
+      <netWeightKg>3.2</netWeightKg>
+    </lineItem>
+    <lineItem seq="2">
+      <itemCode>GIS-7702</itemCode>
+      <itemDescription>T-Slot Nut M8 (pack 100)</itemDescription>
+      <hsCode>7318.16.00</hsCode>
+      <orderedQty>50</orderedQty>
+      <unitOfMeasure>PKG</unitOfMeasure>
+      <pricePerUnit>12.00</pricePerUnit>
+      <lineValue>600.00</lineValue>
+      <netWeightKg>0.8</netWeightKg>
+    </lineItem>
+    <lineItem seq="3">
+      <itemCode>GIS-7703</itemCode>
+      <itemDescription>Linear Rail HGR20 L=1000mm</itemDescription>
+      <hsCode>8466.93.90</hsCode>
+      <orderedQty>40</orderedQty>
+      <unitOfMeasure>PC</unitOfMeasure>
+      <pricePerUnit>35.00</pricePerUnit>
+      <lineValue>1400.00</lineValue>
+      <netWeightKg>2.1</netWeightKg>
+    </lineItem>
+  </lineItems>
+</commercialInvoice>

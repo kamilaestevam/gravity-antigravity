@@ -41,7 +41,7 @@ import {
   Package, ClipboardText, Scales, CurrencyDollar,
   Warning, UserCircleMinus, CheckCircle,
   ListNumbers, ArrowsLeftRight, Tag,
-  CaretLeft, CaretRight, Sparkle, RocketLaunch,
+  CaretLeft, CaretRight, RocketLaunch,
 } from '@phosphor-icons/react'
 import './DashboardPedido.css'
 
@@ -428,6 +428,249 @@ const WIDGET_NAV_ROUTE: Record<string, string> = {
   kpi_qtd_pronta:        '/pedidos/lista?status=pronto',
 }
 
+// ── GABI Empty State — utilitários ───────────────────────────────────────────
+
+const PERIOD_SEQUENCE = ['7d', '30d', '90d', '12m', 'current_year'] as const
+type PeriodKey = typeof PERIOD_SEQUENCE[number]
+
+const PERIOD_LABEL: Record<string, string> = {
+  '7d':           'Últimos 7 dias',
+  '30d':          'Últimos 30 dias',
+  '90d':          'Últimos 90 dias',
+  '12m':          'Últimos 12 meses',
+  'current_year': 'Ano atual',
+}
+
+function getNextPeriods(current: string): string[] {
+  const idx = PERIOD_SEQUENCE.indexOf(current as PeriodKey)
+  if (idx === -1) return ['30d', '12m']
+  return Array.from(PERIOD_SEQUENCE.slice(idx + 1, idx + 3))
+}
+
+function buildEmptyText(chartType: string, fieldNames: string[]): string {
+  const fieldStr = fieldNames.length === 0
+    ? 'este campo'
+    : fieldNames.length === 1
+      ? `"${fieldNames[0]}"`
+      : fieldNames.slice(0, 2).map(f => `"${f}"`).join(' e ')
+
+  switch (chartType) {
+    case 'DISTRIBUTION':
+      return `Nenhum registro encontrado para distribuir ${fieldStr} no período selecionado. Isso pode indicar que os dados ainda não foram importados ou que o filtro é muito restritivo.`
+    case 'LINE':
+    case 'AREA':
+      return `Sem dados de tendência para ${fieldStr} neste intervalo. Ampliar o período pode revelar movimentações históricas relevantes.`
+    case 'BAR':
+    case 'BAR_HORIZONTAL':
+      return `Nenhuma movimentação registrada para comparar ${fieldStr} no período atual. Tente um intervalo maior ou verifique os filtros ativos.`
+    default:
+      return `Não há dados disponíveis para este widget no período selecionado. Amplie o intervalo ou ajuste os campos.`
+  }
+}
+
+/** Retorna true quando o resultado não contém dados visualizáveis.
+ *  Métricas derivadas nunca são consideradas "vazias" (0 é resultado válido). */
+function isResultEmpty(result: WidgetResult, isDerived: boolean): boolean {
+  if (isDerived) return false
+  const ct = result.chartType
+
+  if (ct === 'DISTRIBUTION') {
+    return !result.slices || result.slices.length === 0
+  }
+
+  if (['LINE', 'AREA', 'BAR', 'BAR_HORIZONTAL'].includes(ct)) {
+    if (!result.series || result.series.length === 0) return true
+    return result.series.every((pt: WidgetSeriesPoint) =>
+      Object.entries(pt)
+        .filter(([k]) => k !== 'month')
+        .every(([, v]) => !v || Number(v) === 0),
+    )
+  }
+
+  return false
+}
+
+// ── WidgetEmptyGabi — card exibido quando widget retorna dados zerados ─────────
+
+interface WidgetEmptyGabiProps {
+  widget: DashboardWidgetConfig
+  fieldNames: string[]
+  currentPeriod: string
+  onExpandPeriod: (p: string) => void
+  onEdit: () => void
+  onRemove: () => void
+}
+
+function WidgetEmptyGabi({ widget, fieldNames, currentPeriod, onExpandPeriod, onEdit, onRemove }: WidgetEmptyGabiProps) {
+  const nextPeriods = getNextPeriods(currentPeriod)
+  const emptyText   = buildEmptyText(widget.chart_type, fieldNames)
+
+  return (
+    <div style={gabiEmptyStyles.wrap} className="dp-gabi-empty-pulse">
+      {/* Fundo decorativo */}
+      <div style={gabiEmptyStyles.watermark} aria-hidden="true">
+        <RocketLaunch size={80} weight="fill" />
+      </div>
+
+      <div style={gabiEmptyStyles.inner}>
+        <div style={gabiEmptyStyles.avatarRow}>
+          <div style={gabiEmptyStyles.avatar}>
+            <RocketLaunch size={13} weight="fill" color="#fff" />
+          </div>
+          <span style={gabiEmptyStyles.tag}>GABI · Sem dados no período</span>
+        </div>
+
+        <p style={gabiEmptyStyles.text}>{emptyText}</p>
+
+        <div style={gabiEmptyStyles.actions}>
+          {nextPeriods.length > 0 ? (
+            <div style={gabiEmptyStyles.periodGroup}>
+              <span style={gabiEmptyStyles.actionLabel}>Ampliar para:</span>
+              {nextPeriods.map(p => (
+                <button key={p} type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod(p)}>
+                  {PERIOD_LABEL[p] ?? p}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div style={gabiEmptyStyles.periodGroup}>
+              <span style={gabiEmptyStyles.actionLabel}>Já no período máximo. Experimente:</span>
+              <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('30d')}>
+                Últimos 30 dias
+              </button>
+              <button type="button" style={gabiEmptyStyles.periodBtn} onClick={() => onExpandPeriod('12m')}>
+                Últimos 12 meses
+              </button>
+            </div>
+          )}
+
+          <div style={gabiEmptyStyles.rowActions}>
+            <button type="button" style={gabiEmptyStyles.editBtn} onClick={onEdit}>
+              Editar campos
+            </button>
+            <button type="button" style={gabiEmptyStyles.removeBtn} onClick={onRemove}>
+              Remover widget
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const gabiEmptyStyles = {
+  wrap: {
+    position: 'relative' as const,
+    background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+    borderRadius: 'var(--radius-lg)',
+    overflow: 'hidden',
+    width: '100%',
+    boxSizing: 'border-box' as const,
+  },
+  watermark: {
+    position: 'absolute' as const,
+    top: '50%',
+    right: '-20px',
+    transform: 'translateY(-50%) rotate(15deg)',
+    color: 'rgba(255, 255, 255, 0.06)',
+    pointerEvents: 'none' as const,
+    zIndex: 0,
+    lineHeight: 0,
+  },
+  inner: {
+    position: 'relative' as const,
+    zIndex: 1,
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.625rem',
+    padding: '0.875rem 1rem',
+  },
+  avatarRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  avatar: {
+    width: '22px',
+    height: '22px',
+    borderRadius: '7px',
+    background: 'rgba(255, 255, 255, 0.2)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+  },
+  tag: {
+    fontSize: '0.6rem',
+    fontWeight: 800,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase' as const,
+    color: '#a5f3fc',
+  },
+  text: {
+    fontSize: '0.75rem',
+    lineHeight: 1.55,
+    color: 'rgba(255, 255, 255, 0.85)',
+    margin: 0,
+  },
+  actions: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '0.5rem',
+    marginTop: '0.125rem',
+  },
+  periodGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    flexWrap: 'wrap' as const,
+    gap: '0.375rem',
+  },
+  actionLabel: {
+    fontSize: '0.65rem',
+    fontWeight: 600,
+    color: 'rgba(255, 255, 255, 0.6)',
+    letterSpacing: '0.05em',
+  },
+  periodBtn: {
+    background: 'rgba(255, 255, 255, 0.15)',
+    border: '1px solid rgba(255, 255, 255, 0.3)',
+    borderRadius: '999px',
+    padding: '2px 10px',
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    color: '#fff',
+    cursor: 'pointer',
+    fontFamily: 'var(--font, inherit)',
+  },
+  rowActions: {
+    display: 'flex',
+    gap: '1rem',
+  },
+  editBtn: {
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    color: 'rgba(255, 255, 255, 0.75)',
+    cursor: 'pointer',
+    fontFamily: 'var(--font, inherit)',
+    textDecoration: 'underline',
+  },
+  removeBtn: {
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    color: '#fca5a5',
+    cursor: 'pointer',
+    fontFamily: 'var(--font, inherit)',
+    textDecoration: 'underline',
+  },
+} as const
+
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function DashboardPedido() {
@@ -494,27 +737,24 @@ export default function DashboardPedido() {
     [widgets, allDerived, gridBottom],
   )
 
-  const handleAddWidgetFromSuggestions = useCallback((widgetConfig: DashboardWidgetConfig) => {
-    addWidget(widgetConfig)
-    try { addNotification({ type: 'success', message: `Widget "${widgetConfig.title}" adicionado ao dashboard.`, duration: 4000 }) } catch { /* ignorar */ }
-
-    // Aguarda React renderizar o novo widget
+  // Efeito visual reutilizável: scroll + outline pulse após adicionar qualquer widget
+  const triggerWidgetAddedFX = useCallback((widgetId: string, title: string) => {
+    try { addNotification({ type: 'success', message: `Widget "${title}" adicionado ao dashboard.`, duration: 4000 }) } catch { /* ignorar */ }
     setTimeout(() => {
-      // [data-widget-id] é o wrapper do grid item; o WidgetContainer é seu filho direto
-      const wrapper = document.querySelector(`[data-widget-id="${widgetConfig.id}"]`)
-      const card    = wrapper?.firstElementChild as HTMLElement | null
-
-      // Scroll até o widget
+      const wrapper = document.querySelector(`[data-widget-id="${widgetId}"]`)
       wrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-
-      // Inicia o ring após o scroll chegar (~700ms)
       setTimeout(() => {
         if (!wrapper) return
         wrapper.classList.add('wc-highlighted')
         setTimeout(() => wrapper.classList.remove('wc-highlighted'), 4500)
       }, 700)
     }, 300)
-  }, [addWidget, addNotification])
+  }, [addNotification])
+
+  const handleAddWidgetFromSuggestions = useCallback((widgetConfig: DashboardWidgetConfig) => {
+    addWidget(widgetConfig)
+    triggerWidgetAddedFX(widgetConfig.id, widgetConfig.title)
+  }, [addWidget, triggerWidgetAddedFX])
 
   useEffect(() => {
     if (gabiPaused || loadingData) return
@@ -573,13 +813,13 @@ export default function DashboardPedido() {
           onMouseLeave={() => setGabiPaused(false)}
         >
           <div className="dp-gabi-watermark" aria-hidden="true">
-            <Sparkle size={120} weight="fill" />
+            <RocketLaunch size={120} weight="fill" />
           </div>
           <div className="dp-gabi-main">
             <div className="dp-gabi-top-row">
               <div className="dp-gabi-header">
                 <div className="dp-gabi-avatar">
-                  <Sparkle weight="fill" size={13} color="#fff" />
+                  <RocketLaunch weight="fill" size={13} color="#fff" />
                 </div>
                 <span className="dp-gabi-label">Gabi AI · Insights</span>
               </div>
@@ -673,6 +913,32 @@ export default function DashboardPedido() {
       ? buildWidgetResult(widget, kpisData, trendData, allDerived)
       : { data: {}, chartType: widget.chart_type, partial: true, cached: false, computed_at: new Date().toISOString() }
     const fields = widget.query_spec.fields
+    const isDerived = !!widget.config?.derivedMetricId
+
+    // ── Estado vazio detectado pela GABI ─────────────────────────────────────
+    if (!loadingData && kpisData && isResultEmpty(result, isDerived)) {
+      return (
+        <WidgetContainer
+          key={widget.id}
+          widget={widget}
+          result={result}
+          loading={false}
+          error={null}
+          editMode={editMode}
+          onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
+          onRemove={removeWidget}
+        >
+          <WidgetEmptyGabi
+            widget={widget}
+            fieldNames={fields.map((f: { key: string }) => fieldLabels[f.key] ?? f.key)}
+            currentPeriod={slicers.period}
+            onExpandPeriod={setPeriod}
+            onEdit={() => { setEditingWidget(widget); setEditModalOpen(true) }}
+            onRemove={() => removeWidget(widget.id)}
+          />
+        </WidgetContainer>
+      )
+    }
 
     // ── DISTRIBUTION ────────────────────────────────────────────────────────
     if (chartType === 'DISTRIBUTION') {
@@ -813,17 +1079,19 @@ export default function DashboardPedido() {
         <KpiValue data={result.data} fieldKey={fieldKey} fieldType="number" />
       </WidgetContainer>
     )
-  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData])
+  }, [editMode, removeWidget, allDerived, kpisData, prevKpisData, trendData, loadingData, slicers, setPeriod, fieldLabels])
 
   function handleQueryBuilderSave(spec: WidgetQuerySpec, title: string, chartType: ChartType) {
+    const id = `custom_${Date.now()}`
     addWidget({
-      id: `custom_${Date.now()}`,
+      id,
       title,
       chart_type: chartType,
       query_spec: spec,
-      position: { x: 0, y: 99, w: chartType === 'KPI_CARD' ? 3 : 6, h: chartType === 'KPI_CARD' ? 1 : 3 },
+      position: { x: 0, y: gridBottom, w: chartType === 'KPI_CARD' ? 3 : 6, h: chartType === 'KPI_CARD' ? 2 : 3 },
     })
     setQueryBuilderOpen(false)
+    triggerWidgetAddedFX(id, title)
   }
 
   const STATUS_OPTIONS = ['abertos', 'em_andamento', 'atrasados', 'concluidos']

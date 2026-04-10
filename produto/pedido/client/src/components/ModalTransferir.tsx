@@ -89,25 +89,76 @@ interface SeletorCenarioProps {
 }
 
 function SeletorCenario({ cenarioSelecionado, onChange }: SeletorCenarioProps) {
+  const [aberto, setAberto] = React.useState(false)
+  const [listaPos, setListaPos] = React.useState<{ top: number; left: number; width: number } | null>(null)
   const selecionado = cenarioSelecionado ? CENARIOS.find(c => c.id === cenarioSelecionado) : null
+  const wrapperRef = React.useRef<HTMLDivElement>(null)
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
+
+  // Calcular posição do trigger para fixar a lista fora do overflow
+  const abrirLista = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setListaPos({ top: rect.bottom + 2, left: rect.left, width: rect.width })
+    }
+    setAberto(v => !v)
+  }
+
+  // Fechar ao clicar fora
+  useEffect(() => {
+    const onClickFora = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setAberto(false)
+      }
+    }
+    if (aberto) document.addEventListener('mousedown', onClickFora)
+    return () => document.removeEventListener('mousedown', onClickFora)
+  }, [aberto])
 
   return (
-    <div className="modal-transferir__cenario-select-wrapper">
-      <label className="modal-transferir__label" htmlFor="cenario-select">
+    <div className="modal-transferir__cenario-select-wrapper" ref={wrapperRef}>
+      <label className="modal-transferir__label" id="cenario-select-label">
         Tipo de transferência
       </label>
-      <select
-        id="cenario-select"
-        className="modal-transferir__select"
-        value={cenarioSelecionado ?? ''}
-        onChange={e => onChange(e.target.value as CenarioTransfer)}
-        aria-label="Selecione o tipo de transferência"
+      <button
+        ref={triggerRef}
+        type="button"
+        className={`modal-transferir__dropdown-trigger${aberto ? ' modal-transferir__dropdown-trigger--aberto' : ''}`}
+        onClick={abrirLista}
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        aria-labelledby="cenario-select-label"
       >
-        <option value="" disabled>Selecione...</option>
-        {CENARIOS.map(c => (
-          <option key={c.id} value={c.id}>{c.nome}</option>
-        ))}
-      </select>
+        <span className={selecionado ? '' : 'modal-transferir__dropdown-placeholder'}>
+          {selecionado ? selecionado.nome : 'Selecione...'}
+        </span>
+        <svg className="modal-transferir__dropdown-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {aberto && listaPos && (
+        <ul
+          className="modal-transferir__dropdown-lista"
+          role="listbox"
+          aria-labelledby="cenario-select-label"
+          style={{ position: 'fixed', top: listaPos.top, left: listaPos.left, width: listaPos.width }}
+        >
+          {CENARIOS.map(c => (
+            <li
+              key={c.id}
+              role="option"
+              aria-selected={c.id === cenarioSelecionado}
+              className={`modal-transferir__dropdown-item${c.id === cenarioSelecionado ? ' modal-transferir__dropdown-item--selecionado' : ''}`}
+              onClick={() => { onChange(c.id); setAberto(false) }}
+            >
+              <span className="modal-transferir__dropdown-item-nome">{c.nome}</span>
+              <span className="modal-transferir__dropdown-item-desc">{c.descricao}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
       {selecionado && (
         <p className="modal-transferir__cenario-descricao-inline">
           {selecionado.descricao}
@@ -146,14 +197,18 @@ function SeletorItemQuantidade({
       <thead>
         <tr>
           <th scope="col">Part Number</th>
-          <th scope="col">Descrição</th>
-          <th scope="col">Qty Atual</th>
+          <th scope="col">Descrição do Item</th>
+          <th scope="col">Saldo</th>
           <th scope="col">Qty a Transferir</th>
+          <th scope="col">Saldo Após</th>
         </tr>
       </thead>
       <tbody>
         {pedido.itens.map(item => {
           const selecionado = item.id === itemId
+          const saldoApos = selecionado
+            ? Math.max(0, item.saldo_item_pedido - (quantidadeOrigem || 0))
+            : null
           return (
             <tr
               key={item.id}
@@ -194,6 +249,17 @@ function SeletorItemQuantidade({
                       Máx: {fmtQuantidade(qtyMax, item.casas_decimais_quantidade_item)}
                     </div>
                   </div>
+                ) : (
+                  <span style={{ color: 'var(--color-text-muted, #64748b)' }}>—</span>
+                )}
+              </td>
+              <td>
+                {selecionado && quantidadeOrigem > 0 ? (
+                  <span
+                    className={saldoApos === 0 ? 'modal-transferir__saldo-zero' : 'modal-transferir__saldo-apos'}
+                  >
+                    {fmtQuantidade(saldoApos ?? 0, item.casas_decimais_quantidade_item)}
+                  </span>
                 ) : (
                   <span style={{ color: 'var(--color-text-muted, #64748b)' }}>—</span>
                 )}
@@ -288,27 +354,15 @@ function ConfigurarDestinos({
             </div>
           )}
 
-          {/* Quantidade */}
-          <div className="modal-transferir__destino-linha">
-            <label className="modal-transferir__label" htmlFor={`destino-qty-${idx}`}>
-              Quantidade
-            </label>
-            <input
-              id={`destino-qty-${idx}`}
-              type="number"
-              className="modal-transferir__input"
-              value={destino.quantidade || ''}
-              min={0.001}
-              step={0.001}
-              onChange={e => atualizarDestino(idx, { quantidade: parseFloat(e.target.value) || 0 })}
-              aria-required="true"
-            />
-            {itemSelecionado && (
-              <div className="modal-transferir__qty-disponivel">
-                Saldo após: {fmtQuantidade(Math.max(0, saldoAtual - destino.quantidade), casas)}
-              </div>
-            )}
-          </div>
+          {/* Quantidade — exibida apenas como leitura; valor definido no passo 2 */}
+          {itemSelecionado && (
+            <div className="modal-transferir__destino-linha">
+              <span className="modal-transferir__label">Quantidade a transferir</span>
+              <span className="modal-transferir__destino-qty-readonly">
+                {fmtQuantidade(destino.quantidade, casas)}
+              </span>
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -505,13 +559,17 @@ export function ModalTransferir({ pedidos, itemIdInicial, onFechar, onConcluido 
   // ── Avanço e retorno de passos ────────────────────────────────────────────────
 
   const avancar = useCallback(async () => {
-    if (passo === 3) {
+    if (passo === 2) {
+      // Sincroniza destino.quantidade com o valor confirmado no passo 2
+      setDestinos(prev => prev.map(d => ({ ...d, quantidade: quantidadeOrigem })))
+      setPasso(3)
+    } else if (passo === 3) {
       await buscarPreview()
       setPasso(4)
     } else if (passo < 5) {
       setPasso(prev => (prev + 1) as Passo)
     }
-  }, [passo, buscarPreview])
+  }, [passo, buscarPreview, quantidadeOrigem])
 
   const voltar = useCallback(() => {
     if (passo > 1) setPasso(prev => (prev - 1) as Passo)

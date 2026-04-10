@@ -1,0 +1,47 @@
+[
+  {
+    "numero_pedido": "PO-2026-001",
+    "exportador": "Acme Corp",
+    "incoterm": "FOB",
+    "moeda_pedido": "USD",
+    "data_emissao_pedido": "2026-01-15",
+    "part_number": "AC-001",
+    "descricao_item": "Widget Type A",
+    "ncm": "84713019",
+    "quantidade_inicial_item_pedido": 100,
+    "unidade_comercializada_item": "UN",
+    "valor_unitario_item": 25.50,
+    "valor_total_itens": 2550.00,
+    "tipo_operacao": "importacao"
+  },
+  {
+    "numero_pedido": "PO-2026-001",
+    "exportador": "Acme Corp",
+    "incoterm": "FOB",
+    "moeda_pedido": "USD",
+    "data_emissao_pedido": "2026-01-15",
+    "part_number": "AC-002",
+    "descricao_item": "Widget Type B",
+    "ncm": "84713019",
+    "quantidade_inicial_item_pedido": 50,
+    "unidade_comercializada_item": "UN",
+    "valor_unitario_item": 45.00,
+    "valor_total_itens": 2250.00,
+    "tipo_operacao": "importacao"
+  },
+  {
+    "numero_pedido": "PO-2026-001",
+    "exportador": "Acme Corp",
+    "incoterm": "FOB",
+    "moeda_pedido": "USD",
+    "data_emissao_pedido": "2026-01-15",
+    "part_number": "AC-003",
+    "descricao_item": "Widget Type C",
+    "ncm": "84713019",
+    "quantidade_inicial_item_pedido": 200,
+    "unidade_comercializada_item": "UN",
+    "valor_unitario_item": 12.00,
+    "valor_total_itens": 2400.00,
+    "tipo_operacao": "importacao"
+  }
+]

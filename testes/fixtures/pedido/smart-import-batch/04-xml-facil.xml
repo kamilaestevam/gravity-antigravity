@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice>
+  <Header>
+    <PONumber>PO-2026-010</PONumber>
+    <Shipper>TechParts Europe BV</Shipper>
+    <Manufacturer>TechParts Europe BV</Manufacturer>
+    <Incoterm>FOB Rotterdam</Incoterm>
+    <Currency>EUR</Currency>
+    <InvoiceDate>2026-02-10</InvoiceDate>
+  </Header>
+  <Items>
+    <Item>
+      <PartNumber>TP-4401</PartNumber>
+      <Description>Industrial Motor 3kW</Description>
+      <NCM>8501.20.20</NCM>
+      <Quantity>15</Quantity>
+      <Unit>UN</Unit>
+      <UnitPrice>540.00</UnitPrice>
+      <TotalAmount>8100.00</TotalAmount>
+    </Item>
+    <Item>
+      <PartNumber>TP-4402</PartNumber>
+      <Description>Frequency Inverter 7.5kW</Description>
+      <NCM>8504.40.10</NCM>
+      <Quantity>8</Quantity>
+      <Unit>UN</Unit>
+      <UnitPrice>1250.00</UnitPrice>
+      <TotalAmount>10000.00</TotalAmount>
+    </Item>
+    <Item>
+      <PartNumber>TP-4403</PartNumber>
+      <Description>Encoder 1024 PPR</Description>
+      <NCM>9031.80.90</NCM>
+      <Quantity>20</Quantity>
+      <Unit>UN</Unit>
+      <UnitPrice>185.00</UnitPrice>
+      <TotalAmount>3700.00</TotalAmount>
+    </Item>
+  </Items>
+</Invoice>

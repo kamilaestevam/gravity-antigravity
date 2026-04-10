@@ -1,0 +1,116 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e5]:
+    - button [ref=e6] [cursor=pointer]:
+      - img [ref=e7]
+    - generic [ref=e9]:
+      - img [ref=e11]
+      - generic [ref=e16]:
+        - generic [ref=e17]: Pedido
+        - generic [ref=e18]: by Gravity
+    - button "M Minha Empresa Pro" [ref=e20] [cursor=pointer]:
+      - generic [ref=e21]: M
+      - generic [ref=e22]:
+        - generic [ref=e23]: Minha Empresa
+        - generic [ref=e24]: Pro
+      - img [ref=e25]
+    - navigation [ref=e27]:
+      - button "Meu Espaço" [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e34]: Meu Espaço
+        - img [ref=e35]
+      - paragraph [ref=e37]: Pedidos
+      - link "Dashboard" [ref=e38] [cursor=pointer]:
+        - /url: /pedidos/dashboard
+        - img [ref=e40]
+        - generic [ref=e43]: Dashboard
+      - link "Lista" [ref=e44] [cursor=pointer]:
+        - /url: /pedidos
+        - img [ref=e46]
+        - generic [ref=e49]: Lista
+      - link "Kanban" [ref=e50] [cursor=pointer]:
+        - /url: /pedidos/kanban
+        - img [ref=e52]
+        - generic [ref=e55]: Kanban
+      - link "Histórico" [ref=e56] [cursor=pointer]:
+        - /url: /historico
+        - img [ref=e58]
+        - generic [ref=e61]: Histórico
+      - link "Configurações" [ref=e62] [cursor=pointer]:
+        - /url: /configuracoes
+        - img [ref=e64]
+        - generic [ref=e67]: Configurações
+  - generic [ref=e68]:
+    - banner [ref=e70]:
+      - generic [ref=e72]: Configurações
+      - generic [ref=e73]:
+        - button "Busca global" [ref=e75] [cursor=pointer]:
+          - img [ref=e76]
+        - button "Desabilitar dicas (tooltips)" [ref=e79] [cursor=pointer]:
+          - img [ref=e80]
+        - button "Trocar idioma" [ref=e84] [cursor=pointer]:
+          - img [ref=e85]
+        - button "Onde estou — abrir mapa do ecossistema" [ref=e91] [cursor=pointer]:
+          - img [ref=e93]
+        - button "Voltar ao Hub" [ref=e98] [cursor=pointer]:
+          - img [ref=e99]
+          - text: Hub
+        - button "Ir para o Core" [ref=e107] [cursor=pointer]:
+          - img [ref=e108]
+          - text: Core
+        - button "??" [ref=e116] [cursor=pointer]:
+          - generic [ref=e117]: "??"
+    - main [ref=e118]:
+      - generic [ref=e119]:
+        - complementary [ref=e120]:
+          - paragraph [ref=e121]: Configurações
+          - navigation [ref=e122]:
+            - generic [ref=e123]: VISUALIZAÇÕES
+            - button "Cards" [ref=e124] [cursor=pointer]:
+              - img [ref=e126]
+              - generic [ref=e129]: Cards
+            - button "Tabela" [ref=e130] [cursor=pointer]:
+              - img [ref=e132]
+              - generic [ref=e135]: Tabela
+            - button "Colunas" [ref=e136] [cursor=pointer]:
+              - img [ref=e138]
+              - generic [ref=e141]: Colunas
+            - button "Kanban" [active] [ref=e142] [cursor=pointer]:
+              - img [ref=e144]
+              - generic [ref=e147]: Kanban
+            - button "Modal" [ref=e148] [cursor=pointer]:
+              - img [ref=e150]
+              - generic [ref=e153]: Modal
+            - button "Card" [ref=e154] [cursor=pointer]:
+              - img [ref=e156]
+              - generic [ref=e159]: Card
+            - generic [ref=e160]: PEDIDO
+            - button "Status" [ref=e161] [cursor=pointer]:
+              - img [ref=e163]
+              - generic [ref=e166]: Status
+            - button "Numeração" [ref=e167] [cursor=pointer]:
+              - img [ref=e169]
+              - generic [ref=e172]: Numeração
+            - button "Templates PDF" [ref=e173] [cursor=pointer]:
+              - img [ref=e175]
+              - generic [ref=e178]: Templates PDF
+            - button "Regras" [ref=e179] [cursor=pointer]:
+              - img [ref=e181]
+              - generic [ref=e184]: Regras
+            - button "Categ. Anexos" [ref=e185] [cursor=pointer]:
+              - img [ref=e187]
+              - generic [ref=e190]: Categ. Anexos
+            - button "Taxa de Câmbio" [ref=e191] [cursor=pointer]:
+              - img [ref=e193]
+              - generic [ref=e196]: Taxa de Câmbio
+            - generic [ref=e197]: SISTEMA
+            - button "Notificações" [ref=e198] [cursor=pointer]:
+              - img [ref=e200]
+              - generic [ref=e203]: Notificações
+            - button "Exportação" [ref=e204] [cursor=pointer]:
+              - img [ref=e206]
+              - generic [ref=e209]: Exportação
+        - main
+```

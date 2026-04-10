@@ -92,8 +92,11 @@ export async function extrairPdfComGemini(
   buffer: Buffer,
 ): Promise<{ linhas: LinhaArquivo[]; tokensUsados: number; custoUsd: number } | null> {
   if (!GEMINI_PDF_ENABLED || !GEMINI_API_KEY) {
+    console.warn(`[GeminiPDF] Desabilitado — GEMINI_PDF_ENABLED=${GEMINI_PDF_ENABLED} GEMINI_API_KEY=${GEMINI_API_KEY ? 'OK' : 'AUSENTE'}`)
     return null
   }
+
+  console.info(`[GeminiPDF] Iniciando extração — PDF ${buffer.length} bytes, modelo: ${MODEL}`)
 
   try {
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
@@ -161,7 +164,7 @@ export async function extrairPdfComGemini(
     const itens: InvoiceItem[] = parsed.data
 
     if (itens.length === 0) {
-      console.warn('[GeminiPDF] JSON retornado está vazio')
+      console.warn('[GeminiPDF] JSON retornado está vazio — Gemini não encontrou itens. Texto bruto:', jsonBruto.substring(0, 300))
       return null
     }
 
@@ -178,7 +181,7 @@ export async function extrairPdfComGemini(
     return { linhas, tokensUsados, custoUsd }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
-    console.warn(`[GeminiPDF] Falhou — usando parser fallback. Erro: ${msg}`)
+    console.warn(`[GeminiPDF] Falhou — usando parser fallback. Erro COMPLETO: ${msg}`)
     return null
   }
 }

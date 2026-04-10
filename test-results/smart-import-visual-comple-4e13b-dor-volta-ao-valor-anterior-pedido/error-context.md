@@ -1,0 +1,1823 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e5]:
+    - button [ref=e6] [cursor=pointer]:
+      - img [ref=e7]
+    - generic [ref=e9]:
+      - img [ref=e11]
+      - generic [ref=e16]:
+        - generic [ref=e17]: Pedido
+        - generic [ref=e18]: by Gravity
+    - button "M Minha Empresa Pro" [ref=e20] [cursor=pointer]:
+      - generic [ref=e21]: M
+      - generic [ref=e22]:
+        - generic [ref=e23]: Minha Empresa
+        - generic [ref=e24]: Pro
+      - img [ref=e25]
+    - navigation [ref=e27]:
+      - button "Meu Espaço" [ref=e29] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e34]: Meu Espaço
+        - img [ref=e35]
+      - paragraph [ref=e37]: Pedidos
+      - link "Dashboard" [ref=e38] [cursor=pointer]:
+        - /url: /pedidos/dashboard
+        - img [ref=e40]
+        - generic [ref=e43]: Dashboard
+      - link "Lista" [ref=e44] [cursor=pointer]:
+        - /url: /pedidos
+        - img [ref=e46]
+        - generic [ref=e49]: Lista
+      - link "Kanban" [ref=e50] [cursor=pointer]:
+        - /url: /pedidos/kanban
+        - img [ref=e52]
+        - generic [ref=e55]: Kanban
+      - link "Histórico" [ref=e56] [cursor=pointer]:
+        - /url: /historico
+        - img [ref=e58]
+        - generic [ref=e61]: Histórico
+      - link "Configurações" [ref=e62] [cursor=pointer]:
+        - /url: /configuracoes
+        - img [ref=e64]
+        - generic [ref=e67]: Configurações
+  - generic [ref=e68]:
+    - banner [ref=e70]:
+      - generic [ref=e72]: Lista
+      - generic [ref=e73]:
+        - button "Busca global" [ref=e75] [cursor=pointer]:
+          - img [ref=e76]
+        - button "Desabilitar dicas (tooltips)" [ref=e79] [cursor=pointer]:
+          - img [ref=e80]
+        - button "Trocar idioma" [ref=e84] [cursor=pointer]:
+          - img [ref=e85]
+        - button "Onde estou — abrir mapa do ecossistema" [ref=e91] [cursor=pointer]:
+          - img [ref=e93]
+        - button "Voltar ao Hub" [ref=e98] [cursor=pointer]:
+          - img [ref=e99]
+          - text: Hub
+        - button "Ir para o Core" [ref=e107] [cursor=pointer]:
+          - img [ref=e108]
+          - text: Core
+        - button "??" [ref=e116] [cursor=pointer]:
+          - generic [ref=e117]: "??"
+    - main [ref=e118]:
+      - generic [ref=e119]:
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - img [ref=e125]
+              - paragraph [ref=e128]: Total Pedidos
+            - generic [ref=e129]:
+              - generic [ref=e131]: "9"
+              - generic [ref=e132]: 19 itens no total
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - paragraph: Total Pedidos
+              - paragraph:
+                - generic: Abertos
+                - strong: "5"
+              - paragraph:
+                - generic: Em andamento
+                - strong: "2"
+              - paragraph:
+                - generic: Concluídos
+                - strong: "1"
+          - generic [ref=e133]:
+            - generic [ref=e134]:
+              - img [ref=e136]
+              - paragraph [ref=e139]: Valor Total
+            - generic [ref=e140]:
+              - generic [ref=e142]: "033000849008000004200017560034800"
+              - generic [ref=e143]: Soma de todos os pedidos
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - paragraph: Valor Total
+              - paragraph:
+                - generic: Média por pedido
+                - strong: 3.666.761.000.888.889.000.000.000.000.000,00
+          - generic [ref=e144]:
+            - generic [ref=e145]:
+              - img [ref=e147]
+              - paragraph [ref=e150]: Quantidade Total
+            - generic [ref=e151]:
+              - generic [ref=e153]: "0180022000750042001501800"
+              - generic [ref=e154]: 13.963,00 saldo atual
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                - paragraph: Quantidade Total
+              - paragraph:
+                - generic: 1.010,00 UNID
+                - strong: 1.010,00 saldo
+              - paragraph:
+                - generic: 1.000,00 MIL
+                - strong: 1.000,00 saldo
+              - paragraph:
+                - generic: 3.002,00 KIT
+                - strong: 2,00 saldo
+              - paragraph:
+                - generic: 600,00 PAR
+                - strong: 600,00 saldo
+              - paragraph:
+                - generic: 400,00 KG
+                - strong: 400,00 saldo
+              - paragraph:
+                - generic: 51,00 UN
+                - strong: 51,00 saldo
+              - paragraph:
+                - generic: 2.000,00 TON
+                - strong: 800,00 saldo
+              - paragraph:
+                - generic: 8.800,00 PCS
+                - strong: 7.500,00 saldo
+              - paragraph:
+                - generic: 4.000,00 L
+                - strong: 2.500,00 saldo
+              - paragraph:
+                - generic: 100,00 PC
+                - strong: 100,00 saldo
+              - paragraph:
+                - generic: 500,00 CX
+                - strong: 0,00 saldo
+        - region "Lista de pedidos" [ref=e156]:
+          - tablist [ref=e157]:
+            - tab "Todos" [selected] [ref=e158] [cursor=pointer]
+            - tab "Aberto" [ref=e159] [cursor=pointer]
+            - tab "Em Andamento" [ref=e160] [cursor=pointer]
+            - tab "Aprovado" [ref=e161] [cursor=pointer]
+            - tab "Transferido" [ref=e162] [cursor=pointer]
+            - tab "Consolidado" [ref=e163] [cursor=pointer]
+            - tab "Cancelado" [ref=e164] [cursor=pointer]
+          - generic [ref=e165]:
+            - generic [ref=e166]:
+              - generic [ref=e168]:
+                - generic:
+                  - img
+                - textbox "Localizar" [ref=e169]:
+                  - /placeholder: Buscar pedido, exportador, referência...
+              - button "Novo" [ref=e171] [cursor=pointer]:
+                - img [ref=e173]
+                - text: Novo
+                - img [ref=e175]
+              - generic [ref=e178] [cursor=pointer]:
+                - button "Transferir" [disabled]:
+                  - generic:
+                    - img
+                  - text: Transferir
+              - generic [ref=e179] [cursor=pointer]:
+                - button [disabled]:
+                  - generic:
+                    - img
+              - generic [ref=e180] [cursor=pointer]:
+                - button [disabled]:
+                  - generic:
+                    - img
+              - generic [ref=e181] [cursor=pointer]:
+                - button [disabled]:
+                  - generic:
+                    - img
+              - generic [ref=e182] [cursor=pointer]:
+                - button "Duplicar" [disabled]:
+                  - generic:
+                    - img
+              - generic [ref=e183] [cursor=pointer]:
+                - button [disabled]:
+                  - generic:
+                    - img
+            - generic [ref=e184]:
+              - button "Gerenciar colunas" [ref=e186] [cursor=pointer]:
+                - img [ref=e187]
+                - text: Colunas
+              - button "Exportar" [ref=e192] [cursor=pointer]:
+                - img [ref=e193]
+                - text: Exportar
+          - rowgroup "Linhas da tabela" [ref=e195]:
+            - generic [ref=e196]:
+              - row [ref=e197]:
+                - columnheader "Selecionar todos" [ref=e198]:
+                  - checkbox "Selecionar todos" [ref=e199] [cursor=pointer]
+                - columnheader [ref=e200]
+                - columnheader "Nº Pedido / Part Number ↕ Filtrar por Nº Pedido / Part Number" [ref=e201]:
+                  - generic [ref=e202]: Nº Pedido / Part Number
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Nº Pedido / Part Number" [ref=e203] [cursor=pointer]:
+                    - img [ref=e204]
+                - columnheader "Tipo de Operação Filtrar por Tipo de Operação" [ref=e206]:
+                  - generic [ref=e207]: Tipo de Operação
+                  - button "Filtrar por Tipo de Operação" [ref=e208] [cursor=pointer]:
+                    - img [ref=e209]
+                - columnheader "Nome do Importador ↕ Filtrar por Nome do Importador" [ref=e211]:
+                  - generic [ref=e212]: Nome do Importador
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Nome do Importador" [ref=e213] [cursor=pointer]:
+                    - img [ref=e214]
+                - columnheader "Nome do Exportador ↕ Filtrar por Nome do Exportador" [ref=e216]:
+                  - generic [ref=e217]: Nome do Exportador
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Nome do Exportador" [ref=e218] [cursor=pointer]:
+                    - img [ref=e219]
+                - columnheader "Status Filtrar por Status" [ref=e221]:
+                  - generic [ref=e222]: Status
+                  - button "Filtrar por Status" [ref=e223] [cursor=pointer]:
+                    - img [ref=e224]
+                - columnheader "Ref. Importador Filtrar por Ref. Importador" [ref=e226]:
+                  - generic [ref=e227]: Ref. Importador
+                  - button "Filtrar por Ref. Importador" [ref=e228] [cursor=pointer]:
+                    - img [ref=e229]
+                - columnheader "Ref. Exportador Filtrar por Ref. Exportador" [ref=e231]:
+                  - generic [ref=e232]: Ref. Exportador
+                  - button "Filtrar por Ref. Exportador" [ref=e233] [cursor=pointer]:
+                    - img [ref=e234]
+                - columnheader "NCM Filtrar por NCM" [ref=e236]:
+                  - generic [ref=e237]: NCM
+                  - button "Filtrar por NCM" [ref=e238] [cursor=pointer]:
+                    - img [ref=e239]
+                - columnheader "Valor Total do Pedido ↕ Filtrar por Valor Total do Pedido" [ref=e241]:
+                  - generic [ref=e242]: Valor Total do Pedido
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Valor Total do Pedido" [ref=e243] [cursor=pointer]:
+                    - img [ref=e244]
+                - columnheader "Qtd. Inicial do Pedido" [ref=e246]:
+                  - generic [ref=e247]: Qtd. Inicial do Pedido
+                - columnheader "Qtd. Pronta do Pedido" [ref=e248]:
+                  - generic [ref=e249]: Qtd. Pronta do Pedido
+                - columnheader "Saldo do Pedido" [ref=e250]:
+                  - generic [ref=e251]: Saldo do Pedido
+                - columnheader "Qtd. Transferida do Pedido" [ref=e252]:
+                  - generic [ref=e253]: Qtd. Transferida do Pedido
+                - columnheader "Qtd. Cancelada do Pedido" [ref=e254]:
+                  - generic [ref=e255]: Qtd. Cancelada do Pedido
+                - columnheader "Peso Líq. Total ↕ Filtrar por Peso Líq. Total" [ref=e256]:
+                  - generic [ref=e257]: Peso Líq. Total
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Peso Líq. Total" [ref=e258] [cursor=pointer]:
+                    - img [ref=e259]
+                - columnheader "Peso Bruto Total ↕ Filtrar por Peso Bruto Total" [ref=e261]:
+                  - generic [ref=e262]: Peso Bruto Total
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Peso Bruto Total" [ref=e263] [cursor=pointer]:
+                    - img [ref=e264]
+                - columnheader "Cubagem Total ↕ Filtrar por Cubagem Total" [ref=e266]:
+                  - generic [ref=e267]: Cubagem Total
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Cubagem Total" [ref=e268] [cursor=pointer]:
+                    - img [ref=e269]
+                - columnheader "Incoterm Filtrar por Incoterm" [ref=e271]:
+                  - generic [ref=e272]: Incoterm
+                  - button "Filtrar por Incoterm" [ref=e273] [cursor=pointer]:
+                    - img [ref=e274]
+                - columnheader "Fabricante ↕ Filtrar por Fabricante" [ref=e276]:
+                  - generic [ref=e277]: Fabricante
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Fabricante" [ref=e278] [cursor=pointer]:
+                    - img [ref=e279]
+                - columnheader "Cobertura Cambial Filtrar por Cobertura Cambial" [ref=e281]:
+                  - generic [ref=e282]: Cobertura Cambial
+                  - button "Filtrar por Cobertura Cambial" [ref=e283] [cursor=pointer]:
+                    - img [ref=e284]
+                - columnheader "Cond. Pagamento Filtrar por Cond. Pagamento" [ref=e286]:
+                  - generic [ref=e287]: Cond. Pagamento
+                  - button "Filtrar por Cond. Pagamento" [ref=e288] [cursor=pointer]:
+                    - img [ref=e289]
+                - columnheader "Data P.O Filtrar por Data P.O" [ref=e291]:
+                  - generic [ref=e292]: Data P.O
+                  - button "Filtrar por Data P.O" [ref=e293] [cursor=pointer]:
+                    - img [ref=e294]
+                - columnheader "Número da Proforma Filtrar por Número da Proforma" [ref=e296]:
+                  - generic [ref=e297]: Número da Proforma
+                  - button "Filtrar por Número da Proforma" [ref=e298] [cursor=pointer]:
+                    - img [ref=e299]
+                - columnheader "Número da Invoice Filtrar por Número da Invoice" [ref=e301]:
+                  - generic [ref=e302]: Número da Invoice
+                  - button "Filtrar por Número da Invoice" [ref=e303] [cursor=pointer]:
+                    - img [ref=e304]
+                - columnheader "Ref. Fabricante Filtrar por Ref. Fabricante" [ref=e306]:
+                  - generic [ref=e307]: Ref. Fabricante
+                  - button "Filtrar por Ref. Fabricante" [ref=e308] [cursor=pointer]:
+                    - img [ref=e309]
+                - columnheader "Prev. Pronto ↕ Filtrar por Prev. Pronto" [ref=e311]:
+                  - generic [ref=e312]: Prev. Pronto
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Pronto" [ref=e313] [cursor=pointer]:
+                    - img [ref=e314]
+                - columnheader "Conf. Pronto ↕ Filtrar por Conf. Pronto" [ref=e316]:
+                  - generic [ref=e317]: Conf. Pronto
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Pronto" [ref=e318] [cursor=pointer]:
+                    - img [ref=e319]
+                - columnheader "Meta Pronto ↕ Filtrar por Meta Pronto" [ref=e321]:
+                  - generic [ref=e322]: Meta Pronto
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Pronto" [ref=e323] [cursor=pointer]:
+                    - img [ref=e324]
+                - columnheader "Prev. Inspeção ↕ Filtrar por Prev. Inspeção" [ref=e326]:
+                  - generic [ref=e327]: Prev. Inspeção
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Inspeção" [ref=e328] [cursor=pointer]:
+                    - img [ref=e329]
+                - columnheader "Conf. Inspeção ↕ Filtrar por Conf. Inspeção" [ref=e331]:
+                  - generic [ref=e332]: Conf. Inspeção
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Inspeção" [ref=e333] [cursor=pointer]:
+                    - img [ref=e334]
+                - columnheader "Meta Inspeção ↕ Filtrar por Meta Inspeção" [ref=e336]:
+                  - generic [ref=e337]: Meta Inspeção
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Inspeção" [ref=e338] [cursor=pointer]:
+                    - img [ref=e339]
+                - columnheader "Prev. Coleta ↕ Filtrar por Prev. Coleta" [ref=e341]:
+                  - generic [ref=e342]: Prev. Coleta
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Coleta" [ref=e343] [cursor=pointer]:
+                    - img [ref=e344]
+                - columnheader "Conf. Coleta ↕ Filtrar por Conf. Coleta" [ref=e346]:
+                  - generic [ref=e347]: Conf. Coleta
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Coleta" [ref=e348] [cursor=pointer]:
+                    - img [ref=e349]
+                - columnheader "Meta Coleta ↕ Filtrar por Meta Coleta" [ref=e351]:
+                  - generic [ref=e352]: Meta Coleta
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Coleta" [ref=e353] [cursor=pointer]:
+                    - img [ref=e354]
+                - columnheader "Dt Consolidação ↕ Filtrar por Dt Consolidação" [ref=e356]:
+                  - generic [ref=e357]: Dt Consolidação
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Dt Consolidação" [ref=e358] [cursor=pointer]:
+                    - img [ref=e359]
+                - columnheader "Dt Transf. Saldo ↕ Filtrar por Dt Transf. Saldo" [ref=e361]:
+                  - generic [ref=e362]: Dt Transf. Saldo
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Dt Transf. Saldo" [ref=e363] [cursor=pointer]:
+                    - img [ref=e364]
+                - columnheader "País Exportador Filtrar por País Exportador" [ref=e366]:
+                  - generic [ref=e367]: País Exportador
+                  - button "Filtrar por País Exportador" [ref=e368] [cursor=pointer]:
+                    - img [ref=e369]
+                - columnheader "Estado/Prov. Exportador Filtrar por Estado/Prov. Exportador" [ref=e371]:
+                  - generic [ref=e372]: Estado/Prov. Exportador
+                  - button "Filtrar por Estado/Prov. Exportador" [ref=e373] [cursor=pointer]:
+                    - img [ref=e374]
+                - columnheader "Cidade Exportador Filtrar por Cidade Exportador" [ref=e376]:
+                  - generic [ref=e377]: Cidade Exportador
+                  - button "Filtrar por Cidade Exportador" [ref=e378] [cursor=pointer]:
+                    - img [ref=e379]
+                - columnheader "Endereço Exportador" [ref=e381]:
+                  - generic [ref=e382]: Endereço Exportador
+                - columnheader "ZIP Exportador" [ref=e383]:
+                  - generic [ref=e384]: ZIP Exportador
+                - columnheader "Exportador/Fabricante? Filtrar por Exportador/Fabricante?" [ref=e385]:
+                  - generic [ref=e386]: Exportador/Fabricante?
+                  - button "Filtrar por Exportador/Fabricante?" [ref=e387] [cursor=pointer]:
+                    - img [ref=e388]
+                - columnheader "Relação Exp./Fab. Filtrar por Relação Exp./Fab." [ref=e390]:
+                  - generic [ref=e391]: Relação Exp./Fab.
+                  - button "Filtrar por Relação Exp./Fab." [ref=e392] [cursor=pointer]:
+                    - img [ref=e393]
+                - columnheader "Contato Exportador" [ref=e395]:
+                  - generic [ref=e396]: Contato Exportador
+                - columnheader "E-mail Contato Exp." [ref=e397]:
+                  - generic [ref=e398]: E-mail Contato Exp.
+                - columnheader "WhatsApp Contato Exp." [ref=e399]:
+                  - generic [ref=e400]: WhatsApp Contato Exp.
+                - columnheader "Cargo Contato Exp." [ref=e401]:
+                  - generic [ref=e402]: Cargo Contato Exp.
+                - columnheader "Depto. Contato Exp." [ref=e403]:
+                  - generic [ref=e404]: Depto. Contato Exp.
+                - columnheader "País Fabricante Filtrar por País Fabricante" [ref=e405]:
+                  - generic [ref=e406]: País Fabricante
+                  - button "Filtrar por País Fabricante" [ref=e407] [cursor=pointer]:
+                    - img [ref=e408]
+                - columnheader "Estado/Prov. Fabricante Filtrar por Estado/Prov. Fabricante" [ref=e410]:
+                  - generic [ref=e411]: Estado/Prov. Fabricante
+                  - button "Filtrar por Estado/Prov. Fabricante" [ref=e412] [cursor=pointer]:
+                    - img [ref=e413]
+                - columnheader "Cidade Fabricante Filtrar por Cidade Fabricante" [ref=e415]:
+                  - generic [ref=e416]: Cidade Fabricante
+                  - button "Filtrar por Cidade Fabricante" [ref=e417] [cursor=pointer]:
+                    - img [ref=e418]
+                - columnheader "Endereço Fabricante" [ref=e420]:
+                  - generic [ref=e421]: Endereço Fabricante
+                - columnheader "ZIP Fabricante" [ref=e422]:
+                  - generic [ref=e423]: ZIP Fabricante
+                - columnheader "CNPJ Raiz Empresa" [ref=e424]:
+                  - generic [ref=e425]: CNPJ Raiz Empresa
+                - columnheader "Cód. OPE Filtrar por Cód. OPE" [ref=e426]:
+                  - generic [ref=e427]: Cód. OPE
+                  - button "Filtrar por Cód. OPE" [ref=e428] [cursor=pointer]:
+                    - img [ref=e429]
+                - columnheader "Situação OPE Filtrar por Situação OPE" [ref=e431]:
+                  - generic [ref=e432]: Situação OPE
+                  - button "Filtrar por Situação OPE" [ref=e433] [cursor=pointer]:
+                    - img [ref=e434]
+                - columnheader "Versão OPE" [ref=e436]:
+                  - generic [ref=e437]: Versão OPE
+                - columnheader "Nome OPE" [ref=e438]:
+                  - generic [ref=e439]: Nome OPE
+                - columnheader "País OPE Filtrar por País OPE" [ref=e440]:
+                  - generic [ref=e441]: País OPE
+                  - button "Filtrar por País OPE" [ref=e442] [cursor=pointer]:
+                    - img [ref=e443]
+                - columnheader "Estado OPE" [ref=e445]:
+                  - generic [ref=e446]: Estado OPE
+                - columnheader "Cidade OPE" [ref=e447]:
+                  - generic [ref=e448]: Cidade OPE
+                - columnheader "Endereço OPE" [ref=e449]:
+                  - generic [ref=e450]: Endereço OPE
+                - columnheader "ZIP OPE" [ref=e451]:
+                  - generic [ref=e452]: ZIP OPE
+                - columnheader "TIN OPE" [ref=e453]:
+                  - generic [ref=e454]: TIN OPE
+                - columnheader "E-mail OPE" [ref=e455]:
+                  - generic [ref=e456]: E-mail OPE
+                - columnheader "Anexo P.O." [ref=e457]:
+                  - generic [ref=e458]: Anexo P.O.
+                - columnheader "Anexo Proforma" [ref=e459]:
+                  - generic [ref=e460]: Anexo Proforma
+                - columnheader "Anexo Invoice" [ref=e461]:
+                  - generic [ref=e462]: Anexo Invoice
+                - columnheader "Qtd Volumes ↕ Filtrar por Qtd Volumes" [ref=e463]:
+                  - generic [ref=e464]: Qtd Volumes
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Qtd Volumes" [ref=e465] [cursor=pointer]:
+                    - img [ref=e466]
+                - columnheader "Prev. Rec. Draft P.O. ↕ Filtrar por Prev. Rec. Draft P.O." [ref=e468]:
+                  - generic [ref=e469]: Prev. Rec. Draft P.O.
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Rec. Draft P.O." [ref=e470] [cursor=pointer]:
+                    - img [ref=e471]
+                - columnheader "Conf. Rec. Draft P.O. ↕ Filtrar por Conf. Rec. Draft P.O." [ref=e473]:
+                  - generic [ref=e474]: Conf. Rec. Draft P.O.
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Rec. Draft P.O." [ref=e475] [cursor=pointer]:
+                    - img [ref=e476]
+                - columnheader "Meta Rec. Draft P.O. ↕ Filtrar por Meta Rec. Draft P.O." [ref=e478]:
+                  - generic [ref=e479]: Meta Rec. Draft P.O.
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Rec. Draft P.O." [ref=e480] [cursor=pointer]:
+                    - img [ref=e481]
+                - columnheader "Prev. Aprov. Draft P.O. ↕ Filtrar por Prev. Aprov. Draft P.O." [ref=e483]:
+                  - generic [ref=e484]: Prev. Aprov. Draft P.O.
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Aprov. Draft P.O." [ref=e485] [cursor=pointer]:
+                    - img [ref=e486]
+                - columnheader "Conf. Aprov. Draft P.O. ↕ Filtrar por Conf. Aprov. Draft P.O." [ref=e488]:
+                  - generic [ref=e489]: Conf. Aprov. Draft P.O.
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Aprov. Draft P.O." [ref=e490] [cursor=pointer]:
+                    - img [ref=e491]
+                - columnheader "Meta Aprov. Draft P.O. ↕ Filtrar por Meta Aprov. Draft P.O." [ref=e493]:
+                  - generic [ref=e494]: Meta Aprov. Draft P.O.
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Aprov. Draft P.O." [ref=e495] [cursor=pointer]:
+                    - img [ref=e496]
+                - columnheader "Dt Documento P.O. ↕ Filtrar por Dt Documento P.O." [ref=e498]:
+                  - generic [ref=e499]: Dt Documento P.O.
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Dt Documento P.O." [ref=e500] [cursor=pointer]:
+                    - img [ref=e501]
+                - columnheader "Prev. Rec. Draft Proforma ↕ Filtrar por Prev. Rec. Draft Proforma" [ref=e503]:
+                  - generic [ref=e504]: Prev. Rec. Draft Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Rec. Draft Proforma" [ref=e505] [cursor=pointer]:
+                    - img [ref=e506]
+                - columnheader "Conf. Rec. Draft Proforma ↕ Filtrar por Conf. Rec. Draft Proforma" [ref=e508]:
+                  - generic [ref=e509]: Conf. Rec. Draft Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Rec. Draft Proforma" [ref=e510] [cursor=pointer]:
+                    - img [ref=e511]
+                - columnheader "Meta Rec. Draft Proforma ↕ Filtrar por Meta Rec. Draft Proforma" [ref=e513]:
+                  - generic [ref=e514]: Meta Rec. Draft Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Rec. Draft Proforma" [ref=e515] [cursor=pointer]:
+                    - img [ref=e516]
+                - columnheader "Prev. Aprov. Draft Proforma ↕ Filtrar por Prev. Aprov. Draft Proforma" [ref=e518]:
+                  - generic [ref=e519]: Prev. Aprov. Draft Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Aprov. Draft Proforma" [ref=e520] [cursor=pointer]:
+                    - img [ref=e521]
+                - columnheader "Conf. Aprov. Draft Proforma ↕ Filtrar por Conf. Aprov. Draft Proforma" [ref=e523]:
+                  - generic [ref=e524]: Conf. Aprov. Draft Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Aprov. Draft Proforma" [ref=e525] [cursor=pointer]:
+                    - img [ref=e526]
+                - columnheader "Meta Aprov. Draft Proforma ↕ Filtrar por Meta Aprov. Draft Proforma" [ref=e528]:
+                  - generic [ref=e529]: Meta Aprov. Draft Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Aprov. Draft Proforma" [ref=e530] [cursor=pointer]:
+                    - img [ref=e531]
+                - columnheader "Prev. Envio Original Proforma ↕ Filtrar por Prev. Envio Original Proforma" [ref=e533]:
+                  - generic [ref=e534]: Prev. Envio Original Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Envio Original Proforma" [ref=e535] [cursor=pointer]:
+                    - img [ref=e536]
+                - columnheader "Conf. Envio Original Proforma ↕ Filtrar por Conf. Envio Original Proforma" [ref=e538]:
+                  - generic [ref=e539]: Conf. Envio Original Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Envio Original Proforma" [ref=e540] [cursor=pointer]:
+                    - img [ref=e541]
+                - columnheader "Meta Envio Original Proforma ↕ Filtrar por Meta Envio Original Proforma" [ref=e543]:
+                  - generic [ref=e544]: Meta Envio Original Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Envio Original Proforma" [ref=e545] [cursor=pointer]:
+                    - img [ref=e546]
+                - columnheader "Prev. Rec. Original Proforma ↕ Filtrar por Prev. Rec. Original Proforma" [ref=e548]:
+                  - generic [ref=e549]: Prev. Rec. Original Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Rec. Original Proforma" [ref=e550] [cursor=pointer]:
+                    - img [ref=e551]
+                - columnheader "Conf. Rec. Original Proforma ↕ Filtrar por Conf. Rec. Original Proforma" [ref=e553]:
+                  - generic [ref=e554]: Conf. Rec. Original Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Rec. Original Proforma" [ref=e555] [cursor=pointer]:
+                    - img [ref=e556]
+                - columnheader "Meta Rec. Original Proforma ↕ Filtrar por Meta Rec. Original Proforma" [ref=e558]:
+                  - generic [ref=e559]: Meta Rec. Original Proforma
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Rec. Original Proforma" [ref=e560] [cursor=pointer]:
+                    - img [ref=e561]
+                - columnheader "Dt Proforma Invoice ↕ Filtrar por Dt Proforma Invoice" [ref=e563]:
+                  - generic [ref=e564]: Dt Proforma Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Dt Proforma Invoice" [ref=e565] [cursor=pointer]:
+                    - img [ref=e566]
+                - columnheader "Prev. Rec. Draft Invoice ↕ Filtrar por Prev. Rec. Draft Invoice" [ref=e568]:
+                  - generic [ref=e569]: Prev. Rec. Draft Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Rec. Draft Invoice" [ref=e570] [cursor=pointer]:
+                    - img [ref=e571]
+                - columnheader "Conf. Rec. Draft Invoice ↕ Filtrar por Conf. Rec. Draft Invoice" [ref=e573]:
+                  - generic [ref=e574]: Conf. Rec. Draft Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Rec. Draft Invoice" [ref=e575] [cursor=pointer]:
+                    - img [ref=e576]
+                - columnheader "Meta Rec. Draft Invoice ↕ Filtrar por Meta Rec. Draft Invoice" [ref=e578]:
+                  - generic [ref=e579]: Meta Rec. Draft Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Rec. Draft Invoice" [ref=e580] [cursor=pointer]:
+                    - img [ref=e581]
+                - columnheader "Prev. Aprov. Draft Invoice ↕ Filtrar por Prev. Aprov. Draft Invoice" [ref=e583]:
+                  - generic [ref=e584]: Prev. Aprov. Draft Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Aprov. Draft Invoice" [ref=e585] [cursor=pointer]:
+                    - img [ref=e586]
+                - columnheader "Conf. Aprov. Draft Invoice ↕ Filtrar por Conf. Aprov. Draft Invoice" [ref=e588]:
+                  - generic [ref=e589]: Conf. Aprov. Draft Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Aprov. Draft Invoice" [ref=e590] [cursor=pointer]:
+                    - img [ref=e591]
+                - columnheader "Meta Aprov. Draft Invoice ↕ Filtrar por Meta Aprov. Draft Invoice" [ref=e593]:
+                  - generic [ref=e594]: Meta Aprov. Draft Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Aprov. Draft Invoice" [ref=e595] [cursor=pointer]:
+                    - img [ref=e596]
+                - columnheader "Prev. Envio Original Invoice ↕ Filtrar por Prev. Envio Original Invoice" [ref=e598]:
+                  - generic [ref=e599]: Prev. Envio Original Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Envio Original Invoice" [ref=e600] [cursor=pointer]:
+                    - img [ref=e601]
+                - columnheader "Conf. Envio Original Invoice ↕ Filtrar por Conf. Envio Original Invoice" [ref=e603]:
+                  - generic [ref=e604]: Conf. Envio Original Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Envio Original Invoice" [ref=e605] [cursor=pointer]:
+                    - img [ref=e606]
+                - columnheader "Meta Envio Original Invoice ↕ Filtrar por Meta Envio Original Invoice" [ref=e608]:
+                  - generic [ref=e609]: Meta Envio Original Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Envio Original Invoice" [ref=e610] [cursor=pointer]:
+                    - img [ref=e611]
+                - columnheader "Prev. Rec. Original Invoice ↕ Filtrar por Prev. Rec. Original Invoice" [ref=e613]:
+                  - generic [ref=e614]: Prev. Rec. Original Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Prev. Rec. Original Invoice" [ref=e615] [cursor=pointer]:
+                    - img [ref=e616]
+                - columnheader "Conf. Rec. Original Invoice ↕ Filtrar por Conf. Rec. Original Invoice" [ref=e618]:
+                  - generic [ref=e619]: Conf. Rec. Original Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Conf. Rec. Original Invoice" [ref=e620] [cursor=pointer]:
+                    - img [ref=e621]
+                - columnheader "Meta Rec. Original Invoice ↕ Filtrar por Meta Rec. Original Invoice" [ref=e623]:
+                  - generic [ref=e624]: Meta Rec. Original Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Meta Rec. Original Invoice" [ref=e625] [cursor=pointer]:
+                    - img [ref=e626]
+                - columnheader "Dt Invoice ↕ Filtrar por Dt Invoice" [ref=e628]:
+                  - generic [ref=e629]: Dt Invoice
+                  - generic:
+                    - emphasis: ↕
+                  - button "Filtrar por Dt Invoice" [ref=e630] [cursor=pointer]:
+                    - img [ref=e631]
+                - columnheader [ref=e633]
+              - generic [ref=e634] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e636]
+                - button "Expandir" [ref=e638]:
+                  - img [ref=e640]
+                - generic [ref=e644]: NOVO PEDIDO 2999
+                - generic [ref=e646]: IMPORTAÇÃO
+                - generic [ref=e650]: —
+                - generic "abc" [ref=e652]
+                - generic [ref=e654]: EM_ANDAMENTO
+                - 'generic "Refs. diferentes: ccc | aaa" [ref=e656]':
+                  - img [ref=e657]
+                  - text: ccc | aaa
+                - generic "bbb" [ref=e660]
+                - 'generic "NCMs diferentes: 6545.64.72 | 6545.64.70" [ref=e662]':
+                  - img [ref=e663]
+                  - text: 6545.64.72 | 6545.64.70
+                - generic [ref=e666]:
+                  - generic [ref=e667]: EUR
+                  - text: 9.696.900,00
+                - 'generic "Unidades diferentes: UNID | MIL" [ref=e669]':
+                  - img [ref=e670]
+                  - text: UNID | MIL
+                - 'generic "Unidades diferentes: UNID | MIL" [ref=e673]':
+                  - img [ref=e674]
+                  - text: UNID | MIL
+                - generic [ref=e677]: —
+                - generic [ref=e679]: —
+                - generic [ref=e681]: —
+                - generic [ref=e684]:
+                  - img [ref=e685]
+                  - text: —
+                  - generic [ref=e687]: kg
+                - generic [ref=e689]:
+                  - text: —
+                  - generic [ref=e690]: kg
+                - generic [ref=e692]:
+                  - text: —
+                  - generic [ref=e693]: m³
+                - generic [ref=e695]: gafs
+                - generic [ref=e697]: abc
+                - 'generic "Itens com coberturas diferentes: com_cobertura | abc" [ref=e699]':
+                  - img [ref=e700]
+                  - text: com_cobertura | abc
+                - generic [ref=e703]: abc
+                - generic [ref=e705]: 09/04/2026
+                - generic [ref=e707]: —
+                - generic [ref=e709]: —
+                - generic [ref=e711]: —
+                - generic [ref=e713]: —
+                - generic [ref=e715]: —
+                - generic [ref=e717]: —
+                - generic [ref=e719]: —
+                - generic [ref=e721]: —
+                - generic [ref=e723]: —
+                - generic [ref=e725]: —
+                - generic [ref=e727]: —
+                - generic [ref=e729]: —
+                - generic [ref=e731]: —
+                - generic [ref=e733]: —
+                - generic [ref=e735]: —
+                - generic [ref=e737]: —
+                - generic [ref=e739]: —
+                - generic [ref=e741]: —
+                - generic [ref=e743]: —
+                - generic [ref=e745]: —
+                - generic [ref=e747]: —
+                - generic [ref=e749]: —
+                - generic [ref=e751]: —
+                - generic [ref=e753]: —
+                - generic [ref=e755]: —
+                - generic [ref=e757]: —
+                - generic [ref=e759]: —
+                - generic [ref=e761]: —
+                - generic [ref=e763]: —
+                - generic [ref=e765]: —
+                - generic [ref=e767]: —
+                - generic [ref=e769]: —
+                - generic [ref=e771]: —
+                - generic [ref=e773]: —
+                - generic [ref=e775]: —
+                - generic [ref=e777]: —
+                - generic [ref=e779]: —
+                - generic [ref=e781]: —
+                - generic [ref=e783]: —
+                - generic [ref=e785]: —
+                - generic [ref=e787]: —
+                - generic [ref=e789]: —
+                - generic [ref=e791]: —
+                - generic [ref=e793]: —
+                - generic [ref=e795]: —
+                - generic [ref=e797]: —
+                - generic [ref=e799]: —
+                - generic [ref=e801]: —
+                - generic [ref=e803]: —
+                - generic [ref=e805]: —
+                - generic [ref=e807]: —
+                - generic [ref=e809]: —
+                - generic [ref=e811]: —
+                - generic [ref=e813]: —
+                - generic [ref=e815]: —
+                - generic [ref=e817]: —
+                - generic [ref=e819]: —
+                - generic [ref=e821]: —
+                - generic [ref=e823]: —
+                - generic [ref=e825]: —
+                - generic [ref=e827]: —
+                - generic [ref=e829]: —
+                - generic [ref=e831]: —
+                - generic [ref=e833]: —
+                - generic [ref=e835]: —
+                - generic [ref=e837]: —
+                - generic [ref=e839]: —
+                - generic [ref=e841]: —
+                - generic [ref=e843]: —
+                - generic [ref=e845]: —
+                - generic [ref=e847]: —
+                - generic [ref=e849]: —
+                - generic [ref=e851]: —
+                - generic [ref=e853]: —
+                - generic [ref=e855]: —
+                - generic [ref=e857]: —
+                - generic [ref=e859]: —
+                - generic [ref=e861]: —
+                - generic [ref=e863]: —
+                - generic [ref=e865]: —
+                - button "Editar pedido" [ref=e868]:
+                  - img [ref=e869]
+              - generic [ref=e872] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e874]
+                - button "Expandir" [ref=e876]:
+                  - img [ref=e878]
+                - generic [ref=e882]: NOVO PEDIDO 3000
+                - generic [ref=e884]: IMPORTAÇÃO
+                - generic [ref=e888]: —
+                - generic [ref=e890]: —
+                - generic [ref=e892]: ABERTO
+                - generic [ref=e894]: —
+                - generic [ref=e896]: —
+                - generic "8466.20.00" [ref=e898]
+                - generic [ref=e900]:
+                  - generic [ref=e901]: EUR
+                  - text: 3.200,00
+                - generic [ref=e903]:
+                  - text: "3.000"
+                  - generic [ref=e904]: KIT
+                - generic [ref=e906]:
+                  - text: "0"
+                  - generic [ref=e907]: KIT
+                - generic [ref=e909]: —
+                - generic [ref=e911]: —
+                - generic [ref=e913]: —
+                - generic [ref=e915]:
+                  - text: —
+                  - generic [ref=e916]: kg
+                - generic [ref=e918]:
+                  - text: —
+                  - generic [ref=e919]: kg
+                - generic [ref=e921]:
+                  - text: —
+                  - generic [ref=e922]: m³
+                - generic [ref=e924]: EXW
+                - generic [ref=e926]: —
+                - generic "com_cobertura" [ref=e928]
+                - generic [ref=e930]: 50% adiantado, 50% após FAT
+                - generic [ref=e932]: 09/04/2026
+                - generic [ref=e934]: —
+                - generic [ref=e936]: —
+                - generic [ref=e938]: —
+                - generic [ref=e940]: —
+                - generic [ref=e942]: —
+                - generic [ref=e944]: —
+                - generic [ref=e946]: —
+                - generic [ref=e948]: —
+                - generic [ref=e950]: —
+                - generic [ref=e952]: —
+                - generic [ref=e954]: —
+                - generic [ref=e956]: —
+                - generic [ref=e958]: —
+                - generic [ref=e960]: —
+                - generic [ref=e962]: —
+                - generic [ref=e964]: —
+                - generic [ref=e966]: —
+                - generic [ref=e968]: —
+                - generic [ref=e970]: —
+                - generic [ref=e972]: —
+                - generic [ref=e974]: —
+                - generic [ref=e976]: —
+                - generic [ref=e978]: —
+                - generic [ref=e980]: —
+                - generic [ref=e982]: —
+                - generic [ref=e984]: —
+                - generic [ref=e986]: —
+                - generic [ref=e988]: —
+                - generic [ref=e990]: —
+                - generic [ref=e992]: —
+                - generic [ref=e994]: —
+                - generic [ref=e996]: —
+                - generic [ref=e998]: —
+                - generic [ref=e1000]: —
+                - generic [ref=e1002]: —
+                - generic [ref=e1004]: —
+                - generic [ref=e1006]: —
+                - generic [ref=e1008]: —
+                - generic [ref=e1010]: —
+                - generic [ref=e1012]: —
+                - generic [ref=e1014]: —
+                - generic [ref=e1016]: —
+                - generic [ref=e1018]: —
+                - generic [ref=e1020]: —
+                - generic [ref=e1022]: —
+                - generic [ref=e1024]: —
+                - generic [ref=e1026]: —
+                - generic [ref=e1028]: —
+                - generic [ref=e1030]: —
+                - generic [ref=e1032]: —
+                - generic [ref=e1034]: —
+                - generic [ref=e1036]: —
+                - generic [ref=e1038]: —
+                - generic [ref=e1040]: —
+                - generic [ref=e1042]: —
+                - generic [ref=e1044]: —
+                - generic [ref=e1046]: —
+                - generic [ref=e1048]: —
+                - generic [ref=e1050]: —
+                - generic [ref=e1052]: —
+                - generic [ref=e1054]: —
+                - generic [ref=e1056]: —
+                - generic [ref=e1058]: —
+                - generic [ref=e1060]: —
+                - generic [ref=e1062]: —
+                - generic [ref=e1064]: —
+                - generic [ref=e1066]: —
+                - generic [ref=e1068]: —
+                - generic [ref=e1070]: —
+                - generic [ref=e1072]: —
+                - generic [ref=e1074]: —
+                - generic [ref=e1076]: —
+                - generic [ref=e1078]: —
+                - generic [ref=e1080]: —
+                - generic [ref=e1082]: —
+                - generic [ref=e1084]: —
+                - generic [ref=e1086]: —
+                - generic [ref=e1088]: —
+                - generic [ref=e1090]: —
+                - generic [ref=e1092]: —
+                - button "Editar pedido" [ref=e1095]:
+                  - img [ref=e1096]
+              - generic [ref=e1099] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e1101]
+                - button "Expandir" [ref=e1103]:
+                  - img [ref=e1105]
+                - generic [ref=e1109]: SO-2026-0501
+                - generic [ref=e1111]: EXPORTAÇÃO
+                - generic "ddd" [ref=e1113]
+                - generic [ref=e1117]: —
+                - generic [ref=e1119]: ABERTO
+                - generic [ref=e1121]: —
+                - generic [ref=e1123]: —
+                - generic "6403.99.90" [ref=e1125]
+                - generic [ref=e1127]:
+                  - generic [ref=e1128]: EUR
+                  - text: 33.000,00
+                - 'generic "Unidades diferentes: PAR | KG" [ref=e1130]':
+                  - img [ref=e1131]
+                  - text: PAR | KG
+                - 'generic "Unidades diferentes: PAR | KG" [ref=e1134]':
+                  - img [ref=e1135]
+                  - text: PAR | KG
+                - generic [ref=e1138]: —
+                - generic [ref=e1140]: —
+                - generic [ref=e1142]: —
+                - generic [ref=e1144]:
+                  - text: —
+                  - generic [ref=e1145]: kg
+                - generic [ref=e1147]:
+                  - text: —
+                  - generic [ref=e1148]: kg
+                - generic [ref=e1150]:
+                  - text: —
+                  - generic [ref=e1151]: m³
+                - generic [ref=e1153]: FOB
+                - generic [ref=e1155]: "456"
+                - 'generic "Itens com coberturas diferentes: com_cobertura | abc" [ref=e1157]':
+                  - img [ref=e1158]
+                  - text: com_cobertura | abc
+                - generic [ref=e1161]: Pagamento antecipado 100%
+                - generic [ref=e1163]: 09/03/2026
+                - generic [ref=e1165]: PROF-EXP-2026-501
+                - generic [ref=e1167]: INV-EXP-2026-501
+                - generic [ref=e1169]: —
+                - generic [ref=e1171]: —
+                - generic [ref=e1173]: —
+                - generic [ref=e1175]: —
+                - generic [ref=e1177]: —
+                - generic [ref=e1179]: —
+                - generic [ref=e1181]: —
+                - generic [ref=e1183]: —
+                - generic [ref=e1185]: —
+                - generic [ref=e1187]: —
+                - generic [ref=e1189]: —
+                - generic [ref=e1191]: —
+                - generic [ref=e1193]: —
+                - generic [ref=e1195]: —
+                - generic [ref=e1197]: —
+                - generic [ref=e1199]: —
+                - generic [ref=e1201]: —
+                - generic [ref=e1203]: —
+                - generic [ref=e1205]: —
+                - generic [ref=e1207]: —
+                - generic [ref=e1209]: —
+                - generic [ref=e1211]: —
+                - generic [ref=e1213]: —
+                - generic [ref=e1215]: —
+                - generic [ref=e1217]: —
+                - generic [ref=e1219]: —
+                - generic [ref=e1221]: —
+                - generic [ref=e1223]: —
+                - generic [ref=e1225]: —
+                - generic [ref=e1227]: —
+                - generic [ref=e1229]: —
+                - generic [ref=e1231]: —
+                - generic [ref=e1233]: —
+                - generic [ref=e1235]: —
+                - generic [ref=e1237]: —
+                - generic [ref=e1239]: —
+                - generic [ref=e1241]: —
+                - generic [ref=e1243]: —
+                - generic [ref=e1245]: —
+                - generic [ref=e1247]: —
+                - generic [ref=e1249]: —
+                - generic [ref=e1251]: —
+                - generic [ref=e1253]: —
+                - generic [ref=e1255]: —
+                - generic [ref=e1257]: —
+                - generic [ref=e1259]: —
+                - generic [ref=e1261]: —
+                - generic [ref=e1263]: —
+                - generic [ref=e1265]: —
+                - generic [ref=e1267]: —
+                - generic [ref=e1269]: —
+                - generic [ref=e1271]: —
+                - generic [ref=e1273]: —
+                - generic [ref=e1275]: —
+                - generic [ref=e1277]: —
+                - generic [ref=e1279]: —
+                - generic [ref=e1281]: —
+                - generic [ref=e1283]: —
+                - generic [ref=e1285]: —
+                - generic [ref=e1287]: —
+                - generic [ref=e1289]: —
+                - generic [ref=e1291]: —
+                - generic [ref=e1293]: —
+                - generic [ref=e1295]: —
+                - generic [ref=e1297]: —
+                - generic [ref=e1299]: —
+                - generic [ref=e1301]: —
+                - generic [ref=e1303]: —
+                - generic [ref=e1305]: —
+                - generic [ref=e1307]: —
+                - generic [ref=e1309]: —
+                - generic [ref=e1311]: —
+                - generic [ref=e1313]: —
+                - generic [ref=e1315]: —
+                - generic [ref=e1317]: —
+                - generic [ref=e1319]: —
+                - generic [ref=e1321]: —
+                - generic [ref=e1323]: —
+                - button "Editar pedido" [ref=e1326]:
+                  - img [ref=e1327]
+              - generic [ref=e1330] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e1332]
+                - button "Expandir" [ref=e1334]:
+                  - img [ref=e1336]
+                - generic [ref=e1340]: PO-2026-0412
+                - generic [ref=e1342]: IMPORTAÇÃO
+                - generic [ref=e1346]: —
+                - generic [ref=e1348]: —
+                - generic [ref=e1350]: ABERTO
+                - generic [ref=e1352]: —
+                - generic [ref=e1354]: —
+                - 'generic "NCMs diferentes: 8457.10.10 | 8466.20.00" [ref=e1356]':
+                  - img [ref=e1357]
+                  - text: 8457.10.10 | 8466.20.00
+                - generic [ref=e1360]:
+                  - generic [ref=e1361]: EUR
+                  - text: 84.900,00
+                - 'generic "Unidades diferentes: UN | KIT" [ref=e1363]':
+                  - img [ref=e1364]
+                  - text: UN | KIT
+                - 'generic "Unidades diferentes: UN | KIT" [ref=e1367]':
+                  - img [ref=e1368]
+                  - text: UN | KIT
+                - generic [ref=e1371]: —
+                - generic [ref=e1373]: —
+                - generic [ref=e1375]: —
+                - generic [ref=e1377]:
+                  - text: —
+                  - generic [ref=e1378]: kg
+                - generic [ref=e1380]:
+                  - text: —
+                  - generic [ref=e1381]: kg
+                - generic [ref=e1383]:
+                  - text: —
+                  - generic [ref=e1384]: m³
+                - generic [ref=e1386]: EXW
+                - generic [ref=e1388]: —
+                - 'generic "Itens com coberturas diferentes: abc | com_cobertura" [ref=e1390]':
+                  - img [ref=e1391]
+                  - text: abc | com_cobertura
+                - generic [ref=e1394]: 50% adiantado, 50% após FAT
+                - generic [ref=e1396]: 28/02/2026
+                - generic [ref=e1398]: PI-BOSCH-2026-0089
+                - generic [ref=e1400]: —
+                - generic [ref=e1402]: —
+                - generic [ref=e1404]: —
+                - generic [ref=e1406]: —
+                - generic [ref=e1408]: —
+                - generic [ref=e1410]: —
+                - generic [ref=e1412]: —
+                - generic [ref=e1414]: —
+                - generic [ref=e1416]: —
+                - generic [ref=e1418]: —
+                - generic [ref=e1420]: —
+                - generic [ref=e1422]: —
+                - generic [ref=e1424]: —
+                - generic [ref=e1426]: —
+                - generic [ref=e1428]: —
+                - generic [ref=e1430]: —
+                - generic [ref=e1432]: —
+                - generic [ref=e1434]: —
+                - generic [ref=e1436]: —
+                - generic [ref=e1438]: —
+                - generic [ref=e1440]: —
+                - generic [ref=e1442]: —
+                - generic [ref=e1444]: —
+                - generic [ref=e1446]: —
+                - generic [ref=e1448]: —
+                - generic [ref=e1450]: —
+                - generic [ref=e1452]: —
+                - generic [ref=e1454]: —
+                - generic [ref=e1456]: —
+                - generic [ref=e1458]: —
+                - generic [ref=e1460]: —
+                - generic [ref=e1462]: —
+                - generic [ref=e1464]: —
+                - generic [ref=e1466]: —
+                - generic [ref=e1468]: —
+                - generic [ref=e1470]: —
+                - generic [ref=e1472]: —
+                - generic [ref=e1474]: —
+                - generic [ref=e1476]: —
+                - generic [ref=e1478]: —
+                - generic [ref=e1480]: —
+                - generic [ref=e1482]: —
+                - generic [ref=e1484]: —
+                - generic [ref=e1486]: —
+                - generic [ref=e1488]: —
+                - generic [ref=e1490]: —
+                - generic [ref=e1492]: —
+                - generic [ref=e1494]: —
+                - generic [ref=e1496]: —
+                - generic [ref=e1498]: —
+                - generic [ref=e1500]: —
+                - generic [ref=e1502]: —
+                - generic [ref=e1504]: —
+                - generic [ref=e1506]: —
+                - generic [ref=e1508]: —
+                - generic [ref=e1510]: —
+                - generic [ref=e1512]: —
+                - generic [ref=e1514]: —
+                - generic [ref=e1516]: —
+                - generic [ref=e1518]: —
+                - generic [ref=e1520]: —
+                - generic [ref=e1522]: —
+                - generic [ref=e1524]: —
+                - generic [ref=e1526]: —
+                - generic [ref=e1528]: —
+                - generic [ref=e1530]: —
+                - generic [ref=e1532]: —
+                - generic [ref=e1534]: —
+                - generic [ref=e1536]: —
+                - generic [ref=e1538]: —
+                - generic [ref=e1540]: —
+                - generic [ref=e1542]: —
+                - generic [ref=e1544]: —
+                - generic [ref=e1546]: —
+                - generic [ref=e1548]: —
+                - generic [ref=e1550]: —
+                - generic [ref=e1552]: —
+                - generic [ref=e1554]: —
+                - generic [ref=e1556]: —
+                - button "Editar pedido" [ref=e1559]:
+                  - img [ref=e1560]
+              - generic [ref=e1563] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e1565]
+                - button "Expandir" [ref=e1567]:
+                  - img [ref=e1569]
+                - generic [ref=e1573]: SO-2026-0612
+                - generic [ref=e1575]: EXPORTAÇÃO
+                - generic [ref=e1577]: —
+                - generic [ref=e1581]: —
+                - generic [ref=e1583]: EM TRANSFERENCIA
+                - generic [ref=e1585]: —
+                - generic [ref=e1587]: —
+                - generic "1201.10.00" [ref=e1589]
+                - generic [ref=e1591]:
+                  - generic [ref=e1592]: USD
+                  - text: 800.000,00
+                - generic [ref=e1594]:
+                  - text: "2.000"
+                  - generic [ref=e1595]: TON
+                - generic [ref=e1597]:
+                  - text: "0"
+                  - generic [ref=e1598]: TON
+                - generic [ref=e1600]: —
+                - generic [ref=e1602]: —
+                - generic [ref=e1604]: —
+                - generic [ref=e1606]:
+                  - text: —
+                  - generic [ref=e1607]: kg
+                - generic [ref=e1609]:
+                  - text: —
+                  - generic [ref=e1610]: kg
+                - generic [ref=e1612]:
+                  - text: —
+                  - generic [ref=e1613]: m³
+                - generic [ref=e1615]: CFR
+                - generic [ref=e1617]: —
+                - generic "com_cobertura" [ref=e1619]
+                - generic [ref=e1621]: 100% carta de crédito irrevogável
+                - generic [ref=e1623]: 27/02/2026
+                - generic [ref=e1625]: PROF-EXP-2026-612
+                - generic [ref=e1627]: INV-EXP-2026-612
+                - generic [ref=e1629]: —
+                - generic [ref=e1631]: —
+                - generic [ref=e1633]: —
+                - generic [ref=e1635]: —
+                - generic [ref=e1637]: —
+                - generic [ref=e1639]: —
+                - generic [ref=e1641]: —
+                - generic [ref=e1643]: —
+                - generic [ref=e1645]: —
+                - generic [ref=e1647]: —
+                - generic [ref=e1649]: —
+                - generic [ref=e1651]: —
+                - generic [ref=e1653]: —
+                - generic [ref=e1655]: —
+                - generic [ref=e1657]: —
+                - generic [ref=e1659]: —
+                - generic [ref=e1661]: —
+                - generic [ref=e1663]: —
+                - generic [ref=e1665]: —
+                - generic [ref=e1667]: —
+                - generic [ref=e1669]: —
+                - generic [ref=e1671]: —
+                - generic [ref=e1673]: —
+                - generic [ref=e1675]: —
+                - generic [ref=e1677]: —
+                - generic [ref=e1679]: —
+                - generic [ref=e1681]: —
+                - generic [ref=e1683]: —
+                - generic [ref=e1685]: —
+                - generic [ref=e1687]: —
+                - generic [ref=e1689]: —
+                - generic [ref=e1691]: —
+                - generic [ref=e1693]: —
+                - generic [ref=e1695]: —
+                - generic [ref=e1697]: —
+                - generic [ref=e1699]: —
+                - generic [ref=e1701]: —
+                - generic [ref=e1703]: —
+                - generic [ref=e1705]: —
+                - generic [ref=e1707]: —
+                - generic [ref=e1709]: —
+                - generic [ref=e1711]: —
+                - generic [ref=e1713]: —
+                - generic [ref=e1715]: —
+                - generic [ref=e1717]: —
+                - generic [ref=e1719]: —
+                - generic [ref=e1721]: —
+                - generic [ref=e1723]: —
+                - generic [ref=e1725]: —
+                - generic [ref=e1727]: —
+                - generic [ref=e1729]: —
+                - generic [ref=e1731]: —
+                - generic [ref=e1733]: —
+                - generic [ref=e1735]: —
+                - generic [ref=e1737]: —
+                - generic [ref=e1739]: —
+                - generic [ref=e1741]: —
+                - generic [ref=e1743]: —
+                - generic [ref=e1745]: —
+                - generic [ref=e1747]: —
+                - generic [ref=e1749]: —
+                - generic [ref=e1751]: —
+                - generic [ref=e1753]: —
+                - generic [ref=e1755]: —
+                - generic [ref=e1757]: —
+                - generic [ref=e1759]: —
+                - generic [ref=e1761]: —
+                - generic [ref=e1763]: —
+                - generic [ref=e1765]: —
+                - generic [ref=e1767]: —
+                - generic [ref=e1769]: —
+                - generic [ref=e1771]: —
+                - generic [ref=e1773]: —
+                - generic [ref=e1775]: —
+                - generic [ref=e1777]: —
+                - generic [ref=e1779]: —
+                - generic [ref=e1781]: —
+                - generic [ref=e1783]: —
+                - button "Editar pedido" [ref=e1786]:
+                  - img [ref=e1787]
+              - generic [ref=e1790] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e1792]
+                - button "Expandir" [ref=e1794]:
+                  - img [ref=e1796]
+                - generic [ref=e1800]: PO-2026-0101
+                - generic [ref=e1802]: IMPORTAÇÃO
+                - generic [ref=e1806]: —
+                - generic [ref=e1808]: —
+                - generic [ref=e1810]: ABERTO
+                - generic [ref=e1812]: —
+                - generic [ref=e1814]: —
+                - 'generic "NCMs diferentes: 8542.31.90 | 8524.12.00 | 8504.40.30" [ref=e1816]':
+                  - img [ref=e1817]
+                  - text: 8542.31.90 | 8524.12.00 | 8504.40.30
+                - generic [ref=e1820]:
+                  - generic [ref=e1821]: USD
+                  - text: 42.000,00
+                - generic [ref=e1823]:
+                  - text: "7.500"
+                  - generic [ref=e1824]: PCS
+                - generic [ref=e1826]:
+                  - text: "0"
+                  - generic [ref=e1827]: PCS
+                - generic [ref=e1829]: —
+                - generic [ref=e1831]: —
+                - generic [ref=e1833]: —
+                - generic [ref=e1835]:
+                  - text: —
+                  - generic [ref=e1836]: kg
+                - generic [ref=e1838]:
+                  - text: —
+                  - generic [ref=e1839]: kg
+                - generic [ref=e1841]:
+                  - text: —
+                  - generic [ref=e1842]: m³
+                - generic [ref=e1844]: CIF
+                - generic [ref=e1846]: —
+                - generic "com_cobertura" [ref=e1848]
+                - generic [ref=e1850]: 30% antecipado, 70% contra-entrega
+                - generic [ref=e1852]: 09/02/2026
+                - generic [ref=e1854]: PI-CHN-2026-0101
+                - generic [ref=e1856]: CI-CHN-2026-0101
+                - generic [ref=e1858]: —
+                - generic [ref=e1860]: —
+                - generic [ref=e1862]: —
+                - generic [ref=e1864]: —
+                - generic [ref=e1866]: —
+                - generic [ref=e1868]: —
+                - generic [ref=e1870]: —
+                - generic [ref=e1872]: —
+                - generic [ref=e1874]: —
+                - generic [ref=e1876]: —
+                - generic [ref=e1878]: —
+                - generic [ref=e1880]: —
+                - generic [ref=e1882]: —
+                - generic [ref=e1884]: —
+                - generic [ref=e1886]: —
+                - generic [ref=e1888]: —
+                - generic [ref=e1890]: —
+                - generic [ref=e1892]: —
+                - generic [ref=e1894]: —
+                - generic [ref=e1896]: —
+                - generic [ref=e1898]: —
+                - generic [ref=e1900]: —
+                - generic [ref=e1902]: —
+                - generic [ref=e1904]: —
+                - generic [ref=e1906]: —
+                - generic [ref=e1908]: —
+                - generic [ref=e1910]: —
+                - generic [ref=e1912]: —
+                - generic [ref=e1914]: —
+                - generic [ref=e1916]: —
+                - generic [ref=e1918]: —
+                - generic [ref=e1920]: —
+                - generic [ref=e1922]: —
+                - generic [ref=e1924]: —
+                - generic [ref=e1926]: —
+                - generic [ref=e1928]: —
+                - generic [ref=e1930]: —
+                - generic [ref=e1932]: —
+                - generic [ref=e1934]: —
+                - generic [ref=e1936]: —
+                - generic [ref=e1938]: —
+                - generic [ref=e1940]: —
+                - generic [ref=e1942]: —
+                - generic [ref=e1944]: —
+                - generic [ref=e1946]: —
+                - generic [ref=e1948]: —
+                - generic [ref=e1950]: —
+                - generic [ref=e1952]: —
+                - generic [ref=e1954]: —
+                - generic [ref=e1956]: —
+                - generic [ref=e1958]: —
+                - generic [ref=e1960]: —
+                - generic [ref=e1962]: —
+                - generic [ref=e1964]: —
+                - generic [ref=e1966]: —
+                - generic [ref=e1968]: —
+                - generic [ref=e1970]: —
+                - generic [ref=e1972]: —
+                - generic [ref=e1974]: —
+                - generic [ref=e1976]: —
+                - generic [ref=e1978]: —
+                - generic [ref=e1980]: —
+                - generic [ref=e1982]: —
+                - generic [ref=e1984]: —
+                - generic [ref=e1986]: —
+                - generic [ref=e1988]: —
+                - generic [ref=e1990]: —
+                - generic [ref=e1992]: —
+                - generic [ref=e1994]: —
+                - generic [ref=e1996]: —
+                - generic [ref=e1998]: —
+                - generic [ref=e2000]: —
+                - generic [ref=e2002]: —
+                - generic [ref=e2004]: —
+                - generic [ref=e2006]: —
+                - generic [ref=e2008]: —
+                - generic [ref=e2010]: —
+                - generic [ref=e2012]: —
+                - button "Editar pedido" [ref=e2015]:
+                  - img [ref=e2016]
+              - generic [ref=e2019] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e2021]
+                - button "Expandir" [ref=e2023]:
+                  - img [ref=e2025]
+                - generic [ref=e2029]: PO-2026-0202
+                - generic [ref=e2031]: IMPORTAÇÃO
+                - generic [ref=e2035]: —
+                - generic [ref=e2037]: —
+                - generic [ref=e2039]: EM TRANSFERENCIA
+                - generic [ref=e2041]: —
+                - generic [ref=e2043]: —
+                - 'generic "NCMs diferentes: 2710.19.32 | 2710.19.99" [ref=e2045]':
+                  - img [ref=e2046]
+                  - text: 2710.19.32 | 2710.19.99
+                - generic [ref=e2049]:
+                  - generic [ref=e2050]: EUR
+                  - text: 17.560,00
+                - 'generic "Unidades diferentes: L | KG" [ref=e2052]':
+                  - img [ref=e2053]
+                  - text: L | KG
+                - 'generic "Unidades diferentes: L | KG" [ref=e2056]':
+                  - img [ref=e2057]
+                  - text: L | KG
+                - generic [ref=e2060]: —
+                - generic [ref=e2062]: —
+                - generic [ref=e2064]: —
+                - generic [ref=e2066]:
+                  - text: —
+                  - generic [ref=e2067]: kg
+                - generic [ref=e2069]:
+                  - text: —
+                  - generic [ref=e2070]: kg
+                - generic [ref=e2072]:
+                  - text: —
+                  - generic [ref=e2073]: m³
+                - generic [ref=e2075]: FOB
+                - generic [ref=e2077]: —
+                - generic "com_cobertura" [ref=e2079]
+                - generic [ref=e2081]: Carta de Crédito à vista
+                - generic [ref=e2083]: 14/01/2026
+                - generic [ref=e2085]: PI-BOSCH-2026-0045
+                - generic [ref=e2087]: CI-BOSCH-2026-0045
+                - generic [ref=e2089]: —
+                - generic [ref=e2091]: —
+                - generic [ref=e2093]: —
+                - generic [ref=e2095]: —
+                - generic [ref=e2097]: —
+                - generic [ref=e2099]: —
+                - generic [ref=e2101]: —
+                - generic [ref=e2103]: —
+                - generic [ref=e2105]: —
+                - generic [ref=e2107]: —
+                - generic [ref=e2109]: —
+                - generic [ref=e2111]: —
+                - generic [ref=e2113]: —
+                - generic [ref=e2115]: —
+                - generic [ref=e2117]: —
+                - generic [ref=e2119]: —
+                - generic [ref=e2121]: —
+                - generic [ref=e2123]: —
+                - generic [ref=e2125]: —
+                - generic [ref=e2127]: —
+                - generic [ref=e2129]: —
+                - generic [ref=e2131]: —
+                - generic [ref=e2133]: —
+                - generic [ref=e2135]: —
+                - generic [ref=e2137]: —
+                - generic [ref=e2139]: —
+                - generic [ref=e2141]: —
+                - generic [ref=e2143]: —
+                - generic [ref=e2145]: —
+                - generic [ref=e2147]: —
+                - generic [ref=e2149]: —
+                - generic [ref=e2151]: —
+                - generic [ref=e2153]: —
+                - generic [ref=e2155]: —
+                - generic [ref=e2157]: —
+                - generic [ref=e2159]: —
+                - generic [ref=e2161]: —
+                - generic [ref=e2163]: —
+                - generic [ref=e2165]: —
+                - generic [ref=e2167]: —
+                - generic [ref=e2169]: —
+                - generic [ref=e2171]: —
+                - generic [ref=e2173]: —
+                - generic [ref=e2175]: —
+                - generic [ref=e2177]: —
+                - generic [ref=e2179]: —
+                - generic [ref=e2181]: —
+                - generic [ref=e2183]: —
+                - generic [ref=e2185]: —
+                - generic [ref=e2187]: —
+                - generic [ref=e2189]: —
+                - generic [ref=e2191]: —
+                - generic [ref=e2193]: —
+                - generic [ref=e2195]: —
+                - generic [ref=e2197]: —
+                - generic [ref=e2199]: —
+                - generic [ref=e2201]: —
+                - generic [ref=e2203]: —
+                - generic [ref=e2205]: —
+                - generic [ref=e2207]: —
+                - generic [ref=e2209]: —
+                - generic [ref=e2211]: —
+                - generic [ref=e2213]: —
+                - generic [ref=e2215]: —
+                - generic [ref=e2217]: —
+                - generic [ref=e2219]: —
+                - generic [ref=e2221]: —
+                - generic [ref=e2223]: —
+                - generic [ref=e2225]: —
+                - generic [ref=e2227]: —
+                - generic [ref=e2229]: —
+                - generic [ref=e2231]: —
+                - generic [ref=e2233]: —
+                - generic [ref=e2235]: —
+                - generic [ref=e2237]: —
+                - generic [ref=e2239]: —
+                - generic [ref=e2241]: —
+                - generic [ref=e2243]: —
+                - button "Editar pedido" [ref=e2246]:
+                  - img [ref=e2247]
+              - generic [ref=e2250] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e2252]
+                - button "Expandir" [ref=e2254]:
+                  - img [ref=e2256]
+                - generic [ref=e2260]: PO-CAMPOS-2026/001
+                - generic [ref=e2262]: IMPORTAÇÃO
+                - generic [ref=e2266]: —
+                - generic [ref=e2268]: —
+                - generic [ref=e2270]: ABERTO
+                - generic [ref=e2272]: —
+                - generic [ref=e2274]: —
+                - generic "8471.30.19" [ref=e2276]
+                - generic [ref=e2278]:
+                  - generic [ref=e2279]: USD
+                  - text: 2.550,00
+                - 'generic "Unidades diferentes: PC | UN" [ref=e2281]':
+                  - img [ref=e2282]
+                  - text: PC | UN
+                - 'generic "Unidades diferentes: PC | UN" [ref=e2285]':
+                  - img [ref=e2286]
+                  - text: PC | UN
+                - generic [ref=e2289]: —
+                - generic [ref=e2291]: —
+                - generic [ref=e2293]: —
+                - generic [ref=e2295]:
+                  - text: —
+                  - generic [ref=e2296]: kg
+                - generic [ref=e2298]:
+                  - text: —
+                  - generic [ref=e2299]: kg
+                - generic [ref=e2301]:
+                  - text: —
+                  - generic [ref=e2302]: m³
+                - generic [ref=e2304]: FOB
+                - generic [ref=e2306]: —
+                - generic "com_cobertura" [ref=e2308]
+                - generic [ref=e2310]: —
+                - generic [ref=e2312]: 09/01/2026
+                - generic [ref=e2314]: —
+                - generic [ref=e2316]: —
+                - generic [ref=e2318]: —
+                - generic [ref=e2320]: —
+                - generic [ref=e2322]: —
+                - generic [ref=e2324]: —
+                - generic [ref=e2326]: —
+                - generic [ref=e2328]: —
+                - generic [ref=e2330]: —
+                - generic [ref=e2332]: —
+                - generic [ref=e2334]: —
+                - generic [ref=e2336]: —
+                - generic [ref=e2338]: —
+                - generic [ref=e2340]: —
+                - generic [ref=e2342]: —
+                - generic [ref=e2344]: —
+                - generic [ref=e2346]: —
+                - generic [ref=e2348]: —
+                - generic [ref=e2350]: —
+                - generic [ref=e2352]: —
+                - generic [ref=e2354]: —
+                - generic [ref=e2356]: —
+                - generic [ref=e2358]: —
+                - generic [ref=e2360]: —
+                - generic [ref=e2362]: —
+                - generic [ref=e2364]: —
+                - generic [ref=e2366]: —
+                - generic [ref=e2368]: —
+                - generic [ref=e2370]: —
+                - generic [ref=e2372]: —
+                - generic [ref=e2374]: —
+                - generic [ref=e2376]: —
+                - generic [ref=e2378]: —
+                - generic [ref=e2380]: —
+                - generic [ref=e2382]: —
+                - generic [ref=e2384]: —
+                - generic [ref=e2386]: —
+                - generic [ref=e2388]: —
+                - generic [ref=e2390]: —
+                - generic [ref=e2392]: —
+                - generic [ref=e2394]: —
+                - generic [ref=e2396]: —
+                - generic [ref=e2398]: —
+                - generic [ref=e2400]: —
+                - generic [ref=e2402]: —
+                - generic [ref=e2404]: —
+                - generic [ref=e2406]: —
+                - generic [ref=e2408]: —
+                - generic [ref=e2410]: —
+                - generic [ref=e2412]: —
+                - generic [ref=e2414]: —
+                - generic [ref=e2416]: —
+                - generic [ref=e2418]: —
+                - generic [ref=e2420]: —
+                - generic [ref=e2422]: —
+                - generic [ref=e2424]: —
+                - generic [ref=e2426]: —
+                - generic [ref=e2428]: —
+                - generic [ref=e2430]: —
+                - generic [ref=e2432]: —
+                - generic [ref=e2434]: —
+                - generic [ref=e2436]: —
+                - generic [ref=e2438]: —
+                - generic [ref=e2440]: —
+                - generic [ref=e2442]: —
+                - generic [ref=e2444]: —
+                - generic [ref=e2446]: —
+                - generic [ref=e2448]: —
+                - generic [ref=e2450]: —
+                - generic [ref=e2452]: —
+                - generic [ref=e2454]: —
+                - generic [ref=e2456]: —
+                - generic [ref=e2458]: —
+                - generic [ref=e2460]: —
+                - generic [ref=e2462]: —
+                - generic [ref=e2464]: —
+                - generic [ref=e2466]: —
+                - generic [ref=e2468]: —
+                - generic [ref=e2470]: —
+                - generic [ref=e2472]: —
+                - button "Editar pedido" [ref=e2475]:
+                  - img [ref=e2476]
+              - generic [ref=e2479] [cursor=pointer]:
+                - checkbox "Selecionar linha" [ref=e2481]
+                - button "Expandir" [ref=e2483]:
+                  - img [ref=e2485]
+                - generic [ref=e2489]: PO-2026-0305
+                - generic [ref=e2491]: IMPORTAÇÃO
+                - generic [ref=e2495]: —
+                - generic [ref=e2497]: —
+                - generic [ref=e2499]: CONSOLIDADO
+                - generic [ref=e2501]: —
+                - generic [ref=e2503]: —
+                - 'generic "NCMs diferentes: 6307.90.10 | 8518.10.90 | 9004.10.10" [ref=e2505]':
+                  - img [ref=e2506]
+                  - text: 6307.90.10 | 8518.10.90 | 9004.10.10
+                - generic [ref=e2509]:
+                  - generic [ref=e2510]: USD
+                  - text: 34.800,00
+                - 'generic "Unidades diferentes: CX | PCS" [ref=e2512]':
+                  - img [ref=e2513]
+                  - text: CX | PCS
+                - 'generic "Unidades diferentes: CX | PCS" [ref=e2516]':
+                  - img [ref=e2517]
+                  - text: CX | PCS
+                - generic [ref=e2520]: —
+                - generic [ref=e2522]: —
+                - generic [ref=e2524]: —
+                - generic [ref=e2526]:
+                  - text: —
+                  - generic [ref=e2527]: kg
+                - generic [ref=e2529]:
+                  - text: —
+                  - generic [ref=e2530]: kg
+                - generic [ref=e2532]:
+                  - text: —
+                  - generic [ref=e2533]: m³
+                - generic [ref=e2535]: CIF
+                - generic [ref=e2537]: —
+                - generic "com_cobertura" [ref=e2539]
+                - generic [ref=e2541]: 60 dias data embarque
+                - generic [ref=e2543]: 19/12/2025
+                - generic [ref=e2545]: PI-3M-2026-00112
+                - generic [ref=e2547]: CI-3M-2026-00112
+                - generic [ref=e2549]: —
+                - generic [ref=e2551]: —
+                - generic [ref=e2553]: —
+                - generic [ref=e2555]: —
+                - generic [ref=e2557]: —
+                - generic [ref=e2559]: —
+                - generic [ref=e2561]: —
+                - generic [ref=e2563]: —
+                - generic [ref=e2565]: —
+                - generic [ref=e2567]: —
+                - generic [ref=e2569]: —
+                - generic [ref=e2571]: —
+                - generic [ref=e2573]: —
+                - generic [ref=e2575]: —
+                - generic [ref=e2577]: —
+                - generic [ref=e2579]: —
+                - generic [ref=e2581]: —
+                - generic [ref=e2583]: —
+                - generic [ref=e2585]: —
+                - generic [ref=e2587]: —
+                - generic [ref=e2589]: —
+                - generic [ref=e2591]: —
+                - generic [ref=e2593]: —
+                - generic [ref=e2595]: —
+                - generic [ref=e2597]: —
+                - generic [ref=e2599]: —
+                - generic [ref=e2601]: —
+                - generic [ref=e2603]: —
+                - generic [ref=e2605]: —
+                - generic [ref=e2607]: —
+                - generic [ref=e2609]: —
+                - generic [ref=e2611]: —
+                - generic [ref=e2613]: —
+                - generic [ref=e2615]: —
+                - generic [ref=e2617]: —
+                - generic [ref=e2619]: —
+                - generic [ref=e2621]: —
+                - generic [ref=e2623]: —
+                - generic [ref=e2625]: —
+                - generic [ref=e2627]: —
+                - generic [ref=e2629]: —
+                - generic [ref=e2631]: —
+                - generic [ref=e2633]: —
+                - generic [ref=e2635]: —
+                - generic [ref=e2637]: —
+                - generic [ref=e2639]: —
+                - generic [ref=e2641]: —
+                - generic [ref=e2643]: —
+                - generic [ref=e2645]: —
+                - generic [ref=e2647]: —
+                - generic [ref=e2649]: —
+                - generic [ref=e2651]: —
+                - generic [ref=e2653]: —
+                - generic [ref=e2655]: —
+                - generic [ref=e2657]: —
+                - generic [ref=e2659]: —
+                - generic [ref=e2661]: —
+                - generic [ref=e2663]: —
+                - generic [ref=e2665]: —
+                - generic [ref=e2667]: —
+                - generic [ref=e2669]: —
+                - generic [ref=e2671]: —
+                - generic [ref=e2673]: —
+                - generic [ref=e2675]: —
+                - generic [ref=e2677]: —
+                - generic [ref=e2679]: —
+                - generic [ref=e2681]: —
+                - generic [ref=e2683]: —
+                - generic [ref=e2685]: —
+                - generic [ref=e2687]: —
+                - generic [ref=e2689]: —
+                - generic [ref=e2691]: —
+                - generic [ref=e2693]: —
+                - generic [ref=e2695]: —
+                - generic [ref=e2697]: —
+                - generic [ref=e2699]: —
+                - generic [ref=e2701]: —
+                - generic [ref=e2703]: —
+                - button "Editar pedido" [ref=e2706]:
+                  - img [ref=e2707]
+        - dialog "Importar Pedidos" [ref=e2710]:
+          - generic [ref=e2711]:
+            - generic [ref=e2712]:
+              - heading "Importar Pedidos" [level=2] [ref=e2713]:
+                - img [ref=e2714]
+                - text: Importar Pedidos
+              - button "Fechar modal de importacao" [ref=e2717] [cursor=pointer]:
+                - img [ref=e2718]
+            - list "Passos" [ref=e2721]:
+              - listitem [ref=e2722]:
+                - generic [ref=e2723]: "1"
+                - generic [ref=e2724]: Upload
+              - listitem [ref=e2726]:
+                - generic [ref=e2727]: "2"
+                - generic [ref=e2728]: Mapeamento
+              - listitem [ref=e2730]:
+                - generic [ref=e2731]: "3"
+                - generic [ref=e2732]: Preview
+              - listitem [ref=e2734]:
+                - generic [ref=e2735]: "4"
+                - generic [ref=e2736]: Resultado
+            - generic [ref=e2738]:
+              - button "Area de upload — clique ou arraste um arquivo" [ref=e2739] [cursor=pointer]:
+                - img [ref=e2740]
+                - generic [ref=e2743]:
+                  - paragraph [ref=e2744]: Arraste um arquivo ou clique para selecionar
+                  - paragraph [ref=e2745]: "Tamanho máximo: 10MB"
+                - generic [ref=e2746]:
+                  - generic "Excel (.xlsx, .xls) — recomendado" [ref=e2747]:
+                    - img [ref=e2748]
+                    - generic [ref=e2751]: Excel
+                  - generic "CSV — separado por vírgula, ponto-e-vírgula ou tab" [ref=e2752]:
+                    - img [ref=e2753]
+                    - generic [ref=e2756]: CSV
+                  - generic "XML — tags simples, um nível" [ref=e2757]:
+                    - img [ref=e2758]
+                    - generic [ref=e2761]: XML
+                  - generic "JSON — array de objetos" [ref=e2762]:
+                    - img [ref=e2763]
+                    - generic [ref=e2766]: JSON
+                  - generic "PDF — somente com texto selecionável. PDFs escaneados não são suportados" [ref=e2767]:
+                    - img [ref=e2768]
+                    - generic [ref=e2771]: PDF
+                  - generic "TXT — texto tabulado" [ref=e2772]:
+                    - img [ref=e2773]
+                    - generic [ref=e2776]: TXT
+                - paragraph [ref=e2777]:
+                  - text: "⚠ PDF: apenas arquivos com texto selecionável. PDFs escaneados (imagem) não são suportados."
+                  - text: Arquivos salvos como "página web" (.html) não são aceitos mesmo com extensão .pdf
+              - generic [ref=e2778]:
+                - generic [ref=e2779]: Não sabe qual formato usar?
+                - link "↓ Baixar planilha modelo (.xlsx)" [ref=e2780] [cursor=pointer]:
+                  - /url: /api/v1/pedidos/smart-import/template
+            - button "Cancelar" [ref=e2782] [cursor=pointer]
+```

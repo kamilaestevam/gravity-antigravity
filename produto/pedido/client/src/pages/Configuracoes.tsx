@@ -531,6 +531,36 @@ function formulaParaChave(formula: string): string {
   return r
 }
 
+// ── Campos Calculados — editor tokenizado (pill-based) ───────────────────────
+type SaldoToken =
+  | { tipo: 'campo';    chave: string; label: string }
+  | { tipo: 'op';       valor: string }
+
+/** Tokens → string de alias (para validação) */
+function tokensParaAliasFormula(tokens: SaldoToken[]): string {
+  return tokens.map(t => t.tipo === 'campo' ? t.chave : t.valor).join(' ')
+}
+
+/** Tokens → string de chave interna (para armazenamento) */
+function tokensParaChaveFormula(tokens: SaldoToken[]): string {
+  return formulaParaChave(tokensParaAliasFormula(tokens))
+}
+
+/** String de alias → lista de tokens (para carregar do localStorage) */
+function aliasFormulaParaTokens(formulaAlias: string): SaldoToken[] {
+  if (!formulaAlias.trim()) return []
+  const aliasSet = new Map<string, string>(FORMULA_ALIAS_MAP.map(m => [m.alias, m.label]))
+  return formulaAlias.trim().split(/\s+/).map(part => {
+    const label = aliasSet.get(part)
+    if (label) return { tipo: 'campo' as const, chave: part, label }
+    return { tipo: 'op' as const, valor: part }
+  })
+}
+
+function carregarSaldoTokens(): SaldoToken[] {
+  return aliasFormulaParaTokens(carregarSaldoFormula())
+}
+
 // ── Campos Calculados — Saldo do Pedido ──────────────────────────────────────
 // SALDO_FORMULA_PADRAO fica em forma de chave (armazenamento); exibição usa alias.
 const SALDO_FORMULA_PADRAO =
@@ -656,16 +686,17 @@ export default function Configuracoes() {
   const [formulaAviso,  setFormulaAviso]  = useState<string | null>(null)
   const [formulaGabi,   setFormulaGabi]   = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
 
-  // ── Saldo do Pedido — Campos Calculados ──
-  const [saldoFormula,         setSaldoFormula]         = useState<string>(carregarSaldoFormula)
+  // ── Saldo do Pedido — Campos Calculados (editor tokenizado) ──
+  const [saldoTokens,          setSaldoTokens]          = useState<SaldoToken[]>(carregarSaldoTokens)
   const [saldoFormulaErro,     setSaldoFormulaErro]     = useState<string | null>(null)
   const [saldoFormulaValida,   setSaldoFormulaValida]   = useState(false)
   const [saldoFormulaGabi,     setSaldoFormulaGabi]     = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
-  const [saldoFormulaAlterada, setSaldoFormulaAlterada] = useState(false)
   const saldoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const saldoTextareaRef = useRef<HTMLTextAreaElement>(null)
   const saldoCamposRef   = useRef<Array<{ chave: string; label: string; unidade?: string; papel?: string }>>([])
   const [saldoFormulaAnalisando, setSaldoFormulaAnalisando] = useState(false)
+
+  // Derivado — true quando fórmula difere do padrão salvo
+  const saldoFormulaAlterada = tokensParaChaveFormula(saldoTokens) !== SALDO_FORMULA_PADRAO
 
   // FIX #4: constante fora do ciclo de render para não recriar callbacks a cada render
   const TIPOS_NUMERICOS_FORMULA: TipoColunaUsuario[] = useMemo(() => ['numero', 'percentual', 'formula'], [])
@@ -860,49 +891,41 @@ export default function Configuracoes() {
     }
   }, [])
 
-  function handleSaldoFormulaChange(valor: string) {
-    setSaldoFormula(valor)
-    setSaldoFormulaAlterada(valor !== carregarSaldoFormula())
-    setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
-    if (saldoDebounceRef.current) clearTimeout(saldoDebounceRef.current)
-    if (valor.trim()) {
-      setSaldoFormulaAnalisando(true)
-      saldoDebounceRef.current = setTimeout(() => { void validarSaldoFormula(valor) }, 600)
-    }
-  }
-
-  function salvarSaldoFormula() {
-    try { localStorage.setItem(SALDO_FORMULA_KEY, formulaParaChave(saldoFormula)) } catch { /* ignore */ }
-    setSaldoFormulaAlterada(false)
-  }
-
-  function restaurarSaldoPadrao() {
-    try { localStorage.removeItem(SALDO_FORMULA_KEY) } catch { /* ignore */ }
-    setSaldoFormula(SALDO_FORMULA_PADRAO)
-    setSaldoFormulaAlterada(false)
+  // Tokens → validação via debounce sempre que os tokens mudam
+  useEffect(() => {
+    const formulaAlias = tokensParaAliasFormula(saldoTokens)
     setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null)
-  }
-
-  function inserirCampoSaldo(chave: string) {
-    const el = saldoTextareaRef.current
-    if (!el) { handleSaldoFormulaChange(saldoFormula + chave); return }
-    const start = el.selectionStart ?? el.value.length
-    const end   = el.selectionEnd   ?? el.value.length
-    const antes  = el.value.slice(0, start)
-    const depois = el.value.slice(end)
-    const sep    = antes.length > 0 && !/[\s(+\-*/]$/.test(antes) ? ' ' : ''
-    const novo   = antes + sep + chave + depois
-    handleSaldoFormulaChange(novo)
-    requestAnimationFrame(() => {
-      el.focus()
-      const pos = (antes + sep + chave).length
-      el.setSelectionRange(pos, pos)
-    })
-  }
+    if (saldoDebounceRef.current) clearTimeout(saldoDebounceRef.current)
+    if (!formulaAlias.trim()) { setSaldoFormulaAnalisando(false); return }
+    setSaldoFormulaAnalisando(true)
+    saldoDebounceRef.current = setTimeout(() => { void validarSaldoFormula(formulaAlias) }, 600)
+  }, [saldoTokens, validarSaldoFormula])
 
   useEffect(() => {
     return () => { if (saldoDebounceRef.current) clearTimeout(saldoDebounceRef.current) }
   }, [])
+
+  function adicionarCampoSaldo(campo: { chave: string; label: string }) {
+    setSaldoTokens(prev => [...prev, { tipo: 'campo', chave: campo.chave, label: campo.label }])
+  }
+
+  function adicionarOpSaldo(op: string) {
+    setSaldoTokens(prev => [...prev, { tipo: 'op', valor: op }])
+  }
+
+  function removerTokenSaldo(index: number) {
+    setSaldoTokens(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function salvarSaldoFormula() {
+    try { localStorage.setItem(SALDO_FORMULA_KEY, tokensParaChaveFormula(saldoTokens)) } catch { /* ignore */ }
+  }
+
+  function restaurarSaldoPadrao() {
+    try { localStorage.removeItem(SALDO_FORMULA_KEY) } catch { /* ignore */ }
+    setSaldoTokens(aliasFormulaParaTokens(formulaParaAlias(SALDO_FORMULA_PADRAO)))
+    setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
+  }
 
   // Campos disponíveis para fórmulas — chave = alias legível (o que o chip insere e o usuário vê)
   const CAMPOS_FORMULA: { grupo: string; campos: { chave: string; label: string }[] }[] = [
@@ -3642,7 +3665,7 @@ export default function Configuracoes() {
 
                 {/* Chips de campos disponíveis */}
                 <div className="cfg-form-group">
-                  <label className="cfg-form-label">Campos disponíveis</label>
+                  <label className="cfg-form-label">Campos disponíveis — clique para adicionar</label>
                   {CAMPOS_SALDO.map(grupo => (
                     <div key={grupo.grupo} className="cfg-formula-grupo">
                       <span className="cfg-formula-grupo-nome">{grupo.grupo}</span>
@@ -3653,7 +3676,7 @@ export default function Configuracoes() {
                             type="button"
                             className="cfg-formula-chip"
                             title={campo.chave}
-                            onClick={() => inserirCampoSaldo(campo.chave)}
+                            onClick={() => adicionarCampoSaldo(campo)}
                           >
                             {campo.label}
                           </button>
@@ -3663,32 +3686,78 @@ export default function Configuracoes() {
                   ))}
                 </div>
 
-                {/* Textarea da fórmula */}
+                {/* Editor tokenizado */}
                 <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="saldo-formula">Fórmula</label>
-                  <textarea
-                    id="saldo-formula"
-                    ref={saldoTextareaRef}
-                    className={[
-                      'cfg-form-input',
-                      saldoFormulaErro ? 'cfg-formula-input--erro' : '',
-                      saldoFormulaValida && saldoFormula.trim() ? 'cfg-formula-input--ok' : '',
-                    ].filter(Boolean).join(' ')}
-                    rows={3}
-                    spellCheck={false}
-                    placeholder="Ex: quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido"
-                    value={saldoFormula}
-                    onChange={e => handleSaldoFormulaChange(e.target.value)}
-                    aria-describedby={saldoFormulaErro ? 'saldo-formula-msg' : undefined}
-                  />
-                  <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
-                    Operadores: <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px' }}>+ - * / ( )</code>
-                  </p>
+                  <label className="cfg-form-label">Fórmula</label>
+
+                  {/* Display de tokens */}
+                  <div className={[
+                    'cfg-saldo-tokens',
+                    saldoFormulaErro ? 'cfg-saldo-tokens--erro' : '',
+                    saldoFormulaValida && saldoTokens.length > 0 ? 'cfg-saldo-tokens--ok' : '',
+                  ].filter(Boolean).join(' ')}>
+                    {saldoTokens.length === 0 ? (
+                      <span className="cfg-saldo-tokens__placeholder">
+                        Clique nos campos acima e nos operadores abaixo para montar a fórmula
+                      </span>
+                    ) : (
+                      saldoTokens.map((token, i) =>
+                        token.tipo === 'campo' ? (
+                          <span key={i} className="cfg-saldo-token cfg-saldo-token--campo">
+                            <span className="cfg-saldo-token__label">{token.label}</span>
+                            <button
+                              type="button"
+                              className="cfg-saldo-token__remove"
+                              onClick={() => removerTokenSaldo(i)}
+                              aria-label={`Remover ${token.label}`}
+                            >
+                              <X size={9} weight="bold" />
+                            </button>
+                          </span>
+                        ) : (
+                          <button
+                            key={i}
+                            type="button"
+                            className="cfg-saldo-token cfg-saldo-token--op"
+                            onClick={() => removerTokenSaldo(i)}
+                            title="Clique para remover"
+                          >
+                            {token.valor}
+                          </button>
+                        )
+                      )
+                    )}
+                  </div>
+
+                  {/* Botões de operadores */}
+                  <div className="cfg-saldo-ops">
+                    <span className="cfg-formula-grupo-nome" style={{ alignSelf: 'center' }}>Operadores</span>
+                    {(['+', '-', '*', '/', '(', ')'] as const).map(op => (
+                      <button
+                        key={op}
+                        type="button"
+                        className="cfg-saldo-op-btn"
+                        onClick={() => adicionarOpSaldo(op)}
+                      >
+                        {op}
+                      </button>
+                    ))}
+                    {saldoTokens.length > 0 && (
+                      <button
+                        type="button"
+                        className="cfg-saldo-op-btn cfg-saldo-op-btn--clear"
+                        onClick={() => setSaldoTokens([])}
+                        title="Limpar fórmula"
+                      >
+                        Limpar
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Card Gabi — mesmo padrão de Colunas Personalizadas */}
                 {(() => {
-                  const vazio = !saldoFormula.trim()
+                  const vazio = saldoTokens.length === 0
 
                   // Vazio: instrução inicial
                   if (vazio) return (
@@ -3739,7 +3808,7 @@ export default function Configuracoes() {
                           <button
                             type="button"
                             className="cfg-gabi-card__usar"
-                            onClick={() => handleSaldoFormulaChange(sugestao)}
+                            onClick={() => setSaldoTokens(aliasFormulaParaTokens(sugestao))}
                             title="Usar esta sugestão"
                           >
                             Usar

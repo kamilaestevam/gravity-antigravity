@@ -21,14 +21,33 @@
   top: 1rem;
 }
 
-.cfg-sidebar__titulo {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted, #64748b);
+/* Título estático da sidebar — removido (evita duplicar o título da página) */
+
+/* Label de grupo hierárquico — separador sutil entre categorias */
+.cfg-sidebar__titulo--grupo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
   padding: 0 0.625rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted, #64748b);
+  opacity: 0.7;
+}
+
+.cfg-sidebar__titulo--grupo::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cfg-sidebar__titulo--grupo:first-child {
+  margin-top: 0.25rem;
 }
 
 .cfg-sidebar__nav { display: flex; flex-direction: column; gap: 2px; }
@@ -66,6 +85,37 @@
 .cfg-sidebar__item-icon   { display: flex; align-items: center; flex-shrink: 0; }
 .cfg-sidebar__item-label  { flex: 1; }
 
+/* ── Grupo expansível (parent + submenu) ── */
+
+.cfg-sidebar__group {
+  display: flex;
+  flex-direction: column;
+}
+
+.cfg-sidebar__chevron {
+  flex-shrink: 0;
+  color: var(--text-muted, #64748b);
+  transition: transform 0.2s ease;
+}
+
+.cfg-sidebar__chevron--open {
+  transform: rotate(180deg);
+}
+
+.cfg-sidebar__submenu {
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  padding-left: 0.75rem;
+  margin-left: 1.375rem;
+  margin-top: 2px;
+  border-left: 1px solid rgba(129, 140, 248, 0.2);
+}
+
+.cfg-sidebar__submenu--open {
+  display: flex;
+}
+
 /* ── Sub-nav (ex: Kanban > Modal / Card) ── */
 
 .cfg-sidebar__subnav {
@@ -83,14 +133,15 @@
   border-radius: 6px;
   background: none;
   border: none;
-  font-size: 0.8125rem;
+  font-size: 0.8rem;
+  font-family: inherit;
   color: var(--text-muted, #94a3b8);
   cursor: pointer;
   text-align: left;
   transition: background 0.12s, color 0.12s;
-  position: relative;
 }
 
+/* mantido para compatibilidade com uso legado fora do submenu expansível */
 .cfg-sidebar__subitem::before {
   content: '';
   position: absolute;
@@ -146,13 +197,16 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 0;
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
 
 .cfg-secao__titulo {
-  font-size: 0.9375rem;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--text-primary, #f1f5f9);
   margin-bottom: 0.2rem;
 }
@@ -442,23 +496,56 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   margin-bottom: 0.5rem;
-  margin-top: 1.25rem;
+  margin-top: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* linha estendida à direita do label quando não há conteúdo à direita */
+.cfg-list-section-header::after {
+  content: none; /* controlado via JS se necessário */
 }
 
 .cfg-list-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
   font-size: 0.6875rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-muted, #64748b);
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.09em;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+/* acento colorido antes do label */
+.cfg-list-section-label::before {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 0.75rem;
+  border-radius: 1px;
+  background: rgba(129,140,248,0.6);
+  flex-shrink: 0;
 }
 
 .cfg-list-section-count,
 .cfg-list-section-hint {
   font-size: 0.6875rem;
   color: var(--text-muted, #64748b);
+}
+
+.cfg-list-section-label__count {
+  margin-left: 0.5rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.6875rem;
+  color: var(--text-muted, #64748b);
+  opacity: 0.8;
 }
 
 /* ── Preview ao vivo dos cards ── */
@@ -468,7 +555,7 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 10px;
   padding: 0.875rem 1rem;
-  margin: 1.25rem 0;
+  margin: 0.75rem 0;
 }
 
 .cfg-cards-preview-label {
@@ -476,11 +563,21 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   align-items: center;
   gap: 0.375rem;
   font-size: 0.6875rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-muted, #64748b);
+  letter-spacing: 0.09em;
+  color: var(--text-secondary, #94a3b8);
   margin-bottom: 0.75rem;
+}
+
+.cfg-cards-preview-label::before {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 0.75rem;
+  border-radius: 1px;
+  background: rgba(129,140,248,0.6);
+  flex-shrink: 0;
 }
 
 .cfg-cards-preview-grid {
@@ -603,6 +700,106 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
   padding-bottom: 0.1rem;
 }
 
+/* ── Preview card kanban ── */
+
+.cfg-card-preview {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 260px;
+}
+
+.cfg-card-preview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  background: rgba(129,140,248,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cfg-card-preview__numero {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #818cf8;
+}
+
+.cfg-card-preview__fixo-badge {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted, #64748b);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 0.1rem 0.375rem;
+}
+
+.cfg-card-preview__campos {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.cfg-card-preview__campo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.cfg-card-preview__campo-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+}
+
+.cfg-card-preview__campo-valor {
+  font-size: 0.72rem;
+  color: var(--text-secondary, #94a3b8);
+  flex: 1;
+  text-align: right;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cfg-card-preview__data-critica {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(255,255,255,0.02);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.6875rem;
+  color: var(--text-muted, #64748b);
+}
+
+/* ── Campo fixo (não removível) na lista ── */
+
+.cfg-kanban-campo-row--fixo {
+  opacity: 0.55;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ── Divisor de grupo dentro de lista ── */
+
+.cfg-card-grupo-divider {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted, #64748b);
+  padding: 0.5rem 0 0.25rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 0.25rem;
+}
+
 /* ── Empty state ── */
 
 .cfg-empty {
@@ -683,16 +880,31 @@ body.light-theme .cfg-sidebar__subitem::before { background: rgba(0,0,0,0.15); }
 /* ── Grupo de campo ── */
 
 .cfg-campo-grupo {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .cfg-campo-grupo__label {
-  font-size: 0.75rem;
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--text-muted, #64748b);
-  margin-bottom: 0.625rem;
+  letter-spacing: 0.09em;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cfg-campo-grupo__label::before {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 0.75rem;
+  border-radius: 1px;
+  background: rgba(129,140,248,0.6);
+  flex-shrink: 0;
 }
 
 /* ── Seção Colunas — casas decimais ── */
@@ -1515,6 +1727,125 @@ body.light-theme .cfg-formula-chip:hover {
   background: rgba(13,148,136,0.14);
 }
 
+/* ── Saldo — editor tokenizado ── */
+
+.cfg-saldo-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 10px 12px;
+  background: var(--ws-surface-2, rgba(255,255,255,0.04));
+  border: 1px solid var(--ws-border, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+.cfg-saldo-tokens--erro { border-color: #f87171; }
+.cfg-saldo-tokens--ok   { border-color: rgba(20,184,166,0.5); }
+
+.cfg-saldo-tokens__placeholder {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.3);
+  font-style: italic;
+}
+
+.cfg-saldo-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cfg-saldo-token--campo {
+  padding: 3px 5px 3px 9px;
+  background: rgba(20,184,166,0.12);
+  border: 1px solid rgba(20,184,166,0.35);
+  color: #2dd4bf;
+  cursor: default;
+}
+
+.cfg-saldo-token__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(20,184,166,0.15);
+  border: none;
+  color: #2dd4bf;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.cfg-saldo-token__remove:hover { background: rgba(20,184,166,0.35); }
+
+.cfg-saldo-token--op {
+  padding: 3px 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  font-family: monospace;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.cfg-saldo-token--op:hover {
+  background: rgba(248,113,113,0.1);
+  border-color: rgba(248,113,113,0.4);
+  color: #fca5a5;
+}
+
+.cfg-saldo-ops {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.cfg-saldo-op-btn {
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.7);
+  font-family: monospace;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.cfg-saldo-op-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+  color: #fff;
+}
+
+.cfg-saldo-op-btn--clear {
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: rgba(248,113,113,0.8);
+  border-color: rgba(248,113,113,0.25);
+  background: rgba(248,113,113,0.06);
+  margin-left: 6px;
+}
+
+.cfg-saldo-op-btn--clear:hover {
+  background: rgba(248,113,113,0.15);
+  border-color: rgba(248,113,113,0.5);
+  color: #fca5a5;
+}
+
 /* ── Fórmula — validação ── */
 
 .cfg-formula-input--erro {
@@ -1719,6 +2050,11 @@ body.light-theme .cfg-formula-chip:hover {
 /* label dentro do cfg-kanban-aba não precisa de margin-bottom extra — o padding do container resolve */
 .cfg-kanban-aba .cfg-list-section-label {
   margin-bottom: 0;
+}
+
+/* suprimir o acento quando o label está dentro de bloco fixo (aba Lembrete) */
+.cfg-kanban-aba--fixa .cfg-list-section-label::before {
+  display: none;
 }
 
 .cfg-kanban-aba--fixa {

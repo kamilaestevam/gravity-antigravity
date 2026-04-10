@@ -487,6 +487,28 @@ const _regrasAlertasRef: { current: RegrasConfigBackend | null } = { current: nu
 
 // ── Colunas pai (Pedido) ──────────────────────────────────────────────────────
 
+function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0) {
+  const itens = row.itens ?? []
+  if (itens.length === 0) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
+  const unidades = [...new Set(itens.map(i => i.unidade_comercializada_item ?? 'UN'))]
+  const diverge = unidades.length > 1
+  if (diverge) {
+    return (
+      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }} title={`Unidades diferentes: ${unidades.join(' | ')}`}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        {unidades.join(' | ')}
+      </span>
+    )
+  }
+  const soma = itens.reduce((s, i) => s + (Number(i[campoItem]) || 0), 0)
+  return (
+    <span className="gtv-celula-moeda">
+      {fmtQuantidade(soma, casas)}
+      <span className="gtv-celula-unidade-badge">{unidades[0]}</span>
+    </span>
+  )
+}
+
 const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'numero_pedido',
@@ -740,30 +762,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Inicial do Pedido',
     tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => {
-      const num = Number(row.quantidade_total_inicial_pedido)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_quantidade_total_divergente ?? true)
-      const difAbsolutaQtd = Math.abs(num - somaItens)
-      const difPctQtd = somaItens === 0 ? 100 : (difAbsolutaQtd / somaItens) * 100
-      const celulaQtd = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          {row.quantidade_total_inicial_pedido != null && !isNaN(num) ? fmtQuantidade(num, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
-          <span className="gtv-celula-unidade-badge">UN</span>
-        </span>
-      )
-      if (!alertaAtivo) return celulaQtd
-      return (
-        <TooltipGlobal
-          titulo="Divergência na quantidade inicial"
-          descricao={`Pedido: ${fmtQuantidade(num, 0)} UN · Itens: ${fmtQuantidade(somaItens, 0)} UN · Dif: ${fmtQuantidade(difAbsolutaQtd, 0)} UN (${difPctQtd.toFixed(2)}%)`}
-        >
-          {celulaQtd}
-        </TooltipGlobal>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_item_pedido'),
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
@@ -773,18 +772,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => {
-      const qtd = row.quantidade_pronta_itens_pedido_total
-        ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta_total_item_pedido ?? 0), 0)
-        ?? null
-      return (
-        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {qtd != null
-            ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))
-            : '—'}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido'),
   },
   {
     key: 'saldo_itens_do_pedido',
@@ -794,21 +782,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Saldo do Pedido',
     tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => {
-      const qtd = row.saldo_itens_do_pedido
-        ?? (() => {
-          const total = row.quantidade_total_inicial_pedido ?? null
-          const transf = row.quantidade_transferida_total ?? null
-          return total != null && transf != null ? Math.max(0, total - transf) : null
-        })()
-      return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-          {qtd != null
-            ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))
-            : '—'}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'saldo_item_pedido'),
   },
   {
     key: 'quantidade_transferida_total',
@@ -818,13 +792,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Transferida do Pedido',
     tooltipDescricao: 'Total já transferido para outros pedidos.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.quantidade_transferida_total != null
-          ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0))
-          : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_transferida_item_pedido'),
   },
   {
     key: 'quantidade_cancelada_total_pedido',
@@ -834,13 +802,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Cancelada do Pedido',
     tooltipDescricao: 'Total cancelado permanentemente nos itens do pedido — subtrai do saldo inicial.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
-        {row.quantidade_cancelada_total_pedido != null
-          ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0))
-          : '—'}
-      </span>
-    ),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_cancelada_item_pedido'),
   },
   {
     key: 'data_emissao_pedido',

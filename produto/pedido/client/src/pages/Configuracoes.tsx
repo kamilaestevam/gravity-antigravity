@@ -629,6 +629,8 @@ export default function Configuracoes() {
   const [saldoFormulaAlterada, setSaldoFormulaAlterada] = useState(false)
   const saldoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const saldoTextareaRef = useRef<HTMLTextAreaElement>(null)
+  const saldoCamposRef   = useRef<Array<{ chave: string; label: string; unidade?: string; papel?: string }>>([])
+  const [saldoFormulaAnalisando, setSaldoFormulaAnalisando] = useState(false)
 
   // FIX #4: constante fora do ciclo de render para não recriar callbacks a cada render
   const TIPOS_NUMERICOS_FORMULA: TipoColunaUsuario[] = useMemo(() => ['numero', 'percentual', 'formula'], [])
@@ -755,25 +757,78 @@ export default function Configuracoes() {
 
   const validarSaldoFormula = useCallback(async (expressao: string) => {
     if (!expressao.trim()) {
-      setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null)
+      setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
       return
     }
+    setSaldoFormulaAnalisando(true)
     try {
       parsearFormula(expressao)
+
+      // Detectar campos desconhecidos (não presentes em CAMPOS_SALDO)
+      const palavrasReservadas = new Set(['SE', 'SOMA_ITENS'])
+      const chavesValidas = new Set(saldoCamposRef.current.map(c => c.chave))
+      const identRegex = /\b([a-z][a-z0-9_]*)\b/g
+      const camposDesconhecidos: string[] = []
+      let m: RegExpExecArray | null
+      while ((m = identRegex.exec(expressao)) !== null) {
+        const id = m[1]
+        if (!palavrasReservadas.has(id.toUpperCase()) && !chavesValidas.has(id) && !camposDesconhecidos.includes(id)) {
+          camposDesconhecidos.push(id)
+        }
+      }
+      if (camposDesconhecidos.length > 0) {
+        setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaAnalisando(false)
+        const lista = camposDesconhecidos.map(c => `"${c}"`).join(', ')
+        setSaldoFormulaGabi({
+          titulo: 'Campo não reconhecido',
+          texto:  `${lista} ${camposDesconhecidos.length === 1 ? 'não é um campo disponível' : 'não são campos disponíveis'}. Use os chips acima para inserir campos válidos ou verifique se há erro de digitação.`,
+        })
+        return
+      }
+
+      // Análise local imediata
       const gabiLocal = analisarSemanticaFormula(expressao)
       setSaldoFormulaErro(null); setSaldoFormulaValida(true); setSaldoFormulaGabi(gabiLocal)
+
+      // Melhoria opcional via Gemini (async)
+      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressao, saldoCamposRef.current)
+      setSaldoFormulaAnalisando(false)
+      if (respostaGemini.gemini) {
+        setSaldoFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Fórmula inválida'
-      setSaldoFormulaErro(msg); setSaldoFormulaValida(false); setSaldoFormulaGabi(null)
+
+      // Detecta padrão "dois campos sem operador"
+      if (msg.includes('Token inesperado após fim da fórmula:')) {
+        const match = msg.match(/Token inesperado após fim da fórmula: '([^']+)'/)
+        const tokenExtra = match?.[1]
+        if (tokenExtra) {
+          const idx = expressao.lastIndexOf(tokenExtra)
+          const antes = idx > 0 ? expressao.slice(0, idx).trim() : null
+          if (antes) {
+            setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaAnalisando(false)
+            setSaldoFormulaGabi({
+              titulo:   'Falta um operador',
+              texto:    `Parece que faltou um operador entre "${antes}" e "${tokenExtra}". Escolha o que faz mais sentido e insira entre os dois campos.`,
+              sugestao: `${antes} + ${tokenExtra}`,
+            })
+            return
+          }
+        }
+      }
+
+      setSaldoFormulaErro(msg); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
     }
   }, [])
 
   function handleSaldoFormulaChange(valor: string) {
     setSaldoFormula(valor)
     setSaldoFormulaAlterada(valor !== carregarSaldoFormula())
-    setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null)
+    setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
     if (saldoDebounceRef.current) clearTimeout(saldoDebounceRef.current)
     if (valor.trim()) {
+      setSaldoFormulaAnalisando(true)
       saldoDebounceRef.current = setTimeout(() => { void validarSaldoFormula(valor) }, 600)
     }
   }
@@ -861,6 +916,16 @@ export default function Configuracoes() {
 
   // Mantém o ref atualizado com os campos atuais (usado pelo validarFormulaConfig async)
   camposFormulaRef.current = CAMPOS_FORMULA.flatMap(g =>
+    g.campos.map(c => ({
+      chave:   c.chave,
+      label:   c.label,
+      unidade: SEMANTICA_CAMPOS[c.chave]?.unidade as string | undefined,
+      papel:   SEMANTICA_CAMPOS[c.chave]?.papel   as string | undefined,
+    }))
+  )
+
+  // Mantém ref de campos do Saldo atualizado (usado pelo validarSaldoFormula async)
+  saldoCamposRef.current = CAMPOS_SALDO.flatMap(g =>
     g.campos.map(c => ({
       chave:   c.chave,
       label:   c.label,
@@ -3584,27 +3649,65 @@ export default function Configuracoes() {
                   </p>
                 </div>
 
-                {/* Card de feedback (erro / Gabi / ok) */}
+                {/* Card Gabi — mesmo padrão de Colunas Personalizadas */}
                 {(() => {
+                  const vazio = !saldoFormula.trim()
+
+                  // Vazio: instrução inicial
+                  if (vazio) return (
+                    <div className="cfg-gabi-card cfg-gabi-card--info" role="note">
+                      <div className="cfg-gabi-card__header">
+                        <span className="cfg-gabi-card__ico">✦</span>
+                        <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
+                      </div>
+                      <p className="cfg-gabi-card__texto">
+                        Clique em um campo acima para inseri-lo, ou digite diretamente.
+                        Use <code>+  −  *  /</code> entre campos numéricos.
+                        Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
+                      </p>
+                    </div>
+                  )
+
+                  // Durante debounce
+                  if (saldoFormulaAnalisando && !saldoFormulaErro && !saldoFormulaGabi && !saldoFormulaValida) return (
+                    <div className="cfg-gabi-card cfg-gabi-card--analisando" role="status" aria-live="polite">
+                      <div className="cfg-gabi-card__header">
+                        <span className="cfg-gabi-card__ico">✦</span>
+                        <span className="cfg-gabi-card__titulo">Gabi · Analisando…</span>
+                      </div>
+                    </div>
+                  )
+
+                  // Sem resultado ainda (debounce pendente pós-reset)
                   if (!saldoFormulaErro && !saldoFormulaGabi && !saldoFormulaValida) return null
-                  const variante  = saldoFormulaErro ? 'erro' : saldoFormulaGabi ? 'aviso' : 'ok'
-                  const titulo    = saldoFormulaErro ? 'Erro na expressão'
-                                  : saldoFormulaGabi ? saldoFormulaGabi.titulo
-                                  : 'Fórmula válida ✓'
-                  const texto     = saldoFormulaErro ?? saldoFormulaGabi?.texto ?? 'Tudo certo! Clique em Salvar para aplicar.'
-                  const sugestao  = saldoFormulaGabi?.sugestao
+
+                  // Resultado da análise
+                  const variante = saldoFormulaErro ? 'erro' : saldoFormulaGabi ? 'aviso' : 'ok'
+                  const titulo   = saldoFormulaErro ? 'Erro na expressão'
+                                 : saldoFormulaGabi ? saldoFormulaGabi.titulo
+                                 : 'Fórmula válida ✓'
+                  const texto    = saldoFormulaErro ?? saldoFormulaGabi?.texto ?? 'Tudo certo! Clique em Salvar para aplicar.'
+                  const sugestao = saldoFormulaGabi?.sugestao
+
                   return (
-                    <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="status">
-                      <p className="cfg-gabi-card__titulo">{titulo}</p>
+                    <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite">
+                      <div className="cfg-gabi-card__header">
+                        <span className="cfg-gabi-card__ico">✦</span>
+                        <span className="cfg-gabi-card__titulo">Gabi · {titulo}</span>
+                      </div>
                       <p className="cfg-gabi-card__texto">{texto}</p>
                       {sugestao && (
-                        <button
-                          type="button"
-                          className="cfg-gabi-card__sugestao"
-                          onClick={() => handleSaldoFormulaChange(sugestao)}
-                        >
-                          Usar: {sugestao}
-                        </button>
+                        <div className="cfg-gabi-card__sugestao-row">
+                          <code className="cfg-gabi-card__sugestao">{sugestao}</code>
+                          <button
+                            type="button"
+                            className="cfg-gabi-card__usar"
+                            onClick={() => handleSaldoFormulaChange(sugestao)}
+                            title="Usar esta sugestão"
+                          >
+                            Usar
+                          </button>
+                        </div>
                       )}
                     </div>
                   )

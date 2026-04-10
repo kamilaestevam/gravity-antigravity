@@ -86,23 +86,34 @@ const CHART_TYPE_META: Record<string, { label: string; cor: string; icone: (s: n
 const CHART_TYPE_OPTIONS = Object.entries(CHART_TYPE_META).map(([type, meta]) => ({ type, ...meta }))
 
 // ── Sidebar hierárquica ───────────────────────────────────────────────────────
+//
+// Taxonomia de 3 grupos (universal a todos os produtos):
+//   VISUALIZAÇÕES — como os dados são apresentados (Cards, Tabela, Kanban)
+//   PRODUTO       — regras de negócio específicas do produto (omitido neste demo)
+//   SISTEMA       — funcionalidades de plataforma (Notificações, Exportação)
 
 type SidebarItemTipo =
-  | { tipo: 'item'; id: string; label: string; icone: React.ReactNode; ativo: boolean }
-  | { tipo: 'grupo'; label: string }
-  | { tipo: 'sub';  id: string; label: string; icone: React.ReactNode; ativo: boolean }
+  | { tipo: 'item';   id: string; label: string; icone: React.ReactNode; ativo: boolean }
+  | { tipo: 'grupo';  label: string }
+  | { tipo: 'parent'; id: string; label: string; icone: React.ReactNode; ativo: boolean; filhos: string[] }
+  | { tipo: 'sub';    id: string; label: string; icone: React.ReactNode; ativo: boolean }
+
+const KANBAN_FILHOS = ['kanban-colunas', 'kanban-card', 'kanban-automacoes']
 
 const SIDEBAR_ITEMS: SidebarItemTipo[] = [
-  { tipo: 'item', id: 'cards',             label: 'Cards',        icone: <SquaresFour size={15} weight="duotone" />, ativo: true  },
-  { tipo: 'item', id: 'dashboard',         label: 'Dashboard',    icone: <ChartBar    size={15} weight="duotone" />, ativo: true  },
-  { tipo: 'grupo', label: 'KANBAN' },
-  { tipo: 'sub',  id: 'kanban-colunas',    label: 'Colunas',      icone: <KanbanIcon  size={15} weight="duotone" />, ativo: true  },
-  { tipo: 'sub',  id: 'kanban-card',       label: 'Card',         icone: <SquaresFour size={15} weight="duotone" />, ativo: true  },
-  { tipo: 'sub',  id: 'kanban-automacoes', label: 'Automações',   icone: <Lightning   size={15} weight="duotone" />, ativo: true  },
-  { tipo: 'grupo', label: 'SISTEMA' },
-  { tipo: 'item', id: 'tabela',            label: 'Tabela',       icone: <Table          size={15} weight="duotone" />, ativo: false },
-  { tipo: 'item', id: 'notificacoes',      label: 'Notificações', icone: <Bell           size={15} weight="duotone" />, ativo: false },
-  { tipo: 'item', id: 'exportacao',        label: 'Exportação',   icone: <DownloadSimple size={15} weight="duotone" />, ativo: false },
+  // ── VISUALIZAÇÕES ────────────────────────────────────────────────────────────
+  { tipo: 'grupo',  label: 'VISUALIZAÇÕES' },
+  { tipo: 'item',   id: 'cards',             label: 'Cards',        icone: <SquaresFour size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'item',   id: 'dashboard',         label: 'Dashboard',    icone: <ChartBar    size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'parent', id: 'kanban-colunas',    label: 'Kanban',       icone: <KanbanIcon  size={15} weight="duotone" />, ativo: true, filhos: KANBAN_FILHOS },
+  { tipo: 'sub',    id: 'kanban-colunas',    label: 'Colunas',      icone: <KanbanIcon  size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'sub',    id: 'kanban-card',       label: 'Card',         icone: <SquaresFour size={15} weight="duotone" />, ativo: true  },
+  { tipo: 'sub',    id: 'kanban-automacoes', label: 'Automações',   icone: <Lightning   size={15} weight="duotone" />, ativo: true  },
+  // ── SISTEMA ──────────────────────────────────────────────────────────────────
+  { tipo: 'grupo',  label: 'SISTEMA' },
+  { tipo: 'item',   id: 'tabela',            label: 'Tabela',       icone: <Table          size={15} weight="duotone" />, ativo: false },
+  { tipo: 'item',   id: 'notificacoes',      label: 'Notificações', icone: <Bell           size={15} weight="duotone" />, ativo: false },
+  { tipo: 'item',   id: 'exportacao',        label: 'Exportação',   icone: <DownloadSimple size={15} weight="duotone" />, ativo: false },
 ]
 
 type CategoriaId = string
@@ -326,7 +337,6 @@ export default function Configuracoes() {
 
       {/* ── Sidebar ── */}
       <aside className="cfg-sidebar">
-        <p className="cfg-sidebar__titulo">Configurações</p>
         <nav className="cfg-sidebar__nav">
           {SIDEBAR_ITEMS.map((item, idx) => {
             if (item.tipo === 'grupo') {
@@ -337,8 +347,10 @@ export default function Configuracoes() {
               )
             }
 
-            const isAtivo = categoria === item.id
-            const isSub   = item.tipo === 'sub'
+            const isAtivo = item.tipo === 'parent'
+              ? item.filhos.includes(categoria)
+              : categoria === item.id
+            const isSub = item.tipo === 'sub'
 
             return (
               <button
@@ -346,8 +358,8 @@ export default function Configuracoes() {
                 type="button"
                 className={[
                   isSub ? 'cfg-sidebar__sub' : 'cfg-sidebar__item',
-                  isAtivo      ? 'cfg-sidebar__item--ativo' : '',
-                  !item.ativo  ? 'cfg-sidebar__item--breve' : '',
+                  isAtivo     ? 'cfg-sidebar__item--ativo' : '',
+                  !item.ativo ? 'cfg-sidebar__item--breve' : '',
                 ].filter(Boolean).join(' ')}
                 onClick={() => handleSidebarClick(item.id, item.ativo)}
               >

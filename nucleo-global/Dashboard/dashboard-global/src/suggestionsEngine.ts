@@ -216,7 +216,7 @@ export function generateSuggestions(
         title: dm.label,
         chart_type: 'KPI_CARD',
         query_spec: { fields: fieldSpecs, filters: { period: '30d' } },
-        position: next(3, 1),
+        position: next(3, 2),
       },
     })
   }

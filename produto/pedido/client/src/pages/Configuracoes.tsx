@@ -36,6 +36,8 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, type PdfTemplate } from '../shared/api'
@@ -51,6 +53,7 @@ import type {
   VisibilidadeColunaUsuario,
 } from '../shared/types'
 import { CfgSectionLabel } from '@nucleo/cabecalho-secao-global'
+import { useShellStore } from '@gravity/shell'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -438,6 +441,7 @@ const COLUNAS_NUMERICAS = [
   { campo: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta',      categoria: 'Pedido', padrao: 0 },
   { campo: 'quantidade_cancelada_total_pedido', label: 'Quantidade Cancelada',      categoria: 'Pedido', padrao: 0 },
   { campo: 'quantidade_transferida_total',     label: 'Quantidade Transferida',     categoria: 'Pedido', padrao: 0 },
+  { campo: 'valor_total_pedido',               label: 'Valor Total',                categoria: 'Pedido', padrao: 2 },
   { campo: 'peso_liquido_total_pedido',        label: 'Peso Líquido Total',         categoria: 'Pedido', padrao: 3 },
   { campo: 'peso_bruto_total_pedido',          label: 'Peso Bruto Total',           categoria: 'Pedido', padrao: 3 },
   { campo: 'cubagem_total_pedido',             label: 'Cubagem Total',              categoria: 'Pedido', padrao: 4 },
@@ -461,10 +465,9 @@ const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNo
   { id: 'anexo',          label: 'Anexo',           icone: <Paperclip      size={16} weight="duotone" /> },
 ]
 
-const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string }[] = [
-  { valor: 'todos',   label: 'Todos do tenant' },
-  { valor: 'roles',   label: 'Por perfil/role' },
-  { valor: 'privado', label: 'Só eu'           },
+const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string; descricao: string }[] = [
+  { valor: 'roles',   label: 'Por perfil/role', descricao: 'Visível apenas para os perfis selecionados' },
+  { valor: 'privado', label: 'Só eu',           descricao: 'Coluna visível apenas para você'            },
 ]
 
 const EXPORT_CONFIG_KEY = 'pedido:export_config'
@@ -628,6 +631,7 @@ function ToggleRow({
 
 export default function Configuracoes() {
   const { t } = useTranslation()
+  const { addNotification } = useShellStore()
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as CategoriaId | null
   const acaoParam = searchParams.get('acao')
@@ -644,12 +648,21 @@ export default function Configuracoes() {
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
   // ── Estado: casas decimais ──
-  const [casasDecimais, setCasasDecimais] = useState<Record<string, number>>(carregarCasasDecimais)
+  const [casasDecimais,        setCasasDecimais]        = useState<Record<string, number>>(carregarCasasDecimais)
+  const [pendingCasas,         setPendingCasas]         = useState<Record<string, number>>(carregarCasasDecimais)
+  const casasDirty = JSON.stringify(pendingCasas) !== JSON.stringify(casasDecimais)
 
   function handleCasasDecimaisChange(campo: string, valor: number) {
-    const next = { ...casasDecimais, [campo]: valor }
-    setCasasDecimais(next)
-    localStorage.setItem('pedido:casas_decimais', JSON.stringify(next))
+    setPendingCasas(prev => ({ ...prev, [campo]: valor }))
+  }
+
+  function salvarCasasDecimais() {
+    setCasasDecimais(pendingCasas)
+    localStorage.setItem('pedido:casas_decimais', JSON.stringify(pendingCasas))
+  }
+
+  function restaurarCasasDecimais() {
+    setPendingCasas(casasDecimais)
   }
 
   // ── Estado: colunas numéricas do usuário (via API — para exibir em Casas Decimais) ──
@@ -665,7 +678,6 @@ export default function Configuracoes() {
   const [novaOpcao, setNovaOpcao] = useState('')
   const [salvandoColuna, setSalvandoColuna] = useState(false)
   const [erroColuna, setErroColuna] = useState<string | null>(null)
-  const formulaTextareaRef = useRef<HTMLTextAreaElement>(null)
   const novaColunaSectionRef = useRef<HTMLElement>(null)
   const novaColunaInputRef = useRef<HTMLInputElement>(null)
 
@@ -685,6 +697,23 @@ export default function Configuracoes() {
   const [formulaValida, setFormulaValida] = useState(false)
   const [formulaAviso,  setFormulaAviso]  = useState<string | null>(null)
   const [formulaGabi,   setFormulaGabi]   = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
+
+  // ── Nova Coluna — editor tokenizado (pill-based) para tipo 'formula' ──
+  const [formulaTokens, setFormulaTokens] = useState<SaldoToken[]>([])
+
+  // Sincroniza tokens → formula_expressao (alimenta handleFormulaChange que já valida)
+  useEffect(() => {
+    const alias = tokensParaAliasFormula(formulaTokens)
+    handleFormulaChange(alias)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formulaTokens])
+
+  // Reset tokens quando tipo muda para fora de 'formula'
+  useEffect(() => {
+    if (novaColuna.tipo !== 'formula') {
+      setFormulaTokens([])
+    }
+  }, [novaColuna.tipo])
 
   // ── Saldo do Pedido — Campos Calculados (editor tokenizado) ──
   const [saldoTokens,          setSaldoTokens]          = useState<SaldoToken[]>(carregarSaldoTokens)
@@ -996,26 +1025,16 @@ export default function Configuracoes() {
     }))
   )
 
-  function inserirCampoFormula(chave: string) {
-    const el = formulaTextareaRef.current
-    if (!el) {
-      const novo = novaColuna.formula_expressao + chave
-      handleFormulaChange(novo)
-      return
-    }
-    const start = el.selectionStart ?? el.value.length
-    const end   = el.selectionEnd   ?? el.value.length
-    const antes  = el.value.slice(0, start)
-    const depois = el.value.slice(end)
-    const sep    = antes.length > 0 && !/[\s(+\-*/]$/.test(antes) ? ' ' : ''
-    const novo   = antes + sep + chave + depois
-    handleFormulaChange(novo)  // garante que debounce e estado GABI sejam atualizados
-    // Reposicionar cursor após o campo inserido
-    requestAnimationFrame(() => {
-      el.focus()
-      const pos = (antes + sep + chave).length
-      el.setSelectionRange(pos, pos)
-    })
+  function adicionarCampoFormulaToken(campo: { chave: string; label: string }) {
+    setFormulaTokens(prev => [...prev, { tipo: 'campo', chave: campo.chave, label: campo.label }])
+  }
+
+  function adicionarOpFormulaToken(op: string) {
+    setFormulaTokens(prev => [...prev, { tipo: 'op', valor: op }])
+  }
+
+  function removerTokenFormula(index: number) {
+    setFormulaTokens(prev => prev.filter((_, i) => i !== index))
   }
 
   async function handleCriarColuna() {
@@ -1050,6 +1069,7 @@ export default function Configuracoes() {
       setColunasUsuarioApi(lista)
       setNovaColuna(NOVA_COLUNA_PADRAO)
       setNovaOpcao('')
+      setFormulaTokens([])
     } catch (err) {
       setErroColuna(err instanceof Error ? err.message : 'Erro ao criar coluna.')
     } finally {
@@ -3215,7 +3235,7 @@ export default function Configuracoes() {
           <div className="cfg-cards-wrapper">
 
             {/* ── Casas Decimais ── */}
-            <section className="cfg-secao">
+            {categoria === 'colunas-casas-decimais' && <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
                   <h2 className="cfg-secao__titulo">Casas Decimais por Coluna</h2>
@@ -3224,53 +3244,73 @@ export default function Configuracoes() {
                   </p>
                 </div>
               </div>
-              <div className="cfg-colunas-lista">
-                {(['Pedido', 'Item'] as const).map(cat => (
-                  <React.Fragment key={cat}>
-                    <p className="cfg-colunas-categoria">{cat}</p>
-                    {COLUNAS_NUMERICAS.filter(c => c.categoria === cat).map(col => (
-                      <div key={col.campo} className="cfg-coluna-row">
-                        <span className="cfg-coluna-row__label">{col.label}</span>
-                        <input
-                          type="number"
-                          min={0}
-                          max={8}
-                          className="cfg-casas-input"
-                          value={casasDecimais[col.campo] ?? col.padrao}
-                          onChange={e => handleCasasDecimaisChange(col.campo, Math.min(8, Math.max(0, Number(e.target.value))))}
-                          aria-label={`Casas decimais para ${col.label}`}
-                        />
-                      </div>
+
+              <div className="cfg-campo-calc-item">
+                {/* Header */}
+                <div className="cfg-campo-calc-item__header">
+                  <div className="cfg-campo-calc-item__id">
+                    <Hash size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                    <span className="cfg-campo-calc-item__nome">Configurar casas decimais</span>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="cfg-campo-calc-item__body">
+                  <div className="cfg-colunas-lista">
+                    {(['Pedido', 'Item'] as const).map(cat => (
+                      <React.Fragment key={cat}>
+                        <p className="cfg-colunas-categoria">{cat}</p>
+                        {COLUNAS_NUMERICAS.filter(c => c.categoria === cat).map(col => (
+                          <div key={col.campo} className="cfg-coluna-row">
+                            <span className="cfg-coluna-row__label">{col.label}</span>
+                            <input
+                              type="number"
+                              min={0}
+                              max={8}
+                              className="cfg-casas-input"
+                              value={pendingCasas[col.campo] ?? col.padrao}
+                              onChange={e => handleCasasDecimaisChange(col.campo, Math.min(8, Math.max(0, Number(e.target.value))))}
+                              aria-label={`Casas decimais para ${col.label}`}
+                            />
+                          </div>
+                        ))}
+                      </React.Fragment>
                     ))}
-                  </React.Fragment>
-                ))}
-                {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual').length > 0 && (
-                  <React.Fragment>
-                    <p className="cfg-colunas-categoria">Personalizadas</p>
-                    {colunasUsuarioApi_
-                      .filter(col => col.tipo === 'numero' || col.tipo === 'percentual')
-                      .map(col => (
-                        <div key={col.id} className="cfg-coluna-row">
-                          <span className="cfg-coluna-row__label">{col.nome}</span>
-                          <input
-                            type="number"
-                            min={0}
-                            max={8}
-                            className="cfg-casas-input"
-                            value={casasDecimais[col.id] ?? 2}
-                            onChange={e => handleCasasDecimaisChange(col.id, Math.min(8, Math.max(0, Number(e.target.value))))}
-                            aria-label={`Casas decimais para ${col.nome}`}
-                          />
-                        </div>
-                      ))
-                    }
-                  </React.Fragment>
-                )}
+                    {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula').length > 0 && (
+                      <React.Fragment>
+                        <p className="cfg-colunas-categoria">Personalizadas</p>
+                        {colunasUsuarioApi_
+                          .filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula')
+                          .map(col => (
+                            <div key={col.id} className="cfg-coluna-row">
+                              <span className="cfg-coluna-row__label">{col.nome}</span>
+                              <input
+                                type="number"
+                                min={0}
+                                max={8}
+                                className="cfg-casas-input"
+                                value={pendingCasas[col.id] ?? 2}
+                                onChange={e => handleCasasDecimaisChange(col.id, Math.min(8, Math.max(0, Number(e.target.value))))}
+                                aria-label={`Casas decimais para ${col.nome}`}
+                              />
+                            </div>
+                          ))
+                        }
+                      </React.Fragment>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="cfg-campo-calc-item__footer">
+                  <BotaoCancelar dirty={casasDirty} rotulo="Descartar" onClick={restaurarCasasDecimais} />
+                  <BotaoSalvar   dirty={casasDirty} rotulo="Salvar"    onClick={salvarCasasDecimais} />
+                </div>
               </div>
-            </section>
+            </section>}
 
             {/* ── Criar Coluna Personalizada ── */}
-            <section className="cfg-secao" ref={novaColunaSectionRef}>
+            {categoria === 'colunas-personalizadas' && <section className="cfg-secao" ref={novaColunaSectionRef}>
               <div className="cfg-secao__header">
                 <div>
                   <h2 className="cfg-secao__titulo">Colunas Personalizadas</h2>
@@ -3280,298 +3320,311 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              {/* Formulário */}
-              <div className="cfg-nova-coluna-form">
+              {/* Card: Nova Coluna */}
+              <div className="cfg-campo-calc-item">
 
-                {/* Nome */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="nova-coluna-nome">Nome <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                  <input
-                    id="nova-coluna-nome"
-                    ref={novaColunaInputRef}
-                    type="text"
-                    className="cfg-form-input"
-                    placeholder="Ex: Código ERP, Margem %, Prioridade"
-                    value={novaColuna.nome}
-                    onChange={e => setNovaColuna(prev => ({ ...prev, nome: e.target.value }))}
-                    maxLength={50}
-                  />
-                </div>
-
-                {/* Tipo */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label">Tipo <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                  <div className="cfg-tipo-grid">
-                    {TIPOS_COLUNA.map(tipo => (
-                      <button
-                        key={tipo.id}
-                        type="button"
-                        className={`cfg-tipo-btn${novaColuna.tipo === tipo.id ? ' cfg-tipo-btn--ativo' : ''}`}
-                        onClick={() => setNovaColuna(prev => ({ ...prev, tipo: tipo.id }))}
-                        aria-pressed={novaColuna.tipo === tipo.id}
-                      >
-                        <span className="cfg-tipo-btn__icone">{tipo.icone}</span>
-                        <span className="cfg-tipo-btn__label">{tipo.label}</span>
-                      </button>
-                    ))}
+                {/* ── Cabeçalho ── */}
+                <div className="cfg-campo-calc-item__header">
+                  <div className="cfg-campo-calc-item__id">
+                    <Columns size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                    <span className="cfg-campo-calc-item__nome">Nova Coluna</span>
                   </div>
                 </div>
 
-                {/* Expressão (formula) */}
-                {novaColuna.tipo === 'formula' && (
+                {/* ── Campos do formulário ── */}
+                <div className="cfg-nova-coluna-form cfg-campo-calc-item__body">
+
+                  {/* Nome */}
                   <div className="cfg-form-group">
-                    <label className="cfg-form-label">
-                      Expressão <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span>
-                    </label>
-
-                    {/* Campos disponíveis agrupados */}
-                    <div className="cfg-formula-campos">
-                      {CAMPOS_FORMULA.map(grupo => (
-                        <div key={grupo.grupo} className="cfg-formula-grupo">
-                          <span className="cfg-formula-grupo-nome">{grupo.grupo}</span>
-                          <div className="cfg-formula-chips">
-                            {grupo.campos.map(c => (
-                              <button
-                                key={c.chave}
-                                type="button"
-                                className="cfg-formula-chip"
-                                title={c.chave}
-                                onClick={() => inserirCampoFormula(c.chave)}
-                              >
-                                {c.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <textarea
-                      ref={formulaTextareaRef}
-                      className={[
-                        'cfg-form-input',
-                        formulaErro   ? 'cfg-formula-input--erro'  : '',
-                        formulaValida && novaColuna.formula_expressao.trim() ? 'cfg-formula-input--ok' : '',
-                      ].filter(Boolean).join(' ')}
-                      rows={3}
-                      placeholder="Ex: quantidade_total_inicial_pedido - quantidade_transferida_total"
-                      style={{ fontFamily: 'monospace', resize: 'vertical', marginTop: 8 }}
-                      value={novaColuna.formula_expressao}
-                      onChange={e => handleFormulaChange(e.target.value)}
-                      aria-describedby={formulaErro ? 'cfg-formula-msg' : undefined}
-                    />
-
-                    {/* Card Gabi — regra: vazio → intro; com conteúdo → resultado da análise */}
-                    {(() => {
-                      const vazio = !novaColuna.formula_expressao.trim()
-
-                      // Vazio: instrução inicial
-                      if (vazio) return (
-                        <div className="cfg-gabi-card cfg-gabi-card--info" role="note">
-                          <div className="cfg-gabi-card__header">
-                            <span className="cfg-gabi-card__ico">✦</span>
-                            <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
-                          </div>
-                          <p className="cfg-gabi-card__texto">
-                            Clique em um campo acima para inseri-lo, ou digite diretamente.
-                            Use <code>+  −  *  /</code> entre campos numéricos.
-                            Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
-                            Campos texto, data ou checkbox valem 0 em aritmética.
-                          </p>
-                        </div>
-                      )
-
-                      // Durante debounce (estados limpos, campo não vazio) — sem card
-                      if (!formulaErro && !formulaGabi && !formulaValida) return null
-
-                      // Resultado da análise
-                      const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
-                      const titulo   = formulaErro ? 'Erro na expressão'
-                                     : formulaGabi ? formulaGabi.titulo
-                                     : 'Fórmula válida ✓'
-                      const texto    = formulaErro ?? formulaGabi?.texto ?? 'Tudo certo! Preencha os campos restantes e clique em Salvar.'
-                      const sugestao = formulaGabi?.sugestao
-
-                      return (
-                        <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite">
-                          <div className="cfg-gabi-card__header">
-                            <span className="cfg-gabi-card__ico">✦</span>
-                            <span className="cfg-gabi-card__titulo">Gabi · {titulo}</span>
-                          </div>
-                          <p className="cfg-gabi-card__texto">{texto}</p>
-                          {sugestao && (
-                            <div className="cfg-gabi-card__sugestao-row">
-                              <code className="cfg-gabi-card__sugestao">{sugestao}</code>
-                              <button
-                                type="button"
-                                className="cfg-gabi-card__usar"
-                                onClick={() => handleFormulaChange(sugestao!)}
-                                title="Usar esta sugestão"
-                              >
-                                Usar
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })()}
-
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
-                      Operadores: <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px' }}>+ - * / ( )</code>
-                      &nbsp;·&nbsp; Funções:
-                      <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px', marginLeft: 4 }}>SE(cond, sim, não)</code>
-                      <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px', marginLeft: 4 }}>SOMA_ITENS(campo)</code>
-                    </p>
-                  </div>
-                )}
-
-                {/* Opções (select / tipo_documento) */}
-                {(novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') && (
-                  <div className="cfg-form-group">
-                    <label className="cfg-form-label">Opções da lista <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                    <div className="cfg-opcoes-add-row">
-                      <input
-                        type="text"
-                        className="cfg-form-input"
-                        placeholder="Digite e pressione Enter ou clique em +"
-                        value={novaOpcao}
-                        onChange={e => setNovaOpcao(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAdicionarOpcao() } }}
-                      />
-                      <button
-                        type="button"
-                        className="cfg-add-btn"
-                        onClick={handleAdicionarOpcao}
-                        aria-label="Adicionar opção"
-                      >
-                        <Plus size={13} weight="bold" />
-                      </button>
-                    </div>
-                    {novaColuna.opcoes.length > 0 && (
-                      <div className="cfg-opcoes-lista">
-                        {novaColuna.opcoes.map(op => (
-                          <span key={op} className="cfg-opcao-chip">
-                            {op}
-                            <button
-                              type="button"
-                              className="cfg-opcao-chip__remove"
-                              onClick={() => handleRemoverOpcao(op)}
-                              aria-label={`Remover opção ${op}`}
-                            >
-                              <X size={10} weight="bold" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Escopo */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label">Escopo <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                  <div className="cfg-escopo-row">
-                    {(['pedido', 'item', 'ambos'] as EscopoColunaUsuario[]).map(esc => {
-                      const bloqueado = esc === 'item' || esc === 'ambos'
-                      const radio = (
-                        <label
-                          key={esc}
-                          className={`cfg-escopo-option${bloqueado ? ' cfg-escopo-option--disabled' : ''}`}
-                          aria-disabled={bloqueado ? 'true' : undefined}
-                        >
-                          <input
-                            type="radio"
-                            name="escopo"
-                            value={esc}
-                            checked={novaColuna.escopo === esc}
-                            onChange={() => !bloqueado && setNovaColuna(prev => ({ ...prev, escopo: esc }))}
-                            disabled={bloqueado}
-                          />
-                          <span>{esc.charAt(0).toUpperCase() + esc.slice(1)}</span>
-                        </label>
-                      )
-                      return bloqueado ? (
-                        <TooltipGlobal key={esc} descricao="Em breve — colunas de item serão exibidas nas linhas expandidas">
-                          {radio}
-                        </TooltipGlobal>
-                      ) : radio
-                    })}
-                  </div>
-                </div>
-
-                {/* Visibilidade */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="nova-coluna-visibilidade">Visibilidade</label>
-                  <select
-                    id="nova-coluna-visibilidade"
-                    className="cfg-form-input"
-                    value={novaColuna.visibilidade}
-                    onChange={e => setNovaColuna(prev => ({ ...prev, visibilidade: e.target.value as VisibilidadeColunaUsuario }))}
-                  >
-                    {VISIBILIDADE_OPCOES.map(o => (
-                      <option key={o.valor} value={o.valor}>{o.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Obrigatório — não exibido para tipo 'anexo' */}
-                {novaColuna.tipo !== 'anexo' && (
-                  <div className="cfg-form-group">
-                    <label className="cfg-toggle-row__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={novaColuna.obrigatorio}
-                        onChange={e => setNovaColuna(prev => ({ ...prev, obrigatorio: e.target.checked }))}
-                        className="cfg-toggle__input"
-                      />
-                      <span>Obrigatório</span>
-                    </label>
-                  </div>
-                )}
-
-                {/* Valor padrão — não exibido para tipo 'anexo' */}
-                {novaColuna.tipo !== 'anexo' && (
-                  <div className="cfg-form-group">
-                    <label className="cfg-form-label" htmlFor="nova-coluna-padrao">Valor padrão</label>
+                    <label className="cfg-form-label" htmlFor="nova-coluna-nome">Nome da Coluna <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                     <input
-                      id="nova-coluna-padrao"
+                      id="nova-coluna-nome"
+                      ref={novaColunaInputRef}
                       type="text"
                       className="cfg-form-input"
-                      placeholder="Deixe em branco para não definir"
-                      value={novaColuna.valor_padrao}
-                      onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
-                      maxLength={1000}
+                      placeholder="Ex: Código ERP, Margem %, Prioridade"
+                      value={novaColuna.nome}
+                      onChange={e => setNovaColuna(prev => ({ ...prev, nome: e.target.value }))}
+                      maxLength={50}
                     />
                   </div>
-                )}
 
-                {/* Descrição */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="nova-coluna-desc">Descrição</label>
-                  <input
-                    id="nova-coluna-desc"
-                    type="text"
-                    className="cfg-form-input"
-                    placeholder="Descrição auxiliar exibida como tooltip"
-                    value={novaColuna.descricao}
-                    onChange={e => setNovaColuna(prev => ({ ...prev, descricao: e.target.value }))}
-                    maxLength={200}
-                  />
+                  {/* Tipo */}
+                  <div className="cfg-form-group">
+                    <label className="cfg-form-label">Tipo de coluna <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                    <div className="cfg-tipo-grid">
+                      {TIPOS_COLUNA.map(tipo => (
+                        <button
+                          key={tipo.id}
+                          type="button"
+                          className={`cfg-tipo-btn${novaColuna.tipo === tipo.id ? ' cfg-tipo-btn--ativo' : ''}`}
+                          onClick={() => setNovaColuna(prev => ({ ...prev, tipo: tipo.id }))}
+                          aria-pressed={novaColuna.tipo === tipo.id}
+                        >
+                          <span className="cfg-tipo-btn__icone">{tipo.icone}</span>
+                          <span className="cfg-tipo-btn__label">{tipo.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Expressão (formula) — editor tokenizado pill-based */}
+                  {novaColuna.tipo === 'formula' && (
+                    <>
+                      {/* Área de tokens */}
+                      <div className="cfg-form-group" style={{ marginBottom: 0 }}>
+                        <label className="cfg-form-label">
+                          Expressão <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span>
+                        </label>
+                      </div>
+                      <div className="cfg-campo-calc-item__formula" style={{ border: 'none', padding: 0 }}>
+                        <div className={[
+                          'cfg-saldo-tokens',
+                          formulaErro   ? 'cfg-saldo-tokens--erro' : '',
+                          formulaValida && formulaTokens.length > 0 ? 'cfg-saldo-tokens--ok' : '',
+                        ].filter(Boolean).join(' ')}>
+                          {formulaTokens.length === 0 ? (
+                            <span className="cfg-saldo-tokens__placeholder">
+                              Selecione campos abaixo para montar a fórmula
+                            </span>
+                          ) : (
+                            formulaTokens.map((token, i) =>
+                              token.tipo === 'campo' ? (
+                                <span key={i} className="cfg-saldo-token cfg-saldo-token--campo">
+                                  <span className="cfg-saldo-token__label">{token.label}</span>
+                                  <button type="button" className="cfg-saldo-token__remove" onClick={() => removerTokenFormula(i)} aria-label={`Remover ${token.label}`}>
+                                    <X size={9} weight="bold" />
+                                  </button>
+                                </span>
+                              ) : (
+                                <button key={i} type="button" className="cfg-saldo-token cfg-saldo-token--op" onClick={() => removerTokenFormula(i)} title="Clique para remover">
+                                  {token.valor}
+                                </button>
+                              )
+                            )
+                          )}
+                        </div>
+
+                        {/* Operadores */}
+                        <div className="cfg-saldo-ops">
+                          {(['+', '-', '*', '/', '(', ')'] as const).map(op => (
+                            <button key={op} type="button" className="cfg-saldo-op-btn" onClick={() => adicionarOpFormulaToken(op)}>{op}</button>
+                          ))}
+                          {formulaTokens.length > 0 && (
+                            <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setFormulaTokens([])}>Limpar</button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Campos disponíveis */}
+                      <div className="cfg-campo-calc-item__campos" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '0 0', padding: '0.75rem 0 0' }}>
+                        <span className="cfg-campo-calc-item__campos-label">Adicionar campo</span>
+                        {CAMPOS_FORMULA.flatMap(g => g.campos).map(campo => (
+                          <button key={campo.chave} type="button" className="cfg-formula-chip" onClick={() => adicionarCampoFormulaToken(campo)}>
+                            {campo.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Gabi */}
+                      {(() => {
+                        if (formulaTokens.length === 0) return (
+                          <div className="cfg-gabi-card cfg-gabi-card--info" role="note" style={{ marginTop: '0.5rem' }}>
+                            <div className="cfg-gabi-card__header">
+                              <span className="cfg-gabi-card__ico">✦</span>
+                              <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
+                            </div>
+                            <p className="cfg-gabi-card__texto">
+                              Clique em um campo acima para inseri-lo.
+                              Use <code>+  −  *  /</code> entre campos numéricos.
+                              Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
+                            </p>
+                          </div>
+                        )
+                        if (!formulaErro && !formulaGabi && !formulaValida) return null
+                        const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
+                        const titulo   = formulaErro ? 'Erro na expressão' : formulaGabi ? formulaGabi.titulo : 'Fórmula válida ✓'
+                        const texto    = formulaErro ?? formulaGabi?.texto ?? 'Tudo certo! Preencha os campos restantes e clique em Criar.'
+                        const sugestao = formulaGabi?.sugestao
+                        return (
+                          <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite" style={{ marginTop: '0.5rem' }}>
+                            <div className="cfg-gabi-card__header">
+                              <span className="cfg-gabi-card__ico">✦</span>
+                              <span className="cfg-gabi-card__titulo">Gabi · {titulo}</span>
+                            </div>
+                            <p className="cfg-gabi-card__texto">{texto}</p>
+                            {sugestao && (
+                              <div className="cfg-gabi-card__sugestao-row">
+                                <code className="cfg-gabi-card__sugestao">{sugestao}</code>
+                                <button
+                                  type="button"
+                                  className="cfg-gabi-card__usar"
+                                  onClick={() => {
+                                    const tokens = sugestao.trim().split(/\s+/).map(part => {
+                                      const campo = CAMPOS_FORMULA.flatMap(g => g.campos).find(c => c.chave === part)
+                                      if (campo) return { tipo: 'campo' as const, chave: campo.chave, label: campo.label }
+                                      return { tipo: 'op' as const, valor: part }
+                                    })
+                                    setFormulaTokens(tokens)
+                                  }}
+                                  title="Usar esta sugestão"
+                                >
+                                  Usar
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })()}
+                    </>
+                  )}
+
+                  {/* Opções (select / tipo_documento) */}
+                  {(novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') && (
+                    <div className="cfg-form-group">
+                      <label className="cfg-form-label">Opções da lista <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                      <div className="cfg-opcoes-add-row">
+                        <input
+                          type="text"
+                          className="cfg-form-input"
+                          placeholder="Digite e pressione Enter ou clique em +"
+                          value={novaOpcao}
+                          onChange={e => setNovaOpcao(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAdicionarOpcao() } }}
+                        />
+                        <button type="button" className="cfg-add-btn" onClick={handleAdicionarOpcao} aria-label="Adicionar opção">
+                          <Plus size={13} weight="bold" />
+                        </button>
+                      </div>
+                      {novaColuna.opcoes.length > 0 && (
+                        <div className="cfg-opcoes-lista">
+                          {novaColuna.opcoes.map(op => (
+                            <span key={op} className="cfg-opcoa-chip">
+                              {op}
+                              <button type="button" className="cfg-opcao-chip__remove" onClick={() => handleRemoverOpcao(op)} aria-label={`Remover opção ${op}`}>
+                                <X size={10} weight="bold" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Visibilidade */}
+                  <div className="cfg-form-group">
+                    <label className="cfg-form-label">Visibilidade</label>
+                    <SelectGlobal
+                      opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: o.label, descricao: o.descricao }))}
+                      valor={novaColuna.visibilidade}
+                      aoMudarValor={v => v != null && setNovaColuna(prev => ({ ...prev, visibilidade: v as VisibilidadeColunaUsuario }))}
+                      buscavel={false}
+                    />
+                  </div>
+
+                  {/* Obrigatório */}
+                  {novaColuna.tipo !== 'anexo' && (
+                    <div className="cfg-form-group">
+                      <label className="cfg-toggle-row__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={novaColuna.obrigatorio}
+                          onChange={e => setNovaColuna(prev => ({ ...prev, obrigatorio: e.target.checked }))}
+                          className="cfg-toggle__input"
+                        />
+                        <span>Obrigatório</span>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Valor padrão */}
+                  {novaColuna.tipo !== 'anexo' && novaColuna.tipo !== 'formula' && (
+                    <div className="cfg-form-group">
+                      <label className="cfg-form-label" htmlFor="nova-coluna-padrao">Valor padrão</label>
+                      <p className="cfg-form-hint">Preenchido automaticamente ao criar um novo pedido.</p>
+                      {novaColuna.tipo === 'checkbox' ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <input
+                            id="nova-coluna-padrao"
+                            type="checkbox"
+                            checked={novaColuna.valor_padrao === 'true'}
+                            onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.checked ? 'true' : 'false' }))}
+                          />
+                          <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                            {novaColuna.valor_padrao === 'true' ? 'Marcado' : 'Desmarcado'}
+                          </span>
+                        </div>
+                      ) : (novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') ? (
+                        novaColuna.opcoes.length > 0 ? (
+                          <SelectGlobal
+                            opcoes={[
+                              { valor: '', rotulo: 'Sem padrão' },
+                              ...novaColuna.opcoes.map(o => ({ valor: o, rotulo: o })),
+                            ]}
+                            valor={novaColuna.valor_padrao}
+                            aoMudarValor={v => setNovaColuna(prev => ({ ...prev, valor_padrao: v ?? '' }))}
+                            buscavel={false}
+                          />
+                        ) : (
+                          <p className="cfg-form-hint" style={{ fontStyle: 'italic' }}>Adicione as opções da lista acima para definir um valor padrão.</p>
+                        )
+                      ) : (
+                        <input
+                          id="nova-coluna-padrao"
+                          type={novaColuna.tipo === 'numero' || novaColuna.tipo === 'percentual' ? 'number' : novaColuna.tipo === 'data' ? 'date' : 'text'}
+                          className="cfg-form-input"
+                          placeholder="Deixe em branco para não definir"
+                          value={novaColuna.valor_padrao}
+                          onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
+                          maxLength={1000}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Descrição */}
+                  <div className="cfg-form-group">
+                    <label className="cfg-form-label" htmlFor="nova-coluna-desc">Descrição</label>
+                    <p className="cfg-form-hint">Exibido como tooltip no cabeçalho da coluna na tabela.</p>
+                    <input
+                      id="nova-coluna-desc"
+                      type="text"
+                      className="cfg-form-input"
+                      placeholder="Ex: Número do contrato de referência"
+                      value={novaColuna.descricao}
+                      onChange={e => setNovaColuna(prev => ({ ...prev, descricao: e.target.value }))}
+                      maxLength={200}
+                    />
+                  </div>
+
+                  {erroColuna && (
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-danger, #f87171)', margin: 0 }} role="alert">{erroColuna}</p>
+                  )}
                 </div>
 
-                {erroColuna && (
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-danger, #f87171)', margin: 0 }} role="alert">{erroColuna}</p>
-                )}
-
-                <button
-                  type="button"
-                  className="cfg-criar-coluna-btn"
-                  onClick={handleCriarColuna}
-                  disabled={!novaColuna.nome.trim() || salvandoColuna}
-                >
-                  <Plus size={14} weight="bold" />
-                  {salvandoColuna ? 'Criando...' : 'Criar Coluna'}
-                </button>
+                {/* ── Footer: ações ── */}
+                {(() => {
+                  const tipoComOpcoes = novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento'
+                  const formDirty = novaColuna.nome.trim() !== '' || formulaTokens.length > 0 || novaColuna.opcoes.length > 0
+                  const canSave = !salvandoColuna &&
+                    !!novaColuna.nome.trim() &&
+                    (novaColuna.tipo !== 'formula' || (!!novaColuna.formula_expressao.trim() && !formulaErro)) &&
+                    (!tipoComOpcoes || novaColuna.opcoes.length > 0)
+                  return (
+                    <div className="cfg-campo-calc-item__footer">
+                      <BotaoCancelar
+                        dirty={formDirty}
+                        rotulo="Limpar"
+                        onClick={() => { setNovaColuna(NOVA_COLUNA_PADRAO); setNovaOpcao(''); setFormulaTokens([]) }}
+                      />
+                      <BotaoSalvar
+                        dirty={canSave}
+                        rotulo={salvandoColuna ? 'Criando...' : 'Criar Coluna'}
+                        onClick={handleCriarColuna}
+                      />
+                    </div>
+                  )
+                })()}
               </div>
 
               {/* Lista de colunas criadas */}
@@ -3608,89 +3661,31 @@ export default function Configuracoes() {
                   </div>
                 </div>
               )}
-            </section>
+            </section>}
 
             {/* ── Campos Calculados ── */}
-            <section className="cfg-secao">
+            {categoria === 'colunas-campos-calculados' && <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
                   <h2 className="cfg-secao__titulo">Campos Calculados</h2>
-                  <p className="cfg-secao__desc">
-                    Campos gerados automaticamente com base em fórmulas. A fórmula pode ser personalizada por workspace.
-                  </p>
+                  <p className="cfg-secao__desc">Campos cujo valor é gerado por fórmula. A fórmula pode ser ajustada por workspace.</p>
                 </div>
               </div>
 
-              {/* ── Saldo do Pedido ── */}
-              <div className="cfg-nova-coluna-form" style={{ marginTop: 0 }}>
+              {/* Card: Saldo do Pedido */}
+              <div className="cfg-campo-calc-item">
 
-                {/* Cabeçalho do campo nativo */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <MathOperations size={15} weight="duotone" style={{ color: 'var(--ws-accent)' }} />
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--ws-text)' }}>Saldo do Pedido</span>
-                    <span style={{
-                      fontSize: '0.7rem', padding: '1px 6px', borderRadius: 999,
-                      background: 'rgba(129,140,248,0.12)', color: 'var(--ws-accent)',
-                      border: '1px solid rgba(129,140,248,0.25)',
-                    }}>campo nativo</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    {saldoFormulaAlterada && (
-                      <button
-                        type="button"
-                        className="cfg-add-row-btn"
-                        onClick={restaurarSaldoPadrao}
-                        style={{ fontSize: '0.78rem' }}
-                      >
-                        Restaurar Padrão
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="cfg-add-row-btn"
-                      onClick={salvarSaldoFormula}
-                      disabled={!saldoFormulaAlterada || !!saldoFormulaErro}
-                      style={{ fontSize: '0.78rem' }}
-                    >
-                      Salvar
-                    </button>
+                {/* ── Cabeçalho ── */}
+                <div className="cfg-campo-calc-item__header">
+                  <div className="cfg-campo-calc-item__id">
+                    <MathOperations size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                    <span className="cfg-campo-calc-item__nome">Saldo do Pedido</span>
+                    <span className="cfg-campo-calc-item__badge">campo nativo</span>
                   </div>
                 </div>
 
-                <p style={{ fontSize: '0.8rem', color: 'var(--ws-muted)', marginBottom: '0.75rem', lineHeight: 1.5 }}>
-                  O nome <strong style={{ color: 'var(--ws-text)' }}>Saldo do Pedido</strong> é fixo. Apenas a fórmula de cálculo pode ser personalizada.
-                  O resultado é exibido como coluna na tabela e nos cards.
-                </p>
-
-                {/* Chips de campos disponíveis */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label">Campos disponíveis — clique para adicionar</label>
-                  {CAMPOS_SALDO.map(grupo => (
-                    <div key={grupo.grupo} className="cfg-formula-grupo">
-                      <span className="cfg-formula-grupo-nome">{grupo.grupo}</span>
-                      <div className="cfg-formula-chips">
-                        {grupo.campos.map(campo => (
-                          <button
-                            key={campo.chave}
-                            type="button"
-                            className="cfg-formula-chip"
-                            title={campo.chave}
-                            onClick={() => adicionarCampoSaldo(campo)}
-                          >
-                            {campo.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Editor tokenizado */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label">Fórmula</label>
-
-                  {/* Display de tokens */}
+                {/* ── Fórmula (tokens) ── */}
+                <div className="cfg-campo-calc-item__formula">
                   <div className={[
                     'cfg-saldo-tokens',
                     saldoFormulaErro ? 'cfg-saldo-tokens--erro' : '',
@@ -3699,30 +3694,19 @@ export default function Configuracoes() {
                     <span className="cfg-saldo-tokens__label-fixo">Saldo do Pedido&nbsp;=</span>
                     {saldoTokens.length === 0 ? (
                       <span className="cfg-saldo-tokens__placeholder">
-                        Clique nos campos acima e nos operadores abaixo para montar a fórmula
+                        Selecione campos abaixo para montar a fórmula
                       </span>
                     ) : (
                       saldoTokens.map((token, i) =>
                         token.tipo === 'campo' ? (
                           <span key={i} className="cfg-saldo-token cfg-saldo-token--campo">
                             <span className="cfg-saldo-token__label">{token.label}</span>
-                            <button
-                              type="button"
-                              className="cfg-saldo-token__remove"
-                              onClick={() => removerTokenSaldo(i)}
-                              aria-label={`Remover ${token.label}`}
-                            >
+                            <button type="button" className="cfg-saldo-token__remove" onClick={() => removerTokenSaldo(i)} aria-label={`Remover ${token.label}`}>
                               <X size={9} weight="bold" />
                             </button>
                           </span>
                         ) : (
-                          <button
-                            key={i}
-                            type="button"
-                            className="cfg-saldo-token cfg-saldo-token--op"
-                            onClick={() => removerTokenSaldo(i)}
-                            title="Clique para remover"
-                          >
+                          <button key={i} type="button" className="cfg-saldo-token cfg-saldo-token--op" onClick={() => removerTokenSaldo(i)} title="Clique para remover">
                             {token.valor}
                           </button>
                         )
@@ -3730,74 +3714,52 @@ export default function Configuracoes() {
                     )}
                   </div>
 
-                  {/* Botões de operadores */}
+                  {/* Operadores */}
                   <div className="cfg-saldo-ops">
-                    <span className="cfg-formula-grupo-nome" style={{ alignSelf: 'center' }}>Operadores</span>
                     {(['+', '-', '*', '/', '(', ')'] as const).map(op => (
-                      <button
-                        key={op}
-                        type="button"
-                        className="cfg-saldo-op-btn"
-                        onClick={() => adicionarOpSaldo(op)}
-                      >
-                        {op}
-                      </button>
+                      <button key={op} type="button" className="cfg-saldo-op-btn" onClick={() => adicionarOpSaldo(op)}>{op}</button>
                     ))}
                     {saldoTokens.length > 0 && (
-                      <button
-                        type="button"
-                        className="cfg-saldo-op-btn cfg-saldo-op-btn--clear"
-                        onClick={() => setSaldoTokens([])}
-                        title="Limpar fórmula"
-                      >
-                        Limpar
-                      </button>
+                      <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setSaldoTokens([])}>Limpar</button>
                     )}
                   </div>
                 </div>
 
-                {/* Card Gabi — mesmo padrão de Colunas Personalizadas */}
+                {/* ── Campos disponíveis ── */}
+                <div className="cfg-campo-calc-item__campos">
+                  <span className="cfg-campo-calc-item__campos-label">Adicionar campo</span>
+                  {CAMPOS_SALDO.flatMap(g => g.campos).map(campo => (
+                    <button key={campo.chave} type="button" className="cfg-formula-chip" onClick={() => adicionarCampoSaldo(campo)}>
+                      {campo.label}
+                    </button>
+                  ))}
+                  {colunasUsuarioApi_.some(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo) && (
+                    <TooltipGlobal descricao="Colunas personalizadas numéricas também podem entrar na fórmula">
+                      <span style={{ fontSize: '0.72rem', color: 'var(--ws-muted)', alignSelf: 'center', cursor: 'help' }}>
+                        + colunas personalizadas
+                      </span>
+                    </TooltipGlobal>
+                  )}
+                </div>
+
+                {/* ── Gabi (só com conteúdo) ── */}
                 {(() => {
-                  const vazio = saldoTokens.length === 0
-
-                  // Vazio: instrução inicial
-                  if (vazio) return (
-                    <div className="cfg-gabi-card cfg-gabi-card--info" role="note">
-                      <div className="cfg-gabi-card__header">
-                        <span className="cfg-gabi-card__ico">✦</span>
-                        <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
-                      </div>
-                      <p className="cfg-gabi-card__texto">
-                        Clique em um campo acima para inseri-lo, ou digite diretamente.
-                        Use <code>+  −  *  /</code> entre campos numéricos.
-                        Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
-                      </p>
-                    </div>
-                  )
-
-                  // Durante debounce
+                  if (saldoTokens.length === 0) return null
                   if (saldoFormulaAnalisando && !saldoFormulaErro && !saldoFormulaGabi && !saldoFormulaValida) return (
-                    <div className="cfg-gabi-card cfg-gabi-card--analisando" role="status" aria-live="polite">
+                    <div className="cfg-gabi-card cfg-gabi-card--analisando" role="status" aria-live="polite" style={{ margin: '0 1rem 0' }}>
                       <div className="cfg-gabi-card__header">
                         <span className="cfg-gabi-card__ico">✦</span>
                         <span className="cfg-gabi-card__titulo">Gabi · Analisando…</span>
                       </div>
                     </div>
                   )
-
-                  // Sem resultado ainda (debounce pendente pós-reset)
                   if (!saldoFormulaErro && !saldoFormulaGabi && !saldoFormulaValida) return null
-
-                  // Resultado da análise
                   const variante = saldoFormulaErro ? 'erro' : saldoFormulaGabi ? 'aviso' : 'ok'
-                  const titulo   = saldoFormulaErro ? 'Erro na expressão'
-                                 : saldoFormulaGabi ? saldoFormulaGabi.titulo
-                                 : 'Fórmula válida ✓'
+                  const titulo   = saldoFormulaErro ? 'Erro na expressão' : saldoFormulaGabi ? saldoFormulaGabi.titulo : 'Fórmula válida ✓'
                   const texto    = saldoFormulaErro ?? saldoFormulaGabi?.texto ?? 'Tudo certo! Clique em Salvar para aplicar.'
                   const sugestao = saldoFormulaGabi?.sugestao
-
                   return (
-                    <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite">
+                    <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite" style={{ margin: '0 1rem 0' }}>
                       <div className="cfg-gabi-card__header">
                         <span className="cfg-gabi-card__ico">✦</span>
                         <span className="cfg-gabi-card__titulo">Gabi · {titulo}</span>
@@ -3806,39 +3768,28 @@ export default function Configuracoes() {
                       {sugestao && (
                         <div className="cfg-gabi-card__sugestao-row">
                           <code className="cfg-gabi-card__sugestao">{sugestao}</code>
-                          <button
-                            type="button"
-                            className="cfg-gabi-card__usar"
-                            onClick={() => setSaldoTokens(aliasFormulaParaTokens(sugestao))}
-                            title="Usar esta sugestão"
-                          >
-                            Usar
-                          </button>
+                          <button type="button" className="cfg-gabi-card__usar" onClick={() => setSaldoTokens(aliasFormulaParaTokens(sugestao))}>Usar</button>
                         </div>
                       )}
                     </div>
                   )
                 })()}
 
-                {/* Aviso sobre novas colunas personalizadas */}
-                {colunasUsuarioApi_.some(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo) && (
-                  <div style={{
-                    display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
-                    padding: '0.55rem 0.75rem',
-                    background: 'rgba(251,191,36,0.08)',
-                    border: '1px solid rgba(251,191,36,0.2)',
-                    borderRadius: 6, marginTop: '0.5rem',
-                    fontSize: '0.78rem', color: 'rgba(251,191,36,0.9)',
-                  }}>
-                    <Warning size={13} weight="duotone" style={{ flexShrink: 0, marginTop: 1 }} />
-                    <span>
-                      Colunas personalizadas numéricas aparecem nos chips acima e podem ser incluídas nesta fórmula.
-                      Se criar uma nova coluna de quantidade, volte aqui para adicioná-la ao cálculo do saldo.
-                    </span>
-                  </div>
-                )}
+                {/* ── Footer: ações ── */}
+                <div className="cfg-campo-calc-item__footer">
+                  <BotaoCancelar
+                    dirty={saldoFormulaAlterada}
+                    rotulo="Restaurar padrão"
+                    onClick={restaurarSaldoPadrao}
+                  />
+                  <BotaoSalvar
+                    dirty={saldoFormulaAlterada && !saldoFormulaErro}
+                    rotulo="Salvar"
+                    onClick={salvarSaldoFormula}
+                  />
+                </div>
               </div>
-            </section>
+            </section>}
           </div>
         )}
 

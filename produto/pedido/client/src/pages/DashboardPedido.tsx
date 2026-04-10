@@ -9,8 +9,9 @@
  * - WidgetEditModal exibe FieldQuerySpec[] com operação por campo
  */
 
-import React, { useMemo, useState, useCallback, useEffect, type ReactNode } from 'react'
+import React, { useMemo, useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useShellStore } from '@shell'
 import {
   DashboardGrid,
   WidgetContainer,
@@ -40,7 +41,7 @@ import {
   Package, ClipboardText, Scales, CurrencyDollar,
   Warning, UserCircleMinus, CheckCircle,
   ListNumbers, ArrowsLeftRight, Tag,
-  CaretRight, Sparkle, RocketLaunch,
+  CaretLeft, CaretRight, Sparkle, RocketLaunch,
 } from '@phosphor-icons/react'
 import './DashboardPedido.css'
 
@@ -171,6 +172,236 @@ function computeDelta(current: number, prev: number): {
   return { delta, percent, direction }
 }
 
+// ── Gerador de insights client-side com dados reais ───────────────────────────
+// Espelha a lógica do gabiInsightsService.ts para uso como fallback
+
+const fmtNum = (n: number) => new Intl.NumberFormat('pt-BR').format(Math.round(n))
+const fmtBRL = (n: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(n)
+const fmtPct = (n: number) => `${n.toFixed(1)}%`
+
+function buildClientInsights(kpis: DashboardKpis, prev?: DashboardKpis | null): GabiInsightItem[] {
+  const items: GabiInsightItem[] = []
+
+  // ── ALERTAS (warn) — sempre primeiro ─────────────────────────────────────────
+
+  if (kpis.pedidos_atrasados > 0) {
+    const taxa = kpis.total_pedidos > 0 ? (kpis.pedidos_atrasados / kpis.total_pedidos) * 100 : 0
+    items.push({
+      id: 'atrasados',
+      variante: 'warn',
+      tag: 'Atenção · Pedidos Atrasados',
+      texto: `${kpis.pedidos_atrasados} pedido${kpis.pedidos_atrasados > 1 ? 's' : ''} com prazo vencido. Ação imediata recomendada.`,
+      stat: { label: 'Taxa de atraso', valor: fmtPct(taxa) },
+      textoLink: 'Ver atrasados',
+      rota: '/pedidos/lista?status=atrasado',
+    })
+  }
+
+  if (kpis.pedidos_sem_exportador > 0) {
+    items.push({
+      id: 'sem_exportador',
+      variante: 'warn',
+      tag: 'Atenção · Sem Exportador',
+      texto: `${kpis.pedidos_sem_exportador} pedido${kpis.pedidos_sem_exportador > 1 ? 's' : ''} sem exportador vinculado — bloqueio de faturamento em risco.`,
+      stat: { label: 'Sem exportador', valor: fmtNum(kpis.pedidos_sem_exportador) },
+      textoLink: 'Corrigir agora',
+      rota: '/pedidos/lista?exportador=nenhum',
+    })
+  }
+
+  if (kpis.pedidos_cancelados > 0 && kpis.total_pedidos > 0) {
+    const pct = (kpis.pedidos_cancelados / kpis.total_pedidos) * 100
+    items.push({
+      id: 'cancelados',
+      variante: pct > 10 ? 'warn' : 'default',
+      tag: pct > 10 ? 'Atenção · Cancelamentos' : 'Alerta · Cancelamentos',
+      texto: `${kpis.pedidos_cancelados} pedido${kpis.pedidos_cancelados > 1 ? 's' : ''} cancelado${kpis.pedidos_cancelados > 1 ? 's' : ''} no período — ${fmtPct(pct)} do total.`,
+      stat: { label: 'Total no período', valor: fmtNum(kpis.total_pedidos) },
+      textoLink: 'Ver cancelados',
+      rota: '/pedidos/lista?status=cancelado',
+    })
+  }
+
+  if (kpis.pedidos_draft > 0) {
+    items.push({
+      id: 'draft',
+      variante: 'warn',
+      tag: 'Atenção · Rascunhos',
+      texto: `${kpis.pedidos_draft} pedido${kpis.pedidos_draft > 1 ? 's' : ''} em rascunho ainda não foram enviados para operação.`,
+      stat: { label: 'Em rascunho', valor: fmtNum(kpis.pedidos_draft) },
+      textoLink: 'Ver rascunhos',
+      rota: '/pedidos/lista?status=draft',
+    })
+  }
+
+  // ── OPERACIONAL ───────────────────────────────────────────────────────────────
+
+  if (kpis.pedidos_abertos > 0) {
+    items.push({
+      id: 'abertos',
+      variante: 'default',
+      tag: 'Operacional · Em Aberto',
+      texto: `${kpis.pedidos_abertos} pedido${kpis.pedidos_abertos > 1 ? 's' : ''} em aberto prontos para iniciar transferência.`,
+      stat: kpis.qtd_transferida_total > 0
+        ? { label: 'Qtd. já transferida', valor: fmtNum(kpis.qtd_transferida_total) }
+        : { label: 'Pedidos abertos', valor: fmtNum(kpis.pedidos_abertos) },
+      textoLink: 'Ver pedidos',
+      rota: '/pedidos/lista?status=aberto',
+    })
+  }
+
+  if (kpis.pedidos_em_andamento > 0) {
+    const txTransf = kpis.qtd_inicial_total > 0
+      ? (kpis.qtd_transferida_total / kpis.qtd_inicial_total) * 100 : 0
+    items.push({
+      id: 'transferencia',
+      variante: 'default',
+      tag: 'Operacional · Transferência',
+      texto: `${kpis.pedidos_em_andamento} pedido${kpis.pedidos_em_andamento > 1 ? 's' : ''} em fase de transferência de quantidades.`,
+      stat: { label: 'Taxa de transferência', valor: fmtPct(txTransf) },
+      textoLink: 'Ver em andamento',
+      rota: '/pedidos/lista?status=transferencia',
+    })
+  }
+
+  if (kpis.itens_prontos > 0) {
+    const pctPronta = kpis.qtd_inicial_total > 0
+      ? (kpis.itens_prontos / kpis.qtd_inicial_total) * 100 : 0
+    items.push({
+      id: 'qtd_pronta',
+      variante: 'default',
+      tag: 'Operacional · Qtd. Pronta',
+      texto: `${fmtNum(kpis.itens_prontos)} unidades prontas disponíveis para embarque — ${fmtPct(pctPronta)} do total.`,
+      stat: { label: 'Saldo disponível', valor: fmtNum(kpis.qtd_atual_total) },
+      textoLink: 'Ver prontos',
+      rota: '/pedidos/lista?status=pronto',
+    })
+  }
+
+  if (kpis.pedidos_consolidados > 0) {
+    items.push({
+      id: 'consolidados',
+      variante: 'default',
+      tag: 'Operacional · Consolidados',
+      texto: `${kpis.pedidos_consolidados} pedido${kpis.pedidos_consolidados > 1 ? 's' : ''} consolidado${kpis.pedidos_consolidados > 1 ? 's' : ''} no período.`,
+      stat: { label: 'Consolidados', valor: fmtNum(kpis.pedidos_consolidados) },
+      textoLink: 'Ver consolidados',
+      rota: '/pedidos/lista?status=consolidado',
+    })
+  }
+
+  // ── FINANCEIRO ────────────────────────────────────────────────────────────────
+
+  if (kpis.valor_total > 0) {
+    items.push({
+      id: 'financeiro',
+      variante: 'default',
+      tag: 'Financeiro · Carteira',
+      texto: `Carteira do período totaliza ${fmtBRL(kpis.valor_total)} em pedidos.`,
+      stat: kpis.ticket_medio > 0
+        ? { label: 'Ticket médio', valor: fmtBRL(kpis.ticket_medio) }
+        : { label: 'Total de pedidos', valor: fmtNum(kpis.total_pedidos) },
+      textoLink: 'Ver tendências',
+    })
+  }
+
+  if (kpis.valor_total_brl > 0 && Math.abs(kpis.valor_total_brl - kpis.valor_total) > 1) {
+    items.push({
+      id: 'cambio_brl',
+      variante: 'default',
+      tag: 'Financeiro · Exposição BRL',
+      texto: `Exposição total convertida pela PTAX mais recente. Moedas: ${(kpis.moedas_sem_taxa as string[]).length > 0 ? 'algumas sem taxa disponível' : 'todas convertidas'}.`,
+      stat: { label: 'Total em BRL', valor: fmtBRL(kpis.valor_total_brl) },
+      textoLink: 'Ver exposição',
+    })
+  }
+
+  if (kpis.valor_itens_total > 0) {
+    items.push({
+      id: 'valor_itens',
+      variante: 'default',
+      tag: 'Financeiro · Valor dos Itens',
+      texto: `Valor total dos itens (FOB/CIF) no período selecionado.`,
+      stat: { label: 'Valor itens', valor: fmtBRL(kpis.valor_itens_total) },
+      textoLink: 'Ver itens',
+    })
+  }
+
+  // ── COMPARATIVO COM PERÍODO ANTERIOR ─────────────────────────────────────────
+
+  if (prev && prev.total_pedidos > 0 && kpis.total_pedidos > 0) {
+    const delta = kpis.total_pedidos - prev.total_pedidos
+    const pct = Math.abs((delta / prev.total_pedidos) * 100)
+    if (Math.abs(delta) > 0) {
+      const crescendo = delta > 0
+      items.push({
+        id: 'tendencia_volume',
+        variante: 'default',
+        tag: `Tendência · Volume ${crescendo ? 'Crescente' : 'Queda'}`,
+        texto: `Volume de pedidos ${crescendo ? 'cresceu' : 'caiu'} ${fmtPct(pct)} vs. período anterior.`,
+        stat: { label: 'Período anterior', valor: fmtNum(prev.total_pedidos) },
+        textoLink: 'Ver tendências',
+      })
+    }
+  }
+
+  if (prev && prev.valor_total > 0 && kpis.valor_total > 0) {
+    const delta = kpis.valor_total - prev.valor_total
+    const pct = Math.abs((delta / prev.valor_total) * 100)
+    if (pct >= 5) {
+      const crescendo = delta > 0
+      items.push({
+        id: 'tendencia_valor',
+        variante: crescendo ? 'default' : 'warn',
+        tag: `Financeiro · Valor ${crescendo ? 'Aumentou' : 'Reduziu'}`,
+        texto: `Valor da carteira ${crescendo ? 'aumentou' : 'reduziu'} ${fmtPct(pct)} em relação ao período anterior.`,
+        stat: { label: 'Variação', valor: `${crescendo ? '+' : ''}${fmtBRL(delta)}` },
+        textoLink: 'Ver tendências',
+      })
+    }
+  }
+
+  // ── DISTRIBUIÇÃO IMP/EXP ──────────────────────────────────────────────────────
+
+  const totalOps = kpis.pedidos_importacao + kpis.pedidos_exportacao
+  if (totalOps > 0) {
+    const pctImp = Math.round((kpis.pedidos_importacao / totalOps) * 100)
+    items.push({
+      id: 'imp_exp',
+      variante: 'default',
+      tag: 'Análise · Imp. vs Exp.',
+      texto: `${pctImp}% das operações são importações e ${100 - pctImp}% exportações no período.`,
+      stat: { label: 'Total de operações', valor: fmtNum(totalOps) },
+      textoLink: 'Ver distribuição',
+    })
+  }
+
+  // ── FALLBACK ──────────────────────────────────────────────────────────────────
+
+  if (items.length === 0) {
+    items.push({
+      id: 'status_ok',
+      variante: 'default',
+      tag: 'Status · Tudo em dia',
+      texto: 'Nenhuma pendência identificada. Operação normalizada no período selecionado.',
+      stat: { label: 'Pedidos no período', valor: fmtNum(kpis.total_pedidos) },
+      textoLink: 'Ver pedidos',
+      rota: '/pedidos/lista',
+    })
+    items.push({
+      id: 'dica_periodo',
+      variante: 'default',
+      tag: 'Dica · Gabi AI',
+      texto: 'Use o filtro de período para explorar tendências históricas dos seus pedidos.',
+      stat: { label: 'Período', valor: kpis.period ?? '30d' },
+      textoLink: 'Explorar dados',
+    })
+  }
+
+  return items
+}
+
 // ── Configuração visual por widget ────────────────────────────────────────────
 
 const AMBER  = '#f59e0b'
@@ -212,15 +443,8 @@ export default function DashboardPedido() {
   const navigate = useNavigate()
   const { trackWidget, trackInsight } = useTrackBehavior()
 
-  // Onboarding banner — exibido uma vez por usuário (localStorage)
-  const ONBOARDING_KEY = 'gravity:pedido:dashboard:onboarding_dismissed'
-  const [onboardingVisible, setOnboardingVisible] = useState(
-    () => typeof window !== 'undefined' && !localStorage.getItem(ONBOARDING_KEY),
-  )
-  const dismissOnboarding = useCallback(() => {
-    localStorage.setItem(ONBOARDING_KEY, '1')
-    setOnboardingVisible(false)
-  }, [])
+
+  const { addNotification } = useShellStore()
 
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [editingWidget,   setEditingWidget]   = useState<DashboardWidgetConfig | null>(null)
@@ -231,6 +455,15 @@ export default function DashboardPedido() {
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
+
+  // Carrossel GABI — idêntico ao Hub
+  const gabiCarouselRef = useRef<HTMLDivElement>(null)
+  const [gabiPaused, setGabiPaused] = useState(false)
+
+  const scrollGabi = useCallback((dir: 'left' | 'right') => {
+    if (!gabiCarouselRef.current) return
+    gabiCarouselRef.current.scrollBy({ left: dir === 'right' ? 340 : -340, behavior: 'smooth' })
+  }, [])
 
   // allDerived deve vir antes de suggestions (evita TDZ)
   const allDerived: DerivedMetric[] = useMemo(
@@ -244,16 +477,50 @@ export default function DashboardPedido() {
     [],
   )
 
+  // Posição de inserção de novos widgets — sempre após o último widget existente
+  const gridBottom = useMemo(
+    () => widgets.reduce((max, w) => Math.max(max, w.position.y + w.position.h), 0),
+    [widgets],
+  )
+
   // Sugestões computadas para o SuggestionsPanel
   const suggestions = useMemo(
     () => generateSuggestions(
       widgets.map(w => w.id),
       allDerived,
-      12,
+      gridBottom,
       widgets.flatMap(w => w.query_spec.fields.map((f: { key: string }) => f.key)),
     ),
-    [widgets, allDerived],
+    [widgets, allDerived, gridBottom],
   )
+
+  const handleAddWidgetFromSuggestions = useCallback((widgetConfig: DashboardWidgetConfig) => {
+    addWidget(widgetConfig)
+    try { addNotification({ type: 'success', message: `Widget "${widgetConfig.title}" adicionado ao dashboard.`, duration: 4000 }) } catch { /* ignorar */ }
+
+    // Aguarda React renderizar o novo widget
+    setTimeout(() => {
+      // [data-widget-id] é o wrapper do grid item; o WidgetContainer é seu filho direto
+      const wrapper = document.querySelector(`[data-widget-id="${widgetConfig.id}"]`)
+      const card    = wrapper?.firstElementChild as HTMLElement | null
+
+      // Scroll até o widget
+      wrapper?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+      // Inicia o ring após o scroll chegar (~700ms)
+      setTimeout(() => {
+        if (!wrapper) return
+        wrapper.classList.add('wc-highlighted')
+        setTimeout(() => wrapper.classList.remove('wc-highlighted'), 4500)
+      }, 700)
+    }, 300)
+  }, [addWidget, addNotification])
+
+  useEffect(() => {
+    if (gabiPaused || loadingData) return
+    const timer = setInterval(() => scrollGabi('right'), 5000)
+    return () => clearInterval(timer)
+  }, [gabiPaused, loadingData, scrollGabi])
 
   useEffect(() => {
     setLoadingData(true)
@@ -292,43 +559,19 @@ export default function DashboardPedido() {
 
     // ── GABI_INSIGHTS — grid responsivo de insights da Gabi AI ─────────────
     if (chartType === 'GABI_INSIGHTS') {
-      const insights = insightsData.length > 0 ? insightsData : [
-        {
-          id: 'ok',
-          variante: 'default' as const,
-          tag: 'Status · Operação',
-          texto: 'Nenhuma pendência identificada. Operação normalizada no período selecionado.',
-          stat: { label: 'Pedidos ativos', valor: '—' },
-          textoLink: 'Ver pedidos',
-        },
-        {
-          id: 'dica',
-          variante: 'default' as const,
-          tag: 'Dica · Gabi AI',
-          texto: 'Use o filtro de período para explorar tendências históricas dos seus pedidos.',
-          stat: { label: 'Período atual', valor: '30d' },
-          textoLink: 'Explorar dados',
-        },
-        {
-          id: 'valor',
-          variante: 'default' as const,
-          tag: 'Financeiro · Câmbio',
-          texto: 'Acompanhe a Exposição Cambial e a Cobertura a Contratar nos gráficos de tendência.',
-          stat: { label: 'Exposição cambial', valor: '—' },
-          textoLink: 'Ver tendências',
-        },
-        {
-          id: 'transferencia',
-          variante: 'default' as const,
-          tag: 'Operacional · Qtd',
-          texto: 'Compare Itens Prontos vs. Qtd. Transferida para identificar gargalos de expedição.',
-          stat: { label: 'Itens prontos', valor: '—' },
-          textoLink: 'Adicionar widget',
-        },
-      ]
+      const insights = insightsData.length > 0
+        ? insightsData
+        : kpisData
+          ? buildClientInsights(kpisData, prevKpisData)
+          : [] // kpisData ainda não carregou — skeleton cobre esse estado
 
       return (
-        <div key={widget.id} className="dp-gabi-card">
+        <div
+          key={widget.id}
+          className="dp-gabi-card"
+          onMouseEnter={() => setGabiPaused(true)}
+          onMouseLeave={() => setGabiPaused(false)}
+        >
           <div className="dp-gabi-watermark" aria-hidden="true">
             <Sparkle size={120} weight="fill" />
           </div>
@@ -341,6 +584,22 @@ export default function DashboardPedido() {
                 <span className="dp-gabi-label">Gabi AI · Insights</span>
               </div>
               <div className="dp-gabi-header-right">
+                <button
+                  className="dp-gabi-nav-btn"
+                  type="button"
+                  onClick={() => scrollGabi('left')}
+                  aria-label="Insight anterior"
+                >
+                  <CaretLeft size={12} weight="bold" />
+                </button>
+                <button
+                  className="dp-gabi-nav-btn"
+                  type="button"
+                  onClick={() => scrollGabi('right')}
+                  aria-label="Próximo insight"
+                >
+                  <CaretRight size={12} weight="bold" />
+                </button>
                 <span className="dp-gabi-live-badge">
                   <span className="dp-gabi-live-dot" />
                   ao vivo
@@ -348,7 +607,7 @@ export default function DashboardPedido() {
               </div>
             </div>
 
-            <div className="dp-gabi-track">
+            <div className="dp-gabi-track" ref={gabiCarouselRef}>
               {loadingData
                 ? [0, 1, 2, 3].map(i => (
                     <div key={i} className="dp-gabi-insight-card dp-gabi-insight-card--skeleton">
@@ -422,6 +681,7 @@ export default function DashboardPedido() {
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
+
         >
           <DistributionWidget slices={result.slices ?? []} />
         </WidgetContainer>
@@ -452,6 +712,7 @@ export default function DashboardPedido() {
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
+
         >
           <LineChartWidget
             series={series}
@@ -488,6 +749,7 @@ export default function DashboardPedido() {
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
+
         >
           <BarChartWidget
             series={series}
@@ -518,6 +780,7 @@ export default function DashboardPedido() {
           editMode={editMode}
           onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
           onRemove={removeWidget}
+
           accentColor={visual.accentColor}
           icone={visual.icone}
           clickable={!!navRoute}
@@ -545,6 +808,7 @@ export default function DashboardPedido() {
         editMode={editMode}
         onEdit={(w) => { setEditingWidget(w); setEditModalOpen(true) }}
         onRemove={removeWidget}
+
       >
         <KpiValue data={result.data} fieldKey={fieldKey} fieldType="number" />
       </WidgetContainer>
@@ -579,41 +843,32 @@ export default function DashboardPedido() {
   return (
     <div style={{ padding: '1.5rem' }}>
 
-      {/* ── Onboarding banner — primeira sessão ─────────────────────────── */}
-      {onboardingVisible && (
-        <div style={onboardingBannerStyle}>
-          <div style={onboardingBannerContent}>
-            <span style={onboardingBannerTitle}>Este dashboard é seu.</span>
-            <span style={onboardingBannerText}>
-              Adicione métricas, mova seções e crie seus próprios widgets.
-            </span>
-            <div style={onboardingBannerActions}>
-              <button
-                type="button"
-                style={onboardingBtnAccent}
-                onClick={() => { setSuggestionsOpen(true); dismissOnboarding() }}
-              >
-                Explorar sugestões →
-              </button>
-              <button
-                type="button"
-                style={onboardingBtnGhost}
-                onClick={() => { setEditMode(true); setQueryBuilderOpen(true); dismissOnboarding() }}
-              >
-                Criar widget →
-              </button>
-            </div>
+      {/* ── Onboarding banner — fixo, nunca some ───────────────────────── */}
+      <div style={onboardingBannerStyle}>
+        <div style={onboardingBannerContent}>
+          <span style={onboardingBannerTitle}>Este dashboard é seu.</span>
+          <span style={onboardingBannerText}>
+            Adicione métricas, mova seções e crie seus próprios widgets.
+          </span>
+          <div style={onboardingBannerActions}>
+            <button
+              type="button"
+              style={onboardingBtnAccent}
+              onClick={() => setSuggestionsOpen(true)}
+            >
+              <RocketLaunch size={13} weight="fill" />
+              Explorar sugestões
+            </button>
+            <button
+              type="button"
+              style={onboardingBtnGhost}
+              onClick={() => { setEditMode(true); setQueryBuilderOpen(true) }}
+            >
+              Criar widget →
+            </button>
           </div>
-          <button
-            type="button"
-            style={onboardingDismissBtn}
-            onClick={dismissOnboarding}
-            aria-label="Fechar banner"
-          >
-            ×
-          </button>
         </div>
-      )}
+      </div>
 
       <DashboardToolbar
         slicers={slicers}
@@ -663,7 +918,7 @@ export default function DashboardPedido() {
         <SuggestionsPanel
           suggestions={suggestions}
           derivedMetrics={allDerived}
-          onAdd={addWidget}
+          onAdd={handleAddWidgetFromSuggestions}
           onClose={() => setSuggestionsOpen(false)}
           onCreateCustom={() => { setEditMode(true); setQueryBuilderOpen(true) }}
         />
@@ -712,40 +967,30 @@ const onboardingBannerActions: React.CSSProperties = {
 const onboardingBtnAccent: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '4px',
-  fontSize: '12px',
+  gap: '6px',
+  fontSize: '0.875rem',
   fontWeight: 600,
-  padding: '5px 12px',
+  padding: '6px 14px',
   borderRadius: '9999px',
   background: 'var(--accent)',
   border: '1px solid var(--accent)',
   color: '#fff',
   cursor: 'pointer',
+  boxShadow: '0 0 14px rgba(99,102,241,0.45)',
 }
 
 const onboardingBtnGhost: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: '4px',
-  fontSize: '12px',
-  fontWeight: 500,
-  padding: '5px 12px',
+  gap: '6px',
+  fontSize: '0.875rem',
+  fontWeight: 600,
+  padding: '6px 14px',
   borderRadius: '9999px',
   background: 'transparent',
   border: '1px solid rgba(99,102,241,0.4)',
   color: 'var(--accent)',
   cursor: 'pointer',
-}
-
-const onboardingDismissBtn: React.CSSProperties = {
-  background: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  fontSize: '18px',
-  lineHeight: 1,
-  color: 'var(--text-muted)',
-  padding: '0 4px',
-  flexShrink: 0,
 }
 
 // ── Estilos section label ─────────────────────────────────────────────────────

@@ -31,6 +31,8 @@ export interface WidgetContainerProps {
   onClick?: () => void
   /** Indica que o card é clicável — aplica cursor pointer e chevron hint */
   clickable?: boolean
+  /** Destaca o card com ring pulsante (widget recém-adicionado) */
+  highlighted?: boolean
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -129,6 +131,7 @@ export function WidgetContainer({
   icone,
   onClick,
   clickable = false,
+  highlighted = false,
 }: WidgetContainerProps) {
   const isPartial = result?.partial === true
   const isCached = result?.cached === true
@@ -146,11 +149,13 @@ export function WidgetContainer({
 
   const containerStyle: React.CSSProperties = {
     ...styles.container,
-    ...(accentColor ? { borderTop: `2px solid ${accentColor}` } : {}),
     ...(editMode ? styles.containerEditMode : {}),
     ...(hovered && isClickable ? styles.containerClickableHover : hovered ? styles.containerHover : {}),
     ...(isClickable ? { cursor: 'pointer' } : {}),
-    transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
+    // Aplicado por último para garantir que borderColor do hover não sobrescreva o accent
+    ...(accentColor ? { borderTop: `2px solid ${accentColor}` } : {}),
+    ...(highlighted ? { animation: 'wc-highlight-ring 1.4s ease-in-out 3 forwards' } : {}),
+    transition: 'box-shadow 0.2s ease',
   }
 
   return (
@@ -203,7 +208,7 @@ export function WidgetContainer({
         {!loading && !error && children}
       </div>
 
-      {/* Animação de skeleton via style tag inline */}
+      {/* Animações via style tag inline */}
       <style>{`
         @keyframes db-skeleton-pulse {
           0%, 100% { background-color: var(--bg-surface); }
@@ -233,7 +238,7 @@ const styles = {
     height: '100%',
     width: '100%',
     minWidth: 0,
-    overflow: 'hidden',
+    overflow: 'visible',
     boxSizing: 'border-box' as const,
   },
   containerHover: {

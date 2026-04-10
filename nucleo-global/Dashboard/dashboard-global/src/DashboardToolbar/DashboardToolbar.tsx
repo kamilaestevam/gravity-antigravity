@@ -10,9 +10,115 @@
  * - Banner de modo edição ativo com orientação ao usuário
  */
 
-import React from 'react'
-import { Sliders, Check, Plus, Lightbulb, X, DotsSixVertical } from '@phosphor-icons/react'
+import React, { useState, useRef, useEffect } from 'react'
+import { Sliders, Check, Plus, Lightbulb, X, DotsSixVertical, CaretDown, CaretUp } from '@phosphor-icons/react'
 import type { ActiveFilter, GlobalSlicers } from '../tipos.js'
+
+// ── PeriodDropdown — substitui <select> nativo (Design System: nunca select nativo) ──
+
+interface PeriodDropdownProps {
+  value: string
+  options: PeriodOption[]
+  onChange: (value: string) => void
+}
+
+function PeriodDropdown({ value, options, onChange }: PeriodDropdownProps) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const selected = options.find(o => o.value === value) ?? options[0]
+
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        style={dropdownStyles.trigger}
+        onClick={() => setOpen(v => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        {selected?.label}
+        {open
+          ? <CaretUp size={12} weight="bold" />
+          : <CaretDown size={12} weight="bold" />}
+      </button>
+      {open && (
+        <div style={dropdownStyles.list} role="listbox">
+          {options.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              role="option"
+              aria-selected={opt.value === value}
+              style={{
+                ...dropdownStyles.option,
+                ...(opt.value === value ? dropdownStyles.optionActive : {}),
+              }}
+              onClick={() => { onChange(opt.value); setOpen(false) }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const dropdownStyles = {
+  trigger: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--radius-md)',
+    color: 'var(--text-primary)',
+    fontSize: '13px',
+    padding: '5px 10px',
+    cursor: 'pointer',
+    outline: 'none',
+    whiteSpace: 'nowrap' as const,
+  },
+  list: {
+    position: 'absolute' as const,
+    top: 'calc(100% + 4px)',
+    left: 0,
+    zIndex: 200,
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--radius-md)',
+    boxShadow: 'var(--shadow-md)',
+    minWidth: '160px',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column' as const,
+  },
+  option: {
+    display: 'block',
+    width: '100%',
+    padding: '7px 12px',
+    background: 'none',
+    border: 'none',
+    textAlign: 'left' as const,
+    fontSize: '13px',
+    color: 'var(--text-secondary)',
+    cursor: 'pointer',
+  },
+  optionActive: {
+    background: 'var(--bg-elevated)',
+    color: 'var(--text-primary)',
+    fontWeight: 600,
+  },
+} as const
 
 export interface PeriodOption {
   value: string
@@ -91,51 +197,47 @@ export function DashboardToolbar({
         {/* ── Período ─────────────────────────────────────────────────────── */}
         <div style={s.slicerGroup}>
           <span style={s.slicerLabel}>Período</span>
-          <select
+          <PeriodDropdown
             value={slicers.period}
-            onChange={e => onPeriodChange(e.target.value)}
-            style={s.select}
-          >
-            {periodOptions.map(p => (
-              <option key={p.value} value={p.value}>{p.label}</option>
-            ))}
-          </select>
+            options={periodOptions}
+            onChange={onPeriodChange}
+          />
         </div>
 
-        {/* ── Status chips ────────────────────────────────────────────────── */}
+        {/* ── Status chips (tabs-pill) ─────────────────────────────────── */}
         {statusOptions.length > 0 && (
           <div style={s.slicerGroup}>
-            <span style={s.slicerLabel}>Status</span>
-            <div style={s.statusChips}>
-              {statusOptions.map(opt => {
-                const active = slicers.status.includes(opt)
-                const customColors = active ? statusActiveColors[opt] : undefined
-                const chipStyle: React.CSSProperties = {
-                  ...s.chip,
-                  ...(active
-                    ? customColors
-                      ? { background: customColors.bg, border: `1px solid ${customColors.border}`, color: customColors.text }
-                      : s.chipActive
-                    : {}),
-                }
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    style={chipStyle}
-                    onClick={() =>
-                      onStatusChange(
-                        active
-                          ? slicers.status.filter(x => x !== opt)
-                          : [...slicers.status, opt],
-                      )
-                    }
-                  >
-                    {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
-                  </button>
-                )
-              })}
-            </div>
+          <span style={s.slicerLabel}>Status</span>
+          <div style={s.statusChips}>
+            {statusOptions.map(opt => {
+              const active = slicers.status.includes(opt)
+              const customColors = active ? statusActiveColors[opt] : undefined
+              const chipStyle: React.CSSProperties = {
+                ...s.chip,
+                ...(active
+                  ? customColors
+                    ? { background: 'var(--bg-base)', color: customColors.text, boxShadow: 'var(--shadow-sm)' }
+                    : s.chipActive
+                  : {}),
+              }
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  style={chipStyle}
+                  onClick={() =>
+                    onStatusChange(
+                      active
+                        ? slicers.status.filter(x => x !== opt)
+                        : [...slicers.status, opt],
+                    )
+                  }
+                >
+                  {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
+                </button>
+              )
+            })}
+          </div>
           </div>
         )}
 
@@ -221,21 +323,31 @@ const styles = {
   },
   slicerGroup: { display: 'flex', alignItems: 'center', gap: '0.5rem' },
   slicerLabel: { fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 },
-  select: {
-    background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
-    borderRadius: 'var(--radius-md)', color: 'var(--text-primary)',
-    fontSize: '13px', padding: '5px 10px', cursor: 'pointer', outline: 'none',
+  // tabs-pill container (Design System § 9)
+  statusChips: {
+    display: 'flex',
+    gap: '0.25rem',
+    padding: '0.25rem',
+    background: 'var(--bg-surface)',
+    borderRadius: '9999px',
   },
-  statusChips: { display: 'flex', gap: '0.375rem' },
+  // tab-pill item (Design System § 9)
   chip: {
-    fontSize: '11px', fontWeight: 500, padding: '3px 10px', borderRadius: '9999px',
-    border: '1px solid var(--border-default)', background: 'transparent',
-    color: 'var(--text-secondary)', cursor: 'pointer',
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    padding: '0.375rem 1rem',
+    borderRadius: '9999px',
+    border: 'none',
+    background: 'transparent',
+    color: 'var(--text-secondary)',
+    cursor: 'pointer',
     transition: 'all 0.15s ease',
   },
+  // tab-pill.active
   chipActive: {
-    background: 'var(--accent-dim)', border: '1px solid var(--border-accent)',
-    color: 'var(--accent)',
+    background: 'var(--bg-base)',
+    color: 'var(--text-primary)',
+    boxShadow: 'var(--shadow-sm)',
   },
   activeFilters: { display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' as const },
   filterTag: {

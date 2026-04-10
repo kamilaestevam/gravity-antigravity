@@ -1,3 +1,16 @@
+/* ── Animação de destaque de widget recém-adicionado ── */
+
+@keyframes wc-highlight-ring {
+  0%   { outline: 0px  solid rgba(99,102,241,0);    outline-offset: 0px; border-radius: var(--radius-lg); }
+  50%  { outline: 5px  solid rgba(99,102,241,0.85); outline-offset: 3px; border-radius: var(--radius-lg); }
+  100% { outline: 0px  solid rgba(99,102,241,0);    outline-offset: 0px; border-radius: var(--radius-lg); }
+}
+
+.wc-highlighted {
+  animation: wc-highlight-ring 1.4s ease-in-out 3 forwards !important;
+  border-radius: var(--radius-lg);
+}
+
 /* ── GABI AI Insights — idêntico ao Hub (SelecionarWorkspace) ── */
 
 .dp-gabi-card {
@@ -74,6 +87,26 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.dp-gabi-nav-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  transition: color 0.15s;
+  line-height: 0;
+}
+.dp-gabi-nav-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+.dp-gabi-nav-btn:disabled {
+  opacity: 0.2;
+  cursor: default;
 }
 
 .dp-gabi-live-badge {

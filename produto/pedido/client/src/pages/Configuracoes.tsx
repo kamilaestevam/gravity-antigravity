@@ -497,7 +497,42 @@ const NOVA_COLUNA_PADRAO: NovaColuna = {
   formula_expressao: '',
 }
 
+// ── Alias de campos — nomes amigáveis para os editores de fórmula ─────────────
+// Aliases são os identificadores que o usuário vê/digita; chaves são os nomes internos.
+// Sorted longest-chave-first to avoid partial replacements on chave→alias.
+const FORMULA_ALIAS_MAP = [
+  { chave: 'quantidade_total_inicial_pedido',      alias: 'quantidade_inicial',     label: 'Quantidade Inicial' },
+  { chave: 'quantidade_cancelada_total_pedido',    alias: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
+  { chave: 'quantidade_transferida_total',         alias: 'quantidade_transferida', label: 'Quantidade Transferida' },
+  { chave: 'quantidade_pronta_itens_pedido_total', alias: 'quantidade_pronta',      label: 'Quantidade Pronta' },
+  { chave: 'saldo_itens_do_pedido',                alias: 'saldo',                  label: 'Saldo' },
+  { chave: 'peso_liquido_total_pedido',            alias: 'peso_liquido',           label: 'Peso Líquido' },
+  { chave: 'peso_bruto_total_pedido',              alias: 'peso_bruto',             label: 'Peso Bruto' },
+  { chave: 'cubagem_total_pedido',                 alias: 'cubagem',                label: 'Cubagem' },
+  // valor_total já é legível — sem alias
+] as const
+
+/** Fórmula com chaves internas → fórmula com aliases legíveis (para exibição) */
+function formulaParaAlias(formula: string): string {
+  const sorted = [...FORMULA_ALIAS_MAP].sort((a, b) => b.chave.length - a.chave.length)
+  let r = formula
+  for (const { chave, alias } of sorted) {
+    r = r.replace(new RegExp(`\\b${chave}\\b`, 'g'), alias)
+  }
+  return r
+}
+
+/** Fórmula com aliases → fórmula com chaves internas (para salvar/validar) */
+function formulaParaChave(formula: string): string {
+  let r = formula
+  for (const { chave, alias } of FORMULA_ALIAS_MAP) {
+    r = r.replace(new RegExp(`\\b${alias}\\b`, 'g'), chave)
+  }
+  return r
+}
+
 // ── Campos Calculados — Saldo do Pedido ──────────────────────────────────────
+// SALDO_FORMULA_PADRAO fica em forma de chave (armazenamento); exibição usa alias.
 const SALDO_FORMULA_PADRAO =
   'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
 const SALDO_FORMULA_KEY = 'pedido:saldo_formula'
@@ -505,9 +540,9 @@ const SALDO_FORMULA_KEY = 'pedido:saldo_formula'
 function carregarSaldoFormula(): string {
   try {
     const raw = localStorage.getItem(SALDO_FORMULA_KEY)
-    if (raw) return raw
+    if (raw) return formulaParaAlias(raw)
   } catch { /* ignore */ }
-  return SALDO_FORMULA_PADRAO
+  return formulaParaAlias(SALDO_FORMULA_PADRAO)
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -645,17 +680,19 @@ export default function Configuracoes() {
       return
     }
     try {
-      parsearFormula(expressao)
+      // expressao está em forma de alias (o que o usuário vê); traduzir para chave antes de parsear/semântica
+      const expressaoChave = formulaParaChave(expressao)
+      parsearFormula(expressaoChave)
 
       // FIX #1: usa ref para pegar nome atual — sem closure stale durante async
       const chave = nomeColRef.current.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
-      if (detectarCircular(chave, expressao, colunasUsuarioApi_)) {
+      if (detectarCircular(chave, expressaoChave, colunasUsuarioApi_)) {
         setFormulaErro('Referência circular: a fórmula cria um ciclo de dependências. Remova a referência que volta para esta coluna.')
         setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
         return
       }
 
-      // Detectar campos não-numéricos (checagem local síncrona)
+      // Detectar campos não-numéricos (checagem contra colunas do usuário — ainda usa chave real)
       const camposTexto: string[] = []
       const identRegex = /\b([a-z][a-z0-9_]*)\b/g
       let m: RegExpExecArray | null
@@ -675,7 +712,7 @@ export default function Configuracoes() {
         return
       }
 
-      // Detectar campos desconhecidos (identificadores que não existem nos campos disponíveis)
+      // Detectar campos desconhecidos — verifica contra aliases (forma que o usuário digita)
       const palavrasReservadas = new Set(['SE', 'SOMA_ITENS'])
       const chavesValidas = new Set(camposFormulaRef.current.map(c => c.chave))
       const identRegex2 = /\b([a-z][a-z0-9_]*)\b/g
@@ -684,7 +721,6 @@ export default function Configuracoes() {
       while ((m2 = identRegex2.exec(expressao)) !== null) {
         const id = m2[1]
         if (!palavrasReservadas.has(id.toUpperCase()) && !chavesValidas.has(id)) {
-          // também ignorar se já está na lista de colunas do usuário (checado antes)
           const ehColunaUsuario = colunasUsuarioApi_.some(c => c.chave === id || c.id === id)
           if (!ehColunaUsuario && !camposDesconhecidos.includes(id)) camposDesconhecidos.push(id)
         }
@@ -699,12 +735,12 @@ export default function Configuracoes() {
         return
       }
 
-      // FIX #5: análise local IMEDIATA — resultado aparece sem esperar rede
-      const gabiLocal = analisarSemanticaFormula(expressao)
+      // Análise local imediata (usa chave para SEMANTICA_CAMPOS)
+      const gabiLocal = analisarSemanticaFormula(expressaoChave)
       setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null); setFormulaGabi(gabiLocal)
 
-      // Melhoria opcional via Gemini (async) — só atualiza se Gemini estiver habilitado
-      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressao, camposFormulaRef.current)
+      // Melhoria opcional via Gemini (async) — passa chave para o servidor entender
+      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressaoChave, camposFormulaRef.current)
       if (respostaGemini.gemini) {
         setFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
       }
@@ -761,10 +797,12 @@ export default function Configuracoes() {
       return
     }
     setSaldoFormulaAnalisando(true)
+    // expressao está em forma de alias (o que o usuário vê); traduzir para chave antes de parsear/semântica
+    const expressaoChave = formulaParaChave(expressao)
     try {
-      parsearFormula(expressao)
+      parsearFormula(expressaoChave)
 
-      // Detectar campos desconhecidos (não presentes em CAMPOS_SALDO)
+      // Detectar campos desconhecidos — verifica contra os aliases (forma que o usuário digita)
       const palavrasReservadas = new Set(['SE', 'SOMA_ITENS'])
       const chavesValidas = new Set(saldoCamposRef.current.map(c => c.chave))
       const identRegex = /\b([a-z][a-z0-9_]*)\b/g
@@ -786,12 +824,12 @@ export default function Configuracoes() {
         return
       }
 
-      // Análise local imediata
-      const gabiLocal = analisarSemanticaFormula(expressao)
+      // Análise local imediata (usa chave para SEMANTICA_CAMPOS)
+      const gabiLocal = analisarSemanticaFormula(expressaoChave)
       setSaldoFormulaErro(null); setSaldoFormulaValida(true); setSaldoFormulaGabi(gabiLocal)
 
-      // Melhoria opcional via Gemini (async)
-      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressao, saldoCamposRef.current)
+      // Melhoria opcional via Gemini (async) — passa chave para o servidor entender
+      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressaoChave, saldoCamposRef.current)
       setSaldoFormulaAnalisando(false)
       if (respostaGemini.gemini) {
         setSaldoFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
@@ -834,7 +872,7 @@ export default function Configuracoes() {
   }
 
   function salvarSaldoFormula() {
-    try { localStorage.setItem(SALDO_FORMULA_KEY, saldoFormula) } catch { /* ignore */ }
+    try { localStorage.setItem(SALDO_FORMULA_KEY, formulaParaChave(saldoFormula)) } catch { /* ignore */ }
     setSaldoFormulaAlterada(false)
   }
 
@@ -866,25 +904,25 @@ export default function Configuracoes() {
     return () => { if (saldoDebounceRef.current) clearTimeout(saldoDebounceRef.current) }
   }, [])
 
-  // Campos disponíveis para fórmulas, agrupados por categoria
+  // Campos disponíveis para fórmulas — chave = alias legível (o que o chip insere e o usuário vê)
   const CAMPOS_FORMULA: { grupo: string; campos: { chave: string; label: string }[] }[] = [
     {
       grupo: 'Quantidades',
       campos: [
-        { chave: 'quantidade_total_inicial_pedido',      label: 'Quantidade Inicial' },
-        { chave: 'quantidade_cancelada_total_pedido',    label: 'Quantidade Cancelada' },
-        { chave: 'quantidade_transferida_total',         label: 'Quantidade Transferida' },
-        { chave: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta' },
-        { chave: 'saldo_itens_do_pedido',                label: 'Saldo' },
+        { chave: 'quantidade_inicial',     label: 'Quantidade Inicial' },
+        { chave: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
+        { chave: 'quantidade_transferida', label: 'Quantidade Transferida' },
+        { chave: 'quantidade_pronta',      label: 'Quantidade Pronta' },
+        { chave: 'saldo',                  label: 'Saldo' },
       ],
     },
     {
       grupo: 'Financeiro',
       campos: [
-        { chave: 'valor_total',   label: 'Valor Total' },
-        { chave: 'peso_liquido_total_pedido', label: 'Peso Líquido' },
-        { chave: 'peso_bruto_total_pedido',   label: 'Peso Bruto' },
-        { chave: 'cubagem_total_pedido',      label: 'Cubagem' },
+        { chave: 'valor_total',  label: 'Valor Total' },
+        { chave: 'peso_liquido', label: 'Peso Líquido' },
+        { chave: 'peso_bruto',   label: 'Peso Bruto' },
+        { chave: 'cubagem',      label: 'Cubagem' },
       ],
     },
     ...( colunasUsuarioApi_.filter(c => c.tipo !== 'formula' && c.ativo).length > 0 ? [{
@@ -896,14 +934,15 @@ export default function Configuracoes() {
   ]
 
   // Campos disponíveis para Saldo do Pedido (apenas quantidades + colunas numéricas do usuário)
+  // chave = alias legível (o que aparece na fórmula e o chip insere); label = nome exibido no chip
   const CAMPOS_SALDO: { grupo: string; campos: { chave: string; label: string }[] }[] = [
     {
       grupo: 'Quantidades Nativas',
       campos: [
-        { chave: 'quantidade_total_inicial_pedido',      label: 'Qtd Inicial' },
-        { chave: 'quantidade_cancelada_total_pedido',    label: 'Qtd Cancelada' },
-        { chave: 'quantidade_transferida_total',         label: 'Qtd Transferida' },
-        { chave: 'quantidade_pronta_itens_pedido_total', label: 'Qtd Pronta' },
+        { chave: 'quantidade_inicial',     label: 'Quantidade Inicial' },
+        { chave: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
+        { chave: 'quantidade_transferida', label: 'Quantidade Transferida' },
+        { chave: 'quantidade_pronta',      label: 'Quantidade Pronta' },
       ],
     },
     ...( colunasUsuarioApi_.filter(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo).length > 0 ? [{
@@ -980,7 +1019,7 @@ export default function Configuracoes() {
         valor_padrao: novaColuna.valor_padrao.trim() || undefined,
         descricao: novaColuna.descricao.trim() || undefined,
         opcoes: tipoComOpcoes ? novaColuna.opcoes : undefined,
-        formula_expressao: novaColuna.tipo === 'formula' ? novaColuna.formula_expressao.trim() : undefined,
+        formula_expressao: novaColuna.tipo === 'formula' ? formulaParaChave(novaColuna.formula_expressao.trim()) : undefined,
         ativo: true,
         ordem: colunasUsuarioApi_.length,
       })

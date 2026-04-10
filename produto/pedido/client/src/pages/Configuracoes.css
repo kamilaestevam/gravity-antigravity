@@ -1745,6 +1745,15 @@ body.light-theme .cfg-formula-chip:hover {
 .cfg-saldo-tokens--erro { border-color: #f87171; }
 .cfg-saldo-tokens--ok   { border-color: rgba(20,184,166,0.5); }
 
+.cfg-saldo-tokens__label-fixo {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ws-accent, #818cf8);
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-right: 4px;
+}
+
 .cfg-saldo-tokens__placeholder {
   font-size: 0.8rem;
   color: rgba(255,255,255,0.3);

@@ -3696,6 +3696,7 @@ export default function Configuracoes() {
                     saldoFormulaErro ? 'cfg-saldo-tokens--erro' : '',
                     saldoFormulaValida && saldoTokens.length > 0 ? 'cfg-saldo-tokens--ok' : '',
                   ].filter(Boolean).join(' ')}>
+                    <span className="cfg-saldo-tokens__label-fixo">Saldo do Pedido&nbsp;=</span>
                     {saldoTokens.length === 0 ? (
                       <span className="cfg-saldo-tokens__placeholder">
                         Clique nos campos acima e nos operadores abaixo para montar a fórmula

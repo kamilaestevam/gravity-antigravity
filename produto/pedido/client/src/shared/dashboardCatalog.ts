@@ -40,6 +40,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     domain: 'pedido',
     complementaryFields: ['total_pedidos', 'pedidos_em_andamento', 'pedidos_atrasados'],
     dimension: 'status_pedido',
+    dimensionLabel: 'Status dos Pedidos',
   },
   {
     key: 'pedidos_em_andamento',
@@ -53,6 +54,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     domain: 'pedido',
     complementaryFields: ['total_pedidos', 'pedidos_abertos', 'pedidos_atrasados'],
     dimension: 'status_pedido',
+    dimensionLabel: 'Status dos Pedidos',
   },
   {
     key: 'pedidos_atrasados',
@@ -66,6 +68,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     domain: 'pedido',
     complementaryFields: ['total_pedidos', 'pedidos_abertos'],
     dimension: 'status_pedido',
+    dimensionLabel: 'Status dos Pedidos',
   },
   {
     key: 'pedidos_consolidados',
@@ -79,6 +82,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     domain: 'pedido',
     complementaryFields: ['total_pedidos', 'pedidos_abertos'],
     dimension: 'status_pedido',
+    dimensionLabel: 'Status dos Pedidos',
   },
   {
     key: 'pedidos_cancelados',
@@ -92,6 +96,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     domain: 'pedido',
     complementaryFields: ['total_pedidos'],
     dimension: 'status_pedido',
+    dimensionLabel: 'Status dos Pedidos',
   },
   {
     key: 'pedidos_draft',
@@ -105,6 +110,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     domain: 'pedido',
     complementaryFields: ['total_pedidos', 'pedidos_abertos'],
     dimension: 'status_pedido',
+    dimensionLabel: 'Status dos Pedidos',
   },
 
   // ── Pedido — Financeiro ─────────────────────────────────────────────────────
@@ -122,7 +128,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
   },
   {
     key: 'valor_total_brl',
-    label: 'Total Pedidos — BRL',
+    label: 'Exposição Cambial (BRL)',
     productId: 'pedido',
     type: 'currency',
     aggregations: ['SUM'],
@@ -134,7 +140,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
   },
   {
     key: 'cobertura_pendente',
-    label: 'Cobertura Pendente',
+    label: 'Cobertura Cambial a Contratar',
     productId: 'pedido',
     type: 'currency',
     aggregations: ['SUM'],
@@ -147,7 +153,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
   },
   {
     key: 'valor_itens_total',
-    label: 'Valor Total dos Itens',
+    label: 'Valor dos Itens (FOB/CIF)',
     productId: 'pedido',
     type: 'currency',
     aggregations: ['SUM'],
@@ -183,6 +189,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     chartTypes: ['KPI_CARD', 'LINE', 'BAR', 'DISTRIBUTION'],
     semanticType: 'sum_qty',
     domain: 'item',
+    domainDisplayLabel: 'Itens',
     complementaryFields: ['qtd_inicial_total', 'qtd_atual_total', 'qtd_transferida_total'],
     dimension: 'status_item',
   },
@@ -196,6 +203,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     chartTypes: ['KPI_CARD', 'LINE', 'BAR', 'DISTRIBUTION'],
     semanticType: 'sum_qty',
     domain: 'item',
+    domainDisplayLabel: 'Itens',
     complementaryFields: ['qtd_inicial_total', 'itens_prontos', 'qtd_transferida_total'],
     dimension: 'status_item',
   },
@@ -209,6 +217,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     chartTypes: ['KPI_CARD', 'LINE', 'BAR', 'DISTRIBUTION'],
     semanticType: 'sum_qty',
     domain: 'item',
+    domainDisplayLabel: 'Itens',
     complementaryFields: ['qtd_inicial_total', 'qtd_atual_total', 'itens_prontos'],
     dimension: 'status_item',
   },
@@ -222,6 +231,7 @@ export const DASHBOARD_CATALOG: EnrichedCatalogField[] = [
     chartTypes: ['KPI_CARD', 'LINE', 'BAR'],
     semanticType: 'sum_qty',
     domain: 'item',
+    domainDisplayLabel: 'Itens',
     complementaryFields: ['qtd_atual_total', 'itens_prontos', 'qtd_transferida_total'],
   },
 ]

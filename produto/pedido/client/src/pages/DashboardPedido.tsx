@@ -9,7 +9,8 @@
  * - WidgetEditModal exibe FieldQuerySpec[] com operação por campo
  */
 
-import React, { useMemo, useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
+import React, { useMemo, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   DashboardGrid,
   WidgetContainer,
@@ -39,7 +40,7 @@ import {
   Package, ClipboardText, Scales, CurrencyDollar,
   Warning, UserCircleMinus, CheckCircle,
   ListNumbers, ArrowsLeftRight, Tag,
-  CaretLeft, CaretRight, Sparkle, RocketLaunch,
+  CaretRight, Sparkle, RocketLaunch,
 } from '@phosphor-icons/react'
 import './DashboardPedido.css'
 
@@ -189,6 +190,13 @@ const WIDGET_VISUAL: Record<string, { accentColor?: string; icone?: ReactNode }>
   kpi_valor_itens:       {                      icone: <Tag               size={15} weight="duotone" /> },
 }
 
+// Rota de drill-down por widget de alerta
+const WIDGET_NAV_ROUTE: Record<string, string> = {
+  kpi_pedidos_atrasados: '/pedidos/lista?status=atrasado',
+  kpi_sem_exportador:    '/pedidos/lista?exportador=nenhum',
+  kpi_qtd_pronta:        '/pedidos/lista?status=pronto',
+}
+
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function DashboardPedido() {
@@ -201,7 +209,18 @@ export default function DashboardPedido() {
     userDerivedMetrics,
   } = useDashboardStore()
 
+  const navigate = useNavigate()
   const { trackWidget, trackInsight } = useTrackBehavior()
+
+  // Onboarding banner — exibido uma vez por usuário (localStorage)
+  const ONBOARDING_KEY = 'gravity:pedido:dashboard:onboarding_dismissed'
+  const [onboardingVisible, setOnboardingVisible] = useState(
+    () => typeof window !== 'undefined' && !localStorage.getItem(ONBOARDING_KEY),
+  )
+  const dismissOnboarding = useCallback(() => {
+    localStorage.setItem(ONBOARDING_KEY, '1')
+    setOnboardingVisible(false)
+  }, [])
 
   const [suggestionsOpen, setSuggestionsOpen] = useState(false)
   const [editingWidget,   setEditingWidget]   = useState<DashboardWidgetConfig | null>(null)
@@ -212,15 +231,6 @@ export default function DashboardPedido() {
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
-
-  const gabiCarouselRef = useRef<HTMLDivElement>(null)
-  const [gabiPaused, setGabiPaused] = useState(false)
-
-  const scrollGabi = useCallback((dir: 'left' | 'right') => {
-    if (!gabiCarouselRef.current) return
-    const w = gabiCarouselRef.current.clientWidth
-    gabiCarouselRef.current.scrollBy({ left: dir === 'right' ? w : -w, behavior: 'smooth' })
-  }, [])
 
   // allDerived deve vir antes de suggestions (evita TDZ)
   const allDerived: DerivedMetric[] = useMemo(
@@ -236,7 +246,12 @@ export default function DashboardPedido() {
 
   // Sugestões computadas para o SuggestionsPanel
   const suggestions = useMemo(
-    () => generateSuggestions(widgets.map(w => w.id), allDerived, 12),
+    () => generateSuggestions(
+      widgets.map(w => w.id),
+      allDerived,
+      12,
+      widgets.flatMap(w => w.query_spec.fields.map((f: { key: string }) => f.key)),
+    ),
     [widgets, allDerived],
   )
 
@@ -260,12 +275,6 @@ export default function DashboardPedido() {
       .finally(() => setLoadingData(false))
   }, [slicers.period])
 
-  useEffect(() => {
-    if (gabiPaused || loadingData) return
-    const timer = setInterval(() => scrollGabi('right'), 5000)
-    return () => clearInterval(timer)
-  }, [gabiPaused, loadingData, scrollGabi])
-
   const activeWidgets = useMemo(() =>
     widgets.map(w => ({
       ...w,
@@ -281,22 +290,45 @@ export default function DashboardPedido() {
   const renderWidget = useCallback((widget: DashboardWidgetConfig) => {
     const chartType = widget.chart_type
 
-    // ── GABI_INSIGHTS — carrossel de insights da Gabi AI ────────────────────
+    // ── GABI_INSIGHTS — grid responsivo de insights da Gabi AI ─────────────
     if (chartType === 'GABI_INSIGHTS') {
-      // Fase 1+2+3: dados vêm do endpoint /dashboard/insights (ranqueados por role + comportamento + LLM)
-      // Fallback local enquanto carrega ou se endpoint falhar
       const insights = insightsData.length > 0 ? insightsData : [
-        { id: 'ok', variante: 'default' as const, tag: 'Status · Tudo em dia', texto: 'Nenhuma pendência identificada. Operação normalizada no período selecionado.' },
-        { id: 'dica', variante: 'default' as const, tag: 'Dica · Gabi AI', texto: 'Use o filtro de período para explorar tendências históricas dos seus pedidos.', textoLink: 'Explorar dados' },
+        {
+          id: 'ok',
+          variante: 'default' as const,
+          tag: 'Status · Operação',
+          texto: 'Nenhuma pendência identificada. Operação normalizada no período selecionado.',
+          stat: { label: 'Pedidos ativos', valor: '—' },
+          textoLink: 'Ver pedidos',
+        },
+        {
+          id: 'dica',
+          variante: 'default' as const,
+          tag: 'Dica · Gabi AI',
+          texto: 'Use o filtro de período para explorar tendências históricas dos seus pedidos.',
+          stat: { label: 'Período atual', valor: '30d' },
+          textoLink: 'Explorar dados',
+        },
+        {
+          id: 'valor',
+          variante: 'default' as const,
+          tag: 'Financeiro · Câmbio',
+          texto: 'Acompanhe a Exposição Cambial e a Cobertura a Contratar nos gráficos de tendência.',
+          stat: { label: 'Exposição cambial', valor: '—' },
+          textoLink: 'Ver tendências',
+        },
+        {
+          id: 'transferencia',
+          variante: 'default' as const,
+          tag: 'Operacional · Qtd',
+          texto: 'Compare Itens Prontos vs. Qtd. Transferida para identificar gargalos de expedição.',
+          stat: { label: 'Itens prontos', valor: '—' },
+          textoLink: 'Adicionar widget',
+        },
       ]
 
       return (
-        <div
-          key={widget.id}
-          className="dp-gabi-card"
-          onMouseEnter={() => setGabiPaused(true)}
-          onMouseLeave={() => setGabiPaused(false)}
-        >
+        <div key={widget.id} className="dp-gabi-card">
           <div className="dp-gabi-watermark" aria-hidden="true">
             <Sparkle size={120} weight="fill" />
           </div>
@@ -309,24 +341,6 @@ export default function DashboardPedido() {
                 <span className="dp-gabi-label">Gabi AI · Insights</span>
               </div>
               <div className="dp-gabi-header-right">
-                <button
-                  className="dp-gabi-nav-btn"
-                  type="button"
-                  onClick={() => scrollGabi('left')}
-                  disabled={insights.length <= 1}
-                  aria-label="Insight anterior"
-                >
-                  <CaretLeft size={12} weight="bold" />
-                </button>
-                <button
-                  className="dp-gabi-nav-btn"
-                  type="button"
-                  onClick={() => scrollGabi('right')}
-                  disabled={insights.length <= 1}
-                  aria-label="Próximo insight"
-                >
-                  <CaretRight size={12} weight="bold" />
-                </button>
                 <span className="dp-gabi-live-badge">
                   <span className="dp-gabi-live-dot" />
                   ao vivo
@@ -334,56 +348,53 @@ export default function DashboardPedido() {
               </div>
             </div>
 
-            {loadingData ? (
-              <div className="dp-gabi-track">
-                {[0, 1].map(i => (
-                  <div key={i} className="dp-gabi-insight-card dp-gabi-insight-card--skeleton">
-                    <div className="dp-gabi-skeleton-line dp-gabi-skeleton-line--short" />
-                    <div className="dp-gabi-skeleton-line" />
-                    <div className="dp-gabi-skeleton-line" />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="dp-gabi-track" ref={gabiCarouselRef}>
-                {insights.map(ins => (
-                  <div
-                    key={ins.id}
-                    className={`dp-gabi-insight-card${ins.variante === 'warn' ? ' dp-gabi-insight-card--warn' : ''}`}
-                  >
-                    <div className={`dp-gabi-insight-tag${ins.variante === 'warn' ? ' dp-gabi-insight-tag--warn' : ''}`}>
-                      {ins.variante === 'warn'
-                        ? <Warning size={10} weight="fill" />
-                        : <RocketLaunch size={10} weight="fill" />}
-                      {ins.tag}
+            <div className="dp-gabi-track">
+              {loadingData
+                ? [0, 1, 2, 3].map(i => (
+                    <div key={i} className="dp-gabi-insight-card dp-gabi-insight-card--skeleton">
+                      <div className="dp-gabi-skeleton-line dp-gabi-skeleton-line--short" />
+                      <div className="dp-gabi-skeleton-line" />
+                      <div className="dp-gabi-skeleton-line" />
                     </div>
-                    <p className="dp-gabi-insight-text">{ins.texto}</p>
-                    {(ins.stat || ins.textoLink) && (
-                      <div className="dp-gabi-insight-bottom">
-                        {ins.stat && (
-                          <div className="dp-gabi-insight-stat">
-                            <span className="dp-gabi-insight-stat-label">{ins.stat.label}</span>
-                            <span className="dp-gabi-insight-stat-value">{ins.stat.valor}</span>
-                          </div>
-                        )}
-                        {ins.textoLink && (
-                          <button
-                            className="dp-gabi-insight-link"
-                            type="button"
-                            onClick={() => {
-                              trackInsight(ins.id)
-                              if (ins.rota) window.location.href = ins.rota
-                            }}
-                          >
-                            {ins.textoLink} <CaretRight size={10} />
-                          </button>
-                        )}
+                  ))
+                : insights.map(ins => (
+                    <div
+                      key={ins.id}
+                      className={`dp-gabi-insight-card${ins.variante === 'warn' ? ' dp-gabi-insight-card--warn' : ''}`}
+                    >
+                      <div className={`dp-gabi-insight-tag${ins.variante === 'warn' ? ' dp-gabi-insight-tag--warn' : ''}`}>
+                        {ins.variante === 'warn'
+                          ? <Warning size={10} weight="fill" />
+                          : <RocketLaunch size={10} weight="fill" />}
+                        {ins.tag}
                       </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                      <p className="dp-gabi-insight-text">{ins.texto}</p>
+                      {(ins.stat || ins.textoLink) && (
+                        <div className="dp-gabi-insight-bottom">
+                          {ins.stat && (
+                            <div className="dp-gabi-insight-stat">
+                              <span className="dp-gabi-insight-stat-label">{ins.stat.label}</span>
+                              <span className="dp-gabi-insight-stat-value">{ins.stat.valor}</span>
+                            </div>
+                          )}
+                          {ins.textoLink && (
+                            <button
+                              className="dp-gabi-insight-link"
+                              type="button"
+                              onClick={() => {
+                                trackInsight(ins.id)
+                                if (ins.rota) window.location.href = ins.rota
+                              }}
+                            >
+                              {ins.textoLink} <CaretRight size={10} />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))
+              }
+            </div>
           </div>
         </div>
       )
@@ -497,7 +508,8 @@ export default function DashboardPedido() {
         ? allDerived.find(m => m.id === widget.config!.derivedMetricId)
         : undefined
       const fieldType: FieldUnitType = dm?.fieldType ?? (cat?.type === 'currency' ? 'currency' : cat?.type === 'percentage' ? 'percentage' : 'number')
-      const visual = WIDGET_VISUAL[widget.id] ?? {}
+      const visual   = WIDGET_VISUAL[widget.id] ?? {}
+      const navRoute = WIDGET_NAV_ROUTE[widget.id]
       const currentVal = Number(kpisData?.[fieldKey] ?? 0)
       const prevVal    = Number(prevKpisData?.[fieldKey] ?? 0)
       const deltaInfo  = computeDelta(currentVal, prevVal)
@@ -508,7 +520,11 @@ export default function DashboardPedido() {
           onRemove={removeWidget}
           accentColor={visual.accentColor}
           icone={visual.icone}
-          onClick={() => trackWidget(widget.id)}
+          clickable={!!navRoute}
+          onClick={() => {
+            trackWidget(widget.id)
+            if (navRoute && !editMode) navigate(navRoute)
+          }}
         >
           <KpiValue
             data={result.data}
@@ -548,8 +564,56 @@ export default function DashboardPedido() {
 
   const STATUS_OPTIONS = ['abertos', 'em_andamento', 'atrasados', 'concluidos']
 
+  const STATUS_LABELS: Record<string, string> = {
+    abertos:       'Abertos',
+    em_andamento:  'Em Andamento',
+    atrasados:     'Atrasados',
+    concluidos:    'Concluídos',
+  }
+
+  const STATUS_ACTIVE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+    atrasados: { bg: 'rgba(239,68,68,0.15)', border: '#ef4444', text: '#ef4444' },
+    abertos:   { bg: 'rgba(245,158,11,0.15)', border: '#f59e0b', text: '#f59e0b' },
+  }
+
   return (
     <div style={{ padding: '1.5rem' }}>
+
+      {/* ── Onboarding banner — primeira sessão ─────────────────────────── */}
+      {onboardingVisible && (
+        <div style={onboardingBannerStyle}>
+          <div style={onboardingBannerContent}>
+            <span style={onboardingBannerTitle}>Este dashboard é seu.</span>
+            <span style={onboardingBannerText}>
+              Adicione métricas, mova seções e crie seus próprios widgets.
+            </span>
+            <div style={onboardingBannerActions}>
+              <button
+                type="button"
+                style={onboardingBtnAccent}
+                onClick={() => { setSuggestionsOpen(true); dismissOnboarding() }}
+              >
+                Explorar sugestões →
+              </button>
+              <button
+                type="button"
+                style={onboardingBtnGhost}
+                onClick={() => { setEditMode(true); setQueryBuilderOpen(true); dismissOnboarding() }}
+              >
+                Criar widget →
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            style={onboardingDismissBtn}
+            onClick={dismissOnboarding}
+            aria-label="Fechar banner"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       <DashboardToolbar
         slicers={slicers}
@@ -560,6 +624,8 @@ export default function DashboardPedido() {
         editMode={editMode}
         onEditModeChange={setEditMode}
         statusOptions={STATUS_OPTIONS}
+        statusLabels={STATUS_LABELS}
+        statusActiveColors={STATUS_ACTIVE_COLORS}
         onAddWidget={() => setQueryBuilderOpen(true)}
         onSuggestionsOpen={() => setSuggestionsOpen(true)}
       />
@@ -599,10 +665,87 @@ export default function DashboardPedido() {
           derivedMetrics={allDerived}
           onAdd={addWidget}
           onClose={() => setSuggestionsOpen(false)}
+          onCreateCustom={() => { setEditMode(true); setQueryBuilderOpen(true) }}
         />
       )}
     </div>
   )
+}
+
+// ── Estilos onboarding banner ─────────────────────────────────────────────────
+
+const onboardingBannerStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  gap: '1rem',
+  padding: '14px 20px',
+  marginBottom: '1rem',
+  background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(139,92,246,0.08) 100%)',
+  border: '1px solid rgba(99,102,241,0.25)',
+  borderRadius: 'var(--radius-lg)',
+}
+
+const onboardingBannerContent: React.CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: '0.5rem 1rem',
+}
+
+const onboardingBannerTitle: React.CSSProperties = {
+  fontSize: '13px',
+  fontWeight: 700,
+  color: 'var(--text-primary)',
+}
+
+const onboardingBannerText: React.CSSProperties = {
+  fontSize: '13px',
+  color: 'var(--text-secondary)',
+}
+
+const onboardingBannerActions: React.CSSProperties = {
+  display: 'flex',
+  gap: '0.5rem',
+}
+
+const onboardingBtnAccent: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  fontSize: '12px',
+  fontWeight: 600,
+  padding: '5px 12px',
+  borderRadius: '9999px',
+  background: 'var(--accent)',
+  border: '1px solid var(--accent)',
+  color: '#fff',
+  cursor: 'pointer',
+}
+
+const onboardingBtnGhost: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '4px',
+  fontSize: '12px',
+  fontWeight: 500,
+  padding: '5px 12px',
+  borderRadius: '9999px',
+  background: 'transparent',
+  border: '1px solid rgba(99,102,241,0.4)',
+  color: 'var(--accent)',
+  cursor: 'pointer',
+}
+
+const onboardingDismissBtn: React.CSSProperties = {
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  fontSize: '18px',
+  lineHeight: 1,
+  color: 'var(--text-muted)',
+  padding: '0 4px',
+  flexShrink: 0,
 }
 
 // ── Estilos section label ─────────────────────────────────────────────────────

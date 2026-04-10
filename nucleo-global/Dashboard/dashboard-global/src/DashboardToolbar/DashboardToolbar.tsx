@@ -7,10 +7,11 @@
  * - Exibição de filtros ativos com botão limpar
  * - Botões de sugestões e adicionar widget (visíveis em editMode)
  * - Toggle de modo edição
+ * - Banner de modo edição ativo com orientação ao usuário
  */
 
 import React from 'react'
-import { PencilSimple, Check, Plus, Lightbulb, X } from '@phosphor-icons/react'
+import { Sliders, Check, Plus, Lightbulb, X, DotsSixVertical } from '@phosphor-icons/react'
 import type { ActiveFilter, GlobalSlicers } from '../tipos.js'
 
 export interface PeriodOption {
@@ -39,6 +40,11 @@ export interface DashboardToolbarProps {
   statusOptions?: string[]
   /** Labels customizadas para cada status (ex: { abertos: 'Abertos' }). */
   statusLabels?: Record<string, string>
+  /**
+   * Cores ativas por status — override da cor accent padrão (indigo).
+   * Ex: { atrasados: { bg: 'rgba(239,68,68,0.15)', border: '#ef4444', text: '#ef4444' } }
+   */
+  statusActiveColors?: Record<string, { bg: string; border: string; text: string }>
   /** Opções de período. Padrão: 7d / 30d / 90d / 12m / mês atual / ano atual. */
   periodOptions?: PeriodOption[]
   /** Mostra botão "Adicionar widget" no modo edição. */
@@ -58,6 +64,7 @@ export function DashboardToolbar({
   onEditModeChange,
   statusOptions = [],
   statusLabels = {},
+  statusActiveColors = {},
   periodOptions = DEFAULT_PERIOD_OPTIONS,
   onAddWidget,
   onSuggestionsOpen,
@@ -66,103 +73,151 @@ export function DashboardToolbar({
   const s = styles
 
   return (
-    <div style={s.toolbar} className={className}>
+    <div style={s.wrapper}>
 
-      {/* ── Período ─────────────────────────────────────────────────────── */}
-      <div style={s.slicerGroup}>
-        <span style={s.slicerLabel}>Período</span>
-        <select
-          value={slicers.period}
-          onChange={e => onPeriodChange(e.target.value)}
-          style={s.select}
-        >
-          {periodOptions.map(p => (
-            <option key={p.value} value={p.value}>{p.label}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* ── Status chips ────────────────────────────────────────────────── */}
-      {statusOptions.length > 0 && (
-        <div style={s.slicerGroup}>
-          <span style={s.slicerLabel}>Status</span>
-          <div style={s.statusChips}>
-            {statusOptions.map(opt => {
-              const active = slicers.status.includes(opt)
-              return (
-                <button
-                  key={opt}
-                  type="button"
-                  style={{ ...s.chip, ...(active ? s.chipActive : {}) }}
-                  onClick={() =>
-                    onStatusChange(
-                      active
-                        ? slicers.status.filter(x => x !== opt)
-                        : [...slicers.status, opt],
-                    )
-                  }
-                >
-                  {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ── Filtros ativos ───────────────────────────────────────────────── */}
-      {activeFilters.length > 0 && (
-        <div style={s.activeFilters}>
-          <span style={s.slicerLabel}>Filtros ativos:</span>
-          {activeFilters.map(f => (
-            <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
-              {f.label}
-            </span>
-          ))}
-          <button type="button" style={s.clearBtn} onClick={onClearFilters}>
-            <X size={12} /> Limpar
-          </button>
-        </div>
-      )}
-
-      <div style={{ flex: 1 }} />
-
-      {/* ── Ações do modo edição ─────────────────────────────────────────── */}
+      {/* ── Banner de modo edição ────────────────────────────────────────── */}
       {editMode && (
-        <>
-          {onSuggestionsOpen && (
-            <button type="button" style={s.btnSecondary} onClick={onSuggestionsOpen}>
-              <Lightbulb size={14} weight="duotone" /> Sugestões
-            </button>
-          )}
-          {onAddWidget && (
-            <button type="button" style={s.btnSecondary} onClick={onAddWidget}>
-              <Plus size={14} /> Adicionar widget
-            </button>
-          )}
-        </>
+        <div style={s.editBanner}>
+          <span style={s.editBannerLeft}>
+            <DotsSixVertical size={14} weight="bold" />
+            Dashboard em modo edição — arraste widgets para reorganizar, clique em ⋯ para remover
+          </span>
+        </div>
       )}
 
-      {/* ── Toggle edição ────────────────────────────────────────────────── */}
-      <button
-        type="button"
-        style={editMode ? s.btnPrimary : s.btnSecondary}
-        onClick={() => onEditModeChange(!editMode)}
-      >
-        {editMode
-          ? <><Check size={14} /> Concluir edição</>
-          : <><PencilSimple size={14} /> Editar dashboard</>
-        }
-      </button>
+      {/* ── Toolbar principal ────────────────────────────────────────────── */}
+      <div style={s.toolbar} className={className}>
 
+        {/* ── Período ─────────────────────────────────────────────────────── */}
+        <div style={s.slicerGroup}>
+          <span style={s.slicerLabel}>Período</span>
+          <select
+            value={slicers.period}
+            onChange={e => onPeriodChange(e.target.value)}
+            style={s.select}
+          >
+            {periodOptions.map(p => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* ── Status chips ────────────────────────────────────────────────── */}
+        {statusOptions.length > 0 && (
+          <div style={s.slicerGroup}>
+            <span style={s.slicerLabel}>Status</span>
+            <div style={s.statusChips}>
+              {statusOptions.map(opt => {
+                const active = slicers.status.includes(opt)
+                const customColors = active ? statusActiveColors[opt] : undefined
+                const chipStyle: React.CSSProperties = {
+                  ...s.chip,
+                  ...(active
+                    ? customColors
+                      ? { background: customColors.bg, border: `1px solid ${customColors.border}`, color: customColors.text }
+                      : s.chipActive
+                    : {}),
+                }
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    style={chipStyle}
+                    onClick={() =>
+                      onStatusChange(
+                        active
+                          ? slicers.status.filter(x => x !== opt)
+                          : [...slicers.status, opt],
+                      )
+                    }
+                  >
+                    {statusLabels[opt] ?? opt.replace(/_/g, ' ')}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Filtros ativos ───────────────────────────────────────────────── */}
+        {activeFilters.length > 0 && (
+          <div style={s.activeFilters}>
+            <span style={s.slicerLabel}>Filtros ativos:</span>
+            {activeFilters.map(f => (
+              <span key={`${f.field}-${f.sourceWidgetId}`} style={s.filterTag}>
+                {f.label}
+              </span>
+            ))}
+            <button type="button" style={s.clearBtn} onClick={onClearFilters}>
+              <X size={12} /> Limpar
+            </button>
+          </div>
+        )}
+
+        <div style={{ flex: 1 }} />
+
+        {/* ── Ações do modo edição ─────────────────────────────────────────── */}
+        {editMode && (
+          <>
+            {onSuggestionsOpen && (
+              <button type="button" style={s.btnGhost} onClick={onSuggestionsOpen}>
+                <Lightbulb size={14} weight="duotone" /> Sugestões
+              </button>
+            )}
+            {onAddWidget && (
+              <button type="button" style={s.btnGhost} onClick={onAddWidget}>
+                <Plus size={14} /> Adicionar widget
+              </button>
+            )}
+          </>
+        )}
+
+        {/* ── Toggle edição ────────────────────────────────────────────────── */}
+        <button
+          type="button"
+          style={editMode ? s.btnPrimaryStrong : s.btnGhost}
+          onClick={() => onEditModeChange(!editMode)}
+          title={editMode ? undefined : 'Adicione, remova e reorganize widgets livremente'}
+        >
+          {editMode
+            ? <><Check size={14} weight="bold" /> Concluir edição</>
+            : <><Sliders size={14} /> Personalizar dashboard</>
+          }
+        </button>
+
+      </div>
     </div>
   )
 }
 
 const styles = {
+  wrapper: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: 0,
+    marginBottom: '1.25rem',
+  },
+  editBanner: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '6px 14px',
+    background: 'rgba(99,102,241,0.08)',
+    border: '1px solid rgba(99,102,241,0.2)',
+    borderRadius: 'var(--radius-md)',
+    marginBottom: '0.75rem',
+  },
+  editBannerLeft: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '6px',
+    fontSize: '12px',
+    color: 'var(--accent)',
+    fontWeight: 500,
+  },
   toolbar: {
     display: 'flex', alignItems: 'center', gap: '1rem',
-    marginBottom: '1.25rem', flexWrap: 'wrap' as const,
+    flexWrap: 'wrap' as const,
   },
   slicerGroup: { display: 'flex', alignItems: 'center', gap: '0.5rem' },
   slicerLabel: { fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 500 },
@@ -173,9 +228,10 @@ const styles = {
   },
   statusChips: { display: 'flex', gap: '0.375rem' },
   chip: {
-    fontSize: '11px', fontWeight: 500, padding: '3px 10px', borderRadius: '999px',
+    fontSize: '11px', fontWeight: 500, padding: '3px 10px', borderRadius: '9999px',
     border: '1px solid var(--border-default)', background: 'transparent',
     color: 'var(--text-secondary)', cursor: 'pointer',
+    transition: 'all 0.15s ease',
   },
   chipActive: {
     background: 'var(--accent-dim)', border: '1px solid var(--border-accent)',
@@ -183,26 +239,27 @@ const styles = {
   },
   activeFilters: { display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' as const },
   filterTag: {
-    fontSize: '11px', padding: '2px 8px', borderRadius: '999px',
+    fontSize: '11px', padding: '2px 8px', borderRadius: '9999px',
     background: 'rgba(129,140,248,0.15)', color: 'var(--accent)',
     border: '1px solid var(--border-accent)',
   },
   clearBtn: {
     display: 'inline-flex', alignItems: 'center', gap: '4px',
-    fontSize: '11px', padding: '2px 8px', borderRadius: '999px',
+    fontSize: '11px', padding: '2px 8px', borderRadius: '9999px',
     background: 'transparent', border: '1px solid var(--border-default)',
     color: 'var(--text-muted)', cursor: 'pointer',
   },
-  btnSecondary: {
+  btnGhost: {
     display: 'inline-flex', alignItems: 'center', gap: '6px',
-    fontSize: '13px', padding: '6px 14px', borderRadius: 'var(--radius-md)',
+    fontSize: '13px', padding: '6px 14px', borderRadius: '9999px',
     background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
     color: 'var(--text-primary)', cursor: 'pointer',
   },
-  btnPrimary: {
+  btnPrimaryStrong: {
     display: 'inline-flex', alignItems: 'center', gap: '6px',
-    fontSize: '13px', padding: '6px 14px', borderRadius: 'var(--radius-md)',
-    background: 'var(--accent-dim)', border: '1px solid var(--border-accent)',
-    color: 'var(--accent)', cursor: 'pointer', fontWeight: 600,
+    fontSize: '13px', padding: '6px 16px', borderRadius: '9999px',
+    background: 'var(--accent)', border: '1px solid var(--accent)',
+    color: '#fff', cursor: 'pointer', fontWeight: 600,
+    boxShadow: '0 2px 8px rgba(99,102,241,0.35)',
   },
 } as const

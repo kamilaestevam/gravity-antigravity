@@ -66,10 +66,12 @@ export function generateSuggestions(
   existingWidgetIds: string[],
   derivedMetrics: SuggestionDerivedMetric[] = [],
   startY = 0,
+  existingFieldKeys: string[] = [],
 ): SuggestedWidget[] {
-  const next     = makeGrid(startY)
+  const next          = makeGrid(startY)
   const suggestions: SuggestedWidget[] = []
-  const used     = new Set(existingWidgetIds)
+  const used          = new Set(existingWidgetIds)
+  const coveredFields = new Set(existingFieldKeys)
 
   const counts   = catalog.filter(f => f.semanticType === 'count')
   const currency = catalog.filter(f => f.semanticType === 'sum_currency')
@@ -90,18 +92,18 @@ export function generateSuggestions(
     const sugId = `sug_dist_${dimension}`
     if (used.has(sugId)) continue
 
-    const domainLabel = fields[0].domain
+    const dimLabel   = fields[0].dimensionLabel ?? dimension.replace(/_/g, ' ')
     const fieldSpecs: FieldQuerySpec[] = fields.map(f => ({ key: f.key, operation: 'COUNT' }))
 
     suggestions.push({
       id: sugId,
-      title: `Distribuição — ${dimension.replace(/_/g, ' ')}`,
+      title: `Distribuição de ${dimLabel}`,
       description: `Proporção entre ${fields.map(f => f.label).join(', ')}`,
       confidence: 'high',
       fields: fields.map(f => f.key),
       config: {
         id: sugId,
-        title: `Distribuição — ${domainLabel}`,
+        title: `Distribuição de ${dimLabel}`,
         chart_type: 'DISTRIBUTION',
         query_spec: { fields: fieldSpecs, filters: { period: '30d' } },
         position: next(4, 3),
@@ -113,7 +115,7 @@ export function generateSuggestions(
   const totalCounts = counts.filter(f => !f.dimension)
   for (const field of totalCounts) {
     const sugId = `sug_trend_count_${field.key}`
-    if (used.has(sugId)) continue
+    if (used.has(sugId) || coveredFields.has(field.key)) continue
 
     suggestions.push({
       id: sugId,
@@ -137,7 +139,7 @@ export function generateSuggestions(
   // ── Regra 3: LINE de evolução para cada campo sum_currency ───────────────────
   for (const field of currency) {
     const sugId = `sug_trend_${field.key}`
-    if (used.has(sugId)) continue
+    if (used.has(sugId) || coveredFields.has(field.key)) continue
 
     suggestions.push({
       id: sugId,
@@ -174,15 +176,18 @@ export function generateSuggestions(
     const sliced     = fields.slice(0, 3)
     const fieldSpecs: FieldQuerySpec[] = sliced.map(f => ({ key: f.key, operation: 'SUM' }))
 
+    const domainLabel = fields[0].domainDisplayLabel ?? domain
+    const vsTitle     = sliced.map(f => f.label).join(' vs ')
+
     suggestions.push({
       id: sugId,
-      title: `Comparativo de Quantidades — ${domain}`,
-      description: sliced.map(f => f.label).join(' vs '),
-      confidence: 'medium',
+      title: `Comparativo de Quantidades — ${domainLabel}`,
+      description: vsTitle,
+      confidence: 'high',
       fields: sliced.map(f => f.key),
       config: {
         id: sugId,
-        title: `Comparativo de Quantidades`,
+        title: `Comparativo — ${domainLabel}`,
         chart_type: 'BAR',
         query_spec: { fields: fieldSpecs, filters: { period: '30d' } },
         position: next(6, 3),

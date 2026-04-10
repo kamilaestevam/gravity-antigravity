@@ -29,6 +29,8 @@ export interface WidgetContainerProps {
   icone?: React.ReactNode
   /** Callback ao clicar no container (usado para rastrear comportamento) */
   onClick?: () => void
+  /** Indica que o card é clicável — aplica cursor pointer e chevron hint */
+  clickable?: boolean
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -126,6 +128,7 @@ export function WidgetContainer({
   accentColor,
   icone,
   onClick,
+  clickable = false,
 }: WidgetContainerProps) {
   const isPartial = result?.partial === true
   const isCached = result?.cached === true
@@ -133,6 +136,8 @@ export function WidgetContainer({
 
   const handleMouseEnter = useCallback(() => setHovered(true), [])
   const handleMouseLeave = useCallback(() => setHovered(false), [])
+
+  const isClickable = clickable && !editMode
 
   const headerStyle: React.CSSProperties = {
     ...styles.header,
@@ -142,8 +147,10 @@ export function WidgetContainer({
   const containerStyle: React.CSSProperties = {
     ...styles.container,
     ...(accentColor ? { borderTop: `2px solid ${accentColor}` } : {}),
-    ...(hovered ? styles.containerHover : {}),
-    transition: 'box-shadow 0.2s ease',
+    ...(editMode ? styles.containerEditMode : {}),
+    ...(hovered && isClickable ? styles.containerClickableHover : hovered ? styles.containerHover : {}),
+    ...(isClickable ? { cursor: 'pointer' } : {}),
+    transition: 'box-shadow 0.2s ease, border-color 0.2s ease',
   }
 
   return (
@@ -231,6 +238,13 @@ const styles = {
   },
   containerHover: {
     boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+  },
+  containerClickableHover: {
+    boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+    borderColor: 'var(--border-accent)',
+  },
+  containerEditMode: {
+    border: '1px dashed var(--border-accent)',
   },
   iconeWrap: {
     display: 'inline-flex',

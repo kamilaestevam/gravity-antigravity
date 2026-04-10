@@ -7,7 +7,7 @@
  */
 
 import React from 'react'
-import { Lightbulb, Plus, X } from '@phosphor-icons/react'
+import { Lightbulb, Plus, X, PencilSimple } from '@phosphor-icons/react'
 import type { DashboardWidgetConfig, DerivedMetric } from '../tipos.js'
 import type { SuggestedWidget } from '../suggestionsEngine.js'
 
@@ -16,6 +16,8 @@ export interface SuggestionsPanelProps {
   derivedMetrics: DerivedMetric[]
   onAdd: (widget: DashboardWidgetConfig) => void
   onClose: () => void
+  /** Callback para abrir o QueryBuilder (criar widget do zero) */
+  onCreateCustom?: () => void
 }
 
 export function SuggestionsPanel({
@@ -23,6 +25,7 @@ export function SuggestionsPanel({
   derivedMetrics,
   onAdd,
   onClose,
+  onCreateCustom,
 }: SuggestionsPanelProps) {
   const confidenceColor: Record<string, string> = {
     high:   '#34d399',
@@ -39,14 +42,14 @@ export function SuggestionsPanel({
         {/* ── Header ──────────────────────────────────────────────────────── */}
         <div style={s.header}>
           <span style={s.headerTitle}>
-            <Lightbulb size={16} weight="duotone" /> Sugestões
+            <Lightbulb size={16} weight="duotone" /> Sugestões para o seu dashboard
           </span>
           <button type="button" style={s.closeBtn} onClick={onClose} aria-label="Fechar">
             <X size={16} />
           </button>
         </div>
 
-        <p style={s.hint}>Sugestões por cruzamento semântico das métricas do produto.</p>
+        <p style={s.hint}>Geradas automaticamente a partir das métricas do produto.</p>
 
         {/* ── Sugestões automáticas ────────────────────────────────────────── */}
         <div style={s.list}>
@@ -111,6 +114,23 @@ export function SuggestionsPanel({
           </>
         )}
 
+        {/* ── Footer — criar widget do zero ───────────────────────────────── */}
+        {onCreateCustom && (
+          <>
+            <div style={s.divider} />
+            <div style={s.footer}>
+              <span style={s.footerText}>Não encontrou o que precisa?</span>
+              <button
+                type="button"
+                style={s.footerBtn}
+                onClick={() => { onCreateCustom(); onClose() }}
+              >
+                <PencilSimple size={13} /> Criar widget do zero →
+              </button>
+            </div>
+          </>
+        )}
+
       </div>
     </div>
   )
@@ -163,5 +183,19 @@ const panelStyles = {
   sectionTitle: {
     fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)',
     marginBottom: '0.75rem', marginTop: 0,
+  },
+  footer: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    gap: '0.5rem', flexWrap: 'wrap' as const, paddingTop: '0.25rem',
+  },
+  footerText: {
+    fontSize: '12px', color: 'var(--text-muted)',
+  },
+  footerBtn: {
+    display: 'inline-flex', alignItems: 'center', gap: '5px',
+    fontSize: '12px', fontWeight: 600, padding: '5px 12px',
+    borderRadius: '9999px', cursor: 'pointer',
+    background: 'transparent', border: '1px solid var(--border-accent)',
+    color: 'var(--accent)',
   },
 } as const

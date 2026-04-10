@@ -24,6 +24,7 @@ export type ChartType =
   | 'MAP'
   | 'TABLE'
   | 'SECTION_LABEL'
+  | 'GABI_INSIGHTS'
 
 // ── Tipos de unidade ──────────────────────────────────────────────────────────
 
@@ -127,6 +128,12 @@ export interface CatalogField {
    * Ex: campos de status de pedido → dimension: 'status_pedido'
    */
   dimension?: string
+  /**
+   * Rótulo legível da dimensão — exibido no título da sugestão gerada.
+   * Ex: dimensionLabel: 'Status dos Pedidos'
+   * Se ausente, o motor usa dimension.replace(/_/g, ' ').
+   */
+  dimensionLabel?: string
 }
 
 // ── Catálogo enriquecido (para motor de sugestões) ────────────────────────────
@@ -152,6 +159,12 @@ export interface EnrichedCatalogField extends CatalogField {
   semanticType: SemanticType
   domain: FieldDomain
   complementaryFields: string[]
+  /**
+   * Rótulo legível do domínio — usado pelo motor no título de widgets comparativos.
+   * Ex: domainDisplayLabel: 'Itens'
+   * Se ausente, o motor usa o valor bruto de domain.
+   */
+  domainDisplayLabel?: string
 }
 
 // ── Métricas derivadas ────────────────────────────────────────────────────────

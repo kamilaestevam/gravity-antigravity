@@ -3643,26 +3643,24 @@ export default function Configuracoes() {
                 {/* Chips de campos disponíveis */}
                 <div className="cfg-form-group">
                   <label className="cfg-form-label">Campos disponíveis</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                    {CAMPOS_SALDO.map(grupo => (
-                      <div key={grupo.grupo} className="cfg-formula-grupo">
-                        <span className="cfg-formula-grupo-nome">{grupo.grupo}</span>
-                        <div className="cfg-formula-chips">
-                          {grupo.campos.map(campo => (
-                            <button
-                              key={campo.chave}
-                              type="button"
-                              className="cfg-formula-chip"
-                              title={campo.chave}
-                              onClick={() => inserirCampoSaldo(campo.chave)}
-                            >
-                              {campo.label}
-                            </button>
-                          ))}
-                        </div>
+                  {CAMPOS_SALDO.map(grupo => (
+                    <div key={grupo.grupo} className="cfg-formula-grupo">
+                      <span className="cfg-formula-grupo-nome">{grupo.grupo}</span>
+                      <div className="cfg-formula-chips">
+                        {grupo.campos.map(campo => (
+                          <button
+                            key={campo.chave}
+                            type="button"
+                            className="cfg-formula-chip"
+                            title={campo.chave}
+                            onClick={() => inserirCampoSaldo(campo.chave)}
+                          >
+                            {campo.label}
+                          </button>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
 
                 {/* Textarea da fórmula */}

@@ -917,7 +917,7 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
 // ── PATCH /:id/itens/:itemId/campo — Editar campo único do item ───────────────
 
 const CAMPOS_EDITAVEIS_ITEM = new Set([
-  'nome_exportador', 'nome_importador',
+  'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
 ])

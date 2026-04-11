@@ -64,13 +64,16 @@ export interface PedidoItem {
   cobertura_cambial?: string
   nome_exportador?: string | null
   nome_importador?: string | null
+  nome_fabricante?: string | null
   referencia_importador?: string | null
   referencia_exportador?: string | null
   referencia_fabricante?: string | null
 
   // Pesos e cubagem
   peso_liquido_unitario_item?: number | null
+  peso_liquido_unidade_item?: string | null
   peso_bruto_unitario_item?: number | null
+  peso_bruto_unidade_item?: string | null
   cubagem_unitaria_item?: number | null
   casas_decimais_peso_item?: number
   casas_decimais_cubagem_item?: number

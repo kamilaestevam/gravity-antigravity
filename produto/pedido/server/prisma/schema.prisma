@@ -87,6 +87,7 @@ model PedidoItem {
   cobertura_cambial                   String         @default("com_cobertura")
   nome_exportador                     String?
   nome_importador                     String?
+  nome_fabricante                     String?
   referencia_importador               String?
   referencia_exportador               String?
   referencia_fabricante               String?

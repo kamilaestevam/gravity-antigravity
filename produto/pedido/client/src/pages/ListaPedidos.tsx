@@ -103,11 +103,26 @@ import {
   fmtQuantidade,
   fmtData,
 } from '../shared/types'
+import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
 import './ListaPedidos.css'
 
 // ── Status: cores padrão e leitura de localStorage ───────────────────────────
 
 const PEDIDO_STATUS_STORAGE_KEY = 'pedido:status_config'
+
+// ── Saldo do Pedido: fórmula configurável via localStorage ────────────────────
+
+const SALDO_FORMULA_KEY = 'pedido:saldo_formula'
+const SALDO_FORMULA_PADRAO = 'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
+
+function lerSaldoFormulaAST() {
+  try {
+    const raw = localStorage.getItem(SALDO_FORMULA_KEY)
+    return parsearFormula(raw ?? SALDO_FORMULA_PADRAO)
+  } catch {
+    return parsearFormula(SALDO_FORMULA_PADRAO)
+  }
+}
 
 /** Cores padrão por código de status (backend) */
 const STATUS_CORES_DEFAULT: Record<string, string> = {
@@ -487,21 +502,24 @@ const _regrasAlertasRef: { current: RegrasConfigBackend | null } = { current: nu
 
 // ── Colunas pai (Pedido) ──────────────────────────────────────────────────────
 
-function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0) {
+function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, tooltip?: { titulo: string; descricao: string }) {
   const itens = row.itens ?? []
   if (itens.length === 0) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
   const unidades = [...new Set(itens.map(i => i.unidade_comercializada_item ?? 'UN'))]
   const diverge = unidades.length > 1
+  const wrap = (node: React.ReactNode) => tooltip
+    ? <TooltipGlobal titulo={tooltip.titulo} descricao={tooltip.descricao}><span style={{ display: 'contents' }}>{node}</span></TooltipGlobal>
+    : <>{node}</>
   if (diverge) {
-    return (
-      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }} title={`Unidades diferentes: ${unidades.join(' | ')}`}>
+    return wrap(
+      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
         {unidades.join(' | ')}
       </span>
     )
   }
   const soma = itens.reduce((s, i) => s + (Number(i[campoItem]) || 0), 0)
-  return (
+  return wrap(
     <span className="gtv-celula-moeda">
       {fmtQuantidade(soma, casas)}
       <span className="gtv-celula-unidade-badge">{unidades[0]}</span>
@@ -619,18 +637,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'nome_fabricante',
-    label: 'Fabricante',
+    label: 'Nome do Fabricante',
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    tooltipTitulo: 'Fabricante',
+    tooltipTitulo: 'Nome do Fabricante',
     tooltipDescricao: 'Identificação da origem produtiva',
     grupo: 'Partes',
     render: (_val: unknown, row: Pedido) => <span>{row.nome_fabricante ?? '—'}</span>,
   },
   {
     key: 'referencia_importador',
-    label: 'Ref. Importador',
+    label: 'Referência Importador',
     tipo: 'texto',
     filtravel: true,
     editavel: true,
@@ -654,7 +672,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'referencia_exportador',
-    label: 'Ref. Exportador',
+    label: 'Referência Exportador',
     tipo: 'texto',
     filtravel: true,
     editavel: true,
@@ -743,37 +761,44 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     align: 'right',
     casasDecimais: 2,
     tooltipTitulo: 'Valor Total do Pedido',
-    tooltipDescricao: 'Valor FOB total na moeda do pedido',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []
+      const tooltipDescricao = 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo'
       if (itens.length === 0) {
         const moeda = row.moeda_pedido ?? 'USD'
         const num = Number(row.valor_total_pedido)
         return (
-          <span className="gtv-celula-moeda">
-            <span className="gtv-celula-moeda-badge">{moeda}</span>
-            {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
-          </span>
+          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+            <span className="gtv-celula-moeda">
+              <span className="gtv-celula-moeda-badge">{moeda}</span>
+              {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+            </span>
+          </TooltipGlobal>
         )
       }
       const moedas = [...new Set(itens.map(i => i.moeda_item ?? 'USD'))]
       const diverge = moedas.length > 1
       if (diverge) {
         return (
-          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }} title={`Moedas diferentes: ${moedas.join(' | ')}`}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-            {moedas.join(' | ')}
-          </span>
+          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+              {moedas.join(' | ')}
+            </span>
+          </TooltipGlobal>
         )
       }
       const moeda = moedas[0]
       const soma = itens.reduce((s, i) => s + (Number(i.valor_total_itens) || 0), 0)
       return (
-        <span className="gtv-celula-moeda">
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
-          {fmtQuantidade(soma, 2)}
-        </span>
+        <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+          <span className="gtv-celula-moeda">
+            <span className="gtv-celula-moeda-badge">{moeda}</span>
+            {fmtQuantidade(soma, 2)}
+          </span>
+        </TooltipGlobal>
       )
     },
   },
@@ -783,9 +808,9 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Inicial do Pedido',
-    tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_item_pedido'),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_item_pedido', 0, { titulo: 'Qtd. Inicial do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
@@ -793,9 +818,9 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Pronta do Pedido',
-    tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido'),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', 0, { titulo: 'Qtd. Pronta do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
   },
   {
     key: 'saldo_itens_do_pedido',
@@ -803,16 +828,23 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'numero',
     align: 'right',
     tooltipTitulo: 'Saldo do Pedido',
-    tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
+    tooltipDescricao: <span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>,
+    tooltipInterativo: true,
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => {
       const total = row.quantidade_total_inicial_pedido ?? null
       const transf = row.quantidade_transferida_total ?? null
       const qtd = row.saldo_itens_do_pedido ?? (total != null && transf != null ? Math.max(0, total - transf) : null)
       return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-          {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
-        </span>
+        <TooltipGlobal
+          titulo="Saldo do Pedido"
+          descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+          interativo
+        >
+          <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+            {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+          </span>
+        </TooltipGlobal>
       )
     },
   },
@@ -822,10 +854,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'numero',
     align: 'right',
     tooltipTitulo: 'Qtd. Transferida do Pedido',
-    tooltipDescricao: 'Total já transferido para outros pedidos.',
+    tooltipDescricao: 'Soma da quantidade transferida de todos os itens do pedido.',
+    tooltipBloqueado: 'Campo calculado — soma de quantidade_transferida_item_pedido de todos os itens. Alterado apenas por operações de transferência.',
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
         {row.quantidade_transferida_total != null ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
       </span>
     ),
@@ -881,7 +914,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Dados comerciais ────────────────────────────────────────────────────────
   {
     key: 'referencia_fabricante',
-    label: 'Ref. Fabricante',
+    label: 'Referência do Fabricante',
     tipo: 'texto',
     filtravel: true,
     editavel: true,
@@ -961,32 +994,22 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('peso_liquido_total_pedido', 3),
-    unidades: [{ sigla: 'kg', rotulo: 'Quilograma' }],
+    unidades: UNIDADES_PESO_OPCOES,
     tooltipTitulo: 'Peso Líquido Total do Pedido',
-    tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem peso líquido informado impedem o cálculo',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_liquido_total_pedido', 3)
       const num = Number(row.peso_liquido_total_pedido ?? 0)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
-      const difAbs = Math.abs(num - somaItens)
-      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
-      const celula = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">kg</span>
-        </span>
-      )
-      if (!alertaAtivo) return celula
+      const somaItensLiq = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensLiq) > 0.001 && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
       return (
-        <TooltipGlobal
-          titulo="Divergência no peso líquido total"
-          descricao={`Pedido: ${fmtQuantidade(num, casas)} kg · Itens: ${fmtQuantidade(somaItens, casas)} kg · Dif: ${fmtQuantidade(difAbs, casas)} kg (${difPct.toFixed(2)}%)`}
-        >
-          {celula}
+        <TooltipGlobal titulo="Peso Líquido Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso líquido informado impedem o cálculo">
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+            {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+            <span className="gtv-celula-unidade-badge">kg</span>
+          </span>
         </TooltipGlobal>
       )
     },
@@ -999,32 +1022,22 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('peso_bruto_total_pedido', 3),
-    unidades: [{ sigla: 'kg', rotulo: 'Quilograma' }],
+    unidades: UNIDADES_PESO_OPCOES,
     tooltipTitulo: 'Peso Bruto Total do Pedido',
-    tooltipDescricao: 'Peso bruto total incluindo embalagens, em kg',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem peso bruto informado impedem o cálculo',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_bruto_total_pedido', 3)
       const num = Number(row.peso_bruto_total_pedido ?? 0)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
-      const difAbs = Math.abs(num - somaItens)
-      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
-      const celula = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">kg</span>
-        </span>
-      )
-      if (!alertaAtivo) return celula
+      const somaItensBruto = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensBruto) > 0.001 && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
       return (
-        <TooltipGlobal
-          titulo="Divergência no peso bruto total"
-          descricao={`Pedido: ${fmtQuantidade(num, casas)} kg · Itens: ${fmtQuantidade(somaItens, casas)} kg · Dif: ${fmtQuantidade(difAbs, casas)} kg (${difPct.toFixed(2)}%)`}
-        >
-          {celula}
+        <TooltipGlobal titulo="Peso Bruto Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso bruto informado impedem o cálculo">
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+            {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+            <span className="gtv-celula-unidade-badge">kg</span>
+          </span>
         </TooltipGlobal>
       )
     },
@@ -1039,30 +1052,20 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     casasDecimais: getCasas('cubagem_total_pedido', 4),
     unidades: [{ sigla: 'm³', rotulo: 'Metro Cúbico' }],
     tooltipTitulo: 'Cubagem Total do Pedido',
-    tooltipDescricao: 'Volume total cubado de todos os itens do pedido, em m³',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem cubagem informada impedem o cálculo',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('cubagem_total_pedido', 4)
       const num = Number(row.cubagem_total_pedido ?? 0)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.cubagem_unitaria_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_cubagem_divergente ?? true)
-      const difAbs = Math.abs(num - somaItens)
-      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
-      const celula = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">m³</span>
-        </span>
-      )
-      if (!alertaAtivo) return celula
+      const somaItensCub = (row.itens ?? []).reduce((s, i) => s + (Number(i.cubagem_unitaria_item) || 0), 0)
+      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensCub) > 0.001 && (_regrasAlertasRef.current?.alerta_cubagem_divergente ?? true)
       return (
-        <TooltipGlobal
-          titulo="Divergência na cubagem total"
-          descricao={`Pedido: ${fmtQuantidade(num, casas)} m³ · Itens: ${fmtQuantidade(somaItens, casas)} m³ · Dif: ${fmtQuantidade(difAbs, casas)} m³ (${difPct.toFixed(2)}%)`}
-        >
-          {celula}
+        <TooltipGlobal titulo="Cubagem Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem cubagem informada impedem o cálculo">
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+            {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+            <span className="gtv-celula-unidade-badge">m³</span>
+          </span>
         </TooltipGlobal>
       )
     },
@@ -2099,9 +2102,10 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     align: 'right',
     grupo: 'Quantidades',
     tooltipTitulo: 'Quantidade Transferida',
-    tooltipDescricao: 'Total já alocado em processos logísticos (embarques)',
+    tooltipDescricao: 'Quantidade já transferida deste item para outros pedidos.',
+    tooltipBloqueado: 'Campo calculado — incrementado automaticamente ao executar uma transferência. Não pode ser editado diretamente.',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
         {fmtQuantidade(row.quantidade_transferida_item_pedido, getCasas('quantidade_item', 0))}
       </span>
     ),
@@ -3318,10 +3322,13 @@ const CAMPOS_NUMERICOS_ITEM = new Set([
   'peso_liquido_unitario_item', 'peso_bruto_unitario_item', 'cubagem_unitaria_item',
 ])
 
+// Fator de conversão reversa: KG armazenado → unidade de exibição
+const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
+
 // Campos com unidade física fixa — GTValorUnidade usado só para exibir a unidade no popover,
 // mas NÃO grava unidade_comercializada_item (a unidade não muda)
 const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
-  'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
+  'peso_liquido_unitario_item', 'peso_bruto_unitario_item', 'cubagem_unitaria_item',
 ])
 
 // Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
@@ -3500,25 +3507,33 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'peso_liquido_unitario_item',
     casasDecimais: getCasas('peso_liquido_unitario_item', 3),
-    getValorEditar: (row: PedidoItem) => ({
-      unit: 'kg',
-      quantity: Number(row.peso_liquido_unitario_item ?? 0),
-    }),
-    render: (row: PedidoItem) => (
-      <span className="gtv-celula-moeda">
-        {row.peso_liquido_unitario_item != null
-          ? fmtQuantidade(row.peso_liquido_unitario_item, getCasas('peso_liquido_unitario_item', 3))
-          : '—'}
-        <span className="gtv-celula-unidade-badge">kg</span>
-      </span>
-    ),
+    unidades: UNIDADES_PESO_OPCOES,
+    getValorEditar: (row: PedidoItem) => {
+      const unit = row.peso_liquido_unidade_item ?? 'KG'
+      const kg = Number(row.peso_liquido_unitario_item ?? 0)
+      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+    },
+    render: (row: PedidoItem) => {
+      const unit = row.peso_liquido_unidade_item ?? 'KG'
+      const kg = Number(row.peso_liquido_unitario_item ?? 0)
+      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      return (
+        <span className="gtv-celula-moeda">
+          {row.peso_liquido_unitario_item != null
+            ? fmtQuantidade(display, getCasas('peso_liquido_unitario_item', 3))
+            : '—'}
+          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+        </span>
+      )
+    },
   },
   peso_bruto_total_pedido: {
     editavel: true,
     campo: 'peso_bruto_unitario_item',
     casasDecimais: getCasas('peso_bruto_unitario_item', 3),
+    unidades: UNIDADES_PESO_OPCOES,
     getValorEditar: (row: PedidoItem) => ({
-      unit: 'kg',
+      unit: 'KG',
       quantity: Number(row.peso_bruto_unitario_item ?? 0),
     }),
     render: (row: PedidoItem) => (
@@ -3534,6 +3549,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'cubagem_unitaria_item',
     casasDecimais: getCasas('cubagem_unitaria_item', 4),
+    unidades: [{ sigla: 'm³', rotulo: 'm³ — Metro Cúbico' }],
     getValorEditar: (row: PedidoItem) => ({
       unit: 'm³',
       quantity: Number(row.cubagem_unitaria_item ?? 0),
@@ -3609,13 +3625,12 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     },
   },
   quantidade_transferida_total: {
-    editavel: true,
-    campo: 'quantidade_transferida_item_pedido',
-    casasDecimais: getCasas('quantidade_item', 0),
+    editavel: false,
+    tooltipBloqueado: 'Campo calculado — incrementado automaticamente ao executar uma transferência. Não pode ser editado diretamente.',
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       return (
-        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
           {fmtQuantidade(row.quantidade_transferida_item_pedido ?? 0, getCasas('quantidade_item', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
@@ -4124,6 +4139,16 @@ export default function ListaPedidos() {
   const [modalGerarPdfAberto, setModalGerarPdfAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
 
+  // ── Fórmula do Saldo do Pedido (sincroniza com localStorage ao ganhar foco) ──
+  const [saldoFormulaAST, setSaldoFormulaAST] = useState(lerSaldoFormulaAST)
+
+  useEffect(() => {
+    const sync = () => { try { setSaldoFormulaAST(lerSaldoFormulaAST()) } catch { /* mantém AST atual */ } }
+    window.addEventListener('focus', sync)
+    window.addEventListener('storage', sync)
+    return () => { window.removeEventListener('focus', sync); window.removeEventListener('storage', sync) }
+  }, [])
+
   // ── Status customizados (sincroniza com localStorage ao ganhar foco) ─────────
   const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
     const abas = lerAbasDoLocalStorage()
@@ -4162,26 +4187,66 @@ export default function ListaPedidos() {
     const STATUS_OPTS = statusOpts
 
     const colunasBase = COLUNAS_PAI.map(col => {
-      if (col.key !== 'status') return col
-      return {
-        ...col,
-        editavel: true,
-        opcoes: STATUS_OPTS,
-        render: (_val: unknown, row: Pedido) => {
-          const cor = getStatusCor(row.status)
-          return (
-            <StatusBadgeGlobal
-              valor={getStatusLabel(row.status)}
-              genero="masculino"
-              style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
-            />
-          )
-        },
+      if (col.key === 'status') {
+        return {
+          ...col,
+          editavel: true,
+          opcoes: STATUS_OPTS,
+          render: (_val: unknown, row: Pedido) => {
+            const cor = getStatusCor(row.status)
+            return (
+              <StatusBadgeGlobal
+                valor={getStatusLabel(row.status)}
+                genero="masculino"
+                style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
+              />
+            )
+          },
+        }
       }
+
+      if (col.key === 'saldo_itens_do_pedido') {
+        const tooltipSaldo = (conteudo: React.ReactNode) => (
+          <TooltipGlobal
+            titulo="Saldo do Pedido"
+            descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+            interativo
+          >
+            <span style={{ display: 'contents' }}>{conteudo}</span>
+          </TooltipGlobal>
+        )
+        return {
+          ...col,
+          render: (_val: unknown, row: Pedido) => {
+            try {
+              const contexto = buildFormulaContexto(row)
+              const { valor: num, temNulo } = avaliarFormula(saldoFormulaAST, contexto)
+              const qtd = temNulo || num == null ? null : Math.max(0, num)
+              return tooltipSaldo(
+                <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+                  {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+                </span>
+              )
+            } catch {
+              const total = row.quantidade_total_inicial_pedido ?? null
+              const transf = row.quantidade_transferida_total ?? null
+              const cancel = row.quantidade_cancelada_total_pedido ?? 0
+              const qtd = total != null && transf != null ? Math.max(0, total - transf - cancel) : null
+              return tooltipSaldo(
+                <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+                  {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+                </span>
+              )
+            }
+          },
+        }
+      }
+
+      return col
     })
 
     return [...colunasBase, ...custom]
-  }, [colunasUsuario, statusOpts])
+  }, [colunasUsuario, statusOpts, saldoFormulaAST])
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
@@ -4805,13 +4870,30 @@ export default function ListaPedidos() {
     {
       // GTValorUnidade { unit, quantity } → extrai quantity para campos numéricos + salva unidade
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
+      // Fatores de conversão para kg (todos os campos de peso são persistidos em kg)
+      const FATOR_PARA_KG: Record<string, number> = { 'KG': 1, 'G': 0.001, 'TON': 1000, 'KGBR': 1 }
+      const CAMPOS_PESO_ITEM = new Set(['peso_liquido_unitario_item', 'peso_bruto_unitario_item'])
       const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo)
-        ? (isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0)
+        ? (() => {
+            const qty = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
+            if (CAMPOS_PESO_ITEM.has(campo) && isUnidade) {
+              const unit = (valor as { unit: string }).unit
+              return qty * (FATOR_PARA_KG[unit] ?? 1)
+            }
+            return qty
+          })()
         : valor
       payload = { [campo]: valorFinal } as Partial<PedidoItem>
       if (isUnidade && !CAMPOS_UNIDADE_FIXA_ITEM.has(campo)) {
         // Salva a unidade comercializada junto com a quantidade (apenas campos com unidade variável)
         ;(payload as Record<string, unknown>).unidade_comercializada_item = (valor as { unit: string }).unit
+      }
+      // Salva a unidade de exibição para campos de peso (valor é persistido em KG)
+      if (isUnidade && CAMPOS_PESO_ITEM.has(campo)) {
+        const unidadeField = campo === 'peso_liquido_unitario_item'
+          ? 'peso_liquido_unidade_item'
+          : 'peso_bruto_unidade_item'
+        ;(payload as Record<string, unknown>)[unidadeField] = (valor as { unit: string }).unit
       }
     }
 
@@ -4823,6 +4905,17 @@ export default function ListaPedidos() {
         }
         throw new Error(`Erro ao editar campo ${campo}`)
       })
+
+    // Persiste o total do pedido pai no servidor (fire-and-forget) quando um campo de peso muda
+    if (campo === 'peso_liquido_unitario_item') {
+      pedidoVirtualApi.editarCampo(pedido.id, 'peso_liquido_total_pedido', null).catch(() => {})
+    }
+    if (campo === 'peso_bruto_unitario_item') {
+      pedidoVirtualApi.editarCampo(pedido.id, 'peso_bruto_total_pedido', null).catch(() => {})
+    }
+    if (campo === 'cubagem_unitaria_item') {
+      pedidoVirtualApi.editarCampo(pedido.id, 'cubagem_total_pedido', null).catch(() => {})
+    }
 
     // Re-enriquece o item com os dados do pedido pai (_p) para manter o cache íntegro
     const enriquecido: PedidoItemEnriquecido = {
@@ -4849,7 +4942,7 @@ export default function ListaPedidos() {
     // Atualiza o item e recalcula os aggregates do pedido pai
     setPedidos(prev => prev.map(p => {
       if (p.id !== pedido.id) return p
-      const itensAtualizados = p.itens?.map(i => i.id === id ? atualizado : i) ?? []
+      const itensAtualizados = p.itens?.map(i => i.id === id ? enriquecido : i) ?? []
       return {
         ...p,
         itens: itensAtualizados,
@@ -4857,7 +4950,7 @@ export default function ListaPedidos() {
         quantidade_transferida_total:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida_item_pedido)    || 0), 0),
         peso_liquido_total_pedido:       itensAtualizados.reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
         peso_bruto_total_pedido:         itensAtualizados.reduce((s, i) => s + (Number(i.peso_bruto_unitario_item)  || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
-        cubagem_total_pedido:            itensAtualizados.reduce((s, i) => s + (Number(i.cubagem_unitaria_item)     || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
+        cubagem_total_pedido:            itensAtualizados.reduce((s, i) => s + (Number(i.cubagem_unitaria_item)     || 0), 0),
       }
     }))
     return enriquecido

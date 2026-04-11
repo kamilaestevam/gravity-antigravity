@@ -88,7 +88,9 @@ const atualizarItemSchema = z.object({
   referencia_fabricante: z.string().optional().nullable(),
   // Dados físicos unitários
   peso_liquido_unitario_item: z.number().optional().nullable(),
+  peso_liquido_unidade_item:  z.string().optional().nullable(),
   peso_bruto_unitario_item:   z.number().optional().nullable(),
+  peso_bruto_unidade_item:    z.string().optional().nullable(),
   cubagem_unitaria_item:      z.number().optional().nullable(),
 })
 
@@ -700,7 +702,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
         const casas = (pedido as any).casas_decimais_peso_pedido ?? 3
         dadosRecalc.peso_bruto_total_pedido = parseFloat(soma.toFixed(casas))
       } else if (campo === 'cubagem_total_pedido') {
-        const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria_item ?? 0) * Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+        const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria_item ?? 0), 0)
         const casas = (pedido as any).casas_decimais_cubagem_pedido ?? 4
         dadosRecalc.cubagem_total_pedido = parseFloat(soma.toFixed(casas))
       }

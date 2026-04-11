@@ -526,6 +526,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'badge',
     align: 'center',
     filtravel: true,
+    opcoes: [
+      { valor: 'importacao', label: 'Importação' },
+      { valor: 'exportacao', label: 'Exportação' },
+    ],
     tooltipTitulo: 'Tipo de Operação',
     tooltipDescricao: 'Importação (Purchase Order) ou Exportação (Sales Order)',
     grupo: 'Identificação',

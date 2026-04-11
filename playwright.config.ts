@@ -17,7 +17,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: [
-    ['html', { open: 'never' }],
+    ['html', { outputFolder: 'testes/playwright-report', open: 'never' }],
     ['list'],
   ],
   timeout: 60_000,
@@ -31,7 +31,7 @@ export default defineConfig({
     navigationTimeout: 30_000,
   },
 
-  outputDir: 'test-results',
+  outputDir: 'testes/test-results',
 
   projects: [
     {

@@ -128,7 +128,8 @@ Todo agente que escreve código garante:
 - `tenant_id` presente em toda query ao DB servicos-tenant
 
 > Consultar `antigravity-tenant-routing` para as regras completas de isolamento.  
-> Consultar `antigravity-code-standards` para os padrões completos de código.
+> Consultar `antigravity-code-standards` para os padrões completos de código.  
+> Consultar `antigravity-monorepo` antes de alterar package.json, tsconfig.json, vite.config.ts ou instalar dependências.
 
 ---
 

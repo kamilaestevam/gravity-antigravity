@@ -57,6 +57,8 @@ import { TabelaGlobal } from '../../../nucleo-global/tabela-global'
 const something = require('../utils')
 ```
 
+> **Monorepo:** Antes de alterar `package.json`, `tsconfig.json`, `vite.config.ts` ou instalar dependências, consultar `antigravity-monorepo`.
+
 ---
 
 ## Validação de Dados — Zod em Toda Rota

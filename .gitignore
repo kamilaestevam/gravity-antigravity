@@ -27,6 +27,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# ── Testes (outputs gerados) ─────────────────────────────────
+playwright-report/
+test-results/
+
+# ── Turborepo (proibido na Fase 1, mas previne lixo residual) ─
+.turbo/
+
 # ── Vite ─────────────────────────────────────────────────────
 *.timestamp-*.mjs
 

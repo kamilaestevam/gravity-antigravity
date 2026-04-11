@@ -38,6 +38,7 @@ Antes de qualquer tarefa, o agente DEVE:
 | Ambiente | `skills/governanca/ambiente/SKILL.md` | Antes de iniciar servidor, definir porta |
 | Code Standards | `skills/governanca/code-standards/SKILL.md` | **SEMPRE — antes de escrever código** |
 | Deploy | `skills/governanca/deploy/SKILL.md` | Migrações, deploy, rollback, Railway |
+| Monorepo | `skills/governanca/monorepo/SKILL.md` | **Qualquer alteração em package.json, tsconfig, vite.config, dependências** |
 | Visão Geral | `skills/governanca/visao-geral/SKILL.md` | Entender o projeto, stack, estrutura, ondas |
 
 ### Arquitetura

@@ -32,7 +32,12 @@
       "Bash(do full=\"servicos-global/configurador/$rel\")",
       "Bash(test -f \"$full\")",
       "Bash(done)",
-      "Bash(find 'c:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/nucleo-global' -path */stat-card* -type f)"
+      "Bash(find 'c:/Users/danie/OneDrive/Documents/Antigravity/2. Gravity/nucleo-global' -path */stat-card* -type f)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(mkdir -p c:/Users/danie/.claude/commands)",
+      "Bash(cp c:/Users/danie/gravity-antigravity/.claude/commands/*.md c:/Users/danie/.claude/commands/)",
+      "Read(//c/Users/danie/.claude/**)"
     ],
     "defaultMode": "bypassPermissions"
   }

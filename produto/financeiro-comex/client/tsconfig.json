@@ -1,20 +1,7 @@
 {
+  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-produto.json"],
   "compilerOptions": {
-    "strict": true,
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@nucleo/*": ["../../../nucleo-global/*"],
-      "@shell": ["../../../servicos-global/shell/index.ts"],
-      "@shell/*": ["../../../servicos-global/shell/*"],
-      "@tenant/*": ["../../../servicos-global/tenant/*"],
-      "@produto/*": ["../../../servicos-global/produto/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src"]
 }

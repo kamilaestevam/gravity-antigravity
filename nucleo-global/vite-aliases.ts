@@ -52,8 +52,20 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     '@nucleo/Utilidades/localization/i18n': path.resolve(nucleoRoot, 'Utilidades/Localization/i18n.ts'),
     '@nucleo/Utilidades/localization/provider': path.resolve(nucleoRoot, 'Utilidades/Localization/provider.tsx'),
 
-    // Sub-export do Dashboard
+    // Dashboard — aponta para src/ (diretório) para sub-paths funcionarem:
+    //   @nucleo/dashboard                        → src/index.ts
+    //   @nucleo/dashboard/DashboardGrid/index.js → src/DashboardGrid/index.ts
+    //   @nucleo/dashboard/widgets/KpiWidget/...  → src/widgets/KpiWidget/...
+    '@nucleo/dashboard': path.resolve(nucleoRoot, 'Dashboard/dashboard-global/src'),
+
+    // Sub-export do Dashboard (QueryBuilder isolado)
     '@nucleo/query-builder-global': path.resolve(nucleoRoot, 'Dashboard/dashboard-global/src/QueryBuilder/QueryBuilder.tsx'),
+
+    // Logo com nome de pacote diferente do nome da pasta (pasta: produtos)
+    '@nucleo/logo-produtos': path.resolve(nucleoRoot, 'Logo/produtos/src/index.ts'),
+
+    // Tabelas aninhadas 3 níveis (tabelas-base/unidades-peso)
+    '@nucleo/tabelas-base-unidades-peso': path.resolve(nucleoRoot, 'Tabelas/tabelas-base/unidades-peso/src/index.ts'),
 
     // Modal com alias diferente do nome da pasta
     '@nucleo/modal-campo-select-global': path.resolve(nucleoRoot, 'Modais/modal-select-global/src/index.ts'),

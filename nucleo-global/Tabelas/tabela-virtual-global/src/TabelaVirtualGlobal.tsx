@@ -884,7 +884,7 @@ const GTEditPopover = memo(function GTEditPopover({
                     key={sigla}
                     type="button"
                     className={`gtv-edit-custom-select-item${uv.unit === sigla ? ' gtv-edit-custom-select-item--ativo' : ''}`}
-                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false) }}
+                    onClick={() => { onAtualizar({ ...uv, unit: sigla }); setUnidadeAberta(false); onConfirmar() }}
                   >{rotulo}</button>
                 )
               })
@@ -1717,7 +1717,10 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     ].filter(Boolean).join(' ')
 
     return (
-      <div className={classeLinha}>
+      <div
+        className={classeLinha}
+        onClick={onCarregarFilhos ? () => toggle(id, item) : undefined}
+      >
         {/* Checkbox */}
         {temSelecao && (
           <div className="gtv-celula gtv-celula--check gtv-col-fixa">
@@ -2296,7 +2299,13 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                       onClick={() => col.sortavel && handleSort(col.key)}
                       aria-sort={sortAtivo ? (sortLocal?.dir === 'asc' ? 'ascending' : 'descending') : undefined}
                     >
-                      <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                      {col.tooltipTitulo ? (
+                        <TooltipGlobal titulo={col.tooltipTitulo} descricao={col.tooltipDescricao} interativo={col.tooltipInterativo}>
+                          <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                        </TooltipGlobal>
+                      ) : (
+                        <span className="gtv-th-label" style={col.labelColor ? { color: col.labelColor } : undefined}>{col.label}</span>
+                      )}
                       {col.sortavel && (
                         <span className={`gtv-sort-icon${!sortAtivo ? ' gtv-sort-icon--idle' : ''}`}>
                           {sortAtivo ? (sortLocal?.dir === 'asc' ? <IconeArrowUp /> : <IconeArrowDown />) : <em>↕</em>}

@@ -19,7 +19,7 @@
     "@nucleo/localizador-global": "*",
     "@nucleo/tooltip-global": "*",
     "@phosphor-icons/react": "^2.0.0",
-    "react-i18next": "^14.0.0"
+    "react-i18next": "^17.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

@@ -36,7 +36,46 @@ jobs:
         continue-on-error: true # não bloqueia CI por erros de tipo ainda
 
   # ─────────────────────────────────────────────
-  # JOB 1.5 — Security Audit (npm audit)
+  # JOB 1.5 — Monorepo Check (deps, versions, patterns)
+  # ─────────────────────────────────────────────
+  monorepo-check:
+    name: Monorepo Check
+    runs-on: ubuntu-latest
+    needs: install-lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check monorepo rules (versions, type:module, overrides)
+        run: npm run check:deps
+
+      - name: Check for duplicate dependencies
+        run: |
+          echo "Verificando duplicatas de libs criticas..."
+          DUPES=""
+          for lib in react zustand i18next express @prisma/client; do
+            COUNT=$(npm ls "$lib" 2>/dev/null | grep -E "── ${lib}@[0-9]" | grep -v deduped | sed "s/.*${lib}@/${lib}@/" | sort -u | wc -l)
+            if [ "$COUNT" -gt 1 ]; then
+              DUPES="$DUPES\n  $lib tem $COUNT versoes diferentes"
+            fi
+          done
+          if [ -n "$DUPES" ]; then
+            echo -e "❌ Dependencias duplicadas encontradas:$DUPES"
+            exit 1
+          fi
+          echo "✅ Nenhuma duplicata critica encontrada"
+
+  # ─────────────────────────────────────────────
+  # JOB 1.6 — Security Audit (npm audit)
   # ─────────────────────────────────────────────
   security-audit:
     name: Security Audit
@@ -74,7 +113,7 @@ jobs:
   test:
     name: Run Tests (Vitest)
     runs-on: ubuntu-latest
-    needs: install-lint
+    needs: [install-lint, monorepo-check]
 
     env:
       # Valores de teste — não são segredos reais
@@ -132,7 +171,7 @@ jobs:
             name: cronometro
           - path: servicos-global/tenant/notificacoes
             name: notificacoes
-          - path: servicos-global/tenant/historico
+          - path: servicos-global/tenant/historico-global
             name: historico
           - path: servicos-global/tenant/gabi
             name: gabi
@@ -144,7 +183,7 @@ jobs:
             name: agendamento
           - path: servicos-global/tenant/whatsapp
             name: whatsapp
-          - path: produtos/simula-custo
+          - path: produto/simula-custo
             name: simula-custo
           - path: servicos-global/marketplace
             name: marketplace

@@ -23,7 +23,7 @@ export interface DashboardGridProps {
 
 const BREAKPOINTS = { lg: 1200, md: 996, sm: 768 }
 const COLS = { lg: 12, md: 10, sm: 6 }
-const ROW_HEIGHT = 90
+const ROW_HEIGHT = 65
 const DEBOUNCE_MS = 100
 
 function buildLayouts(widgets: DashboardWidgetConfig[]): Layouts {
@@ -95,7 +95,7 @@ export function DashboardGrid({
         useCSSTransforms
       >
         {widgets.map(widget => (
-          <div key={widget.id} style={{ height: '100%' }}>
+          <div key={widget.id} data-widget-id={widget.id} style={{ height: '100%' }}>
             {renderWidget(widget)}
           </div>
         ))}

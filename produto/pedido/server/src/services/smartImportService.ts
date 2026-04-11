@@ -335,7 +335,7 @@ export class SmartImportService {
                   tenant_id:           tenantId,
                   company_id:          companyId ?? tenantId,
                   pedido_id:           pedidoExistente.id,
-                  sequencia_item:      itemCountExistente + 1,
+                  sequencia_item:      dados['sequencia_item'] ? Number(dados['sequencia_item']) : itemCountExistente + 1,
                   part_number:         String(dados['part_number'] ?? ''),
                   ncm:                 String(dados['ncm'] ?? ''),
                   descricao_item:      String(dados['descricao_item'] ?? ''),
@@ -346,7 +346,10 @@ export class SmartImportService {
                   moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
                   valor_unitario_item:        dados['valor_unitario_item'] ? Number(dados['valor_unitario_item']) : null,
                   valor_total_itens:          dados['valor_total_itens'] ? Number(dados['valor_total_itens']) : null,
+                  peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
+                  referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
                   casas_decimais_valor_item:  2,
+                  campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
                 },
               }).catch(() => null)
               atualizados.push(linha.linha_arquivo)
@@ -361,7 +364,7 @@ export class SmartImportService {
                 id:                  gerarId('pite'),
                 tenant_id:           tenantId,
                 company_id:          companyId ?? tenantId,
-                sequencia_item:      1,
+                sequencia_item:      dados['sequencia_item'] ? Number(dados['sequencia_item']) : 1,
                 part_number:         String(dados['part_number'] ?? ''),
                 ncm:                 String(dados['ncm'] ?? ''),
                 descricao_item:      String(dados['descricao_item'] ?? ''),
@@ -372,7 +375,10 @@ export class SmartImportService {
                 moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
                 valor_unitario_item:        dados['valor_unitario_item'] ? Number(dados['valor_unitario_item']) : null,
                 valor_total_itens:          dados['valor_total_itens'] ? Number(dados['valor_total_itens']) : null,
+                peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
+                referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
                 casas_decimais_valor_item:  2,
+                campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
               }],
             },
           } : {}
@@ -448,16 +454,20 @@ export class SmartImportService {
       }
 
       // Caso 2: matching por aliases (arquivos Excel/CSV com nomes humanos)
-      // Normaliza underscores/hífens para espaço: "valor_unitario" → "valor unitario"
-      const cab = cabecalho.toLowerCase().trim().replace(/[_-]/g, ' ')
+      // Normaliza camelCase, underscores e hífens: "pricePerUnit" → "price per unit"
+      const cab = cabecalho.trim()
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .toLowerCase()
+        .replace(/[_-]/g, ' ')
+        .trim()
       let melhorCampo: string | null = null
       let melhorScore = 0
 
       for (const [campo, aliases] of Object.entries(ALIASES_CAMPOS)) {
         for (const alias of aliases) {
           if (cab === alias) { melhorCampo = campo; melhorScore = 97; break }
-          // Partial match: só pontua se o overlap for significativo (alias com 4+ chars)
-          if (alias.length >= 4 && (cab === alias || cab.includes(alias) || alias.includes(cab))) {
+          // Partial match: alias ≥4 chars e coluna ≥3 chars para evitar falsos como "id" → "unid"
+          if (alias.length >= 4 && cab.length >= 3 && (cab === alias || cab.includes(alias) || alias.includes(cab))) {
             const score = Math.round(70 + (Math.min(cab.length, alias.length) / Math.max(cab.length, alias.length)) * 25)
             if (score > melhorScore) { melhorCampo = campo; melhorScore = score }
           }
@@ -512,12 +522,6 @@ export class SmartImportService {
       return { campo: 'data_embarque', confianca: 72 }
     }
 
-    // Detectar valor numerico grande (possivelmente valor_unitario_item)
-    const numeros = amostras.map(v => parseFloat(v.replace(',', '.'))).filter(n => !isNaN(n))
-    if (numeros.length >= amostras.length * 0.9 && numeros.some(n => n > 10)) {
-      return { campo: 'valor_unitario_item', confianca: 58 }
-    }
-
     return null
   }
 
@@ -527,11 +531,36 @@ export class SmartImportService {
     numeroLinha: number,
   ): SmartImportLinha {
     const dados: Record<string, unknown> = {}
+    const camposExtras: Record<string, string> = {}
 
     for (const col of mapeamento) {
-      if (!col.campo_sistema) continue
       const valor = linha[col.coluna_arquivo]
-      if (valor !== undefined) dados[col.campo_sistema] = valor
+      // '__drop__' = usuário escolheu descartar explicitamente
+      if (col.campo_sistema === '__drop__') continue
+      if (col.campo_sistema) {
+        if (valor !== undefined) dados[col.campo_sistema] = valor
+      } else {
+        // Sem campo sistema → preservar em campos_custom do item (zero data loss)
+        const v = valor !== undefined ? String(valor).trim() : ''
+        if (v) camposExtras[col.coluna_arquivo] = v
+      }
+    }
+
+    // Composition e campos similares: concatenar na descricao_item quando existir
+    const MERGE_EM_DESCRICAO = ['composition', 'composição', 'material composition', 'fabric', 'tecido']
+    for (const key of Object.keys(camposExtras)) {
+      if (MERGE_EM_DESCRICAO.includes(key.toLowerCase())) {
+        const descAtual = dados['descricao_item'] ? String(dados['descricao_item']) : ''
+        const composicao = camposExtras[key]
+        if (composicao) {
+          dados['descricao_item'] = descAtual ? `${descAtual} | ${composicao}` : composicao
+        }
+        delete camposExtras[key]
+      }
+    }
+
+    if (Object.keys(camposExtras).length > 0) {
+      dados['_campos_extras'] = camposExtras
     }
 
     const alertas = this.validarLinha(dados)

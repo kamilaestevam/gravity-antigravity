@@ -134,12 +134,32 @@ describe('parseArquivo — JSON', () => {
     expect(linhas[0]['valor']).toBe('3.14')
   })
 
-  it('deve rejeitar JSON nao-array', async () => {
-    const json = JSON.stringify({ data: [{ PO: 'PO-001' }] })
+  it('deve extrair array aninhado de JSON objeto raiz', async () => {
+    // Antes retornava 500; agora faz busca recursiva e extrai o array interno
+    const json = JSON.stringify({ data: [{ PO: 'PO-001', Qty: 5 }] })
+
+    const { linhas } = await parseArquivo(toBuffer(json), 'objeto.json')
+    expect(linhas).toHaveLength(1)
+    expect(linhas[0]['PO']).toBe('PO-001')
+    expect(linhas[0]['Qty']).toBe('5')
+  })
+
+  it('deve extrair array em JSON profundamente aninhado', async () => {
+    // Ex: { invoice: { lines: [...] } }
+    const json = JSON.stringify({ invoice: { lines: [{ sku: 'SKU-X', qty: 10 }] } })
+
+    const { linhas } = await parseArquivo(toBuffer(json), 'aninhado.json')
+    expect(linhas).toHaveLength(1)
+    expect(linhas[0]['sku']).toBe('SKU-X')
+    expect(linhas[0]['qty']).toBe('10')
+  })
+
+  it('deve rejeitar JSON objeto sem array interno', async () => {
+    const json = JSON.stringify({ apenas: 'string', numero: 42 })
 
     await expect(
-      parseArquivo(toBuffer(json), 'objeto.json')
-    ).rejects.toThrow('JSON deve ser um array')
+      parseArquivo(toBuffer(json), 'sem-array.json')
+    ).rejects.toThrow('JSON não contém array de objetos')
   })
 
   it('deve rejeitar JSON string simples', async () => {
@@ -172,6 +192,75 @@ describe('parseArquivo — XML', () => {
     const xml = '<dados></dados>'
     const { linhas } = await parseArquivo(toBuffer(xml), 'vazio.xml')
     expect(linhas).toHaveLength(0)
+  })
+
+  it('deve parsear XML com 3 niveis de aninhamento extraindo cada Item', async () => {
+    const xml = `<?xml version="1.0"?>
+    <Invoice>
+      <Items>
+        <Item>
+          <sku>SKU-001</sku>
+          <qty>100</qty>
+          <price>1.50</price>
+        </Item>
+        <Item>
+          <sku>SKU-002</sku>
+          <qty>200</qty>
+          <price>2.00</price>
+        </Item>
+      </Items>
+    </Invoice>`
+
+    const { linhas } = await parseArquivo(toBuffer(xml), 'invoice.xml')
+    expect(linhas.length).toBeGreaterThanOrEqual(2)
+    expect(linhas[0]['sku']).toBe('SKU-001')
+    expect(linhas[0]['qty']).toBe('100')
+    expect(linhas[1]['sku']).toBe('SKU-002')
+  })
+})
+
+// ── Testes: TXT dedicado ──────────────────────────────────────────────────────
+
+describe('parseArquivo — TXT formatos dedicados', () => {
+  it('deve parsear TXT com tabela pipe |', async () => {
+    const txt = [
+      'PO Number | SKU | Qty | Unit Price',
+      'PO-2026-001 | SKU-A | 500 | 1.25',
+      'PO-2026-001 | SKU-B | 300 | 0.80',
+    ].join('\n')
+
+    const { linhas } = await parseArquivo(toBuffer(txt), 'tabela.txt')
+    expect(linhas.length).toBeGreaterThanOrEqual(2)
+    expect(linhas[0]['PO Number']).toBe('PO-2026-001')
+    expect(linhas[0]['SKU']).toBe('SKU-A')
+    expect(linhas[0]['Qty']).toBe('500')
+  })
+
+  it('deve parsear TXT com pares key: value', async () => {
+    const txt = [
+      'PO Number: PO-2026-030',
+      'Supplier: ACME Corp',
+      'Currency: USD',
+      'Incoterm: FOB',
+    ].join('\n')
+
+    const { linhas } = await parseArquivo(toBuffer(txt), 'kv.txt')
+    expect(linhas).toHaveLength(1)
+    expect(linhas[0]['PO Number']).toBe('PO-2026-030')
+    expect(linhas[0]['Supplier']).toBe('ACME Corp')
+    expect(linhas[0]['Currency']).toBe('USD')
+  })
+
+  it('deve usar fallback tab para TXT tab-separado (regressao)', async () => {
+    const txt = [
+      'numero_pedido\tpart_number\tncm\tdescricao\tquantidade',
+      'PO-500\tSKU-TXT\t9999.00.00\tItem TXT\t750',
+    ].join('\n')
+
+    const { linhas } = await parseArquivo(toBuffer(txt), 'tab.txt')
+    expect(linhas).toHaveLength(1)
+    expect(linhas[0]['numero_pedido']).toBe('PO-500')
+    expect(linhas[0]['quantidade']).toBe('750')
   })
 })
 

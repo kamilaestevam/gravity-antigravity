@@ -55,8 +55,10 @@ export interface GTColuna<T = unknown> {
   filtravel?: boolean
   /** Permite ordenação ao clicar no cabeçalho */
   sortavel?: boolean
-  /** Permite edição inline (sobrepõe camposEditaveis da prop raiz) */
-  editavel?: boolean
+  /** Permite edição inline (sobrepõe camposEditaveis da prop raiz). Função recebe a linha e retorna se editável — quando false, bloqueia mesmo que a coluna esteja em camposEditaveis */
+  editavel?: boolean | ((item: T) => boolean)
+  /** Tooltip exibido quando a célula está bloqueada (editavel retorna false ou coluna não editável) */
+  tooltipBloqueado?: string | ((item: T) => string | undefined)
   /**
    * Opções de escolha para edição inline.
    * Quando definido, o popover exibe uma lista selecionável em vez de um input de texto.
@@ -181,8 +183,10 @@ export type GTLinhaVirtual<T, C> =
 export interface GTMapaColunasFilho<C = unknown> {
   /** Renderiza o conteúdo da célula na linha filho */
   render: (item: C) => ReactNode
-  /** Se true ou função que retorna true: a célula é editável inline no filho */
+  /** Se true ou função que retorna true: a célula é editável inline no filho. Função tem prioridade sobre camposEditaveisFilhos */
   editavel?: boolean | ((item: C) => boolean)
+  /** Tooltip exibido quando a célula filho está bloqueada */
+  tooltipBloqueado?: string | ((item: C) => string | undefined)
   /** Campo do item filho usado no inline edit (default: usa o key da coluna pai) */
   campo?: string
   /** Transforma o item filho no valor inicial de edição (ex: GTValorMoeda para colunas moeda) */

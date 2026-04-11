@@ -32,6 +32,7 @@ import { pedidoApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
 import type { Pedido, StatusPedido, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
 import { KANBAN_PADRAO, STATUS_PEDIDO_LABELS } from '../shared/types'
 import { useNavigate } from 'react-router-dom'
+import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import './KanbanPedidos.css'
 
 // ── Colunas ───────────────────────────────────────────────────────────────────
@@ -437,6 +438,7 @@ export default function KanbanPedidos() {
   const [loading, setLoading]           = useState(true)
   const [busca, setBusca]               = useState('')
   const [modalPedido, setModalPedido]   = useState<Pedido | null>(null)
+  const { trackFilter } = useTrackBehavior()
 
   const carregar = useCallback(() => {
     setLoading(true)
@@ -526,6 +528,7 @@ export default function KanbanPedidos() {
           placeholder="Localizar"
           value={busca}
           onChange={e => setBusca(e.target.value)}
+        onBlur={e => { if (e.target.value.trim()) trackFilter('busca', e.target.value.trim()) }}
         />
       </div>
       <span className="kbp-total">

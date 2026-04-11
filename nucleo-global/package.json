@@ -9,14 +9,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
-    "i18next": "^25.10.10",
+    "i18next": "^26.0.1",
     "i18next-browser-languagedetector": "^8.2.1",
-    "react-i18next": "^16.6.6"
+    "react-i18next": "^17.0.1"
   },
   "devDependencies": {
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3"
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0"
   }
 }

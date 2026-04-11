@@ -349,7 +349,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
   }
 
   const countPermissoes = tipo === 'Master' ? TOTAL_PERMISSOES_DISPONIVEIS : permissoesAtivas.length
-  
+
   const abas = useMemo(() => [
     {
       id: 'dados',
@@ -380,14 +380,14 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
   }, [usuario?.id, usuario?.tipo])
 
   const dirty = usuario && (
-    nome !== usuario.nome || 
-    email !== usuario.email || 
-    tipo !== usuario.tipo || 
+    nome !== usuario.nome ||
+    email !== usuario.email ||
+    tipo !== usuario.tipo ||
     permissoesAtivas.length !== originalPerms.length ||
     permissoesAtivas.some(p => !originalPerms.includes(p))
   )
 
-  
+
   const handleSalvar = () => {
     if (!usuario) return
     aoSalvar({ ...usuario, nome, email, tipo: tipo as any }, permissoesAtivas)

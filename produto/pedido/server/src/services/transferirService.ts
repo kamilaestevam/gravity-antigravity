@@ -167,6 +167,20 @@ export class TransferirService {
 
     await this.validarQuantidade(Number(itemOrigem.saldo_item_pedido), payload.quantidade_origem)
 
+    // Validar número do novo pedido antes de iniciar a transação
+    if (payload.numero_pedido_novo) {
+      const jaExiste = await db.pedido.findFirst({
+        where: { tenant_id: tenantId, numero_pedido: payload.numero_pedido_novo },
+      })
+      if (jaExiste) {
+        throw new AppError(
+          `Já existe um pedido com o número "${payload.numero_pedido_novo}". Escolha outro número.`,
+          409,
+          'NUMERO_PEDIDO_DUPLICADO',
+        )
+      }
+    }
+
     const pedidosDestinoIds: string[] = []
     const pedidosCriados: string[] = []
     const itensExcluidos: string[] = []

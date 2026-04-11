@@ -72,7 +72,7 @@ interface DashboardState {
 // ── Widgets padrão ────────────────────────────────────────────────────────────
 
 export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
-  // ── Linha 1 — KPIs Operacionais ───────────────────────────────────────────
+  // ── Linha 1 — KPIs Operacionais (largura total, 4 colunas iguais) ─────────
   {
     id: 'kpi_total_pedidos',
     title: 'Total de Pedidos',
@@ -81,7 +81,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'total_pedidos', operation: 'COUNT' }],
       filters: { period: '30d' },
     },
-    position: { x: 0, y: 0, w: 3, h: 2 },
+    position: { x: 0, y: 0, w: 3, h: 3 },
   },
   {
     id: 'kpi_pedidos_abertos',
@@ -91,7 +91,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'pedidos_abertos', operation: 'COUNT' }],
       filters: { period: '30d' },
     },
-    position: { x: 3, y: 0, w: 3, h: 2 },
+    position: { x: 3, y: 0, w: 3, h: 3 },
   },
   {
     id: 'kpi_saldo_total',
@@ -101,7 +101,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'qtd_saldo_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 6, y: 0, w: 3, h: 2 },
+    position: { x: 6, y: 0, w: 3, h: 3 },
   },
   {
     id: 'kpi_valor_total',
@@ -111,10 +111,19 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'valor_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 9, y: 0, w: 3, h: 2 },
+    position: { x: 9, y: 0, w: 3, h: 3 },
   },
 
-  // ── Linha 2 — Séries temporais ────────────────────────────────────────────
+  // ── Linha 2 — GABI AI Insights (linha própria, largura total) ─────────────
+  {
+    id: 'gabi_insights',
+    title: 'GABI AI · Insights',
+    chart_type: 'GABI_INSIGHTS',
+    query_spec: { fields: [], filters: { period: '30d' } },
+    position: { x: 0, y: 3, w: 6, h: 4 },
+  },
+
+  // ── Linha 3 — Séries temporais ────────────────────────────────────────────
   {
     id: 'pedidos_por_mes',
     title: 'Pedidos por Mês',
@@ -123,7 +132,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'total_pedidos', operation: 'COUNT' }],
       filters: { period: '12m' },
     },
-    position: { x: 0, y: 2, w: 6, h: 3 },
+    position: { x: 0, y: 6, w: 6, h: 4 },
   },
   {
     id: 'valor_total_trend',
@@ -133,7 +142,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'valor_total', operation: 'SUM' }],
       filters: { period: '12m' },
     },
-    position: { x: 6, y: 2, w: 6, h: 3 },
+    position: { x: 6, y: 6, w: 6, h: 4 },
   },
 
   // ── Divisor — Alertas Operacionais ───────────────────────────────────────
@@ -142,10 +151,10 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
     title: 'Alertas Operacionais',
     chart_type: 'SECTION_LABEL',
     query_spec: { fields: [], filters: { period: '30d' } },
-    position: { x: 0, y: 5, w: 12, h: 1 },
+    position: { x: 0, y: 10, w: 12, h: 1 },
   },
 
-  // ── Linha 3 — Alertas Operacionais ───────────────────────────────────────
+  // ── Linha 4 — Alertas Operacionais ───────────────────────────────────────
   {
     id: 'kpi_pedidos_atrasados',
     title: 'Pedidos Atrasados',
@@ -154,7 +163,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'pedidos_atrasados', operation: 'COUNT' }],
       filters: { period: '30d' },
     },
-    position: { x: 0, y: 6, w: 4, h: 2 },
+    position: { x: 0, y: 11, w: 4, h: 2 },
   },
   {
     id: 'kpi_sem_exportador',
@@ -164,7 +173,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'pedidos_sem_exportador', operation: 'COUNT' }],
       filters: { period: '30d' },
     },
-    position: { x: 4, y: 6, w: 4, h: 2 },
+    position: { x: 4, y: 11, w: 4, h: 2 },
   },
   {
     id: 'kpi_qtd_pronta',
@@ -174,10 +183,10 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'qtd_pronta_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 8, y: 6, w: 4, h: 2 },
+    position: { x: 8, y: 11, w: 4, h: 2 },
   },
 
-  // ── Linha 4 — Distribuição por Status e Tipo ──────────────────────────────
+  // ── Linha 5 — Distribuição por Status e Tipo ──────────────────────────────
   {
     id: 'status_dist',
     title: 'Distribuição por Status',
@@ -192,7 +201,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       ],
       filters: { period: '30d' },
     },
-    position: { x: 0, y: 8, w: 6, h: 3 },
+    position: { x: 0, y: 13, w: 6, h: 4 },
   },
   {
     id: 'tipo_operacao_dist',
@@ -205,10 +214,10 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       ],
       filters: { period: '30d' },
     },
-    position: { x: 6, y: 8, w: 6, h: 3 },
+    position: { x: 6, y: 13, w: 6, h: 4 },
   },
 
-  // ── Linha 5 — KPIs de Quantidade ──────────────────────────────────────────
+  // ── Linha 6 — KPIs de Quantidade ──────────────────────────────────────────
   {
     id: 'kpi_qtd_inicial',
     title: 'Qtd. Inicial Total',
@@ -217,7 +226,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'qtd_inicial_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 0, y: 11, w: 4, h: 2 },
+    position: { x: 0, y: 17, w: 4, h: 2 },
   },
   {
     id: 'kpi_qtd_transferida',
@@ -227,7 +236,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'qtd_transferida_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 4, y: 11, w: 4, h: 2 },
+    position: { x: 4, y: 17, w: 4, h: 2 },
   },
   {
     id: 'kpi_valor_itens',
@@ -237,7 +246,7 @@ export const DEFAULT_WIDGETS: DashboardWidgetConfig[] = [
       fields: [{ key: 'valor_itens_total', operation: 'SUM' }],
       filters: { period: '30d' },
     },
-    position: { x: 8, y: 11, w: 4, h: 2 },
+    position: { x: 8, y: 17, w: 4, h: 2 },
   },
 ]
 
@@ -294,7 +303,7 @@ export const useDashboardStore = create<DashboardState>()(
     }),
     {
       name: 'gravity:pedido:dashboard',
-      version: 8,  // bump: refinamento visual — ícones, bordas, section label, hover effect
+      version: 14, // bump: GABI h:4 (260px), alinhamento stat row
       partialize: (s) => ({
         widgets: s.widgets,
         slicers: s.slicers,

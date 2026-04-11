@@ -24,8 +24,9 @@ export function generateSuggestions(
   existingWidgetIds: string[],
   derivedMetrics: DerivedMetric[] = [],
   startY = 0,
+  existingFieldKeys: string[] = [],
 ) {
-  return _generateSuggestions(DASHBOARD_CATALOG, existingWidgetIds, derivedMetrics, startY)
+  return _generateSuggestions(DASHBOARD_CATALOG, existingWidgetIds, derivedMetrics, startY, existingFieldKeys)
 }
 
 export function getComplementaryFields(selectedKeys: string[]): EnrichedCatalogField[] {

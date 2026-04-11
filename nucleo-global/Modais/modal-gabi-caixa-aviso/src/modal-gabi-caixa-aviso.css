@@ -13,6 +13,11 @@
   box-shadow: 0 12px 32px rgba(79, 70, 229, 0.35);
 }
 
+.mgca-fill-height {
+  height: 100%;
+  box-sizing: border-box;
+}
+
 /* watermark decorativo */
 .mgca-watermark {
   position: absolute;

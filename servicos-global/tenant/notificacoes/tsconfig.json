@@ -1,14 +1,9 @@
 {
+  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-tenant.json"],
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "rootDir": "."
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "dist"
   },
   "include": ["src/**/*", "server/**/*"],
   "exclude": ["node_modules", "dist"]

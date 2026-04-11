@@ -19,8 +19,8 @@ import type { DerivedMetric } from '@nucleo/dashboard'
 export const BUILT_IN_DERIVED: DerivedMetric[] = [
   {
     id: 'taxa_atraso',
-    label: 'Taxa de Atraso',
-    description: 'Percentual de pedidos atrasados em relação ao total',
+    label: 'Taxa de Atraso dos Pedidos',
+    description: 'Percentual de pedidos atrasados em relação ao total de pedidos no período',
     inputFields: ['pedidos_atrasados', 'total_pedidos'],
     operation: 'RATIO',
     formula: ({ pedidos_atrasados, total_pedidos }) =>

@@ -58,6 +58,7 @@ import type {
 import { useCardPreferences, CARDS_CATALOGO } from '../shared/useCardPreferences'
 import { CARD_REGISTRY, computeCardStats } from '../shared/cardRegistry'
 import { useTaxasCambio } from '../shared/useTaxasCambio'
+import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF } from '../shared/exportUtils'
 import type { ColunasExport } from '../shared/exportUtils'
 import {
@@ -102,11 +103,26 @@ import {
   fmtQuantidade,
   fmtData,
 } from '../shared/types'
+import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
 import './ListaPedidos.css'
 
 // ── Status: cores padrão e leitura de localStorage ───────────────────────────
 
 const PEDIDO_STATUS_STORAGE_KEY = 'pedido:status_config'
+
+// ── Saldo do Pedido: fórmula configurável via localStorage ────────────────────
+
+const SALDO_FORMULA_KEY = 'pedido:saldo_formula'
+const SALDO_FORMULA_PADRAO = 'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
+
+function lerSaldoFormulaAST() {
+  try {
+    const raw = localStorage.getItem(SALDO_FORMULA_KEY)
+    return parsearFormula(raw ?? SALDO_FORMULA_PADRAO)
+  } catch {
+    return parsearFormula(SALDO_FORMULA_PADRAO)
+  }
+}
 
 /** Cores padrão por código de status (backend) */
 const STATUS_CORES_DEFAULT: Record<string, string> = {
@@ -486,6 +502,31 @@ const _regrasAlertasRef: { current: RegrasConfigBackend | null } = { current: nu
 
 // ── Colunas pai (Pedido) ──────────────────────────────────────────────────────
 
+function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, tooltip?: { titulo: string; descricao: string }) {
+  const itens = row.itens ?? []
+  if (itens.length === 0) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
+  const unidades = [...new Set(itens.map(i => i.unidade_comercializada_item ?? 'UN'))]
+  const diverge = unidades.length > 1
+  const wrap = (node: React.ReactNode) => tooltip
+    ? <TooltipGlobal titulo={tooltip.titulo} descricao={tooltip.descricao}><span style={{ display: 'contents' }}>{node}</span></TooltipGlobal>
+    : <>{node}</>
+  if (diverge) {
+    return wrap(
+      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        {unidades.join(' | ')}
+      </span>
+    )
+  }
+  const soma = itens.reduce((s, i) => s + (Number(i[campoItem]) || 0), 0)
+  return wrap(
+    <span className="gtv-celula-moeda">
+      {fmtQuantidade(soma, casas)}
+      <span className="gtv-celula-unidade-badge">{unidades[0]}</span>
+    </span>
+  )
+}
+
 const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'numero_pedido',
@@ -503,6 +544,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'badge',
     align: 'center',
     filtravel: true,
+    opcoes: [
+      { valor: 'importacao', label: 'Importação' },
+      { valor: 'exportacao', label: 'Exportação' },
+    ],
     tooltipTitulo: 'Tipo de Operação',
     tooltipDescricao: 'Importação (Purchase Order) ou Exportação (Sales Order)',
     grupo: 'Identificação',
@@ -524,6 +569,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
+    editavel: (row: Pedido) => row.tipo_operacao === 'importacao',
+    tooltipBloqueado: 'Exportador definido automaticamente pelo workspace — não editável em Exportação',
     tooltipTitulo: 'Nome do Exportador',
     tooltipDescricao: 'Fornecedor/exportador estrangeiro na operação de importação',
     grupo: 'Partes',
@@ -558,6 +605,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
+    editavel: (row: Pedido) => row.tipo_operacao === 'exportacao',
+    tooltipBloqueado: 'Importador definido automaticamente pelo workspace — não editável em Importação',
     tooltipTitulo: 'Nome do Importador',
     tooltipDescricao: 'Comprador/importador estrangeiro na operação de exportação',
     grupo: 'Partes',
@@ -588,20 +637,43 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'nome_fabricante',
-    label: 'Fabricante',
+    label: 'Nome do Fabricante',
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    tooltipTitulo: 'Fabricante',
+    tooltipTitulo: 'Nome do Fabricante',
     tooltipDescricao: 'Identificação da origem produtiva',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => <span>{row.nome_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const valores = [...new Set(itens.map(i => i.nome_fabricante ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
+          title={diverge ? `Fabricantes diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'referencia_importador',
-    label: 'Ref. Importador',
+    label: 'Referência Importador',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Referência do Importador',
     tooltipDescricao: 'Código de referência interna do importador para o pedido',
     grupo: 'Identificação',
@@ -622,9 +694,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'referencia_exportador',
-    label: 'Ref. Exportador',
+    label: 'Referência Exportador',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Referência do Exportador',
     tooltipDescricao: 'Código de referência utilizado pelo exportador',
     grupo: 'Identificação',
@@ -652,9 +725,22 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Nomenclatura Comum do Mercosul — quantidade de NCMs distintos nos itens do pedido',
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
-      const count = row.ncms_distintos_count
-      if (!count) return <span>—</span>
-      return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{count}</span>
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const valoresUnicos = [...new Set(itens.map(i => i.ncm ?? null).filter(Boolean) as string[])]
+      if (valoresUnicos.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const formatNCM = (v: string) => {
+        const d = v.replace(/\D/g, '')
+        return d.length === 8 ? `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6)}` : v
+      }
+      const distintos = valoresUnicos.map(formatNCM).join(' | ')
+      const diverge = valoresUnicos.length > 1
+      return (
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined, fontFamily: 'var(--font-mono, monospace)' }} title={diverge ? `NCMs diferentes: ${distintos}` : distintos}>
+          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
+          {distintos}
+        </span>
+      )
     },
   },
   {
@@ -682,11 +768,35 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Incoterm',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Incoterm',
-    tooltipDescricao: 'Regra de entrega: FOB, CIF, EXW, etc.',
+    tooltipDescricao: 'Regra de entrega: FOB, CIF, EXW, etc. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
     align: 'center',
-    render: (_val: unknown, row: Pedido) => <span>{row.incoterm ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      // Sem itens: exibe o valor do pedido diretamente
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.incoterm ?? '—'}</span>
+      const valores = [...new Set(itens.map(i => i.incoterm ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.incoterm ?? '—'}</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
+          title={diverge ? `Incoterms diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_total_pedido',
@@ -697,30 +807,43 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     align: 'right',
     casasDecimais: 2,
     tooltipTitulo: 'Valor Total do Pedido',
-    tooltipDescricao: 'Valor FOB total na moeda do pedido',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
-      const moeda = row.moeda_pedido ?? 'USD'
-      const num = Number(row.valor_total_pedido)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number((i as PedidoItem & { valor_total_itens?: number }).valor_total_itens) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_valor_total_divergente ?? true)
-      const difAbsolutaValor = Math.abs(num - somaItens)
-      const difPctValor = somaItens === 0 ? 100 : (difAbsolutaValor / somaItens) * 100
-      const celula = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          <span className="gtv-celula-moeda-badge">{moeda}</span>
-          {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
-        </span>
-      )
-      if (!alertaAtivo) return celula
+      const itens = row.itens ?? []
+      const tooltipDescricao = 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo'
+      if (itens.length === 0) {
+        const moeda = row.moeda_pedido ?? 'USD'
+        const num = Number(row.valor_total_pedido)
+        return (
+          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+            <span className="gtv-celula-moeda">
+              <span className="gtv-celula-moeda-badge">{moeda}</span>
+              {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+            </span>
+          </TooltipGlobal>
+        )
+      }
+      const moedas = [...new Set(itens.map(i => i.moeda_item ?? 'USD'))]
+      const diverge = moedas.length > 1
+      if (diverge) {
+        return (
+          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+              {moedas.join(' | ')}
+            </span>
+          </TooltipGlobal>
+        )
+      }
+      const moeda = moedas[0]
+      const soma = itens.reduce((s, i) => s + (Number(i.valor_total_itens) || 0), 0)
       return (
-        <TooltipGlobal
-          titulo="Divergência no valor total"
-          descricao={`Pedido: ${moeda} ${fmtQuantidade(num, 2)} · Itens: ${moeda} ${fmtQuantidade(somaItens, 2)} · Dif: ${moeda} ${fmtQuantidade(difAbsolutaValor, 2)} (${difPctValor.toFixed(2)}%)`}
-        >
-          {celula}
+        <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+          <span className="gtv-celula-moeda">
+            <span className="gtv-celula-moeda-badge">{moeda}</span>
+            {fmtQuantidade(soma, 2)}
+          </span>
         </TooltipGlobal>
       )
     },
@@ -731,32 +854,9 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Inicial do Pedido',
-    tooltipDescricao: 'Soma das quantidades iniciais de todos os itens do pedido',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => {
-      const num = Number(row.quantidade_total_inicial_pedido)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_quantidade_total_divergente ?? true)
-      const difAbsolutaQtd = Math.abs(num - somaItens)
-      const difPctQtd = somaItens === 0 ? 100 : (difAbsolutaQtd / somaItens) * 100
-      const celulaQtd = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          {row.quantidade_total_inicial_pedido != null && !isNaN(num) ? fmtQuantidade(num, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
-          <span className="gtv-celula-unidade-badge">UN</span>
-        </span>
-      )
-      if (!alertaAtivo) return celulaQtd
-      return (
-        <TooltipGlobal
-          titulo="Divergência na quantidade inicial"
-          descricao={`Pedido: ${fmtQuantidade(num, 0)} UN · Itens: ${fmtQuantidade(somaItens, 0)} UN · Dif: ${fmtQuantidade(difAbsolutaQtd, 0)} UN (${difPctQtd.toFixed(2)}%)`}
-        >
-          {celulaQtd}
-        </TooltipGlobal>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_item_pedido', 0, { titulo: 'Qtd. Inicial do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
@@ -764,20 +864,9 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: 'Qtd. Pronta do Pedido',
-    tooltipDescricao: 'Quantidade disponivel para embarque no armazem do exportador.',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => {
-      const qtd = row.quantidade_pronta_itens_pedido_total
-        ?? row.itens?.reduce((s, i) => s + (i.quantidade_pronta_total_item_pedido ?? 0), 0)
-        ?? null
-      return (
-        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {qtd != null
-            ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))
-            : '—'}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', 0, { titulo: 'Qtd. Pronta do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
   },
   {
     key: 'saldo_itens_do_pedido',
@@ -785,21 +874,23 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'numero',
     align: 'right',
     tooltipTitulo: 'Saldo do Pedido',
-    tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
+    tooltipDescricao: <span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>,
+    tooltipInterativo: true,
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => {
-      const qtd = row.saldo_itens_do_pedido
-        ?? (() => {
-          const total = row.quantidade_total_inicial_pedido ?? null
-          const transf = row.quantidade_transferida_total ?? null
-          return total != null && transf != null ? Math.max(0, total - transf) : null
-        })()
+      const total = row.quantidade_total_inicial_pedido ?? null
+      const transf = row.quantidade_transferida_total ?? null
+      const qtd = row.saldo_itens_do_pedido ?? (total != null && transf != null ? Math.max(0, total - transf) : null)
       return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-          {qtd != null
-            ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0))
-            : '—'}
-        </span>
+        <TooltipGlobal
+          titulo="Saldo do Pedido"
+          descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+          interativo
+        >
+          <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+            {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+          </span>
+        </TooltipGlobal>
       )
     },
   },
@@ -809,13 +900,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'numero',
     align: 'right',
     tooltipTitulo: 'Qtd. Transferida do Pedido',
-    tooltipDescricao: 'Total já transferido para outros pedidos.',
+    tooltipDescricao: 'Soma da quantidade transferida de todos os itens do pedido.',
+    tooltipBloqueado: 'Campo calculado — soma de quantidade_transferida_item_pedido de todos os itens. Alterado apenas por operações de transferência.',
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {row.quantidade_transferida_total != null
-          ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0))
-          : '—'}
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
+        {row.quantidade_transferida_total != null ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
       </span>
     ),
   },
@@ -829,9 +919,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
-        {row.quantidade_cancelada_total_pedido != null
-          ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0))
-          : '—'}
+        {row.quantidade_cancelada_total_pedido != null ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
       </span>
     ),
   },
@@ -872,9 +960,10 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Dados comerciais ────────────────────────────────────────────────────────
   {
     key: 'referencia_fabricante',
-    label: 'Ref. Fabricante',
+    label: 'Referência do Fabricante',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
     grupo: 'Identificação',
@@ -895,7 +984,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'cobertura_cambial',
-    label: 'Cobertura Cambial',
+    label: 'Cobertura Cambial do Pedido',
     tipo: 'texto',
     filtravel: true,
     tooltipTitulo: 'Cobertura Cambial',
@@ -934,94 +1023,97 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'condicao_pagamento_pedido',
-    label: 'Cond. Pagamento',
+    label: 'Condição de Pagamento do Pedido',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Condição de Pagamento',
-    tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador',
+    tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.condicao_pagamento_pedido ?? '—'}</span>
+      const valores = [...new Set(itens.map(i => i.condicao_pagamento_pedido ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.condicao_pagamento_pedido ?? '—'}</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
+          title={diverge ? `Condições de pagamento diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
+    },
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
     key: 'peso_liquido_total_pedido',
-    label: 'Peso Líq. Total',
+    label: 'Peso Líquido Total do Pedido',
     tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('peso_liquido_total_pedido', 3),
-    unidades: [{ sigla: 'kg', rotulo: 'Quilograma' }],
+    unidades: UNIDADES_PESO_OPCOES,
     tooltipTitulo: 'Peso Líquido Total do Pedido',
-    tooltipDescricao: 'Peso líquido total de todos os itens do pedido, em kg',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem peso líquido informado impedem o cálculo',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_liquido_total_pedido', 3)
       const num = Number(row.peso_liquido_total_pedido ?? 0)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
-      const difAbs = Math.abs(num - somaItens)
-      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
-      const celula = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">kg</span>
-        </span>
-      )
-      if (!alertaAtivo) return celula
+      const somaItensLiq = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensLiq) > 0.001 && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
       return (
-        <TooltipGlobal
-          titulo="Divergência no peso líquido total"
-          descricao={`Pedido: ${fmtQuantidade(num, casas)} kg · Itens: ${fmtQuantidade(somaItens, casas)} kg · Dif: ${fmtQuantidade(difAbs, casas)} kg (${difPct.toFixed(2)}%)`}
-        >
-          {celula}
+        <TooltipGlobal titulo="Peso Líquido Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso líquido informado impedem o cálculo">
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+            {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+            <span className="gtv-celula-unidade-badge">kg</span>
+          </span>
         </TooltipGlobal>
       )
     },
   },
   {
     key: 'peso_bruto_total_pedido',
-    label: 'Peso Bruto Total',
+    label: 'Peso Bruto Total do Pedido',
     tipo: 'unidade',
     filtravel: true,
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('peso_bruto_total_pedido', 3),
-    unidades: [{ sigla: 'kg', rotulo: 'Quilograma' }],
+    unidades: UNIDADES_PESO_OPCOES,
     tooltipTitulo: 'Peso Bruto Total do Pedido',
-    tooltipDescricao: 'Peso bruto total incluindo embalagens, em kg',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem peso bruto informado impedem o cálculo',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_bruto_total_pedido', 3)
       const num = Number(row.peso_bruto_total_pedido ?? 0)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
-      const difAbs = Math.abs(num - somaItens)
-      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
-      const celula = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">kg</span>
-        </span>
-      )
-      if (!alertaAtivo) return celula
+      const somaItensBruto = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensBruto) > 0.001 && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
       return (
-        <TooltipGlobal
-          titulo="Divergência no peso bruto total"
-          descricao={`Pedido: ${fmtQuantidade(num, casas)} kg · Itens: ${fmtQuantidade(somaItens, casas)} kg · Dif: ${fmtQuantidade(difAbs, casas)} kg (${difPct.toFixed(2)}%)`}
-        >
-          {celula}
+        <TooltipGlobal titulo="Peso Bruto Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso bruto informado impedem o cálculo">
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+            {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+            <span className="gtv-celula-unidade-badge">kg</span>
+          </span>
         </TooltipGlobal>
       )
     },
   },
   {
     key: 'cubagem_total_pedido',
-    label: 'Cubagem Total',
+    label: 'Cubagem Total do Pedido',
     tipo: 'unidade',
     filtravel: true,
     sortavel: true,
@@ -1029,30 +1121,20 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     casasDecimais: getCasas('cubagem_total_pedido', 4),
     unidades: [{ sigla: 'm³', rotulo: 'Metro Cúbico' }],
     tooltipTitulo: 'Cubagem Total do Pedido',
-    tooltipDescricao: 'Volume total cubado de todos os itens do pedido, em m³',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem cubagem informada impedem o cálculo',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('cubagem_total_pedido', 4)
       const num = Number(row.cubagem_total_pedido ?? 0)
-      const somaItens = (row.itens ?? []).reduce((s, i) => s + (Number(i.cubagem_unitaria_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const diverge = (row.itens ?? []).length > 0 && Math.abs(num - somaItens) > 0.001
-      const alertaAtivo = diverge && (_regrasAlertasRef.current?.alerta_cubagem_divergente ?? true)
-      const difAbs = Math.abs(num - somaItens)
-      const difPct = somaItens === 0 ? 100 : (difAbs / somaItens) * 100
-      const celula = (
-        <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, cursor: alertaAtivo ? 'help' : undefined }}>
-          {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
-          {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
-          <span className="gtv-celula-unidade-badge">m³</span>
-        </span>
-      )
-      if (!alertaAtivo) return celula
+      const somaItensCub = (row.itens ?? []).reduce((s, i) => s + (Number(i.cubagem_unitaria_item) || 0), 0)
+      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensCub) > 0.001 && (_regrasAlertasRef.current?.alerta_cubagem_divergente ?? true)
       return (
-        <TooltipGlobal
-          titulo="Divergência na cubagem total"
-          descricao={`Pedido: ${fmtQuantidade(num, casas)} m³ · Itens: ${fmtQuantidade(somaItens, casas)} m³ · Dif: ${fmtQuantidade(difAbs, casas)} m³ (${difPct.toFixed(2)}%)`}
-        >
-          {celula}
+        <TooltipGlobal titulo="Cubagem Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem cubagem informada impedem o cálculo">
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+            {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
+            <span className="gtv-celula-unidade-badge">m³</span>
+          </span>
         </TooltipGlobal>
       )
     },
@@ -1060,7 +1142,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Datas de progresso ──────────────────────────────────────────────────────
   {
     key: 'data_prevista_pedido_pronto',
-    label: 'Prev. Pronto',
+    label: 'Data Prevista Pedido Pronto',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1071,7 +1153,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_pedido_pronto',
-    label: 'Conf. Pronto',
+    label: 'Data Confirmada Pedido Pronto',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1082,7 +1164,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_pedido_pronto',
-    label: 'Meta Pronto',
+    label: 'Data Meta Pedido Pronto',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1093,7 +1175,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_inspecao_pedido',
-    label: 'Prev. Inspeção',
+    label: 'Data Prevista Inspeção do Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1104,7 +1186,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_inspecao_pedido',
-    label: 'Conf. Inspeção',
+    label: 'Data Confirmada Inspeção do Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1115,7 +1197,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_inspecao_pedido',
-    label: 'Meta Inspeção',
+    label: 'Data Meta Inspeção do Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1126,7 +1208,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_coleta_pedido',
-    label: 'Prev. Coleta',
+    label: 'Data Prevista Coleta do Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1137,7 +1219,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_coleta_pedido',
-    label: 'Conf. Coleta',
+    label: 'Data Confirmada Coleta do Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1148,7 +1230,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_coleta_pedido',
-    label: 'Meta Coleta',
+    label: 'Data Meta Coleta do Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1159,7 +1241,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_consolidacao_pedido',
-    label: 'Dt Consolidação',
+    label: 'Data Consolidação do Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1170,7 +1252,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_transferencia_saldo_pedido',
-    label: 'Dt Transf. Saldo',
+    label: 'Dt Transferência Qtd. do Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1182,7 +1264,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Exportador (detalhes) ───────────────────────────────────────────────────
   {
     key: 'pais_exportador',
-    label: 'País Exportador',
+    label: 'País do Exportador',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1192,7 +1274,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'estado_exportador',
-    label: 'Estado/Prov. Exportador',
+    label: 'Estado/Província do Exportador',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1202,7 +1284,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'cidade_exportador',
-    label: 'Cidade Exportador',
+    label: 'Cidade do Exportador',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1212,7 +1294,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'endereco_exportador',
-    label: 'Endereço Exportador',
+    label: 'Endereço do Exportador',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Endereço do Exportador',
@@ -1221,7 +1303,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'zip_code_exportador',
-    label: 'ZIP Exportador',
+    label: 'Zipcode do Exportador',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Zip Code do Exportador',
@@ -1240,7 +1322,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'relacao_exportador_fabricante',
-    label: 'Relação Exp./Fab.',
+    label: 'Relação Exportador e Fabricante',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1260,7 +1342,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'email_contato_exportador',
-    label: 'E-mail Contato Exp.',
+    label: 'Email do Exportador',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'E-mail do Contato do Exportador',
@@ -1269,7 +1351,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'whatsapp_contato_exportador',
-    label: 'WhatsApp Contato Exp.',
+    label: 'Whatsapp do Exportador',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'WhatsApp do Contato do Exportador',
@@ -1278,7 +1360,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'cargo_contato_exportador',
-    label: 'Cargo Contato Exp.',
+    label: 'Cargo do Contato no Exportador',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Cargo do Contato do Exportador',
@@ -1287,7 +1369,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'departamento_contato_exportador',
-    label: 'Depto. Contato Exp.',
+    label: 'Departamento do Contato no Exportador',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Departamento do Contato do Exportador',
@@ -1297,7 +1379,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Fabricante (detalhes) ───────────────────────────────────────────────────
   {
     key: 'pais_fabricante',
-    label: 'País Fabricante',
+    label: 'País do Fabricante',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1307,7 +1389,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'estado_fabricante',
-    label: 'Estado/Prov. Fabricante',
+    label: 'Estado/Província do Fabricante',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1317,7 +1399,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'cidade_fabricante',
-    label: 'Cidade Fabricante',
+    label: 'Cidade do Fabricante',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1327,7 +1409,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'endereco_fabricante',
-    label: 'Endereço Fabricante',
+    label: 'Endereço do Fabricante',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Endereço do Fabricante',
@@ -1336,7 +1418,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'zip_code_fabricante',
-    label: 'ZIP Fabricante',
+    label: 'Zipcode do Fabricante',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Zip Code do Fabricante',
@@ -1346,7 +1428,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── OPE ────────────────────────────────────────────────────────────────────
   {
     key: 'cnpj_raiz_empresa_responsavel',
-    label: 'CNPJ Raiz Empresa',
+    label: 'CNPJ Raiz Empresa - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'CNPJ Raiz Empresa Responsável',
@@ -1355,7 +1437,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'codigo_ope',
-    label: 'Cód. OPE',
+    label: 'Código OPE - Catálogo',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1365,7 +1447,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'situacao_ope',
-    label: 'Situação OPE',
+    label: 'Situação OPE - Catálogo',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1375,7 +1457,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'versao_ope',
-    label: 'Versão OPE',
+    label: 'Versão OPE - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Versão do Operador Estrangeiro',
@@ -1384,7 +1466,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'nome_ope',
-    label: 'Nome OPE',
+    label: 'Nome OPE - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Nome do Operador Estrangeiro',
@@ -1393,7 +1475,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'pais_ope',
-    label: 'País OPE',
+    label: 'País OPE - Catálogo',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Partes',
@@ -1403,7 +1485,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'estado_ope',
-    label: 'Estado OPE',
+    label: 'Estado OPE - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Estado do Operador Estrangeiro',
@@ -1412,7 +1494,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'cidade_ope',
-    label: 'Cidade OPE',
+    label: 'Cidade OPE - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Cidade do Operador Estrangeiro',
@@ -1421,7 +1503,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'endereco_ope',
-    label: 'Endereço OPE',
+    label: 'Endereço OPE - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Endereço do Operador Estrangeiro',
@@ -1430,7 +1512,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'zip_code_ope',
-    label: 'ZIP OPE',
+    label: 'ZIP OPE - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'Zip Code do Operador Estrangeiro',
@@ -1439,7 +1521,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'tin_ope',
-    label: 'TIN OPE',
+    label: 'TIN OPE - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'TIN do Operador Estrangeiro',
@@ -1448,7 +1530,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'email_ope',
-    label: 'E-mail OPE',
+    label: 'E-mail OPE - Catálogo',
     tipo: 'texto',
     grupo: 'Partes',
     tooltipTitulo: 'E-mail do Operador Estrangeiro',
@@ -1458,7 +1540,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Documentos (anexos e volumes) ───────────────────────────────────────────
   {
     key: 'anexo_pedido',
-    label: 'Anexo P.O.',
+    label: 'Anexo do Pedido',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Anexo do Pedido',
@@ -1467,7 +1549,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'anexo_proforma',
-    label: 'Anexo Proforma',
+    label: 'Anexo da Proforma',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Anexo da Proforma Invoice',
@@ -1476,7 +1558,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'anexo_invoice',
-    label: 'Anexo Invoice',
+    label: 'Anexo da Invoice',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Anexo da Invoice',
@@ -1485,7 +1567,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'quantidade_volumes_pedido',
-    label: 'Qtd Volumes',
+    label: 'Quantidade de Volumes do Pedido',
     tipo: 'numero',
     filtravel: true,
     sortavel: true,
@@ -1502,7 +1584,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Datas — Draft do Pedido ─────────────────────────────────────────────────
   {
     key: 'data_prevista_recebimento_draft_pedido',
-    label: 'Prev. Rec. Draft P.O.',
+    label: 'Dt Prev. Recebimento Draft Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1513,7 +1595,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_recebimento_draft_pedido',
-    label: 'Conf. Rec. Draft P.O.',
+    label: 'Dt Conf. Recebimento Draft Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1524,7 +1606,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_recebimento_draft_pedido',
-    label: 'Meta Rec. Draft P.O.',
+    label: 'Dt Meta Recebimento Draft Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1535,7 +1617,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_aprovacao_draft_pedido',
-    label: 'Prev. Aprov. Draft P.O.',
+    label: 'Dt Prev. Aprovação Draft Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1546,7 +1628,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_aprovacao_draft_pedido',
-    label: 'Conf. Aprov. Draft P.O.',
+    label: 'Dt Conf. Aprovação Draft Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1557,7 +1639,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_aprovacao_draft_pedido',
-    label: 'Meta Aprov. Draft P.O.',
+    label: 'Dt Meta Aprovação Draft Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1568,7 +1650,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_documento_pedido',
-    label: 'Dt Documento P.O.',
+    label: 'Data do Documento Pedido',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1580,7 +1662,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Datas — Proforma Invoice ────────────────────────────────────────────────
   {
     key: 'data_prevista_recebimento_draft_proforma',
-    label: 'Prev. Rec. Draft Proforma',
+    label: 'Dt Prev. Recebimento Draft Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1591,7 +1673,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_recebimento_draft_proforma',
-    label: 'Conf. Rec. Draft Proforma',
+    label: 'Dt Conf. Recebimento Draft Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1602,7 +1684,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_recebimento_draft_proforma',
-    label: 'Meta Rec. Draft Proforma',
+    label: 'Dt Meta Recebimento Draft Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1613,7 +1695,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_aprovacao_draft_proforma',
-    label: 'Prev. Aprov. Draft Proforma',
+    label: 'Dt Prev. Aprovação Draft Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1624,7 +1706,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_aprovacao_draft_proforma',
-    label: 'Conf. Aprov. Draft Proforma',
+    label: 'Dt Conf. Aprovação Draft Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1635,7 +1717,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_aprovacao_draft_proforma',
-    label: 'Meta Aprov. Draft Proforma',
+    label: 'Dt Meta Aprovação Draft Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1646,7 +1728,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_envio_original_proforma',
-    label: 'Prev. Envio Original Proforma',
+    label: 'Dt Prev. Envio Original Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1657,7 +1739,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_envio_original_proforma',
-    label: 'Conf. Envio Original Proforma',
+    label: 'Dt Conf. Envio Original Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1668,7 +1750,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_envio_original_proforma',
-    label: 'Meta Envio Original Proforma',
+    label: 'Dt Meta Envio Original Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1679,7 +1761,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_recebimento_original_proforma',
-    label: 'Prev. Rec. Original Proforma',
+    label: 'Dt Prev. Recebimento Original Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1690,7 +1772,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_recebimento_original_proforma',
-    label: 'Conf. Rec. Original Proforma',
+    label: 'Dt Conf. Recebimento Original Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1701,7 +1783,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_recebimento_original_proforma',
-    label: 'Meta Rec. Original Proforma',
+    label: 'Dt Meta Recebimento Original Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1712,7 +1794,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_proforma_invoice',
-    label: 'Dt Proforma Invoice',
+    label: 'Data do Documento Proforma',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1724,7 +1806,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   // ── Datas — Invoice ─────────────────────────────────────────────────────────
   {
     key: 'data_prevista_recebimento_draft_invoice',
-    label: 'Prev. Rec. Draft Invoice',
+    label: 'Dt Prev. Recebimento Draft Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1735,7 +1817,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_recebimento_draft_invoice',
-    label: 'Conf. Rec. Draft Invoice',
+    label: 'Dt Conf. Recebimento Draft Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1746,7 +1828,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_recebimento_draft_invoice',
-    label: 'Meta Rec. Draft Invoice',
+    label: 'Dt Meta Recebimento Draft Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1757,7 +1839,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_aprovacao_draft_invoice',
-    label: 'Prev. Aprov. Draft Invoice',
+    label: 'Dt Prev. Aprovação Draft Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1768,7 +1850,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_aprovacao_draft_invoice',
-    label: 'Conf. Aprov. Draft Invoice',
+    label: 'Dt Conf. Aprovação Draft Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1779,7 +1861,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_aprovacao_draft_invoice',
-    label: 'Meta Aprov. Draft Invoice',
+    label: 'Dt Meta Aprovação Draft Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1790,7 +1872,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_envio_original_invoice',
-    label: 'Prev. Envio Original Invoice',
+    label: 'Dt Prev. Envio Original Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1801,7 +1883,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_envio_original_invoice',
-    label: 'Conf. Envio Original Invoice',
+    label: 'Dt Conf. Envio Original Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1812,7 +1894,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_envio_original_invoice',
-    label: 'Meta Envio Original Invoice',
+    label: 'Dt Meta Envio Original Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1823,7 +1905,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_prevista_recebimento_original_invoice',
-    label: 'Prev. Rec. Original Invoice',
+    label: 'Dt Prev. Recebimento Original Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1834,7 +1916,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_confirmada_recebimento_original_invoice',
-    label: 'Conf. Rec. Original Invoice',
+    label: 'Dt Conf. Recebimento Original Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1845,7 +1927,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_meta_recebimento_original_invoice',
-    label: 'Meta Rec. Original Invoice',
+    label: 'Dt Meta Recebimento Original Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -1856,7 +1938,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'data_invoice',
-    label: 'Dt Invoice',
+    label: 'Data do Documento Invoice',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2038,7 +2120,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'quantidade_inicial_item_pedido',
-    label: 'Qtd Inicial',
+    label: 'Qtd Inicial do Item no Pedido',
     tipo: 'numero',
     align: 'right',
     grupo: 'Quantidades',
@@ -2052,7 +2134,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'saldo_item_pedido',
-    label: 'Saldo',
+    label: 'Saldo do Item',
     tipo: 'numero',
     align: 'right',
     grupo: 'Quantidades',
@@ -2070,7 +2152,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'quantidade_pronta_total_item_pedido',
-    label: 'Qtd Pronta',
+    label: 'Quantidade Pronta do Item no Pedido',
     tipo: 'numero',
     align: 'right',
     grupo: 'Quantidades',
@@ -2084,21 +2166,22 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'quantidade_transferida_item_pedido',
-    label: 'Qtd Transferida',
+    label: 'Quantidade Transferida do Item no Pedido',
     tipo: 'numero',
     align: 'right',
     grupo: 'Quantidades',
     tooltipTitulo: 'Quantidade Transferida',
-    tooltipDescricao: 'Total já alocado em processos logísticos (embarques)',
+    tooltipDescricao: 'Quantidade já transferida deste item para outros pedidos.',
+    tooltipBloqueado: 'Campo calculado — incrementado automaticamente ao executar uma transferência. Não pode ser editado diretamente.',
     render: (_val: unknown, row: PedidoItem) => (
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
         {fmtQuantidade(row.quantidade_transferida_item_pedido, getCasas('quantidade_item', 0))}
       </span>
     ),
   },
   {
     key: 'quantidade_cancelada_item_pedido',
-    label: 'Qtd Cancelada',
+    label: 'Quantidade Cancelada do Item no Pedido',
     tipo: 'numero',
     align: 'right',
     grupo: 'Quantidades',
@@ -2115,7 +2198,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'sequencia_item',
-    label: 'Seq.',
+    label: 'Seq. Item',
     tipo: 'numero',
     align: 'center',
     grupo: 'Identificação',
@@ -2129,7 +2212,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'descricao_completa_item_pt',
-    label: 'Desc. Completa',
+    label: 'Descrição Completa do Item/Produto',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Descrição Completa do Produto',
@@ -2138,7 +2221,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'descricao_completa_item_nf',
-    label: 'Desc. NF',
+    label: 'Descrição Completa do Item/Produto- NF',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Descrição Espelho da Nota Fiscal',
@@ -2164,7 +2247,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── Pesos e cubagem ──────────────────────────────────────────────────────────
   {
     key: 'peso_liquido_unitario_item',
-    label: 'Peso Líq. Unit.',
+    label: 'Peso Líquido Unitário do Item',
     tipo: 'numero',
     align: 'right',
     grupo: 'Dados Físicos',
@@ -2180,7 +2263,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'peso_bruto_unitario_item',
-    label: 'Peso Bruto Unit.',
+    label: 'Peso Bruto Unitário do Item',
     tipo: 'numero',
     align: 'right',
     grupo: 'Dados Físicos',
@@ -2196,7 +2279,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'cubagem_unitaria_item',
-    label: 'Cubagem Unit.',
+    label: 'Cubagem Unitária do Item',
     tipo: 'numero',
     align: 'right',
     grupo: 'Dados Físicos',
@@ -2213,7 +2296,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── Embalagem e documentos ───────────────────────────────────────────────────
   {
     key: 'tipo_embalagem',
-    label: 'Embalagem',
+    label: 'Tipo de Embalagem',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Dados Físicos',
@@ -2223,7 +2306,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'numero_lpco',
-    label: 'LPCO',
+    label: 'Número da LPCO',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2233,7 +2316,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'numero_certificado_origem',
-    label: 'Cert. Origem',
+    label: 'Número do Certificado de Origem',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2253,7 +2336,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── Classificação ────────────────────────────────────────────────────────────
   {
     key: 'grupo_item',
-    label: 'Grupo',
+    label: 'Grupo do Item/Produto',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Identificação',
@@ -2263,7 +2346,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'subgrupo_item',
-    label: 'Subgrupo',
+    label: 'Subgrupo do Item/Produto',
     tipo: 'texto',
     filtravel: true,
     grupo: 'Identificação',
@@ -2273,7 +2356,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'campo_especial_item',
-    label: 'Campo Especial',
+    label: 'Campo Especial do Item/Produto',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Campo Especial',
@@ -2283,7 +2366,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── Descrições multilíngues ──────────────────────────────────────────────────
   {
     key: 'descricao_completa_item_en',
-    label: 'Desc. (EN)',
+    label: 'Descrição Completa do Item/Produto- Inglês',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Product Description (English)',
@@ -2292,7 +2375,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'descricao_completa_item_es',
-    label: 'Desc. (ES)',
+    label: 'Descrição Completa do Item/Produto- Espanhol',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Descripción del Producto (Español)',
@@ -2310,7 +2393,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'atributos_catalogo',
-    label: 'Atributos',
+    label: 'Atributo do Produto - Catálogo',
     tipo: 'texto',
     grupo: 'Identificação',
     tooltipTitulo: 'Atributos — Catálogo de Produtos',
@@ -2329,7 +2412,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── Datas do item ────────────────────────────────────────────────────────────
   {
     key: 'data_transferencia_item',
-    label: 'Dt Transf. Item',
+    label: 'Data de Transferência do Item',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2340,7 +2423,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_consolidacao_item',
-    label: 'Dt Consol. Item',
+    label: 'Data de Consolidação do Item',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2352,7 +2435,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── Datas LPCO ───────────────────────────────────────────────────────────────
   {
     key: 'data_prevista_conferencia_draft_lpco',
-    label: 'Prev. Conf. Draft LPCO',
+    label: 'Dt Prev. Conferência Draft LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2363,7 +2446,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_confirmada_conferencia_draft_lpco',
-    label: 'Conf. Conf. Draft LPCO',
+    label: 'Dt Conf. Conferência Draft LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2374,7 +2457,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_meta_conferencia_draft_lpco',
-    label: 'Meta Conf. Draft LPCO',
+    label: 'Dt Meta Conferência Draft LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2385,7 +2468,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_prevista_aprovacao_draft_lpco',
-    label: 'Prev. Aprov. Draft LPCO',
+    label: 'Dt Prev. Aprovação Draft LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2396,7 +2479,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_confirmada_aprovacao_draft_lpco',
-    label: 'Conf. Aprov. Draft LPCO',
+    label: 'Dt Conf. Aprovação Draft LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2407,7 +2490,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_meta_aprovacao_draft_lpco',
-    label: 'Meta Aprov. Draft LPCO',
+    label: 'Dt Meta Aprovação Draft LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2418,7 +2501,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_prevista_registro_lpco',
-    label: 'Prev. Registro LPCO',
+    label: 'Dt Prev. Registro da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2429,7 +2512,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_confirmada_registro_lpco',
-    label: 'Conf. Registro LPCO',
+    label: 'Dt Conf. Registro da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2440,7 +2523,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_meta_registro_lpco',
-    label: 'Meta Registro LPCO',
+    label: 'Dt Meta. Registro da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2451,7 +2534,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_prevista_resultado_analise_lpco',
-    label: 'Prev. Análise LPCO',
+    label: 'Dt Prev. Análise da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2462,7 +2545,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_confirmada_resultado_analise_lpco',
-    label: 'Conf. Análise LPCO',
+    label: 'Dt Conf. Análise da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2473,7 +2556,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_meta_resultado_analise_lpco',
-    label: 'Meta Análise LPCO',
+    label: 'Dt Meta. Análise da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2484,7 +2567,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_prevista_deferimento_lpco',
-    label: 'Prev. Deferimento LPCO',
+    label: 'Dt Prev. Deferimento da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2495,7 +2578,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_confirmada_deferimento_lpco',
-    label: 'Conf. Deferimento LPCO',
+    label: 'Dt Conf. Deferimento da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2506,7 +2589,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_meta_deferimento_lpco',
-    label: 'Meta Deferimento LPCO',
+    label: 'Dt Meta. Deferimento da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2517,7 +2600,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_confirmada_indeferimento_lpco',
-    label: 'Conf. Indeferimento LPCO',
+    label: 'Dt Conf. Indeferimento da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2528,7 +2611,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_confirmada_exigencia_lpco',
-    label: 'Conf. Exigência LPCO',
+    label: 'Dt Conf. Exigência da LPCO',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2672,7 +2755,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'data_certificado_origem',
-    label: 'Dt Cert. Origem',
+    label: 'Data de emissão do Certificado de Origem',
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
@@ -2684,7 +2767,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — Dados gerais ─────────────────────────────────────────────────────
   {
     key: 'tipo_operacao_duimp',
-    label: 'Tipo Op. DUIMP',
+    label: 'Tipo de Operação - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2694,7 +2777,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'descricao_resumida_duimp',
-    label: 'Desc. Resumida DUIMP',
+    label: 'Descrição Resumida Produto - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Descrição Resumida do Produto — DUIMP',
@@ -2703,7 +2786,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'versao_produto_duimp',
-    label: 'Versão Produto DUIMP',
+    label: 'Versão do Produto - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Versão do Produto — Catálogo DUIMP',
@@ -2712,7 +2795,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'ncm_duimp',
-    label: 'NCM DUIMP',
+    label: 'NCM - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2722,7 +2805,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'atributos_duimp',
-    label: 'Atributos DUIMP',
+    label: 'Atributos - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Atributos — DUIMP',
@@ -2731,7 +2814,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'aplicacao_mercadoria_duimp',
-    label: 'Aplicação Mercadoria DUIMP',
+    label: 'Aplicação Mercadoria - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2741,7 +2824,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'condicao_mercadoria_duimp',
-    label: 'Condição Mercadoria DUIMP',
+    label: 'Condição Mercadoria - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2751,7 +2834,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'relacao_exportador_fabricante_duimp',
-    label: 'Relação Exp./Fab. DUIMP',
+    label: 'Relação Exportador/Fabricante - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Relação entre Exportador e Fabricante — DUIMP',
@@ -2760,7 +2843,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'vinculacao_preco_duimp',
-    label: 'Vinculação Preço DUIMP',
+    label: 'Vinculação Preço - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2770,7 +2853,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'descricao_completa_duimp',
-    label: 'Desc. Completa DUIMP',
+    label: 'Descrição Completa - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Descrição Completa do Produto — DUIMP',
@@ -2779,7 +2862,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'descricao_complementar_duimp',
-    label: 'Desc. Complementar DUIMP',
+    label: 'Descrição Complementar - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Descrição Complementar da Mercadoria — DUIMP',
@@ -2789,7 +2872,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — OPE ─────────────────────────────────────────────────────────────
   {
     key: 'codigo_ope_duimp',
-    label: 'Cód. OPE DUIMP',
+    label: 'Cód. OPE Descrição Completa - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Código do Operador Estrangeiro — DUIMP',
@@ -2798,7 +2881,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'nome_ope_duimp',
-    label: 'Nome OPE DUIMP',
+    label: 'Nome OPE - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Nome do Operador Estrangeiro — DUIMP',
@@ -2807,7 +2890,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'pais_ope_duimp',
-    label: 'País OPE DUIMP',
+    label: 'País OPE - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2817,7 +2900,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'codigo_ope_fabricante_duimp',
-    label: 'Cód. OPE Fab. DUIMP',
+    label: 'Cód. OPE Fabricante - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Código do Operador Estrangeiro Fabricante — DUIMP',
@@ -2826,7 +2909,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'nome_ope_fabricante_duimp',
-    label: 'Nome OPE Fab. DUIMP',
+    label: 'Nome OPE Fabricante - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Nome do Operador Estrangeiro Fabricante — DUIMP',
@@ -2835,7 +2918,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'pais_fabricante_ope_duimp',
-    label: 'País OPE Fab. DUIMP',
+    label: 'País OPE Fab. - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2846,7 +2929,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — Valoração ────────────────────────────────────────────────────────
   {
     key: 'metodo_valoracao_duimp',
-    label: 'Método Valoração DUIMP',
+    label: 'Método Valoração - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2856,7 +2939,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'incoterm_duimp',
-    label: 'Incoterm DUIMP',
+    label: 'Incoterm - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2866,7 +2949,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'moeda_produto_duimp',
-    label: 'Moeda DUIMP',
+    label: 'Moeda - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -2876,7 +2959,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_unitario_duimp',
-    label: 'Vlr Unit. DUIMP',
+    label: 'Valor Unitário do Produto - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -2895,7 +2978,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_total_condicao_venda_duimp',
-    label: 'Vlr Total Cond. Venda DUIMP',
+    label: 'Valor Total na Condição de Venda - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -2914,7 +2997,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_condicao_venda_brl_duimp',
-    label: 'Vlr Cond. Venda (R$) DUIMP',
+    label: 'Valor na Condição de Venda - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -2932,7 +3015,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_frete_internacional_brl_duimp',
-    label: 'Frete Internacional (R$) DUIMP',
+    label: 'Frete Internacional (R$) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -2950,7 +3033,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_seguro_internacional_brl_duimp',
-    label: 'Seguro Internacional (R$) DUIMP',
+    label: 'Seguro Internacional (R$) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -2968,7 +3051,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_local_embarque_brl_duimp',
-    label: 'Vlr Local Embarque (R$) DUIMP',
+    label: 'Valor Local de Embarque (R$) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -2986,7 +3069,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_aduaneiro_brl_duimp',
-    label: 'Valor Aduaneiro (R$) DUIMP',
+    label: 'Valor Aduaneiro (R$) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3005,7 +3088,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — Cobertura cambial ────────────────────────────────────────────────
   {
     key: 'tipo_cobertura_cambial_duimp',
-    label: 'Tipo Cob. Cambial DUIMP',
+    label: 'Tipo Cobertura Cambial - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -3015,7 +3098,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'numero_rof_bacen_duimp',
-    label: 'ROF/BACEN DUIMP',
+    label: 'Número do ROF - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Número do ROF/BACEN — DUIMP',
@@ -3024,7 +3107,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'motivo_sem_cobertura_duimp',
-    label: 'Motivo Sem Cobertura DUIMP',
+    label: 'Motivo Sem Cobertura - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -3035,7 +3118,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — II ──────────────────────────────────────────────────────────────
   {
     key: 'base_calculo_ii_duimp',
-    label: 'BC II (R$)',
+    label: 'BC II (R$) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3049,7 +3132,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'percentual_ii_duimp',
-    label: 'Alíq. II (%)',
+    label: 'Alíquota do II (%) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3063,7 +3146,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_devido_ii_duimp',
-    label: 'II Devido (R$)',
+    label: 'Valor Devido do II - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3081,7 +3164,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_recolher_ii_duimp',
-    label: 'II a Recolher (R$)',
+    label: 'Valor Recolher do II - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3100,7 +3183,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — IPI ─────────────────────────────────────────────────────────────
   {
     key: 'base_calculo_ipi_duimp',
-    label: 'BC IPI (R$)',
+    label: 'BC IPI (R$) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3114,7 +3197,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'percentual_ipi_duimp',
-    label: 'Alíq. IPI (%)',
+    label: 'Alíquota do IPI(%) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3128,7 +3211,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_recolher_ipi_duimp',
-    label: 'IPI a Recolher (R$)',
+    label: 'Valor Recolher do IPI- DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3147,7 +3230,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — PIS ─────────────────────────────────────────────────────────────
   {
     key: 'base_calculo_pis_duimp',
-    label: 'BC PIS (R$)',
+    label: 'BC PIS(R$) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3161,7 +3244,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'percentual_pis_duimp',
-    label: 'Alíq. PIS (%)',
+    label: 'Alíquota do PIS(%) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3175,7 +3258,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_recolher_pis_duimp',
-    label: 'PIS a Recolher (R$)',
+    label: 'Valor Recolher do PIS- DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3194,7 +3277,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — COFINS ──────────────────────────────────────────────────────────
   {
     key: 'base_calculo_cofins_duimp',
-    label: 'BC COFINS (R$)',
+    label: 'BC COFINS(R$) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3208,7 +3291,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'percentual_cofins_duimp',
-    label: 'Alíq. COFINS (%)',
+    label: 'Alíquota do COFINS(%) - DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3222,7 +3305,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'valor_recolher_cofins_duimp',
-    label: 'COFINS a Recolher (R$)',
+    label: 'Valor Recolher do COFINS- DUIMP',
     tipo: 'numero',
     align: 'right',
     grupo: 'DUIMP / Fiscal',
@@ -3241,7 +3324,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── DUIMP — Tratamento administrativo ───────────────────────────────────────
   {
     key: 'existe_tratamento_administrativo_duimp',
-    label: 'Trat. Adm. DUIMP?',
+    label: 'Existe Tratamento Administrativo - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -3251,7 +3334,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'tipo_trat_adm_duimp',
-    label: 'Tipo Trat. Adm. DUIMP',
+    label: 'Tipo Tratamento Administrativo - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -3261,7 +3344,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'orgao_trat_adm_duimp',
-    label: 'Órgão Trat. Adm. DUIMP',
+    label: 'Órgão Anuente Tratamento Administrativo - DUIMP',
     tipo: 'texto',
     filtravel: true,
     grupo: 'DUIMP / Fiscal',
@@ -3271,7 +3354,7 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'numero_lpco_trat_adm_duimp',
-    label: 'LPCO Trat. Adm. DUIMP',
+    label: 'Número LPCO Tratamento Administrativo - DUIMP',
     tipo: 'texto',
     grupo: 'DUIMP / Fiscal',
     tooltipTitulo: 'Número da LPCO do Tratamento Administrativo — DUIMP',
@@ -3308,17 +3391,18 @@ const CAMPOS_NUMERICOS_ITEM = new Set([
   'peso_liquido_unitario_item', 'peso_bruto_unitario_item', 'cubagem_unitaria_item',
 ])
 
+// Fator de conversão reversa: KG armazenado → unidade de exibição
+const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
+
 // Campos com unidade física fixa — GTValorUnidade usado só para exibir a unidade no popover,
 // mas NÃO grava unidade_comercializada_item (a unidade não muda)
 const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
-  'peso_liquido_unitario', 'peso_bruto_unitario', 'cubagem_unitaria',
+  'peso_liquido_unitario_item', 'peso_bruto_unitario_item', 'cubagem_unitaria_item',
 ])
 
 // Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
 const CAMPOS_PAI_TEXTO = new Set([
-  'nome_fabricante',
   'numero_proforma', 'numero_invoice',
-  'incoterm', 'condicao_pagamento_pedido',
 ])
 
 // Tipo auxiliar: item enriquecido com dados do pedido pai para renderização
@@ -3351,6 +3435,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   // ── NCM do item ───────────────────────────────────────────────────────────
   ncm: {
+    editavel: true,
     render: (row: PedidoItem) => {
       const digits = (row.ncm ?? '').replace(/\D/g, '')
       const formatted = digits.length === 8
@@ -3378,6 +3463,10 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   nome_exportador: {
     editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
+    tooltipBloqueado: (row: PedidoItem) =>
+      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao'
+        ? 'Exportador definido automaticamente pelo workspace — não editável em Exportação'
+        : undefined,
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
@@ -3387,6 +3476,10 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   nome_importador: {
     editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
+    tooltipBloqueado: (row: PedidoItem) =>
+      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao'
+        ? 'Importador definido automaticamente pelo workspace — não editável em Importação'
+        : undefined,
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
@@ -3397,10 +3490,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   nome_fabricante: {
     editavel: true,
     campo: 'nome_fabricante',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.nome_fabricante ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => <span>{row.nome_fabricante ?? '—'}</span>,
   },
   referencia_importador: {
     editavel: true,
@@ -3431,10 +3521,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   incoterm: {
     editavel: true,
     campo: 'incoterm',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.incoterm ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => <span>{row.incoterm ?? '—'}</span>,
   },
   status: {
     editavel: true,
@@ -3465,10 +3552,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   condicao_pagamento_pedido: {
     editavel: true,
     campo: 'condicao_pagamento_pedido',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.condicao_pagamento_pedido ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
   },
   data_emissao_pedido: {
     render: (row: PedidoItem) => {
@@ -3481,40 +3565,55 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     editavel: true,
     campo: 'peso_liquido_unitario_item',
     casasDecimais: getCasas('peso_liquido_unitario_item', 3),
-    getValorEditar: (row: PedidoItem) => ({
-      unit: 'kg',
-      quantity: Number(row.peso_liquido_unitario_item ?? 0),
-    }),
-    render: (row: PedidoItem) => (
-      <span className="gtv-celula-moeda">
-        {row.peso_liquido_unitario_item != null
-          ? fmtQuantidade(row.peso_liquido_unitario_item, getCasas('peso_liquido_unitario_item', 3))
-          : '—'}
-        <span className="gtv-celula-unidade-badge">kg</span>
-      </span>
-    ),
+    unidades: UNIDADES_PESO_OPCOES,
+    getValorEditar: (row: PedidoItem) => {
+      const unit = row.peso_liquido_unidade_item ?? 'KG'
+      const kg = Number(row.peso_liquido_unitario_item ?? 0)
+      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+    },
+    render: (row: PedidoItem) => {
+      const unit = row.peso_liquido_unidade_item ?? 'KG'
+      const kg = Number(row.peso_liquido_unitario_item ?? 0)
+      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      return (
+        <span className="gtv-celula-moeda">
+          {row.peso_liquido_unitario_item != null
+            ? fmtQuantidade(display, getCasas('peso_liquido_unitario_item', 3))
+            : '—'}
+          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+        </span>
+      )
+    },
   },
   peso_bruto_total_pedido: {
     editavel: true,
     campo: 'peso_bruto_unitario_item',
     casasDecimais: getCasas('peso_bruto_unitario_item', 3),
-    getValorEditar: (row: PedidoItem) => ({
-      unit: 'kg',
-      quantity: Number(row.peso_bruto_unitario_item ?? 0),
-    }),
-    render: (row: PedidoItem) => (
-      <span className="gtv-celula-moeda">
-        {row.peso_bruto_unitario_item != null
-          ? fmtQuantidade(row.peso_bruto_unitario_item, getCasas('peso_bruto_unitario_item', 3))
-          : '—'}
-        <span className="gtv-celula-unidade-badge">kg</span>
-      </span>
-    ),
+    unidades: UNIDADES_PESO_OPCOES,
+    getValorEditar: (row: PedidoItem) => {
+      const unit = row.peso_bruto_unidade_item ?? 'KG'
+      const kg = Number(row.peso_bruto_unitario_item ?? 0)
+      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+    },
+    render: (row: PedidoItem) => {
+      const unit = row.peso_bruto_unidade_item ?? 'KG'
+      const kg = Number(row.peso_bruto_unitario_item ?? 0)
+      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      return (
+        <span className="gtv-celula-moeda">
+          {row.peso_bruto_unitario_item != null
+            ? fmtQuantidade(display, getCasas('peso_bruto_unitario_item', 3))
+            : '—'}
+          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+        </span>
+      )
+    },
   },
   cubagem_total_pedido: {
     editavel: true,
     campo: 'cubagem_unitaria_item',
     casasDecimais: getCasas('cubagem_unitaria_item', 4),
+    unidades: [{ sigla: 'm³', rotulo: 'm³ — Metro Cúbico' }],
     getValorEditar: (row: PedidoItem) => ({
       unit: 'm³',
       quantity: Number(row.cubagem_unitaria_item ?? 0),
@@ -3590,13 +3689,12 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     },
   },
   quantidade_transferida_total: {
-    editavel: true,
-    campo: 'quantidade_transferida_item_pedido',
-    casasDecimais: getCasas('quantidade_item', 0),
+    editavel: false,
+    tooltipBloqueado: 'Campo calculado — incrementado automaticamente ao executar uma transferência. Não pode ser editado diretamente.',
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       return (
-        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
           {fmtQuantidade(row.quantidade_transferida_item_pedido ?? 0, getCasas('quantidade_item', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
@@ -3626,38 +3724,38 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
 // ── Colunas para exportação ───────────────────────────────────────────────────
 
 const COLUNAS_EXPORT: ColunasExport[] = [
-  { header: 'Linha',                    key: '_tipo_linha',                       largura: 10 },
-  { header: 'Pedido',                   key: 'numero_pedido',                    largura: 18 },
-  { header: 'Part Number',               key: 'numero_item',                      largura: 20 },
-  { header: 'Tipo',                     key: 'tipo_operacao',                    largura: 14 },
-  { header: 'Status',                   key: 'status',                           largura: 16 },
-  { header: 'Exportador',               key: 'nome_exportador',                  largura: 25 },
-  { header: 'Fabricante',               key: 'nome_fabricante',                  largura: 22 },
-  { header: 'Ref. Importador',          key: 'referencia_importador',            largura: 20 },
-  { header: 'Ref. Exportador',          key: 'referencia_exportador',            largura: 20 },
-  { header: 'Ref. Fabricante',          key: 'referencia_fabricante',            largura: 20 },
-  { header: 'Proforma',                 key: 'numero_proforma',                  largura: 16 },
-  { header: 'Invoice',                  key: 'numero_invoice',                   largura: 16 },
-  { header: 'Incoterm',                 key: 'incoterm',                         largura: 12 },
-  { header: 'Valor Total',              key: 'valor_total_pedido',               largura: 18 },
-  { header: 'Qtd. Inicial',             key: 'quantidade_total_inicial_pedido',  largura: 14 },
-  { header: 'Peso Líq. Total (kg)',      key: 'peso_liquido_total_pedido',        largura: 18 },
-  { header: 'Peso Bruto Total (kg)',     key: 'peso_bruto_total_pedido',          largura: 18 },
-  { header: 'Cubagem Total (m³)',        key: 'cubagem_total_pedido',             largura: 16 },
-  { header: 'Cobertura Cambial',        key: 'cobertura_cambial',               largura: 18 },
-  { header: 'Cond. Pagamento',          key: 'condicao_pagamento_pedido',       largura: 18 },
-  { header: 'Data P.O',                 key: 'data_emissao_pedido',              largura: 14 },
-  { header: 'Prev. Pronto',             key: 'data_prevista_pedido_pronto',      largura: 14 },
-  { header: 'Conf. Pronto',             key: 'data_confirmada_pedido_pronto',    largura: 14 },
-  { header: 'Meta Pronto',              key: 'data_meta_pedido_pronto',          largura: 14 },
-  { header: 'Prev. Inspeção',           key: 'data_prevista_inspecao_pedido',    largura: 14 },
-  { header: 'Conf. Inspeção',           key: 'data_confirmada_inspecao_pedido',  largura: 14 },
-  { header: 'Meta Inspeção',            key: 'data_meta_inspecao_pedido',        largura: 14 },
-  { header: 'Prev. Coleta',             key: 'data_prevista_coleta_pedido',      largura: 14 },
-  { header: 'Conf. Coleta',             key: 'data_confirmada_coleta_pedido',    largura: 14 },
-  { header: 'Meta Coleta',              key: 'data_meta_coleta_pedido',          largura: 14 },
-  { header: 'Dt Consolidação',          key: 'data_consolidacao_pedido',         largura: 14 },
-  { header: 'Dt Transf. Saldo',         key: 'data_transferencia_saldo_pedido',  largura: 14 },
+  { header: 'Linha',                                    key: '_tipo_linha',                       largura: 10 },
+  { header: 'Nº Pedido',                                key: 'numero_pedido',                    largura: 18 },
+  { header: 'Part Number',                               key: 'numero_item',                      largura: 20 },
+  { header: 'Tipo de Operação',                          key: 'tipo_operacao',                    largura: 14 },
+  { header: 'Status',                                    key: 'status',                           largura: 16 },
+  { header: 'Nome do Exportador',                        key: 'nome_exportador',                  largura: 25 },
+  { header: 'Nome do Fabricante',                        key: 'nome_fabricante',                  largura: 22 },
+  { header: 'Referência Importador',                     key: 'referencia_importador',            largura: 20 },
+  { header: 'Referência Exportador',                     key: 'referencia_exportador',            largura: 20 },
+  { header: 'Referência do Fabricante',                  key: 'referencia_fabricante',            largura: 20 },
+  { header: 'Número da Proforma',                        key: 'numero_proforma',                  largura: 16 },
+  { header: 'Número da Invoice',                         key: 'numero_invoice',                   largura: 16 },
+  { header: 'Incoterm',                                  key: 'incoterm',                         largura: 12 },
+  { header: 'Valor Total do Pedido',                     key: 'valor_total_pedido',               largura: 18 },
+  { header: 'Qtd. Inicial do Pedido',                    key: 'quantidade_total_inicial_pedido',  largura: 14 },
+  { header: 'Peso Líquido Total do Pedido',              key: 'peso_liquido_total_pedido',        largura: 18 },
+  { header: 'Peso Bruto Total do Pedido',                key: 'peso_bruto_total_pedido',          largura: 18 },
+  { header: 'Cubagem Total do Pedido',                   key: 'cubagem_total_pedido',             largura: 16 },
+  { header: 'Cobertura Cambial do Pedido',               key: 'cobertura_cambial',               largura: 18 },
+  { header: 'Condição de Pagamento do Pedido',           key: 'condicao_pagamento_pedido',       largura: 18 },
+  { header: 'Data P.O',                                  key: 'data_emissao_pedido',              largura: 14 },
+  { header: 'Data Prevista Pedido Pronto',               key: 'data_prevista_pedido_pronto',      largura: 14 },
+  { header: 'Data Confirmada Pedido Pronto',             key: 'data_confirmada_pedido_pronto',    largura: 14 },
+  { header: 'Data Meta Pedido Pronto',                   key: 'data_meta_pedido_pronto',          largura: 14 },
+  { header: 'Data Prevista Inspeção do Pedido',          key: 'data_prevista_inspecao_pedido',    largura: 14 },
+  { header: 'Data Confirmada Inspeção do Pedido',        key: 'data_confirmada_inspecao_pedido',  largura: 14 },
+  { header: 'Data Meta Inspeção do Pedido',              key: 'data_meta_inspecao_pedido',        largura: 14 },
+  { header: 'Data Prevista Coleta do Pedido',            key: 'data_prevista_coleta_pedido',      largura: 14 },
+  { header: 'Data Confirmada Coleta do Pedido',          key: 'data_confirmada_coleta_pedido',    largura: 14 },
+  { header: 'Data Meta Coleta do Pedido',                key: 'data_meta_coleta_pedido',          largura: 14 },
+  { header: 'Data Consolidação do Pedido',               key: 'data_consolidacao_pedido',         largura: 14 },
+  { header: 'Dt Transferência Qtd. do Pedido',           key: 'data_transferencia_saldo_pedido',  largura: 14 },
 ]
 
 // ── Ações de linha (pai) — criadas dentro do componente para acesso ao navigate ─
@@ -4065,6 +4163,9 @@ export default function ListaPedidos() {
   // ── Taxas PTAX (para conversão BRL) — cache singleton por sessão ────────────
   const taxasVenda = useTaxasCambio()
 
+  // ── Rastreamento de comportamento (Gabi Insights Fase 2) ─────────────────────
+  const { trackFilter } = useTrackBehavior()
+
   // ── Estado de dados ──────────────────────────────────────────────────────────
   const [pedidos, setPedidos]               = useState<Pedido[]>([])
   const [carregando, setCarregando]         = useState(true)
@@ -4101,6 +4202,16 @@ export default function ListaPedidos() {
   const [modalDuplicarAberto, setModalDuplicarAberto] = useState(false)
   const [modalGerarPdfAberto, setModalGerarPdfAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
+
+  // ── Fórmula do Saldo do Pedido (sincroniza com localStorage ao ganhar foco) ──
+  const [saldoFormulaAST, setSaldoFormulaAST] = useState(lerSaldoFormulaAST)
+
+  useEffect(() => {
+    const sync = () => { try { setSaldoFormulaAST(lerSaldoFormulaAST()) } catch { /* mantém AST atual */ } }
+    window.addEventListener('focus', sync)
+    window.addEventListener('storage', sync)
+    return () => { window.removeEventListener('focus', sync); window.removeEventListener('storage', sync) }
+  }, [])
 
   // ── Status customizados (sincroniza com localStorage ao ganhar foco) ─────────
   const [statusOpts, setStatusOpts] = useState<{ valor: string; label: string }[]>(() => {
@@ -4140,26 +4251,66 @@ export default function ListaPedidos() {
     const STATUS_OPTS = statusOpts
 
     const colunasBase = COLUNAS_PAI.map(col => {
-      if (col.key !== 'status') return col
-      return {
-        ...col,
-        editavel: true,
-        opcoes: STATUS_OPTS,
-        render: (_val: unknown, row: Pedido) => {
-          const cor = getStatusCor(row.status)
-          return (
-            <StatusBadgeGlobal
-              valor={getStatusLabel(row.status)}
-              genero="masculino"
-              style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
-            />
-          )
-        },
+      if (col.key === 'status') {
+        return {
+          ...col,
+          editavel: true,
+          opcoes: STATUS_OPTS,
+          render: (_val: unknown, row: Pedido) => {
+            const cor = getStatusCor(row.status)
+            return (
+              <StatusBadgeGlobal
+                valor={getStatusLabel(row.status)}
+                genero="masculino"
+                style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33`, cursor: 'pointer' }}
+              />
+            )
+          },
+        }
       }
+
+      if (col.key === 'saldo_itens_do_pedido') {
+        const tooltipSaldo = (conteudo: React.ReactNode) => (
+          <TooltipGlobal
+            titulo="Saldo do Pedido"
+            descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+            interativo
+          >
+            <span style={{ display: 'contents' }}>{conteudo}</span>
+          </TooltipGlobal>
+        )
+        return {
+          ...col,
+          render: (_val: unknown, row: Pedido) => {
+            try {
+              const contexto = buildFormulaContexto(row)
+              const { valor: num, temNulo } = avaliarFormula(saldoFormulaAST, contexto)
+              const qtd = temNulo || num == null ? null : Math.max(0, num)
+              return tooltipSaldo(
+                <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+                  {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+                </span>
+              )
+            } catch {
+              const total = row.quantidade_total_inicial_pedido ?? null
+              const transf = row.quantidade_transferida_total ?? null
+              const cancel = row.quantidade_cancelada_total_pedido ?? 0
+              const qtd = total != null && transf != null ? Math.max(0, total - transf - cancel) : null
+              return tooltipSaldo(
+                <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
+                  {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+                </span>
+              )
+            }
+          },
+        }
+      }
+
+      return col
     })
 
     return [...colunasBase, ...custom]
-  }, [colunasUsuario, statusOpts])
+  }, [colunasUsuario, statusOpts, saldoFormulaAST])
 
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
@@ -4218,7 +4369,13 @@ export default function ListaPedidos() {
   // ── Handlers de filtro ────────────────────────────────────────────────────────
   const handleAplicarFiltro = useCallback((campo: string, filtro: FiltroAtivo) => {
     setFiltrosAtivos(prev => ({ ...prev, [campo]: filtro }))
-  }, [])
+    const valor = filtro.tipo === 'texto'
+      ? filtro.valor
+      : filtro.tipo === 'enum'
+        ? [...filtro.valor].join(',')
+        : `${filtro.valor.min ?? ''}-${filtro.valor.max ?? ''}`
+    trackFilter(campo, valor)
+  }, [trackFilter])
 
   const handleLimparFiltro = useCallback((campo: string) => {
     setFiltrosAtivos(prev => {
@@ -4590,6 +4747,13 @@ export default function ListaPedidos() {
     }, 350)
   }, [abaAtiva, busca])
 
+  // Campos que ao serem editados no pedido propagam para todos os itens
+  const CAMPOS_PROPAGAR_ITENS = new Set([
+    'nome_exportador', 'nome_importador', 'nome_fabricante',
+    'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
+    'ncm',
+  ])
+
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
     if (campo === 'status') {
@@ -4602,9 +4766,56 @@ export default function ListaPedidos() {
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
     }
+    // incoterm — atualiza o pedido pai E propaga para todos os itens
+    if (campo === 'incoterm') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      const [respostaPai] = await Promise.all([
+        pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
+        ...(pedidoAtual.itens ?? []).map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
+      ])
+      const itensAtualizados = (pedidoAtual.itens ?? []).map(i => ({ ...i, incoterm: valor as string | null }))
+      const merged = respostaPai
+        ? { ...pedidoAtual, ...respostaPai, itens: itensAtualizados }
+        : { ...pedidoAtual, incoterm: valor as string | null, itens: itensAtualizados }
+      setPedidos(prev => prev.map(p => p.id === id ? merged : p))
+      return merged
+    }
+    // condicao_pagamento_pedido — atualiza o pedido pai E propaga para todos os itens
+    if (campo === 'condicao_pagamento_pedido') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      const [respostaPai] = await Promise.all([
+        pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
+        ...(pedidoAtual.itens ?? []).map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
+      ])
+      const itensAtualizados = (pedidoAtual.itens ?? []).map(i => ({ ...i, condicao_pagamento_pedido: valor as string | null }))
+      const merged = respostaPai
+        ? { ...pedidoAtual, ...respostaPai, itens: itensAtualizados }
+        : { ...pedidoAtual, condicao_pagamento_pedido: valor as string | null, itens: itensAtualizados }
+      setPedidos(prev => prev.map(p => p.id === id ? merged : p))
+      return merged
+    }
+    // Campos que vivem nos itens — propagar para todos os itens sem chamar editarCampo no pedido
+    if (CAMPOS_PROPAGAR_ITENS.has(campo)) {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      const itens = pedidoAtual.itens ?? []
+      if (itens.length > 0) {
+        await Promise.all(
+          itens.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor))
+        )
+      }
+      const pedidoAtualizado = { ...pedidoAtual, itens: itens.map(i => ({ ...i, [campo]: valor })) }
+      setPedidos(prev => prev.map(p => p.id === id ? pedidoAtualizado : p))
+      return pedidoAtualizado
+    }
+    const pedidoAtual = pedidos.find(p => p.id === id)
     const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
-    setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
-    return atualizado
+    // Merge: preserva campos existentes (peso, cubagem, etc.) que a resposta pode não trazer
+    const merged = pedidoAtual ? { ...pedidoAtual, ...atualizado } : atualizado
+    setPedidos(prev => prev.map(p => p.id === id ? merged : p))
+    return merged
   }, [pedidos])
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
@@ -4632,18 +4843,11 @@ export default function ListaPedidos() {
 
     // Campos do pedido pai → atualiza o pedido, não o item
     if (CAMPOS_PAI_TEXTO.has(campo)) {
-      // nome_fabricante → usar PATCH inline /:id/campo
-      const pedidoAtualizado = (campo === 'nome_fabricante')
-        ? await pedidoVirtualApi.editarCampo(pedido.id, campo, valor as string)
-            .catch(() => {
-              if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
-              throw new Error(`Erro ao editar campo ${campo} do pedido`)
-            })
-        : await pedidoApi.atualizar(pedido.id, { [campo]: valor as string } as Partial<Pedido>)
-            .catch(() => {
-              if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
-              throw new Error(`Erro ao editar campo ${campo} do pedido`)
-            })
+      const pedidoAtualizado = await pedidoApi.atualizar(pedido.id, { [campo]: valor as string } as Partial<Pedido>)
+        .catch(() => {
+          if (import.meta.env.DEV) return { ...pedido, [campo]: valor } as Pedido
+          throw new Error(`Erro ao editar campo ${campo} do pedido`)
+        })
       // _p completo construído a partir do pedidoAtualizado (itens crus de pedidos.itens não têm _p)
       const novoPaiP = {
         id: pedidoAtualizado.id,
@@ -4714,17 +4918,72 @@ export default function ListaPedidos() {
       return enriquecidoMv
     }
 
+    // quantidade_pronta_total_item_pedido → endpoint dedicado PATCH /pronta
+    if (campo === 'quantidade_pronta_total_item_pedido') {
+      const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
+      const qtd = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
+      const itemAtualPronta = pedido.itens?.find(i => i.id === id)
+      const atualizadoPronta = await pedidoItemApi.atualizarPronta(pedido.id, id, qtd)
+        .catch(() => {
+          if (import.meta.env.DEV && itemAtualPronta) return { ...itemAtualPronta, quantidade_pronta_total_item_pedido: qtd } as PedidoItem
+          throw new Error('Erro ao atualizar quantidade pronta')
+        })
+      const enriquecidoPronta: PedidoItemEnriquecido = {
+        ...atualizadoPronta,
+        _p: {
+          id: pedido.id,
+          tipo_operacao: pedido.tipo_operacao,
+          nome_exportador: pedido.nome_exportador ?? null,
+          nome_importador: pedido.nome_importador ?? null,
+          nome_fabricante: pedido.nome_fabricante ?? null,
+          referencia_importador: pedido.referencia_importador ?? null,
+          referencia_exportador: pedido.referencia_exportador ?? null,
+          referencia_fabricante: pedido.referencia_fabricante ?? null,
+          numero_proforma: pedido.numero_proforma ?? null,
+          numero_invoice: pedido.numero_invoice ?? null,
+          incoterm: pedido.incoterm ?? null,
+          condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? null,
+          data_emissao_pedido: pedido.data_emissao_pedido ?? null,
+          status: pedido.status,
+          moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
+        },
+      }
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        const itensAtualizados = p.itens?.map(i => i.id === id ? enriquecidoPronta : i) ?? []
+        return { ...p, itens: itensAtualizados, quantidade_pronta_itens_pedido_total: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0) }
+      }))
+      return enriquecidoPronta
+    }
+
     let payload: Partial<PedidoItem>
     {
       // GTValorUnidade { unit, quantity } → extrai quantity para campos numéricos + salva unidade
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
+      // Fatores de conversão para kg (todos os campos de peso são persistidos em kg)
+      const FATOR_PARA_KG: Record<string, number> = { 'KG': 1, 'G': 0.001, 'TON': 1000, 'KGBR': 1 }
+      const CAMPOS_PESO_ITEM = new Set(['peso_liquido_unitario_item', 'peso_bruto_unitario_item'])
       const valorFinal: unknown = CAMPOS_NUMERICOS_ITEM.has(campo)
-        ? (isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0)
+        ? (() => {
+            const qty = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
+            if (CAMPOS_PESO_ITEM.has(campo) && isUnidade) {
+              const unit = (valor as { unit: string }).unit
+              return qty * (FATOR_PARA_KG[unit] ?? 1)
+            }
+            return qty
+          })()
         : valor
       payload = { [campo]: valorFinal } as Partial<PedidoItem>
       if (isUnidade && !CAMPOS_UNIDADE_FIXA_ITEM.has(campo)) {
         // Salva a unidade comercializada junto com a quantidade (apenas campos com unidade variável)
         ;(payload as Record<string, unknown>).unidade_comercializada_item = (valor as { unit: string }).unit
+      }
+      // Salva a unidade de exibição para campos de peso (valor é persistido em KG)
+      if (isUnidade && CAMPOS_PESO_ITEM.has(campo)) {
+        const unidadeField = campo === 'peso_liquido_unitario_item'
+          ? 'peso_liquido_unidade_item'
+          : 'peso_bruto_unidade_item'
+        ;(payload as Record<string, unknown>)[unidadeField] = (valor as { unit: string }).unit
       }
     }
 
@@ -4736,6 +4995,17 @@ export default function ListaPedidos() {
         }
         throw new Error(`Erro ao editar campo ${campo}`)
       })
+
+    // Persiste o total do pedido pai no servidor (fire-and-forget) quando um campo de peso muda
+    if (campo === 'peso_liquido_unitario_item') {
+      pedidoVirtualApi.editarCampo(pedido.id, 'peso_liquido_total_pedido', null).catch(() => {})
+    }
+    if (campo === 'peso_bruto_unitario_item') {
+      pedidoVirtualApi.editarCampo(pedido.id, 'peso_bruto_total_pedido', null).catch(() => {})
+    }
+    if (campo === 'cubagem_unitaria_item') {
+      pedidoVirtualApi.editarCampo(pedido.id, 'cubagem_total_pedido', null).catch(() => {})
+    }
 
     // Re-enriquece o item com os dados do pedido pai (_p) para manter o cache íntegro
     const enriquecido: PedidoItemEnriquecido = {
@@ -4762,7 +5032,7 @@ export default function ListaPedidos() {
     // Atualiza o item e recalcula os aggregates do pedido pai
     setPedidos(prev => prev.map(p => {
       if (p.id !== pedido.id) return p
-      const itensAtualizados = p.itens?.map(i => i.id === id ? atualizado : i) ?? []
+      const itensAtualizados = p.itens?.map(i => i.id === id ? enriquecido : i) ?? []
       return {
         ...p,
         itens: itensAtualizados,
@@ -4770,7 +5040,7 @@ export default function ListaPedidos() {
         quantidade_transferida_total:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida_item_pedido)    || 0), 0),
         peso_liquido_total_pedido:       itensAtualizados.reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
         peso_bruto_total_pedido:         itensAtualizados.reduce((s, i) => s + (Number(i.peso_bruto_unitario_item)  || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
-        cubagem_total_pedido:            itensAtualizados.reduce((s, i) => s + (Number(i.cubagem_unitaria_item)     || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
+        cubagem_total_pedido:            itensAtualizados.reduce((s, i) => s + (Number(i.cubagem_unitaria_item)     || 0), 0),
       }
     }))
     return enriquecido
@@ -4783,12 +5053,12 @@ export default function ListaPedidos() {
       _p: {
         id: pedido.id,
         tipo_operacao: pedido.tipo_operacao,
-        nome_exportador: pedido.nome_exportador ?? null,
-        nome_importador: pedido.nome_importador ?? null,
+        nome_exportador: item.nome_exportador ?? pedido.nome_exportador ?? null,
+        nome_importador: item.nome_importador ?? pedido.nome_importador ?? null,
         nome_fabricante: pedido.nome_fabricante ?? null,
-        referencia_importador: pedido.referencia_importador ?? null,
-        referencia_exportador: pedido.referencia_exportador ?? null,
-        referencia_fabricante: pedido.referencia_fabricante ?? null,
+        referencia_importador: item.referencia_importador ?? pedido.referencia_importador ?? null,
+        referencia_exportador: item.referencia_exportador ?? pedido.referencia_exportador ?? null,
+        referencia_fabricante: item.referencia_fabricante ?? pedido.referencia_fabricante ?? null,
         numero_proforma: pedido.numero_proforma ?? null,
         numero_invoice: pedido.numero_invoice ?? null,
         incoterm: pedido.incoterm ?? null,
@@ -5293,7 +5563,13 @@ export default function ListaPedidos() {
               ? pedidosSelecionados
               : pedidos.filter(p => itensSelecionados.some(i => i.pedido_id === p.id))
           }
-          itemIdInicial={pedidosSelecionados.length === 0 && itensSelecionados.length === 1 ? itensSelecionados[0].id : undefined}
+          itemIdInicial={
+            itensSelecionados.length === 1
+              ? itensSelecionados[0].id
+              : (pedidosSelecionados.length === 1 && pedidosSelecionados[0].itens?.length === 1)
+                ? pedidosSelecionados[0].itens[0].id
+                : undefined
+          }
           onFechar={() => setModalTransferirAberto(false)}
           onConcluido={() => {
             setModalTransferirAberto(false)

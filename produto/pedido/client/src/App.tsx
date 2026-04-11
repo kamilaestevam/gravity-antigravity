@@ -84,14 +84,12 @@ function LoadingFallback() {
 
 export function App() {
   const location = useLocation()
-  const {
-    currentUser,
-    tooltipsDisabled,
-    toggleTooltips,
-    toggleTheme,
-    currentTheme,
-    clearCurrentUser,
-  } = useShellStore()
+  const currentUser      = useShellStore(s => s.currentUser)
+  const tooltipsDisabled = useShellStore(s => s.tooltipsDisabled)
+  const toggleTooltips   = useShellStore(s => s.toggleTooltips)
+  const toggleTheme      = useShellStore(s => s.toggleTheme)
+  const currentTheme     = useShellStore(s => s.currentTheme)
+  const clearCurrentUser = useShellStore(s => s.clearCurrentUser)
 
   const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 

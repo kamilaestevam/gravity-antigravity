@@ -64,7 +64,6 @@ function mkPedido(overrides: Record<string, unknown> = {}) {
     casas_decimais_valor_pedido: 2,
     casas_decimais_quantidade_pedido: 2,
     unidade_comercializada_pedido: 'UN',
-    cobertura_cambial_pedido: 'com_cobertura',
     condicao_pagamento_pedido: '30 dias',
     data_emissao_pedido: DATA_EMISSAO,
     detalhes_operacionais: null,

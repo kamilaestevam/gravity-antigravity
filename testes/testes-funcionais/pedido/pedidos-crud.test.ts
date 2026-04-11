@@ -60,7 +60,6 @@ const PEDIDO_MOCK = {
   casas_decimais_valor_pedido: 2,
   casas_decimais_quantidade_pedido: 2,
   unidade_comercializada_pedido: 'UN',
-  cobertura_cambial_pedido: 'com_cobertura',
   condicao_pagamento_pedido: null,
   data_emissao_pedido: new Date(),
   detalhes_operacionais: null,

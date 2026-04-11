@@ -43,15 +43,18 @@ export function KpiValue({
       <span style={styles.value}>{formatValueByUnit(value, fieldType)}</span>
 
       {hasDelta && (
-        <span style={{ ...styles.badge, ...badgeVariant(deltaDirection!) }}>
-          {deltaDirection === 'up'   && <ArrowUp   size={14} weight="bold" />}
-          {deltaDirection === 'down' && <ArrowDown size={14} weight="bold" />}
-          {deltaDirection === 'neutral' && <Minus size={14} weight="bold" />}
-          {deltaPercent !== undefined
-            ? `${Math.abs(deltaPercent).toFixed(1)}%`
-            : formatValueByUnit(Math.abs(delta!), fieldType)
-          }
-        </span>
+        <div style={styles.deltaWrap}>
+          <span style={{ ...styles.badge, ...badgeVariant(deltaDirection!) }}>
+            {deltaDirection === 'up'   && <ArrowUp   size={14} weight="bold" />}
+            {deltaDirection === 'down' && <ArrowDown size={14} weight="bold" />}
+            {deltaDirection === 'neutral' && <Minus size={14} weight="bold" />}
+            {deltaPercent !== undefined
+              ? `${Math.abs(deltaPercent).toFixed(1)}%`
+              : formatValueByUnit(Math.abs(delta!), fieldType)
+            }
+          </span>
+          <span style={styles.deltaLabel}>vs período anterior</span>
+        </div>
       )}
     </div>
   )
@@ -65,8 +68,15 @@ function badgeVariant(dir: 'up' | 'down' | 'neutral') {
 
 const styles = {
   wrap: {
-    display: 'flex', alignItems: 'center', gap: '8px',
-    minWidth: 0, overflow: 'hidden', flexWrap: 'wrap' as const,
+    display: 'flex', alignItems: 'flex-start', flexDirection: 'column' as const, gap: '4px',
+    minWidth: 0, overflow: 'hidden',
+  },
+  deltaWrap: {
+    display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' as const,
+  },
+  deltaLabel: {
+    fontSize: '11px', color: 'var(--text-muted)', fontWeight: 400,
+    letterSpacing: '0.02em',
   },
   value: {
     fontSize: '48px', fontWeight: 700,

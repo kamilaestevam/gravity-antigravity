@@ -1,44 +1,12 @@
 {
+  "extends": ["../../tsconfig.json", "../../tsconfig.paths-servico.json"],
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "lib": ["ES2022", "DOM"],
-    "jsx": "react-jsx",
-    "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "paths": {
-      "@nucleo/*": [
-        "../../nucleo-global/Botoes/*/src/index.ts",
-        "../../nucleo-global/Campos/*/src/index.ts",
-        "../../nucleo-global/Feedback/*/src/index.ts",
-        "../../nucleo-global/Layout/*/src/index.ts",
-        "../../nucleo-global/Modais/*/src/index.ts",
-        "../../nucleo-global/Tabelas/*/src/index.ts",
-        "../../nucleo-global/Utilidades/*/src/index.ts",
-        "../../nucleo-global/*/src/index.ts"
-      ],
-      "@tenant/*": ["../tenant/*"],
-      "@produto/*": ["../produto/*"],
-      "@gravity/shell": ["../shell/index.ts"]
-    }
+    "baseUrl": ".",
+    "outDir": "dist"
   },
   "include": [
     "src/**/*",
-    "server/**/*",
-    "../../nucleo-global/Botoes/*/src/**/*",
-    "../../nucleo-global/Campos/*/src/**/*",
-    "../../nucleo-global/Feedback/*/src/**/*",
-    "../../nucleo-global/Layout/*/src/**/*",
-    "../../nucleo-global/Modais/*/src/**/*",
-    "../../nucleo-global/Tabelas/*/src/**/*",
-    "../../nucleo-global/Utilidades/*/src/**/*",
-    "../../nucleo-global/*/src/**/*",
-    "../tenant/gabi/src/**/*"
+    "server/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }
-

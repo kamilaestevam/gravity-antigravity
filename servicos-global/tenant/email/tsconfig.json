@@ -1,17 +1,10 @@
 {
-  "extends": "../../../tsconfig.json",
+  "extends": ["../../../tsconfig.json", "../../../tsconfig.paths-tenant.json"],
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDir": ".",
-    "outDir": "dist",
-    "jsx": "react-jsx",
-    "composite": false,
-    "paths": {
-      "@nucleo/*": ["../../../nucleo-global/*"],
-      "@tenant/*": ["../../tenant/*"],
-      "@produto/*": ["../../produto/*"]
-    }
+    "outDir": "dist"
   },
   "include": ["src/**/*", "server/**/*"],
   "exclude": ["node_modules", "dist"]
 }
-

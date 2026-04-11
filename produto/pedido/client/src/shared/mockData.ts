@@ -57,6 +57,7 @@ export const MOCK_PEDIDOS_RESPONSE: PedidosListResponse = {
           valor_unitario_item: 15.00,
           casas_decimais_valor_item: 2,
           cobertura_cambial: 'com_cobertura',
+          condicao_pagamento_pedido: '30% Antecipado',
         },
         {
           id: 'item-001-b',
@@ -79,6 +80,7 @@ export const MOCK_PEDIDOS_RESPONSE: PedidosListResponse = {
           valor_unitario_item: 10.00,
           casas_decimais_valor_item: 2,
           cobertura_cambial: 'com_cobertura',
+          condicao_pagamento_pedido: '100% Antecipado',
         },
         {
           id: 'item-001-c',
@@ -101,6 +103,7 @@ export const MOCK_PEDIDOS_RESPONSE: PedidosListResponse = {
           valor_unitario_item: 18.00,
           casas_decimais_valor_item: 2,
           cobertura_cambial: 'com_cobertura',
+          condicao_pagamento_pedido: '30% Antecipado',
         },
       ],
       pedido_criado_em: '2026-03-15T10:00:00Z',

@@ -1,6 +1,7 @@
 {
   "name": "@gravity/pedido",
   "private": true,
+  "type": "module",
   "workspaces": [
     "client",
     "server"

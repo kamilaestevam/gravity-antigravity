@@ -88,7 +88,9 @@ const atualizarItemSchema = z.object({
   referencia_fabricante: z.string().optional().nullable(),
   // Dados físicos unitários
   peso_liquido_unitario_item: z.number().optional().nullable(),
+  peso_liquido_unidade_item:  z.string().optional().nullable(),
   peso_bruto_unitario_item:   z.number().optional().nullable(),
+  peso_bruto_unidade_item:    z.string().optional().nullable(),
   cubagem_unitaria_item:      z.number().optional().nullable(),
 })
 
@@ -700,7 +702,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
         const casas = (pedido as any).casas_decimais_peso_pedido ?? 3
         dadosRecalc.peso_bruto_total_pedido = parseFloat(soma.toFixed(casas))
       } else if (campo === 'cubagem_total_pedido') {
-        const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria_item ?? 0) * Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+        const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria_item ?? 0), 0)
         const casas = (pedido as any).casas_decimais_cubagem_pedido ?? 4
         dadosRecalc.cubagem_total_pedido = parseFloat(soma.toFixed(casas))
       }
@@ -906,6 +908,36 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
       data: prismaData,
     })
 
+    res.json(mapItem(updated))
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── PATCH /:id/itens/:itemId/campo — Editar campo único do item ───────────────
+
+const CAMPOS_EDITAVEIS_ITEM = new Set([
+  'nome_exportador', 'nome_importador', 'nome_fabricante',
+  'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
+  'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
+])
+
+pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { campo, valor } = req.body as { campo: string; valor: unknown }
+    if (!campo || !CAMPOS_EDITAVEIS_ITEM.has(campo)) {
+      throw new AppError(400, `Campo "${campo}" nao pode ser editado inline em item`)
+    }
+    const tenant_id = req.headers['x-tenant-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+    const item = await req.prisma.pedidoItem.findFirst({
+      where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id, company_id },
+    })
+    if (!item) throw new AppError(404, 'Item do pedido nao encontrado')
+    const updated = await req.prisma.pedidoItem.update({
+      where: { id: req.params.itemId },
+      data: { [campo]: valor === undefined ? null : valor },
+    })
     res.json(mapItem(updated))
   } catch (err) {
     next(err)

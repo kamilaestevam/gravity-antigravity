@@ -49,9 +49,9 @@ interface EtapaMapeamentoProps {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function BadgeConfianca({ confianca, nivel }: { confianca: number; nivel: ColunaMapeada['nivel'] }) {
-  if (nivel === 'ignorado') {
-    return <span className="smart-import__conf-cinza"><Question size={14} aria-hidden="true" /> —</span>
+function BadgeConfianca({ confianca, nivel, campoSistema }: { confianca: number; nivel: ColunaMapeada['nivel']; campoSistema?: string | null }) {
+  if (nivel === 'ignorado' && !campoSistema) {
+    return <span className="smart-import__conf-cinza" title="Campo extra — dados preservados em campos_custom"><Question size={14} aria-hidden="true" /> Campo extra</span>
   }
   if (confianca >= 90) {
     return <span className="smart-import__conf-verde"><CheckCircle size={14} aria-hidden="true" /> {confianca}%</span>
@@ -99,7 +99,9 @@ export function EtapaMapeamento({
     onMapeamentoChange(novo)
   }
 
-  const mapeadas = mapeamento.filter(m => m.campo_sistema !== null).length
+  const mapeadas = mapeamento.filter(m => m.campo_sistema !== null && m.campo_sistema !== '__drop__').length
+  const extras = mapeamento.filter(m => !m.campo_sistema || m.campo_sistema === '').length
+  const descartadas = mapeamento.filter(m => m.campo_sistema === '__drop__').length
   const total = mapeamento.length
 
   return (
@@ -119,9 +121,14 @@ export function EtapaMapeamento({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
             {mapeadas} de {total} colunas mapeadas
-            {mapeadas < total && (
+            {extras > 0 && (
+              <span style={{ color: 'var(--color-info, #60a5fa)', marginLeft: '0.5rem' }} title="Dados preservados em campos extras do item">
+                · {extras} como campo extra
+              </span>
+            )}
+            {descartadas > 0 && (
               <span style={{ color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
-                ({total - mapeadas} ignoradas)
+                · {descartadas} descartadas
               </span>
             )}
           </p>
@@ -211,14 +218,15 @@ export function EtapaMapeamento({
                     onChange={e => atualizarCampo(index, e.target.value || null)}
                     aria-label={`Campo sistema para ${col.coluna_arquivo}`}
                   >
-                    <option value="">— Ignorar —</option>
+                    <option value="">→ Campo extra (preservar)</option>
+                    <option value="__drop__">✕ Descartar este campo</option>
                     {camposSistema.map(c => (
                       <option key={c.valor} value={c.valor}>{c.rotulo}</option>
                     ))}
                   </select>
                 </td>
                 <td>
-                  <BadgeConfianca confianca={col.confianca} nivel={col.nivel} />
+                  <BadgeConfianca confianca={col.confianca} nivel={col.nivel} campoSistema={col.campo_sistema} />
                 </td>
                 <td style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)' }}>
                   {col.inferido_por === 'memoria'  && 'Memoria'}

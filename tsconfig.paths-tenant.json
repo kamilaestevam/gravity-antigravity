@@ -1,0 +1,32 @@
+{
+  "$comment": "Paths compartilhados para servicos-global/tenant/*. Extends via tsconfig.json de cada tenant service com baseUrl='.'",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@nucleo/*": [
+        "../../../nucleo-global/Botoes/*/src/index.ts",
+        "../../../nucleo-global/Campos/*/src/index.ts",
+        "../../../nucleo-global/Composicao/*/src/index.ts",
+        "../../../nucleo-global/Configuracoes/*/src/index.ts",
+        "../../../nucleo-global/Dashboard/*/src/index.ts",
+        "../../../nucleo-global/Feedback/*/src/index.ts",
+        "../../../nucleo-global/Gabi/*/src/index.ts",
+        "../../../nucleo-global/Kanban/*/src/index.ts",
+        "../../../nucleo-global/Layout/*/src/index.ts",
+        "../../../nucleo-global/Login/*/src/index.ts",
+        "../../../nucleo-global/Logo/*/src/index.ts",
+        "../../../nucleo-global/Mensageria Global/*/src/index.ts",
+        "../../../nucleo-global/Modais/*/src/index.ts",
+        "../../../nucleo-global/Tabelas/*/src/index.ts",
+        "../../../nucleo-global/Templates/*/src/index.ts",
+        "../../../nucleo-global/Utilidades/*/src/index.ts",
+        "../../../nucleo-global/*/src/index.ts"
+      ],
+      "@shell": ["../../shell/index.ts"],
+      "@shell/*": ["../../shell/*"],
+      "@gravity/shell": ["../../shell/index.ts"],
+      "@tenant/*": ["../*"],
+      "@produto/*": ["../../produto/*"]
+    }
+  }
+}

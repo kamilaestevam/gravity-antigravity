@@ -24,7 +24,7 @@ import {
   ClipboardText, ArrowRight, Gauge, ArrowsLeftRight, StackSimple, Money,
   Hash, Sliders, Folder, Trash, FloppyDisk, PencilSimple, Tag,
   Columns, TextT, CalendarBlank, Percent, ListBullets, CheckSquare, MathOperations,
-  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock,
+  Paperclip, CurrencyCircleDollar, ArrowsClockwise, Clock, CaretDown,
 } from '@phosphor-icons/react'
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -36,6 +36,8 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
+import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, type PdfTemplate } from '../shared/api'
@@ -50,6 +52,8 @@ import type {
   EscopoColunaUsuario,
   VisibilidadeColunaUsuario,
 } from '../shared/types'
+import { CfgSectionLabel } from '@nucleo/cabecalho-secao-global'
+import { useShellStore } from '@gravity/shell'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -166,6 +170,58 @@ interface StatusPedido {
   label: string
   cor: string
   sistema: boolean
+}
+
+// ─── Coluna sortável (DnD — Colunas Personalizadas) ──────────────────────────
+
+function ColunaSortavel({
+  col, onToggleAtivo, onRemover,
+}: {
+  col: import('../shared/types').ColunaUsuario
+  onToggleAtivo: () => void
+  onRemover: () => void
+}) {
+  const tipoInfo = [
+    { id: 'texto', label: 'Texto' }, { id: 'numero', label: 'Numérico' },
+    { id: 'data', label: 'Data' }, { id: 'percentual', label: 'Percentual %' },
+    { id: 'select', label: 'Select/Lista' }, { id: 'checkbox', label: 'Checkbox' },
+    { id: 'tipo_documento', label: 'Tipo Documento' }, { id: 'formula', label: 'Fórmula' },
+    { id: 'anexo', label: 'Anexo' },
+  ].find(t => t.id === col.tipo)
+
+  const {
+    attributes, listeners, setNodeRef,
+    transform, transition, isDragging,
+  } = useSortable({ id: col.id })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex:  isDragging ? 999 : undefined,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className={`cfg-kanban-campo-row${!col.ativo ? ' cfg-kanban-campo-row--oculto' : ''}`}>
+      <button type="button" className="cfg-drag-handle" {...attributes} {...listeners} aria-label="Arrastar para reordenar">
+        <DotsSixVertical size={15} weight="bold" />
+      </button>
+      <div className="cfg-kanban-campo-row__info">
+        <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
+        <span className="cfg-kanban-campo-row__tipo">{tipoInfo?.label ?? col.tipo}</span>
+      </div>
+      <TooltipGlobal descricao={col.ativo ? 'Ocultar coluna' : 'Exibir coluna'}>
+        <button type="button" className="cfg-kanban-campo-btn" onClick={onToggleAtivo} aria-label={col.ativo ? 'Ocultar' : 'Exibir'}>
+          {col.ativo ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
+        </button>
+      </TooltipGlobal>
+      <TooltipGlobal descricao="Excluir coluna">
+        <button type="button" className="cfg-kanban-campo-btn cfg-kanban-campo-btn--remove" onClick={onRemover} aria-label={`Excluir ${col.nome}`}>
+          <X size={13} weight="bold" />
+        </button>
+      </TooltipGlobal>
+    </div>
+  )
 }
 
 function StatusSortavel({
@@ -293,25 +349,44 @@ function StatusSortavel({
   )
 }
 
-// ─── Categorias sidebar ───────────────────────────────────────────────────────
+// ── Sidebar hierárquica ───────────────────────────────────────────────────────
 
-const CATEGORIAS = [
-  { id: 'cards',             label: 'Cards',             icone: <SquaresFour    size={15} weight="duotone" />, ativo: true  },
-  { id: 'tabela',            label: 'Tabela',            icone: <Table          size={15} weight="duotone" />, ativo: true  },
-  { id: 'colunas',           label: 'Colunas',           icone: <Columns        size={15} weight="duotone" />, ativo: true  },
-  { id: 'kanban',            label: 'Kanban',            icone: <Columns        size={15} weight="duotone" />, ativo: true  },
-  { id: 'status',            label: 'Status',            icone: <Tag            size={15} weight="duotone" />, ativo: true  },
-  { id: 'notificacoes',      label: 'Notificações',      icone: <Bell           size={15} weight="duotone" />, ativo: true  },
-  { id: 'exportacao',        label: 'Exportação',        icone: <DownloadSimple size={15} weight="duotone" />, ativo: true  },
-  { id: 'numeracao',         label: 'Numeração',         icone: <Hash           size={15} weight="duotone" />, ativo: true  },
-  { id: 'templates-pdf',     label: 'Templates PDF',     icone: <FloppyDisk     size={15} weight="duotone" />, ativo: true  },
-  { id: 'regras',            label: 'Regras',            icone: <Sliders        size={15} weight="duotone" />, ativo: true  },
-  { id: 'alertas',           label: 'Alertas',           icone: <Warning        size={15} weight="duotone" />, ativo: true  },
-  { id: 'categorias-anexos', label: 'Categ. Anexos',     icone: <Folder               size={15} weight="duotone" />, ativo: true  },
-  { id: 'taxa-cambio',      label: 'Taxa de Câmbio',    icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true  },
-] as const
+type SidebarItemTipo =
+  | { tipo: 'item';   id: string; label: string; icone: React.ReactNode; ativo: boolean }
+  | { tipo: 'grupo';  label: string }
+  | { tipo: 'parent'; id: string; label: string; icone: React.ReactNode; ativo: boolean; filhos: string[] }
+  | { tipo: 'sub';    id: string; label: string; icone: React.ReactNode; ativo: boolean }
 
-type CategoriaId = (typeof CATEGORIAS)[number]['id']
+const KANBAN_FILHOS  = ['kanban-modal', 'kanban-card']
+const COLUNAS_FILHOS = ['colunas-casas-decimais', 'colunas-personalizadas', 'colunas-campos-calculados']
+
+const SIDEBAR_ITEMS: SidebarItemTipo[] = [
+  // ── VISUALIZAÇÕES ──────────────────────────────────────────────────────────
+  { tipo: 'grupo',  label: 'VISUALIZAÇÕES' },
+  { tipo: 'item',   id: 'cards',                          label: 'Cards',             icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'tabela',                         label: 'Tabela',            icone: <Table                size={15} weight="duotone" />, ativo: true },
+  { tipo: 'parent', id: 'colunas-casas-decimais',         label: 'Colunas',           icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: COLUNAS_FILHOS },
+  { tipo: 'sub',    id: 'colunas-casas-decimais',         label: 'Casas Decimais',    icone: <Hash                 size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'colunas-personalizadas',         label: 'Personalizadas',    icone: <Columns              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'colunas-campos-calculados',      label: 'Campos Calculados', icone: <MathOperations       size={15} weight="duotone" />, ativo: true },
+  { tipo: 'parent', id: 'kanban',                         label: 'Kanban',            icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: KANBAN_FILHOS },
+  { tipo: 'sub',    id: 'kanban-modal',                   label: 'Modal',             icone: <Columns              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'kanban-card',                    label: 'Card',              icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
+  // ── PEDIDO ─────────────────────────────────────────────────────────────────
+  { tipo: 'grupo',  label: 'PEDIDO' },
+  { tipo: 'item',   id: 'status',            label: 'Status',         icone: <Tag                  size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'numeracao',         label: 'Numeração',      icone: <Hash                 size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'templates-pdf',     label: 'Templates PDF',  icone: <FloppyDisk           size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'regras',            label: 'Regras',         icone: <Sliders              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'categorias-anexos', label: 'Categ. Anexos',  icone: <Folder               size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'taxa-cambio',       label: 'Taxa de Câmbio', icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
+  // ── SISTEMA ────────────────────────────────────────────────────────────────
+  { tipo: 'grupo',  label: 'SISTEMA' },
+  { tipo: 'item',   id: 'notificacoes',      label: 'Notificações',   icone: <Bell                 size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'exportacao',        label: 'Exportação',     icone: <DownloadSimple       size={15} weight="duotone" />, ativo: true },
+]
+
+type CategoriaId = string
 
 // ─── Tipos locais ─────────────────────────────────────────────────────────────
 
@@ -414,19 +489,20 @@ interface NovaColuna {
 
 const COLUNAS_NUMERICAS = [
   // ── Pedido (pai) ──
-  { campo: 'quantidade_total_inicial_pedido',   label: 'Quantidade Inicial',         categoria: 'Pedido', padrao: 0 },
-  { campo: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta',      categoria: 'Pedido', padrao: 0 },
-  { campo: 'quantidade_cancelada_total_pedido', label: 'Quantidade Cancelada',      categoria: 'Pedido', padrao: 0 },
-  { campo: 'quantidade_transferida_total',     label: 'Quantidade Transferida',     categoria: 'Pedido', padrao: 0 },
-  { campo: 'peso_liquido_total_pedido',        label: 'Peso Líquido Total',         categoria: 'Pedido', padrao: 3 },
-  { campo: 'peso_bruto_total_pedido',          label: 'Peso Bruto Total',           categoria: 'Pedido', padrao: 3 },
-  { campo: 'cubagem_total_pedido',             label: 'Cubagem Total',              categoria: 'Pedido', padrao: 4 },
+  { campo: 'quantidade_total_inicial_pedido',      label: 'Quantidade Inicial',       categoria: 'Pedido', padrao: 2 },
+  { campo: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta',        categoria: 'Pedido', padrao: 2 },
+  { campo: 'quantidade_cancelada_total_pedido',    label: 'Quantidade Cancelada',     categoria: 'Pedido', padrao: 2 },
+  { campo: 'quantidade_transferida_total',         label: 'Quantidade Transferida',   categoria: 'Pedido', padrao: 2 },
+  { campo: 'valor_total_pedido',                   label: 'Valor Total',              categoria: 'Pedido', padrao: 2 },
+  { campo: 'peso_liquido_total_pedido',            label: 'Peso Líquido Total',       categoria: 'Pedido', padrao: 2 },
+  { campo: 'peso_bruto_total_pedido',              label: 'Peso Bruto Total',         categoria: 'Pedido', padrao: 2 },
+  { campo: 'cubagem_total_pedido',                 label: 'Cubagem Total',            categoria: 'Pedido', padrao: 2 },
   // ── Item (filho) ──
-  { campo: 'quantidade_item',                  label: 'Quantidades dos Itens',      categoria: 'Item',   padrao: 0 },
-  { campo: 'peso_liquido_unitario',            label: 'Peso Líquido Unitário',      categoria: 'Item',   padrao: 3 },
-  { campo: 'peso_bruto_unitario',              label: 'Peso Bruto Unitário',        categoria: 'Item',   padrao: 3 },
-  { campo: 'cubagem_unitaria',                 label: 'Cubagem Unitária',           categoria: 'Item',   padrao: 4 },
-  { campo: 'quantidade_unidade_estatistica',   label: 'Qtd. Unidade Estatística',   categoria: 'Item',   padrao: 2 },
+  { campo: 'quantidade_item',                      label: 'Quantidades dos Itens',    categoria: 'Item',   padrao: 2 },
+  { campo: 'peso_liquido_unitario',                label: 'Peso Líquido Unitário',    categoria: 'Item',   padrao: 2 },
+  { campo: 'peso_bruto_unitario',                  label: 'Peso Bruto Unitário',      categoria: 'Item',   padrao: 2 },
+  { campo: 'cubagem_unitaria',                     label: 'Cubagem Unitária',         categoria: 'Item',   padrao: 2 },
+  { campo: 'quantidade_unidade_estatistica',       label: 'Qtd. Unidade Estatística', categoria: 'Item',   padrao: 2 },
 ] as const
 
 const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNode }[] = [
@@ -441,10 +517,9 @@ const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNo
   { id: 'anexo',          label: 'Anexo',           icone: <Paperclip      size={16} weight="duotone" /> },
 ]
 
-const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string }[] = [
-  { valor: 'todos',   label: 'Todos do tenant' },
-  { valor: 'roles',   label: 'Por perfil/role' },
-  { valor: 'privado', label: 'Só eu'           },
+const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string; descricao: string }[] = [
+  { valor: 'roles',   label: 'Por perfil/role', descricao: 'Visível apenas para os perfis selecionados' },
+  { valor: 'privado', label: 'Só eu',           descricao: 'Coluna visível apenas para você'            },
 ]
 
 const EXPORT_CONFIG_KEY = 'pedido:export_config'
@@ -457,12 +532,23 @@ function carregarExportConfig(): ExportacaoConfig {
   return { formatoPadrao: 'xlsx', incluirColunasUsuario: true, incluirItens: true, apenasSelection: false, incluirCabecalho: true, separadorCsv: 'ponto-virgula' }
 }
 
+const CASAS_KEY     = 'pedido:casas_decimais'
+const CASAS_VERSION = 2  // bump quando os defaults mudarem — invalida dados antigos
+
 function carregarCasasDecimais(): Record<string, number> {
+  const defaults = Object.fromEntries(COLUNAS_NUMERICAS.map(c => [c.campo, 2]))
   try {
-    const raw = localStorage.getItem('pedido:casas_decimais')
-    if (raw) return JSON.parse(raw) as Record<string, number>
+    const raw = localStorage.getItem(CASAS_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw) as Record<string, number> & { _v?: number }
+      if (parsed._v === CASAS_VERSION) {
+        const { _v, ...values } = parsed
+        return { ...defaults, ...values }
+      }
+      // Versão antiga — ignora e começa do zero com defaults novos
+    }
   } catch { /* ignore */ }
-  return Object.fromEntries(COLUNAS_NUMERICAS.map(c => [c.campo, c.padrao]))
+  return defaults
 }
 
 const NOVA_COLUNA_PADRAO: NovaColuna = {
@@ -475,6 +561,84 @@ const NOVA_COLUNA_PADRAO: NovaColuna = {
   descricao: '',
   opcoes: [],
   formula_expressao: '',
+}
+
+// ── Alias de campos — nomes amigáveis para os editores de fórmula ─────────────
+// Aliases são os identificadores que o usuário vê/digita; chaves são os nomes internos.
+// Sorted longest-chave-first to avoid partial replacements on chave→alias.
+const FORMULA_ALIAS_MAP = [
+  { chave: 'quantidade_total_inicial_pedido',      alias: 'quantidade_inicial',     label: 'Quantidade Inicial' },
+  { chave: 'quantidade_cancelada_total_pedido',    alias: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
+  { chave: 'quantidade_transferida_total',         alias: 'quantidade_transferida', label: 'Quantidade Transferida' },
+  { chave: 'quantidade_pronta_itens_pedido_total', alias: 'quantidade_pronta',      label: 'Quantidade Pronta' },
+  { chave: 'saldo_itens_do_pedido',                alias: 'saldo',                  label: 'Saldo' },
+  { chave: 'peso_liquido_total_pedido',            alias: 'peso_liquido',           label: 'Peso Líquido' },
+  { chave: 'peso_bruto_total_pedido',              alias: 'peso_bruto',             label: 'Peso Bruto' },
+  { chave: 'cubagem_total_pedido',                 alias: 'cubagem',                label: 'Cubagem' },
+  // valor_total já é legível — sem alias
+] as const
+
+/** Fórmula com chaves internas → fórmula com aliases legíveis (para exibição) */
+function formulaParaAlias(formula: string): string {
+  const sorted = [...FORMULA_ALIAS_MAP].sort((a, b) => b.chave.length - a.chave.length)
+  let r = formula
+  for (const { chave, alias } of sorted) {
+    r = r.replace(new RegExp(`\\b${chave}\\b`, 'g'), alias)
+  }
+  return r
+}
+
+/** Fórmula com aliases → fórmula com chaves internas (para salvar/validar) */
+function formulaParaChave(formula: string): string {
+  let r = formula
+  for (const { chave, alias } of FORMULA_ALIAS_MAP) {
+    r = r.replace(new RegExp(`\\b${alias}\\b`, 'g'), chave)
+  }
+  return r
+}
+
+// ── Campos Calculados — editor tokenizado (pill-based) ───────────────────────
+type SaldoToken =
+  | { tipo: 'campo';    chave: string; label: string }
+  | { tipo: 'op';       valor: string }
+
+/** Tokens → string de alias (para validação) */
+function tokensParaAliasFormula(tokens: SaldoToken[]): string {
+  return tokens.map(t => t.tipo === 'campo' ? t.chave : t.valor).join(' ')
+}
+
+/** Tokens → string de chave interna (para armazenamento) */
+function tokensParaChaveFormula(tokens: SaldoToken[]): string {
+  return formulaParaChave(tokensParaAliasFormula(tokens))
+}
+
+/** String de alias → lista de tokens (para carregar do localStorage) */
+function aliasFormulaParaTokens(formulaAlias: string): SaldoToken[] {
+  if (!formulaAlias.trim()) return []
+  const aliasSet = new Map<string, string>(FORMULA_ALIAS_MAP.map(m => [m.alias, m.label]))
+  return formulaAlias.trim().split(/\s+/).map(part => {
+    const label = aliasSet.get(part)
+    if (label) return { tipo: 'campo' as const, chave: part, label }
+    return { tipo: 'op' as const, valor: part }
+  })
+}
+
+function carregarSaldoTokens(): SaldoToken[] {
+  return aliasFormulaParaTokens(carregarSaldoFormula())
+}
+
+// ── Campos Calculados — Saldo do Pedido ──────────────────────────────────────
+// SALDO_FORMULA_PADRAO fica em forma de chave (armazenamento); exibição usa alias.
+const SALDO_FORMULA_PADRAO =
+  'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
+const SALDO_FORMULA_KEY = 'pedido:saldo_formula'
+
+function carregarSaldoFormula(): string {
+  try {
+    const raw = localStorage.getItem(SALDO_FORMULA_KEY)
+    if (raw) return formulaParaAlias(raw)
+  } catch { /* ignore */ }
+  return formulaParaAlias(SALDO_FORMULA_PADRAO)
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -530,20 +694,39 @@ function ToggleRow({
 
 export default function Configuracoes() {
   const { t } = useTranslation()
+  const addNotification = useShellStore(s => s.addNotification)
   const [searchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as CategoriaId | null
   const acaoParam = searchParams.get('acao')
   const [categoria, setCategoria] = useState<CategoriaId>(tabParam ?? 'cards')
-  const [kanbanSub, setKanbanSub]   = useState<'modal' | 'card'>('modal')
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+    colunas: COLUNAS_FILHOS.includes(tabParam ?? ''),
+    kanban:  KANBAN_FILHOS.includes(tabParam ?? ''),
+  })
+
+  function toggleGroup(id: string) {
+    setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }))
+  }
+  const [abaAtiva, setAbaAtiva]     = useState<'pedido' | 'quantidades' | 'datas'>('pedido')
   const [periodoAtivo, setPeriodoAtivo] = useState('30d')
 
   // ── Estado: casas decimais ──
   const [casasDecimais, setCasasDecimais] = useState<Record<string, number>>(carregarCasasDecimais)
+  const [pendingCasas,  setPendingCasas]  = useState<Record<string, number>>(carregarCasasDecimais)
+  const casasDirty = JSON.stringify(pendingCasas) !== JSON.stringify(casasDecimais)
 
   function handleCasasDecimaisChange(campo: string, valor: number) {
-    const next = { ...casasDecimais, [campo]: valor }
-    setCasasDecimais(next)
-    localStorage.setItem('pedido:casas_decimais', JSON.stringify(next))
+    setPendingCasas(prev => ({ ...prev, [campo]: valor }))
+  }
+
+  function salvarCasasDecimais() {
+    setCasasDecimais(pendingCasas)
+    localStorage.setItem(CASAS_KEY, JSON.stringify({ _v: CASAS_VERSION, ...pendingCasas }))
+    addNotification({ type: 'success', message: 'Casas decimais salvas com sucesso.' })
+  }
+
+  function restaurarCasasDecimais() {
+    setPendingCasas(casasDecimais)
   }
 
   // ── Estado: colunas numéricas do usuário (via API — para exibir em Casas Decimais) ──
@@ -554,17 +737,70 @@ export default function Configuracoes() {
       .catch(() => {})
   }, [])
 
+  // ── Estado: gerenciamento de colunas existentes (pending — DnD + ativo) ──
+  const [pendingColunas,    setPendingColunas]    = useState<ColunaUsuarioApi[]>([])
+  const [salvandoColunas,   setSalvandoColunas]   = useState(false)
+
+  // Sincroniza pending quando a lista da API muda (cria, exclui, etc.)
+  useEffect(() => {
+    setPendingColunas([...colunasUsuarioApi_])
+  }, [colunasUsuarioApi_])
+
+  const colunasDirty = useMemo(() => {
+    if (pendingColunas.length !== colunasUsuarioApi_.length) return false
+    return pendingColunas.some((col, i) => {
+      const orig = colunasUsuarioApi_[i]
+      return !orig || orig.id !== col.id || orig.ativo !== col.ativo
+    })
+  }, [pendingColunas, colunasUsuarioApi_])
+
+  function handleToggleAtivoColuna(id: string) {
+    setPendingColunas(prev => prev.map(c => c.id === id ? { ...c, ativo: !c.ativo } : c))
+  }
+
+  function handleDragEndColunas(event: import('@dnd-kit/core').DragEndEvent) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    setPendingColunas(prev => {
+      const oldIndex = prev.findIndex(c => c.id === active.id)
+      const newIndex = prev.findIndex(c => c.id === over.id)
+      return arrayMove(prev, oldIndex, newIndex)
+    })
+  }
+
+  async function salvarOrdemColunas() {
+    setSalvandoColunas(true)
+    try {
+      await colunasUsuarioApi.reordenar(pendingColunas.map(c => c.id))
+      const changed = pendingColunas.filter(col => {
+        const orig = colunasUsuarioApi_.find(c => c.id === col.id)
+        return orig && orig.ativo !== col.ativo
+      })
+      await Promise.all(changed.map(col => colunasUsuarioApi.atualizar(col.id, { ativo: col.ativo })))
+      const lista = await colunasUsuarioApi.listar()
+      setColunasUsuarioApi(lista)
+      addNotification({ type: 'success', message: 'Colunas salvas com sucesso.' })
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao salvar colunas.' })
+    } finally {
+      setSalvandoColunas(false)
+    }
+  }
+
+  function cancelarOrdemColunas() {
+    setPendingColunas([...colunasUsuarioApi_])
+  }
+
   // ── Estado: colunas personalizadas (via API) ──
   const [novaColuna, setNovaColuna] = useState<NovaColuna>(NOVA_COLUNA_PADRAO)
   const [novaOpcao, setNovaOpcao] = useState('')
   const [salvandoColuna, setSalvandoColuna] = useState(false)
   const [erroColuna, setErroColuna] = useState<string | null>(null)
-  const formulaTextareaRef = useRef<HTMLTextAreaElement>(null)
   const novaColunaSectionRef = useRef<HTMLElement>(null)
   const novaColunaInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (acaoParam === 'nova' && categoria === 'colunas') {
+    if (acaoParam === 'nova' && categoria === 'colunas-personalizadas') {
       setTimeout(() => {
         novaColunaSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         novaColunaInputRef.current?.focus()
@@ -580,6 +816,35 @@ export default function Configuracoes() {
   const [formulaAviso,  setFormulaAviso]  = useState<string | null>(null)
   const [formulaGabi,   setFormulaGabi]   = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
 
+  // ── Nova Coluna — editor tokenizado (pill-based) para tipo 'formula' ──
+  const [formulaTokens, setFormulaTokens] = useState<SaldoToken[]>([])
+
+  // Sincroniza tokens → formula_expressao (alimenta handleFormulaChange que já valida)
+  useEffect(() => {
+    const alias = tokensParaAliasFormula(formulaTokens)
+    handleFormulaChange(alias)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formulaTokens])
+
+  // Reset tokens quando tipo muda para fora de 'formula'
+  useEffect(() => {
+    if (novaColuna.tipo !== 'formula') {
+      setFormulaTokens([])
+    }
+  }, [novaColuna.tipo])
+
+  // ── Saldo do Pedido — Campos Calculados (editor tokenizado) ──
+  const [saldoTokens,          setSaldoTokens]          = useState<SaldoToken[]>(carregarSaldoTokens)
+  const [saldoFormulaErro,     setSaldoFormulaErro]     = useState<string | null>(null)
+  const [saldoFormulaValida,   setSaldoFormulaValida]   = useState(false)
+  const [saldoFormulaGabi,     setSaldoFormulaGabi]     = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
+  const saldoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const saldoCamposRef   = useRef<Array<{ chave: string; label: string; unidade?: string; papel?: string }>>([])
+  const [saldoFormulaAnalisando, setSaldoFormulaAnalisando] = useState(false)
+
+  // Derivado — true quando fórmula difere do padrão salvo
+  const saldoFormulaAlterada = tokensParaChaveFormula(saldoTokens) !== SALDO_FORMULA_PADRAO
+
   // FIX #4: constante fora do ciclo de render para não recriar callbacks a cada render
   const TIPOS_NUMERICOS_FORMULA: TipoColunaUsuario[] = useMemo(() => ['numero', 'percentual', 'formula'], [])
 
@@ -593,17 +858,19 @@ export default function Configuracoes() {
       return
     }
     try {
-      parsearFormula(expressao)
+      // expressao está em forma de alias (o que o usuário vê); traduzir para chave antes de parsear/semântica
+      const expressaoChave = formulaParaChave(expressao)
+      parsearFormula(expressaoChave)
 
       // FIX #1: usa ref para pegar nome atual — sem closure stale durante async
       const chave = nomeColRef.current.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
-      if (detectarCircular(chave, expressao, colunasUsuarioApi_)) {
+      if (detectarCircular(chave, expressaoChave, colunasUsuarioApi_)) {
         setFormulaErro('Referência circular: a fórmula cria um ciclo de dependências. Remova a referência que volta para esta coluna.')
         setFormulaValida(false); setFormulaAviso(null); setFormulaGabi(null)
         return
       }
 
-      // Detectar campos não-numéricos (checagem local síncrona)
+      // Detectar campos não-numéricos (checagem contra colunas do usuário — ainda usa chave real)
       const camposTexto: string[] = []
       const identRegex = /\b([a-z][a-z0-9_]*)\b/g
       let m: RegExpExecArray | null
@@ -623,7 +890,7 @@ export default function Configuracoes() {
         return
       }
 
-      // Detectar campos desconhecidos (identificadores que não existem nos campos disponíveis)
+      // Detectar campos desconhecidos — verifica contra aliases (forma que o usuário digita)
       const palavrasReservadas = new Set(['SE', 'SOMA_ITENS'])
       const chavesValidas = new Set(camposFormulaRef.current.map(c => c.chave))
       const identRegex2 = /\b([a-z][a-z0-9_]*)\b/g
@@ -632,7 +899,6 @@ export default function Configuracoes() {
       while ((m2 = identRegex2.exec(expressao)) !== null) {
         const id = m2[1]
         if (!palavrasReservadas.has(id.toUpperCase()) && !chavesValidas.has(id)) {
-          // também ignorar se já está na lista de colunas do usuário (checado antes)
           const ehColunaUsuario = colunasUsuarioApi_.some(c => c.chave === id || c.id === id)
           if (!ehColunaUsuario && !camposDesconhecidos.includes(id)) camposDesconhecidos.push(id)
         }
@@ -647,12 +913,12 @@ export default function Configuracoes() {
         return
       }
 
-      // FIX #5: análise local IMEDIATA — resultado aparece sem esperar rede
-      const gabiLocal = analisarSemanticaFormula(expressao)
+      // Análise local imediata (usa chave para SEMANTICA_CAMPOS)
+      const gabiLocal = analisarSemanticaFormula(expressaoChave)
       setFormulaErro(null); setFormulaValida(true); setFormulaAviso(null); setFormulaGabi(gabiLocal)
 
-      // Melhoria opcional via Gemini (async) — só atualiza se Gemini estiver habilitado
-      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressao, camposFormulaRef.current)
+      // Melhoria opcional via Gemini (async) — passa chave para o servidor entender
+      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressaoChave, camposFormulaRef.current)
       if (respostaGemini.gemini) {
         setFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
       }
@@ -701,31 +967,158 @@ export default function Configuracoes() {
     return () => { if (formulaDebounceRef.current) clearTimeout(formulaDebounceRef.current) }
   }, [])
 
-  // Campos disponíveis para fórmulas, agrupados por categoria
+  // ── Saldo — handlers ──────────────────────────────────────────────────────────
+
+  const validarSaldoFormula = useCallback(async (expressao: string) => {
+    if (!expressao.trim()) {
+      setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
+      return
+    }
+    setSaldoFormulaAnalisando(true)
+    // expressao está em forma de alias (o que o usuário vê); traduzir para chave antes de parsear/semântica
+    const expressaoChave = formulaParaChave(expressao)
+    try {
+      parsearFormula(expressaoChave)
+
+      // Detectar campos desconhecidos — verifica contra os aliases (forma que o usuário digita)
+      const palavrasReservadas = new Set(['SE', 'SOMA_ITENS'])
+      const chavesValidas = new Set(saldoCamposRef.current.map(c => c.chave))
+      const identRegex = /\b([a-z][a-z0-9_]*)\b/g
+      const camposDesconhecidos: string[] = []
+      let m: RegExpExecArray | null
+      while ((m = identRegex.exec(expressao)) !== null) {
+        const id = m[1]
+        if (!palavrasReservadas.has(id.toUpperCase()) && !chavesValidas.has(id) && !camposDesconhecidos.includes(id)) {
+          camposDesconhecidos.push(id)
+        }
+      }
+      if (camposDesconhecidos.length > 0) {
+        setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaAnalisando(false)
+        const lista = camposDesconhecidos.map(c => `"${c}"`).join(', ')
+        setSaldoFormulaGabi({
+          titulo: 'Campo não reconhecido',
+          texto:  `${lista} ${camposDesconhecidos.length === 1 ? 'não é um campo disponível' : 'não são campos disponíveis'}. Use os chips acima para inserir campos válidos ou verifique se há erro de digitação.`,
+        })
+        return
+      }
+
+      // Análise local imediata (usa chave para SEMANTICA_CAMPOS)
+      const gabiLocal = analisarSemanticaFormula(expressaoChave)
+      setSaldoFormulaErro(null); setSaldoFormulaValida(true); setSaldoFormulaGabi(gabiLocal)
+
+      // Melhoria opcional via Gemini (async) — passa chave para o servidor entender
+      const respostaGemini = await colunasUsuarioApi.gabiAnalisar(expressaoChave, saldoCamposRef.current)
+      setSaldoFormulaAnalisando(false)
+      if (respostaGemini.gemini) {
+        setSaldoFormulaGabi({ titulo: respostaGemini.titulo, texto: respostaGemini.texto, sugestao: respostaGemini.sugestao })
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Fórmula inválida'
+
+      // Detecta padrão "dois campos sem operador"
+      if (msg.includes('Token inesperado após fim da fórmula:')) {
+        const match = msg.match(/Token inesperado após fim da fórmula: '([^']+)'/)
+        const tokenExtra = match?.[1]
+        if (tokenExtra) {
+          const idx = expressao.lastIndexOf(tokenExtra)
+          const antes = idx > 0 ? expressao.slice(0, idx).trim() : null
+          if (antes) {
+            setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaAnalisando(false)
+            setSaldoFormulaGabi({
+              titulo:   'Falta um operador',
+              texto:    `Parece que faltou um operador entre "${antes}" e "${tokenExtra}". Escolha o que faz mais sentido e insira entre os dois campos.`,
+              sugestao: `${antes} + ${tokenExtra}`,
+            })
+            return
+          }
+        }
+      }
+
+      setSaldoFormulaErro(msg); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
+    }
+  }, [])
+
+  // Tokens → validação via debounce sempre que os tokens mudam
+  useEffect(() => {
+    const formulaAlias = tokensParaAliasFormula(saldoTokens)
+    setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null)
+    if (saldoDebounceRef.current) clearTimeout(saldoDebounceRef.current)
+    if (!formulaAlias.trim()) { setSaldoFormulaAnalisando(false); return }
+    setSaldoFormulaAnalisando(true)
+    saldoDebounceRef.current = setTimeout(() => { void validarSaldoFormula(formulaAlias) }, 600)
+  }, [saldoTokens, validarSaldoFormula])
+
+  useEffect(() => {
+    return () => { if (saldoDebounceRef.current) clearTimeout(saldoDebounceRef.current) }
+  }, [])
+
+  function adicionarCampoSaldo(campo: { chave: string; label: string }) {
+    setSaldoTokens(prev => [...prev, { tipo: 'campo', chave: campo.chave, label: campo.label }])
+  }
+
+  function adicionarOpSaldo(op: string) {
+    setSaldoTokens(prev => [...prev, { tipo: 'op', valor: op }])
+  }
+
+  function removerTokenSaldo(index: number) {
+    setSaldoTokens(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function salvarSaldoFormula() {
+    try { localStorage.setItem(SALDO_FORMULA_KEY, tokensParaChaveFormula(saldoTokens)) } catch { /* ignore */ }
+  }
+
+  function restaurarSaldoPadrao() {
+    try { localStorage.removeItem(SALDO_FORMULA_KEY) } catch { /* ignore */ }
+    setSaldoTokens(aliasFormulaParaTokens(formulaParaAlias(SALDO_FORMULA_PADRAO)))
+    setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
+  }
+
+  // Campos disponíveis para fórmulas — chave = alias legível (o que o chip insere e o usuário vê)
   const CAMPOS_FORMULA: { grupo: string; campos: { chave: string; label: string }[] }[] = [
     {
       grupo: 'Quantidades',
       campos: [
-        { chave: 'quantidade_total_inicial_pedido',      label: 'Quantidade Inicial' },
-        { chave: 'quantidade_cancelada_total_pedido',    label: 'Quantidade Cancelada' },
-        { chave: 'quantidade_transferida_total',         label: 'Quantidade Transferida' },
-        { chave: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta' },
-        { chave: 'saldo_itens_do_pedido',                label: 'Saldo' },
+        { chave: 'quantidade_inicial',     label: 'Quantidade Inicial' },
+        { chave: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
+        { chave: 'quantidade_transferida', label: 'Quantidade Transferida' },
+        { chave: 'quantidade_pronta',      label: 'Quantidade Pronta' },
+        { chave: 'saldo',                  label: 'Saldo' },
       ],
     },
     {
       grupo: 'Financeiro',
       campos: [
-        { chave: 'valor_total',   label: 'Valor Total' },
-        { chave: 'peso_liquido_total_pedido', label: 'Peso Líquido' },
-        { chave: 'peso_bruto_total_pedido',   label: 'Peso Bruto' },
-        { chave: 'cubagem_total_pedido',      label: 'Cubagem' },
+        { chave: 'valor_total',  label: 'Valor Total' },
+        { chave: 'peso_liquido', label: 'Peso Líquido' },
+        { chave: 'peso_bruto',   label: 'Peso Bruto' },
+        { chave: 'cubagem',      label: 'Cubagem' },
       ],
     },
     ...( colunasUsuarioApi_.filter(c => c.tipo !== 'formula' && c.ativo).length > 0 ? [{
       grupo: 'Minhas Colunas',
       campos: colunasUsuarioApi_
         .filter(c => c.tipo !== 'formula' && c.ativo)
+        .map(c => ({ chave: c.chave ?? c.id, label: c.nome })),
+    }] : []),
+  ]
+
+  // Campos disponíveis para Saldo do Pedido (apenas quantidades + colunas numéricas do usuário)
+  // chave = alias legível (o que aparece na fórmula e o chip insere); label = nome exibido no chip
+  const CAMPOS_SALDO: { grupo: string; campos: { chave: string; label: string }[] }[] = [
+    {
+      grupo: 'Quantidades Nativas',
+      campos: [
+        { chave: 'quantidade_inicial',     label: 'Quantidade Inicial' },
+        { chave: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
+        { chave: 'quantidade_transferida', label: 'Quantidade Transferida' },
+        { chave: 'quantidade_pronta',      label: 'Quantidade Pronta' },
+      ],
+    },
+    ...( colunasUsuarioApi_.filter(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo).length > 0 ? [{
+      grupo: 'Colunas Personalizadas',
+      campos: colunasUsuarioApi_
+        .filter(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo)
         .map(c => ({ chave: c.chave ?? c.id, label: c.nome })),
     }] : []),
   ]
@@ -740,26 +1133,26 @@ export default function Configuracoes() {
     }))
   )
 
-  function inserirCampoFormula(chave: string) {
-    const el = formulaTextareaRef.current
-    if (!el) {
-      const novo = novaColuna.formula_expressao + chave
-      handleFormulaChange(novo)
-      return
-    }
-    const start = el.selectionStart ?? el.value.length
-    const end   = el.selectionEnd   ?? el.value.length
-    const antes  = el.value.slice(0, start)
-    const depois = el.value.slice(end)
-    const sep    = antes.length > 0 && !/[\s(+\-*/]$/.test(antes) ? ' ' : ''
-    const novo   = antes + sep + chave + depois
-    handleFormulaChange(novo)  // garante que debounce e estado GABI sejam atualizados
-    // Reposicionar cursor após o campo inserido
-    requestAnimationFrame(() => {
-      el.focus()
-      const pos = (antes + sep + chave).length
-      el.setSelectionRange(pos, pos)
-    })
+  // Mantém ref de campos do Saldo atualizado (usado pelo validarSaldoFormula async)
+  saldoCamposRef.current = CAMPOS_SALDO.flatMap(g =>
+    g.campos.map(c => ({
+      chave:   c.chave,
+      label:   c.label,
+      unidade: SEMANTICA_CAMPOS[c.chave]?.unidade as string | undefined,
+      papel:   SEMANTICA_CAMPOS[c.chave]?.papel   as string | undefined,
+    }))
+  )
+
+  function adicionarCampoFormulaToken(campo: { chave: string; label: string }) {
+    setFormulaTokens(prev => [...prev, { tipo: 'campo', chave: campo.chave, label: campo.label }])
+  }
+
+  function adicionarOpFormulaToken(op: string) {
+    setFormulaTokens(prev => [...prev, { tipo: 'op', valor: op }])
+  }
+
+  function removerTokenFormula(index: number) {
+    setFormulaTokens(prev => prev.filter((_, i) => i !== index))
   }
 
   async function handleCriarColuna() {
@@ -786,7 +1179,7 @@ export default function Configuracoes() {
         valor_padrao: novaColuna.valor_padrao.trim() || undefined,
         descricao: novaColuna.descricao.trim() || undefined,
         opcoes: tipoComOpcoes ? novaColuna.opcoes : undefined,
-        formula_expressao: novaColuna.tipo === 'formula' ? novaColuna.formula_expressao.trim() : undefined,
+        formula_expressao: novaColuna.tipo === 'formula' ? formulaParaChave(novaColuna.formula_expressao.trim()) : undefined,
         ativo: true,
         ordem: colunasUsuarioApi_.length,
       })
@@ -794,6 +1187,7 @@ export default function Configuracoes() {
       setColunasUsuarioApi(lista)
       setNovaColuna(NOVA_COLUNA_PADRAO)
       setNovaOpcao('')
+      setFormulaTokens([])
     } catch (err) {
       setErroColuna(err instanceof Error ? err.message : 'Erro ao criar coluna.')
     } finally {
@@ -1466,44 +1860,89 @@ export default function Configuracoes() {
 
       {/* ── Sidebar ── */}
       <aside className="cfg-sidebar">
-        <p className="cfg-sidebar__titulo">Configurações</p>
         <nav className="cfg-sidebar__nav">
-          {CATEGORIAS.map(cat => (
-            <React.Fragment key={cat.id}>
+          {SIDEBAR_ITEMS.map((item, idx) => {
+            // ── Grupo (label de seção) ──
+            if (item.tipo === 'grupo') {
+              return (
+                <span key={`grupo-${idx}`} className="cfg-sidebar__titulo cfg-sidebar__titulo--grupo">
+                  {item.label}
+                </span>
+              )
+            }
+
+            // ── Parent (expandível/contraível) ──
+            if (item.tipo === 'parent') {
+              const groupKey = item.filhos === COLUNAS_FILHOS ? 'colunas' : 'kanban'
+              const isExpanded = !!expandedGroups[groupKey]
+              const isAtivo = item.filhos.includes(categoria)
+              return (
+                <div key={`parent-${item.id}`} className="cfg-sidebar__group">
+                  <button
+                    type="button"
+                    className={[
+                      'cfg-sidebar__item',
+                      isAtivo ? 'cfg-sidebar__item--ativo' : '',
+                    ].filter(Boolean).join(' ')}
+                    onClick={() => toggleGroup(groupKey)}
+                  >
+                    <span className="cfg-sidebar__item-icon">{item.icone}</span>
+                    <span className="cfg-sidebar__item-label">{item.label}</span>
+                    <CaretDown
+                      size={12}
+                      weight="bold"
+                      className={`cfg-sidebar__chevron${isExpanded ? ' cfg-sidebar__chevron--open' : ''}`}
+                    />
+                  </button>
+                  <div className={`cfg-sidebar__submenu${isExpanded ? ' cfg-sidebar__submenu--open' : ''}`}>
+                    {SIDEBAR_ITEMS
+                      .filter(s => s.tipo === 'sub' && item.filhos.includes(s.id))
+                      .map(sub => {
+                        if (sub.tipo !== 'sub') return null
+                        const subAtivo = categoria === sub.id
+                        return (
+                          <button
+                            key={sub.id}
+                            type="button"
+                            className={[
+                              'cfg-sidebar__subitem',
+                              subAtivo ? 'cfg-sidebar__subitem--ativo' : '',
+                              !sub.ativo ? 'cfg-sidebar__item--breve' : '',
+                            ].filter(Boolean).join(' ')}
+                            onClick={() => sub.ativo && setCategoria(sub.id as CategoriaId)}
+                          >
+                            <span className="cfg-sidebar__item-label">{sub.label}</span>
+                            {!sub.ativo && <span className="cfg-badge-breve">Em breve</span>}
+                          </button>
+                        )
+                      })}
+                  </div>
+                </div>
+              )
+            }
+
+            // ── Sub (renderizado dentro do parent acima, não aqui) ──
+            if (item.tipo === 'sub') return null
+
+            // ── Item normal ──
+            const isAtivo = categoria === item.id
+            return (
               <button
+                key={item.id}
                 type="button"
                 className={[
                   'cfg-sidebar__item',
-                  categoria === cat.id ? 'cfg-sidebar__item--ativo' : '',
-                  !cat.ativo           ? 'cfg-sidebar__item--breve' : '',
+                  isAtivo     ? 'cfg-sidebar__item--ativo' : '',
+                  !item.ativo ? 'cfg-sidebar__item--breve' : '',
                 ].filter(Boolean).join(' ')}
-                onClick={() => { if (cat.ativo) setCategoria(cat.id) }}
+                onClick={() => item.ativo && setCategoria(item.id as CategoriaId)}
               >
-                <span className="cfg-sidebar__item-icon">{cat.icone}</span>
-                <span className="cfg-sidebar__item-label">{cat.label}</span>
-                {!cat.ativo && <span className="cfg-badge-breve">Em breve</span>}
+                <span className="cfg-sidebar__item-icon">{item.icone}</span>
+                <span className="cfg-sidebar__item-label">{item.label}</span>
+                {!item.ativo && <span className="cfg-badge-breve">Em breve</span>}
               </button>
-
-              {cat.id === 'kanban' && categoria === 'kanban' && (
-                <div className="cfg-sidebar__subnav">
-                  <button
-                    type="button"
-                    className={`cfg-sidebar__subitem${kanbanSub === 'modal' ? ' cfg-sidebar__subitem--ativo' : ''}`}
-                    onClick={() => setKanbanSub('modal')}
-                  >
-                    Modal
-                  </button>
-                  <button
-                    type="button"
-                    className={`cfg-sidebar__subitem${kanbanSub === 'card' ? ' cfg-sidebar__subitem--ativo' : ''}`}
-                    onClick={() => setKanbanSub('card')}
-                  >
-                    Card
-                  </button>
-                </div>
-              )}
-            </React.Fragment>
-          ))}
+            )
+          })}
         </nav>
       </aside>
 
@@ -1513,18 +1952,27 @@ export default function Configuracoes() {
         {/* ════════════════════════ CARDS ════════════════════════ */}
         {categoria === 'cards' && (
           <div className="cfg-cards-wrapper">
-
-            {/* ── Período padrão ── */}
             <section className="cfg-secao">
+
+              {/* ── Header unificado ── */}
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Período de comparação</h2>
+                  <h2 className="cfg-secao__titulo">Meus Cards</h2>
                   <p className="cfg-secao__desc">
-                    Define o intervalo padrão exibido nos badges de tendência dos cards
+                    Cards exibidos no topo da tela · arraste para reordenar · olho para ocultar
                   </p>
                 </div>
+                <TooltipGlobal descricao="Restaura os 3 cards padrão do produto">
+                  <button type="button" className="cfg-btn-header--restaurar" onClick={resetar}>
+                    <ArrowCounterClockwise size={13} weight="bold" />
+                    Restaurar padrão
+                  </button>
+                </TooltipGlobal>
               </div>
-              <div className="cfg-periodo-pills">
+
+              {/* ── Período de comparação ── */}
+              <CfgSectionLabel label="PERÍODO DE COMPARAÇÃO" />
+              <div className="cfg-periodo-pills" style={{ marginTop: '0.75rem' }}>
                 {PERIODOS.map(p => (
                   <button
                     key={p.id}
@@ -1536,27 +1984,42 @@ export default function Configuracoes() {
                   </button>
                 ))}
               </div>
-            </section>
 
-            {/* ── Meus cards ── */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">Meus cards</h2>
-                  <p className="cfg-secao__desc">
-                    Arraste para reordenar · olho para ocultar · × para remover
+              {/* ── Preview ao vivo ── */}
+              {prefs.length > 0 && (
+                <div className="cfg-cards-preview-wrap">
+                  <p className="cfg-cards-preview-label">
+                    <SquaresFour size={12} weight="fill" />
+                    Preview — como ficará na tela
                   </p>
+                  <div className="cfg-cards-preview-grid">
+                    {prefs.map((pref, i) => {
+                      const visual = CARD_VISUAL[pref.id]
+                      const def    = CARDS_CATALOGO.find(c => c.id === pref.id)!
+                      return (
+                        <div
+                          key={pref.id}
+                          className={`cfg-kpi-preview-card${!pref.visible ? ' cfg-kpi-preview-card--oculto' : ''}`}
+                          style={{ borderTopColor: visual.cor }}
+                        >
+                          <span className="cfg-kpi-preview-card__pos">{i + 1}</span>
+                          <span className="cfg-kpi-preview-card__icon" style={{ color: visual.cor }}>
+                            {visual.icone}
+                          </span>
+                          <div className="cfg-kpi-preview-card__line" style={{ background: visual.cor }} />
+                          <p className="cfg-kpi-preview-card__label">{t(def.labelKey)}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-                <TooltipGlobal descricao="Restaura os 3 cards padrão do produto">
-                  <button type="button" className="cfg-reset-btn" onClick={resetar}>
-                    <ArrowCounterClockwise size={13} weight="bold" />
-                    Restaurar padrão
-                  </button>
-                </TooltipGlobal>
-              </div>
+              )}
+
+              {/* ── Ativos ── */}
+              <CfgSectionLabel label="ATIVOS" count={`${prefs.length} card${prefs.length !== 1 ? 's' : ''}`} />
 
               {prefs.length === 0 ? (
-                <p className="cfg-empty">Nenhum card adicionado. Escolha na tabela abaixo.</p>
+                <p className="cfg-empty">Nenhum card adicionado. Escolha na lista abaixo.</p>
               ) : (
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={prefs.map(p => p.id)} strategy={verticalListSortingStrategy}>
@@ -1573,65 +2036,59 @@ export default function Configuracoes() {
                   </SortableContext>
                 </DndContext>
               )}
-            </section>
 
-            {/* ── Catálogo — tabela de colunas disponíveis ── */}
-            {disponiveis.length > 0 && (
-              <section className="cfg-secao">
-                <div className="cfg-secao__header">
-                  <div>
-                    <h2 className="cfg-secao__titulo">Colunas disponíveis</h2>
-                    <p className="cfg-secao__desc">
-                      Todas as colunas da tabela de pedidos · clique em + para adicionar como card
-                    </p>
-                  </div>
-                </div>
+              {/* ── Disponíveis para adicionar ── */}
+              <CfgSectionLabel label="DISPONÍVEIS PARA ADICIONAR" hint="clique em + para adicionar" style={{ marginTop: '1.5rem' }} />
 
-                <div className="cfg-tabela-head">
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">Origem</span>
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--agg">Agregação</span>
-                  <span className="cfg-tabela-head__col cfg-tabela-head__col--acao" />
-                </div>
+              <div className="cfg-tabela-head">
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">Origem</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--agg">Agregação</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--acao" />
+              </div>
 
-                <div className="cfg-cards-lista">
-                  {disponiveis.map(def => {
-                    const visual = CARD_VISUAL[def.id]
-                    return (
-                      <div key={def.id} className="cfg-card-row cfg-card-row--disponivel">
-                        <span className="cfg-drag-handle cfg-drag-handle--ghost">
-                          <DotsSixVertical size={16} weight="bold" />
+              <div className="cfg-cards-lista">
+                {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).map(def => {
+                  const visual = CARD_VISUAL[def.id]
+                  return (
+                    <div key={def.id} className="cfg-card-row cfg-card-row--disponivel">
+                      <span className="cfg-drag-handle cfg-drag-handle--ghost">
+                        <DotsSixVertical size={16} weight="bold" />
+                      </span>
+                      <div className="cfg-card-row__info">
+                        <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
+                          {visual.icone}
                         </span>
-                        <div className="cfg-card-row__info">
-                          <span className="cfg-card-row__icone" style={{ color: visual.cor }}>
-                            {visual.icone}
-                          </span>
-                          <div>
-                            <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
-                            <p className="cfg-card-row__desc">{t(def.descKey)}</p>
-                          </div>
+                        <div>
+                          <p className="cfg-card-row__nome">{t(def.labelKey)}</p>
+                          <p className="cfg-card-row__desc">{t(def.descKey)}</p>
                         </div>
-                        <span className={`cfg-origem-badge cfg-origem-badge--${def.origem === 'Pedido' ? 'pedido' : 'item'}`}>
-                          {def.origem}
-                        </span>
-                        <span className="cfg-agg-badge">{def.tipoAgg}</span>
-                        <TooltipGlobal descricao="Adicionar aos meus cards">
-                          <button
-                            type="button"
-                            className="cfg-add-btn"
-                            onClick={() => adicionar(def.id)}
-                            aria-label="Adicionar card"
-                          >
-                            <Plus size={13} weight="bold" />
-                          </button>
-                        </TooltipGlobal>
                       </div>
-                    )
-                  })}
-                </div>
-              </section>
-            )}
+                      <span className={`cfg-origem-badge ${def.origem === 'Pedido' ? 'cfg-origem-badge--pedido' : 'cfg-origem-badge--item'}`}>
+                        {def.origem}
+                      </span>
+                      <span className="cfg-agg-badge">{def.tipoAgg}</span>
+                      <TooltipGlobal descricao="Adicionar aos meus cards">
+                        <button
+                          type="button"
+                          className="cfg-add-btn"
+                          onClick={() => adicionar(def.id)}
+                          aria-label="Adicionar card"
+                        >
+                          <Plus size={13} weight="bold" />
+                        </button>
+                      </TooltipGlobal>
+                    </div>
+                  )
+                })}
+                {CARDS_CATALOGO.filter(def => !prefs.find(p => p.id === def.id)).length === 0 && (
+                  <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                    Todos os cards disponíveis já foram adicionados
+                  </p>
+                )}
+              </div>
 
+            </section>
           </div>
         )}
 
@@ -1692,12 +2149,12 @@ export default function Configuracoes() {
           </div>
         )}
 
-        {/* ════════════════════════ KANBAN ════════════════════════ */}
-        {categoria === 'kanban' && (
+        {/* ════════════════════════ KANBAN MODAL ════════════════════════ */}
+        {(categoria === 'kanban-modal' || categoria === 'kanban-card') && (
           <div className="cfg-kanban-wrapper">
 
             {/* ── Sub: Modal ── */}
-            {kanbanSub === 'modal' && (<>
+            {categoria === 'kanban-modal' && (
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
@@ -1708,41 +2165,107 @@ export default function Configuracoes() {
 
               {kanbanLoading && <p className="cfg-loading-msg">Carregando...</p>}
 
-              {!kanbanLoading && ((['pedido', 'quantidades', 'datas'] as const).map(aba => {
-                const campos = kanbanCamposDeAba(aba)
-                const limite = KANBAN_LIMITES[aba] ?? 10
-                const nomeAba = aba === 'pedido' ? 'Pedido' : aba === 'quantidades' ? 'Quantidades' : 'Datas'
+              {!kanbanLoading && (() => {
+                const campos  = kanbanCamposDeAba(abaAtiva)
+                const limite  = KANBAN_LIMITES[abaAtiva] ?? 10
+                const nomeAba = abaAtiva === 'pedido' ? 'Pedido' : abaAtiva === 'quantidades' ? 'Quantidades' : 'Datas'
+                const disponiveis = KANBAN_CAMPOS_DISPONIVEIS.filter(cd => cd.categoria === abaAtiva)
                 return (
-                  <div key={aba} className="cfg-kanban-aba">
-                    <div className="cfg-kanban-aba-header">
-                      <div className="cfg-kanban-aba-titulo-wrap">
-                        <span className="cfg-kanban-aba-titulo">Aba: {nomeAba}</span>
-                        <span className="cfg-kanban-aba-contador">{campos.length}/{limite} campos</span>
+                  <>
+                    {/* ── Preview ao vivo — mini modal ── */}
+                    <div className="cfg-cards-preview-wrap">
+                      <p className="cfg-cards-preview-label">
+                        <SquaresFour size={12} weight="fill" />
+                        Preview — como ficará no modal
+                      </p>
+                      <div className="cfg-modal-preview">
+                        {/* Tab bar */}
+                        <div className="cfg-modal-preview__tabs">
+                          {(['pedido', 'quantidades', 'datas', 'lembrete'] as const).map(tab => {
+                            const nome = tab === 'pedido' ? 'Pedido' : tab === 'quantidades' ? 'Quantidades' : tab === 'datas' ? 'Datas' : 'Lembrete'
+                            return (
+                              <span key={tab} className={`cfg-modal-preview__tab${tab === abaAtiva ? ' cfg-modal-preview__tab--ativo' : ''}`}>
+                                {nome}
+                              </span>
+                            )
+                          })}
+                        </div>
+                        {/* Campos da aba ativa */}
+                        <div className="cfg-modal-preview__campos">
+                          {campos.filter(c => c.visivel).map(c => (
+                            <div key={c.campo} className="cfg-modal-preview__campo">
+                              <span className="cfg-modal-preview__campo-label">{c.label}</span>
+                              <span className="cfg-modal-preview__campo-valor">—</span>
+                            </div>
+                          ))}
+                          {campos.filter(c => !c.visivel).map(c => (
+                            <div key={c.campo} className="cfg-modal-preview__campo cfg-modal-preview__campo--oculto">
+                              <span className="cfg-modal-preview__campo-label">{c.label}</span>
+                              <span className="cfg-modal-preview__campo-valor">—</span>
+                            </div>
+                          ))}
+                          {campos.length === 0 && (
+                            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0.5rem 0' }}>
+                              Nenhum campo ativo
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        className="cfg-kanban-restaurar-btn"
-                        onClick={kanbanRestaurarPadrao}
-                        title="Restaurar padrão"
-                      >
-                        <ArrowCounterClockwise size={13} weight="bold" />
-                        Restaurar padrão
-                      </button>
                     </div>
-                    <p className="cfg-kanban-aba-hint">Arraste para reordenar · olho para ocultar · × para remover</p>
+
+                    {/* ── Seletor de aba ── */}
+                    <div className="cfg-periodo-pills" style={{ marginBottom: '1.25rem' }}>
+                      {(['pedido', 'quantidades', 'datas'] as const).map(aba => {
+                        const qtd = kanbanCamposDeAba(aba).length
+                        const lim = KANBAN_LIMITES[aba] ?? 10
+                        const nome = aba === 'pedido' ? 'Pedido' : aba === 'quantidades' ? 'Quantidades' : 'Datas'
+                        return (
+                          <button
+                            key={aba}
+                            type="button"
+                            className={`cfg-periodo-pill${abaAtiva === aba ? ' cfg-periodo-pill--ativo' : ''}`}
+                            onClick={() => setAbaAtiva(aba)}
+                          >
+                            {nome}
+                            <span style={{ marginLeft: '0.375rem', fontSize: '0.6875rem', opacity: 0.7 }}>
+                              {qtd}/{lim}
+                            </span>
+                          </button>
+                        )
+                      })}
+                    </div>
+
+                    {/* ── Ativos ── */}
+                    <CfgSectionLabel
+                      label="ATIVOS"
+                      count={`${campos.length}/${limite} campos`}
+                      action={
+                        <TooltipGlobal descricao={`Restaura os campos padrão da aba ${nomeAba}`}>
+                          <button type="button" className="cfg-btn-header--restaurar" onClick={kanbanRestaurarPadrao}>
+                            <ArrowCounterClockwise size={13} weight="bold" />
+                            Restaurar padrão
+                          </button>
+                        </TooltipGlobal>
+                      }
+                    />
+                    <p className="cfg-hint">Arraste para reordenar · olho para ocultar · × para remover</p>
 
                     <div className="cfg-kanban-campos-lista">
+                      {campos.length === 0 && (
+                        <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                          Nenhum campo ativo — adicione abaixo
+                        </p>
+                      )}
                       {campos.map(cfg => (
                         <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
                           <span className="cfg-drag-handle" aria-label="Arrastar">
                             <DotsSixVertical size={15} weight="bold" />
                           </span>
                           <span className="cfg-kanban-campo-label">{cfg.label}</span>
-                          <span className="cfg-origem-badge cfg-origem-badge--meus">{aba}</span>
                           <button
                             type="button"
                             className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
-                            onClick={() => kanbanToggleVisivel(aba, cfg.campo)}
+                            onClick={() => kanbanToggleVisivel(abaAtiva, cfg.campo)}
                             aria-label={cfg.visivel ? 'Ocultar campo' : 'Exibir campo'}
                           >
                             {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
@@ -1750,7 +2273,7 @@ export default function Configuracoes() {
                           <button
                             type="button"
                             className="cfg-remove-btn"
-                            onClick={() => kanbanRemoverCampo(aba, cfg.campo)}
+                            onClick={() => kanbanRemoverCampo(abaAtiva, cfg.campo)}
                             aria-label="Remover campo"
                           >
                             <X size={12} weight="bold" />
@@ -1758,63 +2281,52 @@ export default function Configuracoes() {
                         </div>
                       ))}
                     </div>
-                  </div>
-                )
-              }))}
 
-              {/* Aba fixa Lembrete */}
-              <div className="cfg-kanban-aba cfg-kanban-aba--fixa">
-                <div className="cfg-kanban-aba-header">
-                  <span className="cfg-kanban-aba-titulo">Aba: Lembrete</span>
-                  <span className="cfg-kanban-aba-fixa-badge">fixa</span>
-                </div>
-                <p className="cfg-kanban-aba-hint">Aba fixa — comportamento nativo, não configurável</p>
-              </div>
-            </section>
-
-            {/* Campos disponíveis para modal */}
-            <section className="cfg-secao">
-              <div className="cfg-secao__header">
-                <div>
-                  <h2 className="cfg-secao__titulo">Campos disponíveis</h2>
-                  <p className="cfg-secao__desc">Todas as colunas do pedido · clique em + para adicionar a uma aba</p>
-                </div>
-              </div>
-              <div className="cfg-kanban-disponivel-lista">
-                <div className="cfg-kanban-disponivel-header">
-                  <span>Coluna</span>
-                  <span>Aba</span>
-                  <span></span>
-                </div>
-                {KANBAN_CAMPOS_DISPONIVEIS.filter(cd => !kanbanCamposEmUso().has(cd.campo)).map(cd => {
-                  const aba = cd.categoria
-                  const limite = KANBAN_LIMITES[aba] ?? 10
-                  const atual = kanbanCamposDeAba(aba).length
-                  const cheio = atual >= limite
-                  return (
-                    <div key={cd.campo} className="cfg-kanban-disponivel-row">
-                      <span className="cfg-kanban-disponivel-label">{cd.label}</span>
-                      <span className="cfg-origem-badge cfg-origem-badge--meus">{aba}</span>
-                      <TooltipGlobal descricao={cheio ? `Limite atingido (${atual}/${limite}) — remova um campo` : `Adicionar à aba ${aba}`}>
-                        <button
-                          type="button"
-                          className={`cfg-kanban-add-btn${cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
-                          onClick={() => { if (!cheio) kanbanAdicionarCampo(aba, cd) }}
-                          disabled={cheio}
-                          aria-label="Adicionar campo"
-                        >
-                          <Plus size={13} weight="bold" />
-                        </button>
-                      </TooltipGlobal>
+                    {/* ── Disponíveis para adicionar ── */}
+                    <CfgSectionLabel label="DISPONÍVEIS PARA ADICIONAR" hint="clique em + para adicionar" style={{ marginTop: '1.5rem' }} />
+                    <div className="cfg-kanban-disponivel-lista">
+                      {disponiveis.filter(cd => !kanbanCamposEmUso().has(cd.campo)).map(cd => {
+                        const cheio = campos.length >= limite
+                        return (
+                          <div key={cd.campo} className="cfg-kanban-disponivel-row">
+                            <span className="cfg-kanban-disponivel-label">{cd.label}</span>
+                            <TooltipGlobal descricao={cheio ? `Limite atingido (${campos.length}/${limite}) — remova um campo` : `Adicionar à aba ${nomeAba}`}>
+                              <button
+                                type="button"
+                                className={`cfg-kanban-add-btn${cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
+                                onClick={() => { if (!cheio) kanbanAdicionarCampo(abaAtiva, cd) }}
+                                disabled={cheio}
+                                aria-label="Adicionar campo"
+                              >
+                                <Plus size={13} weight="bold" />
+                              </button>
+                            </TooltipGlobal>
+                          </div>
+                        )
+                      })}
+                      {disponiveis.filter(cd => !kanbanCamposEmUso().has(cd.campo)).length === 0 && (
+                        <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                          Todos os campos disponíveis já foram adicionados
+                        </p>
+                      )}
                     </div>
-                  )
-                })}
-              </div>
+
+                    {/* Aba fixa Lembrete — informativa */}
+                    <div className="cfg-kanban-aba cfg-kanban-aba--fixa" style={{ marginTop: '1.5rem' }}>
+                      <CfgSectionLabel
+                        label="ABA LEMBRETE"
+                        action={<span className="cfg-kanban-aba-fixa-badge">fixa</span>}
+                      />
+                      <p className="cfg-hint">Aba fixa — comportamento nativo, não configurável</p>
+                    </div>
+                  </>
+                )
+              })()}
             </section>
-            </>)}
+            )}
 
             {/* ── Sub: Card ── */}
-            {kanbanSub === 'card' && (<>
+            {categoria === 'kanban-card' && (<>
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
@@ -1823,60 +2335,133 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              {!kanbanLoading && (
-                <>
-                  {/* Campo fixo */}
-                  <div className="cfg-kanban-aba cfg-kanban-aba--fixa" style={{ marginBottom: 8 }}>
-                    <div className="cfg-kanban-aba-header">
-                      <span className="cfg-kanban-aba-titulo">Nº do Pedido</span>
-                      <span className="cfg-kanban-aba-fixa-badge">fixo</span>
-                    </div>
-                    <p className="cfg-kanban-aba-hint">Sempre exibido no topo do card</p>
-                  </div>
-
-                  {/* Campos toggleáveis agrupados */}
-                  {KANBAN_CARD_GRUPOS.map(grupo => {
-                    const camposDoGrupo = kanbanCardCampos().filter(c => c.grupo === grupo.key)
-                    if (camposDoGrupo.length === 0) return null
-                    return (
-                      <div key={grupo.key} className="cfg-card-subsecao">
-                        <span className="cfg-card-subsecao-titulo">{grupo.label}</span>
-                        <div className="cfg-kanban-campos-lista">
-                          {camposDoGrupo.map(cfg => (
-                            <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
-                              <span className="cfg-kanban-campo-label">{cfg.label}</span>
-                              <button
-                                type="button"
-                                className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
-                                onClick={() => kanbanCardToggle(cfg.campo)}
-                                aria-label={cfg.visivel ? 'Ocultar' : 'Exibir'}
-                              >
-                                {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
-                              </button>
+              {!kanbanLoading && (() => {
+                const todosCampos      = kanbanCardCampos()
+                const ativos           = todosCampos.filter(c => c.visivel)
+                const disponiveis      = todosCampos.filter(c => !c.visivel)
+                const dataCritica      = (kanbanPrefs ?? KANBAN_PADRAO).card?.dataCritica ?? 'data_prevista_coleta_pedido'
+                const dataCriticaLabel = KANBAN_CAMPOS_DISPONIVEIS.find(c => c.campo === dataCritica)?.label ?? null
+                return (
+                  <>
+                    {/* ── Preview ao vivo ── */}
+                    <div className="cfg-cards-preview-wrap">
+                      <p className="cfg-cards-preview-label">
+                        <SquaresFour size={12} weight="fill" />
+                        Preview — como ficará no card
+                      </p>
+                      <div className="cfg-card-preview">
+                        <div className="cfg-card-preview__header">
+                          <span className="cfg-card-preview__numero">PED-2025-0001</span>
+                          <span className="cfg-card-preview__fixo-badge">fixo</span>
+                        </div>
+                        <div className="cfg-card-preview__campos">
+                          {ativos.map(c => (
+                            <div key={c.campo} className="cfg-card-preview__campo">
+                              <span className="cfg-card-preview__campo-label">{c.label}</span>
+                              <span className="cfg-card-preview__campo-valor">—</span>
                             </div>
                           ))}
+                          {ativos.length === 0 && (
+                            <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0.25rem 0' }}>
+                              Nenhum campo ativo
+                            </p>
+                          )}
                         </div>
+                        {dataCritica && (
+                          <div className="cfg-card-preview__data-critica">
+                            <CalendarBlank size={10} />
+                            {dataCriticaLabel ?? dataCritica}
+                          </div>
+                        )}
                       </div>
-                    )
-                  })}
+                    </div>
 
-                  {/* Data crítica */}
-                  <div className="cfg-kanban-data-critica-wrap" style={{ marginTop: 16 }}>
-                    <label className="cfg-label">Data crítica exibida no card</label>
+                    {/* ── Ativos ── */}
+                    <CfgSectionLabel label="ATIVOS" count={`${ativos.length + 1} campo${ativos.length + 1 !== 1 ? 's' : ''}`} />
+                    <p className="cfg-hint">Olho para ocultar · Nº do Pedido é fixo e sempre exibido</p>
+                    <div className="cfg-kanban-campos-lista">
+                      {/* Campo fixo sempre no topo */}
+                      <div className="cfg-kanban-campo-row cfg-kanban-campo-row--fixo">
+                        <span className="cfg-kanban-campo-label">Nº do Pedido</span>
+                        <span className="cfg-kanban-aba-fixa-badge">fixo</span>
+                      </div>
+                      {ativos.length === 0 && (
+                        <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                          Nenhum campo ativo — adicione abaixo
+                        </p>
+                      )}
+                      {KANBAN_CARD_GRUPOS.map(grupo => {
+                        const cols = ativos.filter(c => c.grupo === grupo.key)
+                        if (cols.length === 0) return null
+                        return (
+                          <React.Fragment key={grupo.key}>
+                            <div className="cfg-card-grupo-divider">{grupo.label}</div>
+                            {cols.map(cfg => (
+                              <div key={cfg.campo} className="cfg-kanban-campo-row">
+                                <span className="cfg-kanban-campo-label">{cfg.label}</span>
+                                <button
+                                  type="button"
+                                  className="cfg-eye-btn cfg-eye-btn--on"
+                                  onClick={() => kanbanCardToggle(cfg.campo)}
+                                  aria-label="Ocultar campo"
+                                >
+                                  <Eye size={14} weight="bold" />
+                                </button>
+                              </div>
+                            ))}
+                          </React.Fragment>
+                        )
+                      })}
+                    </div>
+
+                    {/* ── Disponíveis para adicionar ── */}
+                    <CfgSectionLabel label="DISPONÍVEIS PARA ADICIONAR" hint="clique em + para adicionar" style={{ marginTop: '1.5rem' }} />
+                    <div className="cfg-kanban-disponivel-lista">
+                      <div className="cfg-kanban-disponivel-header">
+                        <span>Campo</span>
+                        <span>Grupo</span>
+                        <span></span>
+                      </div>
+                      {disponiveis.length === 0 && (
+                        <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
+                          Todos os campos estão ativos
+                        </p>
+                      )}
+                      {disponiveis.map(cfg => (
+                        <div key={cfg.campo} className="cfg-kanban-disponivel-row">
+                          <span className="cfg-kanban-disponivel-label">{cfg.label}</span>
+                          <span className="cfg-origem-badge cfg-origem-badge--pedido">{cfg.grupo}</span>
+                          <TooltipGlobal descricao={`Exibir no card`}>
+                            <button
+                              type="button"
+                              className="cfg-kanban-add-btn"
+                              onClick={() => kanbanCardToggle(cfg.campo)}
+                              aria-label="Exibir campo"
+                            >
+                              <Plus size={13} weight="bold" />
+                            </button>
+                          </TooltipGlobal>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* ── Data crítica ── */}
+                    <CfgSectionLabel label="DATA CRÍTICA" style={{ marginTop: '1.5rem' }} />
+                    <p className="cfg-hint">Barra colorida de urgência (ok / alerta / urgente) baseada nesta data</p>
                     <select
                       className="cfg-select"
-                      value={(kanbanPrefs ?? KANBAN_PADRAO).card?.dataCritica ?? 'data_prevista_coleta_pedido'}
+                      value={dataCritica}
                       onChange={e => kanbanCardSetDataCritica(e.target.value || null)}
+                      style={{ marginTop: '0.5rem' }}
                     >
                       <option value="">— Não exibir —</option>
                       {KANBAN_CAMPOS_DISPONIVEIS.filter(c => c.categoria === 'datas').map(c => (
                         <option key={c.campo} value={c.campo}>{c.label}</option>
                       ))}
                     </select>
-                    <p className="cfg-kanban-aba-hint">Barra colorida de urgência (ok / alerta / urgente) baseada nesta data</p>
-                  </div>
-                </>
-              )}
+                  </>
+                )
+              })()}
             </section>
             </>)}
 
@@ -2571,25 +3156,7 @@ export default function Configuracoes() {
               </div>
             </section>
 
-            {/* Botão salvar regras */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.5rem' }}>
-              <button
-                type="button"
-                className="cfg-btn-primario"
-                disabled={!regrasAlterados}
-                onClick={salvarRegras}
-              >
-                <FloppyDisk size={14} weight="bold" />
-                {regrasAlterados ? 'Salvar alterações' : 'Salvo'}
-              </button>
-            </div>
-
-          </div>
-        )}
-
-        {/* ════════════════════════ ALERTAS ════════════════════════ */}
-        {categoria === 'alertas' && (
-          <div className="cfg-cards-wrapper">
+            {/* ── Alertas ── */}
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
@@ -2648,18 +3215,21 @@ export default function Configuracoes() {
                   onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, cubagemDivergente: v } }))}
                 />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '1.5rem' }}>
-                <button
-                  type="button"
-                  className="cfg-btn-primario"
-                  disabled={!regrasAlterados}
-                  onClick={salvarRegras}
-                >
-                  <FloppyDisk size={14} weight="bold" />
-                  {regrasAlterados ? 'Salvar alterações' : 'Salvo'}
-                </button>
-              </div>
             </section>
+
+            {/* Botão salvar regras */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.5rem' }}>
+              <button
+                type="button"
+                className="cfg-btn-primario"
+                disabled={!regrasAlterados}
+                onClick={salvarRegras}
+              >
+                <FloppyDisk size={14} weight="bold" />
+                {regrasAlterados ? 'Salvar alterações' : 'Salvo'}
+              </button>
+            </div>
+
           </div>
         )}
 
@@ -2779,11 +3349,11 @@ export default function Configuracoes() {
         )}
 
         {/* ════════════════════════ COLUNAS ════════════════════════ */}
-        {categoria === 'colunas' && (
+        {COLUNAS_FILHOS.includes(categoria) && (
           <div className="cfg-cards-wrapper">
 
             {/* ── Casas Decimais ── */}
-            <section className="cfg-secao">
+            {categoria === 'colunas-casas-decimais' && <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
                   <h2 className="cfg-secao__titulo">Casas Decimais por Coluna</h2>
@@ -2792,53 +3362,71 @@ export default function Configuracoes() {
                   </p>
                 </div>
               </div>
-              <div className="cfg-colunas-lista">
-                {(['Pedido', 'Item'] as const).map(cat => (
-                  <React.Fragment key={cat}>
-                    <p className="cfg-colunas-categoria">{cat}</p>
-                    {COLUNAS_NUMERICAS.filter(c => c.categoria === cat).map(col => (
-                      <div key={col.campo} className="cfg-coluna-row">
-                        <span className="cfg-coluna-row__label">{col.label}</span>
-                        <input
-                          type="number"
-                          min={0}
-                          max={8}
-                          className="cfg-casas-input"
-                          value={casasDecimais[col.campo] ?? col.padrao}
-                          onChange={e => handleCasasDecimaisChange(col.campo, Math.min(8, Math.max(0, Number(e.target.value))))}
-                          aria-label={`Casas decimais para ${col.label}`}
-                        />
-                      </div>
+
+              <div className="cfg-campo-calc-item">
+                {/* Header */}
+                <div className="cfg-campo-calc-item__header">
+                  <div className="cfg-campo-calc-item__id">
+                    <Hash size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                    <span className="cfg-campo-calc-item__nome">Configurar casas decimais</span>
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="cfg-campo-calc-item__body">
+                  <div className="cfg-colunas-lista">
+                    {(['Pedido', 'Item'] as const).map(cat => (
+                      <React.Fragment key={cat}>
+                        <p className="cfg-colunas-categoria">{cat}</p>
+                        {COLUNAS_NUMERICAS.filter(c => c.categoria === cat).map(col => {
+                          const val = pendingCasas[col.campo] ?? 2
+                          return (
+                            <div key={col.campo} className="cfg-coluna-row">
+                              <span className="cfg-coluna-row__label">{col.label}</span>
+                              <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.label}`}>
+                                <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.campo, val - 1)} aria-label="Diminuir">−</button>
+                                <span className="cfg-casas-stepper__value">{val}</span>
+                                <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.campo, val + 1)} aria-label="Aumentar">+</button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </React.Fragment>
                     ))}
-                  </React.Fragment>
-                ))}
-                {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual').length > 0 && (
-                  <React.Fragment>
-                    <p className="cfg-colunas-categoria">Personalizadas</p>
-                    {colunasUsuarioApi_
-                      .filter(col => col.tipo === 'numero' || col.tipo === 'percentual')
-                      .map(col => (
-                        <div key={col.id} className="cfg-coluna-row">
-                          <span className="cfg-coluna-row__label">{col.nome}</span>
-                          <input
-                            type="number"
-                            min={0}
-                            max={8}
-                            className="cfg-casas-input"
-                            value={casasDecimais[col.id] ?? 2}
-                            onChange={e => handleCasasDecimaisChange(col.id, Math.min(8, Math.max(0, Number(e.target.value))))}
-                            aria-label={`Casas decimais para ${col.nome}`}
-                          />
-                        </div>
-                      ))
-                    }
-                  </React.Fragment>
-                )}
+                    {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula').length > 0 && (
+                      <React.Fragment>
+                        <p className="cfg-colunas-categoria">Personalizadas</p>
+                        {colunasUsuarioApi_
+                          .filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula')
+                          .map(col => {
+                            const val = pendingCasas[col.id] ?? 2
+                            return (
+                              <div key={col.id} className="cfg-coluna-row">
+                                <span className="cfg-coluna-row__label">{col.nome}</span>
+                                <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.nome}`}>
+                                  <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.id, val - 1)} aria-label="Diminuir">−</button>
+                                  <span className="cfg-casas-stepper__value">{val}</span>
+                                  <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.id, val + 1)} aria-label="Aumentar">+</button>
+                                </div>
+                              </div>
+                            )
+                          })
+                        }
+                      </React.Fragment>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="cfg-campo-calc-item__footer">
+                  <BotaoCancelar dirty={casasDirty} rotulo="Descartar" onClick={restaurarCasasDecimais} />
+                  <BotaoSalvar   dirty={casasDirty} rotulo="Salvar"    onClick={salvarCasasDecimais} />
+                </div>
               </div>
-            </section>
+            </section>}
 
             {/* ── Criar Coluna Personalizada ── */}
-            <section className="cfg-secao" ref={novaColunaSectionRef}>
+            {categoria === 'colunas-personalizadas' && <section className="cfg-secao" ref={novaColunaSectionRef}>
               <div className="cfg-secao__header">
                 <div>
                   <h2 className="cfg-secao__titulo">Colunas Personalizadas</h2>
@@ -2848,335 +3436,477 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              {/* Formulário */}
-              <div className="cfg-nova-coluna-form">
+              {/* Card: Nova Coluna */}
+              <div className="cfg-campo-calc-item">
 
-                {/* Nome */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="nova-coluna-nome">Nome <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                  <input
-                    id="nova-coluna-nome"
-                    ref={novaColunaInputRef}
-                    type="text"
-                    className="cfg-form-input"
-                    placeholder="Ex: Código ERP, Margem %, Prioridade"
-                    value={novaColuna.nome}
-                    onChange={e => setNovaColuna(prev => ({ ...prev, nome: e.target.value }))}
-                    maxLength={50}
-                  />
-                </div>
-
-                {/* Tipo */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label">Tipo <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                  <div className="cfg-tipo-grid">
-                    {TIPOS_COLUNA.map(tipo => (
-                      <button
-                        key={tipo.id}
-                        type="button"
-                        className={`cfg-tipo-btn${novaColuna.tipo === tipo.id ? ' cfg-tipo-btn--ativo' : ''}`}
-                        onClick={() => setNovaColuna(prev => ({ ...prev, tipo: tipo.id }))}
-                        aria-pressed={novaColuna.tipo === tipo.id}
-                      >
-                        <span className="cfg-tipo-btn__icone">{tipo.icone}</span>
-                        <span className="cfg-tipo-btn__label">{tipo.label}</span>
-                      </button>
-                    ))}
+                {/* ── Cabeçalho ── */}
+                <div className="cfg-campo-calc-item__header">
+                  <div className="cfg-campo-calc-item__id">
+                    <Columns size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                    <span className="cfg-campo-calc-item__nome">Nova Coluna</span>
                   </div>
                 </div>
 
-                {/* Expressão (formula) */}
-                {novaColuna.tipo === 'formula' && (
+                {/* ── Campos do formulário ── */}
+                <div className="cfg-nova-coluna-form cfg-campo-calc-item__body">
+
+                  {/* Nome */}
                   <div className="cfg-form-group">
-                    <label className="cfg-form-label">
-                      Expressão <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span>
-                    </label>
-
-                    {/* Campos disponíveis agrupados */}
-                    <div className="cfg-formula-campos">
-                      {CAMPOS_FORMULA.map(grupo => (
-                        <div key={grupo.grupo} className="cfg-formula-grupo">
-                          <span className="cfg-formula-grupo-nome">{grupo.grupo}</span>
-                          <div className="cfg-formula-chips">
-                            {grupo.campos.map(c => (
-                              <button
-                                key={c.chave}
-                                type="button"
-                                className="cfg-formula-chip"
-                                title={c.chave}
-                                onClick={() => inserirCampoFormula(c.chave)}
-                              >
-                                {c.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <textarea
-                      ref={formulaTextareaRef}
-                      className={[
-                        'cfg-form-input',
-                        formulaErro   ? 'cfg-formula-input--erro'  : '',
-                        formulaValida && novaColuna.formula_expressao.trim() ? 'cfg-formula-input--ok' : '',
-                      ].filter(Boolean).join(' ')}
-                      rows={3}
-                      placeholder="Ex: quantidade_total_inicial_pedido - quantidade_transferida_total"
-                      style={{ fontFamily: 'monospace', resize: 'vertical', marginTop: 8 }}
-                      value={novaColuna.formula_expressao}
-                      onChange={e => handleFormulaChange(e.target.value)}
-                      aria-describedby={formulaErro ? 'cfg-formula-msg' : undefined}
-                    />
-
-                    {/* Card Gabi — regra: vazio → intro; com conteúdo → resultado da análise */}
-                    {(() => {
-                      const vazio = !novaColuna.formula_expressao.trim()
-
-                      // Vazio: instrução inicial
-                      if (vazio) return (
-                        <div className="cfg-gabi-card cfg-gabi-card--info" role="note">
-                          <div className="cfg-gabi-card__header">
-                            <span className="cfg-gabi-card__ico">✦</span>
-                            <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
-                          </div>
-                          <p className="cfg-gabi-card__texto">
-                            Clique em um campo acima para inseri-lo, ou digite diretamente.
-                            Use <code>+  −  *  /</code> entre campos numéricos.
-                            Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
-                            Campos texto, data ou checkbox valem 0 em aritmética.
-                          </p>
-                        </div>
-                      )
-
-                      // Durante debounce (estados limpos, campo não vazio) — sem card
-                      if (!formulaErro && !formulaGabi && !formulaValida) return null
-
-                      // Resultado da análise
-                      const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
-                      const titulo   = formulaErro ? 'Erro na expressão'
-                                     : formulaGabi ? formulaGabi.titulo
-                                     : 'Fórmula válida ✓'
-                      const texto    = formulaErro ?? formulaGabi?.texto ?? 'Tudo certo! Preencha os campos restantes e clique em Salvar.'
-                      const sugestao = formulaGabi?.sugestao
-
-                      return (
-                        <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite">
-                          <div className="cfg-gabi-card__header">
-                            <span className="cfg-gabi-card__ico">✦</span>
-                            <span className="cfg-gabi-card__titulo">Gabi · {titulo}</span>
-                          </div>
-                          <p className="cfg-gabi-card__texto">{texto}</p>
-                          {sugestao && (
-                            <div className="cfg-gabi-card__sugestao-row">
-                              <code className="cfg-gabi-card__sugestao">{sugestao}</code>
-                              <button
-                                type="button"
-                                className="cfg-gabi-card__usar"
-                                onClick={() => handleFormulaChange(sugestao!)}
-                                title="Usar esta sugestão"
-                              >
-                                Usar
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })()}
-
-                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
-                      Operadores: <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px' }}>+ - * / ( )</code>
-                      &nbsp;·&nbsp; Funções:
-                      <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px', marginLeft: 4 }}>SE(cond, sim, não)</code>
-                      <code style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 3, padding: '0 4px', marginLeft: 4 }}>SOMA_ITENS(campo)</code>
-                    </p>
-                  </div>
-                )}
-
-                {/* Opções (select / tipo_documento) */}
-                {(novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') && (
-                  <div className="cfg-form-group">
-                    <label className="cfg-form-label">Opções da lista <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                    <div className="cfg-opcoes-add-row">
-                      <input
-                        type="text"
-                        className="cfg-form-input"
-                        placeholder="Digite e pressione Enter ou clique em +"
-                        value={novaOpcao}
-                        onChange={e => setNovaOpcao(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAdicionarOpcao() } }}
-                      />
-                      <button
-                        type="button"
-                        className="cfg-add-btn"
-                        onClick={handleAdicionarOpcao}
-                        aria-label="Adicionar opção"
-                      >
-                        <Plus size={13} weight="bold" />
-                      </button>
-                    </div>
-                    {novaColuna.opcoes.length > 0 && (
-                      <div className="cfg-opcoes-lista">
-                        {novaColuna.opcoes.map(op => (
-                          <span key={op} className="cfg-opcao-chip">
-                            {op}
-                            <button
-                              type="button"
-                              className="cfg-opcao-chip__remove"
-                              onClick={() => handleRemoverOpcao(op)}
-                              aria-label={`Remover opção ${op}`}
-                            >
-                              <X size={10} weight="bold" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Escopo */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label">Escopo <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
-                  <div className="cfg-escopo-row">
-                    {(['pedido', 'item', 'ambos'] as EscopoColunaUsuario[]).map(esc => {
-                      const bloqueado = esc === 'item' || esc === 'ambos'
-                      const radio = (
-                        <label
-                          key={esc}
-                          className={`cfg-escopo-option${bloqueado ? ' cfg-escopo-option--disabled' : ''}`}
-                          aria-disabled={bloqueado ? 'true' : undefined}
-                        >
-                          <input
-                            type="radio"
-                            name="escopo"
-                            value={esc}
-                            checked={novaColuna.escopo === esc}
-                            onChange={() => !bloqueado && setNovaColuna(prev => ({ ...prev, escopo: esc }))}
-                            disabled={bloqueado}
-                          />
-                          <span>{esc.charAt(0).toUpperCase() + esc.slice(1)}</span>
-                        </label>
-                      )
-                      return bloqueado ? (
-                        <TooltipGlobal key={esc} descricao="Em breve — colunas de item serão exibidas nas linhas expandidas">
-                          {radio}
-                        </TooltipGlobal>
-                      ) : radio
-                    })}
-                  </div>
-                </div>
-
-                {/* Visibilidade */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="nova-coluna-visibilidade">Visibilidade</label>
-                  <select
-                    id="nova-coluna-visibilidade"
-                    className="cfg-form-input"
-                    value={novaColuna.visibilidade}
-                    onChange={e => setNovaColuna(prev => ({ ...prev, visibilidade: e.target.value as VisibilidadeColunaUsuario }))}
-                  >
-                    {VISIBILIDADE_OPCOES.map(o => (
-                      <option key={o.valor} value={o.valor}>{o.label}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Obrigatório — não exibido para tipo 'anexo' */}
-                {novaColuna.tipo !== 'anexo' && (
-                  <div className="cfg-form-group">
-                    <label className="cfg-toggle-row__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                      <input
-                        type="checkbox"
-                        checked={novaColuna.obrigatorio}
-                        onChange={e => setNovaColuna(prev => ({ ...prev, obrigatorio: e.target.checked }))}
-                        className="cfg-toggle__input"
-                      />
-                      <span>Obrigatório</span>
-                    </label>
-                  </div>
-                )}
-
-                {/* Valor padrão — não exibido para tipo 'anexo' */}
-                {novaColuna.tipo !== 'anexo' && (
-                  <div className="cfg-form-group">
-                    <label className="cfg-form-label" htmlFor="nova-coluna-padrao">Valor padrão</label>
+                    <label className="cfg-form-label" htmlFor="nova-coluna-nome">Nome da Coluna <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                     <input
-                      id="nova-coluna-padrao"
+                      id="nova-coluna-nome"
+                      ref={novaColunaInputRef}
                       type="text"
                       className="cfg-form-input"
-                      placeholder="Deixe em branco para não definir"
-                      value={novaColuna.valor_padrao}
-                      onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
-                      maxLength={1000}
+                      placeholder="Ex: Código ERP, Margem %, Prioridade"
+                      value={novaColuna.nome}
+                      onChange={e => setNovaColuna(prev => ({ ...prev, nome: e.target.value }))}
+                      maxLength={50}
                     />
                   </div>
-                )}
 
-                {/* Descrição */}
-                <div className="cfg-form-group">
-                  <label className="cfg-form-label" htmlFor="nova-coluna-desc">Descrição</label>
-                  <input
-                    id="nova-coluna-desc"
-                    type="text"
-                    className="cfg-form-input"
-                    placeholder="Descrição auxiliar exibida como tooltip"
-                    value={novaColuna.descricao}
-                    onChange={e => setNovaColuna(prev => ({ ...prev, descricao: e.target.value }))}
-                    maxLength={200}
-                  />
+                  {/* Tipo */}
+                  <div className="cfg-form-group">
+                    <label className="cfg-form-label">Tipo de coluna <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                    <div className="cfg-tipo-grid">
+                      {TIPOS_COLUNA.map(tipo => (
+                        <button
+                          key={tipo.id}
+                          type="button"
+                          className={`cfg-tipo-btn${novaColuna.tipo === tipo.id ? ' cfg-tipo-btn--ativo' : ''}`}
+                          onClick={() => setNovaColuna(prev => ({ ...prev, tipo: tipo.id }))}
+                          aria-pressed={novaColuna.tipo === tipo.id}
+                        >
+                          <span className="cfg-tipo-btn__icone">{tipo.icone}</span>
+                          <span className="cfg-tipo-btn__label">{tipo.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Expressão (formula) — editor tokenizado pill-based */}
+                  {novaColuna.tipo === 'formula' && (
+                    <>
+                      {/* Área de tokens */}
+                      <div className="cfg-form-group" style={{ marginBottom: 0 }}>
+                        <label className="cfg-form-label">
+                          Expressão <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span>
+                        </label>
+                      </div>
+                      <div className="cfg-campo-calc-item__formula" style={{ border: 'none', padding: 0 }}>
+                        <div className={[
+                          'cfg-saldo-tokens',
+                          formulaErro   ? 'cfg-saldo-tokens--erro' : '',
+                          formulaValida && formulaTokens.length > 0 ? 'cfg-saldo-tokens--ok' : '',
+                        ].filter(Boolean).join(' ')}>
+                          {formulaTokens.length === 0 ? (
+                            <span className="cfg-saldo-tokens__placeholder">
+                              Selecione campos abaixo para montar a fórmula
+                            </span>
+                          ) : (
+                            formulaTokens.map((token, i) =>
+                              token.tipo === 'campo' ? (
+                                <span key={i} className="cfg-saldo-token cfg-saldo-token--campo">
+                                  <span className="cfg-saldo-token__label">{token.label}</span>
+                                  <button type="button" className="cfg-saldo-token__remove" onClick={() => removerTokenFormula(i)} aria-label={`Remover ${token.label}`}>
+                                    <X size={9} weight="bold" />
+                                  </button>
+                                </span>
+                              ) : (
+                                <button key={i} type="button" className="cfg-saldo-token cfg-saldo-token--op" onClick={() => removerTokenFormula(i)} title="Clique para remover">
+                                  {token.valor}
+                                </button>
+                              )
+                            )
+                          )}
+                        </div>
+
+                        {/* Operadores */}
+                        <div className="cfg-saldo-ops">
+                          {(['+', '-', '*', '/', '(', ')'] as const).map(op => (
+                            <button key={op} type="button" className="cfg-saldo-op-btn" onClick={() => adicionarOpFormulaToken(op)}>{op}</button>
+                          ))}
+                          {formulaTokens.length > 0 && (
+                            <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setFormulaTokens([])}>Limpar</button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Campos disponíveis */}
+                      <div className="cfg-campo-calc-item__campos" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '0 0', padding: '0.75rem 0 0' }}>
+                        <span className="cfg-campo-calc-item__campos-label">Adicionar campo</span>
+                        {CAMPOS_FORMULA.flatMap(g => g.campos).map(campo => (
+                          <button key={campo.chave} type="button" className="cfg-formula-chip" onClick={() => adicionarCampoFormulaToken(campo)}>
+                            {campo.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Gabi */}
+                      {(() => {
+                        if (formulaTokens.length === 0) return (
+                          <div className="cfg-gabi-card cfg-gabi-card--info" role="note" style={{ marginTop: '0.5rem' }}>
+                            <div className="cfg-gabi-card__header">
+                              <span className="cfg-gabi-card__ico">✦</span>
+                              <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
+                            </div>
+                            <p className="cfg-gabi-card__texto">
+                              Clique em um campo acima para inseri-lo.
+                              Use <code>+  −  *  /</code> entre campos numéricos.
+                              Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
+                            </p>
+                          </div>
+                        )
+                        if (!formulaErro && !formulaGabi && !formulaValida) return null
+                        const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
+                        const titulo   = formulaErro ? 'Erro na expressão' : formulaGabi ? formulaGabi.titulo : 'Fórmula válida ✓'
+                        const texto    = formulaErro ?? formulaGabi?.texto ?? 'Tudo certo! Preencha os campos restantes e clique em Criar.'
+                        const sugestao = formulaGabi?.sugestao
+                        return (
+                          <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite" style={{ marginTop: '0.5rem' }}>
+                            <div className="cfg-gabi-card__header">
+                              <span className="cfg-gabi-card__ico">✦</span>
+                              <span className="cfg-gabi-card__titulo">Gabi · {titulo}</span>
+                            </div>
+                            <p className="cfg-gabi-card__texto">{texto}</p>
+                            {sugestao && (
+                              <div className="cfg-gabi-card__sugestao-row">
+                                <code className="cfg-gabi-card__sugestao">{sugestao}</code>
+                                <button
+                                  type="button"
+                                  className="cfg-gabi-card__usar"
+                                  onClick={() => {
+                                    const tokens = sugestao.trim().split(/\s+/).map(part => {
+                                      const campo = CAMPOS_FORMULA.flatMap(g => g.campos).find(c => c.chave === part)
+                                      if (campo) return { tipo: 'campo' as const, chave: campo.chave, label: campo.label }
+                                      return { tipo: 'op' as const, valor: part }
+                                    })
+                                    setFormulaTokens(tokens)
+                                  }}
+                                  title="Usar esta sugestão"
+                                >
+                                  Usar
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })()}
+                    </>
+                  )}
+
+                  {/* Opções (select / tipo_documento) */}
+                  {(novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') && (
+                    <div className="cfg-form-group">
+                      <label className="cfg-form-label">Opções da lista <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                      <div className="cfg-opcoes-add-row">
+                        <input
+                          type="text"
+                          className="cfg-form-input"
+                          placeholder="Digite e pressione Enter ou clique em +"
+                          value={novaOpcao}
+                          onChange={e => setNovaOpcao(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAdicionarOpcao() } }}
+                        />
+                        <button type="button" className="cfg-add-btn" onClick={handleAdicionarOpcao} aria-label="Adicionar opção">
+                          <Plus size={13} weight="bold" />
+                        </button>
+                      </div>
+                      {novaColuna.opcoes.length > 0 && (
+                        <div className="cfg-opcoes-lista">
+                          {novaColuna.opcoes.map(op => (
+                            <span key={op} className="cfg-opcoa-chip">
+                              {op}
+                              <button type="button" className="cfg-opcao-chip__remove" onClick={() => handleRemoverOpcao(op)} aria-label={`Remover opção ${op}`}>
+                                <X size={10} weight="bold" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Visibilidade */}
+                  <div className="cfg-form-group">
+                    <label className="cfg-form-label">Visibilidade</label>
+                    <SelectGlobal
+                      opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: o.label, descricao: o.descricao }))}
+                      valor={novaColuna.visibilidade}
+                      aoMudarValor={v => v != null && setNovaColuna(prev => ({ ...prev, visibilidade: v as VisibilidadeColunaUsuario }))}
+                      buscavel={false}
+                    />
+                  </div>
+
+                  {/* Obrigatório */}
+                  {novaColuna.tipo !== 'anexo' && (
+                    <div className="cfg-form-group">
+                      <label className="cfg-toggle-row__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={novaColuna.obrigatorio}
+                          onChange={e => setNovaColuna(prev => ({ ...prev, obrigatorio: e.target.checked }))}
+                          className="cfg-toggle__input"
+                        />
+                        <span>Obrigatório</span>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Valor padrão */}
+                  {novaColuna.tipo !== 'anexo' && novaColuna.tipo !== 'formula' && (
+                    <div className="cfg-form-group">
+                      <label className="cfg-form-label" htmlFor="nova-coluna-padrao">Valor padrão</label>
+                      <p className="cfg-form-hint">Preenchido automaticamente ao criar um novo pedido.</p>
+                      {novaColuna.tipo === 'checkbox' ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <input
+                            id="nova-coluna-padrao"
+                            type="checkbox"
+                            checked={novaColuna.valor_padrao === 'true'}
+                            onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.checked ? 'true' : 'false' }))}
+                          />
+                          <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                            {novaColuna.valor_padrao === 'true' ? 'Marcado' : 'Desmarcado'}
+                          </span>
+                        </div>
+                      ) : (novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') ? (
+                        novaColuna.opcoes.length > 0 ? (
+                          <SelectGlobal
+                            opcoes={[
+                              { valor: '', rotulo: 'Sem padrão' },
+                              ...novaColuna.opcoes.map(o => ({ valor: o, rotulo: o })),
+                            ]}
+                            valor={novaColuna.valor_padrao}
+                            aoMudarValor={v => setNovaColuna(prev => ({ ...prev, valor_padrao: v ?? '' }))}
+                            buscavel={false}
+                          />
+                        ) : (
+                          <p className="cfg-form-hint" style={{ fontStyle: 'italic' }}>Adicione as opções da lista acima para definir um valor padrão.</p>
+                        )
+                      ) : (
+                        <input
+                          id="nova-coluna-padrao"
+                          type={novaColuna.tipo === 'numero' || novaColuna.tipo === 'percentual' ? 'number' : novaColuna.tipo === 'data' ? 'date' : 'text'}
+                          className="cfg-form-input"
+                          placeholder="Deixe em branco para não definir"
+                          value={novaColuna.valor_padrao}
+                          onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
+                          maxLength={1000}
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Descrição */}
+                  <div className="cfg-form-group">
+                    <label className="cfg-form-label" htmlFor="nova-coluna-desc">Descrição</label>
+                    <p className="cfg-form-hint">Exibido como tooltip no cabeçalho da coluna na tabela.</p>
+                    <input
+                      id="nova-coluna-desc"
+                      type="text"
+                      className="cfg-form-input"
+                      placeholder="Ex: Número do contrato de referência"
+                      value={novaColuna.descricao}
+                      onChange={e => setNovaColuna(prev => ({ ...prev, descricao: e.target.value }))}
+                      maxLength={200}
+                    />
+                  </div>
+
+                  {erroColuna && (
+                    <p style={{ fontSize: '0.8125rem', color: 'var(--color-danger, #f87171)', margin: 0 }} role="alert">{erroColuna}</p>
+                  )}
                 </div>
 
-                {erroColuna && (
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-danger, #f87171)', margin: 0 }} role="alert">{erroColuna}</p>
-                )}
-
-                <button
-                  type="button"
-                  className="cfg-criar-coluna-btn"
-                  onClick={handleCriarColuna}
-                  disabled={!novaColuna.nome.trim() || salvandoColuna}
-                >
-                  <Plus size={14} weight="bold" />
-                  {salvandoColuna ? 'Criando...' : 'Criar Coluna'}
-                </button>
+                {/* ── Footer: ações ── */}
+                {(() => {
+                  const tipoComOpcoes = novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento'
+                  const formDirty = novaColuna.nome.trim() !== '' || formulaTokens.length > 0 || novaColuna.opcoes.length > 0
+                  const canSave = !salvandoColuna &&
+                    !!novaColuna.nome.trim() &&
+                    (novaColuna.tipo !== 'formula' || (!!novaColuna.formula_expressao.trim() && !formulaErro)) &&
+                    (!tipoComOpcoes || novaColuna.opcoes.length > 0)
+                  return (
+                    <div className="cfg-campo-calc-item__footer">
+                      <BotaoCancelar
+                        dirty={formDirty}
+                        rotulo="Limpar"
+                        onClick={() => { setNovaColuna(NOVA_COLUNA_PADRAO); setNovaOpcao(''); setFormulaTokens([]) }}
+                      />
+                      <BotaoSalvar
+                        dirty={canSave}
+                        rotulo={salvandoColuna ? 'Criando...' : 'Criar Coluna'}
+                        onClick={handleCriarColuna}
+                      />
+                    </div>
+                  )
+                })()}
               </div>
 
-              {/* Lista de colunas criadas */}
-              {colunasUsuarioApi_.length > 0 && (
-                <div className="cfg-colunas-criadas">
-                  <p className="cfg-colunas-criadas__titulo">Colunas criadas ({colunasUsuarioApi_.length})</p>
-                  <div className="cfg-cards-lista">
-                    {colunasUsuarioApi_.map(col => {
-                      const tipoInfo = TIPOS_COLUNA.find(t => t.id === col.tipo)
-                      return (
-                        <div key={col.id} className="cfg-card-row">
-                          <span className="cfg-coluna-tipo-icone">{tipoInfo?.icone}</span>
-                          <div className="cfg-card-row__info">
-                            <div>
-                              <p className="cfg-card-row__nome">{col.nome}</p>
-                              <p className="cfg-card-row__desc">
-                                {tipoInfo?.label} · {col.escopo} · {col.visibilidade}
-                                {col.obrigatorio && ' · Obrigatório'}
-                                {(col.tipo === 'select' || col.tipo === 'tipo_documento') && col.opcoes && ` · ${col.opcoes.length} opções`}
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            className="cfg-remove-btn"
-                            onClick={() => handleRemoverColuna(col.id)}
-                            aria-label={`Remover coluna ${col.nome}`}
-                          >
-                            <X size={13} weight="bold" />
-                          </button>
-                        </div>
-                      )
-                    })}
+              {/* ── Colunas existentes — card gerenciamento ── */}
+              {pendingColunas.length > 0 && (
+                <div className="cfg-campo-calc-item" style={{ marginBottom: '1rem' }}>
+                  <div className="cfg-campo-calc-item__header">
+                    <div className="cfg-campo-calc-item__id">
+                      <Columns size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                      <span className="cfg-campo-calc-item__nome">Colunas criadas</span>
+                      <span className="cfg-campo-calc-item__badge">{pendingColunas.length} coluna{pendingColunas.length !== 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+
+                  <div className="cfg-campo-calc-item__body" style={{ padding: '0.5rem 0' }}>
+                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0 1rem 0.5rem', margin: 0 }}>
+                      Arraste para reordenar · olho para ocultar
+                    </p>
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
+                      <SortableContext items={pendingColunas.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                        {pendingColunas.map(col => (
+                          <ColunaSortavel
+                            key={col.id}
+                            col={col}
+                            onToggleAtivo={() => handleToggleAtivoColuna(col.id)}
+                            onRemover={() => handleRemoverColuna(col.id)}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  </div>
+
+                  <div className="cfg-campo-calc-item__footer">
+                    <BotaoCancelar dirty={colunasDirty} rotulo="Descartar" onClick={cancelarOrdemColunas} />
+                    <BotaoSalvar   dirty={colunasDirty} carregando={salvandoColunas} rotulo="Salvar ordem" onClick={salvarOrdemColunas} />
                   </div>
                 </div>
               )}
-            </section>
+            </section>}
+
+            {/* ── Campos Calculados ── */}
+            {categoria === 'colunas-campos-calculados' && <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Campos Calculados</h2>
+                  <p className="cfg-secao__desc">Campos cujo valor é gerado por fórmula. A fórmula pode ser ajustada por workspace.</p>
+                </div>
+              </div>
+
+              {/* Card: Saldo do Pedido */}
+              <div className="cfg-campo-calc-item">
+
+                {/* ── Cabeçalho ── */}
+                <div className="cfg-campo-calc-item__header">
+                  <div className="cfg-campo-calc-item__id">
+                    <MathOperations size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
+                    <span className="cfg-campo-calc-item__nome">Saldo do Pedido</span>
+                    <span className="cfg-campo-calc-item__badge">campo nativo</span>
+                  </div>
+                </div>
+
+                {/* ── Fórmula (tokens) ── */}
+                <div className="cfg-campo-calc-item__formula">
+                  <div className={[
+                    'cfg-saldo-tokens',
+                    saldoFormulaErro ? 'cfg-saldo-tokens--erro' : '',
+                    saldoFormulaValida && saldoTokens.length > 0 ? 'cfg-saldo-tokens--ok' : '',
+                  ].filter(Boolean).join(' ')}>
+                    <span className="cfg-saldo-tokens__label-fixo">Saldo do Pedido&nbsp;=</span>
+                    {saldoTokens.length === 0 ? (
+                      <span className="cfg-saldo-tokens__placeholder">
+                        Selecione campos abaixo para montar a fórmula
+                      </span>
+                    ) : (
+                      saldoTokens.map((token, i) =>
+                        token.tipo === 'campo' ? (
+                          <span key={i} className="cfg-saldo-token cfg-saldo-token--campo">
+                            <span className="cfg-saldo-token__label">{token.label}</span>
+                            <button type="button" className="cfg-saldo-token__remove" onClick={() => removerTokenSaldo(i)} aria-label={`Remover ${token.label}`}>
+                              <X size={9} weight="bold" />
+                            </button>
+                          </span>
+                        ) : (
+                          <button key={i} type="button" className="cfg-saldo-token cfg-saldo-token--op" onClick={() => removerTokenSaldo(i)} title="Clique para remover">
+                            {token.valor}
+                          </button>
+                        )
+                      )
+                    )}
+                  </div>
+
+                  {/* Operadores */}
+                  <div className="cfg-saldo-ops">
+                    {(['+', '-', '*', '/', '(', ')'] as const).map(op => (
+                      <button key={op} type="button" className="cfg-saldo-op-btn" onClick={() => adicionarOpSaldo(op)}>{op}</button>
+                    ))}
+                    {saldoTokens.length > 0 && (
+                      <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setSaldoTokens([])}>Limpar</button>
+                    )}
+                  </div>
+                </div>
+
+                {/* ── Campos disponíveis ── */}
+                <div className="cfg-campo-calc-item__campos">
+                  <span className="cfg-campo-calc-item__campos-label">Adicionar campo</span>
+                  {CAMPOS_SALDO.flatMap(g => g.campos).map(campo => (
+                    <button key={campo.chave} type="button" className="cfg-formula-chip" onClick={() => adicionarCampoSaldo(campo)}>
+                      {campo.label}
+                    </button>
+                  ))}
+                  {colunasUsuarioApi_.some(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo) && (
+                    <TooltipGlobal descricao="Colunas personalizadas numéricas também podem entrar na fórmula">
+                      <span style={{ fontSize: '0.72rem', color: 'var(--ws-muted)', alignSelf: 'center', cursor: 'help' }}>
+                        + colunas personalizadas
+                      </span>
+                    </TooltipGlobal>
+                  )}
+                </div>
+
+                {/* ── Gabi (só com conteúdo) ── */}
+                {(() => {
+                  if (saldoTokens.length === 0) return null
+                  if (saldoFormulaAnalisando && !saldoFormulaErro && !saldoFormulaGabi && !saldoFormulaValida) return (
+                    <div className="cfg-gabi-card cfg-gabi-card--analisando" role="status" aria-live="polite" style={{ margin: '0 1rem 0' }}>
+                      <div className="cfg-gabi-card__header">
+                        <span className="cfg-gabi-card__ico">✦</span>
+                        <span className="cfg-gabi-card__titulo">Gabi · Analisando…</span>
+                      </div>
+                    </div>
+                  )
+                  if (!saldoFormulaErro && !saldoFormulaGabi && !saldoFormulaValida) return null
+                  const variante = saldoFormulaErro ? 'erro' : saldoFormulaGabi ? 'aviso' : 'ok'
+                  const titulo   = saldoFormulaErro ? 'Erro na expressão' : saldoFormulaGabi ? saldoFormulaGabi.titulo : 'Fórmula válida ✓'
+                  const texto    = saldoFormulaErro ?? saldoFormulaGabi?.texto ?? 'Tudo certo! Clique em Salvar para aplicar.'
+                  const sugestao = saldoFormulaGabi?.sugestao
+                  return (
+                    <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite" style={{ margin: '0 1rem 0' }}>
+                      <div className="cfg-gabi-card__header">
+                        <span className="cfg-gabi-card__ico">✦</span>
+                        <span className="cfg-gabi-card__titulo">Gabi · {titulo}</span>
+                      </div>
+                      <p className="cfg-gabi-card__texto">{texto}</p>
+                      {sugestao && (
+                        <div className="cfg-gabi-card__sugestao-row">
+                          <code className="cfg-gabi-card__sugestao">{sugestao}</code>
+                          <button type="button" className="cfg-gabi-card__usar" onClick={() => setSaldoTokens(aliasFormulaParaTokens(sugestao))}>Usar</button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+
+                {/* ── Footer: ações ── */}
+                <div className="cfg-campo-calc-item__footer">
+                  <BotaoCancelar
+                    dirty={saldoFormulaAlterada}
+                    rotulo="Restaurar padrão"
+                    onClick={restaurarSaldoPadrao}
+                  />
+                  <BotaoSalvar
+                    dirty={saldoFormulaAlterada && !saldoFormulaErro}
+                    rotulo="Salvar"
+                    onClick={salvarSaldoFormula}
+                  />
+                </div>
+              </div>
+            </section>}
           </div>
         )}
 

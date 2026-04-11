@@ -148,6 +148,12 @@ export const pedidoItemApi = {
       body: JSON.stringify(data),
     }),
 
+  editarCampo: (pedidoId: string, itemId: string, campo: string, valor: unknown) =>
+    request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}/campo`, {
+      method: 'PATCH',
+      body: JSON.stringify({ campo, valor: valor === undefined ? null : valor }),
+    }),
+
   remover: (pedidoId: string, itemId: string) =>
     request<void>(`/api/v1/pedidos/${pid(pedidoId)}/itens/${pid(itemId)}`, { method: 'DELETE' }),
 
@@ -1617,27 +1623,49 @@ export const colunasUsuarioApi = {
 
 export interface DashboardKpis {
   period: string
+  // Contagens
   total_pedidos: number
   pedidos_abertos: number
   pedidos_em_andamento: number
   pedidos_concluidos: number
+  pedidos_consolidados: number
   pedidos_cancelados: number
+  pedidos_draft: number
   pedidos_atrasados: number
+  pedidos_sem_exportador: number
+  pedidos_importacao: number
+  pedidos_exportacao: number
+  // Financeiro
   valor_total: number
   valor_total_brl: number
   moedas_sem_taxa: string[]
   cobertura_pendente: number
+  ticket_medio: number
+  // Quantidades
   qtd_total: number
   itens_prontos: number
   qtd_inicial_total: number
   qtd_atual_total: number
   qtd_transferida_total: number
   valor_itens_total: number
+  // Derivadas
   taxa_atraso: number
-  ticket_medio: number
   taxa_conclusao_itens: number
   exposicao_financeira: number
   taxa_transferencia: number
+  // Completude documental
+  pedidos_sem_incoterm: number
+  pedidos_sem_fabricante: number
+  pedidos_sem_proforma: number
+  pedidos_sem_invoice: number
+  pedidos_sem_ref_imp: number
+  // Moedas e logística
+  moedas_distintas: number
+  peso_bruto_total: number
+  cubagem_total: number
+  // Itens
+  itens_sem_cobertura: number
+  qtd_cancelada_total: number
   [key: string]: number | string | string[]
 }
 
@@ -1668,6 +1696,26 @@ export interface DashboardDistributionResponse {
   value: DashboardDistributionGroup[]
 }
 
+// ── Tipos de Insights da Gabi ─────────────────────────────────────────────────
+
+export interface GabiInsightItem {
+  id: string
+  variante: 'default' | 'warn'
+  tag: string
+  texto: string
+  stat?: { label: string; valor: string }
+  textoLink?: string
+  rota?: string
+}
+
+export interface DashboardInsightsResponse {
+  period: string
+  role: string
+  insights: GabiInsightItem[]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const dashboardApi = {
   kpis: (period: string, range?: { from: string; to: string }) => {
     const params = new URLSearchParams({ period })
@@ -1684,6 +1732,13 @@ export const dashboardApi = {
     request<DashboardDistributionResponse>(
       `/api/v1/pedidos/dashboard/distribution?period=${encodeURIComponent(period)}`,
     ),
+
+  /** Fase 1+2+3 — insights ranqueados por role + comportamento + LLM */
+  insights: (period: string, range?: { from: string; to: string }) => {
+    const params = new URLSearchParams({ period })
+    if (range) { params.set('from', range.from); params.set('to', range.to) }
+    return request<DashboardInsightsResponse>(`/api/v1/pedidos/dashboard/insights?${params}`)
+  },
 }
 
 // ── Kanban Preferências ───────────────────────────────────────────────────────

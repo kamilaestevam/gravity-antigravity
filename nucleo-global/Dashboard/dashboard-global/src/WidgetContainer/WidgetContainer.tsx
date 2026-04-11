@@ -29,6 +29,10 @@ export interface WidgetContainerProps {
   icone?: React.ReactNode
   /** Callback ao clicar no container (usado para rastrear comportamento) */
   onClick?: () => void
+  /** Indica que o card é clicável — aplica cursor pointer e chevron hint */
+  clickable?: boolean
+  /** Destaca o card com ring pulsante (widget recém-adicionado) */
+  highlighted?: boolean
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -126,6 +130,8 @@ export function WidgetContainer({
   accentColor,
   icone,
   onClick,
+  clickable = false,
+  highlighted = false,
 }: WidgetContainerProps) {
   const isPartial = result?.partial === true
   const isCached = result?.cached === true
@@ -134,6 +140,8 @@ export function WidgetContainer({
   const handleMouseEnter = useCallback(() => setHovered(true), [])
   const handleMouseLeave = useCallback(() => setHovered(false), [])
 
+  const isClickable = clickable && !editMode
+
   const headerStyle: React.CSSProperties = {
     ...styles.header,
     cursor: editMode ? 'grab' : 'default',
@@ -141,8 +149,12 @@ export function WidgetContainer({
 
   const containerStyle: React.CSSProperties = {
     ...styles.container,
+    ...(editMode ? styles.containerEditMode : {}),
+    ...(hovered && isClickable ? styles.containerClickableHover : hovered ? styles.containerHover : {}),
+    ...(isClickable ? { cursor: 'pointer' } : {}),
+    // Aplicado por último para garantir que borderColor do hover não sobrescreva o accent
     ...(accentColor ? { borderTop: `2px solid ${accentColor}` } : {}),
-    ...(hovered ? styles.containerHover : {}),
+    ...(highlighted ? { animation: 'wc-highlight-ring 1.4s ease-in-out 3 forwards' } : {}),
     transition: 'box-shadow 0.2s ease',
   }
 
@@ -196,7 +208,7 @@ export function WidgetContainer({
         {!loading && !error && children}
       </div>
 
-      {/* Animação de skeleton via style tag inline */}
+      {/* Animações via style tag inline */}
       <style>{`
         @keyframes db-skeleton-pulse {
           0%, 100% { background-color: var(--bg-surface); }
@@ -226,11 +238,18 @@ const styles = {
     height: '100%',
     width: '100%',
     minWidth: 0,
-    overflow: 'hidden',
+    overflow: 'visible',
     boxSizing: 'border-box' as const,
   },
   containerHover: {
     boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+  },
+  containerClickableHover: {
+    boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+    borderColor: 'var(--border-accent)',
+  },
+  containerEditMode: {
+    border: '1px dashed var(--border-accent)',
   },
   iconeWrap: {
     display: 'inline-flex',

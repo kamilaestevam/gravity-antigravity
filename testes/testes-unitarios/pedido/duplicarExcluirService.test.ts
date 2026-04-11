@@ -29,7 +29,6 @@ function criarPedidoMock(id: string, overrides: Record<string, unknown> = {}) {
     tipo_operacao: 'importacao',
     incoterm: 'FOB',
     moeda_pedido: 'USD',
-    cobertura_cambial_pedido: 'sem_cobertura',
     data_emissao_pedido: '2026-01-01T00:00:00.000Z',
     data_prevista_pedido_pronto: '2026-03-01T00:00:00.000Z',
     valor_total_pedido: 5000,

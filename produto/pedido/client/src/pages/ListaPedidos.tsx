@@ -768,11 +768,35 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Incoterm',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Incoterm',
-    tooltipDescricao: 'Regra de entrega: FOB, CIF, EXW, etc.',
+    tooltipDescricao: 'Regra de entrega: FOB, CIF, EXW, etc. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
     align: 'center',
-    render: (_val: unknown, row: Pedido) => <span>{row.incoterm ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      // Sem itens: exibe o valor do pedido diretamente
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.incoterm ?? '—'}</span>
+      const valores = [...new Set(itens.map(i => i.incoterm ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.incoterm ?? '—'}</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
+          title={diverge ? `Incoterms diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'valor_total_pedido',
@@ -1002,10 +1026,33 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Condição de Pagamento do Pedido',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Condição de Pagamento',
-    tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador',
+    tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.condicao_pagamento_pedido ?? '—'}</span>
+      const valores = [...new Set(itens.map(i => i.condicao_pagamento_pedido ?? null).filter(Boolean) as string[])]
+      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.condicao_pagamento_pedido ?? '—'}</span>
+      const distintos = valores.join(' | ')
+      const diverge = valores.length > 1
+      return (
+        <span
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
+          title={diverge ? `Condições de pagamento diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
+    },
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
@@ -3356,7 +3403,6 @@ const CAMPOS_UNIDADE_FIXA_ITEM = new Set([
 // Campos que pertencem ao Pedido pai — edição roteia para pedidoApi
 const CAMPOS_PAI_TEXTO = new Set([
   'numero_proforma', 'numero_invoice',
-  'incoterm', 'condicao_pagamento_pedido',
 ])
 
 // Tipo auxiliar: item enriquecido com dados do pedido pai para renderização
@@ -3475,10 +3521,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   incoterm: {
     editavel: true,
     campo: 'incoterm',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.incoterm ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => <span>{row.incoterm ?? '—'}</span>,
   },
   status: {
     editavel: true,
@@ -3509,10 +3552,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   condicao_pagamento_pedido: {
     editavel: true,
     campo: 'condicao_pagamento_pedido',
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{p?.condicao_pagamento_pedido ?? '—'}</span>
-    },
+    render: (row: PedidoItem) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
   },
   data_emissao_pedido: {
     render: (row: PedidoItem) => {
@@ -4725,6 +4765,36 @@ export default function ListaPedidos() {
       })
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
+    }
+    // incoterm — atualiza o pedido pai E propaga para todos os itens
+    if (campo === 'incoterm') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      const [respostaPai] = await Promise.all([
+        pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
+        ...(pedidoAtual.itens ?? []).map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
+      ])
+      const itensAtualizados = (pedidoAtual.itens ?? []).map(i => ({ ...i, incoterm: valor as string | null }))
+      const merged = respostaPai
+        ? { ...pedidoAtual, ...respostaPai, itens: itensAtualizados }
+        : { ...pedidoAtual, incoterm: valor as string | null, itens: itensAtualizados }
+      setPedidos(prev => prev.map(p => p.id === id ? merged : p))
+      return merged
+    }
+    // condicao_pagamento_pedido — atualiza o pedido pai E propaga para todos os itens
+    if (campo === 'condicao_pagamento_pedido') {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      const [respostaPai] = await Promise.all([
+        pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
+        ...(pedidoAtual.itens ?? []).map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
+      ])
+      const itensAtualizados = (pedidoAtual.itens ?? []).map(i => ({ ...i, condicao_pagamento_pedido: valor as string | null }))
+      const merged = respostaPai
+        ? { ...pedidoAtual, ...respostaPai, itens: itensAtualizados }
+        : { ...pedidoAtual, condicao_pagamento_pedido: valor as string | null, itens: itensAtualizados }
+      setPedidos(prev => prev.map(p => p.id === id ? merged : p))
+      return merged
     }
     // Campos que vivem nos itens — propagar para todos os itens sem chamar editarCampo no pedido
     if (CAMPOS_PROPAGAR_ITENS.has(campo)) {

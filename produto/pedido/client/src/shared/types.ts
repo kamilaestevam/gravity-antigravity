@@ -57,6 +57,8 @@ export interface PedidoItem {
   casas_decimais_quantidade_item: number
 
   // Financeiro
+  incoterm?: string | null
+  condicao_pagamento_pedido?: string | null
   moeda_item: string
   valor_total_itens: number | null
   valor_unitario_item?: number | null

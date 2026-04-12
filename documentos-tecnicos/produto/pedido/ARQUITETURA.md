@@ -561,9 +561,9 @@ Ao duplicar:
 | Servico | Porta | Uso no Pedido |
 |---------|-------|---------------|
 | Configurador | 8003 | Auth Clerk, JWT, permissoes, workspace |
-| Atividades | 8012 | Log de todas as acoes (CRUD pedidos) |
-| Notificacoes | 8013 | Alertas in-app |
-| Historico | 8014 | Audit trail de alteracoes |
+| Atividades | 3001 | Log de todas as acoes (CRUD pedidos) |
+| Notificacoes | 3001 | Alertas in-app |
+| Historico | 3001 | Audit trail de alteracoes |
 | API Cockpit | 8020 | Tokens de API, playground, webhooks |
 | Conector ERP | 8021 | Integracao SAP/ERP para importacao de POs |
 
@@ -687,10 +687,8 @@ NODE_ENV=development
 DATABASE_URL=postgresql://user:pass@localhost:5432/tenant_db
 INTERNAL_SERVICE_KEY=dev-key
 
-# Tenant Services
-ATIVIDADES_SERVICE_URL=http://localhost:8012
-NOTIFICACOES_SERVICE_URL=http://localhost:8013
-HISTORICO_SERVICE_URL=http://localhost:8014
+# Tenant Services (todos no super-servidor único)
+TENANT_SERVER_URL=http://localhost:3001
 API_COCKPIT_SERVICE_URL=http://localhost:8020
 CONECTOR_ERP_SERVICE_URL=http://localhost:8021
 

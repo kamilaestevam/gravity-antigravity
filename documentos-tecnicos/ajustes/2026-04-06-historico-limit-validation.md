@@ -22,7 +22,7 @@ Discrepância entre o `limit` enviado pelo componente frontend e o `max` permiti
 
 **Fluxo do erro:**
 1. `Historico.tsx:559` → chama `GET /historico-api/api/v1/historico/logs?...&limit=200`
-2. Vite proxy → encaminha para `http://localhost:8012/api/v1/historico/logs`
+2. Vite proxy → encaminha para `http://localhost:3001/api/v1/historico/logs`
 3. `ListHistoryQuerySchema` → valida `limit` → falha: `Number must be less than or equal to 100`
 4. Controller retorna `400 VALIDATION_ERROR`
 5. Componente: `if (!res.ok) throw new Error(...)` → cai no `catch` → `setLogs([])`

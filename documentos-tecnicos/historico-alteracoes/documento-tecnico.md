@@ -2,7 +2,7 @@
 
 > **Versão:** 1.0 — Onda 2  
 > **Serviço:** `historico-global`  
-> **Porta:** 8012 (standalone) / embutido no Configurador (porta 8005) em Onda 2  
+> **Porta:** 3001 (super-servidor tenant) — todos os serviços tenant compartilham o mesmo processo  
 > **Path base:** `/api/tenant/historico-global`  
 > **Banco:** tenant-db (PostgreSQL via Prisma)  
 > **Fila:** pg-boss (PostgreSQL-backed job queue)

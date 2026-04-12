@@ -310,9 +310,9 @@ Se target nao existe:
 
 | Servico | URL Padrao | Quando |
 |:---|:---|:---|
-| Atividades | http://localhost:8012 | Log de eventos da cotacao |
-| Historico | http://localhost:8014 | Audit trail imutavel |
-| Notificacoes | http://localhost:8013 | Alertas ao usuario |
+| Atividades | http://localhost:3001 | Log de eventos da cotacao |
+| Historico | http://localhost:3001 | Audit trail imutavel |
+| Notificacoes | http://localhost:3001 | Alertas ao usuario |
 | GABI | interno | Alertas de procurement |
 
 ### Servicos externos

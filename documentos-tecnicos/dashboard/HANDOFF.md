@@ -17,10 +17,10 @@
 | `catalog.ts` | Define os tipos `CatalogField` e `CatalogWidget`, exporta `DATA_CATALOG` com as 48 métricas de 8 produtos, e as funções `getCatalogForUser`, `getCatalogByProduct`, `resolveCatalogField` |
 | `query-engine.ts` | `DashboardQueryEngine` — orquestra a execução de queries: valida permissões, consulta cache in-memory (TTL 5 min), agrupa campos por produto, chama cada produto via REST com `Promise.allSettled` e agrega os resultados |
 | `chart-advisor.ts` | `suggestChartTypes` — determina os tipos de gráfico mais adequados com base no tipo de campo e na operação (ex.: `distribution` → DONUT, `trend` → LINE, `percentage` → GAUGE) |
-| `alert-engine.ts` | `AlertEngine.checkAlerts` — avalia alertas ativos do tenant contra um `WidgetResult`, dispara notificação in-app via serviço de notificações (porta 8013), atualiza `last_triggered` no banco e emite evento SSE; possui cooldown anti-spam de 1 hora |
+| `alert-engine.ts` | `AlertEngine.checkAlerts` — avalia alertas ativos do tenant contra um `WidgetResult`, dispara notificação in-app via serviço de notificações (porta 3001), atualiza `last_triggered` no banco e emite evento SSE; possui cooldown anti-spam de 1 hora |
 | `sse-handler.ts` | `DashboardSSEHandler` — gerencia conexões Server-Sent Events por cliente; emite heartbeat a cada 30 s; expõe `sendToDashboard` (por dashboard) e `sendToTenant` (para todo o tenant) |
 | `widget-registry.ts` | `CATALOG_WIDGETS` — 48 instâncias pré-construídas de `CatalogWidget`, uma por métrica; funções `getWidgetsForProduct`, `getWidgetsForUser`, `findWidget` |
-| `sharing-engine.ts` | `SharingEngine` — cria registros `DashboardShare` no banco, envia email (porta 8022) ou WhatsApp (porta 8019) de forma fire-and-forget, valida expiração e revoga compartilhamentos |
+| `sharing-engine.ts` | `SharingEngine` — cria registros `DashboardShare` no banco, envia email (porta 3001) ou WhatsApp (porta 3001) de forma fire-and-forget, valida expiração e revoga compartilhamentos |
 | `errors.ts` | Classe `AppError` com `statusCode` e `code`; usada em todas as rotas para respostas de erro padronizadas |
 | `cache.ts` | Cache in-memory com TTL de 5 min, limite de 1.000 entradas e evicção de expirados; usado como camada auxiliar para `MetricaSnapshot` |
 
@@ -352,7 +352,7 @@ app.use('/api/v1/meu-produto', dashboardRouter)
 
 ### DT-005 — Canal WhatsApp de alertas não configurado por tenant (Prioridade: Baixa)
 
-**Problema:** O `AlertEngine` e o `alert.routes.ts` suportam `channels: ['whatsapp']`, mas o serviço de WhatsApp (porta 8019) exige configuração de número de telefone por tenant que ainda não existe no fluxo de onboarding do Configurador.
+**Problema:** O `AlertEngine` e o `alert.routes.ts` suportam `channels: ['whatsapp']`, mas o serviço de WhatsApp (porta 3001) exige configuração de número de telefone por tenant que ainda não existe no fluxo de onboarding do Configurador.
 
 **Solução:** Adicionar campo `whatsapp_phone` na configuração de tenant no Configurador e validar sua presença antes de aceitar alertas com canal `whatsapp`.
 

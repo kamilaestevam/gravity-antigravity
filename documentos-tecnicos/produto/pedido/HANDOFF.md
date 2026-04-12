@@ -234,9 +234,9 @@ O Pedido opera sobre os models `Pedido` e `PedidoItem` que ja existem no fragmen
 | Configurador (8003) | Auth Clerk, JWT, permissoes, workspace |
 | API Cockpit (8016) | Integracao ERP — entrada de pedidos via API |
 | Conector ERP (8017) | Sincronizacao bidirecional ERP |
-| Atividades (8012) | Log de acoes |
-| Historico (8014) | Audit trail |
-| Notificacoes (8013) | Alertas in-app |
+| Atividades (3001) | Log de acoes |
+| Historico (3001) | Audit trail |
+| Notificacoes (3001) | Alertas in-app |
 | TabelaCamadasGlobal | Grid hierarquico pai-filho com expansao |
 | StatusBadgeGlobal | Status do pedido (Draft, Aberto, Vinculado, Liquidado) |
 | CabecalhoGlobal | Header da pagina |

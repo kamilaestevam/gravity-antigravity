@@ -804,13 +804,13 @@ O TokenPool pre-resolve hCaptcha tokens em background para eliminar a latencia d
 | Servico | Porta | Uso no SimulaCusto |
 |---------|-------|-------------------|
 | Configurador | 8000 | Auth Clerk, JWT, permissoes, workspace |
-| Atividades | 8012 | Log de acoes do operador |
-| Dashboard | 8010 | KPIs cross-product |
-| Relatorios | 8011 | Exportacao de relatorios |
-| Historico | 8014 | Audit trail de alteracoes |
-| Notificacoes | 8013 | Alertas in-app |
-| GABI | 8015 | IA — analise de custos e sugestoes |
-| Email | 8022 | Disparo de memorias de calculo |
+| Atividades | 3001 | Log de acoes do operador |
+| Dashboard | 3001 | KPIs cross-product |
+| Relatorios | 3001 | Exportacao de relatorios |
+| Historico | 3001 | Audit trail de alteracoes |
+| Notificacoes | 3001 | Alertas in-app |
+| GABI | 3001 | IA — analise de custos e sugestoes |
+| Email | 3001 | Disparo de memorias de calculo |
 | WhatsApp | — | Notificacoes via WhatsApp |
 
 ### Componentes nucleo-global Reutilizados
@@ -857,14 +857,8 @@ BACEN_URL=https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata
 # Anti-Captcha
 CAPSOLVER_API_KEY=cap_xxxxxxxxxxxxxxxxxxxxxxx
 
-# Tenant Services
-EMAIL_SERVICE_URL=http://localhost:8022
-ATIVIDADES_SERVICE_URL=http://localhost:8012
-NOTIFICACOES_SERVICE_URL=http://localhost:8013
-HISTORICO_SERVICE_URL=http://localhost:8014
-GABI_SERVICE_URL=http://localhost:8015
-DASHBOARD_SERVICE_URL=http://localhost:8010
-RELATORIOS_SERVICE_URL=http://localhost:8011
+# Tenant Services (todos no super-servidor único)
+TENANT_SERVER_URL=http://localhost:3001
 
 # Application URLs
 APP_URL=http://localhost:8001

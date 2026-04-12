@@ -371,7 +371,7 @@ Responda APENAS com o texto do insight, sem formatação, aspas ou explicações
 ### Chamada ao Serviço Gabi
 
 ```
-POST http://localhost:8015/api/v1/gabi/chat
+POST http://localhost:3001/api/v1/gabi/chat
 Headers:
   x-internal-key: ${INTERNAL_SERVICE_KEY}
   x-tenant-id:    ${tenantId}
@@ -388,7 +388,7 @@ Timeout: 3 segundos (AbortSignal.timeout)
 ### Fallback Automático
 
 Se qualquer um dos seguintes ocorrer, o insight original é retornado sem modificação:
-- Gabi offline ou porta 8015 indisponível
+- Gabi offline ou porta 3001 indisponível
 - Timeout > 3s
 - Resposta HTTP != 200
 - `GABI_INSIGHTS_LLM=false` (padrão)
@@ -643,7 +643,7 @@ Os scores de comportamento são consultados no banco a cada requisição de insi
 | Variável | Padrão | Obrigatória | Descrição |
 |:---------|:-------|:-----------:|:----------|
 | `GABI_INSIGHTS_LLM` | `false` | Não | Liga a Fase 3. Manter `false` até validar Fase 2 em produção. |
-| `GABI_SERVICE_URL` | `http://localhost:8015` | Não | URL do serviço Gabi (Fase 3). |
+| `GABI_SERVICE_URL` | `http://localhost:3001` | Não | URL do serviço Gabi (Fase 3). |
 | `GABI_QUOTA_PEDIDO` | `50000` | Não | Tokens por tenant/mês para chamadas do produto Pedido à Gabi. |
 | `INTERNAL_SERVICE_KEY` | — | **Sim** | Chave de autenticação S2S (já existia, reutilizada). |
 
@@ -727,7 +727,7 @@ curl -H "x-internal-key: $KEY" -H "x-tenant-id: TENANT" \
 
 **Fase 3 não gera texto personalizado:**
 - Confirmar `GABI_INSIGHTS_LLM=true` no `.env`
-- Confirmar Gabi rodando na porta 8015: `curl http://localhost:8015/health`
+- Confirmar Gabi rodando na porta 3001: `curl http://localhost:3001/health`
 - O fallback é silencioso — verificar logs do servidor para `[Pedido]`
 
 **Behavior scores não personalizam o ranking:**

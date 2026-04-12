@@ -327,14 +327,14 @@ Recebe e-mail com link (token 7 dias)
 
 | Servico | Tipo | Uso |
 |---------|------|-----|
-| **Atividades** (8012) | Fire-and-forget | Log de toda acao (criar cotacao, disparar, aprovar, pagar) |
-| **Historico** (8014) | Fire-and-forget | Audit trail imutavel (compliance BACEN) |
-| **Notificacoes** (8013) | Fire-and-forget | Alertas in-app (nova cotacao, resposta recebida, vencimento) |
-| **GABI** (8015) | Fire-and-forget | Analise IA de melhores taxas, sugestoes |
-| **Email** (8022) | Sincrono | Disparo de cotacoes, alertas de vencimento, notificacao exportador |
-| **Dashboard** (8010) | API | KPIs consolidados cross-product |
-| **Relatorios** (8011) | API | Relatorios de cambio exportaveis |
-| **Agendamento** (8018) | Cron | Job diario 7h (alertas de vencimento) |
+| **Atividades** (3001) | Fire-and-forget | Log de toda acao (criar cotacao, disparar, aprovar, pagar) |
+| **Historico** (3001) | Fire-and-forget | Audit trail imutavel (compliance BACEN) |
+| **Notificacoes** (3001) | Fire-and-forget | Alertas in-app (nova cotacao, resposta recebida, vencimento) |
+| **GABI** (3001) | Fire-and-forget | Analise IA de melhores taxas, sugestoes |
+| **Email** (3001) | Sincrono | Disparo de cotacoes, alertas de vencimento, notificacao exportador |
+| **Dashboard** (3001) | API | KPIs consolidados cross-product |
+| **Relatorios** (3001) | API | Relatorios de cambio exportaveis |
+| **Agendamento** (3001) | Cron | Job diario 7h (alertas de vencimento) |
 | **Configurador** (8003) | API | Auth, permissoes, workspace |
 | **Processo** (quando integrado) | API (REST) | Leitura de dados do pedido (DI, Invoice, datas, exportador) |
 | **BID Frete** (quando integrado) | Via Dashboard | Visao consolidada frete + cambio |

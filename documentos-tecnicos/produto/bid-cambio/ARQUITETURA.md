@@ -803,14 +803,14 @@ model PreferenciaGridCambio {
 | Servico | Porta | Uso no BID Cambio |
 |---------|-------|-------------------|
 | Configurador | 8003 | Auth Clerk, JWT, permissoes, workspace |
-| Atividades | 8012 | Log de todas as acoes |
-| Notificacoes | 8013 | Alertas in-app |
-| Historico | 8014 | Audit trail (compliance BACEN) |
-| GABI | 8015 | Analise IA de taxas |
-| Agendamento | 8018 | Cron job diario 7h |
-| Email | 8022 | Disparo de cotacoes + alertas |
-| Dashboard | 8010 | KPIs cross-product |
-| Relatorios | 8011 | Exportacao de relatorios |
+| Atividades | 3001 | Log de todas as acoes |
+| Notificacoes | 3001 | Alertas in-app |
+| Historico | 3001 | Audit trail (compliance BACEN) |
+| GABI | 3001 | Analise IA de taxas |
+| Agendamento | 3001 | Cron job diario 7h |
+| Email | 3001 | Disparo de cotacoes + alertas |
+| Dashboard | 3001 | KPIs cross-product |
+| Relatorios | 3001 | Exportacao de relatorios |
 
 ### Componentes nucleo-global Reutilizados
 
@@ -917,14 +917,8 @@ NODE_ENV=development
 DATABASE_URL=postgresql://user:pass@localhost:5432/bid_cambio_db
 INTERNAL_SERVICE_KEY=dev-key
 
-# Tenant Services
-EMAIL_SERVICE_URL=http://localhost:8022
-ATIVIDADES_SERVICE_URL=http://localhost:8012
-NOTIFICACOES_SERVICE_URL=http://localhost:8013
-HISTORICO_SERVICE_URL=http://localhost:8014
-GABI_SERVICE_URL=http://localhost:8015
-AGENDAMENTO_SERVICE_URL=http://localhost:8018
-DASHBOARD_SERVICE_URL=http://localhost:8010
+# Tenant Services (todos no super-servidor único)
+TENANT_SERVER_URL=http://localhost:3001
 
 # Application URLs
 APP_URL=http://localhost:5176

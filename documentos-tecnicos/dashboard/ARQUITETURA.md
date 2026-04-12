@@ -47,7 +47,7 @@ servicos-global/tenant/dashboard/
 │   ├── fragment.prisma              # Schema do servico (NAO editar schema.prisma)
 │   └── .gitkeep
 ├── server/
-│   ├── index.ts                     # Express + middlewares + startup (porta 8010)
+│   ├── index.ts                     # Express + middlewares + startup (porta 3001)
 │   ├── routes.ts                    # Router raiz: monta sub-routers
 │   ├── lib/
 │   │   ├── catalog.ts               # DATA_CATALOG: 48 CatalogField + tipos + helpers
@@ -79,7 +79,7 @@ servicos-global/tenant/dashboard/
 └── client/
     ├── package.json
     ├── tsconfig.json
-    ├── vite.config.ts               # porta 5010, proxy → 8010
+    ├── vite.config.ts               # porta 5010, proxy → 3001
     ├── index.html
     └── src/
         ├── main.tsx
@@ -126,7 +126,7 @@ O Dashboard Service **nunca acessa diretamente** o banco de dados de nenhum prod
 Frontend
    │
    ▼
-Dashboard Service :8010
+Dashboard Service :3001
    │
    ├── POST :8025/api/v1/bid-cambio/dashboard/widgets ──► bid_cambio_db
    ├── POST :8023/api/v1/bid-frete/dashboard/widgets ───► bid_frete_db
@@ -831,7 +831,7 @@ alertEngine.checkAlerts(prisma, tenantId, widgetResult, widgetId?)
       │
       ▼
 3. Para alertas disparados e fora do cooldown:
-   a. sendNotification → POST :8013/api/v1/notificacoes
+   a. sendNotification → POST :3001/api/v1/notificacoes
       (headers: x-internal-key + x-tenant-id)
    b. updateLastTriggered → prisma.dashboardAlert.update
    c. sseHandler.sendToTenant(tenantId, { type: 'alert_triggered', data: {...} })
@@ -863,7 +863,7 @@ alertEngine.checkAlerts(prisma, tenantId, widgetResult, widgetId?)
 ```
 
 Quando `processo.etapas_atrasadas > 10`, o sistema:
-1. Envia notificacao in-app ao `user_id` do alerta via servico de notificacoes (:8013)
+1. Envia notificacao in-app ao `user_id` do alerta via servico de notificacoes (:3001)
 2. Atualiza `last_triggered` no banco para iniciar cooldown
 3. Emite evento SSE `alert_triggered` para todos os clientes conectados do tenant
 
@@ -892,8 +892,8 @@ async createShare(prisma, {
 1. Gera `shareToken` via `randomUUID()`
 2. Calcula `expiresAt = now + expiresInHours * 3600000`
 3. Cria `DashboardShare` no banco
-4. Para `email`: dispara `sendEmailAsync` (fire-and-forget) → POST :8022/api/v1/email/enviar
-5. Para `whatsapp`: dispara `sendWhatsAppAsync` (fire-and-forget) → POST :8019/api/v1/whatsapp/enviar
+4. Para `email`: dispara `sendEmailAsync` (fire-and-forget) → POST :3001/api/v1/email/enviar
+5. Para `whatsapp`: dispara `sendWhatsAppAsync` (fire-and-forget) → POST :3001/api/v1/whatsapp/enviar
 6. Retorna imediatamente com o token (nao aguarda envio)
 
 ### revokeShare
@@ -918,8 +918,8 @@ async getSharedDashboard(prisma, shareToken): Promise<{ config, data } | null>
 | Canal | Comportamento | Servico Externo |
 |-------|-------------|----------------|
 | `link` | Retorna URL publica, sem envio | — |
-| `email` | Retorna URL + envia email async | Email Service :8022 |
-| `whatsapp` | Retorna URL + envia WhatsApp async | WhatsApp Service :8019 |
+| `email` | Retorna URL + envia email async | Email Service :3001 |
+| `whatsapp` | Retorna URL + envia WhatsApp async | WhatsApp Service :3001 |
 
 A URL publica tem formato: `{APP_URL}/dashboard/share/{shareToken}`
 
@@ -1096,17 +1096,17 @@ O produto responsavel aplica seu proprio isolamento de tenant nos dados retornad
 
 | Servico | Porta Backend | Porta Frontend | Prefixo de Rota |
 |---------|-------------|---------------|----------------|
-| Dashboard Service | **8010** | **5010** | `/api/v1/dashboard` |
+| Dashboard Service | **3001** | **5010** | `/api/v1/dashboard` |
 | SimulaCusto | 8020 | — | `/api/v1/simula-custo/dashboard/widgets` |
-| Email Service | 8022 | — | `/api/v1/email/enviar` |
+| Email Service | 3001 | — | `/api/v1/email/enviar` |
 | Bid Frete | 8023 | — | `/api/v1/bid-frete/dashboard/widgets` |
 | Bid Cambio | 8025 | — | `/api/v1/bid-cambio/dashboard/widgets` |
 | Processo + Pedido | 8026 | — | `/api/v1/processos/dashboard/widgets` |
 | LPCO | 8027 | — | `/api/v1/lpcos/dashboard/widgets` |
 | NF Importacao | 8028 | — | `/api/v1/nf-importacao/dashboard/widgets` |
 | Financeiro Comex | 8029 | — | `/api/v1/financeiro/dashboard/widgets` |
-| Notificacoes | 8013 | — | `/api/v1/notificacoes` |
-| WhatsApp | 8019 | — | `/api/v1/whatsapp/enviar` |
+| Notificacoes | 3001 | — | `/api/v1/notificacoes` |
+| WhatsApp | 3001 | — | `/api/v1/whatsapp/enviar` |
 
 ### Rotas Internas do Dashboard Service
 
@@ -1331,7 +1331,7 @@ Request → cache hit?
 DATABASE_URL="postgresql://user:pass@localhost:5432/tenant_dashboard_db"
 
 # Porta do servico
-PORT=8010
+PORT=3001
 
 # Chave de comunicacao interna entre servicos
 INTERNAL_SERVICE_KEY="gravity_internal_secret_key"

@@ -80,7 +80,7 @@ O componente **nunca quebra a tela** mesmo quando o backend está indisponível:
 |---------|-----------|
 | `servicos-global/tenant/notificacoes/src/Notificacoes.tsx` | Componente React (frontend) |
 | `servicos-global/tenant/notificacoes/server/routes/api.ts` | Rotas Express (backend) |
-| `servicos-global/tenant/notificacoes/server/index.ts` | Server standalone (porta 8013) |
+| `servicos-global/tenant/notificacoes/server/index.ts` | Server standalone (porta 3001) |
 | `servicos-global/configurador/server/index.ts` | Onde a rota é montada no configurador |
 
 ---

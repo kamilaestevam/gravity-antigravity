@@ -190,14 +190,14 @@ produto/bid-cambio/client/src/pages/portal/   # 7 telas corretora
 | Servico/Componente | Porta | Uso |
 |-------------------|-------|-----|
 | Configurador | 8003 | Auth Clerk, JWT, permissoes |
-| Atividades | 8012 | Log de acoes |
-| Notificacoes | 8013 | Alertas in-app |
-| Historico | 8014 | Audit trail (compliance BACEN) |
-| GABI | 8015 | Analise IA |
-| Agendamento | 8018 | Cron job diario 7h |
-| Email | 8022 | Disparo de cotacoes + alertas |
-| Dashboard | 8010 | KPIs cross-product |
-| Relatorios | 8011 | Exportacao |
+| Atividades | 3001 | Log de acoes |
+| Notificacoes | 3001 | Alertas in-app |
+| Historico | 3001 | Audit trail (compliance BACEN) |
+| GABI | 3001 | Analise IA |
+| Agendamento | 3001 | Cron job diario 7h |
+| Email | 3001 | Disparo de cotacoes + alertas |
+| Dashboard | 3001 | KPIs cross-product |
+| Relatorios | 3001 | Exportacao |
 | TabelaGlobal | nucleo-global | Grid de parcelas |
 | CaixaSelectGlobal | nucleo-global | Filtros |
 | InputTexto | nucleo-global | Formularios |

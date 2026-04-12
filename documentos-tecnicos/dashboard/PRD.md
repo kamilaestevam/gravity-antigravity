@@ -4,7 +4,7 @@
 > **Data:** 2026-04-02
 > **Status:** Implementado
 > **Owner:** Daniel Mendes
-> **Serviço:** `servicos-global/tenant/dashboard/` — porta backend 8010, frontend 5010
+> **Serviço:** `servicos-global/tenant/dashboard/` — porta backend 3001 (super-servidor), frontend 5010
 
 ---
 
@@ -217,7 +217,7 @@ Todos os widgets suportam filtro de período:
 - Condições: `gt`, `lt`, `gte`, `lte`, `eq`, `change_pct`
 - Anti-spam: cooldown de 1 hora entre disparos consecutivos do mesmo alerta (`ALERT_COOLDOWN_MS = 3.600.000ms`)
 - Canais configuráveis por alerta: `in-app`, `email`, `whatsapp`
-- Integração com serviço de notificações na porta 8013
+- Integração com serviço de notificações na porta 3001
 
 #### 5.1.8 Compartilhamento
 
@@ -247,7 +247,7 @@ Catálogo de campos filtrado automaticamente pelas permissões do usuário. Um u
 | Gabi insights automáticos | Gabi disponível on-demand; insights proativos requerem ML pipeline | Fase 2 |
 | Exportação de dashboard como PDF | Requer puppeteer/headless browser; complexidade alta | Fase 2 |
 | SQL builder avançado | Query Builder visual cobre 95% dos casos de uso | Fase 2 |
-| Alertas via WhatsApp | Infraestrutura WhatsApp (port 8019) existe; falta config de template aprovada | Fase 2 |
+| Alertas via WhatsApp | Infraestrutura WhatsApp (port 3001) existe; falta config de template aprovada | Fase 2 |
 | Dashboard público sem login | Requer redesign de auth middleware | Fase 2 |
 | Widgets de tipo HISTOGRAM, FUNNEL, GAUGE, MAP | Modelos disponíveis, falta implementação UI | Fase 2 |
 
@@ -392,7 +392,7 @@ O sistema deve avaliar alertas ativos sempre que os dados de um widget forem atu
 2. Extrai o valor numérico atual do resultado do widget
 3. Avalia a condição contra o threshold
 4. Se disparar: verifica `last_triggered` — se menos de 1 hora atrás, ignora (anti-spam)
-5. Se passar o cooldown: atualiza `last_triggered`, envia para canais configurados via serviço de notificações (port 8013), e emite `alert_triggered` via SSE
+5. Se passar o cooldown: atualiza `last_triggered`, envia para canais configurados via serviço de notificações (port 3001), e emite `alert_triggered` via SSE
 
 **Endpoint interno** (não exposto externamente): acionado pelo query-engine após cada resolução de widget.
 
@@ -677,10 +677,10 @@ Ao sair do modo de edição, o sistema deve salvar as posições de todos os wid
 
 | Serviço | Porta | Uso | Tipo de Dependência |
 |---------|-------|-----|---------------------|
-| Notificações | 8013 | Disparar alertas via in-app, email, WhatsApp | REST — POST /notificacoes |
-| Gabi (IA) | 8012 | Criação de widgets por linguagem natural | REST — POST /gabi/interpret |
-| Email | 8022 | Compartilhamento de dashboard por email | REST (via Notificações) |
-| WhatsApp | 8019 | Alertas via WhatsApp | REST (via Notificações, Fase 2) |
+| Notificações | 3001 | Disparar alertas via in-app, email, WhatsApp | REST — POST /notificacoes |
+| Gabi (IA) | 3001 | Criação de widgets por linguagem natural | REST — POST /gabi/interpret |
+| Email | 3001 | Compartilhamento de dashboard por email | REST (via Notificações) |
+| WhatsApp | 3001 | Alertas via WhatsApp | REST (via Notificações, Fase 2) |
 | Configurador | 8000 | Validação de JWT e permissões do usuário | JWT verify via @clerk/backend |
 
 ### 10.2 Dependências de Produtos (Fontes de Dados)

@@ -18,25 +18,18 @@ import ReactDOM from 'react-dom'
 import './tooltip.css'
 import type { TooltipProps } from './tipos.js'
 
-const DELAY_INTERATIVO_MS = 3000
-
 export function TooltipGlobal({ titulo, descricao, children, interativo }: TooltipProps) {
   const [show, setShow] = useState(false)
-  const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
+  const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false, rowTop: 0, rowHeight: 0 })
   const ref = useRef<HTMLSpanElement>(null)
   const tooltipId = useId()
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const cancelarTimer = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-  }
 
   const calcularPos = () => {
     if (ref.current) {
       const r = ref.current.getBoundingClientRect()
+      // Para interativo: usa a linha (<tr>) como zona de hover se disponível
+      const row = interativo ? ref.current.closest('tr') : null
+      const rowRect = row ? row.getBoundingClientRect() : r
       const espacoAcima = r.top
       const usaBottom = espacoAcima > 80
       const pxLeft = Math.max(138, Math.min(r.left + r.width / 2, window.innerWidth - 138))
@@ -45,30 +38,22 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
         bottom: usaBottom ? window.innerHeight - r.top + 8 : 0,
         top: usaBottom ? 0 : r.bottom + 8,
         left: pxLeft,
+        rowTop: rowRect.top,
+        rowHeight: rowRect.height,
       })
     }
   }
 
   const mostra = useCallback(() => {
     if (document.body.classList.contains('tooltips-disabled')) return
-    cancelarTimer()
     calcularPos()
     setShow(true)
-  }, [])
-
-  const esconde = useCallback(() => {
-    if (interativo) {
-      timerRef.current = setTimeout(() => setShow(false), DELAY_INTERATIVO_MS)
-    } else {
-      setShow(false)
-    }
   }, [interativo])
 
+  const esconde = useCallback(() => setShow(false), [])
+
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      cancelarTimer()
-      setShow(false)
-    }
+    if (e.key === 'Escape') setShow(false)
   }
 
   return (
@@ -76,7 +61,7 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
       <span
         ref={ref}
         onMouseEnter={mostra}
-        onMouseLeave={esconde}
+        onMouseLeave={interativo ? undefined : esconde}
         onFocus={mostra}
         onBlur={esconde}
         onKeyDown={onKeyDown}
@@ -88,23 +73,39 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
       </span>
 
       {show && ReactDOM.createPortal(
-        <div
-          id={tooltipId}
-          role="tooltip"
-          className="tg-card"
-          data-start={pos.usaBottom ? 'bottom' : 'top'}
-          data-interativo={interativo ? 'true' : undefined}
-          style={{
-            bottom: pos.usaBottom ? pos.bottom : 'auto',
-            top:    pos.usaBottom ? 'auto'   : pos.top,
-            left:   pos.left,
-          }}
-          onMouseEnter={interativo ? cancelarTimer : undefined}
-          onMouseLeave={interativo ? esconde : undefined}
-        >
-          {titulo && <p className="tg-titulo">{titulo}</p>}
-          <div className="tg-descricao">{descricao}</div>
-        </div>,
+        <>
+          {/* Overlay transparente cobre toda a linha — mantém tooltip vivo enquanto mouse está na linha */}
+          {interativo && (
+            <div
+              style={{
+                position: 'fixed',
+                left: 0,
+                right: 0,
+                top: pos.rowTop,
+                height: pos.rowHeight,
+                zIndex: 99998,
+                pointerEvents: 'auto',
+              }}
+              onMouseLeave={esconde}
+            />
+          )}
+          <div
+            id={tooltipId}
+            role="tooltip"
+            className="tg-card"
+            data-start={pos.usaBottom ? 'bottom' : 'top'}
+            data-interativo={interativo ? 'true' : undefined}
+            style={{
+              bottom: pos.usaBottom ? pos.bottom : 'auto',
+              top:    pos.usaBottom ? 'auto'   : pos.top,
+              left:   pos.left,
+            }}
+            onMouseLeave={interativo ? esconde : undefined}
+          >
+            {titulo && <p className="tg-titulo">{titulo}</p>}
+            <div className="tg-descricao">{descricao}</div>
+          </div>
+        </>,
         document.body
       )}
     </>

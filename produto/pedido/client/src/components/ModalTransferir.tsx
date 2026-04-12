@@ -483,6 +483,8 @@ export function ModalTransferir({ pedidos, itemIdInicial, onFechar, onConcluido 
   const [erroConfirmar, setErroConfirmar] = useState<string | null>(null)
   const [concluido, setConcluido] = useState(false)
   const [resultado, setResultado] = useState<TransferResultado | null>(null)
+  /** Confirmação explícita do usuário quando pedidos são de tipos diferentes */
+  const [confirmarTiposDivergentes, setConfirmarTiposDivergentes] = useState(false)
 
   // Fechar com Escape
   useEffect(() => {
@@ -608,11 +610,15 @@ export function ModalTransferir({ pedidos, itemIdInicial, onFechar, onConcluido 
 
   // ── Renderização ──────────────────────────────────────────────────────────────
 
+  // No passo 4: quando há aviso de tipos divergentes, requer confirmação explícita do usuário
+  const podeProsseguirPasso4 = !!preview && !erroPreview &&
+    (!preview.aviso_tipo_operacao || confirmarTiposDivergentes)
+
   const podeProsseguir = (() => {
     if (passo === 1) return podeProsseguirPasso1
     if (passo === 2) return podeProsseguirPasso2
     if (passo === 3) return podeProsseguirPasso3
-    if (passo === 4) return !!preview && !erroPreview
+    if (passo === 4) return podeProsseguirPasso4
     return false
   })()
 
@@ -762,14 +768,51 @@ export function ModalTransferir({ pedidos, itemIdInicial, onFechar, onConcluido 
                     {erroPreview}
                   </div>
                 ) : preview ? (
-                  <PreviewImpacto preview={preview} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {/* Banner: aviso de tipo de operação diferente (campo Onda C) */}
+                    {preview.aviso_tipo_operacao && (
+                      <div style={{
+                        display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+                        padding: '0.75rem 1rem',
+                        background: 'color-mix(in srgb, var(--warning) 8%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--warning) 30%, transparent)',
+                        borderRadius: 'var(--radius-md)',
+                      }}>
+                        <Warning weight="duotone" size={18} color="var(--warning)" style={{ flexShrink: 0, marginTop: 2 }} />
+                        <div>
+                          <p style={{ color: 'var(--warning)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+                            Tipos de operação diferentes
+                          </p>
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+                            O pedido de destino é de um tipo diferente (importação ↔ exportação). Confirme que deseja prosseguir mesmo assim.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    <PreviewImpacto preview={preview} />
+                    {/* Checkbox de confirmação explícita quando há divergência de tipos */}
+                    {preview.aviso_tipo_operacao && (
+                      <label style={{
+                        display: 'flex', alignItems: 'flex-start', gap: '0.625rem',
+                        cursor: 'pointer', fontSize: '0.8125rem', color: 'var(--text-primary)',
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={confirmarTiposDivergentes}
+                          onChange={e => setConfirmarTiposDivergentes(e.target.checked)}
+                          style={{ marginTop: 2, flexShrink: 0 }}
+                        />
+                        Confirmo que desejo transferir entre pedidos de tipos diferentes
+                      </label>
+                    )}
+                  </div>
                 ) : null
               )}
 
               {/* Passo 5: Confirmação */}
               {passo === 5 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div className="modal-transferir__alerta" style={{ borderColor: 'rgba(59,130,246,0.3)', background: 'rgba(59,130,246,0.07)', color: '#93c5fd' }}>
+                  <div className="modal-transferir__alerta" style={{ borderColor: 'color-mix(in srgb, var(--accent) 30%, transparent)', background: 'color-mix(in srgb, var(--accent) 7%, transparent)', color: 'var(--text-primary)' }}>
                     <ArrowRight size={14} weight="bold" aria-hidden="true" />
                     Revise o resumo acima antes de confirmar. Esta ação
                     {cenarioInfo?.reversivel

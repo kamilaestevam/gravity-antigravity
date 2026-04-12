@@ -15,9 +15,10 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from 'react'
-import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock } from '@phosphor-icons/react'
+import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
+import { useHasMixedTipos } from '../shared/state/selecaoStore'
 import type {
   Pedido,
   CampoEdicaoMassa,
@@ -631,6 +632,7 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
 
 export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdicaoEmMassaProps) {
   const { addNotification } = useShellStore()
+  const hasMixedTipos = useHasMixedTipos()
   const [passo, setPasso] = useState<1 | 2>(1)
   const [nivel, setNivel] = useState<NivelEdicao>('pedido')
   const [campos, setCampos] = useState<CampoEmEdicao[]>([])
@@ -1068,6 +1070,27 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
 
         {/* Corpo */}
         <div className="modal-edicao-massa__corpo">
+          {/* Banner informativo: pedidos de tipos diferentes selecionados */}
+          {hasMixedTipos && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+              padding: '0.75rem 1rem',
+              background: 'color-mix(in srgb, var(--accent) 8%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: '1rem',
+            }}>
+              <Info weight="duotone" size={18} color="var(--accent)" style={{ flexShrink: 0, marginTop: 2 }} />
+              <div>
+                <p style={{ color: 'var(--accent)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+                  Pedidos de tipos diferentes selecionados
+                </p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+                  Campos exclusivos de importação ou exportação não serão exibidos.
+                </p>
+              </div>
+            </div>
+          )}
           {passo === 1 ? renderPasso1() : renderPasso2()}
         </div>
 

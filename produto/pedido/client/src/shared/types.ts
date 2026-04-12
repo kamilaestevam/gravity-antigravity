@@ -444,6 +444,8 @@ export interface ConsolidacaoPreview {
   valor_total_soma: number
   moeda: string
   numero_sugerido: string
+  /** Sinaliza que os pedidos possuem tipos de operação diferentes (Onda C). */
+  conflito_tipo_operacao?: boolean
 }
 
 export interface ConsolidacaoPayload {
@@ -559,6 +561,8 @@ export interface TransferPreview {
     alertas: string[]
   }[]
   alertas_globais: string[]
+  /** Sinaliza que o pedido destino é de tipo de operação diferente do pedido origem (Onda C). */
+  aviso_tipo_operacao?: boolean
 }
 
 /** Resposta do endpoint de confirmação */

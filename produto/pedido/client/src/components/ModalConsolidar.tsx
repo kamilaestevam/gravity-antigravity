@@ -13,7 +13,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { Warning, CheckCircle, MagnifyingGlass, Spinner } from '@phosphor-icons/react'
+import { Warning, CheckCircle, MagnifyingGlass, Spinner, WarningDiamond } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, ConsolidacaoPreview, ConsolidacaoPayload, CampoDivergente } from '../shared/types'
@@ -26,6 +26,8 @@ interface ModalConsolidarProps {
   pedidosSelecionados: Pedido[]
   onFechar: () => void
   onConcluido: () => void
+  /** Sinaliza que os pedidos selecionados possuem tipos de operação diferentes (Onda C). */
+  conflito_tipo_operacao?: boolean
 }
 
 // ── Componente de linha de campo divergente ───────────────────────────────────
@@ -90,7 +92,7 @@ function LinhaCampoDivergente({ campo, valorEscolhido, onMudar }: LinhaCampoDive
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: ModalConsolidarProps) {
+export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, conflito_tipo_operacao: conflitoProp = false }: ModalConsolidarProps) {
   const { addNotification } = useShellStore()
   const [preview, setPreview] = useState<ConsolidacaoPreview | null>(null)
   const [carregandoPreview, setCarregandoPreview] = useState(true)
@@ -102,6 +104,9 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: 
   const [erroSalvar, setErroSalvar] = useState<string | null>(null)
 
   const ids = pedidosSelecionados.map(p => p.id)
+
+  // Conflito de tipo de operação: prop externa (usada antes do preview) OU campo do preview (Onda C)
+  const conflito_tipo_operacao = conflitoProp || (preview?.conflito_tipo_operacao ?? false)
 
   // Carregar preview ao abrir
   useEffect(() => {
@@ -199,6 +204,27 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: 
 
         {/* Corpo */}
         <div className="modal-consolidar__corpo">
+          {/* Banner: conflito de tipo de operação (dados vindos da Onda C) */}
+          {conflito_tipo_operacao && (
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+              padding: '0.75rem 1rem',
+              background: 'color-mix(in srgb, var(--danger) 8%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--danger) 30%, transparent)',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: '1rem',
+            }}>
+              <WarningDiamond weight="duotone" size={18} color="var(--danger)" style={{ flexShrink: 0, marginTop: 2 }} />
+              <div>
+                <p style={{ color: 'var(--danger)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
+                  Operações de tipos diferentes
+                </p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
+                  Não é possível consolidar pedidos de importação com pedidos de exportação. Selecione apenas pedidos do mesmo tipo de operação.
+                </p>
+              </div>
+            </div>
+          )}
           {carregandoPreview ? (
             <div className="modal-consolidar__loading" aria-live="polite">
               <Spinner size={24} className="modal-consolidar__spinner" aria-hidden="true" />
@@ -342,7 +368,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido }: 
             variante="primario"
             tamanho="medio"
             onClick={handleConsolidar}
-            disabled={carregandoPreview || salvando || !numeroPedido.trim() || !!erroPreview}
+            disabled={conflito_tipo_operacao || carregandoPreview || salvando || !numeroPedido.trim() || !!erroPreview}
             aria-busy={salvando}
           >
             {salvando ? 'Consolidando...' : 'Consolidar'}

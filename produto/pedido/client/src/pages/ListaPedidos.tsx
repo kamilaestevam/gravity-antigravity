@@ -13,6 +13,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
+import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
 import {
   Package,
   Plus,
@@ -4175,11 +4176,11 @@ export default function ListaPedidos() {
   const [total, setTotal]                   = useState(0)
   const ITENS_POR_PAGINA = 50
 
-  // ── Seleção de pedidos (bubbled do TabelaVirtualGlobal) ──────────────────────
-  const [pedidosSelecionados, setPedidosSelecionados] = useState<Pedido[]>([])
-
-  // ── Seleção de itens filho (bubbled do TabelaVirtualGlobal) ──────────────────
-  const [itensSelecionados, setItensSelecionados] = useState<PedidoItem[]>([])
+  // ── Seleção de pedidos/itens via selecaoStore (Zustand) ──────────────────────
+  const { setPedidosSelecionados, setItensSelecionados } = useSelecaoStore()
+  const pedidosSelecionados = usePedidosSelecionados()
+  const itensSelecionados = useItensSelecionados()
+  const hasMixedTipos = useHasMixedTipos()
 
   // ── Estado de exclusão de itens ───────────────────────────────────────────────
   const [excluindoItens, setExcluindoItens] = useState(false)
@@ -5597,6 +5598,7 @@ export default function ListaPedidos() {
       {modalConsolidarAberto && (
         <ModalConsolidar
           pedidosSelecionados={pedidosSelecionados}
+          conflito_tipo_operacao={hasMixedTipos}
           onFechar={() => setModalConsolidarAberto(false)}
           onConcluido={async () => {
             setModalConsolidarAberto(false)

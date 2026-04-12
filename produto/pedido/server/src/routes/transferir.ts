@@ -18,6 +18,8 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { TransferirService, AppError } from '../services/transferirService.js'
+import { detectarTiposMistos } from '../shared/bulkSchemas.js'
+import type { TenantRequest } from '../shared/types.js'
 
 export const transferirRouter = Router()
 export const transferirHistoricoRouter = Router({ mergeParams: true })
@@ -61,6 +63,7 @@ const PreviewSchema = z.object({
 const ConfirmarSchema = PreviewSchema.extend({
   numero_pedido_novo: z.string().min(1).optional(),
   reverter_transfer_id: z.string().optional(),
+  confirmar_tipos_divergentes: z.boolean().optional(),
 })
 
 // ── POST /transferir/preview ─────────────────────────────────────────────────
@@ -73,12 +76,35 @@ transferirRouter.post('/preview', async (req: Request, res: Response, next: Next
     })
   }
 
-  const db = (req as any).prisma
-  const tenantId = (req as any).tenantId as string
+  const { prisma: db, tenantId } = req as TenantRequest
 
   try {
     const preview = await service.preview(tenantId, parse.data, db)
-    res.json(preview)
+
+    // Detectar divergência de tipo_operacao entre pedido origem e pedidos destino existentes
+    const pedidoOrigem = await db.pedido.findFirst({
+      where: { id: parse.data.pedido_id, tenant_id: tenantId },
+      select: { tipo_operacao: true },
+    })
+
+    const idsDestinoExistente = parse.data.destinos
+      .filter((d) => d.tipo === 'existente' && d.pedido_id)
+      .map((d) => d.pedido_id as string)
+
+    let aviso_tipo_operacao = false
+    if (pedidoOrigem && idsDestinoExistente.length > 0) {
+      const pedidosDestino = await db.pedido.findMany({
+        where: { id: { in: idsDestinoExistente }, tenant_id: tenantId },
+        select: { tipo_operacao: true },
+      })
+      const todosOsTipos = [
+        pedidoOrigem.tipo_operacao as string,
+        ...pedidosDestino.map((p: { tipo_operacao: string | null }) => p.tipo_operacao ?? ''),
+      ]
+      aviso_tipo_operacao = detectarTiposMistos(todosOsTipos)
+    }
+
+    res.json({ ...preview, aviso_tipo_operacao })
   } catch (err) {
     next(err)
   }
@@ -94,12 +120,37 @@ transferirRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
     })
   }
 
-  const db = (req as any).prisma
-  const tenantId = (req as any).tenantId as string
-  const userId = (req as any).userId as string ?? 'system'
+  const { prisma: db, tenantId, userId: userIdRaw } = req as TenantRequest
+  const userId = userIdRaw ?? 'system'
+  const { confirmar_tipos_divergentes, ...payloadService } = parse.data
 
   try {
-    const resultado = await service.confirmar(tenantId, userId, parse.data, db)
+    // Validar divergência de tipo_operacao antes de executar a transação
+    const pedidoOrigem = await db.pedido.findFirst({
+      where: { id: parse.data.pedido_id, tenant_id: tenantId },
+      select: { tipo_operacao: true },
+    })
+
+    const idsDestinoExistente = parse.data.destinos
+      .filter((d) => d.tipo === 'existente' && d.pedido_id)
+      .map((d) => d.pedido_id as string)
+
+    if (pedidoOrigem && idsDestinoExistente.length > 0) {
+      const pedidosDestino = await db.pedido.findMany({
+        where: { id: { in: idsDestinoExistente }, tenant_id: tenantId },
+        select: { tipo_operacao: true },
+      })
+      const todosOsTipos = [
+        pedidoOrigem.tipo_operacao as string,
+        ...pedidosDestino.map((p: { tipo_operacao: string | null }) => p.tipo_operacao ?? ''),
+      ]
+      const tiposDivergentes = detectarTiposMistos(todosOsTipos)
+      if (tiposDivergentes && confirmar_tipos_divergentes !== true) {
+        throw new AppError('Confirme que deseja transferir entre pedidos de tipos diferentes.', 422, 'TIPO_OPERACAO_DIVERGENTE')
+      }
+    }
+
+    const resultado = await service.confirmar(tenantId, userId, payloadService, db)
     res.status(201).json(resultado)
   } catch (err) {
     next(err)
@@ -116,9 +167,8 @@ transferirRouter.post('/:transfer_id/reverter', async (req: Request, res: Respon
     })
   }
 
-  const db = (req as any).prisma
-  const tenantId = (req as any).tenantId as string
-  const userId = (req as any).userId as string ?? 'system'
+  const { prisma: db, tenantId, userId: userIdRaw } = req as TenantRequest
+  const userId = userIdRaw ?? 'system'
 
   try {
     const resultado = await service.reverter(tenantId, userId, transfer_id, db)
@@ -136,8 +186,7 @@ transferirHistoricoRouter.get('/', async (req: Request, res: Response, next: Nex
     return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'pedido_id é obrigatório' } })
   }
 
-  const db = (req as any).prisma
-  const tenantId = (req as any).tenantId as string
+  const { prisma: db, tenantId } = req as TenantRequest
 
   try {
     const historico = await service.historico(tenantId, pedidoId, db)

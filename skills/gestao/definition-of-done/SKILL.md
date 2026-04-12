@@ -74,6 +74,7 @@ Uma tarefa só está "Done" quando **todos** os critérios abaixo são atendidos
 - [ ] Rate limiting considerado (se rota pública)
 - [ ] Retry com backoff para chamadas cross-boundary
 - [ ] Idempotência em ações que podem ser retentadas
+- [ ] Rota bulk (`ids[]`)? → `detectarTiposMistos` aplicado no /preview e /confirmar, ou justificativa documentada no código
 
 ### Migration
 

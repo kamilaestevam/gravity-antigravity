@@ -145,6 +145,36 @@ const periodo: any = ...
 
 ---
 
+## Operações Bulk — Regra Obrigatória
+
+Toda rota que recebe `ids: string[]` (ou `pedido_ids`, `item_ids`, etc.) para operar em múltiplos registros é uma **operação bulk**. Exemplos: consolidar, transferir, editar em massa, arquivar em lote, gerar documento em lote.
+
+### Regra
+
+Toda rota bulk de produto COMEX que opere sobre pedidos DEVE, antes de executar qualquer lógica de negócio:
+
+1. **Detectar mistura de `tipo_operacao`** (`'importacao'` vs `'exportacao'`)
+2. **Informar o frontend** no response do preview (`conflito_tipo_operacao: boolean` ou `aviso_tipo_operacao: boolean`)
+3. **Bloquear ou exigir confirmação explícita** no endpoint de confirmação
+
+### Referência de implementação
+
+```ts
+import { detectarTiposMistos } from '../shared/bulkSchemas.js'
+// No /preview: retornar conflito_tipo_operacao ou aviso_tipo_operacao no response
+// No /confirmar: verificar tipos antes da transação; lançar AppError 422 se misto sem confirmação
+```
+
+### Por que isso existe
+
+Pedidos de importação e exportação têm campos, regimes aduaneiros e parceiros comerciais opostos. Operar sobre os dois ao mesmo tempo gera dados inválidos silenciosamente — o sistema processa sem erro mas o resultado é semanticamente incorreto.
+
+### Exceções
+
+Rotas que operam sobre registro único (não bulk) ou que não fazem distinção de `tipo_operacao` (ex: excluir, duplicar) não precisam desta validação. Documente explicitamente no comentário da rota se a exceção se aplica.
+
+---
+
 ## 6. Propagação de Mudanças — Regra de Ouro
 
 ```

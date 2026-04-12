@@ -17,6 +17,8 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { detectarTiposMistos } from '../shared/bulkSchemas.js'
+import type { TenantRequest } from '../shared/types.js'
 
 function gerarId(prefixo: string): string {
   const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
@@ -82,13 +84,12 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
   }
 
   const { ids } = parse.data
-  const db = (req as any).prisma
-  const tenantId = (req as any).tenantId as string
+  const { prisma: db, tenantId } = req as TenantRequest
 
   try {
-    // Buscar pedidos com itens — tenant_id injetado automaticamente pelo middleware
+    // Buscar pedidos com itens — filtrado por tenant_id
     const pedidos = await db.pedido.findMany({
-      where: { id: { in: ids } },
+      where: { id: { in: ids }, tenant_id: tenantId },
       include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
@@ -108,7 +109,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
     const CAMPOS_DETALHES = new Set(['nome_exportador', 'nome_importador', 'nome_fabricante'])
 
     for (const { campo, rotulo } of CAMPOS_COMPARAR) {
-      const valores = pedidos.map((p: any) => {
+      const valores = pedidos.map((p: { id: string; numero_pedido: string; detalhes_operacionais: unknown; [key: string]: unknown }) => {
         const det = (typeof p.detalhes_operacionais === 'object' && p.detalhes_operacionais !== null)
           ? p.detalhes_operacionais as Record<string, unknown>
           : {}
@@ -117,7 +118,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
           : p[campo] as string | number | null
         return { pedido_id: p.id, numero_pedido: p.numero_pedido, valor }
       })
-      const unicos = new Set(valores.map((v: any) => String(v.valor)))
+      const unicos = new Set(valores.map((v) => String(v.valor)))
       if (unicos.size > 1) {
         camposDivergentes.push({
           campo,
@@ -131,7 +132,8 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
     }
 
     // Consolidar itens por part_number (para exibição)
-    const itensPorPart: Record<string, any> = {}
+    // TODO: tipar com PrismaTypes (estrutura de item consolidado para exibição)
+    const itensPorPart: Record<string, Record<string, unknown>> = {}
     for (const pedido of pedidos) {
       for (const item of pedido.itens) {
         if (itensPorPart[item.part_number]) {
@@ -154,8 +156,12 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       }
     }
 
-    const valorTotal = pedidos.reduce((acc: number, p: any) => acc + (p.valor_total_pedido ?? 0), 0)
-    const total = await db.pedido.count()
+    const valorTotal = pedidos.reduce((acc: number, p: { valor_total_pedido?: number | null }) => acc + (p.valor_total_pedido ?? 0), 0)
+    const total = await db.pedido.count({ where: { tenant_id: tenantId } })
+
+    // Detectar mistura de tipos de operação (importação vs exportação)
+    const tipos = pedidos.map((p: { tipo_operacao?: string | null }) => p.tipo_operacao as string)
+    const conflito_tipo_operacao = detectarTiposMistos(tipos)
 
     res.json({
       ids,
@@ -165,6 +171,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       valor_total_soma: valorTotal,
       moeda: pedidos[0].moeda_pedido,
       numero_sugerido: gerarNumeroPedido(total),
+      conflito_tipo_operacao,
     })
   } catch (err) {
     next(err)
@@ -182,13 +189,12 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
   }
 
   const { ids, numero_pedido, campos_escolhidos, fundir_itens_mesmo_part_number } = parse.data
-  const db = (req as any).prisma
-  const tenantId = (req as any).tenantId as string
+  const { prisma: db, tenantId } = req as TenantRequest
 
   try {
-    // Buscar pedidos originais
+    // Buscar pedidos originais — filtrado por tenant_id
     const pedidos = await db.pedido.findMany({
-      where: { id: { in: ids } },
+      where: { id: { in: ids }, tenant_id: tenantId },
       include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
 
@@ -200,9 +206,19 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       throw new AppError('Um ou mais pedidos não foram encontrados', 404, 'NOT_FOUND')
     }
 
+    // Validar homogeneidade de tipo_operacao antes de iniciar a transação
+    const pedidosParaConsolidar = await db.pedido.findMany({
+      where: { id: { in: ids }, tenant_id: tenantId },
+      select: { id: true, tipo_operacao: true },
+    })
+    const tiposConsolidar = pedidosParaConsolidar.map((p: { id: string; tipo_operacao: string | null }) => p.tipo_operacao ?? '')
+    if (detectarTiposMistos(tiposConsolidar)) {
+      throw new AppError('Não é possível consolidar pedidos de importação com pedidos de exportação.', 422, 'TIPO_OPERACAO_MISTO')
+    }
+
     // Verificar se número do pedido já existe
     const numeroExistente = await db.pedido.findFirst({
-      where: { numero_pedido },
+      where: { numero_pedido, tenant_id: tenantId },
     })
     if (numeroExistente) {
       throw new AppError(`Número de pedido "${numero_pedido}" já está em uso`, 409, 'CONFLICT')
@@ -211,13 +227,14 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
     const primeiro = pedidos[0]
 
     // Consolidar itens
-    const itensMerge: any[] = []
+    // TODO: tipar com PrismaTypes (Prisma.PedidoItemGetPayload ou similar)
+    const itensMerge: Record<string, unknown>[] = []
     const partNumbersVistos = new Set<string>()
 
     for (const pedido of pedidos) {
       for (const item of pedido.itens) {
         if (fundir_itens_mesmo_part_number && partNumbersVistos.has(item.part_number)) {
-          const existente = itensMerge.find((i: any) => i.part_number === item.part_number)
+          const existente = itensMerge.find((i) => i['part_number'] === item.part_number) as Record<string, number> | undefined
           if (existente) {
             existente.quantidade_inicial_item_pedido = (Number(existente.quantidade_inicial_item_pedido) || 0) + (Number(item.quantidade_inicial_item_pedido) || 0)
             existente.saldo_item_pedido = (Number(existente.saldo_item_pedido) || 0) + (Number(item.saldo_item_pedido) || 0)
@@ -236,7 +253,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
     // Renumerar sequencia_item de forma limpa (1, 2, 3...) no pedido consolidado
     itensMerge.forEach((item, i) => { item.sequencia_item = i + 1 })
 
-    const valorTotal = pedidos.reduce((acc: number, p: any) => acc + (Number(p.valor_total_pedido) || 0), 0)
+    const valorTotal = pedidos.reduce((acc: number, p: { valor_total_pedido?: number | null }) => acc + (Number(p.valor_total_pedido) || 0), 0)
 
     // Campos base do pedido consolidado (primeiro prevalece como default)
     const camposBase = {
@@ -265,7 +282,8 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
     }
 
     // Criar pedido consolidado com $transaction para atomicidade
-    const pedidoConsolidado = await db.$transaction(async (tx: any) => {
+    // TODO: tipar com PrismaTypes (Prisma.TransactionClient)
+    const pedidoConsolidado = await db.$transaction(async (tx: Parameters<Parameters<typeof db.$transaction>[0]>[0]) => {
       // 1. Criar o pedido consolidado
       const novo = await tx.pedido.create({
         data: {
@@ -286,7 +304,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       // 2. Soft delete dos pedidos originais — marcados como deleted_at
       await tx.pedido.updateMany({
-        where: { id: { in: ids } },
+        where: { id: { in: ids }, tenant_id: tenantId },
         data: {
           deleted_at: new Date(),
           status: 'consolidado',

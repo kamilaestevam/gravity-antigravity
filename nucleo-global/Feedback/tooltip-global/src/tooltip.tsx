@@ -23,11 +23,12 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
   const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false, rowTop: 0, rowHeight: 0 })
   const ref = useRef<HTMLSpanElement>(null)
   const tooltipId = useId()
+  // Flag: mouse está sobre o card — impede que o overlay feche antes do tempo
+  const sobreCardRef = useRef(false)
 
   const calcularPos = () => {
     if (ref.current) {
       const r = ref.current.getBoundingClientRect()
-      // Para interativo: usa a linha (<tr>) como zona de hover se disponível
       const row = interativo ? ref.current.closest('tr') : null
       const rowRect = row ? row.getBoundingClientRect() : r
       const espacoAcima = r.top
@@ -52,6 +53,11 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
 
   const esconde = useCallback(() => setShow(false), [])
 
+  // Overlay saiu → só fecha se mouse não estiver sobre o card
+  const onOverlayLeave = useCallback(() => {
+    if (!sobreCardRef.current) esconde()
+  }, [esconde])
+
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') setShow(false)
   }
@@ -74,7 +80,7 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
 
       {show && ReactDOM.createPortal(
         <>
-          {/* Overlay transparente cobre toda a linha — mantém tooltip vivo enquanto mouse está na linha */}
+          {/* Overlay cobre toda a linha — fecha somente se mouse não estiver no card */}
           {interativo && (
             <div
               style={{
@@ -86,7 +92,7 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
                 zIndex: 99998,
                 pointerEvents: 'auto',
               }}
-              onMouseLeave={esconde}
+              onMouseLeave={onOverlayLeave}
             />
           )}
           <div
@@ -100,7 +106,8 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
               top:    pos.usaBottom ? 'auto'   : pos.top,
               left:   pos.left,
             }}
-            onMouseLeave={interativo ? esconde : undefined}
+            onMouseEnter={interativo ? () => { sobreCardRef.current = true } : undefined}
+            onMouseLeave={interativo ? () => { sobreCardRef.current = false; esconde() } : undefined}
           >
             {titulo && <p className="tg-titulo">{titulo}</p>}
             <div className="tg-descricao">{descricao}</div>

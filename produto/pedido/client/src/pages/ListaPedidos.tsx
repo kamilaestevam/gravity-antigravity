@@ -3701,11 +3701,17 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   saldo_itens_do_pedido: {
     render: (row: PedidoItem) => {
-      const qtd = Math.max(0, (row.quantidade_inicial_item_pedido ?? 0) - (row.quantidade_transferida_item_pedido ?? 0))
+      const qtd = Math.max(0, (row.quantidade_inicial_item_pedido ?? 0) - (row.quantidade_pronta_total_item_pedido ?? 0))
       return (
-        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
-          {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}
-        </span>
+        <TooltipGlobal
+          titulo="Saldo do Pedido"
+          descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
+          interativo
+        >
+          <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
+            {fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0))}
+          </span>
+        </TooltipGlobal>
       )
     },
   },

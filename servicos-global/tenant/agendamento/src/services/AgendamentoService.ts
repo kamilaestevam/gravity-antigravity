@@ -74,7 +74,7 @@ export class AgendamentoService {
   }
 
   async notificarReserva(reserva: any) {
-    const NOTIFICACOES_URL = process.env.NOTIFICACOES_API_URL ?? 'http://localhost:8013/api/v1/notificacoes'
+    const NOTIFICACOES_URL = process.env.NOTIFICACOES_API_URL ?? 'http://localhost:3001/api/v1/notificacoes'
     
     // Tentativa de integração com Notificações (fire and forget ou aguardar sucesso)
     try {

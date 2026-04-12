@@ -1,7 +1,7 @@
 /**
  * index.ts — Pedido Express Server
  * Localização canônica: produto/pedido/server/
- * Porta: 8026
+ * Porta: 8030
  * Skill: antigravity-criar-produto (Passo 7 — middlewares na ordem correta)
  *
  * Rotas CRUD (processos-core):
@@ -45,7 +45,7 @@ import { openapiRouter } from './routes/openapi.js'
 import { createProductAuditPlugin } from '../../../../servicos-global/tenant/historico-global/src/product-audit-plugin.js'
 
 const app = express()
-const PORT = process.env.PORT ?? 8026
+const PORT = process.env.PORT ?? 8030
 
 // ── 0. Security Headers ──────────────────────────────────────────────────────
 app.use(helmet({

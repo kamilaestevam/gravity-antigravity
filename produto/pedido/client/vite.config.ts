@@ -51,13 +51,13 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:8026',
+        target: 'http://localhost:8030',
         changeOrigin: true,
         timeout: 120000,
         proxyTimeout: 120000,
       },
       '/historico-api': {
-        target: 'http://localhost:8012',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         rewrite: (path: string) => path.replace(/^\/historico-api/, ''),
       },

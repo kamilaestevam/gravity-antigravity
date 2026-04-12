@@ -31,3 +31,8 @@ historicoRouter.get('/alert-rules', listRules)
 historicoRouter.post('/alert-rules', createRule)
 historicoRouter.put('/alert-rules/:id', updateRule)
 historicoRouter.delete('/alert-rules/:id', deleteRule)
+
+// ── Super-servidor: router com prefixo absoluto ───────────────────────────────
+const _serviceRouter = Router()
+_serviceRouter.use('/api/v1/historico', historicoRouter)
+export { _serviceRouter as historicoServiceRouter }

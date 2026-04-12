@@ -20,7 +20,7 @@ export default defineConfig({
     port: 5010,
     proxy: {
       '/api/v1/dashboard': {
-        target: 'http://localhost:8010',
+        target: 'http://localhost:3001',
         changeOrigin: true,
       },
     },

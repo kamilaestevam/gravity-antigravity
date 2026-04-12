@@ -38,7 +38,7 @@ export interface AuditLogPayload {
 
 const HISTORICO_URL =
   process.env.HISTORICO_URL ??
-  'http://localhost:8012'
+  'http://localhost:3001'
 
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 

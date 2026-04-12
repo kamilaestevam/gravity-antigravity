@@ -157,7 +157,7 @@ describe('AlertEngine.checkAlerts', () => {
 
     expect(fetchMock).toHaveBeenCalledOnce()
     const [url, options] = fetchMock.mock.calls[0]
-    expect(url).toBe('http://localhost:8013/api/v1/notificacoes')
+    expect(url).toBe('http://localhost:3001/api/v1/notificacoes')
     expect(options.method).toBe('POST')
     expect(options.headers['Content-Type']).toBe('application/json')
     expect(options.headers['x-tenant-id']).toBe('tenant-1')

@@ -16,3 +16,8 @@ router.use('/alerts', alertRouter)
 router.use('/share', shareRouter)
 
 export { router as dashboardRouter }
+
+// ── Super-servidor: router com prefixo absoluto ───────────────────────────────
+const serviceRouter = Router()
+serviceRouter.use('/api/v1/dashboard', router)
+export { serviceRouter as dashboardServiceRouter }

@@ -41,8 +41,7 @@ interface AlertCheckResult {
 // Anti-spam: 1 hora entre disparos consecutivos do mesmo alerta
 const ALERT_COOLDOWN_MS = 60 * 60 * 1000
 
-// Porta do serviço de notificações (contracts.json: 8013)
-const NOTIFICACOES_URL = 'http://localhost:8013/api/v1/notificacoes'
+const NOTIFICACOES_URL = 'http://localhost:3001/api/v1/notificacoes'
 
 // ---------------------------------------------------------------------------
 // Helpers de avaliação de condição

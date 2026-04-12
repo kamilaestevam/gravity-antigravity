@@ -76,3 +76,10 @@ router.get('/stream', requireTenantAuth, (req: Request, res: Response) => {
 })
 
 export const whatsappRoutes = router
+
+// ── Super-servidor: router com prefixo absoluto ───────────────────────────────
+// ATENÇÃO: o webhook Meta (/api/v1/whatsapp/webhook) é externo — não usa x-internal-key.
+// A autenticação interna das rotas protegidas é feita por requireTenantAuth dentro deste router.
+const serviceRouter = Router()
+serviceRouter.use('/api/v1/whatsapp', whatsappRoutes)
+export { serviceRouter as whatsappServiceRouter }

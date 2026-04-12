@@ -8,40 +8,37 @@
     "financeiro-comex"
   ],
   "services": {
+    "_nota": "Todos os serviços tenant rodam em processo único na porta 3001 (super-servidor).",
+    "tenant-server": {
+      "baseUrl": "http://localhost:3001",
+      "description": "Super-servidor que agrega todos os serviços tenant abaixo"
+    },
+    "atividades": {
+      "baseUrl": "http://localhost:3001",
+      "pathPrefix": "/api/v1/atividades"
+    },
+    "cronometro": {
+      "baseUrl": "http://localhost:3001",
+      "pathPrefix": "/api/v1/timers"
+    },
+    "email": {
+      "baseUrl": "http://localhost:3001",
+      "pathPrefix": "/api/v1/email"
+    },
+    "gabi": {
+      "baseUrl": "http://localhost:3001",
+      "pathPrefix": "/api/v1/gabi"
+    },
     "dashboard": {
-      "baseUrl": "http://localhost:8010",
+      "baseUrl": "http://localhost:3001",
       "pathPrefix": "/api/v1/dashboard"
     },
     "relatorios": {
-      "baseUrl": "http://localhost:8011",
+      "baseUrl": "http://localhost:3001",
       "pathPrefix": "/api/v1/relatorios"
     },
-    "atividades": {
-      "baseUrl": "http://localhost:8012",
-      "pathPrefix": "/api/v1/atividades"
-    },
-    "notificacoes": {
-      "baseUrl": "http://localhost:8013",
-      "pathPrefix": "/api/v1/notificacoes"
-    },
-    "agendamento": {
-      "baseUrl": "http://localhost:8018",
-      "pathPrefix": "/api/v1/agendamento"
-    },
-    "gabi": {
-      "baseUrl": "http://localhost:8000",
-      "pathPrefix": "/api/v1/gabi"
-    },
-    "api-cockpit": {
-      "baseUrl": "http://localhost:8016",
-      "pathPrefix": "/api/v1/api-cockpit"
-    },
-    "conector-erp": {
-      "baseUrl": "http://localhost:8017",
-      "pathPrefix": "/api/v1/conector-erp"
-    },
     "historico": {
-      "baseUrl": "http://localhost:8012",
+      "baseUrl": "http://localhost:3001",
       "pathPrefix": "/api/v1/historico",
       "endpoints": {
         "logs": {
@@ -62,9 +59,29 @@
         }
       }
     },
+    "notificacoes": {
+      "baseUrl": "http://localhost:3001",
+      "pathPrefix": "/api/v1/notificacoes"
+    },
+    "agendamento": {
+      "baseUrl": "http://localhost:3001",
+      "pathPrefix": "/api/v1/agendamento"
+    },
+    "preferencias-usuario": {
+      "baseUrl": "http://localhost:3001",
+      "pathPrefix": "/api/v1/preferencias"
+    },
     "whatsapp": {
-      "baseUrl": "http://localhost:8019",
+      "baseUrl": "http://localhost:3001",
       "pathPrefix": "/api/v1/whatsapp"
+    },
+    "api-cockpit": {
+      "baseUrl": "http://localhost:8016",
+      "pathPrefix": "/api/v1/api-cockpit"
+    },
+    "conector-erp": {
+      "baseUrl": "http://localhost:8017",
+      "pathPrefix": "/api/v1/conector-erp"
     },
     "simula-custo": {
       "baseUrl": "http://localhost:8020",
@@ -73,14 +90,6 @@
     "helpdesk": {
       "baseUrl": "http://localhost:8024",
       "pathPrefix": "/api/v1/helpdesk"
-    },
-    "cronometro": {
-      "baseUrl": "http://localhost:8021",
-      "pathPrefix": "/api/v1/cronometro"
-    },
-    "email": {
-      "baseUrl": "http://localhost:8022",
-      "pathPrefix": "/api/v1/email"
     },
     "bid-frete": {
       "baseUrl": "http://localhost:8023",
@@ -91,7 +100,7 @@
       "pathPrefix": "/api/v1/bid-cambio"
     },
     "pedido": {
-      "baseUrl": "http://localhost:8026",
+      "baseUrl": "http://localhost:8030",
       "pathPrefix": "/api/v1/pedidos"
     },
     "lpco": {

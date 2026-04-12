@@ -8,7 +8,8 @@
  * Configuração: preferências por usuário via /api/v1/pedidos/kanban/preferencias
  */
 
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { KanbanGlobal } from '@nucleo/kanban-global'
 import type { KanbanItem } from '@nucleo/kanban-global'
 import {
@@ -22,13 +23,15 @@ import {
   CurrencyDollar,
   MagnifyingGlass,
   Tag,
-  X,
   ArrowSquareOut,
   Package,
   Scales,
   CalendarCheck,
   CalendarX,
+  X,
+  Bell,
 } from '@phosphor-icons/react'
+import { BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { pedidoApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
 import type { Pedido, StatusPedido, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
 import { KANBAN_PADRAO, STATUS_PEDIDO_LABELS } from '../shared/types'
@@ -193,15 +196,12 @@ function CardPedido({ item, cardConfig }: { item: PedidoKanbanItem; cardConfig: 
 
 // ── Modal Kanban Pedido ───────────────────────────────────────────────────────
 
-type ModalAba = 'pedido' | 'quantidades' | 'datas' | 'lembrete'
-
 interface ModalKanbanPedidoProps {
   pedido: Pedido | null
   aberto: boolean
   colunas: typeof COLUNAS_FALLBACK
   preferencias: KanbanPreferencias | null
   onFechar: () => void
-  onSalvarStatus: (novoStatus: string) => void
 }
 
 function ModalKanbanPedido({
@@ -210,143 +210,124 @@ function ModalKanbanPedido({
   colunas,
   preferencias,
   onFechar,
-  onSalvarStatus,
 }: ModalKanbanPedidoProps) {
   const navigate = useNavigate()
-  const [abaAtiva, setAbaAtiva] = useState<ModalAba>('pedido')
-  const [novoStatus, setNovoStatus] = useState('')
-  const overlayRef = useRef<HTMLDivElement>(null)
+  const [abaAtiva, setAbaAtiva] = useState('pedido')
 
   useEffect(() => {
-    if (pedido) setNovoStatus(pedido.status)
-    setAbaAtiva('pedido')
+    if (pedido) setAbaAtiva('pedido')
   }, [pedido])
+
+  // ESC + scroll lock
+  useEffect(() => {
+    if (!aberto) return
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onFechar() }
+    document.addEventListener('keydown', handler)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', handler)
+      document.body.style.overflow = ''
+    }
+  }, [aberto, onFechar])
 
   if (!aberto || !pedido) return null
 
   const prefs = preferencias ?? KANBAN_PADRAO
 
-  // Campos visíveis por aba (respeitando visivel: false)
-  const camposPedido     = (prefs.abas.find(a => a.aba === 'pedido')?.campos     ?? KANBAN_PADRAO.abas[0].campos).filter(c => c.visivel)
-  const camposQuantidades = (prefs.abas.find(a => a.aba === 'quantidades')?.campos ?? KANBAN_PADRAO.abas[1].campos).filter(c => c.visivel)
-  const camposDatas      = (prefs.abas.find(a => a.aba === 'datas')?.campos      ?? KANBAN_PADRAO.abas[2].campos).filter(c => c.visivel)
+  const camposPedido      = (prefs.abas.find(a => a.aba === 'pedido')?.campos      ?? KANBAN_PADRAO.abas[0].campos).filter(c => c.visivel)
+  const camposQuantidades = (prefs.abas.find(a => a.aba === 'quantidades')?.campos  ?? KANBAN_PADRAO.abas[1].campos).filter(c => c.visivel)
+  const camposDatas       = (prefs.abas.find(a => a.aba === 'datas')?.campos        ?? KANBAN_PADRAO.abas[2].campos).filter(c => c.visivel)
 
-  function handleOverlayClick(e: React.MouseEvent) {
-    if (e.target === overlayRef.current) onFechar()
-  }
-
-  function handleSalvar() {
-    if (pedido && novoStatus && novoStatus !== pedido.status) {
-      onSalvarStatus(novoStatus)
-    }
-    onFechar()
-  }
+  const colunaAtual  = colunas.find(c => c.key === pedido.status)
+  const statusCor    = colunaAtual?.color ?? '#64748b'
+  const statusRotulo = colunaAtual?.label ?? pedido.status
 
   function abrirNoCampo(campo: string) {
-    navigate(`/pedidos`, {
-      state: {
-        openPedidoId:  pedido!.id,
-        editCampo:     campo,
-        numeroPedido:  pedido!.numero_pedido,
-      },
-    })
+    navigate('/pedidos', { state: { openPedidoId: pedido!.id, editCampo: campo, numeroPedido: pedido!.numero_pedido } })
     onFechar()
   }
 
   function abrirCompleto() {
-    navigate(`/pedidos`, {
-      state: { numeroPedido: pedido!.numero_pedido },
-    })
+    navigate('/pedidos', { state: { numeroPedido: pedido!.numero_pedido } })
     onFechar()
   }
 
-  const ABAS: { id: ModalAba; label: string }[] = [
-    { id: 'pedido',      label: 'Pedido'      },
-    { id: 'quantidades', label: 'Quantidades' },
-    { id: 'datas',       label: 'Datas'       },
-    { id: 'lembrete',    label: 'Lembrete'    },
+  const ABAS_MODAL = [
+    { id: 'pedido',      rotulo: 'Pedido',      icone: <PencilSimple size={13} weight="duotone" /> },
+    { id: 'quantidades', rotulo: 'Quantidades', icone: <Package      size={13} weight="duotone" /> },
+    { id: 'datas',       rotulo: 'Datas',        icone: <CalendarBlank size={13} weight="duotone" /> },
+    { id: 'lembrete',    rotulo: 'Lembrete',     icone: <Bell         size={13} weight="duotone" /> },
   ]
 
-  return (
-    <div className="kbp-modal-overlay" ref={overlayRef} onClick={handleOverlayClick}>
-      <div className="kbp-modal">
-        {/* Header */}
-        <div className="kbp-modal-header">
+  const hoje = new Date()
+
+  const modal = (
+    <div className="kbp-modal-overlay" onClick={e => { if (e.target === e.currentTarget) onFechar() }}>
+      <div className="kbp-modal-dialog" role="dialog" aria-modal="true" aria-label={pedido.numero_pedido}>
+
+        {/* ── Header ── */}
+        <div className="kbp-modal-cabecalho">
           <div className="kbp-modal-titulo-wrap">
             <span className="kbp-modal-numero">{pedido.numero_pedido}</span>
             <span className={`kbp-modal-tipo kbp-modal-tipo--${pedido.tipo_operacao}`}>
               {pedido.tipo_operacao === 'importacao' ? '↓ Importação' : '↑ Exportação'}
             </span>
           </div>
-          <button type="button" className="kbp-modal-fechar" onClick={onFechar} aria-label="Fechar">
-            <X size={18} weight="bold" />
+          <div className="kbp-modal-status-row">
+            <span className="kbp-modal-status-label">STATUS</span>
+            <button
+              type="button"
+              className="kbp-modal-status-badge kbp-modal-campo--clicavel"
+              onClick={() => abrirNoCampo('status')}
+              title="Clique para editar na lista"
+              style={{ color: statusCor, background: `${statusCor}1a`, borderColor: `${statusCor}40` }}
+            >
+              <span className="kbp-modal-status-dot" style={{ background: statusCor }} />
+              {statusRotulo}
+              <PencilSimple size={10} weight="bold" className="kbp-modal-campo-edit-icon" />
+            </button>
+          </div>
+          <button className="kbp-modal-btn-fechar" onClick={onFechar} aria-label="Fechar">
+            <X size={16} weight="bold" />
           </button>
         </div>
 
-        {/* Status (sempre visível) */}
-        <div className="kbp-modal-status-row">
-          <label className="kbp-modal-status-label">Status</label>
-          <select
-            className="kbp-modal-status-select"
-            value={novoStatus}
-            onChange={e => setNovoStatus(e.target.value)}
-          >
-            {colunas.map(c => (
-              <option key={c.key} value={c.key}>{c.label}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Tabs */}
-        <div className="kbp-modal-tabs">
-          {ABAS.map(aba => (
+        {/* ── Abas ── */}
+        <nav className="kbp-modal-abas" role="tablist">
+          {ABAS_MODAL.map(aba => (
             <button
               key={aba.id}
-              type="button"
-              className={`kbp-modal-tab${abaAtiva === aba.id ? ' kbp-modal-tab--ativo' : ''}`}
+              role="tab"
+              aria-selected={abaAtiva === aba.id}
+              className={`kbp-modal-aba${abaAtiva === aba.id ? ' kbp-modal-aba--ativa' : ''}`}
               onClick={() => setAbaAtiva(aba.id)}
             >
-              {aba.label}
+              {aba.icone}{aba.rotulo}
             </button>
           ))}
-        </div>
+        </nav>
 
-        {/* Conteúdo das abas */}
-        <div className="kbp-modal-body">
-
-          {/* ABA: Pedido */}
+        {/* ── Body ── */}
+        <div className="kbp-modal-body" role="tabpanel">
           {abaAtiva === 'pedido' && (
             <div className="kbp-modal-aba-grid">
               {camposPedido.map(cfg => (
-                <div
-                  key={cfg.campo}
-                  className="kbp-modal-campo kbp-modal-campo--clicavel"
-                  onClick={() => abrirNoCampo(cfg.campo)}
-                  title="Clique para editar"
-                >
+                <div key={cfg.campo} className="kbp-modal-campo kbp-modal-campo--clicavel" onClick={() => abrirNoCampo(cfg.campo)} title="Clique para editar">
                   <span className="kbp-modal-campo-label">{cfg.label}</span>
-                  <span className="kbp-modal-campo-valor">
-                    {formatarValorCampo(pedido, cfg.campo)}
-                  </span>
+                  <span className="kbp-modal-campo-valor">{formatarValorCampo(pedido, cfg.campo)}</span>
                   <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                 </div>
               ))}
             </div>
           )}
 
-          {/* ABA: Quantidades */}
           {abaAtiva === 'quantidades' && (
             <div className="kbp-modal-qtd-lista">
               {camposQuantidades.map(cfg => {
                 const val = (pedido as unknown as Record<string, unknown>)[cfg.campo]
                 const isSaldo = cfg.campo === 'saldo_itens_do_pedido'
                 return (
-                  <div
-                    key={cfg.campo}
-                    className={`kbp-modal-qtd-row kbp-modal-campo--clicavel${isSaldo ? ' kbp-modal-qtd-row--saldo' : ''}`}
-                    onClick={() => abrirNoCampo(cfg.campo)}
-                    title="Clique para ver itens"
-                  >
+                  <div key={cfg.campo} className={`kbp-modal-qtd-row kbp-modal-campo--clicavel${isSaldo ? ' kbp-modal-qtd-row--saldo' : ''}`} onClick={() => abrirNoCampo(cfg.campo)} title="Clique para ver itens">
                     <span className="kbp-modal-qtd-label">
                       {isSaldo ? <Scales size={13} weight="duotone" /> : <Package size={13} weight="duotone" />}
                       {cfg.label}
@@ -364,24 +345,17 @@ function ModalKanbanPedido({
             </div>
           )}
 
-          {/* ABA: Datas */}
           {abaAtiva === 'datas' && (
             <div className="kbp-modal-datas-lista">
               {camposDatas.map(cfg => {
                 const val = (pedido as unknown as Record<string, unknown>)[cfg.campo] as string | null
                 const d = val ? new Date(val) : null
-                const hoje = new Date()
                 const vencida = d && d < hoje && cfg.campo.includes('prevista')
                 return (
-                  <div
-                    key={cfg.campo}
-                    className="kbp-modal-data-row kbp-modal-campo--clicavel"
-                    onClick={() => abrirNoCampo(cfg.campo)}
-                    title="Clique para editar"
-                  >
+                  <div key={cfg.campo} className="kbp-modal-data-row kbp-modal-campo--clicavel" onClick={() => abrirNoCampo(cfg.campo)} title="Clique para editar">
                     <span className="kbp-modal-data-label">
                       {vencida
-                        ? <CalendarX size={13} weight="duotone" style={{ color: '#ef4444' }} />
+                        ? <CalendarX size={13} weight="duotone" className="kbp-icon-vencida" />
                         : <CalendarCheck size={13} weight="duotone" />
                       }
                       {cfg.label}
@@ -396,17 +370,10 @@ function ModalKanbanPedido({
             </div>
           )}
 
-          {/* ABA: Lembrete */}
           {abaAtiva === 'lembrete' && (
             <div className="kbp-modal-lembrete">
-              <p className="kbp-modal-lembrete-info">
-                Configure lembretes para este pedido na tela de detalhe.
-              </p>
-              <button
-                type="button"
-                className="kbp-modal-btn-abrir"
-                onClick={() => abrirCompleto()}
-              >
+              <p className="kbp-modal-lembrete-info">Configure lembretes para este pedido na tela de detalhe.</p>
+              <button type="button" className="kbp-modal-btn-abrir" onClick={abrirCompleto}>
                 <ArrowSquareOut size={15} weight="duotone" />
                 Abrir pedido completo
               </button>
@@ -414,28 +381,20 @@ function ModalKanbanPedido({
           )}
         </div>
 
-        {/* Footer */}
+        {/* ── Footer ── */}
         <div className="kbp-modal-footer">
-          <button
-            type="button"
-            className="kbp-modal-btn-abrir"
-            onClick={() => abrirCompleto()}
-          >
+          <button type="button" className="kbp-modal-btn-abrir" onClick={abrirCompleto}>
             <ArrowSquareOut size={15} weight="duotone" />
             Abrir pedido completo
           </button>
-          <div className="kbp-modal-footer-actions">
-            <button type="button" className="kbp-modal-btn-cancelar" onClick={onFechar}>
-              Cancelar
-            </button>
-            <button type="button" className="kbp-modal-btn-salvar" onClick={handleSalvar}>
-              Salvar
-            </button>
-          </div>
+          <BotaoCancelar onClick={onFechar} dirty rotulo="Fechar" />
         </div>
+
       </div>
     </div>
   )
+
+  return createPortal(modal, document.body)
 }
 
 // ── Página ────────────────────────────────────────────────────────────────────
@@ -522,11 +481,6 @@ export default function KanbanPedidos() {
     )
     await pedidoApi.alterarStatus(itemId, novaColunaKey)
     window.dispatchEvent(new CustomEvent('pedido:atualizado', { detail: { origem: 'kanban' } }))
-  }
-
-  async function handleSalvarStatus(novoStatus: string) {
-    if (!modalPedido) return
-    await handleMover(modalPedido.id, novoStatus)
   }
 
   const toolbar = (

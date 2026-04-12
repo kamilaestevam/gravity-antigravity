@@ -40,8 +40,9 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, casasDecimaisApi, type PdfTemplate } from '../shared/api'
+import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, casasDecimaisApi, paineisDashboardApi, type PdfTemplate, type DashboardPainel } from '../shared/api'
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
+import { SecaoPaineis } from './SecaoPaineis'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, PedidoStatusConfig } from '../shared/types'
 import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
@@ -374,6 +375,7 @@ const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   { tipo: 'sub',    id: 'kanban-colunas',                 label: 'Colunas',           icone: <Sliders              size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'kanban-card',                    label: 'Card',              icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'kanban-modal',                   label: 'Modal',             icone: <Columns              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'dashboard-paineis',              label: 'Dashboard Painéis', icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
   // ── PEDIDO ─────────────────────────────────────────────────────────────────
   { tipo: 'grupo',  label: 'PEDIDO' },
   { tipo: 'item',   id: 'status',            label: 'Status',         icone: <Tag                  size={15} weight="duotone" />, ativo: true },
@@ -1606,6 +1608,80 @@ export default function Configuracoes() {
     setCategCriando(false)
   }
 
+  // ── Dashboard Painéis state ───────────────────────────────────────────────
+
+  const [paineis,        setPaineis]        = useState<DashboardPainel[]>([])
+  const [pendingPaineis, setPendingPaineis] = useState<DashboardPainel[]>([])
+  const [paineisLoading, setPaineisLoading] = useState(false)
+  const paineisDirty = JSON.stringify(pendingPaineis) !== JSON.stringify(paineis)
+
+  useEffect(() => {
+    if (categoria !== 'dashboard-paineis') return
+    if (paineis.length > 0) return
+    setPaineisLoading(true)
+    paineisDashboardApi.listar()
+      .then(res => { setPaineis(res.data); setPendingPaineis(res.data) })
+      .catch(() => {})
+      .finally(() => setPaineisLoading(false))
+  }, [categoria])
+
+  function paineisToggleVisivel(id: string) {
+    setPendingPaineis(prev => prev.map(p => p.id === id ? { ...p, is_visivel: !p.is_visivel } : p))
+  }
+
+  function paineisRenomear(id: string, nome: string) {
+    setPendingPaineis(prev => prev.map(p => p.id === id ? { ...p, nome } : p))
+  }
+
+  function paineisReordenar(ids: string[]) {
+    const reordenado = ids.map(id => pendingPaineis.find(p => p.id === id)!).filter(Boolean)
+    setPendingPaineis(reordenado)
+  }
+
+  function paineisDeletar(id: string) {
+    if (pendingPaineis.length <= 1) return
+    paineisDashboardApi.deletar(id)
+      .then(() => {
+        const atualizados = pendingPaineis.filter(p => p.id !== id)
+        setPaineis(atualizados)
+        setPendingPaineis(atualizados)
+      })
+      .catch(() => {})
+  }
+
+  function paineisCriar(nome: string) {
+    paineisDashboardApi.criar(nome)
+      .then(res => {
+        const atualizados = [...pendingPaineis, res.data]
+        setPaineis(atualizados)
+        setPendingPaineis(atualizados)
+      })
+      .catch(() => {})
+  }
+
+  async function paineisSalvar() {
+    // Persiste visibilidade, nomes e reordenação
+    await Promise.all(
+      pendingPaineis.map((p, idx) => {
+        const original = paineis.find(o => o.id === p.id)
+        const changed = !original
+          || original.is_visivel !== p.is_visivel
+          || original.nome !== p.nome
+          || paineis.indexOf(original) !== idx
+        if (!changed) return Promise.resolve()
+        return paineisDashboardApi.atualizar(p.id, { nome: p.nome, is_visivel: p.is_visivel })
+      }),
+    )
+    if (pendingPaineis.map(p => p.id).join() !== paineis.map(p => p.id).join()) {
+      await paineisDashboardApi.reordenar(pendingPaineis.map(p => p.id))
+    }
+    setPaineis(pendingPaineis)
+  }
+
+  function paineisDescartar() {
+    setPendingPaineis(paineis)
+  }
+
   // ── Kanban state ─────────────────────────────────────────────────────────
 
   const [kanbanPrefs, setKanbanPrefs]           = useState<KanbanPreferencias | null>(null)
@@ -2244,6 +2320,24 @@ export default function Configuracoes() {
                 <BotaoSalvar   dirty={tabelaDirty} rotulo="Salvar"           onClick={salvarTabelaConfig} />
               </div>
             </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ DASHBOARD PAINÉIS ════════════════════════ */}
+        {categoria === 'dashboard-paineis' && (
+          <div className="cfg-cards-wrapper">
+            <SecaoPaineis
+              paineis={pendingPaineis}
+              loading={paineisLoading}
+              dirty={paineisDirty}
+              onReordenar={paineisReordenar}
+              onToggleVisivel={paineisToggleVisivel}
+              onRenomear={paineisRenomear}
+              onDeletar={paineisDeletar}
+              onCriar={paineisCriar}
+              onSalvar={paineisSalvar}
+              onDescartar={paineisDescartar}
+            />
           </div>
         )}
 

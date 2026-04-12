@@ -687,7 +687,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     editavel: true,
     tooltipTitulo: 'Referência do Importador',
-    tooltipDescricao: 'Código de referência interna do importador para o pedido',
+    tooltipDescricao: 'Código interno do importador para identificar o pedido. Propagado automaticamente para todos os itens.',
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []

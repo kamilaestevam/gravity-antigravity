@@ -733,8 +733,9 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'NCM',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'NCM',
-    tooltipDescricao: 'Nomenclatura Comum do Mercosul — quantidade de NCMs distintos nos itens do pedido',
+    tooltipDescricao: 'Nomenclatura Comum do Mercosul dos itens do pedido. Quando há NCMs diferentes entre itens, todos são exibidos com alerta.',
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []
@@ -2122,7 +2123,13 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     label: 'NCM',
     tipo: 'texto',
     grupo: 'Identificação',
-    render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm}</span>,
+    render: (_val: unknown, row: PedidoItem) => {
+      const digits = (row.ncm ?? '').replace(/\D/g, '')
+      const formatted = digits.length === 8
+        ? `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6, 8)}`
+        : (row.ncm ?? '—')
+      return <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{formatted}</span>
+    },
   },
   {
     key: 'descricao_item',

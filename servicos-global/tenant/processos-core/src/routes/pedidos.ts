@@ -154,6 +154,10 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
       ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
       : (pedido.quantidade_pronta_itens_pedido_total ?? null),
+    // Virtual: somatório de quantidade_cancelada dos itens (não persistido no Pedido)
+    quantidade_cancelada_total_pedido: Array.isArray(itens)
+      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_cancelada_item_pedido ?? 0), 0)
+      : (pedido.quantidade_cancelada_total_pedido ?? null),
     // Virtual: contagem de NCMs distintos nos itens do pedido
     ncms_distintos_count: Array.isArray(itens)
       ? new Set(itens.map((i: PedidoItemRaw) => i.ncm).filter(Boolean)).size
@@ -896,10 +900,9 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
     }
 
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const item = await req.prisma.pedidoItem.findFirst({
-      where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id, company_id },
+      where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id },
     })
 
     if (!item) {
@@ -947,9 +950,8 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       throw new AppError(400, 'tipo_operacao deve ser "importacao" ou "exportacao"')
     }
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
     const item = await req.prisma.pedidoItem.findFirst({
-      where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id, company_id },
+      where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id },
     })
     if (!item) throw new AppError(404, 'Item do pedido nao encontrado')
     const updated = await req.prisma.pedidoItem.update({
@@ -967,10 +969,9 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
 pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const tenant_id = req.headers['x-tenant-id'] as string
-    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
 
     const item = await req.prisma.pedidoItem.findFirst({
-      where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id, company_id },
+      where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id },
     })
 
     if (!item) {

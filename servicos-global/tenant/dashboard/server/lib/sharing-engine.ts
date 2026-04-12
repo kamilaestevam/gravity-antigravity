@@ -29,7 +29,7 @@ interface ShareResult {
 // ---------------------------------------------------------------------------
 
 const EMAIL_URL = 'http://localhost:8022/api/v1/email/enviar'
-const WHATSAPP_URL = 'http://localhost:8019/api/v1/whatsapp/enviar'
+const WHATSAPP_URL = 'http://localhost:3001/api/v1/whatsapp/enviar'
 
 // ---------------------------------------------------------------------------
 // Helpers de notificação (fire-and-forget — não bloqueiam o retorno)

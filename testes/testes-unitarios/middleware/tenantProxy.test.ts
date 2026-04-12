@@ -48,11 +48,11 @@ import {
 const MOCK_CONTRACTS = {
   services: {
     dashboard: {
-      baseUrl   : 'http://localhost:8010',
+      baseUrl   : 'http://localhost:3001',
       pathPrefix: '/api/v1/dashboard',
     },
     relatorios: {
-      baseUrl   : 'http://localhost:8011',
+      baseUrl   : 'http://localhost:3001',
       pathPrefix: '/api/v1/relatorios',
     },
   },

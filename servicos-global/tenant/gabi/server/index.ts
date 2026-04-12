@@ -1,5 +1,5 @@
 // server/index.ts
-// Servidor Express do serviço Gabi AI — porta 8015.
+// Servidor Express do serviço Gabi AI — porta 8009.
 // Agente Gabi — Onda 3 | 10/13
 
 import 'dotenv/config'
@@ -19,7 +19,7 @@ import { usageRouter } from './routes/usage.js'
 import { fieldHelpRouter } from './routes/fieldHelp.js'
 
 const app = express()
-const PORT = Number(process.env.PORT ?? 8000)
+const PORT = Number(process.env.PORT ?? 8009)
 
 // ---------------------------------------------------------------------------
 // Middlewares globais

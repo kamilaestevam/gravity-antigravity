@@ -20,7 +20,7 @@ import { reservaRouter } from './routes/reserva.js'
 import { configRouter } from './routes/config.js'
 
 const app = express()
-const PORT = Number(process.env.PORT ?? 8014)
+const PORT = Number(process.env.PORT ?? 8018)
 
 app.use(helmet())
 app.use(express.json())

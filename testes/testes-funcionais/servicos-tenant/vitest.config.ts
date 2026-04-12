@@ -22,27 +22,18 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    include: ['testes/testes-unitarios/servicos-tenant/**/*.test.ts'],
+    include: ['testes/testes-funcionais/servicos-tenant/**/*.test.ts'],
     env: {
       NODE_ENV: 'test',
-    },
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html'],
-      reportsDirectory: path.resolve(__dirname, 'resultados'),
-      include: [
-        'servicos-global/tenant/historico-global/src/**/*.ts',
-        'servicos-global/tenant/historico-global/server/**/*.ts',
-        'servicos-global/tenant/middleware/**/*.ts',
-        'servicos-global/tenant/server/lib/**/*.ts',
-      ],
-      exclude: ['**/*.d.ts', '**/node_modules/**', '**/index.ts'],
-      thresholds: { lines: 70, functions: 70, branches: 60 },
+      INTERNAL_API_KEY: 'test-internal-key',
+      ALLOWED_ORIGINS: 'http://localhost:5179',
     },
   },
   resolve: {
     alias: {
-      '@gravity/shell': path.resolve(root, 'servicos-global/shell/index.ts'),
+      '@nucleo': path.resolve(root, 'nucleo-global'),
+      '@tenant': path.resolve(root, 'servicos-global/tenant'),
+      '@produto': path.resolve(root, 'produto'),
     },
   },
 })

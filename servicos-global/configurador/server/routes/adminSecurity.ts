@@ -120,23 +120,18 @@ adminSecurityRouter.get('/ratelimit', async (_req, res, next) => {
 // ---------------------------------------------------------------------------
 
 const SERVICES = [
-  { name: 'configurador', url: process.env.CONFIGURADOR_URL || 'http://localhost:8005' },
-  { name: 'email', url: process.env.EMAIL_SERVICE_URL || 'http://localhost:8008' },
-  { name: 'whatsapp', url: process.env.WHATSAPP_SERVICE_URL || 'http://localhost:8019' },
-  { name: 'cronometro', url: process.env.CRONOMETRO_SERVICE_URL || 'http://localhost:8007' },
-  { name: 'atividades', url: process.env.ATIVIDADES_SERVICE_URL || 'http://localhost:8012' },
-  { name: 'dashboard', url: process.env.DASHBOARD_SERVICE_URL || 'http://localhost:8010' },
-  { name: 'notificacoes', url: process.env.NOTIFICACOES_SERVICE_URL || 'http://localhost:8013' },
-  { name: 'relatorios', url: process.env.RELATORIOS_SERVICE_URL || 'http://localhost:8011' },
-  { name: 'gabi', url: process.env.GABI_SERVICE_URL || 'http://localhost:8000' },
-  { name: 'historico', url: process.env.HISTORICO_SERVICE_URL || 'http://localhost:8012' },
-  { name: 'agendamento', url: process.env.AGENDAMENTO_SERVICE_URL || 'http://localhost:8014' },
-  { name: 'api-cockpit', url: process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016' },
-  { name: 'conector-erp', url: process.env.CONECTOR_ERP_SERVICE_URL || 'http://localhost:8017' },
-  { name: 'bid-frete', url: process.env.BID_FRETE_SERVICE_URL || 'http://localhost:8023' },
-  { name: 'simula-custo', url: process.env.SIMULA_CUSTO_SERVICE_URL || 'http://localhost:8020' },
-  { name: 'processo', url: process.env.PROCESSO_SERVICE_URL || 'http://localhost:8025' },
-  { name: 'preferencias', url: process.env.PREFERENCIAS_SERVICE_URL || 'http://localhost:8014' },
+  // Serviços de infraestrutura
+  { name: 'configurador',  url: process.env.CONFIGURADOR_URL         || 'http://localhost:8005' },
+  // Super-servidor tenant — agrega atividades, cronometro, email, gabi, dashboard,
+  // relatorios, historico, notificacoes, agendamento, preferencias, whatsapp
+  { name: 'tenant-server', url: process.env.TENANT_SERVER_URL        || 'http://localhost:3001' },
+  // Serviços não-tenant (processo próprio)
+  { name: 'api-cockpit',   url: process.env.API_COCKPIT_SERVICE_URL  || 'http://localhost:8016' },
+  { name: 'conector-erp',  url: process.env.CONECTOR_ERP_SERVICE_URL || 'http://localhost:8017' },
+  // Produtos
+  { name: 'simula-custo',  url: process.env.SIMULA_CUSTO_SERVICE_URL || 'http://localhost:8020' },
+  { name: 'processo',      url: process.env.PROCESSO_SERVICE_URL      || 'http://localhost:8026' },
+  { name: 'bid-frete',     url: process.env.BID_FRETE_SERVICE_URL    || 'http://localhost:8023' },
 ]
 
 async function checkHealth(service: { name: string; url: string }): Promise<{

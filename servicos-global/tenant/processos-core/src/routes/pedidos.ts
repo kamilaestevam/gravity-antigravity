@@ -103,7 +103,7 @@ const atualizarProntaSchema = z.object({
 })
 
 const statusTransicaoSchema = z.object({
-  status: z.enum(['draft', 'aberto', 'cancelado']),
+  status: z.enum(['draft', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado']),
 })
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -630,6 +630,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'data_emissao_pedido',
   'campos_custom',
   'unidade_comercializada_pedido',
+  'status',
 ])
 
 // Campos calculados a partir dos itens — valor do cliente é ignorado; backend recalcula
@@ -674,6 +675,12 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
     // Validação de tipo_operacao
     if (campo === 'tipo_operacao' && valor !== 'importacao' && valor !== 'exportacao') {
       throw new AppError(400, 'tipo_operacao deve ser "importacao" ou "exportacao"')
+    }
+
+    // Validação de status
+    const STATUS_VALIDOS = new Set(['draft', 'aberto', 'em_andamento', 'aprovado', 'transferencia', 'consolidado', 'cancelado'])
+    if (campo === 'status' && !STATUS_VALIDOS.has(valor as string)) {
+      throw new AppError(400, `status invalido: "${valor}". Valores aceitos: ${[...STATUS_VALIDOS].join(', ')}`)
     }
 
     // Validação por tipo_operacao para campos de parceiros

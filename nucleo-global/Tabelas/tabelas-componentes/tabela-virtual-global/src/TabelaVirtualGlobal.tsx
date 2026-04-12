@@ -1612,7 +1612,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
         {estaEditando && overlayAtivo ? (
           // Overlay ativo: mostra indicador visual, o input real está no popover flutuante
           <span className="gtv-celula--editando-overlay">
-            {formatarOverlayValor(valorEditando, col.tipo, (col as GTColuna<unknown>).casasDecimais)}
+            {(col as GTColuna<unknown>).opcoes?.find(op => op.valor === String(valorEditando))?.label
+              ?? formatarOverlayValor(valorEditando, col.tipo, (col as GTColuna<unknown>).casasDecimais)}
           </span>
         ) : estaEditando ? (
           <input
@@ -1800,7 +1801,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               >
                 {estaEditando && overlayAtivo ? (
                   <span className="gtv-celula--editando-overlay">
-                    {formatarOverlayValor(valorEditandoFilho, col.tipo, mapa?.casasDecimais ?? (col as GTColuna<unknown>).casasDecimais)}
+                    {(col as GTColuna<unknown>).opcoes?.find(op => op.valor === String(valorEditandoFilho))?.label
+                      ?? formatarOverlayValor(valorEditandoFilho, col.tipo, mapa?.casasDecimais ?? (col as GTColuna<unknown>).casasDecimais)}
                   </span>
                 ) : estaEditando ? (
                   <input

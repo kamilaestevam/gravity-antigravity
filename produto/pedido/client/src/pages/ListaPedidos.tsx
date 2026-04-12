@@ -128,8 +128,10 @@ function lerSaldoFormulaAST() {
 /** Cores padrão por código de status (backend) */
 const STATUS_CORES_DEFAULT: Record<string, string> = {
   draft:         '#94a3b8',
-  aberto:        '#60a5fa',
-  transferencia: '#818cf8',
+  aberto:        '#f472b6',
+  em_andamento:  '#fb923c',
+  aprovado:      '#facc15',
+  transferencia: '#2dd4bf',
   consolidado:   '#a78bfa',
   cancelado:     '#f87171',
 }
@@ -492,10 +494,19 @@ function lerCasasDecimaisConfig(): Record<string, number> {
   return {}
 }
 
+/** Mapeamento de herança: campos de item herdam a config do pedido correspondente */
+const CASAS_HERANCA_ITEM: Record<string, string> = {
+  quantidade_item:              'quantidade_total_inicial_pedido',
+  peso_liquido_unitario_item:   'peso_liquido_total_pedido',
+  peso_bruto_unitario_item:     'peso_bruto_total_pedido',
+  cubagem_unitaria_item:        'cubagem_total_pedido',
+}
+
 /** Retorna casas decimais para um campo, respeitando config do usuário em Configurações */
 function getCasas(campo: string, padrao: number): number {
   const config = lerCasasDecimaisConfig()
-  return config[campo] ?? padrao
+  const key = CASAS_HERANCA_ITEM[campo] ?? campo
+  return config[key] ?? padrao
 }
 
 // ── Ref de alertas: carregado uma vez no mount, acessível pelos renders estáticos ──
@@ -806,12 +817,13 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     align: 'right',
-    casasDecimais: 2,
+    casasDecimais: getCasas('valor_total_pedido', 2),
     tooltipTitulo: 'Valor Total do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []
+      const casas = getCasas('valor_total_pedido', 2)
       const tooltipDescricao = 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo'
       if (itens.length === 0) {
         const moeda = row.moeda_pedido ?? 'USD'
@@ -820,7 +832,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
           <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
             <span className="gtv-celula-moeda">
               <span className="gtv-celula-moeda-badge">{moeda}</span>
-              {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+              {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
             </span>
           </TooltipGlobal>
         )
@@ -843,7 +855,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
           <span className="gtv-celula-moeda">
             <span className="gtv-celula-moeda-badge">{moeda}</span>
-            {fmtQuantidade(soma, 2)}
+            {fmtQuantidade(soma, casas)}
           </span>
         </TooltipGlobal>
       )
@@ -857,7 +869,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Inicial do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_item_pedido', 0, { titulo: 'Qtd. Inicial do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_item_pedido', getCasas('quantidade_total_inicial_pedido', 0), { titulo: 'Qtd. Inicial do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
@@ -867,7 +879,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', 0, { titulo: 'Qtd. Pronta do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', getCasas('quantidade_pronta_pedido_total', 0), { titulo: 'Qtd. Pronta do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
   },
   {
     key: 'saldo_itens_do_pedido',
@@ -889,7 +901,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
           interativo
         >
           <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-            {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+            {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0)) : '—'}
           </span>
         </TooltipGlobal>
       )
@@ -906,7 +918,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
-        {row.quantidade_transferida_total != null ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+        {row.quantidade_transferida_total != null ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_transferida_total', 0)) : '—'}
       </span>
     ),
   },
@@ -920,7 +932,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
-        {row.quantidade_cancelada_total_pedido != null ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+        {row.quantidade_cancelada_total_pedido != null ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_cancelada_total_pedido', 0)) : '—'}
       </span>
     ),
   },
@@ -940,7 +952,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'badge',
     filtravel: true,
     tooltipTitulo: 'Status do Pedido',
-    tooltipDescricao: 'Ciclo de vida: Draft, Aberto, Em Transferência, Consolidado, Cancelado',
+    tooltipDescricao: 'Ciclo de vida do pedido. Os status disponíveis e suas cores podem ser personalizados em Configurações.',
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
       const cor = getStatusCor(row.status)
@@ -2188,14 +2200,20 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'Quantidades',
     tooltipTitulo: 'Quantidade Cancelada',
     tooltipDescricao: 'Total cancelado permanentemente — subtrai do saldo inicial',
-    render: (_val: unknown, row: PedidoItem) => (
-      <span style={{
-        fontVariantNumeric: 'tabular-nums',
-        color: row.quantidade_cancelada_item_pedido > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
-      }}>
-        {fmtQuantidade(row.quantidade_cancelada_item_pedido, getCasas('quantidade_item', 0))}
-      </span>
-    ),
+    render: (_val: unknown, row: PedidoItem) => {
+      // DEV_MOCK: usa 1234.5678 quando nulo para validar casas decimais — remover após teste
+      const qtdCancelada = import.meta.env.DEV
+        ? (row.quantidade_cancelada_item_pedido ?? 1234.5678)
+        : row.quantidade_cancelada_item_pedido
+      return (
+        <span style={{
+          fontVariantNumeric: 'tabular-nums',
+          color: qtdCancelada > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
+        }}>
+          {fmtQuantidade(qtdCancelada, getCasas('quantidade_item', 0))}
+        </span>
+      )
+    },
   },
   {
     key: 'sequencia_item',
@@ -3632,18 +3650,19 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   valor_total_pedido: {
     editavel: true,
     campo: 'valor_total_itens',
-    casasDecimais: 2,
+    casasDecimais: getCasas('valor_total_pedido', 2),
     getValorEditar: (row: PedidoItem) => ({
       currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
       amount: row.valor_total_itens ?? 0,
     }),
     render: (row: PedidoItem) => {
+      const casas = getCasas('valor_total_pedido', 2)
       const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
       const num = Number(row.valor_total_itens)
       return (
         <span className="gtv-celula-moeda">
           <span className="gtv-celula-moeda-badge">{moeda}</span>
-          {row.valor_total_itens != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+          {row.valor_total_itens != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
         </span>
       )
     },
@@ -4299,7 +4318,7 @@ export default function ListaPedidos() {
               const qtd = temNulo || num == null ? null : Math.max(0, num)
               return tooltipSaldo(
                 <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-                  {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+                  {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0)) : '—'}
                 </span>
               )
             } catch {
@@ -4309,7 +4328,7 @@ export default function ListaPedidos() {
               const qtd = total != null && transf != null ? Math.max(0, total - transf - cancel) : null
               return tooltipSaldo(
                 <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-                  {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+                  {qtd != null ? fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0)) : '—'}
                 </span>
               )
             }

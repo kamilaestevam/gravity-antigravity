@@ -58,11 +58,11 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
     const handler = (e: MouseEvent) => {
       const { clientX: x, clientY: y } = e
 
-      // Verifica se está sobre o card
+      // Verifica se está sobre o card (+ 14px de buffer acima e abaixo para cobrir o gap de 8px)
       const card = cardRef.current
       if (card) {
         const cr = card.getBoundingClientRect()
-        if (x >= cr.left && x <= cr.right && y >= cr.top && y <= cr.bottom) return
+        if (x >= cr.left - 8 && x <= cr.right + 8 && y >= cr.top - 14 && y <= cr.bottom + 14) return
       }
 
       // Verifica se está sobre a linha <tr> do trigger

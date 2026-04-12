@@ -695,6 +695,14 @@ export default function DashboardPedido() {
 
   const [kpisData,     setKpisData]     = useState<DashboardKpis | null>(null)
   const [prevKpisData, setPrevKpisData] = useState<DashboardKpis | null>(null)
+
+  // T-10: compactStatus ativo em viewports < 1200px (Design System responsivo)
+  const [compactStatus, setCompactStatus] = useState(() => window.innerWidth < 1200)
+  useEffect(() => {
+    function handleResize() { setCompactStatus(window.innerWidth < 1200) }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
@@ -765,12 +773,21 @@ export default function DashboardPedido() {
   useEffect(() => {
     setLoadingData(true)
     const prevRange = getPrevDateRange(slicers.period)
+
+    // Período customizado: custom:YYYY-MM-DD:YYYY-MM-DD → passa range explícito para a API
+    const customRange = slicers.period.startsWith('custom:')
+      ? (() => {
+          const [, s, e] = slicers.period.split(':')
+          return s && e ? { from: `${s}T00:00:00.000Z`, to: `${e}T23:59:59.999Z` } : undefined
+        })()
+      : undefined
+
     Promise.all([
-      dashboardApi.kpis(slicers.period),
+      dashboardApi.kpis(slicers.period, customRange),
       dashboardApi.kpis(slicers.period, prevRange),
       dashboardApi.trend('12m', 'month'),
       // Insights isolados: falha não cancela KPIs nem gráficos
-      dashboardApi.insights(slicers.period).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
+      dashboardApi.insights(slicers.period, customRange).catch(() => ({ period: '', role: '', insights: [] as GabiInsightItem[] })),
     ])
       .then(([kpis, prevKpis, trend, insightsRes]) => {
         setKpisData(kpis)
@@ -1096,17 +1113,48 @@ export default function DashboardPedido() {
 
   const STATUS_OPTIONS = ['abertos', 'em_andamento', 'atrasados', 'concluidos']
 
-  const STATUS_LABELS: Record<string, string> = {
-    abertos:       'Abertos',
-    em_andamento:  'Em Andamento',
-    atrasados:     'Atrasados',
-    concluidos:    'Concluídos',
+  // Lê cores e labels definidas pelo usuário em Configurações (pedido:status_config)
+  // Mesma fonte usada pela Lista e pelo Kanban — nunca hardcoded.
+  const statusConfig = useMemo((): Record<string, { label: string; cor: string }> => {
+    try {
+      const raw = localStorage.getItem('pedido:status_config')
+      if (raw) return JSON.parse(raw)
+    } catch { /* fallback */ }
+    return {}
+  }, [])
+
+  // Converte hex → rgba para o background dos chips ativos
+  function hexToRgba(hex: string, alpha: number): string {
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    return `rgba(${r},${g},${b},${alpha})`
   }
 
-  const STATUS_ACTIVE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-    atrasados: { bg: 'rgba(239,68,68,0.15)', border: '#ef4444', text: '#ef4444' },
-    abertos:   { bg: 'rgba(245,158,11,0.15)', border: '#f59e0b', text: '#f59e0b' },
+  // Mapeamento: chave do filtro do dashboard → id do status no localStorage
+  const STATUS_CONFIG_MAP: Record<string, string> = {
+    abertos:      'aberto',
+    em_andamento: 'em_andamento',
+    atrasados:    'atrasados',   // calculado — sem entrada no config, usa fallback
+    concluidos:   'consolidado',
   }
+
+  const STATUS_LABELS: Record<string, string> = {
+    abertos:      statusConfig['aberto']?.label       ?? 'Abertos',
+    em_andamento: statusConfig['em_andamento']?.label  ?? 'Em Andamento',
+    atrasados:    statusConfig['atrasados']?.label     ?? 'Atrasados',
+    concluidos:   statusConfig['consolidado']?.label   ?? 'Concluídos',
+  }
+
+  const STATUS_ACTIVE_COLORS: Record<string, { bg: string; border: string; text: string }> = Object.fromEntries(
+    STATUS_OPTIONS.map(opt => {
+      const configId = STATUS_CONFIG_MAP[opt]
+      const cor = statusConfig[configId]?.cor
+      if (cor) return [opt, { bg: hexToRgba(cor, 0.15), border: cor, text: cor }]
+      // Fallback para status sem config (ex: atrasados = calculado)
+      return [opt, { bg: 'rgba(239,68,68,0.15)', border: '#ef4444', text: '#ef4444' }]
+    })
+  )
 
   return (
     <div style={{ padding: '1.5rem' }}>
@@ -1132,12 +1180,13 @@ export default function DashboardPedido() {
               style={onboardingBtnGhost}
               onClick={() => { setEditMode(true); setQueryBuilderOpen(true) }}
             >
-              Criar widget →
+              Criar Dashboard →
             </button>
           </div>
         </div>
       </div>
 
+      {/* T-07/08: statusCounts do kpisData em memória | T-10: compactStatus responsivo */}
       <DashboardToolbar
         slicers={slicers}
         onPeriodChange={setPeriod}
@@ -1149,6 +1198,14 @@ export default function DashboardPedido() {
         statusOptions={STATUS_OPTIONS}
         statusLabels={STATUS_LABELS}
         statusActiveColors={STATUS_ACTIVE_COLORS}
+        statusCounts={kpisData ? {
+          todos:        kpisData.total_pedidos,
+          abertos:      kpisData.pedidos_abertos,
+          em_andamento: kpisData.pedidos_em_andamento,
+          atrasados:    kpisData.pedidos_atrasados,
+          concluidos:   kpisData.pedidos_consolidados,
+        } : undefined}
+        compactStatus={compactStatus}
         onAddWidget={() => setQueryBuilderOpen(true)}
         onSuggestionsOpen={() => setSuggestionsOpen(true)}
       />
@@ -1159,8 +1216,8 @@ export default function DashboardPedido() {
         editMode={editMode}
         onLayoutChange={(layouts) => {
           if (!editMode) return
-          const lg = (layouts as any).lg ?? []
-          updateLayout(lg.map((item: any) => ({
+          const lg = layouts.lg ?? []
+          updateLayout(lg.map((item) => ({
             id: item.i,
             position: { x: item.x, y: item.y, w: item.w, h: item.h },
           })))

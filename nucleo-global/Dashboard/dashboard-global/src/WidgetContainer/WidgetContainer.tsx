@@ -11,7 +11,7 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { DotsThreeVertical, PencilSimple, Trash, DownloadSimple, Warning, ArrowClockwise } from '@phosphor-icons/react'
+import { DotsThreeVertical, PencilSimple, Trash, DownloadSimple, Warning, ArrowClockwise, DotsSixVertical } from '@phosphor-icons/react'
 import type { DashboardWidgetConfig, WidgetResult } from '../tipos.js'
 
 export interface WidgetContainerProps {
@@ -153,7 +153,7 @@ export function WidgetContainer({
     ...(hovered && isClickable ? styles.containerClickableHover : hovered ? styles.containerHover : {}),
     ...(isClickable ? { cursor: 'pointer' } : {}),
     // Aplicado por último para garantir que borderColor do hover não sobrescreva o accent
-    ...(accentColor ? { borderTop: `2px solid ${accentColor}` } : {}),
+    ...(!editMode && accentColor ? { borderTop: `2px solid ${accentColor}` } : {}),
     ...(highlighted ? { animation: 'wc-highlight-ring 1.4s ease-in-out 3 forwards' } : {}),
     transition: 'box-shadow 0.2s ease',
   }
@@ -163,6 +163,12 @@ export function WidgetContainer({
       {/* Cabeçalho com drag handle */}
       <div className={editMode ? 'db-drag-handle' : undefined} style={headerStyle}>
         <div style={styles.titleArea}>
+          {/* Ícone de arraste visível no modo edição */}
+          {editMode && (
+            <span style={styles.dragHandleIcon} title="Arraste para reorganizar">
+              <DotsSixVertical size={16} weight="bold" />
+            </span>
+          )}
           {icone && <span style={styles.iconeWrap}>{icone}</span>}
           <span style={styles.title}>{widget.title}</span>
 
@@ -249,7 +255,16 @@ const styles = {
     borderColor: 'var(--border-accent)',
   },
   containerEditMode: {
-    border: '1px dashed var(--border-accent)',
+    border: '2px dashed var(--accent)',
+    boxShadow: '0 0 0 3px rgba(99,102,241,0.12)',
+  },
+  dragHandleIcon: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    color: 'var(--accent)',
+    opacity: 0.7,
+    flexShrink: 0,
+    cursor: 'grab',
   },
   iconeWrap: {
     display: 'inline-flex',

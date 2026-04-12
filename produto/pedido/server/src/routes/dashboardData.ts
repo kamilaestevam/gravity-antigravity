@@ -61,6 +61,13 @@ async function buscarTaxasVenda(): Promise<Record<string, number>> {
 }
 
 function periodToDateRange(period: string): { from: Date; to: Date } {
+  // Período personalizado: custom:YYYY-MM-DD:YYYY-MM-DD
+  if (period.startsWith('custom:')) {
+    const [, startStr, endStr] = period.split(':')
+    if (startStr && endStr) {
+      return { from: new Date(`${startStr}T00:00:00.000Z`), to: new Date(`${endStr}T23:59:59.999Z`) }
+    }
+  }
   const to = new Date()
   const from = new Date()
   switch (period) {
@@ -135,40 +142,40 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
 
     // ── Contagens por status ───────────────────────────────────────────────────
     const total_pedidos        = pedidos.length
-    const pedidos_abertos      = pedidos.filter((p: any) => p.status === 'aberto').length
-    const pedidos_em_andamento = pedidos.filter((p: any) => p.status === 'transferencia').length
-    const pedidos_consolidados = pedidos.filter((p: any) => p.status === 'consolidado').length
-    const pedidos_cancelados      = pedidos.filter((p: any) => p.status === 'cancelado').length
-    const pedidos_draft           = pedidos.filter((p: any) => p.status === 'draft').length
-    const pedidos_sem_exportador  = pedidos.filter((p: any) => !p.importacao_exportador_id).length
-    const pedidos_importacao      = pedidos.filter((p: any) => p.tipo_operacao === 'importacao').length
-    const pedidos_exportacao      = pedidos.filter((p: any) => p.tipo_operacao === 'exportacao').length
+    const pedidos_abertos      = pedidos.filter((p) => p.status === 'aberto').length
+    const pedidos_em_andamento = pedidos.filter((p) => p.status === 'transferencia').length
+    const pedidos_consolidados = pedidos.filter((p) => p.status === 'consolidado').length
+    const pedidos_cancelados      = pedidos.filter((p) => p.status === 'cancelado').length
+    const pedidos_draft           = pedidos.filter((p) => p.status === 'draft').length
+    const pedidos_sem_exportador  = pedidos.filter((p) => !p.importacao_exportador_id).length
+    const pedidos_importacao      = pedidos.filter((p) => p.tipo_operacao === 'importacao').length
+    const pedidos_exportacao      = pedidos.filter((p) => p.tipo_operacao === 'exportacao').length
 
     // Sem campo de prazo no schema — retorna 0 para não quebrar derivadas
     const pedidos_atrasados = 0
 
     // ── Completude documental ─────────────────────────────────────────────────
-    const pedidos_sem_incoterm   = pedidos.filter((p: any) => !p.incoterm || p.incoterm.trim() === '').length
-    const pedidos_sem_fabricante = pedidos.filter((p: any) => !p.fabricante_id).length
-    const pedidos_sem_proforma   = pedidos.filter((p: any) => !p.numero_proforma || p.numero_proforma.trim() === '').length
-    const pedidos_sem_invoice    = pedidos.filter((p: any) => !p.numero_invoice || p.numero_invoice.trim() === '').length
-    const pedidos_sem_ref_imp    = pedidos.filter((p: any) => !p.referencia_importador || p.referencia_importador.trim() === '').length
+    const pedidos_sem_incoterm   = pedidos.filter((p) => !p.incoterm || p.incoterm.trim() === '').length
+    const pedidos_sem_fabricante = pedidos.filter((p) => !p.fabricante_id).length
+    const pedidos_sem_proforma   = pedidos.filter((p) => !p.numero_proforma || p.numero_proforma.trim() === '').length
+    const pedidos_sem_invoice    = pedidos.filter((p) => !p.numero_invoice || p.numero_invoice.trim() === '').length
+    const pedidos_sem_ref_imp    = pedidos.filter((p) => !p.referencia_importador || p.referencia_importador.trim() === '').length
 
     // ── Moedas distintas ──────────────────────────────────────────────────────
-    const moedas_set = new Set(pedidos.map((p: any) => p.moeda_pedido ?? 'USD'))
+    const moedas_set = new Set(pedidos.map((p) => p.moeda_pedido ?? 'USD'))
     const moedas_distintas = moedas_set.size
 
     // ── Logística ─────────────────────────────────────────────────────────────
-    const peso_bruto_total  = pedidos.reduce((s: number, p: any) => s + Number(p.peso_bruto_total_pedido ?? 0), 0)
-    const cubagem_total     = pedidos.reduce((s: number, p: any) => s + Number(p.cubagem_total_pedido ?? 0), 0)
+    const peso_bruto_total  = pedidos.reduce((s: number, p) => s + Number(p.peso_bruto_total_pedido ?? 0), 0)
+    const cubagem_total     = pedidos.reduce((s: number, p) => s + Number(p.cubagem_total_pedido ?? 0), 0)
 
     // ── Itens — cobertura cambial e cancelamentos ────────────────────────────
-    const itens_sem_cobertura   = itens.filter((i: any) => i.cobertura_cambial === 'sem_cobertura').length
-    const qtd_cancelada_total   = itens.reduce((s: number, i: any) => s + Number(i.quantidade_cancelada_item_pedido ?? 0), 0)
+    const itens_sem_cobertura   = itens.filter((i) => i.cobertura_cambial === 'sem_cobertura').length
+    const qtd_cancelada_total   = itens.reduce((s: number, i) => s + Number(i.quantidade_cancelada_item_pedido ?? 0), 0)
 
     // ── Financeiro ────────────────────────────────────────────────────────────
-    const valor_total        = pedidos.reduce((s: number, p: any) => s + Number(p.valor_total_pedido ?? 0), 0)
-    const qtd_total          = pedidos.reduce((s: number, p: any) => s + Number(p.quantidade_total_inicial_pedido ?? 0), 0)
+    const valor_total        = pedidos.reduce((s: number, p) => s + Number(p.valor_total_pedido ?? 0), 0)
+    const qtd_total          = pedidos.reduce((s: number, p) => s + Number(p.quantidade_total_inicial_pedido ?? 0), 0)
 
     // Sem campo cobertura_pendente no schema — retorna 0
     const cobertura_pendente = 0
@@ -190,11 +197,11 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
     }
 
     // ── Itens ─────────────────────────────────────────────────────────────────
-    const qtd_inicial_total     = itens.reduce((s: number, i: any) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
-    const qtd_atual_total       = itens.reduce((s: number, i: any) => s + Number(i.saldo_item_pedido ?? 0), 0)
-    const qtd_transferida_total = itens.reduce((s: number, i: any) => s + Number(i.quantidade_transferida_item_pedido ?? 0), 0)
-    const itens_prontos         = itens.reduce((s: number, i: any) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
-    const valor_itens_total     = itens.reduce((s: number, i: any) => s + Number(i.valor_total_itens ?? 0), 0)
+    const qtd_inicial_total     = itens.reduce((s: number, i) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+    const qtd_atual_total       = itens.reduce((s: number, i) => s + Number(i.saldo_item_pedido ?? 0), 0)
+    const qtd_transferida_total = itens.reduce((s: number, i) => s + Number(i.quantidade_transferida_item_pedido ?? 0), 0)
+    const itens_prontos         = itens.reduce((s: number, i) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
+    const valor_itens_total     = itens.reduce((s: number, i) => s + Number(i.valor_total_itens ?? 0), 0)
 
     res.json({
       period,
@@ -356,21 +363,21 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
     ])
 
     const total_pedidos        = pedidos.length
-    const pedidos_abertos      = pedidos.filter((p: any) => p.status === 'aberto').length
-    const pedidos_em_andamento = pedidos.filter((p: any) => p.status === 'transferencia').length
-    const pedidos_consolidados = pedidos.filter((p: any) => p.status === 'consolidado').length
-    const pedidos_cancelados   = pedidos.filter((p: any) => p.status === 'cancelado').length
+    const pedidos_abertos      = pedidos.filter((p) => p.status === 'aberto').length
+    const pedidos_em_andamento = pedidos.filter((p) => p.status === 'transferencia').length
+    const pedidos_consolidados = pedidos.filter((p) => p.status === 'consolidado').length
+    const pedidos_cancelados   = pedidos.filter((p) => p.status === 'cancelado').length
     const pedidos_atrasados    = 0  // sem campo prazo no schema atual
-    const pedidos_sem_exportador = pedidos.filter((p: any) => !p.importacao_exportador_id).length
-    const pedidos_importacao   = pedidos.filter((p: any) => p.tipo_operacao === 'importacao').length
-    const pedidos_exportacao   = pedidos.filter((p: any) => p.tipo_operacao === 'exportacao').length
+    const pedidos_sem_exportador = pedidos.filter((p) => !p.importacao_exportador_id).length
+    const pedidos_importacao   = pedidos.filter((p) => p.tipo_operacao === 'importacao').length
+    const pedidos_exportacao   = pedidos.filter((p) => p.tipo_operacao === 'exportacao').length
 
-    const valor_total          = pedidos.reduce((s: number, p: any) => s + Number(p.valor_total_pedido ?? 0), 0)
-    const qtd_inicial_total    = itens.reduce((s: number, i: any) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
-    const qtd_transferida_total = itens.reduce((s: number, i: any) => s + Number(i.quantidade_transferida_item_pedido ?? 0), 0)
-    const qtd_pronta_total     = itens.reduce((s: number, i: any) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
-    const qtd_saldo_total      = itens.reduce((s: number, i: any) => s + Number(i.saldo_item_pedido ?? 0), 0)
-    const valor_itens_total    = itens.reduce((s: number, i: any) => s + Number(i.valor_total_itens ?? 0), 0)
+    const valor_total          = pedidos.reduce((s: number, p) => s + Number(p.valor_total_pedido ?? 0), 0)
+    const qtd_inicial_total    = itens.reduce((s: number, i) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+    const qtd_transferida_total = itens.reduce((s: number, i) => s + Number(i.quantidade_transferida_item_pedido ?? 0), 0)
+    const qtd_pronta_total     = itens.reduce((s: number, i) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
+    const qtd_saldo_total      = itens.reduce((s: number, i) => s + Number(i.saldo_item_pedido ?? 0), 0)
+    const valor_itens_total    = itens.reduce((s: number, i) => s + Number(i.valor_total_itens ?? 0), 0)
     const ticket_medio         = total_pedidos > 0 ? valor_total / total_pedidos : 0
     const taxa_atraso          = 0
     const taxa_transferencia   = qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : 0

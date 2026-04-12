@@ -29,6 +29,8 @@ export default defineConfig({
     include: [
       'testes/testes-unitarios/produtos/pedido/bulkSchemas.test.ts',
       'testes/testes-unitarios/produtos/pedido/selecaoStore.test.ts',
+      'testes/testes-unitarios/produtos/pedido/kanbanColunas.test.ts',
+      'testes/testes-unitarios/produtos/pedido/kanbanColunasComponente.test.ts',
     ],
     env: {
       NODE_ENV: 'test',
@@ -47,6 +49,8 @@ export default defineConfig({
       include: [
         'produto/pedido/server/src/shared/bulkSchemas.ts',
         'produto/pedido/client/src/shared/state/selecaoStore.ts',
+        'produto/pedido/client/src/shared/kanbanUtils.ts',
+        'produto/pedido/client/src/pages/SecaoKanbanColunas.tsx',
       ],
       thresholds: {
         lines: 70,

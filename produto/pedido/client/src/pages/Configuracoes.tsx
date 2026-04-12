@@ -40,8 +40,9 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, type PdfTemplate } from '../shared/api'
-import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel } from '../shared/types'
+import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, casasDecimaisApi, type PdfTemplate } from '../shared/api'
+import { SecaoKanbanColunas } from './SecaoKanbanColunas'
+import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, PedidoStatusConfig } from '../shared/types'
 import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
 import { parsearFormula, detectarCircular } from '../shared/formulaEngine'
 import type { FormulaAST } from '../shared/formulaEngine'
@@ -357,7 +358,7 @@ type SidebarItemTipo =
   | { tipo: 'parent'; id: string; label: string; icone: React.ReactNode; ativo: boolean; filhos: string[] }
   | { tipo: 'sub';    id: string; label: string; icone: React.ReactNode; ativo: boolean }
 
-const KANBAN_FILHOS  = ['kanban-modal', 'kanban-card']
+const KANBAN_FILHOS  = ['kanban-colunas', 'kanban-card', 'kanban-modal']
 const COLUNAS_FILHOS = ['colunas-casas-decimais', 'colunas-personalizadas', 'colunas-campos-calculados']
 
 const SIDEBAR_ITEMS: SidebarItemTipo[] = [
@@ -370,8 +371,9 @@ const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   { tipo: 'sub',    id: 'colunas-personalizadas',         label: 'Personalizadas',    icone: <Columns              size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'colunas-campos-calculados',      label: 'Campos Calculados', icone: <MathOperations       size={15} weight="duotone" />, ativo: true },
   { tipo: 'parent', id: 'kanban',                         label: 'Kanban',            icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: KANBAN_FILHOS },
-  { tipo: 'sub',    id: 'kanban-modal',                   label: 'Modal',             icone: <Columns              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'kanban-colunas',                 label: 'Colunas',           icone: <Sliders              size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'kanban-card',                    label: 'Card',              icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'kanban-modal',                   label: 'Modal',             icone: <Columns              size={15} weight="duotone" />, ativo: true },
   // ── PEDIDO ─────────────────────────────────────────────────────────────────
   { tipo: 'grupo',  label: 'PEDIDO' },
   { tipo: 'item',   id: 'status',            label: 'Status',         icone: <Tag                  size={15} weight="duotone" />, ativo: true },
@@ -392,9 +394,6 @@ type CategoriaId = string
 
 interface TabelaConfig {
   linhasPorPagina: 25 | 50 | 100 | 200
-  expandirTodos: boolean
-  manterSelecao: boolean
-  exibirTotalItens: boolean
   destacarAtrasados: boolean
 }
 
@@ -487,22 +486,17 @@ interface NovaColuna {
 
 // ─── Colunas numéricas nativas — casas decimais ───────────────────────────────
 
+// Spec: mapas_pedido.pdf — apenas grupo PEDIDO; itens herdam automaticamente
 const COLUNAS_NUMERICAS = [
-  // ── Pedido (pai) ──
-  { campo: 'quantidade_total_inicial_pedido',      label: 'Quantidade Inicial',       categoria: 'Pedido', padrao: 2 },
-  { campo: 'quantidade_pronta_itens_pedido_total', label: 'Quantidade Pronta',        categoria: 'Pedido', padrao: 2 },
-  { campo: 'quantidade_cancelada_total_pedido',    label: 'Quantidade Cancelada',     categoria: 'Pedido', padrao: 2 },
-  { campo: 'quantidade_transferida_total',         label: 'Quantidade Transferida',   categoria: 'Pedido', padrao: 2 },
-  { campo: 'valor_total_pedido',                   label: 'Valor Total',              categoria: 'Pedido', padrao: 2 },
-  { campo: 'peso_liquido_total_pedido',            label: 'Peso Líquido Total',       categoria: 'Pedido', padrao: 2 },
-  { campo: 'peso_bruto_total_pedido',              label: 'Peso Bruto Total',         categoria: 'Pedido', padrao: 2 },
-  { campo: 'cubagem_total_pedido',                 label: 'Cubagem Total',            categoria: 'Pedido', padrao: 2 },
-  // ── Item (filho) ──
-  { campo: 'quantidade_item',                      label: 'Quantidades dos Itens',    categoria: 'Item',   padrao: 2 },
-  { campo: 'peso_liquido_unitario',                label: 'Peso Líquido Unitário',    categoria: 'Item',   padrao: 2 },
-  { campo: 'peso_bruto_unitario',                  label: 'Peso Bruto Unitário',      categoria: 'Item',   padrao: 2 },
-  { campo: 'cubagem_unitaria',                     label: 'Cubagem Unitária',         categoria: 'Item',   padrao: 2 },
-  { campo: 'quantidade_unidade_estatistica',       label: 'Qtd. Unidade Estatística', categoria: 'Item',   padrao: 2 },
+  { campo: 'valor_total_pedido',                    label: 'Valor Total do Pedido',          categoria: 'Pedido', padrao: 2, itemHint: 'Itens: Valor Total do Item terá as mesmas casas' },
+  { campo: 'quantidade_total_inicial_pedido',       label: 'Qtd. Inicial do Pedido',         categoria: 'Pedido', padrao: 2, itemHint: 'Itens: Qtd. Inicial, Transferida e Cancelada do item terão as mesmas casas' },
+  { campo: 'quantidade_pronta_pedido_total',        label: 'Qtd. Pronta do Pedido',          categoria: 'Pedido', padrao: 2, itemHint: null },
+  { campo: 'saldo_itens_do_pedido',                 label: 'Saldo do Pedido',                categoria: 'Pedido', padrao: 2, itemHint: null },
+  { campo: 'quantidade_transferida_total',          label: 'Qtd. Transferida do Pedido',     categoria: 'Pedido', padrao: 2, itemHint: null },
+  { campo: 'quantidade_cancelada_total_pedido',     label: 'Qtd. Cancelada do Pedido',       categoria: 'Pedido', padrao: 2, itemHint: null },
+  { campo: 'peso_liquido_total_pedido',             label: 'Peso Líquido Total do Pedido',   categoria: 'Pedido', padrao: 3, itemHint: 'Itens: Peso Líquido Unitário do item terá as mesmas casas' },
+  { campo: 'peso_bruto_total_pedido',               label: 'Peso Bruto Total do Pedido',     categoria: 'Pedido', padrao: 3, itemHint: 'Itens: Peso Bruto Unitário do item terá as mesmas casas' },
+  { campo: 'cubagem_total_pedido',                  label: 'Cubagem Total do Pedido',        categoria: 'Pedido', padrao: 3, itemHint: 'Itens: Cubagem Unitária do item terá as mesmas casas' },
 ] as const
 
 const TIPOS_COLUNA: { id: TipoColunaUsuario; label: string; icone: React.ReactNode }[] = [
@@ -522,6 +516,21 @@ const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string; de
   { valor: 'privado', label: 'Só eu',           descricao: 'Coluna visível apenas para você'            },
 ]
 
+const TABELA_CONFIG_KEY = 'pedido:tabela_config'
+
+const TABELA_CONFIG_PADRAO: TabelaConfig = {
+  linhasPorPagina: 100,
+  destacarAtrasados: true,
+}
+
+function carregarTabelaConfig(): TabelaConfig {
+  try {
+    const raw = localStorage.getItem(TABELA_CONFIG_KEY)
+    if (raw) return { ...TABELA_CONFIG_PADRAO, ...JSON.parse(raw) as Partial<TabelaConfig> }
+  } catch { /* ignore */ }
+  return { ...TABELA_CONFIG_PADRAO }
+}
+
 const EXPORT_CONFIG_KEY = 'pedido:export_config'
 
 function carregarExportConfig(): ExportacaoConfig {
@@ -536,7 +545,7 @@ const CASAS_KEY     = 'pedido:casas_decimais'
 const CASAS_VERSION = 2  // bump quando os defaults mudarem — invalida dados antigos
 
 function carregarCasasDecimais(): Record<string, number> {
-  const defaults = Object.fromEntries(COLUNAS_NUMERICAS.map(c => [c.campo, 2]))
+  const defaults = Object.fromEntries(COLUNAS_NUMERICAS.map(c => [c.campo, c.padrao]))
   try {
     const raw = localStorage.getItem(CASAS_KEY)
     if (raw) {
@@ -713,20 +722,77 @@ export default function Configuracoes() {
   // ── Estado: casas decimais ──
   const [casasDecimais, setCasasDecimais] = useState<Record<string, number>>(carregarCasasDecimais)
   const [pendingCasas,  setPendingCasas]  = useState<Record<string, number>>(carregarCasasDecimais)
+  const [salvandoCasas, setSalvandoCasas] = useState(false)
+  const [aguardandoConfirmacaoCasas, setAguardandoConfirmacaoCasas] = useState(false)
+  const [auditoriaCasas, setAuditoriaCasas] = useState<{ total_pedidos: number; total_itens: number } | null>(null)
   const casasDirty = JSON.stringify(pendingCasas) !== JSON.stringify(casasDecimais)
+
+  // Carregar casas decimais do servidor no mount
+  useEffect(() => {
+    casasDecimaisApi.obter()
+      .then(res => {
+        const config = Object.fromEntries(
+          Object.entries(res.data).map(([k, v]) => [k, v as number])
+        )
+        setCasasDecimais(config)
+        setPendingCasas(config)
+        localStorage.setItem(CASAS_KEY, JSON.stringify({ _v: CASAS_VERSION, ...config }))
+      })
+      .catch(() => {})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleCasasDecimaisChange(campo: string, valor: number) {
     setPendingCasas(prev => ({ ...prev, [campo]: valor }))
   }
 
-  function salvarCasasDecimais() {
-    setCasasDecimais(pendingCasas)
-    localStorage.setItem(CASAS_KEY, JSON.stringify({ _v: CASAS_VERSION, ...pendingCasas }))
-    addNotification({ type: 'success', message: 'Casas decimais salvas com sucesso.' })
+  async function salvarCasasDecimais() {
+    if (salvandoCasas) return
+    setSalvandoCasas(true)
+    try {
+      const payload = Object.fromEntries(
+        COLUNAS_NUMERICAS.map(c => [c.campo, pendingCasas[c.campo] ?? c.padrao])
+      ) as Parameters<typeof casasDecimaisApi.salvar>[0]
+
+      const res = await casasDecimaisApi.salvar({ ...payload, confirmar: false })
+      setCasasDecimais(pendingCasas)
+      localStorage.setItem(CASAS_KEY, JSON.stringify({ _v: CASAS_VERSION, ...pendingCasas }))
+      setAuditoriaCasas({ total_pedidos: res.auditoria.total_pedidos, total_itens: res.auditoria.total_itens })
+
+      if (res.auditoria.total_pedidos > 0) {
+        setAguardandoConfirmacaoCasas(true)
+      } else {
+        addNotification({ type: 'success', message: 'Casas decimais salvas com sucesso.' })
+      }
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao salvar casas decimais.' })
+    } finally {
+      setSalvandoCasas(false)
+    }
+  }
+
+  async function confirmarMigracaoCasas() {
+    setSalvandoCasas(true)
+    try {
+      const payload = Object.fromEntries(
+        COLUNAS_NUMERICAS.map(c => [c.campo, casasDecimais[c.campo] ?? c.padrao])
+      ) as Parameters<typeof casasDecimaisApi.salvar>[0]
+
+      await casasDecimaisApi.salvar({ ...payload, confirmar: true })
+      setAguardandoConfirmacaoCasas(false)
+      setAuditoriaCasas(null)
+      addNotification({ type: 'success', message: 'Configuração salva. Migração iniciada em background.' })
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao iniciar migração.' })
+    } finally {
+      setSalvandoCasas(false)
+    }
   }
 
   function restaurarCasasDecimais() {
     setPendingCasas(casasDecimais)
+    setAguardandoConfirmacaoCasas(false)
+    setAuditoriaCasas(null)
   }
 
   // ── Estado: colunas numéricas do usuário (via API — para exibir em Casas Decimais) ──
@@ -1229,13 +1295,20 @@ export default function Configuracoes() {
   }
 
   // ── Tabela state ──
-  const [tabelaConfig, setTabelaConfig] = useState<TabelaConfig>({
-    linhasPorPagina: 100,
-    expandirTodos: true,
-    manterSelecao: false,
-    exibirTotalItens: true,
-    destacarAtrasados: true,
-  })
+  const [tabelaConfig,        setTabelaConfig]        = useState<TabelaConfig>(carregarTabelaConfig)
+  const [tabelaConfigSalva,   setTabelaConfigSalva]   = useState<TabelaConfig>(carregarTabelaConfig)
+
+  const tabelaDirty = JSON.stringify(tabelaConfig) !== JSON.stringify(tabelaConfigSalva)
+
+  function salvarTabelaConfig() {
+    try { localStorage.setItem(TABELA_CONFIG_KEY, JSON.stringify(tabelaConfig)) } catch { /* ignore */ }
+    setTabelaConfigSalva(tabelaConfig)
+    addNotification({ type: 'success', message: 'Preferências da tabela salvas com sucesso.' })
+  }
+
+  function restaurarTabelaConfig() {
+    setTabelaConfig({ ...TABELA_CONFIG_PADRAO })
+  }
 
   // ── Notificações state ──
   const [notifConfig, setNotifConfig] = useState<NotificacoesConfig>({
@@ -1535,18 +1608,24 @@ export default function Configuracoes() {
 
   // ── Kanban state ─────────────────────────────────────────────────────────
 
-  const [kanbanPrefs, setKanbanPrefs]       = useState<KanbanPreferencias | null>(null)
-  const [kanbanLoading, setKanbanLoading]   = useState(false)
+  const [kanbanPrefs, setKanbanPrefs]           = useState<KanbanPreferencias | null>(null)
+  const [kanbanLoading, setKanbanLoading]       = useState(false)
+  const [pendingColunasOcultas, setPendingColunasOcultas] = useState<string[]>([])
   const kanbanSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (categoria !== 'kanban') return
+    if (!KANBAN_FILHOS.includes(categoria)) return
+    if (kanbanPrefs !== null) return
     setKanbanLoading(true)
     kanbanConfigApi.obterPreferencias()
       .then(res => setKanbanPrefs(res.data))
       .catch(() => setKanbanPrefs(null))
       .finally(() => setKanbanLoading(false))
   }, [categoria])
+
+  useEffect(() => {
+    setPendingColunasOcultas(kanbanPrefs?.colunas_ocultas ?? [])
+  }, [kanbanPrefs])
 
   function kanbanCamposDeAba(aba: 'pedido' | 'quantidades' | 'datas'): KanbanCampoConfig[] {
     const prefs = kanbanPrefs ?? KANBAN_PADRAO
@@ -1561,6 +1640,25 @@ export default function Configuracoes() {
         .then(() => window.dispatchEvent(new CustomEvent('kanban:preferencias:atualizadas')))
         .catch(() => {})
     }, 500)
+  }
+
+  const kanbanColunasDirty = JSON.stringify(pendingColunasOcultas) !== JSON.stringify(kanbanPrefs?.colunas_ocultas ?? [])
+
+  function kanbanColunaToggle(nome: string) {
+    const isSistema = kanbanStatusConfig.find(s => s.nome === nome)?.is_sistema ?? false
+    if (isSistema) return  // colunas de sistema são obrigatórias e não podem ser ocultadas
+    setPendingColunasOcultas(prev =>
+      prev.includes(nome) ? prev.filter(n => n !== nome) : [...prev, nome],
+    )
+  }
+
+  function kanbanColunasSalvar() {
+    const novas: KanbanPreferencias = { ...(kanbanPrefs ?? KANBAN_PADRAO), colunas_ocultas: pendingColunasOcultas }
+    kanbanSalvar(novas)
+  }
+
+  function kanbanColunasDescartar() {
+    setPendingColunasOcultas(kanbanPrefs?.colunas_ocultas ?? [])
   }
 
   function kanbanAdicionarCampo(aba: 'pedido' | 'quantidades' | 'datas', campo: KanbanCampoDisponivel) {
@@ -1669,6 +1767,20 @@ export default function Configuracoes() {
     } catch { /* fallback */ }
     return STATUS_INICIAIS
   })
+
+  // Deriva os status para a seção Colunas do mesmo statusList (fonte: localStorage)
+  const kanbanStatusConfig = useMemo<PedidoStatusConfig[]>(() =>
+    statusList.map((s, i) => ({
+      id:         s.id,
+      nome:       s.id,
+      rotulo:     s.label,
+      cor:        s.cor,
+      ordem:      i + 1,
+      is_padrao:  false,
+      is_sistema: s.sistema,
+    })),
+  [statusList])
+
   const [statusEditandoId, setStatusEditandoId] = useState<string | null>(null)
   const [statusEditLabel, setStatusEditLabel] = useState('')
   const [statusEditCor, setStatusEditCor] = useState('')
@@ -2103,41 +2215,22 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              <div className="cfg-campo-grupo">
-                <p className="cfg-campo-grupo__label">Linhas por página padrão</p>
-                <div className="cfg-periodo-pills">
-                  {([25, 50, 100, 200] as const).map(n => (
-                    <button
-                      key={n}
-                      type="button"
-                      className={`cfg-periodo-pill${tabelaConfig.linhasPorPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => setTabelaConfig(prev => ({ ...prev, linhasPorPagina: n }))}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
+              <CfgSectionLabel label="LINHAS POR PÁGINA PADRÃO" />
+              <div className="cfg-periodo-pills" style={{ marginBottom: '1.5rem' }}>
+                {([25, 50, 100, 200] as const).map(n => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`cfg-periodo-pill${tabelaConfig.linhasPorPagina === n ? ' cfg-periodo-pill--ativo' : ''}`}
+                    onClick={() => setTabelaConfig(prev => ({ ...prev, linhasPorPagina: n }))}
+                  >
+                    {n}
+                  </button>
+                ))}
               </div>
 
+              <CfgSectionLabel label="PREFERÊNCIAS DE EXIBIÇÃO" />
               <div className="cfg-toggles-lista">
-                <ToggleRow
-                  id="tb-expandir"
-                  label="Expandir todos os pedidos ao abrir"
-                  checked={tabelaConfig.expandirTodos}
-                  onChange={v => setTabelaConfig(prev => ({ ...prev, expandirTodos: v }))}
-                />
-                <ToggleRow
-                  id="tb-selecao"
-                  label="Manter seleção ao mudar de página"
-                  checked={tabelaConfig.manterSelecao}
-                  onChange={v => setTabelaConfig(prev => ({ ...prev, manterSelecao: v }))}
-                />
-                <ToggleRow
-                  id="tb-total-itens"
-                  label="Exibir total de itens por pedido"
-                  checked={tabelaConfig.exibirTotalItens}
-                  onChange={v => setTabelaConfig(prev => ({ ...prev, exibirTotalItens: v }))}
-                />
                 <ToggleRow
                   id="tb-atrasados"
                   label="Destacar pedidos atrasados em vermelho"
@@ -2145,12 +2238,17 @@ export default function Configuracoes() {
                   onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
                 />
               </div>
+
+              <div className="cfg-secao__footer">
+                <BotaoCancelar dirty={tabelaDirty} rotulo="Restaurar padrão" onClick={restaurarTabelaConfig} />
+                <BotaoSalvar   dirty={tabelaDirty} rotulo="Salvar"           onClick={salvarTabelaConfig} />
+              </div>
             </section>
           </div>
         )}
 
-        {/* ════════════════════════ KANBAN MODAL ════════════════════════ */}
-        {(categoria === 'kanban-modal' || categoria === 'kanban-card') && (
+        {/* ════════════════════════ KANBAN MODAL / CARD / COLUNAS ════════════════════════ */}
+        {(categoria === 'kanban-modal' || categoria === 'kanban-card' || categoria === 'kanban-colunas') && (
           <div className="cfg-kanban-wrapper">
 
             {/* ── Sub: Modal ── */}
@@ -2464,6 +2562,19 @@ export default function Configuracoes() {
               })()}
             </section>
             </>)}
+
+            {/* ── Sub: Colunas ── */}
+            {categoria === 'kanban-colunas' && (
+              <SecaoKanbanColunas
+                statusConfig={kanbanStatusConfig}
+                loading={kanbanLoading}
+                colunasOcultas={pendingColunasOcultas}
+                dirty={kanbanColunasDirty}
+                onToggle={kanbanColunaToggle}
+                onSalvar={kanbanColunasSalvar}
+                onDescartar={kanbanColunasDescartar}
+              />
+            )}
 
           </div>
         )}
@@ -3363,65 +3474,73 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              <div className="cfg-campo-calc-item">
-                {/* Header */}
-                <div className="cfg-campo-calc-item__header">
-                  <div className="cfg-campo-calc-item__id">
-                    <Hash size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
-                    <span className="cfg-campo-calc-item__nome">Configurar casas decimais</span>
-                  </div>
-                </div>
+              {/* Body — grupo Pedido */}
+              <div className="cfg-colunas-lista">
+                <CfgSectionLabel label="PEDIDO" hint="Itens herdam automaticamente as casas decimais do pedido pai." />
+                {COLUNAS_NUMERICAS.map(col => {
+                  const val = pendingCasas[col.campo] ?? col.padrao
+                  return (
+                    <div key={col.campo} className="cfg-coluna-row">
+                      <div className="cfg-coluna-row__info">
+                        <span className="cfg-coluna-row__label">{col.label}</span>
+                        {col.itemHint && (
+                          <span className="cfg-coluna-row__hint">{col.itemHint}</span>
+                        )}
+                      </div>
+                      <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.label}`}>
+                        <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.campo, val - 1)} aria-label="Diminuir">−</button>
+                        <span className="cfg-casas-stepper__value">{val}</span>
+                        <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.campo, val + 1)} aria-label="Aumentar">+</button>
+                      </div>
+                    </div>
+                  )
+                })}
 
-                {/* Body */}
-                <div className="cfg-campo-calc-item__body">
-                  <div className="cfg-colunas-lista">
-                    {(['Pedido', 'Item'] as const).map(cat => (
-                      <React.Fragment key={cat}>
-                        <p className="cfg-colunas-categoria">{cat}</p>
-                        {COLUNAS_NUMERICAS.filter(c => c.categoria === cat).map(col => {
-                          const val = pendingCasas[col.campo] ?? 2
-                          return (
-                            <div key={col.campo} className="cfg-coluna-row">
-                              <span className="cfg-coluna-row__label">{col.label}</span>
-                              <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.label}`}>
-                                <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.campo, val - 1)} aria-label="Diminuir">−</button>
-                                <span className="cfg-casas-stepper__value">{val}</span>
-                                <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.campo, val + 1)} aria-label="Aumentar">+</button>
-                              </div>
+                {/* Grupo de colunas personalizadas numéricas (se houver) */}
+                {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula').length > 0 && (
+                  <>
+                    <CfgSectionLabel label="PERSONALIZADAS" />
+                    {colunasUsuarioApi_
+                      .filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula')
+                      .map(col => {
+                        const val = pendingCasas[col.id] ?? 2
+                        return (
+                          <div key={col.id} className="cfg-coluna-row">
+                            <span className="cfg-coluna-row__label">{col.nome}</span>
+                            <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.nome}`}>
+                              <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.id, val - 1)} aria-label="Diminuir">−</button>
+                              <span className="cfg-casas-stepper__value">{val}</span>
+                              <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.id, val + 1)} aria-label="Aumentar">+</button>
                             </div>
-                          )
-                        })}
-                      </React.Fragment>
-                    ))}
-                    {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula').length > 0 && (
-                      <React.Fragment>
-                        <p className="cfg-colunas-categoria">Personalizadas</p>
-                        {colunasUsuarioApi_
-                          .filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula')
-                          .map(col => {
-                            const val = pendingCasas[col.id] ?? 2
-                            return (
-                              <div key={col.id} className="cfg-coluna-row">
-                                <span className="cfg-coluna-row__label">{col.nome}</span>
-                                <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.nome}`}>
-                                  <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.id, val - 1)} aria-label="Diminuir">−</button>
-                                  <span className="cfg-casas-stepper__value">{val}</span>
-                                  <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.id, val + 1)} aria-label="Aumentar">+</button>
-                                </div>
-                              </div>
-                            )
-                          })
-                        }
-                      </React.Fragment>
-                    )}
+                          </div>
+                        )
+                      })
+                    }
+                  </>
+                )}
+              </div>
+
+              {/* Banner de confirmação de migração */}
+              {aguardandoConfirmacaoCasas && auditoriaCasas && (
+                <div className="cfg-migracao-banner">
+                  <p className="cfg-migracao-banner__texto">
+                    Esta configuração afeta <strong>{auditoriaCasas.total_pedidos}</strong> pedidos
+                    e <strong>{auditoriaCasas.total_itens}</strong> itens existentes.
+                    Confirme para aplicar a migração em background.
+                  </p>
+                  <div className="cfg-migracao-banner__acoes">
+                    <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={restaurarCasasDecimais}>Cancelar</button>
+                    <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={confirmarMigracaoCasas} disabled={salvandoCasas}>
+                      {salvandoCasas ? 'Iniciando…' : 'Confirmar migração'}
+                    </button>
                   </div>
                 </div>
+              )}
 
-                {/* Footer */}
-                <div className="cfg-campo-calc-item__footer">
-                  <BotaoCancelar dirty={casasDirty} rotulo="Descartar" onClick={restaurarCasasDecimais} />
-                  <BotaoSalvar   dirty={casasDirty} rotulo="Salvar"    onClick={salvarCasasDecimais} />
-                </div>
+              {/* Footer */}
+              <div className="cfg-secao__footer">
+                <BotaoCancelar dirty={casasDirty} rotulo="Descartar" onClick={restaurarCasasDecimais} />
+                <BotaoSalvar   dirty={casasDirty} rotulo="Salvar"    onClick={salvarCasasDecimais} loading={salvandoCasas} />
               </div>
             </section>}
 

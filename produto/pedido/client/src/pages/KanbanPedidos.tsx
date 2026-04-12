@@ -1,7 +1,8 @@
 /**
  * KanbanPedidos.tsx — Visão Kanban do produto Pedido (customizado)
  *
- * Colunas = status do pedido (draft → aberto → transferencia → consolidado → cancelado)
+ * Colunas = reflexo 1:1 do Status config do tenant (GET /api/v1/pedidos/config/status)
+ * Ordem, label e cor vêm da API. Ícone e isReadOnly caem para COLUNAS_BASE como fallback.
  * Card customizado: numero, tipo, parceiro, data crítica com urgência, valor+moeda, saldo
  * Modal customizado: 4 abas (Pedido, Quantidades, Datas, Lembrete)
  * Configuração: preferências por usuário via /api/v1/pedidos/kanban/preferencias
@@ -31,19 +32,27 @@ import {
 import { pedidoApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
 import type { Pedido, StatusPedido, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
 import { KANBAN_PADRAO, STATUS_PEDIDO_LABELS } from '../shared/types'
+import { computarColunasKanban, IS_READ_ONLY_MAP, COLUNAS_FALLBACK_SHAPE } from '../shared/kanbanUtils'
+export { computarColunasKanban, IS_READ_ONLY_MAP }
 import { useNavigate } from 'react-router-dom'
 import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import './KanbanPedidos.css'
 
-// ── Colunas ───────────────────────────────────────────────────────────────────
+// ── Colunas base — apenas ícone (label/cor/ordem vêm da API via kanbanUtils) ──
 
-const COLUNAS = [
-  { key: 'draft',         label: 'Rascunho',    color: '#64748b', icon: <PencilSimple size={16} weight="duotone" /> },
-  { key: 'aberto',        label: 'Aberto',      color: '#3b82f6', icon: <ArrowRight   size={16} weight="duotone" /> },
-  { key: 'transferencia', label: 'Em Andamento',color: '#f97316', icon: <Spinner      size={16} weight="duotone" /> },
-  { key: 'consolidado',   label: 'Consolidado', color: '#22c55e', icon: <CheckCircle  size={16} weight="duotone" /> },
-  { key: 'cancelado',     label: 'Cancelado',   color: '#ef4444', icon: <XCircle      size={16} weight="duotone" />, isReadOnly: true },
-]
+const COLUNAS_BASE: Record<string, { icon: React.ReactElement }> = {
+  draft:         { icon: <PencilSimple size={16} weight="duotone" /> },
+  aberto:        { icon: <ArrowRight   size={16} weight="duotone" /> },
+  transferencia: { icon: <Spinner      size={16} weight="duotone" /> },
+  consolidado:   { icon: <CheckCircle  size={16} weight="duotone" /> },
+  cancelado:     { icon: <XCircle      size={16} weight="duotone" /> },
+}
+
+// Fallback com ícones — usado quando a API falha (degradação graciosa)
+const COLUNAS_FALLBACK = COLUNAS_FALLBACK_SHAPE.map(s => ({
+  ...s,
+  icon: COLUNAS_BASE[s.key]?.icon ?? <Tag size={16} weight="duotone" />,
+}))
 
 // ── Tipos locais ──────────────────────────────────────────────────────────────
 
@@ -189,7 +198,7 @@ type ModalAba = 'pedido' | 'quantidades' | 'datas' | 'lembrete'
 interface ModalKanbanPedidoProps {
   pedido: Pedido | null
   aberto: boolean
-  colunas: typeof COLUNAS
+  colunas: typeof COLUNAS_FALLBACK
   preferencias: KanbanPreferencias | null
   onFechar: () => void
   onSalvarStatus: (novoStatus: string) => void
@@ -444,7 +453,10 @@ export default function KanbanPedidos() {
     setLoading(true)
     Promise.all([
       pedidoApi.listar({ limit: '1000' }),
-      pedidoConfigApi.listarStatus().catch(() => ({ data: [] as PedidoStatusConfig[] })),
+      pedidoConfigApi.listarStatus().catch((err: unknown) => {
+        console.error('[KANBAN] Falha ao carregar status config:', err instanceof Error ? err.message : err)
+        return { data: [] as PedidoStatusConfig[] }
+      }),
       kanbanConfigApi.obterPreferencias().catch(() => ({ data: null })),
     ])
       .then(([pedidosRes, statusRes, prefRes]) => {
@@ -477,19 +489,18 @@ export default function KanbanPedidos() {
     return () => window.removeEventListener('kanban:preferencias:atualizadas', handlePrefsAtualizadas)
   }, [])
 
+  // Colunas = reflexo 1:1 do Status config. Se a API falhar, usa COLUNAS_FALLBACK.
   const colunasComputadas = useMemo(() => {
-    const chavesBase = new Set(COLUNAS.map(c => c.key))
-    const customColunas = statusConfig
-      .filter(s => !chavesBase.has(s.nome))
-      .sort((a, b) => a.ordem - b.ordem)
-      .map(s => ({
-        key:   s.nome,
-        label: s.rotulo,
-        color: s.cor,
-        icon:  <Tag size={16} weight="duotone" />,
-      }))
-    return [...COLUNAS, ...customColunas]
-  }, [statusConfig])
+    const ocultas = new Set(preferencias?.colunas_ocultas ?? [])
+    const configFiltrado = statusConfig.filter(s => !ocultas.has(s.nome))
+    if (!statusConfig.length) return COLUNAS_FALLBACK
+    if (!configFiltrado.length) return []
+    const shapes = computarColunasKanban(configFiltrado)
+    return shapes.map(s => ({
+      ...s,
+      icon: COLUNAS_BASE[s.key]?.icon ?? <Tag size={16} weight="duotone" />,
+    }))
+  }, [statusConfig, preferencias])
 
   const itens = useMemo<PedidoKanbanItem[]>(() =>
     pedidos.map(p => ({ id: p.id, colunaKey: p.status, pedido: p })),

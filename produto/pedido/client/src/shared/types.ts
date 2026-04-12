@@ -6,14 +6,16 @@
 
 // ── Status do Pedido ──────────────────────────────────────────────────────────
 
-export type StatusPedido = 'draft' | 'aberto' | 'transferencia' | 'consolidado' | 'cancelado'
+export type StatusPedido = 'draft' | 'aberto' | 'em_andamento' | 'aprovado' | 'transferencia' | 'consolidado' | 'cancelado'
 
 export const STATUS_PEDIDO_LABELS: Record<StatusPedido, string> = {
-  draft: 'Rascunho',
-  aberto: 'Aberto',
-  transferencia: 'Em Transferencia',
-  consolidado: 'Consolidado',
-  cancelado: 'Cancelado',
+  draft:         'Rascunho',
+  aberto:        'Aberto',
+  em_andamento:  'Em Andamento',
+  aprovado:      'Aprovado',
+  transferencia: 'Transferido',
+  consolidado:   'Consolidado',
+  cancelado:     'Cancelado',
 }
 
 // ── Tipo de Operacao ──────────────────────────────────────────────────────────
@@ -942,8 +944,9 @@ export interface KanbanCardConfig {
 }
 
 export interface KanbanPreferencias {
-  abas: KanbanAbaConfig[]
-  card: KanbanCardConfig
+  abas:             KanbanAbaConfig[]
+  card:             KanbanCardConfig
+  colunas_ocultas?: string[]
 }
 
 export interface KanbanCampoDisponivel {

@@ -2,13 +2,19 @@ import React, { useState } from 'react'
 import type { Layouts } from 'react-grid-layout'
 import {
   DashboardGrid,
+  DashboardToolbar,
   WidgetContainer,
   KpiWidget,
   LineChartWidget,
   BarChartWidget,
   DonutWidget,
 } from '@nucleo/dashboard'
-import type { DashboardWidgetConfig, WidgetResult } from '@nucleo/dashboard'
+import type {
+  DashboardWidgetConfig,
+  WidgetResult,
+  GlobalSlicers,
+  ActiveFilter,
+} from '@nucleo/dashboard'
 
 // ── Dados mock ────────────────────────────────────────────────────────────────
 
@@ -85,24 +91,36 @@ const donutData = {
   ],
 }
 
-// ── Configuração inicial dos widgets ─────────────────────────────────────────
-
 const INITIAL_WIDGETS: DashboardWidgetConfig[] = [
-  { id: 'kpi-1', title: 'Total de Pedidos',    chart_type: 'KPI_CARD', query_spec: { fields: [], filters: { period: '30d' } }, position: { x: 0, y: 0, w: 3, h: 1 } },
-  { id: 'kpi-2', title: 'Receita Total',        chart_type: 'KPI_CARD', query_spec: { fields: [], filters: { period: '30d' } }, position: { x: 3, y: 0, w: 3, h: 1 } },
-  { id: 'kpi-3', title: 'Ticket Médio',         chart_type: 'KPI_CARD', query_spec: { fields: [], filters: { period: '30d' } }, position: { x: 6, y: 0, w: 3, h: 1 } },
-  { id: 'line-1', title: 'Pedidos por Mês',     chart_type: 'LINE',     query_spec: { fields: [], filters: { period: '12m' } }, position: { x: 0, y: 1, w: 6, h: 3 } },
-  { id: 'line-2', title: 'Receita vs Pedidos',  chart_type: 'LINE',     query_spec: { fields: [], filters: { period: '12m' } }, position: { x: 6, y: 1, w: 6, h: 3 } },
-  { id: 'bar-1',  title: 'Status de Pedidos',   chart_type: 'BAR',      query_spec: { fields: [], filters: { period: '12m' } }, position: { x: 0, y: 4, w: 8, h: 3 } },
-  { id: 'donut-1', title: 'Distribuição Status', chart_type: 'DONUT',   query_spec: { fields: [], filters: { period: '30d' } }, position: { x: 8, y: 4, w: 4, h: 3 } },
+  { id: 'kpi-1',   title: 'Total de Pedidos',     chart_type: 'KPI_CARD', query_spec: { fields: [], filters: { period: '30d' } }, position: { x: 0, y: 0, w: 3, h: 1 } },
+  { id: 'kpi-2',   title: 'Receita Total',         chart_type: 'KPI_CARD', query_spec: { fields: [], filters: { period: '30d' } }, position: { x: 3, y: 0, w: 3, h: 1 } },
+  { id: 'kpi-3',   title: 'Ticket Médio',          chart_type: 'KPI_CARD', query_spec: { fields: [], filters: { period: '30d' } }, position: { x: 6, y: 0, w: 3, h: 1 } },
+  { id: 'line-1',  title: 'Pedidos por Mês',       chart_type: 'LINE',     query_spec: { fields: [], filters: { period: '12m' } }, position: { x: 0, y: 1, w: 6, h: 3 } },
+  { id: 'line-2',  title: 'Receita vs Pedidos',    chart_type: 'LINE',     query_spec: { fields: [], filters: { period: '12m' } }, position: { x: 6, y: 1, w: 6, h: 3 } },
+  { id: 'bar-1',   title: 'Status de Pedidos',     chart_type: 'BAR',      query_spec: { fields: [], filters: { period: '12m' } }, position: { x: 0, y: 4, w: 8, h: 3 } },
+  { id: 'donut-1', title: 'Distribuição Status',   chart_type: 'DONUT',    query_spec: { fields: [], filters: { period: '30d' } }, position: { x: 8, y: 4, w: 4, h: 3 } },
 ]
+
+const STATUS_OPTIONS = ['abertos', 'em_andamento', 'concluidos', 'atrasados']
+const STATUS_LABELS: Record<string, string> = {
+  todos:        'Todos',
+  abertos:      'Abertos',
+  em_andamento: 'Em andamento',
+  concluidos:   'Concluídos',
+  atrasados:    'Atrasados',
+}
+const STATUS_COUNTS: Record<string, number> = {
+  todos: 1842, abertos: 624, em_andamento: 391, concluidos: 717, atrasados: 110,
+}
 
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [theme,    setTheme]    = useState<'dark' | 'light'>('dark')
-  const [editMode, setEditMode] = useState(false)
-  const [widgets,  setWidgets]  = useState(INITIAL_WIDGETS)
+  const [theme,         setTheme]         = useState<'dark' | 'light'>('dark')
+  const [editMode,      setEditMode]      = useState(false)
+  const [widgets,       setWidgets]       = useState(INITIAL_WIDGETS)
+  const [slicers,       setSlicers]       = useState<GlobalSlicers>({ period: 'current_year', status: [] })
+  const [activeFilters, setActiveFilters] = useState<ActiveFilter[]>([])
 
   function handleLayoutChange(layouts: Layouts) {
     const lgLayout = layouts.lg ?? []
@@ -115,40 +133,17 @@ export default function App() {
 
   function renderWidget(widget: DashboardWidgetConfig) {
     let children: React.ReactNode = null
-
     switch (widget.id) {
-      case 'kpi-1':
-        children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="total_pedidos" fieldType="number" />
-        break
-      case 'kpi-2':
-        children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="receita_total" fieldType="currency" />
-        break
-      case 'kpi-3':
-        children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="ticket_medio" fieldType="currency" />
-        break
-      case 'line-1':
-        children = <LineChartWidget series={lineSeriesPedidos} showArea />
-        break
-      case 'line-2':
-        children = <LineChartWidget series={lineSeriesDualAxis} dualAxis leftUnit="currency" rightUnit="number" />
-        break
-      case 'bar-1':
-        children = <BarChartWidget series={barSeries} mode="grouped" leftUnit="number" />
-        break
-      case 'donut-1':
-        children = <DonutWidget data={donutData.series} />
-        break
-      default:
-        children = null
+      case 'kpi-1':   children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="total_pedidos" fieldType="number" />; break
+      case 'kpi-2':   children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="receita_total" fieldType="currency" />; break
+      case 'kpi-3':   children = <KpiWidget title={widget.title} data={kpiResult.data} fieldKey="ticket_medio" fieldType="currency" />; break
+      case 'line-1':  children = <LineChartWidget series={lineSeriesPedidos} showArea />; break
+      case 'line-2':  children = <LineChartWidget series={lineSeriesDualAxis} dualAxis leftUnit="currency" rightUnit="number" />; break
+      case 'bar-1':   children = <BarChartWidget series={barSeries} mode="grouped" leftUnit="number" />; break
+      case 'donut-1': children = <DonutWidget data={donutData.series} />; break
     }
-
     return (
-      <WidgetContainer
-        key={widget.id}
-        widget={widget}
-        result={kpiResult}
-        editMode={editMode}
-      >
+      <WidgetContainer key={widget.id} widget={widget} result={kpiResult} editMode={editMode}>
         {children}
       </WidgetContainer>
     )
@@ -159,23 +154,28 @@ export default function App() {
       <header className="demo-header">
         <h1>dashboard-global</h1>
         <span>@nucleo/dashboard — Demo interativo</span>
-        <div className="demo-controls">
-          <button
-            className={`demo-btn${editMode ? ' demo-btn--active' : ''}`}
-            onClick={() => setEditMode(v => !v)}
-          >
-            {editMode ? 'Edição ativa' : 'Modo edição'}
-          </button>
-          <button
-            className="demo-btn"
-            onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
-          >
-            {theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
-          </button>
-        </div>
+        <button
+          className="demo-btn"
+          onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+        >
+          {theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+        </button>
       </header>
 
       <div className="demo-content">
+        <DashboardToolbar
+          slicers={slicers}
+          onPeriodChange={(p) => setSlicers(s => ({ ...s, period: p }))}
+          onStatusChange={(st) => setSlicers(s => ({ ...s, status: st }))}
+          activeFilters={activeFilters}
+          onClearFilters={() => setActiveFilters([])}
+          editMode={editMode}
+          onEditModeChange={setEditMode}
+          statusOptions={STATUS_OPTIONS}
+          statusLabels={STATUS_LABELS}
+          statusCounts={STATUS_COUNTS}
+        />
+
         <DashboardGrid
           widgets={widgets}
           renderWidget={renderWidget}

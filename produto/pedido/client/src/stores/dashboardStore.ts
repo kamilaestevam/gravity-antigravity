@@ -11,6 +11,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { DashboardWidgetConfig, WidgetQuerySpec, FieldQuerySpec, DerivedMetric, ActiveFilter, GlobalSlicers } from '@nucleo/dashboard'
+import type { DashboardPainel } from '../shared/api'
 
 // ── Migração de formato legado ────────────────────────────────────────────────
 
@@ -67,6 +68,12 @@ interface DashboardState {
   setEditMode: (v: boolean) => void
   queryBuilderOpen: boolean
   setQueryBuilderOpen: (v: boolean) => void
+
+  // ── Painéis ──────────────────────────────────────────────────────────────────
+  paineis: DashboardPainel[]
+  painelAtualId: string | null
+  setPaineis: (paineis: DashboardPainel[]) => void
+  setPainelAtual: (id: string) => void
 }
 
 // ── Widgets padrão ────────────────────────────────────────────────────────────
@@ -300,6 +307,29 @@ export const useDashboardStore = create<DashboardState>()(
       setEditMode: (editMode) => set({ editMode }),
       queryBuilderOpen: false,
       setQueryBuilderOpen: (queryBuilderOpen) => set({ queryBuilderOpen }),
+
+      // ── Painéis ──────────────────────────────────────────────────────────
+      paineis: [],
+      painelAtualId: null,
+      setPaineis: (paineis) => set((s) => ({
+        paineis,
+        // Se não há painel ativo ou o atual não existe mais, seleciona o primeiro visível
+        painelAtualId: s.painelAtualId && paineis.some(p => p.id === s.painelAtualId)
+          ? s.painelAtualId
+          : (paineis.find(p => p.is_visivel)?.id ?? null),
+      })),
+      setPainelAtual: (id) => set((s) => {
+        const painel = s.paineis.find(p => p.id === id)
+        if (!painel) return {}
+        // Carrega os widgets do painel selecionado
+        const widgets: DashboardWidgetConfig[] = (() => {
+          try { return JSON.parse(painel.widgets_json) as DashboardWidgetConfig[] } catch { return DEFAULT_WIDGETS }
+        })()
+        return {
+          painelAtualId: id,
+          widgets: widgets.length > 0 ? widgets : DEFAULT_WIDGETS,
+        }
+      }),
     }),
     {
       name: 'gravity:pedido:dashboard',

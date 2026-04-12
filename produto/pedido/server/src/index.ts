@@ -23,6 +23,7 @@ import { tenantIsolationMiddleware } from './middleware/tenantIsolation.js'
 import { analyticsRouter } from './routes/analytics.js'
 import { dashboardWidgetsRouter } from './routes/dashboardWidgets.js'
 import { dashboardDataRouter } from './routes/dashboardData.js'
+import { dashboardPaineisRouter } from './routes/dashboardPaineis.js'
 import { consolidarRouter } from './routes/consolidar.js'
 import { transferirRouter, transferirHistoricoRouter } from './routes/transferir.js'
 import { edicaoEmMassaRouter } from './routes/edicaoEmMassa.js'
@@ -35,6 +36,7 @@ import { anexosRouter } from './routes/anexos.js'
 import { pdfRouter } from './routes/pdf.js'
 import { loteRouter } from './routes/lote.js'
 import { kanbanPreferenciasRouter } from './routes/kanbanPreferencias.js'
+import { casasDecimaisRouter } from './routes/casasDecimais.js'
 import { initRouter } from './routes/init.js'
 import { taxaCambioRouter } from './routes/taxaCambio.js'
 import { pedidosRouter } from '../../../../servicos-global/tenant/processos-core/src/routes/pedidos.js'
@@ -116,6 +118,7 @@ app.use(createProductAuditPlugin({
 app.use('/api/v1/pedidos/openapi.json',      openapiRouter)
 app.use('/api/v1/pedidos/init',              initRouter)           // GET /init — agrega pedidos+status+prefs+colunas em 1 request
 app.use('/api/v1/pedidos/dashboard/widgets', dashboardWidgetsRouter)
+app.use('/api/v1/pedidos/dashboard',         dashboardPaineisRouter)
 app.use('/api/v1/pedidos/dashboard',         dashboardDataRouter)
 app.use('/api/v1/pedidos/consolidar',        consolidarRouter)
 app.use('/api/v1/pedidos/transferir',        transferirRouter)
@@ -128,6 +131,7 @@ app.use('/api/v1/pedidos/anexos',            anexosRouter)
 app.use('/api/v1/pedidos/pdf',               pdfRouter)
 app.use('/api/v1/pedidos/lote',              loteRouter)
 app.use('/api/v1/pedidos/kanban',            kanbanPreferenciasRouter)
+app.use('/api/v1/pedidos/configuracoes',     casasDecimaisRouter)
 app.use('/api/v1/pedidos/config',            pedidosConfigRouter)
 app.use('/api/v1/pedidos',                   importacaoRouter)   // POST /importar, POST /importar/confirmar, POST /exportar
 app.use('/api/v1/pedidos',                   duplicarExcluirRouter)

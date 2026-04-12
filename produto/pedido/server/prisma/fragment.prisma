@@ -197,6 +197,37 @@ model UserBehaviorEvent {
 }
 
 // ============================================
+// Pedido — Casas Decimais Config (por tenant)
+// Produto: produto/pedido
+// Armazena os defaults do workspace — aplicados em novos pedidos/itens
+// e usados na migração em massa quando o admin altera a configuração.
+// ============================================
+
+model PedidoCasasDecimaisConfig {
+  id         String   @id @default(cuid())
+  tenant_id  String   @unique
+  product_id String?
+
+  // Grupo PEDIDO — 9 campos conforme spec mapas_pedido.pdf
+  valor_total_pedido            Int @default(2)
+  quantidade_total_inicial_pedido Int @default(2)
+  quantidade_pronta_pedido_total  Int @default(2)
+  saldo_itens_do_pedido           Int @default(2)
+  quantidade_transferida_total    Int @default(2)
+  quantidade_cancelada_total_pedido Int @default(2)
+  peso_liquido_total_pedido       Int @default(3)
+  peso_bruto_total_pedido         Int @default(3)
+  cubagem_total_pedido            Int @default(3)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_casas_decimais_config")
+}
+
+// ============================================
 // Pedido — Kanban Preferências
 // Produto: produto/pedido
 // ============================================
@@ -212,4 +243,25 @@ model KanbanPreferencias {
   @@unique([tenant_id, user_id])
   @@index([tenant_id])
   @@index([tenant_id, user_id])
+}
+
+// ============================================
+// Pedido — Dashboard Painéis (por usuário)
+// Produto: produto/pedido
+// ============================================
+
+model DashboardPainel {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  user_id      String
+  nome         String
+  ordem        Int      @default(0)
+  is_visivel   Boolean  @default(true)
+  widgets_json String   @default("[]")
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@map("dashboard_paineis")
 }

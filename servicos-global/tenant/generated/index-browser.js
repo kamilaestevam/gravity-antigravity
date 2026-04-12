@@ -712,34 +712,34 @@ exports.Prisma.PedidoScalarFieldEnum = {
   incoterm: 'incoterm',
   moeda_pedido: 'moeda_pedido',
   valor_total_pedido: 'valor_total_pedido',
-  casas_decimais_total_pedido: 'casas_decimais_total_pedido',
-  quantidade_total_pedido: 'quantidade_total_pedido',
-  casas_decimais_quantidade_total_pedido: 'casas_decimais_quantidade_total_pedido',
+  casas_decimais_valor_pedido: 'casas_decimais_valor_pedido',
+  quantidade_total_inicial_pedido: 'quantidade_total_inicial_pedido',
+  casas_decimais_quantidade_pedido: 'casas_decimais_quantidade_pedido',
   unidade_comercializada_pedido: 'unidade_comercializada_pedido',
   peso_liquido_total_pedido: 'peso_liquido_total_pedido',
   peso_bruto_total_pedido: 'peso_bruto_total_pedido',
   cubagem_total_pedido: 'cubagem_total_pedido',
   casas_decimais_peso_pedido: 'casas_decimais_peso_pedido',
   casas_decimais_cubagem_pedido: 'casas_decimais_cubagem_pedido',
-  cobertura_cambial: 'cobertura_cambial',
-  condicao_pagamento: 'condicao_pagamento',
+  condicao_pagamento_pedido: 'condicao_pagamento_pedido',
   numero_proforma: 'numero_proforma',
   numero_invoice: 'numero_invoice',
   referencia_importador: 'referencia_importador',
   referencia_exportador: 'referencia_exportador',
   referencia_fabricante: 'referencia_fabricante',
-  valor_total_cambio: 'valor_total_cambio',
-  moeda_cambio: 'moeda_cambio',
-  taxa_cambio_estimada: 'taxa_cambio_estimada',
-  contrato_cambio_id: 'contrato_cambio_id',
+  valor_total_cambio_pedido: 'valor_total_cambio_pedido',
+  moeda_cambio_pedido: 'moeda_cambio_pedido',
+  taxa_cambio_estimada_pedido: 'taxa_cambio_estimada_pedido',
+  contrato_cambio_id_pedido: 'contrato_cambio_id_pedido',
   data_emissao_pedido: 'data_emissao_pedido',
+  cnpj_importador: 'cnpj_importador',
   detalhes_operacionais: 'detalhes_operacionais',
   campos_custom: 'campos_custom',
-  pedidos_origem: 'pedidos_origem',
+  pedidos_origem_id: 'pedidos_origem_id',
   data_consolidacao_pedido: 'data_consolidacao_pedido',
   deleted_at: 'deleted_at',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  pedido_criado_em: 'pedido_criado_em',
+  pedido_atualizado_em: 'pedido_atualizado_em'
 };
 
 exports.Prisma.PedidoItemScalarFieldEnum = {
@@ -752,24 +752,32 @@ exports.Prisma.PedidoItemScalarFieldEnum = {
   ncm: 'ncm',
   descricao_item: 'descricao_item',
   unidade_comercializada_item: 'unidade_comercializada_item',
-  quantidade_inicial_pedido: 'quantidade_inicial_pedido',
-  quantidade_saldo_pedido: 'quantidade_saldo_pedido',
-  quantidade_pronta_pedido: 'quantidade_pronta_pedido',
-  quantidade_transferida_pedido: 'quantidade_transferida_pedido',
-  quantidade_cancelada_pedido: 'quantidade_cancelada_pedido',
+  quantidade_inicial_item_pedido: 'quantidade_inicial_item_pedido',
+  saldo_item_pedido: 'saldo_item_pedido',
+  quantidade_pronta_total_item_pedido: 'quantidade_pronta_total_item_pedido',
+  quantidade_transferida_item_pedido: 'quantidade_transferida_item_pedido',
+  quantidade_cancelada_item_pedido: 'quantidade_cancelada_item_pedido',
   casas_decimais_quantidade_item: 'casas_decimais_quantidade_item',
   moeda_item: 'moeda_item',
-  valor_total_item: 'valor_total_item',
-  valor_por_unidade_item: 'valor_por_unidade_item',
-  casas_decimais_total_item: 'casas_decimais_total_item',
-  peso_liquido_unitario: 'peso_liquido_unitario',
-  peso_bruto_unitario: 'peso_bruto_unitario',
-  cubagem_unitaria: 'cubagem_unitaria',
-  casas_decimais_peso: 'casas_decimais_peso',
-  casas_decimais_cubagem: 'casas_decimais_cubagem',
+  valor_total_itens: 'valor_total_itens',
+  valor_unitario_item: 'valor_unitario_item',
+  casas_decimais_valor_item: 'casas_decimais_valor_item',
+  cobertura_cambial: 'cobertura_cambial',
+  peso_liquido_unitario_item: 'peso_liquido_unitario_item',
+  peso_bruto_unitario_item: 'peso_bruto_unitario_item',
+  cubagem_unitaria_item: 'cubagem_unitaria_item',
+  casas_decimais_peso_item: 'casas_decimais_peso_item',
+  casas_decimais_cubagem_item: 'casas_decimais_cubagem_item',
+  descricao_completa_item_pt: 'descricao_completa_item_pt',
+  descricao_completa_item_en: 'descricao_completa_item_en',
+  descricao_completa_item_es: 'descricao_completa_item_es',
+  descricao_completa_item_nf: 'descricao_completa_item_nf',
+  grupo_item: 'grupo_item',
+  subgrupo_item: 'subgrupo_item',
+  campo_especial_item: 'campo_especial_item',
   campos_custom: 'campos_custom',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  item_criado_em: 'item_criado_em',
+  item_atualizado_em: 'item_atualizado_em'
 };
 
 exports.Prisma.ProcessoScalarFieldEnum = {
@@ -998,6 +1006,12 @@ exports.Prisma.ConfiguracaoPedidoScalarFieldEnum = {
   excluir_pedido_sem_item_permitido: 'excluir_pedido_sem_item_permitido',
   excluir_confirmar_com_preview: 'excluir_confirmar_com_preview',
   alerta_numero_duplicado: 'alerta_numero_duplicado',
+  alerta_valor_total_divergente: 'alerta_valor_total_divergente',
+  alerta_quantidade_total_divergente: 'alerta_quantidade_total_divergente',
+  alerta_quantidade_pronta_divergente: 'alerta_quantidade_pronta_divergente',
+  alerta_peso_liquido_divergente: 'alerta_peso_liquido_divergente',
+  alerta_peso_bruto_divergente: 'alerta_peso_bruto_divergente',
+  alerta_cubagem_divergente: 'alerta_cubagem_divergente',
   updated_at: 'updated_at'
 };
 
@@ -1009,6 +1023,40 @@ exports.Prisma.MapeamentoImportScalarFieldEnum = {
   hash_colunas: 'hash_colunas',
   mapeamento: 'mapeamento',
   uso_count: 'uso_count',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.NcmItemScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  codigo: 'codigo',
+  descricao: 'descricao',
+  ativo: 'ativo',
+  data_inicio: 'data_inicio',
+  data_fim: 'data_fim',
+  sync_id: 'sync_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.NcmSyncLogScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  iniciado_em: 'iniciado_em',
+  concluido_em: 'concluido_em',
+  status: 'status',
+  total: 'total',
+  adicionados: 'adicionados',
+  alterados: 'alterados',
+  removidos: 'removidos',
+  origem: 'origem',
+  disparado_por: 'disparado_por',
+  erro_msg: 'erro_msg',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -1121,6 +1169,17 @@ exports.AlertStatus = exports.$Enums.AlertStatus = {
   ESCALATED: 'ESCALATED'
 };
 
+exports.NcmSyncStatus = exports.$Enums.NcmSyncStatus = {
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR'
+};
+
+exports.NcmSyncOrigem = exports.$Enums.NcmSyncOrigem = {
+  JOB: 'JOB',
+  MANUAL: 'MANUAL'
+};
+
 exports.Prisma.ModelName = {
   Atividade: 'Atividade',
   AtividadeParticipante: 'AtividadeParticipante',
@@ -1171,7 +1230,9 @@ exports.Prisma.ModelName = {
   PedidoPreferenciaUsuario: 'PedidoPreferenciaUsuario',
   PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao',
   ConfiguracaoPedido: 'ConfiguracaoPedido',
-  MapeamentoImport: 'MapeamentoImport'
+  MapeamentoImport: 'MapeamentoImport',
+  NcmItem: 'NcmItem',
+  NcmSyncLog: 'NcmSyncLog'
 };
 
 /**

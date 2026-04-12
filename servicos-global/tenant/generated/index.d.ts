@@ -264,6 +264,16 @@ export type ConfiguracaoPedido = $Result.DefaultSelection<Prisma.$ConfiguracaoPe
  * 
  */
 export type MapeamentoImport = $Result.DefaultSelection<Prisma.$MapeamentoImportPayload>
+/**
+ * Model NcmItem
+ * 
+ */
+export type NcmItem = $Result.DefaultSelection<Prisma.$NcmItemPayload>
+/**
+ * Model NcmSyncLog
+ * 
+ */
+export type NcmSyncLog = $Result.DefaultSelection<Prisma.$NcmSyncLogPayload>
 
 /**
  * Enums
@@ -380,6 +390,23 @@ export const AlertStatus: {
 
 export type AlertStatus = (typeof AlertStatus)[keyof typeof AlertStatus]
 
+
+export const NcmSyncStatus: {
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  ERROR: 'ERROR'
+};
+
+export type NcmSyncStatus = (typeof NcmSyncStatus)[keyof typeof NcmSyncStatus]
+
+
+export const NcmSyncOrigem: {
+  JOB: 'JOB',
+  MANUAL: 'MANUAL'
+};
+
+export type NcmSyncOrigem = (typeof NcmSyncOrigem)[keyof typeof NcmSyncOrigem]
+
 }
 
 export type EmailThreadStatus = $Enums.EmailThreadStatus
@@ -425,6 +452,14 @@ export const EventStatus: typeof $Enums.EventStatus
 export type AlertStatus = $Enums.AlertStatus
 
 export const AlertStatus: typeof $Enums.AlertStatus
+
+export type NcmSyncStatus = $Enums.NcmSyncStatus
+
+export const NcmSyncStatus: typeof $Enums.NcmSyncStatus
+
+export type NcmSyncOrigem = $Enums.NcmSyncOrigem
+
+export const NcmSyncOrigem: typeof $Enums.NcmSyncOrigem
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1048,6 +1083,26 @@ export class PrismaClient<
     * ```
     */
   get mapeamentoImport(): Prisma.MapeamentoImportDelegate<ExtArgs>;
+
+  /**
+   * `prisma.ncmItem`: Exposes CRUD operations for the **NcmItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NcmItems
+    * const ncmItems = await prisma.ncmItem.findMany()
+    * ```
+    */
+  get ncmItem(): Prisma.NcmItemDelegate<ExtArgs>;
+
+  /**
+   * `prisma.ncmSyncLog`: Exposes CRUD operations for the **NcmSyncLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NcmSyncLogs
+    * const ncmSyncLogs = await prisma.ncmSyncLog.findMany()
+    * ```
+    */
+  get ncmSyncLog(): Prisma.NcmSyncLogDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1538,7 +1593,9 @@ export namespace Prisma {
     PedidoPreferenciaUsuario: 'PedidoPreferenciaUsuario',
     PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao',
     ConfiguracaoPedido: 'ConfiguracaoPedido',
-    MapeamentoImport: 'MapeamentoImport'
+    MapeamentoImport: 'MapeamentoImport',
+    NcmItem: 'NcmItem',
+    NcmSyncLog: 'NcmSyncLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1554,7 +1611,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "gabiTokenLog" | "gabiTokenQuota" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "configuracaoPedido" | "mapeamentoImport"
+      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "gabiTokenLog" | "gabiTokenQuota" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "configuracaoPedido" | "mapeamentoImport" | "ncmItem" | "ncmSyncLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5055,6 +5112,146 @@ export namespace Prisma {
           count: {
             args: Prisma.MapeamentoImportCountArgs<ExtArgs>
             result: $Utils.Optional<MapeamentoImportCountAggregateOutputType> | number
+          }
+        }
+      }
+      NcmItem: {
+        payload: Prisma.$NcmItemPayload<ExtArgs>
+        fields: Prisma.NcmItemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NcmItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NcmItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
+          }
+          findFirst: {
+            args: Prisma.NcmItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NcmItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
+          }
+          findMany: {
+            args: Prisma.NcmItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>[]
+          }
+          create: {
+            args: Prisma.NcmItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
+          }
+          createMany: {
+            args: Prisma.NcmItemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NcmItemCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>[]
+          }
+          delete: {
+            args: Prisma.NcmItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
+          }
+          update: {
+            args: Prisma.NcmItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.NcmItemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NcmItemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.NcmItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmItemPayload>
+          }
+          aggregate: {
+            args: Prisma.NcmItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcmItem>
+          }
+          groupBy: {
+            args: Prisma.NcmItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmItemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NcmItemCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmItemCountAggregateOutputType> | number
+          }
+        }
+      }
+      NcmSyncLog: {
+        payload: Prisma.$NcmSyncLogPayload<ExtArgs>
+        fields: Prisma.NcmSyncLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NcmSyncLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NcmSyncLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          findFirst: {
+            args: Prisma.NcmSyncLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NcmSyncLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          findMany: {
+            args: Prisma.NcmSyncLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>[]
+          }
+          create: {
+            args: Prisma.NcmSyncLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          createMany: {
+            args: Prisma.NcmSyncLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NcmSyncLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>[]
+          }
+          delete: {
+            args: Prisma.NcmSyncLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          update: {
+            args: Prisma.NcmSyncLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.NcmSyncLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NcmSyncLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.NcmSyncLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmSyncLogPayload>
+          }
+          aggregate: {
+            args: Prisma.NcmSyncLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcmSyncLog>
+          }
+          groupBy: {
+            args: Prisma.NcmSyncLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmSyncLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NcmSyncLogCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmSyncLogCountAggregateOutputType> | number
           }
         }
       }
@@ -44093,30 +44290,30 @@ export namespace Prisma {
 
   export type PedidoAvgAggregateOutputType = {
     valor_total_pedido: Decimal | null
-    casas_decimais_total_pedido: number | null
-    quantidade_total_pedido: number | null
-    casas_decimais_quantidade_total_pedido: number | null
+    casas_decimais_valor_pedido: number | null
+    quantidade_total_inicial_pedido: Decimal | null
+    casas_decimais_quantidade_pedido: number | null
     peso_liquido_total_pedido: Decimal | null
     peso_bruto_total_pedido: Decimal | null
     cubagem_total_pedido: Decimal | null
     casas_decimais_peso_pedido: number | null
     casas_decimais_cubagem_pedido: number | null
-    valor_total_cambio: Decimal | null
-    taxa_cambio_estimada: Decimal | null
+    valor_total_cambio_pedido: Decimal | null
+    taxa_cambio_estimada_pedido: Decimal | null
   }
 
   export type PedidoSumAggregateOutputType = {
     valor_total_pedido: Decimal | null
-    casas_decimais_total_pedido: number | null
-    quantidade_total_pedido: number | null
-    casas_decimais_quantidade_total_pedido: number | null
+    casas_decimais_valor_pedido: number | null
+    quantidade_total_inicial_pedido: Decimal | null
+    casas_decimais_quantidade_pedido: number | null
     peso_liquido_total_pedido: Decimal | null
     peso_bruto_total_pedido: Decimal | null
     cubagem_total_pedido: Decimal | null
     casas_decimais_peso_pedido: number | null
     casas_decimais_cubagem_pedido: number | null
-    valor_total_cambio: Decimal | null
-    taxa_cambio_estimada: Decimal | null
+    valor_total_cambio_pedido: Decimal | null
+    taxa_cambio_estimada_pedido: Decimal | null
   }
 
   export type PedidoMinAggregateOutputType = {
@@ -44133,31 +44330,31 @@ export namespace Prisma {
     incoterm: string | null
     moeda_pedido: string | null
     valor_total_pedido: Decimal | null
-    casas_decimais_total_pedido: number | null
-    quantidade_total_pedido: number | null
-    casas_decimais_quantidade_total_pedido: number | null
+    casas_decimais_valor_pedido: number | null
+    quantidade_total_inicial_pedido: Decimal | null
+    casas_decimais_quantidade_pedido: number | null
     unidade_comercializada_pedido: string | null
     peso_liquido_total_pedido: Decimal | null
     peso_bruto_total_pedido: Decimal | null
     cubagem_total_pedido: Decimal | null
     casas_decimais_peso_pedido: number | null
     casas_decimais_cubagem_pedido: number | null
-    cobertura_cambial: string | null
-    condicao_pagamento: string | null
+    condicao_pagamento_pedido: string | null
     numero_proforma: string | null
     numero_invoice: string | null
     referencia_importador: string | null
     referencia_exportador: string | null
     referencia_fabricante: string | null
-    valor_total_cambio: Decimal | null
-    moeda_cambio: string | null
-    taxa_cambio_estimada: Decimal | null
-    contrato_cambio_id: string | null
+    valor_total_cambio_pedido: Decimal | null
+    moeda_cambio_pedido: string | null
+    taxa_cambio_estimada_pedido: Decimal | null
+    contrato_cambio_id_pedido: string | null
     data_emissao_pedido: Date | null
+    cnpj_importador: string | null
     data_consolidacao_pedido: Date | null
     deleted_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    pedido_criado_em: Date | null
+    pedido_atualizado_em: Date | null
   }
 
   export type PedidoMaxAggregateOutputType = {
@@ -44174,31 +44371,31 @@ export namespace Prisma {
     incoterm: string | null
     moeda_pedido: string | null
     valor_total_pedido: Decimal | null
-    casas_decimais_total_pedido: number | null
-    quantidade_total_pedido: number | null
-    casas_decimais_quantidade_total_pedido: number | null
+    casas_decimais_valor_pedido: number | null
+    quantidade_total_inicial_pedido: Decimal | null
+    casas_decimais_quantidade_pedido: number | null
     unidade_comercializada_pedido: string | null
     peso_liquido_total_pedido: Decimal | null
     peso_bruto_total_pedido: Decimal | null
     cubagem_total_pedido: Decimal | null
     casas_decimais_peso_pedido: number | null
     casas_decimais_cubagem_pedido: number | null
-    cobertura_cambial: string | null
-    condicao_pagamento: string | null
+    condicao_pagamento_pedido: string | null
     numero_proforma: string | null
     numero_invoice: string | null
     referencia_importador: string | null
     referencia_exportador: string | null
     referencia_fabricante: string | null
-    valor_total_cambio: Decimal | null
-    moeda_cambio: string | null
-    taxa_cambio_estimada: Decimal | null
-    contrato_cambio_id: string | null
+    valor_total_cambio_pedido: Decimal | null
+    moeda_cambio_pedido: string | null
+    taxa_cambio_estimada_pedido: Decimal | null
+    contrato_cambio_id_pedido: string | null
     data_emissao_pedido: Date | null
+    cnpj_importador: string | null
     data_consolidacao_pedido: Date | null
     deleted_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    pedido_criado_em: Date | null
+    pedido_atualizado_em: Date | null
   }
 
   export type PedidoCountAggregateOutputType = {
@@ -44215,64 +44412,64 @@ export namespace Prisma {
     incoterm: number
     moeda_pedido: number
     valor_total_pedido: number
-    casas_decimais_total_pedido: number
-    quantidade_total_pedido: number
-    casas_decimais_quantidade_total_pedido: number
+    casas_decimais_valor_pedido: number
+    quantidade_total_inicial_pedido: number
+    casas_decimais_quantidade_pedido: number
     unidade_comercializada_pedido: number
     peso_liquido_total_pedido: number
     peso_bruto_total_pedido: number
     cubagem_total_pedido: number
     casas_decimais_peso_pedido: number
     casas_decimais_cubagem_pedido: number
-    cobertura_cambial: number
-    condicao_pagamento: number
+    condicao_pagamento_pedido: number
     numero_proforma: number
     numero_invoice: number
     referencia_importador: number
     referencia_exportador: number
     referencia_fabricante: number
-    valor_total_cambio: number
-    moeda_cambio: number
-    taxa_cambio_estimada: number
-    contrato_cambio_id: number
+    valor_total_cambio_pedido: number
+    moeda_cambio_pedido: number
+    taxa_cambio_estimada_pedido: number
+    contrato_cambio_id_pedido: number
     data_emissao_pedido: number
+    cnpj_importador: number
     detalhes_operacionais: number
     campos_custom: number
-    pedidos_origem: number
+    pedidos_origem_id: number
     data_consolidacao_pedido: number
     deleted_at: number
-    created_at: number
-    updated_at: number
+    pedido_criado_em: number
+    pedido_atualizado_em: number
     _all: number
   }
 
 
   export type PedidoAvgAggregateInputType = {
     valor_total_pedido?: true
-    casas_decimais_total_pedido?: true
-    quantidade_total_pedido?: true
-    casas_decimais_quantidade_total_pedido?: true
+    casas_decimais_valor_pedido?: true
+    quantidade_total_inicial_pedido?: true
+    casas_decimais_quantidade_pedido?: true
     peso_liquido_total_pedido?: true
     peso_bruto_total_pedido?: true
     cubagem_total_pedido?: true
     casas_decimais_peso_pedido?: true
     casas_decimais_cubagem_pedido?: true
-    valor_total_cambio?: true
-    taxa_cambio_estimada?: true
+    valor_total_cambio_pedido?: true
+    taxa_cambio_estimada_pedido?: true
   }
 
   export type PedidoSumAggregateInputType = {
     valor_total_pedido?: true
-    casas_decimais_total_pedido?: true
-    quantidade_total_pedido?: true
-    casas_decimais_quantidade_total_pedido?: true
+    casas_decimais_valor_pedido?: true
+    quantidade_total_inicial_pedido?: true
+    casas_decimais_quantidade_pedido?: true
     peso_liquido_total_pedido?: true
     peso_bruto_total_pedido?: true
     cubagem_total_pedido?: true
     casas_decimais_peso_pedido?: true
     casas_decimais_cubagem_pedido?: true
-    valor_total_cambio?: true
-    taxa_cambio_estimada?: true
+    valor_total_cambio_pedido?: true
+    taxa_cambio_estimada_pedido?: true
   }
 
   export type PedidoMinAggregateInputType = {
@@ -44289,31 +44486,31 @@ export namespace Prisma {
     incoterm?: true
     moeda_pedido?: true
     valor_total_pedido?: true
-    casas_decimais_total_pedido?: true
-    quantidade_total_pedido?: true
-    casas_decimais_quantidade_total_pedido?: true
+    casas_decimais_valor_pedido?: true
+    quantidade_total_inicial_pedido?: true
+    casas_decimais_quantidade_pedido?: true
     unidade_comercializada_pedido?: true
     peso_liquido_total_pedido?: true
     peso_bruto_total_pedido?: true
     cubagem_total_pedido?: true
     casas_decimais_peso_pedido?: true
     casas_decimais_cubagem_pedido?: true
-    cobertura_cambial?: true
-    condicao_pagamento?: true
+    condicao_pagamento_pedido?: true
     numero_proforma?: true
     numero_invoice?: true
     referencia_importador?: true
     referencia_exportador?: true
     referencia_fabricante?: true
-    valor_total_cambio?: true
-    moeda_cambio?: true
-    taxa_cambio_estimada?: true
-    contrato_cambio_id?: true
+    valor_total_cambio_pedido?: true
+    moeda_cambio_pedido?: true
+    taxa_cambio_estimada_pedido?: true
+    contrato_cambio_id_pedido?: true
     data_emissao_pedido?: true
+    cnpj_importador?: true
     data_consolidacao_pedido?: true
     deleted_at?: true
-    created_at?: true
-    updated_at?: true
+    pedido_criado_em?: true
+    pedido_atualizado_em?: true
   }
 
   export type PedidoMaxAggregateInputType = {
@@ -44330,31 +44527,31 @@ export namespace Prisma {
     incoterm?: true
     moeda_pedido?: true
     valor_total_pedido?: true
-    casas_decimais_total_pedido?: true
-    quantidade_total_pedido?: true
-    casas_decimais_quantidade_total_pedido?: true
+    casas_decimais_valor_pedido?: true
+    quantidade_total_inicial_pedido?: true
+    casas_decimais_quantidade_pedido?: true
     unidade_comercializada_pedido?: true
     peso_liquido_total_pedido?: true
     peso_bruto_total_pedido?: true
     cubagem_total_pedido?: true
     casas_decimais_peso_pedido?: true
     casas_decimais_cubagem_pedido?: true
-    cobertura_cambial?: true
-    condicao_pagamento?: true
+    condicao_pagamento_pedido?: true
     numero_proforma?: true
     numero_invoice?: true
     referencia_importador?: true
     referencia_exportador?: true
     referencia_fabricante?: true
-    valor_total_cambio?: true
-    moeda_cambio?: true
-    taxa_cambio_estimada?: true
-    contrato_cambio_id?: true
+    valor_total_cambio_pedido?: true
+    moeda_cambio_pedido?: true
+    taxa_cambio_estimada_pedido?: true
+    contrato_cambio_id_pedido?: true
     data_emissao_pedido?: true
+    cnpj_importador?: true
     data_consolidacao_pedido?: true
     deleted_at?: true
-    created_at?: true
-    updated_at?: true
+    pedido_criado_em?: true
+    pedido_atualizado_em?: true
   }
 
   export type PedidoCountAggregateInputType = {
@@ -44371,34 +44568,34 @@ export namespace Prisma {
     incoterm?: true
     moeda_pedido?: true
     valor_total_pedido?: true
-    casas_decimais_total_pedido?: true
-    quantidade_total_pedido?: true
-    casas_decimais_quantidade_total_pedido?: true
+    casas_decimais_valor_pedido?: true
+    quantidade_total_inicial_pedido?: true
+    casas_decimais_quantidade_pedido?: true
     unidade_comercializada_pedido?: true
     peso_liquido_total_pedido?: true
     peso_bruto_total_pedido?: true
     cubagem_total_pedido?: true
     casas_decimais_peso_pedido?: true
     casas_decimais_cubagem_pedido?: true
-    cobertura_cambial?: true
-    condicao_pagamento?: true
+    condicao_pagamento_pedido?: true
     numero_proforma?: true
     numero_invoice?: true
     referencia_importador?: true
     referencia_exportador?: true
     referencia_fabricante?: true
-    valor_total_cambio?: true
-    moeda_cambio?: true
-    taxa_cambio_estimada?: true
-    contrato_cambio_id?: true
+    valor_total_cambio_pedido?: true
+    moeda_cambio_pedido?: true
+    taxa_cambio_estimada_pedido?: true
+    contrato_cambio_id_pedido?: true
     data_emissao_pedido?: true
+    cnpj_importador?: true
     detalhes_operacionais?: true
     campos_custom?: true
-    pedidos_origem?: true
+    pedidos_origem_id?: true
     data_consolidacao_pedido?: true
     deleted_at?: true
-    created_at?: true
-    updated_at?: true
+    pedido_criado_em?: true
+    pedido_atualizado_em?: true
     _all?: true
   }
 
@@ -44502,34 +44699,34 @@ export namespace Prisma {
     incoterm: string | null
     moeda_pedido: string
     valor_total_pedido: Decimal | null
-    casas_decimais_total_pedido: number
-    quantidade_total_pedido: number | null
-    casas_decimais_quantidade_total_pedido: number
+    casas_decimais_valor_pedido: number
+    quantidade_total_inicial_pedido: Decimal | null
+    casas_decimais_quantidade_pedido: number
     unidade_comercializada_pedido: string | null
     peso_liquido_total_pedido: Decimal | null
     peso_bruto_total_pedido: Decimal | null
     cubagem_total_pedido: Decimal | null
     casas_decimais_peso_pedido: number
     casas_decimais_cubagem_pedido: number
-    cobertura_cambial: string
-    condicao_pagamento: string | null
+    condicao_pagamento_pedido: string | null
     numero_proforma: string | null
     numero_invoice: string | null
     referencia_importador: string | null
     referencia_exportador: string | null
     referencia_fabricante: string | null
-    valor_total_cambio: Decimal | null
-    moeda_cambio: string | null
-    taxa_cambio_estimada: Decimal | null
-    contrato_cambio_id: string | null
+    valor_total_cambio_pedido: Decimal | null
+    moeda_cambio_pedido: string | null
+    taxa_cambio_estimada_pedido: Decimal | null
+    contrato_cambio_id_pedido: string | null
     data_emissao_pedido: Date
+    cnpj_importador: string | null
     detalhes_operacionais: JsonValue | null
     campos_custom: JsonValue | null
-    pedidos_origem: string[]
+    pedidos_origem_id: JsonValue | null
     data_consolidacao_pedido: Date | null
     deleted_at: Date | null
-    created_at: Date
-    updated_at: Date
+    pedido_criado_em: Date
+    pedido_atualizado_em: Date
     _count: PedidoCountAggregateOutputType | null
     _avg: PedidoAvgAggregateOutputType | null
     _sum: PedidoSumAggregateOutputType | null
@@ -44565,34 +44762,34 @@ export namespace Prisma {
     incoterm?: boolean
     moeda_pedido?: boolean
     valor_total_pedido?: boolean
-    casas_decimais_total_pedido?: boolean
-    quantidade_total_pedido?: boolean
-    casas_decimais_quantidade_total_pedido?: boolean
+    casas_decimais_valor_pedido?: boolean
+    quantidade_total_inicial_pedido?: boolean
+    casas_decimais_quantidade_pedido?: boolean
     unidade_comercializada_pedido?: boolean
     peso_liquido_total_pedido?: boolean
     peso_bruto_total_pedido?: boolean
     cubagem_total_pedido?: boolean
     casas_decimais_peso_pedido?: boolean
     casas_decimais_cubagem_pedido?: boolean
-    cobertura_cambial?: boolean
-    condicao_pagamento?: boolean
+    condicao_pagamento_pedido?: boolean
     numero_proforma?: boolean
     numero_invoice?: boolean
     referencia_importador?: boolean
     referencia_exportador?: boolean
     referencia_fabricante?: boolean
-    valor_total_cambio?: boolean
-    moeda_cambio?: boolean
-    taxa_cambio_estimada?: boolean
-    contrato_cambio_id?: boolean
+    valor_total_cambio_pedido?: boolean
+    moeda_cambio_pedido?: boolean
+    taxa_cambio_estimada_pedido?: boolean
+    contrato_cambio_id_pedido?: boolean
     data_emissao_pedido?: boolean
+    cnpj_importador?: boolean
     detalhes_operacionais?: boolean
     campos_custom?: boolean
-    pedidos_origem?: boolean
+    pedidos_origem_id?: boolean
     data_consolidacao_pedido?: boolean
     deleted_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    pedido_criado_em?: boolean
+    pedido_atualizado_em?: boolean
     itens?: boolean | Pedido$itensArgs<ExtArgs>
     _count?: boolean | PedidoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["pedido"]>
@@ -44611,34 +44808,34 @@ export namespace Prisma {
     incoterm?: boolean
     moeda_pedido?: boolean
     valor_total_pedido?: boolean
-    casas_decimais_total_pedido?: boolean
-    quantidade_total_pedido?: boolean
-    casas_decimais_quantidade_total_pedido?: boolean
+    casas_decimais_valor_pedido?: boolean
+    quantidade_total_inicial_pedido?: boolean
+    casas_decimais_quantidade_pedido?: boolean
     unidade_comercializada_pedido?: boolean
     peso_liquido_total_pedido?: boolean
     peso_bruto_total_pedido?: boolean
     cubagem_total_pedido?: boolean
     casas_decimais_peso_pedido?: boolean
     casas_decimais_cubagem_pedido?: boolean
-    cobertura_cambial?: boolean
-    condicao_pagamento?: boolean
+    condicao_pagamento_pedido?: boolean
     numero_proforma?: boolean
     numero_invoice?: boolean
     referencia_importador?: boolean
     referencia_exportador?: boolean
     referencia_fabricante?: boolean
-    valor_total_cambio?: boolean
-    moeda_cambio?: boolean
-    taxa_cambio_estimada?: boolean
-    contrato_cambio_id?: boolean
+    valor_total_cambio_pedido?: boolean
+    moeda_cambio_pedido?: boolean
+    taxa_cambio_estimada_pedido?: boolean
+    contrato_cambio_id_pedido?: boolean
     data_emissao_pedido?: boolean
+    cnpj_importador?: boolean
     detalhes_operacionais?: boolean
     campos_custom?: boolean
-    pedidos_origem?: boolean
+    pedidos_origem_id?: boolean
     data_consolidacao_pedido?: boolean
     deleted_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    pedido_criado_em?: boolean
+    pedido_atualizado_em?: boolean
   }, ExtArgs["result"]["pedido"]>
 
   export type PedidoSelectScalar = {
@@ -44655,34 +44852,34 @@ export namespace Prisma {
     incoterm?: boolean
     moeda_pedido?: boolean
     valor_total_pedido?: boolean
-    casas_decimais_total_pedido?: boolean
-    quantidade_total_pedido?: boolean
-    casas_decimais_quantidade_total_pedido?: boolean
+    casas_decimais_valor_pedido?: boolean
+    quantidade_total_inicial_pedido?: boolean
+    casas_decimais_quantidade_pedido?: boolean
     unidade_comercializada_pedido?: boolean
     peso_liquido_total_pedido?: boolean
     peso_bruto_total_pedido?: boolean
     cubagem_total_pedido?: boolean
     casas_decimais_peso_pedido?: boolean
     casas_decimais_cubagem_pedido?: boolean
-    cobertura_cambial?: boolean
-    condicao_pagamento?: boolean
+    condicao_pagamento_pedido?: boolean
     numero_proforma?: boolean
     numero_invoice?: boolean
     referencia_importador?: boolean
     referencia_exportador?: boolean
     referencia_fabricante?: boolean
-    valor_total_cambio?: boolean
-    moeda_cambio?: boolean
-    taxa_cambio_estimada?: boolean
-    contrato_cambio_id?: boolean
+    valor_total_cambio_pedido?: boolean
+    moeda_cambio_pedido?: boolean
+    taxa_cambio_estimada_pedido?: boolean
+    contrato_cambio_id_pedido?: boolean
     data_emissao_pedido?: boolean
+    cnpj_importador?: boolean
     detalhes_operacionais?: boolean
     campos_custom?: boolean
-    pedidos_origem?: boolean
+    pedidos_origem_id?: boolean
     data_consolidacao_pedido?: boolean
     deleted_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    pedido_criado_em?: boolean
+    pedido_atualizado_em?: boolean
   }
 
   export type PedidoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -44710,34 +44907,34 @@ export namespace Prisma {
       incoterm: string | null
       moeda_pedido: string
       valor_total_pedido: Prisma.Decimal | null
-      casas_decimais_total_pedido: number
-      quantidade_total_pedido: number | null
-      casas_decimais_quantidade_total_pedido: number
+      casas_decimais_valor_pedido: number
+      quantidade_total_inicial_pedido: Prisma.Decimal | null
+      casas_decimais_quantidade_pedido: number
       unidade_comercializada_pedido: string | null
       peso_liquido_total_pedido: Prisma.Decimal | null
       peso_bruto_total_pedido: Prisma.Decimal | null
       cubagem_total_pedido: Prisma.Decimal | null
       casas_decimais_peso_pedido: number
       casas_decimais_cubagem_pedido: number
-      cobertura_cambial: string
-      condicao_pagamento: string | null
+      condicao_pagamento_pedido: string | null
       numero_proforma: string | null
       numero_invoice: string | null
       referencia_importador: string | null
       referencia_exportador: string | null
       referencia_fabricante: string | null
-      valor_total_cambio: Prisma.Decimal | null
-      moeda_cambio: string | null
-      taxa_cambio_estimada: Prisma.Decimal | null
-      contrato_cambio_id: string | null
+      valor_total_cambio_pedido: Prisma.Decimal | null
+      moeda_cambio_pedido: string | null
+      taxa_cambio_estimada_pedido: Prisma.Decimal | null
+      contrato_cambio_id_pedido: string | null
       data_emissao_pedido: Date
+      cnpj_importador: string | null
       detalhes_operacionais: Prisma.JsonValue | null
       campos_custom: Prisma.JsonValue | null
-      pedidos_origem: string[]
+      pedidos_origem_id: Prisma.JsonValue | null
       data_consolidacao_pedido: Date | null
       deleted_at: Date | null
-      created_at: Date
-      updated_at: Date
+      pedido_criado_em: Date
+      pedido_atualizado_em: Date
     }, ExtArgs["result"]["pedido"]>
     composites: {}
   }
@@ -45145,34 +45342,34 @@ export namespace Prisma {
     readonly incoterm: FieldRef<"Pedido", 'String'>
     readonly moeda_pedido: FieldRef<"Pedido", 'String'>
     readonly valor_total_pedido: FieldRef<"Pedido", 'Decimal'>
-    readonly casas_decimais_total_pedido: FieldRef<"Pedido", 'Int'>
-    readonly quantidade_total_pedido: FieldRef<"Pedido", 'Float'>
-    readonly casas_decimais_quantidade_total_pedido: FieldRef<"Pedido", 'Int'>
+    readonly casas_decimais_valor_pedido: FieldRef<"Pedido", 'Int'>
+    readonly quantidade_total_inicial_pedido: FieldRef<"Pedido", 'Decimal'>
+    readonly casas_decimais_quantidade_pedido: FieldRef<"Pedido", 'Int'>
     readonly unidade_comercializada_pedido: FieldRef<"Pedido", 'String'>
     readonly peso_liquido_total_pedido: FieldRef<"Pedido", 'Decimal'>
     readonly peso_bruto_total_pedido: FieldRef<"Pedido", 'Decimal'>
     readonly cubagem_total_pedido: FieldRef<"Pedido", 'Decimal'>
     readonly casas_decimais_peso_pedido: FieldRef<"Pedido", 'Int'>
     readonly casas_decimais_cubagem_pedido: FieldRef<"Pedido", 'Int'>
-    readonly cobertura_cambial: FieldRef<"Pedido", 'String'>
-    readonly condicao_pagamento: FieldRef<"Pedido", 'String'>
+    readonly condicao_pagamento_pedido: FieldRef<"Pedido", 'String'>
     readonly numero_proforma: FieldRef<"Pedido", 'String'>
     readonly numero_invoice: FieldRef<"Pedido", 'String'>
     readonly referencia_importador: FieldRef<"Pedido", 'String'>
     readonly referencia_exportador: FieldRef<"Pedido", 'String'>
     readonly referencia_fabricante: FieldRef<"Pedido", 'String'>
-    readonly valor_total_cambio: FieldRef<"Pedido", 'Decimal'>
-    readonly moeda_cambio: FieldRef<"Pedido", 'String'>
-    readonly taxa_cambio_estimada: FieldRef<"Pedido", 'Decimal'>
-    readonly contrato_cambio_id: FieldRef<"Pedido", 'String'>
+    readonly valor_total_cambio_pedido: FieldRef<"Pedido", 'Decimal'>
+    readonly moeda_cambio_pedido: FieldRef<"Pedido", 'String'>
+    readonly taxa_cambio_estimada_pedido: FieldRef<"Pedido", 'Decimal'>
+    readonly contrato_cambio_id_pedido: FieldRef<"Pedido", 'String'>
     readonly data_emissao_pedido: FieldRef<"Pedido", 'DateTime'>
+    readonly cnpj_importador: FieldRef<"Pedido", 'String'>
     readonly detalhes_operacionais: FieldRef<"Pedido", 'Json'>
     readonly campos_custom: FieldRef<"Pedido", 'Json'>
-    readonly pedidos_origem: FieldRef<"Pedido", 'String[]'>
+    readonly pedidos_origem_id: FieldRef<"Pedido", 'Json'>
     readonly data_consolidacao_pedido: FieldRef<"Pedido", 'DateTime'>
     readonly deleted_at: FieldRef<"Pedido", 'DateTime'>
-    readonly created_at: FieldRef<"Pedido", 'DateTime'>
-    readonly updated_at: FieldRef<"Pedido", 'DateTime'>
+    readonly pedido_criado_em: FieldRef<"Pedido", 'DateTime'>
+    readonly pedido_atualizado_em: FieldRef<"Pedido", 'DateTime'>
   }
     
 
@@ -45535,38 +45732,38 @@ export namespace Prisma {
 
   export type PedidoItemAvgAggregateOutputType = {
     sequencia_item: number | null
-    quantidade_inicial_pedido: Decimal | null
-    quantidade_saldo_pedido: Decimal | null
-    quantidade_pronta_pedido: Decimal | null
-    quantidade_transferida_pedido: Decimal | null
-    quantidade_cancelada_pedido: Decimal | null
+    quantidade_inicial_item_pedido: Decimal | null
+    saldo_item_pedido: Decimal | null
+    quantidade_pronta_total_item_pedido: Decimal | null
+    quantidade_transferida_item_pedido: Decimal | null
+    quantidade_cancelada_item_pedido: Decimal | null
     casas_decimais_quantidade_item: number | null
-    valor_total_item: Decimal | null
-    valor_por_unidade_item: Decimal | null
-    casas_decimais_total_item: number | null
-    peso_liquido_unitario: Decimal | null
-    peso_bruto_unitario: Decimal | null
-    cubagem_unitaria: Decimal | null
-    casas_decimais_peso: number | null
-    casas_decimais_cubagem: number | null
+    valor_total_itens: Decimal | null
+    valor_unitario_item: Decimal | null
+    casas_decimais_valor_item: number | null
+    peso_liquido_unitario_item: Decimal | null
+    peso_bruto_unitario_item: Decimal | null
+    cubagem_unitaria_item: Decimal | null
+    casas_decimais_peso_item: number | null
+    casas_decimais_cubagem_item: number | null
   }
 
   export type PedidoItemSumAggregateOutputType = {
     sequencia_item: number | null
-    quantidade_inicial_pedido: Decimal | null
-    quantidade_saldo_pedido: Decimal | null
-    quantidade_pronta_pedido: Decimal | null
-    quantidade_transferida_pedido: Decimal | null
-    quantidade_cancelada_pedido: Decimal | null
+    quantidade_inicial_item_pedido: Decimal | null
+    saldo_item_pedido: Decimal | null
+    quantidade_pronta_total_item_pedido: Decimal | null
+    quantidade_transferida_item_pedido: Decimal | null
+    quantidade_cancelada_item_pedido: Decimal | null
     casas_decimais_quantidade_item: number | null
-    valor_total_item: Decimal | null
-    valor_por_unidade_item: Decimal | null
-    casas_decimais_total_item: number | null
-    peso_liquido_unitario: Decimal | null
-    peso_bruto_unitario: Decimal | null
-    cubagem_unitaria: Decimal | null
-    casas_decimais_peso: number | null
-    casas_decimais_cubagem: number | null
+    valor_total_itens: Decimal | null
+    valor_unitario_item: Decimal | null
+    casas_decimais_valor_item: number | null
+    peso_liquido_unitario_item: Decimal | null
+    peso_bruto_unitario_item: Decimal | null
+    cubagem_unitaria_item: Decimal | null
+    casas_decimais_peso_item: number | null
+    casas_decimais_cubagem_item: number | null
   }
 
   export type PedidoItemMinAggregateOutputType = {
@@ -45579,23 +45776,31 @@ export namespace Prisma {
     ncm: string | null
     descricao_item: string | null
     unidade_comercializada_item: string | null
-    quantidade_inicial_pedido: Decimal | null
-    quantidade_saldo_pedido: Decimal | null
-    quantidade_pronta_pedido: Decimal | null
-    quantidade_transferida_pedido: Decimal | null
-    quantidade_cancelada_pedido: Decimal | null
+    quantidade_inicial_item_pedido: Decimal | null
+    saldo_item_pedido: Decimal | null
+    quantidade_pronta_total_item_pedido: Decimal | null
+    quantidade_transferida_item_pedido: Decimal | null
+    quantidade_cancelada_item_pedido: Decimal | null
     casas_decimais_quantidade_item: number | null
     moeda_item: string | null
-    valor_total_item: Decimal | null
-    valor_por_unidade_item: Decimal | null
-    casas_decimais_total_item: number | null
-    peso_liquido_unitario: Decimal | null
-    peso_bruto_unitario: Decimal | null
-    cubagem_unitaria: Decimal | null
-    casas_decimais_peso: number | null
-    casas_decimais_cubagem: number | null
-    created_at: Date | null
-    updated_at: Date | null
+    valor_total_itens: Decimal | null
+    valor_unitario_item: Decimal | null
+    casas_decimais_valor_item: number | null
+    cobertura_cambial: string | null
+    peso_liquido_unitario_item: Decimal | null
+    peso_bruto_unitario_item: Decimal | null
+    cubagem_unitaria_item: Decimal | null
+    casas_decimais_peso_item: number | null
+    casas_decimais_cubagem_item: number | null
+    descricao_completa_item_pt: string | null
+    descricao_completa_item_en: string | null
+    descricao_completa_item_es: string | null
+    descricao_completa_item_nf: string | null
+    grupo_item: string | null
+    subgrupo_item: string | null
+    campo_especial_item: string | null
+    item_criado_em: Date | null
+    item_atualizado_em: Date | null
   }
 
   export type PedidoItemMaxAggregateOutputType = {
@@ -45608,23 +45813,31 @@ export namespace Prisma {
     ncm: string | null
     descricao_item: string | null
     unidade_comercializada_item: string | null
-    quantidade_inicial_pedido: Decimal | null
-    quantidade_saldo_pedido: Decimal | null
-    quantidade_pronta_pedido: Decimal | null
-    quantidade_transferida_pedido: Decimal | null
-    quantidade_cancelada_pedido: Decimal | null
+    quantidade_inicial_item_pedido: Decimal | null
+    saldo_item_pedido: Decimal | null
+    quantidade_pronta_total_item_pedido: Decimal | null
+    quantidade_transferida_item_pedido: Decimal | null
+    quantidade_cancelada_item_pedido: Decimal | null
     casas_decimais_quantidade_item: number | null
     moeda_item: string | null
-    valor_total_item: Decimal | null
-    valor_por_unidade_item: Decimal | null
-    casas_decimais_total_item: number | null
-    peso_liquido_unitario: Decimal | null
-    peso_bruto_unitario: Decimal | null
-    cubagem_unitaria: Decimal | null
-    casas_decimais_peso: number | null
-    casas_decimais_cubagem: number | null
-    created_at: Date | null
-    updated_at: Date | null
+    valor_total_itens: Decimal | null
+    valor_unitario_item: Decimal | null
+    casas_decimais_valor_item: number | null
+    cobertura_cambial: string | null
+    peso_liquido_unitario_item: Decimal | null
+    peso_bruto_unitario_item: Decimal | null
+    cubagem_unitaria_item: Decimal | null
+    casas_decimais_peso_item: number | null
+    casas_decimais_cubagem_item: number | null
+    descricao_completa_item_pt: string | null
+    descricao_completa_item_en: string | null
+    descricao_completa_item_es: string | null
+    descricao_completa_item_nf: string | null
+    grupo_item: string | null
+    subgrupo_item: string | null
+    campo_especial_item: string | null
+    item_criado_em: Date | null
+    item_atualizado_em: Date | null
   }
 
   export type PedidoItemCountAggregateOutputType = {
@@ -45637,62 +45850,70 @@ export namespace Prisma {
     ncm: number
     descricao_item: number
     unidade_comercializada_item: number
-    quantidade_inicial_pedido: number
-    quantidade_saldo_pedido: number
-    quantidade_pronta_pedido: number
-    quantidade_transferida_pedido: number
-    quantidade_cancelada_pedido: number
+    quantidade_inicial_item_pedido: number
+    saldo_item_pedido: number
+    quantidade_pronta_total_item_pedido: number
+    quantidade_transferida_item_pedido: number
+    quantidade_cancelada_item_pedido: number
     casas_decimais_quantidade_item: number
     moeda_item: number
-    valor_total_item: number
-    valor_por_unidade_item: number
-    casas_decimais_total_item: number
-    peso_liquido_unitario: number
-    peso_bruto_unitario: number
-    cubagem_unitaria: number
-    casas_decimais_peso: number
-    casas_decimais_cubagem: number
+    valor_total_itens: number
+    valor_unitario_item: number
+    casas_decimais_valor_item: number
+    cobertura_cambial: number
+    peso_liquido_unitario_item: number
+    peso_bruto_unitario_item: number
+    cubagem_unitaria_item: number
+    casas_decimais_peso_item: number
+    casas_decimais_cubagem_item: number
+    descricao_completa_item_pt: number
+    descricao_completa_item_en: number
+    descricao_completa_item_es: number
+    descricao_completa_item_nf: number
+    grupo_item: number
+    subgrupo_item: number
+    campo_especial_item: number
     campos_custom: number
-    created_at: number
-    updated_at: number
+    item_criado_em: number
+    item_atualizado_em: number
     _all: number
   }
 
 
   export type PedidoItemAvgAggregateInputType = {
     sequencia_item?: true
-    quantidade_inicial_pedido?: true
-    quantidade_saldo_pedido?: true
-    quantidade_pronta_pedido?: true
-    quantidade_transferida_pedido?: true
-    quantidade_cancelada_pedido?: true
+    quantidade_inicial_item_pedido?: true
+    saldo_item_pedido?: true
+    quantidade_pronta_total_item_pedido?: true
+    quantidade_transferida_item_pedido?: true
+    quantidade_cancelada_item_pedido?: true
     casas_decimais_quantidade_item?: true
-    valor_total_item?: true
-    valor_por_unidade_item?: true
-    casas_decimais_total_item?: true
-    peso_liquido_unitario?: true
-    peso_bruto_unitario?: true
-    cubagem_unitaria?: true
-    casas_decimais_peso?: true
-    casas_decimais_cubagem?: true
+    valor_total_itens?: true
+    valor_unitario_item?: true
+    casas_decimais_valor_item?: true
+    peso_liquido_unitario_item?: true
+    peso_bruto_unitario_item?: true
+    cubagem_unitaria_item?: true
+    casas_decimais_peso_item?: true
+    casas_decimais_cubagem_item?: true
   }
 
   export type PedidoItemSumAggregateInputType = {
     sequencia_item?: true
-    quantidade_inicial_pedido?: true
-    quantidade_saldo_pedido?: true
-    quantidade_pronta_pedido?: true
-    quantidade_transferida_pedido?: true
-    quantidade_cancelada_pedido?: true
+    quantidade_inicial_item_pedido?: true
+    saldo_item_pedido?: true
+    quantidade_pronta_total_item_pedido?: true
+    quantidade_transferida_item_pedido?: true
+    quantidade_cancelada_item_pedido?: true
     casas_decimais_quantidade_item?: true
-    valor_total_item?: true
-    valor_por_unidade_item?: true
-    casas_decimais_total_item?: true
-    peso_liquido_unitario?: true
-    peso_bruto_unitario?: true
-    cubagem_unitaria?: true
-    casas_decimais_peso?: true
-    casas_decimais_cubagem?: true
+    valor_total_itens?: true
+    valor_unitario_item?: true
+    casas_decimais_valor_item?: true
+    peso_liquido_unitario_item?: true
+    peso_bruto_unitario_item?: true
+    cubagem_unitaria_item?: true
+    casas_decimais_peso_item?: true
+    casas_decimais_cubagem_item?: true
   }
 
   export type PedidoItemMinAggregateInputType = {
@@ -45705,23 +45926,31 @@ export namespace Prisma {
     ncm?: true
     descricao_item?: true
     unidade_comercializada_item?: true
-    quantidade_inicial_pedido?: true
-    quantidade_saldo_pedido?: true
-    quantidade_pronta_pedido?: true
-    quantidade_transferida_pedido?: true
-    quantidade_cancelada_pedido?: true
+    quantidade_inicial_item_pedido?: true
+    saldo_item_pedido?: true
+    quantidade_pronta_total_item_pedido?: true
+    quantidade_transferida_item_pedido?: true
+    quantidade_cancelada_item_pedido?: true
     casas_decimais_quantidade_item?: true
     moeda_item?: true
-    valor_total_item?: true
-    valor_por_unidade_item?: true
-    casas_decimais_total_item?: true
-    peso_liquido_unitario?: true
-    peso_bruto_unitario?: true
-    cubagem_unitaria?: true
-    casas_decimais_peso?: true
-    casas_decimais_cubagem?: true
-    created_at?: true
-    updated_at?: true
+    valor_total_itens?: true
+    valor_unitario_item?: true
+    casas_decimais_valor_item?: true
+    cobertura_cambial?: true
+    peso_liquido_unitario_item?: true
+    peso_bruto_unitario_item?: true
+    cubagem_unitaria_item?: true
+    casas_decimais_peso_item?: true
+    casas_decimais_cubagem_item?: true
+    descricao_completa_item_pt?: true
+    descricao_completa_item_en?: true
+    descricao_completa_item_es?: true
+    descricao_completa_item_nf?: true
+    grupo_item?: true
+    subgrupo_item?: true
+    campo_especial_item?: true
+    item_criado_em?: true
+    item_atualizado_em?: true
   }
 
   export type PedidoItemMaxAggregateInputType = {
@@ -45734,23 +45963,31 @@ export namespace Prisma {
     ncm?: true
     descricao_item?: true
     unidade_comercializada_item?: true
-    quantidade_inicial_pedido?: true
-    quantidade_saldo_pedido?: true
-    quantidade_pronta_pedido?: true
-    quantidade_transferida_pedido?: true
-    quantidade_cancelada_pedido?: true
+    quantidade_inicial_item_pedido?: true
+    saldo_item_pedido?: true
+    quantidade_pronta_total_item_pedido?: true
+    quantidade_transferida_item_pedido?: true
+    quantidade_cancelada_item_pedido?: true
     casas_decimais_quantidade_item?: true
     moeda_item?: true
-    valor_total_item?: true
-    valor_por_unidade_item?: true
-    casas_decimais_total_item?: true
-    peso_liquido_unitario?: true
-    peso_bruto_unitario?: true
-    cubagem_unitaria?: true
-    casas_decimais_peso?: true
-    casas_decimais_cubagem?: true
-    created_at?: true
-    updated_at?: true
+    valor_total_itens?: true
+    valor_unitario_item?: true
+    casas_decimais_valor_item?: true
+    cobertura_cambial?: true
+    peso_liquido_unitario_item?: true
+    peso_bruto_unitario_item?: true
+    cubagem_unitaria_item?: true
+    casas_decimais_peso_item?: true
+    casas_decimais_cubagem_item?: true
+    descricao_completa_item_pt?: true
+    descricao_completa_item_en?: true
+    descricao_completa_item_es?: true
+    descricao_completa_item_nf?: true
+    grupo_item?: true
+    subgrupo_item?: true
+    campo_especial_item?: true
+    item_criado_em?: true
+    item_atualizado_em?: true
   }
 
   export type PedidoItemCountAggregateInputType = {
@@ -45763,24 +46000,32 @@ export namespace Prisma {
     ncm?: true
     descricao_item?: true
     unidade_comercializada_item?: true
-    quantidade_inicial_pedido?: true
-    quantidade_saldo_pedido?: true
-    quantidade_pronta_pedido?: true
-    quantidade_transferida_pedido?: true
-    quantidade_cancelada_pedido?: true
+    quantidade_inicial_item_pedido?: true
+    saldo_item_pedido?: true
+    quantidade_pronta_total_item_pedido?: true
+    quantidade_transferida_item_pedido?: true
+    quantidade_cancelada_item_pedido?: true
     casas_decimais_quantidade_item?: true
     moeda_item?: true
-    valor_total_item?: true
-    valor_por_unidade_item?: true
-    casas_decimais_total_item?: true
-    peso_liquido_unitario?: true
-    peso_bruto_unitario?: true
-    cubagem_unitaria?: true
-    casas_decimais_peso?: true
-    casas_decimais_cubagem?: true
+    valor_total_itens?: true
+    valor_unitario_item?: true
+    casas_decimais_valor_item?: true
+    cobertura_cambial?: true
+    peso_liquido_unitario_item?: true
+    peso_bruto_unitario_item?: true
+    cubagem_unitaria_item?: true
+    casas_decimais_peso_item?: true
+    casas_decimais_cubagem_item?: true
+    descricao_completa_item_pt?: true
+    descricao_completa_item_en?: true
+    descricao_completa_item_es?: true
+    descricao_completa_item_nf?: true
+    grupo_item?: true
+    subgrupo_item?: true
+    campo_especial_item?: true
     campos_custom?: true
-    created_at?: true
-    updated_at?: true
+    item_criado_em?: true
+    item_atualizado_em?: true
     _all?: true
   }
 
@@ -45880,24 +46125,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item: string | null
-    quantidade_inicial_pedido: Decimal
-    quantidade_saldo_pedido: Decimal
-    quantidade_pronta_pedido: Decimal
-    quantidade_transferida_pedido: Decimal
-    quantidade_cancelada_pedido: Decimal
+    quantidade_inicial_item_pedido: Decimal
+    saldo_item_pedido: Decimal
+    quantidade_pronta_total_item_pedido: Decimal
+    quantidade_transferida_item_pedido: Decimal
+    quantidade_cancelada_item_pedido: Decimal
     casas_decimais_quantidade_item: number
     moeda_item: string
-    valor_total_item: Decimal | null
-    valor_por_unidade_item: Decimal | null
-    casas_decimais_total_item: number
-    peso_liquido_unitario: Decimal | null
-    peso_bruto_unitario: Decimal | null
-    cubagem_unitaria: Decimal | null
-    casas_decimais_peso: number
-    casas_decimais_cubagem: number
+    valor_total_itens: Decimal | null
+    valor_unitario_item: Decimal | null
+    casas_decimais_valor_item: number
+    cobertura_cambial: string
+    peso_liquido_unitario_item: Decimal | null
+    peso_bruto_unitario_item: Decimal | null
+    cubagem_unitaria_item: Decimal | null
+    casas_decimais_peso_item: number
+    casas_decimais_cubagem_item: number
+    descricao_completa_item_pt: string | null
+    descricao_completa_item_en: string | null
+    descricao_completa_item_es: string | null
+    descricao_completa_item_nf: string | null
+    grupo_item: string | null
+    subgrupo_item: string | null
+    campo_especial_item: string | null
     campos_custom: JsonValue | null
-    created_at: Date
-    updated_at: Date
+    item_criado_em: Date
+    item_atualizado_em: Date
     _count: PedidoItemCountAggregateOutputType | null
     _avg: PedidoItemAvgAggregateOutputType | null
     _sum: PedidoItemSumAggregateOutputType | null
@@ -45929,24 +46182,32 @@ export namespace Prisma {
     ncm?: boolean
     descricao_item?: boolean
     unidade_comercializada_item?: boolean
-    quantidade_inicial_pedido?: boolean
-    quantidade_saldo_pedido?: boolean
-    quantidade_pronta_pedido?: boolean
-    quantidade_transferida_pedido?: boolean
-    quantidade_cancelada_pedido?: boolean
+    quantidade_inicial_item_pedido?: boolean
+    saldo_item_pedido?: boolean
+    quantidade_pronta_total_item_pedido?: boolean
+    quantidade_transferida_item_pedido?: boolean
+    quantidade_cancelada_item_pedido?: boolean
     casas_decimais_quantidade_item?: boolean
     moeda_item?: boolean
-    valor_total_item?: boolean
-    valor_por_unidade_item?: boolean
-    casas_decimais_total_item?: boolean
-    peso_liquido_unitario?: boolean
-    peso_bruto_unitario?: boolean
-    cubagem_unitaria?: boolean
-    casas_decimais_peso?: boolean
-    casas_decimais_cubagem?: boolean
+    valor_total_itens?: boolean
+    valor_unitario_item?: boolean
+    casas_decimais_valor_item?: boolean
+    cobertura_cambial?: boolean
+    peso_liquido_unitario_item?: boolean
+    peso_bruto_unitario_item?: boolean
+    cubagem_unitaria_item?: boolean
+    casas_decimais_peso_item?: boolean
+    casas_decimais_cubagem_item?: boolean
+    descricao_completa_item_pt?: boolean
+    descricao_completa_item_en?: boolean
+    descricao_completa_item_es?: boolean
+    descricao_completa_item_nf?: boolean
+    grupo_item?: boolean
+    subgrupo_item?: boolean
+    campo_especial_item?: boolean
     campos_custom?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    item_criado_em?: boolean
+    item_atualizado_em?: boolean
     pedido?: boolean | PedidoDefaultArgs<ExtArgs>
     embarques_efetivos?: boolean | PedidoItem$embarques_efetivosArgs<ExtArgs>
     _count?: boolean | PedidoItemCountOutputTypeDefaultArgs<ExtArgs>
@@ -45962,24 +46223,32 @@ export namespace Prisma {
     ncm?: boolean
     descricao_item?: boolean
     unidade_comercializada_item?: boolean
-    quantidade_inicial_pedido?: boolean
-    quantidade_saldo_pedido?: boolean
-    quantidade_pronta_pedido?: boolean
-    quantidade_transferida_pedido?: boolean
-    quantidade_cancelada_pedido?: boolean
+    quantidade_inicial_item_pedido?: boolean
+    saldo_item_pedido?: boolean
+    quantidade_pronta_total_item_pedido?: boolean
+    quantidade_transferida_item_pedido?: boolean
+    quantidade_cancelada_item_pedido?: boolean
     casas_decimais_quantidade_item?: boolean
     moeda_item?: boolean
-    valor_total_item?: boolean
-    valor_por_unidade_item?: boolean
-    casas_decimais_total_item?: boolean
-    peso_liquido_unitario?: boolean
-    peso_bruto_unitario?: boolean
-    cubagem_unitaria?: boolean
-    casas_decimais_peso?: boolean
-    casas_decimais_cubagem?: boolean
+    valor_total_itens?: boolean
+    valor_unitario_item?: boolean
+    casas_decimais_valor_item?: boolean
+    cobertura_cambial?: boolean
+    peso_liquido_unitario_item?: boolean
+    peso_bruto_unitario_item?: boolean
+    cubagem_unitaria_item?: boolean
+    casas_decimais_peso_item?: boolean
+    casas_decimais_cubagem_item?: boolean
+    descricao_completa_item_pt?: boolean
+    descricao_completa_item_en?: boolean
+    descricao_completa_item_es?: boolean
+    descricao_completa_item_nf?: boolean
+    grupo_item?: boolean
+    subgrupo_item?: boolean
+    campo_especial_item?: boolean
     campos_custom?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    item_criado_em?: boolean
+    item_atualizado_em?: boolean
     pedido?: boolean | PedidoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["pedidoItem"]>
 
@@ -45993,24 +46262,32 @@ export namespace Prisma {
     ncm?: boolean
     descricao_item?: boolean
     unidade_comercializada_item?: boolean
-    quantidade_inicial_pedido?: boolean
-    quantidade_saldo_pedido?: boolean
-    quantidade_pronta_pedido?: boolean
-    quantidade_transferida_pedido?: boolean
-    quantidade_cancelada_pedido?: boolean
+    quantidade_inicial_item_pedido?: boolean
+    saldo_item_pedido?: boolean
+    quantidade_pronta_total_item_pedido?: boolean
+    quantidade_transferida_item_pedido?: boolean
+    quantidade_cancelada_item_pedido?: boolean
     casas_decimais_quantidade_item?: boolean
     moeda_item?: boolean
-    valor_total_item?: boolean
-    valor_por_unidade_item?: boolean
-    casas_decimais_total_item?: boolean
-    peso_liquido_unitario?: boolean
-    peso_bruto_unitario?: boolean
-    cubagem_unitaria?: boolean
-    casas_decimais_peso?: boolean
-    casas_decimais_cubagem?: boolean
+    valor_total_itens?: boolean
+    valor_unitario_item?: boolean
+    casas_decimais_valor_item?: boolean
+    cobertura_cambial?: boolean
+    peso_liquido_unitario_item?: boolean
+    peso_bruto_unitario_item?: boolean
+    cubagem_unitaria_item?: boolean
+    casas_decimais_peso_item?: boolean
+    casas_decimais_cubagem_item?: boolean
+    descricao_completa_item_pt?: boolean
+    descricao_completa_item_en?: boolean
+    descricao_completa_item_es?: boolean
+    descricao_completa_item_nf?: boolean
+    grupo_item?: boolean
+    subgrupo_item?: boolean
+    campo_especial_item?: boolean
     campos_custom?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    item_criado_em?: boolean
+    item_atualizado_em?: boolean
   }
 
   export type PedidoItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -46038,24 +46315,32 @@ export namespace Prisma {
       ncm: string
       descricao_item: string
       unidade_comercializada_item: string | null
-      quantidade_inicial_pedido: Prisma.Decimal
-      quantidade_saldo_pedido: Prisma.Decimal
-      quantidade_pronta_pedido: Prisma.Decimal
-      quantidade_transferida_pedido: Prisma.Decimal
-      quantidade_cancelada_pedido: Prisma.Decimal
+      quantidade_inicial_item_pedido: Prisma.Decimal
+      saldo_item_pedido: Prisma.Decimal
+      quantidade_pronta_total_item_pedido: Prisma.Decimal
+      quantidade_transferida_item_pedido: Prisma.Decimal
+      quantidade_cancelada_item_pedido: Prisma.Decimal
       casas_decimais_quantidade_item: number
       moeda_item: string
-      valor_total_item: Prisma.Decimal | null
-      valor_por_unidade_item: Prisma.Decimal | null
-      casas_decimais_total_item: number
-      peso_liquido_unitario: Prisma.Decimal | null
-      peso_bruto_unitario: Prisma.Decimal | null
-      cubagem_unitaria: Prisma.Decimal | null
-      casas_decimais_peso: number
-      casas_decimais_cubagem: number
+      valor_total_itens: Prisma.Decimal | null
+      valor_unitario_item: Prisma.Decimal | null
+      casas_decimais_valor_item: number
+      cobertura_cambial: string
+      peso_liquido_unitario_item: Prisma.Decimal | null
+      peso_bruto_unitario_item: Prisma.Decimal | null
+      cubagem_unitaria_item: Prisma.Decimal | null
+      casas_decimais_peso_item: number
+      casas_decimais_cubagem_item: number
+      descricao_completa_item_pt: string | null
+      descricao_completa_item_en: string | null
+      descricao_completa_item_es: string | null
+      descricao_completa_item_nf: string | null
+      grupo_item: string | null
+      subgrupo_item: string | null
+      campo_especial_item: string | null
       campos_custom: Prisma.JsonValue | null
-      created_at: Date
-      updated_at: Date
+      item_criado_em: Date
+      item_atualizado_em: Date
     }, ExtArgs["result"]["pedidoItem"]>
     composites: {}
   }
@@ -46460,24 +46745,32 @@ export namespace Prisma {
     readonly ncm: FieldRef<"PedidoItem", 'String'>
     readonly descricao_item: FieldRef<"PedidoItem", 'String'>
     readonly unidade_comercializada_item: FieldRef<"PedidoItem", 'String'>
-    readonly quantidade_inicial_pedido: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_saldo_pedido: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_pronta_pedido: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_transferida_pedido: FieldRef<"PedidoItem", 'Decimal'>
-    readonly quantidade_cancelada_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_inicial_item_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly saldo_item_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_pronta_total_item_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_transferida_item_pedido: FieldRef<"PedidoItem", 'Decimal'>
+    readonly quantidade_cancelada_item_pedido: FieldRef<"PedidoItem", 'Decimal'>
     readonly casas_decimais_quantidade_item: FieldRef<"PedidoItem", 'Int'>
     readonly moeda_item: FieldRef<"PedidoItem", 'String'>
-    readonly valor_total_item: FieldRef<"PedidoItem", 'Decimal'>
-    readonly valor_por_unidade_item: FieldRef<"PedidoItem", 'Decimal'>
-    readonly casas_decimais_total_item: FieldRef<"PedidoItem", 'Int'>
-    readonly peso_liquido_unitario: FieldRef<"PedidoItem", 'Decimal'>
-    readonly peso_bruto_unitario: FieldRef<"PedidoItem", 'Decimal'>
-    readonly cubagem_unitaria: FieldRef<"PedidoItem", 'Decimal'>
-    readonly casas_decimais_peso: FieldRef<"PedidoItem", 'Int'>
-    readonly casas_decimais_cubagem: FieldRef<"PedidoItem", 'Int'>
+    readonly valor_total_itens: FieldRef<"PedidoItem", 'Decimal'>
+    readonly valor_unitario_item: FieldRef<"PedidoItem", 'Decimal'>
+    readonly casas_decimais_valor_item: FieldRef<"PedidoItem", 'Int'>
+    readonly cobertura_cambial: FieldRef<"PedidoItem", 'String'>
+    readonly peso_liquido_unitario_item: FieldRef<"PedidoItem", 'Decimal'>
+    readonly peso_bruto_unitario_item: FieldRef<"PedidoItem", 'Decimal'>
+    readonly cubagem_unitaria_item: FieldRef<"PedidoItem", 'Decimal'>
+    readonly casas_decimais_peso_item: FieldRef<"PedidoItem", 'Int'>
+    readonly casas_decimais_cubagem_item: FieldRef<"PedidoItem", 'Int'>
+    readonly descricao_completa_item_pt: FieldRef<"PedidoItem", 'String'>
+    readonly descricao_completa_item_en: FieldRef<"PedidoItem", 'String'>
+    readonly descricao_completa_item_es: FieldRef<"PedidoItem", 'String'>
+    readonly descricao_completa_item_nf: FieldRef<"PedidoItem", 'String'>
+    readonly grupo_item: FieldRef<"PedidoItem", 'String'>
+    readonly subgrupo_item: FieldRef<"PedidoItem", 'String'>
+    readonly campo_especial_item: FieldRef<"PedidoItem", 'String'>
     readonly campos_custom: FieldRef<"PedidoItem", 'Json'>
-    readonly created_at: FieldRef<"PedidoItem", 'DateTime'>
-    readonly updated_at: FieldRef<"PedidoItem", 'DateTime'>
+    readonly item_criado_em: FieldRef<"PedidoItem", 'DateTime'>
+    readonly item_atualizado_em: FieldRef<"PedidoItem", 'DateTime'>
   }
     
 
@@ -56246,6 +56539,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido: boolean | null
     excluir_confirmar_com_preview: boolean | null
     alerta_numero_duplicado: boolean | null
+    alerta_valor_total_divergente: boolean | null
+    alerta_quantidade_total_divergente: boolean | null
+    alerta_quantidade_pronta_divergente: boolean | null
+    alerta_peso_liquido_divergente: boolean | null
+    alerta_peso_bruto_divergente: boolean | null
+    alerta_cubagem_divergente: boolean | null
     updated_at: Date | null
   }
 
@@ -56259,6 +56558,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido: boolean | null
     excluir_confirmar_com_preview: boolean | null
     alerta_numero_duplicado: boolean | null
+    alerta_valor_total_divergente: boolean | null
+    alerta_quantidade_total_divergente: boolean | null
+    alerta_quantidade_pronta_divergente: boolean | null
+    alerta_peso_liquido_divergente: boolean | null
+    alerta_peso_bruto_divergente: boolean | null
+    alerta_cubagem_divergente: boolean | null
     updated_at: Date | null
   }
 
@@ -56273,6 +56578,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido: number
     excluir_confirmar_com_preview: number
     alerta_numero_duplicado: number
+    alerta_valor_total_divergente: number
+    alerta_quantidade_total_divergente: number
+    alerta_quantidade_pronta_divergente: number
+    alerta_peso_liquido_divergente: number
+    alerta_peso_bruto_divergente: number
+    alerta_cubagem_divergente: number
     updated_at: number
     _all: number
   }
@@ -56288,6 +56599,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: true
     excluir_confirmar_com_preview?: true
     alerta_numero_duplicado?: true
+    alerta_valor_total_divergente?: true
+    alerta_quantidade_total_divergente?: true
+    alerta_quantidade_pronta_divergente?: true
+    alerta_peso_liquido_divergente?: true
+    alerta_peso_bruto_divergente?: true
+    alerta_cubagem_divergente?: true
     updated_at?: true
   }
 
@@ -56301,6 +56618,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: true
     excluir_confirmar_com_preview?: true
     alerta_numero_duplicado?: true
+    alerta_valor_total_divergente?: true
+    alerta_quantidade_total_divergente?: true
+    alerta_quantidade_pronta_divergente?: true
+    alerta_peso_liquido_divergente?: true
+    alerta_peso_bruto_divergente?: true
+    alerta_cubagem_divergente?: true
     updated_at?: true
   }
 
@@ -56315,6 +56638,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: true
     excluir_confirmar_com_preview?: true
     alerta_numero_duplicado?: true
+    alerta_valor_total_divergente?: true
+    alerta_quantidade_total_divergente?: true
+    alerta_quantidade_pronta_divergente?: true
+    alerta_peso_liquido_divergente?: true
+    alerta_peso_bruto_divergente?: true
+    alerta_cubagem_divergente?: true
     updated_at?: true
     _all?: true
   }
@@ -56402,6 +56731,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido: boolean
     excluir_confirmar_com_preview: boolean
     alerta_numero_duplicado: boolean
+    alerta_valor_total_divergente: boolean
+    alerta_quantidade_total_divergente: boolean
+    alerta_quantidade_pronta_divergente: boolean
+    alerta_peso_liquido_divergente: boolean
+    alerta_peso_bruto_divergente: boolean
+    alerta_cubagem_divergente: boolean
     updated_at: Date
     _count: ConfiguracaoPedidoCountAggregateOutputType | null
     _min: ConfiguracaoPedidoMinAggregateOutputType | null
@@ -56433,6 +56768,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: boolean
     excluir_confirmar_com_preview?: boolean
     alerta_numero_duplicado?: boolean
+    alerta_valor_total_divergente?: boolean
+    alerta_quantidade_total_divergente?: boolean
+    alerta_quantidade_pronta_divergente?: boolean
+    alerta_peso_liquido_divergente?: boolean
+    alerta_peso_bruto_divergente?: boolean
+    alerta_cubagem_divergente?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["configuracaoPedido"]>
 
@@ -56447,6 +56788,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: boolean
     excluir_confirmar_com_preview?: boolean
     alerta_numero_duplicado?: boolean
+    alerta_valor_total_divergente?: boolean
+    alerta_quantidade_total_divergente?: boolean
+    alerta_quantidade_pronta_divergente?: boolean
+    alerta_peso_liquido_divergente?: boolean
+    alerta_peso_bruto_divergente?: boolean
+    alerta_cubagem_divergente?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["configuracaoPedido"]>
 
@@ -56461,6 +56808,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: boolean
     excluir_confirmar_com_preview?: boolean
     alerta_numero_duplicado?: boolean
+    alerta_valor_total_divergente?: boolean
+    alerta_quantidade_total_divergente?: boolean
+    alerta_quantidade_pronta_divergente?: boolean
+    alerta_peso_liquido_divergente?: boolean
+    alerta_peso_bruto_divergente?: boolean
+    alerta_cubagem_divergente?: boolean
     updated_at?: boolean
   }
 
@@ -56479,6 +56832,12 @@ export namespace Prisma {
       excluir_pedido_sem_item_permitido: boolean
       excluir_confirmar_com_preview: boolean
       alerta_numero_duplicado: boolean
+      alerta_valor_total_divergente: boolean
+      alerta_quantidade_total_divergente: boolean
+      alerta_quantidade_pronta_divergente: boolean
+      alerta_peso_liquido_divergente: boolean
+      alerta_peso_bruto_divergente: boolean
+      alerta_cubagem_divergente: boolean
       updated_at: Date
     }, ExtArgs["result"]["configuracaoPedido"]>
     composites: {}
@@ -56883,6 +57242,12 @@ export namespace Prisma {
     readonly excluir_pedido_sem_item_permitido: FieldRef<"ConfiguracaoPedido", 'Boolean'>
     readonly excluir_confirmar_com_preview: FieldRef<"ConfiguracaoPedido", 'Boolean'>
     readonly alerta_numero_duplicado: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly alerta_valor_total_divergente: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly alerta_quantidade_total_divergente: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly alerta_quantidade_pronta_divergente: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly alerta_peso_liquido_divergente: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly alerta_peso_bruto_divergente: FieldRef<"ConfiguracaoPedido", 'Boolean'>
+    readonly alerta_cubagem_divergente: FieldRef<"ConfiguracaoPedido", 'Boolean'>
     readonly updated_at: FieldRef<"ConfiguracaoPedido", 'DateTime'>
   }
     
@@ -58133,6 +58498,2024 @@ export namespace Prisma {
 
 
   /**
+   * Model NcmItem
+   */
+
+  export type AggregateNcmItem = {
+    _count: NcmItemCountAggregateOutputType | null
+    _min: NcmItemMinAggregateOutputType | null
+    _max: NcmItemMaxAggregateOutputType | null
+  }
+
+  export type NcmItemMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    codigo: string | null
+    descricao: string | null
+    ativo: boolean | null
+    data_inicio: Date | null
+    data_fim: Date | null
+    sync_id: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type NcmItemMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    codigo: string | null
+    descricao: string | null
+    ativo: boolean | null
+    data_inicio: Date | null
+    data_fim: Date | null
+    sync_id: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type NcmItemCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    user_id: number
+    codigo: number
+    descricao: number
+    ativo: number
+    data_inicio: number
+    data_fim: number
+    sync_id: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type NcmItemMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    codigo?: true
+    descricao?: true
+    ativo?: true
+    data_inicio?: true
+    data_fim?: true
+    sync_id?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type NcmItemMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    codigo?: true
+    descricao?: true
+    ativo?: true
+    data_inicio?: true
+    data_fim?: true
+    sync_id?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type NcmItemCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    codigo?: true
+    descricao?: true
+    ativo?: true
+    data_inicio?: true
+    data_fim?: true
+    sync_id?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type NcmItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmItem to aggregate.
+     */
+    where?: NcmItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmItems to fetch.
+     */
+    orderBy?: NcmItemOrderByWithRelationInput | NcmItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NcmItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NcmItems
+    **/
+    _count?: true | NcmItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NcmItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NcmItemMaxAggregateInputType
+  }
+
+  export type GetNcmItemAggregateType<T extends NcmItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcmItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNcmItem[P]>
+      : GetScalarType<T[P], AggregateNcmItem[P]>
+  }
+
+
+
+
+  export type NcmItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmItemWhereInput
+    orderBy?: NcmItemOrderByWithAggregationInput | NcmItemOrderByWithAggregationInput[]
+    by: NcmItemScalarFieldEnum[] | NcmItemScalarFieldEnum
+    having?: NcmItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NcmItemCountAggregateInputType | true
+    _min?: NcmItemMinAggregateInputType
+    _max?: NcmItemMaxAggregateInputType
+  }
+
+  export type NcmItemGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string | null
+    user_id: string | null
+    codigo: string
+    descricao: string
+    ativo: boolean
+    data_inicio: Date | null
+    data_fim: Date | null
+    sync_id: string
+    created_at: Date
+    updated_at: Date
+    _count: NcmItemCountAggregateOutputType | null
+    _min: NcmItemMinAggregateOutputType | null
+    _max: NcmItemMaxAggregateOutputType | null
+  }
+
+  type GetNcmItemGroupByPayload<T extends NcmItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NcmItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NcmItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NcmItemGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NcmItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    codigo?: boolean
+    descricao?: boolean
+    ativo?: boolean
+    data_inicio?: boolean
+    data_fim?: boolean
+    sync_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["ncmItem"]>
+
+  export type NcmItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    codigo?: boolean
+    descricao?: boolean
+    ativo?: boolean
+    data_inicio?: boolean
+    data_fim?: boolean
+    sync_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["ncmItem"]>
+
+  export type NcmItemSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    codigo?: boolean
+    descricao?: boolean
+    ativo?: boolean
+    data_inicio?: boolean
+    data_fim?: boolean
+    sync_id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+
+  export type $NcmItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NcmItem"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string | null
+      user_id: string | null
+      codigo: string
+      descricao: string
+      ativo: boolean
+      data_inicio: Date | null
+      data_fim: Date | null
+      sync_id: string
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["ncmItem"]>
+    composites: {}
+  }
+
+  type NcmItemGetPayload<S extends boolean | null | undefined | NcmItemDefaultArgs> = $Result.GetResult<Prisma.$NcmItemPayload, S>
+
+  type NcmItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmItemFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmItemCountAggregateInputType | true
+    }
+
+  export interface NcmItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmItem'], meta: { name: 'NcmItem' } }
+    /**
+     * Find zero or one NcmItem that matches the filter.
+     * @param {NcmItemFindUniqueArgs} args - Arguments to find a NcmItem
+     * @example
+     * // Get one NcmItem
+     * const ncmItem = await prisma.ncmItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NcmItemFindUniqueArgs>(args: SelectSubset<T, NcmItemFindUniqueArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one NcmItem that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {NcmItemFindUniqueOrThrowArgs} args - Arguments to find a NcmItem
+     * @example
+     * // Get one NcmItem
+     * const ncmItem = await prisma.ncmItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NcmItemFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first NcmItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmItemFindFirstArgs} args - Arguments to find a NcmItem
+     * @example
+     * // Get one NcmItem
+     * const ncmItem = await prisma.ncmItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NcmItemFindFirstArgs>(args?: SelectSubset<T, NcmItemFindFirstArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first NcmItem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmItemFindFirstOrThrowArgs} args - Arguments to find a NcmItem
+     * @example
+     * // Get one NcmItem
+     * const ncmItem = await prisma.ncmItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NcmItemFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more NcmItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NcmItems
+     * const ncmItems = await prisma.ncmItem.findMany()
+     * 
+     * // Get first 10 NcmItems
+     * const ncmItems = await prisma.ncmItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ncmItemWithIdOnly = await prisma.ncmItem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NcmItemFindManyArgs>(args?: SelectSubset<T, NcmItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a NcmItem.
+     * @param {NcmItemCreateArgs} args - Arguments to create a NcmItem.
+     * @example
+     * // Create one NcmItem
+     * const NcmItem = await prisma.ncmItem.create({
+     *   data: {
+     *     // ... data to create a NcmItem
+     *   }
+     * })
+     * 
+     */
+    create<T extends NcmItemCreateArgs>(args: SelectSubset<T, NcmItemCreateArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many NcmItems.
+     * @param {NcmItemCreateManyArgs} args - Arguments to create many NcmItems.
+     * @example
+     * // Create many NcmItems
+     * const ncmItem = await prisma.ncmItem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NcmItemCreateManyArgs>(args?: SelectSubset<T, NcmItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NcmItems and returns the data saved in the database.
+     * @param {NcmItemCreateManyAndReturnArgs} args - Arguments to create many NcmItems.
+     * @example
+     * // Create many NcmItems
+     * const ncmItem = await prisma.ncmItem.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NcmItems and only return the `id`
+     * const ncmItemWithIdOnly = await prisma.ncmItem.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NcmItemCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a NcmItem.
+     * @param {NcmItemDeleteArgs} args - Arguments to delete one NcmItem.
+     * @example
+     * // Delete one NcmItem
+     * const NcmItem = await prisma.ncmItem.delete({
+     *   where: {
+     *     // ... filter to delete one NcmItem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NcmItemDeleteArgs>(args: SelectSubset<T, NcmItemDeleteArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one NcmItem.
+     * @param {NcmItemUpdateArgs} args - Arguments to update one NcmItem.
+     * @example
+     * // Update one NcmItem
+     * const ncmItem = await prisma.ncmItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NcmItemUpdateArgs>(args: SelectSubset<T, NcmItemUpdateArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more NcmItems.
+     * @param {NcmItemDeleteManyArgs} args - Arguments to filter NcmItems to delete.
+     * @example
+     * // Delete a few NcmItems
+     * const { count } = await prisma.ncmItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NcmItemDeleteManyArgs>(args?: SelectSubset<T, NcmItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NcmItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NcmItems
+     * const ncmItem = await prisma.ncmItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NcmItemUpdateManyArgs>(args: SelectSubset<T, NcmItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one NcmItem.
+     * @param {NcmItemUpsertArgs} args - Arguments to update or create a NcmItem.
+     * @example
+     * // Update or create a NcmItem
+     * const ncmItem = await prisma.ncmItem.upsert({
+     *   create: {
+     *     // ... data to create a NcmItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NcmItem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NcmItemUpsertArgs>(args: SelectSubset<T, NcmItemUpsertArgs<ExtArgs>>): Prisma__NcmItemClient<$Result.GetResult<Prisma.$NcmItemPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of NcmItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmItemCountArgs} args - Arguments to filter NcmItems to count.
+     * @example
+     * // Count the number of NcmItems
+     * const count = await prisma.ncmItem.count({
+     *   where: {
+     *     // ... the filter for the NcmItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends NcmItemCountArgs>(
+      args?: Subset<T, NcmItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NcmItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NcmItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NcmItemAggregateArgs>(args: Subset<T, NcmItemAggregateArgs>): Prisma.PrismaPromise<GetNcmItemAggregateType<T>>
+
+    /**
+     * Group by NcmItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NcmItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NcmItemGroupByArgs['orderBy'] }
+        : { orderBy?: NcmItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NcmItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NcmItem model
+   */
+  readonly fields: NcmItemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NcmItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NcmItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NcmItem model
+   */ 
+  interface NcmItemFieldRefs {
+    readonly id: FieldRef<"NcmItem", 'String'>
+    readonly tenant_id: FieldRef<"NcmItem", 'String'>
+    readonly product_id: FieldRef<"NcmItem", 'String'>
+    readonly user_id: FieldRef<"NcmItem", 'String'>
+    readonly codigo: FieldRef<"NcmItem", 'String'>
+    readonly descricao: FieldRef<"NcmItem", 'String'>
+    readonly ativo: FieldRef<"NcmItem", 'Boolean'>
+    readonly data_inicio: FieldRef<"NcmItem", 'DateTime'>
+    readonly data_fim: FieldRef<"NcmItem", 'DateTime'>
+    readonly sync_id: FieldRef<"NcmItem", 'String'>
+    readonly created_at: FieldRef<"NcmItem", 'DateTime'>
+    readonly updated_at: FieldRef<"NcmItem", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NcmItem findUnique
+   */
+  export type NcmItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmItem to fetch.
+     */
+    where: NcmItemWhereUniqueInput
+  }
+
+  /**
+   * NcmItem findUniqueOrThrow
+   */
+  export type NcmItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmItem to fetch.
+     */
+    where: NcmItemWhereUniqueInput
+  }
+
+  /**
+   * NcmItem findFirst
+   */
+  export type NcmItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmItem to fetch.
+     */
+    where?: NcmItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmItems to fetch.
+     */
+    orderBy?: NcmItemOrderByWithRelationInput | NcmItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmItems.
+     */
+    cursor?: NcmItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmItems.
+     */
+    distinct?: NcmItemScalarFieldEnum | NcmItemScalarFieldEnum[]
+  }
+
+  /**
+   * NcmItem findFirstOrThrow
+   */
+  export type NcmItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmItem to fetch.
+     */
+    where?: NcmItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmItems to fetch.
+     */
+    orderBy?: NcmItemOrderByWithRelationInput | NcmItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmItems.
+     */
+    cursor?: NcmItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmItems.
+     */
+    distinct?: NcmItemScalarFieldEnum | NcmItemScalarFieldEnum[]
+  }
+
+  /**
+   * NcmItem findMany
+   */
+  export type NcmItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmItems to fetch.
+     */
+    where?: NcmItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmItems to fetch.
+     */
+    orderBy?: NcmItemOrderByWithRelationInput | NcmItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NcmItems.
+     */
+    cursor?: NcmItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmItems.
+     */
+    skip?: number
+    distinct?: NcmItemScalarFieldEnum | NcmItemScalarFieldEnum[]
+  }
+
+  /**
+   * NcmItem create
+   */
+  export type NcmItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * The data needed to create a NcmItem.
+     */
+    data: XOR<NcmItemCreateInput, NcmItemUncheckedCreateInput>
+  }
+
+  /**
+   * NcmItem createMany
+   */
+  export type NcmItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NcmItems.
+     */
+    data: NcmItemCreateManyInput | NcmItemCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmItem createManyAndReturn
+   */
+  export type NcmItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many NcmItems.
+     */
+    data: NcmItemCreateManyInput | NcmItemCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmItem update
+   */
+  export type NcmItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * The data needed to update a NcmItem.
+     */
+    data: XOR<NcmItemUpdateInput, NcmItemUncheckedUpdateInput>
+    /**
+     * Choose, which NcmItem to update.
+     */
+    where: NcmItemWhereUniqueInput
+  }
+
+  /**
+   * NcmItem updateMany
+   */
+  export type NcmItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NcmItems.
+     */
+    data: XOR<NcmItemUpdateManyMutationInput, NcmItemUncheckedUpdateManyInput>
+    /**
+     * Filter which NcmItems to update
+     */
+    where?: NcmItemWhereInput
+  }
+
+  /**
+   * NcmItem upsert
+   */
+  export type NcmItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * The filter to search for the NcmItem to update in case it exists.
+     */
+    where: NcmItemWhereUniqueInput
+    /**
+     * In case the NcmItem found by the `where` argument doesn't exist, create a new NcmItem with this data.
+     */
+    create: XOR<NcmItemCreateInput, NcmItemUncheckedCreateInput>
+    /**
+     * In case the NcmItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NcmItemUpdateInput, NcmItemUncheckedUpdateInput>
+  }
+
+  /**
+   * NcmItem delete
+   */
+  export type NcmItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+    /**
+     * Filter which NcmItem to delete.
+     */
+    where: NcmItemWhereUniqueInput
+  }
+
+  /**
+   * NcmItem deleteMany
+   */
+  export type NcmItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmItems to delete
+     */
+    where?: NcmItemWhereInput
+  }
+
+  /**
+   * NcmItem without action
+   */
+  export type NcmItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmItem
+     */
+    select?: NcmItemSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * Model NcmSyncLog
+   */
+
+  export type AggregateNcmSyncLog = {
+    _count: NcmSyncLogCountAggregateOutputType | null
+    _avg: NcmSyncLogAvgAggregateOutputType | null
+    _sum: NcmSyncLogSumAggregateOutputType | null
+    _min: NcmSyncLogMinAggregateOutputType | null
+    _max: NcmSyncLogMaxAggregateOutputType | null
+  }
+
+  export type NcmSyncLogAvgAggregateOutputType = {
+    total: number | null
+    adicionados: number | null
+    alterados: number | null
+    removidos: number | null
+  }
+
+  export type NcmSyncLogSumAggregateOutputType = {
+    total: number | null
+    adicionados: number | null
+    alterados: number | null
+    removidos: number | null
+  }
+
+  export type NcmSyncLogMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    iniciado_em: Date | null
+    concluido_em: Date | null
+    status: $Enums.NcmSyncStatus | null
+    total: number | null
+    adicionados: number | null
+    alterados: number | null
+    removidos: number | null
+    origem: $Enums.NcmSyncOrigem | null
+    disparado_por: string | null
+    erro_msg: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type NcmSyncLogMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    iniciado_em: Date | null
+    concluido_em: Date | null
+    status: $Enums.NcmSyncStatus | null
+    total: number | null
+    adicionados: number | null
+    alterados: number | null
+    removidos: number | null
+    origem: $Enums.NcmSyncOrigem | null
+    disparado_por: string | null
+    erro_msg: string | null
+    created_at: Date | null
+    updated_at: Date | null
+  }
+
+  export type NcmSyncLogCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    user_id: number
+    iniciado_em: number
+    concluido_em: number
+    status: number
+    total: number
+    adicionados: number
+    alterados: number
+    removidos: number
+    origem: number
+    disparado_por: number
+    erro_msg: number
+    created_at: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type NcmSyncLogAvgAggregateInputType = {
+    total?: true
+    adicionados?: true
+    alterados?: true
+    removidos?: true
+  }
+
+  export type NcmSyncLogSumAggregateInputType = {
+    total?: true
+    adicionados?: true
+    alterados?: true
+    removidos?: true
+  }
+
+  export type NcmSyncLogMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    iniciado_em?: true
+    concluido_em?: true
+    status?: true
+    total?: true
+    adicionados?: true
+    alterados?: true
+    removidos?: true
+    origem?: true
+    disparado_por?: true
+    erro_msg?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type NcmSyncLogMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    iniciado_em?: true
+    concluido_em?: true
+    status?: true
+    total?: true
+    adicionados?: true
+    alterados?: true
+    removidos?: true
+    origem?: true
+    disparado_por?: true
+    erro_msg?: true
+    created_at?: true
+    updated_at?: true
+  }
+
+  export type NcmSyncLogCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    iniciado_em?: true
+    concluido_em?: true
+    status?: true
+    total?: true
+    adicionados?: true
+    alterados?: true
+    removidos?: true
+    origem?: true
+    disparado_por?: true
+    erro_msg?: true
+    created_at?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type NcmSyncLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmSyncLog to aggregate.
+     */
+    where?: NcmSyncLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncLogs to fetch.
+     */
+    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NcmSyncLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NcmSyncLogs
+    **/
+    _count?: true | NcmSyncLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: NcmSyncLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: NcmSyncLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NcmSyncLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NcmSyncLogMaxAggregateInputType
+  }
+
+  export type GetNcmSyncLogAggregateType<T extends NcmSyncLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcmSyncLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNcmSyncLog[P]>
+      : GetScalarType<T[P], AggregateNcmSyncLog[P]>
+  }
+
+
+
+
+  export type NcmSyncLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmSyncLogWhereInput
+    orderBy?: NcmSyncLogOrderByWithAggregationInput | NcmSyncLogOrderByWithAggregationInput[]
+    by: NcmSyncLogScalarFieldEnum[] | NcmSyncLogScalarFieldEnum
+    having?: NcmSyncLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NcmSyncLogCountAggregateInputType | true
+    _avg?: NcmSyncLogAvgAggregateInputType
+    _sum?: NcmSyncLogSumAggregateInputType
+    _min?: NcmSyncLogMinAggregateInputType
+    _max?: NcmSyncLogMaxAggregateInputType
+  }
+
+  export type NcmSyncLogGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string | null
+    user_id: string | null
+    iniciado_em: Date
+    concluido_em: Date | null
+    status: $Enums.NcmSyncStatus
+    total: number
+    adicionados: number
+    alterados: number
+    removidos: number
+    origem: $Enums.NcmSyncOrigem
+    disparado_por: string | null
+    erro_msg: string | null
+    created_at: Date
+    updated_at: Date
+    _count: NcmSyncLogCountAggregateOutputType | null
+    _avg: NcmSyncLogAvgAggregateOutputType | null
+    _sum: NcmSyncLogSumAggregateOutputType | null
+    _min: NcmSyncLogMinAggregateOutputType | null
+    _max: NcmSyncLogMaxAggregateOutputType | null
+  }
+
+  type GetNcmSyncLogGroupByPayload<T extends NcmSyncLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NcmSyncLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NcmSyncLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NcmSyncLogGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmSyncLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NcmSyncLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    iniciado_em?: boolean
+    concluido_em?: boolean
+    status?: boolean
+    total?: boolean
+    adicionados?: boolean
+    alterados?: boolean
+    removidos?: boolean
+    origem?: boolean
+    disparado_por?: boolean
+    erro_msg?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["ncmSyncLog"]>
+
+  export type NcmSyncLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    iniciado_em?: boolean
+    concluido_em?: boolean
+    status?: boolean
+    total?: boolean
+    adicionados?: boolean
+    alterados?: boolean
+    removidos?: boolean
+    origem?: boolean
+    disparado_por?: boolean
+    erro_msg?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["ncmSyncLog"]>
+
+  export type NcmSyncLogSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    iniciado_em?: boolean
+    concluido_em?: boolean
+    status?: boolean
+    total?: boolean
+    adicionados?: boolean
+    alterados?: boolean
+    removidos?: boolean
+    origem?: boolean
+    disparado_por?: boolean
+    erro_msg?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+  }
+
+
+  export type $NcmSyncLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NcmSyncLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string | null
+      user_id: string | null
+      iniciado_em: Date
+      concluido_em: Date | null
+      status: $Enums.NcmSyncStatus
+      total: number
+      adicionados: number
+      alterados: number
+      removidos: number
+      origem: $Enums.NcmSyncOrigem
+      disparado_por: string | null
+      erro_msg: string | null
+      created_at: Date
+      updated_at: Date
+    }, ExtArgs["result"]["ncmSyncLog"]>
+    composites: {}
+  }
+
+  type NcmSyncLogGetPayload<S extends boolean | null | undefined | NcmSyncLogDefaultArgs> = $Result.GetResult<Prisma.$NcmSyncLogPayload, S>
+
+  type NcmSyncLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmSyncLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmSyncLogCountAggregateInputType | true
+    }
+
+  export interface NcmSyncLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmSyncLog'], meta: { name: 'NcmSyncLog' } }
+    /**
+     * Find zero or one NcmSyncLog that matches the filter.
+     * @param {NcmSyncLogFindUniqueArgs} args - Arguments to find a NcmSyncLog
+     * @example
+     * // Get one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NcmSyncLogFindUniqueArgs>(args: SelectSubset<T, NcmSyncLogFindUniqueArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one NcmSyncLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {NcmSyncLogFindUniqueOrThrowArgs} args - Arguments to find a NcmSyncLog
+     * @example
+     * // Get one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NcmSyncLogFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmSyncLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first NcmSyncLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogFindFirstArgs} args - Arguments to find a NcmSyncLog
+     * @example
+     * // Get one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NcmSyncLogFindFirstArgs>(args?: SelectSubset<T, NcmSyncLogFindFirstArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first NcmSyncLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogFindFirstOrThrowArgs} args - Arguments to find a NcmSyncLog
+     * @example
+     * // Get one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NcmSyncLogFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmSyncLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more NcmSyncLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NcmSyncLogs
+     * const ncmSyncLogs = await prisma.ncmSyncLog.findMany()
+     * 
+     * // Get first 10 NcmSyncLogs
+     * const ncmSyncLogs = await prisma.ncmSyncLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ncmSyncLogWithIdOnly = await prisma.ncmSyncLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NcmSyncLogFindManyArgs>(args?: SelectSubset<T, NcmSyncLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a NcmSyncLog.
+     * @param {NcmSyncLogCreateArgs} args - Arguments to create a NcmSyncLog.
+     * @example
+     * // Create one NcmSyncLog
+     * const NcmSyncLog = await prisma.ncmSyncLog.create({
+     *   data: {
+     *     // ... data to create a NcmSyncLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends NcmSyncLogCreateArgs>(args: SelectSubset<T, NcmSyncLogCreateArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many NcmSyncLogs.
+     * @param {NcmSyncLogCreateManyArgs} args - Arguments to create many NcmSyncLogs.
+     * @example
+     * // Create many NcmSyncLogs
+     * const ncmSyncLog = await prisma.ncmSyncLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NcmSyncLogCreateManyArgs>(args?: SelectSubset<T, NcmSyncLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NcmSyncLogs and returns the data saved in the database.
+     * @param {NcmSyncLogCreateManyAndReturnArgs} args - Arguments to create many NcmSyncLogs.
+     * @example
+     * // Create many NcmSyncLogs
+     * const ncmSyncLog = await prisma.ncmSyncLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NcmSyncLogs and only return the `id`
+     * const ncmSyncLogWithIdOnly = await prisma.ncmSyncLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NcmSyncLogCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmSyncLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a NcmSyncLog.
+     * @param {NcmSyncLogDeleteArgs} args - Arguments to delete one NcmSyncLog.
+     * @example
+     * // Delete one NcmSyncLog
+     * const NcmSyncLog = await prisma.ncmSyncLog.delete({
+     *   where: {
+     *     // ... filter to delete one NcmSyncLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NcmSyncLogDeleteArgs>(args: SelectSubset<T, NcmSyncLogDeleteArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one NcmSyncLog.
+     * @param {NcmSyncLogUpdateArgs} args - Arguments to update one NcmSyncLog.
+     * @example
+     * // Update one NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NcmSyncLogUpdateArgs>(args: SelectSubset<T, NcmSyncLogUpdateArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more NcmSyncLogs.
+     * @param {NcmSyncLogDeleteManyArgs} args - Arguments to filter NcmSyncLogs to delete.
+     * @example
+     * // Delete a few NcmSyncLogs
+     * const { count } = await prisma.ncmSyncLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NcmSyncLogDeleteManyArgs>(args?: SelectSubset<T, NcmSyncLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NcmSyncLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NcmSyncLogs
+     * const ncmSyncLog = await prisma.ncmSyncLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NcmSyncLogUpdateManyArgs>(args: SelectSubset<T, NcmSyncLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one NcmSyncLog.
+     * @param {NcmSyncLogUpsertArgs} args - Arguments to update or create a NcmSyncLog.
+     * @example
+     * // Update or create a NcmSyncLog
+     * const ncmSyncLog = await prisma.ncmSyncLog.upsert({
+     *   create: {
+     *     // ... data to create a NcmSyncLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NcmSyncLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NcmSyncLogUpsertArgs>(args: SelectSubset<T, NcmSyncLogUpsertArgs<ExtArgs>>): Prisma__NcmSyncLogClient<$Result.GetResult<Prisma.$NcmSyncLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of NcmSyncLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogCountArgs} args - Arguments to filter NcmSyncLogs to count.
+     * @example
+     * // Count the number of NcmSyncLogs
+     * const count = await prisma.ncmSyncLog.count({
+     *   where: {
+     *     // ... the filter for the NcmSyncLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends NcmSyncLogCountArgs>(
+      args?: Subset<T, NcmSyncLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NcmSyncLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NcmSyncLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NcmSyncLogAggregateArgs>(args: Subset<T, NcmSyncLogAggregateArgs>): Prisma.PrismaPromise<GetNcmSyncLogAggregateType<T>>
+
+    /**
+     * Group by NcmSyncLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmSyncLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NcmSyncLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NcmSyncLogGroupByArgs['orderBy'] }
+        : { orderBy?: NcmSyncLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NcmSyncLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmSyncLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NcmSyncLog model
+   */
+  readonly fields: NcmSyncLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NcmSyncLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NcmSyncLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NcmSyncLog model
+   */ 
+  interface NcmSyncLogFieldRefs {
+    readonly id: FieldRef<"NcmSyncLog", 'String'>
+    readonly tenant_id: FieldRef<"NcmSyncLog", 'String'>
+    readonly product_id: FieldRef<"NcmSyncLog", 'String'>
+    readonly user_id: FieldRef<"NcmSyncLog", 'String'>
+    readonly iniciado_em: FieldRef<"NcmSyncLog", 'DateTime'>
+    readonly concluido_em: FieldRef<"NcmSyncLog", 'DateTime'>
+    readonly status: FieldRef<"NcmSyncLog", 'NcmSyncStatus'>
+    readonly total: FieldRef<"NcmSyncLog", 'Int'>
+    readonly adicionados: FieldRef<"NcmSyncLog", 'Int'>
+    readonly alterados: FieldRef<"NcmSyncLog", 'Int'>
+    readonly removidos: FieldRef<"NcmSyncLog", 'Int'>
+    readonly origem: FieldRef<"NcmSyncLog", 'NcmSyncOrigem'>
+    readonly disparado_por: FieldRef<"NcmSyncLog", 'String'>
+    readonly erro_msg: FieldRef<"NcmSyncLog", 'String'>
+    readonly created_at: FieldRef<"NcmSyncLog", 'DateTime'>
+    readonly updated_at: FieldRef<"NcmSyncLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NcmSyncLog findUnique
+   */
+  export type NcmSyncLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLog to fetch.
+     */
+    where: NcmSyncLogWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncLog findUniqueOrThrow
+   */
+  export type NcmSyncLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLog to fetch.
+     */
+    where: NcmSyncLogWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncLog findFirst
+   */
+  export type NcmSyncLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLog to fetch.
+     */
+    where?: NcmSyncLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncLogs to fetch.
+     */
+    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmSyncLogs.
+     */
+    cursor?: NcmSyncLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmSyncLogs.
+     */
+    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncLog findFirstOrThrow
+   */
+  export type NcmSyncLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLog to fetch.
+     */
+    where?: NcmSyncLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncLogs to fetch.
+     */
+    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmSyncLogs.
+     */
+    cursor?: NcmSyncLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmSyncLogs.
+     */
+    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncLog findMany
+   */
+  export type NcmSyncLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmSyncLogs to fetch.
+     */
+    where?: NcmSyncLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmSyncLogs to fetch.
+     */
+    orderBy?: NcmSyncLogOrderByWithRelationInput | NcmSyncLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NcmSyncLogs.
+     */
+    cursor?: NcmSyncLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmSyncLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmSyncLogs.
+     */
+    skip?: number
+    distinct?: NcmSyncLogScalarFieldEnum | NcmSyncLogScalarFieldEnum[]
+  }
+
+  /**
+   * NcmSyncLog create
+   */
+  export type NcmSyncLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * The data needed to create a NcmSyncLog.
+     */
+    data: XOR<NcmSyncLogCreateInput, NcmSyncLogUncheckedCreateInput>
+  }
+
+  /**
+   * NcmSyncLog createMany
+   */
+  export type NcmSyncLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NcmSyncLogs.
+     */
+    data: NcmSyncLogCreateManyInput | NcmSyncLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmSyncLog createManyAndReturn
+   */
+  export type NcmSyncLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many NcmSyncLogs.
+     */
+    data: NcmSyncLogCreateManyInput | NcmSyncLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmSyncLog update
+   */
+  export type NcmSyncLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * The data needed to update a NcmSyncLog.
+     */
+    data: XOR<NcmSyncLogUpdateInput, NcmSyncLogUncheckedUpdateInput>
+    /**
+     * Choose, which NcmSyncLog to update.
+     */
+    where: NcmSyncLogWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncLog updateMany
+   */
+  export type NcmSyncLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NcmSyncLogs.
+     */
+    data: XOR<NcmSyncLogUpdateManyMutationInput, NcmSyncLogUncheckedUpdateManyInput>
+    /**
+     * Filter which NcmSyncLogs to update
+     */
+    where?: NcmSyncLogWhereInput
+  }
+
+  /**
+   * NcmSyncLog upsert
+   */
+  export type NcmSyncLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * The filter to search for the NcmSyncLog to update in case it exists.
+     */
+    where: NcmSyncLogWhereUniqueInput
+    /**
+     * In case the NcmSyncLog found by the `where` argument doesn't exist, create a new NcmSyncLog with this data.
+     */
+    create: XOR<NcmSyncLogCreateInput, NcmSyncLogUncheckedCreateInput>
+    /**
+     * In case the NcmSyncLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NcmSyncLogUpdateInput, NcmSyncLogUncheckedUpdateInput>
+  }
+
+  /**
+   * NcmSyncLog delete
+   */
+  export type NcmSyncLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+    /**
+     * Filter which NcmSyncLog to delete.
+     */
+    where: NcmSyncLogWhereUniqueInput
+  }
+
+  /**
+   * NcmSyncLog deleteMany
+   */
+  export type NcmSyncLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmSyncLogs to delete
+     */
+    where?: NcmSyncLogWhereInput
+  }
+
+  /**
+   * NcmSyncLog without action
+   */
+  export type NcmSyncLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmSyncLog
+     */
+    select?: NcmSyncLogSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -58850,34 +61233,34 @@ export namespace Prisma {
     incoterm: 'incoterm',
     moeda_pedido: 'moeda_pedido',
     valor_total_pedido: 'valor_total_pedido',
-    casas_decimais_total_pedido: 'casas_decimais_total_pedido',
-    quantidade_total_pedido: 'quantidade_total_pedido',
-    casas_decimais_quantidade_total_pedido: 'casas_decimais_quantidade_total_pedido',
+    casas_decimais_valor_pedido: 'casas_decimais_valor_pedido',
+    quantidade_total_inicial_pedido: 'quantidade_total_inicial_pedido',
+    casas_decimais_quantidade_pedido: 'casas_decimais_quantidade_pedido',
     unidade_comercializada_pedido: 'unidade_comercializada_pedido',
     peso_liquido_total_pedido: 'peso_liquido_total_pedido',
     peso_bruto_total_pedido: 'peso_bruto_total_pedido',
     cubagem_total_pedido: 'cubagem_total_pedido',
     casas_decimais_peso_pedido: 'casas_decimais_peso_pedido',
     casas_decimais_cubagem_pedido: 'casas_decimais_cubagem_pedido',
-    cobertura_cambial: 'cobertura_cambial',
-    condicao_pagamento: 'condicao_pagamento',
+    condicao_pagamento_pedido: 'condicao_pagamento_pedido',
     numero_proforma: 'numero_proforma',
     numero_invoice: 'numero_invoice',
     referencia_importador: 'referencia_importador',
     referencia_exportador: 'referencia_exportador',
     referencia_fabricante: 'referencia_fabricante',
-    valor_total_cambio: 'valor_total_cambio',
-    moeda_cambio: 'moeda_cambio',
-    taxa_cambio_estimada: 'taxa_cambio_estimada',
-    contrato_cambio_id: 'contrato_cambio_id',
+    valor_total_cambio_pedido: 'valor_total_cambio_pedido',
+    moeda_cambio_pedido: 'moeda_cambio_pedido',
+    taxa_cambio_estimada_pedido: 'taxa_cambio_estimada_pedido',
+    contrato_cambio_id_pedido: 'contrato_cambio_id_pedido',
     data_emissao_pedido: 'data_emissao_pedido',
+    cnpj_importador: 'cnpj_importador',
     detalhes_operacionais: 'detalhes_operacionais',
     campos_custom: 'campos_custom',
-    pedidos_origem: 'pedidos_origem',
+    pedidos_origem_id: 'pedidos_origem_id',
     data_consolidacao_pedido: 'data_consolidacao_pedido',
     deleted_at: 'deleted_at',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    pedido_criado_em: 'pedido_criado_em',
+    pedido_atualizado_em: 'pedido_atualizado_em'
   };
 
   export type PedidoScalarFieldEnum = (typeof PedidoScalarFieldEnum)[keyof typeof PedidoScalarFieldEnum]
@@ -58893,24 +61276,32 @@ export namespace Prisma {
     ncm: 'ncm',
     descricao_item: 'descricao_item',
     unidade_comercializada_item: 'unidade_comercializada_item',
-    quantidade_inicial_pedido: 'quantidade_inicial_pedido',
-    quantidade_saldo_pedido: 'quantidade_saldo_pedido',
-    quantidade_pronta_pedido: 'quantidade_pronta_pedido',
-    quantidade_transferida_pedido: 'quantidade_transferida_pedido',
-    quantidade_cancelada_pedido: 'quantidade_cancelada_pedido',
+    quantidade_inicial_item_pedido: 'quantidade_inicial_item_pedido',
+    saldo_item_pedido: 'saldo_item_pedido',
+    quantidade_pronta_total_item_pedido: 'quantidade_pronta_total_item_pedido',
+    quantidade_transferida_item_pedido: 'quantidade_transferida_item_pedido',
+    quantidade_cancelada_item_pedido: 'quantidade_cancelada_item_pedido',
     casas_decimais_quantidade_item: 'casas_decimais_quantidade_item',
     moeda_item: 'moeda_item',
-    valor_total_item: 'valor_total_item',
-    valor_por_unidade_item: 'valor_por_unidade_item',
-    casas_decimais_total_item: 'casas_decimais_total_item',
-    peso_liquido_unitario: 'peso_liquido_unitario',
-    peso_bruto_unitario: 'peso_bruto_unitario',
-    cubagem_unitaria: 'cubagem_unitaria',
-    casas_decimais_peso: 'casas_decimais_peso',
-    casas_decimais_cubagem: 'casas_decimais_cubagem',
+    valor_total_itens: 'valor_total_itens',
+    valor_unitario_item: 'valor_unitario_item',
+    casas_decimais_valor_item: 'casas_decimais_valor_item',
+    cobertura_cambial: 'cobertura_cambial',
+    peso_liquido_unitario_item: 'peso_liquido_unitario_item',
+    peso_bruto_unitario_item: 'peso_bruto_unitario_item',
+    cubagem_unitaria_item: 'cubagem_unitaria_item',
+    casas_decimais_peso_item: 'casas_decimais_peso_item',
+    casas_decimais_cubagem_item: 'casas_decimais_cubagem_item',
+    descricao_completa_item_pt: 'descricao_completa_item_pt',
+    descricao_completa_item_en: 'descricao_completa_item_en',
+    descricao_completa_item_es: 'descricao_completa_item_es',
+    descricao_completa_item_nf: 'descricao_completa_item_nf',
+    grupo_item: 'grupo_item',
+    subgrupo_item: 'subgrupo_item',
+    campo_especial_item: 'campo_especial_item',
     campos_custom: 'campos_custom',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    item_criado_em: 'item_criado_em',
+    item_atualizado_em: 'item_atualizado_em'
   };
 
   export type PedidoItemScalarFieldEnum = (typeof PedidoItemScalarFieldEnum)[keyof typeof PedidoItemScalarFieldEnum]
@@ -59166,6 +61557,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido: 'excluir_pedido_sem_item_permitido',
     excluir_confirmar_com_preview: 'excluir_confirmar_com_preview',
     alerta_numero_duplicado: 'alerta_numero_duplicado',
+    alerta_valor_total_divergente: 'alerta_valor_total_divergente',
+    alerta_quantidade_total_divergente: 'alerta_quantidade_total_divergente',
+    alerta_quantidade_pronta_divergente: 'alerta_quantidade_pronta_divergente',
+    alerta_peso_liquido_divergente: 'alerta_peso_liquido_divergente',
+    alerta_peso_bruto_divergente: 'alerta_peso_bruto_divergente',
+    alerta_cubagem_divergente: 'alerta_cubagem_divergente',
     updated_at: 'updated_at'
   };
 
@@ -59185,6 +61582,46 @@ export namespace Prisma {
   };
 
   export type MapeamentoImportScalarFieldEnum = (typeof MapeamentoImportScalarFieldEnum)[keyof typeof MapeamentoImportScalarFieldEnum]
+
+
+  export const NcmItemScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    user_id: 'user_id',
+    codigo: 'codigo',
+    descricao: 'descricao',
+    ativo: 'ativo',
+    data_inicio: 'data_inicio',
+    data_fim: 'data_fim',
+    sync_id: 'sync_id',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type NcmItemScalarFieldEnum = (typeof NcmItemScalarFieldEnum)[keyof typeof NcmItemScalarFieldEnum]
+
+
+  export const NcmSyncLogScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    user_id: 'user_id',
+    iniciado_em: 'iniciado_em',
+    concluido_em: 'concluido_em',
+    status: 'status',
+    total: 'total',
+    adicionados: 'adicionados',
+    alterados: 'alterados',
+    removidos: 'removidos',
+    origem: 'origem',
+    disparado_por: 'disparado_por',
+    erro_msg: 'erro_msg',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
+  };
+
+  export type NcmSyncLogScalarFieldEnum = (typeof NcmSyncLogScalarFieldEnum)[keyof typeof NcmSyncLogScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -59475,6 +61912,34 @@ export namespace Prisma {
    * Reference to a field of type 'AlertStatus[]'
    */
   export type ListEnumAlertStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AlertStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncStatus'
+   */
+  export type EnumNcmSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncStatus[]'
+   */
+  export type ListEnumNcmSyncStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncOrigem'
+   */
+  export type EnumNcmSyncOrigemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncOrigem'>
+    
+
+
+  /**
+   * Reference to a field of type 'NcmSyncOrigem[]'
+   */
+  export type ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncOrigem[]'>
     
   /**
    * Deep Input Types
@@ -62950,34 +65415,34 @@ export namespace Prisma {
     incoterm?: StringNullableFilter<"Pedido"> | string | null
     moeda_pedido?: StringFilter<"Pedido"> | string
     valor_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntFilter<"Pedido"> | number
-    quantidade_total_pedido?: FloatNullableFilter<"Pedido"> | number | null
-    casas_decimais_quantidade_total_pedido?: IntFilter<"Pedido"> | number
+    casas_decimais_valor_pedido?: IntFilter<"Pedido"> | number
+    quantidade_total_inicial_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntFilter<"Pedido"> | number
     unidade_comercializada_pedido?: StringNullableFilter<"Pedido"> | string | null
     peso_liquido_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntFilter<"Pedido"> | number
     casas_decimais_cubagem_pedido?: IntFilter<"Pedido"> | number
-    cobertura_cambial?: StringFilter<"Pedido"> | string
-    condicao_pagamento?: StringNullableFilter<"Pedido"> | string | null
+    condicao_pagamento_pedido?: StringNullableFilter<"Pedido"> | string | null
     numero_proforma?: StringNullableFilter<"Pedido"> | string | null
     numero_invoice?: StringNullableFilter<"Pedido"> | string | null
     referencia_importador?: StringNullableFilter<"Pedido"> | string | null
     referencia_exportador?: StringNullableFilter<"Pedido"> | string | null
     referencia_fabricante?: StringNullableFilter<"Pedido"> | string | null
-    valor_total_cambio?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: StringNullableFilter<"Pedido"> | string | null
-    taxa_cambio_estimada?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: StringNullableFilter<"Pedido"> | string | null
+    valor_total_cambio_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: StringNullableFilter<"Pedido"> | string | null
+    taxa_cambio_estimada_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: StringNullableFilter<"Pedido"> | string | null
     data_emissao_pedido?: DateTimeFilter<"Pedido"> | Date | string
+    cnpj_importador?: StringNullableFilter<"Pedido"> | string | null
     detalhes_operacionais?: JsonNullableFilter<"Pedido">
     campos_custom?: JsonNullableFilter<"Pedido">
-    pedidos_origem?: StringNullableListFilter<"Pedido">
+    pedidos_origem_id?: JsonNullableFilter<"Pedido">
     data_consolidacao_pedido?: DateTimeNullableFilter<"Pedido"> | Date | string | null
     deleted_at?: DateTimeNullableFilter<"Pedido"> | Date | string | null
-    created_at?: DateTimeFilter<"Pedido"> | Date | string
-    updated_at?: DateTimeFilter<"Pedido"> | Date | string
+    pedido_criado_em?: DateTimeFilter<"Pedido"> | Date | string
+    pedido_atualizado_em?: DateTimeFilter<"Pedido"> | Date | string
     itens?: PedidoItemListRelationFilter
   }
 
@@ -62995,34 +65460,34 @@ export namespace Prisma {
     incoterm?: SortOrderInput | SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrderInput | SortOrder
-    casas_decimais_total_pedido?: SortOrder
-    quantidade_total_pedido?: SortOrderInput | SortOrder
-    casas_decimais_quantidade_total_pedido?: SortOrder
+    casas_decimais_valor_pedido?: SortOrder
+    quantidade_total_inicial_pedido?: SortOrderInput | SortOrder
+    casas_decimais_quantidade_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrderInput | SortOrder
     peso_liquido_total_pedido?: SortOrderInput | SortOrder
     peso_bruto_total_pedido?: SortOrderInput | SortOrder
     cubagem_total_pedido?: SortOrderInput | SortOrder
     casas_decimais_peso_pedido?: SortOrder
     casas_decimais_cubagem_pedido?: SortOrder
-    cobertura_cambial?: SortOrder
-    condicao_pagamento?: SortOrderInput | SortOrder
+    condicao_pagamento_pedido?: SortOrderInput | SortOrder
     numero_proforma?: SortOrderInput | SortOrder
     numero_invoice?: SortOrderInput | SortOrder
     referencia_importador?: SortOrderInput | SortOrder
     referencia_exportador?: SortOrderInput | SortOrder
     referencia_fabricante?: SortOrderInput | SortOrder
-    valor_total_cambio?: SortOrderInput | SortOrder
-    moeda_cambio?: SortOrderInput | SortOrder
-    taxa_cambio_estimada?: SortOrderInput | SortOrder
-    contrato_cambio_id?: SortOrderInput | SortOrder
+    valor_total_cambio_pedido?: SortOrderInput | SortOrder
+    moeda_cambio_pedido?: SortOrderInput | SortOrder
+    taxa_cambio_estimada_pedido?: SortOrderInput | SortOrder
+    contrato_cambio_id_pedido?: SortOrderInput | SortOrder
     data_emissao_pedido?: SortOrder
+    cnpj_importador?: SortOrderInput | SortOrder
     detalhes_operacionais?: SortOrderInput | SortOrder
     campos_custom?: SortOrderInput | SortOrder
-    pedidos_origem?: SortOrder
+    pedidos_origem_id?: SortOrderInput | SortOrder
     data_consolidacao_pedido?: SortOrderInput | SortOrder
     deleted_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    pedido_criado_em?: SortOrder
+    pedido_atualizado_em?: SortOrder
     itens?: PedidoItemOrderByRelationAggregateInput
   }
 
@@ -63043,34 +65508,34 @@ export namespace Prisma {
     incoterm?: StringNullableFilter<"Pedido"> | string | null
     moeda_pedido?: StringFilter<"Pedido"> | string
     valor_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntFilter<"Pedido"> | number
-    quantidade_total_pedido?: FloatNullableFilter<"Pedido"> | number | null
-    casas_decimais_quantidade_total_pedido?: IntFilter<"Pedido"> | number
+    casas_decimais_valor_pedido?: IntFilter<"Pedido"> | number
+    quantidade_total_inicial_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntFilter<"Pedido"> | number
     unidade_comercializada_pedido?: StringNullableFilter<"Pedido"> | string | null
     peso_liquido_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntFilter<"Pedido"> | number
     casas_decimais_cubagem_pedido?: IntFilter<"Pedido"> | number
-    cobertura_cambial?: StringFilter<"Pedido"> | string
-    condicao_pagamento?: StringNullableFilter<"Pedido"> | string | null
+    condicao_pagamento_pedido?: StringNullableFilter<"Pedido"> | string | null
     numero_proforma?: StringNullableFilter<"Pedido"> | string | null
     numero_invoice?: StringNullableFilter<"Pedido"> | string | null
     referencia_importador?: StringNullableFilter<"Pedido"> | string | null
     referencia_exportador?: StringNullableFilter<"Pedido"> | string | null
     referencia_fabricante?: StringNullableFilter<"Pedido"> | string | null
-    valor_total_cambio?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: StringNullableFilter<"Pedido"> | string | null
-    taxa_cambio_estimada?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: StringNullableFilter<"Pedido"> | string | null
+    valor_total_cambio_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: StringNullableFilter<"Pedido"> | string | null
+    taxa_cambio_estimada_pedido?: DecimalNullableFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: StringNullableFilter<"Pedido"> | string | null
     data_emissao_pedido?: DateTimeFilter<"Pedido"> | Date | string
+    cnpj_importador?: StringNullableFilter<"Pedido"> | string | null
     detalhes_operacionais?: JsonNullableFilter<"Pedido">
     campos_custom?: JsonNullableFilter<"Pedido">
-    pedidos_origem?: StringNullableListFilter<"Pedido">
+    pedidos_origem_id?: JsonNullableFilter<"Pedido">
     data_consolidacao_pedido?: DateTimeNullableFilter<"Pedido"> | Date | string | null
     deleted_at?: DateTimeNullableFilter<"Pedido"> | Date | string | null
-    created_at?: DateTimeFilter<"Pedido"> | Date | string
-    updated_at?: DateTimeFilter<"Pedido"> | Date | string
+    pedido_criado_em?: DateTimeFilter<"Pedido"> | Date | string
+    pedido_atualizado_em?: DateTimeFilter<"Pedido"> | Date | string
     itens?: PedidoItemListRelationFilter
   }, "id">
 
@@ -63088,34 +65553,34 @@ export namespace Prisma {
     incoterm?: SortOrderInput | SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrderInput | SortOrder
-    casas_decimais_total_pedido?: SortOrder
-    quantidade_total_pedido?: SortOrderInput | SortOrder
-    casas_decimais_quantidade_total_pedido?: SortOrder
+    casas_decimais_valor_pedido?: SortOrder
+    quantidade_total_inicial_pedido?: SortOrderInput | SortOrder
+    casas_decimais_quantidade_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrderInput | SortOrder
     peso_liquido_total_pedido?: SortOrderInput | SortOrder
     peso_bruto_total_pedido?: SortOrderInput | SortOrder
     cubagem_total_pedido?: SortOrderInput | SortOrder
     casas_decimais_peso_pedido?: SortOrder
     casas_decimais_cubagem_pedido?: SortOrder
-    cobertura_cambial?: SortOrder
-    condicao_pagamento?: SortOrderInput | SortOrder
+    condicao_pagamento_pedido?: SortOrderInput | SortOrder
     numero_proforma?: SortOrderInput | SortOrder
     numero_invoice?: SortOrderInput | SortOrder
     referencia_importador?: SortOrderInput | SortOrder
     referencia_exportador?: SortOrderInput | SortOrder
     referencia_fabricante?: SortOrderInput | SortOrder
-    valor_total_cambio?: SortOrderInput | SortOrder
-    moeda_cambio?: SortOrderInput | SortOrder
-    taxa_cambio_estimada?: SortOrderInput | SortOrder
-    contrato_cambio_id?: SortOrderInput | SortOrder
+    valor_total_cambio_pedido?: SortOrderInput | SortOrder
+    moeda_cambio_pedido?: SortOrderInput | SortOrder
+    taxa_cambio_estimada_pedido?: SortOrderInput | SortOrder
+    contrato_cambio_id_pedido?: SortOrderInput | SortOrder
     data_emissao_pedido?: SortOrder
+    cnpj_importador?: SortOrderInput | SortOrder
     detalhes_operacionais?: SortOrderInput | SortOrder
     campos_custom?: SortOrderInput | SortOrder
-    pedidos_origem?: SortOrder
+    pedidos_origem_id?: SortOrderInput | SortOrder
     data_consolidacao_pedido?: SortOrderInput | SortOrder
     deleted_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    pedido_criado_em?: SortOrder
+    pedido_atualizado_em?: SortOrder
     _count?: PedidoCountOrderByAggregateInput
     _avg?: PedidoAvgOrderByAggregateInput
     _max?: PedidoMaxOrderByAggregateInput
@@ -63140,34 +65605,34 @@ export namespace Prisma {
     incoterm?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     moeda_pedido?: StringWithAggregatesFilter<"Pedido"> | string
     valor_total_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntWithAggregatesFilter<"Pedido"> | number
-    quantidade_total_pedido?: FloatNullableWithAggregatesFilter<"Pedido"> | number | null
-    casas_decimais_quantidade_total_pedido?: IntWithAggregatesFilter<"Pedido"> | number
+    casas_decimais_valor_pedido?: IntWithAggregatesFilter<"Pedido"> | number
+    quantidade_total_inicial_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntWithAggregatesFilter<"Pedido"> | number
     unidade_comercializada_pedido?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     peso_liquido_total_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntWithAggregatesFilter<"Pedido"> | number
     casas_decimais_cubagem_pedido?: IntWithAggregatesFilter<"Pedido"> | number
-    cobertura_cambial?: StringWithAggregatesFilter<"Pedido"> | string
-    condicao_pagamento?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    condicao_pagamento_pedido?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     numero_proforma?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     numero_invoice?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     referencia_importador?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     referencia_exportador?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     referencia_fabricante?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
-    valor_total_cambio?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
-    taxa_cambio_estimada?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    valor_total_cambio_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
+    taxa_cambio_estimada_pedido?: DecimalNullableWithAggregatesFilter<"Pedido"> | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     data_emissao_pedido?: DateTimeWithAggregatesFilter<"Pedido"> | Date | string
+    cnpj_importador?: StringNullableWithAggregatesFilter<"Pedido"> | string | null
     detalhes_operacionais?: JsonNullableWithAggregatesFilter<"Pedido">
     campos_custom?: JsonNullableWithAggregatesFilter<"Pedido">
-    pedidos_origem?: StringNullableListFilter<"Pedido">
+    pedidos_origem_id?: JsonNullableWithAggregatesFilter<"Pedido">
     data_consolidacao_pedido?: DateTimeNullableWithAggregatesFilter<"Pedido"> | Date | string | null
     deleted_at?: DateTimeNullableWithAggregatesFilter<"Pedido"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"Pedido"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Pedido"> | Date | string
+    pedido_criado_em?: DateTimeWithAggregatesFilter<"Pedido"> | Date | string
+    pedido_atualizado_em?: DateTimeWithAggregatesFilter<"Pedido"> | Date | string
   }
 
   export type PedidoItemWhereInput = {
@@ -63183,24 +65648,32 @@ export namespace Prisma {
     ncm?: StringFilter<"PedidoItem"> | string
     descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
-    quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFilter<"PedidoItem"> | number
     moeda_item?: StringFilter<"PedidoItem"> | string
-    valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
-    peso_liquido_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFilter<"PedidoItem"> | number
-    casas_decimais_cubagem?: IntFilter<"PedidoItem"> | number
+    valor_total_itens?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFilter<"PedidoItem"> | number
+    cobertura_cambial?: StringFilter<"PedidoItem"> | string
+    peso_liquido_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFilter<"PedidoItem"> | number
+    casas_decimais_cubagem_item?: IntFilter<"PedidoItem"> | number
+    descricao_completa_item_pt?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_en?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_es?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_nf?: StringNullableFilter<"PedidoItem"> | string | null
+    grupo_item?: StringNullableFilter<"PedidoItem"> | string | null
+    subgrupo_item?: StringNullableFilter<"PedidoItem"> | string | null
+    campo_especial_item?: StringNullableFilter<"PedidoItem"> | string | null
     campos_custom?: JsonNullableFilter<"PedidoItem">
-    created_at?: DateTimeFilter<"PedidoItem"> | Date | string
-    updated_at?: DateTimeFilter<"PedidoItem"> | Date | string
+    item_criado_em?: DateTimeFilter<"PedidoItem"> | Date | string
+    item_atualizado_em?: DateTimeFilter<"PedidoItem"> | Date | string
     pedido?: XOR<PedidoRelationFilter, PedidoWhereInput>
     embarques_efetivos?: ProcessoItemListRelationFilter
   }
@@ -63215,24 +65688,32 @@ export namespace Prisma {
     ncm?: SortOrder
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrderInput | SortOrder
-    quantidade_inicial_pedido?: SortOrder
-    quantidade_saldo_pedido?: SortOrder
-    quantidade_pronta_pedido?: SortOrder
-    quantidade_transferida_pedido?: SortOrder
-    quantidade_cancelada_pedido?: SortOrder
+    quantidade_inicial_item_pedido?: SortOrder
+    saldo_item_pedido?: SortOrder
+    quantidade_pronta_total_item_pedido?: SortOrder
+    quantidade_transferida_item_pedido?: SortOrder
+    quantidade_cancelada_item_pedido?: SortOrder
     casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_total_item?: SortOrderInput | SortOrder
-    valor_por_unidade_item?: SortOrderInput | SortOrder
-    casas_decimais_total_item?: SortOrder
-    peso_liquido_unitario?: SortOrderInput | SortOrder
-    peso_bruto_unitario?: SortOrderInput | SortOrder
-    cubagem_unitaria?: SortOrderInput | SortOrder
-    casas_decimais_peso?: SortOrder
-    casas_decimais_cubagem?: SortOrder
+    valor_total_itens?: SortOrderInput | SortOrder
+    valor_unitario_item?: SortOrderInput | SortOrder
+    casas_decimais_valor_item?: SortOrder
+    cobertura_cambial?: SortOrder
+    peso_liquido_unitario_item?: SortOrderInput | SortOrder
+    peso_bruto_unitario_item?: SortOrderInput | SortOrder
+    cubagem_unitaria_item?: SortOrderInput | SortOrder
+    casas_decimais_peso_item?: SortOrder
+    casas_decimais_cubagem_item?: SortOrder
+    descricao_completa_item_pt?: SortOrderInput | SortOrder
+    descricao_completa_item_en?: SortOrderInput | SortOrder
+    descricao_completa_item_es?: SortOrderInput | SortOrder
+    descricao_completa_item_nf?: SortOrderInput | SortOrder
+    grupo_item?: SortOrderInput | SortOrder
+    subgrupo_item?: SortOrderInput | SortOrder
+    campo_especial_item?: SortOrderInput | SortOrder
     campos_custom?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    item_criado_em?: SortOrder
+    item_atualizado_em?: SortOrder
     pedido?: PedidoOrderByWithRelationInput
     embarques_efetivos?: ProcessoItemOrderByRelationAggregateInput
   }
@@ -63250,24 +65731,32 @@ export namespace Prisma {
     ncm?: StringFilter<"PedidoItem"> | string
     descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
-    quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFilter<"PedidoItem"> | number
     moeda_item?: StringFilter<"PedidoItem"> | string
-    valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
-    peso_liquido_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFilter<"PedidoItem"> | number
-    casas_decimais_cubagem?: IntFilter<"PedidoItem"> | number
+    valor_total_itens?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFilter<"PedidoItem"> | number
+    cobertura_cambial?: StringFilter<"PedidoItem"> | string
+    peso_liquido_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFilter<"PedidoItem"> | number
+    casas_decimais_cubagem_item?: IntFilter<"PedidoItem"> | number
+    descricao_completa_item_pt?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_en?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_es?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_nf?: StringNullableFilter<"PedidoItem"> | string | null
+    grupo_item?: StringNullableFilter<"PedidoItem"> | string | null
+    subgrupo_item?: StringNullableFilter<"PedidoItem"> | string | null
+    campo_especial_item?: StringNullableFilter<"PedidoItem"> | string | null
     campos_custom?: JsonNullableFilter<"PedidoItem">
-    created_at?: DateTimeFilter<"PedidoItem"> | Date | string
-    updated_at?: DateTimeFilter<"PedidoItem"> | Date | string
+    item_criado_em?: DateTimeFilter<"PedidoItem"> | Date | string
+    item_atualizado_em?: DateTimeFilter<"PedidoItem"> | Date | string
     pedido?: XOR<PedidoRelationFilter, PedidoWhereInput>
     embarques_efetivos?: ProcessoItemListRelationFilter
   }, "id">
@@ -63282,24 +65771,32 @@ export namespace Prisma {
     ncm?: SortOrder
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrderInput | SortOrder
-    quantidade_inicial_pedido?: SortOrder
-    quantidade_saldo_pedido?: SortOrder
-    quantidade_pronta_pedido?: SortOrder
-    quantidade_transferida_pedido?: SortOrder
-    quantidade_cancelada_pedido?: SortOrder
+    quantidade_inicial_item_pedido?: SortOrder
+    saldo_item_pedido?: SortOrder
+    quantidade_pronta_total_item_pedido?: SortOrder
+    quantidade_transferida_item_pedido?: SortOrder
+    quantidade_cancelada_item_pedido?: SortOrder
     casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_total_item?: SortOrderInput | SortOrder
-    valor_por_unidade_item?: SortOrderInput | SortOrder
-    casas_decimais_total_item?: SortOrder
-    peso_liquido_unitario?: SortOrderInput | SortOrder
-    peso_bruto_unitario?: SortOrderInput | SortOrder
-    cubagem_unitaria?: SortOrderInput | SortOrder
-    casas_decimais_peso?: SortOrder
-    casas_decimais_cubagem?: SortOrder
+    valor_total_itens?: SortOrderInput | SortOrder
+    valor_unitario_item?: SortOrderInput | SortOrder
+    casas_decimais_valor_item?: SortOrder
+    cobertura_cambial?: SortOrder
+    peso_liquido_unitario_item?: SortOrderInput | SortOrder
+    peso_bruto_unitario_item?: SortOrderInput | SortOrder
+    cubagem_unitaria_item?: SortOrderInput | SortOrder
+    casas_decimais_peso_item?: SortOrder
+    casas_decimais_cubagem_item?: SortOrder
+    descricao_completa_item_pt?: SortOrderInput | SortOrder
+    descricao_completa_item_en?: SortOrderInput | SortOrder
+    descricao_completa_item_es?: SortOrderInput | SortOrder
+    descricao_completa_item_nf?: SortOrderInput | SortOrder
+    grupo_item?: SortOrderInput | SortOrder
+    subgrupo_item?: SortOrderInput | SortOrder
+    campo_especial_item?: SortOrderInput | SortOrder
     campos_custom?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    item_criado_em?: SortOrder
+    item_atualizado_em?: SortOrder
     _count?: PedidoItemCountOrderByAggregateInput
     _avg?: PedidoItemAvgOrderByAggregateInput
     _max?: PedidoItemMaxOrderByAggregateInput
@@ -63320,24 +65817,32 @@ export namespace Prisma {
     ncm?: StringWithAggregatesFilter<"PedidoItem"> | string
     descricao_item?: StringWithAggregatesFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
-    quantidade_inicial_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntWithAggregatesFilter<"PedidoItem"> | number
     moeda_item?: StringWithAggregatesFilter<"PedidoItem"> | string
-    valor_total_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntWithAggregatesFilter<"PedidoItem"> | number
-    peso_liquido_unitario?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntWithAggregatesFilter<"PedidoItem"> | number
-    casas_decimais_cubagem?: IntWithAggregatesFilter<"PedidoItem"> | number
+    valor_total_itens?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntWithAggregatesFilter<"PedidoItem"> | number
+    cobertura_cambial?: StringWithAggregatesFilter<"PedidoItem"> | string
+    peso_liquido_unitario_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: DecimalNullableWithAggregatesFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntWithAggregatesFilter<"PedidoItem"> | number
+    casas_decimais_cubagem_item?: IntWithAggregatesFilter<"PedidoItem"> | number
+    descricao_completa_item_pt?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
+    descricao_completa_item_en?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
+    descricao_completa_item_es?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
+    descricao_completa_item_nf?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
+    grupo_item?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
+    subgrupo_item?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
+    campo_especial_item?: StringNullableWithAggregatesFilter<"PedidoItem"> | string | null
     campos_custom?: JsonNullableWithAggregatesFilter<"PedidoItem">
-    created_at?: DateTimeWithAggregatesFilter<"PedidoItem"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"PedidoItem"> | Date | string
+    item_criado_em?: DateTimeWithAggregatesFilter<"PedidoItem"> | Date | string
+    item_atualizado_em?: DateTimeWithAggregatesFilter<"PedidoItem"> | Date | string
   }
 
   export type ProcessoWhereInput = {
@@ -64561,6 +67066,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: BoolFilter<"ConfiguracaoPedido"> | boolean
     excluir_confirmar_com_preview?: BoolFilter<"ConfiguracaoPedido"> | boolean
     alerta_numero_duplicado?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_valor_total_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_quantidade_total_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_quantidade_pronta_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_peso_liquido_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_peso_bruto_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_cubagem_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
     updated_at?: DateTimeFilter<"ConfiguracaoPedido"> | Date | string
   }
 
@@ -64575,6 +67086,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: SortOrder
     excluir_confirmar_com_preview?: SortOrder
     alerta_numero_duplicado?: SortOrder
+    alerta_valor_total_divergente?: SortOrder
+    alerta_quantidade_total_divergente?: SortOrder
+    alerta_quantidade_pronta_divergente?: SortOrder
+    alerta_peso_liquido_divergente?: SortOrder
+    alerta_peso_bruto_divergente?: SortOrder
+    alerta_cubagem_divergente?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -64592,6 +67109,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: BoolFilter<"ConfiguracaoPedido"> | boolean
     excluir_confirmar_com_preview?: BoolFilter<"ConfiguracaoPedido"> | boolean
     alerta_numero_duplicado?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_valor_total_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_quantidade_total_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_quantidade_pronta_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_peso_liquido_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_peso_bruto_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
+    alerta_cubagem_divergente?: BoolFilter<"ConfiguracaoPedido"> | boolean
     updated_at?: DateTimeFilter<"ConfiguracaoPedido"> | Date | string
   }, "id" | "tenant_id">
 
@@ -64606,6 +67129,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: SortOrder
     excluir_confirmar_com_preview?: SortOrder
     alerta_numero_duplicado?: SortOrder
+    alerta_valor_total_divergente?: SortOrder
+    alerta_quantidade_total_divergente?: SortOrder
+    alerta_quantidade_pronta_divergente?: SortOrder
+    alerta_peso_liquido_divergente?: SortOrder
+    alerta_peso_bruto_divergente?: SortOrder
+    alerta_cubagem_divergente?: SortOrder
     updated_at?: SortOrder
     _count?: ConfiguracaoPedidoCountOrderByAggregateInput
     _max?: ConfiguracaoPedidoMaxOrderByAggregateInput
@@ -64626,6 +67155,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
     excluir_confirmar_com_preview?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
     alerta_numero_duplicado?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    alerta_valor_total_divergente?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    alerta_quantidade_total_divergente?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    alerta_quantidade_pronta_divergente?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    alerta_peso_liquido_divergente?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    alerta_peso_bruto_divergente?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
+    alerta_cubagem_divergente?: BoolWithAggregatesFilter<"ConfiguracaoPedido"> | boolean
     updated_at?: DateTimeWithAggregatesFilter<"ConfiguracaoPedido"> | Date | string
   }
 
@@ -64702,6 +67237,203 @@ export namespace Prisma {
     uso_count?: IntWithAggregatesFilter<"MapeamentoImport"> | number
     created_at?: DateTimeWithAggregatesFilter<"MapeamentoImport"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"MapeamentoImport"> | Date | string
+  }
+
+  export type NcmItemWhereInput = {
+    AND?: NcmItemWhereInput | NcmItemWhereInput[]
+    OR?: NcmItemWhereInput[]
+    NOT?: NcmItemWhereInput | NcmItemWhereInput[]
+    id?: StringFilter<"NcmItem"> | string
+    tenant_id?: StringFilter<"NcmItem"> | string
+    product_id?: StringNullableFilter<"NcmItem"> | string | null
+    user_id?: StringNullableFilter<"NcmItem"> | string | null
+    codigo?: StringFilter<"NcmItem"> | string
+    descricao?: StringFilter<"NcmItem"> | string
+    ativo?: BoolFilter<"NcmItem"> | boolean
+    data_inicio?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
+    data_fim?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
+    sync_id?: StringFilter<"NcmItem"> | string
+    created_at?: DateTimeFilter<"NcmItem"> | Date | string
+    updated_at?: DateTimeFilter<"NcmItem"> | Date | string
+  }
+
+  export type NcmItemOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    codigo?: SortOrder
+    descricao?: SortOrder
+    ativo?: SortOrder
+    data_inicio?: SortOrderInput | SortOrder
+    data_fim?: SortOrderInput | SortOrder
+    sync_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type NcmItemWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    tenant_id_codigo?: NcmItemTenant_idCodigoCompoundUniqueInput
+    AND?: NcmItemWhereInput | NcmItemWhereInput[]
+    OR?: NcmItemWhereInput[]
+    NOT?: NcmItemWhereInput | NcmItemWhereInput[]
+    tenant_id?: StringFilter<"NcmItem"> | string
+    product_id?: StringNullableFilter<"NcmItem"> | string | null
+    user_id?: StringNullableFilter<"NcmItem"> | string | null
+    codigo?: StringFilter<"NcmItem"> | string
+    descricao?: StringFilter<"NcmItem"> | string
+    ativo?: BoolFilter<"NcmItem"> | boolean
+    data_inicio?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
+    data_fim?: DateTimeNullableFilter<"NcmItem"> | Date | string | null
+    sync_id?: StringFilter<"NcmItem"> | string
+    created_at?: DateTimeFilter<"NcmItem"> | Date | string
+    updated_at?: DateTimeFilter<"NcmItem"> | Date | string
+  }, "id" | "tenant_id_codigo">
+
+  export type NcmItemOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    codigo?: SortOrder
+    descricao?: SortOrder
+    ativo?: SortOrder
+    data_inicio?: SortOrderInput | SortOrder
+    data_fim?: SortOrderInput | SortOrder
+    sync_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: NcmItemCountOrderByAggregateInput
+    _max?: NcmItemMaxOrderByAggregateInput
+    _min?: NcmItemMinOrderByAggregateInput
+  }
+
+  export type NcmItemScalarWhereWithAggregatesInput = {
+    AND?: NcmItemScalarWhereWithAggregatesInput | NcmItemScalarWhereWithAggregatesInput[]
+    OR?: NcmItemScalarWhereWithAggregatesInput[]
+    NOT?: NcmItemScalarWhereWithAggregatesInput | NcmItemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"NcmItem"> | string
+    tenant_id?: StringWithAggregatesFilter<"NcmItem"> | string
+    product_id?: StringNullableWithAggregatesFilter<"NcmItem"> | string | null
+    user_id?: StringNullableWithAggregatesFilter<"NcmItem"> | string | null
+    codigo?: StringWithAggregatesFilter<"NcmItem"> | string
+    descricao?: StringWithAggregatesFilter<"NcmItem"> | string
+    ativo?: BoolWithAggregatesFilter<"NcmItem"> | boolean
+    data_inicio?: DateTimeNullableWithAggregatesFilter<"NcmItem"> | Date | string | null
+    data_fim?: DateTimeNullableWithAggregatesFilter<"NcmItem"> | Date | string | null
+    sync_id?: StringWithAggregatesFilter<"NcmItem"> | string
+    created_at?: DateTimeWithAggregatesFilter<"NcmItem"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"NcmItem"> | Date | string
+  }
+
+  export type NcmSyncLogWhereInput = {
+    AND?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
+    OR?: NcmSyncLogWhereInput[]
+    NOT?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
+    id?: StringFilter<"NcmSyncLog"> | string
+    tenant_id?: StringFilter<"NcmSyncLog"> | string
+    product_id?: StringNullableFilter<"NcmSyncLog"> | string | null
+    user_id?: StringNullableFilter<"NcmSyncLog"> | string | null
+    iniciado_em?: DateTimeFilter<"NcmSyncLog"> | Date | string
+    concluido_em?: DateTimeNullableFilter<"NcmSyncLog"> | Date | string | null
+    status?: EnumNcmSyncStatusFilter<"NcmSyncLog"> | $Enums.NcmSyncStatus
+    total?: IntFilter<"NcmSyncLog"> | number
+    adicionados?: IntFilter<"NcmSyncLog"> | number
+    alterados?: IntFilter<"NcmSyncLog"> | number
+    removidos?: IntFilter<"NcmSyncLog"> | number
+    origem?: EnumNcmSyncOrigemFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigem
+    disparado_por?: StringNullableFilter<"NcmSyncLog"> | string | null
+    erro_msg?: StringNullableFilter<"NcmSyncLog"> | string | null
+    created_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
+    updated_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
+  }
+
+  export type NcmSyncLogOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    iniciado_em?: SortOrder
+    concluido_em?: SortOrderInput | SortOrder
+    status?: SortOrder
+    total?: SortOrder
+    adicionados?: SortOrder
+    alterados?: SortOrder
+    removidos?: SortOrder
+    origem?: SortOrder
+    disparado_por?: SortOrderInput | SortOrder
+    erro_msg?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type NcmSyncLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
+    OR?: NcmSyncLogWhereInput[]
+    NOT?: NcmSyncLogWhereInput | NcmSyncLogWhereInput[]
+    tenant_id?: StringFilter<"NcmSyncLog"> | string
+    product_id?: StringNullableFilter<"NcmSyncLog"> | string | null
+    user_id?: StringNullableFilter<"NcmSyncLog"> | string | null
+    iniciado_em?: DateTimeFilter<"NcmSyncLog"> | Date | string
+    concluido_em?: DateTimeNullableFilter<"NcmSyncLog"> | Date | string | null
+    status?: EnumNcmSyncStatusFilter<"NcmSyncLog"> | $Enums.NcmSyncStatus
+    total?: IntFilter<"NcmSyncLog"> | number
+    adicionados?: IntFilter<"NcmSyncLog"> | number
+    alterados?: IntFilter<"NcmSyncLog"> | number
+    removidos?: IntFilter<"NcmSyncLog"> | number
+    origem?: EnumNcmSyncOrigemFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigem
+    disparado_por?: StringNullableFilter<"NcmSyncLog"> | string | null
+    erro_msg?: StringNullableFilter<"NcmSyncLog"> | string | null
+    created_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
+    updated_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
+  }, "id">
+
+  export type NcmSyncLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    iniciado_em?: SortOrder
+    concluido_em?: SortOrderInput | SortOrder
+    status?: SortOrder
+    total?: SortOrder
+    adicionados?: SortOrder
+    alterados?: SortOrder
+    removidos?: SortOrder
+    origem?: SortOrder
+    disparado_por?: SortOrderInput | SortOrder
+    erro_msg?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    _count?: NcmSyncLogCountOrderByAggregateInput
+    _avg?: NcmSyncLogAvgOrderByAggregateInput
+    _max?: NcmSyncLogMaxOrderByAggregateInput
+    _min?: NcmSyncLogMinOrderByAggregateInput
+    _sum?: NcmSyncLogSumOrderByAggregateInput
+  }
+
+  export type NcmSyncLogScalarWhereWithAggregatesInput = {
+    AND?: NcmSyncLogScalarWhereWithAggregatesInput | NcmSyncLogScalarWhereWithAggregatesInput[]
+    OR?: NcmSyncLogScalarWhereWithAggregatesInput[]
+    NOT?: NcmSyncLogScalarWhereWithAggregatesInput | NcmSyncLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"NcmSyncLog"> | string
+    tenant_id?: StringWithAggregatesFilter<"NcmSyncLog"> | string
+    product_id?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
+    user_id?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
+    iniciado_em?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
+    concluido_em?: DateTimeNullableWithAggregatesFilter<"NcmSyncLog"> | Date | string | null
+    status?: EnumNcmSyncStatusWithAggregatesFilter<"NcmSyncLog"> | $Enums.NcmSyncStatus
+    total?: IntWithAggregatesFilter<"NcmSyncLog"> | number
+    adicionados?: IntWithAggregatesFilter<"NcmSyncLog"> | number
+    alterados?: IntWithAggregatesFilter<"NcmSyncLog"> | number
+    removidos?: IntWithAggregatesFilter<"NcmSyncLog"> | number
+    origem?: EnumNcmSyncOrigemWithAggregatesFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigem
+    disparado_por?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
+    erro_msg?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
   }
 
   export type AtividadeCreateInput = {
@@ -68786,34 +71518,34 @@ export namespace Prisma {
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: number
-    quantidade_total_pedido?: number | null
-    casas_decimais_quantidade_total_pedido?: number
+    casas_decimais_valor_pedido?: number
+    quantidade_total_inicial_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: number
     unidade_comercializada_pedido?: string | null
     peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: number
     casas_decimais_cubagem_pedido?: number
-    cobertura_cambial?: string
-    condicao_pagamento?: string | null
+    condicao_pagamento_pedido?: string | null
     numero_proforma?: string | null
     numero_invoice?: string | null
     referencia_importador?: string | null
     referencia_exportador?: string | null
     referencia_fabricante?: string | null
-    valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: string | null
-    taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: string | null
+    valor_total_cambio_pedido?: Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: string | null
+    taxa_cambio_estimada_pedido?: Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: string | null
     data_emissao_pedido?: Date | string
+    cnpj_importador?: string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: Date | string | null
     deleted_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    pedido_criado_em?: Date | string
+    pedido_atualizado_em?: Date | string
     itens?: PedidoItemCreateNestedManyWithoutPedidoInput
   }
 
@@ -68831,34 +71563,34 @@ export namespace Prisma {
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: number
-    quantidade_total_pedido?: number | null
-    casas_decimais_quantidade_total_pedido?: number
+    casas_decimais_valor_pedido?: number
+    quantidade_total_inicial_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: number
     unidade_comercializada_pedido?: string | null
     peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: number
     casas_decimais_cubagem_pedido?: number
-    cobertura_cambial?: string
-    condicao_pagamento?: string | null
+    condicao_pagamento_pedido?: string | null
     numero_proforma?: string | null
     numero_invoice?: string | null
     referencia_importador?: string | null
     referencia_exportador?: string | null
     referencia_fabricante?: string | null
-    valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: string | null
-    taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: string | null
+    valor_total_cambio_pedido?: Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: string | null
+    taxa_cambio_estimada_pedido?: Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: string | null
     data_emissao_pedido?: Date | string
+    cnpj_importador?: string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: Date | string | null
     deleted_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    pedido_criado_em?: Date | string
+    pedido_atualizado_em?: Date | string
     itens?: PedidoItemUncheckedCreateNestedManyWithoutPedidoInput
   }
 
@@ -68876,34 +71608,34 @@ export namespace Prisma {
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntFieldUpdateOperationsInput | number
-    quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
-    casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_valor_pedido?: IntFieldUpdateOperationsInput | number
+    quantidade_total_inicial_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
     casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
-    cobertura_cambial?: StringFieldUpdateOperationsInput | string
-    condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    condicao_pagamento_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
     numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
-    taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_cambio_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    taxa_cambio_estimada_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_importador?: NullableStringFieldUpdateOperationsInput | string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     itens?: PedidoItemUpdateManyWithoutPedidoNestedInput
   }
 
@@ -68921,34 +71653,34 @@ export namespace Prisma {
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntFieldUpdateOperationsInput | number
-    quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
-    casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_valor_pedido?: IntFieldUpdateOperationsInput | number
+    quantidade_total_inicial_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
     casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
-    cobertura_cambial?: StringFieldUpdateOperationsInput | string
-    condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    condicao_pagamento_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
     numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
-    taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_cambio_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    taxa_cambio_estimada_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_importador?: NullableStringFieldUpdateOperationsInput | string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     itens?: PedidoItemUncheckedUpdateManyWithoutPedidoNestedInput
   }
 
@@ -68966,34 +71698,34 @@ export namespace Prisma {
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: number
-    quantidade_total_pedido?: number | null
-    casas_decimais_quantidade_total_pedido?: number
+    casas_decimais_valor_pedido?: number
+    quantidade_total_inicial_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: number
     unidade_comercializada_pedido?: string | null
     peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: number
     casas_decimais_cubagem_pedido?: number
-    cobertura_cambial?: string
-    condicao_pagamento?: string | null
+    condicao_pagamento_pedido?: string | null
     numero_proforma?: string | null
     numero_invoice?: string | null
     referencia_importador?: string | null
     referencia_exportador?: string | null
     referencia_fabricante?: string | null
-    valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: string | null
-    taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: string | null
+    valor_total_cambio_pedido?: Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: string | null
+    taxa_cambio_estimada_pedido?: Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: string | null
     data_emissao_pedido?: Date | string
+    cnpj_importador?: string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: Date | string | null
     deleted_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    pedido_criado_em?: Date | string
+    pedido_atualizado_em?: Date | string
   }
 
   export type PedidoUpdateManyMutationInput = {
@@ -69010,34 +71742,34 @@ export namespace Prisma {
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntFieldUpdateOperationsInput | number
-    quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
-    casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_valor_pedido?: IntFieldUpdateOperationsInput | number
+    quantidade_total_inicial_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
     casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
-    cobertura_cambial?: StringFieldUpdateOperationsInput | string
-    condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    condicao_pagamento_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
     numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
-    taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_cambio_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    taxa_cambio_estimada_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_importador?: NullableStringFieldUpdateOperationsInput | string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PedidoUncheckedUpdateManyInput = {
@@ -69054,34 +71786,34 @@ export namespace Prisma {
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntFieldUpdateOperationsInput | number
-    quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
-    casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_valor_pedido?: IntFieldUpdateOperationsInput | number
+    quantidade_total_inicial_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
     casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
-    cobertura_cambial?: StringFieldUpdateOperationsInput | string
-    condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    condicao_pagamento_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
     numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
-    taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_cambio_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    taxa_cambio_estimada_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_importador?: NullableStringFieldUpdateOperationsInput | string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PedidoItemCreateInput = {
@@ -69093,24 +71825,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido: Decimal | DecimalJsLike | number | string
+    saldo_item_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_total_item?: Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: number
-    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: number
-    casas_decimais_cubagem?: number
+    valor_total_itens?: Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: number
+    cobertura_cambial?: string
+    peso_liquido_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: number
+    casas_decimais_cubagem_item?: number
+    descricao_completa_item_pt?: string | null
+    descricao_completa_item_en?: string | null
+    descricao_completa_item_es?: string | null
+    descricao_completa_item_nf?: string | null
+    grupo_item?: string | null
+    subgrupo_item?: string | null
+    campo_especial_item?: string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    item_criado_em?: Date | string
+    item_atualizado_em?: Date | string
     pedido: PedidoCreateNestedOneWithoutItensInput
     embarques_efetivos?: ProcessoItemCreateNestedManyWithoutPedido_itemInput
   }
@@ -69125,24 +71865,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido: Decimal | DecimalJsLike | number | string
+    saldo_item_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_total_item?: Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: number
-    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: number
-    casas_decimais_cubagem?: number
+    valor_total_itens?: Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: number
+    cobertura_cambial?: string
+    peso_liquido_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: number
+    casas_decimais_cubagem_item?: number
+    descricao_completa_item_pt?: string | null
+    descricao_completa_item_en?: string | null
+    descricao_completa_item_es?: string | null
+    descricao_completa_item_nf?: string | null
+    grupo_item?: string | null
+    subgrupo_item?: string | null
+    campo_especial_item?: string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    item_criado_em?: Date | string
+    item_atualizado_em?: Date | string
     embarques_efetivos?: ProcessoItemUncheckedCreateNestedManyWithoutPedido_itemInput
   }
 
@@ -69155,24 +71903,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     pedido?: PedidoUpdateOneRequiredWithoutItensNestedInput
     embarques_efetivos?: ProcessoItemUpdateManyWithoutPedido_itemNestedInput
   }
@@ -69187,24 +71943,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     embarques_efetivos?: ProcessoItemUncheckedUpdateManyWithoutPedido_itemNestedInput
   }
 
@@ -69218,24 +71982,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido: Decimal | DecimalJsLike | number | string
+    saldo_item_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_total_item?: Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: number
-    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: number
-    casas_decimais_cubagem?: number
+    valor_total_itens?: Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: number
+    cobertura_cambial?: string
+    peso_liquido_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: number
+    casas_decimais_cubagem_item?: number
+    descricao_completa_item_pt?: string | null
+    descricao_completa_item_en?: string | null
+    descricao_completa_item_es?: string | null
+    descricao_completa_item_nf?: string | null
+    grupo_item?: string | null
+    subgrupo_item?: string | null
+    campo_especial_item?: string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    item_criado_em?: Date | string
+    item_atualizado_em?: Date | string
   }
 
   export type PedidoItemUpdateManyMutationInput = {
@@ -69247,24 +72019,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PedidoItemUncheckedUpdateManyInput = {
@@ -69277,24 +72057,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProcessoCreateInput = {
@@ -70821,6 +73609,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: boolean
     excluir_confirmar_com_preview?: boolean
     alerta_numero_duplicado?: boolean
+    alerta_valor_total_divergente?: boolean
+    alerta_quantidade_total_divergente?: boolean
+    alerta_quantidade_pronta_divergente?: boolean
+    alerta_peso_liquido_divergente?: boolean
+    alerta_peso_bruto_divergente?: boolean
+    alerta_cubagem_divergente?: boolean
     updated_at?: Date | string
   }
 
@@ -70835,6 +73629,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: boolean
     excluir_confirmar_com_preview?: boolean
     alerta_numero_duplicado?: boolean
+    alerta_valor_total_divergente?: boolean
+    alerta_quantidade_total_divergente?: boolean
+    alerta_quantidade_pronta_divergente?: boolean
+    alerta_peso_liquido_divergente?: boolean
+    alerta_peso_bruto_divergente?: boolean
+    alerta_cubagem_divergente?: boolean
     updated_at?: Date | string
   }
 
@@ -70849,6 +73649,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: BoolFieldUpdateOperationsInput | boolean
     excluir_confirmar_com_preview?: BoolFieldUpdateOperationsInput | boolean
     alerta_numero_duplicado?: BoolFieldUpdateOperationsInput | boolean
+    alerta_valor_total_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_quantidade_total_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_quantidade_pronta_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_peso_liquido_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_peso_bruto_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_cubagem_divergente?: BoolFieldUpdateOperationsInput | boolean
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -70863,6 +73669,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: BoolFieldUpdateOperationsInput | boolean
     excluir_confirmar_com_preview?: BoolFieldUpdateOperationsInput | boolean
     alerta_numero_duplicado?: BoolFieldUpdateOperationsInput | boolean
+    alerta_valor_total_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_quantidade_total_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_quantidade_pronta_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_peso_liquido_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_peso_bruto_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_cubagem_divergente?: BoolFieldUpdateOperationsInput | boolean
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -70877,6 +73689,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: boolean
     excluir_confirmar_com_preview?: boolean
     alerta_numero_duplicado?: boolean
+    alerta_valor_total_divergente?: boolean
+    alerta_quantidade_total_divergente?: boolean
+    alerta_quantidade_pronta_divergente?: boolean
+    alerta_peso_liquido_divergente?: boolean
+    alerta_peso_bruto_divergente?: boolean
+    alerta_cubagem_divergente?: boolean
     updated_at?: Date | string
   }
 
@@ -70891,6 +73709,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: BoolFieldUpdateOperationsInput | boolean
     excluir_confirmar_com_preview?: BoolFieldUpdateOperationsInput | boolean
     alerta_numero_duplicado?: BoolFieldUpdateOperationsInput | boolean
+    alerta_valor_total_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_quantidade_total_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_quantidade_pronta_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_peso_liquido_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_peso_bruto_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_cubagem_divergente?: BoolFieldUpdateOperationsInput | boolean
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -70905,6 +73729,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: BoolFieldUpdateOperationsInput | boolean
     excluir_confirmar_com_preview?: BoolFieldUpdateOperationsInput | boolean
     alerta_numero_duplicado?: BoolFieldUpdateOperationsInput | boolean
+    alerta_valor_total_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_quantidade_total_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_quantidade_pronta_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_peso_liquido_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_peso_bruto_divergente?: BoolFieldUpdateOperationsInput | boolean
+    alerta_cubagem_divergente?: BoolFieldUpdateOperationsInput | boolean
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -70988,6 +73818,244 @@ export namespace Prisma {
     hash_colunas?: StringFieldUpdateOperationsInput | string
     mapeamento?: StringFieldUpdateOperationsInput | string
     uso_count?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmItemCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    codigo: string
+    descricao: string
+    ativo?: boolean
+    data_inicio?: Date | string | null
+    data_fim?: Date | string | null
+    sync_id: string
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type NcmItemUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    codigo: string
+    descricao: string
+    ativo?: boolean
+    data_inicio?: Date | string | null
+    data_fim?: Date | string | null
+    sync_id: string
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type NcmItemUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo?: StringFieldUpdateOperationsInput | string
+    descricao?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sync_id?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmItemUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo?: StringFieldUpdateOperationsInput | string
+    descricao?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sync_id?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmItemCreateManyInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    codigo: string
+    descricao: string
+    ativo?: boolean
+    data_inicio?: Date | string | null
+    data_fim?: Date | string | null
+    sync_id: string
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type NcmItemUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo?: StringFieldUpdateOperationsInput | string
+    descricao?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sync_id?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmItemUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo?: StringFieldUpdateOperationsInput | string
+    descricao?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    data_inicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_fim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sync_id?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncLogCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    iniciado_em?: Date | string
+    concluido_em?: Date | string | null
+    status?: $Enums.NcmSyncStatus
+    total?: number
+    adicionados?: number
+    alterados?: number
+    removidos?: number
+    origem?: $Enums.NcmSyncOrigem
+    disparado_por?: string | null
+    erro_msg?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type NcmSyncLogUncheckedCreateInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    iniciado_em?: Date | string
+    concluido_em?: Date | string | null
+    status?: $Enums.NcmSyncStatus
+    total?: number
+    adicionados?: number
+    alterados?: number
+    removidos?: number
+    origem?: $Enums.NcmSyncOrigem
+    disparado_por?: string | null
+    erro_msg?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type NcmSyncLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumNcmSyncStatusFieldUpdateOperationsInput | $Enums.NcmSyncStatus
+    total?: IntFieldUpdateOperationsInput | number
+    adicionados?: IntFieldUpdateOperationsInput | number
+    alterados?: IntFieldUpdateOperationsInput | number
+    removidos?: IntFieldUpdateOperationsInput | number
+    origem?: EnumNcmSyncOrigemFieldUpdateOperationsInput | $Enums.NcmSyncOrigem
+    disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
+    erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumNcmSyncStatusFieldUpdateOperationsInput | $Enums.NcmSyncStatus
+    total?: IntFieldUpdateOperationsInput | number
+    adicionados?: IntFieldUpdateOperationsInput | number
+    alterados?: IntFieldUpdateOperationsInput | number
+    removidos?: IntFieldUpdateOperationsInput | number
+    origem?: EnumNcmSyncOrigemFieldUpdateOperationsInput | $Enums.NcmSyncOrigem
+    disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
+    erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncLogCreateManyInput = {
+    id?: string
+    tenant_id: string
+    product_id?: string | null
+    user_id?: string | null
+    iniciado_em?: Date | string
+    concluido_em?: Date | string | null
+    status?: $Enums.NcmSyncStatus
+    total?: number
+    adicionados?: number
+    alterados?: number
+    removidos?: number
+    origem?: $Enums.NcmSyncOrigem
+    disparado_por?: string | null
+    erro_msg?: string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type NcmSyncLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumNcmSyncStatusFieldUpdateOperationsInput | $Enums.NcmSyncStatus
+    total?: IntFieldUpdateOperationsInput | number
+    adicionados?: IntFieldUpdateOperationsInput | number
+    alterados?: IntFieldUpdateOperationsInput | number
+    removidos?: IntFieldUpdateOperationsInput | number
+    origem?: EnumNcmSyncOrigemFieldUpdateOperationsInput | $Enums.NcmSyncOrigem
+    disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
+    erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmSyncLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: EnumNcmSyncStatusFieldUpdateOperationsInput | $Enums.NcmSyncStatus
+    total?: IntFieldUpdateOperationsInput | number
+    adicionados?: IntFieldUpdateOperationsInput | number
+    alterados?: IntFieldUpdateOperationsInput | number
+    removidos?: IntFieldUpdateOperationsInput | number
+    origem?: EnumNcmSyncOrigemFieldUpdateOperationsInput | $Enums.NcmSyncOrigem
+    disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
+    erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -73666,48 +76734,48 @@ export namespace Prisma {
     incoterm?: SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrder
-    casas_decimais_total_pedido?: SortOrder
-    quantidade_total_pedido?: SortOrder
-    casas_decimais_quantidade_total_pedido?: SortOrder
+    casas_decimais_valor_pedido?: SortOrder
+    quantidade_total_inicial_pedido?: SortOrder
+    casas_decimais_quantidade_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrder
     peso_liquido_total_pedido?: SortOrder
     peso_bruto_total_pedido?: SortOrder
     cubagem_total_pedido?: SortOrder
     casas_decimais_peso_pedido?: SortOrder
     casas_decimais_cubagem_pedido?: SortOrder
-    cobertura_cambial?: SortOrder
-    condicao_pagamento?: SortOrder
+    condicao_pagamento_pedido?: SortOrder
     numero_proforma?: SortOrder
     numero_invoice?: SortOrder
     referencia_importador?: SortOrder
     referencia_exportador?: SortOrder
     referencia_fabricante?: SortOrder
-    valor_total_cambio?: SortOrder
-    moeda_cambio?: SortOrder
-    taxa_cambio_estimada?: SortOrder
-    contrato_cambio_id?: SortOrder
+    valor_total_cambio_pedido?: SortOrder
+    moeda_cambio_pedido?: SortOrder
+    taxa_cambio_estimada_pedido?: SortOrder
+    contrato_cambio_id_pedido?: SortOrder
     data_emissao_pedido?: SortOrder
+    cnpj_importador?: SortOrder
     detalhes_operacionais?: SortOrder
     campos_custom?: SortOrder
-    pedidos_origem?: SortOrder
+    pedidos_origem_id?: SortOrder
     data_consolidacao_pedido?: SortOrder
     deleted_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    pedido_criado_em?: SortOrder
+    pedido_atualizado_em?: SortOrder
   }
 
   export type PedidoAvgOrderByAggregateInput = {
     valor_total_pedido?: SortOrder
-    casas_decimais_total_pedido?: SortOrder
-    quantidade_total_pedido?: SortOrder
-    casas_decimais_quantidade_total_pedido?: SortOrder
+    casas_decimais_valor_pedido?: SortOrder
+    quantidade_total_inicial_pedido?: SortOrder
+    casas_decimais_quantidade_pedido?: SortOrder
     peso_liquido_total_pedido?: SortOrder
     peso_bruto_total_pedido?: SortOrder
     cubagem_total_pedido?: SortOrder
     casas_decimais_peso_pedido?: SortOrder
     casas_decimais_cubagem_pedido?: SortOrder
-    valor_total_cambio?: SortOrder
-    taxa_cambio_estimada?: SortOrder
+    valor_total_cambio_pedido?: SortOrder
+    taxa_cambio_estimada_pedido?: SortOrder
   }
 
   export type PedidoMaxOrderByAggregateInput = {
@@ -73724,31 +76792,31 @@ export namespace Prisma {
     incoterm?: SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrder
-    casas_decimais_total_pedido?: SortOrder
-    quantidade_total_pedido?: SortOrder
-    casas_decimais_quantidade_total_pedido?: SortOrder
+    casas_decimais_valor_pedido?: SortOrder
+    quantidade_total_inicial_pedido?: SortOrder
+    casas_decimais_quantidade_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrder
     peso_liquido_total_pedido?: SortOrder
     peso_bruto_total_pedido?: SortOrder
     cubagem_total_pedido?: SortOrder
     casas_decimais_peso_pedido?: SortOrder
     casas_decimais_cubagem_pedido?: SortOrder
-    cobertura_cambial?: SortOrder
-    condicao_pagamento?: SortOrder
+    condicao_pagamento_pedido?: SortOrder
     numero_proforma?: SortOrder
     numero_invoice?: SortOrder
     referencia_importador?: SortOrder
     referencia_exportador?: SortOrder
     referencia_fabricante?: SortOrder
-    valor_total_cambio?: SortOrder
-    moeda_cambio?: SortOrder
-    taxa_cambio_estimada?: SortOrder
-    contrato_cambio_id?: SortOrder
+    valor_total_cambio_pedido?: SortOrder
+    moeda_cambio_pedido?: SortOrder
+    taxa_cambio_estimada_pedido?: SortOrder
+    contrato_cambio_id_pedido?: SortOrder
     data_emissao_pedido?: SortOrder
+    cnpj_importador?: SortOrder
     data_consolidacao_pedido?: SortOrder
     deleted_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    pedido_criado_em?: SortOrder
+    pedido_atualizado_em?: SortOrder
   }
 
   export type PedidoMinOrderByAggregateInput = {
@@ -73765,45 +76833,45 @@ export namespace Prisma {
     incoterm?: SortOrder
     moeda_pedido?: SortOrder
     valor_total_pedido?: SortOrder
-    casas_decimais_total_pedido?: SortOrder
-    quantidade_total_pedido?: SortOrder
-    casas_decimais_quantidade_total_pedido?: SortOrder
+    casas_decimais_valor_pedido?: SortOrder
+    quantidade_total_inicial_pedido?: SortOrder
+    casas_decimais_quantidade_pedido?: SortOrder
     unidade_comercializada_pedido?: SortOrder
     peso_liquido_total_pedido?: SortOrder
     peso_bruto_total_pedido?: SortOrder
     cubagem_total_pedido?: SortOrder
     casas_decimais_peso_pedido?: SortOrder
     casas_decimais_cubagem_pedido?: SortOrder
-    cobertura_cambial?: SortOrder
-    condicao_pagamento?: SortOrder
+    condicao_pagamento_pedido?: SortOrder
     numero_proforma?: SortOrder
     numero_invoice?: SortOrder
     referencia_importador?: SortOrder
     referencia_exportador?: SortOrder
     referencia_fabricante?: SortOrder
-    valor_total_cambio?: SortOrder
-    moeda_cambio?: SortOrder
-    taxa_cambio_estimada?: SortOrder
-    contrato_cambio_id?: SortOrder
+    valor_total_cambio_pedido?: SortOrder
+    moeda_cambio_pedido?: SortOrder
+    taxa_cambio_estimada_pedido?: SortOrder
+    contrato_cambio_id_pedido?: SortOrder
     data_emissao_pedido?: SortOrder
+    cnpj_importador?: SortOrder
     data_consolidacao_pedido?: SortOrder
     deleted_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    pedido_criado_em?: SortOrder
+    pedido_atualizado_em?: SortOrder
   }
 
   export type PedidoSumOrderByAggregateInput = {
     valor_total_pedido?: SortOrder
-    casas_decimais_total_pedido?: SortOrder
-    quantidade_total_pedido?: SortOrder
-    casas_decimais_quantidade_total_pedido?: SortOrder
+    casas_decimais_valor_pedido?: SortOrder
+    quantidade_total_inicial_pedido?: SortOrder
+    casas_decimais_quantidade_pedido?: SortOrder
     peso_liquido_total_pedido?: SortOrder
     peso_bruto_total_pedido?: SortOrder
     cubagem_total_pedido?: SortOrder
     casas_decimais_peso_pedido?: SortOrder
     casas_decimais_cubagem_pedido?: SortOrder
-    valor_total_cambio?: SortOrder
-    taxa_cambio_estimada?: SortOrder
+    valor_total_cambio_pedido?: SortOrder
+    taxa_cambio_estimada_pedido?: SortOrder
   }
 
   export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -73847,42 +76915,50 @@ export namespace Prisma {
     ncm?: SortOrder
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
-    quantidade_inicial_pedido?: SortOrder
-    quantidade_saldo_pedido?: SortOrder
-    quantidade_pronta_pedido?: SortOrder
-    quantidade_transferida_pedido?: SortOrder
-    quantidade_cancelada_pedido?: SortOrder
+    quantidade_inicial_item_pedido?: SortOrder
+    saldo_item_pedido?: SortOrder
+    quantidade_pronta_total_item_pedido?: SortOrder
+    quantidade_transferida_item_pedido?: SortOrder
+    quantidade_cancelada_item_pedido?: SortOrder
     casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_total_item?: SortOrder
-    valor_por_unidade_item?: SortOrder
-    casas_decimais_total_item?: SortOrder
-    peso_liquido_unitario?: SortOrder
-    peso_bruto_unitario?: SortOrder
-    cubagem_unitaria?: SortOrder
-    casas_decimais_peso?: SortOrder
-    casas_decimais_cubagem?: SortOrder
+    valor_total_itens?: SortOrder
+    valor_unitario_item?: SortOrder
+    casas_decimais_valor_item?: SortOrder
+    cobertura_cambial?: SortOrder
+    peso_liquido_unitario_item?: SortOrder
+    peso_bruto_unitario_item?: SortOrder
+    cubagem_unitaria_item?: SortOrder
+    casas_decimais_peso_item?: SortOrder
+    casas_decimais_cubagem_item?: SortOrder
+    descricao_completa_item_pt?: SortOrder
+    descricao_completa_item_en?: SortOrder
+    descricao_completa_item_es?: SortOrder
+    descricao_completa_item_nf?: SortOrder
+    grupo_item?: SortOrder
+    subgrupo_item?: SortOrder
+    campo_especial_item?: SortOrder
     campos_custom?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    item_criado_em?: SortOrder
+    item_atualizado_em?: SortOrder
   }
 
   export type PedidoItemAvgOrderByAggregateInput = {
     sequencia_item?: SortOrder
-    quantidade_inicial_pedido?: SortOrder
-    quantidade_saldo_pedido?: SortOrder
-    quantidade_pronta_pedido?: SortOrder
-    quantidade_transferida_pedido?: SortOrder
-    quantidade_cancelada_pedido?: SortOrder
+    quantidade_inicial_item_pedido?: SortOrder
+    saldo_item_pedido?: SortOrder
+    quantidade_pronta_total_item_pedido?: SortOrder
+    quantidade_transferida_item_pedido?: SortOrder
+    quantidade_cancelada_item_pedido?: SortOrder
     casas_decimais_quantidade_item?: SortOrder
-    valor_total_item?: SortOrder
-    valor_por_unidade_item?: SortOrder
-    casas_decimais_total_item?: SortOrder
-    peso_liquido_unitario?: SortOrder
-    peso_bruto_unitario?: SortOrder
-    cubagem_unitaria?: SortOrder
-    casas_decimais_peso?: SortOrder
-    casas_decimais_cubagem?: SortOrder
+    valor_total_itens?: SortOrder
+    valor_unitario_item?: SortOrder
+    casas_decimais_valor_item?: SortOrder
+    peso_liquido_unitario_item?: SortOrder
+    peso_bruto_unitario_item?: SortOrder
+    cubagem_unitaria_item?: SortOrder
+    casas_decimais_peso_item?: SortOrder
+    casas_decimais_cubagem_item?: SortOrder
   }
 
   export type PedidoItemMaxOrderByAggregateInput = {
@@ -73895,23 +76971,31 @@ export namespace Prisma {
     ncm?: SortOrder
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
-    quantidade_inicial_pedido?: SortOrder
-    quantidade_saldo_pedido?: SortOrder
-    quantidade_pronta_pedido?: SortOrder
-    quantidade_transferida_pedido?: SortOrder
-    quantidade_cancelada_pedido?: SortOrder
+    quantidade_inicial_item_pedido?: SortOrder
+    saldo_item_pedido?: SortOrder
+    quantidade_pronta_total_item_pedido?: SortOrder
+    quantidade_transferida_item_pedido?: SortOrder
+    quantidade_cancelada_item_pedido?: SortOrder
     casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_total_item?: SortOrder
-    valor_por_unidade_item?: SortOrder
-    casas_decimais_total_item?: SortOrder
-    peso_liquido_unitario?: SortOrder
-    peso_bruto_unitario?: SortOrder
-    cubagem_unitaria?: SortOrder
-    casas_decimais_peso?: SortOrder
-    casas_decimais_cubagem?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    valor_total_itens?: SortOrder
+    valor_unitario_item?: SortOrder
+    casas_decimais_valor_item?: SortOrder
+    cobertura_cambial?: SortOrder
+    peso_liquido_unitario_item?: SortOrder
+    peso_bruto_unitario_item?: SortOrder
+    cubagem_unitaria_item?: SortOrder
+    casas_decimais_peso_item?: SortOrder
+    casas_decimais_cubagem_item?: SortOrder
+    descricao_completa_item_pt?: SortOrder
+    descricao_completa_item_en?: SortOrder
+    descricao_completa_item_es?: SortOrder
+    descricao_completa_item_nf?: SortOrder
+    grupo_item?: SortOrder
+    subgrupo_item?: SortOrder
+    campo_especial_item?: SortOrder
+    item_criado_em?: SortOrder
+    item_atualizado_em?: SortOrder
   }
 
   export type PedidoItemMinOrderByAggregateInput = {
@@ -73924,41 +77008,49 @@ export namespace Prisma {
     ncm?: SortOrder
     descricao_item?: SortOrder
     unidade_comercializada_item?: SortOrder
-    quantidade_inicial_pedido?: SortOrder
-    quantidade_saldo_pedido?: SortOrder
-    quantidade_pronta_pedido?: SortOrder
-    quantidade_transferida_pedido?: SortOrder
-    quantidade_cancelada_pedido?: SortOrder
+    quantidade_inicial_item_pedido?: SortOrder
+    saldo_item_pedido?: SortOrder
+    quantidade_pronta_total_item_pedido?: SortOrder
+    quantidade_transferida_item_pedido?: SortOrder
+    quantidade_cancelada_item_pedido?: SortOrder
     casas_decimais_quantidade_item?: SortOrder
     moeda_item?: SortOrder
-    valor_total_item?: SortOrder
-    valor_por_unidade_item?: SortOrder
-    casas_decimais_total_item?: SortOrder
-    peso_liquido_unitario?: SortOrder
-    peso_bruto_unitario?: SortOrder
-    cubagem_unitaria?: SortOrder
-    casas_decimais_peso?: SortOrder
-    casas_decimais_cubagem?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    valor_total_itens?: SortOrder
+    valor_unitario_item?: SortOrder
+    casas_decimais_valor_item?: SortOrder
+    cobertura_cambial?: SortOrder
+    peso_liquido_unitario_item?: SortOrder
+    peso_bruto_unitario_item?: SortOrder
+    cubagem_unitaria_item?: SortOrder
+    casas_decimais_peso_item?: SortOrder
+    casas_decimais_cubagem_item?: SortOrder
+    descricao_completa_item_pt?: SortOrder
+    descricao_completa_item_en?: SortOrder
+    descricao_completa_item_es?: SortOrder
+    descricao_completa_item_nf?: SortOrder
+    grupo_item?: SortOrder
+    subgrupo_item?: SortOrder
+    campo_especial_item?: SortOrder
+    item_criado_em?: SortOrder
+    item_atualizado_em?: SortOrder
   }
 
   export type PedidoItemSumOrderByAggregateInput = {
     sequencia_item?: SortOrder
-    quantidade_inicial_pedido?: SortOrder
-    quantidade_saldo_pedido?: SortOrder
-    quantidade_pronta_pedido?: SortOrder
-    quantidade_transferida_pedido?: SortOrder
-    quantidade_cancelada_pedido?: SortOrder
+    quantidade_inicial_item_pedido?: SortOrder
+    saldo_item_pedido?: SortOrder
+    quantidade_pronta_total_item_pedido?: SortOrder
+    quantidade_transferida_item_pedido?: SortOrder
+    quantidade_cancelada_item_pedido?: SortOrder
     casas_decimais_quantidade_item?: SortOrder
-    valor_total_item?: SortOrder
-    valor_por_unidade_item?: SortOrder
-    casas_decimais_total_item?: SortOrder
-    peso_liquido_unitario?: SortOrder
-    peso_bruto_unitario?: SortOrder
-    cubagem_unitaria?: SortOrder
-    casas_decimais_peso?: SortOrder
-    casas_decimais_cubagem?: SortOrder
+    valor_total_itens?: SortOrder
+    valor_unitario_item?: SortOrder
+    casas_decimais_valor_item?: SortOrder
+    peso_liquido_unitario_item?: SortOrder
+    peso_bruto_unitario_item?: SortOrder
+    cubagem_unitaria_item?: SortOrder
+    casas_decimais_peso_item?: SortOrder
+    casas_decimais_cubagem_item?: SortOrder
   }
 
   export type ProcessoFaturaListRelationFilter = {
@@ -74736,6 +77828,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: SortOrder
     excluir_confirmar_com_preview?: SortOrder
     alerta_numero_duplicado?: SortOrder
+    alerta_valor_total_divergente?: SortOrder
+    alerta_quantidade_total_divergente?: SortOrder
+    alerta_quantidade_pronta_divergente?: SortOrder
+    alerta_peso_liquido_divergente?: SortOrder
+    alerta_peso_bruto_divergente?: SortOrder
+    alerta_cubagem_divergente?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -74749,6 +77847,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: SortOrder
     excluir_confirmar_com_preview?: SortOrder
     alerta_numero_duplicado?: SortOrder
+    alerta_valor_total_divergente?: SortOrder
+    alerta_quantidade_total_divergente?: SortOrder
+    alerta_quantidade_pronta_divergente?: SortOrder
+    alerta_peso_liquido_divergente?: SortOrder
+    alerta_peso_bruto_divergente?: SortOrder
+    alerta_cubagem_divergente?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -74762,6 +77866,12 @@ export namespace Prisma {
     excluir_pedido_sem_item_permitido?: SortOrder
     excluir_confirmar_com_preview?: SortOrder
     alerta_numero_duplicado?: SortOrder
+    alerta_valor_total_divergente?: SortOrder
+    alerta_quantidade_total_divergente?: SortOrder
+    alerta_quantidade_pronta_divergente?: SortOrder
+    alerta_peso_liquido_divergente?: SortOrder
+    alerta_peso_bruto_divergente?: SortOrder
+    alerta_cubagem_divergente?: SortOrder
     updated_at?: SortOrder
   }
 
@@ -74812,6 +77922,161 @@ export namespace Prisma {
 
   export type MapeamentoImportSumOrderByAggregateInput = {
     uso_count?: SortOrder
+  }
+
+  export type NcmItemTenant_idCodigoCompoundUniqueInput = {
+    tenant_id: string
+    codigo: string
+  }
+
+  export type NcmItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    codigo?: SortOrder
+    descricao?: SortOrder
+    ativo?: SortOrder
+    data_inicio?: SortOrder
+    data_fim?: SortOrder
+    sync_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type NcmItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    codigo?: SortOrder
+    descricao?: SortOrder
+    ativo?: SortOrder
+    data_inicio?: SortOrder
+    data_fim?: SortOrder
+    sync_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type NcmItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    codigo?: SortOrder
+    descricao?: SortOrder
+    ativo?: SortOrder
+    data_inicio?: SortOrder
+    data_fim?: SortOrder
+    sync_id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type EnumNcmSyncStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncStatus | EnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncStatus[] | ListEnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncStatus[] | ListEnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncStatusFilter<$PrismaModel> | $Enums.NcmSyncStatus
+  }
+
+  export type EnumNcmSyncOrigemFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncOrigem | EnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncOrigemFilter<$PrismaModel> | $Enums.NcmSyncOrigem
+  }
+
+  export type NcmSyncLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    iniciado_em?: SortOrder
+    concluido_em?: SortOrder
+    status?: SortOrder
+    total?: SortOrder
+    adicionados?: SortOrder
+    alterados?: SortOrder
+    removidos?: SortOrder
+    origem?: SortOrder
+    disparado_por?: SortOrder
+    erro_msg?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type NcmSyncLogAvgOrderByAggregateInput = {
+    total?: SortOrder
+    adicionados?: SortOrder
+    alterados?: SortOrder
+    removidos?: SortOrder
+  }
+
+  export type NcmSyncLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    iniciado_em?: SortOrder
+    concluido_em?: SortOrder
+    status?: SortOrder
+    total?: SortOrder
+    adicionados?: SortOrder
+    alterados?: SortOrder
+    removidos?: SortOrder
+    origem?: SortOrder
+    disparado_por?: SortOrder
+    erro_msg?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type NcmSyncLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    iniciado_em?: SortOrder
+    concluido_em?: SortOrder
+    status?: SortOrder
+    total?: SortOrder
+    adicionados?: SortOrder
+    alterados?: SortOrder
+    removidos?: SortOrder
+    origem?: SortOrder
+    disparado_por?: SortOrder
+    erro_msg?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type NcmSyncLogSumOrderByAggregateInput = {
+    total?: SortOrder
+    adicionados?: SortOrder
+    alterados?: SortOrder
+    removidos?: SortOrder
+  }
+
+  export type EnumNcmSyncStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncStatus | EnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncStatus[] | ListEnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncStatus[] | ListEnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncStatusWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNcmSyncStatusFilter<$PrismaModel>
+    _max?: NestedEnumNcmSyncStatusFilter<$PrismaModel>
+  }
+
+  export type EnumNcmSyncOrigemWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncOrigem | EnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncOrigemWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncOrigem
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
+    _max?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
   }
 
   export type AtividadeParticipanteCreateNestedManyWithoutAtividadeInput = {
@@ -75651,10 +78916,6 @@ export namespace Prisma {
     update?: XOR<XOR<GabiConversationUpdateToOneWithWhereWithoutMessagesInput, GabiConversationUpdateWithoutMessagesInput>, GabiConversationUncheckedUpdateWithoutMessagesInput>
   }
 
-  export type PedidoCreatepedidos_origemInput = {
-    set: string[]
-  }
-
   export type PedidoItemCreateNestedManyWithoutPedidoInput = {
     create?: XOR<PedidoItemCreateWithoutPedidoInput, PedidoItemUncheckedCreateWithoutPedidoInput> | PedidoItemCreateWithoutPedidoInput[] | PedidoItemUncheckedCreateWithoutPedidoInput[]
     connectOrCreate?: PedidoItemCreateOrConnectWithoutPedidoInput | PedidoItemCreateOrConnectWithoutPedidoInput[]
@@ -75675,11 +78936,6 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
-  }
-
-  export type PedidoUpdatepedidos_origemInput = {
-    set?: string[]
-    push?: string | string[]
   }
 
   export type PedidoItemUpdateManyWithoutPedidoNestedInput = {
@@ -75975,6 +79231,14 @@ export namespace Prisma {
   export type ConfiguracaoPedidoUpdateexcluir_status_permitidosInput = {
     set?: string[]
     push?: string | string[]
+  }
+
+  export type EnumNcmSyncStatusFieldUpdateOperationsInput = {
+    set?: $Enums.NcmSyncStatus
+  }
+
+  export type EnumNcmSyncOrigemFieldUpdateOperationsInput = {
+    set?: $Enums.NcmSyncOrigem
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -76527,6 +79791,40 @@ export namespace Prisma {
     _sum?: NestedDecimalNullableFilter<$PrismaModel>
     _min?: NestedDecimalNullableFilter<$PrismaModel>
     _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumNcmSyncStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncStatus | EnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncStatus[] | ListEnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncStatus[] | ListEnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncStatusFilter<$PrismaModel> | $Enums.NcmSyncStatus
+  }
+
+  export type NestedEnumNcmSyncOrigemFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncOrigem | EnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncOrigemFilter<$PrismaModel> | $Enums.NcmSyncOrigem
+  }
+
+  export type NestedEnumNcmSyncStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncStatus | EnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncStatus[] | ListEnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncStatus[] | ListEnumNcmSyncStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncStatusWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNcmSyncStatusFilter<$PrismaModel>
+    _max?: NestedEnumNcmSyncStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumNcmSyncOrigemWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NcmSyncOrigem | EnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    in?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
+    not?: NestedEnumNcmSyncOrigemWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncOrigem
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
+    _max?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
   }
 
   export type AtividadeParticipanteCreateWithoutAtividadeInput = {
@@ -78341,24 +81639,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido: Decimal | DecimalJsLike | number | string
+    saldo_item_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_total_item?: Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: number
-    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: number
-    casas_decimais_cubagem?: number
+    valor_total_itens?: Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: number
+    cobertura_cambial?: string
+    peso_liquido_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: number
+    casas_decimais_cubagem_item?: number
+    descricao_completa_item_pt?: string | null
+    descricao_completa_item_en?: string | null
+    descricao_completa_item_es?: string | null
+    descricao_completa_item_nf?: string | null
+    grupo_item?: string | null
+    subgrupo_item?: string | null
+    campo_especial_item?: string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    item_criado_em?: Date | string
+    item_atualizado_em?: Date | string
     embarques_efetivos?: ProcessoItemCreateNestedManyWithoutPedido_itemInput
   }
 
@@ -78371,24 +81677,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido: Decimal | DecimalJsLike | number | string
+    saldo_item_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_total_item?: Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: number
-    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: number
-    casas_decimais_cubagem?: number
+    valor_total_itens?: Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: number
+    cobertura_cambial?: string
+    peso_liquido_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: number
+    casas_decimais_cubagem_item?: number
+    descricao_completa_item_pt?: string | null
+    descricao_completa_item_en?: string | null
+    descricao_completa_item_es?: string | null
+    descricao_completa_item_nf?: string | null
+    grupo_item?: string | null
+    subgrupo_item?: string | null
+    campo_especial_item?: string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    item_criado_em?: Date | string
+    item_atualizado_em?: Date | string
     embarques_efetivos?: ProcessoItemUncheckedCreateNestedManyWithoutPedido_itemInput
   }
 
@@ -78431,24 +81745,32 @@ export namespace Prisma {
     ncm?: StringFilter<"PedidoItem"> | string
     descricao_item?: StringFilter<"PedidoItem"> | string
     unidade_comercializada_item?: StringNullableFilter<"PedidoItem"> | string | null
-    quantidade_inicial_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFilter<"PedidoItem"> | number
     moeda_item?: StringFilter<"PedidoItem"> | string
-    valor_total_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFilter<"PedidoItem"> | number
-    peso_liquido_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFilter<"PedidoItem"> | number
-    casas_decimais_cubagem?: IntFilter<"PedidoItem"> | number
+    valor_total_itens?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFilter<"PedidoItem"> | number
+    cobertura_cambial?: StringFilter<"PedidoItem"> | string
+    peso_liquido_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: DecimalNullableFilter<"PedidoItem"> | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFilter<"PedidoItem"> | number
+    casas_decimais_cubagem_item?: IntFilter<"PedidoItem"> | number
+    descricao_completa_item_pt?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_en?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_es?: StringNullableFilter<"PedidoItem"> | string | null
+    descricao_completa_item_nf?: StringNullableFilter<"PedidoItem"> | string | null
+    grupo_item?: StringNullableFilter<"PedidoItem"> | string | null
+    subgrupo_item?: StringNullableFilter<"PedidoItem"> | string | null
+    campo_especial_item?: StringNullableFilter<"PedidoItem"> | string | null
     campos_custom?: JsonNullableFilter<"PedidoItem">
-    created_at?: DateTimeFilter<"PedidoItem"> | Date | string
-    updated_at?: DateTimeFilter<"PedidoItem"> | Date | string
+    item_criado_em?: DateTimeFilter<"PedidoItem"> | Date | string
+    item_atualizado_em?: DateTimeFilter<"PedidoItem"> | Date | string
   }
 
   export type PedidoCreateWithoutItensInput = {
@@ -78465,34 +81787,34 @@ export namespace Prisma {
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: number
-    quantidade_total_pedido?: number | null
-    casas_decimais_quantidade_total_pedido?: number
+    casas_decimais_valor_pedido?: number
+    quantidade_total_inicial_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: number
     unidade_comercializada_pedido?: string | null
     peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: number
     casas_decimais_cubagem_pedido?: number
-    cobertura_cambial?: string
-    condicao_pagamento?: string | null
+    condicao_pagamento_pedido?: string | null
     numero_proforma?: string | null
     numero_invoice?: string | null
     referencia_importador?: string | null
     referencia_exportador?: string | null
     referencia_fabricante?: string | null
-    valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: string | null
-    taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: string | null
+    valor_total_cambio_pedido?: Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: string | null
+    taxa_cambio_estimada_pedido?: Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: string | null
     data_emissao_pedido?: Date | string
+    cnpj_importador?: string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: Date | string | null
     deleted_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    pedido_criado_em?: Date | string
+    pedido_atualizado_em?: Date | string
   }
 
   export type PedidoUncheckedCreateWithoutItensInput = {
@@ -78509,34 +81831,34 @@ export namespace Prisma {
     incoterm?: string | null
     moeda_pedido?: string
     valor_total_pedido?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: number
-    quantidade_total_pedido?: number | null
-    casas_decimais_quantidade_total_pedido?: number
+    casas_decimais_valor_pedido?: number
+    quantidade_total_inicial_pedido?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: number
     unidade_comercializada_pedido?: string | null
     peso_liquido_total_pedido?: Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: number
     casas_decimais_cubagem_pedido?: number
-    cobertura_cambial?: string
-    condicao_pagamento?: string | null
+    condicao_pagamento_pedido?: string | null
     numero_proforma?: string | null
     numero_invoice?: string | null
     referencia_importador?: string | null
     referencia_exportador?: string | null
     referencia_fabricante?: string | null
-    valor_total_cambio?: Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: string | null
-    taxa_cambio_estimada?: Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: string | null
+    valor_total_cambio_pedido?: Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: string | null
+    taxa_cambio_estimada_pedido?: Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: string | null
     data_emissao_pedido?: Date | string
+    cnpj_importador?: string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoCreatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: Date | string | null
     deleted_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    pedido_criado_em?: Date | string
+    pedido_atualizado_em?: Date | string
   }
 
   export type PedidoCreateOrConnectWithoutItensInput = {
@@ -78617,34 +81939,34 @@ export namespace Prisma {
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntFieldUpdateOperationsInput | number
-    quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
-    casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_valor_pedido?: IntFieldUpdateOperationsInput | number
+    quantidade_total_inicial_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
     casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
-    cobertura_cambial?: StringFieldUpdateOperationsInput | string
-    condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    condicao_pagamento_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
     numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
-    taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_cambio_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    taxa_cambio_estimada_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_importador?: NullableStringFieldUpdateOperationsInput | string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PedidoUncheckedUpdateWithoutItensInput = {
@@ -78661,34 +81983,34 @@ export namespace Prisma {
     incoterm?: NullableStringFieldUpdateOperationsInput | string | null
     moeda_pedido?: StringFieldUpdateOperationsInput | string
     valor_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_pedido?: IntFieldUpdateOperationsInput | number
-    quantidade_total_pedido?: NullableFloatFieldUpdateOperationsInput | number | null
-    casas_decimais_quantidade_total_pedido?: IntFieldUpdateOperationsInput | number
+    casas_decimais_valor_pedido?: IntFieldUpdateOperationsInput | number
+    quantidade_total_inicial_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_quantidade_pedido?: IntFieldUpdateOperationsInput | number
     unidade_comercializada_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     peso_liquido_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     peso_bruto_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     cubagem_total_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     casas_decimais_peso_pedido?: IntFieldUpdateOperationsInput | number
     casas_decimais_cubagem_pedido?: IntFieldUpdateOperationsInput | number
-    cobertura_cambial?: StringFieldUpdateOperationsInput | string
-    condicao_pagamento?: NullableStringFieldUpdateOperationsInput | string | null
+    condicao_pagamento_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     numero_proforma?: NullableStringFieldUpdateOperationsInput | string | null
     numero_invoice?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_importador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_exportador?: NullableStringFieldUpdateOperationsInput | string | null
     referencia_fabricante?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_cambio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    moeda_cambio?: NullableStringFieldUpdateOperationsInput | string | null
-    taxa_cambio_estimada?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    contrato_cambio_id?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_cambio_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    moeda_cambio_pedido?: NullableStringFieldUpdateOperationsInput | string | null
+    taxa_cambio_estimada_pedido?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    contrato_cambio_id_pedido?: NullableStringFieldUpdateOperationsInput | string | null
     data_emissao_pedido?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_importador?: NullableStringFieldUpdateOperationsInput | string | null
     detalhes_operacionais?: NullableJsonNullValueInput | InputJsonValue
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    pedidos_origem?: PedidoUpdatepedidos_origemInput | string[]
+    pedidos_origem_id?: NullableJsonNullValueInput | InputJsonValue
     data_consolidacao_pedido?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    pedido_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProcessoItemUpsertWithWhereUniqueWithoutPedido_itemInput = {
@@ -79667,24 +82989,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido: Decimal | DecimalJsLike | number | string
+    saldo_item_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_total_item?: Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: number
-    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: number
-    casas_decimais_cubagem?: number
+    valor_total_itens?: Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: number
+    cobertura_cambial?: string
+    peso_liquido_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: number
+    casas_decimais_cubagem_item?: number
+    descricao_completa_item_pt?: string | null
+    descricao_completa_item_en?: string | null
+    descricao_completa_item_es?: string | null
+    descricao_completa_item_nf?: string | null
+    grupo_item?: string | null
+    subgrupo_item?: string | null
+    campo_especial_item?: string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    item_criado_em?: Date | string
+    item_atualizado_em?: Date | string
     pedido: PedidoCreateNestedOneWithoutItensInput
   }
 
@@ -79698,24 +83028,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido: Decimal | DecimalJsLike | number | string
+    saldo_item_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_total_item?: Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: number
-    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: number
-    casas_decimais_cubagem?: number
+    valor_total_itens?: Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: number
+    cobertura_cambial?: string
+    peso_liquido_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: number
+    casas_decimais_cubagem_item?: number
+    descricao_completa_item_pt?: string | null
+    descricao_completa_item_en?: string | null
+    descricao_completa_item_es?: string | null
+    descricao_completa_item_nf?: string | null
+    grupo_item?: string | null
+    subgrupo_item?: string | null
+    campo_especial_item?: string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    item_criado_em?: Date | string
+    item_atualizado_em?: Date | string
   }
 
   export type PedidoItemCreateOrConnectWithoutEmbarques_efetivosInput = {
@@ -79988,24 +83326,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     pedido?: PedidoUpdateOneRequiredWithoutItensNestedInput
   }
 
@@ -80019,24 +83365,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProcessoCreateWithoutContainersInput = {
@@ -81108,24 +84462,32 @@ export namespace Prisma {
     ncm: string
     descricao_item: string
     unidade_comercializada_item?: string | null
-    quantidade_inicial_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido: Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido: Decimal | DecimalJsLike | number | string
+    saldo_item_pedido: Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: number
     moeda_item?: string
-    valor_total_item?: Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: number
-    peso_liquido_unitario?: Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: number
-    casas_decimais_cubagem?: number
+    valor_total_itens?: Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: number
+    cobertura_cambial?: string
+    peso_liquido_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: number
+    casas_decimais_cubagem_item?: number
+    descricao_completa_item_pt?: string | null
+    descricao_completa_item_en?: string | null
+    descricao_completa_item_es?: string | null
+    descricao_completa_item_nf?: string | null
+    grupo_item?: string | null
+    subgrupo_item?: string | null
+    campo_especial_item?: string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    item_criado_em?: Date | string
+    item_atualizado_em?: Date | string
   }
 
   export type PedidoItemUpdateWithoutPedidoInput = {
@@ -81137,24 +84499,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     embarques_efetivos?: ProcessoItemUpdateManyWithoutPedido_itemNestedInput
   }
 
@@ -81167,24 +84537,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     embarques_efetivos?: ProcessoItemUncheckedUpdateManyWithoutPedido_itemNestedInput
   }
 
@@ -81197,24 +84575,32 @@ export namespace Prisma {
     ncm?: StringFieldUpdateOperationsInput | string
     descricao_item?: StringFieldUpdateOperationsInput | string
     unidade_comercializada_item?: NullableStringFieldUpdateOperationsInput | string | null
-    quantidade_inicial_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_saldo_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_pronta_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_transferida_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    quantidade_cancelada_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_inicial_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    saldo_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_pronta_total_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_transferida_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    quantidade_cancelada_item_pedido?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     casas_decimais_quantidade_item?: IntFieldUpdateOperationsInput | number
     moeda_item?: StringFieldUpdateOperationsInput | string
-    valor_total_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    valor_por_unidade_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_total_item?: IntFieldUpdateOperationsInput | number
-    peso_liquido_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    peso_bruto_unitario?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    cubagem_unitaria?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    casas_decimais_peso?: IntFieldUpdateOperationsInput | number
-    casas_decimais_cubagem?: IntFieldUpdateOperationsInput | number
+    valor_total_itens?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valor_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_valor_item?: IntFieldUpdateOperationsInput | number
+    cobertura_cambial?: StringFieldUpdateOperationsInput | string
+    peso_liquido_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    peso_bruto_unitario_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    cubagem_unitaria_item?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    casas_decimais_peso_item?: IntFieldUpdateOperationsInput | number
+    casas_decimais_cubagem_item?: IntFieldUpdateOperationsInput | number
+    descricao_completa_item_pt?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_en?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_es?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao_completa_item_nf?: NullableStringFieldUpdateOperationsInput | string | null
+    grupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    subgrupo_item?: NullableStringFieldUpdateOperationsInput | string | null
+    campo_especial_item?: NullableStringFieldUpdateOperationsInput | string | null
     campos_custom?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    item_atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProcessoItemCreateManyPedido_itemInput = {
@@ -81726,6 +85112,14 @@ export namespace Prisma {
      * @deprecated Use MapeamentoImportDefaultArgs instead
      */
     export type MapeamentoImportArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = MapeamentoImportDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use NcmItemDefaultArgs instead
+     */
+    export type NcmItemArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmItemDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use NcmSyncLogDefaultArgs instead
+     */
+    export type NcmSyncLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmSyncLogDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

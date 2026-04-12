@@ -2599,3 +2599,66 @@ body.light-theme .cfg-select {
   border-color: rgba(0,0,0,0.1);
   color: #0f172a;
 }
+
+/* ── Painéis do Dashboard ───────────────────────────────────────────────── */
+
+.cfg-painel-nome-input {
+  flex: 1;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(139,92,246,0.5);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-primary, #f1f5f9);
+  outline: none;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.cfg-painel-nome-input:focus {
+  border-color: rgba(139,92,246,0.8);
+}
+
+.cfg-painel-nome-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--text-primary, #f1f5f9);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.cfg-painel-nome-btn:hover {
+  text-decoration: underline;
+  text-decoration-color: rgba(139,92,246,0.5);
+}
+
+.cfg-kanban-disponivel-row--criar {
+  justify-content: flex-start;
+}
+
+.cfg-kanban-disponivel-row__criar-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: none;
+  border: 1px dashed rgba(139,92,246,0.4);
+  border-radius: 6px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.78rem;
+  color: rgba(139,92,246,0.8);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.cfg-kanban-disponivel-row__criar-btn:hover {
+  border-color: rgba(139,92,246,0.7);
+  color: #c4b5fd;
+}

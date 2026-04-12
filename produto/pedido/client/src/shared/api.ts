@@ -1741,6 +1741,49 @@ export const dashboardApi = {
   },
 }
 
+// ── Dashboard Painéis ─────────────────────────────────────────────────────────
+
+export interface DashboardPainel {
+  id:           string
+  tenant_id:    string
+  user_id:      string
+  nome:         string
+  ordem:        number
+  is_visivel:   boolean
+  widgets_json: string
+  created_at:   string
+  updated_at:   string
+}
+
+export const paineisDashboardApi = {
+  listar: (): Promise<{ data: DashboardPainel[] }> =>
+    request<{ data: DashboardPainel[] }>('/api/v1/pedidos/dashboard/paineis')
+      .catch(() => ({ data: [] })),
+
+  criar: (nome: string): Promise<{ data: DashboardPainel }> =>
+    request<{ data: DashboardPainel }>('/api/v1/pedidos/dashboard/paineis', {
+      method: 'POST',
+      body: JSON.stringify({ nome }),
+    }),
+
+  atualizar: (id: string, patch: Partial<Pick<DashboardPainel, 'nome' | 'is_visivel' | 'widgets_json'>>): Promise<{ data: DashboardPainel }> =>
+    request<{ data: DashboardPainel }>(`/api/v1/pedidos/dashboard/paineis/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(patch),
+    }),
+
+  reordenar: (ids: string[]): Promise<{ data: { reordenado: boolean } }> =>
+    request<{ data: { reordenado: boolean } }>('/api/v1/pedidos/dashboard/paineis/reordenar', {
+      method: 'PUT',
+      body: JSON.stringify({ ids }),
+    }),
+
+  deletar: (id: string): Promise<{ data: { deletado: boolean } }> =>
+    request<{ data: { deletado: boolean } }>(`/api/v1/pedidos/dashboard/paineis/${id}`, {
+      method: 'DELETE',
+    }),
+}
+
 // ── Kanban Preferências ───────────────────────────────────────────────────────
 
 export const kanbanConfigApi = {
@@ -1757,5 +1800,42 @@ export const kanbanConfigApi = {
   restaurarPadrao: (): Promise<{ data: { restaurado: boolean } }> =>
     request<{ data: { restaurado: boolean } }>('/api/v1/pedidos/kanban/preferencias', {
       method: 'DELETE',
+    }),
+}
+
+// ── Casas Decimais ────────────────────────────────────────────────────────────
+
+export interface CasasDecimaisConfigPayload {
+  valor_total_pedido:              number
+  quantidade_total_inicial_pedido: number
+  quantidade_pronta_pedido_total:  number
+  saldo_itens_do_pedido:           number
+  quantidade_transferida_total:    number
+  quantidade_cancelada_total_pedido: number
+  peso_liquido_total_pedido:       number
+  peso_bruto_total_pedido:         number
+  cubagem_total_pedido:            number
+}
+
+export interface CasasDecimaisAuditoria {
+  total_pedidos:     number
+  total_itens:       number
+  migracao_iniciada: boolean
+}
+
+export const casasDecimaisApi = {
+  obter: (): Promise<{ data: CasasDecimaisConfigPayload }> =>
+    request<{ data: CasasDecimaisConfigPayload }>('/api/v1/pedidos/configuracoes/casas-decimais')
+      .catch(() => ({ data: {
+        valor_total_pedido: 2, quantidade_total_inicial_pedido: 2,
+        quantidade_pronta_pedido_total: 2, saldo_itens_do_pedido: 2,
+        quantidade_transferida_total: 2, quantidade_cancelada_total_pedido: 2,
+        peso_liquido_total_pedido: 3, peso_bruto_total_pedido: 3, cubagem_total_pedido: 3,
+      } })),
+
+  salvar: (payload: CasasDecimaisConfigPayload & { confirmar?: boolean }): Promise<{ data: CasasDecimaisConfigPayload; auditoria: CasasDecimaisAuditoria }> =>
+    request<{ data: CasasDecimaisConfigPayload; auditoria: CasasDecimaisAuditoria }>('/api/v1/pedidos/configuracoes/casas-decimais', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
     }),
 }

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dashboard-global-demo",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd nucleo-global\\Dashboard\\dashboard-global\\demo && npx vite --port 5221"],
+      "port": 5221
+    },
+    {
+      "name": "configurador",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd servicos-global\\configurador && npx vite --port 8000"],
+      "port": 8000
+    }
+  ]
+}

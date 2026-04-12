@@ -1,8 +1,8 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-06T15:39:19.358Z
-// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core
+// Gerado em: 2026-04-12T22:24:52.148Z
+// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core, ncm-sync
 // Todos os fragments encontrados.
 // ============================================================================
 
@@ -1161,17 +1161,23 @@ model Pedido {
   fabricante_id            String? // Fabricante do produto (pode diferir do exportador)
 
   // DADOS COMERCIAIS GLOBAIS (Capa do Pedido)
-  incoterm                               String?
-  moeda_pedido                           String   @default("USD") // Lista de moedas padrão do sistema gravity
-  valor_total_pedido                     Decimal? @db.Decimal(18, 6) // O somatório de todos os valores totais dos itens do pedido
-  casas_decimais_total_pedido            Int      @default(2) // Precisão (Ex: 3)
-  quantidade_total_pedido                Float? // O somatório de todas as quantidades comercializadas dos itens do pedido
-  casas_decimais_quantidade_total_pedido Int      @default(2) // Precisão (Ex: 3)
-  unidade_comercializada_pedido          String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
+  incoterm                         String?
+  moeda_pedido                     String   @default("USD") // Lista de moedas padrão do sistema gravity
+  valor_total_pedido               Decimal? @db.Decimal(18, 6) // O somatório de todos os valores totais dos itens do pedido
+  casas_decimais_valor_pedido      Int      @default(2) // Precisão (Ex: 3)
+  quantidade_total_inicial_pedido  Decimal? @db.Decimal(18, 6) // O somatório de todas as quantidades comercializadas dos itens do pedido
+  casas_decimais_quantidade_pedido Int      @default(2) // Precisão (Ex: 3)
+  unidade_comercializada_pedido    String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
+
+  // DADOS FÍSICOS TOTAIS (sum(peso_*_unitario × quantidade_inicial) dos itens)
+  peso_liquido_total_pedido     Decimal? @db.Decimal(18, 6)
+  peso_bruto_total_pedido       Decimal? @db.Decimal(18, 6)
+  cubagem_total_pedido          Decimal? @db.Decimal(18, 6)
+  casas_decimais_peso_pedido    Int      @default(3)
+  casas_decimais_cubagem_pedido Int      @default(3)
 
   // DADOS FINANCEIROS & FECHAMENTO DE CÂMBIO (FX)
-  cobertura_cambial  String  @default("com_cobertura") // com_cobertura | sem_cobertura
-  condicao_pagamento String? // Ex: 30% Antecipado, 70% Contra-Documento
+  condicao_pagamento_pedido String? // Ex: 30% Antecipado, 70% Contra-Documento
 
   // Referências Documentais
   numero_proforma       String? // Número da Proforma Invoice
@@ -1180,22 +1186,31 @@ model Pedido {
   referencia_exportador String? // Referência interna do exportador
   referencia_fabricante String? // Referência do fabricante
 
-  valor_total_cambio   Decimal? @db.Decimal(18, 6) // O montante do boleto cambial real fechado
-  moeda_cambio         String? // Padrão cruzado: Ex: BRL (Saindo) -> USD (Comprando)
-  taxa_cambio_estimada Decimal? @db.Decimal(18, 6) // A PTAX alvo/estimada na hora do fechamento da PO
-  contrato_cambio_id   String? // [FOREIGN KEY] Aponta para a tabela 'ContratoCambio'
+  valor_total_cambio_pedido   Decimal? @db.Decimal(18, 6) // O montante do boleto cambial real fechado
+  moeda_cambio_pedido         String? // Padrão cruzado: Ex: BRL (Saindo) -> USD (Comprando)
+  taxa_cambio_estimada_pedido Decimal? @db.Decimal(18, 6) // A PTAX alvo/estimada na hora do fechamento da PO
+  contrato_cambio_id_pedido   String? // [FOREIGN KEY] Aponta para a tabela 'ContratoCambio'
 
   data_emissao_pedido DateTime @default(now()) // Nome corrigido sem barra/hifen
+
+  cnpj_importador String? // CNPJ do importador (quando tipo_operacao = exportacao)
 
   // --- METADADOS POLIMÓRFICOS (AGILITY TIER 1) ---
   detalhes_operacionais Json? // Absorve atributos customizados de Exportador/Fabricante
   campos_custom         Json? // custom columns storage (JSONB + GIN index in SQL)
 
+  // Consolidação (preenchido quando este pedido é resultado de merge)
+  pedidos_origem_id        Json? // IDs dos pedidos originais consolidados
+  data_consolidacao_pedido DateTime? // Momento da consolidação
+
+  // Soft delete (preenchido quando o pedido é consolidado em outro)
+  deleted_at DateTime? // null = ativo; data = soft-deleted (consolidado em outro pedido)
+
   // Lista Fatiável de Itens (A ORDEM 1:N SALVA!)
   itens PedidoItem[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  pedido_criado_em     DateTime @default(now())
+  pedido_atualizado_em DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, company_id])
@@ -1203,6 +1218,7 @@ model Pedido {
   @@index([tenant_id, status_id])
   @@index([tenant_id, tipo_operacao])
   @@index([tenant_id, data_emissao_pedido])
+  @@index([tenant_id, deleted_at])
   @@map("pedidos_comerciais")
 }
 
@@ -1221,26 +1237,45 @@ model PedidoItem {
   unidade_comercializada_item String? // Ex: TON, UN Lista de unidades padrão do sistema gravity
 
   // Controle de Quantidades
-  quantidade_inicial_pedido      Decimal @db.Decimal(18, 6)
-  quantidade_saldo_pedido        Decimal @db.Decimal(18, 6) @map("quantidade_atual_pedido")
-  quantidade_pronta_pedido       Decimal @default(0) @db.Decimal(18, 6)
-  quantidade_transferida_pedido  Decimal @default(0) @db.Decimal(18, 6)
-  quantidade_cancelada_pedido    Decimal @default(0) @db.Decimal(18, 6)
-  casas_decimais_quantidade_item Int     @default(2)
+  quantidade_inicial_item_pedido      Decimal @db.Decimal(18, 6)
+  saldo_item_pedido                   Decimal @db.Decimal(18, 6)
+  quantidade_pronta_total_item_pedido Decimal @default(0) @db.Decimal(18, 6)
+  quantidade_transferida_item_pedido  Decimal @default(0) @db.Decimal(18, 6)
+  quantidade_cancelada_item_pedido    Decimal @default(0) @db.Decimal(18, 6)
+  casas_decimais_quantidade_item      Int     @default(2)
 
   // Valores da Linha
   moeda_item                String   @default("USD")
-  valor_total_item          Decimal? @db.Decimal(18, 6) // somatório desta linha (unitário × quantidade)
-  valor_por_unidade_item    Decimal? @db.Decimal(18, 6)
-  casas_decimais_total_item Int      @default(2)
+  valor_total_itens         Decimal? @db.Decimal(18, 6) // somatório desta linha (unitário × quantidade)
+  valor_unitario_item       Decimal? @db.Decimal(18, 6)
+  casas_decimais_valor_item Int      @default(2)
+  cobertura_cambial         String   @default("com_cobertura") // com_cobertura | sem_cobertura
+
+  // Dados Físicos Unitários (usados para calcular totais do pedido)
+  peso_liquido_unitario_item  Decimal? @db.Decimal(18, 6)
+  peso_bruto_unitario_item    Decimal? @db.Decimal(18, 6)
+  cubagem_unitaria_item       Decimal? @db.Decimal(18, 6)
+  casas_decimais_peso_item    Int      @default(3)
+  casas_decimais_cubagem_item Int      @default(3)
+
+  // Descrições multilíngues
+  descricao_completa_item_pt String?
+  descricao_completa_item_en String?
+  descricao_completa_item_es String?
+  descricao_completa_item_nf String?
+
+  // Classificação interna
+  grupo_item          String?
+  subgrupo_item       String?
+  campo_especial_item String?
 
   campos_custom Json? // custom columns storage
 
   pedido             Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
   embarques_efetivos ProcessoItem[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  item_criado_em     DateTime @default(now())
+  item_atualizado_em DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, company_id])
@@ -1565,17 +1600,28 @@ model PedidoPreferenciaPadrao {
 
 // Regras de negócio configuráveis por tenant (duplicar, excluir, transferir, consolidar)
 model ConfiguracaoPedido {
-  id         String   @id @default(cuid())
+  id         String  @id @default(cuid())
   tenant_id  String
   company_id String?
 
-  duplicar_numero_auto              Boolean  @default(false)
-  duplicar_copiar_datas             Boolean  @default(false)
-  duplicar_status_inicial           String   @default("copiar")
+  // Duplicar
+  duplicar_numero_auto    Boolean @default(false)
+  duplicar_copiar_datas   Boolean @default(false)
+  duplicar_status_inicial String  @default("copiar") // "copiar" | "rascunho" | "aberto" | ...
 
+  // Excluir
   excluir_status_permitidos         String[] @default(["rascunho", "aberto", "em_andamento", "aprovado", "transferencia", "consolidado", "cancelado"])
   excluir_pedido_sem_item_permitido Boolean  @default(true)
   excluir_confirmar_com_preview     Boolean  @default(true)
+
+  // Alertas
+  alerta_numero_duplicado             Boolean @default(true) // número de pedido repetido
+  alerta_valor_total_divergente       Boolean @default(true) // valor_total_pedido ≠ sum(valor_total_item)
+  alerta_quantidade_total_divergente  Boolean @default(true) // quantidade_total_inicial ≠ sum(quantidade_inicial_item)
+  alerta_quantidade_pronta_divergente Boolean @default(true) // quantidade_pronta_total ≠ sum(quantidade_pronta_item)
+  alerta_peso_liquido_divergente      Boolean @default(true) // peso_liquido_total ≠ sum(peso_liquido_unitario × qty)
+  alerta_peso_bruto_divergente        Boolean @default(true) // peso_bruto_total ≠ sum(peso_bruto_unitario × qty)
+  alerta_cubagem_divergente           Boolean @default(true) // cubagem_total ≠ sum(cubagem_unitaria × qty)
 
   updated_at DateTime @updatedAt
 
@@ -1606,4 +1652,79 @@ model MapeamentoImport {
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@map("mapeamento_import")
+}
+
+// --- Fragment: ncm-sync ---
+// servicos-global/tenant/ncm-sync/prisma/fragment.prisma
+// NcmItem  — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
+// NcmSyncLog — histórico de cada sincronização com o Portal Único
+
+model NcmItem {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  codigo    String // 8 dígitos — ex: "84713019"
+  descricao String
+  ativo     Boolean @default(true)
+
+  // Metadados do Portal Único
+  data_inicio DateTime?
+  data_fim    DateTime?
+  sync_id     String // referência ao NcmSyncLog que inseriu/atualizou
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, codigo])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, ativo])
+  @@index([tenant_id, codigo])
+}
+
+model NcmSyncLog {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  product_id String?
+  user_id    String?
+
+  iniciado_em  DateTime  @default(now())
+  concluido_em DateTime?
+
+  status NcmSyncStatus @default(RUNNING)
+
+  // Totais do diff
+  total       Int @default(0)
+  adicionados Int @default(0)
+  alterados   Int @default(0)
+  removidos   Int @default(0)
+
+  // Origem do trigger
+  origem        NcmSyncOrigem @default(JOB) // 'JOB' | 'MANUAL'
+  disparado_por String? // user_id se MANUAL
+
+  erro_msg String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, iniciado_em])
+}
+
+enum NcmSyncStatus {
+  RUNNING
+  SUCCESS
+  ERROR
+}
+
+enum NcmSyncOrigem {
+  JOB
+  MANUAL
 }

@@ -50,8 +50,8 @@ import { useTrackBehavior } from '../hooks/useTrackBehavior'
 import { DASHBOARD_CATALOG, CATALOG_BY_KEY } from '../shared/dashboardCatalog'
 import { generateSuggestions } from '../shared/dashboardSuggestions'
 import { BUILT_IN_DERIVED, computeDerived } from '../shared/derivedMetrics'
-import { dashboardApi } from '../shared/api'
-import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem } from '../shared/api'
+import { dashboardApi, paineisDashboardApi } from '../shared/api'
+import type { DashboardKpis, DashboardTrendBucket, GabiInsightItem, DashboardPainel } from '../shared/api'
 
 // ── Dados reais — converte resposta da API em WidgetResult ────────────────────
 
@@ -669,6 +669,87 @@ const gabiEmptyStyles = {
     fontFamily: 'var(--font, inherit)',
     textDecoration: 'underline',
   },
+
+  // ── Seletor de Painéis ───────────────────────────────────────────────────
+  painelBar: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    margin: '0.75rem 0 0.5rem',
+    padding: '0 0.25rem',
+    flexWrap: 'wrap' as const,
+  },
+  painelTab: {
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: '6px',
+    padding: '0.3rem 0.75rem',
+    fontSize: '0.75rem',
+    fontWeight: 500,
+    color: 'rgba(255,255,255,0.6)',
+    cursor: 'pointer',
+    fontFamily: 'var(--font, inherit)',
+    transition: 'background 0.15s, color 0.15s',
+  },
+  painelTabAtivo: {
+    background: 'rgba(139,92,246,0.18)',
+    border: '1px solid rgba(139,92,246,0.5)',
+    borderRadius: '6px',
+    padding: '0.3rem 0.75rem',
+    fontSize: '0.75rem',
+    fontWeight: 600,
+    color: '#c4b5fd',
+    cursor: 'pointer',
+    fontFamily: 'var(--font, inherit)',
+  },
+  painelAddBtn: {
+    background: 'none',
+    border: '1px dashed rgba(255,255,255,0.2)',
+    borderRadius: '6px',
+    padding: '0.3rem 0.6rem',
+    fontSize: '0.9rem',
+    fontWeight: 400,
+    color: 'rgba(255,255,255,0.35)',
+    cursor: 'pointer',
+    lineHeight: 1,
+    fontFamily: 'var(--font, inherit)',
+  },
+  painelNovoForm: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+  },
+  painelNovoInput: {
+    background: 'rgba(255,255,255,0.07)',
+    border: '1px solid rgba(139,92,246,0.5)',
+    borderRadius: '6px',
+    padding: '0.28rem 0.5rem',
+    fontSize: '0.75rem',
+    color: '#fff',
+    outline: 'none',
+    fontFamily: 'var(--font, inherit)',
+    width: '140px',
+  },
+  painelNovoBtnOk: {
+    background: 'rgba(139,92,246,0.7)',
+    border: 'none',
+    borderRadius: '6px',
+    padding: '0.28rem 0.6rem',
+    fontSize: '0.72rem',
+    fontWeight: 600,
+    color: '#fff',
+    cursor: 'pointer',
+    fontFamily: 'var(--font, inherit)',
+  },
+  painelNovoBtnCancel: {
+    background: 'none',
+    border: 'none',
+    padding: '0.28rem 0.4rem',
+    fontSize: '0.75rem',
+    color: 'rgba(255,255,255,0.4)',
+    cursor: 'pointer',
+    fontFamily: 'var(--font, inherit)',
+  },
 } as const
 
 // ── Componente principal ──────────────────────────────────────────────────────
@@ -681,6 +762,7 @@ export default function DashboardPedido() {
     editMode, setEditMode,
     queryBuilderOpen, setQueryBuilderOpen,
     userDerivedMetrics,
+    paineis, painelAtualId, setPaineis, setPainelAtual,
   } = useDashboardStore()
 
   const navigate = useNavigate()
@@ -706,6 +788,13 @@ export default function DashboardPedido() {
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
+  const [novoNomePainel, setNovoNomePainel] = useState('')
+  const [criandoPainel,  setCriandoPainel]  = useState(false)
+
+  // Carrega painéis do usuário ao montar
+  useEffect(() => {
+    paineisDashboardApi.listar().then(({ data }) => setPaineis(data)).catch(() => {})
+  }, [setPaineis])
 
   // Carrossel GABI — idêntico ao Hub
   const gabiCarouselRef = useRef<HTMLDivElement>(null)
@@ -1209,6 +1298,55 @@ export default function DashboardPedido() {
         onAddWidget={() => setQueryBuilderOpen(true)}
         onSuggestionsOpen={() => setSuggestionsOpen(true)}
       />
+
+      {/* Seletor de Painéis */}
+      {paineis.length > 0 && (
+        <div style={sty.painelBar}>
+          {paineis.filter(p => p.is_visivel).map(p => (
+            <button
+              key={p.id}
+              type="button"
+              style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
+              onClick={() => setPainelAtual(p.id)}
+            >
+              {p.nome}
+            </button>
+          ))}
+          {/* Criar novo painel */}
+          {criandoPainel ? (
+            <form
+              style={sty.painelNovoForm}
+              onSubmit={(e) => {
+                e.preventDefault()
+                const nome = novoNomePainel.trim()
+                if (!nome) return
+                paineisDashboardApi.criar(nome).then(({ data }) => {
+                  setPaineis([...paineis, data])
+                  setPainelAtual(data.id)
+                  setNovoNomePainel('')
+                  setCriandoPainel(false)
+                }).catch(() => {})
+              }}
+            >
+              <input
+                autoFocus
+                type="text"
+                placeholder="Nome do painel"
+                value={novoNomePainel}
+                onChange={(e) => setNovoNomePainel(e.target.value)}
+                style={sty.painelNovoInput}
+                maxLength={60}
+              />
+              <button type="submit" style={sty.painelNovoBtnOk}>Criar</button>
+              <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>✕</button>
+            </form>
+          ) : (
+            <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title="Novo painel">
+              +
+            </button>
+          )}
+        </div>
+      )}
 
       <DashboardGrid
         widgets={activeWidgets}

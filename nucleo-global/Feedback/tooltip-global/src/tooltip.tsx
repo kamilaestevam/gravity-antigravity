@@ -13,34 +13,28 @@
  *     - Máximo ~90 caracteres na descricao
  *     - descricao responde: "o que esse campo faz pela minha empresa?"
  */
-import React, { useState, useRef, useId, useCallback } from 'react'
+import React, { useState, useRef, useId, useCallback, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import './tooltip.css'
 import type { TooltipProps } from './tipos.js'
 
 export function TooltipGlobal({ titulo, descricao, children, interativo }: TooltipProps) {
   const [show, setShow] = useState(false)
-  const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false, rowTop: 0, rowHeight: 0 })
-  const ref = useRef<HTMLSpanElement>(null)
-  const tooltipId = useId()
-  // Flag: mouse está sobre o card — impede que o overlay feche antes do tempo
-  const sobreCardRef = useRef(false)
+  const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
+  const ref        = useRef<HTMLSpanElement>(null)
+  const cardRef    = useRef<HTMLDivElement>(null)
+  const tooltipId  = useId()
 
   const calcularPos = () => {
     if (ref.current) {
       const r = ref.current.getBoundingClientRect()
-      const row = interativo ? ref.current.closest('tr') : null
-      const rowRect = row ? row.getBoundingClientRect() : r
-      const espacoAcima = r.top
-      const usaBottom = espacoAcima > 80
+      const usaBottom = r.top > 80
       const pxLeft = Math.max(138, Math.min(r.left + r.width / 2, window.innerWidth - 138))
       setPos({
         usaBottom,
         bottom: usaBottom ? window.innerHeight - r.top + 8 : 0,
         top: usaBottom ? 0 : r.bottom + 8,
         left: pxLeft,
-        rowTop: rowRect.top,
-        rowHeight: rowRect.height,
       })
     }
   }
@@ -49,20 +43,42 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
     if (document.body.classList.contains('tooltips-disabled')) return
     calcularPos()
     setShow(true)
-  }, [interativo])
+  }, [])
 
   const esconde = useCallback(() => setShow(false), [])
-
-  // Overlay saiu → aguarda 50ms para o onMouseEnter do card poder disparar primeiro
-  const onOverlayLeave = useCallback(() => {
-    setTimeout(() => {
-      if (!sobreCardRef.current) esconde()
-    }, 50)
-  }, [esconde])
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') setShow(false)
   }
+
+  // Para tooltip interativa: fecha somente quando o mouse sair da linha E do card
+  useEffect(() => {
+    if (!show || !interativo) return
+
+    const handler = (e: MouseEvent) => {
+      const { clientX: x, clientY: y } = e
+
+      // Verifica se está sobre o card
+      const card = cardRef.current
+      if (card) {
+        const cr = card.getBoundingClientRect()
+        if (x >= cr.left && x <= cr.right && y >= cr.top && y <= cr.bottom) return
+      }
+
+      // Verifica se está sobre a linha <tr> do trigger
+      const row = ref.current?.closest('tr')
+      if (row) {
+        const rr = row.getBoundingClientRect()
+        if (x >= rr.left && x <= rr.right && y >= rr.top && y <= rr.bottom) return
+      }
+
+      // Fora dos dois — fecha
+      setShow(false)
+    }
+
+    document.addEventListener('mousemove', handler)
+    return () => document.removeEventListener('mousemove', handler)
+  }, [show, interativo])
 
   return (
     <>
@@ -81,40 +97,22 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
       </span>
 
       {show && ReactDOM.createPortal(
-        <>
-          {/* Overlay cobre toda a linha — fecha somente se mouse não estiver no card */}
-          {interativo && (
-            <div
-              style={{
-                position: 'fixed',
-                left: 0,
-                right: 0,
-                top: pos.rowTop,
-                height: pos.rowHeight,
-                zIndex: 99998,
-                pointerEvents: 'auto',
-              }}
-              onMouseLeave={onOverlayLeave}
-            />
-          )}
-          <div
-            id={tooltipId}
-            role="tooltip"
-            className="tg-card"
-            data-start={pos.usaBottom ? 'bottom' : 'top'}
-            data-interativo={interativo ? 'true' : undefined}
-            style={{
-              bottom: pos.usaBottom ? pos.bottom : 'auto',
-              top:    pos.usaBottom ? 'auto'   : pos.top,
-              left:   pos.left,
-            }}
-            onMouseEnter={interativo ? () => { sobreCardRef.current = true } : undefined}
-            onMouseLeave={interativo ? () => { sobreCardRef.current = false; esconde() } : undefined}
-          >
-            {titulo && <p className="tg-titulo">{titulo}</p>}
-            <div className="tg-descricao">{descricao}</div>
-          </div>
-        </>,
+        <div
+          ref={cardRef}
+          id={tooltipId}
+          role="tooltip"
+          className="tg-card"
+          data-start={pos.usaBottom ? 'bottom' : 'top'}
+          data-interativo={interativo ? 'true' : undefined}
+          style={{
+            bottom: pos.usaBottom ? pos.bottom : 'auto',
+            top:    pos.usaBottom ? 'auto'   : pos.top,
+            left:   pos.left,
+          }}
+        >
+          {titulo && <p className="tg-titulo">{titulo}</p>}
+          <div className="tg-descricao">{descricao}</div>
+        </div>,
         document.body
       )}
     </>

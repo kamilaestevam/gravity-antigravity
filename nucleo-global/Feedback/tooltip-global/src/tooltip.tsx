@@ -51,33 +51,11 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
     if (e.key === 'Escape') setShow(false)
   }
 
-  // Para tooltip interativa: fecha somente quando o mouse sair da linha E do card
+  // interativo reservado para uso futuro quando a causa raiz for identificada
+  // (interferência ambiental impede fechamento confiável via eventos no card)
   useEffect(() => {
     if (!show || !interativo) return
-
-    const handler = (e: MouseEvent) => {
-      const { clientX: x, clientY: y } = e
-
-      // Verifica se está sobre o card (+ 14px de buffer acima e abaixo para cobrir o gap de 8px)
-      const card = cardRef.current
-      if (card) {
-        const cr = card.getBoundingClientRect()
-        if (x >= cr.left - 8 && x <= cr.right + 8 && y >= cr.top - 14 && y <= cr.bottom + 14) return
-      }
-
-      // Verifica se está sobre a linha <tr> do trigger
-      const row = ref.current?.closest('tr')
-      if (row) {
-        const rr = row.getBoundingClientRect()
-        if (x >= rr.left && x <= rr.right && y >= rr.top && y <= rr.bottom) return
-      }
-
-      // Fora dos dois — fecha
-      setShow(false)
-    }
-
-    document.addEventListener('mousemove', handler)
-    return () => document.removeEventListener('mousemove', handler)
+    // placeholder — não implementado
   }, [show, interativo])
 
   return (
@@ -85,7 +63,7 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
       <span
         ref={ref}
         onMouseEnter={mostra}
-        onMouseLeave={interativo ? undefined : esconde}
+        onMouseLeave={esconde}
         onFocus={mostra}
         onBlur={esconde}
         onKeyDown={onKeyDown}
@@ -103,7 +81,6 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
           role="tooltip"
           className="tg-card"
           data-start={pos.usaBottom ? 'bottom' : 'top'}
-          data-interativo={interativo ? 'true' : undefined}
           style={{
             bottom: pos.usaBottom ? pos.bottom : 'auto',
             top:    pos.usaBottom ? 'auto'   : pos.top,

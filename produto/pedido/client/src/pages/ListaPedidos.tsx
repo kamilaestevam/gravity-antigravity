@@ -536,18 +536,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     tooltipTitulo: 'Nº Pedido / Part Number',
-    tooltipDescricao: <span>Número do pedido (linha pai) ou Part Number do item (linha filho). <a href="/configuracoes?tab=numeracao-pedido">Configurar numeração automática</a></span>,
-    tooltipInterativo: true,
+    tooltipDescricao: 'Identifica o pedido (linha pai) ou o item pelo Part Number (linha filho)',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => (
-      <TooltipGlobal
-        titulo="Nº Pedido / Part Number"
-        descricao={<span>Número do pedido (linha pai) ou Part Number do item (linha filho). <a href="/configuracoes?tab=numeracao-pedido">Configurar numeração automática</a></span>}
-        interativo
-      >
-        <span>{row.numero_pedido}</span>
-      </TooltipGlobal>
-    ),
   },
   {
     key: 'tipo_operacao',
@@ -4184,7 +4174,17 @@ export default function ListaPedidos() {
   const [findTotalExterno, setFindTotalExterno] = useState<number | null>(null)
   const [paginaAtual, setPaginaAtual]       = useState(1)
   const [total, setTotal]                   = useState(0)
-  const ITENS_POR_PAGINA = 50
+  const ITENS_POR_PAGINA: 25 | 50 | 100 | 200 = (() => {
+    try {
+      const raw = localStorage.getItem('pedido:tabela_config')
+      if (raw) {
+        const parsed = JSON.parse(raw) as { linhasPorPagina?: number }
+        const v = parsed.linhasPorPagina
+        if (v === 25 || v === 50 || v === 100 || v === 200) return v
+      }
+    } catch { /* ignore */ }
+    return 100
+  })()
 
   // ── Seleção de pedidos/itens via selecaoStore (Zustand) ──────────────────────
   const { setPedidosSelecionados, setItensSelecionados } = useSelecaoStore()

@@ -38,6 +38,7 @@ export default defineConfig({
       'testes/testes-unitarios/pedido/gabiSemantica.test.ts',
       'testes/testes-unitarios/pedido/gabiFieldHelp.test.ts',
       'testes/testes-unitarios/pedido/kanbanPedidos.test.ts',
+      'testes/testes-unitarios/pedido/shellEmbedding.test.ts',
     ],
     env: {
       NODE_ENV: 'test',

@@ -132,8 +132,13 @@ export function App() {
     'historico':         'Histórico',
     'configuracoes':     'Configurações',
   }
-  const routeKey  = location.pathname.split('/').filter(Boolean).join('/')
-  const pageLabel = ROUTE_LABELS[routeKey] ?? 'Lista'
+  // Extrai segmentos relativos ao produto — funciona standalone (/pedidos)
+  // e embarcado no shell (/produto/pedido/pedidos)
+  const segments     = location.pathname.split('/').filter(Boolean)
+  const productIdx   = segments.findIndex(s => s === PRODUCT_ID)
+  const relSegments  = productIdx >= 0 ? segments.slice(productIdx + 1) : segments
+  const routeKey     = relSegments.join('/')
+  const pageLabel    = ROUTE_LABELS[routeKey] ?? 'Lista'
 
   return (
     <TelaProdutoGlobal

@@ -52,6 +52,21 @@ export default defineConfig({
           if (!res.headersSent) res.writeHead(502).end()
         },
       },
+      // Produtos — cada um aponta para seu backend próprio
+      '/api/v1/pedidos': {
+        target: 'http://localhost:8030',
+        changeOrigin: true,
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
+      '/api/v1/analytics/pedido': {
+        target: 'http://localhost:8030',
+        changeOrigin: true,
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
       '/api': {
         target: 'http://localhost:8005',
         changeOrigin: true,

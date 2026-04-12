@@ -109,34 +109,67 @@ async function callTenantServiceAsync(
 
 O `x-internal-key` é uma camada adicional de defesa (defense-in-depth). **Todo** serviço deve validar essa chave em chamadas internas, mesmo que o JWT seja válido.
 
+**OBRIGATÓRIO: usar `timingSafeEqual` — nunca comparação direta (`!==`).** Comparação direta vaza informação sobre o tamanho correto da chave via timing attack.
+
 ```typescript
-// middleware/internal-auth.ts
-export function requireInternalKey(
+// servicos-global/tenant/middleware/withInternalKeyValidation.ts
+import { timingSafeEqual } from 'node:crypto'
+import type { Request, Response, NextFunction } from 'express'
+import { AppError } from './appError.js'
+
+export function withInternalKeyValidation(
   req: Request,
   res: Response,
   next: NextFunction
-) {
-  const key = req.headers['x-internal-key']
-  if (key !== process.env.INTERNAL_SERVICE_KEY) {
-    throw new AppError('Chave interna inválida', 401, 'UNAUTHORIZED')
+): void {
+  const expected = process.env.INTERNAL_API_KEY
+  const received = req.headers['x-internal-key']
+
+  if (!expected || !received || typeof received !== 'string') {
+    next(new AppError('Forbidden', 403, 'FORBIDDEN'))
+    return
   }
+
+  try {
+    const expectedBuf = Buffer.from(expected)
+    const receivedBuf = Buffer.from(received)
+    if (
+      expectedBuf.length !== receivedBuf.length ||
+      !timingSafeEqual(expectedBuf, receivedBuf)
+    ) {
+      next(new AppError('Forbidden', 403, 'FORBIDDEN'))
+      return
+    }
+  } catch {
+    next(new AppError('Forbidden', 403, 'FORBIDDEN'))
+    return
+  }
+
   next()
 }
 ```
 
-> **Regra:** `INTERNAL_SERVICE_KEY` deve ser rotacionada a cada trimestre.
+> **Regras:** (1) `INTERNAL_API_KEY` deve ser rotacionada a cada trimestre. (2) Use `timingSafeEqual` — nunca `!==`. (3) Retornar 403, não 401, para não confundir com falta de autenticação de usuário.
 
 ---
 
-## Ordem dos Middlewares no Servidor de Tenant
+## Ordem dos Middlewares no Super-Servidor Tenant
 
 ```typescript
-// Ordem obrigatória para servidores de tenant
-app.use(correlationMiddleware)   // 1. Correlation ID
-app.use(requireInternalKey)      // 2. Valida x-internal-key
-app.use(requireAuth)             // 3. Valida JWT (Clerk ou Machine Token)
-app.use(tenantIsolation)         // 4. Injeta tenant isolation no Prisma
+// Ordem obrigatória em servicos-global/tenant/server/index.ts
+app.use(correlationMiddleware)          // 1. Correlation ID (gera UUID se ausente)
+app.get('/health', healthHandler)       // 2. Health check — sem auth, antes dos guards
+app.use('/api/v1/email/webhook', express.raw({ type: 'application/json' }))  // 3. Raw body para webhooks
+app.use(express.json())                 // 4. Body parser
+app.use(authMiddleware)                 // 5. Exige x-tenant-id → 401 se ausente
+app.use(withInternalKeyValidation)      // 6. Valida x-internal-key → 403 se inválida
+// ... service routers ...
+app.use(errorHandler)                   // 7. Handler global de erros
 ```
+
+**Por que `authMiddleware` antes de `withInternalKeyValidation`:**
+- Toda chamada a serviços tenant já carrega `x-tenant-id` (é o identificador do tenant, não segredo)
+- Falhar rápido em 401 antes de verificar a chave interna é semanticamente correto e mais informativo para debugging
 
 ---
 

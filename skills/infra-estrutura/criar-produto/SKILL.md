@@ -48,10 +48,12 @@ Antes de escrever qualquer código, registrar o produto em `servicos-global/cont
 ```
 
 **Como escolher a porta:**
-- Tenant services: 8010-8019 (ocupadas)
-- Produtos: 8020+ (simula-custo=8020, cronometro=8021, email=8022, bid-frete=8023, helpdesk=8024)
-- **Próxima disponível: 8025**
-- Frontend dev: 5182+ (simula-custo=5180, bid-frete=5181)
+- Super-servidor tenant (todos os 11 serviços): 3001 (reservado)
+- Configurador: 8005 (reservado)
+- Produtos em uso: 8020 (simula-custo), 8023 (bid-frete), 8025 (bid-cambio), 8026 (processo), 8027 (lpco), 8028 (nf-importacao), 8029 (financeiro-comex), 8030 (pedido)
+- **Próxima disponível para produto: 8031+**
+- Frontend dev: próxima após 5184 (simula-custo=5180, bid-frete=5181, bid-cambio=5002, nf-importacao=5183, financeiro-comex=5184)
+- Ver lista completa em `servicos-global/contracts.json`
 
 ---
 

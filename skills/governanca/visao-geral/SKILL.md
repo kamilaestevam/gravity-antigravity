@@ -177,8 +177,9 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 ### Serviço de Tenant
 
 - Existe **uma vez por empresa**, independente de quantos produtos ela use
-- Tem servidor próprio e banco de dados próprio (`tenant-db`)
-- Acessado por todos os produtos via API REST (`/api/tenant/[servico]`)
+- **Todos os 11 serviços rodam em processo único — super-servidor tenant (porta 3001)**
+- Banco de dados próprio compartilhado entre os 11 serviços (`tenant-db`)
+- Acessado por todos os produtos via API REST (`/api/v1/[servico]` na porta 3001)
 - Dados filtrados por `tenant_id` e opcionalmente `product_id`
 - Todo model Prisma tem `tenant_id` obrigatório + 3 índices obrigatórios
 

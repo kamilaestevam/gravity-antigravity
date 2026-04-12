@@ -148,21 +148,47 @@ describe('formatarCNPJ', () => {
 
 ### Configuração padrão
 
+Testes funcionais de serviços tenant **importam o app do super-servidor** (`servicos-global/tenant/server/index.ts`), não de serviços individuais. O plugin `resolveTsFromJs` é obrigatório porque os arquivos têm extensão `.ts` mas os imports usam `.js` (ESModules).
+
 ```typescript
-// vitest.config.ts (testes funcionais)
+// testes/testes-funcionais/servicos-tenant/vitest.config.ts
 import { defineConfig } from 'vitest/config'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const root = path.resolve(__dirname, '../../..')
+
+// Resolve imports .js → .ts em tempo de teste
+const resolveTsFromJs = {
+  name: 'resolve-ts-from-js',
+  resolveId(source: string, importer: string | undefined) {
+    if (source.endsWith('.js') && importer) {
+      const tsSource = source.replace(/\.js$/, '.ts')
+      return path.resolve(path.dirname(importer), tsSource)
+    }
+  },
+}
 
 export default defineConfig({
+  plugins: [resolveTsFromJs],
   test: {
     environment: 'node',
-    setupFiles: ['./testes/testes-funcionais/setup.ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html'],
-      reportsDirectory: './testes/testes-funcionais/resultados',
+    globals: true,
+    include: ['testes/testes-funcionais/servicos-tenant/**/*.test.ts'],
+    env: {
+      NODE_ENV: 'test',           // impede bootstrap() de chamar app.listen() e pg-boss
+      INTERNAL_API_KEY: 'test-key',
+      ALLOWED_ORIGINS: 'http://localhost:5179',
     },
-    outputFile: './testes/testes-funcionais/resultados/relatorio.json'
-  }
+  },
+  resolve: {
+    alias: {
+      '@nucleo': path.resolve(root, 'nucleo-global'),
+      '@tenant': path.resolve(root, 'servicos-global/tenant'),
+      '@produto': path.resolve(root, 'produto'),
+    },
+  },
 })
 ```
 
@@ -186,53 +212,59 @@ afterAll(async () => {
 })
 ```
 
-### Exemplo
+### Exemplo — Teste via Super-Servidor
 
 ```typescript
-// testes/testes-funcionais/servicos-tenant/atividades/activities.test.ts
-import { describe, it, expect, afterEach } from 'vitest'
+// testes/testes-funcionais/servicos-tenant/tenant-server.test.ts
+// @vitest-environment node
+
+import { describe, it, expect, vi, beforeAll } from 'vitest'
 import request from 'supertest'
-import { app } from '@tenant/atividades/server'
-import { prisma } from '@tenant/prisma'
 
-describe('GET /api/v1/activities', () => {
-  afterEach(async () => {
-    await prisma.activity.deleteMany({ where: { tenant_id: 'tenant-teste' } })
+// Mockar dependências pesadas ANTES de importar o app
+vi.mock('../../../servicos-global/tenant/server/lib/prisma.js', () => ({
+  prisma: { $queryRaw: vi.fn().mockResolvedValue([{ '?column?': 1n }]) },
+}))
+vi.mock('../../../servicos-global/tenant/historico-global/server/init.js', () => ({
+  initHistorico: vi.fn().mockResolvedValue(undefined),
+}))
+// ... mockar os 11 service routers com async factories ...
+
+// Importar DEPOIS dos mocks
+import { app } from '../../../servicos-global/tenant/server/index.js'
+
+const VALID_KEY = 'test-internal-key'
+const validHeaders = {
+  'x-tenant-id': 'tenant-aaa',
+  'x-user-id': 'user-001',
+  'x-internal-key': VALID_KEY,
+}
+
+beforeAll(() => {
+  process.env.INTERNAL_API_KEY = VALID_KEY
+})
+
+describe('GET /health', () => {
+  it('retorna 200 sem autenticação', async () => {
+    const res = await request(app).get('/health')
+    expect(res.status).toBe(200)
+    expect(res.body.service).toBe('tenant-server')
+  })
+})
+
+describe('Autenticação', () => {
+  it('retorna 401 sem x-tenant-id', async () => {
+    const res = await request(app).get('/api/v1/qualquer-rota')
+    expect(res.status).toBe(401)
+    expect(res.body.error.code).toBe('UNAUTHORIZED')
   })
 
-  it('retorna atividades do tenant autenticado', async () => {
-    await prisma.activity.create({
-      data: {
-        tenant_id: 'tenant-teste',
-        title: 'Teste',
-        user_id: 'user-1',
-        status: 'PENDING'
-      }
-    })
-
-    const response = await request(app)
-      .get('/api/v1/activities')
-      .set('Authorization', `Bearer ${tokenTenantTeste}`)
-
-    expect(response.status).toBe(200)
-    expect(response.body).toHaveLength(1)
-  })
-
-  it('não retorna atividades de outro tenant', async () => {
-    await prisma.activity.create({
-      data: {
-        tenant_id: 'outro-tenant',
-        title: 'Não deve aparecer',
-        user_id: 'user-2',
-        status: 'PENDING'
-      }
-    })
-
-    const response = await request(app)
-      .get('/api/v1/activities')
-      .set('Authorization', `Bearer ${tokenTenantTeste}`)
-
-    expect(response.body).toHaveLength(0)
+  it('retorna 403 com x-internal-key inválida', async () => {
+    const res = await request(app)
+      .get('/api/v1/qualquer-rota')
+      .set('x-tenant-id', 'tenant-aaa')
+      .set('x-internal-key', 'chave-errada')
+    expect(res.status).toBe(403)
   })
 })
 ```

@@ -13,7 +13,8 @@ Dentro de `servicos-global` existem duas categorias fundamentalmente diferentes.
 
 Existem uma vez por empresa, independente de quantos produtos ela use. O email é da empresa, não do produto. As atividades precisam aparecer unificadas em todos os produtos. O dashboard consolida KPIs de tudo.
 
-- Rodam em um servidor independente com banco de dados próprio
+- **Todos os 11 serviços rodam em processo único — o super-servidor tenant (porta 3001)**
+- Cada serviço exporta um `serviceRouter`; o super-servidor (`servicos-global/tenant/server/index.ts`) é o único `app.listen()`
 - Acessados por todos os produtos via API REST
 - Dados filtrados por `tenant_id` e opcionalmente por `product_id`
 
@@ -36,7 +37,7 @@ São templates de funcionalidade reutilizáveis, mas os dados pertencem ao produ
 | Banco próprio? | ❌ Nunca | ✅ Banco de tenant | ❌ Banco do produto |
 | Chama API externa? | ❌ Nunca | ✅ Pode | ✅ Pode |
 | Funciona offline? | ✅ Sempre | ❌ Não | ❌ Não |
-| Roda onde? | No produto | Servidor independente | Dentro do produto |
+| Roda onde? | No produto | Super-servidor `:3001` | Dentro do produto |
 
 ---
 
@@ -68,6 +69,50 @@ São templates de funcionalidade reutilizáveis, mas os dados pertencem ao produ
 
 ---
 
+## Super-Servidor Tenant — Padrão Monolito Modular
+
+Todos os 11 serviços de tenant compartilham um único processo Node.js. Isso elimina a sobrecarga de 11 portas, 11 processos e 11 conexões de banco separadas em dev e em produção.
+
+```
+servicos-global/tenant/
+├── server/
+│   ├── index.ts       ← ÚNICO app.listen() — monta todos os serviceRouters
+│   └── lib/
+│       └── prisma.ts  ← instância Prisma compartilhada
+├── middleware/
+│   ├── auth.ts                       ← authMiddleware (x-tenant-id obrigatório)
+│   ├── correlation.ts                ← correlationMiddleware (UUID automático)
+│   ├── withInternalKeyValidation.ts  ← timingSafeEqual no x-internal-key
+│   ├── appError.ts                   ← classe AppError
+│   └── errorHandler.ts               ← handler global de erros
+└── [nome-do-servico]/
+    ├── src/           ← componentes React
+    └── server/
+        └── routes.ts  ← exporta serviceRouter (sem app.listen!)
+```
+
+### Regras do Super-Servidor
+
+- Cada serviço **exporta** `[nome]ServiceRouter` — nunca chama `app.listen()`
+- O `server/index.ts` é o único responsável por `bootstrap()` e `app.listen(3001)`
+- Serviços com inicialização assíncrona (pg-boss, workers, cron) usam `server/init.ts` separado
+- `bootstrap()` é guardado por `NODE_ENV !== 'test'` para não disparar em testes
+
+### Ordem dos Middlewares no Super-Servidor
+
+```typescript
+app.use(correlationMiddleware)          // 1. Gera/propaga x-correlation-id
+app.get('/health', healthHandler)       // 2. Health check — sem auth
+app.use('/webhook', express.raw(...))   // 3. Raw body para webhooks (antes do json)
+app.use(express.json())                 // 4. Body parser
+app.use(authMiddleware)                 // 5. Exige x-tenant-id → 401 se ausente
+app.use(withInternalKeyValidation)      // 6. Valida x-internal-key → 403 se inválida
+app.use(serviceRouter)                  // 7. Routers dos 11 serviços
+app.use(errorHandler)                   // 8. Handler global de erros
+```
+
+---
+
 ## Estrutura Obrigatória — Serviço de Tenant
 
 ```text
@@ -76,7 +121,8 @@ servicos-global/tenant/[nome-do-servico]/
 │   ├── [NomeServico].tsx   ← componente principal
 │   └── index.ts            ← barrel export
 ├── server/
-│   └── routes.ts           ← endpoints do serviço
+│   ├── routes.ts           ← exporta serviceRouter (nunca app.listen!)
+│   └── init.ts             ← (opcional) inicialização assíncrona (pg-boss, etc.)
 └── prisma/
     └── fragment.prisma     ← modelo de dados (nunca editar schema.prisma diretamente)
 ```
@@ -280,5 +326,8 @@ on('timer:stopped', ({ activity_id, duration }) => {
 - [ ] O serviço não importa código de nenhum outro serviço?
 - [ ] Barrel export no `index.ts` do `src/`?
 - [ ] Rotas com prefixo `/api/v1/`?
+- [ ] `server/routes.ts` exporta `[nome]ServiceRouter` (sem `app.listen()`)?
+- [ ] Se tem pg-boss/workers/cron: extraiu para `server/init.ts`?
+- [ ] Registrou o `serviceRouter` em `servicos-global/tenant/server/index.ts`?
 - [ ] Validação Zod em todas as rotas?
 - [ ] Testes unitários e funcionais criados?

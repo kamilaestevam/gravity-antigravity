@@ -54,16 +54,34 @@ npm run dev -- --port 5000
 
 ## Regra 3 — Portas de Backend (API Servers)
 
-Os backends dos produtos têm **portas fixas** definidas em `servicos-global/contracts.json`. Cada produto/serviço tem sua porta reservada (faixa 8010–8099). **Não alterar** — apenas subir o backend na porta que já está configurada.
+Os backends têm **portas fixas** definidas em `servicos-global/contracts.json`. **Não alterar** — apenas subir o backend na porta que já está configurada.
+
+### Serviços Tenant — Super-Servidor Único
+
+**Todos os 11 serviços de tenant rodam em UM único processo na porta 3001.** Não subir portas individuais para eles.
+
+| Serviço | Porta |
+|:---|:---|
+| Super-servidor tenant (atividades, cronômetro, email, gabi, dashboard, relatórios, histórico, notificações, agendamento, preferências, whatsapp) | `3001` |
+
+Para subir o super-servidor: `npm --prefix servicos-global/tenant run dev`
+
+### Produtos e Serviços Independentes
 
 | Serviço | Porta Backend |
 |:---|:---|
-| Dashboard | `8010` |
-| Relatórios | `8011` |
+| Configurador | `8005` |
+| API Cockpit | `8016` |
+| Conector ERP | `8017` |
 | SimulaCusto | `8020` |
-| Bid Frete | `8022` |
-| Processo | `8025` |
-| ... | Ver `contracts.json` |
+| Bid Frete | `8023` |
+| Bid Câmbio | `8025` |
+| Processo | `8026` |
+| LPCO | `8027` |
+| NF Importação | `8028` |
+| Financeiro Comex | `8029` |
+| Pedido | `8030` |
+| Ver detalhes | `servicos-global/contracts.json` |
 
 ---
 

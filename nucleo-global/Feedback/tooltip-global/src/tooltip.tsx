@@ -53,9 +53,11 @@ export function TooltipGlobal({ titulo, descricao, children, interativo }: Toolt
 
   const esconde = useCallback(() => setShow(false), [])
 
-  // Overlay saiu → só fecha se mouse não estiver sobre o card
+  // Overlay saiu → aguarda 50ms para o onMouseEnter do card poder disparar primeiro
   const onOverlayLeave = useCallback(() => {
-    if (!sobreCardRef.current) esconde()
+    setTimeout(() => {
+      if (!sobreCardRef.current) esconde()
+    }, 50)
   }, [esconde])
 
   const onKeyDown = (e: React.KeyboardEvent) => {

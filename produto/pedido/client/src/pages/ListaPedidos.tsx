@@ -3701,6 +3701,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   },
   saldo_itens_do_pedido: {
     render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       const qtd = Math.max(0, (row.quantidade_inicial_item_pedido ?? 0) - (row.quantidade_pronta_total_item_pedido ?? 0))
       return (
         <TooltipGlobal
@@ -3708,8 +3709,9 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
           descricao={<span>Calculado com base nos itens — não editável. <a href="/configuracoes?tab=colunas-campos-calculados">Editar fórmula no Configurador</a></span>}
           interativo
         >
-          <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
+          <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
             {fmtQuantidade(qtd, getCasas('saldo_itens_do_pedido', 0))}
+            <span className="gtv-celula-unidade-badge">{unidade}</span>
           </span>
         </TooltipGlobal>
       )
@@ -3722,7 +3724,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
       return (
         <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
-          {fmtQuantidade(row.quantidade_transferida_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+          {fmtQuantidade(row.quantidade_transferida_item_pedido ?? 0, getCasas('quantidade_transferida_total', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )

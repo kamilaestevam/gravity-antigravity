@@ -820,7 +820,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     align: 'right',
     casasDecimais: getCasas('valor_total_pedido', 2),
     tooltipTitulo: 'Valor Total do Pedido',
-    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo',
+    tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []
@@ -2207,20 +2207,14 @@ const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     grupo: 'Quantidades',
     tooltipTitulo: 'Quantidade Cancelada',
     tooltipDescricao: 'Total cancelado permanentemente — subtrai do saldo inicial',
-    render: (_val: unknown, row: PedidoItem) => {
-      // DEV_MOCK: usa 1234.5678 quando nulo para validar casas decimais — remover após teste
-      const qtdCancelada = import.meta.env.DEV
-        ? (row.quantidade_cancelada_item_pedido ?? 1234.5678)
-        : row.quantidade_cancelada_item_pedido
-      return (
-        <span style={{
-          fontVariantNumeric: 'tabular-nums',
-          color: qtdCancelada > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
-        }}>
-          {fmtQuantidade(qtdCancelada, getCasas('quantidade_item', 0))}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{
+        fontVariantNumeric: 'tabular-nums',
+        color: row.quantidade_cancelada_item_pedido > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
+      }}>
+        {fmtQuantidade(row.quantidade_cancelada_item_pedido, getCasas('quantidade_item', 0))}
+      </span>
+    ),
   },
   {
     key: 'sequencia_item',

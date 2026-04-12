@@ -930,6 +930,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     align: 'right',
     tooltipTitulo: 'Qtd. Cancelada do Pedido',
     tooltipDescricao: 'Total cancelado permanentemente nos itens do pedido — subtrai do saldo inicial.',
+    tooltipBloqueado: 'Campo calculado — derivado da soma de quantidade_cancelada_item_pedido de todos os itens. Não pode ser editado diretamente.',
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
@@ -3743,6 +3744,20 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       return (
         <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
           {fmtQuantidade(row.quantidade_pronta_total_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
+      )
+    },
+  },
+  quantidade_cancelada_total_pedido: {
+    editavel: false,
+    tooltipBloqueado: 'Campo calculado — incrementado ao cancelar itens. Não pode ser editado diretamente.',
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+      const qtd = row.quantidade_cancelada_item_pedido ?? 0
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
+          {fmtQuantidade(qtd, getCasas('quantidade_cancelada_total_pedido', 0))}
           <span className="gtv-celula-unidade-badge">{unidade}</span>
         </span>
       )

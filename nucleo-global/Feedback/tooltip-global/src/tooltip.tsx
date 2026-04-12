@@ -13,16 +13,26 @@
  *     - Máximo ~90 caracteres na descricao
  *     - descricao responde: "o que esse campo faz pela minha empresa?"
  */
-import React, { useState, useRef, useId } from 'react'
+import React, { useState, useRef, useId, useCallback } from 'react'
 import ReactDOM from 'react-dom'
 import './tooltip.css'
 import type { TooltipProps } from './tipos.js'
 
-export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
+const DELAY_INTERATIVO_MS = 3000
+
+export function TooltipGlobal({ titulo, descricao, children, interativo }: TooltipProps) {
   const [show, setShow] = useState(false)
   const [pos,  setPos]  = useState({ top: 0, bottom: 0, left: 0, usaBottom: false })
   const ref = useRef<HTMLSpanElement>(null)
   const tooltipId = useId()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const cancelarTimer = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+      timerRef.current = null
+    }
+  }
 
   const calcularPos = () => {
     if (ref.current) {
@@ -39,16 +49,26 @@ export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
     }
   }
 
-  const mostra = () => {
+  const mostra = useCallback(() => {
     if (document.body.classList.contains('tooltips-disabled')) return
+    cancelarTimer()
     calcularPos()
     setShow(true)
-  }
+  }, [])
 
-  const esconde = () => setShow(false)
+  const esconde = useCallback(() => {
+    if (interativo) {
+      timerRef.current = setTimeout(() => setShow(false), DELAY_INTERATIVO_MS)
+    } else {
+      setShow(false)
+    }
+  }, [interativo])
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') esconde()
+    if (e.key === 'Escape') {
+      cancelarTimer()
+      setShow(false)
+    }
   }
 
   return (
@@ -73,11 +93,14 @@ export function TooltipGlobal({ titulo, descricao, children }: TooltipProps) {
           role="tooltip"
           className="tg-card"
           data-start={pos.usaBottom ? 'bottom' : 'top'}
+          data-interativo={interativo ? 'true' : undefined}
           style={{
             bottom: pos.usaBottom ? pos.bottom : 'auto',
             top:    pos.usaBottom ? 'auto'   : pos.top,
             left:   pos.left,
           }}
+          onMouseEnter={interativo ? cancelarTimer : undefined}
+          onMouseLeave={interativo ? esconde : undefined}
         >
           {titulo && <p className="tg-titulo">{titulo}</p>}
           <div className="tg-descricao">{descricao}</div>

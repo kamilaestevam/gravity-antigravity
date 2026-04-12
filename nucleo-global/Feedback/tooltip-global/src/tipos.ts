@@ -10,4 +10,6 @@ export interface TooltipProps {
   descricao: React.ReactNode
   /** Elemento que recebe o hover */
   children: React.ReactElement
+  /** Quando true: pointer-events ativo no card e delay de 3s para fechar (permite clicar links) */
+  interativo?: boolean
 }

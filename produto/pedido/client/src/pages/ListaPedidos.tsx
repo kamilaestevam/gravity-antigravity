@@ -539,6 +539,15 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: <span>Número do pedido (linha pai) ou Part Number do item (linha filho). <a href="/configuracoes?tab=numeracao-pedido">Configurar numeração automática</a></span>,
     tooltipInterativo: true,
     grupo: 'Identificação',
+    render: (_val: unknown, row: Pedido) => (
+      <TooltipGlobal
+        titulo="Nº Pedido / Part Number"
+        descricao={<span>Número do pedido (linha pai) ou Part Number do item (linha filho). <a href="/configuracoes?tab=numeracao-pedido">Configurar numeração automática</a></span>}
+        interativo
+      >
+        <span>{row.numero_pedido}</span>
+      </TooltipGlobal>
+    ),
   },
   {
     key: 'tipo_operacao',

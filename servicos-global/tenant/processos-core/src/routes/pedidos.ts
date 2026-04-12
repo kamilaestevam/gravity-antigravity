@@ -118,8 +118,10 @@ function gerarId(prefixo: string): string {
  * mapItem — Converte campos Decimal do Prisma para number.
  * Após renomear os campos no schema, os nomes Prisma já coincidem com os nomes do frontend.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mapItem(item: any): any {
+type PedidoItemRaw = Record<string, unknown>
+type PedidoRaw = Record<string, unknown> & { itens?: PedidoItemRaw[]; detalhes_operacionais?: unknown }
+
+export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
   return {
     ...item,
     // Campos Decimal do Prisma serializados como string no JSON → converter para number
@@ -137,8 +139,7 @@ export function mapItem(item: any): any {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mapPedido(pedido: any): any {
+export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | null | undefined {
   if (!pedido) return pedido
   const itens = Array.isArray(pedido.itens) ? pedido.itens.map(mapItem) : pedido.itens
   const det = (pedido.detalhes_operacionais as Record<string, unknown> | null) ?? {}
@@ -151,11 +152,11 @@ export function mapPedido(pedido: any): any {
     nome_fabricante: (det.nome_fabricante as string | null | undefined) ?? null,
     // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
-      ? itens.reduce((s: number, i: any) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
+      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
       : (pedido.quantidade_pronta_itens_pedido_total ?? null),
     // Virtual: contagem de NCMs distintos nos itens do pedido
     ncms_distintos_count: Array.isArray(itens)
-      ? new Set(itens.map((i: any) => i.ncm).filter(Boolean)).size
+      ? new Set(itens.map((i: PedidoItemRaw) => i.ncm).filter(Boolean)).size
       : (pedido.ncms_distintos_count ?? null),
   }
 }
@@ -613,6 +614,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'numero_pedido',
   'numero_proforma',
   'numero_invoice',
+  'tipo_operacao',
   'referencia_importador',
   'referencia_exportador',
   'referencia_fabricante',
@@ -667,6 +669,11 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 
     if (!pedido) {
       throw new AppError(404, 'Pedido nao encontrado')
+    }
+
+    // Validação de tipo_operacao
+    if (campo === 'tipo_operacao' && valor !== 'importacao' && valor !== 'exportacao') {
+      throw new AppError(400, 'tipo_operacao deve ser "importacao" ou "exportacao"')
     }
 
     // Validação por tipo_operacao para campos de parceiros
@@ -917,6 +924,7 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
 // ── PATCH /:id/itens/:itemId/campo — Editar campo único do item ───────────────
 
 const CAMPOS_EDITAVEIS_ITEM = new Set([
+  'tipo_operacao',
   'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
@@ -927,6 +935,9 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
     const { campo, valor } = req.body as { campo: string; valor: unknown }
     if (!campo || !CAMPOS_EDITAVEIS_ITEM.has(campo)) {
       throw new AppError(400, `Campo "${campo}" nao pode ser editado inline em item`)
+    }
+    if (campo === 'tipo_operacao' && valor !== 'importacao' && valor !== 'exportacao') {
+      throw new AppError(400, 'tipo_operacao deve ser "importacao" ou "exportacao"')
     }
     const tenant_id = req.headers['x-tenant-id'] as string
     const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id

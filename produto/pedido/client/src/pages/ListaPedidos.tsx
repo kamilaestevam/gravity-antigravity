@@ -3379,7 +3379,7 @@ const CAMPOS_DERIVADOS_PAI = new Set([
 ])
 
 const CAMPOS_EDITAVEIS_PAI = COLUNAS_PAI
-  .filter(c => !CAMPOS_DERIVADOS_PAI.has(c.key))
+  .filter(c => !CAMPOS_DERIVADOS_PAI.has(c.key) && c.editavel !== false)
   .map(c => c.key)
 
 // ── Mapa de colunas filho → renderização nas linhas expandidas ────────────────

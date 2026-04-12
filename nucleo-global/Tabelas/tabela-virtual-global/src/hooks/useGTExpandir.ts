@@ -32,6 +32,13 @@ export function useGTExpandir<T, C>(
   const filhosCacheRef = useRef(filhosCache)
   filhosCacheRef.current = filhosCache
 
+  // ── Auto-revalidar filhos de pais expandidos quando os dados mudam ───────────
+  // Quando carregarInicial() / qualquer re-fetch atualiza a referência de um pai
+  // que já está expandido, os filhos no cache ficam com _p stale. Este efeito
+  // detecta a mudança de referência por id e recarrega silenciosamente.
+  // Declarado antes do toggle para que o useCallback capture a referência correta.
+  const dadosAnteriorRef = useRef<Map<string, T>>(new Map())
+
   const toggle = useCallback(
     async (id: string, item: T) => {
       // Se já expandido, apenas colapsa
@@ -46,12 +53,14 @@ export function useGTExpandir<T, C>(
 
       // Se não há loader, expande imediatamente (sem filhos ou filhos via prop estática)
       if (!onCarregarFilhos) {
+        dadosAnteriorRef.current.set(id, item)
         setExpandidos(prev => new Set(prev).add(id))
         return
       }
 
       // Se já está no cache, expande sem recarregar
       if (filhosCacheRef.current.has(id)) {
+        dadosAnteriorRef.current.set(id, item)
         setExpandidos(prev => new Set(prev).add(id))
         return
       }
@@ -65,6 +74,7 @@ export function useGTExpandir<T, C>(
           next.set(id, filhos)
           return next
         })
+        dadosAnteriorRef.current.set(id, item)
         setExpandidos(prev => new Set(prev).add(id))
       } finally {
         setCarregandoFilhos(prev => {
@@ -76,12 +86,6 @@ export function useGTExpandir<T, C>(
     },
     [onCarregarFilhos],
   )
-
-  // ── Auto-revalidar filhos de pais expandidos quando os dados mudam ───────────
-  // Quando carregarInicial() / qualquer re-fetch atualiza a referência de um pai
-  // que já está expandido, os filhos no cache ficam com _p stale. Este efeito
-  // detecta a mudança de referência por id e recarrega silenciosamente.
-  const dadosAnteriorRef = useRef<Map<string, T>>(new Map())
 
   useEffect(() => {
     if (!onCarregarFilhos || !dados || !itemId || expandidosRef.current.size === 0) return

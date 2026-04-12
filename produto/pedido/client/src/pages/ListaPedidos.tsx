@@ -880,7 +880,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', getCasas('quantidade_pronta_pedido_total', 0), { titulo: 'Qtd. Pronta do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', getCasas('quantidade_pronta_pedido_total', 0), { titulo: 'Qtd. Pronta do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.' }),
   },
   {
     key: 'saldo_itens_do_pedido',

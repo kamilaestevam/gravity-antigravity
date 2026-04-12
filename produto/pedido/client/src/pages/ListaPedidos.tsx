@@ -536,7 +536,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     sortavel: true,
     tooltipTitulo: 'Nº Pedido / Part Number',
-    tooltipDescricao: 'Número do pedido (linha pai) ou Part Number do item (linha filho)',
+    tooltipDescricao: <span>Número do pedido (linha pai) ou Part Number do item (linha filho). <a href="/configuracoes?tab=numeracao-pedido">Configurar numeração automática</a></span>,
+    tooltipInterativo: true,
     grupo: 'Identificação',
   },
   {

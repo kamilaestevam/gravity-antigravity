@@ -1621,7 +1621,7 @@ export default function Configuracoes() {
     setPaineisLoading(true)
     paineisDashboardApi.listar()
       .then(res => { setPaineis(res.data); setPendingPaineis(res.data) })
-      .catch(() => {})
+      .catch((e: unknown) => console.error('[paineis] erro ao carregar:', e))
       .finally(() => setPaineisLoading(false))
   }, [categoria])
 

@@ -31,7 +31,6 @@ import {
   X,
   Bell,
 } from '@phosphor-icons/react'
-import { BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { pedidoApi, pedidoConfigApi, kanbanConfigApi } from '../shared/api'
 import type { Pedido, StatusPedido, PedidoStatusConfig, KanbanPreferencias, KanbanCardConfig } from '../shared/types'
 import { KANBAN_PADRAO, STATUS_PEDIDO_LABELS } from '../shared/types'
@@ -91,8 +90,9 @@ function formatarValorCampo(p: Pedido, campo: string): string {
     const d = new Date(val as string)
     return isNaN(d.getTime()) ? String(val) : d.toLocaleDateString('pt-BR')
   }
-  if (typeof val === 'number') {
-    return val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  if (typeof val === 'number' || (typeof val === 'string' && !isNaN(Number(val)) && val.trim() !== '')) {
+    const n = typeof val === 'number' ? val : Number(val)
+    return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
   if (campo === 'tipo_operacao') return val === 'importacao' ? '↓ Importação' : '↑ Exportação'
   return String(val)
@@ -332,10 +332,12 @@ function ModalKanbanPedido({
                       {isSaldo ? <Scales size={13} weight="duotone" /> : <Package size={13} weight="duotone" />}
                       {cfg.label}
                     </span>
-                    <span className="kbp-modal-qtd-valor">
-                      {val != null ? Number(val).toLocaleString('pt-BR') : '—'}
+                    <span className="kbp-modal-valor-grupo">
+                      <span className="kbp-modal-qtd-valor">
+                        {val != null ? Number(val).toLocaleString('pt-BR') : '—'}
+                      </span>
+                      <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                     </span>
-                    <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                   </div>
                 )
               })}
@@ -360,10 +362,12 @@ function ModalKanbanPedido({
                       }
                       {cfg.label}
                     </span>
-                    <span className={`kbp-modal-data-valor${vencida ? ' kbp-modal-data-valor--vencida' : ''}`}>
-                      {d ? d.toLocaleDateString('pt-BR') : '—'}
+                    <span className="kbp-modal-valor-grupo">
+                      <span className={`kbp-modal-data-valor${vencida ? ' kbp-modal-data-valor--vencida' : ''}`}>
+                        {d ? d.toLocaleDateString('pt-BR') : '—'}
+                      </span>
+                      <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                     </span>
-                    <PencilSimple size={11} className="kbp-modal-campo-edit-icon" weight="bold" />
                   </div>
                 )
               })}
@@ -387,7 +391,10 @@ function ModalKanbanPedido({
             <ArrowSquareOut size={15} weight="duotone" />
             Abrir pedido completo
           </button>
-          <BotaoCancelar onClick={onFechar} dirty rotulo="Fechar" />
+          <button type="button" className="kbp-modal-btn-fechar-footer" onClick={onFechar}>
+            <X size={13} weight="bold" />
+            Fechar
+          </button>
         </div>
 
       </div>
@@ -524,7 +531,6 @@ export default function KanbanPedidos() {
         colunas={colunasComputadas}
         preferencias={preferencias}
         onFechar={() => setModalPedido(null)}
-        onSalvarStatus={handleSalvarStatus}
       />
     </div>
   )

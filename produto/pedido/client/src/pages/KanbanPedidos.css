@@ -571,15 +571,47 @@
   align-items: center;
   gap: 0.35rem;
   font-size: 0.8rem;
-  color: rgba(99, 102, 241, 0.85);
+  color: var(--text-secondary, #94a3b8);
   background: none;
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 9999px;
   padding: 0.35rem 0.85rem;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
-.kbp-modal-btn-abrir:hover { background: rgba(99, 102, 241, 0.1); border-color: rgba(99, 102, 241, 0.5); }
+.kbp-modal-btn-abrir:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--text-primary, #f1f5f9);
+}
+
+/* Grupo valor + ícone de edição — garante que ficam juntos à direita */
+.kbp-modal-valor-grupo {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.kbp-modal-btn-fechar-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #94a3b8);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.kbp-modal-btn-fechar-footer:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--text-primary, #f1f5f9);
+}
 
 /* ── Campos clicáveis no modal (Nível 2 — leva ao campo no Drawer) ──────── */
 .kbp-modal-campo--clicavel {

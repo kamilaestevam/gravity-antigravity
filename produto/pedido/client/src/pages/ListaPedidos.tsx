@@ -1086,7 +1086,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const casas = getCasas('peso_liquido_total_pedido', 3)
       const num = Number(row.peso_liquido_total_pedido ?? 0)
       const somaItensLiq = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensLiq) > 0.001 && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
+      const unidadesMistasLiq = new Set((row.itens ?? []).map(i => i.peso_liquido_unidade_item ?? 'KG')).size > 1
+      const alertaAtivo = (row.itens ?? []).length > 0 && (Math.abs(num - somaItensLiq) > 0.001 || unidadesMistasLiq) && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
       return (
         <TooltipGlobal titulo="Peso Líquido Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso líquido informado impedem o cálculo">
           <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
@@ -1114,7 +1115,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const casas = getCasas('peso_bruto_total_pedido', 3)
       const num = Number(row.peso_bruto_total_pedido ?? 0)
       const somaItensBruto = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensBruto) > 0.001 && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
+      const unidadesMistasBruto = new Set((row.itens ?? []).map(i => i.peso_bruto_unidade_item ?? 'KG')).size > 1
+      const alertaAtivo = (row.itens ?? []).length > 0 && (Math.abs(num - somaItensBruto) > 0.001 || unidadesMistasBruto) && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
       return (
         <TooltipGlobal titulo="Peso Bruto Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso bruto informado impedem o cálculo">
           <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
@@ -3892,6 +3894,8 @@ interface BarraAcoesPedidoProps {
   onNavigateToConfiguracoes: () => void
   handleLimparFiltro: (campo: string) => void
   handleLimparTodosFiltros: () => void
+  busca: string
+  onLimparBusca: () => void
 }
 
 const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
@@ -3917,6 +3921,8 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   onNavigateToConfiguracoes,
   handleLimparFiltro,
   handleLimparTodosFiltros,
+  busca,
+  onLimparBusca,
 }: BarraAcoesPedidoProps) {
   return (
     <>
@@ -4161,12 +4167,25 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
       </>
 
       {/* ── Chips de filtros ativos (dentro da toolbar) ── */}
-      {Object.keys(filtrosAtivos).length > 0 && (
+      {(Object.keys(filtrosAtivos).length > 0 || busca) && (
         <div
           role="status"
           aria-label="Filtros ativos"
           style={{ flex: '0 0 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem', paddingTop: '0.375rem' }}
         >
+          {busca && (
+            <span className="lp-filtro-chip">
+              <span className="lp-filtro-chip-label">Busca:</span>
+              <span className="lp-filtro-chip-valor">{busca}</span>
+              <button
+                className="lp-filtro-chip-remove"
+                onClick={onLimparBusca}
+                aria-label="Remover busca"
+              >
+                <X size={10} weight="bold" />
+              </button>
+            </span>
+          )}
           {COLUNAS_PAI.filter(col => filtrosAtivos[col.key] != null).map(col => {
             const filtro = filtrosAtivos[col.key]!
             return (
@@ -4441,6 +4460,8 @@ export default function ListaPedidos() {
 
   const handleLimparTodosFiltros = useCallback(() => {
     setFiltrosAtivos({})
+    handleBuscar('')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // ── Estado dos modais de criação ─────────────────────────────────────────────
@@ -4658,9 +4679,11 @@ export default function ListaPedidos() {
       onNavigateToConfiguracoes={handleNavConfiguracoes}
       handleLimparFiltro={handleLimparFiltro}
       handleLimparTodosFiltros={handleLimparTodosFiltros}
+      busca={busca}
+      onLimparBusca={() => handleBuscar('')}
     />
   ), [
-    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos,
+    novoDropdownAberto, novoSubmenu, pedidosSelecionados, itensSelecionados, excluindoLote, filtrosAtivos, busca,
     novoDropdownRef, setNovoDropdownAberto, setNovoSubmenu, setSmartImportAberto,
     setModalCockpitAberto, setModalNovoPedidoAberto, setModalNovoItemAberto,
     setModalTransferirAberto, setModalConsolidarAberto, setModalEdicaoMassaAberto,

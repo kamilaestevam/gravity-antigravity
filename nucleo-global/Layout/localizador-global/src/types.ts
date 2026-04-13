@@ -1,4 +1,4 @@
-export type EcosystemNodeType   = 'gravity' | 'configurador' | 'produto' | 'processo'
+export type EcosystemNodeType   = 'hub' | 'core' | 'hub-store' | 'configurador' | 'produto'
 export type EcosystemNodeStatus = 'current' | 'accessible' | 'locked'
 
 export interface EcosystemNode {
@@ -24,18 +24,23 @@ export interface LocalizadorGlobalProps {
   workspaceName: string
   /** Exibe apenas o ícone no trigger (sem label de texto) */
   iconOnly?: boolean
-  /** ID do produto atual — ex: 'bid-cambio' */
+  /** ID do nó atual — 'hub' | 'core' | 'hub-store' | slug do produto */
   currentProductId: string
-  /** Label visível do produto atual — ex: 'Bid Câmbio' */
+  /** Label visível do nó atual */
   currentProductLabel: string
-  /** Cor do produto atual — ex: '#06b6d4' */
+  /** Cor do nó atual */
   currentProductColor: string
-  /** Página atual — ex: 'Nova Cotação' */
+  /** Página atual dentro do nó */
   currentPageLabel: string
   /** Histórico de navegação (gerenciado pelo hook useLocalizadorHistory) */
   history: LocalizadorEntry[]
   /** Nós do ecossistema a exibir no mapa */
   nodes: EcosystemNode[]
+  /**
+   * IDs dos nós visitados nessa sessão (além do atual).
+   * Usado para renderizar o rastro de navegação no mapa.
+   */
+  visitedNodeIds?: string[]
   /** Callback de navegação ao clicar em um nó */
   onNavigate: (node: EcosystemNode) => void
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
@@ -28,18 +28,26 @@ const PRODUCT_META: Record<string, { label: string; color: string; sublabel: str
   'nf-importacao': { label: 'NF Importação', color: '#c084fc', sublabel: 'nota fiscal'        },
 }
 
-// Detecta produto e contexto pelo pathname — URL é a fonte de verdade
+// Detecta nó e contexto pelo pathname — URL é a fonte de verdade
 function resolveContextFromPath(pathname: string): { productId: string; label: string; color: string; sublabel: string } {
+  if (pathname === '/' || pathname.startsWith('/hub')) {
+    return { productId: 'hub', label: 'Hub', color: '#818cf8', sublabel: 'ecossistema' }
+  }
+  if (pathname.startsWith('/core')) {
+    return { productId: 'core', label: 'Core', color: '#a78bfa', sublabel: 'dashboard' }
+  }
+  if (pathname.startsWith('/store')) {
+    return { productId: 'hub-store', label: 'HUB Store', color: '#fbbf24', sublabel: 'marketplace' }
+  }
   const prodMatch = pathname.match(/^\/produto\/([^/]+)/)
   if (prodMatch) {
     const slug = prodMatch[1]
-    // Tenta match direto ou com normalização (simula-custo → simulacusto)
     const found = PRODUCT_META[slug]
       ?? Object.entries(PRODUCT_META).find(([k]) => k.replace(/-/g, '') === slug.replace(/-/g, ''))?.[1]
     if (found) return { productId: slug, ...found }
   }
-  // Fallback: Gravity workspace
-  return { productId: 'gravity', label: 'Gravity', color: '#818cf8', sublabel: 'workspace' }
+  // Fallback: HUB
+  return { productId: 'hub', label: 'Hub', color: '#818cf8', sublabel: 'ecossistema' }
 }
 
 /**
@@ -99,7 +107,11 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
   const ctx = resolveContextFromPath(location.pathname)
   const { history, addEntry } = useLocalizadorHistory(ctx.productId)
 
-  // Registra navegação no histórico a cada mudança de rota
+  // Rastro de navegação: acumula todos os nós visitados na sessão
+  const visitedSetRef  = useRef<Set<string>>(new Set<string>())
+  const [visitedNodeIds, setVisitedNodeIds] = useState<string[]>([])
+
+  // Registra navegação no histórico e no rastro a cada mudança de rota
   useEffect(() => {
     addEntry({
       productId:    ctx.productId,
@@ -108,18 +120,38 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
       pageLabel:    getPageLabel(location.pathname),
       pagePath:     location.pathname,
     })
+    if (!visitedSetRef.current.has(ctx.productId)) {
+      visitedSetRef.current.add(ctx.productId)
+      setVisitedNodeIds(Array.from(visitedSetRef.current))
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname])
 
-  // Monta nós do ecossistema a partir dos produtos habilitados + metadados
+  // Monta nós do ecossistema
   const ecosystemNodes: EcosystemNode[] = [
     {
-      id:       'gravity',
-      label:    'Gravity',
-      sublabel: 'workspace',
+      id:       'hub',
+      label:    'Hub',
+      sublabel: 'ecossistema',
       color:    '#818cf8',
-      type:     'gravity',
-      status:   'accessible',
+      type:     'hub',
+      status:   ctx.productId === 'hub' ? 'current' : 'accessible',
+    },
+    {
+      id:       'core',
+      label:    'Core',
+      sublabel: 'dashboard',
+      color:    '#a78bfa',
+      type:     'core',
+      status:   ctx.productId === 'core' ? 'current' : 'accessible',
+    },
+    {
+      id:       'hub-store',
+      label:    'HUB Store',
+      sublabel: 'marketplace',
+      color:    '#fbbf24',
+      type:     'hub-store',
+      status:   ctx.productId === 'hub-store' ? 'current' : 'accessible',
     },
     {
       id:       'configurador',
@@ -129,7 +161,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
       type:     'configurador',
       status:   'accessible',
     },
-    // Produtos habilitados
+    // Produtos — habilitados ou bloqueados conforme contrato
     ...Object.entries(PRODUCT_META).map(([id, meta]): EcosystemNode => {
       const isAllowed = allowedProducts.some(p => p.product_key === id && p.is_active)
       return {
@@ -141,14 +173,6 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
         status:   id === ctx.productId ? 'current' : isAllowed ? 'accessible' : 'locked',
       }
     }),
-    {
-      id:       'processo',
-      label:    'Processo',
-      sublabel: 'consolida todos os produtos',
-      color:    '#facc15',
-      type:     'processo',
-      status:   'locked',
-    },
   ]
 
   const avisosMock: AvisoInterno[] = [
@@ -292,10 +316,13 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           currentPageLabel={getPageLabel(location.pathname)}
           history={history}
           nodes={ecosystemNodes}
+          visitedNodeIds={visitedNodeIds}
           onNavigate={(node) => {
-            if (node.type === 'configurador') window.location.href = '/configurador'
-            else if (node.type === 'gravity')  window.location.href = '/hub'
-            else if (node.type === 'produto')  window.location.href = `/produto/${node.id}`
+            if (node.type === 'hub')          window.location.href = '/hub'
+            else if (node.type === 'core')        window.location.href = '/core'
+            else if (node.type === 'hub-store')   window.location.href = '/store'
+            else if (node.type === 'configurador') window.location.href = '/configurador'
+            else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
           }}
         />
 

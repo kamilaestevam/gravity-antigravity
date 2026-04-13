@@ -1617,12 +1617,11 @@ export default function Configuracoes() {
 
   useEffect(() => {
     if (!KANBAN_FILHOS.includes(categoria)) return
-    if (kanbanPrefs !== null) return
     setKanbanLoading(true)
 
-    // Sync localStorage → DB antes de carregar da API.
-    // Garante que statuses criados localmente (ex: DANIEL, PRISCILA) apareçam
-    // na lista de Colunas, mesmo que nunca tenham sido salvos por uma ação recente.
+    // Sync localStorage → DB ANTES de carregar da API.
+    // Garante que qualquer status criado localmente (DANIEL, PRISCILA, maria…)
+    // chegue ao banco antes da leitura — independente de quando foi criado.
     const syncPayload = statusList.map((s, i) => ({
       nome:       s.id,
       rotulo:     s.label,
@@ -1634,17 +1633,18 @@ export default function Configuracoes() {
 
     pedidoConfigApi.syncStatus(syncPayload)
       .catch(() => {}) // falha silenciosa — prossegue para carregar da API
-      .then(() =>
-        Promise.all([
-          kanbanConfigApi.obterPreferencias(),
-          pedidoConfigApi.listarStatus(),
-        ])
-      )
+      .then(() => {
+        // Prefs: carrega apenas na primeira visita (cache). Status: sempre recarrega.
+        const loadPrefs = kanbanPrefs === null
+          ? kanbanConfigApi.obterPreferencias()
+          : Promise.resolve(null)
+        return Promise.all([loadPrefs, pedidoConfigApi.listarStatus()])
+      })
       .then(([prefsRes, statusRes]) => {
-        setKanbanPrefs(prefsRes.data)
+        if (prefsRes !== null) setKanbanPrefs(prefsRes.data)
         setKanbanApiStatus(statusRes.data ?? [])
       })
-      .catch(() => setKanbanPrefs(null))
+      .catch(() => { if (kanbanPrefs === null) setKanbanPrefs(null) })
       .finally(() => setKanbanLoading(false))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categoria])

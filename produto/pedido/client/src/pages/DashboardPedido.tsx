@@ -10,6 +10,13 @@
  */
 
 import React, { useMemo, useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors, type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext, horizontalListSortingStrategy, useSortable, arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useNavigate } from 'react-router-dom'
 import { useShellStore } from '@shell'
 import {
@@ -833,6 +840,28 @@ const gabiEmptyStyles = {
 
 const sty = gabiEmptyStyles
 
+// ── SortableTabWrapper — wrapper dnd-kit para cada tab de painel ──────────────
+
+function SortableTabWrapper({ id, children }: { id: string; children: ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        ...sty.painelTabWrap,
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        cursor: isDragging ? 'grabbing' : undefined,
+      }}
+      {...attributes}
+      {...listeners}
+    >
+      {children}
+    </div>
+  )
+}
+
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function DashboardPedido() {
@@ -888,11 +917,15 @@ export default function DashboardPedido() {
   const [renamingId,     setRenamingId]     = useState<string | null>(null)
   const [renameValue,    setRenameValue]    = useState('')
   const [menuPainelId,   setMenuPainelId]   = useState<string | null>(null)
+  const [deletingId,     setDeletingId]     = useState<string | null>(null)
+  const renameInFlightRef = useRef<string | null>(null)
+
+  const painelSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   // Fecha menu ao clicar fora
   useEffect(() => {
     if (!menuPainelId) return
-    const close = () => setMenuPainelId(null)
+    const close = () => { setMenuPainelId(null); setDeletingId(null) }
     document.addEventListener('click', close)
     return () => document.removeEventListener('click', close)
   }, [menuPainelId])
@@ -900,29 +933,34 @@ export default function DashboardPedido() {
   // Salva widgets do painel atual (localStorage) e troca para o novo
   const handleTrocarPainel = (novoId: string) => {
     if (novoId === painelAtualId) return
-    if (painelAtualId) {
-      salvarWidgetsPainelAtual(painelAtualId, widgets)
-    }
+    if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
     setPainelAtual(novoId)
   }
 
-  // Renomeia painel via API e atualiza store
+  // Renomeia painel — guarda contra double-call (onBlur + onSubmit)
   const handleRenomearPainel = (id: string, nome: string) => {
-    const trimmed = nome.trim()
-    if (!trimmed) return
-    paineisDashboardApi.atualizar(id, { nome: trimmed })
-      .then(() => setPaineis(paineis.map(p => p.id === id ? { ...p, nome: trimmed } : p)))
-      .catch(() => {})
+    if (renameInFlightRef.current === id) return  // segunda chamada ignorada
+    renameInFlightRef.current = id
     setRenamingId(null)
+    const trimmed = nome.trim()
+    if (!trimmed) { renameInFlightRef.current = null; return }
+    paineisDashboardApi.atualizar(id, { nome: trimmed })
+      .then(() => {
+        // lê estado fresco do store para evitar closure stale
+        const fresh = useDashboardStore.getState().paineis
+        setPaineis(fresh.map(p => p.id === id ? { ...p, nome: trimmed } : p))
+      })
+      .catch(() => {})
+      .finally(() => { renameInFlightRef.current = null })
   }
 
-  // Deleta painel via API
+  // Deleta painel via API (sem window.confirm — confirmação inline no menu)
   const handleDeletarPainel = (id: string) => {
     if (paineis.length <= 1) return
-    if (!window.confirm('Excluir este painel? Os widgets salvos serão perdidos.')) return
     paineisDashboardApi.deletar(id)
       .then(() => {
-        const atualizados = paineis.filter(p => p.id !== id)
+        const fresh = useDashboardStore.getState().paineis
+        const atualizados = fresh.filter(p => p.id !== id)
         setPaineis(atualizados)
         if (painelAtualId === id) {
           const proximo = atualizados.find(p => p.is_visivel)
@@ -931,6 +969,19 @@ export default function DashboardPedido() {
       })
       .catch(() => {})
     setMenuPainelId(null)
+    setDeletingId(null)
+  }
+
+  // Reordena painéis via drag (persiste na API)
+  const handlePainelDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = paineis.findIndex(p => p.id === active.id)
+    const newIndex = paineis.findIndex(p => p.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+    const reordered = arrayMove(paineis, oldIndex, newIndex)
+    setPaineis(reordered)
+    paineisDashboardApi.reordenar(reordered.map(p => p.id)).catch(() => {})
   }
 
   // Carrega painéis do usuário ao montar
@@ -1455,71 +1506,101 @@ export default function DashboardPedido() {
       {/* Seletor de Painéis */}
       {paineis.length > 0 && (
         <div style={sty.painelBar}>
-          {paineis.filter(p => p.is_visivel).map(p => (
-            <div key={p.id} style={sty.painelTabWrap}>
-              {/* Rename inline */}
-              {renamingId === p.id ? (
-                <form
-                  style={sty.painelNovoForm}
-                  onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
-                >
-                  <input
-                    autoFocus
-                    type="text"
-                    value={renameValue}
-                    onChange={e => setRenameValue(e.target.value)}
-                    onBlur={() => handleRenomearPainel(p.id, renameValue)}
-                    onKeyDown={e => e.key === 'Escape' && setRenamingId(null)}
-                    style={sty.painelRenameInput}
-                    maxLength={60}
-                  />
-                </form>
-              ) : (
-                <button
-                  type="button"
-                  style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
-                  onClick={() => handleTrocarPainel(p.id)}
-                  onDoubleClick={() => { setRenamingId(p.id); setRenameValue(p.nome) }}
-                >
-                  <span style={sty.painelTabInner}>
-                    {p.nome}
-                    <span
-                      role="button"
-                      aria-label="Opções do painel"
-                      style={sty.painelMenuBtn}
-                      onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id) }}
+          <DndContext sensors={painelSensors} collisionDetection={closestCenter} onDragEnd={handlePainelDragEnd}>
+            <SortableContext
+              items={paineis.filter(p => p.is_visivel).map(p => p.id)}
+              strategy={horizontalListSortingStrategy}
+            >
+              {paineis.filter(p => p.is_visivel).map(p => (
+                <SortableTabWrapper key={p.id} id={p.id}>
+                  {/* Rename inline */}
+                  {renamingId === p.id ? (
+                    <form
+                      style={sty.painelNovoForm}
+                      onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
+                      // Impede que o dnd-kind capture eventos no input
+                      onPointerDown={e => e.stopPropagation()}
                     >
-                      <DotsThree size={14} weight="bold" />
-                    </span>
-                  </span>
-                </button>
-              )}
+                      <input
+                        autoFocus
+                        type="text"
+                        value={renameValue}
+                        onChange={e => setRenameValue(e.target.value)}
+                        onBlur={() => handleRenomearPainel(p.id, renameValue)}
+                        onKeyDown={e => { if (e.key === 'Escape') { setRenamingId(null); renameInFlightRef.current = null } }}
+                        style={sty.painelRenameInput}
+                        maxLength={60}
+                      />
+                    </form>
+                  ) : (
+                    <button
+                      type="button"
+                      style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
+                      onClick={() => handleTrocarPainel(p.id)}
+                      onDoubleClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome) }}
+                      onPointerDown={e => e.stopPropagation()}  // clique não inicia drag
+                    >
+                      <span style={sty.painelTabInner}>
+                        {p.nome}
+                        <span
+                          role="button"
+                          aria-label="Opções do painel"
+                          style={sty.painelMenuBtn}
+                          onPointerDown={e => e.stopPropagation()}
+                          onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id); setDeletingId(null) }}
+                        >
+                          <DotsThree size={14} weight="bold" />
+                        </span>
+                      </span>
+                    </button>
+                  )}
 
-              {/* Dropdown menu */}
-              {menuPainelId === p.id && (
-                <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()}>
-                  <button
-                    type="button"
-                    style={sty.painelMenuItem}
-                    onClick={() => { setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
-                  >
-                    <PencilSimple size={13} />
-                    Renomear
-                  </button>
-                  <button
-                    type="button"
-                    style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
-                    onClick={() => paineis.length > 1 && handleDeletarPainel(p.id)}
-                    disabled={paineis.length <= 1}
-                    title={paineis.length <= 1 ? 'Não é possível excluir o único painel' : ''}
-                  >
-                    <Trash size={13} />
-                    Excluir
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+                  {/* Dropdown menu */}
+                  {menuPainelId === p.id && (
+                    <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()} onPointerDown={e => e.stopPropagation()}>
+                      {deletingId === p.id ? (
+                        /* Confirmação inline */
+                        <div style={{ padding: '0.5rem 0.75rem' }}>
+                          <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.7)', margin: '0 0 0.5rem' }}>
+                            Excluir <strong style={{ color: '#fff' }}>{p.nome}</strong>?
+                          </p>
+                          <div style={{ display: 'flex', gap: '0.4rem' }}>
+                            <button type="button" style={sty.painelNovoBtnOk} onClick={() => handleDeletarPainel(p.id)}>
+                              Confirmar
+                            </button>
+                            <button type="button" style={sty.painelNovoBtnCancel} onClick={() => setDeletingId(null)}>
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            style={sty.painelMenuItem}
+                            onClick={() => { renameInFlightRef.current = null; setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
+                          >
+                            <PencilSimple size={13} />
+                            Renomear
+                          </button>
+                          <button
+                            type="button"
+                            style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
+                            onClick={() => paineis.length > 1 && setDeletingId(p.id)}
+                            disabled={paineis.length <= 1}
+                            title={paineis.length <= 1 ? 'Não é possível excluir o único painel' : ''}
+                          >
+                            <Trash size={13} />
+                            Excluir
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </SortableTabWrapper>
+              ))}
+            </SortableContext>
+          </DndContext>
 
           {/* Criar novo painel */}
           {criandoPainel ? (
@@ -1529,6 +1610,8 @@ export default function DashboardPedido() {
                 e.preventDefault()
                 const nome = novoNomePainel.trim()
                 if (!nome) return
+                // Fix: salva widgets do painel atual ANTES de trocar
+                if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
                 paineisDashboardApi.criar(nome).then(({ data }) => {
                   setPaineis([...paineis, data])
                   setPainelAtual(data.id)

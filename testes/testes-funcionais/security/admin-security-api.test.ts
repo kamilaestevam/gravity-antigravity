@@ -73,7 +73,7 @@ function buildApp() {
   // GET /ratelimit
   app.get('/ratelimit', async (_req, res) => {
     const metrics = await prisma.rateLimitMetric.findMany({})
-    const blockedCount = (metrics as any[]).filter((m: any) => m.blocked).length
+    const blockedCount = (metrics as { blocked: boolean }[]).filter((m) => m.blocked).length
     res.json({ metrics, blockedCount, period: '1h' })
   })
 

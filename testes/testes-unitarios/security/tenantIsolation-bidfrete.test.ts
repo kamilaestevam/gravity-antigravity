@@ -12,7 +12,7 @@ const mockExtends = vi.fn()
 vi.mock('@prisma/client', () => {
   return {
     PrismaClient: class MockPrismaClient {
-      $extends = mockExtends.mockImplementation((config: any) => {
+      $extends = mockExtends.mockImplementation((config: unknown) => {
         return { _extensionConfig: config, $extends: mockExtends }
       })
     },
@@ -23,7 +23,7 @@ import { withTenantIsolation } from '../../../produto/bid-frete/server/src/middl
 import { PrismaClient } from '@prisma/client'
 
 describe('BidFrete — withTenantIsolation', () => {
-  let basePrisma: any
+  let basePrisma: InstanceType<typeof PrismaClient>
 
   beforeEach(() => {
     mockExtends.mockClear()

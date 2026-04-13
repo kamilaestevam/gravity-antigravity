@@ -9,7 +9,21 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
+
+interface TenantRequest extends Request {
+  tenantId?: string
+  prisma?: unknown
+}
+
+interface HttpError extends Error {
+  statusCode?: number
+}
+
+interface FindManyArgs {
+  where?: { id?: string; [key: string]: unknown }
+  [key: string]: unknown
+}
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -48,23 +62,24 @@ const mockCotacao = {
 }
 
 // Simular tenant isolation middleware que verifica x-tenant-id
-function tenantIsolationMiddleware(req: any, res: any, next: any) {
+function tenantIsolationMiddleware(req: Request, res: Response, next: NextFunction) {
+  const tenantReq = req as TenantRequest
   const tenantId = req.headers['x-tenant-id']
   if (!tenantId) {
     return res.status(401).json({ error: 'x-tenant-id obrigatorio' })
   }
-  req.tenantId = tenantId
+  tenantReq.tenantId = String(tenantId)
 
   // Simular prisma filtrado por tenant
   const filteredCotacao = {
     ...mockCotacao,
-    findMany: vi.fn().mockImplementation((args: any) => {
+    findMany: vi.fn().mockImplementation((_args: FindManyArgs) => {
       // Retornar apenas dados do tenant correto
       if (tenantId === 'tenant-A') return Promise.resolve(mockCotacaoTenantA)
       if (tenantId === 'tenant-B') return Promise.resolve(mockCotacaoTenantB)
       return Promise.resolve([])
     }),
-    findFirst: vi.fn().mockImplementation((args: any) => {
+    findFirst: vi.fn().mockImplementation((args: FindManyArgs) => {
       // Simular que findFirst filtra por tenant_id
       if (tenantId === 'tenant-A') {
         const found = mockCotacaoTenantA.find(c => args?.where?.id === c.id)
@@ -83,12 +98,12 @@ function tenantIsolationMiddleware(req: any, res: any, next: any) {
     }),
   }
 
-  req.prisma = { cotacao: filteredCotacao }
+  tenantReq.prisma = { cotacao: filteredCotacao }
   next()
 }
 
 // Simular requireInternalKey
-function requireInternalKey(req: any, res: any, next: any) {
+function requireInternalKey(req: Request, res: Response, next: NextFunction) {
   const key = req.headers['x-internal-key']
   if (!key) {
     return res.status(401).json({ error: 'x-internal-key obrigatorio' })
@@ -114,7 +129,7 @@ function buildApp() {
   app.use(requireInternalKey)
   app.use(tenantIsolationMiddleware)
   app.use('/api/v1/bid-frete/cotacoes', cotacoesRouter)
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode ?? 500).json({ error: err.message })
   })
   return app

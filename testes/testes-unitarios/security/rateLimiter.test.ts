@@ -131,8 +131,9 @@ describe('createRateLimiter', () => {
       const { req, res, next } = makeMocks()
       limiter(req, res, next)
       // Pegar o valor de remaining do ultimo setHeader
-      const remainingCall = (res.setHeader as any).mock.calls.find(
-        (c: any[]) => c[0] === 'X-RateLimit-Remaining'
+      const setHeaderMock = res.setHeader as unknown as { mock: { calls: [string, string | number][] } }
+      const remainingCall = setHeaderMock.mock.calls.find(
+        (c) => c[0] === 'X-RateLimit-Remaining'
       )
       if (remainingCall) calls.push(remainingCall[1])
     }
@@ -152,7 +153,7 @@ describe('rateLimitPresets', () => {
     // Fazer 30 requests — devem passar
     for (let i = 0; i < 30; i++) {
       const { req, res, next } = makeMocks({ 'x-tenant-id': `preset-public-${i}` })
-      ;(req as any).ip = `10.0.0.${i}` // IPs diferentes
+      ;(req as Request & { ip: string }).ip = `10.0.0.${i}` // IPs diferentes
       limiter(req, res, next)
       expect(next).toHaveBeenCalled()
     }

@@ -19,8 +19,18 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import { pedidosRouter } from '../../../servicos-global/tenant/processos-core/src/routes/pedidos'
+
+// ── Tipos locais ──────────────────────────────────────────────────────────────
+
+interface HttpError extends Error {
+  statusCode?: number
+}
+
+type AppRequest = Request & {
+  prisma: unknown
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -28,8 +38,8 @@ function criarApp(prismaMock: unknown) {
   const app = express()
   app.use(express.json())
 
-  app.use((req, _res, next) => {
-    ;(req as any).prisma = prismaMock
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    (req as AppRequest).prisma = prismaMock
     if (!req.headers['x-tenant-id']) req.headers['x-tenant-id'] = 'tenant-test'
     if (!req.headers['x-company-id']) req.headers['x-company-id'] = 'company-test'
     next()
@@ -37,7 +47,7 @@ function criarApp(prismaMock: unknown) {
 
   app.use('/api/v1/pedidos', pedidosRouter)
 
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode || 500).json({ error: { message: err.message } })
   })
 
@@ -82,7 +92,7 @@ function criarPrismaMock() {
       count: vi.fn().mockResolvedValue(1),
       update: vi.fn().mockResolvedValue(mkPedido()),
     },
-    $transaction: vi.fn().mockImplementation(async (fn: any) => fn({
+    $transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
       pedido: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     })),
   }

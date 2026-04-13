@@ -13,7 +13,18 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
+
+interface AppRequest extends Request {
+  tenantId?: string
+  prisma?: unknown
+  userId?: string
+}
+
+interface HttpError extends Error {
+  statusCode?: number
+  code?: string
+}
 
 // --- Mocks ---
 
@@ -44,9 +55,10 @@ const mockAnexoCambio = {
 }
 
 vi.mock('../../../produto/bid-cambio/server/src/middleware/tenantIsolation.js', () => ({
-  tenantIsolationMiddleware: (req: any, _res: any, next: any) => {
-    req.tenantId = 'tenant-test-001'
-    req.prisma = { parcelaCambio: mockParcelaCambio, anexoCambio: mockAnexoCambio }
+  tenantIsolationMiddleware: (req: Request, _res: Response, next: NextFunction) => {
+    const appReq = req as AppRequest
+    appReq.tenantId = 'tenant-test-001'
+    appReq.prisma = { parcelaCambio: mockParcelaCambio, anexoCambio: mockAnexoCambio }
     next()
   },
   withTenantIsolation: vi.fn(),
@@ -54,7 +66,7 @@ vi.mock('../../../produto/bid-cambio/server/src/middleware/tenantIsolation.js', 
 }))
 
 vi.mock('../../../produto/bid-cambio/server/src/middleware/requireInternalKey.js', () => ({
-  requireInternalKey: (_req: any, _res: any, next: any) => next(),
+  requireInternalKey: (_req: Request, _res: Response, next: NextFunction) => next(),
 }))
 
 import { cambiosRouter } from '../../../produto/bid-cambio/server/src/routes/cambios.js'
@@ -64,14 +76,15 @@ import { cambiosRouter } from '../../../produto/bid-cambio/server/src/routes/cam
 function buildApp() {
   const app = express()
   app.use(express.json())
-  app.use((req: any, _res: any, next: any) => {
-    req.tenantId = 'tenant-test-001'
-    req.prisma = { parcelaCambio: mockParcelaCambio, anexoCambio: mockAnexoCambio }
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    const appReq = req as AppRequest
+    appReq.tenantId = 'tenant-test-001'
+    appReq.prisma = { parcelaCambio: mockParcelaCambio, anexoCambio: mockAnexoCambio }
     req.headers['x-user-id'] = 'user-test-001'
     next()
   })
   app.use('/api/v1/bid-cambio/cambios', cambiosRouter)
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode ?? 500).json({ error: { code: err.code ?? 'INTERNAL_ERROR', message: err.message } })
   })
   return app

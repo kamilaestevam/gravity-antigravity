@@ -9,8 +9,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
+
+interface AuthRequest extends Request {
+  auth?: { tenantId: string; userId: string }
+}
 
 // ---------------------------------------------------------------------------
 // In-memory mock DB
@@ -25,13 +29,14 @@ function createTestApp() {
   app.use(express.json())
 
   // Auth middleware (injects req.auth)
-  app.use((req: any, _res, next) => {
-    req.auth = { tenantId: 'tenant-1', userId: 'user-1' }
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    ;(req as AuthRequest).auth = { tenantId: 'tenant-1', userId: 'user-1' }
     next()
   })
 
   // GET /api/v1/relatorios/saved — with pagination
-  app.get('/api/v1/relatorios/saved', async (req: any, res) => {
+  app.get('/api/v1/relatorios/saved', async (req: Request, res: Response) => {
+    const authReq = req as AuthRequest
     const rawPage = req.query.page !== undefined ? Number(req.query.page) : 1
     const rawLimit = req.query.limit !== undefined ? Number(req.query.limit) : 100
 
@@ -39,7 +44,7 @@ function createTestApp() {
     const limit = Math.max(1, Math.min(100, rawLimit))
     const skip = (page - 1) * limit
 
-    const { tenantId } = req.auth
+    const { tenantId } = authReq.auth!
 
     const relatorios = await findManyMock({
       where: { tenant_id: tenantId },

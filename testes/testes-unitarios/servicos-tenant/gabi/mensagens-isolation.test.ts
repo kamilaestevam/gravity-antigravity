@@ -7,6 +7,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
 import express, { Request, Response, NextFunction } from 'express'
 
+interface AuthRequest extends Request {
+  auth?: { tenantId: string; userId: string }
+}
+
 // ---------------------------------------------------------------------------
 // In-memory mock DB
 // ---------------------------------------------------------------------------
@@ -50,15 +54,16 @@ function buildApp(tenantId: string, userId = 'user-1') {
   app.use(express.json())
 
   // Simula auth middleware que injeta req.auth
-  app.use((req: any, _res, next) => {
-    req.auth = { tenantId, userId }
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    ;(req as AuthRequest).auth = { tenantId, userId }
     next()
   })
 
   // GET /api/v1/gabi/conversas/:id/mensagens
-  app.get('/api/v1/gabi/conversas/:id/mensagens', async (req: any, res: Response, next: NextFunction) => {
+  app.get('/api/v1/gabi/conversas/:id/mensagens', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { tenantId } = req.auth
+      const authReq = req as AuthRequest
+      const { tenantId } = authReq.auth!
       const { id: conversationId } = req.params
       const db = mockWithTenantIsolation({ __mock: true }, tenantId)
 
@@ -79,9 +84,10 @@ function buildApp(tenantId: string, userId = 'user-1') {
   })
 
   // POST /api/v1/gabi/conversas/:id/mensagens
-  app.post('/api/v1/gabi/conversas/:id/mensagens', async (req: any, res: Response, next: NextFunction) => {
+  app.post('/api/v1/gabi/conversas/:id/mensagens', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { tenantId, userId } = req.auth
+      const authReq = req as AuthRequest
+      const { tenantId, userId } = authReq.auth!
       const { id: conversationId } = req.params
       const { role, content } = req.body
       const db = mockWithTenantIsolation({ __mock: true }, tenantId)
@@ -107,7 +113,7 @@ function buildApp(tenantId: string, userId = 'user-1') {
   })
 
   // Error handler
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: { statusCode?: number; code?: string; message: string }, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode || 500).json({
       error: { code: err.code || 'INTERNAL', message: err.message },
     })

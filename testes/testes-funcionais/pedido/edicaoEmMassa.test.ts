@@ -34,25 +34,33 @@ function criarPedidoMock(id: string, overrides: Record<string, unknown> = {}) {
   }
 }
 
+interface HttpError extends Error {
+  statusCode?: number
+  code?: string
+}
+
+type AppRequest = Request & {
+  prisma: unknown
+  tenantId: string
+  userId: string
+}
+
 function criarApp(prismaMock: unknown) {
   const app = express()
   app.use(express.json())
 
   // Middleware simulando tenant isolation
   app.use((req: Request, _res: Response, next: NextFunction) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(req as any).prisma = prismaMock
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(req as any).tenantId = req.headers['x-tenant-id'] as string || 'tenant-test'
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(req as any).userId = req.headers['x-user-id'] as string || 'user-test'
+    const appReq = req as AppRequest
+    appReq.prisma = prismaMock
+    appReq.tenantId = (req.headers['x-tenant-id'] as string) || 'tenant-test'
+    appReq.userId = (req.headers['x-user-id'] as string) || 'user-test'
     next()
   })
 
   app.use('/api/v1/pedidos/edicao-em-massa', edicaoEmMassaRouter)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode ?? 500).json({ error: { code: err.code, message: err.message } })
   })
 

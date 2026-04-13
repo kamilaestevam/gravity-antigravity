@@ -6,7 +6,11 @@
 
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
+
+interface TenantRequest extends Request {
+  tenantId?: string
+}
 
 // Mock do Prisma
 vi.mock('@prisma/client', () => {
@@ -56,8 +60,8 @@ describe('SimulaCusto — POST /api/v1/simula-custo', () => {
     app.use(express.json())
 
     // Simular middleware de tenant isolation
-    app.use((req: any, _res, next) => {
-      req.tenantId = 'tenant-teste-001'
+    app.use((req: Request, _res: Response, next: NextFunction) => {
+      ;(req as TenantRequest).tenantId = 'tenant-teste-001'
       next()
     })
 

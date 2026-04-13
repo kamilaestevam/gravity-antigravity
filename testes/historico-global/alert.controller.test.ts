@@ -2,7 +2,7 @@
 // Testes de integração dos endpoints de alertas e regras.
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
 
 // ── Mocks ─────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ async function buildApp() {
 
   const app = express()
   app.use(express.json())
-  app.use((req: any, _res, next) => {
+  app.use((req: Request, _res: Response, next: NextFunction) => {
     req.headers['x-tenant-id'] = 'tenant-test'
     next()
   })

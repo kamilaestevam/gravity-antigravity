@@ -139,7 +139,7 @@ describe('GET /api/v1/hub/init', () => {
     const res = await request(app).get('/api/v1/hub/init')
 
     expect(res.body.catalog).toHaveLength(3)
-    expect(res.body.catalog.map((p: any) => p.slug)).toEqual(
+    expect(res.body.catalog.map((p: { slug: string }) => p.slug)).toEqual(
       expect.arrayContaining(['simula-custo', 'bid-frete', 'smart-read'])
     )
   })

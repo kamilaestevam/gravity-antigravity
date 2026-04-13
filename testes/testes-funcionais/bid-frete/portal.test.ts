@@ -10,7 +10,17 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
+
+interface AppRequest extends Request {
+  tenantId?: string
+  prisma?: unknown
+}
+
+interface HttpError extends Error {
+  statusCode?: number
+  code?: string
+}
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -80,16 +90,17 @@ const mockPrisma = {
 }
 
 vi.mock('../../../produto/bid-frete/server/src/middleware/tenantIsolation.js', () => ({
-  tenantIsolationMiddleware: (req: any, _res: any, next: any) => {
-    req.tenantId = 'tenant-test-001'
-    req.prisma = mockPrisma
+  tenantIsolationMiddleware: (req: Request, _res: Response, next: NextFunction) => {
+    const appReq = req as AppRequest
+    appReq.tenantId = 'tenant-test-001'
+    appReq.prisma = mockPrisma
     next()
   },
   prisma: { $queryRaw: vi.fn().mockResolvedValue([1]) },
 }))
 
 vi.mock('../../../produto/bid-frete/server/src/middleware/requireInternalKey.js', () => ({
-  requireInternalKey: (_req: any, _res: any, next: any) => next(),
+  requireInternalKey: (_req: Request, _res: Response, next: NextFunction) => next(),
 }))
 
 import { portalRouter } from '../../../produto/bid-frete/server/src/routes/portal.js'
@@ -97,16 +108,17 @@ import { portalRouter } from '../../../produto/bid-frete/server/src/routes/porta
 function buildApp() {
   const app = express()
   app.use(express.json())
-  app.use((req: any, _res: any, next: any) => {
-    req.tenantId = 'tenant-test-001'
-    req.prisma = mockPrisma
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    const appReq = req as AppRequest
+    appReq.tenantId = 'tenant-test-001'
+    appReq.prisma = mockPrisma
     req.headers['x-user-id'] = 'user-forn-001'
     req.headers['x-internal-key'] = 'test-key'
     req.headers['x-tenant-id'] = 'tenant-test-001'
     next()
   })
   app.use('/api/v1/bid-frete/portal', portalRouter)
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode ?? 500).json({ error: err.message })
   })
   return app

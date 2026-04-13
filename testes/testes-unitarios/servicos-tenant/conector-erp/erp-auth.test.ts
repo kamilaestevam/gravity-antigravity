@@ -35,17 +35,18 @@ function createTestApp() {
       return
     }
 
-    ;(req as any).auth = { tenantId, userId: userId ?? '' }
+    ;(req as Request & { auth: { tenantId: string; userId: string } }).auth = { tenantId, userId: userId ?? '' }
     next()
   })
 
   // Protected route: GET /api/v1/erp/conexoes
-  app.get('/api/v1/erp/conexoes', (req: any, res) => {
-    res.json({ tenant: req.auth?.tenantId })
+  app.get('/api/v1/erp/conexoes', (req: Request, res: Response) => {
+    const authReq = req as Request & { auth?: { tenantId: string } }
+    res.json({ tenant: authReq.auth?.tenantId })
   })
 
   // Error handler
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: { statusCode?: number; code?: string; message: string }, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode || 500).json({
       error: { code: err.code || 'INTERNAL', message: err.message },
     })

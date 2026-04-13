@@ -7,6 +7,25 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { Request, Response, NextFunction } from 'express'
+
+interface RouterLayer {
+  route?: {
+    path?: string
+    stack?: { handle: (...args: unknown[]) => unknown }[]
+  }
+}
+
+interface MockReq {
+  auth: { userId: string; tenantId: string; clerkUserId: string }
+  headers: Record<string, string>
+  path: string
+}
+
+interface MockRes {
+  json: ReturnType<typeof vi.fn>
+  status: ReturnType<typeof vi.fn>
+}
 
 /* ── Mocks ── */
 const mockTenant = {
@@ -59,22 +78,22 @@ vi.mock('../../../servicos-global/configurador/server/services/tenantService.js'
 }))
 
 vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
-  requireAuth: (_req: any, _res: any, next: any) => {
-    _req.auth = { userId: 'user-1', tenantId: 'tenant-1', clerkUserId: 'clerk-1' }
+  requireAuth: (_req: Request, _res: Response, next: NextFunction) => {
+    (_req as MockReq).auth = { userId: 'user-1', tenantId: 'tenant-1', clerkUserId: 'clerk-1' }
     next()
   },
 }))
 
 /* ── Helper para simular request/response Express ── */
 function createMockReqRes() {
-  const req: any = {
+  const req: MockReq = {
     auth: { userId: 'user-1', tenantId: 'tenant-1', clerkUserId: 'clerk-1' },
     headers: { authorization: 'Bearer mock-token' },
     path: '/init',
   }
-  const jsonData: any = {}
-  const res: any = {
-    json: vi.fn((data: any) => { Object.assign(jsonData, data) }),
+  const jsonData: Record<string, unknown> = {}
+  const res: MockRes = {
+    json: vi.fn((data: Record<string, unknown>) => { Object.assign(jsonData, data) }),
     status: vi.fn().mockReturnThis(),
   }
   const next = vi.fn()
@@ -96,7 +115,7 @@ describe('GET /api/v1/hub/init', () => {
     const { hubRouter } = await import('../../../servicos-global/configurador/server/routes/hubInit.js')
 
     // Extrair o handler (requireAuth + async handler)
-    const layer = (hubRouter as any).stack?.find((l: any) => l.route?.path === '/init')
+    const layer = (hubRouter as unknown as { stack: RouterLayer[] }).stack?.find((l) => l.route?.path === '/init')
     const handler = layer?.route?.stack?.at(-1)?.handle
 
     expect(handler).toBeDefined()
@@ -126,14 +145,14 @@ describe('GET /api/v1/hub/init', () => {
 
     // Catálogo completo
     expect(data.catalog).toHaveLength(3)
-    expect(data.catalog.map((p: any) => p.slug)).toContain('smart-read')
+    expect(data.catalog.map((p: { slug: string }) => p.slug)).toContain('smart-read')
   })
 
   it('retorna companies mesmo quando productConfig falha', async () => {
     mockPrisma.productConfig.findMany.mockRejectedValue(new Error('DB error'))
 
     const { hubRouter } = await import('../../../servicos-global/configurador/server/routes/hubInit.js')
-    const layer = (hubRouter as any).stack?.find((l: any) => l.route?.path === '/init')
+    const layer = (hubRouter as unknown as { stack: RouterLayer[] }).stack?.find((l) => l.route?.path === '/init')
     const handler = layer?.route?.stack?.at(-1)?.handle
 
     const { req, res, next } = createMockReqRes()
@@ -149,7 +168,7 @@ describe('GET /api/v1/hub/init', () => {
     mockPrisma.product.findMany.mockRejectedValue(new Error('DB error'))
 
     const { hubRouter } = await import('../../../servicos-global/configurador/server/routes/hubInit.js')
-    const layer = (hubRouter as any).stack?.find((l: any) => l.route?.path === '/init')
+    const layer = (hubRouter as unknown as { stack: RouterLayer[] }).stack?.find((l) => l.route?.path === '/init')
     const handler = layer?.route?.stack?.at(-1)?.handle
 
     const { req, res, next } = createMockReqRes()
@@ -162,7 +181,7 @@ describe('GET /api/v1/hub/init', () => {
 
   it('chama tenantService com o tenantId correto', async () => {
     const { hubRouter } = await import('../../../servicos-global/configurador/server/routes/hubInit.js')
-    const layer = (hubRouter as any).stack?.find((l: any) => l.route?.path === '/init')
+    const layer = (hubRouter as unknown as { stack: RouterLayer[] }).stack?.find((l) => l.route?.path === '/init')
     const handler = layer?.route?.stack?.at(-1)?.handle
 
     const { req, res, next } = createMockReqRes()
@@ -182,7 +201,7 @@ describe('GET /api/v1/hub/init', () => {
     ])
 
     const { hubRouter } = await import('../../../servicos-global/configurador/server/routes/hubInit.js')
-    const layer = (hubRouter as any).stack?.find((l: any) => l.route?.path === '/init')
+    const layer = (hubRouter as unknown as { stack: RouterLayer[] }).stack?.find((l) => l.route?.path === '/init')
     const handler = layer?.route?.stack?.at(-1)?.handle
 
     const { req, res, next } = createMockReqRes()
@@ -196,7 +215,7 @@ describe('GET /api/v1/hub/init', () => {
     mockTenantService.getCompanies.mockResolvedValue([])
 
     const { hubRouter } = await import('../../../servicos-global/configurador/server/routes/hubInit.js')
-    const layer = (hubRouter as any).stack?.find((l: any) => l.route?.path === '/init')
+    const layer = (hubRouter as unknown as { stack: RouterLayer[] }).stack?.find((l) => l.route?.path === '/init')
     const handler = layer?.route?.stack?.at(-1)?.handle
 
     const { req, res, next } = createMockReqRes()

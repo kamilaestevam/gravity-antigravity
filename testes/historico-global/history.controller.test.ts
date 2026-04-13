@@ -3,7 +3,7 @@
 // Prisma e AuditService são mockados — sem banco real.
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import request from 'supertest'
 
 // ── Mocks ─────────────────────────────────────────────────────────
@@ -56,7 +56,7 @@ async function buildApp() {
   app.use(express.json())
 
   // Injeta tenant_id em todos os requests de teste
-  app.use((req: any, _res, next) => {
+  app.use((req: Request, _res: Response, next: NextFunction) => {
     req.headers['x-tenant-id'] = 'tenant-test'
     next()
   })

@@ -69,36 +69,42 @@ function criarItemMock(id: string, pedidoId: string, overrides: Record<string, u
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface HttpError extends Error {
+  statusCode?: number
+  code?: string
+}
+
+type AppRequest = Request & {
+  prisma: unknown
+  tenantId: string
+  companyId: string
+  userId: string
+}
+
 function criarApp(prismaMock: unknown, configOverrides: Record<string, unknown> = {}) {
   const app = express()
   app.use(express.json())
 
   // Simula tenant isolation middleware
   app.use((req: Request, _res: Response, next: NextFunction) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(req as any).prisma = prismaMock
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(req as any).tenantId = req.headers['x-tenant-id'] as string || 'tenant-test'
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(req as any).companyId = req.headers['x-company-id'] as string || 'company-test'
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(req as any).userId = req.headers['x-user-id'] as string || 'user-test'
+    const appReq = req as AppRequest
+    appReq.prisma = prismaMock
+    appReq.tenantId = (req.headers['x-tenant-id'] as string) || 'tenant-test'
+    appReq.companyId = (req.headers['x-company-id'] as string) || 'company-test'
+    appReq.userId = (req.headers['x-user-id'] as string) || 'user-test'
     next()
   })
 
   app.use('/api/v1/pedidos', duplicarExcluirRouter)
 
   // Error handler
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode ?? 500).json({ error: { code: err.code, message: err.message } })
   })
 
   return app
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function criarPrismaMock(pedidos: ReturnType<typeof criarPedidoMock>[], configOverrides: Record<string, unknown> = {}) {
   const config = {
     tenant_id: 'tenant-test',
@@ -110,8 +116,7 @@ function criarPrismaMock(pedidos: ReturnType<typeof criarPedidoMock>[], configOv
     ...configOverrides,
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const txMock: Record<string, any> = {
+  const txMock: Record<string, unknown> = {
     pedido: {
       findMany: vi.fn().mockImplementation(({ where }: { where: { id?: { in?: string[] }; tenant_id?: string } }) => {
         const ids = where.id?.in ?? []
@@ -141,8 +146,7 @@ function criarPrismaMock(pedidos: ReturnType<typeof criarPedidoMock>[], configOv
     },
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const prismaMock: Record<string, any> = {
+  const prismaMock: Record<string, unknown> = {
     ...txMock,
     configuracaoPedido: {
       findFirst: vi.fn().mockResolvedValue(config),

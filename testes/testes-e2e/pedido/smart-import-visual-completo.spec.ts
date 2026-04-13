@@ -8,7 +8,7 @@
  *   5. Contador de colunas mapeadas atualiza ao ignorar/restaurar
  */
 
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import { mkdirSync } from 'fs'
 import path from 'path'
 
@@ -20,7 +20,7 @@ mkdirSync(PRINTS_DIR, { recursive: true })
 
 const CSV_PATH = path.join(process.cwd(), 'testes/fixtures/pedido/test_import_temp.csv')
 
-async function abrirModalImport(page: any) {
+async function abrirModalImport(page: Page) {
   await page.goto('/pedidos', { waitUntil: 'domcontentloaded' })
   await expect(page.locator('.mtg-left__page-title')).toBeVisible({ timeout: 10000 })
   await page.locator('button').filter({ hasText: /novo/i }).first().click()

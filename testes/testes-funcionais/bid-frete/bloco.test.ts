@@ -12,7 +12,17 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
+
+interface AppRequest extends Request {
+  tenantId?: string
+  prisma?: unknown
+}
+
+interface HttpError extends Error {
+  statusCode?: number
+  code?: string
+}
 
 vi.mock('axios', () => ({
   default: { post: vi.fn().mockResolvedValue({ data: {} }), get: vi.fn() },
@@ -34,16 +44,17 @@ const mockCotacao = {
 }
 
 vi.mock('../../../produto/bid-frete/server/src/middleware/tenantIsolation.js', () => ({
-  tenantIsolationMiddleware: (req: any, _res: any, next: any) => {
-    req.tenantId = 'tenant-test-001'
-    req.prisma = { cotacao: mockCotacao }
+  tenantIsolationMiddleware: (req: Request, _res: Response, next: NextFunction) => {
+    const appReq = req as AppRequest
+    appReq.tenantId = 'tenant-test-001'
+    appReq.prisma = { cotacao: mockCotacao }
     next()
   },
   prisma: { $queryRaw: vi.fn().mockResolvedValue([1]) },
 }))
 
 vi.mock('../../../produto/bid-frete/server/src/middleware/requireInternalKey.js', () => ({
-  requireInternalKey: (_req: any, _res: any, next: any) => next(),
+  requireInternalKey: (_req: Request, _res: Response, next: NextFunction) => next(),
 }))
 
 import { cotacoesRouter } from '../../../produto/bid-frete/server/src/routes/cotacoes.js'
@@ -51,16 +62,17 @@ import { cotacoesRouter } from '../../../produto/bid-frete/server/src/routes/cot
 function buildApp() {
   const app = express()
   app.use(express.json({ limit: '10mb' }))
-  app.use((req: any, _res: any, next: any) => {
-    req.tenantId = 'tenant-test-001'
-    req.prisma = { cotacao: mockCotacao }
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    const appReq = req as AppRequest
+    appReq.tenantId = 'tenant-test-001'
+    appReq.prisma = { cotacao: mockCotacao }
     req.headers['x-user-id'] = 'user-test-001'
     req.headers['x-internal-key'] = 'test-key'
     req.headers['x-tenant-id'] = 'tenant-test-001'
     next()
   })
   app.use('/api/v1/bid-frete/cotacoes', cotacoesRouter)
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode ?? 500).json({ error: err.message })
   })
   return app
@@ -105,7 +117,7 @@ describe('POST /api/v1/bid-frete/cotacoes/bloco — importacao em bloco', () => 
     expect(res.body.criadas).toBe(3)
     expect(res.body.erros).toBe(0)
     expect(res.body.results).toHaveLength(3)
-    expect(res.body.results.every((r: any) => r.status === 'ok')).toBe(true)
+    expect(res.body.results.every((r: { status: string }) => r.status === 'ok')).toBe(true)
     expect(mockCotacao.create).toHaveBeenCalledTimes(3)
   })
 

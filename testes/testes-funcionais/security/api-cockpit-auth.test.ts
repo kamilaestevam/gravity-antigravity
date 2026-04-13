@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import express from 'express'
+import express, { Request, Response } from 'express'
 import request from 'supertest'
 
 // Mock PrismaClient
@@ -17,16 +17,16 @@ vi.mock('@prisma/client', () => ({
 
 // Mock routes
 vi.mock('../../../servicos-global/tenant/api-cockpit/server/src/routes/tokens', () => ({
-  tokensRouter: express.Router().get('/', (_req: any, res: any) => res.json({ tokens: [] })),
+  tokensRouter: express.Router().get('/', (_req: Request, res: Response) => res.json({ tokens: [] })),
 }))
 vi.mock('../../../servicos-global/tenant/api-cockpit/server/src/routes/webhooks', () => ({
-  webhooksRouter: express.Router().get('/', (_req: any, res: any) => res.json({ webhooks: [] })),
+  webhooksRouter: express.Router().get('/', (_req: Request, res: Response) => res.json({ webhooks: [] })),
 }))
 vi.mock('../../../servicos-global/tenant/api-cockpit/server/src/routes/erp', () => ({
-  erpRouter: express.Router().get('/', (_req: any, res: any) => res.json({ erp: [] })),
+  erpRouter: express.Router().get('/', (_req: Request, res: Response) => res.json({ erp: [] })),
 }))
 vi.mock('../../../servicos-global/tenant/api-cockpit/server/src/routes/docs', () => ({
-  docsRouter: express.Router().get('/', (_req: any, res: any) => res.json({ docs: 'swagger-ui' })),
+  docsRouter: express.Router().get('/', (_req: Request, res: Response) => res.json({ docs: 'swagger-ui' })),
 }))
 
 import { requireInternalKey } from '../../../servicos-global/tenant/api-cockpit/server/src/middleware/requireInternalKey.js'

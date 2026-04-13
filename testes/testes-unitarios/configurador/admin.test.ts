@@ -11,6 +11,28 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { Request, Response, NextFunction } from 'express'
+
+interface RouterLayer {
+  route?: {
+    path?: string
+    methods?: Record<string, boolean>
+    stack?: { handle: (...args: unknown[]) => unknown }[]
+  }
+}
+
+interface MockReq {
+  auth: { userId: string; tenantId: string; clerkUserId: string }
+  query: Record<string, string>
+  params: Record<string, string>
+  body: Record<string, unknown>
+  headers: Record<string, string>
+}
+
+interface MockRes {
+  json: ReturnType<typeof vi.fn>
+  status: ReturnType<typeof vi.fn>
+}
 
 /* ── Mocks de infraestrutura ── */
 
@@ -56,28 +78,28 @@ vi.mock('../../../servicos-global/configurador/server/lib/appError.js', async ()
 })
 
 vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
-  requireAuth: (_req: any, _res: any, next: any) => {
-    _req.auth = { userId: 'user-admin', tenantId: 'tenant-hq', clerkUserId: 'clerk-admin' }
+  requireAuth: (_req: Request, _res: Response, next: NextFunction) => {
+    (_req as MockReq).auth = { userId: 'user-admin', tenantId: 'tenant-hq', clerkUserId: 'clerk-admin' }
     next()
   },
 }))
 
 vi.mock('../../../servicos-global/configurador/server/middleware/requireGravityAdmin.js', () => ({
-  requireGravityAdmin: (_req: any, _res: any, next: any) => next(),
+  requireGravityAdmin: (_req: Request, _res: Response, next: NextFunction) => next(),
 }))
 
 /* ── Helpers ── */
 
 function createMockReqRes(overrides: Record<string, unknown> = {}) {
-  const req: any = {
+  const req: MockReq = {
     auth: { userId: 'user-admin', tenantId: 'tenant-hq', clerkUserId: 'clerk-admin' },
     query: {},
     params: {},
     body: {},
     headers: { authorization: 'Bearer mock-token' },
     ...overrides,
-  }
-  const res: any = {
+  } as MockReq
+  const res: MockRes = {
     json: vi.fn(),
     status: vi.fn().mockReturnThis(),
   }
@@ -89,8 +111,8 @@ async function getHandler(routePath: string, method = 'get') {
   const { adminRouter } = await import(
     '../../../servicos-global/configurador/server/routes/admin.js'
   )
-  const layer = (adminRouter as any).stack?.find(
-    (l: any) => l.route?.path === routePath && l.route?.methods?.[method]
+  const layer = (adminRouter as unknown as { stack: RouterLayer[] }).stack?.find(
+    (l) => l.route?.path === routePath && l.route?.methods?.[method]
   )
   return layer?.route?.stack?.at(-1)?.handle
 }

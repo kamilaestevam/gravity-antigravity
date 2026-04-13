@@ -21,12 +21,13 @@ describe('Barreira 1: assertGabiPermission', () => {
     try {
       await assertGabiPermission('user-fail', 'export', 'Report', 't1', mockChecker)
       expect.fail('Deveria ter lançado erro')
-    } catch (err: any) {
-      expect(err.message).toContain('user-fail')
-      expect(err.message).toContain('export')
-      expect(err.message).toContain('Report')
-      expect(err.statusCode).toBe(403)
-      expect(err.code).toBe('FORBIDDEN_GABI_ACTION')
+    } catch (err) {
+      const e = err as { message: string; statusCode: number; code: string }
+      expect(e.message).toContain('user-fail')
+      expect(e.message).toContain('export')
+      expect(e.message).toContain('Report')
+      expect(e.statusCode).toBe(403)
+      expect(e.code).toBe('FORBIDDEN_GABI_ACTION')
     }
   })
 })

@@ -22,13 +22,14 @@ describe('Gabi Permission — Secure by Default', () => {
     try {
       await assertGabiPermission('user-1', 'delete', 'Report', 'tenant-1')
       expect.fail('Deveria ter lancado erro')
-    } catch (err: any) {
-      expect(err.statusCode).toBe(403)
-      expect(err.code).toBe('FORBIDDEN_GABI_ACTION')
-      expect(err.message).toContain('user-1')
-      expect(err.message).toContain('delete')
-      expect(err.message).toContain('Report')
-      expect(err.message).toContain('Barreira 1')
+    } catch (err) {
+      const e = err as { statusCode: number; code: string; message: string }
+      expect(e.statusCode).toBe(403)
+      expect(e.code).toBe('FORBIDDEN_GABI_ACTION')
+      expect(e.message).toContain('user-1')
+      expect(e.message).toContain('delete')
+      expect(e.message).toContain('Report')
+      expect(e.message).toContain('Barreira 1')
     }
   })
 
@@ -65,10 +66,11 @@ describe('Gabi Permission — Secure by Default', () => {
     try {
       await assertGabiPermission('usr-abc', 'export', 'Financeiro', 'tnt-99')
       expect.fail('Deveria ter lancado erro')
-    } catch (err: any) {
-      expect(err.message).toContain('usr-abc')
-      expect(err.message).toContain('export')
-      expect(err.message).toContain('Financeiro')
+    } catch (err) {
+      const e = err as { statusCode: number; code: string; message: string }
+      expect(e.message).toContain('usr-abc')
+      expect(e.message).toContain('export')
+      expect(e.message).toContain('Financeiro')
     }
   })
 })

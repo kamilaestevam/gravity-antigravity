@@ -7,6 +7,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
 import express, { Request, Response, NextFunction } from 'express'
 
+interface NotifRequest extends Request {
+  tenant_id?: string
+  user_id?: string
+}
+
 // ---------------------------------------------------------------------------
 // In-memory mock DB
 // ---------------------------------------------------------------------------
@@ -35,14 +40,15 @@ function buildApp() {
       return res.status(401).json({ status: 'error', message: 'x-user-id header is required' })
     }
 
-    ;(req as any).tenant_id = tenantId
-    ;(req as any).user_id = userId
+    ;(req as NotifRequest).tenant_id = tenantId
+    ;(req as NotifRequest).user_id = userId
     next()
   }
 
   // GET /api/v1/notificacoes
-  app.get('/api/v1/notificacoes', checkAuth, async (req: any, res) => {
-    const { tenant_id, user_id } = req
+  app.get('/api/v1/notificacoes', checkAuth, async (req: Request, res: Response) => {
+    const notifReq = req as NotifRequest
+    const { tenant_id, user_id } = notifReq
 
     const notifications = await mockFindMany({
       where: { tenant_id, user_id },
@@ -58,8 +64,9 @@ function buildApp() {
   })
 
   // PUT /api/v1/notificacoes/read-all
-  app.put('/api/v1/notificacoes/read-all', checkAuth, async (req: any, res) => {
-    const { tenant_id, user_id } = req
+  app.put('/api/v1/notificacoes/read-all', checkAuth, async (req: Request, res: Response) => {
+    const notifReq = req as NotifRequest
+    const { tenant_id, user_id } = notifReq
 
     await mockUpdateMany({
       where: { tenant_id, user_id, read: false },
@@ -70,7 +77,7 @@ function buildApp() {
   })
 
   // Error handler
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: { statusCode?: number; code?: string; message: string }, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode || 500).json({
       error: { code: err.code || 'INTERNAL', message: err.message },
     })

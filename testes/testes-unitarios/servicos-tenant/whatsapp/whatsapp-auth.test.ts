@@ -9,10 +9,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
 import express, { Request, Response, NextFunction } from 'express'
 
+interface AuthRequest extends Request {
+  auth?: { tenantId: string; userId: string }
+}
+
 // ---------------------------------------------------------------------------
 // Mock handlers
 // ---------------------------------------------------------------------------
-const mockHandleWebhookInbound = vi.fn((_payload: any, _raw: any, _sig: any, res: Response) => {
+const mockHandleWebhookInbound = vi.fn((_payload: unknown, _raw: unknown, _sig: unknown, res: Response) => {
   res.status(200).json({ ok: true })
 })
 
@@ -58,14 +62,14 @@ function createTestApp() {
       })
     }
 
-    ;(req as any).auth = { tenantId, userId: userId ?? '' }
+    ;(req as AuthRequest).auth = { tenantId, userId: userId ?? '' }
     next()
   }
 
   // POST /api/v1/whatsapp/send — protected
-  app.post('/api/v1/whatsapp/send', requireAuth, (req: any, res: Response) => {
+  app.post('/api/v1/whatsapp/send', requireAuth, (req: Request, res: Response) => {
     // Uses tenant from auth (header), never from body
-    res.status(200).json({ success: true, tenant: req.auth.tenantId })
+    res.status(200).json({ success: true, tenant: (req as AuthRequest).auth!.tenantId })
   })
 
   // Error handler

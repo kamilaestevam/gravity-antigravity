@@ -12,6 +12,18 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { NextFunction } from 'express'
+
+interface MockReq {
+  headers: Record<string, string>
+  path: string
+  auth?: { userId: string; tenantId: string; clerkUserId: string }
+}
+
+interface MockRes {
+  json: ReturnType<typeof vi.fn>
+  status: ReturnType<typeof vi.fn>
+}
 
 /* ── Mocks ── */
 
@@ -49,11 +61,11 @@ vi.mock('../../../servicos-global/configurador/server/lib/appError.js', async ()
 /* ── Helpers ── */
 
 function createMockReqRes(authHeader?: string) {
-  const req: any = {
+  const req: MockReq = {
     headers: authHeader ? { authorization: authHeader } : {},
     path: '/test',
   }
-  const res: any = {
+  const res: MockRes = {
     json: vi.fn(),
     status: vi.fn().mockReturnThis(),
   }
@@ -64,7 +76,7 @@ function createMockReqRes(authHeader?: string) {
 /* ── Testes ── */
 
 describe('requireAuth middleware', () => {
-  let requireAuth: (req: any, res: any, next: any) => Promise<void>
+  let requireAuth: (req: MockReq, res: MockRes, next: NextFunction) => Promise<void>
 
   beforeEach(async () => {
     vi.clearAllMocks()

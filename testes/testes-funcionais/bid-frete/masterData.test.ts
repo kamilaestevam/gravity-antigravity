@@ -11,7 +11,7 @@
 
 import { describe, it, expect, vi } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 
 // Mock prisma para portos (unica rota que acessa DB)
 const mockPorto = {
@@ -22,7 +22,7 @@ const mockPorto = {
 }
 
 vi.mock('../../../produto/bid-frete/server/src/middleware/tenantIsolation.js', () => ({
-  tenantIsolationMiddleware: (_req: any, _res: any, next: any) => next(),
+  tenantIsolationMiddleware: (_req: Request, _res: Response, next: NextFunction) => next(),
   prisma: {
     $queryRaw: vi.fn().mockResolvedValue([1]),
     porto: {
@@ -100,7 +100,7 @@ describe('GET /api/v1/master-data/moedas', () => {
     expect(res.status).toBe(200)
     expect(res.body).toHaveProperty('moedas')
 
-    const codigos = res.body.moedas.map((m: any) => m.codigo)
+    const codigos = res.body.moedas.map((m: { codigo: string }) => m.codigo)
     expect(codigos).toContain('USD')
     expect(codigos).toContain('BRL')
     expect(codigos).toContain('EUR')
@@ -142,7 +142,7 @@ describe('GET /api/v1/master-data/incoterms', () => {
   it('200 — FOB pertence ao grupo F', async () => {
     const res = await request(app).get('/api/v1/master-data/incoterms')
 
-    const fob = res.body.incoterms.find((i: any) => i.codigo === 'FOB')
+    const fob = res.body.incoterms.find((i: { codigo: string; grupo: string; nome: string }) => i.codigo === 'FOB')
     expect(fob).toBeDefined()
     expect(fob.grupo).toBe('F')
     expect(fob.nome).toBe('Free On Board')
@@ -151,7 +151,7 @@ describe('GET /api/v1/master-data/incoterms', () => {
   it('200 — DDP pertence ao grupo D', async () => {
     const res = await request(app).get('/api/v1/master-data/incoterms')
 
-    const ddp = res.body.incoterms.find((i: any) => i.codigo === 'DDP')
+    const ddp = res.body.incoterms.find((i: { codigo: string; grupo: string }) => i.codigo === 'DDP')
     expect(ddp).toBeDefined()
     expect(ddp.grupo).toBe('D')
   })
@@ -181,7 +181,7 @@ describe('GET /api/v1/master-data/modais', () => {
     expect(res.status).toBe(200)
     expect(res.body.modais).toHaveLength(3)
 
-    const codigos = res.body.modais.map((m: any) => m.codigo)
+    const codigos = res.body.modais.map((m: { codigo: string }) => m.codigo)
     expect(codigos).toContain('MARITIMO')
     expect(codigos).toContain('AEREO')
     expect(codigos).toContain('RODOVIARIO')
@@ -190,7 +190,7 @@ describe('GET /api/v1/master-data/modais', () => {
   it('200 — MARITIMO tem FCL e LCL', async () => {
     const res = await request(app).get('/api/v1/master-data/modais')
 
-    const maritimo = res.body.modais.find((m: any) => m.codigo === 'MARITIMO')
+    const maritimo = res.body.modais.find((m: { codigo: string; modalidades: { codigo: string; nome: string }[] }) => m.codigo === 'MARITIMO')
     expect(maritimo.modalidades).toContainEqual({ codigo: 'FCL', nome: 'Full Container Load' })
     expect(maritimo.modalidades).toContainEqual({ codigo: 'LCL', nome: 'Less than Container Load' })
   })
@@ -198,14 +198,14 @@ describe('GET /api/v1/master-data/modais', () => {
   it('200 — AEREO tem AEREO_GERAL', async () => {
     const res = await request(app).get('/api/v1/master-data/modais')
 
-    const aereo = res.body.modais.find((m: any) => m.codigo === 'AEREO')
+    const aereo = res.body.modais.find((m: { codigo: string; modalidades: { codigo: string; nome: string }[] }) => m.codigo === 'AEREO')
     expect(aereo.modalidades).toContainEqual({ codigo: 'AEREO_GERAL', nome: 'Carga Geral' })
   })
 
   it('200 — RODOVIARIO tem FTL e LTL', async () => {
     const res = await request(app).get('/api/v1/master-data/modais')
 
-    const rodo = res.body.modais.find((m: any) => m.codigo === 'RODOVIARIO')
+    const rodo = res.body.modais.find((m: { codigo: string; modalidades: { codigo: string; nome: string }[] }) => m.codigo === 'RODOVIARIO')
     expect(rodo.modalidades).toContainEqual({ codigo: 'RODOVIARIO_FTL', nome: 'Full Truck Load' })
     expect(rodo.modalidades).toContainEqual({ codigo: 'RODOVIARIO_LTL', nome: 'Less than Truck Load' })
   })
@@ -228,11 +228,11 @@ describe('GET /api/v1/master-data/paises', () => {
   it('200 — inclui Brasil e China', async () => {
     const res = await request(app).get('/api/v1/master-data/paises')
 
-    const brasil = res.body.paises.find((p: any) => p.codigo === 'BR')
+    const brasil = res.body.paises.find((p: { codigo: string; nome: string }) => p.codigo === 'BR')
     expect(brasil).toBeDefined()
     expect(brasil.nome).toBe('Brasil')
 
-    const china = res.body.paises.find((p: any) => p.codigo === 'CN')
+    const china = res.body.paises.find((p: { codigo: string; nome: string }) => p.codigo === 'CN')
     expect(china).toBeDefined()
     expect(china.nome).toBe('China')
   })
@@ -255,11 +255,11 @@ describe('GET /api/v1/master-data/containers', () => {
   it('200 — 20DRY tem 1 TEU e 40HC tem 2 TEUs', async () => {
     const res = await request(app).get('/api/v1/master-data/containers')
 
-    const dry20 = res.body.containers.find((c: any) => c.codigo === '20DRY')
+    const dry20 = res.body.containers.find((c: { codigo: string; teus: number }) => c.codigo === '20DRY')
     expect(dry20).toBeDefined()
     expect(dry20.teus).toBe(1)
 
-    const hc40 = res.body.containers.find((c: any) => c.codigo === '40HC')
+    const hc40 = res.body.containers.find((c: { codigo: string; teus: number }) => c.codigo === '40HC')
     expect(hc40).toBeDefined()
     expect(hc40.teus).toBe(2)
   })

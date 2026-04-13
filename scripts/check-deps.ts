@@ -43,6 +43,7 @@ const IGNORE_PATHS = [
   'generated',
   'demo',
   '.claude',
+  'scripts/check-deps.ts', // evita self-check (contém as strings como literais nas regras)
 ]
 
 function shouldIgnore(filePath: string): boolean {
@@ -147,12 +148,20 @@ if (isLintStaged) {
   // Lint-staged: verifica package.json + TS dos arquivos staged
   files = args
 } else {
-  // CI/manual: verifica APENAS package.json (TS tem muitos any legados)
-  const output = execSync('git ls-files "*.json"', {
+  // CI/manual: verifica package.json + arquivos TS em testes/
+  const jsonOutput = execSync('git ls-files "*.json"', {
     cwd: ROOT,
     encoding: 'utf-8',
   })
-  files = output.trim().split('\n').filter((f) => f.endsWith('package.json'))
+  const packageFiles = jsonOutput.trim().split('\n').filter((f) => f.endsWith('package.json'))
+
+  const tsOutput = execSync('git ls-files "testes/**/*.ts"', {
+    cwd: ROOT,
+    encoding: 'utf-8',
+  })
+  const testFiles = tsOutput.trim().split('\n').filter((f) => f.endsWith('.ts') || f.endsWith('.tsx'))
+
+  files = [...packageFiles, ...testFiles]
 }
 
 for (const file of files) {

@@ -5,7 +5,11 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
+
+interface AuthRequest extends Request {
+  auth?: { userId: string; tenantId: string; clerkUserId: string }
+}
 
 // ---------------------------------------------------------------------------
 // Inline app replicating the exact security logic from users.ts
@@ -29,13 +33,14 @@ function createApp() {
   app.use(express.json())
 
   // Simulate requireAuth — inject auth on every request
-  app.use((req: any, _res: any, next: any) => {
-    req.auth = { ...MOCK_AUTH }
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    ;(req as AuthRequest).auth = { ...MOCK_AUTH }
     next()
   })
 
   // Replicates PATCH /api/v1/users/:id/role from users.ts
-  app.patch('/api/v1/users/:id/role', async (req: any, res, next) => {
+  app.patch('/api/v1/users/:id/role', async (req: Request, res: Response, next: NextFunction) => {
+    const authReq = req as AuthRequest
     try {
       const validRoles = ['MASTER', 'STANDARD', 'SUPPLIER']
       const { role } = req.body
@@ -47,7 +52,7 @@ function createApp() {
       }
 
       const user = await mockPrisma.user.findFirst({
-        where: { id: req.params.id, tenant_id: req.auth.tenantId },
+        where: { id: req.params.id, tenant_id: authReq.auth!.tenantId },
       })
       if (!user) {
         return res.status(404).json({
@@ -56,7 +61,7 @@ function createApp() {
       }
 
       const updated = await mockPrisma.user.update({
-        where: { id: req.params.id, tenant_id: req.auth.tenantId },
+        where: { id: req.params.id, tenant_id: authReq.auth!.tenantId },
         data: { role },
         select: { id: true, email: true, role: true },
       })

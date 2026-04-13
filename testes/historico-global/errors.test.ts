@@ -2,6 +2,7 @@
 // Testes unitários da classe AppError e do errorHandler.
 
 import { describe, it, expect, vi } from 'vitest'
+import { Request, Response, NextFunction } from 'express'
 import { AppError, errorHandler } from '../../servicos-global/tenant/historico-global/server/lib/errors.js'
 
 describe('AppError', () => {
@@ -59,18 +60,19 @@ describe('AppError', () => {
 
 describe('errorHandler', () => {
   const mockRes = () => {
-    const res: any = {}
-    res.status = vi.fn().mockReturnValue(res)
-    res.json = vi.fn().mockReturnValue(res)
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn().mockReturnThis(),
+    } as unknown as Response
     return res
   }
 
   it('responde com statusCode e código do AppError operacional', () => {
     const err = AppError.notFound('Log')
     const res = mockRes()
-    errorHandler(err, {} as any, res, vi.fn())
-    expect(res.status).toHaveBeenCalledWith(404)
-    expect(res.json).toHaveBeenCalledWith({
+    errorHandler(err, {} as unknown as Request, res, vi.fn() as unknown as NextFunction)
+    expect((res.status as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(404)
+    expect((res.json as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith({
       error: { code: 'NOT_FOUND', message: 'Log não encontrado(a).' },
     })
   })
@@ -78,9 +80,9 @@ describe('errorHandler', () => {
   it('responde 500 para erros não operacionais', () => {
     const err = new Error('Erro inesperado')
     const res = mockRes()
-    errorHandler(err, {} as any, res, vi.fn())
-    expect(res.status).toHaveBeenCalledWith(500)
-    expect(res.json).toHaveBeenCalledWith({
+    errorHandler(err, {} as unknown as Request, res, vi.fn() as unknown as NextFunction)
+    expect((res.status as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith(500)
+    expect((res.json as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith({
       error: { code: 'INTERNAL_ERROR', message: 'Ocorreu um erro interno. Tente novamente.' },
     })
   })

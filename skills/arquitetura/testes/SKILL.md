@@ -78,6 +78,65 @@ Gravity/
 - Mocks apenas para dependências externas — nunca mockar o que está sendo testado
 - Nenhum `describe.skip` ou `it.skip` sem justificativa documentada no próprio teste
 
+### Tipagem obrigatória em testes funcionais
+
+**Regra:** Nenhum `: any` em arquivo de teste. O `check-deps.ts` bloqueia no commit e no CI.
+
+Os 4 padrões mais comuns e como tipá-los corretamente:
+
+```typescript
+// ✅ 1. Error handler Express — NUNCA (err: any)
+import express, { Request, Response, NextFunction } from 'express'
+
+interface HttpError extends Error {
+  statusCode?: number
+  code?: string
+}
+
+app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
+  res.status(err.statusCode ?? 500).json({ error: { code: err.code, message: err.message } })
+})
+
+// ✅ 2. Middleware de contexto de teste — NUNCA (req as any)
+type AppRequest = Request & {
+  prisma: unknown
+  tenantId: string
+  companyId: string
+  userId: string
+}
+
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  const appReq = req as AppRequest  // assertion para tipo mais específico, não any
+  appReq.prisma = prismaMock
+  appReq.tenantId = (req.headers['x-tenant-id'] as string) ?? 'tenant-test'
+  appReq.companyId = (req.headers['x-company-id'] as string) ?? 'company-test'
+  appReq.userId = (req.headers['x-user-id'] as string) ?? 'user-test'
+  next()
+})
+
+// ✅ 3. Mock de $transaction — NUNCA (fn: any)
+type TxCallback = (tx: unknown) => Promise<unknown>
+
+const prismaMock = {
+  $transaction: vi.fn().mockImplementation((fn: TxCallback) => fn(txMock)),
+  pedido: { findMany: vi.fn(), create: vi.fn() },
+}
+
+// ✅ 4. Assertion em response body — NUNCA .map((s: any) =>)
+interface StatusItem { id: string; nome: string; ordem: number }
+const ordens = (res.body.data as StatusItem[]).map(s => s.ordem)
+
+// ✅ 5. Mock com where tipado — NUNCA (args: any)
+findMany: vi.fn().mockImplementation((args: { where?: { tenant_id?: string; id?: string } }) => {
+  return args.where?.tenant_id === 'tenant-001' ? mockData : []
+})
+
+// ✅ 6. Record de mock — NUNCA Record<string, any>
+const txMock: Record<string, unknown> = {
+  pedido: { findUnique: vi.fn(), update: vi.fn() }
+}
+```
+
 ### Configuração padrão
 
 ```typescript

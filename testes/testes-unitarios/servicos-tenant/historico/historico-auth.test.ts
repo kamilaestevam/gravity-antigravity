@@ -91,7 +91,7 @@ function createTestApp() {
         throw AppError.unauthorized('Tenant ID is required')
       }
 
-      const where: any = { tenant_id }
+      const where: Record<string, unknown> = { tenant_id }
       const limit = 50
       const offset = 0
 

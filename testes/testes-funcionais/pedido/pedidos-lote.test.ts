@@ -19,8 +19,18 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import { pedidosLoteRouter } from '../../../servicos-global/tenant/processos-core/src/routes/pedidos-lote'
+
+// ── Tipos locais ──────────────────────────────────────────────────────────────
+
+interface HttpError extends Error {
+  statusCode?: number
+}
+
+type AppRequest = Request & {
+  prisma: unknown
+}
 
 // ── Setup ─────────────────────────────────────────────────────────────────────
 
@@ -28,8 +38,8 @@ function criarApp(prismaMock: unknown) {
   const app = express()
   app.use(express.json())
 
-  app.use((req, _res, next) => {
-    ;(req as any).prisma = prismaMock
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    (req as AppRequest).prisma = prismaMock
     if (!req.headers['x-tenant-id']) req.headers['x-tenant-id'] = 'tenant-test'
     if (!req.headers['x-company-id']) req.headers['x-company-id'] = 'company-test'
     next()
@@ -37,7 +47,7 @@ function criarApp(prismaMock: unknown) {
 
   app.use('/api/v1/pedidos/lote', pedidosLoteRouter)
 
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode || 500).json({ error: { message: err.message } })
   })
 
@@ -66,7 +76,7 @@ function criarPrismaMock() {
       findFirst: vi.fn().mockResolvedValue(mkPedido()),
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
     },
-    $transaction: vi.fn().mockImplementation(async (fn: any) => fn({
+    $transaction: vi.fn().mockImplementation(async (fn: (tx: unknown) => Promise<unknown>) => fn({
       pedido: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     })),
   }
@@ -93,13 +103,13 @@ describe('POST /lote/status/preview', () => {
     expect(res.body).toHaveProperty('bloqueados')
 
     // pedi-001 está em afetados (transição válida)
-    const afetado = res.body.afetados.find((a: any) => a.id === 'pedi-001')
+    const afetado = (res.body.afetados as Array<{ id: string }>).find(a => a.id === 'pedi-001')
     expect(afetado).toBeDefined()
 
     // pedi-nao-existe está em bloqueados
-    const bloqueado = res.body.bloqueados.find((b: any) => b.id === 'pedi-nao-existe')
+    const bloqueado = (res.body.bloqueados as Array<{ id: string; motivo: string }>).find(b => b.id === 'pedi-nao-existe')
     expect(bloqueado).toBeDefined()
-    expect(bloqueado.motivo).toMatch(/nao encontrado/i)
+    expect(bloqueado?.motivo).toMatch(/nao encontrado/i)
   })
 
   it('deve bloquear transicao invalida (consolidado → aberto)', async () => {

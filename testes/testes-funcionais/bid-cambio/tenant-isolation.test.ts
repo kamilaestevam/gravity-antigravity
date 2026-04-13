@@ -6,7 +6,22 @@
 
 import { describe, it, expect, vi } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
+
+interface AppRequest extends Request {
+  tenantId?: string
+  prisma?: unknown
+}
+
+interface HttpError extends Error {
+  statusCode?: number
+  code?: string
+}
+
+interface FindManyArgs {
+  where?: Record<string, unknown>
+  [key: string]: unknown
+}
 
 // --- Mocks ---
 
@@ -22,7 +37,7 @@ vi.mock('../../../produto/bid-cambio/server/src/services/tenantIntegrations.js',
 }))
 
 vi.mock('../../../produto/bid-cambio/server/src/middleware/requireInternalKey.js', () => ({
-  requireInternalKey: (_req: any, _res: any, next: any) => next(),
+  requireInternalKey: (_req: Request, _res: Response, next: NextFunction) => next(),
 }))
 
 vi.mock('../../../produto/bid-cambio/server/src/middleware/tenantIsolation.js', () => ({
@@ -35,15 +50,16 @@ import { cambiosRouter } from '../../../produto/bid-cambio/server/src/routes/cam
 
 describe('Tenant Isolation — Cross-tenant', () => {
   it('tenant A nao ve dados do tenant B', async () => {
-    const findManyCalls: any[] = []
+    const findManyCalls: Array<{ tenant: string; where: unknown }> = []
 
     const appA = express()
     appA.use(express.json())
-    appA.use((req: any, _res: any, next: any) => {
-      req.tenantId = 'tenant-A'
-      req.prisma = {
+    appA.use((req: Request, _res: Response, next: NextFunction) => {
+      const appReq = req as AppRequest
+      appReq.tenantId = 'tenant-A'
+      appReq.prisma = {
         parcelaCambio: {
-          findMany: vi.fn((args: any) => {
+          findMany: vi.fn((args: FindManyArgs) => {
             findManyCalls.push({ tenant: 'A', where: args.where })
             return Promise.resolve([])
           }),
@@ -54,17 +70,18 @@ describe('Tenant Isolation — Cross-tenant', () => {
       next()
     })
     appA.use('/api/v1/bid-cambio/cambios', cambiosRouter)
-    appA.use((err: any, _req: any, res: any, _next: any) => {
+    appA.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
       res.status(err.statusCode ?? 500).json({ error: { message: err.message } })
     })
 
     const appB = express()
     appB.use(express.json())
-    appB.use((req: any, _res: any, next: any) => {
-      req.tenantId = 'tenant-B'
-      req.prisma = {
+    appB.use((req: Request, _res: Response, next: NextFunction) => {
+      const appReq = req as AppRequest
+      appReq.tenantId = 'tenant-B'
+      appReq.prisma = {
         parcelaCambio: {
-          findMany: vi.fn((args: any) => {
+          findMany: vi.fn((args: FindManyArgs) => {
             findManyCalls.push({ tenant: 'B', where: args.where })
             return Promise.resolve([])
           }),
@@ -75,7 +92,7 @@ describe('Tenant Isolation — Cross-tenant', () => {
       next()
     })
     appB.use('/api/v1/bid-cambio/cambios', cambiosRouter)
-    appB.use((err: any, _req: any, res: any, _next: any) => {
+    appB.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
       res.status(err.statusCode ?? 500).json({ error: { message: err.message } })
     })
 
@@ -103,7 +120,7 @@ describe('Tenant Isolation — Cross-tenant', () => {
     process.env.INTERNAL_SERVICE_KEY = 'test-secret-key'
 
     app.use(realMiddleware)
-    app.get('/api/v1/bid-cambio/cambios', (_req: any, res: any) => {
+    app.get('/api/v1/bid-cambio/cambios', (_req: Request, res: Response) => {
       res.json({ ok: true })
     })
 
@@ -135,9 +152,9 @@ describe('Tenant Isolation — Cross-tenant', () => {
     process.env.INTERNAL_SERVICE_KEY = 'test-secret-key'
 
     const app = express()
-    app.get('/health', (_req: any, res: any) => res.json({ status: 'ok' }))
+    app.get('/health', (_req: Request, res: Response) => res.json({ status: 'ok' }))
     app.use(realMiddleware)
-    app.get('/api/test', (_req: any, res: any) => res.json({ ok: true }))
+    app.get('/api/test', (_req: Request, res: Response) => res.json({ ok: true }))
 
     const res = await request(app).get('/health')
     expect(res.status).toBe(200)

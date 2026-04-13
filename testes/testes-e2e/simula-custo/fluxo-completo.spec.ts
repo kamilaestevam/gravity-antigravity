@@ -41,7 +41,7 @@ test.describe('Ativacao de Produto — Admin', () => {
     const produtos = res.products
 
     // SimulaCusto deve estar presente e ativo
-    const simulaCusto = produtos.find((p: any) => p.slug === PRODUCT_KEY)
+    const simulaCusto = produtos.find(p => p.slug === PRODUCT_KEY)
     expect(simulaCusto).toBeDefined()
     expect(simulaCusto?.name).toBe('SimulaCusto')
     expect(simulaCusto?.status).toBe('ACTIVE')
@@ -59,7 +59,7 @@ test.describe('Ativacao de Produto — Admin', () => {
       `/api/internal/tenant-products?tenantId=${TENANT_ID}`,
       CONFIGURADOR_BASE_URL
     )
-    const activated = res.products.find((p: any) => p.product_key === PRODUCT_KEY)
+    const activated = res.products.find(p => p.product_key === PRODUCT_KEY)
     expect(activated).toBeDefined()
     expect(activated?.is_active).toBe(true)
   })
@@ -265,7 +265,7 @@ test.describe('Estimativas — Formulario e Simulacao', () => {
       '/api/v1/simula-custo/estimativas?busca=' + encodeURIComponent(refUnica)
     )
     expect(lista.data.length).toBeGreaterThanOrEqual(1)
-    const salva = lista.data.find((e: any) => e.referencia === refUnica)
+    const salva = lista.data.find(e => e.referencia === refUnica)
     expect(salva).toBeDefined()
     expect(salva?.ncm).toBe('84713019')
   })

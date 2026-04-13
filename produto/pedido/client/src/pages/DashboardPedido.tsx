@@ -1610,9 +1610,11 @@ export default function DashboardPedido() {
                 e.preventDefault()
                 const nome = novoNomePainel.trim()
                 if (!nome) return
-                // Fix: salva widgets do painel atual ANTES de trocar
+                // Salva widgets do painel atual antes de trocar
                 if (painelAtualId) salvarWidgetsPainelAtual(painelAtualId, widgets)
                 paineisDashboardApi.criar(nome).then(({ data }) => {
+                  // Inicializa explicitamente o novo painel como [] (distingue de "nunca salvo")
+                  salvarWidgetsPainelAtual(data.id, [])
                   setPaineis([...paineis, data])
                   setPainelAtual(data.id)
                   setNovoNomePainel('')

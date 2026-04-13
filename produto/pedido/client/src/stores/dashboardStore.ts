@@ -324,23 +324,32 @@ export const useDashboardStore = create<DashboardState>()(
           ? s.painelAtualId
           : (paineis.find(p => p.is_visivel)?.id ?? null)
 
-        if (painelAtualId === s.painelAtualId) return { paineis }
+        if (painelAtualId === s.painelAtualId) {
+          // Recovery: widgets ficou [] por estar em outro painel ao recarregar a página.
+          // undefined em widgetsByPainel = "nunca salvo explicitamente" → DEFAULT_WIDGETS.
+          // [] = "painel novo vazio" → mantém [].
+          if (s.widgets.length === 0 && s.widgetsByPainel[painelAtualId ?? ''] === undefined) {
+            return { paineis, widgets: DEFAULT_WIDGETS }
+          }
+          return { paineis }
+        }
 
-        // Primeira carga: painelAtualId era null → carrega widgets do novo painel ativo
-        // Se não tem widgets salvos para esse painel, usa DEFAULT_WIDGETS (painel principal)
-        const widgets = s.widgetsByPainel[painelAtualId ?? ''] ?? DEFAULT_WIDGETS
+        // Troca de painel: undefined → DEFAULT_WIDGETS; [] → [] (vazio explícito)
+        const saved = s.widgetsByPainel[painelAtualId ?? '']
+        const widgets = saved !== undefined ? saved : DEFAULT_WIDGETS
         return { paineis, painelAtualId, widgets }
       }),
 
       setPainelAtual: (id) => set((s) => {
-        // Carrega widgets do localStorage por painel ([] para painéis novos sem widgets)
-        const widgets = s.widgetsByPainel[id] ?? []
+        // undefined = painel nunca salvo → DEFAULT_WIDGETS; [] = novo painel vazio → []
+        const saved = s.widgetsByPainel[id]
+        const widgets = saved !== undefined ? saved : DEFAULT_WIDGETS
         return { painelAtualId: id, widgets }
       }),
     }),
     {
       name: 'gravity:pedido:dashboard',
-      version: 16, // bump: widgetsByPainel — source of truth local para widgets por painel
+      version: 17, // bump: undefined vs [] — semantics de widgetsByPainel corrigida
       partialize: (s) => ({
         widgets: s.widgets,
         slicers: s.slicers,
@@ -351,6 +360,15 @@ export const useDashboardStore = create<DashboardState>()(
       onRehydrateStorage: () => (state) => {
         if (state?.widgets) {
           state.widgets = state.widgets.map(migrateWidget)
+        }
+        // Recovery pós-hidratação: se widgets está vazio mas o painel não tem save explícito,
+        // significa que o localStorage ficou stale (usuário estava em outro painel).
+        // undefined = nunca salvo → recupera DEFAULT_WIDGETS.
+        if (state && state.painelAtualId) {
+          const saved = state.widgetsByPainel?.[state.painelAtualId]
+          if (saved === undefined && (!state.widgets || state.widgets.length === 0)) {
+            state.widgets = DEFAULT_WIDGETS
+          }
         }
       },
     },

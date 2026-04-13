@@ -42,6 +42,7 @@ import {
   Warning, UserCircleMinus, CheckCircle,
   ListNumbers, ArrowsLeftRight, Tag,
   CaretLeft, CaretRight, RocketLaunch,
+  DotsThree, PencilSimple, Trash, X,
 } from '@phosphor-icons/react'
 import './DashboardPedido.css'
 
@@ -750,6 +751,84 @@ const gabiEmptyStyles = {
     cursor: 'pointer',
     fontFamily: 'var(--font, inherit)',
   },
+
+  // ── Gerenciamento inline de painéis ─────────────────────────────────────
+  painelTabWrap: {
+    position: 'relative' as const,
+    display: 'inline-flex',
+    alignItems: 'center',
+  },
+  painelTabInner: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.2rem',
+  },
+  painelMenuBtn: {
+    background: 'none',
+    border: 'none',
+    padding: '0 1px',
+    cursor: 'pointer',
+    color: 'rgba(255,255,255,0.4)',
+    display: 'inline-flex',
+    alignItems: 'center',
+    lineHeight: 1,
+    fontFamily: 'var(--font, inherit)',
+    borderRadius: '3px',
+  },
+  painelMenuDropdown: {
+    position: 'absolute' as const,
+    top: 'calc(100% + 4px)',
+    left: 0,
+    background: '#1e1b2e',
+    border: '1px solid rgba(139,92,246,0.3)',
+    borderRadius: '8px',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+    zIndex: 200,
+    minWidth: '140px',
+    overflow: 'hidden' as const,
+    padding: '0.25rem 0',
+  },
+  painelMenuItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    width: '100%',
+    background: 'none',
+    border: 'none',
+    padding: '0.45rem 0.8rem',
+    fontSize: '0.75rem',
+    fontWeight: 500,
+    color: 'rgba(255,255,255,0.8)',
+    cursor: 'pointer',
+    textAlign: 'left' as const,
+    fontFamily: 'var(--font, inherit)',
+  },
+  painelMenuItemDanger: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    width: '100%',
+    background: 'none',
+    border: 'none',
+    padding: '0.45rem 0.8rem',
+    fontSize: '0.75rem',
+    fontWeight: 500,
+    color: '#fca5a5',
+    cursor: 'pointer',
+    textAlign: 'left' as const,
+    fontFamily: 'var(--font, inherit)',
+  },
+  painelRenameInput: {
+    background: 'rgba(255,255,255,0.07)',
+    border: '1px solid rgba(139,92,246,0.5)',
+    borderRadius: '6px',
+    padding: '0.28rem 0.5rem',
+    fontSize: '0.75rem',
+    color: '#fff',
+    outline: 'none',
+    fontFamily: 'var(--font, inherit)',
+    width: '120px',
+  },
 } as const
 
 const sty = gabiEmptyStyles
@@ -806,6 +885,17 @@ export default function DashboardPedido() {
   }, [])
   const [novoNomePainel, setNovoNomePainel] = useState('')
   const [criandoPainel,  setCriandoPainel]  = useState(false)
+  const [renamingId,     setRenamingId]     = useState<string | null>(null)
+  const [renameValue,    setRenameValue]    = useState('')
+  const [menuPainelId,   setMenuPainelId]   = useState<string | null>(null)
+
+  // Fecha menu ao clicar fora
+  useEffect(() => {
+    if (!menuPainelId) return
+    const close = () => setMenuPainelId(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [menuPainelId])
 
   // Salva widgets do painel atual (localStorage) e troca para o novo
   const handleTrocarPainel = (novoId: string) => {
@@ -814,6 +904,33 @@ export default function DashboardPedido() {
       salvarWidgetsPainelAtual(painelAtualId, widgets)
     }
     setPainelAtual(novoId)
+  }
+
+  // Renomeia painel via API e atualiza store
+  const handleRenomearPainel = (id: string, nome: string) => {
+    const trimmed = nome.trim()
+    if (!trimmed) return
+    paineisDashboardApi.atualizar(id, { nome: trimmed })
+      .then(() => setPaineis(paineis.map(p => p.id === id ? { ...p, nome: trimmed } : p)))
+      .catch(() => {})
+    setRenamingId(null)
+  }
+
+  // Deleta painel via API
+  const handleDeletarPainel = (id: string) => {
+    if (paineis.length <= 1) return
+    if (!window.confirm('Excluir este painel? Os widgets salvos serão perdidos.')) return
+    paineisDashboardApi.deletar(id)
+      .then(() => {
+        const atualizados = paineis.filter(p => p.id !== id)
+        setPaineis(atualizados)
+        if (painelAtualId === id) {
+          const proximo = atualizados.find(p => p.is_visivel)
+          if (proximo) setPainelAtual(proximo.id)
+        }
+      })
+      .catch(() => {})
+    setMenuPainelId(null)
   }
 
   // Carrega painéis do usuário ao montar
@@ -1339,15 +1456,71 @@ export default function DashboardPedido() {
       {paineis.length > 0 && (
         <div style={sty.painelBar}>
           {paineis.filter(p => p.is_visivel).map(p => (
-            <button
-              key={p.id}
-              type="button"
-              style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
-              onClick={() => handleTrocarPainel(p.id)}
-            >
-              {p.nome}
-            </button>
+            <div key={p.id} style={sty.painelTabWrap}>
+              {/* Rename inline */}
+              {renamingId === p.id ? (
+                <form
+                  style={sty.painelNovoForm}
+                  onSubmit={(e) => { e.preventDefault(); handleRenomearPainel(p.id, renameValue) }}
+                >
+                  <input
+                    autoFocus
+                    type="text"
+                    value={renameValue}
+                    onChange={e => setRenameValue(e.target.value)}
+                    onBlur={() => handleRenomearPainel(p.id, renameValue)}
+                    onKeyDown={e => e.key === 'Escape' && setRenamingId(null)}
+                    style={sty.painelRenameInput}
+                    maxLength={60}
+                  />
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
+                  onClick={() => handleTrocarPainel(p.id)}
+                  onDoubleClick={() => { setRenamingId(p.id); setRenameValue(p.nome) }}
+                >
+                  <span style={sty.painelTabInner}>
+                    {p.nome}
+                    <span
+                      role="button"
+                      aria-label="Opções do painel"
+                      style={sty.painelMenuBtn}
+                      onClick={(e) => { e.stopPropagation(); setMenuPainelId(prev => prev === p.id ? null : p.id) }}
+                    >
+                      <DotsThree size={14} weight="bold" />
+                    </span>
+                  </span>
+                </button>
+              )}
+
+              {/* Dropdown menu */}
+              {menuPainelId === p.id && (
+                <div style={sty.painelMenuDropdown} onClick={e => e.stopPropagation()}>
+                  <button
+                    type="button"
+                    style={sty.painelMenuItem}
+                    onClick={() => { setRenamingId(p.id); setRenameValue(p.nome); setMenuPainelId(null) }}
+                  >
+                    <PencilSimple size={13} />
+                    Renomear
+                  </button>
+                  <button
+                    type="button"
+                    style={paineis.length <= 1 ? { ...sty.painelMenuItemDanger, opacity: 0.35, cursor: 'default' } : sty.painelMenuItemDanger}
+                    onClick={() => paineis.length > 1 && handleDeletarPainel(p.id)}
+                    disabled={paineis.length <= 1}
+                    title={paineis.length <= 1 ? 'Não é possível excluir o único painel' : ''}
+                  >
+                    <Trash size={13} />
+                    Excluir
+                  </button>
+                </div>
+              )}
+            </div>
           ))}
+
           {/* Criar novo painel */}
           {criandoPainel ? (
             <form
@@ -1374,7 +1547,9 @@ export default function DashboardPedido() {
                 maxLength={60}
               />
               <button type="submit" style={sty.painelNovoBtnOk}>Criar</button>
-              <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>✕</button>
+              <button type="button" style={sty.painelNovoBtnCancel} onClick={() => { setCriandoPainel(false); setNovoNomePainel('') }}>
+                <X size={11} />
+              </button>
             </form>
           ) : (
             <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title="Novo painel">

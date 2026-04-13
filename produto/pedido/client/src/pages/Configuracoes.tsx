@@ -40,7 +40,7 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, casasDecimaisApi, paineisDashboardApi, type PdfTemplate, type DashboardPainel } from '../shared/api'
+import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, paineisDashboardApi, type PdfTemplate, type DashboardPainel } from '../shared/api'
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
 import { SecaoPaineis } from './SecaoPaineis'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, PedidoStatusConfig } from '../shared/types'
@@ -1688,13 +1688,21 @@ export default function Configuracoes() {
   const [kanbanLoading, setKanbanLoading]       = useState(false)
   const [pendingColunasOcultas, setPendingColunasOcultas] = useState<string[]>([])
   const kanbanSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Status carregado da API — mesma fonte que o Kanban usa (garante que Colunas ↔ Kanban são consistentes)
+  const [kanbanApiStatus, setKanbanApiStatus]   = useState<PedidoStatusConfig[]>([])
 
   useEffect(() => {
     if (!KANBAN_FILHOS.includes(categoria)) return
     if (kanbanPrefs !== null) return
     setKanbanLoading(true)
-    kanbanConfigApi.obterPreferencias()
-      .then(res => setKanbanPrefs(res.data))
+    Promise.all([
+      kanbanConfigApi.obterPreferencias(),
+      pedidoConfigApi.listarStatus(),
+    ])
+      .then(([prefsRes, statusRes]) => {
+        setKanbanPrefs(prefsRes.data)
+        setKanbanApiStatus(statusRes.data)
+      })
       .catch(() => setKanbanPrefs(null))
       .finally(() => setKanbanLoading(false))
   }, [categoria])
@@ -1721,7 +1729,7 @@ export default function Configuracoes() {
   const kanbanColunasDirty = JSON.stringify(pendingColunasOcultas) !== JSON.stringify(kanbanPrefs?.colunas_ocultas ?? [])
 
   function kanbanColunaToggle(nome: string) {
-    const isSistema = kanbanStatusConfig.find(s => s.nome === nome)?.is_sistema ?? false
+    const isSistema = kanbanApiStatus.find(s => s.nome === nome)?.is_sistema ?? false
     if (isSistema) return  // colunas de sistema são obrigatórias e não podem ser ocultadas
     setPendingColunasOcultas(prev =>
       prev.includes(nome) ? prev.filter(n => n !== nome) : [...prev, nome],
@@ -2034,6 +2042,22 @@ export default function Configuracoes() {
       localStorage.setItem('pedido:status_config', JSON.stringify(mapa))
       localStorage.setItem('pedido:status_cores_version', 'v2')
     } catch { /* silenciar erros de quota */ }
+
+    // Sincroniza com o banco para garantir que o Kanban veja os mesmos status
+    const payload = lista.map((s, i) => ({
+      nome:       s.id,
+      rotulo:     s.label,
+      cor:        s.cor,
+      ordem:      i,
+      is_padrao:  false,
+      is_sistema: s.sistema,
+    }))
+    pedidoConfigApi.syncStatus(payload)
+      .then(res => {
+        // Atualiza kanbanApiStatus com o resultado do sync (garante consistência imediata)
+        if (res?.data) setKanbanApiStatus(res.data)
+      })
+      .catch(() => { /* falha silenciosa — localStorage ainda é a fonte de verdade local */ })
   }
 
   // ── Preview da numeração ──
@@ -2660,7 +2684,7 @@ export default function Configuracoes() {
             {/* ── Sub: Colunas ── */}
             {categoria === 'kanban-colunas' && (
               <SecaoKanbanColunas
-                statusConfig={kanbanStatusConfig}
+                statusConfig={kanbanApiStatus}
                 loading={kanbanLoading}
                 colunasOcultas={pendingColunasOcultas}
                 dirty={kanbanColunasDirty}
@@ -3893,12 +3917,16 @@ export default function Configuracoes() {
 
                   {/* Obrigatório */}
                   {novaColuna.tipo !== 'anexo' && (
-                    <ToggleRow
-                      id="nova-coluna-obrigatorio"
-                      label="Obrigatório"
-                      checked={novaColuna.obrigatorio}
-                      onChange={v => setNovaColuna(prev => ({ ...prev, obrigatorio: v }))}
-                    />
+                    <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <label className="cfg-form-label" htmlFor="nova-coluna-obrigatorio" style={{ margin: 0 }}>
+                        Obrigatório
+                      </label>
+                      <Toggle
+                        id="nova-coluna-obrigatorio"
+                        checked={novaColuna.obrigatorio}
+                        onChange={v => setNovaColuna(prev => ({ ...prev, obrigatorio: v }))}
+                      />
+                    </div>
                   )}
 
                   {/* Valor padrão */}

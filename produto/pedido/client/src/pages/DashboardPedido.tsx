@@ -1348,7 +1348,7 @@ export default function DashboardPedido() {
           concluidos:   kpisData.pedidos_consolidados,
         } : undefined}
         compactStatus={compactStatus}
-        onAddWidget={() => setQueryBuilderOpen(true)}
+        onAddWidget={undefined}
         onSuggestionsOpen={() => setSuggestionsOpen(true)}
       />
 

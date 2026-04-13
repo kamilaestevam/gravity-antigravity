@@ -18,12 +18,15 @@ export interface KanbanColunaShape {
   isReadOnly?: true
 }
 
-/** Colunas fallback usadas quando a API falha (degradação graciosa) */
+/** Colunas fallback usadas quando a API falha (degradação graciosa).
+ *  Nomes = mesmo STATUS_PADRAO do servidor (auto-seed). */
 export const COLUNAS_FALLBACK_SHAPE: KanbanColunaShape[] = [
-  { key: 'draft',         label: 'Rascunho',     color: '#64748b' },
+  { key: 'rascunho',      label: 'Rascunho',     color: '#94a3b8' },
   { key: 'aberto',        label: 'Aberto',        color: '#3b82f6' },
-  { key: 'transferencia', label: 'Em Andamento',  color: '#f97316' },
-  { key: 'consolidado',   label: 'Consolidado',   color: '#22c55e' },
+  { key: 'em_andamento',  label: 'Em Andamento',  color: '#f97316' },
+  { key: 'aprovado',      label: 'Aprovado',      color: '#facc15' },
+  { key: 'transferencia', label: 'Transferido',   color: '#2dd4bf' },
+  { key: 'consolidado',   label: 'Consolidado',   color: '#a78bfa' },
   { key: 'cancelado',     label: 'Cancelado',     color: '#ef4444', isReadOnly: true },
 ]
 

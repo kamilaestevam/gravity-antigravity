@@ -19,13 +19,19 @@ import express, { type Request, type Response, type NextFunction } from 'express
 import { pedidosConfigRouter } from '../../../servicos-global/tenant/processos-core/src/routes/pedidos-config'
 import { kanbanPreferenciasRouter } from '../../../produto/pedido/server/src/routes/kanbanPreferencias'
 
+// ── Tipos locais ──────────────────────────────────────────────────────────────
+
+type AppRequest = Request & {
+  prisma: unknown
+}
+
 // ── Setup ─────────────────────────────────────────────────────────────────────
 
 function criarApp(prismaMock: unknown, tenantId = 'tenant-test') {
   const app = express()
   app.use(express.json())
-  app.use((req, _res, next) => {
-    ;(req as any).prisma = prismaMock
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    (req as AppRequest).prisma = prismaMock
     if (!req.headers['x-tenant-id']) req.headers['x-tenant-id'] = tenantId
     if (!req.headers['x-company-id']) req.headers['x-company-id'] = 'company-test'
     if (!req.headers['x-user-id']) req.headers['x-user-id'] = 'user-test'
@@ -160,7 +166,7 @@ describe('F03 — GET /config/status inclui statuses customizados', () => {
       .set('x-tenant-id', 'tenant-test')
 
     // where NÃO deve ter is_sistema
-    const chamada = (prisma.pedidoStatus.findMany as any).mock.calls[0][0]
+    const chamada = (prisma.pedidoStatus.findMany as ReturnType<typeof vi.fn>).mock.calls[0][0] as { where?: { is_sistema?: unknown } }
     expect(chamada?.where?.is_sistema).toBeUndefined()
   })
 })
@@ -220,8 +226,8 @@ const PREFS_BASE = {
 function criarAppKanban(prismaMock: unknown) {
   const app = express()
   app.use(express.json())
-  app.use((req, _res, next) => {
-    ;(req as any).prisma = prismaMock
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    (req as AppRequest).prisma = prismaMock
     req.headers['x-tenant-id'] = 'tenant-test'
     req.headers['x-user-id']   = 'user-test'
     next()

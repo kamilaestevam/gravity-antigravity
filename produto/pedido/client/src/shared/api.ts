@@ -264,6 +264,12 @@ export const pedidoConfigApi = {
   listarStatus: () =>
     request<{ data: PedidoStatusConfig[] }>('/api/v1/pedidos/config/status'),
 
+  syncStatus: (status: Array<{ nome: string; rotulo: string; cor: string; ordem: number; is_padrao?: boolean; is_sistema?: boolean }>) =>
+    request<{ data: PedidoStatusConfig[] }>('/api/v1/pedidos/config/status/sync', {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    }),
+
   listarColunas: () =>
     request<{ data: PedidoColunaConfig[] }>('/api/v1/pedidos/config/colunas'),
 

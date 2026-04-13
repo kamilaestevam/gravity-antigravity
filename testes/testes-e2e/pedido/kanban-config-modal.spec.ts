@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test, expect, type Page } from '@playwright/test'
 import path from 'path'
 import fs from 'fs'
 
@@ -23,7 +23,7 @@ fs.mkdirSync(PRINTS_DIR, { recursive: true })
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /** Navega para /configuracoes, abre a seção Kanban */
-async function abrirConfiguracoes(page: any) {
+async function abrirConfiguracoes(page: Page) {
   await page.goto('/configuracoes')
   await page.waitForTimeout(2000)
 
@@ -34,7 +34,7 @@ async function abrirConfiguracoes(page: any) {
 }
 
 /** Restaura padrão antes de cada teste que modifica configurações */
-async function restaurarPadrao(page: any) {
+async function restaurarPadrao(page: Page) {
   await abrirConfiguracoes(page)
   const btnRestaurar = page.locator('button').filter({ hasText: /restaurar padrão/i })
   if (await btnRestaurar.count() > 0) {
@@ -44,7 +44,7 @@ async function restaurarPadrao(page: any) {
 }
 
 /** Abre o modal clicando no primeiro card do Kanban */
-async function abrirModalPrimeiroCard(page: any): Promise<boolean> {
+async function abrirModalPrimeiroCard(page: Page): Promise<boolean> {
   await page.goto('/pedidos/kanban')
   // Aguarda rede quietar (API de pedidos carregar) e então espera pelo card
   await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {})

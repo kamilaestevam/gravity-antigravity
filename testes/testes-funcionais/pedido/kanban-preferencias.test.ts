@@ -16,8 +16,18 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import request from 'supertest'
-import express from 'express'
+import express, { Request, Response, NextFunction } from 'express'
 import { kanbanPreferenciasRouter } from '../../../produto/pedido/server/src/routes/kanbanPreferencias.js'
+
+// ── Tipos locais ──────────────────────────────────────────────────────────────
+
+interface HttpError extends Error {
+  statusCode?: number
+}
+
+type AppRequest = Request & {
+  prisma: unknown
+}
 
 // ── Setup ─────────────────────────────────────────────────────────────────────
 
@@ -25,8 +35,8 @@ function criarApp(prismaMock: unknown, opts: { semTenantId?: boolean; semUserId?
   const app = express()
   app.use(express.json())
 
-  app.use((req, _res, next) => {
-    ;(req as any).prisma = prismaMock
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    (req as AppRequest).prisma = prismaMock
     if (!opts.semTenantId) req.headers['x-tenant-id'] = req.headers['x-tenant-id'] || 'tenant-A'
     if (!opts.semUserId)   req.headers['x-user-id']   = req.headers['x-user-id']   || 'user-001'
     next()
@@ -34,7 +44,7 @@ function criarApp(prismaMock: unknown, opts: { semTenantId?: boolean; semUserId?
 
   app.use('/api/v1/pedidos/kanban', kanbanPreferenciasRouter)
 
-  app.use((err: any, _req: any, res: any, _next: any) => {
+  app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
     res.status(err.statusCode || 500).json({ error: { message: err.message } })
   })
 

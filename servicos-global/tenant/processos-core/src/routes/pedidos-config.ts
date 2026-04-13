@@ -92,6 +92,17 @@ function getCompanyId(req: Request): string | undefined {
 
 // ── STATUS ────────────────────────────────────────────────────────────────────
 
+/** Status padrão criados automaticamente para novos tenants */
+const STATUS_PADRAO = [
+  { nome: 'rascunho',      rotulo: 'Rascunho',     cor: '#94a3b8', ordem: 0, is_padrao: false, is_sistema: false },
+  { nome: 'aberto',        rotulo: 'Aberto',        cor: '#3b82f6', ordem: 1, is_padrao: true,  is_sistema: false },
+  { nome: 'em_andamento',  rotulo: 'Em Andamento',  cor: '#f97316', ordem: 2, is_padrao: false, is_sistema: false },
+  { nome: 'aprovado',      rotulo: 'Aprovado',      cor: '#facc15', ordem: 3, is_padrao: false, is_sistema: false },
+  { nome: 'transferencia', rotulo: 'Transferido',   cor: '#2dd4bf', ordem: 4, is_padrao: false, is_sistema: true  },
+  { nome: 'consolidado',   rotulo: 'Consolidado',   cor: '#a78bfa', ordem: 5, is_padrao: false, is_sistema: true  },
+  { nome: 'cancelado',     rotulo: 'Cancelado',     cor: '#ef4444', ordem: 6, is_padrao: false, is_sistema: false },
+]
+
 // GET /status
 pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -105,6 +116,22 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
       where,
       orderBy: { ordem: 'asc' },
     })
+
+    // Auto-seed: se o tenant não tem nenhum status configurado, criar os padrões
+    if (status.length === 0) {
+      await req.prisma.$transaction(
+        STATUS_PADRAO.map(s =>
+          req.prisma.pedidoStatus.create({
+            data: { tenant_id, company_id: company_id ?? null, ...s },
+          })
+        )
+      )
+      const seeded = await req.prisma.pedidoStatus.findMany({
+        where,
+        orderBy: { ordem: 'asc' },
+      })
+      return res.json({ data: seeded })
+    }
 
     res.json({ data: status })
   } catch (err) {
@@ -194,6 +221,79 @@ pedidosConfigRouter.delete('/status/:id', async (req: Request, res: Response, ne
 
     await req.prisma.pedidoStatus.delete({ where: { id: req.params.id } })
     res.status(204).send()
+  } catch (err) {
+    next(err)
+  }
+})
+
+// PUT /status/sync — Sincroniza a lista completa de status do tenant
+// Faz upsert de cada item pelo `nome` e remove do banco os que não estão na lista
+// (exceto is_sistema = true, que nunca são deletados pelo sync)
+const syncStatusSchema = z.object({
+  status: z.array(z.object({
+    nome:      z.string().min(1).max(100).regex(/^[a-z0-9_]+$/),
+    rotulo:    z.string().min(1).max(100),
+    cor:       z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+    ordem:     z.number().int(),
+    is_padrao: z.boolean().optional(),
+    is_sistema: z.boolean().optional(),
+  })).min(1).max(20),
+})
+
+pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = syncStatusSchema.safeParse(req.body)
+    if (!result.success) {
+      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+    }
+
+    const tenant_id = getTenantId(req)
+    const company_id = getCompanyId(req)
+    const where: Record<string, unknown> = { tenant_id }
+    if (company_id) where.company_id = company_id
+
+    const nomesNovos = new Set(result.data.status.map(s => s.nome))
+
+    // Buscar todos os status atuais do tenant para saber quais deletar
+    const atuais = await req.prisma.pedidoStatus.findMany({ where, select: { id: true, nome: true, is_sistema: true } })
+
+    // Montar transação: upserts + deletes
+    const ops = result.data.status.map(s =>
+      req.prisma.pedidoStatus.upsert({
+        where: { tenant_id_nome: { tenant_id, nome: s.nome } },
+        update: {
+          rotulo:    s.rotulo,
+          cor:       s.cor,
+          ordem:     s.ordem,
+          is_padrao: s.is_padrao ?? false,
+        },
+        create: {
+          tenant_id,
+          company_id: company_id ?? null,
+          nome:      s.nome,
+          rotulo:    s.rotulo,
+          cor:       s.cor,
+          ordem:     s.ordem,
+          is_padrao: s.is_padrao ?? false,
+          is_sistema: s.is_sistema ?? false,
+        },
+      })
+    )
+
+    // Deletar os que não estão na nova lista (apenas não-sistema)
+    const idsParaDeletar = atuais
+      .filter(a => !nomesNovos.has(a.nome) && !a.is_sistema)
+      .map(a => a.id)
+
+    const deleteOp = idsParaDeletar.length > 0
+      ? [req.prisma.pedidoStatus.deleteMany({ where: { id: { in: idsParaDeletar }, tenant_id } })]
+      : []
+
+    await req.prisma.$transaction([...ops, ...deleteOp])
+
+    // Retornar a lista atualizada
+    const synced = await req.prisma.pedidoStatus.findMany({ where, orderBy: { ordem: 'asc' } })
+    res.json({ data: synced })
   } catch (err) {
     next(err)
   }

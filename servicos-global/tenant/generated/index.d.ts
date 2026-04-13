@@ -274,6 +274,11 @@ export type NcmItem = $Result.DefaultSelection<Prisma.$NcmItemPayload>
  * 
  */
 export type NcmSyncLog = $Result.DefaultSelection<Prisma.$NcmSyncLogPayload>
+/**
+ * Model NcmScheduleConfig
+ * 
+ */
+export type NcmScheduleConfig = $Result.DefaultSelection<Prisma.$NcmScheduleConfigPayload>
 
 /**
  * Enums
@@ -1103,6 +1108,16 @@ export class PrismaClient<
     * ```
     */
   get ncmSyncLog(): Prisma.NcmSyncLogDelegate<ExtArgs>;
+
+  /**
+   * `prisma.ncmScheduleConfig`: Exposes CRUD operations for the **NcmScheduleConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NcmScheduleConfigs
+    * const ncmScheduleConfigs = await prisma.ncmScheduleConfig.findMany()
+    * ```
+    */
+  get ncmScheduleConfig(): Prisma.NcmScheduleConfigDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1595,7 +1610,8 @@ export namespace Prisma {
     ConfiguracaoPedido: 'ConfiguracaoPedido',
     MapeamentoImport: 'MapeamentoImport',
     NcmItem: 'NcmItem',
-    NcmSyncLog: 'NcmSyncLog'
+    NcmSyncLog: 'NcmSyncLog',
+    NcmScheduleConfig: 'NcmScheduleConfig'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1611,7 +1627,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "gabiTokenLog" | "gabiTokenQuota" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "configuracaoPedido" | "mapeamentoImport" | "ncmItem" | "ncmSyncLog"
+      modelProps: "atividade" | "atividadeParticipante" | "atividadeSessaoTimer" | "timerSession" | "timerActive" | "relatorioTempoCache" | "emailThread" | "emailMessage" | "emailEnviado" | "template" | "filaEmail" | "whatsAppConversation" | "whatsAppMessage" | "whatsAppUsageLog" | "whatsAppAutomation" | "dashboardConfig" | "dashboardWidget" | "dashboardMetricSnapshot" | "dashboardAlert" | "dashboardShare" | "relatorio" | "configRelatorio" | "exportJob" | "historyLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportResult" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "gabiConversation" | "gabiMessage" | "gabiUsageLog" | "gabiTokenLog" | "gabiTokenQuota" | "userPreferences" | "pedido" | "pedidoItem" | "processo" | "processoFatura" | "processoItem" | "processoContainer" | "pedidoStatus" | "pedidoColuna" | "pedidoPreferenciaUsuario" | "pedidoPreferenciaPadrao" | "configuracaoPedido" | "mapeamentoImport" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -5252,6 +5268,76 @@ export namespace Prisma {
           count: {
             args: Prisma.NcmSyncLogCountArgs<ExtArgs>
             result: $Utils.Optional<NcmSyncLogCountAggregateOutputType> | number
+          }
+        }
+      }
+      NcmScheduleConfig: {
+        payload: Prisma.$NcmScheduleConfigPayload<ExtArgs>
+        fields: Prisma.NcmScheduleConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NcmScheduleConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NcmScheduleConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.NcmScheduleConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NcmScheduleConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+          }
+          findMany: {
+            args: Prisma.NcmScheduleConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>[]
+          }
+          create: {
+            args: Prisma.NcmScheduleConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+          }
+          createMany: {
+            args: Prisma.NcmScheduleConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NcmScheduleConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>[]
+          }
+          delete: {
+            args: Prisma.NcmScheduleConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+          }
+          update: {
+            args: Prisma.NcmScheduleConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.NcmScheduleConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NcmScheduleConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.NcmScheduleConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmScheduleConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.NcmScheduleConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcmScheduleConfig>
+          }
+          groupBy: {
+            args: Prisma.NcmScheduleConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmScheduleConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NcmScheduleConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmScheduleConfigCountAggregateOutputType> | number
           }
         }
       }
@@ -60516,6 +60602,928 @@ export namespace Prisma {
 
 
   /**
+   * Model NcmScheduleConfig
+   */
+
+  export type AggregateNcmScheduleConfig = {
+    _count: NcmScheduleConfigCountAggregateOutputType | null
+    _min: NcmScheduleConfigMinAggregateOutputType | null
+    _max: NcmScheduleConfigMaxAggregateOutputType | null
+  }
+
+  export type NcmScheduleConfigMinAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    ativo: boolean | null
+    cron_expressao: string | null
+    criado_em: Date | null
+    atualizado_em: Date | null
+  }
+
+  export type NcmScheduleConfigMaxAggregateOutputType = {
+    id: string | null
+    tenant_id: string | null
+    product_id: string | null
+    user_id: string | null
+    ativo: boolean | null
+    cron_expressao: string | null
+    criado_em: Date | null
+    atualizado_em: Date | null
+  }
+
+  export type NcmScheduleConfigCountAggregateOutputType = {
+    id: number
+    tenant_id: number
+    product_id: number
+    user_id: number
+    ativo: number
+    cron_expressao: number
+    notificadores: number
+    criado_em: number
+    atualizado_em: number
+    _all: number
+  }
+
+
+  export type NcmScheduleConfigMinAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    ativo?: true
+    cron_expressao?: true
+    criado_em?: true
+    atualizado_em?: true
+  }
+
+  export type NcmScheduleConfigMaxAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    ativo?: true
+    cron_expressao?: true
+    criado_em?: true
+    atualizado_em?: true
+  }
+
+  export type NcmScheduleConfigCountAggregateInputType = {
+    id?: true
+    tenant_id?: true
+    product_id?: true
+    user_id?: true
+    ativo?: true
+    cron_expressao?: true
+    notificadores?: true
+    criado_em?: true
+    atualizado_em?: true
+    _all?: true
+  }
+
+  export type NcmScheduleConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmScheduleConfig to aggregate.
+     */
+    where?: NcmScheduleConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmScheduleConfigs to fetch.
+     */
+    orderBy?: NcmScheduleConfigOrderByWithRelationInput | NcmScheduleConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NcmScheduleConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmScheduleConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmScheduleConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NcmScheduleConfigs
+    **/
+    _count?: true | NcmScheduleConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NcmScheduleConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NcmScheduleConfigMaxAggregateInputType
+  }
+
+  export type GetNcmScheduleConfigAggregateType<T extends NcmScheduleConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcmScheduleConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNcmScheduleConfig[P]>
+      : GetScalarType<T[P], AggregateNcmScheduleConfig[P]>
+  }
+
+
+
+
+  export type NcmScheduleConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmScheduleConfigWhereInput
+    orderBy?: NcmScheduleConfigOrderByWithAggregationInput | NcmScheduleConfigOrderByWithAggregationInput[]
+    by: NcmScheduleConfigScalarFieldEnum[] | NcmScheduleConfigScalarFieldEnum
+    having?: NcmScheduleConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NcmScheduleConfigCountAggregateInputType | true
+    _min?: NcmScheduleConfigMinAggregateInputType
+    _max?: NcmScheduleConfigMaxAggregateInputType
+  }
+
+  export type NcmScheduleConfigGroupByOutputType = {
+    id: string
+    tenant_id: string
+    product_id: string | null
+    user_id: string | null
+    ativo: boolean
+    cron_expressao: string
+    notificadores: JsonValue
+    criado_em: Date
+    atualizado_em: Date
+    _count: NcmScheduleConfigCountAggregateOutputType | null
+    _min: NcmScheduleConfigMinAggregateOutputType | null
+    _max: NcmScheduleConfigMaxAggregateOutputType | null
+  }
+
+  type GetNcmScheduleConfigGroupByPayload<T extends NcmScheduleConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NcmScheduleConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NcmScheduleConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NcmScheduleConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmScheduleConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NcmScheduleConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    ativo?: boolean
+    cron_expressao?: boolean
+    notificadores?: boolean
+    criado_em?: boolean
+    atualizado_em?: boolean
+  }, ExtArgs["result"]["ncmScheduleConfig"]>
+
+  export type NcmScheduleConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    ativo?: boolean
+    cron_expressao?: boolean
+    notificadores?: boolean
+    criado_em?: boolean
+    atualizado_em?: boolean
+  }, ExtArgs["result"]["ncmScheduleConfig"]>
+
+  export type NcmScheduleConfigSelectScalar = {
+    id?: boolean
+    tenant_id?: boolean
+    product_id?: boolean
+    user_id?: boolean
+    ativo?: boolean
+    cron_expressao?: boolean
+    notificadores?: boolean
+    criado_em?: boolean
+    atualizado_em?: boolean
+  }
+
+
+  export type $NcmScheduleConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NcmScheduleConfig"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tenant_id: string
+      product_id: string | null
+      user_id: string | null
+      ativo: boolean
+      cron_expressao: string
+      notificadores: Prisma.JsonValue
+      criado_em: Date
+      atualizado_em: Date
+    }, ExtArgs["result"]["ncmScheduleConfig"]>
+    composites: {}
+  }
+
+  type NcmScheduleConfigGetPayload<S extends boolean | null | undefined | NcmScheduleConfigDefaultArgs> = $Result.GetResult<Prisma.$NcmScheduleConfigPayload, S>
+
+  type NcmScheduleConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmScheduleConfigFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmScheduleConfigCountAggregateInputType | true
+    }
+
+  export interface NcmScheduleConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NcmScheduleConfig'], meta: { name: 'NcmScheduleConfig' } }
+    /**
+     * Find zero or one NcmScheduleConfig that matches the filter.
+     * @param {NcmScheduleConfigFindUniqueArgs} args - Arguments to find a NcmScheduleConfig
+     * @example
+     * // Get one NcmScheduleConfig
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NcmScheduleConfigFindUniqueArgs>(args: SelectSubset<T, NcmScheduleConfigFindUniqueArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one NcmScheduleConfig that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {NcmScheduleConfigFindUniqueOrThrowArgs} args - Arguments to find a NcmScheduleConfig
+     * @example
+     * // Get one NcmScheduleConfig
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NcmScheduleConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmScheduleConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first NcmScheduleConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmScheduleConfigFindFirstArgs} args - Arguments to find a NcmScheduleConfig
+     * @example
+     * // Get one NcmScheduleConfig
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NcmScheduleConfigFindFirstArgs>(args?: SelectSubset<T, NcmScheduleConfigFindFirstArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first NcmScheduleConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmScheduleConfigFindFirstOrThrowArgs} args - Arguments to find a NcmScheduleConfig
+     * @example
+     * // Get one NcmScheduleConfig
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NcmScheduleConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmScheduleConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more NcmScheduleConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmScheduleConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NcmScheduleConfigs
+     * const ncmScheduleConfigs = await prisma.ncmScheduleConfig.findMany()
+     * 
+     * // Get first 10 NcmScheduleConfigs
+     * const ncmScheduleConfigs = await prisma.ncmScheduleConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const ncmScheduleConfigWithIdOnly = await prisma.ncmScheduleConfig.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends NcmScheduleConfigFindManyArgs>(args?: SelectSubset<T, NcmScheduleConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a NcmScheduleConfig.
+     * @param {NcmScheduleConfigCreateArgs} args - Arguments to create a NcmScheduleConfig.
+     * @example
+     * // Create one NcmScheduleConfig
+     * const NcmScheduleConfig = await prisma.ncmScheduleConfig.create({
+     *   data: {
+     *     // ... data to create a NcmScheduleConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends NcmScheduleConfigCreateArgs>(args: SelectSubset<T, NcmScheduleConfigCreateArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many NcmScheduleConfigs.
+     * @param {NcmScheduleConfigCreateManyArgs} args - Arguments to create many NcmScheduleConfigs.
+     * @example
+     * // Create many NcmScheduleConfigs
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NcmScheduleConfigCreateManyArgs>(args?: SelectSubset<T, NcmScheduleConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NcmScheduleConfigs and returns the data saved in the database.
+     * @param {NcmScheduleConfigCreateManyAndReturnArgs} args - Arguments to create many NcmScheduleConfigs.
+     * @example
+     * // Create many NcmScheduleConfigs
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NcmScheduleConfigs and only return the `id`
+     * const ncmScheduleConfigWithIdOnly = await prisma.ncmScheduleConfig.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NcmScheduleConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmScheduleConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a NcmScheduleConfig.
+     * @param {NcmScheduleConfigDeleteArgs} args - Arguments to delete one NcmScheduleConfig.
+     * @example
+     * // Delete one NcmScheduleConfig
+     * const NcmScheduleConfig = await prisma.ncmScheduleConfig.delete({
+     *   where: {
+     *     // ... filter to delete one NcmScheduleConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NcmScheduleConfigDeleteArgs>(args: SelectSubset<T, NcmScheduleConfigDeleteArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one NcmScheduleConfig.
+     * @param {NcmScheduleConfigUpdateArgs} args - Arguments to update one NcmScheduleConfig.
+     * @example
+     * // Update one NcmScheduleConfig
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NcmScheduleConfigUpdateArgs>(args: SelectSubset<T, NcmScheduleConfigUpdateArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more NcmScheduleConfigs.
+     * @param {NcmScheduleConfigDeleteManyArgs} args - Arguments to filter NcmScheduleConfigs to delete.
+     * @example
+     * // Delete a few NcmScheduleConfigs
+     * const { count } = await prisma.ncmScheduleConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NcmScheduleConfigDeleteManyArgs>(args?: SelectSubset<T, NcmScheduleConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NcmScheduleConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmScheduleConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NcmScheduleConfigs
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NcmScheduleConfigUpdateManyArgs>(args: SelectSubset<T, NcmScheduleConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one NcmScheduleConfig.
+     * @param {NcmScheduleConfigUpsertArgs} args - Arguments to update or create a NcmScheduleConfig.
+     * @example
+     * // Update or create a NcmScheduleConfig
+     * const ncmScheduleConfig = await prisma.ncmScheduleConfig.upsert({
+     *   create: {
+     *     // ... data to create a NcmScheduleConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NcmScheduleConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NcmScheduleConfigUpsertArgs>(args: SelectSubset<T, NcmScheduleConfigUpsertArgs<ExtArgs>>): Prisma__NcmScheduleConfigClient<$Result.GetResult<Prisma.$NcmScheduleConfigPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of NcmScheduleConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmScheduleConfigCountArgs} args - Arguments to filter NcmScheduleConfigs to count.
+     * @example
+     * // Count the number of NcmScheduleConfigs
+     * const count = await prisma.ncmScheduleConfig.count({
+     *   where: {
+     *     // ... the filter for the NcmScheduleConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends NcmScheduleConfigCountArgs>(
+      args?: Subset<T, NcmScheduleConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NcmScheduleConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NcmScheduleConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmScheduleConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NcmScheduleConfigAggregateArgs>(args: Subset<T, NcmScheduleConfigAggregateArgs>): Prisma.PrismaPromise<GetNcmScheduleConfigAggregateType<T>>
+
+    /**
+     * Group by NcmScheduleConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NcmScheduleConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NcmScheduleConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NcmScheduleConfigGroupByArgs['orderBy'] }
+        : { orderBy?: NcmScheduleConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NcmScheduleConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmScheduleConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NcmScheduleConfig model
+   */
+  readonly fields: NcmScheduleConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NcmScheduleConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NcmScheduleConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NcmScheduleConfig model
+   */ 
+  interface NcmScheduleConfigFieldRefs {
+    readonly id: FieldRef<"NcmScheduleConfig", 'String'>
+    readonly tenant_id: FieldRef<"NcmScheduleConfig", 'String'>
+    readonly product_id: FieldRef<"NcmScheduleConfig", 'String'>
+    readonly user_id: FieldRef<"NcmScheduleConfig", 'String'>
+    readonly ativo: FieldRef<"NcmScheduleConfig", 'Boolean'>
+    readonly cron_expressao: FieldRef<"NcmScheduleConfig", 'String'>
+    readonly notificadores: FieldRef<"NcmScheduleConfig", 'Json'>
+    readonly criado_em: FieldRef<"NcmScheduleConfig", 'DateTime'>
+    readonly atualizado_em: FieldRef<"NcmScheduleConfig", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NcmScheduleConfig findUnique
+   */
+  export type NcmScheduleConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmScheduleConfig to fetch.
+     */
+    where: NcmScheduleConfigWhereUniqueInput
+  }
+
+  /**
+   * NcmScheduleConfig findUniqueOrThrow
+   */
+  export type NcmScheduleConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmScheduleConfig to fetch.
+     */
+    where: NcmScheduleConfigWhereUniqueInput
+  }
+
+  /**
+   * NcmScheduleConfig findFirst
+   */
+  export type NcmScheduleConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmScheduleConfig to fetch.
+     */
+    where?: NcmScheduleConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmScheduleConfigs to fetch.
+     */
+    orderBy?: NcmScheduleConfigOrderByWithRelationInput | NcmScheduleConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmScheduleConfigs.
+     */
+    cursor?: NcmScheduleConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmScheduleConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmScheduleConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmScheduleConfigs.
+     */
+    distinct?: NcmScheduleConfigScalarFieldEnum | NcmScheduleConfigScalarFieldEnum[]
+  }
+
+  /**
+   * NcmScheduleConfig findFirstOrThrow
+   */
+  export type NcmScheduleConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmScheduleConfig to fetch.
+     */
+    where?: NcmScheduleConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmScheduleConfigs to fetch.
+     */
+    orderBy?: NcmScheduleConfigOrderByWithRelationInput | NcmScheduleConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NcmScheduleConfigs.
+     */
+    cursor?: NcmScheduleConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmScheduleConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmScheduleConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NcmScheduleConfigs.
+     */
+    distinct?: NcmScheduleConfigScalarFieldEnum | NcmScheduleConfigScalarFieldEnum[]
+  }
+
+  /**
+   * NcmScheduleConfig findMany
+   */
+  export type NcmScheduleConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which NcmScheduleConfigs to fetch.
+     */
+    where?: NcmScheduleConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NcmScheduleConfigs to fetch.
+     */
+    orderBy?: NcmScheduleConfigOrderByWithRelationInput | NcmScheduleConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NcmScheduleConfigs.
+     */
+    cursor?: NcmScheduleConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NcmScheduleConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NcmScheduleConfigs.
+     */
+    skip?: number
+    distinct?: NcmScheduleConfigScalarFieldEnum | NcmScheduleConfigScalarFieldEnum[]
+  }
+
+  /**
+   * NcmScheduleConfig create
+   */
+  export type NcmScheduleConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * The data needed to create a NcmScheduleConfig.
+     */
+    data: XOR<NcmScheduleConfigCreateInput, NcmScheduleConfigUncheckedCreateInput>
+  }
+
+  /**
+   * NcmScheduleConfig createMany
+   */
+  export type NcmScheduleConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NcmScheduleConfigs.
+     */
+    data: NcmScheduleConfigCreateManyInput | NcmScheduleConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmScheduleConfig createManyAndReturn
+   */
+  export type NcmScheduleConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many NcmScheduleConfigs.
+     */
+    data: NcmScheduleConfigCreateManyInput | NcmScheduleConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NcmScheduleConfig update
+   */
+  export type NcmScheduleConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * The data needed to update a NcmScheduleConfig.
+     */
+    data: XOR<NcmScheduleConfigUpdateInput, NcmScheduleConfigUncheckedUpdateInput>
+    /**
+     * Choose, which NcmScheduleConfig to update.
+     */
+    where: NcmScheduleConfigWhereUniqueInput
+  }
+
+  /**
+   * NcmScheduleConfig updateMany
+   */
+  export type NcmScheduleConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NcmScheduleConfigs.
+     */
+    data: XOR<NcmScheduleConfigUpdateManyMutationInput, NcmScheduleConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which NcmScheduleConfigs to update
+     */
+    where?: NcmScheduleConfigWhereInput
+  }
+
+  /**
+   * NcmScheduleConfig upsert
+   */
+  export type NcmScheduleConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * The filter to search for the NcmScheduleConfig to update in case it exists.
+     */
+    where: NcmScheduleConfigWhereUniqueInput
+    /**
+     * In case the NcmScheduleConfig found by the `where` argument doesn't exist, create a new NcmScheduleConfig with this data.
+     */
+    create: XOR<NcmScheduleConfigCreateInput, NcmScheduleConfigUncheckedCreateInput>
+    /**
+     * In case the NcmScheduleConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NcmScheduleConfigUpdateInput, NcmScheduleConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * NcmScheduleConfig delete
+   */
+  export type NcmScheduleConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+    /**
+     * Filter which NcmScheduleConfig to delete.
+     */
+    where: NcmScheduleConfigWhereUniqueInput
+  }
+
+  /**
+   * NcmScheduleConfig deleteMany
+   */
+  export type NcmScheduleConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NcmScheduleConfigs to delete
+     */
+    where?: NcmScheduleConfigWhereInput
+  }
+
+  /**
+   * NcmScheduleConfig without action
+   */
+  export type NcmScheduleConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NcmScheduleConfig
+     */
+    select?: NcmScheduleConfigSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -61622,6 +62630,21 @@ export namespace Prisma {
   };
 
   export type NcmSyncLogScalarFieldEnum = (typeof NcmSyncLogScalarFieldEnum)[keyof typeof NcmSyncLogScalarFieldEnum]
+
+
+  export const NcmScheduleConfigScalarFieldEnum: {
+    id: 'id',
+    tenant_id: 'tenant_id',
+    product_id: 'product_id',
+    user_id: 'user_id',
+    ativo: 'ativo',
+    cron_expressao: 'cron_expressao',
+    notificadores: 'notificadores',
+    criado_em: 'criado_em',
+    atualizado_em: 'atualizado_em'
+  };
+
+  export type NcmScheduleConfigScalarFieldEnum = (typeof NcmScheduleConfigScalarFieldEnum)[keyof typeof NcmScheduleConfigScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -67434,6 +68457,78 @@ export namespace Prisma {
     erro_msg?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
+  }
+
+  export type NcmScheduleConfigWhereInput = {
+    AND?: NcmScheduleConfigWhereInput | NcmScheduleConfigWhereInput[]
+    OR?: NcmScheduleConfigWhereInput[]
+    NOT?: NcmScheduleConfigWhereInput | NcmScheduleConfigWhereInput[]
+    id?: StringFilter<"NcmScheduleConfig"> | string
+    tenant_id?: StringFilter<"NcmScheduleConfig"> | string
+    product_id?: StringNullableFilter<"NcmScheduleConfig"> | string | null
+    user_id?: StringNullableFilter<"NcmScheduleConfig"> | string | null
+    ativo?: BoolFilter<"NcmScheduleConfig"> | boolean
+    cron_expressao?: StringFilter<"NcmScheduleConfig"> | string
+    notificadores?: JsonFilter<"NcmScheduleConfig">
+    criado_em?: DateTimeFilter<"NcmScheduleConfig"> | Date | string
+    atualizado_em?: DateTimeFilter<"NcmScheduleConfig"> | Date | string
+  }
+
+  export type NcmScheduleConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    ativo?: SortOrder
+    cron_expressao?: SortOrder
+    notificadores?: SortOrder
+    criado_em?: SortOrder
+    atualizado_em?: SortOrder
+  }
+
+  export type NcmScheduleConfigWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: NcmScheduleConfigWhereInput | NcmScheduleConfigWhereInput[]
+    OR?: NcmScheduleConfigWhereInput[]
+    NOT?: NcmScheduleConfigWhereInput | NcmScheduleConfigWhereInput[]
+    tenant_id?: StringFilter<"NcmScheduleConfig"> | string
+    product_id?: StringNullableFilter<"NcmScheduleConfig"> | string | null
+    user_id?: StringNullableFilter<"NcmScheduleConfig"> | string | null
+    ativo?: BoolFilter<"NcmScheduleConfig"> | boolean
+    cron_expressao?: StringFilter<"NcmScheduleConfig"> | string
+    notificadores?: JsonFilter<"NcmScheduleConfig">
+    criado_em?: DateTimeFilter<"NcmScheduleConfig"> | Date | string
+    atualizado_em?: DateTimeFilter<"NcmScheduleConfig"> | Date | string
+  }, "id">
+
+  export type NcmScheduleConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrderInput | SortOrder
+    user_id?: SortOrderInput | SortOrder
+    ativo?: SortOrder
+    cron_expressao?: SortOrder
+    notificadores?: SortOrder
+    criado_em?: SortOrder
+    atualizado_em?: SortOrder
+    _count?: NcmScheduleConfigCountOrderByAggregateInput
+    _max?: NcmScheduleConfigMaxOrderByAggregateInput
+    _min?: NcmScheduleConfigMinOrderByAggregateInput
+  }
+
+  export type NcmScheduleConfigScalarWhereWithAggregatesInput = {
+    AND?: NcmScheduleConfigScalarWhereWithAggregatesInput | NcmScheduleConfigScalarWhereWithAggregatesInput[]
+    OR?: NcmScheduleConfigScalarWhereWithAggregatesInput[]
+    NOT?: NcmScheduleConfigScalarWhereWithAggregatesInput | NcmScheduleConfigScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"NcmScheduleConfig"> | string
+    tenant_id?: StringWithAggregatesFilter<"NcmScheduleConfig"> | string
+    product_id?: StringNullableWithAggregatesFilter<"NcmScheduleConfig"> | string | null
+    user_id?: StringNullableWithAggregatesFilter<"NcmScheduleConfig"> | string | null
+    ativo?: BoolWithAggregatesFilter<"NcmScheduleConfig"> | boolean
+    cron_expressao?: StringWithAggregatesFilter<"NcmScheduleConfig"> | string
+    notificadores?: JsonWithAggregatesFilter<"NcmScheduleConfig">
+    criado_em?: DateTimeWithAggregatesFilter<"NcmScheduleConfig"> | Date | string
+    atualizado_em?: DateTimeWithAggregatesFilter<"NcmScheduleConfig"> | Date | string
   }
 
   export type AtividadeCreateInput = {
@@ -74060,6 +75155,90 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type NcmScheduleConfigCreateInput = {
+    id?: string
+    tenant_id?: string
+    product_id?: string | null
+    user_id?: string | null
+    ativo?: boolean
+    cron_expressao?: string
+    notificadores?: JsonNullValueInput | InputJsonValue
+    criado_em?: Date | string
+    atualizado_em?: Date | string
+  }
+
+  export type NcmScheduleConfigUncheckedCreateInput = {
+    id?: string
+    tenant_id?: string
+    product_id?: string | null
+    user_id?: string | null
+    ativo?: boolean
+    cron_expressao?: string
+    notificadores?: JsonNullValueInput | InputJsonValue
+    criado_em?: Date | string
+    atualizado_em?: Date | string
+  }
+
+  export type NcmScheduleConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao?: StringFieldUpdateOperationsInput | string
+    notificadores?: JsonNullValueInput | InputJsonValue
+    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmScheduleConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao?: StringFieldUpdateOperationsInput | string
+    notificadores?: JsonNullValueInput | InputJsonValue
+    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmScheduleConfigCreateManyInput = {
+    id?: string
+    tenant_id?: string
+    product_id?: string | null
+    user_id?: string | null
+    ativo?: boolean
+    cron_expressao?: string
+    notificadores?: JsonNullValueInput | InputJsonValue
+    criado_em?: Date | string
+    atualizado_em?: Date | string
+  }
+
+  export type NcmScheduleConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao?: StringFieldUpdateOperationsInput | string
+    notificadores?: JsonNullValueInput | InputJsonValue
+    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type NcmScheduleConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    product_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    cron_expressao?: StringFieldUpdateOperationsInput | string
+    notificadores?: JsonNullValueInput | InputJsonValue
+    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -78077,6 +79256,40 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
     _max?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
+  }
+
+  export type NcmScheduleConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    ativo?: SortOrder
+    cron_expressao?: SortOrder
+    notificadores?: SortOrder
+    criado_em?: SortOrder
+    atualizado_em?: SortOrder
+  }
+
+  export type NcmScheduleConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    ativo?: SortOrder
+    cron_expressao?: SortOrder
+    criado_em?: SortOrder
+    atualizado_em?: SortOrder
+  }
+
+  export type NcmScheduleConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    tenant_id?: SortOrder
+    product_id?: SortOrder
+    user_id?: SortOrder
+    ativo?: SortOrder
+    cron_expressao?: SortOrder
+    criado_em?: SortOrder
+    atualizado_em?: SortOrder
   }
 
   export type AtividadeParticipanteCreateNestedManyWithoutAtividadeInput = {
@@ -85120,6 +86333,10 @@ export namespace Prisma {
      * @deprecated Use NcmSyncLogDefaultArgs instead
      */
     export type NcmSyncLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmSyncLogDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use NcmScheduleConfigDefaultArgs instead
+     */
+    export type NcmScheduleConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmScheduleConfigDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

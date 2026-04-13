@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-13T00:04:21.411Z
+// Gerado em: 2026-04-13T00:56:18.075Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core, ncm-sync
 // Todos os fragments encontrados.
 // ============================================================================
@@ -1739,4 +1739,26 @@ enum NcmSyncStatus {
 enum NcmSyncOrigem {
   JOB
   MANUAL
+}
+
+// ── NcmScheduleConfig — configuração singleton do job de sincronização NCM ───
+// id = 'default' — registro único (singleton global do sistema)
+// tenant_id = '__system__' — satisfaz padrão de índices obrigatórios
+
+model NcmScheduleConfig {
+  id             String   @id @default("default")
+  tenant_id      String   @default("__system__")
+  product_id     String?
+  user_id        String?
+
+  ativo          Boolean  @default(false)
+  cron_expressao String   @default("0 2 * * *")   // 2am diário (America/Sao_Paulo)
+  notificadores  Json     @default("[]")            // NcmNotificador[]
+
+  criado_em      DateTime @default(now())
+  atualizado_em  DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
 }

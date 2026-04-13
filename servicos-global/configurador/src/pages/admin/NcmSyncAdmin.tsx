@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import {
   ArrowsClockwise,
   CheckCircle,
@@ -18,6 +17,7 @@ import { BotaoGlobal } from '@nucleo/botao-global'
 import { StatCardGlobal } from '@nucleo/card-global'
 import { useShellStore } from '@gravity/shell'
 import { adminNcmApi, type NcmSyncLogApi, type NcmSyncStatusApi } from '../../services/apiClient'
+import { ModalAgendamentoNcmSync } from './ModalAgendamentoNcmSync'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -72,7 +72,6 @@ function OrigemBadge({ origem }: { origem: NcmSyncLogApi['origem'] }) {
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export function NcmSyncAdmin() {
-  const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
 
   const [status, setStatus]     = useState<NcmSyncStatusApi | null>(null)
@@ -82,6 +81,8 @@ export function NcmSyncAdmin() {
   const [totalLogs, setTotalLogs]       = useState(0)
   const [carregando, setCarregando]     = useState(true)
   const [sincronizando, setSincronizando] = useState(false)
+  const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
+  const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
 
   const carregarStatus = useCallback(async () => {
     try {
@@ -107,6 +108,8 @@ export function NcmSyncAdmin() {
     async function init() {
       setCarregando(true)
       await Promise.all([carregarStatus(), carregarHistorico(1)])
+      // Carregar estado do agendamento para o badge no botão
+      adminNcmApi.getSchedule().then(cfg => setAgendamentoAtivo(cfg.ativo)).catch(() => {})
       setCarregando(false)
     }
     init()
@@ -272,18 +275,45 @@ export function NcmSyncAdmin() {
         subtitulo="Portal Único Siscomex — tabela NCM do Brasil sincronizada diariamente"
         icone={<ArrowsClockwise size={22} weight="duotone" />}
         acoes={
-          <BotaoGlobal
-            variante="primario"
-            tamanho="md"
-            icone={sincronizando
-              ? <SpinnerGap size={16} weight="bold" style={{ animation: 'spin 1s linear infinite' }} />
-              : <ArrowsClockwise size={16} weight="bold" />
-            }
-            onClick={handleSync}
-            disabled={sincronizando}
-          >
-            {sincronizando ? 'Sincronizando…' : 'Sincronizar Agora'}
-          </BotaoGlobal>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {/* Botão Agendamento */}
+            <button
+              onClick={() => setModalAgendamentoAberto(true)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700,
+                background: agendamentoAtivo ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
+                border: `1px solid ${agendamentoAtivo ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`,
+                color: agendamentoAtivo ? '#10b981' : '#818cf8',
+                cursor: 'pointer', transition: 'all 0.2s',
+              }}
+            >
+              <Clock size={15} weight={agendamentoAtivo ? 'fill' : 'regular'} />
+              Agendamento
+              <span style={{
+                fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px',
+                background: agendamentoAtivo ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.2)',
+                color: agendamentoAtivo ? '#10b981' : '#64748b',
+                letterSpacing: '0.05em', textTransform: 'uppercase',
+              }}>
+                {agendamentoAtivo ? 'ATIVO' : 'INATIVO'}
+              </span>
+            </button>
+
+            {/* Botão Sincronizar Agora */}
+            <BotaoGlobal
+              variante="primario"
+              tamanho="md"
+              icone={sincronizando
+                ? <SpinnerGap size={16} weight="bold" style={{ animation: 'spin 1s linear infinite' }} />
+                : <ArrowsClockwise size={16} weight="bold" />
+              }
+              onClick={handleSync}
+              disabled={sincronizando}
+            >
+              {sincronizando ? 'Sincronizando…' : 'Sincronizar Agora'}
+            </BotaoGlobal>
+          </div>
         }
       />
 
@@ -328,6 +358,13 @@ export function NcmSyncAdmin() {
           totalPaginas,
           onPaginaChange: handlePaginaChange,
         } : undefined}
+      />
+
+      {/* Modal de Agendamento */}
+      <ModalAgendamentoNcmSync
+        aberto={modalAgendamentoAberto}
+        aoFechar={() => setModalAgendamentoAberto(false)}
+        aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
       />
     </PaginaGlobal>
   )

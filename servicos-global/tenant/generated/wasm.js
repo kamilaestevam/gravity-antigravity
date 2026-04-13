@@ -1061,6 +1061,18 @@ exports.Prisma.NcmSyncLogScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.NcmScheduleConfigScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  ativo: 'ativo',
+  cron_expressao: 'cron_expressao',
+  notificadores: 'notificadores',
+  criado_em: 'criado_em',
+  atualizado_em: 'atualizado_em'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1232,7 +1244,8 @@ exports.Prisma.ModelName = {
   ConfiguracaoPedido: 'ConfiguracaoPedido',
   MapeamentoImport: 'MapeamentoImport',
   NcmItem: 'NcmItem',
-  NcmSyncLog: 'NcmSyncLog'
+  NcmSyncLog: 'NcmSyncLog',
+  NcmScheduleConfig: 'NcmScheduleConfig'
 };
 
 /**

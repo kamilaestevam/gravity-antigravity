@@ -17,6 +17,7 @@ import { prisma } from '../../../../tenant/server/lib/prisma.js'
 import { AppError } from '../../../middleware/appError.js'
 import { executarSync, buscarNcm, obterStatusSync } from '../services/ncmSyncEngine.js'
 import { validarNcm } from '../connectors/portalUnicoNcm.js'
+import { reagendarJob } from '../init.js'
 
 export const apiRoutes = Router()
 
@@ -292,6 +293,152 @@ apiRoutes.post('/admin/sync/:tenantId', async (req: Request, res: Response, next
     })
 
     res.json({ sucesso: true, ...result })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── GET /admin/schedule — Ler configuração do agendamento ────────────────────
+
+apiRoutes.get('/admin/schedule', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const key = req.headers['x-internal-key'] as string | undefined
+    if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
+      throw new AppError('Não autorizado', 403, 'FORBIDDEN')
+    }
+
+    const config = await prisma.ncmScheduleConfig.findUnique({ where: { id: 'default' } })
+
+    // Calcular próxima execução se ativo
+    let proxima_execucao: string | null = null
+    if (config?.ativo && config.cron_expressao) {
+      try {
+        // node-cron não expõe nextDate — estimamos baseado na expressão
+        // Retornamos a expressão para o frontend calcular ou exibir
+        proxima_execucao = config.cron_expressao
+      } catch { proxima_execucao = null }
+    }
+
+    res.json({
+      ativo:           config?.ativo          ?? false,
+      cron_expressao:  config?.cron_expressao ?? '0 2 * * *',
+      notificadores:   config?.notificadores  ?? [],
+      proxima_execucao,
+      atualizado_em:   config?.atualizado_em  ?? null,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── PUT /admin/schedule — Salvar configuração e re-agendar job ────────────────
+
+const scheduleBodySchema = z.object({
+  ativo:          z.boolean(),
+  cron_expressao: z.string().min(9).max(100),
+  notificadores:  z.array(z.object({
+    id:       z.string(),
+    nome:     z.string(),
+    contato:  z.string(),
+    condicao: z.enum(['Apenas Erros', 'Sempre']),
+    canal:    z.enum(['E-mail', 'WhatsApp', 'Ambos']),
+  })).default([]),
+})
+
+apiRoutes.put('/admin/schedule', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const key = req.headers['x-internal-key'] as string | undefined
+    if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
+      throw new AppError('Não autorizado', 403, 'FORBIDDEN')
+    }
+
+    const parsed = scheduleBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(
+        `Dados inválidos: ${parsed.error.errors.map(e => e.message).join(', ')}`,
+        400, 'VALIDATION_ERROR'
+      )
+    }
+
+    const { ativo, cron_expressao, notificadores } = parsed.data
+
+    const config = await prisma.ncmScheduleConfig.upsert({
+      where:  { id: 'default' },
+      create: { id: 'default', ativo, cron_expressao, notificadores: notificadores as object[] },
+      update: { ativo, cron_expressao, notificadores: notificadores as object[] },
+    })
+
+    // Re-agendar job em runtime sem restart do servidor
+    reagendarJob(cron_expressao, ativo)
+
+    res.json({
+      sucesso:        true,
+      ativo:          config.ativo,
+      cron_expressao: config.cron_expressao,
+      notificadores:  config.notificadores,
+      atualizado_em:  config.atualizado_em,
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── POST /admin/schedule/execute — Execução manual imediata ──────────────────
+
+const executeBodySchema = z.object({
+  tenant_id: z.string().optional(), // se omitido: executa para todos os tenants
+})
+
+apiRoutes.post('/admin/schedule/execute', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const key = req.headers['x-internal-key'] as string | undefined
+    if (!INTERNAL_KEY || key !== INTERNAL_KEY) {
+      throw new AppError('Não autorizado', 403, 'FORBIDDEN')
+    }
+
+    const parsed = executeBodySchema.safeParse(req.body)
+    if (!parsed.success) throw new AppError('Dados inválidos', 400, 'VALIDATION_ERROR')
+
+    const { tenant_id } = parsed.data
+
+    if (tenant_id) {
+      // Executar para tenant específico
+      const emAndamento = await prisma.ncmSyncLog.findFirst({
+        where: { tenant_id, status: 'RUNNING' }, orderBy: { iniciado_em: 'desc' },
+      })
+      if (emAndamento) {
+        throw new AppError('Já existe uma sincronização em andamento para este tenant.', 409, 'SYNC_ALREADY_RUNNING')
+      }
+
+      const result = await executarSync(prisma, tenant_id, { origem: 'MANUAL', disparadoPor: 'gravity-admin' })
+      return res.json({ sucesso: true, tenants_executados: 1, resultados: [{ tenant_id, ...result }] })
+    }
+
+    // Executar para TODOS os tenants com NCMs (mesmo comportamento do job diário)
+    const tenants = await prisma.ncmItem.findMany({
+      select: { tenant_id: true }, distinct: ['tenant_id'],
+    })
+
+    if (tenants.length === 0) {
+      return res.json({ sucesso: true, tenants_executados: 0, resultados: [], aviso: 'Nenhum tenant com NCMs cadastrados.' })
+    }
+
+    const resultados: Array<{ tenant_id: string; sucesso: boolean; total?: number; adicionados?: number; alterados?: number; removidos?: number; duracaoMs?: number; erro?: string }> = []
+
+    for (const { tenant_id: tid } of tenants) {
+      try {
+        const r = await executarSync(prisma, tid, { origem: 'MANUAL', disparadoPor: 'gravity-admin' })
+        resultados.push({ tenant_id: tid, sucesso: true, ...r })
+      } catch (err) {
+        resultados.push({ tenant_id: tid, sucesso: false, erro: err instanceof Error ? err.message : String(err) })
+      }
+    }
+
+    res.json({
+      sucesso: true,
+      tenants_executados: resultados.length,
+      resultados,
+    })
   } catch (err) {
     next(err)
   }

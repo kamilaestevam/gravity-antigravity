@@ -71,3 +71,25 @@ enum NcmSyncOrigem {
   JOB
   MANUAL
 }
+
+// ── NcmScheduleConfig — configuração singleton do job de sincronização NCM ───
+// id = 'default' — registro único (singleton global do sistema)
+// tenant_id = '__system__' — satisfaz padrão de índices obrigatórios
+
+model NcmScheduleConfig {
+  id             String   @id @default("default")
+  tenant_id      String   @default("__system__")
+  product_id     String?
+  user_id        String?
+
+  ativo          Boolean  @default(false)
+  cron_expressao String   @default("0 2 * * *")   // 2am diário (America/Sao_Paulo)
+  notificadores  Json     @default("[]")            // NcmNotificador[]
+
+  criado_em      DateTime @default(now())
+  atualizado_em  DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}

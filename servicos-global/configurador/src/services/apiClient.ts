@@ -437,6 +437,35 @@ export interface NcmSyncLogApi {
 
 const NCM_INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? 'develop-internal-key'
 
+// ── Tipos de schedule ──────────────────────────────────────────────────────
+
+export interface NcmNotificador {
+  id:       string
+  nome:     string
+  contato:  string
+  condicao: 'Apenas Erros' | 'Sempre'
+  canal:    'E-mail' | 'WhatsApp' | 'Ambos'
+}
+
+export interface NcmScheduleConfigApi {
+  ativo:           boolean
+  cron_expressao:  string
+  notificadores:   NcmNotificador[]
+  proxima_execucao: string | null
+  atualizado_em:   string | null
+}
+
+export interface NcmExecuteResultado {
+  tenant_id:   string
+  sucesso:     boolean
+  total?:      number
+  adicionados?: number
+  alterados?:  number
+  removidos?:  number
+  duracaoMs?:  number
+  erro?:       string
+}
+
 export const adminNcmApi = {
   async getStatus() {
     return request<NcmSyncStatusApi>('/v1/ncm/admin/status', {
@@ -459,6 +488,33 @@ export const adminNcmApi = {
     return request<{ sucesso: boolean; total: number; adicionados: number; alterados: number; removidos: number; duracaoMs: number }>(
       `/v1/ncm/admin/sync/${tenantId}`,
       { method: 'POST', headers: { 'x-internal-key': NCM_INTERNAL_KEY } }
+    )
+  },
+
+  // ── Schedule endpoints ──────────────────────────────────────────────────
+
+  async getSchedule() {
+    return request<NcmScheduleConfigApi>('/v1/ncm/admin/schedule', {
+      headers: { 'x-internal-key': NCM_INTERNAL_KEY },
+    })
+  },
+
+  async saveSchedule(data: { ativo: boolean; cron_expressao: string; notificadores: NcmNotificador[] }) {
+    return request<NcmScheduleConfigApi>('/v1/ncm/admin/schedule', {
+      method: 'PUT',
+      headers: { 'x-internal-key': NCM_INTERNAL_KEY },
+      body: JSON.stringify(data),
+    })
+  },
+
+  async executeManual(tenantId?: string) {
+    return request<{ sucesso: boolean; tenants_executados: number; resultados: NcmExecuteResultado[]; aviso?: string }>(
+      '/v1/ncm/admin/schedule/execute',
+      {
+        method: 'POST',
+        headers: { 'x-internal-key': NCM_INTERNAL_KEY },
+        body: JSON.stringify(tenantId ? { tenant_id: tenantId } : {}),
+      }
     )
   },
 }

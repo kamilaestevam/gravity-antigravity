@@ -167,11 +167,13 @@ function CardSortavel({
 // ─── Coluna sortável (DnD — Colunas Personalizadas) ──────────────────────────
 
 function ColunaSortavel({
-  col, onToggleAtivo, onRemover,
+  col, onToggleAtivo, onRemover, onEditar, editando,
 }: {
   col: import('../shared/types').ColunaUsuario
   onToggleAtivo: () => void
   onRemover: () => void
+  onEditar: () => void
+  editando: boolean
 }) {
   const tipoInfo = [
     { id: 'texto', label: 'Texto' }, { id: 'numero', label: 'Numérico' },
@@ -194,7 +196,7 @@ function ColunaSortavel({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={`cfg-kanban-campo-row${!col.ativo ? ' cfg-kanban-campo-row--oculto' : ''}`}>
+    <div ref={setNodeRef} style={style} className={`cfg-kanban-campo-row${!col.ativo ? ' cfg-kanban-campo-row--oculto' : ''}${editando ? ' cfg-kanban-campo-row--editando' : ''}`}>
       <button type="button" className="cfg-drag-handle" {...attributes} {...listeners} aria-label="Arrastar para reordenar">
         <DotsSixVertical size={15} weight="bold" />
       </button>
@@ -202,6 +204,11 @@ function ColunaSortavel({
         <span className="cfg-kanban-campo-row__nome">{col.nome}</span>
         <span className="cfg-kanban-campo-row__tipo">{tipoInfo?.label ?? col.tipo}</span>
       </div>
+      <TooltipGlobal descricao="Editar propriedades">
+        <button type="button" className={`cfg-kanban-campo-btn${editando ? ' cfg-kanban-campo-btn--ativo' : ''}`} onClick={onEditar} aria-label={`Editar ${col.nome}`}>
+          <PencilSimple size={14} weight="duotone" />
+        </button>
+      </TooltipGlobal>
       <TooltipGlobal descricao={col.ativo ? 'Ocultar coluna' : 'Exibir coluna'}>
         <button type="button" className="cfg-kanban-campo-btn" onClick={onToggleAtivo} aria-label={col.ativo ? 'Ocultar' : 'Exibir'}>
           {col.ativo ? <Eye size={14} weight="duotone" /> : <EyeSlash size={14} weight="duotone" />}
@@ -859,6 +866,55 @@ export default function Configuracoes() {
 
   function cancelarOrdemColunas() {
     setPendingColunas([...colunasUsuarioApi_])
+  }
+
+  // ── Estado: edição de coluna existente ──
+  const [editandoColunaId, setEditandoColunaId] = useState<string | null>(null)
+  const [editandoColunaData, setEditandoColunaData] = useState<Partial<ColunaUsuarioApi> & { itensDiferentes: boolean; pedidoEditavel: boolean }>({
+    nome: '', obrigatorio: false, valor_padrao: '', descricao: '', itensDiferentes: false, pedidoEditavel: true,
+  })
+  const [salvandoEdicaoColuna, setSalvandoEdicaoColuna] = useState(false)
+  const [erroEdicaoColuna, setErroEdicaoColuna] = useState<string | null>(null)
+
+  function abrirEdicaoColuna(col: ColunaUsuarioApi) {
+    const itensDiferentes = col.escopo === 'item' || col.escopo === 'ambos'
+    const pedidoEditavel  = col.escopo !== 'item'
+    setEditandoColunaId(col.id)
+    setEditandoColunaData({ nome: col.nome, tipo: col.tipo, obrigatorio: col.obrigatorio, valor_padrao: col.valor_padrao ?? '', descricao: col.descricao ?? '', itensDiferentes, pedidoEditavel })
+    setErroEdicaoColuna(null)
+  }
+
+  function fecharEdicaoColuna() {
+    setEditandoColunaId(null)
+    setErroEdicaoColuna(null)
+  }
+
+  function escopoDeToggle(itensDiferentes: boolean, pedidoEditavel: boolean): EscopoColunaUsuario {
+    if (!itensDiferentes) return 'pedido'
+    return pedidoEditavel ? 'ambos' : 'item'
+  }
+
+  async function handleAtualizarColuna() {
+    if (!editandoColunaId || !editandoColunaData.nome?.trim()) return
+    setSalvandoEdicaoColuna(true)
+    setErroEdicaoColuna(null)
+    try {
+      await colunasUsuarioApi.atualizar(editandoColunaId, {
+        nome: editandoColunaData.nome!.trim(),
+        obrigatorio: editandoColunaData.obrigatorio ?? false,
+        valor_padrao: editandoColunaData.valor_padrao?.trim() || undefined,
+        descricao: editandoColunaData.descricao?.trim() || undefined,
+        escopo: escopoDeToggle(editandoColunaData.itensDiferentes!, editandoColunaData.pedidoEditavel!),
+      })
+      const lista = await colunasUsuarioApi.listar()
+      setColunasUsuarioApi(lista)
+      setPendingColunas(lista)
+      fecharEdicaoColuna()
+    } catch (err) {
+      setErroEdicaoColuna(err instanceof Error ? err.message : 'Erro ao salvar.')
+    } finally {
+      setSalvandoEdicaoColuna(false)
+    }
   }
 
   // ── Estado: colunas personalizadas (via API) ──
@@ -3566,6 +3622,8 @@ export default function Configuracoes() {
                             col={col}
                             onToggleAtivo={() => handleToggleAtivoColuna(col.id)}
                             onRemover={() => handleRemoverColuna(col.id)}
+                            onEditar={() => editandoColunaId === col.id ? fecharEdicaoColuna() : abrirEdicaoColuna(col)}
+                            editando={editandoColunaId === col.id}
                           />
                         ))}
                       </SortableContext>
@@ -3577,6 +3635,134 @@ export default function Configuracoes() {
                   </div>
                 </>
               )}
+
+              {/* ── Editar Coluna ── */}
+              {editandoColunaId && (() => {
+                const d = editandoColunaData
+                const tipoLabel = [
+                  { id: 'texto', label: 'Texto' }, { id: 'numero', label: 'Numérico' },
+                  { id: 'data', label: 'Data' }, { id: 'percentual', label: 'Percentual %' },
+                  { id: 'select', label: 'Select/Lista' }, { id: 'checkbox', label: 'Checkbox' },
+                  { id: 'tipo_documento', label: 'Tipo Documento' }, { id: 'formula', label: 'Fórmula' },
+                  { id: 'anexo', label: 'Anexo' },
+                ].find(t => t.id === d.tipo)?.label ?? d.tipo
+                return (
+                  <>
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />
+                    <CfgSectionLabel label="EDITAR COLUNA" />
+                    <div className="cfg-campo-calc-item" style={{ marginTop: '0.5rem' }}>
+                      <div className="cfg-nova-coluna-form cfg-campo-calc-item__body">
+
+                        {/* Nome */}
+                        <div className="cfg-form-group">
+                          <label className="cfg-form-label">Nome da Coluna <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                          <input
+                            type="text"
+                            className="cfg-form-input"
+                            value={d.nome ?? ''}
+                            onChange={e => setEditandoColunaData(prev => ({ ...prev, nome: e.target.value }))}
+                            maxLength={50}
+                          />
+                        </div>
+
+                        {/* Tipo (read-only) */}
+                        <div className="cfg-form-group">
+                          <label className="cfg-form-label">Tipo de coluna</label>
+                          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)', margin: 0 }}>{tipoLabel}</p>
+                        </div>
+
+                        {/* Itens com dados diferentes */}
+                        <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div>
+                            <label className="cfg-form-label" style={{ margin: 0 }}>Itens podem ter dados diferentes</label>
+                            <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>Cada item do pedido pode ter um valor próprio nesta coluna.</p>
+                          </div>
+                          <Toggle
+                            checked={d.itensDiferentes ?? false}
+                            onChange={v => setEditandoColunaData(prev => ({ ...prev, itensDiferentes: v }))}
+                          />
+                        </div>
+
+                        {/* Alerta quando itens podem ter dados diferentes */}
+                        {d.itensDiferentes && (
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.625rem 0.75rem', background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '6px', fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                            <Warning size={16} weight="fill" style={{ color: '#f59e0b', flexShrink: 0, marginTop: '0.05rem' }} />
+                            <span>Valores salvos no nível do pedido não são migrados automaticamente para os itens. Cada item precisará ser preenchido individualmente.</span>
+                          </div>
+                        )}
+
+                        {/* O pedido é editável? — só aparece quando itens podem ter dados diferentes */}
+                        {d.itensDiferentes && (
+                          <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                              <label className="cfg-form-label" style={{ margin: 0 }}>O pedido também é editável</label>
+                              <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>Permite definir um valor padrão a nível de pedido além dos valores por item.</p>
+                            </div>
+                            <Toggle
+                              checked={d.pedidoEditavel ?? true}
+                              onChange={v => setEditandoColunaData(prev => ({ ...prev, pedidoEditavel: v }))}
+                            />
+                          </div>
+                        )}
+
+                        {/* Obrigatório */}
+                        {d.tipo !== 'anexo' && (
+                          <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <label className="cfg-form-label" style={{ margin: 0 }}>Obrigatório</label>
+                            <Toggle
+                              checked={d.obrigatorio ?? false}
+                              onChange={v => setEditandoColunaData(prev => ({ ...prev, obrigatorio: v }))}
+                            />
+                          </div>
+                        )}
+
+                        {/* Valor padrão */}
+                        {d.tipo !== 'anexo' && d.tipo !== 'formula' && (
+                          <div className="cfg-form-group">
+                            <label className="cfg-form-label">Valor padrão</label>
+                            <p className="cfg-form-hint">Preenchido automaticamente ao criar um novo pedido.</p>
+                            <input
+                              type={d.tipo === 'numero' || d.tipo === 'percentual' ? 'number' : d.tipo === 'data' ? 'date' : 'text'}
+                              className="cfg-form-input"
+                              placeholder="Deixe em branco para não definir"
+                              value={d.valor_padrao ?? ''}
+                              onChange={e => setEditandoColunaData(prev => ({ ...prev, valor_padrao: e.target.value }))}
+                              maxLength={1000}
+                            />
+                          </div>
+                        )}
+
+                        {/* Descrição */}
+                        <div className="cfg-form-group">
+                          <label className="cfg-form-label">Descrição</label>
+                          <p className="cfg-form-hint">Exibido como tooltip no cabeçalho da coluna na tabela.</p>
+                          <input
+                            type="text"
+                            className="cfg-form-input"
+                            placeholder="Ex: Número do contrato de referência"
+                            value={d.descricao ?? ''}
+                            onChange={e => setEditandoColunaData(prev => ({ ...prev, descricao: e.target.value }))}
+                            maxLength={200}
+                          />
+                        </div>
+
+                        {erroEdicaoColuna && (
+                          <p style={{ fontSize: '0.8125rem', color: 'var(--color-danger, #f87171)', margin: 0 }} role="alert">{erroEdicaoColuna}</p>
+                        )}
+                      </div>
+                      <div className="cfg-campo-calc-item__footer">
+                        <BotaoCancelar dirty={true} rotulo="Fechar" onClick={fecharEdicaoColuna} />
+                        <BotaoSalvar
+                          dirty={!!d.nome?.trim()}
+                          carregando={salvandoEdicaoColuna}
+                          rotulo={salvandoEdicaoColuna ? 'Salvando...' : 'Salvar alterações'}
+                          onClick={handleAtualizarColuna}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )
+              })()}
 
               {/* Separador */}
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />

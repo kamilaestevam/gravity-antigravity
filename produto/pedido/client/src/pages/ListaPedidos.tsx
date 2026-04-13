@@ -2113,6 +2113,13 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
     editavel:        col.tipo !== 'formula' && col.tipo !== 'checkbox',
     tooltipTitulo:   col.nome,
     tooltipDescricao: col.descricao,
+    getValorEditar: (row: Pedido) => {
+      const valores = (row as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> | undefined
+      const raw = valores?.[col.id]
+      if (raw == null) return col.tipo === 'numero' || col.tipo === 'percentual' ? 0 : ''
+      if (col.tipo === 'numero' || col.tipo === 'percentual') return Number(raw) || 0
+      return raw
+    },
     render: (_val: unknown, row: Pedido) => {
       const valores = (row as Record<string, unknown>)['_colunas_usuario'] as
         Record<string, string> | undefined
@@ -4446,6 +4453,14 @@ export default function ListaPedidos() {
     return [...colunasBase, ...custom]
   }, [colunasUsuario, statusOpts, saldoFormulaAST])
 
+  // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
+  const camposEditaveisFilhosComCustom = useMemo(() => {
+    const customKeys = colunasUsuario
+      .filter(c => c.tipo !== 'formula' && c.tipo !== 'checkbox' && c.tipo !== 'anexo')
+      .map(c => c.chave)
+    return [...CAMPOS_EDITAVEIS_PAI, ...customKeys]
+  }, [colunasUsuario])
+
   // ── Estado de filtros de coluna ───────────────────────────────────────────────
   const [filtrosAtivos, setFiltrosAtivos]   = useState<FiltrosAtivosMap>({})
   const filtrosAtivosKeys = useMemo(() => new Set(Object.keys(filtrosAtivos)), [filtrosAtivos])
@@ -5135,6 +5150,26 @@ export default function ListaPedidos() {
       return enriquecidoPronta
     }
 
+    // ── Colunas customizadas do usuário ──────────────────────────────────────
+    const colunaCustomFilho = colunasUsuario.find(c => c.chave === campo)
+    if (colunaCustomFilho) {
+      const vinculo = colunaCustomFilho.escopo === 'item' ? 'item' : 'pedido'
+      const vinculoId = vinculo === 'item' ? id : pedido.id
+      await colunasUsuarioApi.salvarValores(vinculo, vinculoId, { [colunaCustomFilho.id]: String(valor) })
+      const colunasAntes = (pedido as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+      const novasColunas = { ...colunasAntes, [colunaCustomFilho.id]: String(valor) }
+      setPedidos(prev => prev.map(p => {
+        if (p.id !== pedido.id) return p
+        return {
+          ...p,
+          _colunas_usuario: novasColunas,
+          itens: p.itens?.map(i => ({ ...i, _colunas_usuario: { ...((i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}), [colunaCustomFilho.id]: String(valor) } })),
+        }
+      }))
+      const item = pedido.itens?.find(i => i.id === id)!
+      return { ...item, _colunas_usuario: { ...((item as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}), [colunaCustomFilho.id]: String(valor) } } as PedidoItem
+    }
+
     let payload: Partial<PedidoItem>
     {
       // Normaliza datas para ISO antes de enviar ao servidor
@@ -5247,8 +5282,10 @@ export default function ListaPedidos() {
 
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   const handleCarregarFilhos = useCallback(async (pedido: Pedido): Promise<PedidoItem[]> => {
+    const parentColunas = (pedido as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
     return (pedido.itens ?? []).map(item => ({
       ...item,
+      _colunas_usuario: parentColunas,
       _p: {
         id: pedido.id,
         tipo_operacao: pedido.tipo_operacao,
@@ -5634,7 +5671,7 @@ export default function ListaPedidos() {
           camposEditaveis={CAMPOS_EDITAVEIS_PAI}
           onEditar={handleEditar}
 
-          camposEditaveisFilhos={CAMPOS_EDITAVEIS_PAI}
+          camposEditaveisFilhos={camposEditaveisFilhosComCustom}
           onEditarFilho={handleEditarFilho}
 
           onSalvoComSucesso={() => addNotification({ type: 'success', message: 'Campo atualizado com sucesso.' })}

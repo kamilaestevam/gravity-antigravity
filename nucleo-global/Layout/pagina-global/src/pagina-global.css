@@ -66,6 +66,14 @@ body.light-theme .pg-contexto-row {
   flex-shrink: 0;
 }
 
+/* cg-card e scg-card dentro da area de stats: largura uniforme e fixa */
+.pg-stats-area .cg-card,
+.pg-stats-area .scg-card {
+  flex: 0 0 200px;
+  width: 200px;
+  max-width: 200px;
+}
+
 .pg-acoes-area {
   flex-shrink: 0;
   display: flex;

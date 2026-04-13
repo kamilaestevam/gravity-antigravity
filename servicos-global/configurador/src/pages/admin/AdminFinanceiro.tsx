@@ -51,6 +51,22 @@ type FaturaGlobal = {
 
 import { adminBillingApi, type InvoiceApi } from '../../services/apiClient'
 
+// Mock de preços por plano enquanto o backend não retorna valores
+const MOCK_PLAN_PRICES: Record<string, number> = {
+  starter: 99,
+  basic: 149,
+  pro: 299,
+  business: 599,
+  enterprise: 1499,
+  gravity: 299,
+}
+
+function mockValorFromPlan(plan: string | null | undefined): string {
+  const key = (plan ?? '').toLowerCase()
+  const preco = Object.entries(MOCK_PLAN_PRICES).find(([k]) => key.includes(k))?.[1] ?? 299
+  return `R$ ${preco.toFixed(2).replace('.', ',')}`
+}
+
 // Helper para mapear assinaturas do backend para o formato de fatura do frontend
 function mapSubscriptionToFatura(inv: InvoiceApi, index: number): FaturaGlobal {
   const statusMap: Record<string, FaturaStatus> = {
@@ -62,17 +78,19 @@ function mapSubscriptionToFatura(inv: InvoiceApi, index: number): FaturaGlobal {
   }
   const created = new Date(inv.created_at)
   const competencia = `${created.toLocaleString('pt-BR', { month: 'short' })}/${created.getFullYear()}`
+  const produto = inv.plan ?? 'Gravity Pro'
+  const valor = mockValorFromPlan(inv.plan)
 
   return {
     id: inv.id,
     num: `#${String(index + 1).padStart(4, '0')}`,
     cliente: inv.tenant?.name ?? 'N/A',
-    produto: inv.plan ?? 'N/A',
+    produto,
     competencia,
-    valor: 'N/A',
+    valor,
     vencimento: inv.current_period_end ? new Date(inv.current_period_end).toLocaleDateString('pt-BR') : 'N/A',
     status: statusMap[inv.status] ?? 'Pendente',
-    composicao: [{ item: `Plano ${inv.plan}`, valor: 'N/A', tipo: 'base' as const }],
+    composicao: [{ item: `Plano ${produto}`, valor, tipo: 'base' as const }],
     documentos: [],
   }
 }
@@ -107,8 +125,9 @@ export function AdminFinanceiro() {
   const faturasAbertas = faturasLocal.filter(f => f.status === 'Pendente' || f.status === 'Atrasado')
   const inadimplencias = faturasLocal.filter(f => f.status === 'Atrasado')
 
-  const totalAberto = faturasAbertas.reduce((acc, f) => acc + parseFloat(f.valor.replace('R$ ', '').replace('.', '').replace(',', '.')), 0)
-  const totalInadimplencia = inadimplencias.reduce((acc, f) => acc + parseFloat(f.valor.replace('R$ ', '').replace('.', '').replace(',', '.')), 0)
+  const parseValor = (v: string) => { const n = parseFloat(v.replace('R$ ', '').replace(/\./g, '').replace(',', '.')); return isNaN(n) ? 0 : n }
+  const totalAberto = faturasAbertas.reduce((acc, f) => acc + parseValor(f.valor), 0)
+  const totalInadimplencia = inadimplencias.reduce((acc, f) => acc + parseValor(f.valor), 0)
 
   function handleDownload(tipo: string, num: string) {
     addNotification({ type: 'info', message: t('admin.financial.msg_preparando_download', { tipo, num }) })

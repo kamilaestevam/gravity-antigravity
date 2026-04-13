@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getCachedKpis, setCachedKpis } from '../../../servicos-global/tenant/dashboard/server/lib/cache';
 import { AppError } from '../../../servicos-global/tenant/dashboard/server/lib/errors';
 import router from '../../../servicos-global/tenant/dashboard/server/routes';
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import request from 'supertest';
 
 // Mock dependencies
@@ -25,7 +25,7 @@ app.use('/api/v1/dashboard', (req, res, next) => {
   // Pass to router
   router(req, res, next);
 });
-app.use((err: any, req: any, res: any, next: any) => {
+app.use((err: Error & { statusCode?: number }, _req: Request, res: Response, _next: NextFunction) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({ error: err.message });
   }

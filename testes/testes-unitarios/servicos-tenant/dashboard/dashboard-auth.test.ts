@@ -50,12 +50,12 @@ function createTestApp() {
       return res.json({ source: 'cache', data: cached })
     }
 
-    const whereClause: any = { tenant_id }
+    const whereClause: Record<string, unknown> = { tenant_id }
     if (product_id) whereClause.product_id = product_id
 
     const snapshots = await mockFindMany({ where: whereClause, orderBy: { snapshot_date: 'desc' } })
 
-    const kpisMap = new Map<string, any>()
+    const kpisMap = new Map<string, { name: string; value: number; unit: string; date: unknown }>()
     for (const snap of snapshots) {
       if (!kpisMap.has(snap.metric_name)) {
         kpisMap.set(snap.metric_name, {

@@ -9,7 +9,7 @@ import app from '../../../servicos-global/tenant/dashboard/server/index.js'
 vi.mock('../../../servicos-global/tenant/dashboard/server/lib/prisma.js', () => ({
   prisma: {
     $queryRaw: vi.fn(),
-    $transaction: vi.fn((cb: any) => cb()),
+    $transaction: vi.fn((cb: (p: unknown) => unknown) => cb(undefined)),
     user: { count: vi.fn() },
     tenant: { findUnique: vi.fn() },
   },

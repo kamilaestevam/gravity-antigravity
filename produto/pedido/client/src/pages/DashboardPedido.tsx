@@ -826,8 +826,18 @@ export default function DashboardPedido() {
   const [gabiPaused, setGabiPaused] = useState(false)
 
   const scrollGabi = useCallback((dir: 'left' | 'right') => {
-    if (!gabiCarouselRef.current) return
-    gabiCarouselRef.current.scrollBy({ left: dir === 'right' ? 340 : -340, behavior: 'smooth' })
+    const el = gabiCarouselRef.current
+    if (!el) return
+    if (dir === 'right') {
+      // Ao chegar no fim, volta ao início (loop)
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
+        el.scrollTo({ left: 0, behavior: 'smooth' })
+      } else {
+        el.scrollBy({ left: 340, behavior: 'smooth' })
+      }
+    } else {
+      el.scrollBy({ left: -340, behavior: 'smooth' })
+    }
   }, [])
 
   // allDerived deve vir antes de suggestions (evita TDZ)
@@ -1300,33 +1310,6 @@ export default function DashboardPedido() {
         </div>
       </div>
 
-      {/* ── Alerta NCM — itens com NCM inválido ou tabela desatualizada ────── */}
-      {ncmStatus && (ncmStatus.itens_invalidos > 0 || ncmStatus.sem_sync) && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '0.75rem',
-          padding: '0.75rem 1.125rem',
-          marginBottom: '1rem',
-          background: ncmStatus.itens_invalidos > 0 ? 'rgba(251,191,36,0.08)' : 'rgba(100,116,139,0.08)',
-          border: `1px solid ${ncmStatus.itens_invalidos > 0 ? 'rgba(251,191,36,0.25)' : 'rgba(100,116,139,0.2)'}`,
-          borderRadius: '0.5rem',
-          fontSize: '0.8375rem',
-          color: ncmStatus.itens_invalidos > 0 ? '#fbbf24' : '#94a3b8',
-        }}>
-          <Warning size={16} weight="fill" style={{ flexShrink: 0 }} />
-          <span>
-            {ncmStatus.sem_sync
-              ? 'Tabela NCM não sincronizada — acesse o painel Admin para sincronizar.'
-              : (
-                <>
-                  <strong>{ncmStatus.itens_invalidos}</strong>{' '}
-                  {ncmStatus.itens_invalidos === 1 ? 'item possui' : 'itens possuem'} NCM não encontrado na tabela Siscomex.
-                  {' '}Revise os pedidos para garantir conformidade fiscal.
-                </>
-              )
-            }
-          </span>
-        </div>
-      )}
 
       {/* T-07/08: statusCounts do kpisData em memória | T-10: compactStatus responsivo */}
       <DashboardToolbar
@@ -1397,6 +1380,34 @@ export default function DashboardPedido() {
             <button type="button" style={sty.painelAddBtn} onClick={() => setCriandoPainel(true)} title="Novo painel">
               +
             </button>
+          )}
+
+          {/* Chip NCM inline */}
+          {ncmStatus && (ncmStatus.itens_invalidos > 0 || ncmStatus.sem_sync) && (
+            <span
+              title={ncmStatus.sem_sync
+                ? 'Tabela NCM não sincronizada — acesse o painel Admin para sincronizar.'
+                : `${ncmStatus.itens_invalidos} ${ncmStatus.itens_invalidos === 1 ? 'item possui' : 'itens possuem'} NCM não encontrado na tabela Siscomex.`
+              }
+              style={{
+                marginLeft: 'auto',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.3rem',
+                background: 'rgba(251,191,36,0.1)',
+                border: '1px solid rgba(251,191,36,0.3)',
+                borderRadius: '999px',
+                padding: '0.2rem 0.6rem',
+                fontSize: '0.7rem',
+                fontWeight: 600,
+                color: '#fbbf24',
+                cursor: 'default',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <Warning size={11} weight="fill" />
+              {ncmStatus.sem_sync ? 'NCM desatualizada' : `${ncmStatus.itens_invalidos} NCM inválido${ncmStatus.itens_invalidos > 1 ? 's' : ''}`}
+            </span>
           )}
         </div>
       )}

@@ -25,6 +25,7 @@
 import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import type { PrismaClient } from '@prisma/client'
 import { saldoEngine, AppError } from '../services/saldoEngine.js'
 
 export const pedidosRouter = Router()
@@ -83,9 +84,12 @@ const atualizarItemSchema = z.object({
   cobertura_cambial: z.string().optional(),
   nome_exportador: z.string().optional().nullable(),
   nome_importador: z.string().optional().nullable(),
+  nome_fabricante: z.string().optional().nullable(),
   referencia_importador: z.string().optional().nullable(),
   referencia_exportador: z.string().optional().nullable(),
   referencia_fabricante: z.string().optional().nullable(),
+  incoterm: z.string().optional().nullable(),
+  condicao_pagamento_pedido: z.string().optional().nullable(),
   // Dados físicos unitários
   peso_liquido_unitario_item: z.number().optional().nullable(),
   peso_liquido_unidade_item:  z.string().optional().nullable(),
@@ -163,6 +167,29 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
       ? new Set(itens.map((i: PedidoItemRaw) => i.ncm).filter(Boolean)).size
       : (pedido.ncms_distintos_count ?? null),
   }
+}
+
+// ── Helper: injeta _colunas_usuario nos pedidos retornados ───────────────────
+// Faz um único batch query para buscar todos os valores de colunas personalizadas
+// dos pedidos na página, evitando N+1 queries.
+async function injetarValoresColunasUsuario<T extends { id: string }>(
+  prisma: PrismaClient,
+  registros: T[],
+  tenant_id: string
+): Promise<(T & { _colunas_usuario: Record<string, string> })[]> {
+  if (registros.length === 0) return []
+  const ids = registros.map(r => r.id)
+  const valores: { vinculo_id: string; coluna_id: string; valor: string }[] =
+    await prisma.valorColunaUsuarioPedido.findMany({
+      where: { tenant_id, vinculo_id: { in: ids } },
+      select: { vinculo_id: true, coluna_id: true, valor: true },
+    })
+  const mapa: Record<string, Record<string, string>> = {}
+  for (const v of valores) {
+    if (!mapa[v.vinculo_id]) mapa[v.vinculo_id] = {}
+    mapa[v.vinculo_id][v.coluna_id] = v.valor
+  }
+  return registros.map(r => ({ ...r, _colunas_usuario: mapa[r.id] ?? {} }))
 }
 
 // ── Cursor pagination helpers ─────────────────────────────────────────────────
@@ -272,7 +299,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         })
       }
 
-      return res.json({ data: registros.map(mapPedido), nextCursor: cursor_proximo, hasMore: tem_mais })
+      const registrosComColunas = await injetarValoresColunasUsuario(req.prisma, registros, tenant_id)
+      return res.json({ data: registrosComColunas.map(mapPedido), nextCursor: cursor_proximo, hasMore: tem_mais })
     }
 
     // ── Offset pagination (backward compat) ──
@@ -291,7 +319,8 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       req.prisma.pedido.count({ where }),
     ])
 
-    res.json({ data: data.map(mapPedido), total, page: pageNum, limit: limitNum })
+    const dataComColunas = await injetarValoresColunasUsuario(req.prisma, data, tenant_id)
+    res.json({ data: dataComColunas.map(mapPedido), total, page: pageNum, limit: limitNum })
   } catch (err) {
     next(err)
   }
@@ -938,6 +967,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
+  'incoterm', 'condicao_pagamento_pedido',
 ])
 
 pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Response, next: NextFunction) => {

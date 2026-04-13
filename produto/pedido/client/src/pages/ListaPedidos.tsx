@@ -2055,7 +2055,7 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
                    : col.tipo === 'data' || col.tipo === 'select' || col.tipo === 'checkbox' ? 'center'
                    : undefined,
     filtravel:       true,
-    oculta:          true,
+    oculta:          !col.ativo,
     tooltipTitulo:   col.nome,
     tooltipDescricao: col.descricao,
     render: (_val: unknown, row: Pedido) => {
@@ -4744,22 +4744,34 @@ export default function ListaPedidos() {
         setAbas(abasLocal)
       })
 
-    pedidoConfigApi.getPreferenciasUsuario()
-      .then(prefs => {
-        setPreferencias({
-          colunas_visiveis: prefs?.colunas_visiveis?.length > 0
-            ? prefs.colunas_visiveis
-            : COLUNAS_PADRAO_VISIVEIS,
-        })
-      })
-      .catch(() => {
-        setPreferencias({ colunas_visiveis: COLUNAS_PADRAO_VISIVEIS })
-      })
+    // Carregar preferências e colunas customizadas em paralelo para mesclar corretamente
+    Promise.all([
+      pedidoConfigApi.getPreferenciasUsuario().catch(() => null),
+      colunasUsuarioApi.listar().catch(() => [] as ColunaUsuario[]),
+    ]).then(([prefs, lista]) => {
+      setColunasUsuario(lista)
 
-    // Carregar colunas customizadas do usuário (escopo pedido ou ambos)
-    colunasUsuarioApi.listar()
-      .then(lista => setColunasUsuario(lista))
-      .catch(() => { /* fallback: sem colunas customizadas */ })
+      const savedVisible: string[] = prefs?.colunas_visiveis?.length > 0
+        ? prefs.colunas_visiveis
+        : COLUNAS_PADRAO_VISIVEIS
+
+      // Colunas customizadas ativas que ainda não estão nas preferências salvas
+      // (criadas após o último save de prefs) → adicionar como visíveis por padrão
+      const activeCustomKeys = lista
+        .filter(c => c.ativo && (c.escopo === 'pedido' || c.escopo === 'ambos'))
+        .map(c => c.chave)
+      const savedSet = new Set(savedVisible)
+      const novas = activeCustomKeys.filter(k => !savedSet.has(k))
+
+      const finalVisible = novas.length > 0 ? [...savedVisible, ...novas] : savedVisible
+
+      if (novas.length > 0) {
+        // Persistir preferências com as novas colunas para que hide/show funcione corretamente
+        pedidoConfigApi.salvarPreferenciasUsuario({ colunas_visiveis: finalVisible }).catch(() => {})
+      }
+
+      setPreferencias({ colunas_visiveis: finalVisible })
+    })
   }, [])
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
@@ -4833,6 +4845,13 @@ export default function ListaPedidos() {
     'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
     'ncm',
   ])
+  // Subconjunto de CAMPOS_PROPAGAR_ITENS que também têm correspondente no PAI
+  // (nome/referência existem em detalhes_operacionais ou como coluna direta no Pedido)
+  // ncm é somente por item — não tem campo equivalente no Pedido
+  const PROPAGAR_COM_PAI = new Set([
+    'nome_fabricante', 'nome_exportador', 'nome_importador',
+    'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
+  ])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
@@ -4876,17 +4895,22 @@ export default function ListaPedidos() {
       setPedidos(prev => prev.map(p => p.id === id ? merged : p))
       return merged
     }
-    // Campos que vivem nos itens — propagar para todos os itens sem chamar editarCampo no pedido
+    // Campos que vivem nos itens — propagar para todos os itens
+    // Campos em PROPAGAR_COM_PAI também atualizam o Pedido pai em paralelo
     if (CAMPOS_PROPAGAR_ITENS.has(campo)) {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
       const itens = pedidoAtual.itens ?? []
-      if (itens.length > 0) {
-        await Promise.all(
-          itens.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor))
-        )
-      }
-      const pedidoAtualizado = { ...pedidoAtual, itens: itens.map(i => ({ ...i, [campo]: valor })) }
+      const [paiResp] = await Promise.all([
+        PROPAGAR_COM_PAI.has(campo)
+          ? pedidoVirtualApi.editarCampo(id, campo, valor).catch(() => null as null)
+          : Promise.resolve(null as null),
+        ...itens.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
+      ])
+      const itensAtualizados = itens.map(i => ({ ...i, [campo]: valor }))
+      const pedidoAtualizado = paiResp
+        ? { ...pedidoAtual, ...(paiResp as Pedido), itens: itensAtualizados }
+        : { ...pedidoAtual, [campo]: valor, itens: itensAtualizados }
       setPedidos(prev => prev.map(p => p.id === id ? pedidoAtualizado : p))
       return pedidoAtualizado
     }

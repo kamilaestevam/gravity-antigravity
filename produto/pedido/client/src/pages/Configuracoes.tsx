@@ -164,15 +164,6 @@ function CardSortavel({
   )
 }
 
-// ─── Status sortável (DnD) ────────────────────────────────────────────────────
-
-interface StatusPedido {
-  id: string
-  label: string
-  cor: string
-  sistema: boolean
-}
-
 // ─── Coluna sortável (DnD — Colunas Personalizadas) ──────────────────────────
 
 function ColunaSortavel({
@@ -237,11 +228,11 @@ function StatusSortavel({
   onChangeCor,
   onExcluir,
 }: {
-  status: StatusPedido
+  status: PedidoStatusConfig
   editandoId: string | null
   editLabel: string
   editCor: string
-  onIniciarEdicao: (s: StatusPedido) => void
+  onIniciarEdicao: (s: PedidoStatusConfig) => void
   onSalvarEdicao: () => void
   onCancelarEdicao: () => void
   onChangeLabel: (v: string) => void
@@ -280,9 +271,9 @@ function StatusSortavel({
           style={{ background: status.cor }}
         />
 
-        <span className="cfg-status-label">{status.label}</span>
+        <span className="cfg-status-label">{status.rotulo}</span>
 
-        {status.sistema && (
+        {status.is_sistema && (
           <span className="cfg-badge-sistema">sistema</span>
         )}
 
@@ -297,7 +288,7 @@ function StatusSortavel({
               <PencilSimple size={14} weight="bold" />
             </button>
           </TooltipGlobal>
-          {!status.sistema && (
+          {!status.is_sistema && (
             <TooltipGlobal descricao="Excluir status">
               <button
                 type="button"
@@ -651,6 +642,19 @@ function carregarSaldoFormula(): string {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function gerarNomeSlug(rotulo: string, ordem: number): string {
+  const base = rotulo
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '')
+    .substring(0, 40)
+  return base || `status_${ordem}`
+}
 
 function Toggle({
   checked,
@@ -1619,27 +1623,12 @@ export default function Configuracoes() {
     if (!KANBAN_FILHOS.includes(categoria)) return
     setKanbanLoading(true)
 
-    // Sync localStorage → DB ANTES de carregar da API.
-    // Garante que qualquer status criado localmente (DANIEL, PRISCILA, maria…)
-    // chegue ao banco antes da leitura — independente de quando foi criado.
-    const syncPayload = statusList.map((s, i) => ({
-      nome:       s.id,
-      rotulo:     s.label,
-      cor:        s.cor,
-      ordem:      i,
-      is_padrao:  false,
-      is_sistema: s.sistema,
-    }))
+    // Prefs: carrega apenas na primeira visita (cache). Status: sempre recarrega da API.
+    const loadPrefs = kanbanPrefs === null
+      ? kanbanConfigApi.obterPreferencias()
+      : Promise.resolve(null)
 
-    pedidoConfigApi.syncStatus(syncPayload)
-      .catch(() => {}) // falha silenciosa — prossegue para carregar da API
-      .then(() => {
-        // Prefs: carrega apenas na primeira visita (cache). Status: sempre recarrega.
-        const loadPrefs = kanbanPrefs === null
-          ? kanbanConfigApi.obterPreferencias()
-          : Promise.resolve(null)
-        return Promise.all([loadPrefs, pedidoConfigApi.listarStatus()])
-      })
+    Promise.all([loadPrefs, pedidoConfigApi.listarStatus()])
       .then(([prefsRes, statusRes]) => {
         if (prefsRes !== null) setKanbanPrefs(prefsRes.data)
         setKanbanApiStatus(statusRes.data ?? [])
@@ -1761,78 +1750,25 @@ export default function Configuracoes() {
     kanbanSalvar({ ...prefs, card: { ...card, dataCritica: valor } })
   }
 
-  // ── Status state ──
-  const STATUS_INICIAIS: StatusPedido[] = [
-    { id: 'rascunho',     label: 'Rascunho',     cor: '#94a3b8', sistema: false },
-    { id: 'aberto',       label: 'Aberto',       cor: '#f472b6', sistema: false },
-    { id: 'em_andamento', label: 'Em Andamento', cor: '#fb923c', sistema: false },
-    { id: 'aprovado',     label: 'Aprovado',     cor: '#facc15', sistema: false },
-    { id: 'transferencia',label: 'Transferido',  cor: '#2dd4bf', sistema: true  },
-    { id: 'consolidado',  label: 'Consolidado',  cor: '#a78bfa', sistema: true  },
-    { id: 'cancelado',    label: 'Cancelado',    cor: '#f87171', sistema: false },
-  ]
-
-  const [statusList, setStatusList] = useState<StatusPedido[]>(() => {
-    try {
-      const versao = localStorage.getItem('pedido:status_cores_version')
-      const raw = localStorage.getItem('pedido:status_config')
-      if (raw) {
-        const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
-        const from = STATUS_INICIAIS.map(s => ({
-          ...s,
-          // Se versão desatualizada, usa cor do STATUS_INICIAIS (novo padrão); senão, usa a salva
-          cor: versao === 'v2' ? (parsed[s.id]?.cor ?? s.cor) : s.cor,
-          label: parsed[s.id]?.label ?? s.label,
-        }))
-        // Adicionar status customizados salvos que não estão nos iniciais
-        const extras = Object.entries(parsed)
-          .filter(([id]) => !STATUS_INICIAIS.find(s => s.id === id))
-          .map(([id, cfg]) => ({ id, label: cfg.label, cor: cfg.cor, sistema: false }))
-        return [...from, ...extras]
-      }
-    } catch { /* fallback */ }
-    return STATUS_INICIAIS
-  })
-
-  // Deriva os status para a seção Colunas do mesmo statusList (fonte: localStorage)
-  const kanbanStatusConfig = useMemo<PedidoStatusConfig[]>(() =>
-    statusList.map((s, i) => ({
-      id:         s.id,
-      nome:       s.id,
-      rotulo:     s.label,
-      cor:        s.cor,
-      ordem:      i + 1,
-      is_padrao:  false,
-      is_sistema: s.sistema,
-    })),
-  [statusList])
-
+  // ── Status state (API-driven) ──
+  const [statusList, setStatusList]           = useState<PedidoStatusConfig[]>([])
+  const [statusLoading, setStatusLoading]     = useState(false)
   const [statusEditandoId, setStatusEditandoId] = useState<string | null>(null)
   const [statusEditLabel, setStatusEditLabel] = useState('')
-  const [statusEditCor, setStatusEditCor] = useState('')
-  const [statusCriando, setStatusCriando] = useState(false)
+  const [statusEditCor, setStatusEditCor]     = useState('')
+  const [statusCriando, setStatusCriando]     = useState(false)
   const [statusNovoLabel, setStatusNovoLabel] = useState('')
-  const [statusNovoCor, setStatusNovoCor] = useState('#818cf8')
+  const [statusNovoCor, setStatusNovoCor]     = useState('#818cf8')
 
-  // Garante que o localStorage sempre tem os status (incluindo novos sistema) na primeira visita
+  // Carrega status da API quando entra na categoria 'status'
   useEffect(() => {
-    const raw = localStorage.getItem('pedido:status_config')
-    if (!raw) {
-      persistirStatusConfig(STATUS_INICIAIS)
-    } else {
-      // Garante que status de sistema novos (como transferencia) estejam presentes
-      try {
-        const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
-        const faltando = STATUS_INICIAIS.filter(s => !parsed[s.id])
-        if (faltando.length > 0) {
-          const atualizado = { ...parsed }
-          for (const s of faltando) atualizado[s.id] = { label: s.label, cor: s.cor }
-          localStorage.setItem('pedido:status_config', JSON.stringify(atualizado))
-        }
-      } catch { /* ignore */ }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (categoria !== 'status') return
+    setStatusLoading(true)
+    pedidoConfigApi.listarStatus()
+      .then(res => setStatusList(res.data ?? []))
+      .catch(() => {})
+      .finally(() => setStatusLoading(false))
+  }, [categoria])
 
   // ── Taxa de Câmbio ────────────────────────────────────────────────────────
 
@@ -1914,25 +1850,32 @@ export default function Configuracoes() {
     if (!over || active.id === over.id) return
     const oldIndex = statusList.findIndex(s => s.id === active.id)
     const newIndex = statusList.findIndex(s => s.id === over.id)
-    setStatusList(prev => arrayMove(prev, oldIndex, newIndex))
+    const novaLista = arrayMove(statusList, oldIndex, newIndex)
+    setStatusList(novaLista)
+    // Persiste nova ordem via API (usa o id do banco)
+    pedidoConfigApi.reordenarStatus(novaLista.map(s => s.id)).catch(() => {})
   }
 
-  function iniciarEdicaoStatus(s: StatusPedido) {
+  function iniciarEdicaoStatus(s: PedidoStatusConfig) {
     setStatusEditandoId(s.id)
-    setStatusEditLabel(s.label)
+    setStatusEditLabel(s.rotulo)
     setStatusEditCor(s.cor)
     setStatusCriando(false)
   }
 
   function salvarEdicaoStatus() {
     if (!statusEditLabel.trim() || !statusEditandoId) return
-    setStatusList(prev => {
-      const nova = prev.map(s => s.id === statusEditandoId
-        ? { ...s, label: statusEditLabel.trim(), cor: statusEditCor }
-        : s
-      )
-      persistirStatusConfig(nova)
-      return nova
+    // Optimistic update
+    setStatusList(prev => prev.map(s => s.id === statusEditandoId
+      ? { ...s, rotulo: statusEditLabel.trim(), cor: statusEditCor }
+      : s,
+    ))
+    pedidoConfigApi.atualizarStatus(statusEditandoId, {
+      rotulo: statusEditLabel.trim(),
+      cor:    statusEditCor,
+    }).catch(() => {
+      // Rollback: recarregar da API em caso de erro
+      pedidoConfigApi.listarStatus().then(res => setStatusList(res.data ?? [])).catch(() => {})
     })
     setStatusEditandoId(null)
     setStatusEditLabel('')
@@ -1946,11 +1889,8 @@ export default function Configuracoes() {
   }
 
   function excluirStatus(id: string) {
-    setStatusList(prev => {
-      const nova = prev.filter(s => s.id !== id)
-      persistirStatusConfig(nova)
-      return nova
-    })
+    // Optimistic update
+    setStatusList(prev => prev.filter(s => s.id !== id))
     setRegrasConfig(prev => ({
       ...prev,
       excluir: {
@@ -1958,48 +1898,41 @@ export default function Configuracoes() {
         statusPermitidos: prev.excluir.statusPermitidos.filter(s => s !== id),
       },
     }))
+    pedidoConfigApi.deletarStatus(id).catch(() => {
+      // Rollback
+      pedidoConfigApi.listarStatus().then(res => setStatusList(res.data ?? [])).catch(() => {})
+    })
   }
 
   function adicionarStatus() {
     if (!statusNovoLabel.trim()) return
-    const novo: StatusPedido = {
-      id: `status_${Date.now()}`,
-      label: statusNovoLabel.trim(),
-      cor: statusNovoCor,
-      sistema: false,
+    const ordem = statusList.length
+    const nome  = gerarNomeSlug(statusNovoLabel.trim(), ordem)
+    // Optimistic insert (id provisório até resposta da API)
+    const provisorio: PedidoStatusConfig = {
+      id:         `provisorio_${Date.now()}`,
+      nome,
+      rotulo:     statusNovoLabel.trim(),
+      cor:        statusNovoCor,
+      ordem,
+      is_padrao:  false,
+      is_sistema: false,
     }
-    setStatusList(prev => {
-      const nova = [...prev, novo]
-      persistirStatusConfig(nova)
-      return nova
-    })
+    setStatusList(prev => [...prev, provisorio])
     setStatusNovoLabel('')
     setStatusNovoCor('#818cf8')
     setStatusCriando(false)
-  }
 
-  function persistirStatusConfig(lista: StatusPedido[]) {
-    try {
-      const mapa = Object.fromEntries(lista.map(s => [s.id, { label: s.label, cor: s.cor }]))
-      localStorage.setItem('pedido:status_config', JSON.stringify(mapa))
-      localStorage.setItem('pedido:status_cores_version', 'v2')
-    } catch { /* silenciar erros de quota */ }
-
-    // Sincroniza com o banco para garantir que o Kanban veja os mesmos status
-    const payload = lista.map((s, i) => ({
-      nome:       s.id,
-      rotulo:     s.label,
-      cor:        s.cor,
-      ordem:      i,
-      is_padrao:  false,
-      is_sistema: s.sistema,
-    }))
-    pedidoConfigApi.syncStatus(payload)
-      .then(res => {
-        // Atualiza kanbanApiStatus com o resultado do sync (garante consistência imediata)
-        if (res?.data) setKanbanApiStatus(res.data)
+    pedidoConfigApi.criarStatus({ nome, rotulo: provisorio.rotulo, cor: provisorio.cor, ordem })
+      .then(criado => {
+        // Substitui provisório pelo registro real do banco
+        setStatusList(prev => prev.map(s => s.id === provisorio.id ? criado : s))
       })
-      .catch(() => { /* falha silenciosa — localStorage ainda é a fonte de verdade local */ })
+      .catch(() => {
+        // Remove provisório em caso de erro
+        setStatusList(prev => prev.filter(s => s.id !== provisorio.id))
+        addNotification({ type: 'error', message: 'Erro ao criar status. Tente novamente.' })
+      })
   }
 
   // ── Preview da numeração ──
@@ -2632,7 +2565,7 @@ export default function Configuracoes() {
                     Arraste para reordenar · edite o nome e a cor · status de sistema não podem ser excluídos
                   </p>
                 </div>
-                {!statusCriando && (
+                {!statusCriando && !statusLoading && (
                   <button
                     type="button"
                     className="cfg-add-row-btn"
@@ -2644,6 +2577,9 @@ export default function Configuracoes() {
                 )}
               </div>
 
+              {statusLoading ? (
+                <p className="cfg-loading-text">Carregando status…</p>
+              ) : (
               <DndContext
                 sensors={statusSensors}
                 collisionDetection={closestCenter}
@@ -2672,6 +2608,7 @@ export default function Configuracoes() {
                   </div>
                 </SortableContext>
               </DndContext>
+              )}
 
               {statusCriando && (
                 <div className="cfg-status-novo-form">
@@ -3196,10 +3133,10 @@ export default function Configuracoes() {
                       <input
                         type="checkbox"
                         className="cfg-check-item__input"
-                        checked={regrasConfig.excluir.statusPermitidos.includes(s.id)}
-                        onChange={() => toggleStatusExcluir(s.id)}
+                        checked={regrasConfig.excluir.statusPermitidos.includes(s.nome)}
+                        onChange={() => toggleStatusExcluir(s.nome)}
                       />
-                      <span className="cfg-check-item__label">{s.label}</span>
+                      <span className="cfg-check-item__label">{s.rotulo}</span>
                     </label>
                   ))}
                 </div>

@@ -264,10 +264,27 @@ export const pedidoConfigApi = {
   listarStatus: () =>
     request<{ data: PedidoStatusConfig[] }>('/api/v1/pedidos/config/status'),
 
-  syncStatus: (status: Array<{ nome: string; rotulo: string; cor: string; ordem: number; is_padrao?: boolean; is_sistema?: boolean }>) =>
-    request<{ data: PedidoStatusConfig[] }>('/api/v1/pedidos/config/status/sync', {
+  // syncStatus removido — tela de Status é 100% API-driven (sem localStorage)
+
+  criarStatus: (data: { nome: string; rotulo: string; cor: string; ordem: number }) =>
+    request<PedidoStatusConfig>('/api/v1/pedidos/config/status', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  atualizarStatus: (id: string, data: Partial<{ rotulo: string; cor: string; ordem: number }>) =>
+    request<PedidoStatusConfig>(`/api/v1/pedidos/config/status/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(data),
+    }),
+
+  deletarStatus: (id: string) =>
+    request<void>(`/api/v1/pedidos/config/status/${id}`, { method: 'DELETE' }),
+
+  reordenarStatus: (ids: string[]) =>
+    request<{ sucesso: boolean }>('/api/v1/pedidos/config/status/reordenar', {
+      method: 'PATCH',
+      body: JSON.stringify({ ids }),
     }),
 
   listarColunas: () =>

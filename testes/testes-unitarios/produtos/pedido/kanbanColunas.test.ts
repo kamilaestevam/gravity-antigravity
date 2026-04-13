@@ -31,17 +31,18 @@ const STATUS_BASE: PedidoStatusConfig[] = [
   makeStatus({ nome: 'cancelado',     rotulo: 'Cancelado API',   cor: '#eeeeee', ordem: 5 }),
 ]
 
-// ── U01 — statusConfig vazio → fallback com 5 colunas base ───────────────────
+// ── U01 — statusConfig vazio → fallback com 7 colunas base ───────────────────
+// COLUNAS_FALLBACK_SHAPE = rascunho, aberto, em_andamento, aprovado, transferencia, consolidado, cancelado
 
 describe('U01 — statusConfig vazio usa COLUNAS_FALLBACK', () => {
-  it('retorna 5 colunas quando statusConfig está vazio', () => {
+  it('retorna 7 colunas quando statusConfig está vazio', () => {
     const resultado = computarColunasKanban([])
-    expect(resultado).toHaveLength(5)
+    expect(resultado).toHaveLength(7)
   })
 
-  it('primeira coluna é draft', () => {
+  it('primeira coluna é rascunho', () => {
     const [primeira] = computarColunasKanban([])
-    expect(primeira.key).toBe('draft')
+    expect(primeira.key).toBe('rascunho')
     expect(primeira.label).toBe('Rascunho')
   })
 
@@ -169,9 +170,9 @@ describe('U07 — colunas_ocultas filtra corretamente antes de computarColunasKa
     const filtrado = STATUS_BASE.filter(s => !ocultas.has(s.nome))
     expect(filtrado).toHaveLength(0)  // a filtragem produz array vazio
 
-    // Se o caller passa array vazio, computarColunasKanban retorna FALLBACK (comportamento esperado)
+    // Se o caller passa array vazio, computarColunasKanban retorna o FALLBACK de 7 colunas
     const resultado = computarColunasKanban(filtrado)
-    expect(resultado).toHaveLength(5)  // fallback, não vazio
+    expect(resultado).toHaveLength(7)  // fallback (7 colunas padrão), não vazio
     // Note: o caller (KanbanPedidos.tsx) intercepta o caso vazio antes de chamar esta função
   })
 })

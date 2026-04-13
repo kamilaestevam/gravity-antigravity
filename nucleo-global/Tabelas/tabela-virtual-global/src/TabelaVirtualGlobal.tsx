@@ -392,6 +392,8 @@ interface GTEditPopoverProps {
   onConfirmar: () => void
   onCancelar: () => void
   onSmartPaste?: (valores: string[]) => void
+  /** Placeholder para o input de data (tipo 'periodo'). Ex: 'DD/MM/AAAA', 'MM/DD/AAAA' */
+  placeholderData?: string
 }
 
 const POPOVER_W = 340
@@ -404,6 +406,7 @@ const GTEditPopover = memo(function GTEditPopover({
   onConfirmar,
   onCancelar,
   onSmartPaste,
+  placeholderData = 'DD/MM/AAAA',
 }: GTEditPopoverProps) {
   const { rect, colLabel } = overlayInfo
   const isPeriodo = overlayInfo.colTipo === 'periodo'
@@ -677,12 +680,12 @@ const GTEditPopover = memo(function GTEditPopover({
               </div>
             </div>
           ) : isPeriodo ? (
-            /* Input de data com máscara DD/MM/AAAA — confirmar via Enter ou botão */
+            /* Input de data com máscara no formato configurado pelo tenant */
             <input
               ref={inputRef}
               autoFocus
               className="gtv-edit-popover-input"
-              placeholder="DD/MM/AAAA"
+              placeholder={placeholderData}
               value={periodoText}
               disabled={salvando}
               onChange={e => handlePeriodoTextChange(e.target.value)}
@@ -926,6 +929,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   emptyDescription,
   emptyAction,
   ariaLabel = 'Tabela de dados',
+  placeholderData = 'DD/MM/AAAA',
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -2375,6 +2379,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
           onConfirmar={overlayInfo.isFilho ? confirmarEdicaoFilho : confirmarEdicaoPai}
           onCancelar={overlayInfo.isFilho ? cancelarEdicaoFilho : cancelarEdicaoPai}
           onSmartPaste={handleSmartPaste}
+          placeholderData={placeholderData}
         />,
         document.body
       )}

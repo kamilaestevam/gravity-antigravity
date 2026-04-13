@@ -1849,6 +1849,8 @@ export interface CasasDecimaisConfigPayload {
   peso_liquido_total_pedido:       number
   peso_bruto_total_pedido:         number
   cubagem_total_pedido:            number
+  /** Formato de exibição de datas — padrão 'DD/MM/AAAA' */
+  formato_data?:                   string
 }
 
 export interface CasasDecimaisAuditoria {

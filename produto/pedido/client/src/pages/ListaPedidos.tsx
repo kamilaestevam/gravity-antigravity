@@ -72,6 +72,7 @@ import {
   pedidoExcluirApi,
   colunasUsuarioApi,
   configRegrasApi,
+  casasDecimaisApi,
 } from '../shared/api'
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
@@ -104,6 +105,7 @@ import {
   fmtQuantidade,
   fmtData,
 } from '../shared/types'
+import { setFormatoData, getPlaceholderData } from '../shared/useFormatoData'
 import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
 import './ListaPedidos.css'
 
@@ -4857,6 +4859,15 @@ export default function ListaPedidos() {
     configRegrasApi.obter().then(cfg => { _regrasAlertasRef.current = cfg }).catch(() => { /* silencioso */ })
   }, [])
 
+  // Carrega formato de data do servidor — atualiza o store singleton para fmtData
+  useEffect(() => {
+    casasDecimaisApi.obter()
+      .then(res => {
+        if (res.data.formato_data) setFormatoData(res.data.formato_data as import('../shared/useFormatoData').FormatoData)
+      })
+      .catch(() => { /* silencioso — usa valor do localStorage ou default DD/MM/AAAA */ })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Mudar página ─────────────────────────────────────────────────────────────
   const handleMudarPagina = useCallback((pagina: number) => {
     carregarInicial(abaAtiva, sortCampo, sortDir, busca, pagina)
@@ -5363,6 +5374,19 @@ export default function ListaPedidos() {
       dados = base.map(p => ({ ...(p as unknown as Record<string, unknown>), _tipo_linha: 'Pedido' }))
     }
 
+    // Aplica fmtData em todas as chaves que começam com 'data_' — exportação formata igual à tabela
+    const CHAVES_DATA = colunasExport.map(c => c.key).filter(k => k.startsWith('data_'))
+    if (CHAVES_DATA.length > 0) {
+      dados = dados.map(row => {
+        const copia: Record<string, unknown> = { ...row }
+        for (const k of CHAVES_DATA) {
+          const val = row[k]
+          if (val && typeof val === 'string') copia[k] = fmtData(val)
+        }
+        return copia
+      })
+    }
+
     return { cfg, dados, colunasExport, sep }
   }
 
@@ -5655,6 +5679,7 @@ export default function ListaPedidos() {
           onFindTermoChange={handleFindTermoChange}
           findTotalExterno={findTotalExterno}
           placeholderBusca="Buscar pedido, exportador, referência..."
+          placeholderData={getPlaceholderData()}
           onOrdenar={handleOrdenar}
           sortCampo={sortCampo}
           sortDir={sortDir}

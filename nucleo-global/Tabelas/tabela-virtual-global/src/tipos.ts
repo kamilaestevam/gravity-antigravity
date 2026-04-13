@@ -358,4 +358,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
 
   // ── Acessibilidade ─────────────────────────────────────────────────────────
   ariaLabel?: string
+
+  // ── Localização ────────────────────────────────────────────────────────────
+  /**
+   * Placeholder exibido no input de edição de colunas com tipo 'periodo'.
+   * Padrão: 'DD/MM/AAAA'. Injetar o formato configurado pelo tenant para que
+   * o input de data mostre o padrão correto (ex: 'MM/DD/AAAA' para tenants EUA).
+   */
+  placeholderData?: string
 }

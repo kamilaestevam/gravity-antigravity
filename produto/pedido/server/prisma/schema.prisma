@@ -525,8 +525,9 @@ model DashboardConfig {
   @@map("dashboard_config")
 }
 
-/// Configuração de casas decimais por workspace (tenant).
-/// Um registro por tenant — define quantas casas decimais cada campo numérico do pedido armazena.
+/// Configuração de casas decimais e formato de data por workspace (tenant).
+/// Um registro por tenant — define quantas casas decimais cada campo numérico do pedido armazena
+/// e o formato de exibição de datas (ex: DD/MM/AAAA, MM/DD/AAAA, AAAA-MM-DD).
 /// Itens herdam automaticamente as casas decimais do pedido pai.
 model PedidoCasasDecimaisConfig {
   id         String   @id @default(cuid())
@@ -542,6 +543,9 @@ model PedidoCasasDecimaisConfig {
   peso_liquido_total_pedido       Int @default(3)
   peso_bruto_total_pedido         Int @default(3)
   cubagem_total_pedido            Int @default(3)
+
+  /// Formato de exibição de datas. Padrão: DD/MM/AAAA (Brasil/Europa)
+  formato_data String @default("DD/MM/AAAA")
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

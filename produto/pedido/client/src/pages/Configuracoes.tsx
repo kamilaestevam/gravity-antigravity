@@ -41,6 +41,7 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, type PdfTemplate } from '../shared/api'
+import { FORMATOS_DATA, setFormatoData, getFormatoData, type FormatoData } from '../shared/useFormatoData'
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, PedidoStatusConfig } from '../shared/types'
 import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
@@ -357,7 +358,7 @@ type SidebarItemTipo =
   | { tipo: 'sub';    id: string; label: string; icone: React.ReactNode; ativo: boolean }
 
 const KANBAN_FILHOS  = ['kanban-colunas', 'kanban-card', 'kanban-modal']
-const COLUNAS_FILHOS = ['colunas-casas-decimais', 'colunas-personalizadas', 'colunas-campos-calculados']
+const COLUNAS_FILHOS = ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas', 'colunas-campos-calculados']
 
 const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   // ── VISUALIZAÇÕES ──────────────────────────────────────────────────────────
@@ -366,6 +367,7 @@ const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   { tipo: 'item',   id: 'tabela',                         label: 'Tabela',            icone: <Table                size={15} weight="duotone" />, ativo: true },
   { tipo: 'parent', id: 'colunas-casas-decimais',         label: 'Colunas',           icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: COLUNAS_FILHOS },
   { tipo: 'sub',    id: 'colunas-casas-decimais',         label: 'Casas Decimais',    icone: <Hash                 size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'colunas-formato-data',           label: 'Formato de Data',   icone: <CalendarBlank        size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'colunas-personalizadas',         label: 'Personalizadas',    icone: <Columns              size={15} weight="duotone" />, ativo: true },
   { tipo: 'sub',    id: 'colunas-campos-calculados',      label: 'Campos Calculados', icone: <MathOperations       size={15} weight="duotone" />, ativo: true },
   { tipo: 'parent', id: 'kanban',                         label: 'Kanban',            icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: KANBAN_FILHOS },
@@ -738,7 +740,13 @@ export default function Configuracoes() {
   const [auditoriaCasas, setAuditoriaCasas] = useState<{ total_pedidos: number; total_itens: number } | null>(null)
   const casasDirty = JSON.stringify(pendingCasas) !== JSON.stringify(casasDecimais)
 
-  // Carregar casas decimais do servidor no mount
+  // ── Estado: formato de data ──
+  const [formatoData,       setFormatoDataLocal]   = useState<FormatoData>(() => getFormatoData())
+  const [pendingFormato,    setPendingFormato]      = useState<FormatoData>(() => getFormatoData())
+  const [salvandoFormato,   setSalvandoFormato]     = useState(false)
+  const formatoDirty = pendingFormato !== formatoData
+
+  // Carregar casas decimais e formato de data do servidor no mount
   useEffect(() => {
     casasDecimaisApi.obter()
       .then(res => {
@@ -748,6 +756,13 @@ export default function Configuracoes() {
         setCasasDecimais(config)
         setPendingCasas(config)
         localStorage.setItem(CASAS_KEY, JSON.stringify({ _v: CASAS_VERSION, ...config }))
+        // Carrega formato de data
+        if (res.data.formato_data) {
+          const fmt = res.data.formato_data as FormatoData
+          setFormatoData(fmt)
+          setFormatoDataLocal(fmt)
+          setPendingFormato(fmt)
+        }
       })
       .catch(() => {})
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -804,6 +819,25 @@ export default function Configuracoes() {
     setPendingCasas(casasDecimais)
     setAguardandoConfirmacaoCasas(false)
     setAuditoriaCasas(null)
+  }
+
+  // ── Handlers: formato de data ──
+  async function salvarFormatoData() {
+    if (salvandoFormato) return
+    setSalvandoFormato(true)
+    try {
+      const payload = Object.fromEntries(
+        COLUNAS_NUMERICAS.map(c => [c.campo, casasDecimais[c.campo] ?? c.padrao])
+      ) as Parameters<typeof casasDecimaisApi.salvar>[0]
+      await casasDecimaisApi.salvar({ ...payload, formato_data: pendingFormato })
+      setFormatoData(pendingFormato)        // atualiza store global
+      setFormatoDataLocal(pendingFormato)   // atualiza estado local
+      addNotification({ type: 'success', message: 'Formato de data salvo com sucesso.' })
+    } catch {
+      addNotification({ type: 'error', message: 'Erro ao salvar formato de data.' })
+    } finally {
+      setSalvandoFormato(false)
+    }
   }
 
   // ── Estado: colunas numéricas do usuário (via API — para exibir em Casas Decimais) ──
@@ -3576,6 +3610,69 @@ export default function Configuracoes() {
               <div className="cfg-secao__footer">
                 <BotaoCancelar dirty={casasDirty} rotulo="Descartar" onClick={restaurarCasasDecimais} />
                 <BotaoSalvar   dirty={casasDirty} rotulo="Salvar"    onClick={salvarCasasDecimais} loading={salvandoCasas} />
+              </div>
+            </section>}
+
+            {/* ── Formato de Data ── */}
+            {categoria === 'colunas-formato-data' && <section className="cfg-secao">
+              <div className="cfg-secao__header">
+                <div>
+                  <h2 className="cfg-secao__titulo">Formato de Data</h2>
+                  <p className="cfg-secao__desc">
+                    Define como as datas são exibidas em todas as colunas da tabela, nos inputs de edição e nas exportações.
+                  </p>
+                </div>
+              </div>
+
+              <div className="cfg-campo-linha" style={{ marginTop: 20 }}>
+                <div className="cfg-formato-data-grid">
+                  {FORMATOS_DATA.map(fmt => (
+                    <button
+                      key={fmt.valor}
+                      type="button"
+                      className={`cfg-formato-data-opcao${pendingFormato === fmt.valor ? ' cfg-formato-data-opcao--ativo' : ''}`}
+                      onClick={() => setPendingFormato(fmt.valor)}
+                    >
+                      <span className="cfg-formato-data-label">{fmt.label}</span>
+                      <span className="cfg-formato-data-exemplo">{fmt.exemplo}</span>
+                      <span className="cfg-formato-data-regiao">{fmt.regiao}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Preview ao vivo */}
+              <div className="cfg-formato-data-preview" style={{ marginTop: 16 }}>
+                <span className="cfg-formato-data-preview__label">Preview com data de hoje:</span>
+                <strong className="cfg-formato-data-preview__valor">
+                  {(() => {
+                    const hoje = new Date()
+                    const d = String(hoje.getDate()).padStart(2, '0')
+                    const m = String(hoje.getMonth() + 1).padStart(2, '0')
+                    const aaaa = String(hoje.getFullYear())
+                    const aa = aaaa.slice(2)
+                    switch (pendingFormato) {
+                      case 'DD/MM/AAAA': return `${d}/${m}/${aaaa}`
+                      case 'MM/DD/AAAA': return `${m}/${d}/${aaaa}`
+                      case 'AAAA-MM-DD': return `${aaaa}-${m}-${d}`
+                      case 'DD.MM.AAAA': return `${d}.${m}.${aaaa}`
+                      case 'DD/MM/AA':   return `${d}/${m}/${aa}`
+                      default:           return `${d}/${m}/${aaaa}`
+                    }
+                  })()}
+                </strong>
+              </div>
+
+              <div className="cfg-secao__footer" style={{ marginTop: 20 }}>
+                <BotaoCancelar
+                  onClick={() => setPendingFormato(formatoData)}
+                  disabled={!formatoDirty || salvandoFormato}
+                />
+                <BotaoSalvar
+                  onClick={salvarFormatoData}
+                  carregando={salvandoFormato}
+                  disabled={!formatoDirty}
+                />
               </div>
             </section>}
 

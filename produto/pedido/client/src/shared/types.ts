@@ -907,16 +907,9 @@ export function fmtQuantidade(valor: number, casas: number = 2): string {
   })
 }
 
-export function fmtData(iso: string | null | undefined): string {
-  if (!iso) return '—'
-  // Parseia apenas os componentes de data (yyyy-mm-dd) para evitar offset de fuso horário.
-  // new Date('2026-01-01') = UTC midnight → em UTC-3 vira 31/12/2025 (errado).
-  // new Date(2026, 0, 1) = meia-noite local → sempre correto.
-  const dateOnly = iso.substring(0, 10)
-  const [y, m, d] = dateOnly.split('-').map(Number)
-  if (!y || !m || !d) return '—'
-  return new Date(y, m - 1, d).toLocaleDateString('pt-BR')
-}
+// fmtData delega para formatarData() que lê o formato configurado pelo tenant.
+// formatarData lê uma variável de módulo singleton — sem re-render, sem overhead.
+export { formatarData as fmtData } from './useFormatoData'
 
 export function fmtMoeda(valor: number, moeda: string = 'BRL'): string {
   return valor.toLocaleString('pt-BR', {

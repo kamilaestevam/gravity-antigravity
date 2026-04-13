@@ -22,6 +22,10 @@ export const casasDecimaisRouter = Router()
 
 // ── Schema Zod ────────────────────────────────────────────────────────────────
 
+// Formatos de data válidos — lista fechada, nunca vem de input livre
+const FORMATOS_DATA_VALIDOS = ['DD/MM/AAAA', 'MM/DD/AAAA', 'AAAA-MM-DD', 'DD.MM.AAAA', 'DD/MM/AA'] as const
+export type FormatoData = typeof FORMATOS_DATA_VALIDOS[number]
+
 const CasasDecimaisSchema = z.object({
   valor_total_pedido:              z.number().int().min(0).max(6),
   quantidade_total_inicial_pedido: z.number().int().min(0).max(6),
@@ -32,6 +36,7 @@ const CasasDecimaisSchema = z.object({
   peso_liquido_total_pedido:       z.number().int().min(0).max(6),
   peso_bruto_total_pedido:         z.number().int().min(0).max(6),
   cubagem_total_pedido:            z.number().int().min(0).max(6),
+  formato_data:                    z.enum(FORMATOS_DATA_VALIDOS).optional(),
   // Se true, dispara a migração em background após salvar
   confirmar: z.boolean().optional(),
 })
@@ -49,6 +54,7 @@ const DEFAULTS: CasasDecimaisConfig = {
   peso_liquido_total_pedido:       3,
   peso_bruto_total_pedido:         3,
   cubagem_total_pedido:            3,
+  formato_data:                    'DD/MM/AAAA',
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

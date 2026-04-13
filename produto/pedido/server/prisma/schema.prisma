@@ -93,6 +93,7 @@ model PedidoItem {
   referencia_fabricante               String?
   incoterm                            String?
   condicao_pagamento_pedido           String?
+  data_emissao_pedido                 DateTime?
   peso_liquido_unitario_item          Decimal?       @db.Decimal(18, 6)
   peso_bruto_unitario_item            Decimal?       @db.Decimal(18, 6)
   cubagem_unitaria_item               Decimal?       @db.Decimal(18, 6)

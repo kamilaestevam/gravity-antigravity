@@ -58,6 +58,9 @@ export interface PedidoItem {
   quantidade_cancelada_item_pedido: number
   casas_decimais_quantidade_item: number
 
+  // Datas por item
+  data_emissao_pedido?: string | null
+
   // Financeiro
   incoterm?: string | null
   condicao_pagamento_pedido?: string | null
@@ -904,8 +907,15 @@ export function fmtQuantidade(valor: number, casas: number = 2): string {
   })
 }
 
-export function fmtData(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-BR')
+export function fmtData(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  // Parseia apenas os componentes de data (yyyy-mm-dd) para evitar offset de fuso horário.
+  // new Date('2026-01-01') = UTC midnight → em UTC-3 vira 31/12/2025 (errado).
+  // new Date(2026, 0, 1) = meia-noite local → sempre correto.
+  const dateOnly = iso.substring(0, 10)
+  const [y, m, d] = dateOnly.split('-').map(Number)
+  if (!y || !m || !d) return '—'
+  return new Date(y, m - 1, d).toLocaleDateString('pt-BR')
 }
 
 export function fmtMoeda(valor: number, moeda: string = 'BRL'): string {

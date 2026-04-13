@@ -512,6 +512,27 @@ function getCasas(campo: string, padrao: number): number {
 // ── Ref de alertas: carregado uma vez no mount, acessível pelos renders estáticos ──
 const _regrasAlertasRef: { current: RegrasConfigBackend | null } = { current: null }
 
+// ── Helpers de data ───────────────────────────────────────────────────────────
+
+/**
+ * Normaliza uma string de data digitada pelo usuário para ISO datetime (noon UTC).
+ * Aceita: 'dd/mm/yyyy', 'yyyy-mm-dd', ISO datetime completo.
+ * Usar noon UTC (T12:00:00Z) evita offset de fuso em qualquer timezone.
+ */
+function normalizarDataISO(val: unknown): string | null {
+  if (!val || typeof val !== 'string') return null
+  const v = val.trim()
+  if (!v) return null
+  // dd/mm/yyyy
+  const ddmm = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v)
+  if (ddmm) return `${ddmm[3]}-${ddmm[2]}-${ddmm[1]}T12:00:00.000Z`
+  // yyyy-mm-dd (date-only ISO)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return `${v}T12:00:00.000Z`
+  // já é ISO datetime completo
+  if (/^\d{4}-\d{2}-\d{2}T/.test(v)) return v
+  return null
+}
+
 // ── Colunas pai (Pedido) ──────────────────────────────────────────────────────
 
 function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, tooltip?: { titulo: string; descricao: string }) {
@@ -941,12 +962,44 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'data_emissao_pedido',
     label: 'Data P.O',
-    tipo: 'periodo',
+    tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'Data do Pedido',
-    tooltipDescricao: 'Data de registro ou emissão da Purchase Order',
+    tooltipDescricao: 'Data de registro ou emissão da Purchase Order. Editar no pedido propaga para todos os itens; cada item pode ter data própria.',
     grupo: 'Datas',
-    render: (_val: unknown, row: Pedido) => <span>{fmtData(row.data_emissao_pedido)}</span>,
+    getValorEditar: (row) => {
+      const d = (row as Pedido).data_emissao_pedido
+      const f = fmtData(d)
+      return f === '—' ? '' : f
+    },
+    render: (_val: unknown, row: Pedido) => {
+      const itens = row.itens ?? []
+      // Sem itens: exibe data do próprio pedido
+      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{fmtData(row.data_emissao_pedido)}</span>
+      const datas = [...new Set(
+        itens.map(i => i.data_emissao_pedido ? i.data_emissao_pedido.substring(0, 10) : null).filter(Boolean) as string[]
+      )]
+      // Sem datas nos itens: exibe data do pedido pai como fallback
+      if (datas.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{fmtData(row.data_emissao_pedido)}</span>
+      const distintos = datas.map(d => fmtData(d)).join(' | ')
+      const diverge = datas.length > 1
+      return (
+        <span
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
+          title={diverge ? `Itens com datas diferentes: ${distintos}` : distintos}
+        >
+          {diverge && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          )}
+          {distintos}
+        </span>
+      )
+    },
   },
   {
     key: 'status',
@@ -3583,10 +3636,13 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
     render: (row: PedidoItem) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
   },
   data_emissao_pedido: {
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{fmtData(p?.data_emissao_pedido ?? null)}</span>
+    editavel: true,
+    campo: 'data_emissao_pedido',
+    getValorEditar: (item: PedidoItem) => {
+      const f = fmtData(item.data_emissao_pedido)
+      return f === '—' ? '' : f
     },
+    render: (row: PedidoItem) => <span>{fmtData(row.data_emissao_pedido)}</span>,
   },
   // ── Pesos e cubagem do item ───────────────────────────────────────────────
   peso_liquido_total_pedido: {
@@ -4845,14 +4901,15 @@ export default function ListaPedidos() {
   const CAMPOS_PROPAGAR_ITENS = new Set([
     'nome_exportador', 'nome_importador', 'nome_fabricante',
     'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
-    'ncm', 'cobertura_cambial',
+    'ncm', 'cobertura_cambial', 'data_emissao_pedido',
   ])
   // Subconjunto de CAMPOS_PROPAGAR_ITENS que também têm correspondente no PAI
   // (nome/referência existem em detalhes_operacionais ou como coluna direta no Pedido)
-  // ncm é somente por item — não tem campo equivalente no Pedido
+  // ncm e cobertura_cambial são somente por item — não têm campo equivalente direto no Pedido
   const PROPAGAR_COM_PAI = new Set([
     'nome_fabricante', 'nome_exportador', 'nome_importador',
     'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
+    'data_emissao_pedido',
   ])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
@@ -4917,16 +4974,18 @@ export default function ListaPedidos() {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
       const itens = pedidoAtual.itens ?? []
+      // Normaliza datas para ISO antes de enviar ao servidor
+      const valorEnviar = campo === 'data_emissao_pedido' ? normalizarDataISO(valor) : valor
       const [paiResp] = await Promise.all([
         PROPAGAR_COM_PAI.has(campo)
-          ? pedidoVirtualApi.editarCampo(id, campo, valor).catch(() => null as null)
+          ? pedidoVirtualApi.editarCampo(id, campo, valorEnviar).catch(() => null as null)
           : Promise.resolve(null as null),
-        ...itens.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
+        ...itens.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valorEnviar)),
       ])
-      const itensAtualizados = itens.map(i => ({ ...i, [campo]: valor }))
+      const itensAtualizados = itens.map(i => ({ ...i, [campo]: valorEnviar }))
       const pedidoAtualizado = paiResp
         ? { ...pedidoAtual, ...(paiResp as Pedido), itens: itensAtualizados }
-        : { ...pedidoAtual, [campo]: valor, itens: itensAtualizados }
+        : { ...pedidoAtual, [campo]: valorEnviar, itens: itensAtualizados }
       setPedidos(prev => prev.map(p => p.id === id ? pedidoAtualizado : p))
       return pedidoAtualizado
     }
@@ -5078,6 +5137,26 @@ export default function ListaPedidos() {
 
     let payload: Partial<PedidoItem>
     {
+      // Normaliza datas para ISO antes de enviar ao servidor
+      if (campo === 'data_emissao_pedido') {
+        const isoData = normalizarDataISO(valor)
+        const itemAtualData = pedido.itens?.find(i => i.id === id)
+        const atualizadoData = await pedidoItemApi.editarCampo(pedido.id, id, campo, isoData)
+          .catch(() => {
+            if (import.meta.env.DEV && itemAtualData) return { ...itemAtualData, data_emissao_pedido: isoData } as PedidoItem
+            throw new Error('Erro ao salvar data')
+          })
+        const enriquecidoData: PedidoItemEnriquecido = {
+          ...atualizadoData,
+          _p: (pedido.itens?.find(i => i.id === id) as PedidoItemEnriquecido)?._p ?? (atualizadoData as PedidoItemEnriquecido)._p,
+        }
+        setPedidos(prev => prev.map(p => {
+          if (p.id !== pedido.id) return p
+          return { ...p, itens: p.itens?.map(i => i.id === id ? enriquecidoData : i) }
+        }))
+        return enriquecidoData
+      }
+
       // GTValorUnidade { unit, quantity } → extrai quantity para campos numéricos + salva unidade
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       // Fatores de conversão para kg (todos os campos de peso são persistidos em kg)

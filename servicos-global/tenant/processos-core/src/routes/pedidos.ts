@@ -90,6 +90,7 @@ const atualizarItemSchema = z.object({
   referencia_fabricante: z.string().optional().nullable(),
   incoterm: z.string().optional().nullable(),
   condicao_pagamento_pedido: z.string().optional().nullable(),
+  data_emissao_pedido: z.string().optional().nullable(),
   // Dados físicos unitários
   peso_liquido_unitario_item: z.number().optional().nullable(),
   peso_liquido_unidade_item:  z.string().optional().nullable(),
@@ -967,7 +968,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
-  'incoterm', 'condicao_pagamento_pedido',
+  'incoterm', 'condicao_pagamento_pedido', 'data_emissao_pedido',
 ])
 
 pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Response, next: NextFunction) => {

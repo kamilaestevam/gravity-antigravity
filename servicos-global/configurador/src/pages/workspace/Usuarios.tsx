@@ -165,7 +165,7 @@ export function Usuarios() {
 
         if (usersRes.ok) {
           const { users: apiUsers } = await usersRes.json()
-          const mappedUsers: TenantUser[] = apiUsers.map((u: any) => ({
+          const mappedUsers: TenantUser[] = apiUsers.map((u: { id: string; name?: string; email?: string; role?: string; memberships?: { is_active: boolean; company_id: string }[] }) => ({
             id: u.id,
             nome: u.name ?? '',
             email: u.email ?? '',
@@ -179,8 +179,8 @@ export function Usuarios() {
           for (const u of apiUsers) {
             if (u.memberships && u.memberships.length > 0) {
               mMap[u.id] = u.memberships
-                .filter((m: any) => m.is_active)
-                .map((m: any) => m.company_id)
+                .filter((m: { is_active: boolean; company_id: string }) => m.is_active)
+                .map((m: { is_active: boolean; company_id: string }) => m.company_id)
             }
           }
           setMembershipsMap(mMap)
@@ -188,7 +188,7 @@ export function Usuarios() {
 
         if (companiesRes.ok) {
           const { companies } = await companiesRes.json()
-          setFiliais(companies.map((c: any) => ({
+          setFiliais(companies.map((c: { id: string; name?: string }) => ({
             id: c.id,
             nome: c.name ?? '',
             usuarios: [],
@@ -541,7 +541,7 @@ export function Usuarios() {
         </>
       }
       toolbar={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', transform: 'translateY(-7px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%' }}>
           <TooltipGlobal descricao="Enviar convite para um novo colaborador acessar a plataforma">
             <BotaoGlobal
               variante="primario"

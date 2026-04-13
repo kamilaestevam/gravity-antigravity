@@ -417,6 +417,83 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
   }
 })
 
+// ── Status NCM — itens com NCM inválido ───────────────────────────────────────
+// GET /api/v1/pedidos/dashboard/ncm-status
+// Consulta o serviço NCM tenant para saber quais NCMs usados nos itens são inválidos.
+// Falha silenciosa: se o serviço NCM estiver offline, retorna sem_sync=true.
+dashboardDataRouter.get('/ncm-status', async (req: Request, res: Response) => {
+  const db       = (req as any).prisma
+  const tenantId = (req as any).tenantId as string
+  const TENANT_SVC = process.env.TENANT_SERVICE_URL ?? 'http://localhost:3001'
+  const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? ''
+
+  try {
+    // 1. Buscar todos os NCMs distintos usados em itens ativos deste tenant
+    const itensNcm = await db.pedidoItem.findMany({
+      where:  { pedido: { deleted_at: null } },
+      select: { ncm: true },
+    })
+
+    const codigosUsados = [...new Set(
+      (itensNcm as Array<{ ncm: string | null }>)
+        .map(i => (i.ncm ?? '').replace(/\D/g, ''))
+        .filter((c) => c.length === 8)
+    )]
+
+    if (codigosUsados.length === 0) {
+      return res.json({ invalidos: [], total_invalidos: 0, total_verificados: 0, sem_sync: false, ultima_sync: null })
+    }
+
+    // 2. Perguntar ao serviço NCM quais são inválidos (via S2S)
+    const params = new URLSearchParams({
+      codigos: codigosUsados.slice(0, 200).join(','),
+      limite: '200',
+    })
+
+    const ncmRes = await fetch(
+      `${TENANT_SVC}/api/v1/ncm/invalidos?${params}`,
+      {
+        headers: {
+          'x-tenant-id':   tenantId,
+          'x-internal-key': INTERNAL_KEY,
+        },
+        signal: AbortSignal.timeout(8000),
+      }
+    )
+
+    if (!ncmRes.ok) {
+      return res.json({ invalidos: [], total_invalidos: 0, total_verificados: codigosUsados.length, sem_sync: true, ultima_sync: null })
+    }
+
+    const ncmData = await ncmRes.json() as {
+      invalidos: string[]
+      total_invalidos: number
+      total_verificados: number
+      ultima_sync: string | null
+    }
+
+    // 3. Contar itens com NCM inválido (não apenas NCMs únicos)
+    const invalidSet = new Set(ncmData.invalidos)
+    const itensInvalidos = (itensNcm as Array<{ ncm: string | null }>)
+      .filter(i => {
+        const c = (i.ncm ?? '').replace(/\D/g, '')
+        return c.length === 8 && invalidSet.has(c)
+      }).length
+
+    res.json({
+      invalidos:         ncmData.invalidos,
+      total_invalidos:   ncmData.total_invalidos,
+      itens_invalidos:   itensInvalidos,
+      total_verificados: codigosUsados.length,
+      sem_sync:          !ncmData.ultima_sync,
+      ultima_sync:       ncmData.ultima_sync,
+    })
+  } catch {
+    // Serviço NCM offline — resposta silenciosa
+    res.json({ invalidos: [], total_invalidos: 0, itens_invalidos: 0, total_verificados: 0, sem_sync: true, ultima_sync: null })
+  }
+})
+
 // ── Distribuição por status ────────────────────────────────────────────────────
 dashboardDataRouter.get('/distribution', async (req: Request, res: Response) => {
   const period = (req.query.period as string) ?? '30d'

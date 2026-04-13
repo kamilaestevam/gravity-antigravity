@@ -99,6 +99,14 @@ export function criarSmartImportService(prismaClient: Record<string, unknown>): 
   return new SmartImportService(prismaClient)
 }
 
+// Defaults alinhados com PedidoCasasDecimaisConfig (schema Prisma)
+const CASAS_DECIMAIS_PADRAO = {
+  valor:      2,
+  quantidade: 2,
+  peso:       3,
+  cubagem:    3,
+}
+
 export class SmartImportService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private db: Record<string, any>
@@ -108,6 +116,24 @@ export class SmartImportService {
   constructor(prismaClient: Record<string, any>) {
     this.db = prismaClient
     this.memoriaService = new MapeamentoMemoriaService(prismaClient)
+  }
+
+  // Lê a config de casas decimais do workspace; usa defaults se ainda não configurado
+  private async lerCasasDecimais(tenantId: string): Promise<typeof CASAS_DECIMAIS_PADRAO> {
+    try {
+      const cfg = await this.db['pedidoCasasDecimaisConfig'].findUnique({
+        where: { tenant_id: tenantId },
+      })
+      if (!cfg) return CASAS_DECIMAIS_PADRAO
+      return {
+        valor:      cfg.valor_total_pedido      ?? CASAS_DECIMAIS_PADRAO.valor,
+        quantidade: cfg.quantidade_total_inicial_pedido ?? CASAS_DECIMAIS_PADRAO.quantidade,
+        peso:       cfg.peso_liquido_total_pedido ?? CASAS_DECIMAIS_PADRAO.peso,
+        cubagem:    cfg.cubagem_total_pedido     ?? CASAS_DECIMAIS_PADRAO.cubagem,
+      }
+    } catch {
+      return CASAS_DECIMAIS_PADRAO
+    }
   }
 
   async analisar(tenantId: string, buffer: Buffer, nomeArquivo: string, nomePlanilha?: string): Promise<SmartImportPreview> {
@@ -269,6 +295,9 @@ export class SmartImportService {
     const pulados:     number[] = []
     const erros:       { linha: number; motivo: string }[] = []
 
+    // Ler casas decimais do workspace para aplicar nos registros criados
+    const casasConfig = await this.lerCasasDecimais(tenantId)
+
     await this.db.$transaction(async (tx: Record<string, unknown>) => {
       for (const linha of linhasFiltradas) {
         try {
@@ -295,7 +324,7 @@ export class SmartImportService {
             continue
           }
 
-          const dadosPedido = this.montarDadosPedido(dados, tenantId, companyId ?? tenantId)
+          const dadosPedido = this.montarDadosPedido(dados, tenantId, companyId ?? tenantId, casasConfig)
 
           if (numeroPedido && payload.decisoes_duplicatas[numeroPedido] === 'sobrescrever') {
             // Atualizar pedido existente
@@ -341,14 +370,14 @@ export class SmartImportService {
                   descricao_item:      String(dados['descricao_item'] ?? ''),
                   quantidade_inicial_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
                   saldo_item_pedido:             Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                  casas_decimais_quantidade_item: 2,
+                  casas_decimais_quantidade_item: casasConfig.quantidade,
                   unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
                   moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
                   valor_unitario_item:        dados['valor_unitario_item'] ? Number(dados['valor_unitario_item']) : null,
                   valor_total_itens:          dados['valor_total_itens'] ? Number(dados['valor_total_itens']) : null,
                   peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
                   referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
-                  casas_decimais_valor_item:  2,
+                  casas_decimais_valor_item:  casasConfig.valor,
                   campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
                 },
               }).catch(() => null)
@@ -370,14 +399,14 @@ export class SmartImportService {
                 descricao_item:      String(dados['descricao_item'] ?? ''),
                 quantidade_inicial_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
                 saldo_item_pedido:             Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                casas_decimais_quantidade_item: 2,
+                casas_decimais_quantidade_item: casasConfig.quantidade,
                 unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
                 moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
                 valor_unitario_item:        dados['valor_unitario_item'] ? Number(dados['valor_unitario_item']) : null,
                 valor_total_itens:          dados['valor_total_itens'] ? Number(dados['valor_total_itens']) : null,
                 peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
                 referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
-                casas_decimais_valor_item:  2,
+                casas_decimais_valor_item:  casasConfig.valor,
                 campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
               }],
             },
@@ -624,7 +653,7 @@ export class SmartImportService {
     return alertas
   }
 
-  private montarDadosPedido(dados: Record<string, unknown>, tenantId: string, companyId: string): Record<string, unknown> {
+  private montarDadosPedido(dados: Record<string, unknown>, tenantId: string, companyId: string, casas = CASAS_DECIMAIS_PADRAO): Record<string, unknown> {
     // P1.3 — validar enum tipo_operacao para evitar valores arbitrarios
     const TIPOS_OPERACAO_VALIDOS = ['importacao', 'exportacao'] as const
     const tipoOperacao = TIPOS_OPERACAO_VALIDOS.includes(dados['tipo_operacao'] as typeof TIPOS_OPERACAO_VALIDOS[number])
@@ -643,8 +672,8 @@ export class SmartImportService {
       incoterm:          dados['incoterm'] ?? null,
       moeda_pedido:      dados['moeda_pedido'] ?? 'USD',
       data_emissao_pedido:             normalizarData(dados['data_emissao_pedido']),
-      casas_decimais_valor_pedido:     2,
-      casas_decimais_quantidade_pedido: 3,
+      casas_decimais_valor_pedido:      casas.valor,
+      casas_decimais_quantidade_pedido: casas.quantidade,
     }
   }
 

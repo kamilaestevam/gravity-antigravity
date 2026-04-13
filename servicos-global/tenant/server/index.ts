@@ -42,10 +42,12 @@ import { notificacoesServiceRouter } from '@tenant/notificacoes/server/routes.js
 import { agendamentoServiceRouter } from '@tenant/agendamento/server/routes.js'
 import { preferenciasServiceRouter } from '@tenant/preferencias-usuario/server/routes.js'
 import { whatsappServiceRouter }    from '@tenant/whatsapp/server/routes.js'
+import { ncmSyncServiceRouter }     from '@tenant/ncm-sync/server/routes.js'
 
 // ── Inicializações assíncronas ────────────────────────────────────────────────
 import { initHistorico }     from '@tenant/historico-global/server/init.js'
 import { initNotificacoes }  from '@tenant/notificacoes/server/init.js'
+import { initNcmSync }       from '@tenant/ncm-sync/server/init.js'
 
 const app = express()
 const PORT = Number(process.env.PORT ?? 3001)
@@ -84,7 +86,7 @@ app.get('/health', async (_req, res) => {
       services: [
         'atividades', 'cronometro', 'email', 'gabi',
         'dashboard', 'relatorios', 'historico', 'notificacoes',
-        'agendamento', 'preferencias', 'whatsapp',
+        'agendamento', 'preferencias', 'whatsapp', 'ncm-sync',
       ],
     })
   } catch {
@@ -110,20 +112,28 @@ app.use(notificacoesServiceRouter)
 app.use(agendamentoServiceRouter)
 app.use(preferenciasServiceRouter)
 app.use(whatsappServiceRouter)
+app.use(ncmSyncServiceRouter)
 
 // ── 9. Error Handler — sempre o último ───────────────────────────────────────
 app.use(errorHandler)
 
 // ── Inicialização ─────────────────────────────────────────────────────────────
 async function bootstrap() {
-  await initHistorico()
-  await initNotificacoes()
+  // Serviços com workers/crons — falha não impede o servidor de responder HTTP
+  await initHistorico().catch((e: unknown) =>
+    console.warn('[tenant-server] initHistorico falhou (não-fatal):', (e as Error).message))
+
+  await initNotificacoes().catch((e: unknown) =>
+    console.warn('[tenant-server] initNotificacoes falhou (não-fatal):', (e as Error).message))
+
+  await initNcmSync().catch((e: unknown) =>
+    console.warn('[tenant-server] initNcmSync falhou (não-fatal):', (e as Error).message))
 
   app.listen(PORT, () => {
     console.log(`[tenant-server] rodando na porta ${PORT}`)
     console.log(`[tenant-server] serviços: atividades, cronometro, email, gabi, dashboard,`)
     console.log(`[tenant-server]           relatorios, historico, notificacoes, agendamento,`)
-    console.log(`[tenant-server]           preferencias, whatsapp`)
+    console.log(`[tenant-server]           preferencias, whatsapp, ncm-sync`)
   })
 }
 

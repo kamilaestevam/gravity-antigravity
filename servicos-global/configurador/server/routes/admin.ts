@@ -8,6 +8,7 @@
 // GET   /api/admin/billing/invoices — listar faturas globais
 // GET   /api/admin/deploys       — listar histórico de deploys
 // GET   /api/admin/test-logs     — listar logs de testes
+// POST  /api/admin/test-logs     — registrar resultados de um run de testes
 // GET   /api/admin/platform-config — dados da plataforma (Visão Geral Admin)
 // PUT   /api/admin/platform-config — atualizar dados da plataforma
 
@@ -333,6 +334,81 @@ adminRouter.get('/test-logs', async (_req, res, next) => {
     }
 
     res.json({ logs })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/admin/test-logs
+ * Registra resultados de um run de testes (Playwright, Vitest, etc.)
+ * Tenta salvar no banco; se TestLog não existir, salva em arquivo JSON local.
+ */
+const TestLogEntrySchema = z.object({
+  type:      z.string().max(50),
+  module:    z.string().max(100),
+  test_name: z.string().max(255),
+  result:    z.enum(['APROVADO', 'REPROVADO', 'ERRO']),
+  duration:  z.string().max(50),
+  error_log: z.string().nullable().optional(),
+})
+
+const TestLogBatchSchema = z.object({
+  entries: z.array(TestLogEntrySchema).min(1).max(500),
+})
+
+adminRouter.post('/test-logs', async (req, res, next) => {
+  try {
+    const parse = TestLogBatchSchema.safeParse(req.body)
+    if (!parse.success) {
+      res.status(400).json({ error: 'Payload inválido', details: parse.error.flatten() })
+      return
+    }
+
+    const { entries } = parse.data
+    const created_at = new Date().toISOString()
+    let salvouNoBanco = false
+
+    // Tenta salvar no banco (requer migração futura com modelo TestLog)
+    try {
+      if ((prisma as any).testLog?.createMany) {
+        await (prisma as any).testLog.createMany({
+          data: entries.map(e => ({
+            type:      e.type,
+            module:    e.module,
+            test_name: e.test_name,
+            result:    e.result,
+            duration:  e.duration,
+            error_log: e.error_log ?? null,
+            created_at,
+          })),
+        })
+        salvouNoBanco = true
+      }
+    } catch {
+      // Tabela não existe ainda — fallback para arquivo JSON
+    }
+
+    // Fallback: persiste em arquivo JSON local (lido pela mesma GET /test-logs via merge futuro)
+    if (!salvouNoBanco) {
+      const { writeFileSync, readFileSync, mkdirSync } = await import('fs')
+      const { join } = await import('path')
+      const dir = join(process.cwd(), 'data', 'test-logs')
+      mkdirSync(dir, { recursive: true })
+      const filePath = join(dir, `${created_at.slice(0, 10)}.json`)
+      let existing: unknown[] = []
+      try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo arquivo */ }
+      const novosLogs = entries.map((e, i) => ({
+        id: `${Date.now()}-${i}`,
+        created_at,
+        ...e,
+        error_log: e.error_log ?? null,
+        ai_analysis: null,
+      }))
+      writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
+    }
+
+    res.status(201).json({ ok: true, saved: entries.length, banco: salvouNoBanco })
   } catch (err) {
     next(err)
   }

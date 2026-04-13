@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "pedido-frontend",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd produto\\pedido\\client && npx vite --port 5179"],
+      "port": 5179
+    },
+    {
       "name": "dashboard-global-demo",
       "runtimeExecutable": "cmd",
       "runtimeArgs": ["/c", "cd nucleo-global\\Dashboard\\dashboard-global\\demo && npx vite --port 5221"],

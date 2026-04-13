@@ -547,3 +547,21 @@ model PedidoCasasDecimaisConfig {
   @@index([tenant_id, product_id])
   @@map("pedido_casas_decimais_config")
 }
+
+/// Painéis do Dashboard por usuário — cada painel tem seu próprio conjunto de widgets.
+model DashboardPainel {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  user_id      String
+  nome         String
+  ordem        Int      @default(0)
+  is_visivel   Boolean  @default(true)
+  /// JSON serializado: DashboardWidgetConfig[]
+  widgets_json String   @default("[]") @db.Text
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@map("dashboard_paineis")
+}

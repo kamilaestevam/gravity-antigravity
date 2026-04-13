@@ -13,6 +13,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { Tag, MagnifyingGlass } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
+import { NcmSelectGlobal } from '@nucleo/campo-ncm-global'
 import { useShellStore } from '@gravity/shell'
 import type { Pedido, PedidoItem } from '../shared/types'
 import { pedidoApi, pedidoItemApi } from '../shared/api'
@@ -280,13 +281,10 @@ export function ModalNovoItem({
               />
             </div>
             <div style={s.campo}>
-              <label style={s.label} htmlFor="mni-ncm">NCM</label>
-              <input
-                id="mni-ncm"
-                style={{ ...s.input, fontFamily: 'monospace' }}
+              <NcmSelectGlobal
+                label="NCM"
                 value={item.ncm}
-                onChange={e => setItemField('ncm', e.target.value)}
-                placeholder="0000.00.00"
+                onChange={(codigo) => setItemField('ncm', codigo)}
               />
             </div>
             <div style={{ ...s.campo, ...s.gridFull }}>

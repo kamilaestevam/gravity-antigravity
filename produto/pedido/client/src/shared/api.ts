@@ -1739,6 +1739,17 @@ export const dashboardApi = {
     if (range) { params.set('from', range.from); params.set('to', range.to) }
     return request<DashboardInsightsResponse>(`/api/v1/pedidos/dashboard/insights?${params}`)
   },
+
+  /** Status NCM — itens com NCM inválido segundo o Portal Único Siscomex */
+  ncmStatus: () =>
+    request<{
+      invalidos:         string[]
+      total_invalidos:   number
+      itens_invalidos:   number
+      total_verificados: number
+      sem_sync:          boolean
+      ultima_sync:       string | null
+    }>('/api/v1/pedidos/dashboard/ncm-status'),
 }
 
 // ── Dashboard Painéis ─────────────────────────────────────────────────────────

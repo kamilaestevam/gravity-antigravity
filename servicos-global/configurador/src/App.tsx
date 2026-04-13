@@ -40,6 +40,7 @@ const UsuariosGlobaisAdmin = lazy(() => import('./pages/admin/UsuariosGlobaisAdm
 const TenantDetail = lazy(() => import('./pages/TenantDetail'), 'TenantDetail')
 const DeployRailwayAdmin = lazy(() => import('./pages/admin/DeployRailwayAdmin'), 'DeployRailwayAdmin')
 const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
+const NcmSyncAdmin = lazy(() => import('./pages/admin/NcmSyncAdmin'), 'NcmSyncAdmin')
 const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
 const Organizacao = lazy(() => import('./pages/workspace/Organizacao'), 'Organizacao')
 const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspaces')
@@ -256,6 +257,7 @@ export default function App() {
           <Route path="testes" element={<React.Suspense fallback={<ProductLoading />}><LogTestes /></React.Suspense>} />
           <Route path="apis" element={<React.Suspense fallback={<ProductLoading />}><MonitorApisAdmin /></React.Suspense>} />
           <Route path="seguranca" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
+          <Route path="ncm-sync" element={<React.Suspense fallback={<ProductLoading />}><NcmSyncAdmin /></React.Suspense>} />
           <Route path="tenants" element={<React.Suspense fallback={<ProductLoading />}><AdminPanel navigate={adminNavigate} /></React.Suspense>} />
           <Route path="tenant/:id" element={<React.Suspense fallback={<ProductLoading />}><TenantDetailWrapper /></React.Suspense>} />
         </Route>

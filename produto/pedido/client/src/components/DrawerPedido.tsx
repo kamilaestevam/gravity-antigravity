@@ -27,6 +27,7 @@ import {
   ArrowsLeftRight,
 } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
+import { NcmSelectGlobal } from '@nucleo/campo-ncm-global'
 import { ModalGlobal } from '@nucleo/modal-global'
 import { GabiFieldIcon } from '@nucleo/gabi-field-icon-global'
 import { ModalTabelaMoeda } from '@nucleo/modal-tabela-moeda'
@@ -584,14 +585,10 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                         />
                       </div>
                       <div className="drawer-pedido__campo">
-                        <label className="drawer-pedido__label" htmlFor={`dp-ncm-${index}`} style={{ fontSize: '0.625rem' }}>NCM</label>
-                        <input
-                          id={`dp-ncm-${index}`}
-                          className="drawer-pedido__input drawer-pedido__input--mono"
+                        <NcmSelectGlobal
+                          label="NCM"
                           value={item.ncm}
-                          onChange={e => handleItemChange(index, 'ncm', e.target.value)}
-                          placeholder="0000.00.00"
-                          aria-label="NCM"
+                          onChange={(codigo) => handleItemChange(index, 'ncm', codigo)}
                         />
                       </div>
                       <div className="drawer-pedido__campo">

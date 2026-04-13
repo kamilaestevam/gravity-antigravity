@@ -26,6 +26,7 @@ import {
   Info,
   ShieldCheck,
   ArrowLeft,
+  ArrowsClockwise,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
@@ -54,6 +55,7 @@ export function AdminLayout() {
     { to: '/admin/deploy',       label: t('admin.layout.deploy_railway'),   icon: <CloudArrowUp    weight="duotone" size={18} /> },
     { to: '/admin/apis',         label: t('admin.layout.api_cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
     { to: '/admin/seguranca',    label: t('admin.layout.seguranca'),        icon: <ShieldCheck     weight="duotone" size={18} /> },
+    { to: '/admin/ncm-sync',     label: t('admin.layout.ncm_sync', 'NCM Siscomex'),   icon: <ArrowsClockwise weight="duotone" size={18} /> },
     { to: '/admin/testes',       label: t('admin.layout.log_testes'),       icon: <Bug             weight="duotone" size={18} /> },
   ]
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()

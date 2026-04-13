@@ -408,6 +408,61 @@ export const tenantProductsApi = {
   },
 }
 
+// ─── Admin: NCM Sync (Portal Único Siscomex) ───────────────────────────────
+
+export interface NcmSyncStatusApi {
+  ultima_sync:   string | null
+  status:        'RUNNING' | 'SUCCESS' | 'ERROR' | null
+  total_ativos:  number
+  total_tenants: number
+  erros_48h:     number
+  desatualizado: boolean
+}
+
+export interface NcmSyncLogApi {
+  id:           string
+  tenant_id:    string
+  iniciado_em:  string
+  concluido_em: string | null
+  status:       'RUNNING' | 'SUCCESS' | 'ERROR'
+  total:        number
+  adicionados:  number
+  alterados:    number
+  removidos:    number
+  origem:       'JOB' | 'MANUAL'
+  disparado_por: string | null
+  erro_msg:     string | null
+  created_at:   string
+}
+
+const NCM_INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? 'develop-internal-key'
+
+export const adminNcmApi = {
+  async getStatus() {
+    return request<NcmSyncStatusApi>('/v1/ncm/admin/status', {
+      headers: { 'x-internal-key': NCM_INTERNAL_KEY },
+    })
+  },
+
+  async getHistorico(params?: { pagina?: number; por_page?: number }) {
+    const query = new URLSearchParams()
+    if (params?.pagina)   query.set('pagina',   String(params.pagina))
+    if (params?.por_page) query.set('por_page', String(params.por_page))
+    const qs = query.toString()
+    return request<{ logs: NcmSyncLogApi[]; paginacao: { pagina: number; por_page: number; total: number; paginas: number } }>(
+      `/v1/ncm/admin/historico${qs ? `?${qs}` : ''}`,
+      { headers: { 'x-internal-key': NCM_INTERNAL_KEY } }
+    )
+  },
+
+  async triggerSync(tenantId: string) {
+    return request<{ sucesso: boolean; total: number; adicionados: number; alterados: number; removidos: number; duracaoMs: number }>(
+      `/v1/ncm/admin/sync/${tenantId}`,
+      { method: 'POST', headers: { 'x-internal-key': NCM_INTERNAL_KEY } }
+    )
+  },
+}
+
 // ─── Público: Catálogo (Store/Marketplace) ──────────────────────────────────
 
 export const publicCatalogApi = {

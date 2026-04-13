@@ -50,6 +50,10 @@ export default defineConfig({
       allow: [monorepoRoot],
     },
     proxy: {
+      '/api/v1/ncm': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://localhost:8030',
         changeOrigin: true,

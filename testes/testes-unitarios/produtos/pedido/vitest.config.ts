@@ -31,6 +31,7 @@ export default defineConfig({
       'testes/testes-unitarios/produtos/pedido/selecaoStore.test.ts',
       'testes/testes-unitarios/produtos/pedido/kanbanColunas.test.ts',
       'testes/testes-unitarios/produtos/pedido/kanbanColunasComponente.test.ts',
+      'testes/testes-unitarios/produtos/pedido/kanbanModal.test.ts',
     ],
     env: {
       NODE_ENV: 'test',

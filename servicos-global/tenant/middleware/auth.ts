@@ -5,11 +5,20 @@
 
 import { Request, Response, NextFunction } from 'express'
 
+const INTERNAL_KEY = process.env.INTERNAL_API_KEY ?? ''
+
 export function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ): void {
+  // Rotas inter-serviço (admin, S2S) passam com x-internal-key — sem tenant_id
+  const internalKey = req.headers['x-internal-key'] as string | undefined
+  if (INTERNAL_KEY && internalKey === INTERNAL_KEY) {
+    req.auth = { tenantId: '__internal__', userId: 'system' }
+    return next()
+  }
+
   const tenantId = req.headers['x-tenant-id'] as string | undefined
   const userId   = req.headers['x-user-id']   as string | undefined
 

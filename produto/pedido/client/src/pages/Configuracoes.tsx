@@ -3638,7 +3638,7 @@ export default function Configuracoes() {
               </div>
             </section>}
 
-            {/* ── Criar Coluna Personalizada ── */}
+            {/* ── Colunas Personalizadas ── */}
             {categoria === 'colunas-personalizadas' && <section className="cfg-secao" ref={novaColunaSectionRef}>
               <div className="cfg-secao__header">
                 <div>
@@ -3649,16 +3649,56 @@ export default function Configuracoes() {
                 </div>
               </div>
 
-              {/* Card: Nova Coluna */}
-              <div className="cfg-campo-calc-item">
-
-                {/* ── Cabeçalho ── */}
-                <div className="cfg-campo-calc-item__header">
-                  <div className="cfg-campo-calc-item__id">
-                    <Columns size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
-                    <span className="cfg-campo-calc-item__nome">Nova Coluna</span>
-                  </div>
+              {/* ── Ativas ── */}
+              <CfgSectionLabel
+                label="ATIVAS"
+                count={pendingColunas.length}
+                hint="Arraste para reordenar · olho para ocultar · X para excluir"
+              />
+              {pendingColunas.length === 0 ? (
+                <div style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  gap: '0.5rem', padding: '1.5rem', textAlign: 'center',
+                  background: 'rgba(255,255,255,0.02)', borderRadius: '8px',
+                  border: '1px dashed rgba(255,255,255,0.08)',
+                }}>
+                  <Columns size={28} weight="duotone" style={{ color: 'var(--ws-muted, #64748b)' }} />
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', margin: 0 }}>
+                    Nenhuma coluna criada ainda
+                  </p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
+                    Use o formulário abaixo para criar a primeira
+                  </p>
                 </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.25rem' }}>
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
+                      <SortableContext items={pendingColunas.map(c => c.id)} strategy={verticalListSortingStrategy}>
+                        {pendingColunas.map(col => (
+                          <ColunaSortavel
+                            key={col.id}
+                            col={col}
+                            onToggleAtivo={() => handleToggleAtivoColuna(col.id)}
+                            onRemover={() => handleRemoverColuna(col.id)}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  </div>
+                  <div className="cfg-secao__footer" style={{ marginTop: '0.75rem' }}>
+                    <BotaoCancelar dirty={colunasDirty} rotulo="Descartar" onClick={cancelarOrdemColunas} />
+                    <BotaoSalvar   dirty={colunasDirty} carregando={salvandoColunas} rotulo="Salvar ordem" onClick={salvarOrdemColunas} />
+                  </div>
+                </>
+              )}
+
+              {/* Separador */}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />
+
+              {/* ── Nova Coluna ── */}
+              <CfgSectionLabel label="NOVA COLUNA" />
+              <div className="cfg-campo-calc-item" style={{ marginTop: '0.5rem' }}>
 
                 {/* ── Campos do formulário ── */}
                 <div className="cfg-nova-coluna-form cfg-campo-calc-item__body">
@@ -3853,17 +3893,12 @@ export default function Configuracoes() {
 
                   {/* Obrigatório */}
                   {novaColuna.tipo !== 'anexo' && (
-                    <div className="cfg-form-group">
-                      <label className="cfg-toggle-row__label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={novaColuna.obrigatorio}
-                          onChange={e => setNovaColuna(prev => ({ ...prev, obrigatorio: e.target.checked }))}
-                          className="cfg-toggle__input"
-                        />
-                        <span>Obrigatório</span>
-                      </label>
-                    </div>
+                    <ToggleRow
+                      id="nova-coluna-obrigatorio"
+                      label="Obrigatório"
+                      checked={novaColuna.obrigatorio}
+                      onChange={v => setNovaColuna(prev => ({ ...prev, obrigatorio: v }))}
+                    />
                   )}
 
                   {/* Valor padrão */}
@@ -3956,41 +3991,6 @@ export default function Configuracoes() {
                 })()}
               </div>
 
-              {/* ── Colunas existentes — card gerenciamento ── */}
-              {pendingColunas.length > 0 && (
-                <div className="cfg-campo-calc-item" style={{ marginBottom: '1rem' }}>
-                  <div className="cfg-campo-calc-item__header">
-                    <div className="cfg-campo-calc-item__id">
-                      <Columns size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
-                      <span className="cfg-campo-calc-item__nome">Colunas criadas</span>
-                      <span className="cfg-campo-calc-item__badge">{pendingColunas.length} coluna{pendingColunas.length !== 1 ? 's' : ''}</span>
-                    </div>
-                  </div>
-
-                  <div className="cfg-campo-calc-item__body" style={{ padding: '0.5rem 0' }}>
-                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0 1rem 0.5rem', margin: 0 }}>
-                      Arraste para reordenar · olho para ocultar
-                    </p>
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndColunas}>
-                      <SortableContext items={pendingColunas.map(c => c.id)} strategy={verticalListSortingStrategy}>
-                        {pendingColunas.map(col => (
-                          <ColunaSortavel
-                            key={col.id}
-                            col={col}
-                            onToggleAtivo={() => handleToggleAtivoColuna(col.id)}
-                            onRemover={() => handleRemoverColuna(col.id)}
-                          />
-                        ))}
-                      </SortableContext>
-                    </DndContext>
-                  </div>
-
-                  <div className="cfg-campo-calc-item__footer">
-                    <BotaoCancelar dirty={colunasDirty} rotulo="Descartar" onClick={cancelarOrdemColunas} />
-                    <BotaoSalvar   dirty={colunasDirty} carregando={salvandoColunas} rotulo="Salvar ordem" onClick={salvarOrdemColunas} />
-                  </div>
-                </div>
-              )}
             </section>}
 
             {/* ── Campos Calculados ── */}

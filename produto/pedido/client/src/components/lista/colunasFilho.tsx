@@ -1,0 +1,1713 @@
+/**
+ * colunasFilho.tsx — Definição de colunas do PedidoItem (linha filho)
+ *
+ * Exporta COLUNAS_FILHO, MAPA_COLUNAS_FILHO e helpers de mapeamento de colunas do usuário.
+ * Separado para manter ListaPedidos.tsx abaixo de 2000 linhas.
+ */
+
+import React from 'react'
+import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
+import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global'
+import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/types'
+import { fmtQuantidade, fmtData } from '../../shared/types'
+import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
+import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel } from './colunasPai'
+import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
+
+// Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
+export { _regrasAlertasRef }
+
+// ── Contexto numérico do pedido para avaliação de fórmulas C2 (T03) ──────────
+
+export function buildFormulaContexto(row: Pedido): Record<string, number | null> {
+  const n = (v: unknown): number | null => {
+    if (v == null) return null
+    const num = typeof v === 'object' ? (v as Record<string, unknown>).valor : v
+    const parsed = Number(num)
+    return isNaN(parsed) ? null : parsed
+  }
+  const r = row as Record<string, unknown>
+  return {
+    quantidade_total_inicial_pedido:      n(r.quantidade_total_inicial_pedido),
+    quantidade_cancelada_total_pedido:    n(r.quantidade_cancelada_total_pedido),
+    quantidade_transferida_total:         n(r.quantidade_transferida_total),
+    quantidade_pronta_itens_pedido_total: n(r.quantidade_pronta_itens_pedido_total),
+    saldo_itens_do_pedido:                n(r.saldo_itens_do_pedido),
+    valor_total:                          n(r.valor_total_pedido),
+    peso_liquido_total_pedido:            n(r.peso_liquido_total_pedido),
+    peso_bruto_total_pedido:              n(r.peso_bruto_total_pedido),
+    cubagem_total_pedido:                 n(r.cubagem_total_pedido),
+  }
+}
+
+// ── Helper: texto com truncamento a 150 chars + tooltip (T04) ────────────────
+
+export function renderTextoC2(valor: string, label: string): React.ReactElement {
+  if (valor === '—') return <span>{valor}</span>
+  if (valor.length > 150) {
+    return (
+      <TooltipGlobal titulo={label} descricao={valor}>
+        <span>{valor.slice(0, 150) + '…'}</span>
+      </TooltipGlobal>
+    )
+  }
+  return <span>{valor}</span>
+}
+
+export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
+  return {
+    key:             col.chave as keyof Pedido,
+    label:           col.nome,
+    tipo:            col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula' ? 'numero' : col.tipo === 'data' ? 'periodo' : 'texto',
+    align:           col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula' ? 'right'
+                   : col.tipo === 'data' || col.tipo === 'select' || col.tipo === 'checkbox' ? 'center'
+                   : undefined,
+    filtravel:       true,
+    oculta:          true,
+    tooltipTitulo:   col.nome,
+    tooltipDescricao: col.descricao,
+    render: (_val: unknown, row: Pedido) => {
+      const valores = (row as Record<string, unknown>)['_colunas_usuario'] as
+        Record<string, string> | undefined
+      const valor = valores?.[col.id] ?? '—'
+
+      // ── Checkbox ────────────────────────────────────────────────────────────
+      if (col.tipo === 'checkbox') {
+        return <span>{valor === 'true' ? '✓' : valor === 'false' ? '✗' : '—'}</span>
+      }
+
+      // ── Fórmula: calcula em tempo real a partir dos campos do pedido (T03) ──
+      if (col.tipo === 'formula') {
+        if (col.formula_expressao) {
+          try {
+            const ast = parsearFormula(col.formula_expressao)
+            const contexto = buildFormulaContexto(row)
+            // Inclui valores de outras colunas C2 numéricas no contexto
+            if (valores) {
+              for (const [k, v] of Object.entries(valores)) {
+                const num = Number(v)
+                if (!isNaN(num)) contexto[k] = num
+              }
+            }
+            const { valor: num, temNulo } = avaliarFormula(ast, contexto)
+            const casas = getCasas(col.id, 2)
+            return (
+              <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                {fmtQuantidade(num, casas)}
+                {temNulo && (
+                  <span title="Um ou mais campos usados nesta fórmula estavam vazios e foram tratados como 0" style={{ marginLeft: '0.25rem', cursor: 'help' }}>⚠️</span>
+                )}
+              </span>
+            )
+          } catch {
+            // expressão inválida — exibe '—'
+          }
+        }
+        return <span>—</span>
+      }
+
+      // ── Numérico / Percentual ────────────────────────────────────────────────
+      if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
+        const num = Number(valor)
+        if (!isNaN(num)) {
+          const casas = getCasas(col.id, 2)
+          const sufixo = col.tipo === 'percentual' ? '%' : ''
+          return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casas)}{sufixo}</span>
+        }
+      }
+
+      // ── Texto / Select / Tipo Documento — trunca em 150 chars (T04) ─────────
+      return renderTextoC2(valor, col.nome)
+    },
+  }
+}
+
+// ── Colunas filha (PedidoItem) ────────────────────────────────────────────────
+
+export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
+  {
+    key: 'part_number',
+    label: 'Part Number',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.part_number}</span>,
+  },
+  {
+    key: 'ncm',
+    label: 'NCM',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm}</span>,
+  },
+  {
+    key: 'descricao_item',
+    label: 'Descrição do Item',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_item}</span>,
+  },
+  {
+    key: 'quantidade_inicial_item_pedido',
+    label: 'Qtd Inicial do Item no Pedido',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Quantidades',
+    tooltipTitulo: 'Quantidade Inicial',
+    tooltipDescricao: 'Quantidade original do item — valor imutável',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {fmtQuantidade(row.quantidade_inicial_item_pedido, getCasas('quantidade_item', 0))}
+      </span>
+    ),
+  },
+  {
+    key: 'saldo_item_pedido',
+    label: 'Saldo do Item',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Quantidades',
+    tooltipTitulo: 'Saldo',
+    tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{
+        fontVariantNumeric: 'tabular-nums',
+        fontWeight: row.saldo_item_pedido === 0 ? 400 : 600,
+        color: row.saldo_item_pedido === 0 ? 'var(--text-muted)' : 'var(--color-success, #34d399)',
+      }}>
+        {fmtQuantidade(row.saldo_item_pedido, getCasas('quantidade_item', 0))}
+      </span>
+    ),
+  },
+  {
+    key: 'quantidade_pronta_total_item_pedido',
+    label: 'Quantidade Pronta do Item no Pedido',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Quantidades',
+    tooltipTitulo: 'Quantidade Pronta',
+    tooltipDescricao: 'Montante produzido pela fábrica e validado para embarque',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {fmtQuantidade(row.quantidade_pronta_total_item_pedido, getCasas('quantidade_item', 0))}
+      </span>
+    ),
+  },
+  {
+    key: 'quantidade_transferida_item_pedido',
+    label: 'Quantidade Transferida do Item no Pedido',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Quantidades',
+    tooltipTitulo: 'Quantidade Transferida',
+    tooltipDescricao: 'Quantidade já transferida deste item para outros pedidos.',
+    tooltipBloqueado: 'Campo calculado — incrementado automaticamente ao executar uma transferência. Não pode ser editado diretamente.',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
+        {fmtQuantidade(row.quantidade_transferida_item_pedido, getCasas('quantidade_item', 0))}
+      </span>
+    ),
+  },
+  {
+    key: 'quantidade_cancelada_item_pedido',
+    label: 'Quantidade Cancelada do Item no Pedido',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Quantidades',
+    tooltipTitulo: 'Quantidade Cancelada',
+    tooltipDescricao: 'Total cancelado permanentemente — subtrai do saldo inicial',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{
+        fontVariantNumeric: 'tabular-nums',
+        color: row.quantidade_cancelada_item_pedido > 0 ? 'var(--color-error, #ef4444)' : 'var(--text-muted)',
+      }}>
+        {fmtQuantidade(row.quantidade_cancelada_item_pedido, getCasas('quantidade_item', 0))}
+      </span>
+    ),
+  },
+  {
+    key: 'sequencia_item',
+    label: 'Seq. Item',
+    tipo: 'numero',
+    align: 'center',
+    grupo: 'Identificação',
+    tooltipTitulo: 'Sequência do Item',
+    tooltipDescricao: 'Número sequencial do item dentro do pedido (conforme invoice)',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.sequencia_item != null ? String(row.sequencia_item).padStart(3, '0') : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'descricao_completa_item_pt',
+    label: 'Descrição Completa do Item/Produto',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    tooltipTitulo: 'Descrição Completa do Produto',
+    tooltipDescricao: 'Descrição técnica detalhada do produto conforme catálogo',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_pt ?? '—'}</span>,
+  },
+  {
+    key: 'descricao_completa_item_nf',
+    label: 'Descrição Completa do Item/Produto- NF',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    tooltipTitulo: 'Descrição Espelho da Nota Fiscal',
+    tooltipDescricao: 'Descrição do produto conforme será exibida na nota fiscal de entrada',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_nf ?? '—'}</span>,
+  },
+  {
+    key: 'quantidade_unidade_estatistica',
+    label: 'Qtd Est.',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Quantidades',
+    tooltipTitulo: 'Quantidade na Unidade Estatística',
+    tooltipDescricao: 'Quantidade do item expressa na unidade estatística exigida pela DUIMP',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.quantidade_unidade_estatistica_duimp != null
+          ? `${fmtQuantidade(row.quantidade_unidade_estatistica_duimp, getCasas('quantidade_unidade_estatistica_duimp', 2))} ${row.unidade_estatistica_duimp ?? ''}`
+          : '—'}
+      </span>
+    ),
+  },
+  // ── Pesos e cubagem ──────────────────────────────────────────────────────────
+  {
+    key: 'peso_liquido_unitario_item',
+    label: 'Peso Líquido Unitário do Item',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Dados Físicos',
+    tooltipTitulo: 'Peso Líquido Unitário',
+    tooltipDescricao: 'Peso líquido unitário do produto, em kg',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.peso_liquido_unitario_item != null
+          ? `${fmtQuantidade(row.peso_liquido_unitario_item, getCasas('peso_liquido_unitario_item', 3))} kg`
+          : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'peso_bruto_unitario_item',
+    label: 'Peso Bruto Unitário do Item',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Dados Físicos',
+    tooltipTitulo: 'Peso Bruto Unitário',
+    tooltipDescricao: 'Peso bruto unitário incluindo embalagem, em kg',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.peso_bruto_unitario_item != null
+          ? `${fmtQuantidade(row.peso_bruto_unitario_item, getCasas('peso_bruto_unitario_item', 3))} kg`
+          : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'cubagem_unitaria_item',
+    label: 'Cubagem Unitária do Item',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'Dados Físicos',
+    tooltipTitulo: 'Cubagem Unitária',
+    tooltipDescricao: 'Volume unitário do produto, em m³',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.cubagem_unitaria_item != null
+          ? `${fmtQuantidade(row.cubagem_unitaria_item, getCasas('cubagem_unitaria_item', 4))} m³`
+          : '—'}
+      </span>
+    ),
+  },
+  // ── Embalagem e documentos ───────────────────────────────────────────────────
+  {
+    key: 'tipo_embalagem',
+    label: 'Tipo de Embalagem',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'Dados Físicos',
+    tooltipTitulo: 'Tipo de Embalagem',
+    tooltipDescricao: 'Tipo de embalagem do produto (ex: Caixa, Pallet, Tambor)',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_embalagem ?? '—'}</span>,
+  },
+  {
+    key: 'numero_lpco',
+    label: 'Número da LPCO',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Número da LPCO',
+    tooltipDescricao: 'Licença, Permissão, Certificado ou Outros documentos exigidos para importação',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.numero_lpco ?? '—'}</span>,
+  },
+  {
+    key: 'numero_certificado_origem',
+    label: 'Número do Certificado de Origem',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Número do Certificado de Origem',
+    tooltipDescricao: 'Número do certificado de origem emitido pelo exportador ou câmara de comércio',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.numero_certificado_origem ?? '—'}</span>,
+  },
+  {
+    key: 'data_certificado_origem',
+    label: 'Dt Cert. Origem',
+    tipo: 'periodo',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data do Certificado de Origem',
+    tooltipDescricao: 'Data de emissão do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_certificado_origem ? fmtData(row.data_certificado_origem) : '—'}</span>,
+  },
+  // ── Classificação ────────────────────────────────────────────────────────────
+  {
+    key: 'grupo_item',
+    label: 'Grupo do Item/Produto',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'Identificação',
+    tooltipTitulo: 'Grupo do Produto',
+    tooltipDescricao: 'Grupo de classificação do produto conforme cadastro',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.grupo_item ?? '—'}</span>,
+  },
+  {
+    key: 'subgrupo_item',
+    label: 'Subgrupo do Item/Produto',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'Identificação',
+    tooltipTitulo: 'Subgrupo do Produto',
+    tooltipDescricao: 'Subgrupo de classificação do produto dentro do grupo principal',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.subgrupo_item ?? '—'}</span>,
+  },
+  {
+    key: 'campo_especial_item',
+    label: 'Campo Especial do Item/Produto',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    tooltipTitulo: 'Campo Especial',
+    tooltipDescricao: 'Campo configurável para uso interno ou integrações específicas',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.campo_especial_item ?? '—'}</span>,
+  },
+  // ── Descrições multilíngues ──────────────────────────────────────────────────
+  {
+    key: 'descricao_completa_item_en',
+    label: 'Descrição Completa do Item/Produto- Inglês',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    tooltipTitulo: 'Product Description (English)',
+    tooltipDescricao: 'Descrição do produto em inglês, conforme invoice internacional',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_en ?? '—'}</span>,
+  },
+  {
+    key: 'descricao_completa_item_es',
+    label: 'Descrição Completa do Item/Produto- Espanhol',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    tooltipTitulo: 'Descripción del Producto (Español)',
+    tooltipDescricao: 'Descrição do produto em espanhol',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_es ?? '—'}</span>,
+  },
+  {
+    key: 'texto_posicao_ncm',
+    label: 'Texto NCM',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    tooltipTitulo: 'Texto da Posição da NCM',
+    tooltipDescricao: 'Descrição oficial da posição tarifária NCM conforme TEC',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.texto_posicao_ncm ?? '—'}</span>,
+  },
+  {
+    key: 'atributos_catalogo',
+    label: 'Atributo do Produto - Catálogo',
+    tipo: 'texto',
+    grupo: 'Identificação',
+    tooltipTitulo: 'Atributos — Catálogo de Produtos',
+    tooltipDescricao: 'Atributos técnicos do produto conforme catálogo (cor, voltagem, etc.)',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.atributos_catalogo ?? '—'}</span>,
+  },
+  {
+    key: 'anexo_lpco',
+    label: 'Anexo LPCO',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Anexo da LPCO',
+    tooltipDescricao: 'Arquivo da Licença, Permissão, Certificado ou Outros (LPCO)',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.anexo_lpco ? '📎' : '—'}</span>,
+  },
+  // ── Datas do item ────────────────────────────────────────────────────────────
+  {
+    key: 'data_transferencia_item',
+    label: 'Data de Transferência do Item',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'Identificação',
+    tooltipTitulo: 'Data de Transferência do Produto/Item',
+    tooltipDescricao: 'Data em que o item foi transferido para um processo logístico',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_transferencia_item ? fmtData(row.data_transferencia_item) : '—'}</span>,
+  },
+  {
+    key: 'data_consolidacao_item',
+    label: 'Data de Consolidação do Item',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'Identificação',
+    tooltipTitulo: 'Data de Consolidação do Produto/Item',
+    tooltipDescricao: 'Data em que o item foi consolidado em um processo',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_consolidacao_item ? fmtData(row.data_consolidacao_item) : '—'}</span>,
+  },
+  // ── Datas LPCO ───────────────────────────────────────────────────────────────
+  {
+    key: 'data_prevista_conferencia_draft_lpco',
+    label: 'Dt Prev. Conferência Draft LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista de Conferência — Draft da LPCO',
+    tooltipDescricao: 'Data prevista para conferência do rascunho da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_conferencia_draft_lpco ? fmtData(row.data_prevista_conferencia_draft_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_conferencia_draft_lpco',
+    label: 'Dt Conf. Conferência Draft LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada de Conferência — Draft da LPCO',
+    tooltipDescricao: 'Data confirmada de conferência do rascunho da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_conferencia_draft_lpco ? fmtData(row.data_confirmada_conferencia_draft_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_conferencia_draft_lpco',
+    label: 'Dt Meta Conferência Draft LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta de Conferência — Draft da LPCO',
+    tooltipDescricao: 'Data meta para conferência do rascunho da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_conferencia_draft_lpco ? fmtData(row.data_meta_conferencia_draft_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_prevista_aprovacao_draft_lpco',
+    label: 'Dt Prev. Aprovação Draft LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista de Aprovação — Draft da LPCO',
+    tooltipDescricao: 'Data prevista para aprovação do rascunho da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_aprovacao_draft_lpco ? fmtData(row.data_prevista_aprovacao_draft_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_aprovacao_draft_lpco',
+    label: 'Dt Conf. Aprovação Draft LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada de Aprovação — Draft da LPCO',
+    tooltipDescricao: 'Data confirmada de aprovação do rascunho da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_aprovacao_draft_lpco ? fmtData(row.data_confirmada_aprovacao_draft_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_aprovacao_draft_lpco',
+    label: 'Dt Meta Aprovação Draft LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta de Aprovação — Draft da LPCO',
+    tooltipDescricao: 'Data meta para aprovação do rascunho da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_aprovacao_draft_lpco ? fmtData(row.data_meta_aprovacao_draft_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_prevista_registro_lpco',
+    label: 'Dt Prev. Registro da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista do Registro da LPCO',
+    tooltipDescricao: 'Data prevista para registro da LPCO no órgão competente',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_registro_lpco ? fmtData(row.data_prevista_registro_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_registro_lpco',
+    label: 'Dt Conf. Registro da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada do Registro da LPCO',
+    tooltipDescricao: 'Data confirmada de registro da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_registro_lpco ? fmtData(row.data_confirmada_registro_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_registro_lpco',
+    label: 'Dt Meta. Registro da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta do Registro da LPCO',
+    tooltipDescricao: 'Data meta para registro da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_registro_lpco ? fmtData(row.data_meta_registro_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_prevista_resultado_analise_lpco',
+    label: 'Dt Prev. Análise da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista do Resultado da Análise da LPCO',
+    tooltipDescricao: 'Data prevista para resultado da análise pelo órgão anuente',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_resultado_analise_lpco ? fmtData(row.data_prevista_resultado_analise_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_resultado_analise_lpco',
+    label: 'Dt Conf. Análise da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada do Resultado da Análise da LPCO',
+    tooltipDescricao: 'Data confirmada do resultado da análise da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_resultado_analise_lpco ? fmtData(row.data_confirmada_resultado_analise_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_resultado_analise_lpco',
+    label: 'Dt Meta. Análise da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta do Resultado da Análise da LPCO',
+    tooltipDescricao: 'Data meta para resultado da análise da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_resultado_analise_lpco ? fmtData(row.data_meta_resultado_analise_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_prevista_deferimento_lpco',
+    label: 'Dt Prev. Deferimento da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista do Deferimento da LPCO',
+    tooltipDescricao: 'Data prevista para deferimento (aprovação final) da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_deferimento_lpco ? fmtData(row.data_prevista_deferimento_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_deferimento_lpco',
+    label: 'Dt Conf. Deferimento da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada do Deferimento da LPCO',
+    tooltipDescricao: 'Data confirmada do deferimento da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_deferimento_lpco ? fmtData(row.data_confirmada_deferimento_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_deferimento_lpco',
+    label: 'Dt Meta. Deferimento da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta do Deferimento da LPCO',
+    tooltipDescricao: 'Data meta para deferimento da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_deferimento_lpco ? fmtData(row.data_meta_deferimento_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_indeferimento_lpco',
+    label: 'Dt Conf. Indeferimento da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada do Indeferimento da LPCO',
+    tooltipDescricao: 'Data confirmada do indeferimento (reprovação) da LPCO',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_indeferimento_lpco ? fmtData(row.data_confirmada_indeferimento_lpco) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_exigencia_lpco',
+    label: 'Dt Conf. Exigência da LPCO',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada da Exigência da LPCO',
+    tooltipDescricao: 'Data confirmada de exigência/pendência da LPCO pelo órgão anuente',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_exigencia_lpco ? fmtData(row.data_confirmada_exigencia_lpco) : '—'}</span>,
+  },
+  // ── Datas Certificado de Origem ──────────────────────────────────────────────
+  {
+    key: 'data_prevista_recebimento_draft_cert_origem',
+    label: 'Prev. Rec. Draft Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista de Recebimento — Draft do Certificado de Origem',
+    tooltipDescricao: 'Data prevista para recebimento do rascunho do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_recebimento_draft_cert_origem ? fmtData(row.data_prevista_recebimento_draft_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_recebimento_draft_cert_origem',
+    label: 'Conf. Rec. Draft Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada de Recebimento — Draft do Certificado de Origem',
+    tooltipDescricao: 'Data confirmada de recebimento do rascunho do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_recebimento_draft_cert_origem ? fmtData(row.data_confirmada_recebimento_draft_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_recebimento_draft_cert_origem',
+    label: 'Meta Rec. Draft Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta de Recebimento — Draft do Certificado de Origem',
+    tooltipDescricao: 'Data meta para recebimento do rascunho do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_recebimento_draft_cert_origem ? fmtData(row.data_meta_recebimento_draft_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_prevista_aprovacao_draft_cert_origem',
+    label: 'Prev. Aprov. Draft Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista de Aprovação — Draft do Certificado de Origem',
+    tooltipDescricao: 'Data prevista para aprovação do rascunho do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_aprovacao_draft_cert_origem ? fmtData(row.data_prevista_aprovacao_draft_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_aprovacao_draft_cert_origem',
+    label: 'Conf. Aprov. Draft Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada de Aprovação — Draft do Certificado de Origem',
+    tooltipDescricao: 'Data confirmada de aprovação do rascunho do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_aprovacao_draft_cert_origem ? fmtData(row.data_confirmada_aprovacao_draft_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_aprovacao_draft_cert_origem',
+    label: 'Meta Aprov. Draft Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta de Aprovação — Draft do Certificado de Origem',
+    tooltipDescricao: 'Data meta para aprovação do rascunho do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_aprovacao_draft_cert_origem ? fmtData(row.data_meta_aprovacao_draft_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_prevista_envio_original_cert_origem',
+    label: 'Prev. Envio Original Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista de Envio — Original do Certificado de Origem',
+    tooltipDescricao: 'Data prevista para envio do original do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_envio_original_cert_origem ? fmtData(row.data_prevista_envio_original_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_envio_original_cert_origem',
+    label: 'Conf. Envio Original Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada de Envio — Original do Certificado de Origem',
+    tooltipDescricao: 'Data confirmada de envio do original do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_envio_original_cert_origem ? fmtData(row.data_confirmada_envio_original_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_envio_original_cert_origem',
+    label: 'Meta Envio Original Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta de Envio — Original do Certificado de Origem',
+    tooltipDescricao: 'Data meta para envio do original do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_envio_original_cert_origem ? fmtData(row.data_meta_envio_original_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_prevista_recebimento_original_cert_origem',
+    label: 'Prev. Rec. Original Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Prevista de Recebimento — Original do Certificado de Origem',
+    tooltipDescricao: 'Data prevista para recebimento do original do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_prevista_recebimento_original_cert_origem ? fmtData(row.data_prevista_recebimento_original_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_confirmada_recebimento_original_cert_origem',
+    label: 'Conf. Rec. Original Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Confirmada de Recebimento — Original do Certificado de Origem',
+    tooltipDescricao: 'Data confirmada de recebimento do original do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_confirmada_recebimento_original_cert_origem ? fmtData(row.data_confirmada_recebimento_original_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_meta_recebimento_original_cert_origem',
+    label: 'Meta Rec. Original Cert. Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data Meta de Recebimento — Original do Certificado de Origem',
+    tooltipDescricao: 'Data meta para recebimento do original do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_meta_recebimento_original_cert_origem ? fmtData(row.data_meta_recebimento_original_cert_origem) : '—'}</span>,
+  },
+  {
+    key: 'data_certificado_origem',
+    label: 'Data de emissão do Certificado de Origem',
+    tipo: 'periodo',
+    filtravel: true,
+    sortavel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Data do Certificado de Origem',
+    tooltipDescricao: 'Data de emissão do certificado de origem',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.data_certificado_origem ? fmtData(row.data_certificado_origem) : '—'}</span>,
+  },
+  // ── DUIMP — Dados gerais ─────────────────────────────────────────────────────
+  {
+    key: 'tipo_operacao_duimp',
+    label: 'Tipo de Operação - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Tipo de Operação — DUIMP',
+    tooltipDescricao: 'Tipo de operação de importação conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_operacao_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'descricao_resumida_duimp',
+    label: 'Descrição Resumida Produto - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Descrição Resumida do Produto — DUIMP',
+    tooltipDescricao: 'Descrição resumida do produto conforme cadastro na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_resumida_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'versao_produto_duimp',
+    label: 'Versão do Produto - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Versão do Produto — Catálogo DUIMP',
+    tooltipDescricao: 'Versão do cadastro do produto no catálogo DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.versao_produto_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'ncm_duimp',
+    label: 'NCM - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'NCM — DUIMP',
+    tooltipDescricao: 'Código NCM utilizado na DUIMP (pode diferir do NCM do catálogo)',
+    render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'atributos_duimp',
+    label: 'Atributos - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Atributos — DUIMP',
+    tooltipDescricao: 'Atributos técnicos do produto conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.atributos_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'aplicacao_mercadoria_duimp',
+    label: 'Aplicação Mercadoria - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Aplicação da Mercadoria — DUIMP',
+    tooltipDescricao: 'Finalidade ou aplicação da mercadoria conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.aplicacao_mercadoria_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'condicao_mercadoria_duimp',
+    label: 'Condição Mercadoria - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Condição da Mercadoria — DUIMP',
+    tooltipDescricao: 'Estado da mercadoria (nova, usada, recondicionada) conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.condicao_mercadoria_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'relacao_exportador_fabricante_duimp',
+    label: 'Relação Exportador/Fabricante - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Relação entre Exportador e Fabricante — DUIMP',
+    tooltipDescricao: 'Tipo de relação entre exportador e fabricante conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.relacao_exportador_fabricante_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'vinculacao_preco_duimp',
+    label: 'Vinculação Preço - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Vinculação de Preço — DUIMP',
+    tooltipDescricao: 'Indica se há vinculação de preço entre comprador e vendedor conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.vinculacao_preco_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'descricao_completa_duimp',
+    label: 'Descrição Completa - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Descrição Completa do Produto — DUIMP',
+    tooltipDescricao: 'Descrição completa e técnica do produto conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'descricao_complementar_duimp',
+    label: 'Descrição Complementar - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Descrição Complementar da Mercadoria — DUIMP',
+    tooltipDescricao: 'Informações complementares sobre a mercadoria na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_complementar_duimp ?? '—'}</span>,
+  },
+  // ── DUIMP — OPE ─────────────────────────────────────────────────────────────
+  {
+    key: 'codigo_ope_duimp',
+    label: 'Cód. OPE Descrição Completa - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Código do Operador Estrangeiro — DUIMP',
+    tooltipDescricao: 'Código do OPE (exportador) conforme cadastrado na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.codigo_ope_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'nome_ope_duimp',
+    label: 'Nome OPE - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Nome do Operador Estrangeiro — DUIMP',
+    tooltipDescricao: 'Nome do OPE conforme cadastrado na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.nome_ope_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'pais_ope_duimp',
+    label: 'País OPE - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'País do Operador Estrangeiro — DUIMP',
+    tooltipDescricao: 'País do OPE conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.pais_ope_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'codigo_ope_fabricante_duimp',
+    label: 'Cód. OPE Fabricante - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Código do Operador Estrangeiro Fabricante — DUIMP',
+    tooltipDescricao: 'Código do OPE do fabricante conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.codigo_ope_fabricante_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'nome_ope_fabricante_duimp',
+    label: 'Nome OPE Fabricante - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Nome do Operador Estrangeiro Fabricante — DUIMP',
+    tooltipDescricao: 'Nome do OPE do fabricante conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.nome_ope_fabricante_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'pais_fabricante_ope_duimp',
+    label: 'País OPE Fab. - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'País do Operador Estrangeiro Fabricante — DUIMP',
+    tooltipDescricao: 'País do OPE fabricante conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.pais_fabricante_ope_duimp ?? '—'}</span>,
+  },
+  // ── DUIMP — Valoração ────────────────────────────────────────────────────────
+  {
+    key: 'metodo_valoracao_duimp',
+    label: 'Método Valoração - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Método de Valoração — DUIMP',
+    tooltipDescricao: 'Método de valoração aduaneira utilizado na DUIMP (ex: Método 1 — Valor de Transação)',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.metodo_valoracao_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'incoterm_duimp',
+    label: 'Incoterm - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Incoterm / Condição de Venda — DUIMP',
+    tooltipDescricao: 'Incoterm ou condição de venda declarada na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.incoterm_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'moeda_produto_duimp',
+    label: 'Moeda - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Moeda do Produto — DUIMP',
+    tooltipDescricao: 'Moeda utilizada no valor do produto conforme DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.moeda_produto_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'valor_unitario_duimp',
+    label: 'Valor Unitário do Produto - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor Unitário do Produto — DUIMP',
+    tooltipDescricao: 'Valor unitário do produto na moeda declarada na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => {
+      const moeda = row.moeda_produto_duimp ?? 'USD'
+      const num = Number(row.valor_unitario_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {row.valor_unitario_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'valor_total_condicao_venda_duimp',
+    label: 'Valor Total na Condição de Venda - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor Total na Condição de Venda — DUIMP',
+    tooltipDescricao: 'Valor total do item na condição de venda declarada na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => {
+      const moeda = row.moeda_produto_duimp ?? 'USD'
+      const num = Number(row.valor_total_condicao_venda_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {row.valor_total_condicao_venda_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'valor_condicao_venda_brl_duimp',
+    label: 'Valor na Condição de Venda - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor na Condição de Venda (R$) — DUIMP',
+    tooltipDescricao: 'Valor do item na condição de venda convertido em reais',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_condicao_venda_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_condicao_venda_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'valor_frete_internacional_brl_duimp',
+    label: 'Frete Internacional (R$) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor do Frete Internacional (R$) — DUIMP',
+    tooltipDescricao: 'Valor do frete internacional em reais para fins de valoração aduaneira',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_frete_internacional_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_frete_internacional_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'valor_seguro_internacional_brl_duimp',
+    label: 'Seguro Internacional (R$) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor do Seguro Internacional (R$) — DUIMP',
+    tooltipDescricao: 'Valor do seguro internacional em reais para fins de valoração aduaneira',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_seguro_internacional_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_seguro_internacional_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'valor_local_embarque_brl_duimp',
+    label: 'Valor Local de Embarque (R$) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor no Local de Embarque (R$) — DUIMP',
+    tooltipDescricao: 'Valor da mercadoria no local de embarque em reais',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_local_embarque_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_local_embarque_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'valor_aduaneiro_brl_duimp',
+    label: 'Valor Aduaneiro (R$) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor Aduaneiro (R$) — DUIMP',
+    tooltipDescricao: 'Valor aduaneiro calculado em reais, base para tributos de importação',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_aduaneiro_brl_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_aduaneiro_brl_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  // ── DUIMP — Cobertura cambial ────────────────────────────────────────────────
+  {
+    key: 'tipo_cobertura_cambial_duimp',
+    label: 'Tipo Cobertura Cambial - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Tipo de Cobertura Cambial — DUIMP',
+    tooltipDescricao: 'Modalidade de cobertura cambial declarada na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_cobertura_cambial_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'numero_rof_bacen_duimp',
+    label: 'Número do ROF - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Número do ROF/BACEN — DUIMP',
+    tooltipDescricao: 'Número do Registro de Operações Financeiras junto ao BACEN',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.numero_rof_bacen_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'motivo_sem_cobertura_duimp',
+    label: 'Motivo Sem Cobertura - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Motivo Sem Cobertura Cambial — DUIMP',
+    tooltipDescricao: 'Justificativa legal para ausência de cobertura cambial',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.motivo_sem_cobertura_duimp ?? '—'}</span>,
+  },
+  // ── DUIMP — II ──────────────────────────────────────────────────────────────
+  {
+    key: 'base_calculo_ii_duimp',
+    label: 'BC II (R$) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Base de Cálculo do II (R$) — DUIMP',
+    tooltipDescricao: 'Base de cálculo do Imposto de Importação em reais',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.base_calculo_ii_duimp != null ? row.base_calculo_ii_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'percentual_ii_duimp',
+    label: 'Alíquota do II (%) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Alíquota do II (%) — DUIMP',
+    tooltipDescricao: 'Percentual de alíquota do Imposto de Importação',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.percentual_ii_duimp != null ? `${fmtQuantidade(row.percentual_ii_duimp, 2)}%` : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'valor_devido_ii_duimp',
+    label: 'Valor Devido do II - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor Devido do II (R$) — DUIMP',
+    tooltipDescricao: 'Valor total do Imposto de Importação devido',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_devido_ii_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_devido_ii_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  {
+    key: 'valor_recolher_ii_duimp',
+    label: 'Valor Recolher do II - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor a Recolher do II (R$) — DUIMP',
+    tooltipDescricao: 'Valor efetivo do Imposto de Importação a recolher (deduzidas suspensões)',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_recolher_ii_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_recolher_ii_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  // ── DUIMP — IPI ─────────────────────────────────────────────────────────────
+  {
+    key: 'base_calculo_ipi_duimp',
+    label: 'BC IPI (R$) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Base de Cálculo do IPI (R$) — DUIMP',
+    tooltipDescricao: 'Base de cálculo do IPI em reais',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.base_calculo_ipi_duimp != null ? row.base_calculo_ipi_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'percentual_ipi_duimp',
+    label: 'Alíquota do IPI(%) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Alíquota do IPI (%) — DUIMP',
+    tooltipDescricao: 'Percentual de alíquota do IPI',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.percentual_ipi_duimp != null ? `${fmtQuantidade(row.percentual_ipi_duimp, 2)}%` : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'valor_recolher_ipi_duimp',
+    label: 'Valor Recolher do IPI- DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor a Recolher do IPI (R$) — DUIMP',
+    tooltipDescricao: 'Valor do IPI a recolher',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_recolher_ipi_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_recolher_ipi_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  // ── DUIMP — PIS ─────────────────────────────────────────────────────────────
+  {
+    key: 'base_calculo_pis_duimp',
+    label: 'BC PIS(R$) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Base de Cálculo do PIS (R$) — DUIMP',
+    tooltipDescricao: 'Base de cálculo do PIS/PASEP em reais',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.base_calculo_pis_duimp != null ? row.base_calculo_pis_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'percentual_pis_duimp',
+    label: 'Alíquota do PIS(%) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Alíquota do PIS (%) — DUIMP',
+    tooltipDescricao: 'Percentual de alíquota do PIS/PASEP',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.percentual_pis_duimp != null ? `${fmtQuantidade(row.percentual_pis_duimp, 2)}%` : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'valor_recolher_pis_duimp',
+    label: 'Valor Recolher do PIS- DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor a Recolher do PIS (R$) — DUIMP',
+    tooltipDescricao: 'Valor do PIS/PASEP a recolher',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_recolher_pis_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_recolher_pis_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  // ── DUIMP — COFINS ──────────────────────────────────────────────────────────
+  {
+    key: 'base_calculo_cofins_duimp',
+    label: 'BC COFINS(R$) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Base de Cálculo do COFINS (R$) — DUIMP',
+    tooltipDescricao: 'Base de cálculo do COFINS em reais',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.base_calculo_cofins_duimp != null ? row.base_calculo_cofins_duimp.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'percentual_cofins_duimp',
+    label: 'Alíquota do COFINS(%) - DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Alíquota do COFINS (%) — DUIMP',
+    tooltipDescricao: 'Percentual de alíquota do COFINS',
+    render: (_val: unknown, row: PedidoItem) => (
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {row.percentual_cofins_duimp != null ? `${fmtQuantidade(row.percentual_cofins_duimp, 2)}%` : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'valor_recolher_cofins_duimp',
+    label: 'Valor Recolher do COFINS- DUIMP',
+    tipo: 'numero',
+    align: 'right',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Valor a Recolher do COFINS (R$) — DUIMP',
+    tooltipDescricao: 'Valor do COFINS a recolher',
+    render: (_val: unknown, row: PedidoItem) => {
+      const num = Number(row.valor_recolher_cofins_duimp)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">BRL</span>
+          {row.valor_recolher_cofins_duimp != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  // ── DUIMP — Tratamento administrativo ───────────────────────────────────────
+  {
+    key: 'existe_tratamento_administrativo_duimp',
+    label: 'Existe Tratamento Administrativo - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Existe Tratamento Administrativo? — DUIMP',
+    tooltipDescricao: 'Indica se existe tratamento administrativo associado ao item na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.existe_tratamento_administrativo_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'tipo_trat_adm_duimp',
+    label: 'Tipo Tratamento Administrativo - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Tipo de Tratamento Administrativo — DUIMP',
+    tooltipDescricao: 'Tipo/modalidade do tratamento administrativo na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_trat_adm_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'orgao_trat_adm_duimp',
+    label: 'Órgão Anuente Tratamento Administrativo - DUIMP',
+    tipo: 'texto',
+    filtravel: true,
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Órgão do Tratamento Administrativo — DUIMP',
+    tooltipDescricao: 'Órgão anuente responsável pelo tratamento administrativo',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.orgao_trat_adm_duimp ?? '—'}</span>,
+  },
+  {
+    key: 'numero_lpco_trat_adm_duimp',
+    label: 'Número LPCO Tratamento Administrativo - DUIMP',
+    tipo: 'texto',
+    grupo: 'DUIMP / Fiscal',
+    tooltipTitulo: 'Número da LPCO do Tratamento Administrativo — DUIMP',
+    tooltipDescricao: 'Número da LPCO vinculada ao tratamento administrativo na DUIMP',
+    render: (_val: unknown, row: PedidoItem) => <span>{row.numero_lpco_trat_adm_duimp ?? '—'}</span>,
+  },
+]
+
+// ── Tipo auxiliar: item enriquecido com dados do pedido pai para renderização ──
+
+type PedidoItemEnriquecido = PedidoItem & {
+  _p: {
+    id: string
+    tipo_operacao: string
+    nome_exportador: string | null
+    nome_importador: string | null
+    nome_fabricante: string | null
+    referencia_importador: string | null
+    referencia_exportador: string | null
+    referencia_fabricante: string | null
+    numero_proforma: string | null
+    numero_invoice: string | null
+    incoterm: string | null
+    condicao_pagamento_pedido: string | null
+    data_emissao_pedido: string | null
+    status: string
+    moeda_pedido: string
+  }
+}
+
+// Fator de conversão reversa: KG armazenado → unidade de exibição
+const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KGBR: 1 }
+
+export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
+  // ── Número do pedido → Part Number do item ────────────────────────────────
+  numero_pedido: {
+    editavel: true,
+    campo: 'part_number',
+    render: (row: PedidoItem) => row.part_number,
+  },
+  // ── NCM do item ───────────────────────────────────────────────────────────
+  ncm: {
+    editavel: true,
+    render: (row: PedidoItem) => {
+      const digits = (row.ncm ?? '').replace(/\D/g, '')
+      const formatted = digits.length === 8
+        ? `${digits.slice(0, 4)}.${digits.slice(4, 6)}.${digits.slice(6, 8)}`
+        : (row.ncm ?? '—')
+      return <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{formatted}</span>
+    },
+  },
+  // ── Colunas herdadas do pedido pai ────────────────────────────────────────
+  tipo_operacao: {
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      if (!p) return null
+      return (
+        <StatusBadgeGlobal
+          valor={p.tipo_operacao === 'importacao' ? 'Importação' : 'Exportação'}
+          genero="feminino"
+          style={p.tipo_operacao === 'importacao'
+            ? { color: '#60a5fa', background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.2)' }
+            : { color: '#34d399', background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.2)' }
+          }
+        />
+      )
+    },
+  },
+  nome_exportador: {
+    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao',
+    tooltipBloqueado: (row: PedidoItem) =>
+      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao'
+        ? 'Exportador definido automaticamente pelo workspace — não editável em Exportação'
+        : undefined,
+    campo: 'nome_exportador',
+    render: (row: PedidoItem) => {
+      const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
+      if (tipoOp === 'importacao') return <span>{row.nome_exportador ?? '—'}</span>
+      return <span>{(row as PedidoItemEnriquecido)._p?.nome_exportador ?? '—'}</span>
+    },
+  },
+  nome_importador: {
+    editavel: (row: PedidoItem) => (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'exportacao',
+    tooltipBloqueado: (row: PedidoItem) =>
+      (row as PedidoItemEnriquecido)._p?.tipo_operacao === 'importacao'
+        ? 'Importador definido automaticamente pelo workspace — não editável em Importação'
+        : undefined,
+    campo: 'nome_importador',
+    render: (row: PedidoItem) => {
+      const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
+      if (tipoOp === 'exportacao') return <span>{row.nome_importador ?? '—'}</span>
+      return <span>{(row as PedidoItemEnriquecido)._p?.nome_importador ?? '—'}</span>
+    },
+  },
+  nome_fabricante: {
+    editavel: true,
+    campo: 'nome_fabricante',
+    render: (row: PedidoItem) => <span>{row.nome_fabricante ?? '—'}</span>,
+  },
+  referencia_importador: {
+    editavel: true,
+    campo: 'referencia_importador',
+    render: (row: PedidoItem) => <span>{row.referencia_importador ?? '—'}</span>,
+  },
+  referencia_exportador: {
+    editavel: true,
+    campo: 'referencia_exportador',
+    render: (row: PedidoItem) => <span>{row.referencia_exportador ?? '—'}</span>,
+  },
+  numero_proforma: {
+    editavel: true,
+    campo: 'numero_proforma',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.numero_proforma ?? '—'}</span>
+    },
+  },
+  numero_invoice: {
+    editavel: true,
+    campo: 'numero_invoice',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{p?.numero_invoice ?? '—'}</span>
+    },
+  },
+  incoterm: {
+    editavel: true,
+    campo: 'incoterm',
+    render: (row: PedidoItem) => <span>{row.incoterm ?? '—'}</span>,
+  },
+  status: {
+    editavel: true,
+    campo: 'status',
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      if (!p) return null
+      const cor = getStatusCor(p.status)
+      return (
+        <StatusBadgeGlobal
+          valor={getStatusLabel(p.status)}
+          genero="masculino"
+          style={{ color: cor, background: `${cor}1e`, border: `1px solid ${cor}33` }}
+        />
+      )
+    },
+  },
+  referencia_fabricante: {
+    editavel: true,
+    campo: 'referencia_fabricante',
+    render: (row: PedidoItem) => <span>{row.referencia_fabricante ?? '—'}</span>,
+  },
+  cobertura_cambial: {
+    editavel: true,
+    campo: 'cobertura_cambial',
+    render: (row: PedidoItem) => <span>{(row as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura'}</span>,
+  },
+  condicao_pagamento_pedido: {
+    editavel: true,
+    campo: 'condicao_pagamento_pedido',
+    render: (row: PedidoItem) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
+  },
+  data_emissao_pedido: {
+    render: (row: PedidoItem) => {
+      const p = (row as PedidoItemEnriquecido)._p
+      return <span>{fmtData(p?.data_emissao_pedido ?? null)}</span>
+    },
+  },
+  // ── Pesos e cubagem do item ───────────────────────────────────────────────
+  peso_liquido_total_pedido: {
+    editavel: true,
+    campo: 'peso_liquido_unitario_item',
+    casasDecimais: getCasas('peso_liquido_unitario_item', 3),
+    unidades: UNIDADES_PESO_OPCOES,
+    getValorEditar: (row: PedidoItem) => {
+      const unit = row.peso_liquido_unidade_item ?? 'KG'
+      const kg = Number(row.peso_liquido_unitario_item ?? 0)
+      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+    },
+    render: (row: PedidoItem) => {
+      const unit = row.peso_liquido_unidade_item ?? 'KG'
+      const kg = Number(row.peso_liquido_unitario_item ?? 0)
+      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      return (
+        <span className="gtv-celula-moeda">
+          {row.peso_liquido_unitario_item != null
+            ? fmtQuantidade(display, getCasas('peso_liquido_unitario_item', 3))
+            : '—'}
+          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+        </span>
+      )
+    },
+  },
+  peso_bruto_total_pedido: {
+    editavel: true,
+    campo: 'peso_bruto_unitario_item',
+    casasDecimais: getCasas('peso_bruto_unitario_item', 3),
+    unidades: UNIDADES_PESO_OPCOES,
+    getValorEditar: (row: PedidoItem) => {
+      const unit = row.peso_bruto_unidade_item ?? 'KG'
+      const kg = Number(row.peso_bruto_unitario_item ?? 0)
+      return { unit, quantity: kg * (KG_PARA_UNIDADE[unit] ?? 1) }
+    },
+    render: (row: PedidoItem) => {
+      const unit = row.peso_bruto_unidade_item ?? 'KG'
+      const kg = Number(row.peso_bruto_unitario_item ?? 0)
+      const display = kg * (KG_PARA_UNIDADE[unit] ?? 1)
+      return (
+        <span className="gtv-celula-moeda">
+          {row.peso_bruto_unitario_item != null
+            ? fmtQuantidade(display, getCasas('peso_bruto_unitario_item', 3))
+            : '—'}
+          <span className="gtv-celula-unidade-badge">{unit.toLowerCase()}</span>
+        </span>
+      )
+    },
+  },
+  cubagem_total_pedido: {
+    editavel: true,
+    campo: 'cubagem_unitaria_item',
+    casasDecimais: getCasas('cubagem_unitaria_item', 4),
+    unidades: [{ sigla: 'm³', rotulo: 'm³ — Metro Cúbico' }],
+    getValorEditar: (row: PedidoItem) => ({
+      unit: 'm³',
+      quantity: Number(row.cubagem_unitaria_item ?? 0),
+    }),
+    render: (row: PedidoItem) => (
+      <span className="gtv-celula-moeda">
+        {row.cubagem_unitaria_item != null
+          ? fmtQuantidade(row.cubagem_unitaria_item, getCasas('cubagem_unitaria_item', 4))
+          : '—'}
+        <span className="gtv-celula-unidade-badge">m³</span>
+      </span>
+    ),
+  },
+  // ── Valores ───────────────────────────────────────────────────────────────
+  valor_total_pedido: {
+    editavel: true,
+    campo: 'valor_total_itens',
+    casasDecimais: 2,
+    getValorEditar: (row: PedidoItem) => ({
+      currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
+      amount: row.valor_total_itens ?? 0,
+    }),
+    render: (row: PedidoItem) => {
+      const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
+      const num = Number(row.valor_total_itens)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {row.valor_total_itens != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
+        </span>
+      )
+    },
+  },
+  // ── Quantidades ───────────────────────────────────────────────────────────
+  saldo_item_pedido: {
+    // Saldo = qtd_inicial - cancelada - transferida → sempre calculado, nunca editável
+    casasDecimais: getCasas('quantidade_item', 0),
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-success, #34d399)', fontWeight: 600 }}>
+          {fmtQuantidade(row.saldo_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
+      )
+    },
+  },
+  quantidade_total_inicial_pedido: {
+    editavel: true,
+    campo: 'quantidade_inicial_item_pedido',
+    casasDecimais: getCasas('quantidade_item', 0),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN',
+      quantity: Number(row.quantidade_inicial_item_pedido ?? 0),
+    }),
+    render: (row: PedidoItem) => (
+      <span className="gtv-celula-moeda">
+        {fmtQuantidade(row.quantidade_inicial_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+        <span className="gtv-celula-unidade-badge">
+          {(row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'}
+        </span>
+      </span>
+    ),
+  },
+  saldo_itens_do_pedido: {
+    render: (row: PedidoItem) => {
+      const qtd = Math.max(0, (row.quantidade_inicial_item_pedido ?? 0) - (row.quantidade_transferida_item_pedido ?? 0))
+      return (
+        <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd > 0 ? '#60a5fa' : undefined }}>
+          {fmtQuantidade(qtd, getCasas('quantidade_item', 0))}
+        </span>
+      )
+    },
+  },
+  quantidade_transferida_total: {
+    editavel: false,
+    tooltipBloqueado: 'Campo calculado — incrementado automaticamente ao executar uma transferência. Não pode ser editado diretamente.',
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
+          {fmtQuantidade(row.quantidade_transferida_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
+      )
+    },
+  },
+  quantidade_pronta_itens_pedido_total: {
+    editavel: true,
+    campo: 'quantidade_pronta_total_item_pedido',
+    casasDecimais: getCasas('quantidade_item', 0),
+    getValorEditar: (row: PedidoItem) => ({
+      unit: (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN',
+      quantity: Number(row.quantidade_pronta_total_item_pedido ?? 0),
+    }),
+    render: (row: PedidoItem) => {
+      const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
+      return (
+        <span className="gtv-celula-moeda" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {fmtQuantidade(row.quantidade_pronta_total_item_pedido ?? 0, getCasas('quantidade_item', 0))}
+          <span className="gtv-celula-unidade-badge">{unidade}</span>
+        </span>
+      )
+    },
+  },
+}

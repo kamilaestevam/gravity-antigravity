@@ -39,6 +39,7 @@ export default defineConfig({
       'testes/testes-unitarios/pedido/gabiFieldHelp.test.ts',
       'testes/testes-unitarios/pedido/kanbanPedidos.test.ts',
       'testes/testes-unitarios/pedido/shellEmbedding.test.ts',
+      'testes/testes-unitarios/pedido/casasDecimaisRoute.test.ts',
     ],
     env: {
       NODE_ENV: 'test',
@@ -97,6 +98,7 @@ export default defineConfig({
       '@nucleo/botao-global':          path.resolve(__dirname, '__mocks__/nucleo.tsx'),
       '@nucleo/tooltip-global':        path.resolve(__dirname, '__mocks__/nucleo.tsx'),
       '@nucleo/campo-select-global':   path.resolve(__dirname, '__mocks__/nucleo.tsx'),
+      '@nucleo/campo-ncm-global':      path.resolve(__dirname, '__mocks__/nucleo.tsx'),
       '@nucleo/modal-passo-passo-global': path.resolve(__dirname, '__mocks__/nucleo.tsx'),
       '@nucleo/gabi-field-icon-global':   path.resolve(__dirname, '__mocks__/nucleo.tsx'),
       // Shell

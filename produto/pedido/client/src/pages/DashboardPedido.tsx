@@ -752,6 +752,8 @@ const gabiEmptyStyles = {
   },
 } as const
 
+const sty = gabiEmptyStyles
+
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export default function DashboardPedido() {
@@ -762,7 +764,7 @@ export default function DashboardPedido() {
     editMode, setEditMode,
     queryBuilderOpen, setQueryBuilderOpen,
     userDerivedMetrics,
-    paineis, painelAtualId, setPaineis, setPainelAtual,
+    paineis, painelAtualId, setPaineis, setPainelAtual, salvarWidgetsPainelAtual,
   } = useDashboardStore()
 
   const navigate = useNavigate()
@@ -788,8 +790,31 @@ export default function DashboardPedido() {
   const [trendData,    setTrendData]    = useState<DashboardTrendBucket[]>([])
   const [insightsData, setInsightsData] = useState<GabiInsightItem[]>([])
   const [loadingData,  setLoadingData]  = useState(true)
+
+  // NCM status — alerta de itens com NCM inválido (não bloqueante)
+  const [ncmStatus, setNcmStatus] = useState<{
+    total_invalidos: number
+    itens_invalidos: number
+    sem_sync: boolean
+    ultima_sync: string | null
+  } | null>(null)
+
+  useEffect(() => {
+    dashboardApi.ncmStatus()
+      .then(r => setNcmStatus(r))
+      .catch(() => { /* silencioso — NCM offline não afeta o dashboard */ })
+  }, [])
   const [novoNomePainel, setNovoNomePainel] = useState('')
   const [criandoPainel,  setCriandoPainel]  = useState(false)
+
+  // Salva widgets do painel atual (localStorage) e troca para o novo
+  const handleTrocarPainel = (novoId: string) => {
+    if (novoId === painelAtualId) return
+    if (painelAtualId) {
+      salvarWidgetsPainelAtual(painelAtualId, widgets)
+    }
+    setPainelAtual(novoId)
+  }
 
   // Carrega painéis do usuário ao montar
   useEffect(() => {
@@ -1275,6 +1300,34 @@ export default function DashboardPedido() {
         </div>
       </div>
 
+      {/* ── Alerta NCM — itens com NCM inválido ou tabela desatualizada ────── */}
+      {ncmStatus && (ncmStatus.itens_invalidos > 0 || ncmStatus.sem_sync) && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.75rem',
+          padding: '0.75rem 1.125rem',
+          marginBottom: '1rem',
+          background: ncmStatus.itens_invalidos > 0 ? 'rgba(251,191,36,0.08)' : 'rgba(100,116,139,0.08)',
+          border: `1px solid ${ncmStatus.itens_invalidos > 0 ? 'rgba(251,191,36,0.25)' : 'rgba(100,116,139,0.2)'}`,
+          borderRadius: '0.5rem',
+          fontSize: '0.8375rem',
+          color: ncmStatus.itens_invalidos > 0 ? '#fbbf24' : '#94a3b8',
+        }}>
+          <Warning size={16} weight="fill" style={{ flexShrink: 0 }} />
+          <span>
+            {ncmStatus.sem_sync
+              ? 'Tabela NCM não sincronizada — acesse o painel Admin para sincronizar.'
+              : (
+                <>
+                  <strong>{ncmStatus.itens_invalidos}</strong>{' '}
+                  {ncmStatus.itens_invalidos === 1 ? 'item possui' : 'itens possuem'} NCM não encontrado na tabela Siscomex.
+                  {' '}Revise os pedidos para garantir conformidade fiscal.
+                </>
+              )
+            }
+          </span>
+        </div>
+      )}
+
       {/* T-07/08: statusCounts do kpisData em memória | T-10: compactStatus responsivo */}
       <DashboardToolbar
         slicers={slicers}
@@ -1307,7 +1360,7 @@ export default function DashboardPedido() {
               key={p.id}
               type="button"
               style={p.id === painelAtualId ? sty.painelTabAtivo : sty.painelTab}
-              onClick={() => setPainelAtual(p.id)}
+              onClick={() => handleTrocarPainel(p.id)}
             >
               {p.nome}
             </button>

@@ -72,8 +72,10 @@ interface DashboardState {
   // ── Painéis ──────────────────────────────────────────────────────────────────
   paineis: DashboardPainel[]
   painelAtualId: string | null
+  widgetsByPainel: Record<string, DashboardWidgetConfig[]>  // widgets por painel (localStorage)
   setPaineis: (paineis: DashboardPainel[]) => void
   setPainelAtual: (id: string) => void
+  salvarWidgetsPainelAtual: (painelId: string, widgets: DashboardWidgetConfig[]) => void
 }
 
 // ── Widgets padrão ────────────────────────────────────────────────────────────
@@ -311,36 +313,43 @@ export const useDashboardStore = create<DashboardState>()(
       // ── Painéis ──────────────────────────────────────────────────────────
       paineis: [],
       painelAtualId: null,
-      setPaineis: (paineis) => set((s) => ({
-        paineis,
-        // Se não há painel ativo ou o atual não existe mais, seleciona o primeiro visível
-        painelAtualId: s.painelAtualId && paineis.some(p => p.id === s.painelAtualId)
-          ? s.painelAtualId
-          : (paineis.find(p => p.is_visivel)?.id ?? null),
+      widgetsByPainel: {},
+
+      salvarWidgetsPainelAtual: (painelId, widgets) => set(s => ({
+        widgetsByPainel: { ...s.widgetsByPainel, [painelId]: widgets },
       })),
+
+      setPaineis: (paineis) => set((s) => {
+        const painelAtualId = s.painelAtualId && paineis.some(p => p.id === s.painelAtualId)
+          ? s.painelAtualId
+          : (paineis.find(p => p.is_visivel)?.id ?? null)
+
+        if (painelAtualId === s.painelAtualId) return { paineis }
+
+        // Primeira carga: painelAtualId era null → carrega widgets do novo painel ativo
+        // Se não tem widgets salvos para esse painel, usa DEFAULT_WIDGETS (painel principal)
+        const widgets = s.widgetsByPainel[painelAtualId ?? ''] ?? DEFAULT_WIDGETS
+        return { paineis, painelAtualId, widgets }
+      }),
+
       setPainelAtual: (id) => set((s) => {
-        const painel = s.paineis.find(p => p.id === id)
-        if (!painel) return {}
-        // Carrega os widgets do painel selecionado
-        const widgets: DashboardWidgetConfig[] = (() => {
-          try { return JSON.parse(painel.widgets_json) as DashboardWidgetConfig[] } catch { return DEFAULT_WIDGETS }
-        })()
-        return {
-          painelAtualId: id,
-          widgets: widgets.length > 0 ? widgets : DEFAULT_WIDGETS,
-        }
+        // Carrega widgets do localStorage por painel ([] para painéis novos sem widgets)
+        const widgets = s.widgetsByPainel[id] ?? []
+        return { painelAtualId: id, widgets }
       }),
     }),
     {
       name: 'gravity:pedido:dashboard',
-      version: 14, // bump: GABI h:4 (260px), alinhamento stat row
+      version: 16, // bump: widgetsByPainel — source of truth local para widgets por painel
       partialize: (s) => ({
         widgets: s.widgets,
         slicers: s.slicers,
         userDerivedMetrics: s.userDerivedMetrics,
+        painelAtualId: s.painelAtualId,
+        widgetsByPainel: s.widgetsByPainel,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) {
+        if (state?.widgets) {
           state.widgets = state.widgets.map(migrateWidget)
         }
       },

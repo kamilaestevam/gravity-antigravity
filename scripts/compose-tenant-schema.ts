@@ -51,6 +51,7 @@ const TENANT_SERVICES: string[] = [
   'gabi',
   'preferencias-usuario',
   'processos-core',  // Pedido, PedidoItem, Processo, PedidoStatus, PedidoColuna, PedidoPreferencias
+  'ncm-sync',        // NcmItem, NcmSyncLog — tabela NCM Portal Único Siscomex
 ]
 
 // ---------------------------------------------------------------------------

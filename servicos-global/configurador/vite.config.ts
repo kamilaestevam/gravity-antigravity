@@ -15,10 +15,10 @@ export default defineConfig({
       ...createNucleoAliases(monorepoRoot),
       ...createServiceAliases(monorepoRoot),
       ...createTenantAliases(monorepoRoot, ['gabi', 'dashboard', 'atividades']),
-      // peerDeps do kanban-global — forçar resolução a partir do configurador
-      '@dnd-kit/core': path.resolve(__dirname, 'node_modules/@dnd-kit/core'),
-      '@dnd-kit/sortable': path.resolve(__dirname, 'node_modules/@dnd-kit/sortable'),
-      '@dnd-kit/utilities': path.resolve(__dirname, 'node_modules/@dnd-kit/utilities'),
+      // peerDeps do kanban-global — npm workspaces hoista para o root
+      '@dnd-kit/core': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/core'),
+      '@dnd-kit/sortable': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/sortable'),
+      '@dnd-kit/utilities': path.resolve(monorepoRoot, 'node_modules/@dnd-kit/utilities'),
       // Aliases dos Produtos (para lazy-load dentro do Configurador)
       '@produto': path.resolve(monorepoRoot, 'produto'),
     },
@@ -62,6 +62,13 @@ export default defineConfig({
       },
       '/api/v1/analytics/pedido': {
         target: 'http://localhost:8030',
+        changeOrigin: true,
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
+      '/api/v1/ncm': {
+        target: 'http://localhost:3001',
         changeOrigin: true,
         onError(err, _req, res) {
           if (!res.headersSent) res.writeHead(502).end()

@@ -98,7 +98,7 @@ body.light-theme .hb-topbar {
   gap: 0.5rem;
   font-size: 1rem;
   font-weight: 800;
-  color: var(--hb-text);
+  color: var(--hb-accent);
   letter-spacing: -0.02em;
   text-decoration: none;
 }
@@ -116,7 +116,7 @@ body.light-theme .hb-topbar {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: var(--hb-muted);
+  color: rgba(129, 140, 248, 0.65);
 }
 
 .hb-topbar-right {

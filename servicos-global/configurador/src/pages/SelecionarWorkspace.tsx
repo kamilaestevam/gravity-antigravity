@@ -41,6 +41,7 @@ import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
+import { LocalizadorGlobal, useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalGlobal } from '@nucleo/modal-global'
@@ -268,6 +269,18 @@ export function SelecionarWorkspace() {
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
 
   const selectedWs = workspaces.find(w => w.id === selectedId)
+
+  // ── Localizador ──────────────────────────────────────────────────────────
+  const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('hub')
+  useEffect(() => {
+    locAddEntry({ productId: 'hub', productLabel: 'Hub', productColor: '#818cf8', pageLabel: 'Hub', pagePath: '/hub' })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const hubEcosystemNodes: EcosystemNode[] = [
+    { id: 'hub',          label: 'Hub',            sublabel: 'workspaces',          color: '#818cf8', type: 'gravity',      status: 'current'    },
+    { id: 'configurador', label: 'Configurador',   sublabel: 'auth · billing',      color: '#f472b6', type: 'configurador', status: 'accessible' },
+  ]
 
   // Workspaces filtrados por busca e ordenados: favoritos primeiro
   const wsFiltrados = useMemo(() => {
@@ -699,7 +712,9 @@ export function SelecionarWorkspace() {
         {/* TOPBAR */}
         <header className="sw-topbar">
           <div className="sw-t-brand">
-            <LogoGlobal iconSize={26} iconColor="#818cf8" />
+            <LogoGlobal iconSize={22} iconColor="#818cf8" />
+            <div className="sw-t-div" />
+            <span className="sw-t-module-label">HUB</span>
           </div>
           <div className="sw-t-right">
             <LocalizarExpandidoCampoGlobal
@@ -721,6 +736,15 @@ export function SelecionarWorkspace() {
               }}
             />
 
+            <div className="sw-notif-wrap">
+              <AvisoInternoGlobal
+                avisos={avisos}
+                onMarcarLido={handleMarcarLido}
+                onMarcarTodosLidos={handleMarcarTodosLidos}
+                onCriarAviso={handleCriarAviso}
+              />
+            </div>
+
             {/* Toggle de tooltips */}
             <button
               className="sw-t-icon"
@@ -730,21 +754,39 @@ export function SelecionarWorkspace() {
               onClick={toggleTooltips}
               style={{ color: tooltipsDisabled ? 'var(--sw-muted, #64748b)' : 'var(--sw-accent-2, #818cf8)' }}
             >
-              <Info size={15} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+              <Info size={16} weight={tooltipsDisabled ? 'regular' : 'fill'} />
             </button>
 
-            {/* Seletor de idioma */}
-            <LanguageSwitcherGlobal />
+            {/* Localizador — Onde estou */}
+            <LocalizadorGlobal
+              workspaceName={selectedWs?.nome ?? 'Gravity'}
+              iconOnly
+              currentProductId="hub"
+              currentProductLabel="Hub"
+              currentProductColor="#818cf8"
+              currentPageLabel="Hub"
+              history={locHistory}
+              nodes={hubEcosystemNodes}
+              onNavigate={(node) => {
+                if (node.type === 'configurador') navigate('/configurador')
+              }}
+            />
 
-            <div className="sw-notif-wrap">
-              <AvisoInternoGlobal
-                avisos={avisos}
-                onMarcarLido={handleMarcarLido}
-                onMarcarTodosLidos={handleMarcarTodosLidos}
-                onCriarAviso={handleCriarAviso}
-              />
-            </div>
+            {/* Seletor de idioma */}
+            <LanguageSwitcherGlobal iconOnly />
+
             <div className="sw-t-sep" />
+
+            {/* Configurações do workspace */}
+            <button
+              className="sw-t-icon"
+              type="button"
+              title={t('workspace.layout.modulo_nome')}
+              onClick={() => navigate('/workspace/organizacao')}
+            >
+              <GearSix size={16} weight="duotone" />
+            </button>
+
             <UsuarioGlobal
               userName={userName}
               userEmail={userEmail}
@@ -755,7 +797,6 @@ export function SelecionarWorkspace() {
               onNavigateWorkspace={() => navigate('/workspace/organizacao')}
               onNavigateMarketPlace={() => navigate('/store')}
               onSignOut={handleSair}
-              isAdmin={true}
               onNavigateAdmin={() => navigate('/admin/visao-geral')}
               compact
             />

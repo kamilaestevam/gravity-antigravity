@@ -16,20 +16,19 @@ import {
   Package,
   Bell,
   MagnifyingGlass,
-  Hexagon,
   ChartBar,
   Rocket,
   CheckCircle,
   WarningCircle,
   Info,
-  GridFour,
-  HouseLine,
 } from '@phosphor-icons/react'
 import './hub-store.css'
 import './hub.css'
 import { useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { LogoHub } from '@nucleo/logo-produtos'
+import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
   useLocalizadorHistory,
@@ -191,7 +190,7 @@ export function Hub() {
             })
             if (tenantRes.ok) {
               const tenantData = await tenantRes.json()
-              const tenantActive = tenantData.products?.filter((p: any) => p.is_active) || []
+              const tenantActive = (tenantData.products as CompanyProduct[] | undefined)?.filter(p => p.is_active) ?? []
 
               for (const tp of tenantActive) {
                 await fetch(`${API_URL}/companies/${companyId}/products`, {
@@ -252,11 +251,10 @@ export function Hub() {
       <header className="hb-topbar">
         <div className="hb-topbar-left">
           <div className="hb-logo">
-            <Hexagon weight="duotone" size={26} />
-            Gravity
+            <LogoGlobal iconSize={22} iconColor="#818cf8" />
           </div>
           <div className="hb-topbar-div" />
-          <span className="hb-topbar-label">Hub</span>
+          <span className="hb-topbar-label">Core</span>
         </div>
 
         <div className="hb-topbar-right">
@@ -264,19 +262,10 @@ export function Hub() {
           <button
             className="hb-topbar-navlink"
             type="button"
-            title="Core — Command Center"
-            onClick={() => navigate('/core')}
-          >
-            <GridFour weight="duotone" size={14} />
-            Core
-          </button>
-          <button
-            className="hb-topbar-navlink"
-            type="button"
             title="Hub — Selecionar Workspace"
             onClick={() => navigate('/hub')}
           >
-            <HouseLine weight="duotone" size={14} />
+            <LogoHub size={13} color="#818cf8" />
             Hub
           </button>
 
@@ -343,7 +332,7 @@ export function Hub() {
             onNavigateWorkspace={() => navigate('/workspace')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut(() => navigate('/'))}
-            isAdmin={false}
+            isAdmin={isAdmin}
             onNavigateAdmin={() => navigate('/admin')}
             compact
           />

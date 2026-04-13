@@ -962,17 +962,12 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'data_emissao_pedido',
     label: 'Data P.O',
-    tipo: 'texto',
+    tipo: 'periodo',
     filtravel: true,
     editavel: true,
     tooltipTitulo: 'Data do Pedido',
     tooltipDescricao: 'Data de registro ou emissão da Purchase Order. Editar no pedido propaga para todos os itens; cada item pode ter data própria.',
     grupo: 'Datas',
-    getValorEditar: (row) => {
-      const d = (row as Pedido).data_emissao_pedido
-      const f = fmtData(d)
-      return f === '—' ? '' : f
-    },
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []
       // Sem itens: exibe data do próprio pedido
@@ -3645,10 +3640,6 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   data_emissao_pedido: {
     editavel: true,
     campo: 'data_emissao_pedido',
-    getValorEditar: (item: PedidoItem) => {
-      const f = fmtData(item.data_emissao_pedido)
-      return f === '—' ? '' : f
-    },
     render: (row: PedidoItem) => <span>{fmtData(row.data_emissao_pedido)}</span>,
   },
   // ── Pesos e cubagem do item ───────────────────────────────────────────────

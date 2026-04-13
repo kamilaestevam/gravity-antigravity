@@ -22,7 +22,7 @@ import { useGTExpandir } from './hooks/useGTExpandir.js'
 import { useGTSelecao } from './hooks/useGTSelecao.js'
 import { useGTInlineEdit } from './hooks/useGTInlineEdit.js'
 import { SelectColunasGlobal } from '@nucleo/select-colunas-global'
-import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
+
 import { MOEDAS_SISCOMEX } from '@nucleo/modal-tabela-moeda'
 import { UNIDADES_SISCOMEX } from '@nucleo/modal-tabela-unidades'
 import './tabela-virtual.css'
@@ -266,12 +266,6 @@ function brToIso(text: string): string | null {
   const d = new Date(yyyy, mm - 1, dd)
   if (isNaN(d.getTime()) || d.getDate() !== dd) return null
   return dateToIso(d)
-}
-
-function parseDateValor(val: unknown): { inicio: Date | null; fim: null } {
-  if (!val || typeof val !== 'string') return { inicio: null, fim: null }
-  const d = new Date(val)
-  return { inicio: isNaN(d.getTime()) ? null : d, fim: null }
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -523,16 +517,6 @@ const GTEditPopover = memo(function GTEditPopover({
     if (iso) onAtualizar(iso)
   }
 
-  // Calendário selecionou uma data: preenche input sem confirmar
-  function handleCalendarioMudar(val: { inicio: Date | null; fim: Date | null }) {
-    if (val.inicio) {
-      const iso = dateToIso(val.inicio)
-      const br  = val.inicio.toLocaleDateString('pt-BR')
-      setPeriodoText(br)
-      onAtualizar(iso)
-    }
-  }
-
   return (
     <>
       {/* Backdrop — clique fora cancela */}
@@ -693,30 +677,20 @@ const GTEditPopover = memo(function GTEditPopover({
               </div>
             </div>
           ) : isPeriodo ? (
-            <>
-              {/* Input de digitação livre em formato BR */}
-              <input
-                ref={inputRef}
-                autoFocus
-                className="gtv-edit-popover-input"
-                placeholder="DD/MM/AAAA"
-                value={periodoText}
-                disabled={salvando}
-                onChange={e => handlePeriodoTextChange(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
-                  if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
-                }}
-              />
-              {/* Calendário como opção visual — selecionar preenche o input acima */}
-              <div style={{ marginTop: 8 }}>
-                <CalendarioCampoGlobal
-                  valor={parseDateValor(valorEditando)}
-                  aoMudarValor={handleCalendarioMudar}
-                  disabled={salvando}
-                />
-              </div>
-            </>
+            /* Input de data com máscara DD/MM/AAAA — confirmar via Enter ou botão */
+            <input
+              ref={inputRef}
+              autoFocus
+              className="gtv-edit-popover-input"
+              placeholder="DD/MM/AAAA"
+              value={periodoText}
+              disabled={salvando}
+              onChange={e => handlePeriodoTextChange(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter')  { e.preventDefault(); onConfirmar() }
+                if (e.key === 'Escape') { e.preventDefault(); onCancelar()  }
+              }}
+            />
           ) : (
             <input
               ref={inputRef}

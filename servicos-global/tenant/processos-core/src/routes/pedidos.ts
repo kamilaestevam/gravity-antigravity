@@ -712,11 +712,11 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
         const casas = (pedido as any).casas_decimais_valor_pedido ?? 2
         dadosRecalc.valor_total_pedido = parseFloat(soma.toFixed(casas))
       } else if (campo === 'peso_liquido_total_pedido') {
-        const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario_item ?? 0) * Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+        const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario_item ?? 0), 0)
         const casas = (pedido as any).casas_decimais_peso_pedido ?? 3
         dadosRecalc.peso_liquido_total_pedido = parseFloat(soma.toFixed(casas))
       } else if (campo === 'peso_bruto_total_pedido') {
-        const soma = itens.reduce((acc, i) => acc + Number(i.peso_bruto_unitario_item ?? 0) * Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+        const soma = itens.reduce((acc, i) => acc + Number(i.peso_bruto_unitario_item ?? 0), 0)
         const casas = (pedido as any).casas_decimais_peso_pedido ?? 3
         dadosRecalc.peso_bruto_total_pedido = parseFloat(soma.toFixed(casas))
       } else if (campo === 'cubagem_total_pedido') {

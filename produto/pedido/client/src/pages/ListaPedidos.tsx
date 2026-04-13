@@ -1081,17 +1081,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     unidades: UNIDADES_PESO_OPCOES,
     tooltipTitulo: 'Peso Líquido Total do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem peso líquido informado impedem o cálculo',
+    tooltipBloqueado: 'Campo calculado — soma de peso_liquido_unitario_item de todos os itens. Não pode ser editado diretamente.',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_liquido_total_pedido', 3)
       const num = Number(row.peso_liquido_total_pedido ?? 0)
-      const somaItensLiq = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const somaItensLiq = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0), 0)
       const unidadesMistasLiq = new Set((row.itens ?? []).map(i => i.peso_liquido_unidade_item ?? 'KG')).size > 1
       const alertaAtivo = (row.itens ?? []).length > 0 && (Math.abs(num - somaItensLiq) > 0.001 || unidadesMistasLiq) && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
       return (
         <TooltipGlobal titulo="Peso Líquido Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso líquido informado impedem o cálculo">
-          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
-            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, color: alertaAtivo ? '#fbbf24' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ flexShrink: 0 }} />}
             {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
             <span className="gtv-celula-unidade-badge">kg</span>
           </span>
@@ -1110,17 +1111,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     unidades: UNIDADES_PESO_OPCOES,
     tooltipTitulo: 'Peso Bruto Total do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem peso bruto informado impedem o cálculo',
+    tooltipBloqueado: 'Campo calculado — soma de peso_bruto_unitario_item de todos os itens. Não pode ser editado diretamente.',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_bruto_total_pedido', 3)
       const num = Number(row.peso_bruto_total_pedido ?? 0)
-      const somaItensBruto = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
+      const somaItensBruto = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0), 0)
       const unidadesMistasBruto = new Set((row.itens ?? []).map(i => i.peso_bruto_unidade_item ?? 'KG')).size > 1
       const alertaAtivo = (row.itens ?? []).length > 0 && (Math.abs(num - somaItensBruto) > 0.001 || unidadesMistasBruto) && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
       return (
         <TooltipGlobal titulo="Peso Bruto Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso bruto informado impedem o cálculo">
-          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
-            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, color: alertaAtivo ? '#fbbf24' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ flexShrink: 0 }} />}
             {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
             <span className="gtv-celula-unidade-badge">kg</span>
           </span>
@@ -1139,6 +1141,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     unidades: [{ sigla: 'm³', rotulo: 'Metro Cúbico' }],
     tooltipTitulo: 'Cubagem Total do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens sem cubagem informada impedem o cálculo',
+    tooltipBloqueado: 'Campo calculado — soma de cubagem_unitaria_item de todos os itens. Não pode ser editado diretamente.',
     grupo: 'Dados Físicos',
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('cubagem_total_pedido', 4)
@@ -1147,8 +1150,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensCub) > 0.001 && (_regrasAlertasRef.current?.alerta_cubagem_divergente ?? true)
       return (
         <TooltipGlobal titulo="Cubagem Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem cubagem informada impedem o cálculo">
-          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
-            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined, color: alertaAtivo ? '#fbbf24' : undefined }}>
+            {alertaAtivo && <Warning size={12} weight="fill" style={{ flexShrink: 0 }} />}
             {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
             <span className="gtv-celula-unidade-badge">m³</span>
           </span>
@@ -5115,8 +5118,8 @@ export default function ListaPedidos() {
         itens: itensAtualizados,
         quantidade_total_inicial_pedido: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0),
         quantidade_transferida_total:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida_item_pedido)    || 0), 0),
-        peso_liquido_total_pedido:       itensAtualizados.reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
-        peso_bruto_total_pedido:         itensAtualizados.reduce((s, i) => s + (Number(i.peso_bruto_unitario_item)  || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0),
+        peso_liquido_total_pedido:       itensAtualizados.reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0), 0),
+        peso_bruto_total_pedido:         itensAtualizados.reduce((s, i) => s + (Number(i.peso_bruto_unitario_item)  || 0), 0),
         cubagem_total_pedido:            itensAtualizados.reduce((s, i) => s + (Number(i.cubagem_unitaria_item)     || 0), 0),
       }
     }))

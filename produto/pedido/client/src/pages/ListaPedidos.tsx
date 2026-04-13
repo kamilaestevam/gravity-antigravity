@@ -1008,7 +1008,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => {
       const itens = row.itens ?? []
       if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = itens.map(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura')
+      const valores = itens.map(i => i.cobertura_cambial ?? 'com_cobertura')
       const valoresUnicos = [...new Set(valores)]
       const distintos = valoresUnicos.join(' | ')
       const diverge = valoresUnicos.length > 1
@@ -2056,6 +2056,8 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
                    : undefined,
     filtravel:       true,
     oculta:          !col.ativo,
+    // fórmula e checkbox são read-only; demais tipos permitem edição inline
+    editavel:        col.tipo !== 'formula' && col.tipo !== 'checkbox',
     tooltipTitulo:   col.nome,
     tooltipDescricao: col.descricao,
     render: (_val: unknown, row: Pedido) => {
@@ -3573,7 +3575,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   cobertura_cambial: {
     editavel: true,
     campo: 'cobertura_cambial',
-    render: (row: PedidoItem) => <span>{(row as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura'}</span>,
+    render: (row: PedidoItem) => <span>{row.cobertura_cambial ?? 'com_cobertura'}</span>,
   },
   condicao_pagamento_pedido: {
     editavel: true,
@@ -4843,7 +4845,7 @@ export default function ListaPedidos() {
   const CAMPOS_PROPAGAR_ITENS = new Set([
     'nome_exportador', 'nome_importador', 'nome_fabricante',
     'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
-    'ncm',
+    'ncm', 'cobertura_cambial',
   ])
   // Subconjunto de CAMPOS_PROPAGAR_ITENS que também têm correspondente no PAI
   // (nome/referência existem em detalhes_operacionais ou como coluna direta no Pedido)
@@ -4855,6 +4857,20 @@ export default function ListaPedidos() {
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
+    // Coluna customizada do usuário — salva via endpoint próprio
+    const colunaCustom = colunasUsuario.find(c => c.chave === campo)
+    if (colunaCustom) {
+      const pedidoAtual = pedidos.find(p => p.id === id)
+      if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      await colunasUsuarioApi.salvarValores('pedido', id, { [colunaCustom.id]: String(valor) })
+      const colunasAntes = (pedidoAtual as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
+      const atualizado = {
+        ...pedidoAtual,
+        _colunas_usuario: { ...colunasAntes, [colunaCustom.id]: String(valor) },
+      } as Pedido
+      setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
+      return atualizado
+    }
     if (campo === 'status') {
       const pedidoAtual = pedidos.find(p => p.id === id)
       const atualizado = { ...pedidoAtual!, status: String(valor) } as Pedido
@@ -4920,7 +4936,7 @@ export default function ListaPedidos() {
     const merged = pedidoAtual ? { ...pedidoAtual, ...atualizado } : atualizado
     setPedidos(prev => prev.map(p => p.id === id ? merged : p))
     return merged
-  }, [pedidos])
+  }, [pedidos, colunasUsuario])
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
   const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
@@ -5312,7 +5328,7 @@ export default function ListaPedidos() {
   }
   const unidadesQtd = Object.keys(qtdPorUnidade)
   const coberturaPend = pedidos
-    .filter(p => (p.itens ?? []).some(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial === 'sem_cobertura'))
+    .filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura'))
     .reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
   // Valor total convertido para BRL usando taxa PTAX de venda
   // Number() necessário pois Prisma Decimal serializa como string no JSON

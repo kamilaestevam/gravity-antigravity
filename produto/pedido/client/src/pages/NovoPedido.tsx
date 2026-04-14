@@ -483,7 +483,7 @@ export default function NovoPedido() {
                 </select>
               </div>
               <div>
-                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>Valor Unit.</label>
+                <label style={{ ...labelStyle, fontSize: '0.6875rem' }}>Valor do Item</label>
                 <input
                   type="number"
                   style={{ ...inputStyle, textAlign: 'right' }}

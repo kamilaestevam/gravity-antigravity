@@ -77,6 +77,7 @@ import {
 } from '../shared/api'
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
+import { renderAgregado } from '../components/lista/colunasPai'
 import { ModalConsolidar } from '../components/ModalConsolidar'
 import '../components/ModalConsolidar.css'
 import { ModalGerarPdf } from '../components/ModalGerarPdf'
@@ -547,10 +548,19 @@ function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, to
     ? <TooltipGlobal titulo={tooltip.titulo} descricao={tooltip.descricao}><span style={{ display: 'contents' }}>{node}</span></TooltipGlobal>
     : <>{node}</>
   if (diverge) {
+    const grupos: Record<string, number> = {}
+    for (const item of itens) {
+      const u = item.unidade_comercializada_item ?? 'UN'
+      grupos[u] = (grupos[u] ?? 0) + (Number(item[campoItem]) || 0)
+    }
     return wrap(
-      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-        {unidades.join(' | ')}
+      <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+        {Object.entries(grupos).map(([unit, soma]) => (
+          <span key={unit} className="gtv-celula-moeda">
+            {fmtQuantidade(soma, casas)}
+            <span className="gtv-celula-unidade-badge" style={{ color: '#F59E0B', border: '1px solid rgba(245,158,11,0.3)' }}>{unit}</span>
+          </span>
+        ))}
       </span>
     )
   }
@@ -566,12 +576,12 @@ function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas = 0, to
 const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'numero_pedido',
-    label: 'Nº Pedido / Part Number',
+    label: 'Nº Pedido / Nº do Item',
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    tooltipTitulo: 'Nº Pedido / Part Number',
-    tooltipDescricao: 'Identifica o pedido (linha pai) ou o item pelo Part Number (linha filho)',
+    tooltipTitulo: 'Nº Pedido / Nº do Item',
+    tooltipDescricao: 'Identifica o pedido (linha pai) ou o Nº do Item (linha filho)',
     grupo: 'Identificação',
   },
   {
@@ -610,10 +620,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Exportador',
     tooltipDescricao: 'Fornecedor/exportador estrangeiro na operação de importação',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => {
-      // List view: nome_exportador já extraído do detalhes_operacionais pelo mapPedidoListView
-      return <span>{row.nome_exportador ?? '—'}</span>
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.nome_exportador, row.nome_exportador_divergente, 'Exportadores divergentes entre itens'),
   },
   {
     key: 'nome_importador',
@@ -626,10 +634,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Importador',
     tooltipDescricao: 'Em operações de Importação, este campo é preenchido automaticamente pelo workspace do Configurador e não pode ser editado aqui. Em Exportação, representa o comprador/importador estrangeiro.',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => {
-      // List view: nome_importador já extraído do detalhes_operacionais pelo mapPedidoListView
-      return <span>{row.nome_importador ?? '—'}</span>
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.nome_importador, row.nome_importador_divergente, 'Importadores divergentes entre itens'),
   },
   {
     key: 'nome_fabricante',
@@ -640,10 +646,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Fabricante',
     tooltipDescricao: 'Identificação da origem produtiva',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => {
-      // List view: nome_fabricante extraído do detalhes_operacionais pelo mapPedidoListView
-      return <span>{row.nome_fabricante ?? '—'}</span>
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.nome_fabricante, row.nome_fabricante_divergente, 'Fabricantes divergentes entre itens'),
   },
   {
     key: 'referencia_importador',
@@ -654,7 +658,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Importador',
     tooltipDescricao: 'Código interno do importador para identificar o pedido. Propagado automaticamente para todos os itens.',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => <span>{row.referencia_importador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.referencia_importador, row.referencia_importador_divergente, 'Referências divergentes entre itens'),
   },
   {
     key: 'referencia_exportador',
@@ -665,7 +670,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Exportador',
     tooltipDescricao: 'Código do exportador para identificar o pedido. Propagado automaticamente para todos os itens.',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => <span>{row.referencia_exportador ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.referencia_exportador, row.referencia_exportador_divergente, 'Referências divergentes entre itens'),
   },
   {
     key: 'ncm',
@@ -677,17 +683,19 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Nomenclatura Comum do Mercosul dos itens do pedido. Expanda o pedido para ver os NCMs por item.',
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
-      // List view: mapPedidoListView armazena ncms_distintos_count mas não os valores.
-      // Expandir a linha mostra os NCMs por item.
-      const count = (row as Pedido & { ncms_distintos_count?: number }).ncms_distintos_count ?? 0
-      if (count === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      if (count === 1) return <span style={{ display: 'block', textAlign: 'center', fontFamily: 'var(--font-mono, monospace)' }}>1 NCM</span>
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-          {count} NCMs
-        </span>
-      )
+      if (row.ncm_divergente) {
+        const count = (row as Pedido & { ncms_distintos_count?: number }).ncms_distintos_count ?? '?'
+        return (
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            {count} NCMs
+          </span>
+        )
+      }
+      if (!row.ncm_valor_unico) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const d = row.ncm_valor_unico.replace(/\D/g, '')
+      const fmt = d.length === 8 ? `${d.slice(0, 4)}.${d.slice(4, 6)}.${d.slice(6)}` : row.ncm_valor_unico
+      return <span style={{ fontFamily: 'var(--font-mono, monospace)', display: 'block', textAlign: 'center' }}>{fmt}</span>
     },
   },
   {
@@ -720,40 +728,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Regra de entrega: FOB, CIF, EXW, etc. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
     align: 'center',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      // Sem itens: exibe o valor do pedido diretamente
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.incoterm ?? '—'}</span>
-      const valores = [...new Set(itens.map(i => i.incoterm ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.incoterm ?? '—'}</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Incoterms diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.incoterm, row.incoterm_divergente, 'Incoterms divergentes entre itens', { fontMono: true }),
   },
   {
     key: 'valor_total_pedido',
-    label: 'Valor Total do Pedido',
+    label: 'Valor Total do Pedido/Item',
     tipo: 'moeda',
     filtravel: true,
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('valor_total_pedido', 2),
-    tooltipTitulo: 'Valor Total do Pedido',
+    tooltipTitulo: 'Valor Total do Pedido/Item',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
@@ -764,7 +750,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         const moeda = row.moeda_pedido ?? 'USD'
         const num = Number(row.valor_total_pedido)
         return (
-          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+          <TooltipGlobal titulo="Valor Total do Pedido/Item" descricao={tooltipDescricao}>
             <span className="gtv-celula-moeda">
               <span className="gtv-celula-moeda-badge">{moeda}</span>
               {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
@@ -776,7 +762,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const diverge = moedas.length > 1
       if (diverge) {
         return (
-          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+          <TooltipGlobal titulo="Valor Total do Pedido/Item" descricao={tooltipDescricao}>
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               {moedas.join(' | ')}
@@ -787,7 +773,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const moeda = moedas[0]
       const soma = itens.reduce((s, i) => s + (Number(i.valor_total_itens) || 0), 0)
       return (
-        <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
+        <TooltipGlobal titulo="Valor Total do Pedido/Item" descricao={tooltipDescricao}>
           <span className="gtv-celula-moeda">
             <span className="gtv-celula-moeda-badge">{moeda}</span>
             {fmtQuantidade(soma, casas)}
@@ -795,6 +781,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         </TooltipGlobal>
       )
     },
+  },
+  {
+    key: 'valor_unitario_item',
+    label: 'Valor do Item',
+    tipo: 'moeda',
+    filtravel: true,
+    align: 'right',
+    casasDecimais: getCasas('valor_unitario_item', 2),
+    tooltipTitulo: 'Valor do Item',
+    tooltipDescricao: 'Valor por unidade do item — visível apenas nos itens expandidos.',
+    grupo: 'Financeiro',
+    render: () => <span style={{ color: 'var(--text-muted)' }}>—</span>,
   },
   {
     key: 'quantidade_total_inicial_pedido',
@@ -953,7 +951,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => <span>{row.referencia_fabricante ?? '—'}</span>,
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.referencia_fabricante, row.referencia_fabricante_divergente, 'Referências do fabricante divergentes entre itens'),
   },
   {
     key: 'cobertura_cambial',
@@ -963,36 +962,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Cobertura Cambial',
     tooltipDescricao: 'Modalidade de cobertura cambial por item (ex: com_cobertura, sem_cobertura). Se os itens divergem, exibe alerta.',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = itens.map(i => i.cobertura_cambial ?? 'com_cobertura')
-      const valoresUnicos = [...new Set(valores)]
-      const distintos = valoresUnicos.join(' | ')
-      const diverge = valoresUnicos.length > 1
-      return (
-        <span
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
-            color: diverge ? '#F59E0B' : undefined,
-            fontWeight: diverge ? 600 : undefined,
-          }}
-          title={diverge ? `Itens com coberturas diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.cobertura_cambial_valor_unico, row.cobertura_cambial_divergente, 'Coberturas cambiais divergentes entre itens'),
   },
   {
     key: 'condicao_pagamento_pedido',
@@ -1003,29 +974,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Condição de Pagamento',
     tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.condicao_pagamento_pedido ?? '—'}</span>
-      const valores = [...new Set(itens.map(i => i.condicao_pagamento_pedido ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.condicao_pagamento_pedido ?? '—'}</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Condições de pagamento diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.condicao_pagamento_pedido, row.condicao_pagamento_divergente, 'Condições de pagamento divergentes entre itens'),
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
@@ -1945,6 +1895,7 @@ const _COLUNAS_PADRAO_SEQUENCIA: string[] = [
   'referencia_exportador',
   'ncm',
   'valor_total_pedido',
+  'valor_unitario_item',
   'quantidade_total_inicial_pedido',
   'quantidade_pronta_itens_pedido_total',
   'saldo_itens_do_pedido',
@@ -2091,7 +2042,7 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
 const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   {
     key: 'part_number',
-    label: 'Part Number',
+    label: 'Nº do Item',
     tipo: 'texto',
     grupo: 'Identificação',
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.part_number}</span>,
@@ -3645,6 +3596,26 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
       )
     },
   },
+  valor_unitario_item: {
+    editavel: true,
+    campo: 'valor_unitario_item',
+    casasDecimais: getCasas('valor_unitario_item', 2),
+    getValorEditar: (row: PedidoItem) => ({
+      currency: row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD',
+      amount: row.valor_unitario_item ?? 0,
+    }),
+    render: (row: PedidoItem) => {
+      const casas = getCasas('valor_unitario_item', 2)
+      const moeda = row.moeda_item ?? (row as PedidoItemEnriquecido)._p?.moeda_pedido ?? 'USD'
+      const num = Number(row.valor_unitario_item)
+      return (
+        <span className="gtv-celula-moeda">
+          <span className="gtv-celula-moeda-badge">{moeda}</span>
+          {row.valor_unitario_item != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
+        </span>
+      )
+    },
+  },
   // ── Quantidades ───────────────────────────────────────────────────────────
   saldo_item_pedido: {
     // Saldo = qtd_inicial - cancelada - transferida → sempre calculado, nunca editável
@@ -3746,7 +3717,7 @@ const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
 const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Linha',                                    key: '_tipo_linha',                       largura: 10 },
   { header: 'Nº Pedido',                                key: 'numero_pedido',                    largura: 18 },
-  { header: 'Part Number',                               key: 'numero_item',                      largura: 20 },
+  { header: 'Nº do Item',                                 key: 'numero_item',                      largura: 20 },
   { header: 'Tipo de Operação',                          key: 'tipo_operacao',                    largura: 14 },
   { header: 'Status',                                    key: 'status',                           largura: 16 },
   { header: 'Nome do Exportador',                        key: 'nome_exportador',                  largura: 25 },
@@ -3757,7 +3728,7 @@ const COLUNAS_EXPORT: ColunasExport[] = [
   { header: 'Número da Proforma',                        key: 'numero_proforma',                  largura: 16 },
   { header: 'Número da Invoice',                         key: 'numero_invoice',                   largura: 16 },
   { header: 'Incoterm',                                  key: 'incoterm',                         largura: 12 },
-  { header: 'Valor Total do Pedido',                     key: 'valor_total_pedido',               largura: 18 },
+  { header: 'Valor Total do Pedido/Item',                 key: 'valor_total_pedido',               largura: 18 },
   { header: 'Qtd. Inicial do Pedido',                    key: 'quantidade_total_inicial_pedido',  largura: 14 },
   { header: 'Peso Líquido Total do Pedido',              key: 'peso_liquido_total_pedido',        largura: 18 },
   { header: 'Peso Bruto Total do Pedido',                key: 'peso_bruto_total_pedido',          largura: 18 },
@@ -4842,6 +4813,8 @@ export default function ListaPedidos() {
   }, [abaAtiva, busca])
 
   // Campos que ao serem editados no pedido propagam para todos os itens
+  // Apenas campos que existem em PedidoItem — tipo_operacao, numero_proforma e
+  // numero_invoice são colunas exclusivas do Pedido pai (não existem em PedidoItem)
   const CAMPOS_PROPAGAR_ITENS = new Set([
     'nome_exportador', 'nome_importador', 'nome_fabricante',
     'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
@@ -4887,15 +4860,15 @@ export default function ListaPedidos() {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
       const itensRef = itensCarregadosRef.current.get(id) ?? []
-      const [respostaPai] = await Promise.all([
+      await Promise.all([
         pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
         ...itensRef.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
       ])
       const itensIncoterm = itensRef.map(i => ({ ...i, incoterm: valor as string | null }))
       itensCarregadosRef.current.set(id, itensIncoterm)
-      const merged = respostaPai
-        ? { ...pedidoAtual, ...respostaPai, itens: itensIncoterm }
-        : { ...pedidoAtual, incoterm: valor as string | null, itens: itensIncoterm }
+      const divIncoterm = itensRef.length > 0 ? calcularDivergencias(itensIncoterm) : {}
+      // Só atualiza o campo editado — não sobrescreve outros campos locais com dados do servidor
+      const merged = { ...pedidoAtual, incoterm: valor as string | null, ...divIncoterm, itens: itensIncoterm }
       setPedidos(prev => prev.map(p => p.id === id ? merged : p))
       return merged
     }
@@ -4904,15 +4877,15 @@ export default function ListaPedidos() {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
       const itensRef = itensCarregadosRef.current.get(id) ?? []
-      const [respostaPai] = await Promise.all([
+      await Promise.all([
         pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
         ...itensRef.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
       ])
       const itensCond = itensRef.map(i => ({ ...i, condicao_pagamento_pedido: valor as string | null }))
       itensCarregadosRef.current.set(id, itensCond)
-      const merged = respostaPai
-        ? { ...pedidoAtual, ...respostaPai, itens: itensCond }
-        : { ...pedidoAtual, condicao_pagamento_pedido: valor as string | null, itens: itensCond }
+      const divCond = itensRef.length > 0 ? calcularDivergencias(itensCond) : {}
+      // Só atualiza o campo editado — não sobrescreve outros campos locais com dados do servidor
+      const merged = { ...pedidoAtual, condicao_pagamento_pedido: valor as string | null, ...divCond, itens: itensCond }
       setPedidos(prev => prev.map(p => p.id === id ? merged : p))
       return merged
     }
@@ -4924,7 +4897,7 @@ export default function ListaPedidos() {
       const itens = itensCarregadosRef.current.get(id) ?? []
       // Normaliza datas para ISO antes de enviar ao servidor
       const valorEnviar = campo === 'data_emissao_pedido' ? normalizarDataISO(valor) : valor
-      const [paiResp] = await Promise.all([
+      await Promise.all([
         PROPAGAR_COM_PAI.has(campo)
           ? pedidoVirtualApi.editarCampo(id, campo, valorEnviar).catch(() => null as null)
           : Promise.resolve(null as null),
@@ -4932,19 +4905,60 @@ export default function ListaPedidos() {
       ])
       const itensAtualizados = itens.map(i => ({ ...i, [campo]: valorEnviar }))
       itensCarregadosRef.current.set(id, itensAtualizados)
-      const pedidoAtualizado = paiResp
-        ? { ...pedidoAtual, ...(paiResp as Pedido), itens: itensAtualizados }
-        : { ...pedidoAtual, [campo]: valorEnviar, itens: itensAtualizados }
+      const divPropagar = itens.length > 0 ? calcularDivergencias(itensAtualizados) : {}
+      // Só atualiza o campo editado — não sobrescreve outros campos locais com dados do servidor
+      const pedidoAtualizado = { ...pedidoAtual, [campo]: valorEnviar, ...divPropagar, itens: itensAtualizados }
       setPedidos(prev => prev.map(p => p.id === id ? pedidoAtualizado : p))
       return pedidoAtualizado
     }
     const pedidoAtual = pedidos.find(p => p.id === id)
-    const atualizado = await pedidoVirtualApi.editarCampo(id, campo, valor)
-    // Merge: preserva campos existentes (peso, cubagem, etc.) que a resposta pode não trazer
-    const merged = pedidoAtual ? { ...pedidoAtual, ...atualizado } : atualizado
+    // GTValorUnidade { unit, quantity } → extrai quantity, aplica conversão para KG em campos de peso
+    const FATOR_PARA_KG_PAI: Record<string, number> = { KG: 1, G: 0.001, TON: 1000, KGBR: 1 }
+    const CAMPOS_PESO_PAI = new Set(['peso_liquido_total_pedido', 'peso_bruto_total_pedido'])
+    const isUnidadePai = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
+    const valorEnviarPai: unknown = isUnidadePai
+      ? (() => {
+          const { unit, quantity } = valor as { unit: string; quantity: number }
+          return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
+        })()
+      : valor
+    await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai)
+    // Só atualiza o campo editado — não sobrescreve outros campos locais com dados do servidor
+    const merged = { ...(pedidoAtual ?? {} as Pedido), [campo]: valorEnviarPai } as Pedido
     setPedidos(prev => prev.map(p => p.id === id ? merged : p))
     return merged
   }, [pedidos, colunasUsuario])
+
+  // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
+  function calcularDivergencias(itens: PedidoItem[]): Partial<Pedido> {
+    const vals = (fn: (i: PedidoItem) => string | null | undefined): string[] =>
+      itens.map(fn).filter((v): v is string => v != null && v !== '')
+    const distintos = (arr: string[]) => new Set(arr).size
+    const div = (arr: string[]) => distintos(arr) > 1
+
+    const ncms = vals(i => i.ncm)
+    const coberturas = vals(i => i.cobertura_cambial)
+    const nCobertura = distintos(coberturas)
+    const datas = vals(i => i.data_emissao_pedido)
+
+    return {
+      nome_exportador_divergente:       div(vals(i => i.nome_exportador)),
+      nome_importador_divergente:       div(vals(i => i.nome_importador)),
+      nome_fabricante_divergente:       div(vals(i => i.nome_fabricante)),
+      referencia_importador_divergente: div(vals(i => i.referencia_importador)),
+      referencia_exportador_divergente: div(vals(i => i.referencia_exportador)),
+      referencia_fabricante_divergente: div(vals(i => i.referencia_fabricante)),
+      incoterm_divergente:              div(vals(i => i.incoterm)),
+      condicao_pagamento_divergente:    div(vals(i => i.condicao_pagamento_pedido)),
+      ncm_divergente:                   distintos(ncms) > 1,
+      ncm_valor_unico:                  distintos(ncms) === 1 ? ncms[0] : null,
+      ncms_distintos_count:             distintos(ncms),
+      cobertura_cambial_divergente:     nCobertura > 1,
+      cobertura_cambial_valor_unico:    nCobertura === 1 ? coberturas[0] : null,
+      data_emissao_pedido_divergente:   distintos(datas) > 1,
+      data_emissao_pedido_valor_unico:  distintos(datas) === 1 ? datas[0] : null,
+    }
+  }
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
   const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
@@ -5207,10 +5221,12 @@ export default function ListaPedidos() {
     // Atualiza cache e recalcula os aggregates do pedido pai
     const itensAposEdicao = getItensCache().map(i => i.id === id ? enriquecido : i)
     itensCarregadosRef.current.set(pedido.id, itensAposEdicao)
+    const divergencias = calcularDivergencias(itensAposEdicao)
     setPedidos(prev => prev.map(p => {
       if (p.id !== pedido.id) return p
       return {
         ...p,
+        ...divergencias,
         quantidade_total_inicial_pedido: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0),
         quantidade_transferida_total:    itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_transferida_item_pedido)    || 0), 0),
         peso_liquido_total_pedido:       itensAposEdicao.reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0), 0),
@@ -5249,6 +5265,23 @@ export default function ListaPedidos() {
     }))
     // Popula cache para handleEditarFilho (não-reativo, evita re-loads em useGTExpandir)
     itensCarregadosRef.current.set(pedido.id, itensEnriquecidos)
+    // Atualiza pedidos state com itens carregados + recalcula aggregates e divergências.
+    // Isso habilita alertas de peso (unidades mistas), renderQtdPedido (soma por unidade)
+    // e qualquer outra lógica que depende de row.itens na renderização do pai.
+    const divergencias = calcularDivergencias(itensEnriquecidos)
+    setPedidos(prev => prev.map(p => {
+      if (p.id !== pedido.id) return p
+      return {
+        ...p,
+        ...divergencias,
+        itens: itensEnriquecidos,
+        quantidade_total_inicial_pedido: itensEnriquecidos.reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0),
+        quantidade_transferida_total:    itensEnriquecidos.reduce((s, i) => s + (Number(i.quantidade_transferida_item_pedido) || 0), 0),
+        peso_liquido_total_pedido:       itensEnriquecidos.reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0), 0),
+        peso_bruto_total_pedido:         itensEnriquecidos.reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0), 0),
+        cubagem_total_pedido:            itensEnriquecidos.reduce((s, i) => s + (Number(i.cubagem_unitaria_item) || 0), 0),
+      }
+    }))
     return itensEnriquecidos
   }, [])
 
@@ -5599,6 +5632,7 @@ export default function ListaPedidos() {
 
           mapaColunasFilho={MAPA_COLUNAS_FILHO}
           onCarregarFilhos={handleCarregarFilhos}
+          itemVersion={(p: Pedido) => p.pedido_atualizado_em}
           filhoId={pedidoFilhoId}
           renderConectorFilho={pedidoRenderConectorFilho}
           itensPorPagina={ITENS_POR_PAGINA}

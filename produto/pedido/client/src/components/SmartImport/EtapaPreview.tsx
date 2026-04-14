@@ -47,7 +47,7 @@ const ROTULOS_CAMPO: Record<string, string> = {
   descricao_item:      'Descrição do Item',
   quantidade_inicial_item_pedido:  'Quantidade',
   unidade:             'Unidade',
-  valor_unitario_item:   'Valor Unit.',
+  valor_unitario_item:   'Valor do Item',
   valor_total_itens:   'Valor Total',
 }
 

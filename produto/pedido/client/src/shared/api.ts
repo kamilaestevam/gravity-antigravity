@@ -129,6 +129,9 @@ export const pedidoApi = {
 // ── Itens do Pedido ───────────────────────────────────────────────────────────
 
 export const pedidoItemApi = {
+  listar: (pedidoId: string) =>
+    request<PedidoItem[]>(`/api/v1/pedidos/${pid(pedidoId)}/itens`),
+
   adicionar: (pedidoId: string, data: Partial<PedidoItem>) =>
     request<PedidoItem>(`/api/v1/pedidos/${pid(pedidoId)}/itens`, {
       method: 'POST',

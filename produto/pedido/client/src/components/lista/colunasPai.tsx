@@ -6,9 +6,6 @@
  */
 
 import React from 'react'
-import {
-  Warning,
-} from '@phosphor-icons/react'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import type { GTColuna } from '@nucleo/tabela-virtual-global'
@@ -89,18 +86,9 @@ export function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas 
   const itens = row.itens ?? []
   if (itens.length === 0) return <span style={{ fontVariantNumeric: 'tabular-nums' }}>—</span>
   const unidades = [...new Set(itens.map(i => i.unidade_comercializada_item ?? 'UN'))]
-  const diverge = unidades.length > 1
   const wrap = (node: React.ReactNode) => tooltip
     ? <TooltipGlobal titulo={tooltip.titulo} descricao={tooltip.descricao}><span style={{ display: 'contents' }}>{node}</span></TooltipGlobal>
     : <>{node}</>
-  if (diverge) {
-    return wrap(
-      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-        {unidades.join(' | ')}
-      </span>
-    )
-  }
   const soma = itens.reduce((s, i) => s + (Number(i[campoItem]) || 0), 0)
   return wrap(
     <span className="gtv-celula-moeda">
@@ -110,15 +98,47 @@ export function renderQtdPedido(row: Pedido, campoItem: keyof PedidoItem, casas 
   )
 }
 
+// ── Helper: badge de divergência entre itens ─────────────────────────────────
+// Usado pelas colunas que agregam valores dos filhos sem precisar de row.itens.
+// Backend já pré-computa os flags _divergente e _valor_unico na list view.
+const WarnIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+    <line x1="12" y1="9" x2="12" y2="13" />
+    <line x1="12" y1="17" x2="12.01" y2="17" />
+  </svg>
+)
+
+export function renderAgregado(
+  valor: string | null | undefined,
+  divergente: boolean | null | undefined,
+  labelDivergente?: string,
+  opts?: { fontMono?: boolean }
+): React.ReactElement {
+  const centro: React.CSSProperties = { display: 'block', textAlign: 'center' }
+  if (!valor && !divergente) return <span style={centro}>—</span>
+  if (divergente) {
+    return (
+      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}
+        title={labelDivergente}>
+        <WarnIcon />{labelDivergente ?? 'Valores divergentes'}
+      </span>
+    )
+  }
+  return <span style={opts?.fontMono ? { fontFamily: 'var(--font-mono, monospace)' } : undefined}>{valor ?? '—'}</span>
+}
+
 export const COLUNAS_PAI: GTColuna<Pedido>[] = [
   {
     key: 'numero_pedido',
-    label: 'Nº Pedido / Part Number',
+    label: 'Nº Pedido / Nº do Item',
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
-    tooltipTitulo: 'Nº Pedido / Part Number',
-    tooltipDescricao: 'Número do pedido (linha pai) ou Part Number do item (linha filho)',
+    editavel: true,
+    campo: 'numero_pedido',
+    tooltipTitulo: 'Nº Pedido / Nº do Item',
+    tooltipDescricao: 'Número do pedido (linha pai) ou Nº do Item (linha filho)',
     grupo: 'Identificação',
   },
   {
@@ -127,6 +147,8 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'badge',
     align: 'center',
     filtravel: true,
+    editavel: true,
+    campo: 'tipo_operacao',
     opcoes: [
       { valor: 'importacao', label: 'Importação' },
       { valor: 'exportacao', label: 'Exportação' },
@@ -157,30 +179,8 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Exportador',
     tooltipDescricao: 'Fornecedor/exportador estrangeiro na operação de importação',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => {
-      if (row.tipo_operacao !== 'importacao') return <span>{row.nome_exportador ?? '—'}</span>
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.nome_exportador ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Exportadores diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.nome_exportador, row.nome_exportador_divergente, 'Exportadores divergentes entre itens'),
   },
   {
     key: 'nome_importador',
@@ -193,30 +193,8 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Nome do Importador',
     tooltipDescricao: 'Comprador/importador estrangeiro na operação de exportação',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => {
-      if (row.tipo_operacao !== 'exportacao') return <span>{row.nome_importador ?? '—'}</span>
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.nome_importador ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Importadores diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.nome_importador, row.nome_importador_divergente, 'Importadores divergentes entre itens'),
   },
   {
     key: 'nome_fabricante',
@@ -224,32 +202,13 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tipo: 'texto',
     filtravel: true,
     sortavel: true,
+    editavel: true,
+    campo: 'nome_fabricante',
     tooltipTitulo: 'Nome do Fabricante',
     tooltipDescricao: 'Identificação da origem produtiva',
     grupo: 'Partes',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.nome_fabricante ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Fabricantes diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.nome_fabricante, row.nome_fabricante_divergente, 'Fabricantes divergentes entre itens'),
   },
   {
     key: 'referencia_importador',
@@ -260,20 +219,8 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Importador',
     tooltipDescricao: 'Código de referência interna do importador para o pedido',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.referencia_importador ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
-          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.referencia_importador, row.referencia_importador_divergente, 'Referências divergentes entre itens'),
   },
   {
     key: 'referencia_exportador',
@@ -284,46 +231,32 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Exportador',
     tooltipDescricao: 'Código de referência utilizado pelo exportador',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.referencia_exportador ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
-          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.referencia_exportador, row.referencia_exportador_divergente, 'Referências divergentes entre itens'),
   },
   {
     key: 'ncm',
     label: 'NCM',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
     tooltipTitulo: 'NCM',
     tooltipDescricao: 'Nomenclatura Comum do Mercosul — quantidade de NCMs distintos nos itens do pedido',
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valoresUnicos = [...new Set(itens.map(i => i.ncm ?? null).filter(Boolean) as string[])]
-      if (valoresUnicos.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const formatNCM = (v: string) => {
-        const d = v.replace(/\D/g, '')
-        return d.length === 8 ? `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6)}` : v
+      if (row.ncm_divergente) {
+        const label = `⚠ ${row.ncms_distintos_count ?? '?'} NCMs`
+        return (
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600, fontFamily: 'var(--font-mono, monospace)' }}
+            title="Itens com NCMs diferentes">
+            <WarnIcon />{label}
+          </span>
+        )
       }
-      const distintos = valoresUnicos.map(formatNCM).join(' | ')
-      const diverge = valoresUnicos.length > 1
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined, fontFamily: 'var(--font-mono, monospace)' }} title={diverge ? `NCMs diferentes: ${distintos}` : distintos}>
-          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
-          {distintos}
-        </span>
-      )
+      if (!row.ncm_valor_unico) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      const d = row.ncm_valor_unico.replace(/\D/g, '')
+      const fmt = d.length === 8 ? `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6)}` : row.ncm_valor_unico
+      return <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{fmt}</span>
     },
   },
   {
@@ -331,6 +264,8 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Número da Proforma',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
+    campo: 'numero_proforma',
     tooltipTitulo: 'Número da Proforma',
     tooltipDescricao: 'Referência da Proforma Invoice vinculada',
     grupo: 'Identificação',
@@ -341,6 +276,8 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Número da Invoice',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
+    campo: 'numero_invoice',
     tooltipTitulo: 'Número da Invoice',
     tooltipDescricao: 'Identificador da Commercial Invoice (Fatura)',
     grupo: 'Identificação',
@@ -356,30 +293,8 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Regra de entrega: FOB, CIF, EXW, etc. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
     align: 'center',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      // Sem itens: exibe o valor do pedido diretamente
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.incoterm ?? '—'}</span>
-      const valores = [...new Set(itens.map(i => i.incoterm ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.incoterm ?? '—'}</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Incoterms diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.incoterm, row.incoterm_divergente, 'Incoterms divergentes entre itens'),
   },
   {
     key: 'valor_total_pedido',
@@ -393,39 +308,14 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
       const tooltipDescricao = 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo'
-      if (itens.length === 0) {
-        const moeda = row.moeda_pedido ?? 'USD'
-        const num = Number(row.valor_total_pedido)
-        return (
-          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
-            <span className="gtv-celula-moeda">
-              <span className="gtv-celula-moeda-badge">{moeda}</span>
-              {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
-            </span>
-          </TooltipGlobal>
-        )
-      }
-      const moedas = [...new Set(itens.map(i => i.moeda_item ?? 'USD'))]
-      const diverge = moedas.length > 1
-      if (diverge) {
-        return (
-          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-              {moedas.join(' | ')}
-            </span>
-          </TooltipGlobal>
-        )
-      }
-      const moeda = moedas[0]
-      const soma = itens.reduce((s, i) => s + (Number(i.valor_total_itens) || 0), 0)
+      const moeda = row.moeda_pedido ?? 'USD'
+      const num = Number(row.valor_total_pedido)
       return (
         <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
           <span className="gtv-celula-moeda">
             <span className="gtv-celula-moeda-badge">{moeda}</span>
-            {fmtQuantidade(soma, 2)}
+            {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, 2) : '—'}
           </span>
         </TooltipGlobal>
       )
@@ -511,10 +401,17 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     label: 'Data P.O',
     tipo: 'periodo',
     filtravel: true,
+    editavel: true,
+    campo: 'data_emissao_pedido',
     tooltipTitulo: 'Data do Pedido',
     tooltipDescricao: 'Data de registro ou emissão da Purchase Order',
     grupo: 'Datas',
-    render: (_val: unknown, row: Pedido) => <span>{fmtData(row.data_emissao_pedido)}</span>,
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(
+        row.data_emissao_pedido ? fmtData(row.data_emissao_pedido) : null,
+        row.data_emissao_pedido_divergente,
+        'Datas de emissão divergentes entre itens',
+      ),
   },
   {
     key: 'status',
@@ -550,59 +447,21 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.referencia_fabricante ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
-          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.referencia_fabricante, row.referencia_fabricante_divergente, 'Referências divergentes entre itens'),
   },
   {
     key: 'cobertura_cambial',
     label: 'Cobertura Cambial do Pedido',
     tipo: 'texto',
     filtravel: true,
+    editavel: true,
+    campo: 'cobertura_cambial',
     tooltipTitulo: 'Cobertura Cambial',
-    tooltipDescricao: 'Modalidade de cobertura cambial por item (ex: com_cobertura, sem_cobertura). Se os itens divergem, exibe alerta.',
+    tooltipDescricao: 'Modalidade de cobertura cambial por item. Se os itens divergem, exibe alerta.',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = itens.map(i => (i as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura')
-      const valoresUnicos = [...new Set(valores)]
-      const distintos = valoresUnicos.join(' | ')
-      const diverge = valoresUnicos.length > 1
-      return (
-        <span
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
-            color: diverge ? '#F59E0B' : undefined,
-            fontWeight: diverge ? 600 : undefined,
-          }}
-          title={diverge ? `Itens com coberturas diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.cobertura_cambial_valor_unico, row.cobertura_cambial_divergente, 'Coberturas cambiais divergentes entre itens'),
   },
   {
     key: 'condicao_pagamento_pedido',
@@ -613,29 +472,8 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Condição de Pagamento',
     tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.condicao_pagamento_pedido ?? '—'}</span>
-      const valores = [...new Set(itens.map(i => i.condicao_pagamento_pedido ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>{row.condicao_pagamento_pedido ?? '—'}</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Condições de pagamento diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) =>
+      renderAgregado(row.condicao_pagamento_pedido, row.condicao_pagamento_divergente, 'Condições de pagamento divergentes entre itens'),
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
@@ -653,12 +491,9 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_liquido_total_pedido', 3)
       const num = Number(row.peso_liquido_total_pedido ?? 0)
-      const somaItensLiq = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensLiq) > 0.001 && (_regrasAlertasRef.current?.alerta_peso_liquido_divergente ?? true)
       return (
         <TooltipGlobal titulo="Peso Líquido Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso líquido informado impedem o cálculo">
-          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
-            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          <span className="gtv-celula-moeda">
             {row.peso_liquido_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
             <span className="gtv-celula-unidade-badge">kg</span>
           </span>
@@ -681,12 +516,9 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('peso_bruto_total_pedido', 3)
       const num = Number(row.peso_bruto_total_pedido ?? 0)
-      const somaItensBruto = (row.itens ?? []).reduce((s, i) => s + (Number(i.peso_bruto_unitario_item) || 0) * (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensBruto) > 0.001 && (_regrasAlertasRef.current?.alerta_peso_bruto_divergente ?? true)
       return (
         <TooltipGlobal titulo="Peso Bruto Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem peso bruto informado impedem o cálculo">
-          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
-            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          <span className="gtv-celula-moeda">
             {row.peso_bruto_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
             <span className="gtv-celula-unidade-badge">kg</span>
           </span>
@@ -709,12 +541,9 @@ export const COLUNAS_PAI: GTColuna<Pedido>[] = [
     render: (_val: unknown, row: Pedido) => {
       const casas = getCasas('cubagem_total_pedido', 4)
       const num = Number(row.cubagem_total_pedido ?? 0)
-      const somaItensCub = (row.itens ?? []).reduce((s, i) => s + (Number(i.cubagem_unitaria_item) || 0), 0)
-      const alertaAtivo = (row.itens ?? []).length > 0 && Math.abs(num - somaItensCub) > 0.001 && (_regrasAlertasRef.current?.alerta_cubagem_divergente ?? true)
       return (
         <TooltipGlobal titulo="Cubagem Total do Pedido" descricao="Calculado com base nos itens — não editável. Itens sem cubagem informada impedem o cálculo">
-          <span className="gtv-celula-moeda" style={{ gap: alertaAtivo ? '0.25rem' : undefined }}>
-            {alertaAtivo && <Warning size={12} weight="fill" style={{ color: '#fbbf24', flexShrink: 0 }} />}
+          <span className="gtv-celula-moeda">
             {row.cubagem_total_pedido != null ? fmtQuantidade(num, casas) : '—'}
             <span className="gtv-celula-unidade-badge">m³</span>
           </span>

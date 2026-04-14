@@ -128,7 +128,7 @@ export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedid
 export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   {
     key: 'part_number',
-    label: 'Part Number',
+    label: 'Nº do Item',
     tipo: 'texto',
     grupo: 'Identificação',
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.part_number}</span>,
@@ -1461,7 +1461,13 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     campo: 'nome_exportador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
-      if (tipoOp === 'importacao') return <span>{row.nome_exportador ?? '—'}</span>
+      if (tipoOp === 'importacao') {
+        return (
+          <TooltipGlobal titulo="Exportador" descricao="Fornecedor/exportador estrangeiro na operação de importação">
+            <span>{row.nome_exportador ?? '—'}</span>
+          </TooltipGlobal>
+        )
+      }
       return <span>{(row as PedidoItemEnriquecido)._p?.nome_exportador ?? '—'}</span>
     },
   },
@@ -1474,7 +1480,13 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     campo: 'nome_importador',
     render: (row: PedidoItem) => {
       const tipoOp = (row as PedidoItemEnriquecido)._p?.tipo_operacao
-      if (tipoOp === 'exportacao') return <span>{row.nome_importador ?? '—'}</span>
+      if (tipoOp === 'exportacao') {
+        return (
+          <TooltipGlobal titulo="Importador" descricao="Comprador/importador estrangeiro na operação de exportação">
+            <span>{row.nome_importador ?? '—'}</span>
+          </TooltipGlobal>
+        )
+      }
       return <span>{(row as PedidoItemEnriquecido)._p?.nome_importador ?? '—'}</span>
     },
   },
@@ -1538,7 +1550,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
   cobertura_cambial: {
     editavel: true,
     campo: 'cobertura_cambial',
-    render: (row: PedidoItem) => <span>{(row as PedidoItem & { cobertura_cambial?: string }).cobertura_cambial ?? 'com_cobertura'}</span>,
+    render: (row: PedidoItem) => <span>{row.cobertura_cambial ?? '—'}</span>,
   },
   condicao_pagamento_pedido: {
     editavel: true,
@@ -1546,10 +1558,9 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     render: (row: PedidoItem) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
   },
   data_emissao_pedido: {
-    render: (row: PedidoItem) => {
-      const p = (row as PedidoItemEnriquecido)._p
-      return <span>{fmtData(p?.data_emissao_pedido ?? null)}</span>
-    },
+    editavel: true,
+    campo: 'data_emissao_pedido',
+    render: (row: PedidoItem) => <span>{fmtData(row.data_emissao_pedido ?? null)}</span>,
   },
   // ── Pesos e cubagem do item ───────────────────────────────────────────────
   peso_liquido_total_pedido: {

@@ -333,6 +333,23 @@ export interface Pedido {
   quantidade_cancelada_total_pedido?: number | null
   ncms_distintos_count?: number | null
 
+  // Divergência de itens — pré-computado pelo backend na list view
+  // Elimina a necessidade de carregar itens no state apenas para exibir badges
+  ncm_divergente?: boolean | null
+  ncm_valor_unico?: string | null
+  referencia_importador_divergente?: boolean | null
+  referencia_exportador_divergente?: boolean | null
+  incoterm_divergente?: boolean | null
+  condicao_pagamento_divergente?: boolean | null
+  nome_exportador_divergente?: boolean | null
+  nome_importador_divergente?: boolean | null
+  nome_fabricante_divergente?: boolean | null
+  referencia_fabricante_divergente?: boolean | null
+  cobertura_cambial_divergente?: boolean | null
+  cobertura_cambial_valor_unico?: string | null
+  data_emissao_pedido_divergente?: boolean | null
+  data_emissao_pedido_valor_unico?: string | null
+
   // Financeiro
   condicao_pagamento_pedido: string | null
 

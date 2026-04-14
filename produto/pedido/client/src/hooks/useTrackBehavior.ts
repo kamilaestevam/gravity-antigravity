@@ -15,6 +15,7 @@
 
 import { useEffect, useCallback, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
+import { getApiContext } from '../shared/api'
 
 type BehaviorEventType =
   | 'route_visited'
@@ -34,11 +35,16 @@ interface BehaviorPayload {
 
 async function sendEvent(event: BehaviorEventType, payload: BehaviorPayload): Promise<void> {
   try {
+    const ctx = getApiContext()
     await fetch('/api/v1/pedidos/behavior/track', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-tenant-id': ctx.tenantId,
+        'x-user-id': ctx.userId,
+        'x-internal-key': (import.meta as any).env?.VITE_INTERNAL_SERVICE_KEY || '',
+      },
       body: JSON.stringify({ event, payload }),
-      // Ignora erros de rede — não crítico
     })
   } catch {
     // Silencioso

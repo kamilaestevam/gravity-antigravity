@@ -733,13 +733,13 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
   },
   {
     key: 'valor_total_pedido',
-    label: 'Valor Total do Pedido/Item',
+    label: 'Valor Total do Pedido',
     tipo: 'moeda',
     filtravel: true,
     sortavel: true,
     align: 'right',
     casasDecimais: getCasas('valor_total_pedido', 2),
-    tooltipTitulo: 'Valor Total do Pedido/Item',
+    tooltipTitulo: 'Valor Total do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com moedas diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) => {
@@ -750,7 +750,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
         const moeda = row.moeda_pedido ?? 'USD'
         const num = Number(row.valor_total_pedido)
         return (
-          <TooltipGlobal titulo="Valor Total do Pedido/Item" descricao={tooltipDescricao}>
+          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
             <span className="gtv-celula-moeda">
               <span className="gtv-celula-moeda-badge">{moeda}</span>
               {row.valor_total_pedido != null && !isNaN(num) ? fmtQuantidade(num, casas) : '—'}
@@ -762,7 +762,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const diverge = moedas.length > 1
       if (diverge) {
         return (
-          <TooltipGlobal titulo="Valor Total do Pedido/Item" descricao={tooltipDescricao}>
+          <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
             <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               {moedas.join(' | ')}
@@ -773,7 +773,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
       const moeda = moedas[0]
       const soma = itens.reduce((s, i) => s + (Number(i.valor_total_itens) || 0), 0)
       return (
-        <TooltipGlobal titulo="Valor Total do Pedido/Item" descricao={tooltipDescricao}>
+        <TooltipGlobal titulo="Valor Total do Pedido" descricao={tooltipDescricao}>
           <span className="gtv-celula-moeda">
             <span className="gtv-celula-moeda-badge">{moeda}</span>
             {fmtQuantidade(soma, casas)}
@@ -4269,6 +4269,7 @@ export default function ListaPedidos() {
 
   // ── Colunas do Usuário ────────────────────────────────────────────────────────
   const [colunasUsuario, setColunasUsuario] = useState<ColunaUsuario[]>([])
+  const [temExpandido, setTemExpandido] = useState(false)
 
   // Colunas pai estáticas + colunas customizadas do usuário (escopo pedido ou ambos)
   // O render da coluna status é sobreposto aqui para ter acesso ao setPedidos
@@ -4296,6 +4297,22 @@ export default function ListaPedidos() {
             )
           },
         }
+      }
+
+      const COLUNAS_DINAMICAS_PEDIDO_ITEM: Record<string, string> = {
+        valor_total_pedido:                   'Valor Total do Pedido/Item',
+        quantidade_total_inicial_pedido:      'Qtd. Inicial do Pedido/Item',
+        quantidade_pronta_itens_pedido_total: 'Qtd. Pronta do Pedido/Item',
+        saldo_itens_do_pedido:                'Saldo do Pedido/Item',
+        quantidade_transferida_total:         'Qtd. Transferida do Pedido/Item',
+        quantidade_cancelada_total_pedido:    'Qtd. Cancelada do Pedido/Item',
+        peso_liquido_total_pedido:            'Peso Líquido Total do Pedido/Item',
+        peso_bruto_total_pedido:              'Peso Bruto Total do Pedido/Item',
+        cubagem_total_pedido:                 'Cubagem Total do Pedido/Item',
+      }
+      if (temExpandido && col.key in COLUNAS_DINAMICAS_PEDIDO_ITEM) {
+        const label = COLUNAS_DINAMICAS_PEDIDO_ITEM[col.key]
+        return { ...col, label, tooltipTitulo: label }
       }
 
       if (col.key === 'saldo_itens_do_pedido') {
@@ -4339,7 +4356,7 @@ export default function ListaPedidos() {
     })
 
     return [...colunasBase, ...custom]
-  }, [colunasUsuario, statusOpts, saldoFormulaAST])
+  }, [colunasUsuario, statusOpts, saldoFormulaAST, temExpandido])
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {
@@ -5286,6 +5303,8 @@ export default function ListaPedidos() {
   }, [])
 
   // ── Salvar preferências ──────────────────────────────────────────────────────
+  const pedidoItemVersion = useCallback((p: Pedido) => p.pedido_atualizado_em, [])
+
   const handleSalvarPreferencias = useCallback((prefs: GTPreferencias) => {
     setPreferencias(prefs)
     pedidoConfigApi.salvarPreferenciasUsuario({
@@ -5632,7 +5651,8 @@ export default function ListaPedidos() {
 
           mapaColunasFilho={MAPA_COLUNAS_FILHO}
           onCarregarFilhos={handleCarregarFilhos}
-          itemVersion={(p: Pedido) => p.pedido_atualizado_em}
+          onExpandidosMudar={(count) => setTemExpandido(count > 0)}
+          itemVersion={pedidoItemVersion}
           filhoId={pedidoFilhoId}
           renderConectorFilho={pedidoRenderConectorFilho}
           itensPorPagina={ITENS_POR_PAGINA}

@@ -68,9 +68,9 @@ const DEMO_WORKSPACES = [
 
 // ── Nós do ecossistema ────────────────────────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
-  { id: 'gravity',      label: 'Gravity',      sublabel: 'workspace',      color: '#818cf8',     type: 'gravity',      status: 'accessible' },
+  { id: 'hub',          label: 'Hub',          sublabel: 'workspaces',     color: '#818cf8',     type: 'hub',          status: 'accessible' },
   { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f472b6',     type: 'configurador', status: 'accessible' },
-  { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: PRODUTO.sublabel,  color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
+  { id: PRODUCT_ID,     label: PRODUCT_NAME,   sublabel: PRODUTO.sublabel, color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]
 
 function LoadingFallback() {
@@ -91,7 +91,7 @@ export function App() {
   const currentTheme     = useShellStore(s => s.currentTheme)
   const clearCurrentUser = useShellStore(s => s.clearCurrentUser)
 
-  const { history, addEntry } = useLocalizadorHistory(PRODUCT_ID)
+  const { history, visitedIds, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
   // Sincroniza tenant/user do Shell com o contexto de API
   // Chamada síncrona garante contexto pronto antes dos efeitos dos filhos
@@ -160,8 +160,9 @@ export function App() {
         currentPageLabel: pageLabel,
         history,
         nodes: ECOSYSTEM_NODES,
+        visitedNodeIds: visitedIds,
         onNavigate: (node: EcosystemNode) => {
-          if (node.type === 'gravity')           window.location.href = '/hub'
+          if (node.type === 'hub')               window.location.href = '/hub'
           else if (node.type === 'configurador') window.location.href = '/configurador'
           else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
         },

@@ -13,13 +13,12 @@ export default defineConfig({
 
   resolve: {
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'react-grid-layout', 'react-resizable'],
-    alias: {
-      ...createNucleoAliases(monorepoRoot),
-      ...createServiceAliases(monorepoRoot),
-      ...createTenantAliases(monorepoRoot, ['historico', 'gabi']),
-      // Alias específico para historico (nome da pasta difere)
-      '@tenant/historico': path.resolve(monorepoRoot, 'servicos-global/tenant/historico-global/src/index.ts'),
-    },
+    alias: [
+      // Aliases específicos ANTES dos prefixos genéricos (@tenant, etc.)
+      { find: '@tenant/historico', replacement: path.resolve(monorepoRoot, 'servicos-global/tenant/historico-global/src/index.ts') },
+      ...Object.entries({ ...createNucleoAliases(monorepoRoot), ...createServiceAliases(monorepoRoot), ...createTenantAliases(monorepoRoot, ['gabi']) })
+        .map(([find, replacement]) => ({ find, replacement })),
+    ],
   },
 
   define: {
@@ -61,7 +60,7 @@ export default defineConfig({
         proxyTimeout: 120000,
       },
       '/historico-api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:8012',
         changeOrigin: true,
         rewrite: (path: string) => path.replace(/^\/historico-api/, ''),
       },

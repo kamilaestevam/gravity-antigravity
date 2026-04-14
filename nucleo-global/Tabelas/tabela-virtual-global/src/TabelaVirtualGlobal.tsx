@@ -883,6 +883,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   colunasFilhas,
   mapaColunasFilho,
   onCarregarFilhos,
+  itemVersion,
   filhoId: filhoIdProp,
   acoesFilhas,
   itensPorPagina = 50,
@@ -930,6 +931,7 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   emptyAction,
   ariaLabel = 'Tabela de dados',
   placeholderData = 'DD/MM/AAAA',
+  onExpandidosMudar,
 }: GTVirtualTableProps<T, C>) {
   // ── Funções de ID ────────────────────────────────────────────────────────────
   const itemId = useCallback(
@@ -1076,7 +1078,12 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
     onCarregarFilhos,
     dados,
     itemId,
+    itemVersion,
   )
+
+  useEffect(() => {
+    onExpandidosMudar?.(expandidos.size)
+  }, [expandidos.size, onExpandidosMudar])
 
   /** Mostra checkbox de seleção quando há acoesLote OU onSelecaoMudar */
   const temSelecao = (acoesLote != null && acoesLote.length > 0) || onSelecaoMudar != null
@@ -2151,13 +2158,15 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
               {colunasAbertas && (
                 <SelectColunasGlobal
                   colunas={[
+                    // Visíveis na frente, na ORDEM EXATA da tabela — sem grupo para espelhar fielmente
                     ...colunasVisiveis
                       .map(key => colunas.find(c => c.key === key))
                       .filter((c): c is GTColuna<T> => c != null)
-                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel, grupo: c.grupo })),
+                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel })),
+                    // Ocultas no final
                     ...colunas
                       .filter(c => !colunasVisiveis.includes(c.key))
-                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel, grupo: c.grupo })),
+                      .map(c => ({ key: c.key, label: c.label, naoOcultavel: c.naoOcultavel })),
                   ]}
                   colunasVisiveis={colunasVisiveis}
                   onToggle={toggleColuna}

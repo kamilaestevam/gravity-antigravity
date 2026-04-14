@@ -623,6 +623,15 @@
   min-width: 0;
 }
 
+/* Quando gtv-th-label está dentro de tg-trigger (tooltip no header), o tg-trigger
+   precisa herdar flex:1 para ocupar o espaço disponível e ter área de hover adequada.
+   SEM overflow:hidden — o ::after (ícone ⓘ position:absolute right:-16px) ficaria cortado */
+.gtv-th .tg-trigger {
+  flex: 1;
+  min-width: 0;
+  cursor: inherit; /* herda cursor do .gtv-th (grab quando arrastável, default caso contrário) */
+}
+
 .gtv-col-fixa { flex: 0 0 auto; }
 
 .gtv-th,

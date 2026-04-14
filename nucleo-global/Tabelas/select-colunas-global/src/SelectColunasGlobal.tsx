@@ -133,13 +133,7 @@ export const SelectColunasGlobal = memo(function SelectColunasGlobal({
   const dragKeyRef = useRef<string | null>(null)
   const dragGrupoRef = useRef<string | null>(null)
   const [busca, setBusca] = useState('')
-  const [gruposColapsados, setGruposColapsados] = useState<Set<string>>(() => {
-    const nomes = new Set<string>()
-    for (const col of colunas) {
-      nomes.add(col.grupo ?? GRUPO_GERAL)
-    }
-    return nomes
-  })
+  const [gruposColapsados, setGruposColapsados] = useState<Set<string>>(new Set())
 
   // Fechar ao clicar fora
   useEffect(() => {

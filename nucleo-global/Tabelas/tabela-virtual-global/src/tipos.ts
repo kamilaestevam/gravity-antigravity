@@ -228,6 +228,12 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   mapaColunasFilho?: Record<string, GTMapaColunasFilho<C>>
   /** Carrega os filhos de um item pai sob demanda */
   onCarregarFilhos?: (item: T) => Promise<C[]>
+  /** Chamado quando o número de linhas expandidas muda (0 = todas retraídas) */
+  onExpandidosMudar?: (count: number) => void
+  /** Extrai uma versão estável do pai (ex: timestamp do servidor).
+   *  Quando fornecido, filhos só são recarregados se a versão mudar,
+   *  evitando reload após atualizações puramente locais de estado. */
+  itemVersion?: (item: T) => unknown
   /** Extrai o id único de cada filho */
   filhoId?: (filho: C) => string
   /** Ações de linha para filhos */

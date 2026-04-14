@@ -21,6 +21,10 @@ export function useGTExpandir<T, C>(
   onCarregarFilhos?: (item: T) => Promise<C[]>,
   dados?: T[],
   itemId?: (item: T) => string,
+  /** Extrai uma versão estável do item (ex: timestamp do servidor). Quando fornecido,
+   *  filhos só são recarregados se a VERSÃO mudar — não a referência do objeto.
+   *  Isso evita reload ao atualizar estado local (divergências, totais) sem fetch novo. */
+  itemVersion?: (item: T) => unknown,
 ): UseGTExpandirRetorno<T, C> {
   const [expandidos, setExpandidos] = useState<Set<string>>(new Set())
   const [filhosCache, setFilhosCache] = useState<Map<string, C[]>>(new Map())
@@ -35,9 +39,10 @@ export function useGTExpandir<T, C>(
   // ── Auto-revalidar filhos de pais expandidos quando os dados mudam ───────────
   // Quando carregarInicial() / qualquer re-fetch atualiza a referência de um pai
   // que já está expandido, os filhos no cache ficam com _p stale. Este efeito
-  // detecta a mudança de referência por id e recarrega silenciosamente.
-  // Declarado antes do toggle para que o useCallback capture a referência correta.
-  const dadosAnteriorRef = useRef<Map<string, T>>(new Map())
+  // detecta a mudança e recarrega silenciosamente.
+  // Quando `itemVersion` é fornecido, compara versões (timestamp servidor) em vez de
+  // referências — evita reload ao atualizar apenas estado local (divergências, totais).
+  const dadosAnteriorRef = useRef<Map<string, unknown>>(new Map())
 
   const toggle = useCallback(
     async (id: string, item: T) => {
@@ -53,14 +58,14 @@ export function useGTExpandir<T, C>(
 
       // Se não há loader, expande imediatamente (sem filhos ou filhos via prop estática)
       if (!onCarregarFilhos) {
-        dadosAnteriorRef.current.set(id, item)
+        dadosAnteriorRef.current.set(id, itemVersion ? itemVersion(item) : item)
         setExpandidos(prev => new Set(prev).add(id))
         return
       }
 
       // Se já está no cache, expande sem recarregar
       if (filhosCacheRef.current.has(id)) {
-        dadosAnteriorRef.current.set(id, item)
+        dadosAnteriorRef.current.set(id, itemVersion ? itemVersion(item) : item)
         setExpandidos(prev => new Set(prev).add(id))
         return
       }
@@ -74,7 +79,7 @@ export function useGTExpandir<T, C>(
           next.set(id, filhos)
           return next
         })
-        dadosAnteriorRef.current.set(id, item)
+        dadosAnteriorRef.current.set(id, itemVersion ? itemVersion(item) : item)
         setExpandidos(prev => new Set(prev).add(id))
       } finally {
         setCarregandoFilhos(prev => {
@@ -95,18 +100,19 @@ export function useGTExpandir<T, C>(
     for (const id of expandidosRef.current) {
       const itemAtual = dados.find(d => itemId(d) === id)
       if (!itemAtual) continue
-      const itemAnterior = dadosAnteriorRef.current.get(id)
-      // Referência mudou = dados novos do servidor
-      if (itemAnterior !== undefined && itemAnterior !== itemAtual) {
+      const chaveAnterior = dadosAnteriorRef.current.get(id)
+      // Compara versão (quando fornecida) ou referência de objeto
+      const chaveAtual = itemVersion ? itemVersion(itemAtual) : itemAtual
+      if (chaveAnterior !== undefined && chaveAnterior !== chaveAtual) {
         paisParaRecarregar.push({ id, item: itemAtual })
       }
     }
 
     // Atualizar snapshot dos pais expandidos
-    const novoSnapshot = new Map<string, T>()
+    const novoSnapshot = new Map<string, unknown>()
     for (const d of dados) {
       const id = itemId(d)
-      if (expandidosRef.current.has(id)) novoSnapshot.set(id, d)
+      if (expandidosRef.current.has(id)) novoSnapshot.set(id, itemVersion ? itemVersion(d) : d)
     }
     dadosAnteriorRef.current = novoSnapshot
 
@@ -123,7 +129,7 @@ export function useGTExpandir<T, C>(
         })
         .catch(() => { /* silent — filhos antigos permanecem se falhar */ })
     }
-  }, [dados, itemId, onCarregarFilhos])
+  }, [dados, itemId, onCarregarFilhos, itemVersion])
 
   const colapsar = useCallback((id: string) => {
     setExpandidos(prev => {

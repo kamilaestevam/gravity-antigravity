@@ -5659,6 +5659,8 @@ export default function ListaPedidos() {
           totalItens={total}
           paginaAtual={paginaAtual}
           onMudarPagina={handleMudarPagina}
+          labelPai={['pedido', 'pedidos']}
+          totalFilhos={todosItens.length}
 
           abas={abas}
           abaAtiva={abaAtiva}

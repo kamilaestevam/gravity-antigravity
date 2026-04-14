@@ -890,6 +890,8 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
   totalItens,
   paginaAtual,
   onMudarPagina,
+  labelPai,
+  totalFilhos,
   abas,
   abaAtiva,
   onMudarAba,
@@ -2344,7 +2346,9 @@ export function TabelaVirtualGlobal<T = unknown, C = never>({
                   const label = total != null ? `${total} resultado${total !== 1 ? 's' : ''}` : `${findOffset + findMatches.length}+ resultados`
                   return `${label} · página ${paginaEfetiva} de ${totalPaginas}`
                 })()
-              : `${totalEfetivo} ${totalEfetivo === 1 ? 'item' : 'itens'} · página ${paginaEfetiva} de ${totalPaginas}`
+              : labelPai && totalFilhos !== undefined
+                ? `${totalEfetivo} ${totalEfetivo === 1 ? labelPai[0] : labelPai[1]} · ${totalFilhos} ${totalFilhos === 1 ? 'item' : 'itens'} · página ${paginaEfetiva} de ${totalPaginas}`
+                : `${totalEfetivo} ${totalEfetivo === 1 ? 'item' : 'itens'} · página ${paginaEfetiva} de ${totalPaginas}`
             }
           </span>
           <div className="gtv-paginacao-controles">

@@ -252,6 +252,14 @@ export interface GTVirtualTableProps<T = unknown, C = never> {
   paginaAtual?: number
   /** Modo externo: chamado quando o usuário troca de página. */
   onMudarPagina?: (pagina: number) => void
+  /**
+   * Rótulo singular/plural para a linha pai no rodapé de paginação.
+   * Ex: `['pedido', 'pedidos']`. Quando fornecido junto com `totalFilhos`,
+   * o rodapé exibe "X pedidos Y itens · página N de N".
+   */
+  labelPai?: [string, string]
+  /** Contagem de registros filhos (ex: total de itens de pedido) exibida no rodapé. */
+  totalFilhos?: number
 
   // ── Abas de status ─────────────────────────────────────────────────────────
   abas?: GTAbaTipo[]

@@ -73,6 +73,7 @@ import {
   colunasUsuarioApi,
   configRegrasApi,
   casasDecimaisApi,
+  getApiContext,
 } from '../shared/api'
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
@@ -610,28 +611,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Fornecedor/exportador estrangeiro na operação de importação',
     grupo: 'Partes',
     render: (_val: unknown, row: Pedido) => {
-      if (row.tipo_operacao !== 'importacao') return <span>{row.nome_exportador ?? '—'}</span>
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.nome_exportador ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Exportadores diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
+      // List view: nome_exportador já extraído do detalhes_operacionais pelo mapPedidoListView
+      return <span>{row.nome_exportador ?? '—'}</span>
     },
   },
   {
@@ -643,31 +624,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     editavel: (row: Pedido) => row.tipo_operacao === 'exportacao',
     tooltipBloqueado: 'Importador definido automaticamente pelo workspace — não editável em Importação',
     tooltipTitulo: 'Nome do Importador',
-    tooltipDescricao: 'Comprador/importador estrangeiro na operação de exportação',
+    tooltipDescricao: 'Em operações de Importação, este campo é preenchido automaticamente pelo workspace do Configurador e não pode ser editado aqui. Em Exportação, representa o comprador/importador estrangeiro.',
     grupo: 'Partes',
     render: (_val: unknown, row: Pedido) => {
-      if (row.tipo_operacao !== 'exportacao') return <span>{row.nome_importador ?? '—'}</span>
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.nome_importador ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Importadores diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
+      // List view: nome_importador já extraído do detalhes_operacionais pelo mapPedidoListView
+      return <span>{row.nome_importador ?? '—'}</span>
     },
   },
   {
@@ -680,27 +641,8 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Identificação da origem produtiva',
     grupo: 'Partes',
     render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.nome_fabricante ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }}
-          title={diverge ? `Fabricantes diferentes: ${distintos}` : distintos}
-        >
-          {diverge && (
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-              <line x1="12" y1="9" x2="12" y2="13" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-          )}
-          {distintos}
-        </span>
-      )
+      // List view: nome_fabricante extraído do detalhes_operacionais pelo mapPedidoListView
+      return <span>{row.nome_fabricante ?? '—'}</span>
     },
   },
   {
@@ -712,20 +654,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Importador',
     tooltipDescricao: 'Código interno do importador para identificar o pedido. Propagado automaticamente para todos os itens.',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.referencia_importador ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
-          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => <span>{row.referencia_importador ?? '—'}</span>,
   },
   {
     key: 'referencia_exportador',
@@ -736,20 +665,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Exportador',
     tooltipDescricao: 'Código do exportador para identificar o pedido. Propagado automaticamente para todos os itens.',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.referencia_exportador ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
-          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => <span>{row.referencia_exportador ?? '—'}</span>,
   },
   {
     key: 'ncm',
@@ -758,23 +674,18 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     filtravel: true,
     editavel: true,
     tooltipTitulo: 'NCM',
-    tooltipDescricao: 'Nomenclatura Comum do Mercosul dos itens do pedido. Quando há NCMs diferentes entre itens, todos são exibidos com alerta.',
+    tooltipDescricao: 'Nomenclatura Comum do Mercosul dos itens do pedido. Expanda o pedido para ver os NCMs por item.',
     grupo: 'Identificação',
     render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valoresUnicos = [...new Set(itens.map(i => i.ncm ?? null).filter(Boolean) as string[])]
-      if (valoresUnicos.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const formatNCM = (v: string) => {
-        const d = v.replace(/\D/g, '')
-        return d.length === 8 ? `${d.slice(0,4)}.${d.slice(4,6)}.${d.slice(6)}` : v
-      }
-      const distintos = valoresUnicos.map(formatNCM).join(' | ')
-      const diverge = valoresUnicos.length > 1
+      // List view: mapPedidoListView armazena ncms_distintos_count mas não os valores.
+      // Expandir a linha mostra os NCMs por item.
+      const count = (row as Pedido & { ncms_distintos_count?: number }).ncms_distintos_count ?? 0
+      if (count === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
+      if (count === 1) return <span style={{ display: 'block', textAlign: 'center', fontFamily: 'var(--font-mono, monospace)' }}>1 NCM</span>
       return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined, fontFamily: 'var(--font-mono, monospace)' }} title={diverge ? `NCMs diferentes: ${distintos}` : distintos}>
-          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
-          {distintos}
+        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: '#F59E0B', fontWeight: 600 }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+          {count} NCMs
         </span>
       )
     },
@@ -893,7 +804,13 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Inicial do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_item_pedido', getCasas('quantidade_total_inicial_pedido', 0), { titulo: 'Qtd. Inicial do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' }),
+    render: (_val: unknown, row: Pedido) => {
+      // Se itens expandidos: usa renderQtdPedido (com badge de unidade).
+      // Se list view (itens:[]): usa o campo pré-computado do pedido.
+      if ((row.itens ?? []).length > 0) return renderQtdPedido(row, 'quantidade_inicial_item_pedido', getCasas('quantidade_total_inicial_pedido', 0), { titulo: 'Qtd. Inicial do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo' })
+      const val = Number(row.quantidade_total_inicial_pedido)
+      return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{isNaN(val) ? '—' : fmtQuantidade(val, getCasas('quantidade_total_inicial_pedido', 0))}</span>
+    },
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
@@ -903,7 +820,11 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Qtd. Pronta do Pedido',
     tooltipDescricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.',
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', getCasas('quantidade_pronta_pedido_total', 0), { titulo: 'Qtd. Pronta do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.' }),
+    render: (_val: unknown, row: Pedido) => {
+      if ((row.itens ?? []).length > 0) return renderQtdPedido(row, 'quantidade_pronta_total_item_pedido', getCasas('quantidade_pronta_pedido_total', 0), { titulo: 'Qtd. Pronta do Pedido', descricao: 'Calculado com base nos itens — não editável. Itens com unidades diferentes impedem o cálculo. O número de casas decimais pode ser ajustado em Configurações.' })
+      const val = Number((row as Pedido & { quantidade_pronta_itens_pedido_total?: number }).quantidade_pronta_itens_pedido_total)
+      return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{isNaN(val) ? '—' : fmtQuantidade(val, getCasas('quantidade_pronta_pedido_total', 0))}</span>
+    },
   },
   {
     key: 'saldo_itens_do_pedido',
@@ -1032,20 +953,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipTitulo: 'Referência do Fabricante',
     tooltipDescricao: 'Código de referência utilizado pelo fabricante para identificar o pedido',
     grupo: 'Identificação',
-    render: (_val: unknown, row: Pedido) => {
-      const itens = row.itens ?? []
-      if (itens.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const valores = [...new Set(itens.map(i => i.referencia_fabricante ?? null).filter(Boolean) as string[])]
-      if (valores.length === 0) return <span style={{ display: 'block', textAlign: 'center' }}>—</span>
-      const distintos = valores.join(' | ')
-      const diverge = valores.length > 1
-      return (
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', color: diverge ? '#F59E0B' : undefined, fontWeight: diverge ? 600 : undefined }} title={diverge ? `Refs. diferentes: ${distintos}` : distintos}>
-          {diverge && (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>)}
-          {distintos}
-        </span>
-      )
-    },
+    render: (_val: unknown, row: Pedido) => <span>{row.referencia_fabricante ?? '—'}</span>,
   },
   {
     key: 'cobertura_cambial',
@@ -2165,6 +2073,11 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
           const sufixo = col.tipo === 'percentual' ? '%' : ''
           return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casas)}{sufixo}</span>
         }
+      }
+
+      // ── Data — aplica o formato global configurado pelo tenant ───────────────
+      if (col.tipo === 'data' && valor !== '—') {
+        return <span>{fmtData(valor)}</span>
       }
 
       // ── Texto / Select / Tipo Documento — trunca em 150 chars (T04) ─────────
@@ -4282,7 +4195,18 @@ export default function ListaPedidos() {
   const addNotification = useShellStore(s => s.addNotification)
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
-  const { quota: gabiQuota } = useGabiQuota('/api/v1/pedidos/gabi/quota')
+  const gabiQuotaFetchOptions = useMemo((): RequestInit => {
+    const ctx = getApiContext()
+    return {
+      headers: {
+        'x-tenant-id': ctx.tenantId,
+        'x-user-id': ctx.userId,
+        'x-internal-key': (import.meta as any).env?.VITE_INTERNAL_SERVICE_KEY || '',
+      },
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // stable: context populated before mount, doesn't change
+  const { quota: gabiQuota } = useGabiQuota('/api/v1/pedidos/gabi/quota', gabiQuotaFetchOptions)
 
   // ── Taxas PTAX (para conversão BRL) — cache singleton por sessão ────────────
   const taxasVenda = useTaxasCambio()
@@ -4591,6 +4515,9 @@ export default function ListaPedidos() {
 
   // ── Refs para evitar duplo carregamento ──────────────────────────────────────
   const carregandoRef = useRef(false)
+  // Cache de itens carregados por pedido: pedidoId → PedidoItem[]
+  // Não-reativo: evita que setPedidos dispare re-loads em useGTExpandir
+  const itensCarregadosRef = useRef<Map<string, PedidoItem[]>>(new Map())
 
   // ── Props estáveis para TabelaVirtualGlobal ──────────────────────────────────
   // REGRA: qualquer função/array passado como prop que entra em dep de useMemo/useEffect
@@ -4959,14 +4886,16 @@ export default function ListaPedidos() {
     if (campo === 'incoterm') {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      const itensRef = itensCarregadosRef.current.get(id) ?? []
       const [respostaPai] = await Promise.all([
         pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
-        ...(pedidoAtual.itens ?? []).map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
+        ...itensRef.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
       ])
-      const itensAtualizados = (pedidoAtual.itens ?? []).map(i => ({ ...i, incoterm: valor as string | null }))
+      const itensIncoterm = itensRef.map(i => ({ ...i, incoterm: valor as string | null }))
+      itensCarregadosRef.current.set(id, itensIncoterm)
       const merged = respostaPai
-        ? { ...pedidoAtual, ...respostaPai, itens: itensAtualizados }
-        : { ...pedidoAtual, incoterm: valor as string | null, itens: itensAtualizados }
+        ? { ...pedidoAtual, ...respostaPai, itens: itensIncoterm }
+        : { ...pedidoAtual, incoterm: valor as string | null, itens: itensIncoterm }
       setPedidos(prev => prev.map(p => p.id === id ? merged : p))
       return merged
     }
@@ -4974,14 +4903,16 @@ export default function ListaPedidos() {
     if (campo === 'condicao_pagamento_pedido') {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
+      const itensRef = itensCarregadosRef.current.get(id) ?? []
       const [respostaPai] = await Promise.all([
         pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
-        ...(pedidoAtual.itens ?? []).map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
+        ...itensRef.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
       ])
-      const itensAtualizados = (pedidoAtual.itens ?? []).map(i => ({ ...i, condicao_pagamento_pedido: valor as string | null }))
+      const itensCond = itensRef.map(i => ({ ...i, condicao_pagamento_pedido: valor as string | null }))
+      itensCarregadosRef.current.set(id, itensCond)
       const merged = respostaPai
-        ? { ...pedidoAtual, ...respostaPai, itens: itensAtualizados }
-        : { ...pedidoAtual, condicao_pagamento_pedido: valor as string | null, itens: itensAtualizados }
+        ? { ...pedidoAtual, ...respostaPai, itens: itensCond }
+        : { ...pedidoAtual, condicao_pagamento_pedido: valor as string | null, itens: itensCond }
       setPedidos(prev => prev.map(p => p.id === id ? merged : p))
       return merged
     }
@@ -4990,7 +4921,7 @@ export default function ListaPedidos() {
     if (CAMPOS_PROPAGAR_ITENS.has(campo)) {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
-      const itens = pedidoAtual.itens ?? []
+      const itens = itensCarregadosRef.current.get(id) ?? []
       // Normaliza datas para ISO antes de enviar ao servidor
       const valorEnviar = campo === 'data_emissao_pedido' ? normalizarDataISO(valor) : valor
       const [paiResp] = await Promise.all([
@@ -5000,6 +4931,7 @@ export default function ListaPedidos() {
         ...itens.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valorEnviar)),
       ])
       const itensAtualizados = itens.map(i => ({ ...i, [campo]: valorEnviar }))
+      itensCarregadosRef.current.set(id, itensAtualizados)
       const pedidoAtualizado = paiResp
         ? { ...pedidoAtual, ...(paiResp as Pedido), itens: itensAtualizados }
         : { ...pedidoAtual, [campo]: valorEnviar, itens: itensAtualizados }
@@ -5016,9 +4948,15 @@ export default function ListaPedidos() {
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────
   const handleEditarFilho = useCallback(async (id: string, campo: string, valor: unknown): Promise<PedidoItem> => {
-    // Localiza o item no estado atual para saber o pedidoId
-    const pedido = pedidos.find(p => p.itens?.some(i => i.id === id))
+    // Localiza o pedido pai via cache de itens carregados (p.itens é sempre [] na list view)
+    let pedidoId: string | undefined
+    for (const [pId, itensCache] of itensCarregadosRef.current) {
+      if (itensCache.some(i => i.id === id)) { pedidoId = pId; break }
+    }
+    const pedido = pedidoId ? pedidos.find(p => p.id === pedidoId) : undefined
     if (!pedido) throw new Error('Não foi possível localizar o pedido deste item. Recarregue a página.')
+    // Helper: itens carregados via handleCarregarFilhos (lista view retorna itens:[])
+    const getItensCache = () => itensCarregadosRef.current.get(pedido.id) ?? []
 
     // Status → espelha para o pedido inteiro (todos os itens mudam junto)
     if (campo === 'status') {
@@ -5033,7 +4971,7 @@ export default function ListaPedidos() {
           itens: p.itens?.map(i => ({ ...i, _p: { ...(i as PedidoItemEnriquecido)._p, status: String(valor) } })),
         }
       }))
-      const item = pedido.itens?.find(i => i.id === id)!
+      const item = getItensCache().find(i => i.id === id)!
       return { ...item, _p: { ...(item as PedidoItemEnriquecido)._p, status: String(valor) } } as PedidoItem
     }
 
@@ -5071,14 +5009,14 @@ export default function ListaPedidos() {
           itens: p.itens?.map(i => ({ ...i, _p: novoPaiP })),
         }
       }))
-      const item = pedido.itens?.find(i => i.id === id)!
+      const item = getItensCache().find(i => i.id === id)!
       return { ...item, _p: novoPaiP } as PedidoItem
     }
 
     // valor_total_itens retorna GTValorMoeda { currency, amount } → salva amount + moeda_item no item (por item)
     if (campo === 'valor_total_itens' && valor != null && typeof valor === 'object' && 'currency' in (valor as object)) {
       const mv = valor as { currency: string; amount: number }
-      const itemAtualMv = pedido.itens?.find(i => i.id === id)
+      const itemAtualMv = getItensCache().find(i => i.id === id)
       const atualizadoMv = await pedidoItemApi.atualizar(pedido.id, id, {
         valor_total_itens: mv.amount,
         moeda_item: mv.currency,
@@ -5118,7 +5056,7 @@ export default function ListaPedidos() {
     if (campo === 'quantidade_pronta_total_item_pedido') {
       const isUnidade = valor != null && typeof valor === 'object' && 'unit' in (valor as object) && 'quantity' in (valor as object)
       const qtd = isUnidade ? (valor as { quantity: number }).quantity : Number(valor) || 0
-      const itemAtualPronta = pedido.itens?.find(i => i.id === id)
+      const itemAtualPronta = getItensCache().find(i => i.id === id)
       const atualizadoPronta = await pedidoItemApi.atualizarPronta(pedido.id, id, qtd)
         .catch(() => {
           if (import.meta.env.DEV && itemAtualPronta) return { ...itemAtualPronta, quantidade_pronta_total_item_pedido: qtd } as PedidoItem
@@ -5144,10 +5082,11 @@ export default function ListaPedidos() {
           moeda_pedido: (pedido as Pedido & { moeda_pedido?: string }).moeda_pedido ?? 'USD',
         },
       }
+      const itensAposEdicao = getItensCache().map(i => i.id === id ? enriquecidoPronta : i)
+      itensCarregadosRef.current.set(pedido.id, itensAposEdicao)
       setPedidos(prev => prev.map(p => {
         if (p.id !== pedido.id) return p
-        const itensAtualizados = p.itens?.map(i => i.id === id ? enriquecidoPronta : i) ?? []
-        return { ...p, itens: itensAtualizados, quantidade_pronta_itens_pedido_total: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0) }
+        return { ...p, quantidade_pronta_itens_pedido_total: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0) }
       }))
       return enriquecidoPronta
     }
@@ -5168,7 +5107,7 @@ export default function ListaPedidos() {
           itens: p.itens?.map(i => ({ ...i, _colunas_usuario: { ...((i as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}), [colunaCustomFilho.id]: String(valor) } })),
         }
       }))
-      const item = pedido.itens?.find(i => i.id === id)!
+      const item = getItensCache().find(i => i.id === id)!
       return { ...item, _colunas_usuario: { ...((item as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}), [colunaCustomFilho.id]: String(valor) } } as PedidoItem
     }
 
@@ -5177,7 +5116,7 @@ export default function ListaPedidos() {
       // Normaliza datas para ISO antes de enviar ao servidor
       if (campo === 'data_emissao_pedido') {
         const isoData = normalizarDataISO(valor)
-        const itemAtualData = pedido.itens?.find(i => i.id === id)
+        const itemAtualData = getItensCache().find(i => i.id === id)
         const atualizadoData = await pedidoItemApi.editarCampo(pedido.id, id, campo, isoData)
           .catch(() => {
             if (import.meta.env.DEV && itemAtualData) return { ...itemAtualData, data_emissao_pedido: isoData } as PedidoItem
@@ -5185,7 +5124,7 @@ export default function ListaPedidos() {
           })
         const enriquecidoData: PedidoItemEnriquecido = {
           ...atualizadoData,
-          _p: (pedido.itens?.find(i => i.id === id) as PedidoItemEnriquecido)?._p ?? (atualizadoData as PedidoItemEnriquecido)._p,
+          _p: (getItensCache().find(i => i.id === id) as PedidoItemEnriquecido)?._p ?? (atualizadoData as PedidoItemEnriquecido)._p,
         }
         setPedidos(prev => prev.map(p => {
           if (p.id !== pedido.id) return p
@@ -5223,7 +5162,7 @@ export default function ListaPedidos() {
       }
     }
 
-    const itemAtual = pedido.itens?.find(i => i.id === id)
+    const itemAtual = getItensCache().find(i => i.id === id)
     const atualizado = await pedidoItemApi.atualizar(pedido.id, id, payload)
       .catch(() => {
         if (import.meta.env.DEV) {
@@ -5265,18 +5204,18 @@ export default function ListaPedidos() {
       },
     }
 
-    // Atualiza o item e recalcula os aggregates do pedido pai
+    // Atualiza cache e recalcula os aggregates do pedido pai
+    const itensAposEdicao = getItensCache().map(i => i.id === id ? enriquecido : i)
+    itensCarregadosRef.current.set(pedido.id, itensAposEdicao)
     setPedidos(prev => prev.map(p => {
       if (p.id !== pedido.id) return p
-      const itensAtualizados = p.itens?.map(i => i.id === id ? enriquecido : i) ?? []
       return {
         ...p,
-        itens: itensAtualizados,
-        quantidade_total_inicial_pedido: itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0),
-        quantidade_transferida_total:    itensAtualizados.reduce((s, i) => s + (Number(i.quantidade_transferida_item_pedido)    || 0), 0),
-        peso_liquido_total_pedido:       itensAtualizados.reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0), 0),
-        peso_bruto_total_pedido:         itensAtualizados.reduce((s, i) => s + (Number(i.peso_bruto_unitario_item)  || 0), 0),
-        cubagem_total_pedido:            itensAtualizados.reduce((s, i) => s + (Number(i.cubagem_unitaria_item)     || 0), 0),
+        quantidade_total_inicial_pedido: itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_inicial_item_pedido) || 0), 0),
+        quantidade_transferida_total:    itensAposEdicao.reduce((s, i) => s + (Number(i.quantidade_transferida_item_pedido)    || 0), 0),
+        peso_liquido_total_pedido:       itensAposEdicao.reduce((s, i) => s + (Number(i.peso_liquido_unitario_item) || 0), 0),
+        peso_bruto_total_pedido:         itensAposEdicao.reduce((s, i) => s + (Number(i.peso_bruto_unitario_item)  || 0), 0),
+        cubagem_total_pedido:            itensAposEdicao.reduce((s, i) => s + (Number(i.cubagem_unitaria_item)     || 0), 0),
       }
     }))
     return enriquecido
@@ -5285,7 +5224,9 @@ export default function ListaPedidos() {
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   const handleCarregarFilhos = useCallback(async (pedido: Pedido): Promise<PedidoItem[]> => {
     const parentColunas = (pedido as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
-    return (pedido.itens ?? []).map(item => ({
+    // Lista view retorna itens:[]. Busca os itens reais via API sob demanda.
+    const itens = await pedidoItemApi.listar(pedido.id)
+    const itensEnriquecidos = itens.map(item => ({
       ...item,
       _colunas_usuario: parentColunas,
       _p: {
@@ -5306,6 +5247,9 @@ export default function ListaPedidos() {
         moeda_pedido: pedido.moeda_pedido ?? 'USD',
       },
     }))
+    // Popula cache para handleEditarFilho (não-reativo, evita re-loads em useGTExpandir)
+    itensCarregadosRef.current.set(pedido.id, itensEnriquecidos)
+    return itensEnriquecidos
   }, [])
 
   // ── Salvar preferências ──────────────────────────────────────────────────────
@@ -5374,8 +5318,14 @@ export default function ListaPedidos() {
       dados = base.map(p => ({ ...(p as unknown as Record<string, unknown>), _tipo_linha: 'Pedido' }))
     }
 
-    // Aplica fmtData em todas as chaves que começam com 'data_' — exportação formata igual à tabela
-    const CHAVES_DATA = colunasExport.map(c => c.key).filter(k => k.startsWith('data_'))
+    // Aplica fmtData em todas as colunas de data — colunas estáticas (data_*) e
+    // colunas customizadas do usuário com tipo 'data' — exportação formata igual à tabela
+    const chavesDataCustom = new Set(
+      colunasUsuario.filter(c => c.tipo === 'data').map(c => c.chave)
+    )
+    const CHAVES_DATA = colunasExport.map(c => c.key).filter(k =>
+      k.startsWith('data_') || chavesDataCustom.has(k)
+    )
     if (CHAVES_DATA.length > 0) {
       dados = dados.map(row => {
         const copia: Record<string, unknown> = { ...row }
@@ -5444,11 +5394,19 @@ export default function ListaPedidos() {
   ], [pedidos, pedidosFiltrados, pedidosSelecionados, colunasUsuario])
 
   // ── Stats para KPIs ──────────────────────────────────────────────────────────
-  const valorTotal    = pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0)
-  const qtdTotal      = pedidos.reduce((acc, p) => acc + (p.quantidade_total_inicial_pedido ?? 0), 0)
+  // Number() obrigatório: Prisma Decimal serializa como string no JSON
+  const valorTotal    = pedidos.reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)
+  const qtdTotal      = pedidos.reduce((acc, p) => acc + (Number(p.quantidade_total_inicial_pedido) || 0), 0)
   const todosItens    = pedidos.flatMap(p => p.itens ?? [])
-  const itensProntos  = todosItens.reduce((acc, i) => acc + (i.quantidade_pronta_total_item_pedido    ?? 0), 0)
-  const qtdAtualTotal = todosItens.reduce((acc, i) => acc + (i.saldo_item_pedido     ?? 0), 0)
+  // Com list view otimizada, itens são carregados sob demanda — usar campos pré-computados do pedido
+  const itensProntos  = pedidos.reduce((acc, p) => acc + (Number((p as Pedido & { quantidade_pronta_itens_pedido_total?: number }).quantidade_pronta_itens_pedido_total) || 0), 0)
+  const qtdAtualTotal = pedidos.reduce((acc, p) => {
+    // saldo = inicial - pronta - cancelada (pré-computado pelo mapPedidoListView via itensMinimos)
+    const pronta     = Number((p as Pedido & { quantidade_pronta_itens_pedido_total?: number }).quantidade_pronta_itens_pedido_total) || 0
+    const cancelada  = Number((p as Pedido & { quantidade_cancelada_total_pedido?: number }).quantidade_cancelada_total_pedido) || 0
+    const inicial    = Number(p.quantidade_total_inicial_pedido) || 0
+    return acc + Math.max(0, inicial - pronta - cancelada)
+  }, 0)
   // Breakdown de quantidade por unidade (para tooltip do card)
   const qtdPorUnidade: Record<string, number> = {}
   const qtdSaldoPorUnidade: Record<string, number> = {}
@@ -5818,8 +5776,8 @@ export default function ListaPedidos() {
           itemIdInicial={
             itensSelecionados.length === 1
               ? itensSelecionados[0].id
-              : (pedidosSelecionados.length === 1 && pedidosSelecionados[0].itens?.length === 1)
-                ? pedidosSelecionados[0].itens[0].id
+              : (pedidosSelecionados.length === 1 && (itensCarregadosRef.current.get(pedidosSelecionados[0].id)?.length === 1))
+                ? itensCarregadosRef.current.get(pedidosSelecionados[0].id)![0].id
                 : undefined
           }
           onFechar={() => setModalTransferirAberto(false)}

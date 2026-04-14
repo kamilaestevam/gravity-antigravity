@@ -68,17 +68,19 @@ export async function requireAuth(
     })
 
     // Fallback: se não encontrou pelo clerk_user_id, tenta por email.
-    // Isso acontece quando a conta foi criada no DB sem o clerk_user_id correto
-    // (ex: seed manual, migração). Ao achar por email, auto-vincula o clerk_user_id.
+    // SEGURANÇA: filtra obrigatoriamente pelo tenant_id do publicMetadata do Clerk.
+    // Sem tenantId no metadata → fallback não ativa, requisição rejeitada com 401.
+    // Isso garante que o auto-vínculo nunca cruza tenant boundaries.
     if (!user) {
       try {
         const clerkUser = await clerkClient.users.getUser(verified.sub)
+        const tenantId = clerkUser.publicMetadata?.tenantId as string | undefined
         const primaryEmail = clerkUser.emailAddresses.find(e => e.id === clerkUser.primaryEmailAddressId)?.emailAddress
           ?? clerkUser.emailAddresses[0]?.emailAddress
 
-        if (primaryEmail) {
+        if (primaryEmail && tenantId) {
           const byEmail = await prisma.user.findFirst({
-            where: { email: primaryEmail },
+            where: { email: primaryEmail, tenant_id: tenantId },
             select: { id: true, tenant_id: true, role: true },
           })
           if (byEmail) {
@@ -88,7 +90,6 @@ export async function requireAuth(
               data: { clerk_user_id: verified.sub },
             })
             user = byEmail
-            console.log(`[requireAuth] clerk_user_id auto-vinculado para ${primaryEmail} (${verified.sub})`)
           }
         }
       } catch {

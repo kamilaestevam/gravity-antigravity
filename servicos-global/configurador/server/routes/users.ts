@@ -13,6 +13,7 @@ import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
+import { syncRoleToClerk } from '../lib/syncRole.js'
 
 export const usersRouter = Router()
 
@@ -194,6 +195,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
 
     const user = await prisma.user.findFirst({
       where: { id: req.params.id, tenant_id: req.auth.tenantId },
+      select: { id: true, clerk_user_id: true, role: true },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -210,6 +212,13 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       oldRole: user.role,
       newRole: parsed.data.role,
     }).catch(() => {})
+
+    // Sincroniza o novo role para o Clerk (badge e useSyncClerkToShell leem daqui)
+    if (user.clerk_user_id && !user.clerk_user_id.startsWith('pending_')) {
+      syncRoleToClerk(user.clerk_user_id, req.auth.tenantId, parsed.data.role).catch((err) => {
+        console.error('[users.patch.role] syncRoleToClerk falhou:', err)
+      })
+    }
 
     res.json({ user: updated })
   } catch (err) {

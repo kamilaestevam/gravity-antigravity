@@ -229,7 +229,7 @@ export function Hub() {
   const { history, addEntry } = useLocalizadorHistory('gravity')
 
   const ecosystemNodes: EcosystemNode[] = [
-    { id: 'gravity', label: 'Hub', sublabel: 'command center', color: '#818cf8', type: 'gravity', status: 'current' },
+    { id: 'hub', label: 'Hub', sublabel: 'command center', color: '#818cf8', type: 'hub', status: 'current' },
     { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f59e0b', type: 'configurador', status: 'accessible' },
     ...products.map((p): EcosystemNode => {
       const v = PROD_VISUAL[p.product_key] ?? DEFAULT_VISUAL
@@ -331,7 +331,11 @@ export function Hub() {
             onToggleTheme={toggleTheme}
             onNavigateWorkspace={() => navigate('/workspace')}
             onNavigateMarketPlace={() => navigate('/store')}
-            onSignOut={() => signOut(() => navigate('/'))}
+            onSignOut={() => {
+              sessionStorage.removeItem('gravity_company_id')
+              sessionStorage.removeItem('gravity_company_name')
+              signOut(() => navigate('/'))
+            }}
             isAdmin={isAdmin}
             onNavigateAdmin={() => navigate('/admin')}
             compact

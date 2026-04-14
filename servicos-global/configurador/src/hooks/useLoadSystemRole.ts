@@ -12,6 +12,11 @@ export type SystemRole = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'STANDARD' | 'SUPP
 
 const roleCache = new Map<string, SystemRole>()
 
+/** Limpa o cache de role — deve ser chamado no logout para evitar vazamento entre sessões */
+export function invalidateRoleCache(): void {
+  roleCache.clear()
+}
+
 export function useLoadSystemRole() {
   const { isLoaded, isSignedIn, getToken, userId } = useAuth()
 

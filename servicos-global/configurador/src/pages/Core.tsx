@@ -38,7 +38,9 @@ import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
+import { buildTenantProductNodes, HUB_NODE, CONFIGURADOR_NODE, type CompanyProductItem } from '../utils/ecosystemNodes'
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
+import { invalidateRoleCache } from '../hooks/useLoadSystemRole'
 import './workspace/workspace.css'
 import './workspace/gabi.css'
 
@@ -66,21 +68,14 @@ export function Core() {
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
 
   // ── Localizador ────────────────────────────────────────────────────────────
-  const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('gravity')
+  const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('core')
   useEffect(() => {
-    locAddEntry({ productId: 'gravity', productLabel: 'Gravity', productColor: '#818cf8', pageLabel: 'Core', pagePath: '/core' })
+    locAddEntry({ productId: 'core', productLabel: 'Core', productColor: '#a78bfa', pageLabel: 'Core', pagePath: '/core' })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const coreEcosystemNodes: EcosystemNode[] = [
-    { id: 'gravity',      label: 'Gravity',        sublabel: 'workspace',           color: '#818cf8', type: 'gravity',      status: 'current'    },
-    { id: 'configurador', label: 'Configurador',   sublabel: 'auth · billing',      color: '#f472b6', type: 'configurador', status: 'accessible' },
-    { id: 'bid-cambio',   label: 'Bid Câmbio',     sublabel: 'cotações · câmbio',   color: '#06b6d4', type: 'produto',      status: 'accessible' },
-    { id: 'simulacusto',  label: 'SimulaCusto',    sublabel: 'fiscal · NCM',        color: '#34d399', type: 'produto',      status: 'accessible' },
-    { id: 'lpco',         label: 'LPCO',           sublabel: 'licenças COMEX',      color: '#fb923c', type: 'produto',      status: 'locked'     },
-    { id: 'nf-importacao',label: 'NF Importação',  sublabel: 'nota fiscal',         color: '#c084fc', type: 'produto',      status: 'locked'     },
-    { id: 'processo',     label: 'Processo',       sublabel: 'consolida produtos',  color: '#facc15', type: 'processo',     status: 'locked'     },
-  ]
+  // Nós do ecossistema — populados dinamicamente após carregar produtos
+  const [coreEcosystemNodes, setCoreEcosystemNodes] = useState<EcosystemNode[]>([HUB_NODE, CONFIGURADOR_NODE])
 
   const [tipoEmpresa, setTipoEmpresa] = useState('')
 
@@ -124,14 +119,19 @@ export function Core() {
         })
         if (res.ok) {
           const data = await res.json()
-          const ativos = data.products
-            .filter((p: { is_active: boolean }) => p.is_active)
-            .map((p: { product_key: string; catalog?: { name: string; slug: string } }) => ({
+          const allProds: CompanyProductItem[] = data.products
+          // Menu lateral — só os produtos ativos
+          const ativos = allProds
+            .filter(p => p.is_active)
+            .map(p => ({
               nome: p.catalog?.name ?? p.product_key,
               slug: p.catalog?.slug ?? p.product_key,
               rota: `/produto/${p.catalog?.slug ?? p.product_key}`,
             }))
           setProdutosAtivos(ativos)
+          // Mapa do ecossistema — todos os produtos (ativos=accessible, inativos=locked)
+          const productNodes = buildTenantProductNodes(allProds)
+          setCoreEcosystemNodes([HUB_NODE, CONFIGURADOR_NODE, ...productNodes])
         }
       } catch (err) {
         addNotification({ type: 'error', message: err instanceof Error ? err.message : t('hub.erro_carregar_produtos') })
@@ -304,15 +304,16 @@ export function Core() {
           {/* Localizador — Onde estou */}
           <LocalizadorGlobal
             workspaceName={companyName}
-            currentProductId="gravity"
-            currentProductLabel="Gravity"
-            currentProductColor="#818cf8"
+            currentProductId="core"
+            currentProductLabel="Core"
+            currentProductColor="#a78bfa"
             currentPageLabel="Core"
             history={locHistory}
             nodes={coreEcosystemNodes}
             onNavigate={(node) => {
-              if (node.type === 'configurador') navigate('/configurador')
-              else if (node.type === 'produto')  navigate(`/produto/${node.id}`)
+              if (node.type === 'hub')          navigate('/hub')
+              else if (node.type === 'configurador') navigate('/configurador')
+              else if (node.type === 'produto') navigate(`/produto/${node.id}`)
             }}
           />
 
@@ -331,7 +332,12 @@ export function Core() {
             onToggleTheme={toggleTheme}
             onNavigateWorkspace={() => navigate('/workspace/organizacao')}
             onNavigateAssinaturas={() => navigate('/workspace/assinaturas')}
-            onSignOut={() => signOut()}
+            onSignOut={() => {
+              invalidateRoleCache()
+              sessionStorage.removeItem('gravity_company_id')
+              sessionStorage.removeItem('gravity_company_name')
+              signOut()
+            }}
             isAdmin={false}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
             onNavigateConfigurador={() => navigate('/workspace/workspaces')}

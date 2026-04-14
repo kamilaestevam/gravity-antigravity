@@ -3665,13 +3665,13 @@ export default function Configuracoes() {
 
               <div className="cfg-secao__footer" style={{ marginTop: 20 }}>
                 <BotaoCancelar
+                  dirty={formatoDirty && !salvandoFormato}
                   onClick={() => setPendingFormato(formatoData)}
-                  disabled={!formatoDirty || salvandoFormato}
                 />
                 <BotaoSalvar
-                  onClick={salvarFormatoData}
+                  dirty={formatoDirty}
                   carregando={salvandoFormato}
-                  disabled={!formatoDirty}
+                  onClick={salvarFormatoData}
                 />
               </div>
             </section>}

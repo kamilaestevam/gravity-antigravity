@@ -13,6 +13,7 @@ import type { Pedido, PedidoItem, ColunaUsuario } from '../../shared/types'
 import { fmtQuantidade, fmtData } from '../../shared/types'
 import { parsearFormula, avaliarFormula } from '../../shared/formulaEngine'
 import { _regrasAlertasRef, getCasas, getStatusCor, getStatusLabel } from './colunasPai'
+import { getEditavelItem } from '../../shared/columnBehaviorConfig'
 import { UNIDADES_PESO_OPCOES } from '@nucleo/tabelas-base-unidades-peso'
 
 // Re-export _regrasAlertasRef so that ListaPedidos can still write to it via this module
@@ -1420,13 +1421,13 @@ const KG_PARA_UNIDADE: Record<string, number> = { KG: 1, G: 1000, TON: 0.001, KG
 export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> = {
   // ── Número do pedido → Part Number do item ────────────────────────────────
   numero_pedido: {
-    editavel: true,
+    editavel: getEditavelItem('numero_pedido'),
     campo: 'part_number',
     render: (row: PedidoItem) => row.part_number,
   },
   // ── NCM do item ───────────────────────────────────────────────────────────
   ncm: {
-    editavel: true,
+    editavel: getEditavelItem('ncm'),
     render: (row: PedidoItem) => {
       const digits = (row.ncm ?? '').replace(/\D/g, '')
       const formatted = digits.length === 8
@@ -1491,22 +1492,22 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   nome_fabricante: {
-    editavel: true,
+    editavel: getEditavelItem('nome_fabricante'),
     campo: 'nome_fabricante',
     render: (row: PedidoItem) => <span>{row.nome_fabricante ?? '—'}</span>,
   },
   referencia_importador: {
-    editavel: true,
+    editavel: getEditavelItem('referencia_importador'),
     campo: 'referencia_importador',
     render: (row: PedidoItem) => <span>{row.referencia_importador ?? '—'}</span>,
   },
   referencia_exportador: {
-    editavel: true,
+    editavel: getEditavelItem('referencia_exportador'),
     campo: 'referencia_exportador',
     render: (row: PedidoItem) => <span>{row.referencia_exportador ?? '—'}</span>,
   },
   numero_proforma: {
-    editavel: true,
+    editavel: getEditavelItem('numero_proforma'),
     campo: 'numero_proforma',
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
@@ -1514,7 +1515,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   numero_invoice: {
-    editavel: true,
+    editavel: getEditavelItem('numero_invoice'),
     campo: 'numero_invoice',
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
@@ -1522,12 +1523,12 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   incoterm: {
-    editavel: true,
+    editavel: getEditavelItem('incoterm'),
     campo: 'incoterm',
     render: (row: PedidoItem) => <span>{row.incoterm ?? '—'}</span>,
   },
   status: {
-    editavel: true,
+    editavel: getEditavelItem('status'),
     campo: 'status',
     render: (row: PedidoItem) => {
       const p = (row as PedidoItemEnriquecido)._p
@@ -1543,28 +1544,28 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   referencia_fabricante: {
-    editavel: true,
+    editavel: getEditavelItem('referencia_fabricante'),
     campo: 'referencia_fabricante',
     render: (row: PedidoItem) => <span>{row.referencia_fabricante ?? '—'}</span>,
   },
   cobertura_cambial: {
-    editavel: true,
+    editavel: getEditavelItem('cobertura_cambial'),
     campo: 'cobertura_cambial',
     render: (row: PedidoItem) => <span>{row.cobertura_cambial ?? '—'}</span>,
   },
   condicao_pagamento_pedido: {
-    editavel: true,
+    editavel: getEditavelItem('condicao_pagamento_pedido'),
     campo: 'condicao_pagamento_pedido',
     render: (row: PedidoItem) => <span>{row.condicao_pagamento_pedido ?? '—'}</span>,
   },
   data_emissao_pedido: {
-    editavel: true,
+    editavel: getEditavelItem('data_emissao_pedido'),
     campo: 'data_emissao_pedido',
     render: (row: PedidoItem) => <span>{fmtData(row.data_emissao_pedido ?? null)}</span>,
   },
   // ── Pesos e cubagem do item ───────────────────────────────────────────────
   peso_liquido_total_pedido: {
-    editavel: true,
+    editavel: getEditavelItem('peso_liquido_total_pedido'),
     campo: 'peso_liquido_unitario_item',
     casasDecimais: getCasas('peso_liquido_unitario_item', 3),
     unidades: UNIDADES_PESO_OPCOES,
@@ -1588,7 +1589,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   peso_bruto_total_pedido: {
-    editavel: true,
+    editavel: getEditavelItem('peso_bruto_total_pedido'),
     campo: 'peso_bruto_unitario_item',
     casasDecimais: getCasas('peso_bruto_unitario_item', 3),
     unidades: UNIDADES_PESO_OPCOES,
@@ -1612,7 +1613,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   cubagem_total_pedido: {
-    editavel: true,
+    editavel: getEditavelItem('cubagem_total_pedido'),
     campo: 'cubagem_unitaria_item',
     casasDecimais: getCasas('cubagem_unitaria_item', 4),
     unidades: [{ sigla: 'm³', rotulo: 'm³ — Metro Cúbico' }],
@@ -1631,7 +1632,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
   },
   // ── Valores ───────────────────────────────────────────────────────────────
   valor_total_pedido: {
-    editavel: true,
+    editavel: getEditavelItem('valor_total_pedido'),
     campo: 'valor_total_itens',
     casasDecimais: 2,
     getValorEditar: (row: PedidoItem) => ({
@@ -1664,7 +1665,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   quantidade_total_inicial_pedido: {
-    editavel: true,
+    editavel: getEditavelItem('quantidade_total_inicial_pedido'),
     campo: 'quantidade_inicial_item_pedido',
     casasDecimais: getCasas('quantidade_item', 0),
     getValorEditar: (row: PedidoItem) => ({
@@ -1691,7 +1692,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   quantidade_transferida_total: {
-    editavel: false,
+    editavel: getEditavelItem('quantidade_transferida_total'),
     tooltipBloqueado: 'Campo calculado — incrementado automaticamente ao executar uma transferência. Não pode ser editado diretamente.',
     render: (row: PedidoItem) => {
       const unidade = (row as PedidoItemEnriquecido & { unidade_comercializada_item?: string }).unidade_comercializada_item ?? 'UN'
@@ -1704,7 +1705,7 @@ export const MAPA_COLUNAS_FILHO: Record<string, GTMapaColunasFilho<PedidoItem>> 
     },
   },
   quantidade_pronta_itens_pedido_total: {
-    editavel: true,
+    editavel: getEditavelItem('quantidade_pronta_itens_pedido_total'),
     campo: 'quantidade_pronta_total_item_pedido',
     casasDecimais: getCasas('quantidade_item', 0),
     getValorEditar: (row: PedidoItem) => ({

@@ -27,11 +27,18 @@ import { AuditService } from '../../../tenant/historico-global/server/services/a
 import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
 import { getBillingProvider } from '../lib/billing/index.js'
 import { deployLogService } from '../services/deployLogService.js'
+import { rateLimitPresets } from '../middleware/rateLimiter.js'
 
 export const adminRouter = Router()
 
 // Cadeia obrigatória: auth → gravity_admin check
 adminRouter.use(requireAuth, requireGravityAdmin)
+
+// Rate limit extra-restritivo nas rotas de billing — operações financeiras
+// (create/void/send) disparam calls ao Stripe que têm rate limit próprio,
+// e o /admin/billing/invoices pode ser usado para enumerar tenants via
+// customer_id. O preset admin (60 req/min por tenant:IP) evita flood.
+adminRouter.use('/billing', rateLimitPresets.admin())
 
 const UpdateTenantSchema = z.object({
   status: z.enum(['ACTIVE', 'SUSPENDED', 'CANCELLED', 'PENDING_SETUP']).optional(),
@@ -395,6 +402,23 @@ adminRouter.post('/billing/invoices', async (req, res, next) => {
     const provider = getBillingProvider()
     const invoice = await provider.createInvoice(parsed.data)
 
+    // Audit trail imutável (fire-and-forget) — compliance LGPD/SOC2 pra operações financeiras.
+    // O frontend (useHistoricoLogger) é best-effort; audit no backend é a fonte autoritária.
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'Invoice',
+      resource_id: invoice.id,
+      action: 'INVOICE_CREATED',
+      action_detail: `Fatura ${invoice.number ?? invoice.id} criada para tenant ${parsed.data.customer_tenant_id} — ${invoice.amount_due_cents} ${invoice.currency}`,
+      after: { customer_tenant_id: parsed.data.customer_tenant_id, amount_due_cents: invoice.amount_due_cents, currency: invoice.currency, auto_finalize: parsed.data.auto_finalize },
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
+
     res.status(201).json({ invoice })
   } catch (err) {
     next(err)
@@ -414,6 +438,23 @@ adminRouter.post('/billing/invoices/:id/void', async (req, res, next) => {
 
     const provider = getBillingProvider()
     const invoice = await provider.voidInvoice({ id: req.params.id, reason: parsed.data.reason })
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'Invoice',
+      resource_id: invoice.id,
+      action: 'INVOICE_VOIDED',
+      action_detail: `Fatura ${invoice.number ?? invoice.id} anulada${parsed.data.reason ? ` — motivo: ${parsed.data.reason}` : ''}`,
+      before: { status: 'OPEN' },
+      after: { status: 'VOID', reason: parsed.data.reason ?? null },
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
+
     res.json({ invoice })
   } catch (err) {
     next(err)
@@ -428,6 +469,21 @@ adminRouter.post('/billing/invoices/:id/send', async (req, res, next) => {
   try {
     const provider = getBillingProvider()
     const invoice = await provider.sendInvoice(req.params.id)
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'Invoice',
+      resource_id: invoice.id,
+      action: 'INVOICE_SENT',
+      action_detail: `Fatura ${invoice.number ?? invoice.id} enviada para ${invoice.customer.email ?? invoice.customer.name}`,
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
+
     res.json({ invoice })
   } catch (err) {
     next(err)

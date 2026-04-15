@@ -6,6 +6,7 @@ import type Stripe from 'stripe'
 import { stripe } from '../stripe.js'
 import { prisma } from '../prisma.js'
 import { logger } from '../logger.js'
+import { AppError } from '../appError.js'
 import type {
   BillingProvider,
   BillingProviderName,
@@ -165,12 +166,21 @@ export class StripeProvider implements BillingProvider {
     const listParams: Stripe.InvoiceListParams = { limit }
     if (params.cursor) listParams.starting_after = params.cursor
     if (params.customer_id) {
-      // customer_id pode ser tenant_id do Gravity OU stripe_customer_id cru
+      // customer_id DEVE ser tenant_id do Gravity — valida existência antes de
+      // passar pro Stripe, impedindo enumeration cross-tenant e evitando que
+      // IDs Stripe crus sejam injetados via query string.
       const tenant = await prisma.tenant.findUnique({
         where: { id: params.customer_id },
         select: { stripe_customer_id: true },
       })
-      listParams.customer = tenant?.stripe_customer_id ?? params.customer_id
+      if (!tenant) {
+        throw new AppError('Tenant não encontrado', 404, 'TENANT_NOT_FOUND')
+      }
+      if (!tenant.stripe_customer_id) {
+        // Tenant existe mas nunca teve fatura — retorna vazio em vez de erro
+        return { invoices: [], has_more: false, next_cursor: null }
+      }
+      listParams.customer = tenant.stripe_customer_id
     }
     if (params.status && params.status !== 'OVERDUE') {
       const statusMap: Record<GravityInvoiceStatus, Stripe.Invoice.Status | undefined> = {
@@ -230,7 +240,7 @@ export class StripeProvider implements BillingProvider {
     })
 
     if (!tenant) {
-      throw new Error(`Tenant ${params.customer_tenant_id} não encontrado`)
+      throw new AppError('Tenant não encontrado', 404, 'TENANT_NOT_FOUND')
     }
 
     let stripeCustomerId = tenant.stripe_customer_id

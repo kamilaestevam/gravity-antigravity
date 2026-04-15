@@ -110,14 +110,19 @@ model User {
   name          String
   role          UserRole @default(STANDARD)
 
+  // Workspace preferido — skip pós-login para Master/Standard
+  // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
+  preferred_company_id String?
+
   // Timestamps
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant           Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  user_permissions UserPermission[]
-  memberships      UserMembership[]
+  tenant            Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  preferred_company Company?         @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id], onDelete: SetNull)
+  user_permissions  UserPermission[]
+  memberships       UserMembership[]
 
   // Email único por tenant
   @@unique([tenant_id, email])
@@ -125,6 +130,7 @@ model User {
   @@index([tenant_id])
   @@index([tenant_id, created_at])
   @@index([tenant_id, role])
+  @@index([preferred_company_id])
 }
 
 // ---------------------------------------------------------------------------
@@ -234,9 +240,10 @@ model Company {
   updated_at DateTime @updatedAt
 
   // Relações
-  tenant           Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  memberships      UserMembership[]
-  company_products CompanyProduct[]
+  tenant             Tenant           @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  memberships        UserMembership[]
+  company_products   CompanyProduct[]
+  preferred_by_users User[]           @relation("UserPreferredCompany")
 
   // Índices obrigatórios
   @@index([tenant_id])

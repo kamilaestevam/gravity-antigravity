@@ -263,7 +263,10 @@ export function Core() {
         <div className="ws-global-actions">
           <TooltipGlobal titulo={t('shell.voltar_hub')} descricao={t('shell.voltar_hub')}>
             <button
-              onClick={() => navigate('/hub')}
+              // ?select=1 é o escape hatch: força mostrar SelecionarWorkspace
+              // mesmo quando o usuário tem workspace preferido configurado.
+              // Sem isso, o skip automático jogaria de volta pro Core em loop.
+              onClick={() => navigate('/hub?select=1')}
               type="button"
               style={{
                 display: 'flex',

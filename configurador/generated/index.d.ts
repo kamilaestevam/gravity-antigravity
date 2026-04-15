@@ -2543,11 +2543,13 @@ export namespace Prisma {
   export type CompanyCountOutputType = {
     memberships: number
     company_products: number
+    preferred_by_users: number
   }
 
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     memberships?: boolean | CompanyCountOutputTypeCountMembershipsArgs
     company_products?: boolean | CompanyCountOutputTypeCountCompany_productsArgs
+    preferred_by_users?: boolean | CompanyCountOutputTypeCountPreferred_by_usersArgs
   }
 
   // Custom InputTypes
@@ -2573,6 +2575,13 @@ export namespace Prisma {
    */
   export type CompanyCountOutputTypeCountCompany_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CompanyProductWhereInput
+  }
+
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountPreferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
   }
 
 
@@ -3801,6 +3810,7 @@ export namespace Prisma {
     email: string | null
     name: string | null
     role: $Enums.UserRole | null
+    preferred_company_id: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -3812,6 +3822,7 @@ export namespace Prisma {
     email: string | null
     name: string | null
     role: $Enums.UserRole | null
+    preferred_company_id: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -3823,6 +3834,7 @@ export namespace Prisma {
     email: number
     name: number
     role: number
+    preferred_company_id: number
     created_at: number
     updated_at: number
     _all: number
@@ -3836,6 +3848,7 @@ export namespace Prisma {
     email?: true
     name?: true
     role?: true
+    preferred_company_id?: true
     created_at?: true
     updated_at?: true
   }
@@ -3847,6 +3860,7 @@ export namespace Prisma {
     email?: true
     name?: true
     role?: true
+    preferred_company_id?: true
     created_at?: true
     updated_at?: true
   }
@@ -3858,6 +3872,7 @@ export namespace Prisma {
     email?: true
     name?: true
     role?: true
+    preferred_company_id?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -3942,6 +3957,7 @@ export namespace Prisma {
     email: string
     name: string
     role: $Enums.UserRole
+    preferred_company_id: string | null
     created_at: Date
     updated_at: Date
     _count: UserCountAggregateOutputType | null
@@ -3970,9 +3986,11 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     role?: boolean
+    preferred_company_id?: boolean
     created_at?: boolean
     updated_at?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    preferred_company?: boolean | User$preferred_companyArgs<ExtArgs>
     user_permissions?: boolean | User$user_permissionsArgs<ExtArgs>
     memberships?: boolean | User$membershipsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -3985,9 +4003,11 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     role?: boolean
+    preferred_company_id?: boolean
     created_at?: boolean
     updated_at?: boolean
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    preferred_company?: boolean | User$preferred_companyArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -3997,24 +4017,28 @@ export namespace Prisma {
     email?: boolean
     name?: boolean
     role?: boolean
+    preferred_company_id?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    preferred_company?: boolean | User$preferred_companyArgs<ExtArgs>
     user_permissions?: boolean | User$user_permissionsArgs<ExtArgs>
     memberships?: boolean | User$membershipsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
+    preferred_company?: boolean | User$preferred_companyArgs<ExtArgs>
   }
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
       tenant: Prisma.$TenantPayload<ExtArgs>
+      preferred_company: Prisma.$CompanyPayload<ExtArgs> | null
       user_permissions: Prisma.$UserPermissionPayload<ExtArgs>[]
       memberships: Prisma.$UserMembershipPayload<ExtArgs>[]
     }
@@ -4025,6 +4049,7 @@ export namespace Prisma {
       email: string
       name: string
       role: $Enums.UserRole
+      preferred_company_id: string | null
       created_at: Date
       updated_at: Date
     }, ExtArgs["result"]["user"]>
@@ -4392,6 +4417,7 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    preferred_company<T extends User$preferred_companyArgs<ExtArgs> = {}>(args?: Subset<T, User$preferred_companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     user_permissions<T extends User$user_permissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$user_permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPermissionPayload<ExtArgs>, T, "findMany"> | Null>
     memberships<T extends User$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserMembershipPayload<ExtArgs>, T, "findMany"> | Null>
     /**
@@ -4429,6 +4455,7 @@ export namespace Prisma {
     readonly email: FieldRef<"User", 'String'>
     readonly name: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'UserRole'>
+    readonly preferred_company_id: FieldRef<"User", 'String'>
     readonly created_at: FieldRef<"User", 'DateTime'>
     readonly updated_at: FieldRef<"User", 'DateTime'>
   }
@@ -4746,6 +4773,21 @@ export namespace Prisma {
      * Filter which Users to delete
      */
     where?: UserWhereInput
+  }
+
+  /**
+   * User.preferred_company
+   */
+  export type User$preferred_companyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Company
+     */
+    select?: CompanySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInclude<ExtArgs> | null
+    where?: CompanyWhereInput
   }
 
   /**
@@ -7888,6 +7930,7 @@ export namespace Prisma {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     memberships?: boolean | Company$membershipsArgs<ExtArgs>
     company_products?: boolean | Company$company_productsArgs<ExtArgs>
+    preferred_by_users?: boolean | Company$preferred_by_usersArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -7918,6 +7961,7 @@ export namespace Prisma {
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     memberships?: boolean | Company$membershipsArgs<ExtArgs>
     company_products?: boolean | Company$company_productsArgs<ExtArgs>
+    preferred_by_users?: boolean | Company$preferred_by_usersArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CompanyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7930,6 +7974,7 @@ export namespace Prisma {
       tenant: Prisma.$TenantPayload<ExtArgs>
       memberships: Prisma.$UserMembershipPayload<ExtArgs>[]
       company_products: Prisma.$CompanyProductPayload<ExtArgs>[]
+      preferred_by_users: Prisma.$UserPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8307,6 +8352,7 @@ export namespace Prisma {
     tenant<T extends TenantDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TenantDefaultArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     memberships<T extends Company$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Company$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserMembershipPayload<ExtArgs>, T, "findMany"> | Null>
     company_products<T extends Company$company_productsArgs<ExtArgs> = {}>(args?: Subset<T, Company$company_productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyProductPayload<ExtArgs>, T, "findMany"> | Null>
+    preferred_by_users<T extends Company$preferred_by_usersArgs<ExtArgs> = {}>(args?: Subset<T, Company$preferred_by_usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8699,6 +8745,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: CompanyProductScalarFieldEnum | CompanyProductScalarFieldEnum[]
+  }
+
+  /**
+   * Company.preferred_by_users
+   */
+  export type Company$preferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
   /**
@@ -20611,6 +20677,7 @@ export namespace Prisma {
     email: 'email',
     name: 'name',
     role: 'role',
+    preferred_company_id: 'preferred_company_id',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -21242,9 +21309,11 @@ export namespace Prisma {
     email?: StringFilter<"User"> | string
     name?: StringFilter<"User"> | string
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
+    preferred_company_id?: StringNullableFilter<"User"> | string | null
     created_at?: DateTimeFilter<"User"> | Date | string
     updated_at?: DateTimeFilter<"User"> | Date | string
     tenant?: XOR<TenantRelationFilter, TenantWhereInput>
+    preferred_company?: XOR<CompanyNullableRelationFilter, CompanyWhereInput> | null
     user_permissions?: UserPermissionListRelationFilter
     memberships?: UserMembershipListRelationFilter
   }
@@ -21256,9 +21325,11 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     role?: SortOrder
+    preferred_company_id?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     tenant?: TenantOrderByWithRelationInput
+    preferred_company?: CompanyOrderByWithRelationInput
     user_permissions?: UserPermissionOrderByRelationAggregateInput
     memberships?: UserMembershipOrderByRelationAggregateInput
   }
@@ -21274,9 +21345,11 @@ export namespace Prisma {
     email?: StringFilter<"User"> | string
     name?: StringFilter<"User"> | string
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
+    preferred_company_id?: StringNullableFilter<"User"> | string | null
     created_at?: DateTimeFilter<"User"> | Date | string
     updated_at?: DateTimeFilter<"User"> | Date | string
     tenant?: XOR<TenantRelationFilter, TenantWhereInput>
+    preferred_company?: XOR<CompanyNullableRelationFilter, CompanyWhereInput> | null
     user_permissions?: UserPermissionListRelationFilter
     memberships?: UserMembershipListRelationFilter
   }, "id" | "clerk_user_id" | "tenant_id_email">
@@ -21288,6 +21361,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     role?: SortOrder
+    preferred_company_id?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -21305,6 +21379,7 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"User"> | string
     name?: StringWithAggregatesFilter<"User"> | string
     role?: EnumUserRoleWithAggregatesFilter<"User"> | $Enums.UserRole
+    preferred_company_id?: StringNullableWithAggregatesFilter<"User"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
@@ -21551,6 +21626,7 @@ export namespace Prisma {
     tenant?: XOR<TenantRelationFilter, TenantWhereInput>
     memberships?: UserMembershipListRelationFilter
     company_products?: CompanyProductListRelationFilter
+    preferred_by_users?: UserListRelationFilter
   }
 
   export type CompanyOrderByWithRelationInput = {
@@ -21565,6 +21641,7 @@ export namespace Prisma {
     tenant?: TenantOrderByWithRelationInput
     memberships?: UserMembershipOrderByRelationAggregateInput
     company_products?: CompanyProductOrderByRelationAggregateInput
+    preferred_by_users?: UserOrderByRelationAggregateInput
   }
 
   export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -21582,6 +21659,7 @@ export namespace Prisma {
     tenant?: XOR<TenantRelationFilter, TenantWhereInput>
     memberships?: UserMembershipListRelationFilter
     company_products?: CompanyProductListRelationFilter
+    preferred_by_users?: UserListRelationFilter
   }, "id" | "subdomain">
 
   export type CompanyOrderByWithAggregationInput = {
@@ -22728,6 +22806,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     tenant: TenantCreateNestedOneWithoutUsersInput
+    preferred_company?: CompanyCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UserPermissionCreateNestedManyWithoutUserInput
     memberships?: UserMembershipCreateNestedManyWithoutUserInput
   }
@@ -22739,6 +22818,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UserRole
+    preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
@@ -22754,6 +22834,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
+    preferred_company?: CompanyUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UserPermissionUpdateManyWithoutUserNestedInput
     memberships?: UserMembershipUpdateManyWithoutUserNestedInput
   }
@@ -22765,6 +22846,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
@@ -22778,6 +22860,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UserRole
+    preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -22799,6 +22882,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23063,6 +23147,7 @@ export namespace Prisma {
     tenant: TenantCreateNestedOneWithoutCompaniesInput
     memberships?: UserMembershipCreateNestedManyWithoutCompanyInput
     company_products?: CompanyProductCreateNestedManyWithoutCompanyInput
+    preferred_by_users?: UserCreateNestedManyWithoutPreferred_companyInput
   }
 
   export type CompanyUncheckedCreateInput = {
@@ -23076,6 +23161,7 @@ export namespace Prisma {
     updated_at?: Date | string
     memberships?: UserMembershipUncheckedCreateNestedManyWithoutCompanyInput
     company_products?: CompanyProductUncheckedCreateNestedManyWithoutCompanyInput
+    preferred_by_users?: UserUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
   export type CompanyUpdateInput = {
@@ -23089,6 +23175,7 @@ export namespace Prisma {
     tenant?: TenantUpdateOneRequiredWithoutCompaniesNestedInput
     memberships?: UserMembershipUpdateManyWithoutCompanyNestedInput
     company_products?: CompanyProductUpdateManyWithoutCompanyNestedInput
+    preferred_by_users?: UserUpdateManyWithoutPreferred_companyNestedInput
   }
 
   export type CompanyUncheckedUpdateInput = {
@@ -23102,6 +23189,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput
     company_products?: CompanyProductUncheckedUpdateManyWithoutCompanyNestedInput
+    preferred_by_users?: UserUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
   export type CompanyCreateManyInput = {
@@ -24469,6 +24557,11 @@ export namespace Prisma {
     isNot?: TenantWhereInput
   }
 
+  export type CompanyNullableRelationFilter = {
+    is?: CompanyWhereInput | null
+    isNot?: CompanyWhereInput | null
+  }
+
   export type UserMembershipListRelationFilter = {
     every?: UserMembershipWhereInput
     some?: UserMembershipWhereInput
@@ -24491,6 +24584,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     role?: SortOrder
+    preferred_company_id?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -24502,6 +24596,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     role?: SortOrder
+    preferred_company_id?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -24513,6 +24608,7 @@ export namespace Prisma {
     email?: SortOrder
     name?: SortOrder
     role?: SortOrder
+    preferred_company_id?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -25889,6 +25985,12 @@ export namespace Prisma {
     connect?: TenantWhereUniqueInput
   }
 
+  export type CompanyCreateNestedOneWithoutPreferred_by_usersInput = {
+    create?: XOR<CompanyCreateWithoutPreferred_by_usersInput, CompanyUncheckedCreateWithoutPreferred_by_usersInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutPreferred_by_usersInput
+    connect?: CompanyWhereUniqueInput
+  }
+
   export type UserPermissionCreateNestedManyWithoutUserInput = {
     create?: XOR<UserPermissionCreateWithoutUserInput, UserPermissionUncheckedCreateWithoutUserInput> | UserPermissionCreateWithoutUserInput[] | UserPermissionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: UserPermissionCreateOrConnectWithoutUserInput | UserPermissionCreateOrConnectWithoutUserInput[]
@@ -25927,6 +26029,16 @@ export namespace Prisma {
     upsert?: TenantUpsertWithoutUsersInput
     connect?: TenantWhereUniqueInput
     update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutUsersInput, TenantUpdateWithoutUsersInput>, TenantUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type CompanyUpdateOneWithoutPreferred_by_usersNestedInput = {
+    create?: XOR<CompanyCreateWithoutPreferred_by_usersInput, CompanyUncheckedCreateWithoutPreferred_by_usersInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutPreferred_by_usersInput
+    upsert?: CompanyUpsertWithoutPreferred_by_usersInput
+    disconnect?: CompanyWhereInput | boolean
+    delete?: CompanyWhereInput | boolean
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutPreferred_by_usersInput, CompanyUpdateWithoutPreferred_by_usersInput>, CompanyUncheckedUpdateWithoutPreferred_by_usersInput>
   }
 
   export type UserPermissionUpdateManyWithoutUserNestedInput = {
@@ -26055,6 +26167,13 @@ export namespace Prisma {
     connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
   }
 
+  export type UserCreateNestedManyWithoutPreferred_companyInput = {
+    create?: XOR<UserCreateWithoutPreferred_companyInput, UserUncheckedCreateWithoutPreferred_companyInput> | UserCreateWithoutPreferred_companyInput[] | UserUncheckedCreateWithoutPreferred_companyInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutPreferred_companyInput | UserCreateOrConnectWithoutPreferred_companyInput[]
+    createMany?: UserCreateManyPreferred_companyInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
   export type UserMembershipUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<UserMembershipCreateWithoutCompanyInput, UserMembershipUncheckedCreateWithoutCompanyInput> | UserMembershipCreateWithoutCompanyInput[] | UserMembershipUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserMembershipCreateOrConnectWithoutCompanyInput | UserMembershipCreateOrConnectWithoutCompanyInput[]
@@ -26067,6 +26186,13 @@ export namespace Prisma {
     connectOrCreate?: CompanyProductCreateOrConnectWithoutCompanyInput | CompanyProductCreateOrConnectWithoutCompanyInput[]
     createMany?: CompanyProductCreateManyCompanyInputEnvelope
     connect?: CompanyProductWhereUniqueInput | CompanyProductWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutPreferred_companyInput = {
+    create?: XOR<UserCreateWithoutPreferred_companyInput, UserUncheckedCreateWithoutPreferred_companyInput> | UserCreateWithoutPreferred_companyInput[] | UserUncheckedCreateWithoutPreferred_companyInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutPreferred_companyInput | UserCreateOrConnectWithoutPreferred_companyInput[]
+    createMany?: UserCreateManyPreferred_companyInputEnvelope
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
   export type EnumCompanyStatusFieldUpdateOperationsInput = {
@@ -26109,6 +26235,20 @@ export namespace Prisma {
     deleteMany?: CompanyProductScalarWhereInput | CompanyProductScalarWhereInput[]
   }
 
+  export type UserUpdateManyWithoutPreferred_companyNestedInput = {
+    create?: XOR<UserCreateWithoutPreferred_companyInput, UserUncheckedCreateWithoutPreferred_companyInput> | UserCreateWithoutPreferred_companyInput[] | UserUncheckedCreateWithoutPreferred_companyInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutPreferred_companyInput | UserCreateOrConnectWithoutPreferred_companyInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutPreferred_companyInput | UserUpsertWithWhereUniqueWithoutPreferred_companyInput[]
+    createMany?: UserCreateManyPreferred_companyInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutPreferred_companyInput | UserUpdateWithWhereUniqueWithoutPreferred_companyInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutPreferred_companyInput | UserUpdateManyWithWhereWithoutPreferred_companyInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
   export type UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<UserMembershipCreateWithoutCompanyInput, UserMembershipUncheckedCreateWithoutCompanyInput> | UserMembershipCreateWithoutCompanyInput[] | UserMembershipUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserMembershipCreateOrConnectWithoutCompanyInput | UserMembershipCreateOrConnectWithoutCompanyInput[]
@@ -26135,6 +26275,20 @@ export namespace Prisma {
     update?: CompanyProductUpdateWithWhereUniqueWithoutCompanyInput | CompanyProductUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: CompanyProductUpdateManyWithWhereWithoutCompanyInput | CompanyProductUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: CompanyProductScalarWhereInput | CompanyProductScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutPreferred_companyNestedInput = {
+    create?: XOR<UserCreateWithoutPreferred_companyInput, UserUncheckedCreateWithoutPreferred_companyInput> | UserCreateWithoutPreferred_companyInput[] | UserUncheckedCreateWithoutPreferred_companyInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutPreferred_companyInput | UserCreateOrConnectWithoutPreferred_companyInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutPreferred_companyInput | UserUpsertWithWhereUniqueWithoutPreferred_companyInput[]
+    createMany?: UserCreateManyPreferred_companyInputEnvelope
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutPreferred_companyInput | UserUpdateWithWhereUniqueWithoutPreferred_companyInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutPreferred_companyInput | UserUpdateManyWithWhereWithoutPreferred_companyInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutMembershipsInput = {
@@ -26814,6 +26968,7 @@ export namespace Prisma {
     role?: $Enums.UserRole
     created_at?: Date | string
     updated_at?: Date | string
+    preferred_company?: CompanyCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UserPermissionCreateNestedManyWithoutUserInput
     memberships?: UserMembershipCreateNestedManyWithoutUserInput
   }
@@ -26824,6 +26979,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UserRole
+    preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
@@ -26918,6 +27074,7 @@ export namespace Prisma {
     updated_at?: Date | string
     memberships?: UserMembershipCreateNestedManyWithoutCompanyInput
     company_products?: CompanyProductCreateNestedManyWithoutCompanyInput
+    preferred_by_users?: UserCreateNestedManyWithoutPreferred_companyInput
   }
 
   export type CompanyUncheckedCreateWithoutTenantInput = {
@@ -26930,6 +27087,7 @@ export namespace Prisma {
     updated_at?: Date | string
     memberships?: UserMembershipUncheckedCreateNestedManyWithoutCompanyInput
     company_products?: CompanyProductUncheckedCreateNestedManyWithoutCompanyInput
+    preferred_by_users?: UserUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
   export type CompanyCreateOrConnectWithoutTenantInput = {
@@ -27024,6 +27182,7 @@ export namespace Prisma {
     email?: StringFilter<"User"> | string
     name?: StringFilter<"User"> | string
     role?: EnumUserRoleFilter<"User"> | $Enums.UserRole
+    preferred_company_id?: StringNullableFilter<"User"> | string | null
     created_at?: DateTimeFilter<"User"> | Date | string
     updated_at?: DateTimeFilter<"User"> | Date | string
   }
@@ -27227,6 +27386,37 @@ export namespace Prisma {
     create: XOR<TenantCreateWithoutUsersInput, TenantUncheckedCreateWithoutUsersInput>
   }
 
+  export type CompanyCreateWithoutPreferred_by_usersInput = {
+    id?: string
+    name: string
+    subdomain?: string | null
+    cnpj?: string | null
+    status?: $Enums.CompanyStatus
+    created_at?: Date | string
+    updated_at?: Date | string
+    tenant: TenantCreateNestedOneWithoutCompaniesInput
+    memberships?: UserMembershipCreateNestedManyWithoutCompanyInput
+    company_products?: CompanyProductCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutPreferred_by_usersInput = {
+    id?: string
+    tenant_id: string
+    name: string
+    subdomain?: string | null
+    cnpj?: string | null
+    status?: $Enums.CompanyStatus
+    created_at?: Date | string
+    updated_at?: Date | string
+    memberships?: UserMembershipUncheckedCreateNestedManyWithoutCompanyInput
+    company_products?: CompanyProductUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutPreferred_by_usersInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutPreferred_by_usersInput, CompanyUncheckedCreateWithoutPreferred_by_usersInput>
+  }
+
   export type UserPermissionCreateWithoutUserInput = {
     id?: string
     company_id: string
@@ -27340,6 +27530,43 @@ export namespace Prisma {
     companies?: CompanyUncheckedUpdateManyWithoutTenantNestedInput
     product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
     CompanyProduct?: CompanyProductUncheckedUpdateManyWithoutTenantNestedInput
+  }
+
+  export type CompanyUpsertWithoutPreferred_by_usersInput = {
+    update: XOR<CompanyUpdateWithoutPreferred_by_usersInput, CompanyUncheckedUpdateWithoutPreferred_by_usersInput>
+    create: XOR<CompanyCreateWithoutPreferred_by_usersInput, CompanyUncheckedCreateWithoutPreferred_by_usersInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutPreferred_by_usersInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutPreferred_by_usersInput, CompanyUncheckedUpdateWithoutPreferred_by_usersInput>
+  }
+
+  export type CompanyUpdateWithoutPreferred_by_usersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCompanyStatusFieldUpdateOperationsInput | $Enums.CompanyStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutCompaniesNestedInput
+    memberships?: UserMembershipUpdateManyWithoutCompanyNestedInput
+    company_products?: CompanyProductUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutPreferred_by_usersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    subdomain?: NullableStringFieldUpdateOperationsInput | string | null
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumCompanyStatusFieldUpdateOperationsInput | $Enums.CompanyStatus
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    memberships?: UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput
+    company_products?: CompanyProductUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type UserPermissionUpsertWithWhereUniqueWithoutUserInput = {
@@ -27544,6 +27771,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     tenant: TenantCreateNestedOneWithoutUsersInput
+    preferred_company?: CompanyCreateNestedOneWithoutPreferred_by_usersInput
     memberships?: UserMembershipCreateNestedManyWithoutUserInput
   }
 
@@ -27554,6 +27782,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UserRole
+    preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UserMembershipUncheckedCreateNestedManyWithoutUserInput
@@ -27637,6 +27866,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
+    preferred_company?: CompanyUpdateOneWithoutPreferred_by_usersNestedInput
     memberships?: UserMembershipUpdateManyWithoutUserNestedInput
   }
 
@@ -27647,6 +27877,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UserMembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -27757,6 +27988,42 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserCreateWithoutPreferred_companyInput = {
+    id?: string
+    clerk_user_id: string
+    email: string
+    name: string
+    role?: $Enums.UserRole
+    created_at?: Date | string
+    updated_at?: Date | string
+    tenant: TenantCreateNestedOneWithoutUsersInput
+    user_permissions?: UserPermissionCreateNestedManyWithoutUserInput
+    memberships?: UserMembershipCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPreferred_companyInput = {
+    id?: string
+    tenant_id: string
+    clerk_user_id: string
+    email: string
+    name: string
+    role?: $Enums.UserRole
+    created_at?: Date | string
+    updated_at?: Date | string
+    user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
+    memberships?: UserMembershipUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPreferred_companyInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPreferred_companyInput, UserUncheckedCreateWithoutPreferred_companyInput>
+  }
+
+  export type UserCreateManyPreferred_companyInputEnvelope = {
+    data: UserCreateManyPreferred_companyInput | UserCreateManyPreferred_companyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenantUpsertWithoutCompaniesInput = {
     update: XOR<TenantUpdateWithoutCompaniesInput, TenantUncheckedUpdateWithoutCompaniesInput>
     create: XOR<TenantCreateWithoutCompaniesInput, TenantUncheckedCreateWithoutCompaniesInput>
@@ -27842,6 +28109,22 @@ export namespace Prisma {
     data: XOR<CompanyProductUpdateManyMutationInput, CompanyProductUncheckedUpdateManyWithoutCompanyInput>
   }
 
+  export type UserUpsertWithWhereUniqueWithoutPreferred_companyInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutPreferred_companyInput, UserUncheckedUpdateWithoutPreferred_companyInput>
+    create: XOR<UserCreateWithoutPreferred_companyInput, UserUncheckedCreateWithoutPreferred_companyInput>
+  }
+
+  export type UserUpdateWithWhereUniqueWithoutPreferred_companyInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutPreferred_companyInput, UserUncheckedUpdateWithoutPreferred_companyInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutPreferred_companyInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutPreferred_companyInput>
+  }
+
   export type UserCreateWithoutMembershipsInput = {
     id?: string
     clerk_user_id: string
@@ -27851,6 +28134,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     tenant: TenantCreateNestedOneWithoutUsersInput
+    preferred_company?: CompanyCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UserPermissionCreateNestedManyWithoutUserInput
   }
 
@@ -27861,6 +28145,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UserRole
+    preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
     user_permissions?: UserPermissionUncheckedCreateNestedManyWithoutUserInput
@@ -27881,6 +28166,7 @@ export namespace Prisma {
     updated_at?: Date | string
     tenant: TenantCreateNestedOneWithoutCompaniesInput
     company_products?: CompanyProductCreateNestedManyWithoutCompanyInput
+    preferred_by_users?: UserCreateNestedManyWithoutPreferred_companyInput
   }
 
   export type CompanyUncheckedCreateWithoutMembershipsInput = {
@@ -27893,6 +28179,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     company_products?: CompanyProductUncheckedCreateNestedManyWithoutCompanyInput
+    preferred_by_users?: UserUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
   export type CompanyCreateOrConnectWithoutMembershipsInput = {
@@ -27920,6 +28207,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
+    preferred_company?: CompanyUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UserPermissionUpdateManyWithoutUserNestedInput
   }
 
@@ -27930,6 +28218,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
@@ -27956,6 +28245,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCompaniesNestedInput
     company_products?: CompanyProductUpdateManyWithoutCompanyNestedInput
+    preferred_by_users?: UserUpdateManyWithoutPreferred_companyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutMembershipsInput = {
@@ -27968,6 +28258,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     company_products?: CompanyProductUncheckedUpdateManyWithoutCompanyNestedInput
+    preferred_by_users?: UserUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
   export type TenantCreateWithoutProduct_configsInput = {
@@ -28127,6 +28418,7 @@ export namespace Prisma {
     updated_at?: Date | string
     tenant: TenantCreateNestedOneWithoutCompaniesInput
     memberships?: UserMembershipCreateNestedManyWithoutCompanyInput
+    preferred_by_users?: UserCreateNestedManyWithoutPreferred_companyInput
   }
 
   export type CompanyUncheckedCreateWithoutCompany_productsInput = {
@@ -28139,6 +28431,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UserMembershipUncheckedCreateNestedManyWithoutCompanyInput
+    preferred_by_users?: UserUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
   export type CompanyCreateOrConnectWithoutCompany_productsInput = {
@@ -28220,6 +28513,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: TenantUpdateOneRequiredWithoutCompaniesNestedInput
     memberships?: UserMembershipUpdateManyWithoutCompanyNestedInput
+    preferred_by_users?: UserUpdateManyWithoutPreferred_companyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutCompany_productsInput = {
@@ -28232,6 +28526,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput
+    preferred_by_users?: UserUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
   export type PriceTierCreateWithoutProductInput = {
@@ -28659,6 +28954,7 @@ export namespace Prisma {
     email: string
     name: string
     role?: $Enums.UserRole
+    preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -28723,6 +29019,7 @@ export namespace Prisma {
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    preferred_company?: CompanyUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UserPermissionUpdateManyWithoutUserNestedInput
     memberships?: UserMembershipUpdateManyWithoutUserNestedInput
   }
@@ -28733,6 +29030,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
@@ -28745,6 +29043,7 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -28831,6 +29130,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UserMembershipUpdateManyWithoutCompanyNestedInput
     company_products?: CompanyProductUpdateManyWithoutCompanyNestedInput
+    preferred_by_users?: UserUpdateManyWithoutPreferred_companyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutTenantInput = {
@@ -28843,6 +29143,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UserMembershipUncheckedUpdateManyWithoutCompanyNestedInput
     company_products?: CompanyProductUncheckedUpdateManyWithoutCompanyNestedInput
+    preferred_by_users?: UserUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
   export type CompanyUncheckedUpdateManyWithoutTenantInput = {
@@ -29012,6 +29313,17 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
+  export type UserCreateManyPreferred_companyInput = {
+    id?: string
+    tenant_id: string
+    clerk_user_id: string
+    email: string
+    name: string
+    role?: $Enums.UserRole
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
   export type UserMembershipUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
@@ -29065,6 +29377,43 @@ export namespace Prisma {
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
     is_active?: BoolFieldUpdateOperationsInput | boolean
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpdateWithoutPreferred_companyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clerk_user_id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneRequiredWithoutUsersNestedInput
+    user_permissions?: UserPermissionUpdateManyWithoutUserNestedInput
+    memberships?: UserMembershipUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPreferred_companyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    clerk_user_id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    user_permissions?: UserPermissionUncheckedUpdateManyWithoutUserNestedInput
+    memberships?: UserMembershipUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutPreferred_companyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    clerk_user_id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }

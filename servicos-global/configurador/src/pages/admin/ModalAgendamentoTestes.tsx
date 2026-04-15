@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
-import { Clock, Info, EnvelopeSimple, Play, List } from '@phosphor-icons/react'
+import { Clock, Info, EnvelopeSimple, List } from '@phosphor-icons/react'
 import { TabelaGlobal } from '@nucleo/tabela-global'
 
 export interface ModalAgendamentoTestesProps {
@@ -12,19 +12,30 @@ export interface ModalAgendamentoTestesProps {
   aoMudarStatus?: (ativo: boolean) => void
 }
 
+
+interface DadosAgendamento {
+  agendamentoAutomatico: 'Ativado' | 'Desativado'
+  frequencia: 'Manual' | 'Diario' | 'Semanal'
+  hora: string
+  minuto: string
+  tipos: { unitarios: boolean; funcionais: boolean; e2e: boolean }
+  ambiente: 'Local' | 'Staging' | 'Producao'
+}
+
+interface ColunaAlerta {
+  key: string
+  label: string
+  tipo: 'texto' | 'numero' | 'data' | 'select'
+}
+
 export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: ModalAgendamentoTestesProps) {
   const { t } = useTranslation()
-  const [dados, setDados] = useState({
+  const [dados, setDados] = useState<DadosAgendamento>({
     agendamentoAutomatico: 'Desativado',
     frequencia: 'Manual',
     hora: '00h',
     minuto: '00min',
     tipos: { unitarios: true, funcionais: true, e2e: false },
-    ambiente: 'Local'
-  })
-
-  const [dadosManual, setDadosManual] = useState({
-    tipos: { unitarios: true, funcionais: false, e2e: false },
     ambiente: 'Local'
   })
 
@@ -53,7 +64,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
     aoFechar()
   }
 
-  const updateDados = (updates: any) => {
+  const updateDados = (updates: Partial<DadosAgendamento>) => {
     setDados(prev => ({ ...prev, ...updates }))
     setIsDirty(true)
   }
@@ -76,7 +87,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
     { valor: 'Producao', rotulo: 'Produção' }
   ]
 
-  const colunasAlertas: any[] = [
+  const colunasAlertas: ColunaAlerta[] = [
     { key: 'nome', label: 'NOME', tipo: 'texto' },
     { key: 'contato', label: 'CONTATO', tipo: 'texto' },
     { key: 'condicao', label: 'AVISO (CONDIÇÃO)', tipo: 'texto' },
@@ -122,8 +133,8 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
             </GeralCampoGlobal>
           </div>
 
-          {/* Frequência & Hora */}
-          <div className="em-grid em-grid--2">
+          {/* Frequência & Hora & Minuto — Hora/Minuto só fazem sentido se Frequência ≠ Manual */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <GeralCampoGlobal label={t('admin.tests.agendamento.campo_frequencia')}>
               <SelectGlobal
                 opcoes={opcoesFrequencia}
@@ -131,21 +142,24 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                 aoMudarValor={v => updateDados({ frequencia: String(v) })}
               />
             </GeralCampoGlobal>
-            <GeralCampoGlobal label={t('admin.tests.agendamento.campo_hora')}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ opacity: dados.frequencia === 'Manual' ? 0.4 : 1, pointerEvents: dados.frequencia === 'Manual' ? 'none' : 'auto', transition: 'opacity 0.15s' }}>
+              <GeralCampoGlobal label={t('admin.tests.agendamento.campo_hora')}>
                 <SelectGlobal
                   opcoes={opcoesHora}
                   valor={dados.hora}
                   aoMudarValor={v => updateDados({ hora: String(v) })}
                 />
-                <span style={{ color: '#475569', fontWeight: 700 }}>:</span>
+              </GeralCampoGlobal>
+            </div>
+            <div style={{ opacity: dados.frequencia === 'Manual' ? 0.4 : 1, pointerEvents: dados.frequencia === 'Manual' ? 'none' : 'auto', transition: 'opacity 0.15s' }}>
+              <GeralCampoGlobal label={t('admin.tests.agendamento.campo_minuto')}>
                 <SelectGlobal
                   opcoes={opcoesMinuto}
                   valor={dados.minuto}
                   aoMudarValor={v => updateDados({ minuto: String(v) })}
                 />
-              </div>
-            </GeralCampoGlobal>
+              </GeralCampoGlobal>
+            </div>
           </div>
 
           {/* Tipos de Teste - CORRIGIDO LAYOUT */}
@@ -178,7 +192,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
           </div>
 
           {/* Ambiente */}
-          <div className="em-grid" style={{ width: '50%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
             <GeralCampoGlobal label={t('admin.tests.agendamento.campo_ambiente')}>
               <SelectGlobal
                 opcoes={opcoesAmbiente}
@@ -268,63 +282,6 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
               idKey="id"
               mensagemVazio={t('admin.tests.agendamento.alertas_vazio')}
             />
-          </div>
-        </div>
-      )
-    },
-    {
-      id: 'manual',
-      rotulo: t('admin.tests.agendamento.aba_manual'),
-      conteudo: (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
-          <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#10b981', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
-            <Play size={14} weight="fill" /> {t('admin.tests.agendamento.secao_disparo')}
-          </h4>
-          
-          <div style={{ background: 'rgba(15, 23, 42, 0.3)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
-              <GeralCampoGlobal label={t('admin.tests.agendamento.campo_selecione_tipos')}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '0.5rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0', fontSize: '0.875rem' }}>
-                    <input type="checkbox" checked={dadosManual.tipos.unitarios} onChange={e => setDadosManual({...dadosManual, tipos: {...dadosManual.tipos, unitarios: e.target.checked}})}
-                           style={{ accentColor: '#38bdf8', width: '17px', height: '17px' }} />
-                    {t('admin.tests.agendamento.tipo_unitarios')}
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e2e8f0', fontSize: '0.875rem' }}>
-                    <input type="checkbox" checked={dadosManual.tipos.funcionais} onChange={e => setDadosManual({...dadosManual, tipos: {...dadosManual.tipos, funcionais: e.target.checked}})}
-                           style={{ accentColor: '#38bdf8', width: '17px', height: '17px' }} />
-                    🧪 {t('admin.tests.agendamento.tipo_funcionais')}
-                  </label>
-                </div>
-              </GeralCampoGlobal>
-
-              <GeralCampoGlobal label={t('admin.tests.agendamento.campo_ambiente_origem')}>
-                <div style={{ width: '100%' }}>
-                  <SelectGlobal
-                    opcoes={opcoesAmbiente}
-                    valor={dadosManual.ambiente}
-                    aoMudarValor={v => setDadosManual({ ...dadosManual, ambiente: String(v) })}
-                  />
-                </div>
-              </GeralCampoGlobal>
-            </div>
-
-            <button
-              type="button"
-              className="mg-btn-manual-exec"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.75rem',
-                padding: '0.875rem 2rem', borderRadius: '12px',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: '#fff', fontSize: '0.95rem', fontWeight: 700, border: 'none',
-                cursor: 'pointer', boxShadow: '0 8px 16px rgba(16, 185, 129, 0.2)',
-                width: 'max-content', transition: 'transform 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <Play size={20} weight="fill" /> {t('admin.tests.agendamento.btn_executar')}
-            </button>
           </div>
         </div>
       )

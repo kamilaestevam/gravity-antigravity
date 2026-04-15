@@ -1,569 +1,424 @@
 /**
- * seed.ts — Dados realistas para o produto Pedido
- * Uso: tsx --env-file=.env prisma/seed.ts
+ * seed.ts — Seed parametrizado do produto Pedido
  *
- * Cria 6 pedidos (4 importacao + 2 exportacao) com todos os campos preenchidos.
+ * Uso:
+ *   TENANT_ID=tenant-dev-gravity-2026 npx tsx prisma/seed.ts --total=500
+ *   TENANT_ID=tenant-dev-gravity-2026 npx tsx prisma/seed.ts --total=1000 --clean
+ *   TENANT_ID=tenant-dev-gravity-2026 npx tsx prisma/seed.ts --total=10000 --clean
+ *
+ * Flags:
+ *   --total=N   → quantidade total de pedidos (default 1000)
+ *   --clean     → apaga TODOS os pedidos/itens do tenant antes de inserir
+ *
+ * Distribuição automática:
+ *   60% pequenos (1-3 itens,  valor 1k-50k)
+ *   30% médios   (4-15 itens, valor 50k-500k)
+ *   10% grandes  (16-50 itens, valor 500k-5M)
+ *
+ * IMPORTANTE: todos os campos com valores restritos respeitam
+ * estritamente o dicionário do sistema (enums, selects, regex NCM).
+ * Dados inventados — formatos reais.
  */
 
 import { PrismaClient } from '@prisma/client'
-import { Decimal } from 'decimal.js'
 
 const prisma = new PrismaClient()
 
-const TENANT_ID   = 'tenant-dev-gravity-2026'
-const COMPANY_ID  = 'tenant-dev-gravity-2026'
+// ─── Dicionários (valores reais do sistema) ──────────────────────────────────
 
-let seqCounter = 1000
+const TIPO_OPERACAO = ['importacao', 'exportacao'] as const
 
-function gerarId(prefixo: string): string {
-  const seq = String(seqCounter++).padStart(7, '0')
-  const ano  = String(new Date().getFullYear()).slice(-2)
-  return `${prefixo}_id_${seq}/${ano}`
+const STATUS_DIST = [
+  { valor: 'aberto',        peso: 30 },
+  { valor: 'em_andamento',  peso: 25 },
+  { valor: 'aprovado',      peso: 20 },
+  { valor: 'draft',         peso: 10 },
+  { valor: 'transferencia', peso: 7 },
+  { valor: 'consolidado',   peso: 5 },
+  { valor: 'cancelado',     peso: 3 },
+] as const
+
+const INCOTERMS = ['FOB', 'CIF', 'EXW', 'CFR', 'FCA', 'DDP', 'DAP', 'CPT', 'CIP', 'DPU', 'FAS'] as const
+
+const MOEDAS = ['USD', 'EUR', 'CNY', 'JPY', 'GBP', 'BRL'] as const
+
+const UNIDADES = ['UNID', 'KG', 'TON', 'M', 'M2', 'M3', 'LT', 'PARES', 'DUZIA', 'JOGO'] as const
+
+const COBERTURA_CAMBIAL = ['com_cobertura', 'sem_cobertura'] as const
+
+const CONDICOES_PAGAMENTO = [
+  '30% antecipado, 70% contra BL',
+  '50% antecipado, 50% contra BL',
+  '100% antecipado',
+  'Carta de Crédito à vista',
+  'Carta de Crédito 30 dias',
+  '30/60/90 dias',
+  'Contra entrega',
+] as const
+
+const MODAIS = [
+  'Maritimo FCL 20Dry',
+  'Maritimo FCL 40HC',
+  'Maritimo FCL 40Dry',
+  'Maritimo LCL',
+  'Aereo',
+  'Rodoviario',
+] as const
+
+const PORTOS_ORIGEM = [
+  'Shanghai (CNSHA)',
+  'Shenzhen (CNSZX)',
+  'Hamburg (DEHAM)',
+  'Rotterdam (NLRTM)',
+  'Busan (KRPUS)',
+  'Yokohama (JPYOK)',
+  'Los Angeles (USLAX)',
+  'Hong Kong (HKHKG)',
+  'Singapore (SGSIN)',
+  'Antwerp (BEANR)',
+] as const
+
+const PORTOS_DESTINO = [
+  'Santos (BRSSZ)',
+  'Paranaguá (BRPNG)',
+  'Rio de Janeiro (BRRJO)',
+  'Vitoria (BRVIX)',
+  'Itajaí (BRITJ)',
+  'Rio Grande (BRRIG)',
+  'Suape (BRSUA)',
+  'Pecém (BRPEC)',
+] as const
+
+// NCMs reais (formato 8 dígitos com separadores) — amostra representativa
+const NCMS = [
+  '8542.31.90', '8471.30.12', '8517.12.31', '8528.72.00', '8544.42.00',
+  '3926.90.90', '7326.90.90', '8481.80.95', '8483.40.10', '8708.29.99',
+  '6302.60.00', '6109.10.00', '6204.62.00', '6403.99.90', '4202.22.20',
+  '2710.19.21', '3901.10.10', '2915.70.10', '3208.90.19', '4016.93.00',
+  '7318.15.00', '8504.40.90', '9018.90.99', '3004.90.99', '2208.60.00',
+] as const
+
+const EXPORTADORES = [
+  { id: 'exp-china-shenzhen-001', nome: 'Shenzhen Electronics Co., Ltd.' },
+  { id: 'exp-china-ningbo-001',   nome: 'Ningbo Hardware Supplies Ltd.' },
+  { id: 'exp-china-guangzhou-01', nome: 'Guangzhou Plastics Factory' },
+  { id: 'exp-taiwan-tsmc-001',    nome: 'Taiwan Semiconductor Supply' },
+  { id: 'exp-japao-toyota-001',   nome: 'Toyota Motor Corporation' },
+  { id: 'exp-korea-samsung-001',  nome: 'Samsung Electronics Korea' },
+  { id: 'exp-alemanha-bosch-001', nome: 'Robert Bosch GmbH' },
+  { id: 'exp-italia-pirelli-001', nome: 'Pirelli Tyre S.p.A.' },
+  { id: 'exp-india-tata-001',     nome: 'Tata Industries Ltd.' },
+  { id: 'exp-vietna-samsung-001', nome: 'Samsung Vietnam Co.' },
+] as const
+
+const IMPORTADORES = [
+  { id: 'imp-chile-001',   nome: 'Importadora Chile Ltda.' },
+  { id: 'imp-argentina-01', nome: 'Argentina Importadora S.A.' },
+  { id: 'imp-mexico-001',  nome: 'Distribuidora México S.A. de C.V.' },
+  { id: 'imp-paraguay-01', nome: 'Paraguay Trading Co.' },
+  { id: 'imp-uruguay-001', nome: 'Uruguay Imports Ltda.' },
+] as const
+
+const FABRICANTES = [
+  { id: 'fab-foxconn-001',    nome: 'Foxconn Technology Group' },
+  { id: 'fab-celestica-001',  nome: 'Celestica Inc.' },
+  { id: 'fab-flextronics-01', nome: 'Flex Ltd. (Flextronics)' },
+  { id: 'fab-jabil-001',      nome: 'Jabil Circuit Inc.' },
+  { id: 'fab-pegatron-001',   nome: 'Pegatron Corporation' },
+] as const
+
+const DESCRICOES_ITEM = [
+  'Componente eletrônico SMD',
+  'Placa de circuito impresso',
+  'Cabo flat 20 vias',
+  'Conector USB tipo C',
+  'Display LCD 7 polegadas',
+  'Bateria Li-Ion 3000mAh',
+  'Sensor de temperatura',
+  'Motor DC 12V',
+  'Válvula solenoide',
+  'Resistor 10k 1/4W',
+  'Capacitor eletrolítico 1000uF',
+  'Transformador 220/12V',
+  'Rolamento esférico 6205',
+  'Parafuso M6 sextavado',
+  'Mangueira hidráulica 1/2"',
+  'Junta de vedação em borracha',
+  'Filtro de óleo industrial',
+  'Chapa de aço carbono 2mm',
+  'Perfil alumínio anodizado',
+  'Tecido sintético poliéster',
+] as const
+
+// ─── Helpers de randomização ─────────────────────────────────────────────────
+
+function pick<T>(arr: readonly T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)]
 }
 
-// ── Parceiros fictícios ─────────────────────────────────────────────────────
-const EXP_CHINA    = 'parceiro_china_electronics_001'
-const EXP_ALEMANHA = 'parceiro_bosch_germany_002'
-const EXP_EUA      = 'parceiro_3m_usa_003'
-const IMP_BRASIL   = 'parceiro_cliente_brasil_001'
-const FABR_CHINA   = 'fabricante_foxconn_001'
+function pickWeighted<T extends { valor: string; peso: number }>(arr: readonly T[]): string {
+  const total = arr.reduce((s, x) => s + x.peso, 0)
+  let r = Math.random() * total
+  for (const x of arr) {
+    r -= x.peso
+    if (r <= 0) return x.valor
+  }
+  return arr[0].valor
+}
 
-// ── Seed data ───────────────────────────────────────────────────────────────
+function randInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
 
-const pedidos = [
-  // ─── 1. Importação de eletrônicos — status: aberto ──────────────────────
-  {
-    id: gerarId('pedi'),
-    tenant_id:  TENANT_ID,
-    company_id: COMPANY_ID,
+function randFloat(min: number, max: number, decimals = 2): number {
+  const v = Math.random() * (max - min) + min
+  return Number(v.toFixed(decimals))
+}
 
-    tipo_operacao: 'importacao',
-    numero_pedido: 'PO-2026-0101',
-    status:        'aberto',
+function randDate(daysAgo: number): Date {
+  const d = new Date()
+  d.setDate(d.getDate() - randInt(0, daysAgo))
+  return d
+}
 
-    importacao_exportador_id: EXP_CHINA,
-    fabricante_id:            FABR_CHINA,
+// ─── Perfis de tamanho ───────────────────────────────────────────────────────
 
-    incoterm:       'CIF',
-    moeda_pedido:   'USD',
-    condicao_pagamento_pedido: '30% antecipado, 70% contra-entrega',
+type Perfil = {
+  nome: 'pequeno' | 'medio' | 'grande'
+  minItens: number
+  maxItens: number
+  valorMinItem: number
+  valorMaxItem: number
+}
 
-    numero_proforma:       'PI-CHN-2026-0101',
-    numero_invoice:        'CI-CHN-2026-0101',
-    referencia_importador: 'IMP-ELET-2026-001',
-    referencia_exportador: 'SO-GRAVITY-001',
-    referencia_fabricante: 'FAB-GR-2026-001',
+const PERFIS: Record<'pequeno' | 'medio' | 'grande', Perfil> = {
+  pequeno: { nome: 'pequeno', minItens: 1,  maxItens: 3,  valorMinItem: 200,    valorMaxItem: 20_000 },
+  medio:   { nome: 'medio',   minItens: 4,  maxItens: 15, valorMinItem: 500,    valorMaxItem: 50_000 },
+  grande:  { nome: 'grande',  minItens: 16, maxItens: 50, valorMinItem: 1_000,  valorMaxItem: 200_000 },
+}
 
-    moeda_cambio_pedido:         'BRL',
-    taxa_cambio_estimada_pedido: new Decimal('5.8500'),
-    valor_total_cambio_pedido:   new Decimal('117000.000000'),
+// ─── Geração ─────────────────────────────────────────────────────────────────
 
-    data_emissao_pedido: new Date('2026-02-10'),
+function gerarPedido(opts: {
+  tenantId: string
+  perfil: Perfil
+  index: number
+  ano: number
+}) {
+  const { tenantId, perfil, index, ano } = opts
+  const tipo = pick(TIPO_OPERACAO)
+  const prefix = tipo === 'importacao' ? 'PO' : 'SO'
+  const numeroPedido = `${prefix}-${ano}-${String(index).padStart(5, '0')}`
+  const id = `pedi_${perfil.nome.slice(0, 3)}_${String(index).padStart(7, '0')}`
 
+  const moeda = pick(MOEDAS)
+  const moedaCambio = 'BRL'
+  const taxaCambio = moeda === 'BRL' ? 1 : randFloat(4.5, 6.5, 4)
+  const incoterm = pick(INCOTERMS)
+  const unidade = pick(UNIDADES)
+
+  const qtdItens = randInt(perfil.minItens, perfil.maxItens)
+  const exportador = pick(EXPORTADORES)
+  const importador = pick(IMPORTADORES)
+  const fabricante = pick(FABRICANTES)
+
+  // Gera itens
+  const itens = Array.from({ length: qtdItens }, (_, i) => {
+    const quantidade = randFloat(10, 5000, 2)
+    const valorUnit = randFloat(perfil.valorMinItem / quantidade, perfil.valorMaxItem / quantidade, 4)
+    const valorTotal = Number((quantidade * valorUnit).toFixed(2))
+    const prontaPct = Math.random()
+    const canceladaPct = Math.random() * 0.1
+    const transferidaPct = Math.random() * 0.1
+    const pronta = Number((quantidade * prontaPct).toFixed(2))
+    const cancelada = Number((quantidade * canceladaPct).toFixed(2))
+    const transferida = Number((quantidade * transferidaPct).toFixed(2))
+    const saldo = Number(Math.max(0, quantidade - pronta - cancelada - transferida).toFixed(2))
+
+    return {
+      id: `item_${id}_${String(i + 1).padStart(3, '0')}`,
+      tenant_id: tenantId,
+      company_id: tenantId,
+      pedido_id: id,
+      sequencia_item: i + 1,
+      part_number: `PN-${randInt(10000, 99999)}-${randInt(100, 999)}`,
+      ncm: pick(NCMS),
+      descricao_item: pick(DESCRICOES_ITEM),
+      unidade_comercializada_item: unidade,
+      quantidade_inicial_item_pedido: quantidade,
+      saldo_item_pedido: saldo,
+      quantidade_pronta_total_item_pedido: pronta,
+      quantidade_transferida_item_pedido: transferida,
+      quantidade_cancelada_item_pedido: cancelada,
+      casas_decimais_quantidade_item: 2,
+      moeda_item: moeda,
+      valor_total_itens: valorTotal,
+      valor_unitario_item: valorUnit,
+      casas_decimais_valor_item: 2,
+      cobertura_cambial: pick(COBERTURA_CAMBIAL),
+      peso_liquido_unitario_item: randFloat(0.1, 50, 3),
+      peso_bruto_unitario_item: randFloat(0.1, 60, 3),
+      cubagem_unitaria_item: randFloat(0.001, 0.5, 4),
+      casas_decimais_peso_item: 3,
+      casas_decimais_cubagem_item: 4,
+      nome_exportador: tipo === 'importacao' ? exportador.nome : null,
+      nome_importador: tipo === 'exportacao' ? importador.nome : null,
+      nome_fabricante: fabricante.nome,
+      referencia_exportador: `REF-EXP-${randInt(1000, 9999)}`,
+      referencia_importador: `REF-IMP-${randInt(1000, 9999)}`,
+      referencia_fabricante: `REF-FAB-${randInt(1000, 9999)}`,
+      incoterm,
+      condicao_pagamento_pedido: pick(CONDICOES_PAGAMENTO),
+      data_emissao_pedido: randDate(180),
+      item_criado_em: new Date(),
+      item_atualizado_em: new Date(),
+    }
+  })
+
+  const valorTotalPedido = Number(itens.reduce((s, it) => s + Number(it.valor_total_itens ?? 0), 0).toFixed(2))
+  const qtdTotal = Number(itens.reduce((s, it) => s + Number(it.quantidade_inicial_item_pedido), 0).toFixed(2))
+  const pesoLiq = Number(itens.reduce((s, it) => s + Number(it.peso_liquido_unitario_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(3))
+  const pesoBruto = Number(itens.reduce((s, it) => s + Number(it.peso_bruto_unitario_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(3))
+  const cubagem = Number(itens.reduce((s, it) => s + Number(it.cubagem_unitaria_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(4))
+
+  const pedido = {
+    id,
+    tenant_id: tenantId,
+    company_id: tenantId,
+    tipo_operacao: tipo,
+    numero_pedido: numeroPedido,
+    status: pickWeighted(STATUS_DIST),
+    importacao_exportador_id: tipo === 'importacao' ? exportador.id : null,
+    exportacao_importador_id: tipo === 'exportacao' ? importador.id : null,
+    fabricante_id: fabricante.id,
+    incoterm,
+    moeda_pedido: moeda,
+    valor_total_pedido: valorTotalPedido,
+    casas_decimais_valor_pedido: 2,
+    quantidade_total_inicial_pedido: qtdTotal,
+    casas_decimais_quantidade_pedido: 2,
+    unidade_comercializada_pedido: unidade,
+    condicao_pagamento_pedido: pick(CONDICOES_PAGAMENTO),
+    numero_proforma: `PI-${ano}-${String(index).padStart(5, '0')}`,
+    numero_invoice: `CI-${ano}-${String(index).padStart(5, '0')}`,
+    referencia_importador: `REF-IMP-${randInt(1000, 9999)}`,
+    referencia_exportador: `REF-EXP-${randInt(1000, 9999)}`,
+    referencia_fabricante: `REF-FAB-${randInt(1000, 9999)}`,
+    valor_total_cambio_pedido: Number((valorTotalPedido * taxaCambio).toFixed(2)),
+    moeda_cambio_pedido: moedaCambio,
+    taxa_cambio_estimada_pedido: taxaCambio,
+    data_emissao_pedido: randDate(180),
     detalhes_operacionais: {
-      porto_origem:     'Shanghai (CNSHA)',
-      porto_destino:    'Santos (BRSSZ)',
-      modal:            'Maritimo FCL',
-      transit_time:     28,
-      numero_di_previa: 'DI-2026-10001',
+      modal: pick(MODAIS),
+      porto_origem: pick(PORTOS_ORIGEM),
+      porto_destino: pick(PORTOS_DESTINO),
+      transit_time: randInt(15, 45),
+      nome_exportador: tipo === 'importacao' ? exportador.nome : null,
+      nome_importador: tipo === 'exportacao' ? importador.nome : null,
+      nome_fabricante: fabricante.nome,
     },
-
-    itens: [
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'IC-ESP32-WROOM-32E',
-        ncm:         '8542.31.90',
-        descricao_item:   'Módulo Wi-Fi + Bluetooth ESP32-WROOM-32E 4MB Flash',
-        unidade_comercializada_item: 'PCS',
-        quantidade_inicial_item_pedido:     new Decimal('5000'),
-        saldo_item_pedido:                  new Decimal('5000'),
-        quantidade_pronta_total_item_pedido: new Decimal('0'),
-        quantidade_transferida_item_pedido: new Decimal('0'),
-        quantidade_cancelada_item_pedido:   new Decimal('0'),
-        casas_decimais_quantidade_item: 0,
-        moeda_item:         'USD',
-        valor_unitario_item: new Decimal('2.450000'),
-        valor_total_itens:         new Decimal('12250.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'DISP-TFT-3.5-ILI9488',
-        ncm:         '8524.12.00',
-        descricao_item:   'Display TFT 3.5" ILI9488 480x320 SPI Touch',
-        unidade_comercializada_item: 'PCS',
-        quantidade_inicial_item_pedido:new Decimal('2000'),
-        saldo_item_pedido:new Decimal('2000'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('0'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'USD',
-        valor_unitario_item:new Decimal('8.750000'),
-        valor_total_itens:         new Decimal('17500.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'PSU-220-5V-10A-DIN',
-        ncm:         '8504.40.30',
-        descricao_item:   'Fonte de Alimentação Chaveada 220V→5V 10A DIN Rail',
-        unidade_comercializada_item: 'PCS',
-        quantidade_inicial_item_pedido:new Decimal('500'),
-        saldo_item_pedido:new Decimal('500'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('0'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'USD',
-        valor_unitario_item:new Decimal('24.500000'),
-        valor_total_itens:         new Decimal('12250.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-    ],
-  },
-
-  // ─── 2. Importação de químicos — status: transferencia ──────────────────
-  {
-    id: gerarId('pedi'),
-    tenant_id:  TENANT_ID,
-    company_id: COMPANY_ID,
-
-    tipo_operacao: 'importacao',
-    numero_pedido: 'PO-2026-0202',
-    status:        'transferencia',
-
-    importacao_exportador_id: EXP_ALEMANHA,
-
-    incoterm:       'FOB',
-    moeda_pedido:   'EUR',
-    condicao_pagamento_pedido: 'Carta de Crédito à vista',
-
-    numero_proforma:       'PI-BOSCH-2026-0045',
-    numero_invoice:        'CI-BOSCH-2026-0045',
-    referencia_importador: 'IMP-QUIM-2026-002',
-    referencia_exportador: 'BOSCH-ORDER-45200',
-
-    moeda_cambio_pedido:         'BRL',
-    taxa_cambio_estimada_pedido: new Decimal('6.2100'),
-    valor_total_cambio_pedido:   new Decimal('93150.000000'),
-
-    data_emissao_pedido: new Date('2026-01-15'),
-
-    detalhes_operacionais: {
-      porto_origem:  'Hamburg (DEHAM)',
-      porto_destino: 'Vitoria (BRVIX)',
-      modal:         'Maritimo LCL',
-      transit_time:  35,
-      licenca_ibama: 'LI-2026-00890',
-    },
-
-    itens: [
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'LUBT-SYNTH-5W40-20L',
-        ncm:         '2710.19.32',
-        descricao_item:   'Óleo Lubrificante Sintético SAE 5W-40 — Tambor 20L',
-        unidade_comercializada_item: 'L',
-        quantidade_inicial_item_pedido:new Decimal('4000.000'),
-        saldo_item_pedido:new Decimal('2500.000'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('1500.000'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:3,
-        moeda_item:         'EUR',
-        valor_unitario_item:new Decimal('3.750000'),
-        valor_total_itens:         new Decimal('15000.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'GRAX-HI-TEMP-500G',
-        ncm:         '2710.19.99',
-        descricao_item:   'Graxa Alta Temperatura Base Lítio EP2 — Bisnaga 500g',
-        unidade_comercializada_item: 'KG',
-        quantidade_inicial_item_pedido:new Decimal('200.000'),
-        saldo_item_pedido:new Decimal('200.000'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('0'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:3,
-        moeda_item:         'EUR',
-        valor_unitario_item:new Decimal('12.800000'),
-        valor_total_itens:         new Decimal('2560.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-    ],
-  },
-
-  // ─── 3. Importação de EPI — status: consolidado ──────────────────────────
-  {
-    id: gerarId('pedi'),
-    tenant_id:  TENANT_ID,
-    company_id: COMPANY_ID,
-
-    tipo_operacao: 'importacao',
-    numero_pedido: 'PO-2026-0305',
-    status:        'consolidado',
-
-    importacao_exportador_id: EXP_EUA,
-
-    incoterm:       'CIF',
-    moeda_pedido:   'USD',
-    condicao_pagamento_pedido: '60 dias data embarque',
-
-    numero_proforma:       'PI-3M-2026-00112',
-    numero_invoice:        'CI-3M-2026-00112',
-    referencia_importador: 'IMP-EPI-2026-003',
-    referencia_exportador: '3M-BR-2026-00112',
-
-    moeda_cambio_pedido:         'BRL',
-    taxa_cambio_estimada_pedido: new Decimal('5.7800'),
-    valor_total_cambio_pedido:   new Decimal('57800.000000'),
-
-    data_emissao_pedido: new Date('2025-12-20'),
-
-    detalhes_operacionais: {
-      porto_origem:  'Los Angeles (USLAX)',
-      porto_destino: 'Santos (BRSSZ)',
-      modal:         'Aereo',
-      transit_time:  5,
-      certif_ca:     'CA-15888',
-    },
-
-    itens: [
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: '3M-9501V-N95-CX20',
-        ncm:         '6307.90.10',
-        descricao_item:   'Máscara Respiratória N95 3M 9501V — Caixa 20un',
-        unidade_comercializada_item: 'CX',
-        quantidade_inicial_item_pedido:new Decimal('500'),
-        saldo_item_pedido:new Decimal('0'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('500'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'USD',
-        valor_unitario_item:new Decimal('28.600000'),
-        valor_total_itens:         new Decimal('14300.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: '3M-PELTOR-X5-FONE',
-        ncm:         '8518.10.90',
-        descricao_item:   'Protetor Auricular Tipo Concha 3M PELTOR X5 31dB',
-        unidade_comercializada_item: 'PCS',
-        quantidade_inicial_item_pedido:new Decimal('300'),
-        saldo_item_pedido:new Decimal('0'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('300'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'USD',
-        valor_unitario_item:new Decimal('42.000000'),
-        valor_total_itens:         new Decimal('12600.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: '3M-SOLARIS-OCUL-UV',
-        ncm:         '9004.10.10',
-        descricao_item:   'Óculos de Proteção 3M Solaris Anti-UV Incolor',
-        unidade_comercializada_item: 'PCS',
-        quantidade_inicial_item_pedido:new Decimal('1000'),
-        saldo_item_pedido:new Decimal('0'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('1000'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'USD',
-        valor_unitario_item:new Decimal('7.900000'),
-        valor_total_itens:         new Decimal('7900.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-    ],
-  },
-
-  // ─── 4. Importação de máquinas — status: aberto ──────────────────────────
-  {
-    id: gerarId('pedi'),
-    tenant_id:  TENANT_ID,
-    company_id: COMPANY_ID,
-
-    tipo_operacao: 'importacao',
-    numero_pedido: 'PO-2026-0412',
-    status:        'aberto',
-
-    importacao_exportador_id: EXP_ALEMANHA,
-    fabricante_id:            EXP_ALEMANHA,
-
-    incoterm:       'EXW',
-    moeda_pedido:   'EUR',
-    condicao_pagamento_pedido: '50% adiantado, 50% após FAT',
-
-    numero_proforma: 'PI-BOSCH-2026-0089',
-    referencia_importador: 'IMP-MAQ-2026-004',
-    referencia_exportador: 'BOSCH-ORDER-89700',
-
-    taxa_cambio_estimada_pedido: new Decimal('6.1500'),
-
-    data_emissao_pedido: new Date('2026-03-01'),
-
-    detalhes_operacionais: {
-      porto_origem:  'Bremerhaven (DEBRV)',
-      porto_destino: 'Santos (BRSSZ)',
-      modal:         'Maritimo FCL 40HQ',
-      transit_time:  42,
-      peso_total_kg: 8400,
-      nota_tecnica:  'Requer vistoria INMETRO na origem',
-    },
-
-    itens: [
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'BOSCH-CNC-VF3-VERT',
-        ncm:         '8457.10.10',
-        descricao_item:   'Centro de Usinagem Vertical CNC Bosch VF3 — 3 Eixos 12k RPM',
-        unidade_comercializada_item: 'UN',
-        quantidade_inicial_item_pedido:new Decimal('1'),
-        saldo_item_pedido:new Decimal('1'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('0'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'EUR',
-        valor_unitario_item:new Decimal('78500.000000'),
-        valor_total_itens:         new Decimal('78500.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'BOSCH-TOOL-HOLDER-KIT',
-        ncm:         '8466.20.00',
-        descricao_item:   'Kit Porta-Ferramentas BT40 (12 peças) para CNC VF3',
-        unidade_comercializada_item: 'KIT',
-        quantidade_inicial_item_pedido:new Decimal('2'),
-        saldo_item_pedido:new Decimal('2'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('0'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'EUR',
-        valor_unitario_item:new Decimal('3200.000000'),
-        valor_total_itens:         new Decimal('6400.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-    ],
-  },
-
-  // ─── 5. Exportação de calçados — status: aberto ──────────────────────────
-  {
-    id: gerarId('pedi'),
-    tenant_id:  TENANT_ID,
-    company_id: COMPANY_ID,
-
-    tipo_operacao: 'exportacao',
-    numero_pedido: 'SO-2026-0501',
-    status:        'aberto',
-
-    exportacao_importador_id: 'parceiro_zapatos_chile_001',
-
-    incoterm:       'FOB',
-    moeda_pedido:   'USD',
-    condicao_pagamento_pedido: 'Pagamento antecipado 100%',
-
-    numero_proforma:       'PROF-EXP-2026-501',
-    numero_invoice:        'INV-EXP-2026-501',
-    referencia_importador: 'ZAPATOS-PO-2026-1100',
-    referencia_exportador: 'EXP-CALC-2026-501',
-
-    moeda_cambio_pedido:         'BRL',
-    taxa_cambio_estimada_pedido: new Decimal('5.9000'),
-    valor_total_cambio_pedido:   new Decimal('35400.000000'),
-
-    data_emissao_pedido: new Date('2026-03-10'),
-
-    detalhes_operacionais: {
-      porto_origem:  'Rio Grande (BRRGA)',
-      porto_destino: 'Valparaíso (CLVAP)',
-      modal:         'Maritimo FCL 20Dry',
-      transit_time:  7,
-      drawback:      'DRW-2026-0101',
-      re_siscomex:   'RE-2026-0000501',
-    },
-
-    itens: [
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'CALC-COURO-MASC-38-44',
-        ncm:         '6403.99.90',
-        descricao_item:   'Calçado Masculino Couro Bovino Sola Borracha N°38-44',
-        unidade_comercializada_item: 'PAR',
-        quantidade_inicial_item_pedido:new Decimal('600'),
-        saldo_item_pedido:new Decimal('600'),
-        quantidade_pronta_total_item_pedido:new Decimal('400'),
-        quantidade_transferida_item_pedido:new Decimal('0'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'USD',
-        valor_unitario_item:new Decimal('45.000000'),
-        valor_total_itens:         new Decimal('27000.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'CALC-FEM-SALTO-36-41',
-        ncm:         '6403.99.90',
-        descricao_item:   'Calçado Feminino Salto 7cm Couro Sintético N°36-41',
-        unidade_comercializada_item: 'PAR',
-        quantidade_inicial_item_pedido:new Decimal('200'),
-        saldo_item_pedido:new Decimal('200'),
-        quantidade_pronta_total_item_pedido:new Decimal('100'),
-        quantidade_transferida_item_pedido:new Decimal('0'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:0,
-        moeda_item:         'USD',
-        valor_unitario_item:new Decimal('30.000000'),
-        valor_total_itens:         new Decimal('6000.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-    ],
-  },
-
-  // ─── 6. Exportação de grãos — status: transferencia ─────────────────────
-  {
-    id: gerarId('pedi'),
-    tenant_id:  TENANT_ID,
-    company_id: COMPANY_ID,
-
-    tipo_operacao: 'exportacao',
-    numero_pedido: 'SO-2026-0612',
-    status:        'transferencia',
-
-    exportacao_importador_id: 'parceiro_nidera_argentina_001',
-
-    incoterm:       'CFR',
-    moeda_pedido:   'USD',
-    condicao_pagamento_pedido: '100% carta de crédito irrevogável',
-
-    numero_proforma:       'PROF-EXP-2026-612',
-    numero_invoice:        'INV-EXP-2026-612',
-    referencia_importador: 'NIDERA-PO-612',
-    referencia_exportador: 'EXP-SOJA-2026-612',
-
-    moeda_cambio_pedido:         'BRL',
-    taxa_cambio_estimada_pedido: new Decimal('5.8700'),
-    valor_total_cambio_pedido:   new Decimal('469600.000000'),
-
-    data_emissao_pedido: new Date('2026-02-28'),
-
-    detalhes_operacionais: {
-      porto_origem:  'Paranaguá (BRPNG)',
-      porto_destino: 'Buenos Aires (ARBUE)',
-      modal:         'Maritimo Graneleiro',
-      transit_time:  3,
-      romaneio:      'ROM-2026-0612',
-      laudo_qualidade: 'LQ-EMBRAPA-2026-0612',
-    },
-
-    itens: [
-      {
-        id: gerarId('pite'),
-        tenant_id:  TENANT_ID,
-        company_id: COMPANY_ID,
-        part_number: 'SOJA-GRAO-DESCAS-NON-GMO',
-        ncm:         '1201.10.00',
-        descricao_item:   'Soja em Grão Descascada Non-GMO — Umidade ≤14% Pureza ≥99%',
-        unidade_comercializada_item: 'TON',
-        quantidade_inicial_item_pedido:new Decimal('2000.000'),
-        saldo_item_pedido:new Decimal('800.000'),
-        quantidade_pronta_total_item_pedido:new Decimal('0'),
-        quantidade_transferida_item_pedido:new Decimal('1200.000'),
-        quantidade_cancelada_item_pedido:new Decimal('0'),
-        casas_decimais_quantidade_item:3,
-        moeda_item:         'USD',
-        valor_unitario_item:new Decimal('400.000000'),
-        valor_total_itens:         new Decimal('800000.000000'),
-        casas_decimais_valor_item: 2,
-        cobertura_cambial: 'com_cobertura',
-      },
-    ],
-  },
-]
-
-// ── Executar seed ────────────────────────────────────────────────────────────
-
-async function main() {
-  console.log('🌱 Iniciando seed de pedidos...\n')
-
-  for (const pedido of pedidos) {
-    const { itens, ...pedidoData } = pedido
-
-    // Calcular totais
-    const valor_total = itens.reduce((acc, item) => acc.add(item.valor_total_itens), new Decimal(0))
-    const qtd_total   = itens.reduce((acc, item) => acc + Number(item.quantidade_inicial_item_pedido), 0)
-
-    const created = await prisma.pedido.create({
-      data: {
-        ...pedidoData,
-        valor_total_pedido:     valor_total,
-        quantidade_total_inicial_pedido: qtd_total,
-        itens: {
-          create: itens.map(({ id, pedido_id: _ignored, ...item }, index) => ({
-            id,
-            ...item,
-            sequencia_item: index + 1,
-          })),
-        },
-      },
-      include: { itens: true },
-    })
-
-    console.log(`✅ ${created.numero_pedido} [${created.tipo_operacao}/${created.status}]`)
-    console.log(`   ${created.itens.length} iten(s) | Total: ${created.moeda_pedido} ${Number(created.valor_total_pedido).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`)
+    peso_liquido_total_pedido: pesoLiq,
+    peso_bruto_total_pedido: pesoBruto,
+    cubagem_total_pedido: cubagem,
+    casas_decimais_peso_pedido: 3,
+    casas_decimais_cubagem_pedido: 4,
+    pedido_criado_em: new Date(),
+    pedido_atualizado_em: new Date(),
   }
 
-  console.log('\n✨ Seed concluído!')
+  return { pedido, itens }
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
+async function main() {
+  const args = process.argv.slice(2)
+  const totalArg = args.find(a => a.startsWith('--total='))
+  const total = totalArg ? parseInt(totalArg.split('=')[1], 10) : 1000
+  const clean = args.includes('--clean')
+
+  const tenantId = process.env.TENANT_ID
+  if (!tenantId) {
+    console.error('❌ TENANT_ID é obrigatório. Ex: TENANT_ID=tenant-dev-gravity-2026 npx tsx prisma/seed.ts --total=1000')
+    process.exit(1)
+  }
+
+  if (!Number.isFinite(total) || total <= 0) {
+    console.error('❌ --total inválido:', totalArg)
+    process.exit(1)
+  }
+
+  console.log(`\n🌱 Seed Pedido — tenant: ${tenantId} | total: ${total.toLocaleString('pt-BR')} | clean: ${clean}\n`)
+
+  if (clean) {
+    console.log('🧹 Limpando dados existentes do tenant...')
+    const delItens = await prisma.$executeRaw`DELETE FROM pedido.pedido_itens WHERE tenant_id = ${tenantId}`
+    const delPedidos = await prisma.$executeRaw`DELETE FROM pedido.pedidos_comerciais WHERE tenant_id = ${tenantId}`
+    console.log(`   → ${delItens} itens e ${delPedidos} pedidos removidos\n`)
+  }
+
+  // Distribuição: 60/30/10
+  const qtdPequenos = Math.round(total * 0.6)
+  const qtdMedios = Math.round(total * 0.3)
+  const qtdGrandes = total - qtdPequenos - qtdMedios
+
+  console.log(`📊 Distribuição:`)
+  console.log(`   Pequenos: ${qtdPequenos.toLocaleString('pt-BR')} (1-3 itens)`)
+  console.log(`   Médios:   ${qtdMedios.toLocaleString('pt-BR')} (4-15 itens)`)
+  console.log(`   Grandes:  ${qtdGrandes.toLocaleString('pt-BR')} (16-50 itens)\n`)
+
+  const plano: Array<{ perfil: Perfil; count: number }> = [
+    { perfil: PERFIS.pequeno, count: qtdPequenos },
+    { perfil: PERFIS.medio,   count: qtdMedios },
+    { perfil: PERFIS.grande,  count: qtdGrandes },
+  ]
+
+  let index = 1
+  let totalItens = 0
+  const BATCH = 100
+  const anoBase = new Date().getFullYear()
+
+  for (const { perfil, count } of plano) {
+    console.log(`⏳ Gerando ${count.toLocaleString('pt-BR')} pedidos ${perfil.nome}s...`)
+    const t0 = Date.now()
+
+    type PedidoGerado = ReturnType<typeof gerarPedido>['pedido']
+    type ItemGerado   = ReturnType<typeof gerarPedido>['itens'][number]
+    let bufPedidos: PedidoGerado[] = []
+    let bufItens: ItemGerado[]   = []
+
+    for (let i = 0; i < count; i++) {
+      const ano = Math.random() < 0.6 ? anoBase : anoBase - 1
+      const { pedido, itens } = gerarPedido({ tenantId, perfil, index, ano })
+      bufPedidos.push(pedido)
+      bufItens.push(...itens)
+      totalItens += itens.length
+      index++
+
+      if (bufPedidos.length >= BATCH) {
+        await prisma.pedido.createMany({ data: bufPedidos as any, skipDuplicates: true })
+        await prisma.pedidoItem.createMany({ data: bufItens as any, skipDuplicates: true })
+        bufPedidos = []
+        bufItens = []
+      }
+    }
+    if (bufPedidos.length > 0) {
+      await prisma.pedido.createMany({ data: bufPedidos as any, skipDuplicates: true })
+      await prisma.pedidoItem.createMany({ data: bufItens as any, skipDuplicates: true })
+    }
+
+    const dt = ((Date.now() - t0) / 1000).toFixed(1)
+    console.log(`   ✓ ${count} pedidos ${perfil.nome}s em ${dt}s`)
+  }
+
+  console.log(`\n✅ Seed concluído: ${total.toLocaleString('pt-BR')} pedidos | ${totalItens.toLocaleString('pt-BR')} itens\n`)
 }
 
 main()
-  .catch(e => { console.error('❌ Erro no seed:', e); process.exit(1) })
-  .finally(() => prisma.$disconnect())
+  .catch(e => {
+    console.error('\n❌ Erro no seed:', e)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

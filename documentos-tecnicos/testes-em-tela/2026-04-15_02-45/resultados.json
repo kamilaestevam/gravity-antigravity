@@ -1,0 +1,105 @@
+[
+  {
+    "id": "J.05",
+    "desc": "Card \"Total Pedidos\" visível na área de KPIs",
+    "ok": "REPROVADO",
+    "ms": 10068,
+    "shot": "fail__J.05.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.lp-cards').getByText(/total pedidos/i).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for l"
+  },
+  {
+    "id": "J.06",
+    "desc": "Subtexto do card Total Pedidos no formato \"X itens no total\"",
+    "ok": "REPROVADO",
+    "ms": 10045,
+    "shot": "fail__J.06.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/\\d+ itens no total/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/\\d+ itens no t"
+  },
+  {
+    "id": "J.07",
+    "desc": "Hover no card Total Pedidos exibe tooltip em até 700ms",
+    "ok": "REPROVADO",
+    "ms": 15055,
+    "shot": "fail__J.07.png",
+    "err": "locator.hover: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.lp-cards > *').first()\u001b[22m\n"
+  },
+  {
+    "id": "J.08",
+    "desc": "Card de Quantidade Total visível",
+    "ok": "REPROVADO",
+    "ms": 15046,
+    "shot": "fail__J.08.png",
+    "err": "locator.textContent: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.lp-cards')\u001b[22m\n"
+  },
+  {
+    "id": "J.09",
+    "desc": "Subtexto do card Qtd. Total contém \"saldo atual\"",
+    "ok": "REPROVADO",
+    "ms": 10051,
+    "shot": "fail__J.09.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/saldo atual/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/saldo atual/i)\u001b[22m\n"
+  },
+  {
+    "id": "J.10",
+    "desc": "Card de Valor Total visível",
+    "ok": "REPROVADO",
+    "ms": 15067,
+    "shot": "fail__J.10.png",
+    "err": "locator.textContent: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.lp-cards')\u001b[22m\n"
+  },
+  {
+    "id": "J.11",
+    "desc": "Subtexto \"Soma de todos os pedidos\" visível no card",
+    "ok": "REPROVADO",
+    "ms": 10082,
+    "shot": "fail__J.11.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/soma de todos os pedidos/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/soma de "
+  },
+  {
+    "id": "J.12",
+    "desc": "Subtexto exato \"Pedidos com status aberto\" visível no card",
+    "ok": "REPROVADO",
+    "ms": 10042,
+    "shot": "fail__J.12.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Pedidos com status aberto')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Pedidos "
+  },
+  {
+    "id": "K.01",
+    "desc": "Botão \"+ Novo\" visível na toolbar",
+    "ok": "REPROVADO",
+    "ms": 10074,
+    "shot": "fail__K.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.lp-dropdown-btn').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.lp-dropdown-"
+  },
+  {
+    "id": "K.02",
+    "desc": "Clicar \"+ Novo\" exibe opção \"Novo Pedido\"",
+    "ok": "REPROVADO",
+    "ms": 15044,
+    "shot": "fail__K.02.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.lp-dropdown-btn').first()\u001b[22m\n"
+  },
+  {
+    "id": "K.03",
+    "desc": "Dropdown \"+ Novo\" exibe opção \"Novo Item\"",
+    "ok": "REPROVADO",
+    "ms": 10046,
+    "shot": "fail__K.03.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/novo item/i).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/novo item/i).fi"
+  },
+  {
+    "id": "K.04",
+    "desc": "Pressionar Escape fecha o dropdown \"+ Novo\"",
+    "ok": "APROVADO",
+    "ms": 447,
+    "shot": "ok__K.04.png"
+  },
+  {
+    "id": "K.05",
+    "desc": "Clicar fora do dropdown fecha sem executar ação",
+    "ok": "REPROVADO",
+    "ms": 14163,
+    "shot": "",
+    "err": "locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.lp-dropdown-btn').first()\u001b[22m\n"
+  }
+]

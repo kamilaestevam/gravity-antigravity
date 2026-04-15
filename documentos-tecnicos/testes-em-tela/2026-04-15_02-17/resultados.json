@@ -1,0 +1,336 @@
+[
+  {
+    "id": "A1.26",
+    "desc": "Busca com texto inexistente exibe estado vazio (não fica em branco)",
+    "ok": "REPROVADO",
+    "ms": 15068,
+    "shot": "fail__A1.26.png",
+    "err": "locator.fill: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[aria-label*=\"Filtrar\"]').first().locator('input').first()\u001b[22m\n"
+  },
+  {
+    "id": "A1.27",
+    "desc": "Limpar filtro de busca sem resultado restaura lista",
+    "ok": "REPROVADO",
+    "ms": 15069,
+    "shot": "fail__A1.27.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[aria-label*=\"Filtrar\"]').first().getByText(/limpar filtro/i)\u001b[22m\n"
+  },
+  {
+    "id": "A1.28",
+    "desc": "Célula col1 da linha 1 não exibe \"null\", \"undefined\" ou string vazia",
+    "ok": "REPROVADO",
+    "ms": 15057,
+    "shot": "fail__A1.28.png",
+    "err": "locator.textContent: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.gtv-linha--pai').first().locator('.gtv-celula').first()\u001b[22m\n"
+  },
+  {
+    "id": "A1.29",
+    "desc": "Células col1 sem valor exibem \"—\" (travessão), nunca vazio",
+    "ok": "APROVADO",
+    "ms": 43,
+    "shot": "ok__A1.29.png"
+  },
+  {
+    "id": "A1.30",
+    "desc": "Hover na célula col1 exibe tooltip com título e descrição",
+    "ok": "REPROVADO",
+    "ms": 15053,
+    "shot": "fail__A1.30.png",
+    "err": "locator.hover: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.gtv-linha--pai').first().locator('.gtv-celula').first()\u001b[22m\n"
+  },
+  {
+    "id": "A1.31",
+    "desc": "Clicar na célula col1 NÃO abre input de edição (campo não editável)",
+    "ok": "REPROVADO",
+    "ms": 15049,
+    "shot": "fail__A1.31.png",
+    "err": "locator.dblclick: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.gtv-linha--pai').first().locator('.gtv-celula').first()\u001b[22m\n"
+  },
+  {
+    "id": "A1.32",
+    "desc": "Linhas filho exibem Part Number na col1 (diferente do número do pedido)",
+    "ok": "APROVADO",
+    "ms": 31,
+    "shot": "ok__A1.32.png"
+  },
+  {
+    "id": "B2.01",
+    "desc": "Header col2 exibe texto exato \"Tipo de Operação\"",
+    "ok": "REPROVADO",
+    "ms": 111,
+    "shot": "fail__B2.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "B2.02",
+    "desc": "Ícone de filtro visível no header \"Tipo de Operação\"",
+    "ok": "REPROVADO",
+    "ms": 10052,
+    "shot": "fail__B2.02.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.gtv-th').filter({ hasText: 'Tipo de Operação' }).first().locator('button').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeou"
+  },
+  {
+    "id": "B2.03",
+    "desc": "Popover de filtro abre ao clicar no ícone",
+    "ok": "REPROVADO",
+    "ms": 64,
+    "shot": "fail__B2.03.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "B2.04",
+    "desc": "Popover exibe opção \"Importação\" como checkbox",
+    "ok": "REPROVADO",
+    "ms": 10049,
+    "shot": "fail__B2.04.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[aria-label*=\"Filtrar\"]').first().getByText('Importação')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - wai"
+  },
+  {
+    "id": "B2.05",
+    "desc": "Popover exibe opção \"Exportação\" como checkbox",
+    "ok": "REPROVADO",
+    "ms": 10031,
+    "shot": "fail__B2.05.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[aria-label*=\"Filtrar\"]').first().getByText('Exportação')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - wai"
+  },
+  {
+    "id": "B2.06",
+    "desc": "Tipo enum NÃO exibe botão \"Aplicar\" — aplica ao marcar o checkbox",
+    "ok": "APROVADO",
+    "ms": 46,
+    "shot": "ok__B2.06.png"
+  },
+  {
+    "id": "B2.07",
+    "desc": "Marcar \"Importação\" aplica filtro sem precisar de botão Aplicar",
+    "ok": "REPROVADO",
+    "ms": 15063,
+    "shot": "fail__B2.07.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[aria-label*=\"Filtrar\"]').first().getByText('Importação').locator('..').or(locator('[aria-label*=\"Filtrar\"]').first().locator('label').filter({ hasText: 'Importação' })).first()\u001b[22m\n"
+  },
+  {
+    "id": "B2.08",
+    "desc": "Fechar popover — tabela exibe apenas pedidos de Importação",
+    "ok": "APROVADO",
+    "ms": 680,
+    "shot": "ok__B2.08.png"
+  },
+  {
+    "id": "B2.09",
+    "desc": "Limpar chip de filtro restaura todos os tipos de operação",
+    "ok": "APROVADO",
+    "ms": 55,
+    "shot": "ok__B2.09.png"
+  },
+  {
+    "id": "B2.10",
+    "desc": "Marcar \"Exportação\" aplica filtro de tipo exportação",
+    "ok": "REPROVADO",
+    "ms": 15076,
+    "shot": "fail__B2.10.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[aria-label*=\"Filtrar\"]').first().locator('label').filter({ hasText: 'Exportação' }).first()\u001b[22m\n"
+  },
+  {
+    "id": "B2.11",
+    "desc": "Marcar \"Importação\" também (ambos selecionados) restaura lista completa",
+    "ok": "APROVADO",
+    "ms": 972,
+    "shot": "ok__B2.11.png"
+  },
+  {
+    "id": "B2.12",
+    "desc": "Badge \"Importação\" tem cor inline azul (#60a5fa)",
+    "ok": "APROVADO",
+    "ms": 37,
+    "shot": "ok__B2.12.png"
+  },
+  {
+    "id": "B2.13",
+    "desc": "Badge \"Exportação\" tem cor inline verde (#34d399)",
+    "ok": "APROVADO",
+    "ms": 65,
+    "shot": "ok__B2.13.png"
+  },
+  {
+    "id": "B2.14",
+    "desc": "Badges da col2 não estão cortados (width > 60px)",
+    "ok": "APROVADO",
+    "ms": 52,
+    "shot": "ok__B2.14.png"
+  },
+  {
+    "id": "C3.01",
+    "desc": "Header col3 exibe texto \"Nome do Exportador\"",
+    "ok": "REPROVADO",
+    "ms": 79,
+    "shot": "fail__C3.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "C3.02",
+    "desc": "\"Cresc.\" em Exportador ordena lista por nome do exportador A→Z",
+    "ok": "APROVADO",
+    "ms": 38,
+    "shot": "ok__C3.02.png"
+  },
+  {
+    "id": "C3.03",
+    "desc": "\"Decresc.\" em Exportador ordena lista por nome do exportador Z→A",
+    "ok": "APROVADO",
+    "ms": 39,
+    "shot": "ok__C3.03.png"
+  },
+  {
+    "id": "C3.04",
+    "desc": "Busca parcial por nome de exportador filtra corretamente",
+    "ok": "APROVADO",
+    "ms": 45,
+    "shot": "ok__C3.04.png"
+  },
+  {
+    "id": "C3.05",
+    "desc": "Célula Exportador em linha de Importação aceita duplo clique para edição",
+    "ok": "APROVADO",
+    "ms": 74,
+    "shot": "ok__C3.05.png"
+  },
+  {
+    "id": "D5.01",
+    "desc": "Header \"Status\" visível e com texto exato",
+    "ok": "REPROVADO",
+    "ms": 57,
+    "shot": "fail__D5.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "D5.02",
+    "desc": "Popover \"Status\" exibe ao menos \"Aberto\" como opção",
+    "ok": "APROVADO",
+    "ms": 36,
+    "shot": "ok__D5.02.png"
+  },
+  {
+    "id": "D5.03",
+    "desc": "Selecionar \"Aberto\" no popover mostra apenas linhas com status Aberto",
+    "ok": "APROVADO",
+    "ms": 29,
+    "shot": "ok__D5.03.png"
+  },
+  {
+    "id": "D5-COR-Rascunho",
+    "desc": "Badge \"Rascunho\" tem cor inline #94a3b8",
+    "ok": "APROVADO",
+    "ms": 48,
+    "shot": "ok__D5-COR-Rascunho.png"
+  },
+  {
+    "id": "D5-COR-Aberto",
+    "desc": "Badge \"Aberto\" tem cor inline #f472b6",
+    "ok": "APROVADO",
+    "ms": 46,
+    "shot": "ok__D5-COR-Aberto.png"
+  },
+  {
+    "id": "D5-COR-Em_Andamento",
+    "desc": "Badge \"Em Andamento\" tem cor inline #fb923c",
+    "ok": "APROVADO",
+    "ms": 35,
+    "shot": "ok__D5-COR-Em_Andamento.png"
+  },
+  {
+    "id": "D5-COR-Aprovado",
+    "desc": "Badge \"Aprovado\" tem cor inline #facc15",
+    "ok": "APROVADO",
+    "ms": 47,
+    "shot": "ok__D5-COR-Aprovado.png"
+  },
+  {
+    "id": "D5-COR-Transferido",
+    "desc": "Badge \"Transferido\" tem cor inline #2dd4bf",
+    "ok": "APROVADO",
+    "ms": 52,
+    "shot": "ok__D5-COR-Transferido.png"
+  },
+  {
+    "id": "D5-COR-Consolidado",
+    "desc": "Badge \"Consolidado\" tem cor inline #a78bfa",
+    "ok": "APROVADO",
+    "ms": 46,
+    "shot": "ok__D5-COR-Consolidado.png"
+  },
+  {
+    "id": "D5-COR-Cancelado",
+    "desc": "Badge \"Cancelado\" tem cor inline #f87171",
+    "ok": "APROVADO",
+    "ms": 55,
+    "shot": "ok__D5-COR-Cancelado.png"
+  },
+  {
+    "id": "D5.11",
+    "desc": "Status desconhecido/inexistente usa cor fallback #64748b",
+    "ok": "APROVADO",
+    "ms": 49,
+    "shot": "ok__D5.11.png"
+  },
+  {
+    "id": "D5.12",
+    "desc": "Clicar no badge de status abre seletor inline de status",
+    "ok": "APROVADO",
+    "ms": 61,
+    "shot": "ok__D5.12.png"
+  },
+  {
+    "id": "E6.01",
+    "desc": "Header \"Referência Importador\" visível nas colunas",
+    "ok": "REPROVADO",
+    "ms": 69,
+    "shot": "fail__E6.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "E6.02",
+    "desc": "Dblclick em célula \"Ref. Importador\" abre input de edição (campo editável)",
+    "ok": "APROVADO",
+    "ms": 31,
+    "shot": "ok__E6.02.png"
+  },
+  {
+    "id": "TAB-Todos.01",
+    "desc": "Tab \"Todos\" está visível na barra de tabs",
+    "ok": "REPROVADO",
+    "ms": 10057,
+    "shot": "fail__TAB-Todos.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[class*=\"tab\"]').filter({ hasText: /^Todos$/i }).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - wait"
+  },
+  {
+    "id": "TAB-Todos.02",
+    "desc": "Clicar \"Todos\" não recarrega a página (SPA)",
+    "ok": "APROVADO",
+    "ms": 651,
+    "shot": "ok__TAB-Todos.02.png"
+  },
+  {
+    "id": "TAB-Todos.03",
+    "desc": "Tab \"Todos\" fica com estilo ativo após clicar",
+    "ok": "REPROVADO",
+    "ms": 30082,
+    "shot": "fail__TAB-Todos.03.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "TAB-Todos.04",
+    "desc": "Tabela permanece visível após clicar em \"Todos\"",
+    "ok": "REPROVADO",
+    "ms": 9000,
+    "shot": "",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.lp-tabela-wrapper')\nExpected: visible\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.lp-tabela-wrapper')\u001b[22m\n"
+  },
+  {
+    "id": "TAB-Todos.05",
+    "desc": "Se tab \"Todos\" vazia: exibe mensagem de estado vazio (não tela em branco)",
+    "ok": "REPROVADO",
+    "ms": 2,
+    "shot": "",
+    "err": "locator.count: Target page, context or browser has been closed"
+  }
+]

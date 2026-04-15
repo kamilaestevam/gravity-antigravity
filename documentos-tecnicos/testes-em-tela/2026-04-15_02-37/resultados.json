@@ -1,0 +1,58 @@
+[
+  {
+    "id": "G.01",
+    "desc": "Campo de busca global visível na toolbar",
+    "ok": "REPROVADO",
+    "ms": 10055,
+    "shot": "fail__G.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('input[placeholder*=\"uscar\"], input[placeholder*=\"Buscar\"]').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b"
+  },
+  {
+    "id": "G.02",
+    "desc": "Placeholder do campo de busca é \"Buscar pedido, exportador, referência...\"",
+    "ok": "REPROVADO",
+    "ms": 15047,
+    "shot": "fail__G.02.png",
+    "err": "locator.getAttribute: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"uscar\"], input[placeholder*=\"Buscar\"]').first()\u001b[22m\n"
+  },
+  {
+    "id": "G.03",
+    "desc": "Digitar 3 chars filtra a tabela sem recarregar a página",
+    "ok": "REPROVADO",
+    "ms": 15053,
+    "shot": "fail__G.03.png",
+    "err": "locator.fill: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"uscar\"], input[placeholder*=\"Buscar\"]').first()\u001b[22m\n"
+  },
+  {
+    "id": "G.04",
+    "desc": "Pressionar Escape com campo focado limpa o valor",
+    "ok": "REPROVADO",
+    "ms": 5648,
+    "shot": "",
+    "err": "locator.fill: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('input[placeholder*=\"uscar\"], input[placeholder*=\"Buscar\"]').first()\u001b[22m\n"
+  },
+  {
+    "id": "G.05",
+    "desc": "Após limpar busca, lista volta ao estado completo",
+    "ok": "REPROVADO",
+    "ms": 3,
+    "shot": "",
+    "err": "locator.count: Target page, context or browser has been closed"
+  },
+  {
+    "id": "G.06",
+    "desc": "Busca com texto inexistente exibe estado vazio (não silencioso)",
+    "ok": "REPROVADO",
+    "ms": 2,
+    "shot": "",
+    "err": "locator.fill: Target page, context or browser has been closed"
+  },
+  {
+    "id": "G.07",
+    "desc": "Busca case-insensitive: \"gravity\" == \"GRAVITY\" em quantidade de resultados",
+    "ok": "REPROVADO",
+    "ms": 2,
+    "shot": "",
+    "err": "locator.fill: Target page, context or browser has been closed"
+  }
+]

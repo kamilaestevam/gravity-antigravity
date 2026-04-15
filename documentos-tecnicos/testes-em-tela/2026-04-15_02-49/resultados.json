@@ -1,0 +1,500 @@
+[
+  {
+    "id": "K.06",
+    "desc": "Hover em \"Novo Pedido\" exibe submenu com opção \"Manual\"",
+    "ok": "REPROVADO",
+    "ms": 15063,
+    "shot": "fail__K.06.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.lp-dropdown-btn').first()\u001b[22m\n"
+  },
+  {
+    "id": "K.07",
+    "desc": "Submenu \"Novo Pedido\" exibe opção \"Importação\"",
+    "ok": "REPROVADO",
+    "ms": 10052,
+    "shot": "fail__K.07.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/importa/i).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/importa/i).first("
+  },
+  {
+    "id": "K.08",
+    "desc": "Clicar \"Manual\" em Novo Pedido abre ModalNovoPedido (sem navegar)",
+    "ok": "APROVADO",
+    "ms": 68,
+    "shot": "ok__K.08.png"
+  },
+  {
+    "id": "K.09",
+    "desc": "Hover em \"Novo Item\" exibe submenu com opção \"Manual\"",
+    "ok": "REPROVADO",
+    "ms": 15049,
+    "shot": "fail__K.09.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.lp-dropdown-btn').first()\u001b[22m\n"
+  },
+  {
+    "id": "K.10",
+    "desc": "Descrição \"Adicionar item\" visível no submenu de Novo Item",
+    "ok": "APROVADO",
+    "ms": 44,
+    "shot": "ok__K.10.png"
+  },
+  {
+    "id": "K.11",
+    "desc": "Clicar \"Manual\" em Novo Item abre ModalNovoItem",
+    "ok": "APROVADO",
+    "ms": 50,
+    "shot": "ok__K.11.png"
+  },
+  {
+    "id": "L.01",
+    "desc": ".lp-cards: display=grid",
+    "ok": "REPROVADO",
+    "ms": 15051,
+    "shot": "fail__L.01.png",
+    "err": "locator.evaluate: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.lp-cards')\u001b[22m\n"
+  },
+  {
+    "id": "L.02",
+    "desc": ".lp-dropdown-btn: transition contém \"0.1s\"",
+    "ok": "APROVADO",
+    "ms": 53,
+    "shot": "ok__L.02.png"
+  },
+  {
+    "id": "L.03",
+    "desc": "Célula de linha pai: color #f1f5f9 (rgb 241,245,249)",
+    "ok": "APROVADO",
+    "ms": 52,
+    "shot": "ok__L.03.png"
+  },
+  {
+    "id": "L.04",
+    "desc": "Célula de linha filho: color #cbd5e1 (rgb 203,213,225)",
+    "ok": "APROVADO",
+    "ms": 35,
+    "shot": "ok__L.04.png"
+  },
+  {
+    "id": "L.05",
+    "desc": "Célula de linha pai: font-weight=600",
+    "ok": "APROVADO",
+    "ms": 59,
+    "shot": "ok__L.05.png"
+  },
+  {
+    "id": "L.06",
+    "desc": "Célula de linha filho: font-weight=400",
+    "ok": "APROVADO",
+    "ms": 50,
+    "shot": "ok__L.06.png"
+  },
+  {
+    "id": "M.01",
+    "desc": "Durante fetch lento, tabela exibe skeleton ou spinner (não fica em branco)",
+    "ok": "APROVADO",
+    "ms": 8837,
+    "shot": "ok__M.01.png"
+  },
+  {
+    "id": "M.02",
+    "desc": "API retorna 500 → página não trava silenciosamente (sem crash JS)",
+    "ok": "APROVADO",
+    "ms": 10460,
+    "shot": "ok__M.02.png"
+  },
+  {
+    "id": "M.03",
+    "desc": "Lista vazia exibe \"Nenhum pedido encontrado\" e CTA Novo Pedido",
+    "ok": "REPROVADO",
+    "ms": 11807,
+    "shot": "fail__M.03.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/nenhum pedido encontrado/i).or(getByText(/crie seu primeiro/i)).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b"
+  },
+  {
+    "id": "M.04",
+    "desc": "Botão \"Novo Pedido\" como CTA no estado vazio",
+    "ok": "REPROVADO",
+    "ms": 11710,
+    "shot": "fail__M.04.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /novo pedido/i }).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getB"
+  },
+  {
+    "id": "N.01",
+    "desc": "Header \"Incoterm\" visível nas colunas (pode estar oculta por padrão)",
+    "ok": "APROVADO",
+    "ms": 96,
+    "shot": "ok__N.01.png"
+  },
+  {
+    "id": "N.02",
+    "desc": "Popover Incoterm abre com Cresc. / Decresc. / campo de busca",
+    "ok": "APROVADO",
+    "ms": 35,
+    "shot": "ok__N.02.png"
+  },
+  {
+    "id": "N.03",
+    "desc": "Célula Incoterm exibe valor ou \"—\" (nunca undefined/null)",
+    "ok": "APROVADO",
+    "ms": 59,
+    "shot": "ok__N.03.png"
+  },
+  {
+    "id": "N.04",
+    "desc": "Pedido com incoterms divergentes entre itens exibe ícone de alerta ⚠ amarelo",
+    "ok": "APROVADO",
+    "ms": 32,
+    "shot": "ok__N.04.png"
+  },
+  {
+    "id": "N.05",
+    "desc": "Dblclick em célula Incoterm abre input de edição inline",
+    "ok": "APROVADO",
+    "ms": 54,
+    "shot": "ok__N.05.png"
+  },
+  {
+    "id": "O.01",
+    "desc": "Header \"Valor Total do Pedido\" visível",
+    "ok": "REPROVADO",
+    "ms": 71,
+    "shot": "fail__O.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "O.02",
+    "desc": "Hover no header Valor Total → tooltip \"Calculado com base nos itens\"",
+    "ok": "APROVADO",
+    "ms": 31,
+    "shot": "ok__O.02.png"
+  },
+  {
+    "id": "O.03",
+    "desc": "Célula Valor Total exibe badge de moeda + valor numérico",
+    "ok": "APROVADO",
+    "ms": 54,
+    "shot": "ok__O.03.png"
+  },
+  {
+    "id": "O.04",
+    "desc": "Dblclick em Valor Total NÃO abre edição (campo calculado, não editável)",
+    "ok": "APROVADO",
+    "ms": 50,
+    "shot": "ok__O.04.png"
+  },
+  {
+    "id": "O.05",
+    "desc": "Pedido com moedas divergentes exibe alerta ⚠ em Valor Total",
+    "ok": "APROVADO",
+    "ms": 49,
+    "shot": "ok__O.05.png"
+  },
+  {
+    "id": "P.01",
+    "desc": "Header \"Saldo do Pedido\" visível",
+    "ok": "REPROVADO",
+    "ms": 108,
+    "shot": "fail__P.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "P.02",
+    "desc": "Célula Saldo do Pedido com valor > 0 exibe cor azul (#60a5fa)",
+    "ok": "APROVADO",
+    "ms": 28,
+    "shot": "ok__P.02.png"
+  },
+  {
+    "id": "P.03",
+    "desc": "Tooltip do Saldo é interativo — contém link para editar fórmula no Configurador",
+    "ok": "APROVADO",
+    "ms": 53,
+    "shot": "ok__P.03.png"
+  },
+  {
+    "id": "P.04",
+    "desc": "Dblclick em Saldo do Pedido NÃO abre edição (campo calculado)",
+    "ok": "APROVADO",
+    "ms": 28,
+    "shot": "ok__P.04.png"
+  },
+  {
+    "id": "Q.01",
+    "desc": "Header \"NCM\" visível",
+    "ok": "APROVADO",
+    "ms": 55,
+    "shot": "ok__Q.01.png"
+  },
+  {
+    "id": "Q.02",
+    "desc": "Célula NCM formata 8 dígitos como XXXX.XX.XX (ex: 8542.31.90)",
+    "ok": "APROVADO",
+    "ms": 55,
+    "shot": "ok__Q.02.png"
+  },
+  {
+    "id": "Q.03",
+    "desc": "Célula NCM usa font-family monospace",
+    "ok": "APROVADO",
+    "ms": 42,
+    "shot": "ok__Q.03.png"
+  },
+  {
+    "id": "Q.04",
+    "desc": "Pedido com NCMs diferentes entre itens exibe alerta ⚠ amarelo",
+    "ok": "APROVADO",
+    "ms": 31,
+    "shot": "ok__Q.04.png"
+  },
+  {
+    "id": "Q.05",
+    "desc": "Header \"Número da Proforma\" visível",
+    "ok": "APROVADO",
+    "ms": 83,
+    "shot": "ok__Q.05.png"
+  },
+  {
+    "id": "Q.06",
+    "desc": "Célula Nº Proforma exibe valor ou \"—\" (nunca vazio/null)",
+    "ok": "APROVADO",
+    "ms": 49,
+    "shot": "ok__Q.06.png"
+  },
+  {
+    "id": "Q.07",
+    "desc": "Header \"Número da Invoice\" visível",
+    "ok": "APROVADO",
+    "ms": 29,
+    "shot": "ok__Q.07.png"
+  },
+  {
+    "id": "Q.08",
+    "desc": "Célula Nº Invoice exibe valor ou \"—\" (nunca vazio/null)",
+    "ok": "APROVADO",
+    "ms": 37,
+    "shot": "ok__Q.08.png"
+  },
+  {
+    "id": "R.01",
+    "desc": "Header \"Data P.O\" visível",
+    "ok": "APROVADO",
+    "ms": 130,
+    "shot": "ok__R.01.png"
+  },
+  {
+    "id": "R.02",
+    "desc": "Célula Data P.O exibe data no formato DD/MM/AAAA ou \"—\"",
+    "ok": "APROVADO",
+    "ms": 44,
+    "shot": "ok__R.02.png"
+  },
+  {
+    "id": "R.03",
+    "desc": "Dblclick em Data P.O NÃO abre edição direta (campo data)",
+    "ok": "APROVADO",
+    "ms": 64,
+    "shot": "ok__R.03.png"
+  },
+  {
+    "id": "S.01-header",
+    "desc": "Header \"Qtd. Inicial do Pedido\" visível",
+    "ok": "APROVADO",
+    "ms": 60,
+    "shot": "ok__S.01-header.png"
+  },
+  {
+    "id": "S.01-celula",
+    "desc": "Célula \"Qtd. Inicial do Pedido\" exibe número ou \"—\" (nunca vazio)",
+    "ok": "APROVADO",
+    "ms": 43,
+    "shot": "ok__S.01-celula.png"
+  },
+  {
+    "id": "S.01-readonly",
+    "desc": "Célula \"Qtd. Inicial do Pedido\" NÃO abre edição — campo calculado",
+    "ok": "APROVADO",
+    "ms": 49,
+    "shot": "ok__S.01-readonly.png"
+  },
+  {
+    "id": "S.02-header",
+    "desc": "Header \"Qtd. Pronta do Pedido\" visível",
+    "ok": "APROVADO",
+    "ms": 74,
+    "shot": "ok__S.02-header.png"
+  },
+  {
+    "id": "S.02-celula",
+    "desc": "Célula \"Qtd. Pronta do Pedido\" exibe número ou \"—\" (nunca vazio)",
+    "ok": "APROVADO",
+    "ms": 43,
+    "shot": "ok__S.02-celula.png"
+  },
+  {
+    "id": "S.02-readonly",
+    "desc": "Célula \"Qtd. Pronta do Pedido\" NÃO abre edição — campo calculado",
+    "ok": "APROVADO",
+    "ms": 57,
+    "shot": "ok__S.02-readonly.png"
+  },
+  {
+    "id": "S.03-header",
+    "desc": "Header \"Qtd. Transferida do Pedido\" visível",
+    "ok": "APROVADO",
+    "ms": 61,
+    "shot": "ok__S.03-header.png"
+  },
+  {
+    "id": "S.03-celula",
+    "desc": "Célula \"Qtd. Transferida do Pedido\" exibe número ou \"—\" (nunca vazio)",
+    "ok": "APROVADO",
+    "ms": 28,
+    "shot": "ok__S.03-celula.png"
+  },
+  {
+    "id": "S.03-readonly",
+    "desc": "Célula \"Qtd. Transferida do Pedido\" NÃO abre edição — campo calculado",
+    "ok": "APROVADO",
+    "ms": 37,
+    "shot": "ok__S.03-readonly.png"
+  },
+  {
+    "id": "S.04-header",
+    "desc": "Header \"Qtd. Cancelada do Pedido\" visível",
+    "ok": "APROVADO",
+    "ms": 71,
+    "shot": "ok__S.04-header.png"
+  },
+  {
+    "id": "S.04-celula",
+    "desc": "Célula \"Qtd. Cancelada do Pedido\" exibe número ou \"—\" (nunca vazio)",
+    "ok": "APROVADO",
+    "ms": 32,
+    "shot": "ok__S.04-celula.png"
+  },
+  {
+    "id": "S.04-readonly",
+    "desc": "Célula \"Qtd. Cancelada do Pedido\" NÃO abre edição — campo calculado",
+    "ok": "APROVADO",
+    "ms": 32,
+    "shot": "ok__S.04-readonly.png"
+  },
+  {
+    "id": "T.01",
+    "desc": "Header \"Referência do Fabricante\" visível quando ativado",
+    "ok": "APROVADO",
+    "ms": 99,
+    "shot": "ok__T.01.png"
+  },
+  {
+    "id": "T.02",
+    "desc": "Célula Ref. Fabricante exibe valor ou \"—\"",
+    "ok": "APROVADO",
+    "ms": 51,
+    "shot": "ok__T.02.png"
+  },
+  {
+    "id": "T.03",
+    "desc": "Dblclick em Ref. Fabricante abre input de edição inline",
+    "ok": "APROVADO",
+    "ms": 52,
+    "shot": "ok__T.03.png"
+  },
+  {
+    "id": "T.04",
+    "desc": "Header \"Cobertura Cambial\" visível quando ativado",
+    "ok": "APROVADO",
+    "ms": 70,
+    "shot": "ok__T.04.png"
+  },
+  {
+    "id": "T.05",
+    "desc": "Célula Cobertura Cambial exibe valor conhecido ou \"—\"",
+    "ok": "APROVADO",
+    "ms": 30,
+    "shot": "ok__T.05.png"
+  },
+  {
+    "id": "T.06",
+    "desc": "Itens com coberturas cambiais diferentes exibem alerta ⚠ amarelo",
+    "ok": "APROVADO",
+    "ms": 35,
+    "shot": "ok__T.06.png"
+  },
+  {
+    "id": "T.07",
+    "desc": "Header \"Condição de Pagamento\" visível quando ativado",
+    "ok": "APROVADO",
+    "ms": 59,
+    "shot": "ok__T.07.png"
+  },
+  {
+    "id": "T.08",
+    "desc": "Célula Condição de Pagamento exibe valor ou \"—\"",
+    "ok": "APROVADO",
+    "ms": 31,
+    "shot": "ok__T.08.png"
+  },
+  {
+    "id": "T.09",
+    "desc": "Dblclick em Condição de Pagamento abre edição inline",
+    "ok": "APROVADO",
+    "ms": 61,
+    "shot": "ok__T.09.png"
+  },
+  {
+    "id": "U.01",
+    "desc": "Botão \"Exportar\" visível na toolbar",
+    "ok": "REPROVADO",
+    "ms": 10049,
+    "shot": "fail__U.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /exportar/i }).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRo"
+  },
+  {
+    "id": "U.02",
+    "desc": "Clicar \"Exportar\" exibe opção \"Excel\" no submenu",
+    "ok": "REPROVADO",
+    "ms": 15054,
+    "shot": "fail__U.02.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /exportar/i }).first()\u001b[22m\n"
+  },
+  {
+    "id": "U.03",
+    "desc": "Submenu \"Exportar\" exibe opção \"CSV\"",
+    "ok": "REPROVADO",
+    "ms": 15074,
+    "shot": "fail__U.03.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /exportar/i }).first()\u001b[22m\n"
+  },
+  {
+    "id": "U.04",
+    "desc": "Submenu \"Exportar\" exibe opção \"TXT\"",
+    "ok": "REPROVADO",
+    "ms": 9589,
+    "shot": "",
+    "err": "locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: /exportar/i }).first()\u001b[22m\n"
+  },
+  {
+    "id": "U.05",
+    "desc": "Submenu \"Exportar\" exibe opção \"XML\"",
+    "ok": "REPROVADO",
+    "ms": 3,
+    "shot": "",
+    "err": "locator.click: Target page, context or browser has been closed"
+  },
+  {
+    "id": "U.06",
+    "desc": "Submenu \"Exportar\" exibe opção \"JSON\"",
+    "ok": "REPROVADO",
+    "ms": 4,
+    "shot": "",
+    "err": "locator.click: Target page, context or browser has been closed"
+  },
+  {
+    "id": "U.07",
+    "desc": "Submenu \"Exportar\" exibe opção \"PDF\"",
+    "ok": "REPROVADO",
+    "ms": 1,
+    "shot": "",
+    "err": "locator.click: Target page, context or browser has been closed"
+  }
+]

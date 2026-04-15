@@ -168,3 +168,11 @@ export const useShellStore = create<ShellState>()(
     }
   )
 )
+
+// DEV: expõe o store em window.__shellStore para inspeção manual via DevTools.
+// Útil para depurar fluxos assíncronos (ex: aviso do motor de testes chegando
+// no sininho). Em produção, Vite elimina este bloco via tree-shaking se o
+// bundler considerar o efeito colateral descartável.
+if (typeof window !== 'undefined') {
+  ;(window as unknown as { __shellStore?: typeof useShellStore }).__shellStore = useShellStore
+}

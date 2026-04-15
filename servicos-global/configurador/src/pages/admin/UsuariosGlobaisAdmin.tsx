@@ -2,26 +2,30 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Users, UserCircleCheck, UserCircleMinus,
-  PauseCircle, PlayCircle, PencilSimple, TreeStructure,
-  FileXls, FileCsv, FileText, FilePdf, Code, ChartPieSlice, Key, Buildings, User, EnvelopeSimple, ShieldCheck, Crown, Lightning
+  PencilSimple, TreeStructure,
+  ChartPieSlice, Key, Buildings, User, EnvelopeSimple, ShieldCheck, Crown, Lightning, ArrowClockwise
 } from '@phosphor-icons/react'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
 
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao, type TabelaExportAcao } from '@nucleo/tabela-global'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaGlobalAcao } from '@nucleo/tabela-global'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { CardBasicoGlobal, CardGraficoGlobal, type PeriodoTendencia } from '@nucleo/card-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { ModalFormularioGlobal } from '@nucleo/modal-formulario-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
-import { exportarExcel, exportarCSV, exportarTXT, exportarXML, exportarJSON, exportarPDF, type ColunasExport } from '../../services/exportService'
+import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { ModalEditarUsuario } from '../workspace/ModalEditarUsuario'
 import { ModalPermissoesUsuario } from '../workspace/ModalPermissoesUsuario'
-import { type NivelAcesso, type UserStatus } from '../../types/niveis-acesso'
+import { type NivelAcesso, type UserStatus, mapRole, nivelToRole } from '../../types/niveis-acesso'
 import { adminUsersApi, type GlobalUserApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
+import { workspaceUrl } from '../../config/constants'
+
+/** Regex RFC 5322 simplificada para validação de email no frontend. */
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 // ─── Tipos globais ─────────────────────────────────────────────────────────────
 // Documentação central em src/types/niveis-acesso.ts
@@ -44,33 +48,27 @@ interface GlobalUser {
   espacos: GlobalUserSpace[]
 }
 
-// ─── Helper: mapeia role do backend para NivelAcesso do frontend ────────────────
-
-function mapRole(role: string): NivelAcesso {
-  switch (role) {
-    case 'SUPER_ADMIN': return 'Super Admin'
-    case 'ADMIN':       return 'Admin'
-    case 'MASTER':      return 'Master'
-    case 'STANDARD':    return 'Standard'
-    case 'SUPPLIER':    return 'Fornecedor'
-    default:            return 'Standard'
-  }
-}
+// ─── Helper: mapeia GlobalUserApi do backend para GlobalUser do frontend ────────
 
 function mapApiUserToGlobal(u: GlobalUserApi): GlobalUser {
+  const espacos: GlobalUserSpace[] = u.memberships.map(m => ({
+    id: m.id,
+    nome: m.company?.name ?? 'N/A',
+    subdominio: m.company?.subdomain ?? '',
+    perfil: mapRole(m.role),
+  }))
+  // Admin/SUPER_ADMIN pertencem à HQ (Gravity) — sem memberships mas sempre ativos.
+  // Demais: considerados ativos se tiverem ao menos um workspace ativo.
+  const ehGravity = u.role === 'SUPER_ADMIN' || u.role === 'ADMIN'
+  const status: UserStatus = ehGravity || espacos.length > 0 ? 'Ativo' : 'Inativo'
   return {
     id: u.id,
     nome: u.name,
     email: u.email,
     tipo: mapRole(u.role),
-    status: 'Ativo',
+    status,
     organizacao: u.tenant?.name ?? 'N/A',
-    espacos: u.memberships.map(m => ({
-      id: m.id,
-      nome: m.company?.name ?? 'N/A',
-      subdominio: m.company?.subdomain ?? '',
-      perfil: mapRole(m.role),
-    })),
+    espacos,
   }
 }
 
@@ -107,6 +105,7 @@ export function UsuariosGlobaisAdmin() {
 
   const [users, setUsers] = useState<GlobalUser[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [erroCarregar, setErroCarregar] = useState<string | null>(null)
 
   const [showForm, setShowForm]   = useState(false)
   const [fNome, setFNome]         = useState('')
@@ -120,20 +119,25 @@ export function UsuariosGlobaisAdmin() {
     return Array.from(orgs).sort()
   }, [users])
 
-  // Carregar usuários da API
-  useEffect(() => {
-    async function loadUsers() {
-      try {
-        setCarregando(true)
-        const res = await adminUsersApi.list()
-        setUsers(res.users.map(mapApiUserToGlobal))
-      } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.users.msg_erro_carregar') })
-      } finally {
-        setCarregando(false)
-      }
+  // Carregar usuários da API (com suporte a retry manual)
+  async function loadUsers() {
+    try {
+      setCarregando(true)
+      setErroCarregar(null)
+      const res = await adminUsersApi.list()
+      setUsers(res.users.map(mapApiUserToGlobal))
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : t('admin.users.msg_erro_carregar')
+      setErroCarregar(msg)
+      addNotification({ type: 'error', message: msg })
+    } finally {
+      setCarregando(false)
     }
-    loadUsers()
+  }
+
+  useEffect(() => {
+    void loadUsers()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [usuarioEditando, setUsuarioEditando] = useState<GlobalUser | null>(null)
@@ -161,22 +165,19 @@ export function UsuariosGlobaisAdmin() {
     }
   }, [fTipo]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Mapa NivelAcesso → role do backend
-  const NIVEL_TO_ROLE: Record<NivelAcesso, string> = {
-    'Super Admin': 'SUPER_ADMIN',
-    'Admin':       'ADMIN',
-    'Master':      'MASTER',
-    'Standard':    'STANDARD',
-    'Fornecedor':  'SUPPLIER',
-  }
-
   async function handleInvite() {
-    if (!fNome.trim() || !fEmail.trim()) return
+    const nome  = fNome.trim()
+    const email = fEmail.trim()
+    if (!nome || !email) return
+    if (!EMAIL_REGEX.test(email)) {
+      addNotification({ type: 'error', message: t('admin.users.msg_email_invalido') })
+      return
+    }
     try {
       const result = await adminUsersApi.inviteUser({
-        email: fEmail.trim(),
-        name:  fNome.trim(),
-        role:  NIVEL_TO_ROLE[fTipo],
+        email,
+        name:  nome,
+        role:  nivelToRole(fTipo),
       })
       setUsers(prev => [...prev, {
         id:          result.user.id,
@@ -194,9 +195,9 @@ export function UsuariosGlobaisAdmin() {
     }
   }
 
-  function handleToggleStatus(u: GlobalUser) {
-    setUsers(prev => prev.map(x => x.id === u.id ? { ...x, status: x.status === 'Ativo' ? 'Inativo' : 'Ativo' } : x))
-  }
+  // NOTA: suspender/reativar um usuário exige campo `status`/`is_active` no model User
+  // (hoje não existe no schema Prisma). A ação "Suspender" foi removida do toolbar
+  // até que o Coordenador adicione o campo via migration.
 
   // ─── Colunas ────────────────────────────────────────────────────────────────
   const COLUNAS: TabelaGlobalColuna<GlobalUser>[] = [
@@ -285,22 +286,22 @@ export function UsuariosGlobaisAdmin() {
     {
       key: 'subdominio', label: t('admin.users.children.subdominio'), tipo: 'texto',
       render: (_v, item) => (
-        <a 
-          href={`http://localhost:8010/workspace/${item.subdominio}`}
+        <a
+          href={workspaceUrl(item.subdominio)}
           target="_blank"
           rel="noopener noreferrer"
           style={{ textDecoration: 'none' }}
           onClick={ev => ev.stopPropagation()}
         >
-          <code style={{ 
-            fontSize: '0.75rem', 
-            color: '#a5b4fc', 
-            background: 'rgba(165,180,252,0.05)', 
+          <code style={{
+            fontSize: '0.75rem',
+            color: '#a5b4fc',
+            background: 'rgba(165,180,252,0.05)',
             border: '1px solid rgba(165,180,252,0.1)',
-            padding: '0.125rem 0.4rem', 
-            borderRadius: '4px', 
-            cursor: 'pointer', 
-            transition: 'all 0.15s' 
+            padding: '0.125rem 0.4rem',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'all 0.15s'
           }}
             onMouseEnter={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.15)'; (ev.currentTarget as HTMLElement).style.borderColor = 'rgba(165,180,252,0.3)'; (ev.currentTarget as HTMLElement).style.textDecoration = 'none' }}
             onMouseLeave={ev => { (ev.currentTarget as HTMLElement).style.background = 'rgba(165,180,252,0.05)'; (ev.currentTarget as HTMLElement).style.borderColor = 'rgba(165,180,252,0.1)' }}
@@ -311,83 +312,38 @@ export function UsuariosGlobaisAdmin() {
       )
     },
     {
-      key: 'id' as any, label: 'Status', tipo: 'texto', // Mocando status ativo para visual
-      render: () => (
-        <span style={{
-          display: 'inline-flex', padding: '0.15rem 0.5rem', borderRadius: '4px',
-          fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em',
-          background: 'rgba(52,211,153,0.1)', color: '#34d399', border: '1px solid rgba(52,211,153,0.2)'
-        }}>{t('admin.users.children.status_ativa')}</span>
-      )
-    },
-    {
       key: 'perfil', label: t('admin.users.children.plano_perfil'), tipo: 'texto',
       render: (v) => (
-        <span style={{ 
-          fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 600, 
-          padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.03)', 
-          borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)' 
+        <span style={{
+          fontSize: '0.625rem', color: 'var(--ws-muted)', fontWeight: 600,
+          padding: '0.1rem 0.35rem', background: 'rgba(255,255,255,0.03)',
+          borderRadius: '4px', border: '1px solid rgba(255,255,255,0.08)'
         }}>{String(v)}</span>
       )
     },
-    {
-      key: 'id' as any, label: t('admin.users.children.usuarios'), align: 'center', tipo: 'texto',
-      render: () => <span style={{ fontWeight: 600, fontSize: '0.8125rem' }}>12</span>
-    }
   ]
 
   const ACOES: TabelaGlobalAcao<GlobalUser>[] = [
     {
       id: 'permissions',
-      icone: <Key size={15} weight="bold" />,
+      icone: <Key size={15} weight="bold" aria-label={t('admin.users.acao_permissoes')} />,
       tooltip: t('admin.users.acao_permissoes'),
       onClick: setUsuarioPermissoes,
     },
     {
-      id: 'suspend',
-      icone: <PauseCircle size={16} weight="bold" />,
-      tooltip: t('admin.users.acao_toggle_status'),
-      onClick: handleToggleStatus,
-      renderCustom: (item) => (
-        <TooltipGlobal descricao={item.status === 'Ativo' ? t('admin.users.acao_suspender') : t('admin.users.acao_reativar')}>
-          <button
-            type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggleStatus(item) }}
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: '50%', background: 'transparent', border: '1px solid transparent', color: '#64748b', cursor: 'pointer', transition: 'all 0.15s', flexShrink: 0 }}
-            onMouseEnter={ev => { ev.currentTarget.style.background = item.status === 'Ativo' ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.12)'; ev.currentTarget.style.borderColor = item.status === 'Ativo' ? 'rgba(251,191,36,0.3)' : 'rgba(52,211,153,0.3)'; ev.currentTarget.style.color = item.status === 'Ativo' ? '#fbbf24' : '#34d399' }}
-            onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
-          >
-            {item.status === 'Ativo' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
-          </button>
-        </TooltipGlobal>
-      )
-    },
-    {
       id: 'edit',
-      icone: <PencilSimple size={15} weight="bold" />,
+      icone: <PencilSimple size={15} weight="bold" aria-label={t('admin.users.acao_editar')} />,
       tooltip: t('admin.users.acao_editar'),
       onClick: (u) => { setUsuarioEditando(u); setAbaEditando('dados') },
     },
   ]
 
   // ─── Exportação ─────────────────────────────────────────────────────────────
-  const COLUNAS_EXPORT: ColunasExport[] = [
-    { header: 'Nome',          key: 'nome'         },
-    { header: 'E-mail',        key: 'email'        },
-    { header: 'Organização',   key: 'organizacao'  },
-    { header: 'Tipo',          key: 'tipo'         },
-    { header: 'Status',        key: 'status'       },
-  ]
-  const OPCOES_EXPORT = { nomeArquivo: 'usuarios-globais', titulo: 'Usuários Globais da Plataforma' }
-
-  const ACOES_EXPORT: TabelaExportAcao<GlobalUser>[] = [
-    { label: 'Excel (.xlsx)', icone: <FileXls size={14} weight="bold" />, onClick: () => void exportarExcel(users as any, COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'CSV',           icone: <FileCsv  size={14} weight="bold" />, onClick: () => void exportarCSV(users as any,   COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'TXT',           icone: <FileText size={14} weight="bold" />, onClick: () => void exportarTXT(users as any,   COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'XML',           icone: <Code     size={14} weight="bold" />, onClick: () => void exportarXML(users as any,   COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'PDF',           icone: <FilePdf  size={14} weight="bold" />, onClick: () => void exportarPDF(users as any,   COLUNAS_EXPORT, OPCOES_EXPORT) },
-    { label: 'JSON',          icone: <Code     size={14} weight="bold" />, onClick: () => void exportarJSON(users as any,  COLUNAS_EXPORT, OPCOES_EXPORT) },
-  ]
+  const ACOES_EXPORT = getAcoesExportacaoPadrao<GlobalUser>(
+    COLUNAS,
+    'usuarios-globais',
+    'Usuários Globais da Plataforma',
+  )
 
   // ─── Stats ──────────────────────────────────────────────────────────────────
   const totalUsers    = users.length
@@ -503,51 +459,82 @@ export function UsuariosGlobaisAdmin() {
 
       {/* ── Tabela global ────────────────────────────────────────────────── */}
       <div style={{ position: 'relative', zIndex: 10 }}>
-        <TabelaGlobal<GlobalUser>
-           id="admin-global-users"
-           dados={users}
-           colunas={COLUNAS}
-           acoes={ACOES}
-           acoesExportacao={ACOES_EXPORT}
-           mensagemVazio={t('admin.users.tabela_vazio')}
-           tooltipBusca={t('admin.users.tabela_busca_tooltip')}
-           tooltipExpandir={t('admin.users.tabela_expandir_tooltip')}
-           tooltipRecolher={t('admin.users.tabela_recolher_tooltip')}
-           idKey="id"
-           renderExpandido={(user) => (
-             <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
-               <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                 <TreeStructure size={14} /> {t('admin.users.espacos_trabalho')} ({user.espacos?.length || 0})
-               </div>
-               <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
-                 <TabelaGlobal<GlobalUserSpace>
-                   dados={user.espacos || []}
-                   colunas={COLUNAS_FILHAS}
-                   mensagemVazio={t('admin.users.espacos_vazio')}
-                 />
-               </div>
-             </div>
-           )}
-         />
+        {carregando ? (
+          <div
+            role="status"
+            aria-live="polite"
+            style={{ padding: '3rem 1rem', textAlign: 'center', color: 'var(--ws-muted)' }}
+          >
+            <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{t('admin.users.carregando')}</div>
+          </div>
+        ) : erroCarregar ? (
+          <div
+            role="alert"
+            style={{ padding: '2rem 1rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}
+          >
+            <div style={{ fontSize: '0.875rem', color: '#f87171', fontWeight: 600 }}>{erroCarregar}</div>
+            <BotaoGlobal
+              variante="secundario"
+              onClick={() => void loadUsers()}
+              icone={<ArrowClockwise size={16} />}
+              aria-label={t('admin.users.btn_tentar_novamente')}
+            >
+              {t('admin.users.btn_tentar_novamente')}
+            </BotaoGlobal>
+          </div>
+        ) : (
+          <TabelaGlobal<GlobalUser>
+            id="admin-global-users"
+            dados={users}
+            colunas={COLUNAS}
+            acoes={ACOES}
+            acoesExportacao={ACOES_EXPORT}
+            mensagemVazio={t('admin.users.tabela_vazio')}
+            tooltipBusca={t('admin.users.tabela_busca_tooltip')}
+            tooltipExpandir={t('admin.users.tabela_expandir_tooltip')}
+            tooltipRecolher={t('admin.users.tabela_recolher_tooltip')}
+            idKey="id"
+            renderExpandido={(user) => (
+              <div style={{ padding: '0 1.25rem 1.25rem 1.25rem', background: 'rgba(0,0,0,0.15)' }}>
+                <div style={{ padding: '1rem', borderTop: '1px solid rgba(129,140,248,0.1)', display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <TreeStructure size={14} /> {t('admin.users.espacos_trabalho')} ({user.espacos?.length || 0})
+                </div>
+                <div style={{ border: '1px solid rgba(129,140,248,0.08)', borderRadius: '12px', overflow: 'hidden' }}>
+                  <TabelaGlobal<GlobalUserSpace>
+                    dados={user.espacos || []}
+                    colunas={COLUNAS_FILHAS}
+                    mensagemVazio={t('admin.users.espacos_vazio')}
+                  />
+                </div>
+              </div>
+            )}
+          />
+        )}
       </div>
 
       {/* ── Modal Edição ─────────────────────────────────────────────────── */}
       <ModalEditarUsuario
-        usuario={usuarioEditando as any}
+        usuario={usuarioEditando}
         abaInicial={abaEditando}
         aoFechar={() => setUsuarioEditando(null)}
         aoSalvar={(uEditado) => {
-          setUsers(prev => prev.map(u => u.id === uEditado.id ? { ...u, ...uEditado as GlobalUser } : u))
+          setUsers(prev => prev.map(u => u.id === uEditado.id ? { ...u, ...uEditado } : u))
           setUsuarioEditando(null)
         }}
       />
 
       <ModalPermissoesUsuario
-        usuario={usuarioPermissoes as any}
+        usuario={usuarioPermissoes}
         contextoAdmin={true}
         aoFechar={() => setUsuarioPermissoes(null)}
-        aoSalvar={(permissoes) => {
-          // Aqui no admin poderiamos salvar no db do gravity as permissões... 
+        aoSalvar={() => {
+          // TODO: persistir permissões via PUT /admin/users/:id/permissions
+          // quando endpoint for criado pelo Coordenador (permissionsService.setPermissions).
+          // Enquanto isso, o modal exibe banner de preview (contextoAdmin=true).
+          addNotification({
+            type: 'info',
+            message: t('admin.users.msg_permissoes_preview'),
+          })
           setUsuarioPermissoes(null)
         }}
       />

@@ -248,8 +248,40 @@ const SECOES_ADMIN_GRAVITY = [
 
 const TODAS_PERMISSOES_ADMIN = SECOES_ADMIN_GRAVITY.flatMap(s => s.permissoes.map(p => p.id))
 
+// ─── Tipos compartilhados ────────────────────────────────────────────────────────
+interface PermissaoItem {
+  id: string
+  rotulo: string
+  descricao: string
+}
+
+interface SecaoPermissao {
+  id: string
+  aba?: string
+  rotulo: string
+  cor: string
+  descricao?: string
+  permissoes: PermissaoItem[]
+}
+
+interface PermissaoCheckboxProps {
+  id: string
+  label: string
+  descricao?: string
+  selecionado: boolean
+  onChange: (checked: boolean) => void
+  desabilitado?: boolean
+}
+
+interface GridSecaoPermissaoProps {
+  sec: SecaoPermissao
+  permissoesAtivas: string[]
+  desabilitado: boolean
+  onToggle: (id: string, checked: boolean) => void
+}
+
 // ─── Componente Checkbox ─────────────────────────────────────────────────────────
-function PermissaoCheckbox({ id, label, descricao, selecionado, onChange, desabilitado }: any) {
+function PermissaoCheckbox({ id, label, descricao, selecionado, onChange, desabilitado }: PermissaoCheckboxProps) {
   const isRead  = id.endsWith(':read')
   const isWrite = id.endsWith(':write') || id.endsWith(':impersonate')
 
@@ -319,7 +351,7 @@ function PermissaoCheckbox({ id, label, descricao, selecionado, onChange, desabi
   )
 }
 
-function GridSecaoPermissao({ sec, permissoesAtivas, desabilitado, onToggle }: any) {
+function GridSecaoPermissao({ sec, permissoesAtivas, desabilitado, onToggle }: GridSecaoPermissaoProps) {
   return (
     <div style={{ marginBottom: '1.25rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.625rem' }}>
@@ -327,7 +359,7 @@ function GridSecaoPermissao({ sec, permissoesAtivas, desabilitado, onToggle }: a
         <p style={{ fontSize: '0.75rem', fontWeight: 700, color: sec.cor, margin: 0, letterSpacing: '0.03em' }}>{sec.rotulo}</p>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.5rem', paddingLeft: '1rem' }}>
-        {sec.permissoes.map((p: any) => (
+        {sec.permissoes.map((p) => (
           <PermissaoCheckbox
             key={p.id} id={p.id} label={p.rotulo} descricao={p.descricao}
             selecionado={desabilitado || permissoesAtivas.includes(p.id)}
@@ -438,8 +470,8 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
     if (!usuario) return []
     
     // Filtro por abas lógicas baseadas nas duas coleções (Admin vs Cliente)
-    const renderSecoesDaAba = (filtrados: any[]) => {
-      const allPermsInTab = filtrados.flatMap(s => s.permissoes.map((p: any) => p.id))
+    const renderSecoesDaAba = (filtrados: SecaoPermissao[]) => {
+      const allPermsInTab = filtrados.flatMap(s => s.permissoes.map(p => p.id))
       const activeInTab = allPermsInTab.filter(pid => permissoesAtivas.includes(pid)).length
       const totalInTab  = allPermsInTab.length
 
@@ -510,6 +542,15 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
 
   if (!usuario) return null
 
+  // No contexto Admin (painel global), a persistência de permissões ainda não
+  // tem endpoint backend (`PUT /admin/users/:id/permissions`). O modal é exibido
+  // em modo preview: desabilitamos o botão Salvar e sinalizamos no subtítulo.
+  const subtituloFinal = contextoAdmin
+    ? `${t('workspace.users.permissoes_admin_subtitulo')} — Preview (persistência em desenvolvimento)`
+    : isGravityUser
+    ? t('workspace.users.permissoes_admin_subtitulo')
+    : t('workspace.users.permissoes_cliente_subtitulo')
+
   return (
     <ModalFormularioAbasGlobal
       aberto={!!usuario}
@@ -517,14 +558,14 @@ export function ModalPermissoesUsuario({ usuario, aoFechar, aoSalvar, contextoAd
       aoSalvar={() => aoSalvar(permissoesAtivas)}
       icone={<ShieldCheck size={20} weight="duotone" />}
       titulo={`${t('workspace.users.aba_permissoes')}: ${usuario.nome}`}
-      subtitulo={isGravityUser ? t('workspace.users.permissoes_admin_subtitulo') : t('workspace.users.permissoes_cliente_subtitulo')}
+      subtitulo={subtituloFinal}
       tamanho="lg"
       altura="680px"
       tipoAbas="pill"
       abaAtivaInicial={abas[0]?.id || ''}
       abas={abas}
       dirty={dirty}
-      podesSalvar={true}
+      podesSalvar={!contextoAdmin}
     />
   )
 }

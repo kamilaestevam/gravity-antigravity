@@ -694,6 +694,10 @@
       "msg_erro_carregar": "Error loading platform users.",
       "msg_usuario_adicionado": "Invite sent to {{nome}} successfully!",
       "msg_erro_convidar": "Error sending invite. Please try again.",
+      "msg_email_invalido": "Please enter a valid email.",
+      "msg_permissoes_preview": "Changes were not saved — permissions persistence is under development.",
+      "carregando": "Loading users...",
+      "btn_tentar_novamente": "Retry",
       "tabela": {
         "usuario": "User",
         "email": "Email",

@@ -6,6 +6,7 @@ import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import type { TenantUser } from './Usuarios'
+import type { NivelAcesso } from '../../types/niveis-acesso'
 
 interface ModalEditarUsuarioProps {
   usuario: TenantUser | null
@@ -85,7 +86,14 @@ function PermissaoCheckbox({ label, selecionado, onChange, desabilitado }: { lab
   )
 }
 
-function AbaDados({ nome, email, tipo, onValoresChange }: any) {
+interface AbaDadosProps {
+  nome: string
+  email: string
+  tipo: NivelAcesso
+  onValoresChange: (campo: 'nome' | 'email' | 'tipo', valor: string) => void
+}
+
+function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
   const { t } = useTranslation()
   return (
     <div style={{ padding: '0 0.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -153,9 +161,32 @@ function AbaDados({ nome, email, tipo, onValoresChange }: any) {
   )
 }
 
+interface WorkspaceMock {
+  id: string
+  nome: string
+  subdominio: string
+  status: string
+  plano: string
+  perfil: string
+}
+
+interface TenantMock {
+  id: string
+  name: string
+  subdominio: string
+  status: string
+  plano: string
+  workspaces: WorkspaceMock[]
+}
+
 function AbaEspacos() {
   const { t } = useTranslation()
-  const mockTenants = [
+  // TODO(Detetive 2026-04-15): mockTenants é dado de exemplo.
+  // Para virar produção, `ModalEditarUsuario` precisa receber uma prop
+  // `tenantsDoUsuario` montada a partir das memberships reais do usuário,
+  // ou buscar via GET /api/admin/users/:id/tenants. Enquanto isso, o banner
+  // abaixo deixa claro pro admin que os dados são exemplo.
+  const mockTenants: TenantMock[] = [
     {
       id: 'org_1', name: 'Acme Logística', subdominio: 'acme', status: 'Ativa', plano: 'Enterprise',
       workspaces: [
@@ -171,7 +202,7 @@ function AbaEspacos() {
     }
   ]
 
-  const COLUNAS_PAI: TabelaGlobalColuna<any>[] = [
+  const COLUNAS_PAI: TabelaGlobalColuna<TenantMock>[] = [
     {
       key: 'name', label: t('comum.organizacao'), tipo: 'texto',
       render: (_v, item) => (
@@ -201,7 +232,7 @@ function AbaEspacos() {
     }
   ]
 
-  const COLUNAS_FILHAS: TabelaGlobalColuna<any>[] = [
+  const COLUNAS_FILHAS: TabelaGlobalColuna<WorkspaceMock>[] = [
     {
       key: 'nome', label: t('workspace.workspaces.titulo'), tipo: 'texto',
       render: (_v, item) => (
@@ -235,6 +266,16 @@ function AbaEspacos() {
 
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '400px' }}>
+      <div
+        role="note"
+        style={{
+          padding: '0.75rem 1rem', borderRadius: '8px',
+          background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.25)',
+          fontSize: '0.75rem', color: '#fbbf24', fontWeight: 600,
+        }}
+      >
+        Dados de exemplo — integração com dados reais em desenvolvimento
+      </div>
       <TabelaGlobal
         dados={mockTenants}
         colunas={COLUNAS_PAI}
@@ -248,7 +289,14 @@ function AbaEspacos() {
   )
 }
 
-function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: any) {
+interface AbaPermissoesProps {
+  master: boolean
+  valores: string[]
+  onToggle: (id: string, checked: boolean) => void
+  onSelecionarTudo: (todas: boolean) => void
+}
+
+function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: AbaPermissoesProps) {
   const { t } = useTranslation()
   return (
     <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -313,7 +361,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
-  const [tipo, setTipo] = useState('')
+  const [tipo, setTipo] = useState<NivelAcesso>('Standard')
   const [permissoesAtivas, setPermissoesAtivas] = useState<string[]>([])
 
   useEffect(() => {
@@ -330,10 +378,10 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
     }
   }, [usuario])
 
-  const handleValoresChange = (campo: string, valor: any) => {
+  const handleValoresChange = (campo: 'nome' | 'email' | 'tipo', valor: string) => {
     if (campo === 'nome') setNome(valor)
     if (campo === 'email') setEmail(valor)
-    if (campo === 'tipo') setTipo(valor)
+    if (campo === 'tipo') setTipo(valor as NivelAcesso)
   }
 
   const handleTogglePermissao = (id: string, checked: boolean) => {
@@ -390,7 +438,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
 
   const handleSalvar = () => {
     if (!usuario) return
-    aoSalvar({ ...usuario, nome, email, tipo: tipo as any }, permissoesAtivas)
+    aoSalvar({ ...usuario, nome, email, tipo }, permissoesAtivas)
   }
 
   return (

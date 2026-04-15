@@ -6,4 +6,6 @@ export type {
   NotificationType,
   Theme,
   AllowedProduct,
+  AvisoShell,
+  AvisoTipo,
 } from './types'

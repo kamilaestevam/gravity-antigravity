@@ -88,46 +88,72 @@ export function LogTestes() {
 
   useEffect(() => { loadLogs() }, [])
 
-  // Polling enquanto testes estão rodando
+  // Auto-detecta run em progresso quando a tela monta (resiliente a F5 / navegação)
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const status = await adminTestLogsApi.runStatus()
+        if (!cancelled && status.running) setRodandoTestes(true)
+      } catch { /* offline / erro — ignora */ }
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  // Polling enquanto testes estão rodando.
+  // Tick imediato (não espera os 5s iniciais) + polling a cada 3s para feedback rápido.
   useEffect(() => {
     if (!rodandoTestes) return
-    const interval = setInterval(async () => {
+    let stopped = false
+
+    async function handleCompletion() {
+      const novosLogs = await loadLogs()
+
+      // Contagem apenas dos resultados gerados nesta rodada (snapshot mais recente)
+      const totalRun   = novosLogs.length
+      const aprovRun   = novosLogs.filter(d => d.resultado === 'APROVADO').length
+      const reprovRun  = novosLogs.filter(d => d.resultado === 'REPROVADO').length
+      const tudoVerde  = reprovRun === 0 && totalRun > 0
+      const resultado  = tudoVerde
+        ? `${aprovRun}/${totalRun} aprovados`
+        : `${aprovRun} aprovados · ${reprovRun} reprovados`
+
+      // Toast efêmero (feedback imediato caso o usuário esteja na tela)
+      addNotification({
+        type: tudoVerde ? 'success' : 'error',
+        message: tudoVerde
+          ? `Execução concluída: ${resultado}`
+          : `Execução concluída com falhas: ${resultado}`,
+      })
+
+      // Aviso persistente no sininho (com link direto para a tela)
+      addAviso({
+        conteudo: tudoVerde
+          ? `Execução de testes concluída — ${resultado}. Clique para abrir a tela.`
+          : `Execução de testes concluída com falhas — ${resultado}. Clique para ver detalhes.`,
+        autor: { nome: 'Motor de Testes' },
+        tipo: tudoVerde ? 'sistema' : 'aviso',
+        href: '/admin/testes',
+      })
+    }
+
+    async function tick() {
+      if (stopped) return
       try {
         const status = await adminTestLogsApi.runStatus()
         if (!status.running) {
+          stopped = true
           setRodandoTestes(false)
-          const novosLogs = await loadLogs()
-
-          // Contagem apenas dos resultados gerados nesta rodada (snapshot mais recente)
-          const totalRun   = novosLogs.length
-          const aprovRun   = novosLogs.filter(d => d.resultado === 'APROVADO').length
-          const reprovRun  = novosLogs.filter(d => d.resultado === 'REPROVADO').length
-          const tudoVerde  = reprovRun === 0 && totalRun > 0
-          const resultado  = tudoVerde
-            ? `${aprovRun}/${totalRun} aprovados`
-            : `${aprovRun} aprovados · ${reprovRun} reprovados`
-
-          // Toast efêmero (feedback imediato caso o usuário esteja na tela)
-          addNotification({
-            type: tudoVerde ? 'success' : 'error',
-            message: tudoVerde
-              ? `Execução concluída: ${resultado}`
-              : `Execução concluída com falhas: ${resultado}`,
-          })
-
-          // Aviso persistente no sininho (com link direto para a tela)
-          addAviso({
-            conteudo: tudoVerde
-              ? `Execução de testes concluída — ${resultado}. Clique para abrir a tela.`
-              : `Execução de testes concluída com falhas — ${resultado}. Clique para ver detalhes.`,
-            autor: { nome: 'Motor de Testes' },
-            tipo: tudoVerde ? 'sistema' : 'aviso',
-            href: '/admin/testes',
-          })
+          await handleCompletion()
         }
-      } catch { /* ignora erros de polling */ }
-    }, 5000)
-    return () => clearInterval(interval)
+      } catch { /* ignora falha de polling */ }
+    }
+
+    // Primeira verificação imediata — pega o caso de testes que já terminaram
+    // antes do primeiro tick do intervalo.
+    tick()
+    const interval = setInterval(tick, 3000)
+    return () => { stopped = true; clearInterval(interval) }
   }, [rodandoTestes])
 
   const aprovadosCount = dados.filter(d => d.resultado === 'APROVADO').length

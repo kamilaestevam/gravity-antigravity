@@ -38,3 +38,36 @@ export interface UserBase {
   status: UserStatus
   organizacao?: string // Nome ou ID da organização
 }
+
+/**
+ * Role canônico do backend (UserRole enum em schema.prisma).
+ */
+export type BackendUserRole = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'STANDARD' | 'SUPPLIER'
+
+/**
+ * Converte role do backend (SUPER_ADMIN, ADMIN, ...) para o NivelAcesso
+ * do frontend (Super Admin, Admin, ...). Default: Standard.
+ */
+export function mapRole(role: string | null | undefined): NivelAcesso {
+  switch (role) {
+    case 'SUPER_ADMIN': return 'Super Admin'
+    case 'ADMIN':       return 'Admin'
+    case 'MASTER':      return 'Master'
+    case 'STANDARD':    return 'Standard'
+    case 'SUPPLIER':    return 'Fornecedor'
+    default:            return 'Standard'
+  }
+}
+
+/**
+ * Converte NivelAcesso do frontend para o role canônico do backend.
+ */
+export function nivelToRole(nivel: NivelAcesso): BackendUserRole {
+  switch (nivel) {
+    case 'Super Admin': return 'SUPER_ADMIN'
+    case 'Admin':       return 'ADMIN'
+    case 'Master':      return 'MASTER'
+    case 'Standard':    return 'STANDARD'
+    case 'Fornecedor':  return 'SUPPLIER'
+  }
+}

@@ -225,12 +225,20 @@ adminRouter.get('/stats', async (_req, res, next) => {
  * GET /api/admin/users
  * Lista todos os usuários de todos os tenants da plataforma (gravity_admin)
  */
+const ListUsersQuerySchema = z.object({
+  page:   z.coerce.number().int().min(1).default(1),
+  limit:  z.coerce.number().int().min(1).max(500).default(100),
+  search: z.string().max(255).optional(),
+})
+
 adminRouter.get('/users', async (req, res, next) => {
   try {
-    const page = Number(req.query.page ?? 1)
-    const limit = Number(req.query.limit ?? 100)
+    const parsed = ListUsersQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Query inválida', 400, 'VALIDATION_ERROR')
+    }
+    const { page, limit, search } = parsed.data
     const skip = (page - 1) * limit
-    const search = req.query.search as string | undefined
 
     const where = search
       ? {
@@ -275,6 +283,19 @@ adminRouter.get('/users', async (req, res, next) => {
       }),
       prisma.user.count({ where }),
     ])
+
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'User',
+      action: 'USERS_GLOBAL_LIST_VIEWED',
+      action_detail: `Listagem global — ${total} usuários (page=${page}, limit=${limit}${search ? `, search="${search}"` : ''})`,
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
 
     res.json({
       users,
@@ -507,6 +528,7 @@ adminRouter.post('/run-tests', async (req, res, next) => {
             result: 'ERRO',
             duration: '0ms',
             error_log: (pwStderr || pwStdout).slice(0, 500),
+            ai_analysis: null,
           })
         }
       } else {
@@ -516,6 +538,7 @@ adminRouter.post('/run-tests', async (req, res, next) => {
           result: 'ERRO',
           duration: '0ms',
           error_log: pwStderr.slice(0, 500) || null,
+          ai_analysis: null,
         })
       }
 

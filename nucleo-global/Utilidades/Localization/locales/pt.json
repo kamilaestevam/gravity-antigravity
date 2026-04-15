@@ -694,6 +694,10 @@
       "msg_erro_carregar": "Erro ao carregar usuários da plataforma.",
       "msg_usuario_adicionado": "Convite enviado para {{nome}} com sucesso!",
       "msg_erro_convidar": "Erro ao enviar convite. Tente novamente.",
+      "msg_email_invalido": "Informe um e-mail válido.",
+      "msg_permissoes_preview": "Alterações não foram salvas — persistência de permissões está em desenvolvimento.",
+      "carregando": "Carregando usuários...",
+      "btn_tentar_novamente": "Tentar novamente",
       "tabela": {
         "usuario": "Usuário",
         "email": "E-mail",

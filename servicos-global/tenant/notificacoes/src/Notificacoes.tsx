@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { AvisoInternoGlobal, AvisoInterno } from '@nucleo/mensageria-global'
+import { useShellStore } from '@gravity/shell'
 
 export interface NotificationItem {
   id: string
@@ -43,6 +44,13 @@ const MOCK_NOTIFICATIONS: NotificationItem[] = Array.from({ length: 30 }).map((_
 export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: string }) {
   const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS)
   const [backendDisponivel, setBackendDisponivel] = useState<boolean | null>(null)
+
+  // Avisos vindos do shell store (ex: motor de testes empurrando via addAviso).
+  // Ficam em uma lista separada até a fusão no render, para não conflitar com
+  // notifications legadas (backend + mocks).
+  const storeAvisos                 = useShellStore((s) => s.avisos)
+  const marcarAvisoLidoStore        = useShellStore((s) => s.marcarAvisoLido)
+  const marcarTodosAvisosLidosStore = useShellStore((s) => s.marcarTodosAvisosLidos)
 
   const syncState = useCallback(async () => {
     try {
@@ -112,7 +120,15 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
     }
   }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // IDs de avisos vindos do store começam com "aviso-" (gerados por generateAvisoId()).
+  // Usamos o prefixo pra rotear a ação de leitura/escrita pro store ou pro backend.
+  const isStoreAvisoId = (id: string) => id.startsWith('aviso-')
+
   const handleMarkAsRead = async (id: string) => {
+    if (isStoreAvisoId(id)) {
+      marcarAvisoLidoStore(id)
+      return
+    }
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
     if (backendDisponivel === false) return
     try {
@@ -124,6 +140,8 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
   }
 
   const handleReadAll = async () => {
+    // Marca todos os avisos do store como lidos também
+    marcarTodosAvisosLidosStore()
     setNotifications(prev => prev.map(n => ({ ...n, read: true })))
     if (backendDisponivel === false) return
     try {
@@ -176,20 +194,35 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
     }
   }
 
-  // Mapear os dados vindos da API para o formato padronizado visual do AvisoInternoGlobal
-  const avisosMapeados: AvisoInterno[] = notifications.map(n => ({
+  // Mapear os dados vindos da API/mocks para o formato do AvisoInternoGlobal
+  const avisosDaApi: AvisoInterno[] = notifications.map(n => ({
     id: n.id,
     conteudo: n.message,
     autor: { nome: n.title || 'Sistema' },
     dataHora: new Date(n.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
     lido: n.read,
-    tipo: (['aviso', 'mencao', 'sistema', 'tarefa'].includes(n.type) ? n.type : 'sistema') as any,
+    tipo: (['aviso', 'mencao', 'sistema', 'tarefa'].includes(n.type) ? n.type : 'sistema') as AvisoInterno['tipo'],
     statusReal: n._isAtrasado ? 'atrasado' : 'em_dia'
   }))
 
+  // Avisos do shell store já estão no formato correto — adiciona no topo, mais
+  // recentes primeiro, para que push síncronos (ex: motor de testes) apareçam
+  // antes dos mocks/API.
+  const avisosDoStore: AvisoInterno[] = storeAvisos.map(a => ({
+    id: a.id,
+    conteudo: a.conteudo,
+    autor: a.autor,
+    dataHora: a.dataHora,
+    lido: a.lido,
+    tipo: a.tipo,
+    href: a.href,
+  }))
+
+  const avisosFinal = [...avisosDoStore, ...avisosDaApi]
+
   return (
-    <AvisoInternoGlobal 
-      avisos={avisosMapeados}
+    <AvisoInternoGlobal
+      avisos={avisosFinal}
       onMarcarLido={handleMarkAsRead}
       onMarcarTodosLidos={handleReadAll}
       onCriarAviso={handleCriarAviso}

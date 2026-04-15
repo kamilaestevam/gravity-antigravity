@@ -13,6 +13,7 @@ import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildAdminProductNodes, type AdminProductItem } from '../../utils/ecosystemNodes'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
+import { setAuthTokenProvider } from '../../services/apiClient'
 import {
   Buildings,
   Users,
@@ -67,6 +68,16 @@ export function AdminLayout() {
   useSyncClerkToShell()
   // Sincroniza preferências de UI com o backend (cross-device)
   useUserPreferences({ userId: user?.id, tenantId: 'gravity-hq' })
+
+  // Registra provider de token Clerk para o apiClient.
+  // Precisa rodar no layout (e não nas páginas individuais) senão qualquer
+  // página admin acessada diretamente sem passar por /admin/produtos fica
+  // sem token e recebe 401 em todas as chamadas — inclusive o runner de
+  // testes (POST /admin/run-tests, GET /admin/run-tests/status).
+  useEffect(() => {
+    setAuthTokenProvider(() => getToken())
+  }, [getToken])
+
   const isLight = currentTheme === 'light'
 
   const { signOut } = useClerk()

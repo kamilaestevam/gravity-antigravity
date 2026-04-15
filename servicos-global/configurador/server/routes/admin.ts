@@ -25,6 +25,8 @@ import { join, resolve } from 'path'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 import { AuditService } from '../../../tenant/historico-global/server/services/audit.service.js'
 import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
+import { getBillingProvider } from '../lib/billing/index.js'
+import { deployLogService } from '../services/deployLogService.js'
 
 export const adminRouter = Router()
 
@@ -306,38 +308,57 @@ adminRouter.get('/users', async (req, res, next) => {
   }
 })
 
+// ─── Billing / Invoices ─────────────────────────────────────────────────────
+// Delegadas ao BillingProvider configurado (server/lib/billing).
+// Providers suportados hoje: 'stripe'. Skeletons: 'itau', 'santander'.
+// Ver docs/BILLING.md para detalhes de arquitetura e checklist de ativação.
+
+const ListInvoicesQuerySchema = z.object({
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  status: z.enum(['DRAFT', 'OPEN', 'PAID', 'VOID', 'OVERDUE', 'UNCOLLECTIBLE']).optional(),
+  customer_id: z.string().optional(),
+})
+
+const CreateInvoiceBodySchema = z.object({
+  customer_tenant_id: z.string().min(1),
+  description: z.string().min(1).max(500),
+  line_items: z.array(z.object({
+    description: z.string().min(1).max(200),
+    amount_cents: z.number().int().min(0),
+    quantity: z.number().int().min(1).default(1),
+  })).min(1),
+  due_date: z.string().datetime().optional(),
+  currency: z.string().length(3).default('brl'),
+  metadata: z.record(z.string()).optional(),
+  auto_finalize: z.boolean().default(true),
+})
+
+const VoidInvoiceBodySchema = z.object({
+  reason: z.string().max(500).optional(),
+})
+
 /**
  * GET /api/admin/billing/invoices
- * Lista todas as faturas de todos os tenants (gravity_admin)
+ * Lista invoices via BillingProvider (Stripe por padrão).
  */
 adminRouter.get('/billing/invoices', async (req, res, next) => {
   try {
-    const page = Number(req.query.page ?? 1)
-    const limit = Number(req.query.limit ?? 50)
-    const skip = (page - 1) * limit
+    const parsed = ListInvoicesQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Query inválida', 400, 'VALIDATION_ERROR')
+    }
 
-    const subscriptions = await prisma.subscription.findMany({
-      skip,
-      take: limit,
-      orderBy: { created_at: 'desc' },
-      select: {
-        id: true,
-        status: true,
-        stripe_subscription_id: true,
-        current_period_start: true,
-        current_period_end: true,
-        created_at: true,
-        tenant: {
-          select: { id: true, name: true, slug: true, stripe_customer_id: true },
-        },
-      },
-    })
-
-    const total = await prisma.subscription.count()
+    const provider = getBillingProvider()
+    const result = await provider.listInvoices(parsed.data)
 
     res.json({
-      invoices: subscriptions,
-      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+      invoices: result.invoices,
+      pagination: {
+        has_more: result.has_more,
+        next_cursor: result.next_cursor,
+      },
+      provider: provider.name,
     })
   } catch (err) {
     next(err)
@@ -345,24 +366,162 @@ adminRouter.get('/billing/invoices', async (req, res, next) => {
 })
 
 /**
- * GET /api/admin/deploys
- * Lista histórico de deploys — lê da tabela DeployLog se existir,
- * senão retorna array vazio (tabela será criada em migration futura)
+ * GET /api/admin/billing/invoices/:id
  */
-adminRouter.get('/deploys', async (_req, res, next) => {
+adminRouter.get('/billing/invoices/:id', async (req, res, next) => {
   try {
-    // Tenta ler da tabela DeployLog; se não existir, retorna vazio
-    let deploys: unknown[] = []
-    try {
-      deploys = await (prisma as any).deployLog?.findMany?.({
-        orderBy: { created_at: 'desc' },
-        take: 100,
-      }) ?? []
-    } catch {
-      // Tabela não existe ainda — retorna vazio
+    const provider = getBillingProvider()
+    const invoice = await provider.getInvoice(req.params.id)
+    if (!invoice) {
+      throw new AppError('Fatura não encontrada', 404, 'NOT_FOUND')
+    }
+    res.json({ invoice })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/admin/billing/invoices
+ * Cria uma fatura manual via provider (Stripe).
+ */
+adminRouter.post('/billing/invoices', async (req, res, next) => {
+  try {
+    const parsed = CreateInvoiceBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Body inválido', 400, 'VALIDATION_ERROR')
     }
 
-    res.json({ deploys })
+    const provider = getBillingProvider()
+    const invoice = await provider.createInvoice(parsed.data)
+
+    res.status(201).json({ invoice })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/admin/billing/invoices/:id/void
+ * Anula uma fatura. Stripe: void_invoice. Manual: soft-delete.
+ */
+adminRouter.post('/billing/invoices/:id/void', async (req, res, next) => {
+  try {
+    const parsed = VoidInvoiceBodySchema.safeParse(req.body ?? {})
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Body inválido', 400, 'VALIDATION_ERROR')
+    }
+
+    const provider = getBillingProvider()
+    const invoice = await provider.voidInvoice({ id: req.params.id, reason: parsed.data.reason })
+    res.json({ invoice })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/admin/billing/invoices/:id/send
+ * Envia a fatura ao cliente (email).
+ */
+adminRouter.post('/billing/invoices/:id/send', async (req, res, next) => {
+  try {
+    const provider = getBillingProvider()
+    const invoice = await provider.sendInvoice(req.params.id)
+    res.json({ invoice })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── Deploy Log ─────────────────────────────────────────────────────────────
+// CRUD manual do histórico de deploys da plataforma Gravity.
+// Ver server/services/deployLogService.ts
+
+const DeployEnvironmentEnum = z.enum(['DEVELOPMENT', 'STAGING', 'PRODUCTION', 'ALL'])
+const DeployStatusEnum = z.enum(['SUCCESS', 'FAILED', 'ROLLBACK', 'IN_PROGRESS'])
+
+const ListDeploysQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+  area: z.string().max(50).optional(),
+  environment: DeployEnvironmentEnum.optional(),
+  status: DeployStatusEnum.optional(),
+  search: z.string().max(200).optional(),
+  from_date: z.string().datetime().optional(),
+  to_date: z.string().datetime().optional(),
+})
+
+const CreateDeployBodySchema = z.object({
+  area: z.string().min(1).max(50),
+  version: z.string().min(1).max(100),
+  description: z.string().min(1).max(500),
+  environment: DeployEnvironmentEnum.default('PRODUCTION'),
+  status: DeployStatusEnum.default('SUCCESS'),
+  deployed_at: z.string().datetime().optional(),
+})
+
+/**
+ * GET /api/admin/deploys
+ * Lista histórico de deploys com paginação + filtros.
+ */
+adminRouter.get('/deploys', async (req, res, next) => {
+  try {
+    const parsed = ListDeploysQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Query inválida', 400, 'VALIDATION_ERROR')
+    }
+
+    const result = await deployLogService.list(parsed.data)
+    res.json({ deploys: result.deploys, pagination: result.pagination })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * POST /api/admin/deploys
+ * Registra um deploy manualmente. deployed_by vem do req.auth (snapshot do admin).
+ */
+adminRouter.post('/deploys', async (req, res, next) => {
+  try {
+    const parsed = CreateDeployBodySchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Body inválido', 400, 'VALIDATION_ERROR')
+    }
+
+    // Resolve nome do admin a partir do banco
+    const user = await prisma.user.findUnique({
+      where: { id: req.auth.userId },
+      select: { id: true, name: true, email: true },
+    })
+    const deployedBy = user?.name ?? user?.email ?? req.auth.clerkUserId
+
+    const deploy = await deployLogService.create({
+      ...parsed.data,
+      deployed_by: deployedBy,
+      deployed_by_user_id: user?.id,
+      deployed_at: parsed.data.deployed_at ? new Date(parsed.data.deployed_at) : undefined,
+    })
+
+    res.status(201).json({ deploy })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
+ * DELETE /api/admin/deploys/:id
+ * Remove um registro de deploy (audit mantido via logEvent do frontend).
+ */
+adminRouter.delete('/deploys/:id', async (req, res, next) => {
+  try {
+    const existing = await deployLogService.getById(req.params.id)
+    if (!existing) {
+      throw new AppError('Deploy não encontrado', 404, 'NOT_FOUND')
+    }
+    await deployLogService.delete(req.params.id)
+    res.json({ deleted: true, id: req.params.id })
   } catch (err) {
     next(err)
   }
@@ -401,39 +560,54 @@ adminRouter.get('/test-plans', (_req, res, next) => {
  */
 adminRouter.get('/test-logs', async (_req, res, next) => {
   try {
-    let logs: unknown[] = []
+    const byId = new Map<string, Record<string, unknown>>()
 
-    // 1. Tenta ler do banco
+    // 1. Lê arquivos JSON em data/test-logs/ (fonte primária — run-tests escreve aqui)
     try {
-      logs = await (prisma as any).testLog?.findMany?.({
+      const dir = join(process.cwd(), 'data', 'test-logs')
+      if (existsSync(dir)) {
+        const files = readdirSync(dir)
+          .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-'))
+          .sort()
+          .reverse()
+
+        for (const file of files.slice(0, 7)) { // até 7 dias de histórico
+          try {
+            const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
+            if (Array.isArray(content)) {
+              for (const entry of content) {
+                if (entry && typeof entry === 'object' && typeof (entry as { id?: unknown }).id === 'string') {
+                  byId.set((entry as { id: string }).id, entry as Record<string, unknown>)
+                }
+              }
+            }
+          } catch { /* arquivo inválido — ignora */ }
+        }
+      }
+    } catch { /* diretório não existe */ }
+
+    // 2. Merge com banco (complementa, não substitui — id é único)
+    try {
+      const dbLogs = await (prisma as any).testLog?.findMany?.({
         orderBy: { created_at: 'desc' },
         take: 500,
       }) ?? []
-    } catch {
-      // Tabela não existe ainda — usa fallback de arquivo
-    }
-
-    // 2. Fallback: lê arquivos JSON em data/test-logs/
-    if (logs.length === 0) {
-      try {
-        const dir = join(process.cwd(), 'data', 'test-logs')
-        if (existsSync(dir)) {
-          const files = readdirSync(dir)
-            .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-'))
-            .sort()
-            .reverse()
-
-          for (const file of files.slice(0, 7)) { // até 7 dias de histórico
-            try {
-              const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
-              if (Array.isArray(content)) {
-                logs = [...logs, ...content]
-              }
-            } catch { /* arquivo inválido — ignora */ }
-          }
+      for (const log of dbLogs) {
+        if (log && typeof log.id === 'string' && !byId.has(log.id)) {
+          byId.set(log.id, log)
         }
-      } catch { /* diretório não existe */ }
+      }
+    } catch {
+      // Tabela não existe — ok
     }
+
+    // 3. Ordena por created_at DESC (mais recentes primeiro) para a UI renderizar
+    //    a execução atual no topo da tabela e da paginação.
+    const logs = Array.from(byId.values()).sort((a, b) => {
+      const ta = String(a.created_at ?? '')
+      const tb = String(b.created_at ?? '')
+      return tb.localeCompare(ta)
+    })
 
     res.json({ logs })
   } catch (err) {

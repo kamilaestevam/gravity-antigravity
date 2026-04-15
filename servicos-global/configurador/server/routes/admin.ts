@@ -675,10 +675,46 @@ adminRouter.get('/test-logs', async (_req, res, next) => {
 const monorepoRoot = resolve(process.cwd(), '..', '..')
 let pwRunning = false
 
+/** Timeout máximo de um run completo (15 min). Previne loops infinitos/DoS. */
+const RUN_TESTS_TIMEOUT_MS = 15 * 60 * 1000
+
+/**
+ * Whitelist de env vars seguras para o processo Playwright.
+ *
+ * Antes, o spawn herdava todo o `process.env` — incluindo secrets sensíveis
+ * (STRIPE_SECRET_KEY, CLERK_SECRET_KEY, DATABASE_URL, ENCRYPTION_KEY,
+ * INTERNAL_SERVICE_KEY). Se um teste falhasse e logasse `process.env` no
+ * stack trace, esses valores iam parar nos arquivos data/test-logs/*.json
+ * que são expostos via GET /admin/test-logs.
+ *
+ * Agora só passamos env vars estritamente necessárias para o Playwright rodar
+ * nos ambientes de teste locais/CI. Em dev, o test runner usa o .env.test
+ * separado do monorepo, que tem chaves dummy (ex: sk_test_dummy_vitest).
+ */
+function buildSafeTestEnv(): Record<string, string> {
+  const safeKeys = [
+    // Runtime
+    'PATH', 'HOME', 'USER', 'USERNAME', 'USERPROFILE', 'APPDATA', 'LOCALAPPDATA', 'SYSTEMROOT',
+    'NODE_ENV', 'TEMP', 'TMP', 'TZ', 'LANG', 'LC_ALL',
+    // Playwright-specific
+    'PLAYWRIGHT_BROWSERS_PATH', 'PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD', 'DEBUG',
+    // Portas dos serviços em dev (sem credentials)
+    'PORT', 'VITE_PORT',
+  ]
+  const env: Record<string, string> = {}
+  for (const key of safeKeys) {
+    const value = process.env[key]
+    if (value !== undefined) env[key] = value
+  }
+  env.CI = '1'
+  return env
+}
+
 /**
  * POST /api/admin/run-tests
  * Dispara os testes Playwright em background e persiste os resultados.
  * Retorna imediatamente com { started: true }.
+ * Requer SUPER_ADMIN: dispara spawn pesado com acesso ao monorepo.
  */
 const RunTestsSchema = z.object({
   modulos: z.array(z.string().max(100)).optional(),
@@ -687,6 +723,15 @@ const RunTestsSchema = z.object({
 
 adminRouter.post('/run-tests', async (req, res, next) => {
   try {
+    // Só SUPER_ADMIN pode disparar run — é operação destrutiva que spawn
+    // Playwright consumindo CPU/memória por até 15 min, faz CRUD de verdade
+    // nos bancos de teste e pode disparar webhooks externos. ADMIN (CFO,
+    // suporte, etc) não precisa desse poder. Mesmo padrão do endpoint
+    // POST /admin/users/:userId/promote.
+    if (req.auth.role !== 'SUPER_ADMIN') {
+      throw new AppError('Somente Super Admin pode disparar runs de teste', 403, 'FORBIDDEN')
+    }
+
     if (pwRunning) {
       throw new AppError('Já existe um run em andamento', 409, 'CONFLICT')
     }
@@ -715,6 +760,21 @@ adminRouter.post('/run-tests', async (req, res, next) => {
       projectArgs = modulos.flatMap((m: string) => ['--project', m])
     }
 
+    // Audit trail: início do run — quem disparou, com quais planos/módulos
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'TestRun',
+      action: 'RUN_TESTS_STARTED',
+      action_detail: `Run iniciado — ${planos?.length ?? 0} plano(s), ${modulos?.length ?? 0} módulo(s)`,
+      after: { planos: planos ?? [], modulos: modulos ?? [], specArgs, projectArgs },
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
+
     pwRunning = true
     res.json({ started: true })
 
@@ -727,9 +787,10 @@ adminRouter.post('/run-tests', async (req, res, next) => {
       ['playwright', 'test', ...specArgs, ...projectArgs, '--reporter=json'],
       {
         cwd:        monorepoRoot,
-        env:        { ...process.env, CI: '1' },
+        env:        buildSafeTestEnv(),
         shell:      true,
         windowsHide: true,
+        timeout:    RUN_TESTS_TIMEOUT_MS,
       }
     )
 
@@ -784,6 +845,25 @@ adminRouter.post('/run-tests', async (req, res, next) => {
         ...e,
       }))
       writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
+
+      // Audit trail: fim do run — quantos passaram/falharam
+      const aprovados = entries.filter(e => e.result === 'APROVADO').length
+      const reprovados = entries.filter(e => e.result === 'REPROVADO').length
+      const erros = entries.filter(e => e.result === 'ERRO').length
+      AuditService.log({
+        tenant_id: req.auth.tenantId,
+        actor_type: 'USER',
+        actor_id: req.auth.userId,
+        actor_name: req.auth.userId,
+        actor_ip: req.ip,
+        module: 'admin',
+        resource_type: 'TestRun',
+        action: 'RUN_TESTS_COMPLETED',
+        action_detail: `Run concluído — ${entries.length} testes (${aprovados} aprovados, ${reprovados} reprovados, ${erros} erros)`,
+        after: { total: entries.length, aprovados, reprovados, erros },
+        status: reprovados + erros > 0 ? 'PARTIAL' : 'SUCCESS',
+      }).catch(() => { /* fire-and-forget */ })
+
       console.log(`[admin/run-tests] Run concluído — ${entries.length} entradas salvas`)
     })
 
@@ -878,6 +958,25 @@ adminRouter.post('/test-logs', async (req, res, next) => {
       }))
       writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
     }
+
+    // Audit trail: ingestão externa de test-logs (ex: CI pipeline enviando
+    // resultados de Vitest). Registra quem enviou e quantos batches.
+    const aprovados = entries.filter(e => e.result === 'APROVADO').length
+    const reprovados = entries.filter(e => e.result === 'REPROVADO').length
+    const erros = entries.filter(e => e.result === 'ERRO').length
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'TestLogBatch',
+      action: 'TEST_LOGS_INGESTED',
+      action_detail: `${entries.length} test-logs ingeridos (${aprovados} aprovados, ${reprovados} reprovados, ${erros} erros)`,
+      after: { total: entries.length, aprovados, reprovados, erros, persistedInDb: salvouNoBanco },
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({ ok: true, saved: entries.length, banco: salvouNoBanco })
   } catch (err) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bug, Sparkle, XCircle, CheckCircle, Warning, Code, Wrench, PlayCircle, CalendarBlank, Clock } from '@phosphor-icons/react'
+import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -66,7 +66,6 @@ export function LogTestes() {
   const [dados, setDados] = useState<LogTeste[]>([])
   const [carregando, setCarregando] = useState(true)
   const [rodandoTestes, setRodandoTestes] = useState(false)
-  const [loadingCode, setLoadingCode] = useState<string | null>(null)
   const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
   const [modalExecutarAberto, setModalExecutarAberto] = useState(false)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
@@ -160,14 +159,12 @@ export function LogTestes() {
   const reprovadosCount = dados.filter(d => d.resultado === 'REPROVADO').length
   const erroCount = dados.filter(d => d.resultado === 'ERRO_CATASTROFICO').length
 
-  const aplicarCorrecaoIA = (id: string) => {
-    setLoadingCode(id)
-    setTimeout(() => {
-      // Fake a fix
-      setDados(prev => prev.map(t => t.id === id ? { ...t, resultado: 'APROVADO', erroLog: undefined, aiAnalise: undefined } : t))
-      setLoadingCode(null)
-    }, 1500)
-  }
+  // NOTA: os botões "Corrigir com IA" e "Alterar Manualmente" foram removidos
+  // do renderExpandido porque eram UX mentiroso — o handler era um setTimeout
+  // que só mudava o estado local pra APROVADO sem corrigir nada no código
+  // real. A análise IA heurística (generateAiAnalysis em playwright-parser.ts)
+  // continua sendo exibida como referência; a correção real precisa ser feita
+  // manualmente no código ou via endpoint de apply-fix que ainda não existe.
   const colunas: TabelaGlobalColuna<LogTeste>[] = [
     {
       key: 'data', label: t('admin.tests.col_data'), tipo: 'texto',
@@ -285,45 +282,9 @@ export function LogTestes() {
                      <p style={{ fontSize: '0.75rem', color: '#a78bfa', margin: 0 }}>{t('admin.tests.expandido_ia_subtitulo')}</p>
                    </div>
                 </div>
-                {/* Botões de Ação Global para o Erro */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                   <button 
-                     type="button"
-                     onClick={() => aplicarCorrecaoIA(item.id)}
-                     disabled={loadingCode === item.id}
-                     style={{
-                        display: 'flex', alignItems: 'center', gap: '0.4rem', 
-                        padding: '0.5rem 1rem', borderRadius: '8px', 
-                        background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)', 
-                        border: 'none', color: '#fff', fontSize: '0.8125rem', fontWeight: 700, 
-                        cursor: loadingCode === item.id ? 'not-allowed' : 'pointer', 
-                        transition: 'all 0.2s', boxShadow: '0 4px 14px rgba(139, 92, 246, 0.4)',
-                        opacity: loadingCode === item.id ? 0.7 : 1
-                     }}
-                     onMouseEnter={e => { if(loadingCode !== item.id) e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(139, 92, 246, 0.6)' }}
-                     onMouseLeave={e => { if(loadingCode !== item.id) e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(139, 92, 246, 0.4)' }}
-                   >
-                     {loadingCode === item.id ? (
-                        <>{t('admin.tests.expandido_ia_processando')}</>
-                     ) : (
-                        <><Wrench size={16} weight="fill" /> {t('admin.tests.expandido_ia_corrigir')}</>
-                     )}
-                   </button>
-                   <button
-                     type="button"
-                     style={{
-                        display: 'flex', alignItems: 'center', gap: '0.4rem', 
-                        padding: '0.5rem 1rem', borderRadius: '8px', 
-                        background: 'rgba(255,255,255,0.05)', 
-                        border: '1px solid rgba(255,255,255,0.1)', color: '#e2e8f0', fontSize: '0.8125rem', fontWeight: 600, 
-                        cursor: 'pointer', transition: 'all 0.2s'
-                     }}
-                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)' }}
-                     onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-                   >
-                     <Code size={16} /> Alterar Manualmente
-                   </button>
-                </div>
+                {/* Os botões "Corrigir com IA" e "Alterar Manualmente" foram
+                    removidos porque eram UX mentiroso (setTimeout + setState fake).
+                    A análise IA abaixo segue como referência pra correção manual. */}
              </div>
              
              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) minmax(350px, 1.5fr)', gap: '1rem', padding: '1.25rem', position: 'relative' }}>

@@ -28,6 +28,12 @@ import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import type { PrismaClient } from '@prisma/client'
 import { saldoEngine, AppError } from '../services/saldoEngine.js'
+import {
+  parsearFormula,
+  avaliarFormula,
+  buildContextoItem,
+  SALDO_FORMULA_PADRAO,
+} from '../services/formulaEngine.js'
 
 export const pedidosRouter = Router()
 
@@ -991,6 +997,7 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
 
 // ── PATCH /:id/itens/:itemId/campo — Editar campo único do item ───────────────
 
+// Campos texto/enum editáveis inline
 const CAMPOS_EDITAVEIS_ITEM = new Set([
   'tipo_operacao',
   'nome_exportador', 'nome_importador', 'nome_fabricante',
@@ -999,25 +1006,129 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'incoterm', 'condicao_pagamento_pedido', 'data_emissao_pedido',
 ])
 
+// Campos numéricos editáveis inline que disparam cascata:
+//   quantidade_inicial_item_pedido  → recalcula saldo_item_pedido (via fórmula do config) + valor_total_itens
+//   valor_unitario_item             → recalcula valor_total_itens (unit × A)
+const CAMPOS_EDITAVEIS_ITEM_NUMERICOS = new Set([
+  'quantidade_inicial_item_pedido',
+  'valor_unitario_item',
+])
+
 pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { campo, valor } = req.body as { campo: string; valor: unknown }
-    if (!campo || !CAMPOS_EDITAVEIS_ITEM.has(campo)) {
+    const ehTexto   = CAMPOS_EDITAVEIS_ITEM.has(campo)
+    const ehNumero  = CAMPOS_EDITAVEIS_ITEM_NUMERICOS.has(campo)
+    if (!campo || (!ehTexto && !ehNumero)) {
       throw new AppError(400, `Campo "${campo}" nao pode ser editado inline em item`)
     }
     if (campo === 'tipo_operacao' && valor !== 'importacao' && valor !== 'exportacao') {
       throw new AppError(400, 'tipo_operacao deve ser "importacao" ou "exportacao"')
     }
+    // Validação dos campos numéricos com cascata
+    let valorNumerico: number | null = null
+    if (ehNumero) {
+      if (typeof valor !== 'number' || !Number.isFinite(valor) || valor < 0) {
+        throw new AppError(400, `Campo "${campo}" deve ser um numero finito maior ou igual a zero`)
+      }
+      valorNumerico = valor
+    }
+
     const tenant_id = req.headers['x-tenant-id'] as string
     const item = await req.prisma.pedidoItem.findFirst({
       where: { id: req.params.itemId, pedido_id: req.params.id, tenant_id },
     })
     if (!item) throw new AppError(404, 'Item do pedido nao encontrado')
+
+    // ── Campos texto/enum — update simples ────────────────────────────────────
+    if (ehTexto) {
+      const updated = await req.prisma.pedidoItem.update({
+        where: { id: req.params.itemId },
+        data: { [campo]: valor === undefined ? null : valor },
+      })
+      return res.json(mapItem(updated))
+    }
+
+    // ── Campos numéricos — update + cascata lendo config ──────────────────────
+    // Fonte de verdade: tela /configuracoes do produto Pedido.
+    //
+    // Passo 1: lê a fórmula do saldo do workspace (PedidoSaldoFormulaConfig).
+    //          Se ainda não configurado, usa SALDO_FORMULA_PADRAO.
+    // Passo 2: lê as casas decimais do workspace (PedidoCasasDecimaisConfig)
+    //          para arredondar valor_total_itens com a precisão configurada.
+    // Passo 3: constrói o contexto do item com os valores pós-edição e
+    //          avalia a fórmula via formulaEngine (avaliarFormula).
+    // Passo 4: valida invariante (não permitir saldo negativo) e grava.
+    //
+    // Importante: o evaluator do backend é port do client — ambos devem
+    // produzir os mesmos resultados para a mesma fórmula e contexto.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = (req as any).prisma as Record<string, any>
+
+    const [saldoCfg, casasCfg] = await Promise.all([
+      db.pedidoSaldoFormulaConfig.findUnique({ where: { tenant_id } }),
+      db.pedidoCasasDecimaisConfig.findUnique({ where: { tenant_id } }),
+    ])
+
+    const formulaExpressao: string = saldoCfg?.formula_expressao ?? SALDO_FORMULA_PADRAO
+    const casasValor: number       = Number(casasCfg?.valor_total_pedido ?? 2)
+
+    let formulaAST
+    try {
+      formulaAST = parsearFormula(formulaExpressao)
+    } catch (e) {
+      // Se a fórmula salva está inválida (improvável — PUT valida),
+      // cai para o default para não travar a edição.
+      console.error('[pedido PATCH item] formula salva invalida, usando default:', e)
+      formulaAST = parsearFormula(SALDO_FORMULA_PADRAO)
+    }
+
+    const A_novo = campo === 'quantidade_inicial_item_pedido'
+      ? (valorNumerico ?? 0)
+      : Number(item.quantidade_inicial_item_pedido ?? 0)
+    const C = Number(item.quantidade_cancelada_item_pedido ?? 0)
+    const D = Number(item.quantidade_transferida_item_pedido ?? 0)
+    const unit_novo = campo === 'valor_unitario_item'
+      ? (valorNumerico ?? 0)
+      : Number(item.valor_unitario_item ?? 0)
+
+    // Constrói o contexto do item pós-edição para avaliar a fórmula.
+    // O contexto usa os tokens pedido-level (quantidade_total_inicial_pedido etc.)
+    // e mapeia para os valores do item via TOKEN_PEDIDO_PARA_ITEM no buildContextoItem.
+    const itemPosEdicao = {
+      ...item,
+      [campo]: valorNumerico,
+    }
+    const contexto = buildContextoItem(itemPosEdicao as Record<string, unknown>)
+
+    const { valor: saldo_avaliado } = avaliarFormula(formulaAST, contexto)
+    const saldo_novo = Math.max(0, saldo_avaliado)
+
+    // Invariante: editar quantidade inicial não pode deixar o saldo negativo.
+    // (pelo menos com a fórmula padrão — se a fórmula custom aceita negativos,
+    //  a proteção ainda aplica para manter consistência visual.)
+    if (campo === 'quantidade_inicial_item_pedido' && saldo_avaliado < 0) {
+      throw new AppError(
+        400,
+        `quantidade_inicial_item_pedido (${A_novo}) resulta em saldo negativo ` +
+        `(${saldo_avaliado.toFixed(2)}) pela formula configurada. ` +
+        `Ja efetivado: cancelada=${C}, transferida=${D}.`,
+      )
+    }
+
+    // valor_total_itens usa as casas decimais configuradas
+    const fator = Math.pow(10, casasValor)
+    const valor_total_novo = Math.round(unit_novo * A_novo * fator) / fator
+
     const updated = await req.prisma.pedidoItem.update({
       where: { id: req.params.itemId },
-      data: { [campo]: valor === undefined ? null : valor },
+      data: {
+        [campo]: valorNumerico,
+        saldo_item_pedido: saldo_novo,
+        valor_total_itens: valor_total_novo,
+      },
     })
-    res.json(mapItem(updated))
+    return res.json(mapItem(updated))
   } catch (err) {
     next(err)
   }

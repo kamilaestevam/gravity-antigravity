@@ -556,6 +556,38 @@ model PedidoCasasDecimaisConfig {
   @@map("pedido_casas_decimais_config")
 }
 
+/// Configuração da fórmula do Saldo do Pedido por workspace (tenant).
+/// Um registro por tenant — espelha o padrão de PedidoCasasDecimaisConfig.
+///
+/// A fórmula é armazenada em forma de chave (field_name = referência direta ao
+/// campo, não alias legível). Ex.:
+///   "quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido"
+///
+/// Campos disponíveis (tokens aceitos pelo parser):
+///   quantidade_total_inicial_pedido, quantidade_cancelada_total_pedido,
+///   quantidade_transferida_total, quantidade_pronta_itens_pedido_total,
+///   saldo_itens_do_pedido, valor_total, peso_liquido_total_pedido,
+///   peso_bruto_total_pedido, cubagem_total_pedido
+///
+/// A avaliação vive em produto/pedido/server/src/services/formulaEngine.ts
+/// (port do client — MANTER EM SINCRONIA com produto/pedido/client/src/shared/formulaEngine.ts).
+model PedidoSaldoFormulaConfig {
+  id          String   @id @default(cuid())
+  tenant_id   String   @unique
+  product_id  String?
+
+  /// Expressão da fórmula em forma de chave (nunca alias legível).
+  /// Default replica o SALDO_FORMULA_PADRAO do client.
+  formula_expressao String @default("quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido")
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_saldo_formula_config")
+}
+
 /// Painéis do Dashboard por usuário — cada painel tem seu próprio conjunto de widgets.
 model DashboardPainel {
   id           String   @id @default(cuid())

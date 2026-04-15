@@ -40,7 +40,7 @@ import { BotaoSalvar, BotaoCancelar } from '@nucleo/botoes-salvar-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
-import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, type PdfTemplate } from '../shared/api'
+import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, type PdfTemplate } from '../shared/api'
 import { FORMATOS_DATA, setFormatoData, getFormatoData, type FormatoData } from '../shared/useFormatoData'
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, PedidoStatusConfig } from '../shared/types'
@@ -633,21 +633,19 @@ function aliasFormulaParaTokens(formulaAlias: string): SaldoToken[] {
   })
 }
 
-function carregarSaldoTokens(): SaldoToken[] {
-  return aliasFormulaParaTokens(carregarSaldoFormula())
+function carregarSaldoTokensDefault(): SaldoToken[] {
+  return aliasFormulaParaTokens(carregarSaldoFormulaDefault())
 }
 
 // ── Campos Calculados — Saldo do Pedido ──────────────────────────────────────
-// SALDO_FORMULA_PADRAO fica em forma de chave (armazenamento); exibição usa alias.
+// A fórmula vive no backend (tabela PedidoSaldoFormulaConfig, uma por tenant)
+// e é acessada via saldoFormulaApi. Aqui mantemos apenas o default local para
+// renderização imediata antes do carregamento assíncrono.
 const SALDO_FORMULA_PADRAO =
   'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
-const SALDO_FORMULA_KEY = 'pedido:saldo_formula'
 
-function carregarSaldoFormula(): string {
-  try {
-    const raw = localStorage.getItem(SALDO_FORMULA_KEY)
-    if (raw) return formulaParaAlias(raw)
-  } catch { /* ignore */ }
+/** Default síncrono enquanto o fetch assíncrono não retorna. */
+function carregarSaldoFormulaDefault(): string {
   return formulaParaAlias(SALDO_FORMULA_PADRAO)
 }
 
@@ -995,16 +993,33 @@ export default function Configuracoes() {
   }, [novaColuna.tipo])
 
   // ── Saldo do Pedido — Campos Calculados (editor tokenizado) ──
-  const [saldoTokens,          setSaldoTokens]          = useState<SaldoToken[]>(carregarSaldoTokens)
+  // Começa com o default síncrono e é sobrescrito pelo fetch da API ao montar.
+  const [saldoTokens,          setSaldoTokens]          = useState<SaldoToken[]>(carregarSaldoTokensDefault)
   const [saldoFormulaErro,     setSaldoFormulaErro]     = useState<string | null>(null)
   const [saldoFormulaValida,   setSaldoFormulaValida]   = useState(false)
   const [saldoFormulaGabi,     setSaldoFormulaGabi]     = useState<{ titulo: string; texto: string; sugestao?: string } | null>(null)
   const saldoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const saldoCamposRef   = useRef<Array<{ chave: string; label: string; unidade?: string; papel?: string }>>([])
   const [saldoFormulaAnalisando, setSaldoFormulaAnalisando] = useState(false)
+  // Baseline da fórmula salva no servidor — usada para calcular "alterada".
+  const [saldoFormulaSalva, setSaldoFormulaSalva] = useState<string>(SALDO_FORMULA_PADRAO)
 
-  // Derivado — true quando fórmula difere do padrão salvo
-  const saldoFormulaAlterada = tokensParaChaveFormula(saldoTokens) !== SALDO_FORMULA_PADRAO
+  // Carrega a fórmula do workspace ao montar
+  useEffect(() => {
+    let cancelado = false
+    saldoFormulaApi.obter()
+      .then(resp => {
+        if (cancelado) return
+        const chave = resp.data.formula_expressao
+        setSaldoFormulaSalva(chave)
+        setSaldoTokens(aliasFormulaParaTokens(formulaParaAlias(chave)))
+      })
+      .catch(() => { /* mantém default — erro já foi tratado no saldoFormulaApi.obter */ })
+    return () => { cancelado = true }
+  }, [])
+
+  // Derivado — true quando fórmula difere do que está salvo no backend
+  const saldoFormulaAlterada = tokensParaChaveFormula(saldoTokens) !== saldoFormulaSalva
 
   // FIX #4: constante fora do ciclo de render para não recriar callbacks a cada render
   const TIPOS_NUMERICOS_FORMULA: TipoColunaUsuario[] = useMemo(() => ['numero', 'percentual', 'formula'], [])
@@ -1225,13 +1240,28 @@ export default function Configuracoes() {
     setSaldoTokens(prev => prev.filter((_, i) => i !== index))
   }
 
-  function salvarSaldoFormula() {
-    try { localStorage.setItem(SALDO_FORMULA_KEY, tokensParaChaveFormula(saldoTokens)) } catch { /* ignore */ }
+  async function salvarSaldoFormula() {
+    const expressao = tokensParaChaveFormula(saldoTokens)
+    try {
+      const resp = await saldoFormulaApi.salvar(expressao)
+      setSaldoFormulaSalva(resp.data.formula_expressao)
+      setSaldoFormulaErro(null)
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Erro ao salvar formula'
+      setSaldoFormulaErro(msg)
+    }
   }
 
-  function restaurarSaldoPadrao() {
-    try { localStorage.removeItem(SALDO_FORMULA_KEY) } catch { /* ignore */ }
-    setSaldoTokens(aliasFormulaParaTokens(formulaParaAlias(SALDO_FORMULA_PADRAO)))
+  async function restaurarSaldoPadrao() {
+    try {
+      const resp = await saldoFormulaApi.restaurarPadrao()
+      setSaldoFormulaSalva(resp.data.formula_expressao)
+      setSaldoTokens(aliasFormulaParaTokens(formulaParaAlias(resp.data.formula_expressao)))
+    } catch {
+      // fallback — restaura só localmente
+      setSaldoFormulaSalva(SALDO_FORMULA_PADRAO)
+      setSaldoTokens(aliasFormulaParaTokens(formulaParaAlias(SALDO_FORMULA_PADRAO)))
+    }
     setSaldoFormulaErro(null); setSaldoFormulaValida(false); setSaldoFormulaGabi(null); setSaldoFormulaAnalisando(false)
   }
 

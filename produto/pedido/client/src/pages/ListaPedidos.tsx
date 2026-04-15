@@ -73,6 +73,7 @@ import {
   colunasUsuarioApi,
   configRegrasApi,
   casasDecimaisApi,
+  saldoFormulaApi,
   getApiContext,
 } from '../shared/api'
 import type { RegrasConfigBackend } from '../shared/api'
@@ -115,18 +116,15 @@ import './ListaPedidos.css'
 
 const PEDIDO_STATUS_STORAGE_KEY = 'pedido:status_config'
 
-// ── Saldo do Pedido: fórmula configurável via localStorage ────────────────────
+// ── Saldo do Pedido: fórmula configurável via API /configuracoes/saldo-formula
+//    (fonte de verdade é o banco — tela /configuracoes grava/lê via saldoFormulaApi)
 
-const SALDO_FORMULA_KEY = 'pedido:saldo_formula'
 const SALDO_FORMULA_PADRAO = 'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
 
-function lerSaldoFormulaAST() {
-  try {
-    const raw = localStorage.getItem(SALDO_FORMULA_KEY)
-    return parsearFormula(raw ?? SALDO_FORMULA_PADRAO)
-  } catch {
-    return parsearFormula(SALDO_FORMULA_PADRAO)
-  }
+/** AST inicial (síncrono) — parse do padrão para não segurar o primeiro render.
+ *  Depois do mount, um useEffect busca a fórmula real via API e atualiza. */
+function parsearPadraoSeguro() {
+  try { return parsearFormula(SALDO_FORMULA_PADRAO) } catch { return parsearFormula('0') }
 }
 
 /** Cores padrão por código de status (backend) */
@@ -4246,14 +4244,27 @@ export default function ListaPedidos() {
   const [modalGerarPdfAberto, setModalGerarPdfAberto] = useState(false)
   const [excluindoLote, setExcluindoLote] = useState(false)
 
-  // ── Fórmula do Saldo do Pedido (sincroniza com localStorage ao ganhar foco) ──
-  const [saldoFormulaAST, setSaldoFormulaAST] = useState(lerSaldoFormulaAST)
+  // ── Fórmula do Saldo do Pedido (fonte: API /configuracoes/saldo-formula) ────
+  // Começa com o padrão (render imediato) e atualiza assincronamente ao montar
+  // e ao ganhar foco — a fonte de verdade é o backend, então mudanças feitas
+  // em outra aba/device são capturadas no próximo focus.
+  const [saldoFormulaAST, setSaldoFormulaAST] = useState(parsearPadraoSeguro)
 
   useEffect(() => {
-    const sync = () => { try { setSaldoFormulaAST(lerSaldoFormulaAST()) } catch { /* mantém AST atual */ } }
-    window.addEventListener('focus', sync)
-    window.addEventListener('storage', sync)
-    return () => { window.removeEventListener('focus', sync); window.removeEventListener('storage', sync) }
+    let cancelado = false
+    const carregar = async () => {
+      try {
+        const resp = await saldoFormulaApi.obter()
+        if (cancelado) return
+        const ast = parsearFormula(resp.data.formula_expressao)
+        setSaldoFormulaAST(ast)
+      } catch {
+        /* mantém AST atual */
+      }
+    }
+    carregar()
+    window.addEventListener('focus', carregar)
+    return () => { cancelado = true; window.removeEventListener('focus', carregar) }
   }, [])
 
   // ── Status customizados (sincroniza com localStorage ao ganhar foco) ─────────

@@ -1876,3 +1876,32 @@ export const casasDecimaisApi = {
       body: JSON.stringify(payload),
     }),
 }
+
+// ── Saldo Formula (fórmula do Saldo do Pedido por workspace) ─────────────────
+
+export interface SaldoFormulaPayload {
+  formula_expressao: string
+  is_default: boolean
+}
+
+const SALDO_FORMULA_DEFAULT: SaldoFormulaPayload = {
+  formula_expressao: 'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido',
+  is_default: true,
+}
+
+export const saldoFormulaApi = {
+  obter: (): Promise<{ data: SaldoFormulaPayload }> =>
+    request<{ data: SaldoFormulaPayload }>('/api/v1/pedidos/configuracoes/saldo-formula')
+      .catch(() => ({ data: SALDO_FORMULA_DEFAULT })),
+
+  salvar: (formula_expressao: string): Promise<{ data: SaldoFormulaPayload }> =>
+    request<{ data: SaldoFormulaPayload }>('/api/v1/pedidos/configuracoes/saldo-formula', {
+      method: 'PUT',
+      body: JSON.stringify({ formula_expressao }),
+    }),
+
+  restaurarPadrao: (): Promise<{ data: SaldoFormulaPayload }> =>
+    request<{ data: SaldoFormulaPayload }>('/api/v1/pedidos/configuracoes/saldo-formula', {
+      method: 'DELETE',
+    }),
+}

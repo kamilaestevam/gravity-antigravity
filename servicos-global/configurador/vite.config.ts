@@ -10,6 +10,9 @@ const monorepoRoot = path.resolve(__dirname, '../..')
 export default defineConfig({
   plugins: [react()],
   resolve: {
+    // Prioriza source (.ts/.tsx) sobre compilados (.js) para evitar version skew
+    // com artefatos stale que sobreviveram a refactors antigos em nucleo-global.
+    extensions: ['.mjs', '.ts', '.tsx', '.mts', '.jsx', '.js', '.json'],
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
     alias: {
       ...createNucleoAliases(monorepoRoot),

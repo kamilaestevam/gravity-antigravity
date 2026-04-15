@@ -70,7 +70,7 @@ export function WorkspaceLayout() {
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
 
-  const { role: dbRole } = useLoadSystemRole()
+  const { role: dbRole, isGravityAdmin } = useLoadSystemRole()
   const ROLE_LABELS: Record<string, string> = {
     SUPER_ADMIN: 'Super Admin',
     ADMIN:       'Admin',
@@ -220,7 +220,7 @@ export function WorkspaceLayout() {
             onNavigateWorkspace={() => navigate('/workspace/organizacao')}
             onNavigateMarketPlace={() => navigate('/store')}
             onSignOut={() => signOut()}
-            isAdmin={false} // UsuarioGlobal resolverá privilégios de Super Admin via e-mail
+            isAdmin={isGravityAdmin}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
             compact
           />

@@ -31,50 +31,65 @@ const STATUS_CORES_DEFAULT: Record<string, string> = {
   cancelado:     '#f87171',
 }
 
+// ── Caches de parse — evitam JSON.parse repetido sem risco de dados stale ────
+// Ainda chamam localStorage.getItem (barato), mas só fazem JSON.parse
+// quando a string muda (caro). Funciona mesmo se o usuário salvar config
+// durante a mesma sessão.
+
+let _statusRaw: string | null | undefined = undefined
+let _statusParsed: Record<string, { label: string; cor: string }> = {}
+
+function _lerStatusConfig(): Record<string, { label: string; cor: string }> {
+  const raw = localStorage.getItem(PEDIDO_STATUS_STORAGE_KEY)
+  if (raw !== _statusRaw) {
+    _statusRaw = raw
+    try { _statusParsed = raw ? JSON.parse(raw) : {} }
+    catch { _statusParsed = {} }
+  }
+  return _statusParsed
+}
+
+let _casasRaw: string | null | undefined = undefined
+let _casasParsed: Record<string, number> = {}
+
+function _lerCasasConfig(): Record<string, number> {
+  const raw = localStorage.getItem('pedido:casas_decimais')
+  if (raw !== _casasRaw) {
+    _casasRaw = raw
+    try { _casasParsed = raw ? JSON.parse(raw) as Record<string, number> : {} }
+    catch { _casasParsed = {} }
+  }
+  return _casasParsed
+}
+
 /** Lê o mapa {id → cor} salvo pelo Configuracoes via localStorage */
 export function lerStatusCores(): Record<string, string> {
-  try {
-    const raw = localStorage.getItem(PEDIDO_STATUS_STORAGE_KEY)
-    if (!raw) return {}
-    const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
-    // mapeia por id direto
-    const mapa: Record<string, string> = {}
-    for (const [id, cfg] of Object.entries(parsed)) mapa[id] = cfg.cor
-    return mapa
-  } catch { return {} }
+  const config = _lerStatusConfig()
+  const mapa: Record<string, string> = {}
+  for (const [id, cfg] of Object.entries(config)) mapa[id] = cfg.cor
+  return mapa
 }
 
 export function getStatusCor(status: string): string {
-  const local = lerStatusCores()
-  return local[status] ?? STATUS_CORES_DEFAULT[status] ?? '#64748b'
+  const config = _lerStatusConfig()
+  return config[status]?.cor ?? STATUS_CORES_DEFAULT[status] ?? '#64748b'
 }
 
 /** Lê o label de um status — inclui status customizados do localStorage */
 export function getStatusLabel(status: string): string {
-  try {
-    const raw = localStorage.getItem(PEDIDO_STATUS_STORAGE_KEY)
-    if (raw) {
-      const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
-      if (parsed[status]?.label) return parsed[status].label
-    }
-  } catch { /* ignore */ }
-  return STATUS_PEDIDO_LABELS[status as keyof typeof STATUS_PEDIDO_LABELS] ?? status
+  const config = _lerStatusConfig()
+  return config[status]?.label ?? STATUS_PEDIDO_LABELS[status as keyof typeof STATUS_PEDIDO_LABELS] ?? status
 }
 
 // ── Casas decimais configuráveis pelo usuário ────────────────────────────────
 
 export function lerCasasDecimaisConfig(): Record<string, number> {
-  try {
-    const raw = localStorage.getItem('pedido:casas_decimais')
-    if (raw) return JSON.parse(raw) as Record<string, number>
-  } catch { /* ignore */ }
-  return {}
+  return _lerCasasConfig()
 }
 
 /** Retorna casas decimais para um campo, respeitando config do usuário em Configurações */
 export function getCasas(campo: string, padrao: number): number {
-  const config = lerCasasDecimaisConfig()
-  return config[campo] ?? padrao
+  return _lerCasasConfig()[campo] ?? padrao
 }
 
 // ── Ref de alertas: carregado uma vez no mount, acessível pelos renders estáticos ──

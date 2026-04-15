@@ -21,7 +21,9 @@ export interface AvisoInterno {
   dataHora: string;
   lido: boolean;
   tipo: 'aviso' | 'mencao' | 'sistema' | 'tarefa';
-  statusReal?: 'em_dia' | 'atrasado'; 
+  statusReal?: 'em_dia' | 'atrasado';
+  /** Link opcional — quando presente, o item do aviso vira clicável e navega para a rota indicada. */
+  href?: string;
 }
 
 export interface AvisoInternoGlobalProps {
@@ -253,7 +255,16 @@ export function AvisoInternoGlobal({
           <div className="aig-empty-msg">Nenhuma mensagem encontrada.</div>
         ) : (
           avisosFiltrados.map((aviso) => (
-            <div key={aviso.id} className={`aig-list-item ${aviso.lido ? 'read' : ''}`}>
+            <div
+              key={aviso.id}
+              className={`aig-list-item ${aviso.lido ? 'read' : ''}`}
+              onClick={aviso.href ? () => {
+                onMarcarLido?.(aviso.id);
+                setIsOpen(false);
+                window.location.href = aviso.href!;
+              } : undefined}
+              style={aviso.href ? { cursor: 'pointer' } : undefined}
+            >
               <div className="aig-list-avatar">
                 {aviso.autor?.nome.charAt(0).toUpperCase() || 'S'}
               </div>
@@ -266,7 +277,11 @@ export function AvisoInternoGlobal({
               </div>
               {!aviso.lido && (
                 <TooltipGlobal titulo="Marcar como lida" descricao="">
-                  <button type="button" className="aig-list-check" onClick={() => onMarcarLido?.(aviso.id)}>
+                  <button
+                    type="button"
+                    className="aig-list-check"
+                    onClick={(e) => { e.stopPropagation(); onMarcarLido?.(aviso.id); }}
+                  >
                      <CheckCircle size={18} weight="duotone" />
                   </button>
                 </TooltipGlobal>

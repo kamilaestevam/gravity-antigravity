@@ -1,7 +1,6 @@
 // services/catalogAdapter.ts
 // Adapter que converte entre o formato da API (ProductApi) e o formato
 // frontend (ProdutoCatalogo) usado pelos componentes existentes.
-// Permite migrar gradualmente sem reescrever todos os componentes de uma vez.
 
 import { adminProductsApi, type ProductApi } from './apiClient'
 import type { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../types/entidades'
@@ -37,7 +36,7 @@ const BILLING_API_TO_UI: Record<string, string> = {
 }
 
 const BILLING_UI_TO_API: Record<string, string> = Object.fromEntries(
-  Object.entries(BILLING_API_TO_UI).map(([k, v]) => [v, k])
+  Object.entries(BILLING_API_TO_UI).map(([k, v]) => [v, k]),
 )
 
 /** Converte Decimal string "10.99" → display "10,99" */
@@ -94,11 +93,11 @@ function apiToUi(p: ProductApi): ProdutoCatalogo {
           moeda: t.currency,
         }))
       : undefined,
-    gabiQuotaMensal: (p as any).gabi_quota_mensal ?? 0,
+    gabiQuotaMensal: p.gabi_quota_mensal ?? 0,
   }
 }
 
-function uiToApiCreate(p: {
+export interface ProdutoInput {
   nome: string
   descricao: string
   slug: string
@@ -119,7 +118,9 @@ function uiToApiCreate(p: {
   publicoAlvo?: string
   faixasPreco?: FaixaPreco[]
   gabiQuotaMensal?: number
-}): Record<string, unknown> {
+}
+
+function uiToApi(p: ProdutoInput): Record<string, unknown> {
   return {
     name: p.nome,
     slug: p.slug,
@@ -145,10 +146,7 @@ function uiToApiCreate(p: {
     extra_hour_currency: p.precoHoraAdicional?.moeda ?? 'BRL',
     backend_module: p.moduloBackend ?? undefined,
     target_audience: p.publicoAlvo ?? undefined,
-    // Só envia gabi_quota_mensal após migração do banco (coluna inexistente = erro 500)
-    ...(p.gabiQuotaMensal !== undefined && p.gabiQuotaMensal > 0
-      ? { gabi_quota_mensal: p.gabiQuotaMensal }
-      : {}),
+    gabi_quota_mensal: p.gabiQuotaMensal ?? 0,
     price_tiers: p.faixasPreco?.map(f => ({
       range_from: f.de,
       range_to: f.ate ?? undefined,
@@ -158,28 +156,54 @@ function uiToApiCreate(p: {
   }
 }
 
-// ─── Service adaptado (mesma interface do catalogService antigo) ────────────
+// ─── Service adaptado ───────────────────────────────────────────────────────
+
+export interface ListProdutosParams {
+  page?: number
+  limit?: number
+  search?: string
+  status?: string
+}
+
+export interface ListProdutosResult {
+  produtos: ProdutoCatalogo[]
+  total: number
+  page: number
+  pages: number
+}
 
 export const catalogApiService = {
-  async getProdutos(): Promise<ProdutoCatalogo[]> {
-    try {
-      const { products } = await adminProductsApi.list()
-      return products.map(apiToUi)
-    } catch (err) {
-      console.warn('[catalogAdapter] API indisponível:', err instanceof Error ? err.message : err)
-      throw err
+  async listProdutos(params?: ListProdutosParams): Promise<ListProdutosResult> {
+    const { products, pagination } = await adminProductsApi.list(params)
+    return {
+      produtos: products.map(apiToUi),
+      total: pagination.total,
+      page: pagination.page,
+      pages: pagination.pages,
     }
   },
 
-  async saveProduto(produto: ProdutoCatalogo): Promise<void> {
-    const data = uiToApiCreate(produto)
-    // Se tem ID real (Prisma cuid), atualiza diretamente
-    const isExisting = produto.id && !produto.id.startsWith('p') && produto.id.length > 0
-    if (isExisting) {
-      await adminProductsApi.update(produto.id, data)
-    } else {
-      // POST faz upsert no backend (se slug já existe, atualiza)
+  async getProdutos(): Promise<ProdutoCatalogo[]> {
+    const result = await this.listProdutos({ limit: 100 })
+    return result.produtos
+  },
+
+  /**
+   * Cria (isNew=true) ou atualiza (isNew=false) um produto.
+   * A detecção "novo vs edição" agora é explícita — não há heurística frágil.
+   */
+  async saveProduto(
+    produto: ProdutoInput & { id?: string },
+    opts: { isNew: boolean },
+  ): Promise<void> {
+    const data = uiToApi(produto)
+    if (opts.isNew) {
       await adminProductsApi.create(data)
+    } else {
+      if (!produto.id) {
+        throw new Error('ID do produto é obrigatório para atualização')
+      }
+      await adminProductsApi.update(produto.id, data)
     }
   },
 
@@ -187,52 +211,37 @@ export const catalogApiService = {
     await adminProductsApi.toggleStatus(id)
   },
 
-  async deleteProduto(id: string): Promise<void> {
-    await adminProductsApi.delete(id)
+  async deleteProduto(
+    id: string,
+    opts?: { force?: boolean; ackNegotiations?: boolean },
+  ): Promise<void> {
+    await adminProductsApi.delete(id, opts)
   },
 
   async getNegociacoes(): Promise<NegociacaoEspecial[]> {
-    try {
-      const { products } = await adminProductsApi.list()
-      const negs: NegociacaoEspecial[] = []
-      for (const p of products) {
-        if (p.negotiations) {
-          for (const n of p.negotiations) {
-            negs.push({
-              id: n.id,
-              produtoId: n.product_id,
-              tenantId: n.tenant_id,
-              tenantNome: n.tenant_name,
-              acordo: n.agreement,
-              inicio: n.starts_at?.split('T')[0],
-              fim: n.ends_at?.split('T')[0],
-              ilimitada: n.is_unlimited,
-            })
-          }
+    const { products } = await adminProductsApi.list()
+    const negs: NegociacaoEspecial[] = []
+    for (const p of products) {
+      if (p.negotiations) {
+        for (const n of p.negotiations) {
+          negs.push({
+            id: n.id,
+            produtoId: n.product_id,
+            tenantId: n.tenant_id,
+            tenantNome: n.tenant_name,
+            acordo: n.agreement,
+            inicio: n.starts_at?.split('T')[0],
+            fim: n.ends_at?.split('T')[0],
+            ilimitada: n.is_unlimited,
+          })
         }
       }
-      return negs
-    } catch (err) {
-      console.warn('[catalogAdapter] Erro ao buscar negociações:', err instanceof Error ? err.message : err)
-      throw err
     }
-  },
-
-  async seedIfEmpty(): Promise<void> {
-    try {
-      await adminProductsApi.seed()
-    } catch {
-      // Seed já feito ou sem permissão — ok
-    }
+    return negs
   },
 
   async getSlugsDisponiveis(): Promise<string[]> {
-    try {
-      const { available } = await adminProductsApi.getAvailableSlugs()
-      return available
-    } catch (err) {
-      console.error('[catalogAdapter] ERRO ao buscar slugs disponíveis:', err)
-      return []
-    }
+    const { available } = await adminProductsApi.getAvailableSlugs()
+    return available
   },
 }

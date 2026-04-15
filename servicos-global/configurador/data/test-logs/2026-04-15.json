@@ -1,0 +1,156 @@
+[
+  {
+    "id": "1776221524478-0",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Menu lateral carregado",
+    "result": "REPROVADO",
+    "duration": "14301ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('nav, [class*=\"sidebar\"], [class*=\"menu\"], [class*=\"lateral\"]').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('nav, [class*=\"sidebar\"], [class*=\"menu\"], [class*=\"lateral\"]').first()\u001b[22m\n",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-1",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Nome do Produto",
+    "result": "REPROVADO",
+    "duration": "4246ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-2",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Workspace nome",
+    "result": "REPROVADO",
+    "duration": "4790ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/workspace|espaço de trabalho/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-3",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Organização no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4756ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-4",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Workspace no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4540ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-5",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Usuários no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4948ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/usuário|usuario|users|membros/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-6",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Assinaturas no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4543ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/assinatura|plano|billing|subscription/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-7",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Financeiro no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4704ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/financeiro|pagamento|payment|fatura/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-8",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar API Cockpit no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4708ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/api|cockpit|token/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-9",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar logo do título",
+    "result": "APROVADO",
+    "duration": "4525ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-10",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar título ORGANIZAÇÃO",
+    "result": "REPROVADO",
+    "duration": "1826ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/ORGANIZAÇÃO|ORGANIZATION|EMPRESA|CONFIGURADOR/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-11",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar subtítulo da página",
+    "result": "REPROVADO",
+    "duration": "4325ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m100\u001b[39m\nReceived:   \u001b[31m15\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-12",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar botão de Configurações visível",
+    "result": "REPROVADO",
+    "duration": "4558ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/configur|setting|ajuste/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": null
+  },
+  {
+    "id": "1776221524478-13",
+    "created_at": "2026-04-15T02:52:04.478Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar navegação para Workspace sem erro",
+    "result": "APROVADO",
+    "duration": "6330ms",
+    "error_log": null,
+    "ai_analysis": null
+  }
+]

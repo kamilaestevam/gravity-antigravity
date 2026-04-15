@@ -1,6 +1,6 @@
 // server/routes/adminProducts.ts
-// CRUD do catálogo master de produtos — exclusivo para gravity_admin
-// Montado em /api/admin/products pelo index.ts
+// CRUD do catálogo master de produtos — exclusivo para gravity_admin.
+// Montado em /api/admin/products pelo index.ts.
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -9,48 +9,59 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
+import { rateLimitPresets } from '../middleware/rateLimiter.js'
 import { productCatalogService } from '../services/productCatalogService.js'
 import { AppError } from '../lib/appError.js'
+import { logger } from '../lib/logger.js'
+
+const log = logger.child({ module: 'admin-products' })
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-/** Lê os slugs de PRODUTOS registrados em contracts.json (seção "products") */
+/**
+ * Lê os slugs de PRODUTOS registrados em contracts.json (seção "products").
+ * Usa GRAVITY_CONTRACTS_PATH como fonte primária; cai em paths tradicionais
+ * como fallback para compat com dev local antigo.
+ */
 function getContractsSlugs(): string[] {
-  // Tentar múltiplos caminhos possíveis (dev vs deploy)
-  const possiblePaths = [
-    join(__dirname, '..', '..', '..', 'contracts.json'),           // dev: server/routes/ -> servicos-global/
-    join(__dirname, '..', '..', 'contracts.json'),                 // se __dirname=server/routes -> configurador/contracts.json (não existe, mas tenta)
-    join(__dirname, '..', '..', '..', '..', 'servicos-global', 'contracts.json'), // alt: se __dirname resolve diferente
-    join(process.cwd(), 'servicos-global', 'contracts.json'),      // cwd = root do monorepo
-    join(process.cwd(), 'contracts.json'),                         // cwd = servicos-global/configurador
-    join(process.cwd(), '..', 'contracts.json'),                   // cwd = servicos-global/configurador -> servicos-global/
-  ]
+  const candidatePaths: string[] = []
 
-  for (const contractsPath of possiblePaths) {
+  if (process.env.GRAVITY_CONTRACTS_PATH) {
+    candidatePaths.push(process.env.GRAVITY_CONTRACTS_PATH)
+  }
+
+  candidatePaths.push(
+    join(__dirname, '..', '..', '..', 'contracts.json'),
+    join(process.cwd(), 'servicos-global', 'contracts.json'),
+    join(process.cwd(), '..', 'contracts.json'),
+  )
+
+  for (const contractsPath of candidatePaths) {
     try {
       const raw = readFileSync(contractsPath, 'utf-8')
-      const contracts = JSON.parse(raw)
-      // Lê apenas a seção "products" — slugs exclusivos de produtos (não serviços)
-      const slugs: string[] = Array.isArray(contracts.products) ? contracts.products : []
+      const contracts = JSON.parse(raw) as { products?: string[] }
+      const slugs = Array.isArray(contracts.products) ? contracts.products : []
       if (slugs.length > 0) {
-        console.log(`[adminProducts] contracts.json encontrado em: ${contractsPath}`)
+        log.debug('contracts.json loaded', { path: contractsPath, slug_count: slugs.length })
         return slugs
       }
     } catch {
-      // Tenta o proximo path
+      // tenta o próximo path
     }
   }
 
-  console.warn('[adminProducts] contracts.json NÃO ENCONTRADO! Paths tentados:', possiblePaths)
-  // Fallback: apenas slugs de produtos
-  return ['simula-custo', 'bid-frete', 'bid-cambio', 'pedido', 'nf-importacao']
+  log.warn('contracts.json not found — using hardcoded fallback', { tried: candidatePaths.length })
+  return ['simula-custo', 'bid-frete', 'bid-cambio', 'pedido', 'nf-importacao', 'financeiro-comex']
 }
 
 export const adminProductsRouter = Router()
 
 // Cadeia obrigatória: auth → gravity_admin check
 adminProductsRouter.use(requireAuth, requireGravityAdmin)
+
+// Rate limit moderado para operações admin (60 req/min por IP+tenant)
+const adminRateLimit = rateLimitPresets.admin()
 
 // ─── Schemas de validação ──────────────────────────────────────────────────
 
@@ -106,40 +117,30 @@ const UpdateProductSchema = CreateProductSchema.partial()
 
 /**
  * GET /api/admin/products/available-slugs
- * Retorna slugs de contracts.json que ainda não têm produto cadastrado
+ * Retorna slugs de contracts.json que ainda não têm produto cadastrado.
  */
 adminProductsRouter.get('/available-slugs', async (_req, res, next) => {
   try {
     const allSlugs = getContractsSlugs()
-    console.log('[available-slugs] allSlugs from contracts.json:', allSlugs)
-    const existingProducts = await productCatalogService.list({ limit: 1000 })
-    console.log('[available-slugs] existing products count:', existingProducts.products.length)
-    const usedSlugs = new Set(
-      existingProducts.products
-        .map((p: { slug?: string; backend_module?: string | null }) => p.backend_module ?? p.slug)
-        .filter(Boolean)
-    )
-    console.log('[available-slugs] usedSlugs:', [...usedSlugs])
+    const usedSlugs = await productCatalogService.listUsedSlugs()
     const available = allSlugs.filter(slug => !usedSlugs.has(slug))
-    console.log('[available-slugs] available:', available)
     res.json({ available, all: allSlugs })
   } catch (err) {
-    console.error('[available-slugs] ERROR:', err)
     next(err)
   }
 })
 
 /**
  * GET /api/admin/products
- * Lista todos os produtos do catálogo com paginação
+ * Lista todos os produtos do catálogo com paginação.
  */
 adminProductsRouter.get('/', async (req, res, next) => {
   try {
     const result = await productCatalogService.list({
       page: req.query.page ? Number(req.query.page) : undefined,
       limit: req.query.limit ? Number(req.query.limit) : undefined,
-      search: req.query.search as string | undefined,
-      status: req.query.status as string | undefined,
+      search: typeof req.query.search === 'string' ? req.query.search : undefined,
+      status: typeof req.query.status === 'string' ? req.query.status : undefined,
     })
     res.json(result)
   } catch (err) {
@@ -149,7 +150,7 @@ adminProductsRouter.get('/', async (req, res, next) => {
 
 /**
  * GET /api/admin/products/:id
- * Detalhes de um produto específico
+ * Detalhes de um produto específico.
  */
 adminProductsRouter.get('/:id', async (req, res, next) => {
   try {
@@ -165,16 +166,17 @@ adminProductsRouter.get('/:id', async (req, res, next) => {
 
 /**
  * POST /api/admin/products
- * Cria um novo produto no catálogo
+ * Cria um novo produto no catálogo.
+ * Retorna 409 se o slug já existe (não faz upsert silencioso).
  */
-adminProductsRouter.post('/', async (req, res, next) => {
+adminProductsRouter.post('/', adminRateLimit, async (req, res, next) => {
   try {
     const parsed = CreateProductSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.errors[0]?.message ?? 'Dados inválidos',
         400,
-        'VALIDATION_ERROR'
+        'VALIDATION_ERROR',
       )
     }
 
@@ -186,23 +188,28 @@ adminProductsRouter.post('/', async (req, res, next) => {
         throw new AppError(
           `Produto ativo requer infraestrutura. O slug "${moduleSlug}" não existe em contracts.json.`,
           400,
-          'MISSING_INFRASTRUCTURE'
+          'MISSING_INFRASTRUCTURE',
         )
       }
     }
 
-    // Upsert: se já existe produto com este slug, atualiza em vez de 409
     const existing = await productCatalogService.getBySlug(parsed.data.slug)
     if (existing) {
-      const product = await productCatalogService.update(existing.id, parsed.data as Parameters<typeof productCatalogService.update>[1])
-      console.log(`[admin] Produto "${product.name}" atualizado (upsert) por ${req.auth.clerkUserId}`)
-      res.json({ product })
-      return
+      throw new AppError(
+        `Já existe um produto com o slug "${parsed.data.slug}". Use PUT /admin/products/:id para atualizar.`,
+        409,
+        'SLUG_CONFLICT',
+      )
     }
 
-    const product = await productCatalogService.create(parsed.data as Parameters<typeof productCatalogService.create>[0])
+    const product = await productCatalogService.create(parsed.data)
 
-    console.log(`[admin] Produto "${product.name}" criado por ${req.auth.clerkUserId}`)
+    log.info('product created', {
+      actor_id: req.auth.clerkUserId,
+      resource_id: product.id,
+      action: 'CREATE',
+      slug: product.slug,
+    })
     res.status(201).json({ product })
   } catch (err) {
     next(err)
@@ -211,16 +218,16 @@ adminProductsRouter.post('/', async (req, res, next) => {
 
 /**
  * PUT /api/admin/products/:id
- * Atualiza um produto existente
+ * Atualiza um produto existente.
  */
-adminProductsRouter.put('/:id', async (req, res, next) => {
+adminProductsRouter.put('/:id', adminRateLimit, async (req, res, next) => {
   try {
     const parsed = UpdateProductSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(
         parsed.error.errors[0]?.message ?? 'Dados inválidos',
         400,
-        'VALIDATION_ERROR'
+        'VALIDATION_ERROR',
       )
     }
 
@@ -236,9 +243,13 @@ adminProductsRouter.put('/:id', async (req, res, next) => {
       }
     }
 
-    const product = await productCatalogService.update(req.params.id, parsed.data as Parameters<typeof productCatalogService.update>[1])
+    const product = await productCatalogService.update(req.params.id, parsed.data)
 
-    console.log(`[admin] Produto "${product.name}" atualizado por ${req.auth.clerkUserId}`)
+    log.info('product updated', {
+      actor_id: req.auth.clerkUserId,
+      resource_id: product.id,
+      action: 'UPDATE',
+    })
     res.json({ product })
   } catch (err) {
     next(err)
@@ -247,16 +258,21 @@ adminProductsRouter.put('/:id', async (req, res, next) => {
 
 /**
  * PATCH /api/admin/products/:id/status
- * Alterna status Ativo/Suspenso de um produto
+ * Alterna status Ativo/Suspenso de um produto.
  */
-adminProductsRouter.patch('/:id/status', async (req, res, next) => {
+adminProductsRouter.patch('/:id/status', adminRateLimit, async (req, res, next) => {
   try {
     const product = await productCatalogService.toggleStatus(req.params.id)
     if (!product) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
 
-    console.log(`[admin] Produto "${product.name}" status → ${product.status} por ${req.auth.clerkUserId}`)
+    log.info('product status toggled', {
+      actor_id: req.auth.clerkUserId,
+      resource_id: product.id,
+      action: 'TOGGLE_STATUS',
+      new_status: product.status,
+    })
     res.json({ product })
   } catch (err) {
     next(err)
@@ -265,40 +281,41 @@ adminProductsRouter.patch('/:id/status', async (req, res, next) => {
 
 /**
  * DELETE /api/admin/products/:id
- * Remove um produto do catálogo
+ * Soft-delete (marca deleted_at). Bloqueia se houver negociações ativas.
+ * Use ?force=true + ?ack_negotiations=true para remover mesmo assim (hard delete).
  */
-adminProductsRouter.delete('/:id', async (req, res, next) => {
+adminProductsRouter.delete('/:id', adminRateLimit, async (req, res, next) => {
   try {
     const existing = await productCatalogService.getById(req.params.id)
     if (!existing) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
 
-    await productCatalogService.delete(req.params.id)
+    const negotiationCount = await productCatalogService.countActiveNegotiations(req.params.id)
+    const force = req.query.force === 'true'
+    const ack = req.query.ack_negotiations === 'true'
 
-    console.log(`[admin] Produto "${existing.name}" removido por ${req.auth.clerkUserId}`)
-    res.json({ deleted: true, id: req.params.id })
-  } catch (err) {
-    next(err)
-  }
-})
+    if (negotiationCount > 0 && !(force && ack)) {
+      throw new AppError(
+        `Produto possui ${negotiationCount} negociação(ões) especial(is) ativa(s). Confirme explicitamente para remover.`,
+        409,
+        'HAS_ACTIVE_NEGOTIATIONS',
+      )
+    }
 
-/**
- * POST /api/admin/products/seed
- * Seed dos produtos iniciais (idempotente)
- */
-adminProductsRouter.post('/seed', async (req, res, next) => {
-  try {
-    const catalogResult = await productCatalogService.seedInitialProducts()
+    if (force) {
+      await productCatalogService.hardDelete(req.params.id)
+    } else {
+      await productCatalogService.softDelete(req.params.id)
+    }
 
-    // Ativar produtos para o tenant demo (dmmltda@gmail.com → tenant-1)
-    const DEMO_TENANT_ID = 'tenant-1'
-    const activateResult = await productCatalogService.activateProductsForTenant(
-      DEMO_TENANT_ID,
-      ['simula-custo', 'bid-cambio', 'bid-frete'],
-    )
-
-    res.json({ catalog: catalogResult, activation: activateResult })
+    log.info('product deleted', {
+      actor_id: req.auth.clerkUserId,
+      resource_id: req.params.id,
+      action: force ? 'HARD_DELETE' : 'SOFT_DELETE',
+      negotiation_count: negotiationCount,
+    })
+    res.json({ deleted: true, id: req.params.id, mode: force ? 'hard' : 'soft' })
   } catch (err) {
     next(err)
   }

@@ -12,6 +12,23 @@ export interface Notification {
   duration?: number // ms — padrão 4000
 }
 
+/**
+ * Aviso persistente exibido no sininho (Mensageria / AvisoInternoGlobal).
+ * Diferente de Notification (toast efêmero), fica visível até ser marcado como lido.
+ */
+export type AvisoTipo = 'aviso' | 'mencao' | 'sistema' | 'tarefa'
+
+export interface AvisoShell {
+  id: string
+  conteudo: string
+  autor?: { nome: string; avatarUrl?: string }
+  dataHora: string
+  lido: boolean
+  tipo: AvisoTipo
+  /** Link opcional — item vira clicável e navega para a rota. */
+  href?: string
+}
+
 export interface CurrentUser {
   id: string
   name: string
@@ -43,6 +60,9 @@ export interface ShellState {
   // --- Notificações (toasts) ---
   notifications: Notification[]
 
+  // --- Avisos persistentes (sininho / mensageria) ---
+  avisos: AvisoShell[]
+
   // --- Actions ---
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
@@ -61,4 +81,12 @@ export interface ShellState {
   addNotification: (notification: Omit<Notification, 'id'>) => void
   removeNotification: (id: string) => void
   clearNotifications: () => void
+
+  /**
+   * Empurra um aviso persistente para o sininho. Retorna o id gerado.
+   * Use para eventos assíncronos (ex: job concluído) onde um toast efêmero não basta.
+   */
+  addAviso: (aviso: Omit<AvisoShell, 'id' | 'lido' | 'dataHora'> & { dataHora?: string }) => string
+  marcarAvisoLido: (id: string) => void
+  marcarTodosAvisosLidos: () => void
 }

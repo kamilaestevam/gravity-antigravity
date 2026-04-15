@@ -11672,6 +11672,7 @@ export namespace Prisma {
     target_audience: string | null
     created_at: Date | null
     updated_at: Date | null
+    deleted_at: Date | null
   }
 
   export type ProductMaxAggregateOutputType = {
@@ -11703,6 +11704,7 @@ export namespace Prisma {
     target_audience: string | null
     created_at: Date | null
     updated_at: Date | null
+    deleted_at: Date | null
   }
 
   export type ProductCountAggregateOutputType = {
@@ -11734,6 +11736,7 @@ export namespace Prisma {
     target_audience: number
     created_at: number
     updated_at: number
+    deleted_at: number
     _all: number
   }
 
@@ -11791,6 +11794,7 @@ export namespace Prisma {
     target_audience?: true
     created_at?: true
     updated_at?: true
+    deleted_at?: true
   }
 
   export type ProductMaxAggregateInputType = {
@@ -11822,6 +11826,7 @@ export namespace Prisma {
     target_audience?: true
     created_at?: true
     updated_at?: true
+    deleted_at?: true
   }
 
   export type ProductCountAggregateInputType = {
@@ -11853,6 +11858,7 @@ export namespace Prisma {
     target_audience?: true
     created_at?: true
     updated_at?: true
+    deleted_at?: true
     _all?: true
   }
 
@@ -11971,6 +11977,7 @@ export namespace Prisma {
     target_audience: string | null
     created_at: Date
     updated_at: Date
+    deleted_at: Date | null
     _count: ProductCountAggregateOutputType | null
     _avg: ProductAvgAggregateOutputType | null
     _sum: ProductSumAggregateOutputType | null
@@ -12021,6 +12028,7 @@ export namespace Prisma {
     target_audience?: boolean
     created_at?: boolean
     updated_at?: boolean
+    deleted_at?: boolean
     price_tiers?: boolean | Product$price_tiersArgs<ExtArgs>
     negotiations?: boolean | Product$negotiationsArgs<ExtArgs>
     _count?: boolean | ProductCountOutputTypeDefaultArgs<ExtArgs>
@@ -12055,6 +12063,7 @@ export namespace Prisma {
     target_audience?: boolean
     created_at?: boolean
     updated_at?: boolean
+    deleted_at?: boolean
   }, ExtArgs["result"]["product"]>
 
   export type ProductSelectScalar = {
@@ -12086,6 +12095,7 @@ export namespace Prisma {
     target_audience?: boolean
     created_at?: boolean
     updated_at?: boolean
+    deleted_at?: boolean
   }
 
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12130,6 +12140,7 @@ export namespace Prisma {
       target_audience: string | null
       created_at: Date
       updated_at: Date
+      deleted_at: Date | null
     }, ExtArgs["result"]["product"]>
     composites: {}
   }
@@ -12553,6 +12564,7 @@ export namespace Prisma {
     readonly target_audience: FieldRef<"Product", 'String'>
     readonly created_at: FieldRef<"Product", 'DateTime'>
     readonly updated_at: FieldRef<"Product", 'DateTime'>
+    readonly deleted_at: FieldRef<"Product", 'DateTime'>
   }
     
 
@@ -20733,7 +20745,8 @@ export namespace Prisma {
     backend_module: 'backend_module',
     target_audience: 'target_audience',
     created_at: 'created_at',
-    updated_at: 'updated_at'
+    updated_at: 'updated_at',
+    deleted_at: 'deleted_at'
   };
 
   export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
@@ -21840,6 +21853,7 @@ export namespace Prisma {
     target_audience?: StringNullableFilter<"Product"> | string | null
     created_at?: DateTimeFilter<"Product"> | Date | string
     updated_at?: DateTimeFilter<"Product"> | Date | string
+    deleted_at?: DateTimeNullableFilter<"Product"> | Date | string | null
     price_tiers?: PriceTierListRelationFilter
     negotiations?: SpecialNegotiationListRelationFilter
   }
@@ -21873,6 +21887,7 @@ export namespace Prisma {
     target_audience?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    deleted_at?: SortOrderInput | SortOrder
     price_tiers?: PriceTierOrderByRelationAggregateInput
     negotiations?: SpecialNegotiationOrderByRelationAggregateInput
   }
@@ -21909,6 +21924,7 @@ export namespace Prisma {
     target_audience?: StringNullableFilter<"Product"> | string | null
     created_at?: DateTimeFilter<"Product"> | Date | string
     updated_at?: DateTimeFilter<"Product"> | Date | string
+    deleted_at?: DateTimeNullableFilter<"Product"> | Date | string | null
     price_tiers?: PriceTierListRelationFilter
     negotiations?: SpecialNegotiationListRelationFilter
   }, "id" | "slug">
@@ -21942,6 +21958,7 @@ export namespace Prisma {
     target_audience?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    deleted_at?: SortOrderInput | SortOrder
     _count?: ProductCountOrderByAggregateInput
     _avg?: ProductAvgOrderByAggregateInput
     _max?: ProductMaxOrderByAggregateInput
@@ -21981,6 +21998,7 @@ export namespace Prisma {
     target_audience?: StringNullableWithAggregatesFilter<"Product"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Product"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Product"> | Date | string
+    deleted_at?: DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
   }
 
   export type PriceTierWhereInput = {
@@ -23359,6 +23377,7 @@ export namespace Prisma {
     target_audience?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    deleted_at?: Date | string | null
     price_tiers?: PriceTierCreateNestedManyWithoutProductInput
     negotiations?: SpecialNegotiationCreateNestedManyWithoutProductInput
   }
@@ -23392,6 +23411,7 @@ export namespace Prisma {
     target_audience?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    deleted_at?: Date | string | null
     price_tiers?: PriceTierUncheckedCreateNestedManyWithoutProductInput
     negotiations?: SpecialNegotiationUncheckedCreateNestedManyWithoutProductInput
   }
@@ -23425,6 +23445,7 @@ export namespace Prisma {
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     price_tiers?: PriceTierUpdateManyWithoutProductNestedInput
     negotiations?: SpecialNegotiationUpdateManyWithoutProductNestedInput
   }
@@ -23458,6 +23479,7 @@ export namespace Prisma {
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     price_tiers?: PriceTierUncheckedUpdateManyWithoutProductNestedInput
     negotiations?: SpecialNegotiationUncheckedUpdateManyWithoutProductNestedInput
   }
@@ -23491,6 +23513,7 @@ export namespace Prisma {
     target_audience?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    deleted_at?: Date | string | null
   }
 
   export type ProductUpdateManyMutationInput = {
@@ -23522,6 +23545,7 @@ export namespace Prisma {
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ProductUncheckedUpdateManyInput = {
@@ -23553,6 +23577,7 @@ export namespace Prisma {
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type PriceTierCreateInput = {
@@ -25024,6 +25049,7 @@ export namespace Prisma {
     target_audience?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    deleted_at?: SortOrder
   }
 
   export type ProductAvgOrderByAggregateInput = {
@@ -25067,6 +25093,7 @@ export namespace Prisma {
     target_audience?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    deleted_at?: SortOrder
   }
 
   export type ProductMinOrderByAggregateInput = {
@@ -25098,6 +25125,7 @@ export namespace Prisma {
     target_audience?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    deleted_at?: SortOrder
   }
 
   export type ProductSumOrderByAggregateInput = {
@@ -28358,6 +28386,7 @@ export namespace Prisma {
     target_audience?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    deleted_at?: Date | string | null
     negotiations?: SpecialNegotiationCreateNestedManyWithoutProductInput
   }
 
@@ -28390,6 +28419,7 @@ export namespace Prisma {
     target_audience?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    deleted_at?: Date | string | null
     negotiations?: SpecialNegotiationUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -28438,6 +28468,7 @@ export namespace Prisma {
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     negotiations?: SpecialNegotiationUpdateManyWithoutProductNestedInput
   }
 
@@ -28470,6 +28501,7 @@ export namespace Prisma {
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     negotiations?: SpecialNegotiationUncheckedUpdateManyWithoutProductNestedInput
   }
 
@@ -28502,6 +28534,7 @@ export namespace Prisma {
     target_audience?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    deleted_at?: Date | string | null
     price_tiers?: PriceTierCreateNestedManyWithoutProductInput
   }
 
@@ -28534,6 +28567,7 @@ export namespace Prisma {
     target_audience?: string | null
     created_at?: Date | string
     updated_at?: Date | string
+    deleted_at?: Date | string | null
     price_tiers?: PriceTierUncheckedCreateNestedManyWithoutProductInput
   }
 
@@ -28582,6 +28616,7 @@ export namespace Prisma {
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     price_tiers?: PriceTierUpdateManyWithoutProductNestedInput
   }
 
@@ -28614,6 +28649,7 @@ export namespace Prisma {
     target_audience?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     price_tiers?: PriceTierUncheckedUpdateManyWithoutProductNestedInput
   }
 

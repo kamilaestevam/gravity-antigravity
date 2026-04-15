@@ -12,6 +12,9 @@ export interface AbaFormulario {
   desabilitada?: boolean
   tooltipTitulo?: string
   tooltipDescricao?: string
+  /** Quando true, oculta os botões Salvar/Cancelar do footer enquanto esta aba estiver ativa.
+   *  Útil para abas que executam ações próprias (ex.: "Executar Manual") e não têm alterações a persistir. */
+  ocultarBotoesSalvar?: boolean
 }
 
 export interface ModalFormularioAbasGlobalProps {
@@ -68,23 +71,32 @@ export function ModalFormularioAbasGlobal({
     </div>
   )
 
-  const footer = (
-    <div className="mg-footer-personalizado">
-      <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
-      <div className="botoes-footer-padrao">
-        <BotaoCancelar
-          dirty={dirty}
-          rotulo={resolvedTextoCancelar}
-          onClick={aoFechar}
-        />
-        <BotaoSalvar
-          dirty={podesSalvar && dirty}
-          rotulo={resolvedTextoSalvar}
-          onClick={aoSalvar}
-        />
+  const renderFooter = (abaAtivaId?: string) => {
+    // Em modo semAbas o ModalGlobal não propaga aba ativa — o conteúdo vem da primeira (e única) aba.
+    const abaAtual = semAbas ? abas[0] : abas.find(a => a.id === abaAtivaId)
+    // Abas de ação (ex.: "Executar Manual") não têm alterações a persistir — o conteúdo da
+    // aba tem seu próprio botão de ação e o footer genérico Salvar/Cancelar polui a UX.
+    if (abaAtual?.ocultarBotoesSalvar) {
+      return <div className="mg-footer-personalizado" />
+    }
+    return (
+      <div className="mg-footer-personalizado">
+        <StatusSalvarGlobal status={dirty ? 'dirty' : 'idle'} hideOnIdle={true} />
+        <div className="botoes-footer-padrao">
+          <BotaoCancelar
+            dirty={dirty}
+            rotulo={resolvedTextoCancelar}
+            onClick={aoFechar}
+          />
+          <BotaoSalvar
+            dirty={podesSalvar && dirty}
+            rotulo={resolvedTextoSalvar}
+            onClick={aoSalvar}
+          />
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <ModalGlobal
@@ -97,7 +109,7 @@ export function ModalFormularioAbasGlobal({
       abas={semAbas ? undefined : abas}
       abaAtivaInicial={semAbas ? undefined : abaAtivaInicial}
       tipoAbas={tipoAbas}
-      renderizarFooter={() => footer}
+      renderizarFooter={renderFooter}
     >
       {semAbas ? abas[0]?.conteudo : undefined}
     </ModalGlobal>

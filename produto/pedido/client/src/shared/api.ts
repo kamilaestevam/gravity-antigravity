@@ -194,10 +194,7 @@ export const pedidoVirtualApi = {
     if (params.limit)            q.set('limit', String(params.limit))
     if (params.status)           q.set('status', params.status)
     if (params.busca)            q.set('busca', params.busca)
-    return request<PedidosListResponse>(`/api/v1/pedidos?${q}`).catch(err => {
-      if (import.meta.env.DEV) return MOCK_PEDIDOS_RESPONSE
-      throw err
-    })
+    return request<PedidosListResponse>(`/api/v1/pedidos?${q}`)
   },
 
   /** Contar total de matches find-in-page no banco (pedidos + itens) */

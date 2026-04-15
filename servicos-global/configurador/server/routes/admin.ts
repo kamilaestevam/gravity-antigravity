@@ -523,11 +523,12 @@ adminRouter.post('/run-tests', async (req, res, next) => {
       const filePath = join(dir, `${created_at.slice(0, 10)}.json`)
       let existing: unknown[] = []
       try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
+      // entries já vem com ai_analysis populado pelo walkSuite (quando há falha).
+      // Preservamos esse valor em vez de sobrescrever com null.
       const novosLogs = entries.map((e, i) => ({
         id: `${Date.now()}-${i}`,
         created_at,
         ...e,
-        ai_analysis: null,
       }))
       writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
       console.log(`[admin/run-tests] Run concluído — ${entries.length} entradas salvas`)
@@ -552,13 +553,23 @@ adminRouter.get('/run-tests/status', (_req, res) => {
  * Registra resultados de um run de testes (Playwright, Vitest, etc.)
  * Tenta salvar no banco; se TestLog não existir, salva em arquivo JSON local.
  */
+const AiAnalysisSchema = z.object({
+  erroResumo:       z.string(),
+  motivo:           z.string(),
+  sugestaoCorrecao: z.string(),
+  arquivo:          z.string(),
+  codigoDiff:       z.object({ old: z.string(), new: z.string() }).optional(),
+  provaVisual:      z.string().optional(),
+}).nullable().optional()
+
 const TestLogEntrySchema = z.object({
-  type:      z.string().max(50),
-  module:    z.string().max(100),
-  test_name: z.string().max(255),
-  result:    z.enum(['APROVADO', 'REPROVADO', 'ERRO']),
-  duration:  z.string().max(50),
-  error_log: z.string().nullable().optional(),
+  type:         z.string().max(50),
+  module:       z.string().max(100),
+  test_name:    z.string().max(255),
+  result:       z.enum(['APROVADO', 'REPROVADO', 'ERRO']),
+  duration:     z.string().max(50),
+  error_log:    z.string().nullable().optional(),
+  ai_analysis:  AiAnalysisSchema,
 })
 
 const TestLogBatchSchema = z.object({
@@ -609,8 +620,8 @@ adminRouter.post('/test-logs', async (req, res, next) => {
         id: `${Date.now()}-${i}`,
         created_at,
         ...e,
-        error_log: e.error_log ?? null,
-        ai_analysis: null,
+        error_log:   e.error_log ?? null,
+        ai_analysis: e.ai_analysis ?? null,
       }))
       writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
     }

@@ -1,10 +1,14 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { ShellState, CurrentUser, Notification, Theme, AllowedProduct } from './types'
+import type { ShellState, CurrentUser, Notification, Theme, AllowedProduct, AvisoShell } from './types'
 
 // Gera ID único para cada notificação
 function generateId(): string {
   return `notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+}
+
+function generateAvisoId(): string {
+  return `aviso-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 }
 
 const DEFAULT_USER: CurrentUser = {
@@ -27,6 +31,7 @@ export const useShellStore = create<ShellState>()(
       allowedProducts: [],
       productsLoaded: false,
       notifications: [],
+      avisos: [],
 
       // ─── Sidebar ──────────────────────────────────────────────────────────
       toggleSidebar: () =>
@@ -113,6 +118,32 @@ export const useShellStore = create<ShellState>()(
 
       clearNotifications: () =>
         set({ notifications: [] }),
+
+      // ─── Avisos persistentes (sininho) ────────────────────────────────────
+      addAviso: (aviso) => {
+        const id = generateAvisoId()
+        const novo: AvisoShell = {
+          id,
+          conteudo: aviso.conteudo,
+          autor: aviso.autor,
+          dataHora: aviso.dataHora ?? new Date().toLocaleString('pt-BR'),
+          lido: false,
+          tipo: aviso.tipo,
+          href: aviso.href,
+        }
+        set((state) => ({ avisos: [novo, ...state.avisos] }))
+        return id
+      },
+
+      marcarAvisoLido: (id: string) =>
+        set((state) => ({
+          avisos: state.avisos.map((a) => (a.id === id ? { ...a, lido: true } : a)),
+        })),
+
+      marcarTodosAvisosLidos: () =>
+        set((state) => ({
+          avisos: state.avisos.map((a) => ({ ...a, lido: true })),
+        })),
     }),
     {
       name: 'gravity-shell-state',

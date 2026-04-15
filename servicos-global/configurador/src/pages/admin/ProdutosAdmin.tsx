@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, CalendarBlank, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus, Stack } from '@phosphor-icons/react'
+import { ShoppingBagOpen, Tag, Users, CurrencyCircleDollar, BoxArrowUp, Wrench, Sliders, Headset, Clock, Coins, PauseCircle, PlayCircle, PencilSimple, Handshake, Buildings, Infinity, Trash, Plus, Minus, Stack } from '@phosphor-icons/react'
 import { ModalExclusao } from '../workspace/ModalExclusao'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
@@ -16,10 +16,11 @@ import { SelectGlobal } from '@nucleo/campo-select-global'
 import { useAuth } from '@clerk/clerk-react'
 import { useShellStore } from '@gravity/shell'
 import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
-import { catalogApiService } from '../../services/catalogAdapter'
+import { catalogApiService, type ProdutoInput } from '../../services/catalogAdapter'
 import { setAuthTokenProvider } from '../../services/apiClient'
 import { ProdutoCatalogo, NegociacaoEspecial, StatusGlobal, FaixaPreco } from '../../types/entidades'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
+import { extractCatchError } from '../../utils/extractApiError'
 
 
 // Dados iniciais agora vêm do catalogService
@@ -113,32 +114,36 @@ export function ProdutosAdmin() {
   const [produtos, setProdutos] = React.useState<ProdutoCatalogo[]>([])
   const [negociacoes, setNegociacoes] = React.useState<NegociacaoEspecial[]>([])
   const [slugsDisponiveis, setSlugsDisponiveis] = React.useState<string[]>([])
-  const [loading, setLoading] = React.useState(true)
-
   const [carregando, setCarregando] = React.useState(true)
+
+  // Paginação server-side
+  const [pagina, setPagina] = React.useState(1)
+  const [totalPaginas, setTotalPaginas] = React.useState(1)
+  const [totalProdutos, setTotalProdutos] = React.useState(0)
+  const LIMITE_POR_PAGINA = 50
 
   const carregarDados = React.useCallback(async () => {
     // Garantir que o token Clerk está configurado ANTES de qualquer chamada API
     setAuthTokenProvider(() => getToken())
 
-    setLoading(true)
     setCarregando(true)
     // Slugs carregados independentemente — não devem bloquear a lista de produtos
     catalogApiService.getSlugsDisponiveis().then(setSlugsDisponiveis)
     try {
-      const [prods, negs] = await Promise.all([
-        catalogApiService.getProdutos(),
+      const [lista, negs] = await Promise.all([
+        catalogApiService.listProdutos({ page: pagina, limit: LIMITE_POR_PAGINA }),
         catalogApiService.getNegociacoes(),
       ])
-      setProdutos(prods)
+      setProdutos(lista.produtos)
+      setTotalPaginas(lista.pages)
+      setTotalProdutos(lista.total)
       setNegociacoes(negs)
     } catch (err) {
-      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.products.msg_erro_carregar') })
+      addNotification({ type: 'error', message: extractCatchError(err, t('admin.products.msg_erro_carregar')) })
     } finally {
-      setLoading(false)
       setCarregando(false)
     }
-  }, [getToken])
+  }, [getToken, pagina, addNotification, t])
 
   React.useEffect(() => {
     carregarDados()
@@ -156,7 +161,7 @@ export function ProdutosAdmin() {
 
       addNotification({
         type: 'success',
-        message: t('admin.products.msg_status_alterado', { nome: produto.nome, status: novoStatus })
+        message: t('admin.products.msg_status_alterado', { nome: produto.nome, status: novoStatus }),
       })
 
       logEvent({
@@ -170,7 +175,7 @@ export function ProdutosAdmin() {
     } catch (err) {
       addNotification({
         type: 'error',
-        message: t('admin.products.msg_erro_status') + (err instanceof Error ? err.message : t('admin.products.msg_desconhecido'))
+        message: t('admin.products.msg_erro_status') + extractCatchError(err, t('admin.products.msg_desconhecido')),
       })
     }
   }
@@ -182,10 +187,25 @@ export function ProdutosAdmin() {
   const [formDirty, setFormDirty] = useState(false)
 
   // 01. Dados Básicos
+  type FormStatus = 'ativo' | 'em-breve' | 'suspenso' | 'legado' | 'inativo'
+  const FORM_STATUS_TO_UI: Record<FormStatus, StatusGlobal> = {
+    ativo: 'Ativo',
+    'em-breve': 'Em Breve',
+    suspenso: 'Suspenso',
+    legado: 'Legado',
+    inativo: 'Inativo',
+  }
+  const UI_STATUS_TO_FORM: Record<StatusGlobal, FormStatus> = {
+    Ativo: 'ativo',
+    'Em Breve': 'em-breve',
+    Suspenso: 'suspenso',
+    Legado: 'legado',
+    Inativo: 'inativo',
+  }
   const [formNome, setFormNome] = React.useState('')
   const [formDescricao, setFormDescricao] = React.useState('')
   const [formDataLancamento, setFormDataLancamento] = React.useState('')
-  const [formStatus, setFormStatus] = React.useState<'ativo' | 'em-breve'>('ativo')
+  const [formStatus, setFormStatus] = React.useState<FormStatus>('ativo')
   const [formSlugSelecionado, setFormSlugSelecionado] = React.useState<string | null>(null)
 
   // 02. Setup
@@ -232,7 +252,8 @@ export function ProdutosAdmin() {
     setModalAberto(false)
     setProdutoEditando(null)
     setFormDirty(false)
-    setFormNome(''); setFormDescricao(''); setFormDataLancamento(''); setFormStatus('ativo'); setFormSlugSelecionado(null)
+    setFormNome(''); setFormDescricao(''); setFormDataLancamento('');
+    setFormStatus('ativo'); setFormSlugSelecionado(null)
     setTemSetup('nao'); setMoedaSetup('BRL'); setValorSetup('')
     setTipoCobranca(''); setMoedaProduto('BRL'); setValorUnitario(''); setValorMinimo(''); setValorTotal('')
     setLimiteUsuarios('limitada'); setQtdUsuarios(''); setMoedaUsuario('BRL'); setValorUsuarioAdicional('')
@@ -249,7 +270,7 @@ export function ProdutosAdmin() {
     setFormNome(item.nome)
     setFormDescricao(item.descricao)
     setFormDataLancamento(item.dataLancamento || '')
-    setFormStatus(item.status === 'Ativo' ? 'ativo' : 'em-breve')
+    setFormStatus(UI_STATUS_TO_FORM[item.status] ?? 'em-breve')
     setFormSlugSelecionado(item.moduloBackend ?? item.slug ?? null)
     setTemSetup(item.temSetup ? 'sim' : 'nao')
     setMoedaSetup(item.precoSetup?.moeda || 'BRL')
@@ -282,30 +303,30 @@ export function ProdutosAdmin() {
     }}>{label}</button>
   )
 
-  const COLUNAS_PRODUTOS: TabelaGlobalColuna<ProdutoCatalogo>[] = [
+  const COLUNAS_PRODUTOS = useMemo<TabelaGlobalColuna<ProdutoCatalogo>[]>(() => [
     {
       key: 'nome', label: t('admin.products.tabela.nome_produto'), tipo: 'texto',
       tooltipTitulo: 'NOME COMERCIAL',
       tooltipDescricao: 'Identificação do serviço no catálogo e no marketplace',
-      render: (v) => <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{v}</span>
+      render: (v) => <span style={{ fontWeight: 600, color: 'var(--ws-text)' }}>{v}</span>,
     },
     {
       key: 'descricao', label: t('admin.products.tabela.o_que_e'), tipo: 'texto',
       tooltipTitulo: 'DESCRIÇÃO',
       tooltipDescricao: 'Resumo das funcionalidades principais exibido para o cliente',
-      render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>
+      render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>,
     },
     {
       key: 'moduloBackend', label: t('admin.products.tabela.slug_modulo'), tipo: 'texto',
       tooltipTitulo: 'VÍNCULO TÉCNICO',
       tooltipDescricao: 'Identificador do sistema para ativação automática das funções',
-      render: (v) => <code style={{ color: '#8b5cf6', fontSize: '0.75rem' }}>{v}</code>
+      render: (v) => <code style={{ color: '#8b5cf6', fontSize: '0.75rem' }}>{v}</code>,
     },
     {
       key: 'precoUnitario', label: t('admin.products.tabela.valor_adicional'), tipo: 'texto',
       tooltipTitulo: 'CUSTO EXCEDENTE',
       tooltipDescricao: 'Custo aplicado ao consumo que ultrapassa o limite da franquia',
-      render: (v, item) => {
+      render: (_v, item) => {
         if (item.faixasPreco && item.faixasPreco.length > 0) {
           return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -314,25 +335,25 @@ export function ProdutosAdmin() {
             </div>
           )
         }
-        const p = v as any
-        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(p.moeda)} {p.valor}</span>
-      }
+        const preco = item.precoUnitario
+        return <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--ws-text)', fontSize: '0.9375rem' }}>{getSimboloMoeda(preco.moeda)} {preco.valor}</span>
+      },
     },
     {
       key: 'qtdUsuariosBase', label: t('admin.products.tabela.franquia_free'), tipo: 'texto',
       tooltipTitulo: 'COTA INCLUÍDA',
       tooltipDescricao: 'Volume de uso liberado sem custo adicional em cada ciclo',
-      render: (v, item) => (
+      render: (_v, item) => (
         <span style={{ color: item.qtdUsuariosBase ? '#34d399' : 'var(--ws-muted)', fontSize: '0.85rem', fontWeight: item.qtdUsuariosBase ? 600 : 400 }}>
           {item.qtdUsuariosBase ? `${item.qtdUsuariosBase} ${item.tipoCobranca.replace('Por ', '')}s` : 'Zero'}
         </span>
-      )
+      ),
     },
     {
       key: 'tipoCobranca', label: 'Unidade', tipo: 'texto',
       tooltipTitulo: 'MÉTRICA',
       tooltipDescricao: 'Unidade de medida usada para o cálculo do faturamento',
-      render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>
+      render: (v) => <span style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{v}</span>,
     },
     {
       key: 'status', label: 'Status', tipo: 'texto',
@@ -346,9 +367,9 @@ export function ProdutosAdmin() {
             {getStatusLabel(st)}
           </span>
         )
-      }
-    }
-  ]
+      },
+    },
+  ], [t, getStatusLabel])
 
   const ACOES_PRODUTOS: TabelaGlobalAcao<ProdutoCatalogo>[] = [
     {
@@ -366,7 +387,7 @@ export function ProdutosAdmin() {
         >
           {item.status === 'Ativo' ? <PauseCircle size={16} weight="bold" /> : <PlayCircle size={16} weight="bold" />}
         </button>
-      )
+      ),
     },
     {
       id: 'editar',
@@ -383,11 +404,11 @@ export function ProdutosAdmin() {
         >
           <PencilSimple size={16} weight="bold" />
         </button>
-      )
+      ),
     },
     {
       id: 'excluir',
-      icone: <Tag size={15} weight="bold" />,
+      icone: <Trash size={15} weight="bold" />,
       tooltip: 'Excluir Produto',
       onClick: (item) => setProdutoParaExcluir(item),
       renderCustom: (item) => (
@@ -398,10 +419,10 @@ export function ProdutosAdmin() {
           onMouseEnter={ev => { ev.currentTarget.style.background = 'rgba(239,68,68,0.12)'; ev.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; ev.currentTarget.style.color = '#ef4444' }}
           onMouseLeave={ev => { ev.currentTarget.style.background = 'transparent'; ev.currentTarget.style.borderColor = 'transparent'; ev.currentTarget.style.color = '#64748b' }}
         >
-          <Tag size={16} weight="bold" style={{ transform: 'rotate(45deg)' }} />
+          <Trash size={16} weight="bold" />
         </button>
-      )
-    }
+      ),
+    },
   ]
 
   const COLUNAS_NEGOCIACOES: TabelaGlobalColuna<NegociacaoEspecial>[] = [
@@ -507,6 +528,11 @@ export function ProdutosAdmin() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <p className="ws-section-title" style={{ margin: 0 }}>
               <Tag weight="duotone" size={14} color="#818cf8" /> {t('admin.products.secao_catalogo')}
+              {carregando && (
+                <span style={{ marginLeft: 12, fontSize: '0.75rem', color: 'var(--ws-muted)', fontWeight: 400 }}>
+                  {t('admin.products.carregando') ?? 'Carregando...'}
+                </span>
+              )}
             </p>
             <BotaoNovoAdminGlobal
               rotulo={t('admin.products.btn_novo')}
@@ -523,6 +549,34 @@ export function ProdutosAdmin() {
               tooltipBusca={t('admin.products.tooltip_busca_catalogo')}
               acoesExportacao={getAcoesExportacaoPadrao(COLUNAS_PRODUTOS, 'dados_tabela', 'Exportação de Dados')}
             />
+            {totalPaginas > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, padding: '0 8px', fontSize: '0.8125rem', color: 'var(--ws-muted)' }}>
+                <span>
+                  {t('admin.products.paginacao_total', { total: totalProdutos }) ?? `${totalProdutos} produto(s) no total`}
+                </span>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => setPagina(p => Math.max(1, p - 1))}
+                    disabled={pagina <= 1 || carregando}
+                    style={{ padding: '0.375rem 0.75rem', borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--ws-text)', cursor: pagina <= 1 ? 'not-allowed' : 'pointer', opacity: pagina <= 1 ? 0.4 : 1 }}
+                  >
+                    ← Anterior
+                  </button>
+                  <span style={{ minWidth: 80, textAlign: 'center' }}>
+                    Página {pagina} de {totalPaginas}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+                    disabled={pagina >= totalPaginas || carregando}
+                    style={{ padding: '0.375rem 0.75rem', borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--ws-text)', cursor: pagina >= totalPaginas ? 'not-allowed' : 'pointer', opacity: pagina >= totalPaginas ? 0.4 : 1 }}
+                  >
+                    Próxima →
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -551,18 +605,17 @@ export function ProdutosAdmin() {
         aberto={modalAberto}
         aoFechar={handleFecharModal}
         aoSalvar={async () => {
-          const prodId = produtoEditando?.id ?? `p${Date.now()}`
-
+          const isNew = !produtoEditando
           const slugResolve = formStatus === 'ativo' && formSlugSelecionado
             ? formSlugSelecionado
             : (produtoEditando?.slug ?? formNome.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''))
 
-          const novoProduto: ProdutoCatalogo = {
-            id: produtoEditando?.id ?? '',
+          const produtoInput: ProdutoInput & { id?: string } = {
+            id: produtoEditando?.id,
             nome: formNome,
             descricao: formDescricao,
             slug: slugResolve,
-            status: formStatus === 'ativo' ? 'Ativo' : 'Em Breve',
+            status: FORM_STATUS_TO_UI[formStatus],
             moduloBackend: formStatus === 'ativo' ? formSlugSelecionado ?? undefined : undefined,
             dataLancamento: formDataLancamento,
             temSetup: temSetup === 'sim',
@@ -575,13 +628,14 @@ export function ProdutosAdmin() {
             qtdUsuariosBase: Number(qtdUsuarios) || undefined,
             precoUsuarioAdicional: valorUsuarioAdicional ? { valor: valorUsuarioAdicional, moeda: moedaUsuario } : undefined,
             horasHelpDesk: Number(totalHoras) || 0,
-            precoHoraAdicional: { valor: '0,00', moeda: moedaHelpDesk },
+            // Só envia precoHoraAdicional se tiver custo real — undefined ≠ zero
+            precoHoraAdicional: undefined,
             faixasPreco: faixas.length > 0 ? faixas : undefined,
             gabiQuotaMensal: Number(gabiQuotaMensal.replace(/\./g, '').replace(',', '.')) || 0,
           }
 
           try {
-            await catalogApiService.saveProduto(novoProduto)
+            await catalogApiService.saveProduto(produtoInput, { isNew })
 
             if (vincularOrg === 'sim' && orgSelecionada) {
               // Em breve integrar com a nova tabela de negociações no banco
@@ -590,21 +644,28 @@ export function ProdutosAdmin() {
             handleFecharModal()
             addNotification({
               type: 'success',
-              message: produtoEditando ? t('admin.products.msg_produto_atualizado', { nome: formNome }) : t('admin.products.msg_produto_criado', { nome: formNome })
+              message: isNew
+                ? t('admin.products.msg_produto_criado', { nome: formNome })
+                : t('admin.products.msg_produto_atualizado', { nome: formNome }),
             })
+
+            // Auditoria explícita (create/update não eram registrados antes)
+            logEvent({
+              action: isNew ? 'CRIAÇÃO' : 'ALTERAÇÃO',
+              module: 'produto',
+              resource_type: 'Product',
+              resource_id: produtoEditando?.id ?? slugResolve,
+              action_detail: isNew
+                ? `Criação do produto ${formNome}`
+                : `Edição do produto ${formNome}`,
+            })
+
             // Refresh em background — sem flash de loading
-            Promise.all([
-              catalogApiService.getProdutos(),
-              catalogApiService.getNegociacoes(),
-            ]).then(([prods, negs]) => {
-              setProdutos(prods)
-              setNegociacoes(negs)
-            })
-            catalogApiService.getSlugsDisponiveis().then(setSlugsDisponiveis)
+            carregarDados()
           } catch (err) {
             addNotification({
               type: 'error',
-              message: err instanceof Error ? err.message : t('admin.products.modal_falha_salvar')
+              message: extractCatchError(err, t('admin.products.modal_falha_salvar')),
             })
           }
         }}
@@ -675,11 +736,28 @@ export function ProdutosAdmin() {
                   <GeralCampoGlobal
                     label={t('admin.products.campo_status_label')}
                     tooltipTitulo="DISPONIBILIDADE"
-                    tooltipDescricao="Ativo: produto com infraestrutura pronta (requer slug). Em Breve: produto em desenvolvimento."
+                    tooltipDescricao="Ativo: infraestrutura pronta. Em Breve: em desenvolvimento. Suspenso: pausado. Legado: não comercializado. Inativo: descontinuado."
                   >
-                    <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem' }}>
-                      <TogBtn val="ativo" cur={formStatus} set={v => { setFormStatus(v as 'ativo' | 'em-breve'); if (v === 'em-breve') setFormSlugSelecionado(null) }} label={t('admin.products.campo_status_ativo')} />
-                      <TogBtn val="em-breve" cur={formStatus} set={v => { setFormStatus(v as 'ativo' | 'em-breve'); if (v === 'em-breve') setFormSlugSelecionado(null) }} label={t('admin.products.campo_status_em_breve')} />
+                    <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', flexWrap: 'wrap' }}>
+                      {([
+                        ['ativo',    t('admin.products.campo_status_ativo')],
+                        ['em-breve', t('admin.products.campo_status_em_breve')],
+                        ['suspenso', 'Suspenso'],
+                        ['legado',   'Legado'],
+                        ['inativo',  'Inativo'],
+                      ] as const).map(([val, label]) => (
+                        <TogBtn
+                          key={val}
+                          val={val}
+                          cur={formStatus}
+                          set={v => {
+                            const novo = v as FormStatus
+                            setFormStatus(novo)
+                            if (novo !== 'ativo') setFormSlugSelecionado(null)
+                          }}
+                          label={label}
+                        />
+                      ))}
                     </div>
                   </GeralCampoGlobal>
                 </div>
@@ -1128,14 +1206,27 @@ export function ProdutosAdmin() {
                         type="button"
                         onClick={async () => {
                           try {
+                            // Usa o JWT Clerk do usuário (mesmo caminho do resto da tela)
+                            // — NÃO envia x-internal-key vazio, que era um bug de segurança latente.
+                            const token = await getToken()
+                            if (!token) return
                             const resp = await fetch(`/api/v1/gabi/admin/products/${produtoEditando.id}/tokens/stats`, {
-                              headers: { 'x-internal-key': '' }
+                              headers: { Authorization: `Bearer ${token}` },
                             })
                             if (resp.ok) {
-                              const data = await resp.json() as any
-                              setGabiTokenStats({ total_consumido: data.total_consumido, total_tenants: data.total_tenants, media_por_tenant: data.media_por_tenant, percentual: 0 })
+                              const data = (await resp.json()) as {
+                                total_consumido: number
+                                total_tenants: number
+                                media_por_tenant: number
+                              }
+                              setGabiTokenStats({
+                                total_consumido: data.total_consumido,
+                                total_tenants: data.total_tenants,
+                                media_por_tenant: data.media_por_tenant,
+                                percentual: 0,
+                              })
                             }
-                          } catch { /* silencia */ }
+                          } catch { /* silencia — stats é não-crítico */ }
                         }}
                         style={{ padding: '0.5rem 1rem', borderRadius: 8, cursor: 'pointer', fontSize: '0.8125rem', color: 'var(--ws-muted)', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', width: 'fit-content' }}
                       >
@@ -1248,14 +1339,26 @@ export function ProdutosAdmin() {
         if (!produtoParaExcluir) return
         try {
           const nome = produtoParaExcluir.nome
-          await catalogApiService.deleteProduto(produtoParaExcluir.id)
+          const id = produtoParaExcluir.id
+          // Soft-delete por padrão — preserva negociações especiais
+          await catalogApiService.deleteProduto(id)
           setProdutoParaExcluir(null)
           addNotification({ type: 'success', message: t('admin.products.msg_produto_excluido', { nome }) })
+
+          // Auditoria de exclusão (não era registrada antes)
+          logEvent({
+            action: 'EXCLUSÃO',
+            module: 'produto',
+            resource_type: 'Product',
+            resource_id: id,
+            action_detail: `Exclusão do produto ${nome}`,
+          })
+
           carregarDados()
         } catch (err) {
           addNotification({
             type: 'error',
-            message: t('admin.products.msg_erro_excluir') + (err instanceof Error ? err.message : t('admin.products.msg_desconhecido'))
+            message: t('admin.products.msg_erro_excluir') + extractCatchError(err, t('admin.products.msg_desconhecido')),
           })
         }
       }}

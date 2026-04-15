@@ -6,6 +6,7 @@ import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
 import { ModalAgendamentoTestes } from './ModalAgendamentoTestes'
+import { ModalExecutarTestes } from './ModalExecutarTestes'
 import { getAcoesExportacaoPadrao } from '../../utils/exportHelper'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { adminTestLogsApi, type TestLogApi } from '../../services/apiClient'
@@ -61,26 +62,73 @@ function mapTestLogToLocal(log: TestLogApi): LogTeste {
 export function LogTestes() {
   const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
+  const addAviso = useShellStore((s) => s.addAviso)
   const [dados, setDados] = useState<LogTeste[]>([])
   const [carregando, setCarregando] = useState(true)
+  const [rodandoTestes, setRodandoTestes] = useState(false)
   const [loadingCode, setLoadingCode] = useState<string | null>(null)
   const [modalAgendamentoAberto, setModalAgendamentoAberto] = useState(false)
+  const [modalExecutarAberto, setModalExecutarAberto] = useState(false)
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false)
 
-  useEffect(() => {
-    async function loadLogs() {
-      try {
-        setCarregando(true)
-        const res = await adminTestLogsApi.list()
-        setDados(res.logs.map(mapTestLogToLocal))
-      } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.tests.msg_erro_carregar') })
-      } finally {
-        setCarregando(false)
-      }
+  async function loadLogs(): Promise<LogTeste[]> {
+    try {
+      setCarregando(true)
+      const res = await adminTestLogsApi.list()
+      const novos = res.logs.map(mapTestLogToLocal)
+      setDados(novos)
+      return novos
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.tests.msg_erro_carregar') })
+      return []
+    } finally {
+      setCarregando(false)
     }
-    loadLogs()
-  }, [])
+  }
+
+  useEffect(() => { loadLogs() }, [])
+
+  // Polling enquanto testes estão rodando
+  useEffect(() => {
+    if (!rodandoTestes) return
+    const interval = setInterval(async () => {
+      try {
+        const status = await adminTestLogsApi.runStatus()
+        if (!status.running) {
+          setRodandoTestes(false)
+          const novosLogs = await loadLogs()
+
+          // Contagem apenas dos resultados gerados nesta rodada (snapshot mais recente)
+          const totalRun   = novosLogs.length
+          const aprovRun   = novosLogs.filter(d => d.resultado === 'APROVADO').length
+          const reprovRun  = novosLogs.filter(d => d.resultado === 'REPROVADO').length
+          const tudoVerde  = reprovRun === 0 && totalRun > 0
+          const resultado  = tudoVerde
+            ? `${aprovRun}/${totalRun} aprovados`
+            : `${aprovRun} aprovados · ${reprovRun} reprovados`
+
+          // Toast efêmero (feedback imediato caso o usuário esteja na tela)
+          addNotification({
+            type: tudoVerde ? 'success' : 'error',
+            message: tudoVerde
+              ? `Execução concluída: ${resultado}`
+              : `Execução concluída com falhas: ${resultado}`,
+          })
+
+          // Aviso persistente no sininho (com link direto para a tela)
+          addAviso({
+            conteudo: tudoVerde
+              ? `Execução de testes concluída — ${resultado}. Clique para abrir a tela.`
+              : `Execução de testes concluída com falhas — ${resultado}. Clique para ver detalhes.`,
+            autor: { nome: 'Motor de Testes' },
+            tipo: tudoVerde ? 'sistema' : 'aviso',
+            href: '/admin/testes',
+          })
+        }
+      } catch { /* ignora erros de polling */ }
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [rodandoTestes])
 
   const aprovadosCount = dados.filter(d => d.resultado === 'APROVADO').length
   const reprovadosCount = dados.filter(d => d.resultado === 'REPROVADO').length
@@ -341,18 +389,33 @@ export function LogTestes() {
                 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
                 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
               }
+              @keyframes ws-running-shimmer {
+                0%   { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+              }
+              @keyframes ws-running-pulse {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50%      { opacity: 0.55; transform: scale(1.05); }
+              }
+              @keyframes ws-running-spin {
+                to { transform: rotate(360deg); }
+              }
+              @keyframes ws-running-bar {
+                0%   { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
+              }
             `}
           </style>
           <TooltipGlobal descricao={t('admin.tests.tooltip_agendamento')}>
             <button
                type="button"
                onClick={() => setModalAgendamentoAberto(true)}
-               style={{ 
-                 display: 'flex', alignItems: 'center', gap: '0.5rem', 
-                 padding: '0.5rem 1rem', borderRadius: '8px', 
-                 background: agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)', 
+               style={{
+                 display: 'flex', alignItems: 'center', gap: '0.5rem',
+                 padding: '0.5rem 1rem', borderRadius: '8px',
+                 background: agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)',
                  border: `1px solid ${agendamentoAtivo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.1)'}`,
-                 color: agendamentoAtivo ? '#10b981' : '#e2e8f0', 
+                 color: agendamentoAtivo ? '#10b981' : '#e2e8f0',
                  fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
                  animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none'
                }}
@@ -365,16 +428,23 @@ export function LogTestes() {
           </TooltipGlobal>
           <TooltipGlobal descricao={t('admin.tests.tooltip_rodar')}>
             <button
-               style={{ 
-                 display: 'flex', alignItems: 'center', gap: '0.5rem', 
-                 padding: '0.5rem 1rem', borderRadius: '8px', 
-                 background: 'var(--cl-primary, #10b981)', border: 'none', color: '#fff', 
-                 fontSize: '0.8125rem', fontWeight: 600, cursor: 'pointer', transition: 'filter 0.15s' 
+               disabled={rodandoTestes}
+               onClick={() => setModalExecutarAberto(true)}
+               style={{
+                 display: 'flex', alignItems: 'center', gap: '0.5rem',
+                 padding: '0.5rem 1rem', borderRadius: '8px',
+                 background: rodandoTestes ? 'rgba(16,185,129,0.5)' : 'var(--cl-primary, #10b981)',
+                 border: 'none', color: '#fff',
+                 fontSize: '0.8125rem', fontWeight: 600,
+                 cursor: rodandoTestes ? 'not-allowed' : 'pointer',
+                 transition: 'filter 0.15s',
+                 opacity: rodandoTestes ? 0.7 : 1,
                }}
-               onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
-               onMouseLeave={e => e.currentTarget.style.filter = 'none'}
+               onMouseEnter={e => { if (!rodandoTestes) e.currentTarget.style.filter = 'brightness(1.1)' }}
+               onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
             >
-              <PlayCircle size={16} weight="bold" /> {t('admin.tests.btn_rodar')}
+              <PlayCircle size={16} weight="bold" />
+              {rodandoTestes ? 'Rodando...' : t('admin.tests.btn_rodar')}
             </button>
           </TooltipGlobal>
         </div>
@@ -405,6 +475,96 @@ export function LogTestes() {
         </>
       }
     >
+      {rodandoTestes && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            position: 'relative',
+            marginTop: '24px',
+            borderRadius: '14px',
+            overflow: 'hidden',
+            border: '1px solid rgba(16, 185, 129, 0.45)',
+            background:
+              'linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(56, 189, 248, 0.12) 50%, rgba(16, 185, 129, 0.12) 100%)',
+            backgroundSize: '200% 100%',
+            animation: 'ws-running-shimmer 2.5s linear infinite',
+            boxShadow: '0 0 0 1px rgba(16, 185, 129, 0.15), 0 12px 32px rgba(16, 185, 129, 0.12)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex', alignItems: 'center', gap: '1rem',
+              padding: '1rem 1.25rem', position: 'relative', zIndex: 1,
+            }}
+          >
+            {/* Spinner */}
+            <div
+              style={{
+                width: 36, height: 36, borderRadius: '50%',
+                border: '3px solid rgba(16, 185, 129, 0.25)',
+                borderTopColor: '#10b981',
+                animation: 'ws-running-spin 0.9s linear infinite',
+                flexShrink: 0,
+              }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                <span
+                  style={{
+                    display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
+                    background: '#10b981',
+                    animation: 'ws-running-pulse 1.4s ease-in-out infinite',
+                  }}
+                />
+                Testes em execução...
+              </div>
+              <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#94a3b8' }}>
+                Aguarde o término — você será avisado na mensageria quando concluir.
+              </p>
+            </div>
+            <div
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.4rem',
+                padding: '0.35rem 0.75rem', borderRadius: '9999px',
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                color: '#10b981', fontSize: '0.7rem', fontWeight: 800,
+                letterSpacing: '0.08em', textTransform: 'uppercase',
+                flexShrink: 0,
+              }}
+            >
+              <PlayCircle size={14} weight="fill" />
+              Running
+            </div>
+          </div>
+          {/* Barra de progresso indeterminada */}
+          <div
+            style={{
+              position: 'relative',
+              height: 3,
+              background: 'rgba(16, 185, 129, 0.15)',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute', top: 0, left: 0,
+                width: '40%', height: '100%',
+                background: 'linear-gradient(90deg, transparent, #10b981, transparent)',
+                animation: 'ws-running-bar 1.6s ease-in-out infinite',
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10, marginTop: '32px' }}>
         <TabelaGlobal
           id="admin-test-logs"
@@ -421,10 +581,16 @@ export function LogTestes() {
       />
       </div>
 
-      <ModalAgendamentoTestes 
-        aberto={modalAgendamentoAberto} 
+      <ModalAgendamentoTestes
+        aberto={modalAgendamentoAberto}
         aoFechar={() => setModalAgendamentoAberto(false)}
         aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
+      />
+
+      <ModalExecutarTestes
+        aberto={modalExecutarAberto}
+        aoFechar={() => setModalExecutarAberto(false)}
+        aoIniciarRun={(_planos) => { setRodandoTestes(true); setModalExecutarAberto(false) }}
       />
     </PaginaGlobal>
   )

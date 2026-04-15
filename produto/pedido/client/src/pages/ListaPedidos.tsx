@@ -140,34 +140,40 @@ const STATUS_CORES_DEFAULT: Record<string, string> = {
   cancelado:     '#f87171',
 }
 
+// ── Caches de parse para status e casas decimais ─────────────────────────────
+// Ainda chamam localStorage.getItem (barato) mas só fazem JSON.parse
+// quando a string muda. Funciona mesmo com mudanças de config na mesma sessão.
+
+let _statusRaw: string | null | undefined = undefined
+let _statusParsed: Record<string, { label: string; cor: string }> = {}
+
+function _lerStatusConfig(): Record<string, { label: string; cor: string }> {
+  const raw = localStorage.getItem(PEDIDO_STATUS_STORAGE_KEY)
+  if (raw !== _statusRaw) {
+    _statusRaw = raw
+    try { _statusParsed = raw ? JSON.parse(raw) : {} }
+    catch { _statusParsed = {} }
+  }
+  return _statusParsed
+}
+
 /** Lê o mapa {id → cor} salvo pelo Configuracoes via localStorage */
 function lerStatusCores(): Record<string, string> {
-  try {
-    const raw = localStorage.getItem(PEDIDO_STATUS_STORAGE_KEY)
-    if (!raw) return {}
-    const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
-    // mapeia por id direto
-    const mapa: Record<string, string> = {}
-    for (const [id, cfg] of Object.entries(parsed)) mapa[id] = cfg.cor
-    return mapa
-  } catch { return {} }
+  const config = _lerStatusConfig()
+  const mapa: Record<string, string> = {}
+  for (const [id, cfg] of Object.entries(config)) mapa[id] = cfg.cor
+  return mapa
 }
 
 function getStatusCor(status: string): string {
-  const local = lerStatusCores()
-  return local[status] ?? STATUS_CORES_DEFAULT[status] ?? '#64748b'
+  const config = _lerStatusConfig()
+  return config[status]?.cor ?? STATUS_CORES_DEFAULT[status] ?? '#64748b'
 }
 
 /** Lê o label de um status — inclui status customizados do localStorage */
 function getStatusLabel(status: string): string {
-  try {
-    const raw = localStorage.getItem(PEDIDO_STATUS_STORAGE_KEY)
-    if (raw) {
-      const parsed: Record<string, { label: string; cor: string }> = JSON.parse(raw)
-      if (parsed[status]?.label) return parsed[status].label
-    }
-  } catch { /* ignore */ }
-  return STATUS_PEDIDO_LABELS[status as keyof typeof STATUS_PEDIDO_LABELS] ?? status
+  const config = _lerStatusConfig()
+  return config[status]?.label ?? STATUS_PEDIDO_LABELS[status as keyof typeof STATUS_PEDIDO_LABELS] ?? status
 }
 
 // ── Tipos de filtro ───────────────────────────────────────────────────────────
@@ -490,12 +496,17 @@ function lerAbasDoLocalStorage(): GTAbaTipo[] | null {
 
 // ── Casas decimais configuráveis pelo usuário ────────────────────────────────
 
+let _casasRaw: string | null | undefined = undefined
+let _casasParsed: Record<string, number> = {}
+
 function lerCasasDecimaisConfig(): Record<string, number> {
-  try {
-    const raw = localStorage.getItem('pedido:casas_decimais')
-    if (raw) return JSON.parse(raw) as Record<string, number>
-  } catch { /* ignore */ }
-  return {}
+  const raw = localStorage.getItem('pedido:casas_decimais')
+  if (raw !== _casasRaw) {
+    _casasRaw = raw
+    try { _casasParsed = raw ? JSON.parse(raw) as Record<string, number> : {} }
+    catch { _casasParsed = {} }
+  }
+  return _casasParsed
 }
 
 /** Mapeamento de herança: campos de item herdam a config do pedido correspondente */
@@ -1956,6 +1967,12 @@ function renderTextoC2(valor: string, label: string): React.ReactElement {
 }
 
 function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
+  // Parse AST e casas decimais uma vez por definição de coluna, não por linha renderizada
+  const formulaAST = col.tipo === 'formula' && col.formula_expressao
+    ? (() => { try { return parsearFormula(col.formula_expressao!) } catch { return null } })()
+    : null
+  const casasCol = getCasas(col.id, 2)
+
   return {
     key:             col.chave as keyof Pedido,
     label:           col.nome,
@@ -1988,9 +2005,8 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
 
       // ── Fórmula: calcula em tempo real a partir dos campos do pedido (T03) ──
       if (col.tipo === 'formula') {
-        if (col.formula_expressao) {
+        if (formulaAST) {
           try {
-            const ast = parsearFormula(col.formula_expressao)
             const contexto = buildFormulaContexto(row)
             // Inclui valores de outras colunas C2 numéricas no contexto
             if (valores) {
@@ -1999,11 +2015,10 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
                 if (!isNaN(num)) contexto[k] = num
               }
             }
-            const { valor: num, temNulo } = avaliarFormula(ast, contexto)
-            const casas = getCasas(col.id, 2)
+            const { valor: num, temNulo } = avaliarFormula(formulaAST, contexto)
             return (
               <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {fmtQuantidade(num, casas)}
+                {fmtQuantidade(num, casasCol)}
                 {temNulo && (
                   <span title="Um ou mais campos usados nesta fórmula estavam vazios e foram tratados como 0" style={{ marginLeft: '0.25rem', cursor: 'help' }}>⚠️</span>
                 )}
@@ -2020,9 +2035,8 @@ function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
       if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
         const num = Number(valor)
         if (!isNaN(num)) {
-          const casas = getCasas(col.id, 2)
           const sufixo = col.tipo === 'percentual' ? '%' : ''
-          return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casas)}{sufixo}</span>
+          return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casasCol)}{sufixo}</span>
         }
       }
 

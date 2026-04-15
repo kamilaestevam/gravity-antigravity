@@ -9,6 +9,7 @@
  *   GET    /                    Listar pedidos (offset ou cursor pagination)
  *   GET    /localizar           Contar total de matches find-in-page (pedidos + itens)
  *   GET    /:id                 Detalhe do pedido
+ *   GET    /:id/itens            Listar itens de um pedido (row expand)
  *   POST   /                    Criar pedido com itens
  *   PUT    /:id                 Atualizar pedido (Draft/Aberto)
  *   DELETE /:id                 Deletar pedido (Draft)
@@ -463,6 +464,33 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
     }
 
     res.json(mapPedido(pedido))
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ── GET /:id/itens — Listar itens de um pedido (usado por expand de linha) ────
+
+pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const tenant_id = req.headers['x-tenant-id'] as string
+    const company_id = (req.headers['x-company-id'] as string | undefined) ?? tenant_id
+
+    // Garante que o pedido existe e pertence ao tenant/company antes de expor itens.
+    const pedido = await req.prisma.pedido.findFirst({
+      where: { id: req.params.id, tenant_id, company_id },
+      select: { id: true },
+    })
+    if (!pedido) {
+      throw new AppError(404, 'Pedido nao encontrado')
+    }
+
+    const itens = await req.prisma.pedidoItem.findMany({
+      where: { pedido_id: req.params.id, tenant_id, company_id },
+      orderBy: { sequencia_item: 'asc' },
+    })
+
+    res.json(itens.map(mapItem))
   } catch (err) {
     next(err)
   }

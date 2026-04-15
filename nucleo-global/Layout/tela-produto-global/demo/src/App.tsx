@@ -83,7 +83,7 @@ const WORKSPACES_MOCK: WorkspaceItem[] = [
 // ── Nós do ecossistema (demo) ─────────────────────────────────────────────────
 
 const ECOSYSTEM_NODES: EcosystemNode[] = [
-  { id: 'gravity', label: 'Gravity', sublabel: 'workspace', color: '#818cf8', type: 'gravity', status: 'accessible' },
+  { id: 'hub', label: 'Gravity', sublabel: 'workspace', color: '#818cf8', type: 'hub', status: 'accessible' },
   { id: PRODUCT_ID, label: PRODUCT_NAME, sublabel: 'demo', color: PRODUCT_COLOR, type: 'produto', status: 'current' },
 ]
 

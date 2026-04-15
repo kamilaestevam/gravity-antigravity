@@ -97,7 +97,7 @@ const ROUTE_LABELS: Record<string, string> = {
 
 // ── Nós do ecossistema para o Localizador ─────────────────────────────────────
 const ECOSYSTEM_NODES: EcosystemNode[] = [
-  { id: 'gravity',      label: 'Gravity',     sublabel: 'workspace',      color: '#818cf8',     type: 'gravity',      status: 'accessible' },
+  { id: 'hub',          label: 'Gravity',     sublabel: 'workspace',      color: '#818cf8',     type: 'hub',          status: 'accessible' },
   { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f472b6',     type: 'configurador', status: 'accessible' },
   { id: PRODUCT_ID,     label: PRODUCT_NAME,  sublabel: 'fiscal · NCM',   color: PRODUCT_COLOR, type: 'produto',      status: 'current' },
 ]

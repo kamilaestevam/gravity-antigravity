@@ -3,11 +3,31 @@
 // Gerenciado exclusivamente por gravity_admin.
 
 import { prisma } from '../lib/prisma.js'
-import type { Prisma } from '@prisma/client'
+// Importa tipos do client gerado (output customizado) — não do @prisma/client hoisted,
+// que resolve para outro schema em ambiente monorepo.
+import type { Prisma } from '../../../../configurador/generated/index.js'
+
+type PriceTierInput = {
+  range_from: number
+  range_to?: number
+  price: number
+  currency?: string
+}
+
+// ProductCreateInput já trata price_tiers como relação aninhada — adicionamos
+// uma versão "flat" do array para que as rotas aceitem JSON simples.
+type ProductCreateData = Prisma.ProductCreateInput & { price_tiers?: PriceTierInput[] }
+type ProductUpdateData = Prisma.ProductUpdateInput & { price_tiers?: PriceTierInput[] }
+
+const ACTIVE_PRODUCT_INCLUDE = {
+  price_tiers: true,
+  negotiations: true,
+} satisfies Prisma.ProductInclude
 
 export const productCatalogService = {
   /**
-   * Lista todos os produtos do catálogo com paginação e filtros
+   * Lista todos os produtos do catálogo com paginação e filtros.
+   * Ignora produtos soft-deletados.
    */
   async list(params: {
     page?: number
@@ -19,7 +39,7 @@ export const productCatalogService = {
     const limit = params.limit ?? 50
     const skip = (page - 1) * limit
 
-    const where: Prisma.ProductWhereInput = {}
+    const where: Prisma.ProductWhereInput = { deleted_at: null }
 
     if (params.search) {
       where.OR = [
@@ -38,7 +58,7 @@ export const productCatalogService = {
         where,
         skip,
         take: limit,
-        include: { price_tiers: true, negotiations: true },
+        include: ACTIVE_PRODUCT_INCLUDE,
         orderBy: { created_at: 'desc' },
       }),
       prisma.product.count({ where }),
@@ -51,35 +71,48 @@ export const productCatalogService = {
   },
 
   /**
-   * Busca um produto pelo ID
+   * Retorna um Set com todos os slugs/backend_modules já em uso
+   * (payload enxuto — apenas duas colunas).
+   */
+  async listUsedSlugs(): Promise<Set<string>> {
+    const rows = await prisma.product.findMany({
+      where: { deleted_at: null },
+      select: { slug: true, backend_module: true },
+    })
+    const used = new Set<string>()
+    for (const row of rows) {
+      if (row.backend_module) used.add(row.backend_module)
+      used.add(row.slug)
+    }
+    return used
+  },
+
+  /**
+   * Busca um produto pelo ID (inclui soft-deleted por padrão para permitir
+   * auditoria histórica — o chamador filtra se não quiser).
    */
   async getById(id: string) {
     return prisma.product.findUnique({
       where: { id },
-      include: { price_tiers: true, negotiations: true },
+      include: ACTIVE_PRODUCT_INCLUDE,
     })
   },
 
   /**
-   * Busca um produto pelo slug
+   * Busca um produto pelo slug — ignora soft-deletados.
    */
   async getBySlug(slug: string) {
-    return prisma.product.findUnique({
-      where: { slug },
+    return prisma.product.findFirst({
+      where: { slug, deleted_at: null },
       include: { price_tiers: true },
     })
   },
 
   /**
-   * Cria um novo produto no catálogo
+   * Cria um novo produto no catálogo.
    */
-  async create(data: Prisma.ProductCreateInput & { price_tiers?: Array<{
-    range_from: number
-    range_to?: number
-    price: number
-    currency?: string
-  }> }) {
-    const { price_tiers, gabi_quota_mensal: _gabiQuota, ...productData } = data as any
+  async create(data: ProductCreateData) {
+    const { price_tiers, ...productData } = data
 
     return prisma.product.create({
       data: {
@@ -100,18 +133,10 @@ export const productCatalogService = {
   },
 
   /**
-   * Atualiza um produto existente
+   * Atualiza um produto existente.
    */
-  async update(
-    id: string,
-    data: Prisma.ProductUpdateInput & { price_tiers?: Array<{
-      range_from: number
-      range_to?: number
-      price: number
-      currency?: string
-    }> }
-  ) {
-    const { price_tiers, gabi_quota_mensal: _gabiQuota, ...productData } = data as any
+  async update(id: string, data: ProductUpdateData) {
+    const { price_tiers, ...productData } = data
 
     return prisma.$transaction(async (tx) => {
       if (price_tiers !== undefined) {
@@ -138,7 +163,7 @@ export const productCatalogService = {
   },
 
   /**
-   * Alterna status Ativo/Suspenso de um produto
+   * Alterna status Ativo/Suspenso de um produto.
    */
   async toggleStatus(id: string) {
     const product = await prisma.product.findUnique({ where: { id } })
@@ -152,220 +177,109 @@ export const productCatalogService = {
   },
 
   /**
-   * Remove um produto do catálogo (cascade deleta tiers e negociações)
+   * Conta negociações ativas (is_unlimited OU ends_at futuro) para um produto.
    */
-  async delete(id: string) {
+  async countActiveNegotiations(productId: string): Promise<number> {
+    const now = new Date()
+    return prisma.specialNegotiation.count({
+      where: {
+        product_id: productId,
+        OR: [
+          { is_unlimited: true },
+          { ends_at: { gte: now } },
+          { ends_at: null },
+        ],
+      },
+    })
+  },
+
+  /**
+   * Soft-delete — marca deleted_at. Preserva PriceTiers e SpecialNegotiations.
+   */
+  async softDelete(id: string) {
+    return prisma.product.update({
+      where: { id },
+      data: { deleted_at: new Date() },
+    })
+  },
+
+  /**
+   * Hard-delete — remove do banco. Cascade apaga PriceTiers e SpecialNegotiations.
+   * Use com cautela — preferir softDelete.
+   */
+  async hardDelete(id: string) {
     return prisma.product.delete({ where: { id } })
   },
 
   /**
-   * Lista produtos ativos para exibição pública (Store/Marketplace)
+   * Lista produtos ativos para exibição pública (Store/Marketplace).
    */
   async listPublic() {
     return prisma.product.findMany({
-      where: { status: { in: ['ACTIVE', 'COMING_SOON'] } },
+      where: {
+        status: { in: ['ACTIVE', 'COMING_SOON'] },
+        deleted_at: null,
+      },
       include: { price_tiers: true },
       orderBy: { name: 'asc' },
     })
   },
 
   /**
-   * Seed dos produtos iniciais (idempotente — verifica se já existem)
+   * Seed dos produtos iniciais (idempotente — verifica se já existem).
+   * Invocado apenas por CLI — nunca exposto via HTTP.
    */
   async seedInitialProducts() {
     const count = await prisma.product.count()
     if (count > 0) {
-      // Verificar se novos produtos precisam ser adicionados (upsert)
       await this.ensureMissingProducts()
       return { seeded: false, count }
     }
 
-    const products = await prisma.$transaction([
-      prisma.product.create({
-        data: {
-          name: 'Simula Custo',
-          slug: 'simula-custo',
-          description: 'Gestão de custos estimados de exportação e importação',
-          status: 'ACTIVE',
-          billing_type: 'PER_ESTIMATE',
-          unit_price: 10.99,
-          minimum_price: 0,
-          user_limit_type: 'LIMITED',
-          base_users_qty: 10,
-          backend_module: 'simula-custo',
-          target_audience: 'Importadores, exportadores e despachantes aduaneiros',
-        },
-      }),
-      prisma.product.create({
-        data: {
-          name: 'Bid Frete',
-          slug: 'bid-frete',
-          description: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
-          status: 'ACTIVE',
-          billing_type: 'PER_PROCESS',
-          has_setup: true,
-          unit_price: 1.99,
-          minimum_price: 199,
-          user_limit_type: 'UNLIMITED',
-          backend_module: 'bid-frete',
-          target_audience: 'Importadores, exportadores e despachantes aduaneiros',
-        },
-      }),
-      prisma.product.create({
-        data: {
-          name: 'Bid Cambio',
-          slug: 'bid-cambio',
-          description: 'Gestão e cotação de câmbio comercial para operações de COMEX — marketplace de corretoras com comparativo automático e cálculo de economia',
-          status: 'ACTIVE',
-          billing_type: 'PER_PROCESS',
-          has_setup: false,
-          unit_price: 2.99,
-          minimum_price: 199,
-          user_limit_type: 'UNLIMITED',
-          backend_module: 'bid-cambio',
-          target_audience: 'Importadores, exportadores, tradings, agentes de carga e despachantes aduaneiros',
-        },
-      }),
-      prisma.product.create({
-        data: {
-          name: 'Pedido',
-          slug: 'pedido',
-          description: 'Gestão de pedidos de importação e exportação com controle de saldo, etapas e rastreabilidade',
-          status: 'ACTIVE',
-          billing_type: 'PER_PROCESS',
-          has_setup: false,
-          unit_price: 1.99,
-          minimum_price: 0,
-          user_limit_type: 'UNLIMITED',
-          backend_module: 'pedido',
-          target_audience: 'Importadores, exportadores e despachantes aduaneiros',
-        },
-      }),
-      prisma.product.create({
-        data: {
-          name: 'NF Import',
-          slug: 'nf-importacao',
-          description: 'Gestão completa de notas fiscais de importação com DI, rateio de despesas e exportação contábil',
-          status: 'ACTIVE',
-          billing_type: 'PER_PROCESS',
-          has_setup: false,
-          unit_price: 1.99,
-          minimum_price: 0,
-          user_limit_type: 'UNLIMITED',
-          backend_module: 'nf-importacao',
-          target_audience: 'Importadores, despachantes aduaneiros e contadores',
-        },
-      }),
+    await prisma.$transaction([
+      prisma.product.create({ data: seedProducts[0] }),
+      prisma.product.create({ data: seedProducts[1] }),
+      prisma.product.create({ data: seedProducts[2] }),
+      prisma.product.create({ data: seedProducts[3] }),
+      prisma.product.create({ data: seedProducts[4] }),
     ])
 
-    return { seeded: true, count: products.length }
+    return { seeded: true, count: seedProducts.length }
   },
 
   /**
-   * Garante que produtos novos do seed sejam criados no banco existente.
-   * Roda como upsert — cria apenas os que não existem.
+   * Garante que produtos canônicos existam no banco. Usado pelo CLI de seed.
    */
   async ensureMissingProducts() {
-    // Produtos que devem existir no catálogo — lista canônica (exatamente esses)
-    const expectedProducts = [
-      {
-        name: 'Simula Custo',
-        slug: 'simula-custo',
-        description: 'Gestão de custos estimados de exportação e importação',
-        status: 'ACTIVE',
-        billing_type: 'PER_ESTIMATE',
-        unit_price: 10.99,
-        minimum_price: 0,
-        user_limit_type: 'LIMITED',
-        base_users_qty: 10,
-        backend_module: 'simula-custo',
-        target_audience: 'Importadores, exportadores e despachantes aduaneiros',
-      },
-      {
-        name: 'Bid Frete',
-        slug: 'bid-frete',
-        description: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
-        status: 'ACTIVE',
-        billing_type: 'PER_PROCESS',
-        unit_price: 1.99,
-        minimum_price: 199,
-        user_limit_type: 'UNLIMITED',
-        backend_module: 'bid-frete',
-        target_audience: 'Importadores, exportadores e despachantes aduaneiros',
-      },
-      {
-        name: 'Bid Cambio',
-        slug: 'bid-cambio',
-        description: 'Gestão e cotação de câmbio comercial para operações de COMEX — marketplace de corretoras com comparativo automático e cálculo de economia',
-        status: 'ACTIVE',
-        billing_type: 'PER_PROCESS',
-        unit_price: 2.99,
-        minimum_price: 199,
-        user_limit_type: 'UNLIMITED',
-        backend_module: 'bid-cambio',
-        target_audience: 'Importadores, exportadores, tradings, agentes de carga e despachantes aduaneiros',
-      },
-      {
-        name: 'Pedido',
-        slug: 'pedido',
-        description: 'Gestão de pedidos de importação e exportação com controle de saldo, etapas e rastreabilidade',
-        status: 'ACTIVE',
-        billing_type: 'PER_PROCESS',
-        unit_price: 1.99,
-        minimum_price: 0,
-        user_limit_type: 'UNLIMITED',
-        backend_module: 'pedido',
-        target_audience: 'Importadores, exportadores e despachantes aduaneiros',
-      },
-      {
-        name: 'NF Import',
-        slug: 'nf-importacao',
-        description: 'Gestão completa de notas fiscais de importação com DI, rateio de despesas e exportação contábil',
-        status: 'ACTIVE',
-        billing_type: 'PER_PROCESS',
-        unit_price: 1.99,
-        minimum_price: 0,
-        user_limit_type: 'UNLIMITED',
-        backend_module: 'nf-importacao',
-        target_audience: 'Importadores, despachantes aduaneiros e contadores',
-      },
-    ]
-
-    const expectedSlugs = expectedProducts.map(p => p.slug)
+    const expectedSlugs = seedProducts.map(p => p.slug)
 
     let created = 0
     let updated = 0
-    for (const product of expectedProducts) {
+    for (const product of seedProducts) {
       const existing = await prisma.product.findFirst({ where: { slug: product.slug } })
       if (!existing) {
         await prisma.product.create({ data: product })
         created++
-        console.log(`[seed] Produto '${product.name}' (${product.slug}) criado`)
       } else if (existing.name !== product.name) {
         await prisma.product.update({ where: { id: existing.id }, data: { name: product.name } })
         updated++
-        console.log(`[seed] Produto '${existing.name}' renomeado para '${product.name}'`)
       }
     }
 
-    // Remover produtos que não pertencem ao catálogo canônico
     const toRemove = await prisma.product.findMany({
       where: { slug: { notIn: expectedSlugs } },
-      select: { id: true, name: true, slug: true },
+      select: { id: true },
     })
     for (const p of toRemove) {
       await prisma.product.delete({ where: { id: p.id } })
-      console.log(`[seed] Produto '${p.name}' (${p.slug}) removido do catálogo`)
     }
 
-    if (created > 0 || updated > 0 || toRemove.length > 0) {
-      console.log(`[seed] ${created} criado(s), ${updated} atualizado(s), ${toRemove.length} removido(s)`)
-    }
+    return { created, updated, removed: toRemove.length }
   },
 
   /**
-   * Ativa produtos para um tenant especifico (idempotente)
-   * Usado no seed inicial para habilitar produtos demo
+   * Ativa produtos para um tenant específico (idempotente).
+   * Usado no seed inicial via CLI.
    */
   async activateProductsForTenant(tenantId: string, productKeys: string[]) {
     const results = await Promise.all(
@@ -374,9 +288,79 @@ export const productCatalogService = {
           where: { tenant_id_product_key: { tenant_id: tenantId, product_key: key } },
           create: { tenant_id: tenantId, product_key: key, config: {}, is_active: true },
           update: { is_active: true },
-        })
-      )
+        }),
+      ),
     )
     return { activated: results.length, tenant_id: tenantId, products: productKeys }
   },
 }
+
+// ─── Catálogo canônico ───────────────────────────────────────────────────────
+
+const seedProducts: Prisma.ProductUncheckedCreateInput[] = [
+  {
+    name: 'Simula Custo',
+    slug: 'simula-custo',
+    description: 'Gestão de custos estimados de exportação e importação',
+    status: 'ACTIVE',
+    billing_type: 'PER_ESTIMATE',
+    unit_price: 10.99,
+    minimum_price: 0,
+    user_limit_type: 'LIMITED',
+    base_users_qty: 10,
+    backend_module: 'simula-custo',
+    target_audience: 'Importadores, exportadores e despachantes aduaneiros',
+  },
+  {
+    name: 'Bid Frete',
+    slug: 'bid-frete',
+    description: 'Licitação inteligente de fretes internacionais com análise de fornecedores, ranking automático e cálculo de savings',
+    status: 'ACTIVE',
+    billing_type: 'PER_PROCESS',
+    has_setup: true,
+    unit_price: 1.99,
+    minimum_price: 199,
+    user_limit_type: 'UNLIMITED',
+    backend_module: 'bid-frete',
+    target_audience: 'Importadores, exportadores e despachantes aduaneiros',
+  },
+  {
+    name: 'Bid Cambio',
+    slug: 'bid-cambio',
+    description: 'Gestão e cotação de câmbio comercial para operações de COMEX — marketplace de corretoras com comparativo automático e cálculo de economia',
+    status: 'ACTIVE',
+    billing_type: 'PER_PROCESS',
+    has_setup: false,
+    unit_price: 2.99,
+    minimum_price: 199,
+    user_limit_type: 'UNLIMITED',
+    backend_module: 'bid-cambio',
+    target_audience: 'Importadores, exportadores, tradings, agentes de carga e despachantes aduaneiros',
+  },
+  {
+    name: 'Pedido',
+    slug: 'pedido',
+    description: 'Gestão de pedidos de importação e exportação com controle de saldo, etapas e rastreabilidade',
+    status: 'ACTIVE',
+    billing_type: 'PER_PROCESS',
+    has_setup: false,
+    unit_price: 1.99,
+    minimum_price: 0,
+    user_limit_type: 'UNLIMITED',
+    backend_module: 'pedido',
+    target_audience: 'Importadores, exportadores e despachantes aduaneiros',
+  },
+  {
+    name: 'NF Import',
+    slug: 'nf-importacao',
+    description: 'Gestão completa de notas fiscais de importação com DI, rateio de despesas e exportação contábil',
+    status: 'ACTIVE',
+    billing_type: 'PER_PROCESS',
+    has_setup: false,
+    unit_price: 1.99,
+    minimum_price: 0,
+    user_limit_type: 'UNLIMITED',
+    backend_module: 'nf-importacao',
+    target_audience: 'Importadores, despachantes aduaneiros e contadores',
+  },
+]

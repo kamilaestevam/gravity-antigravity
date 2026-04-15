@@ -53,9 +53,18 @@ export default defineConfig({
         },
       },
       // Produtos — cada um aponta para seu backend próprio
+      // DEV: cada produto tem seu próprio INTERNAL_SERVICE_KEY no backend.
+      // O proxy reescreve x-internal-key em tempo de request para o valor que
+      // o backend daquele produto espera, evitando mismatch com a VITE_INTERNAL_SERVICE_KEY
+      // do configurador (que é outra chave, usada pelo backend do próprio configurador).
       '/api/v1/pedidos': {
         target: 'http://localhost:8030',
         changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+          })
+        },
         onError(err, _req, res) {
           if (!res.headersSent) res.writeHead(502).end()
         },
@@ -63,6 +72,11 @@ export default defineConfig({
       '/api/v1/analytics/pedido': {
         target: 'http://localhost:8030',
         changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+          })
+        },
         onError(err, _req, res) {
           if (!res.headersSent) res.writeHead(502).end()
         },

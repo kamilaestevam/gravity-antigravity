@@ -29,6 +29,7 @@ Antes de qualquer tarefa, o agente DEVE:
 | Líder | `skills/agentes/lider/SKILL.md` | Distribuição de tarefas, análise de progresso, relatórios |
 | Coordenador | `skills/agentes/coordenador/SKILL.md` | Composição de schema, validação de contratos, conflitos entre agentes, checklist de ondas |
 | QA | `skills/agentes/qa/SKILL.md` | Revisão pós-entrega, validação de testes, aprovação/rejeição |
+| Detetive de Tela | `skills/dream-team-detetive-tela/SKILL.md` | **Análise forense completa de uma tela** — front, back, rotas, APIs, banco, segurança, performance, UX |
 
 ### Governança (Sempre Obrigatórias)
 
@@ -249,6 +250,7 @@ Use `/comando` para ativar papéis e fluxos específicos:
 
 - `/dream-team-tecnologia` — **Carregar o time de tecnologia (57 skills, 11 papéis)**
 - `/dream-team-produtos` — **Carregar o time de produtos (11 skills, 8 agentes)**
+- `/dream-team-detetive-tela` — **Análise forense completa de uma tela (front + back + banco + segurança + UX)**
 - `/lider` — Ativar modo Líder (análise + distribuição)
 - `/coordenar` — Ativar modo Coordenador (schema + contratos + ondas)
 - `/qa` — Ativar modo QA (revisão completa pós-entrega)

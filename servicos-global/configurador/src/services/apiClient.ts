@@ -44,6 +44,7 @@ async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const { headers: extraHeaders, ...restOptions } = options
   const authHeaders: Record<string, string> = {}
   const token = await getAuthToken()
   if (token) authHeaders['Authorization'] = `Bearer ${token}`
@@ -52,9 +53,9 @@ async function request<T>(
     headers: {
       'Content-Type': 'application/json',
       ...authHeaders,
-      ...options.headers,
+      ...(extraHeaders as Record<string, string>),
     },
-    ...options,
+    ...restOptions,
   })
 
   if (!res.ok) {
@@ -93,8 +94,10 @@ export interface ProductApi {
   extra_hour_currency: string
   backend_module: string | null
   target_audience: string | null
+  gabi_quota_mensal: number
   created_at: string
   updated_at: string
+  deleted_at: string | null
   price_tiers: PriceTierApi[]
   negotiations?: NegotiationApi[]
 }
@@ -152,9 +155,10 @@ export interface ProductConfigApi {
 // ─── Admin: Catálogo de Produtos ────────────────────────────────────────────
 
 export const adminProductsApi = {
-  async list(params?: { page?: number; search?: string; status?: string }) {
+  async list(params?: { page?: number; limit?: number; search?: string; status?: string }) {
     const query = new URLSearchParams()
     if (params?.page) query.set('page', String(params.page))
+    if (params?.limit) query.set('limit', String(params.limit))
     if (params?.search) query.set('search', params.search)
     if (params?.status) query.set('status', params.status)
     const qs = query.toString()
@@ -187,16 +191,15 @@ export const adminProductsApi = {
     })
   },
 
-  async delete(id: string) {
-    return request<{ deleted: boolean; id: string }>(`/admin/products/${id}`, {
-      method: 'DELETE',
-    })
-  },
-
-  async seed() {
-    return request<{ seeded: boolean; count: number }>('/admin/products/seed', {
-      method: 'POST',
-    })
+  async delete(id: string, opts?: { force?: boolean; ackNegotiations?: boolean }) {
+    const query = new URLSearchParams()
+    if (opts?.force) query.set('force', 'true')
+    if (opts?.ackNegotiations) query.set('ack_negotiations', 'true')
+    const qs = query.toString()
+    return request<{ deleted: boolean; id: string; mode: 'hard' | 'soft' }>(
+      `/admin/products/${id}${qs ? `?${qs}` : ''}`,
+      { method: 'DELETE' },
+    )
   },
 
   async getAvailableSlugs() {
@@ -343,9 +346,33 @@ export interface TestLogApi {
   ai_analysis: Record<string, unknown> | null
 }
 
+export interface TestPlanApi {
+  id: string
+  name: string
+  product: string
+  description: string
+  specFile: string
+  url: string
+  steps: string[]
+}
+
 export const adminTestLogsApi = {
   async list() {
     return request<{ logs: TestLogApi[] }>('/admin/test-logs')
+  },
+  async runTests(opts?: { planos?: string[]; modulos?: string[] }) {
+    return request<{ started: boolean }>('/admin/run-tests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(opts ?? {}),
+    })
+  },
+  async runStatus() {
+    return request<{ running: boolean }>('/admin/run-tests/status')
+  },
+  async listPlans(product?: string) {
+    const qs = product ? `?product=${encodeURIComponent(product)}` : ''
+    return request<{ plans: TestPlanApi[] }>(`/admin/test-plans${qs}`)
   },
 }
 

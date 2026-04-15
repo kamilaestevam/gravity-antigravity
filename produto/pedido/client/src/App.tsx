@@ -102,7 +102,10 @@ export function App() {
   })
   useEffect(() => {
     setApiContext({
-      tenantId: currentUser.tenantId ?? import.meta.env.VITE_DEV_TENANT_ID ?? '',
+      // DEV: força o tenant do seed; em prod usa o Clerk org real
+      tenantId: import.meta.env.DEV
+        ? (import.meta.env.VITE_DEV_TENANT_ID ?? currentUser.tenantId ?? '')
+        : (currentUser.tenantId ?? ''),
       userId:   currentUser.id       ?? '',
       userName: currentUser.name     ?? '',
     })

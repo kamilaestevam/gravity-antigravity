@@ -56,6 +56,12 @@ export function renderTextoC2(valor: string, label: string): React.ReactElement 
 }
 
 export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedido> {
+  // Parse AST e casas decimais uma vez por definição de coluna, não por linha renderizada
+  const formulaAST = col.tipo === 'formula' && col.formula_expressao
+    ? (() => { try { return parsearFormula(col.formula_expressao!) } catch { return null } })()
+    : null
+  const casasCol = getCasas(col.id, 2)
+
   return {
     key:             col.chave as keyof Pedido,
     label:           col.nome,
@@ -79,9 +85,8 @@ export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedid
 
       // ── Fórmula: calcula em tempo real a partir dos campos do pedido (T03) ──
       if (col.tipo === 'formula') {
-        if (col.formula_expressao) {
+        if (formulaAST) {
           try {
-            const ast = parsearFormula(col.formula_expressao)
             const contexto = buildFormulaContexto(row)
             // Inclui valores de outras colunas C2 numéricas no contexto
             if (valores) {
@@ -90,11 +95,10 @@ export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedid
                 if (!isNaN(num)) contexto[k] = num
               }
             }
-            const { valor: num, temNulo } = avaliarFormula(ast, contexto)
-            const casas = getCasas(col.id, 2)
+            const { valor: num, temNulo } = avaliarFormula(formulaAST, contexto)
             return (
               <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-                {fmtQuantidade(num, casas)}
+                {fmtQuantidade(num, casasCol)}
                 {temNulo && (
                   <span title="Um ou mais campos usados nesta fórmula estavam vazios e foram tratados como 0" style={{ marginLeft: '0.25rem', cursor: 'help' }}>⚠️</span>
                 )}
@@ -111,9 +115,8 @@ export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedid
       if ((col.tipo === 'numero' || col.tipo === 'percentual') && valor !== '—') {
         const num = Number(valor)
         if (!isNaN(num)) {
-          const casas = getCasas(col.id, 2)
           const sufixo = col.tipo === 'percentual' ? '%' : ''
-          return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casas)}{sufixo}</span>
+          return <span style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtQuantidade(num, casasCol)}{sufixo}</span>
         }
       }
 

@@ -276,7 +276,7 @@ export function ModalGlobal({
         {(botoes || renderizarFooter) && (
           <div className="mg-footer modal-footer">
             {renderizarFooter ? (
-              renderizarFooter()
+              renderizarFooter(abaAtiva)
             ) : (
               botoes?.map((botao, i) => (
                 <BotaoFooter key={`${botao.rotulo}-${i}`} {...botao} />

@@ -403,8 +403,9 @@ model Product {
   target_audience String?
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime? // soft-delete — preserva negociações especiais
 
   // Relations
   price_tiers  PriceTier[]
@@ -412,6 +413,7 @@ model Product {
 
   @@index([status])
   @@index([slug])
+  @@index([deleted_at])
 }
 
 // ---------------------------------------------------------------------------

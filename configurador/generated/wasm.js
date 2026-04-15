@@ -255,7 +255,8 @@ exports.Prisma.ProductScalarFieldEnum = {
   backend_module: 'backend_module',
   target_audience: 'target_audience',
   created_at: 'created_at',
-  updated_at: 'updated_at'
+  updated_at: 'updated_at',
+  deleted_at: 'deleted_at'
 };
 
 exports.Prisma.PriceTierScalarFieldEnum = {

@@ -13,13 +13,15 @@ import { errorHandler } from '../../../servicos-global/configurador/server/middl
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
+// Role controlável por teste — muda antes de cada describe se necessário
+let mockAuthRole: 'MASTER' | 'STANDARD' | 'SUPPLIER' = 'MASTER'
 vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
   requireAuth: (
-    req: { auth: { tenantId: string; userId: string; clerkUserId: string } },
+    req: { auth: { tenantId: string; userId: string; clerkUserId: string; role: string } },
     _res: unknown,
     next: () => void
   ) => {
-    req.auth = { tenantId: 'tenant-001', userId: 'user-001', clerkUserId: 'clerk-001' }
+    req.auth = { tenantId: 'tenant-001', userId: 'user-001', clerkUserId: 'clerk-001', role: mockAuthRole }
     next()
   },
 }))
@@ -35,10 +37,16 @@ vi.mock('../../../servicos-global/configurador/server/services/tenantService.js'
 
 const mockProductConfigFindMany = vi.fn()
 const mockProductFindMany = vi.fn()
+const mockUserFindUnique = vi.fn()
+const mockUserUpdate = vi.fn()
 vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: {
     productConfig: { findMany: (...args: unknown[]) => mockProductConfigFindMany(...args) },
     product: { findMany: (...args: unknown[]) => mockProductFindMany(...args) },
+    user: {
+      findUnique: (...args: unknown[]) => mockUserFindUnique(...args),
+      update: (...args: unknown[]) => mockUserUpdate(...args),
+    },
   },
 }))
 
@@ -83,10 +91,13 @@ const CATALOG = [
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mockAuthRole = 'MASTER'
   mockGetTenantById.mockResolvedValue(TENANT)
   mockGetCompanies.mockResolvedValue(COMPANIES)
   mockProductConfigFindMany.mockResolvedValue(PRODUCT_CONFIGS)
   mockProductFindMany.mockResolvedValue(CATALOG)
+  mockUserFindUnique.mockResolvedValue({ preferred_company_id: null })
+  mockUserUpdate.mockResolvedValue({})
 })
 
 describe('GET /api/v1/hub/init', () => {
@@ -217,5 +228,68 @@ describe('GET /api/v1/hub/init', () => {
     const res = await request(app).get('/api/v1/hub/init')
 
     expect(res.status).toBe(500)
+  })
+
+  // ─── Workspace Preferido (skip pós-login) ────────────────────────────────
+
+  it('retorna preferredCompanyId=null quando usuário não tem preferido', async () => {
+    mockUserFindUnique.mockResolvedValue({ preferred_company_id: null })
+
+    const app = buildApp()
+    const res = await request(app).get('/api/v1/hub/init')
+
+    expect(res.status).toBe(200)
+    expect(res.body.preferredCompanyId).toBeNull()
+  })
+
+  it('retorna preferredCompanyId quando usuário tem preferido válido', async () => {
+    mockUserFindUnique.mockResolvedValue({ preferred_company_id: 'comp-1' })
+
+    const app = buildApp()
+    const res = await request(app).get('/api/v1/hub/init')
+
+    expect(res.status).toBe(200)
+    expect(res.body.preferredCompanyId).toBe('comp-1')
+  })
+
+  it('retorna preferredCompanyId=null (fallback silencioso) quando preferido aponta para company inexistente', async () => {
+    mockUserFindUnique.mockResolvedValue({ preferred_company_id: 'comp-ghost' })
+
+    const app = buildApp()
+    const res = await request(app).get('/api/v1/hub/init')
+
+    expect(res.status).toBe(200)
+    expect(res.body.preferredCompanyId).toBeNull()
+    // Fire-and-forget: limpa no banco
+    expect(mockUserUpdate).toHaveBeenCalledWith({
+      where: { id: 'user-001' },
+      data: { preferred_company_id: null },
+    })
+  })
+
+  it('retorna preferredCompanyId=null sempre quando role=SUPPLIER (fornecedor vê a tela)', async () => {
+    mockAuthRole = 'SUPPLIER'
+    mockUserFindUnique.mockResolvedValue({ preferred_company_id: 'comp-1' })
+
+    const app = buildApp()
+    const res = await request(app).get('/api/v1/hub/init')
+
+    expect(res.status).toBe(200)
+    expect(res.body.preferredCompanyId).toBeNull()
+    // Sequer consulta prisma.user quando é SUPPLIER (otimização)
+    expect(mockUserFindUnique).not.toHaveBeenCalled()
+  })
+
+  it('ignora companies com status INACTIVE ao validar preferido', async () => {
+    mockGetCompanies.mockResolvedValue([
+      { ...COMPANIES[0], status: 'INACTIVE' },
+      COMPANIES[1],
+    ])
+    mockUserFindUnique.mockResolvedValue({ preferred_company_id: 'comp-1' })
+
+    const app = buildApp()
+    const res = await request(app).get('/api/v1/hub/init')
+
+    expect(res.body.preferredCompanyId).toBeNull()
   })
 })

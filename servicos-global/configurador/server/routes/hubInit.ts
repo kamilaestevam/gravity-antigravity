@@ -35,9 +35,11 @@ hubRouter.get('/catalog', async (_req, res, next) => {
 hubRouter.get('/init', requireAuth, async (req, res, next) => {
   try {
     const tenantId = req.auth.tenantId
+    const userId = req.auth.userId
+    const role = req.auth.role
 
     // Tudo em paralelo — 1 único requireAuth
-    const [tenant, companies, configs, mergedCatalog] = await Promise.all([
+    const [tenant, companies, configs, mergedCatalog, userPref] = await Promise.all([
       tenantService.getTenantById(tenantId),
       tenantService.getCompanies(tenantId),
       prisma.productConfig.findMany({
@@ -48,6 +50,13 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         select: { id: true, name: true, slug: true, description: true, status: true },
         orderBy: { created_at: 'desc' },
       }).catch(() => []),
+      // Fornecedor nunca tem preferido — evita round-trip desnecessário
+      role === 'SUPPLIER'
+        ? Promise.resolve(null)
+        : prisma.user.findUnique({
+            where: { id: userId },
+            select: { preferred_company_id: true },
+          }).catch(() => null),
     ])
 
     // Enriquece produtos contratados com dados do catálogo
@@ -61,11 +70,36 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       catalog: catalogMap.get(c.product_key) ?? null,
     }))
 
+    // Workspace preferido — valida que ainda aponta para company ATIVA
+    // onde o usuário tem membership ativa. Se inválido, retorna null
+    // (frontend mostra tela de seleção normalmente).
+    let preferredCompanyId: string | null = null
+    if (userPref?.preferred_company_id) {
+      const stillValid = companies.some(
+        (c: { id: string; status?: string }) =>
+          c.id === userPref.preferred_company_id && c.status !== 'INACTIVE',
+      )
+      if (stillValid) {
+        preferredCompanyId = userPref.preferred_company_id
+      } else {
+        // Fallback silencioso: limpa no banco (fire-and-forget, não bloqueia resposta)
+        prisma.user
+          .update({
+            where: { id: userId },
+            data: { preferred_company_id: null },
+          })
+          .catch(() => {
+            // Ignora — próxima chamada tentará de novo
+          })
+      }
+    }
+
     res.json({
       tenant,
       companies,
       products,
       catalog: mergedCatalog,
+      preferredCompanyId,
     })
   } catch (err) {
     next(err)

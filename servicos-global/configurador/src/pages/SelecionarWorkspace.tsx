@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useClerk, useUser, useAuth } from '@clerk/clerk-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   House,
   SquaresFour,
@@ -190,7 +190,8 @@ export function SelecionarWorkspace() {
   const { user } = useUser()
   const { getToken } = useAuth()
   const navigate = useNavigate()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
+  const [searchParams] = useSearchParams()
   const isLight = currentTheme === 'light'
 
   useEffect(() => {
@@ -224,12 +225,11 @@ export function SelecionarWorkspace() {
   const [produtosContratados, setProdutosContratados] = useState<ProdutoContratado[]>([])
   const [catalogoProdutos, setCatalogoProdutos] = useState<ProdutoCatalogo[]>([])
   const [wsSearch, setWsSearch] = useState('')
-  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(() => {
-    try {
-      const stored = localStorage.getItem('gravity_ws_favorites')
-      return new Set(stored ? JSON.parse(stored) : [])
-    } catch { return new Set() }
-  })
+  // Workspace preferido unificado: 1 único workspace por usuário, persistido no backend.
+  // Dispara skip pós-login (redireciona direto para /core no próximo acesso).
+  // Fornecedor (SUPPLIER) nunca recebe valor aqui — backend força null.
+  const [preferredId, setPreferredId] = useState<string | null>(null)
+  const [preferredSaving, setPreferredSaving] = useState(false)
   const wsCarouselRef = useRef<HTMLDivElement>(null)
   const prodCarouselRef = useRef<HTMLDivElement>(null)
   const gabiCarouselRef = useRef<HTMLDivElement>(null)
@@ -290,28 +290,60 @@ export function SelecionarWorkspace() {
     includeAdmin: isGravityAdmin,
   })
 
-  // Workspaces filtrados por busca e ordenados: favoritos primeiro
+  // Workspaces filtrados por busca e ordenados: preferido primeiro
   const wsFiltrados = useMemo(() => {
     const term = wsSearch.trim().toLowerCase()
     const filtered = term
       ? workspaces.filter(ws => ws.nome.toLowerCase().includes(term))
       : workspaces
     return [...filtered].sort((a, b) => {
-      const aFav = favoriteIds.has(a.id) ? 0 : 1
-      const bFav = favoriteIds.has(b.id) ? 0 : 1
-      return aFav - bFav
+      const aPref = a.id === preferredId ? 0 : 1
+      const bPref = b.id === preferredId ? 0 : 1
+      return aPref - bPref
     })
-  }, [workspaces, wsSearch, favoriteIds])
+  }, [workspaces, wsSearch, preferredId])
 
-  function toggleFavorite(e: React.MouseEvent, wsId: string) {
+  /**
+   * Toggle do workspace preferido (substitui favoritos múltiplos).
+   * Único por usuário — marcar B quando A era preferido desmarca A automaticamente.
+   * Clicar no preferido atual desmarca (volta para null).
+   * Persiste no backend via PUT /api/v1/me/preferences.
+   */
+  const togglePreferred = useCallback(async (e: React.MouseEvent, wsId: string) => {
     e.stopPropagation()
-    setFavoriteIds(prev => {
-      const next = new Set(prev)
-      if (next.has(wsId)) { next.delete(wsId) } else { next.add(wsId) }
-      try { localStorage.setItem('gravity_ws_favorites', JSON.stringify([...next])) } catch {}
-      return next
-    })
-  }
+    if (preferredSaving) return
+    const next = preferredId === wsId ? null : wsId
+    const prev = preferredId
+    // Otimista: atualiza UI imediatamente
+    setPreferredId(next)
+    setPreferredSaving(true)
+    try {
+      const token = await getToken()
+      if (!token) throw new Error('no_token')
+      const res = await fetch('/api/v1/me/preferences', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ preferredCompanyId: next }),
+      })
+      if (!res.ok) throw new Error(`status_${res.status}`)
+      addNotification({
+        type: 'success',
+        message: next ? 'Workspace principal definido' : 'Workspace principal removido',
+      })
+    } catch {
+      // Rollback em falha
+      setPreferredId(prev)
+      addNotification({
+        type: 'error',
+        message: 'Não foi possível salvar o workspace principal',
+      })
+    } finally {
+      setPreferredSaving(false)
+    }
+  }, [preferredId, preferredSaving, getToken])
 
   // Produtos contratados ativos
   const contratadosAtivos = produtosContratados.filter(p => p.is_active)
@@ -407,6 +439,12 @@ export function SelecionarWorkspace() {
         // ── Workspaces ──
         const tenantUserCount = data.tenant?._count?.users ?? 0
 
+        // ── Workspace preferido (vem do /hub/init) ──
+        // Backend já validou que aponta para company ativa com membership.
+        // Fornecedor sempre recebe null (enforced no backend).
+        const serverPreferredId: string | null = data.preferredCompanyId ?? null
+        setPreferredId(serverPreferredId)
+
         if (data.companies && data.companies.length > 0) {
           const mapeados: Workspace[] = (data.companies as CompanyApi[]).map((c, i) => {
             const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
@@ -423,7 +461,60 @@ export function SelecionarWorkspace() {
             }
           })
           setWorkspaces(mapeados)
-          setSelectedId(mapeados[0].id)
+          setSelectedId(serverPreferredId ?? mapeados[0].id)
+
+          // ── Skip pós-login: redirect automático ──
+          // Requisitos para o skip disparar:
+          //   1. Query param ?select=1 ausente (escape hatch não acionado)
+          //   2. preferredId válido vindo do backend
+          //   3. Tenant tem pelo menos 1 produto ativo (senão abriria modalSemProdutos)
+          //   4. Role não é SUPPLIER (backend já garantiu, mas double-check no client)
+          const forceSelect = searchParams.get('select') === '1'
+          if (
+            !forceSelect &&
+            serverPreferredId &&
+            totalAtivos > 0 &&
+            userRole !== 'Fornecedor'
+          ) {
+            const targetWs = mapeados.find(w => w.id === serverPreferredId)
+            if (targetWs) {
+              sessionStorage.setItem('gravity_company_id', targetWs.id)
+              sessionStorage.setItem('gravity_company_name', targetWs.nome)
+              navigate('/core', { replace: true })
+              return
+            }
+          }
+
+          // ── Migration suave: localStorage antigo (favoritos múltiplos) → backend ──
+          // Se não há preferido no backend mas há favoritos salvos localmente,
+          // pega o primeiro que ainda existe como company e promove para preferido.
+          if (!serverPreferredId && userRole !== 'Fornecedor') {
+            try {
+              const legacy = localStorage.getItem('gravity_ws_favorites')
+              if (legacy) {
+                const ids: string[] = JSON.parse(legacy)
+                const firstValid = ids.find(id => mapeados.some(m => m.id === id))
+                if (firstValid) {
+                  // Fire-and-forget: promove no backend
+                  const token2 = await getToken()
+                  if (token2) {
+                    fetch('/api/v1/me/preferences', {
+                      method: 'PUT',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token2}`,
+                      },
+                      body: JSON.stringify({ preferredCompanyId: firstValid }),
+                    }).catch(() => {})
+                  }
+                  if (!cancelled) setPreferredId(firstValid)
+                }
+                localStorage.removeItem('gravity_ws_favorites')
+              }
+            } catch {
+              // Migration best-effort — ignora falha
+            }
+          }
         } else {
           setWorkspaces(MOCK_WORKSPACES_RAW.map((c, i) => {
             const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
@@ -450,6 +541,7 @@ export function SelecionarWorkspace() {
 
     carregarTudo()
     return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getToken, userRole])
 
   /* ── Menu lateral: navItems ── */
@@ -869,10 +961,12 @@ export function SelecionarWorkspace() {
                         <span>{t('sw.nenhum_ws_encontrado')}"<strong>{wsSearch}</strong>"</span>
                       </div>
                     )}
-                    {wsFiltrados.map(ws => (
+                    {wsFiltrados.map(ws => {
+                      const isPreferred = ws.id === preferredId
+                      return (
                       <div
                         key={ws.id}
-                        className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}${favoriteIds.has(ws.id) ? ' favorited' : ''}`}
+                        className={`sw-ws-card${ws.id === selectedId ? ' selected' : ''}${isPreferred ? ' favorited' : ''}`}
                         data-searchable="true"
                         onClick={() => handleSelectWs(ws.id)}
                         role="button"
@@ -888,16 +982,20 @@ export function SelecionarWorkspace() {
                           </div>
                           <div className="sw-ws-card-top-actions">
                             <TooltipGlobal
-                              titulo={favoriteIds.has(ws.id) ? 'Remover dos favoritos' : 'Favoritar workspace'}
-                              descricao={favoriteIds.has(ws.id) ? 'Clique para remover este workspace dos favoritos' : 'Marque como favorito para acessar rapidamente na próxima vez'}
+                              titulo={isPreferred ? 'Remover workspace principal' : 'Definir como workspace principal'}
+                              descricao={isPreferred
+                                ? 'Você não entrará mais direto neste workspace ao fazer login'
+                                : 'Ao fazer login, você entrará direto neste workspace, pulando esta tela'}
                             >
                               <button
-                                className={`sw-ws-fav-btn${favoriteIds.has(ws.id) ? ' active' : ''}`}
+                                className={`sw-ws-fav-btn${isPreferred ? ' active' : ''}`}
                                 type="button"
-                                onClick={e => toggleFavorite(e, ws.id)}
-                                aria-label={favoriteIds.has(ws.id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                                onClick={e => togglePreferred(e, ws.id)}
+                                disabled={preferredSaving}
+                                aria-pressed={isPreferred}
+                                aria-label={isPreferred ? 'Remover workspace principal' : 'Definir como workspace principal'}
                               >
-                                <Star size={14} weight={favoriteIds.has(ws.id) ? 'fill' : 'regular'} />
+                                <Star size={14} weight={isPreferred ? 'fill' : 'regular'} />
                               </button>
                             </TooltipGlobal>
                             <div className="sw-ws-check">
@@ -946,7 +1044,7 @@ export function SelecionarWorkspace() {
                           <ArrowRight size={14} />
                         </button>
                       </div>
-                    ))}
+                    )})}
 
                     {/* Criar novo workspace */}
                     <button className="sw-ws-add-card" type="button" onClick={handleCriarWorkspace}>

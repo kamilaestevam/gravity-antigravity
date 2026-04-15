@@ -43,10 +43,22 @@ export const updatePreferencesSchema = z.object({
 export type UpdatePreferencesInput = z.infer<typeof updatePreferencesSchema>
 
 /**
- * Valida se o preferred_company_id ainda é válido para o usuário:
- *   1. Company existe
- *   2. Company pertence ao mesmo tenant do usuário
- *   3. User tem membership ATIVA nessa company
+ * Valida se o preferred_company_id ainda é válido para o usuário.
+ *
+ * Duas rotas de validação, dependendo do role:
+ *
+ * 1. SUPER_ADMIN / ADMIN (admins Gravity — equipe interna):
+ *    Não precisam de UserMembership — eles supervisionam todos os workspaces
+ *    do próprio tenant sem habilitação formal. Basta que a company:
+ *      - Exista
+ *      - Pertença ao mesmo tenant do usuário (tenant isolation)
+ *      - Esteja com status ACTIVE
+ *
+ * 2. MASTER / STANDARD (clientes):
+ *    Precisam de UserMembership ATIVA na company — é como o Configurador
+ *    controla quem acessa o quê dentro de um tenant cliente.
+ *
+ * SUPPLIER nunca chega aqui — é bloqueado antes no PUT (403).
  *
  * Retorna true se válido, false caso contrário (frontend/GET usa para fallback).
  */
@@ -54,7 +66,22 @@ async function isPreferredCompanyValid(
   userId: string,
   tenantId: string,
   companyId: string,
+  role: string,
 ): Promise<boolean> {
+  // Admins Gravity: acesso via tenant, não via membership
+  if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
+    const company = await prisma.company.findFirst({
+      where: {
+        id: companyId,
+        tenant_id: tenantId,
+        status: 'ACTIVE',
+      },
+      select: { id: true },
+    })
+    return company !== null
+  }
+
+  // Clientes (MASTER/STANDARD): requer membership ativa
   const membership = await prisma.userMembership.findFirst({
     where: {
       user_id: userId,
@@ -102,6 +129,7 @@ meRouter.get('/preferences', async (req, res, next) => {
       req.auth.userId,
       req.auth.tenantId,
       user.preferred_company_id,
+      req.auth.role,
     )
 
     if (!valid) {
@@ -166,11 +194,13 @@ meRouter.put('/preferences', async (req, res, next) => {
       return
     }
 
-    // Caso 2: marcar — valida membership ativa (garante tenant isolation via where)
+    // Caso 2: marcar — valida acesso à company conforme o role
+    // (admin Gravity via tenant, cliente via membership — sempre com tenant isolation)
     const valid = await isPreferredCompanyValid(
       req.auth.userId,
       req.auth.tenantId,
       preferredCompanyId,
+      req.auth.role,
     )
 
     if (!valid) {

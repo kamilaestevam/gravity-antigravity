@@ -19,7 +19,8 @@ import { errorHandler } from '../../../servicos-global/configurador/server/middl
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
-let mockAuthRole: 'MASTER' | 'STANDARD' | 'SUPPLIER' = 'MASTER'
+type Role = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'STANDARD' | 'SUPPLIER'
+let mockAuthRole: Role = 'MASTER'
 vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
   requireAuth: (
     req: { auth: { tenantId: string; userId: string; clerkUserId: string; role: string } },
@@ -34,6 +35,7 @@ vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js'
 const mockUserFindUnique = vi.fn()
 const mockUserUpdate = vi.fn()
 const mockMembershipFindFirst = vi.fn()
+const mockCompanyFindFirst = vi.fn()
 vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: {
     user: {
@@ -42,6 +44,9 @@ vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
     },
     userMembership: {
       findFirst: (...args: unknown[]) => mockMembershipFindFirst(...args),
+    },
+    company: {
+      findFirst: (...args: unknown[]) => mockCompanyFindFirst(...args),
     },
   },
 }))
@@ -66,6 +71,7 @@ beforeEach(() => {
   mockUserFindUnique.mockResolvedValue({ preferred_company_id: null })
   mockUserUpdate.mockResolvedValue({})
   mockMembershipFindFirst.mockResolvedValue({ id: 'mem-1' })
+  mockCompanyFindFirst.mockResolvedValue({ id: 'comp-1' })
 })
 
 // ─── GET /api/v1/me/preferences ─────────────────────────────────────────────
@@ -216,6 +222,73 @@ describe('PUT /api/v1/me/preferences', () => {
           user_id: 'user-001',
           company_id: VALID_CUID,
           is_active: true,
+        }),
+      })
+    )
+  })
+
+  // ─── Admin Gravity (SUPER_ADMIN / ADMIN) ──────────────────────────────────
+  // Admins Gravity não têm UserMembership — acesso é via tenant.
+
+  it('SUPER_ADMIN salva preferido sem precisar de UserMembership', async () => {
+    mockAuthRole = 'SUPER_ADMIN'
+    mockMembershipFindFirst.mockResolvedValue(null) // não tem membership
+    mockCompanyFindFirst.mockResolvedValue({ id: 'comp-1' }) // mas a company existe no tenant
+
+    const app = buildApp()
+    const res = await request(app)
+      .put('/api/v1/me/preferences')
+      .send({ preferredCompanyId: VALID_CUID })
+
+    expect(res.status).toBe(200)
+    expect(res.body.data.preferredCompanyId).toBe(VALID_CUID)
+    expect(mockUserUpdate).toHaveBeenCalled()
+    // SUPER_ADMIN nunca deveria nem ser consultado no membership
+    expect(mockMembershipFindFirst).not.toHaveBeenCalled()
+  })
+
+  it('ADMIN salva preferido sem precisar de UserMembership', async () => {
+    mockAuthRole = 'ADMIN'
+    mockMembershipFindFirst.mockResolvedValue(null)
+    mockCompanyFindFirst.mockResolvedValue({ id: 'comp-1' })
+
+    const app = buildApp()
+    const res = await request(app)
+      .put('/api/v1/me/preferences')
+      .send({ preferredCompanyId: VALID_CUID })
+
+    expect(res.status).toBe(200)
+    expect(mockMembershipFindFirst).not.toHaveBeenCalled()
+  })
+
+  it('SUPER_ADMIN recebe 403 se company não existe no tenant (tenant isolation)', async () => {
+    mockAuthRole = 'SUPER_ADMIN'
+    mockCompanyFindFirst.mockResolvedValue(null) // company não está no tenant do admin
+
+    const app = buildApp()
+    const res = await request(app)
+      .put('/api/v1/me/preferences')
+      .send({ preferredCompanyId: VALID_CUID })
+
+    expect(res.status).toBe(403)
+    expect(res.body.error.code).toBe('FORBIDDEN')
+    expect(mockUserUpdate).not.toHaveBeenCalled()
+  })
+
+  it('SUPER_ADMIN: validação de company filtra por tenant_id + status ACTIVE', async () => {
+    mockAuthRole = 'SUPER_ADMIN'
+
+    const app = buildApp()
+    await request(app)
+      .put('/api/v1/me/preferences')
+      .send({ preferredCompanyId: VALID_CUID })
+
+    expect(mockCompanyFindFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          id: VALID_CUID,
+          tenant_id: 'tenant-001',
+          status: 'ACTIVE',
         }),
       })
     )

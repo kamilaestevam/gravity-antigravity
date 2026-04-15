@@ -100,6 +100,10 @@ export function AdminFinanceiro() {
   const [carregando, setCarregando] = useState(true)
   const [provider, setProvider] = useState<string>('—')
 
+  // Filtros — enviados ao backend, não aplicados client-side
+  const [filtroStatus, setFiltroStatus] = useState<GravityInvoiceStatus | 'TODOS'>('TODOS')
+  const [filtroTenantId, setFiltroTenantId] = useState<string>('TODOS')
+
   // Paginação cursor-based (Stripe)
   const [cursorStack, setCursorStack] = useState<string[]>([])
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -111,7 +115,12 @@ export function AdminFinanceiro() {
     setCarregando(true)
     try {
       const [invResp, tenantResp] = await Promise.all([
-        adminBillingApi.listInvoices({ cursor, limit: LIMIT }),
+        adminBillingApi.listInvoices({
+          cursor,
+          limit: LIMIT,
+          status: filtroStatus !== 'TODOS' ? filtroStatus : undefined,
+          customer_id: filtroTenantId !== 'TODOS' ? filtroTenantId : undefined,
+        }),
         adminTenantsApi.list({ limit: 200 }),
       ])
       setInvoices(invResp.invoices)
@@ -124,9 +133,11 @@ export function AdminFinanceiro() {
     } finally {
       setCarregando(false)
     }
-  }, [getToken, addNotification, t])
+  }, [getToken, addNotification, t, filtroStatus, filtroTenantId])
 
   useEffect(() => {
+    // Quando filtros mudam, reseta paginação e recarrega da primeira página
+    setCursorStack([])
     carregarDados()
   }, [carregarDados])
 
@@ -187,6 +198,7 @@ export function AdminFinanceiro() {
   const [salvando, setSalvando] = useState(false)
 
   const [invoiceParaAnular, setInvoiceParaAnular] = useState<GravityInvoiceApi | null>(null)
+  const [invoiceParaEnviar, setInvoiceParaEnviar] = useState<GravityInvoiceApi | null>(null)
 
   const resetForm = () => {
     setFormDirty(false)
@@ -284,7 +296,10 @@ export function AdminFinanceiro() {
     }
   }
 
-  const handleEnviar = async (inv: GravityInvoiceApi) => {
+  const confirmarEnvio = async () => {
+    if (!invoiceParaEnviar) return
+    const inv = invoiceParaEnviar
+    setInvoiceParaEnviar(null)
     try {
       await adminBillingApi.sendInvoice(inv.id)
       addNotification({
@@ -454,7 +469,7 @@ export function AdminFinanceiro() {
       id: 'send',
       icone: <PaperPlaneTilt size={15} weight="bold" />,
       tooltip: 'Enviar ao cliente',
-      onClick: (item) => handleEnviar(item),
+      onClick: (item) => setInvoiceParaEnviar(item),
     },
     {
       id: 'void',
@@ -545,6 +560,56 @@ export function AdminFinanceiro() {
               </span>
             )}
           </p>
+        </div>
+
+        {/* Barra de filtros — status + cliente. Filtros são enviados ao backend
+            (não aplicados client-side sobre a página atual) para que a paginação
+            cursor-based reflita o conjunto filtrado. */}
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ minWidth: 220 }}>
+            <SelectGlobal
+              opcoes={[
+                { valor: 'TODOS', rotulo: 'Todos os status' },
+                { valor: 'DRAFT', rotulo: 'Rascunho' },
+                { valor: 'OPEN', rotulo: 'Em aberto' },
+                { valor: 'PAID', rotulo: 'Pago' },
+                { valor: 'OVERDUE', rotulo: 'Vencida' },
+                { valor: 'VOID', rotulo: 'Anulada' },
+                { valor: 'UNCOLLECTIBLE', rotulo: 'Incobrável' },
+              ]}
+              valor={filtroStatus}
+              aoMudarValor={(v) => setFiltroStatus((v as GravityInvoiceStatus | 'TODOS') ?? 'TODOS')}
+              placeholder="Filtrar por status"
+              aria-label="Filtrar faturas por status"
+            />
+          </div>
+          <div style={{ minWidth: 300, flex: 1 }}>
+            <SelectGlobal
+              opcoes={[
+                { valor: 'TODOS', rotulo: 'Todos os clientes' },
+                ...tenants.map(tn => ({ valor: tn.id, rotulo: `${tn.name} (${tn.slug})` })),
+              ]}
+              valor={filtroTenantId}
+              aoMudarValor={(v) => setFiltroTenantId(v ? String(v) : 'TODOS')}
+              placeholder="Filtrar por cliente"
+              buscavel
+              aria-label="Filtrar faturas por cliente"
+            />
+          </div>
+          {(filtroStatus !== 'TODOS' || filtroTenantId !== 'TODOS') && (
+            <button
+              type="button"
+              onClick={() => { setFiltroStatus('TODOS'); setFiltroTenantId('TODOS') }}
+              aria-label="Limpar filtros"
+              style={{
+                padding: '0.5rem 1rem', borderRadius: 6,
+                border: '1px solid rgba(255,255,255,0.1)', background: 'transparent',
+                color: 'var(--ws-muted)', cursor: 'pointer', fontSize: '0.8125rem',
+              }}
+            >
+              Limpar filtros
+            </button>
+          )}
         </div>
 
         <div style={{ position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
@@ -742,6 +807,23 @@ export function AdminFinanceiro() {
           nomeItem={`${invoiceParaAnular?.number ?? invoiceParaAnular?.id} — ${invoiceParaAnular?.customer.name}`}
           aoConfirmar={handleAnular}
           aoCancelar={() => setInvoiceParaAnular(null)}
+        />
+
+        <ModalExclusao
+          aberto={!!invoiceParaEnviar}
+          titulo="Enviar Fatura ao Cliente"
+          descricao={
+            <>
+              Você está prestes a enviar a fatura{' '}
+              <strong>{invoiceParaEnviar?.number ?? invoiceParaEnviar?.id}</strong> para{' '}
+              <strong>{invoiceParaEnviar?.customer.email ?? invoiceParaEnviar?.customer.name}</strong>.
+              <br /><br />
+              O cliente receberá um e-mail de cobrança imediatamente. Confirme se o destinatário e o valor estão corretos antes de prosseguir.
+            </>
+          }
+          nomeItem={`${invoiceParaEnviar?.number ?? invoiceParaEnviar?.id} — ${invoiceParaEnviar?.customer.email ?? invoiceParaEnviar?.customer.name ?? ''}`}
+          aoConfirmar={confirmarEnvio}
+          aoCancelar={() => setInvoiceParaEnviar(null)}
         />
       </PaginaGlobal>
     </>

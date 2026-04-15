@@ -13,9 +13,42 @@ import { requireInternalKey } from '../middleware/requireInternalKey'
 
 const router = Router()
 
-// ─── In-Memory Store (substituir por Prisma/Redis em producao) ───────────
+// ─── In-Memory Store (TODO: migrar para Prisma ObservabilityEvent) ───────
+//
+// Status atual: store em memória, perdido em restart, MAX 10k registros.
+// Dev/staging usam isto; produção precisa da migração.
+//
+// Roadmap da migração (requer Coordenador):
+//   1. Adicionar `ObservabilityEvent` model ao fragment.prisma do api-cockpit
+//      (não reusar LogConsumo — tem `token_id` required que não se aplica aqui)
+//      Campos: tenant_id, product_id, user_id?, endpoint, method,
+//              status_code, latency_ms, correlation_id?, timestamp, created_at
+//      Índices: [tenant_id, timestamp DESC], [tenant_id, product_id, timestamp],
+//               [tenant_id, status_code, timestamp]
+//   2. Compose-tenant-schema.ts merge + prisma migrate dev
+//   3. Reescrever POST /ingest → prisma.observabilityEvent.createMany
+//   4. Reescrever GET /logs → prisma.observabilityEvent.findMany com filtros
+//   5. Reescrever GET /stats → count + groupBy
+//   6. Particionar por mês (similar ao HistoryLog) para compliance LGPD 5+ anos
 
 interface ObservabilityEntry {
+  tenant_id: string
+  product_id: string
+  user_id: string | null
+  endpoint: string
+  method: string
+  status_code: number
+  latency_ms: number
+  correlation_id: string | null
+  timestamp: string
+  // Pré-computados no ingest pra evitar split('T') repetido no GET /logs
+  _ts_ms: number
+  _data: string
+  _hora: string
+}
+
+/** Dado cru vindo do cliente (antes do pré-processamento). */
+interface ObservabilityInput {
   tenant_id: string
   product_id: string
   user_id: string | null
@@ -36,9 +69,11 @@ interface ServiceHealth {
   type: 'core' | 'product' | 'gateway'
 }
 
-// Store em memoria — em producao usar Prisma (tabela LogConsumo) ou Redis TimeSeries
+// Store em memoria — em producao usar Prisma (ObservabilityEvent) ou Redis TimeSeries
 const observabilityStore: ObservabilityEntry[] = []
 const MAX_STORE_SIZE = 10_000
+const OVERFLOW_WARNING_THRESHOLD = Math.floor(MAX_STORE_SIZE * 0.9) // 90%
+let overflowWarningEmitted = false
 
 // Servicos conhecidos para health check
 const KNOWN_SERVICES: Array<{ name: string; port: number; type: 'core' | 'product' | 'gateway' }> = [
@@ -85,6 +120,19 @@ const LogsQuerySchema = z.object({
 
 // ─── POST /ingest — Receber batch de metricas ───────────────────────────
 
+/** Pré-computa campos derivados para evitar string.split() repetido em GET /logs. */
+function enrichEntry(input: ObservabilityInput): ObservabilityEntry {
+  const tIdx = input.timestamp.indexOf('T')
+  const data = tIdx >= 0 ? input.timestamp.slice(0, tIdx) : input.timestamp
+  const hora = tIdx >= 0 ? input.timestamp.slice(tIdx + 1, tIdx + 9) : ''
+  return {
+    ...input,
+    _ts_ms: Date.parse(input.timestamp),
+    _data: data,
+    _hora: hora,
+  }
+}
+
 router.post('/ingest', requireInternalKey, (req: Request, res: Response, next: NextFunction) => {
   try {
     const parsed = IngestSchema.safeParse(req.body)
@@ -92,10 +140,23 @@ router.post('/ingest', requireInternalKey, (req: Request, res: Response, next: N
       return res.status(400).json({ error: 'Payload invalido', issues: parsed.error.issues })
     }
 
-    // Adicionar ao store (FIFO — remove os mais antigos se exceder limite)
-    observabilityStore.push(...parsed.data.entries)
-    while (observabilityStore.length > MAX_STORE_SIZE) {
-      observabilityStore.shift()
+    // Enriquece no ingest (1x por entry) em vez de no GET (N leituras depois)
+    const enriched = parsed.data.entries.map(enrichEntry)
+    observabilityStore.push(...enriched)
+
+    // FIFO: remove os mais antigos se exceder limite.
+    // Usa splice em vez de shift() em loop — O(1) vs O(n) por iteração.
+    if (observabilityStore.length > MAX_STORE_SIZE) {
+      observabilityStore.splice(0, observabilityStore.length - MAX_STORE_SIZE)
+    }
+
+    // Warning uma vez quando store se aproxima do limite — sinal pra migrar para Prisma
+    if (observabilityStore.length >= OVERFLOW_WARNING_THRESHOLD && !overflowWarningEmitted) {
+      overflowWarningEmitted = true
+      console.warn(
+        `[observability] Store em memória atingiu ${observabilityStore.length}/${MAX_STORE_SIZE} ` +
+        `registros. Dados antigos começam a ser descartados. Migrar para Prisma ObservabilityEvent.`
+      )
     }
 
     res.json({ ingested: parsed.data.entries.length, total: observabilityStore.length })
@@ -162,31 +223,26 @@ router.get('/logs', (req: Request, res: Response, next: NextFunction) => {
   try {
     const filtros = LogsQuerySchema.parse(req.query)
 
-    let filtered = [...observabilityStore]
+    // Filtro único — O(n) em vez de O(n×4) com 4 filters sequenciais
+    const { tenant_id, product_id, status_min, status_max } = filtros
+    const filtered = observabilityStore.filter((e) => {
+      if (tenant_id && e.tenant_id !== tenant_id) return false
+      if (product_id && e.product_id !== product_id) return false
+      if (status_min !== undefined && e.status_code < status_min) return false
+      if (status_max !== undefined && e.status_code > status_max) return false
+      return true
+    })
 
-    if (filtros.tenant_id) {
-      filtered = filtered.filter(e => e.tenant_id === filtros.tenant_id)
-    }
-    if (filtros.product_id) {
-      filtered = filtered.filter(e => e.product_id === filtros.product_id)
-    }
-    if (filtros.status_min) {
-      filtered = filtered.filter(e => e.status_code >= filtros.status_min!)
-    }
-    if (filtros.status_max) {
-      filtered = filtered.filter(e => e.status_code <= filtros.status_max!)
-    }
-
-    // Ordenar por timestamp desc (mais recente primeiro)
-    filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    // Ordena por timestamp desc usando _ts_ms pré-computado (sem parse a cada compare)
+    filtered.sort((a, b) => b._ts_ms - a._ts_ms)
 
     const total = filtered.length
     const skip = (filtros.page - 1) * filtros.limit
-    const logs = filtered.slice(skip, skip + filtros.limit).map(e => ({
+    const logs = filtered.slice(skip, skip + filtros.limit).map((e) => ({
       id: `${e.timestamp}-${e.endpoint}-${e.method}`,
       timestamp: e.timestamp,
-      data: e.timestamp.split('T')[0],
-      hora: e.timestamp.split('T')[1]?.slice(0, 8) || '',
+      data: e._data, // pré-computado no ingest
+      hora: e._hora, // pré-computado no ingest
       method: e.method,
       path: e.endpoint,
       endpoint: e.endpoint,
@@ -209,38 +265,29 @@ router.get('/logs', (req: Request, res: Response, next: NextFunction) => {
 
 // ─── GET /stats — KPIs agregados ────────────────────────────────────────
 
-router.get('/stats', (req: Request, res: Response, next: NextFunction) => {
+router.get('/stats', (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const agora = Date.now()
-    const h24 = agora - 24 * 60 * 60 * 1000
+    const h24 = Date.now() - 24 * 60 * 60 * 1000
 
-    const ultimas24h = observabilityStore.filter(e => new Date(e.timestamp).getTime() >= h24)
-
-    const totalRequests = ultimas24h.length
-    const erros = ultimas24h.filter(e => e.status_code >= 500).length
-    const latencias = ultimas24h.map(e => e.latency_ms)
-    const latenciaMedia = latencias.length > 0
-      ? Math.round(latencias.reduce((a, b) => a + b, 0) / latencias.length)
-      : 0
-
-    // Requests por produto
+    // Single pass — filter, count, sum, groupBy em 1 loop só (era 4 iterações antes)
+    let totalRequests = 0
+    let erros = 0
+    let latencySum = 0
     const porProduto: Record<string, number> = {}
-    for (const e of ultimas24h) {
-      porProduto[e.product_id] = (porProduto[e.product_id] || 0) + 1
-    }
-
-    // Requests por status code group
     const porStatus: Record<string, number> = { '2xx': 0, '3xx': 0, '4xx': 0, '5xx': 0 }
-    for (const e of ultimas24h) {
+
+    for (const e of observabilityStore) {
+      if (e._ts_ms < h24) continue
+      totalRequests++
+      latencySum += e.latency_ms
+      if (e.status_code >= 500) erros++
+      porProduto[e.product_id] = (porProduto[e.product_id] || 0) + 1
       const grupo = `${Math.floor(e.status_code / 100)}xx`
-      if (grupo in porStatus) {
-        porStatus[grupo]++
-      }
+      if (grupo in porStatus) porStatus[grupo]++
     }
 
-    const uptime = totalRequests > 0
-      ? ((1 - erros / totalRequests) * 100).toFixed(1)
-      : '100.0'
+    const latenciaMedia = totalRequests > 0 ? Math.round(latencySum / totalRequests) : 0
+    const uptime = totalRequests > 0 ? ((1 - erros / totalRequests) * 100).toFixed(1) : '100.0'
 
     res.json({
       requisicoes_24h: totalRequests,

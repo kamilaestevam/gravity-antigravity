@@ -67,8 +67,17 @@
       }
     },
     "notificacoes": {
-      "baseUrl": "http://localhost:3001",
-      "pathPrefix": "/api/v1/notificacoes"
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/tenant/notificacoes",
+      "middleware": ["rateLimitPresets.internal", "requireAuth"],
+      "note": "Montado pelo configurador (porta 8005) com auth Clerk. checkAuth interno valida x-tenant-id/x-user-id passados pelo Shell.",
+      "endpoints": {
+        "GET /": "Lista notificações do usuário (tabela pode não existir ainda — retorna array vazio gracefully)",
+        "PUT /:id/read": "Marcar notificação como lida",
+        "PUT /read-all": "Marcar todas como lidas",
+        "DELETE /:id": "Remover notificação",
+        "GET /stream": "Server-Sent Events para push em tempo real"
+      }
     },
     "agendamento": {
       "baseUrl": "http://localhost:3001",
@@ -84,7 +93,28 @@
     },
     "api-cockpit": {
       "baseUrl": "http://localhost:8016",
-      "pathPrefix": "/api/v1/api-cockpit"
+      "pathPrefix": "/api/v1/cockpit/observability",
+      "note": "Serviço de observabilidade. Frontend nunca chama direto — sempre via proxy do configurador (apiCockpit.ts). Autenticado via x-internal-key entre serviços.",
+      "proxyViaConfigurador": {
+        "workspace": {
+          "pathPrefix": "/api/cockpit",
+          "middleware": ["rateLimitPresets.internal", "requireAuth"]
+        },
+        "admin": {
+          "pathPrefix": "/api/admin/cockpit",
+          "middleware": ["rateLimitPresets.admin", "requireAuth", "requireGravityAdmin"]
+        }
+      },
+      "endpoints": {
+        "POST /ingest": "Recebe batch de métricas dos produtos (até 500 entries). Exige x-internal-key.",
+        "GET /services": "Health check dos 14 serviços conhecidos. Sem filtros.",
+        "GET /logs": "Lista logs de requisições. Filtros: tenant_id, product_id, status_min, status_max. Paginado (limit max: 100).",
+        "GET /stats": "KPIs agregados das últimas 24h: total de requisições, erros 5xx, latência média, uptime, breakdown por produto/status."
+      },
+      "backend": {
+        "persistence": "in-memory store (MAX 10k registros) — TODO: migrar para Prisma ObservabilityEvent via Coordenador",
+        "overflowBehavior": "FIFO — descarta entries mais antigas; warning no console a 90% do limite"
+      }
     },
     "conector-erp": {
       "baseUrl": "http://localhost:8017",

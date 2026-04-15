@@ -124,7 +124,11 @@ import { historicoRouter } from '../../tenant/historico-global/server/routes.js'
 app.use('/api/tenant/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
 
 import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/server/routes/api.js'
-app.use('/api/tenant/notificacoes', notificacoesRouter)
+// Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
+// próprio `checkAuth` que valida x-tenant-id/x-user-id (passados pelo Shell),
+// mas sem requireAuth as rotas ficam públicas — qualquer caller anônimo
+// podia spammar o endpoint e receber 401 ruidoso que aparecia como 500 na UI.
+app.use('/api/tenant/notificacoes', rateLimitPresets.internal(), requireAuth, notificacoesRouter)
 
 import { apiRoutes as preferenciasRouter } from '../../tenant/preferencias-usuario/server/routes/api.js'
 app.use('/api/tenant/preferencias', preferenciasRouter)

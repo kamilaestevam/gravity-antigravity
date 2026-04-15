@@ -18,16 +18,29 @@
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
+import { rateLimitPresets } from '../middleware/rateLimiter.js'
 
 const API_COCKPIT_URL = process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016'
 const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || ''
+const IS_DEV = process.env.NODE_ENV !== 'production'
 
 export const apiCockpitRouter = Router()
 export const apiCockpitAdminRouter = Router()
 
+/**
+ * Tipo genérico da resposta do api-cockpit proxy.
+ * Em produção, err.message é mascarada para evitar vazar URLs internas,
+ * timeouts ou stack traces. Em dev, o err.message real é mantido para
+ * debugging.
+ */
+function maskError(err: unknown): string {
+  if (IS_DEV && err instanceof Error) return err.message
+  return 'Serviço de observabilidade temporariamente indisponível'
+}
+
 // ─── Helper: proxy para api-cockpit ─────────────────────────────────────
 
-async function proxyToCockpit(path: string, query?: Record<string, string>): Promise<any> {
+async function proxyToCockpit(path: string, query?: Record<string, string>): Promise<unknown> {
   const url = new URL(`${API_COCKPIT_URL}/api/v1/cockpit/observability${path}`)
   if (query) {
     for (const [key, value] of Object.entries(query)) {
@@ -52,73 +65,73 @@ async function proxyToCockpit(path: string, query?: Record<string, string>): Pro
 
 // ─── Workspace Routes (tenant-scoped) ───────────────────────────────────
 
-apiCockpitRouter.use(requireAuth)
+apiCockpitRouter.use(rateLimitPresets.internal(), requireAuth)
 
-apiCockpitRouter.get('/services', async (req, res, next) => {
+apiCockpitRouter.get('/services', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/services')
     res.json(data)
-  } catch (err: any) {
-    res.json({ services: [], error: err.message })
+  } catch (err) {
+    res.json({ services: [], error: maskError(err) })
   }
 })
 
-apiCockpitRouter.get('/logs', async (req, res, next) => {
+apiCockpitRouter.get('/logs', async (req, res) => {
   try {
-    const tenantId = (req as any).auth?.orgId || req.headers['x-tenant-id'] as string || ''
+    const tenantId = req.auth?.tenantId || (req.headers['x-tenant-id'] as string) || ''
     const data = await proxyToCockpit('/logs', {
       tenant_id: tenantId,
-      product_id: req.query.product_id as string || '',
-      page: req.query.page as string || '1',
-      limit: req.query.limit as string || '50',
+      product_id: (req.query.product_id as string) || '',
+      page: (req.query.page as string) || '1',
+      limit: (req.query.limit as string) || '50',
     })
     res.json(data)
-  } catch (err: any) {
-    res.json({ logs: [], pagination: { page: 1, limit: 50, total: 0, pages: 0 }, error: err.message })
+  } catch (err) {
+    res.json({ logs: [], pagination: { page: 1, limit: 50, total: 0, pages: 0 }, error: maskError(err) })
   }
 })
 
-apiCockpitRouter.get('/stats', async (req, res, next) => {
+apiCockpitRouter.get('/stats', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/stats')
     res.json(data)
-  } catch (err: any) {
+  } catch {
     res.json({ requisicoes_24h: 0, erros_24h: 0, latencia_media_ms: 0, uptime_24h: '100.0%' })
   }
 })
 
 // ─── Admin Routes (gravity_admin — todos os tenants) ────────────────────
 
-apiCockpitAdminRouter.use(requireAuth, requireGravityAdmin)
+apiCockpitAdminRouter.use(rateLimitPresets.admin(), requireAuth, requireGravityAdmin)
 
-apiCockpitAdminRouter.get('/services', async (req, res, next) => {
+apiCockpitAdminRouter.get('/services', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/services')
     res.json(data)
-  } catch (err: any) {
-    res.json({ services: [], error: err.message })
+  } catch (err) {
+    res.json({ services: [], error: maskError(err) })
   }
 })
 
-apiCockpitAdminRouter.get('/logs', async (req, res, next) => {
+apiCockpitAdminRouter.get('/logs', async (req, res) => {
   try {
     const data = await proxyToCockpit('/logs', {
-      tenant_id: req.query.tenant_id as string || '',
-      product_id: req.query.product_id as string || '',
-      page: req.query.page as string || '1',
-      limit: req.query.limit as string || '50',
+      tenant_id: (req.query.tenant_id as string) || '',
+      product_id: (req.query.product_id as string) || '',
+      page: (req.query.page as string) || '1',
+      limit: (req.query.limit as string) || '50',
     })
     res.json(data)
-  } catch (err: any) {
-    res.json({ logs: [], pagination: { page: 1, limit: 50, total: 0, pages: 0 }, error: err.message })
+  } catch (err) {
+    res.json({ logs: [], pagination: { page: 1, limit: 50, total: 0, pages: 0 }, error: maskError(err) })
   }
 })
 
-apiCockpitAdminRouter.get('/stats', async (req, res, next) => {
+apiCockpitAdminRouter.get('/stats', async (_req, res) => {
   try {
     const data = await proxyToCockpit('/stats')
     res.json(data)
-  } catch (err: any) {
+  } catch {
     res.json({ requisicoes_24h: 0, erros_24h: 0, latencia_media_ms: 0, uptime_24h: '100.0%' })
   }
 })

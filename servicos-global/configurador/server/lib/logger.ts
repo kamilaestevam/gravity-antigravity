@@ -27,12 +27,17 @@ function emit(level: Level, message: string, context: LogContext = {}): void {
     ...context,
   }
 
-  // JSON por linha — parseável por qualquer agregador
+  // JSON por linha — parseável por qualquer agregador.
+  // Usamos console.* (não process.stdout.write) para manter compatibilidade
+  // com capturadores de log (Railway, tsx watch, preview_logs) que interceptam
+  // console.* mas ignoram writes diretos ao stdout.
   const line = JSON.stringify(payload)
-  if (level === 'error' || level === 'warn') {
-    process.stderr.write(line + '\n')
+  if (level === 'error') {
+    console.error(line)
+  } else if (level === 'warn') {
+    console.warn(line)
   } else {
-    process.stdout.write(line + '\n')
+    console.log(line)
   }
 }
 

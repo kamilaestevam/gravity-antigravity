@@ -1,0 +1,899 @@
+{
+  "pai": {
+    "effective_matches": [
+      {
+        "key": "numero_pedido",
+        "value": "true"
+      },
+      {
+        "key": "tipo_operacao",
+        "value": "true"
+      },
+      {
+        "key": "nome_fabricante",
+        "value": "true"
+      },
+      {
+        "key": "referencia_importador",
+        "value": "true"
+      },
+      {
+        "key": "referencia_exportador",
+        "value": "true"
+      },
+      {
+        "key": "ncm",
+        "value": "true"
+      },
+      {
+        "key": "numero_proforma",
+        "value": "true"
+      },
+      {
+        "key": "numero_invoice",
+        "value": "true"
+      },
+      {
+        "key": "incoterm",
+        "value": "true"
+      },
+      {
+        "key": "data_emissao_pedido",
+        "value": "true"
+      },
+      {
+        "key": "referencia_fabricante",
+        "value": "true"
+      },
+      {
+        "key": "cobertura_cambial",
+        "value": "true"
+      },
+      {
+        "key": "condicao_pagamento_pedido",
+        "value": "true"
+      },
+      {
+        "key": "nome_exportador",
+        "inline": "FN:(row: Pedido) => row.tipo_operacao === 'importacao'",
+        "registry": "FN:(row) => row.tipo_operacao === 'importacao'",
+        "kind": "match-fn"
+      },
+      {
+        "key": "nome_importador",
+        "inline": "FN:(row: Pedido) => row.tipo_operacao === 'exportacao'",
+        "registry": "FN:(row) => row.tipo_operacao === 'exportacao'",
+        "kind": "match-fn"
+      },
+      {
+        "key": "valor_total_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "quantidade_total_inicial_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "quantidade_pronta_itens_pedido_total",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "saldo_itens_do_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "peso_liquido_total_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "peso_bruto_total_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "cubagem_total_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_prevista_pedido_pronto",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_confirmada_pedido_pronto",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_meta_pedido_pronto",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_prevista_inspecao_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_confirmada_inspecao_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_meta_inspecao_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_prevista_coleta_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_confirmada_coleta_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_meta_coleta_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_consolidacao_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "data_transferencia_saldo_pedido",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "pais_exportador",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "estado_exportador",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "cidade_exportador",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "endereco_exportador",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      },
+      {
+        "key": "zip_code_exportador",
+        "inline": "(omit)",
+        "registry": "false",
+        "kind": "match-omit"
+      }
+    ],
+    "real_mismatches": [
+      {
+        "key": "quantidade_transferida_total",
+        "inline": "true",
+        "registry": "false"
+      },
+      {
+        "key": "quantidade_cancelada_total_pedido",
+        "inline": "true",
+        "registry": "false"
+      },
+      {
+        "key": "status",
+        "inline": "true",
+        "registry": "false"
+      }
+    ],
+    "not_in_registry": [
+      {
+        "key": "exportador_ou_fabricante",
+        "inline": "(omit)"
+      },
+      {
+        "key": "relacao_exportador_fabricante",
+        "inline": "(omit)"
+      },
+      {
+        "key": "nome_contato_exportador",
+        "inline": "(omit)"
+      },
+      {
+        "key": "email_contato_exportador",
+        "inline": "(omit)"
+      },
+      {
+        "key": "whatsapp_contato_exportador",
+        "inline": "(omit)"
+      },
+      {
+        "key": "cargo_contato_exportador",
+        "inline": "(omit)"
+      },
+      {
+        "key": "departamento_contato_exportador",
+        "inline": "(omit)"
+      },
+      {
+        "key": "pais_fabricante",
+        "inline": "(omit)"
+      },
+      {
+        "key": "estado_fabricante",
+        "inline": "(omit)"
+      },
+      {
+        "key": "cidade_fabricante",
+        "inline": "(omit)"
+      },
+      {
+        "key": "endereco_fabricante",
+        "inline": "(omit)"
+      },
+      {
+        "key": "zip_code_fabricante",
+        "inline": "(omit)"
+      },
+      {
+        "key": "cnpj_raiz_empresa_responsavel",
+        "inline": "(omit)"
+      },
+      {
+        "key": "codigo_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "situacao_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "versao_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "nome_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "pais_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "estado_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "cidade_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "endereco_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "zip_code_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "tin_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "email_ope",
+        "inline": "(omit)"
+      },
+      {
+        "key": "anexo_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "anexo_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "anexo_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "quantidade_volumes_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_recebimento_draft_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_recebimento_draft_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_recebimento_draft_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_aprovacao_draft_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_aprovacao_draft_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_aprovacao_draft_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_documento_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_recebimento_draft_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_recebimento_draft_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_recebimento_draft_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_aprovacao_draft_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_aprovacao_draft_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_aprovacao_draft_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_envio_original_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_envio_original_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_envio_original_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_recebimento_original_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_recebimento_original_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_recebimento_original_proforma",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_proforma_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_recebimento_draft_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_recebimento_draft_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_recebimento_draft_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_aprovacao_draft_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_aprovacao_draft_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_aprovacao_draft_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_envio_original_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_envio_original_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_envio_original_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_recebimento_original_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_recebimento_original_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_recebimento_original_invoice",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_invoice",
+        "inline": "(omit)"
+      }
+    ]
+  },
+  "filho": {
+    "effective_matches": [],
+    "real_mismatches": [
+      {
+        "key": "ncm",
+        "inline": "(omit)",
+        "registry": "true"
+      }
+    ],
+    "not_in_registry": [
+      {
+        "key": "part_number",
+        "inline": "(omit)"
+      },
+      {
+        "key": "descricao_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "quantidade_inicial_item_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "saldo_item_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "quantidade_pronta_total_item_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "quantidade_transferida_item_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "quantidade_cancelada_item_pedido",
+        "inline": "(omit)"
+      },
+      {
+        "key": "sequencia_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "descricao_completa_item_pt",
+        "inline": "(omit)"
+      },
+      {
+        "key": "descricao_completa_item_nf",
+        "inline": "(omit)"
+      },
+      {
+        "key": "quantidade_unidade_estatistica",
+        "inline": "(omit)"
+      },
+      {
+        "key": "peso_liquido_unitario_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "peso_bruto_unitario_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "cubagem_unitaria_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "tipo_embalagem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "numero_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "numero_certificado_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_certificado_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "grupo_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "subgrupo_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "campo_especial_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "descricao_completa_item_en",
+        "inline": "(omit)"
+      },
+      {
+        "key": "descricao_completa_item_es",
+        "inline": "(omit)"
+      },
+      {
+        "key": "texto_posicao_ncm",
+        "inline": "(omit)"
+      },
+      {
+        "key": "atributos_catalogo",
+        "inline": "(omit)"
+      },
+      {
+        "key": "anexo_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_transferencia_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_consolidacao_item",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_conferencia_draft_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_conferencia_draft_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_conferencia_draft_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_aprovacao_draft_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_aprovacao_draft_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_aprovacao_draft_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_registro_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_registro_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_registro_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_resultado_analise_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_resultado_analise_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_resultado_analise_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_deferimento_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_deferimento_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_deferimento_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_indeferimento_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_exigencia_lpco",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_recebimento_draft_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_recebimento_draft_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_recebimento_draft_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_aprovacao_draft_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_aprovacao_draft_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_aprovacao_draft_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_envio_original_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_envio_original_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_envio_original_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_prevista_recebimento_original_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_confirmada_recebimento_original_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "data_meta_recebimento_original_cert_origem",
+        "inline": "(omit)"
+      },
+      {
+        "key": "tipo_operacao_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "descricao_resumida_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "versao_produto_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "ncm_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "atributos_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "aplicacao_mercadoria_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "condicao_mercadoria_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "relacao_exportador_fabricante_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "vinculacao_preco_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "descricao_completa_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "descricao_complementar_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "codigo_ope_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "nome_ope_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "pais_ope_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "codigo_ope_fabricante_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "nome_ope_fabricante_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "pais_fabricante_ope_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "metodo_valoracao_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "incoterm_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "moeda_produto_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_unitario_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_total_condicao_venda_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_condicao_venda_brl_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_frete_internacional_brl_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_seguro_internacional_brl_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_local_embarque_brl_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_aduaneiro_brl_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "tipo_cobertura_cambial_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "numero_rof_bacen_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "motivo_sem_cobertura_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "base_calculo_ii_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "percentual_ii_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_devido_ii_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_recolher_ii_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "base_calculo_ipi_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "percentual_ipi_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_recolher_ipi_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "base_calculo_pis_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "percentual_pis_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_recolher_pis_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "base_calculo_cofins_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "percentual_cofins_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "valor_recolher_cofins_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "existe_tratamento_administrativo_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "tipo_trat_adm_duimp",
+        "inline": "(omit)"
+      },
+      {
+        "key": "orgao_trat_adm_duimp",
+        "inline": "true"
+      },
+      {
+        "key": "numero_lpco_trat_adm_duimp",
+        "inline": "true"
+      }
+    ]
+  }
+}

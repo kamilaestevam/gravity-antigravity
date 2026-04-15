@@ -52,8 +52,8 @@ billingRouter.post('/webhook', async (req, res, next) => {
       update: {}, // noop — já existe
     })
 
-    // Se o registro já existia (created_at anterior a esta requisição), é duplicata
-    if (idempotencyResult.created_at < new Date(Date.now() - 1000)) {
+    // Se o registro já existia (processed_at anterior a esta requisição), é duplicata
+    if (idempotencyResult.processed_at < new Date(Date.now() - 1000)) {
       res.json({ received: true, cached: true })
       return
     }

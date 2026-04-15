@@ -23,6 +23,8 @@ import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
 import { join, resolve } from 'path'
 import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
+import { AuditService } from '../../../tenant/historico-global/server/services/audit.service.js'
+import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
 
 export const adminRouter = Router()
 
@@ -166,7 +168,21 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       select: { id: true, name: true, status: true },
     })
 
-    console.log(`[admin] Tenant ${req.params.id} status alterado para ${parsed.data.status} por userId=${req.auth.userId}`)
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'Tenant',
+      resource_id: tenant.id,
+      action: 'TENANT_STATUS_CHANGED',
+      action_detail: `Status alterado de ${existing.status} para ${tenant.status}`,
+      before: { status: existing.status },
+      after: { status: tenant.status },
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
 
     res.json({ tenant })
   } catch (err) {
@@ -241,6 +257,7 @@ adminRouter.get('/users', async (req, res, next) => {
             select: { name: true, slug: true },
           },
           memberships: {
+            where: { is_active: true },
             select: {
               id: true,
               company_id: true,
@@ -250,6 +267,8 @@ adminRouter.get('/users', async (req, res, next) => {
                 select: { name: true, subdomain: true },
               },
             },
+            orderBy: { created_at: 'desc' as const },
+            take: 20,
           },
         },
         orderBy: { created_at: 'desc' },
@@ -726,7 +745,11 @@ adminRouter.post('/users/:userId/promote', async (req, res, next) => {
       })
     }
 
-    console.log(`[admin] userId=${req.params.userId} promovido para ${updated.role} por userId=${req.auth.userId}`)
+    securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
+      targetUserId: req.params.userId,
+      oldRole: user.role,
+      newRole: updated.role,
+    }).catch(() => { /* fire-and-forget */ })
 
     res.json({ user: updated })
   } catch (err) {
@@ -783,7 +806,20 @@ adminRouter.post('/users/invite', async (req, res, next) => {
       },
     })
 
-    console.log(`[admin] convite enviado — role=${role} por userId=${req.auth.userId}`)
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'User',
+      resource_id: user.id,
+      action: 'USER_INVITED',
+      action_detail: `Convite enviado — role=${role}`,
+      after: { email: user.email, role: user.role },
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
@@ -814,6 +850,11 @@ adminRouter.put('/platform-config', async (req, res, next) => {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
+    const before = await prisma.tenant.findUnique({
+      where: { id: user.tenant_id },
+      select: { name: true, cnpj: true, state: true, city: true, segment: true, tipo_empresa: true },
+    })
+
     const tenant = await prisma.tenant.update({
       where: { id: user.tenant_id },
       data: parsed.data,
@@ -830,7 +871,21 @@ adminRouter.put('/platform-config', async (req, res, next) => {
       },
     })
 
-    console.log(`[admin] platform-config atualizado — tenant ${tenant.id} campos=${Object.keys(parsed.data).join(',')}`)
+    AuditService.log({
+      tenant_id: req.auth.tenantId,
+      actor_type: 'USER',
+      actor_id: req.auth.userId,
+      actor_name: req.auth.userId,
+      actor_ip: req.ip,
+      module: 'admin',
+      resource_type: 'PlatformConfig',
+      resource_id: tenant.id,
+      action: 'PLATFORM_CONFIG_UPDATED',
+      action_detail: `Campos alterados: ${Object.keys(parsed.data).join(', ')}`,
+      before: before ?? undefined,
+      after: parsed.data,
+      status: 'SUCCESS',
+    }).catch(() => { /* fire-and-forget */ })
 
     res.json({ config: tenant })
   } catch (err) {

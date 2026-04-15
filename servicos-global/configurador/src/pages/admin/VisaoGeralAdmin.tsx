@@ -20,6 +20,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { adminPlatformApi } from '../../services/apiClient'
+import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
 import '../workspace/workspace.css'
 
@@ -96,8 +97,7 @@ export function VisaoGeralAdmin() {
   const [salvando, setSalvando] = useState(false)
   const [carregando, setCarregando] = useState(true)
 
-  const [cidades, setCidades] = useState<SelectOpcao[]>([])
-  const [carregandoCidades, setCarregandoCidades] = useState(false)
+  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(dados.estado)
 
   // Carregar dados da plataforma do backend
   useEffect(() => {
@@ -131,25 +131,6 @@ export function VisaoGeralAdmin() {
     loadConfig()
   }, [])
 
-  useEffect(() => {
-    if (!dados.estado) {
-      setCidades([])
-      return
-    }
-    setCarregandoCidades(true)
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${dados.estado}/municipios`)
-      .then(res => res.json())
-      .then((data: Array<{ nome: string }>) => {
-        const opcoes: SelectOpcao[] = data.map(c => ({ valor: c.nome, rotulo: c.nome }))
-        opcoes.sort((a, b) => a.rotulo.localeCompare(b.rotulo))
-        setCidades(opcoes)
-      })
-      .catch(() => {
-        setCidades([])
-        addNotification({ type: 'error', message: t('admin.overview.msg_erro_cidades') })
-      })
-      .finally(() => setCarregandoCidades(false))
-  }, [dados.estado])
 
   function set(key: keyof DadosAdmin, value: string) {
     setDados(p => ({ ...p, [key]: value }))

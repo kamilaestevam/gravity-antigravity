@@ -86,4 +86,5 @@ export const rateLimitPresets = {
   auth: () => createRateLimiter({ windowMs: 60_000, max: 10, message: 'Too many login attempts.', onBlocked: defaultOnBlocked }),
   webhook: () => createRateLimiter({ windowMs: 60_000, max: 100, onBlocked: defaultOnBlocked }),
   internal: () => createRateLimiter({ windowMs: 60_000, max: 200, onBlocked: defaultOnBlocked }),
+  admin: () => createRateLimiter({ windowMs: 60_000, max: 60, message: 'Admin rate limit exceeded.', onBlocked: defaultOnBlocked }),
 }

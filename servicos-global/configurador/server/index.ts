@@ -91,6 +91,8 @@ app.get('/health', async (_req, res) => {
 app.use('/api/v1/webhooks', rateLimitPresets.webhook())
 app.use('/api/v1/billing/webhook', rateLimitPresets.webhook())
 app.use('/api/catalog', rateLimitPresets.public())
+app.use('/api/v1/admin', rateLimitPresets.admin())
+app.use('/api/admin', rateLimitPresets.admin())
 
 // ─── Rotas públicas / protegidas por Clerk ──────────────────────────────────
 

@@ -15,6 +15,7 @@ import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import { Tenant } from '../AdminPanel'
+import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
 export interface DadosEditarOrg {
   nome: string
@@ -108,8 +109,7 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
   const [segmento, setSegmento] = useState('')
   const [tipoEmpresa, setTipoEmpresa] = useState('')
 
-  const [cidades, setCidades] = useState<SelectOpcao[]>([])
-  const [carregandoCidades, setCarregandoCidades] = useState(false)
+  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(estado)
 
   // Preenche dados quando a modal abre
   useEffect(() => {
@@ -125,21 +125,6 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
       setTipoEmpresa('')
     }
   }, [aberto, organizacao])
-
-  // ── Carregar Cidades do IBGE ─────────────────────────────────────────────
-  useEffect(() => {
-    if (!estado) { setCidades([]); return }
-    setCarregandoCidades(true)
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estado}/municipios`)
-      .then(res => res.json())
-      .then((data: Array<{ nome: string }>) => {
-        const opcoes: SelectOpcao[] = data.map(c => ({ valor: c.nome, rotulo: c.nome }))
-        opcoes.sort((a, b) => a.rotulo.localeCompare(b.rotulo))
-        setCidades(opcoes)
-      })
-      .catch(() => setCidades([]))
-      .finally(() => setCarregandoCidades(false))
-  }, [estado])
 
   function handleSubChange(v: string) {
     const clean = slugify(v)

@@ -17,6 +17,7 @@ import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import type { SelectOpcao } from '@nucleo/campo-select-global'
 import type { Empresa } from './Workspaces'
+import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
 // ─── Constantes ─────────────────────────────────────────────────────────────
 
@@ -313,40 +314,7 @@ export function ModalEditarWorkspace({
   const [erroSub, setErroSub]   = useState('')
   const [extendData, setExtendData] = useState<Partial<Empresa>>({})
   const [manualSub, setManualSub] = useState(false)
-  const [cidades, setCidades]         = useState<SelectOpcao[]>([])
-  const [carregandoCidades, setCarregandoCidades] = useState(false)
-
-  // ── Carregar Cidades do IBGE ─────────────────────────────────────────────
-  useEffect(() => {
-    // Busca o estado atual do extendData ou da empresa original
-    const estadoAtual = extendData.estado
-    
-    if (!estadoAtual) {
-      setCidades([])
-      return
-    }
-
-    setCarregandoCidades(true)
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoAtual}/municipios`)
-      .then(res => res.json())
-      .then(data => {
-        if (!Array.isArray(data)) {
-          setCidades([])
-          return
-        }
-        const opcoes: SelectOpcao[] = (data as Array<{ nome: string }>).map(c => ({
-          valor: c.nome,
-          rotulo: c.nome
-        }))
-        opcoes.sort((a: SelectOpcao, b: SelectOpcao) => a.rotulo.localeCompare(b.rotulo))
-        setCidades(opcoes)
-      })
-      .catch(err => {
-        console.error("Erro ao buscar cidades do IBGE:", err)
-        setCidades([])
-      })
-      .finally(() => setCarregandoCidades(false))
-  }, [extendData.estado])
+  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(extendData.estado ?? '')
 
   // Preenche os campos ao abrir
   useEffect(() => {

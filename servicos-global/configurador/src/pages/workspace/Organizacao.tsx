@@ -20,6 +20,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { useShellStore } from '@gravity/shell'
 import { ModalSelectGlobal } from '@nucleo/modal-campo-select-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
+import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 
 type DadosMae = {
   nome:         string
@@ -190,30 +191,8 @@ export function Organizacao() {
   // Status de salvamento inline
   const [salvando, setSalvando] = useState(false)
 
-  // lista de cidades do estado
-  const [cidades, setCidades] = useState<SelectOpcao[]>([])
-  const [carregandoCidades, setCarregandoCidades] = useState(false)
-
-  // ── Carregar Cidades do IBGE ─────────────────────────────────────────────
-  useEffect(() => {
-    if (!dados.estado) {
-      setCidades([])
-      return
-    }
-    setCarregandoCidades(true)
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${dados.estado}/municipios`)
-      .then(res => res.json())
-      .then((data: Array<{ nome: string }>) => {
-        const opcoes: SelectOpcao[] = data.map(c => ({ valor: c.nome, rotulo: c.nome }))
-        opcoes.sort((a, b) => a.rotulo.localeCompare(b.rotulo))
-        setCidades(opcoes)
-      })
-      .catch(err => {
-        console.error("Erro ao buscar cidades do IBGE:", err)
-        setCidades([])
-      })
-      .finally(() => setCarregandoCidades(false))
-  }, [dados.estado])
+  // lista de cidades do estado (hook compartilhado com cache por UF)
+  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(dados.estado)
 
   // ── Restaurar preferência salva ao montar ────────────────────────────────
   useEffect(() => {

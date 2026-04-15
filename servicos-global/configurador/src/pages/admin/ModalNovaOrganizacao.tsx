@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { SelectGlobal, type SelectOpcao } from '@nucleo/campo-select-global'
+import { useCidadesIBGE } from '../../hooks/useCidadesIBGE'
 import { 
   Buildings, 
   Link, 
@@ -90,26 +91,7 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   const [tipoEmpresa, setTipoEmpresa] = useState('')
   const [espacoPadrao, setEspacoPadrao] = useState('')
 
-  const [cidades, setCidades] = useState<SelectOpcao[]>([])
-  const [carregandoCidades, setCarregandoCidades] = useState(false)
-
-  // ── Carregar Cidades do IBGE ─────────────────────────────────────────────
-  useEffect(() => {
-    if (!estado) {
-      setCidades([])
-      return
-    }
-    setCarregandoCidades(true)
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estado}/municipios`)
-      .then(res => res.json())
-      .then((data: Array<{ nome: string }>) => {
-        const opcoes: SelectOpcao[] = data.map(c => ({ valor: c.nome, rotulo: c.nome }))
-        opcoes.sort((a, b) => a.rotulo.localeCompare(b.rotulo))
-        setCidades(opcoes)
-      })
-      .catch(() => setCidades([]))
-      .finally(() => setCarregandoCidades(false))
-  }, [estado])
+  const { cidades, carregando: carregandoCidades } = useCidadesIBGE(estado)
 
   // Simple dirty tracking
   const dirty = !!(nome || subdominio || cnpj || estado || cidade || segmento || tipoEmpresa)

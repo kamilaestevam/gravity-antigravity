@@ -208,8 +208,9 @@ model PedidoCasasDecimaisConfig {
   tenant_id  String   @unique
   product_id String?
 
-  // Grupo PEDIDO — 9 campos conforme spec mapas_pedido.pdf
+  // Grupo PEDIDO — 10 campos conforme spec mapas_pedido.pdf
   valor_total_pedido            Int @default(2)
+  valor_unitario_item           Int @default(2)
   quantidade_total_inicial_pedido Int @default(2)
   quantidade_pronta_pedido_total  Int @default(2)
   saldo_itens_do_pedido           Int @default(2)

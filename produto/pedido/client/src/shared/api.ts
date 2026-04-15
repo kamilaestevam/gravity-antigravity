@@ -1844,6 +1844,7 @@ export const kanbanConfigApi = {
 
 export interface CasasDecimaisConfigPayload {
   valor_total_pedido:              number
+  valor_unitario_item:             number
   quantidade_total_inicial_pedido: number
   quantidade_pronta_pedido_total:  number
   saldo_itens_do_pedido:           number
@@ -1866,7 +1867,7 @@ export const casasDecimaisApi = {
   obter: (): Promise<{ data: CasasDecimaisConfigPayload }> =>
     request<{ data: CasasDecimaisConfigPayload }>('/api/v1/pedidos/configuracoes/casas-decimais')
       .catch(() => ({ data: {
-        valor_total_pedido: 2, quantidade_total_inicial_pedido: 2,
+        valor_total_pedido: 2, valor_unitario_item: 2, quantidade_total_inicial_pedido: 2,
         quantidade_pronta_pedido_total: 2, saldo_itens_do_pedido: 2,
         quantidade_transferida_total: 2, quantidade_cancelada_total_pedido: 2,
         peso_liquido_total_pedido: 3, peso_bruto_total_pedido: 3, cubagem_total_pedido: 3,

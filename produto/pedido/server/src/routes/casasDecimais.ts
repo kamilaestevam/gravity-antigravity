@@ -28,6 +28,7 @@ export type FormatoData = typeof FORMATOS_DATA_VALIDOS[number]
 
 const CasasDecimaisSchema = z.object({
   valor_total_pedido:              z.number().int().min(0).max(6),
+  valor_unitario_item:             z.number().int().min(0).max(6),
   quantidade_total_inicial_pedido: z.number().int().min(0).max(6),
   quantidade_pronta_pedido_total:  z.number().int().min(0).max(6),
   saldo_itens_do_pedido:           z.number().int().min(0).max(6),
@@ -46,6 +47,7 @@ export type CasasDecimaisConfig = Omit<z.infer<typeof CasasDecimaisSchema>, 'con
 // Defaults alinhados com os defaults do schema Prisma
 const DEFAULTS: CasasDecimaisConfig = {
   valor_total_pedido:              2,
+  valor_unitario_item:             2,
   quantidade_total_inicial_pedido: 2,
   quantidade_pronta_pedido_total:  2,
   saldo_itens_do_pedido:           2,
@@ -70,6 +72,7 @@ function getTenantId(req: Request): string {
 
 const MAP_CONFIG_PEDIDO: Record<keyof CasasDecimaisConfig, string | null> = {
   valor_total_pedido:              'casas_decimais_valor_pedido',
+  valor_unitario_item:             null,
   quantidade_total_inicial_pedido: 'casas_decimais_quantidade_pedido',
   quantidade_pronta_pedido_total:  null, // virtual — calculado em mapPedido
   saldo_itens_do_pedido:           null, // virtual — calculado em mapPedido
@@ -82,6 +85,7 @@ const MAP_CONFIG_PEDIDO: Record<keyof CasasDecimaisConfig, string | null> = {
 
 const MAP_CONFIG_ITEM: Record<keyof CasasDecimaisConfig, string | null> = {
   valor_total_pedido:              'casas_decimais_valor_item',
+  valor_unitario_item:             null, // display usa getCasas() direto — sem metadata separado
   quantidade_total_inicial_pedido: 'casas_decimais_quantidade_item',
   quantidade_pronta_pedido_total:  null,
   saldo_itens_do_pedido:           null,
@@ -107,6 +111,7 @@ const ARREDONDAR_PEDIDO: Array<{ config: keyof CasasDecimaisConfig; coluna: stri
 
 const ARREDONDAR_ITEM: Array<{ config: keyof CasasDecimaisConfig; coluna: string }> = [
   { config: 'valor_total_pedido',                coluna: 'valor_total_itens' },
+  { config: 'valor_unitario_item',               coluna: 'valor_unitario_item' },
   { config: 'quantidade_total_inicial_pedido',   coluna: 'quantidade_inicial_item_pedido' },
   { config: 'quantidade_pronta_pedido_total',    coluna: 'quantidade_pronta_total_item_pedido' },
   { config: 'quantidade_transferida_total',      coluna: 'quantidade_transferida_item_pedido' },

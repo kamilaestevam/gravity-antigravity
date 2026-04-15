@@ -489,6 +489,7 @@ interface NovaColuna {
 // Spec: mapas_pedido.pdf — apenas grupo PEDIDO; itens herdam automaticamente
 const COLUNAS_NUMERICAS = [
   { campo: 'valor_total_pedido',                    label: 'Valor Total do Pedido',          categoria: 'Pedido', padrao: 2, itemHint: 'Itens: Valor Total do Item terá as mesmas casas' },
+  { campo: 'valor_unitario_item',                   label: 'Valor do Item',                  categoria: 'Pedido', padrao: 2, itemHint: null },
   { campo: 'quantidade_total_inicial_pedido',       label: 'Qtd. Inicial do Pedido',         categoria: 'Pedido', padrao: 2, itemHint: 'Itens: Qtd. Inicial, Transferida e Cancelada do item terão as mesmas casas' },
   { campo: 'quantidade_pronta_pedido_total',        label: 'Qtd. Pronta do Pedido',          categoria: 'Pedido', padrao: 2, itemHint: null },
   { campo: 'saldo_itens_do_pedido',                 label: 'Saldo do Pedido',                categoria: 'Pedido', padrao: 2, itemHint: null },

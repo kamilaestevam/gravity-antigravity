@@ -40,6 +40,7 @@ export default defineConfig({
       'testes/testes-unitarios/pedido/kanbanPedidos.test.ts',
       'testes/testes-unitarios/pedido/shellEmbedding.test.ts',
       'testes/testes-unitarios/pedido/casasDecimaisRoute.test.ts',
+      'testes/testes-unitarios/pedido/formulaEngine.test.ts',
     ],
     env: {
       NODE_ENV: 'test',

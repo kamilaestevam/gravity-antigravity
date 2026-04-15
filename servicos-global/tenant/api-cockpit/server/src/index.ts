@@ -14,9 +14,11 @@ import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 
-import { tokensRouter } from './routes/tokens'
-import { webhooksRouter } from './routes/webhooks'
-import { erpRouter } from './routes/erp'
+// TODO: tokens/webhooks/erp routes importam middleware (requireAuth, tenantIsolation)
+// de um path que nunca foi implementado. Desabilitados até que o middleware seja criado.
+// import { tokensRouter } from './routes/tokens'
+// import { webhooksRouter } from './routes/webhooks'
+// import { erpRouter } from './routes/erp'
 import { docsRouter } from './routes/docs'
 import { observabilityRouter } from './routes/observability'
 import { requireInternalKey } from './middleware/requireInternalKey'
@@ -38,20 +40,21 @@ app.get('/health', (req, res) => {
 app.use(rateLimitPresets.internal())
 
 // Routes
-app.use('/api/v1/cockpit/tokens', tokensRouter)
-app.use('/api/v1/cockpit/webhooks', webhooksRouter)
-app.use('/api/v1/erp', erpRouter)
+// app.use('/api/v1/cockpit/tokens', tokensRouter)
+// app.use('/api/v1/cockpit/webhooks', webhooksRouter)
+// app.use('/api/v1/erp', erpRouter)
 app.use('/api/v1/cockpit/docs', requireInternalKey, docsRouter)
 app.use('/api/v1/cockpit/observability', observabilityRouter)
 
 // Error Handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err)
   if (err instanceof z.ZodError) {
     return res.status(400).json({ error: 'Validation Error', issues: err.issues })
   }
-  return res.status(err.statusCode || 500).json({
-    error: err.message || 'Internal Server Error'
+  const e = err as { statusCode?: number; message?: string }
+  return res.status(e.statusCode ?? 500).json({
+    error: e.message ?? 'Internal Server Error'
   })
 })
 

@@ -91,6 +91,32 @@
       "baseUrl": "http://localhost:3001",
       "pathPrefix": "/api/v1/whatsapp"
     },
+    "admin-security": {
+      "baseUrl": "http://localhost:8005",
+      "note": "Painel de segurança do configurador — dois routers (admin gravity_admin + interno S2S).",
+      "routers": {
+        "admin": {
+          "pathPrefix": "/api/admin/security",
+          "middleware": ["rateLimitPresets.admin (via /api/admin)", "requireAuth", "requireGravityAdmin"],
+          "endpoints": {
+            "GET /overview": "Consolidado: stats + health + ratelimit + secrets em 1 request (substitui 4 endpoints paralelos, registra audit log SECURITY_PANEL_VIEWED)",
+            "GET /events": "Lista de SecurityEvent (paginado, filtros severity/action/tenant_id, limit max 200)",
+            "GET /stats": "Contadores últimas 24h (totalEvents, criticalCount, warningCount, blockedCount, 5 recentEvents) — 1 groupBy em vez de 4 counts",
+            "GET /health": "Health check dos 7 serviços internos com cache TTL 10s (evita 7 fetches HTTP por tick). Persiste snapshot em ServiceHealth",
+            "GET /ratelimit": "RateLimitMetric da última hora (top 100)",
+            "GET /secrets": "Status de env vars críticas (INTERNAL_SERVICE_KEY, CLERK_SECRET_KEY, STRIPE_SECRET_KEY, ENCRYPTION_KEY) com prefixo mascarado"
+          }
+        },
+        "internal": {
+          "pathPrefix": "/api/internal/security",
+          "middleware": ["requireInternalKey"],
+          "note": "Rota S2S para ingestão de SecurityEvent vinda do securityAuditLogger do historico-global. Antes esta rota era POST /admin/security/events e caía em 401 silencioso — audit trail quebrado desde que foi criada.",
+          "endpoints": {
+            "POST /events": "Cria SecurityEvent. Validado via Zod (CreateEventSchema) e Prisma.InputJsonValue cast em metadata"
+          }
+        }
+      }
+    },
     "api-cockpit": {
       "baseUrl": "http://localhost:8016",
       "pathPrefix": "/api/v1/cockpit/observability",

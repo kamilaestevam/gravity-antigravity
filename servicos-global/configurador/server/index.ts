@@ -141,8 +141,13 @@ app.use('/api/admin', adminRouter)
 app.use('/api/admin/products', adminProductsRouter)       // CRUD catálogo (auth chain interna)
 app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por tenant (auth chain interna)
 
-import { adminSecurityRouter } from './routes/adminSecurity.js'
+import { adminSecurityRouter, adminSecurityInternalRouter } from './routes/adminSecurity.js'
 app.use('/api/admin/security', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
+// Rota interna S2S para ingestão de eventos de segurança (chamada pelo
+// securityAuditLogger do historico-global). Antes: POST /admin/security/events
+// estava atrás de requireAuth+requireGravityAdmin mas o caller usava
+// x-internal-key, resultando em 401 silencioso — audit trail quebrado.
+app.use('/api/internal/security', adminSecurityInternalRouter)
 
 // Ponto Cego 2 — captura 401/403 que ocorrem antes dos route handlers
 import { authErrorLogger } from '../../tenant/historico-global/server/middleware/auth-error-logger.js'

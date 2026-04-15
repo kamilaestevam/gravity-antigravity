@@ -19,6 +19,10 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
+import { spawn } from 'child_process'
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
+import { join, resolve } from 'path'
+import { walkSuite, type TestLogEntry } from '../utils/playwright-parser.js'
 
 export const adminRouter = Router()
 
@@ -70,6 +74,7 @@ adminRouter.get('/tenants', async (req, res, next) => {
           companies: {
             select: { id: true, name: true, subdomain: true, status: true },
             orderBy: { created_at: 'desc' },
+            take: 5,
           },
         },
         orderBy: { created_at: 'desc' },
@@ -97,16 +102,21 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       include: {
         users: {
           select: { id: true, name: true, email: true, role: true, created_at: true },
+          orderBy: { created_at: 'desc' as const },
+          take: 50,
         },
         companies: {
           select: { id: true, name: true, subdomain: true, status: true },
+          orderBy: { created_at: 'desc' as const },
+          take: 50,
         },
         subscriptions: {
-          orderBy: { created_at: 'desc' },
+          orderBy: { created_at: 'desc' as const },
           take: 1,
         },
         product_configs: {
           select: { product_key: true, is_active: true, updated_at: true },
+          take: 50,
         },
       },
     })
@@ -317,26 +327,196 @@ adminRouter.get('/deploys', async (_req, res, next) => {
 })
 
 /**
+ * GET /api/admin/test-plans
+ * Lista os planos de teste disponíveis, opcionalmente filtrados por produto.
+ * Query: ?product=configurador
+ */
+adminRouter.get('/test-plans', (_req, res, next) => {
+  try {
+    const registryPath = resolve(process.cwd(), '..', '..', 'testes', 'testes-e2e', 'test-plans-registry.json')
+    let plans: unknown[] = []
+    try {
+      plans = JSON.parse(readFileSync(registryPath, 'utf-8'))
+    } catch {
+      // Registry ainda não existe — retorna vazio
+    }
+
+    const product = _req.query.product as string | undefined
+    if (product) {
+      plans = (plans as Array<{ product: string }>).filter(p => p.product === product)
+    }
+
+    res.json({ plans })
+  } catch (err) {
+    next(err)
+  }
+})
+
+/**
  * GET /api/admin/test-logs
- * Lista logs de testes — lê da tabela TestLog se existir,
- * senão retorna array vazio (tabela será criada em migration futura)
+ * Lista logs de testes — lê da tabela TestLog se existir;
+ * fallback: lê todos os arquivos JSON em data/test-logs/
  */
 adminRouter.get('/test-logs', async (_req, res, next) => {
   try {
     let logs: unknown[] = []
+
+    // 1. Tenta ler do banco
     try {
       logs = await (prisma as any).testLog?.findMany?.({
         orderBy: { created_at: 'desc' },
-        take: 100,
+        take: 500,
       }) ?? []
     } catch {
-      // Tabela não existe ainda — retorna vazio
+      // Tabela não existe ainda — usa fallback de arquivo
+    }
+
+    // 2. Fallback: lê arquivos JSON em data/test-logs/
+    if (logs.length === 0) {
+      try {
+        const dir = join(process.cwd(), 'data', 'test-logs')
+        if (existsSync(dir)) {
+          const files = readdirSync(dir)
+            .filter(f => f.endsWith('.json') && !f.startsWith('playwright-run-'))
+            .sort()
+            .reverse()
+
+          for (const file of files.slice(0, 7)) { // até 7 dias de histórico
+            try {
+              const content = JSON.parse(readFileSync(join(dir, file), 'utf-8'))
+              if (Array.isArray(content)) {
+                logs = [...logs, ...content]
+              }
+            } catch { /* arquivo inválido — ignora */ }
+          }
+        }
+      } catch { /* diretório não existe */ }
     }
 
     res.json({ logs })
   } catch (err) {
     next(err)
   }
+})
+
+// ── Constantes para run-tests ─────────────────────────────────────────────────
+const monorepoRoot = resolve(process.cwd(), '..', '..')
+let pwRunning = false
+
+/**
+ * POST /api/admin/run-tests
+ * Dispara os testes Playwright em background e persiste os resultados.
+ * Retorna imediatamente com { started: true }.
+ */
+adminRouter.post('/run-tests', async (req, res, next) => {
+  try {
+    if (pwRunning) {
+      res.status(409).json({ error: 'Já existe um run em andamento' })
+      return
+    }
+
+    const { modulos } = req.body as { modulos?: string[] }
+    // Resolve spec files a partir dos planos selecionados
+    const { planos } = req.body as { planos?: string[]; modulos?: string[] }
+    let specArgs: string[] = []
+    let projectArgs: string[] = []
+
+    if (Array.isArray(planos) && planos.length > 0) {
+      // Modo por plano: resolve spec files do registry
+      try {
+        const registryPath2 = resolve(monorepoRoot, 'testes', 'testes-e2e', 'test-plans-registry.json')
+        const registry = JSON.parse(readFileSync(registryPath2, 'utf-8')) as Array<{
+          id: string; specFile: string
+        }>
+        specArgs = planos
+          .map(planId => registry.find(p => p.id === planId)?.specFile)
+          .filter((f): f is string => !!f)
+      } catch { /* registry não existe */ }
+    } else if (Array.isArray(modulos) && modulos.length > 0) {
+      projectArgs = modulos.flatMap((m: string) => ['--project', m])
+    }
+
+    pwRunning = true
+    res.json({ started: true })
+
+    // ── Roda Playwright em background (não bloqueia o response) ──────────────
+    const dir = join(process.cwd(), 'data', 'test-logs')
+    mkdirSync(dir, { recursive: true })
+
+    const proc = spawn(
+      'npx',
+      ['playwright', 'test', ...specArgs, ...projectArgs, '--reporter=json'],
+      {
+        cwd:        monorepoRoot,
+        env:        { ...process.env, CI: '1' },
+        shell:      true,
+        windowsHide: true,
+      }
+    )
+
+    let pwStdout = ''
+    let pwStderr = ''
+    proc.stdout?.on('data', (chunk: Buffer) => { pwStdout += chunk.toString() })
+    proc.stderr?.on('data', (chunk: Buffer) => { pwStderr += chunk.toString() })
+
+    proc.on('close', () => {
+      pwRunning = false
+      const entries: TestLogEntry[] = []
+      const created_at = new Date().toISOString()
+
+      // Tenta parsear o JSON do stdout
+      const raw = pwStdout.trim()
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as { suites?: unknown[] }
+          for (const suite of (parsed.suites ?? [])) {
+            walkSuite(suite as Parameters<typeof walkSuite>[0], entries)
+          }
+        } catch {
+          entries.push({
+            type: 'E2E', module: 'playwright/parse-error',
+            test_name: 'JSON parse falhou',
+            result: 'ERRO',
+            duration: '0ms',
+            error_log: (pwStderr || pwStdout).slice(0, 500),
+          })
+        }
+      } else {
+        entries.push({
+          type: 'E2E', module: 'playwright/sem-output',
+          test_name: 'Playwright não gerou saída',
+          result: 'ERRO',
+          duration: '0ms',
+          error_log: pwStderr.slice(0, 500) || null,
+        })
+      }
+
+      // Salva no arquivo JSON do dia
+      const filePath = join(dir, `${created_at.slice(0, 10)}.json`)
+      let existing: unknown[] = []
+      try { existing = JSON.parse(readFileSync(filePath, 'utf-8')) } catch { /* novo */ }
+      const novosLogs = entries.map((e, i) => ({
+        id: `${Date.now()}-${i}`,
+        created_at,
+        ...e,
+        ai_analysis: null,
+      }))
+      writeFileSync(filePath, JSON.stringify([...existing, ...novosLogs], null, 2))
+      console.log(`[admin/run-tests] Run concluído — ${entries.length} entradas salvas`)
+    })
+
+  } catch (err) {
+    pwRunning = false
+    next(err)
+  }
+})
+
+/**
+ * GET /api/admin/run-tests/status
+ * Verifica se há um run em andamento.
+ */
+adminRouter.get('/run-tests/status', (_req, res) => {
+  res.json({ running: pwRunning })
 })
 
 /**
@@ -643,6 +823,8 @@ adminRouter.put('/platform-config', async (req, res, next) => {
         created_at: true,
       },
     })
+
+    console.log(`[admin] platform-config atualizado por ${req.auth.clerkUserId} — tenant ${tenant.id}`, Object.keys(parsed.data))
 
     res.json({ config: tenant })
   } catch (err) {

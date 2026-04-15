@@ -139,17 +139,14 @@ export function VisaoGeralAdmin() {
     setCarregandoCidades(true)
     fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${dados.estado}/municipios`)
       .then(res => res.json())
-      .then(data => {
-        const opcoes = data.map((c: any) => ({
-          valor: c.nome,
-          rotulo: c.nome
-        }))
-        opcoes.sort((a: SelectOpcao, b: SelectOpcao) => a.rotulo.localeCompare(b.rotulo))
+      .then((data: Array<{ nome: string }>) => {
+        const opcoes: SelectOpcao[] = data.map(c => ({ valor: c.nome, rotulo: c.nome }))
+        opcoes.sort((a, b) => a.rotulo.localeCompare(b.rotulo))
         setCidades(opcoes)
       })
-      .catch(err => {
-        console.error("Erro ao buscar cidades:", err)
+      .catch(() => {
         setCidades([])
+        addNotification({ type: 'error', message: t('admin.overview.msg_erro_cidades') })
       })
       .finally(() => setCarregandoCidades(false))
   }, [dados.estado])

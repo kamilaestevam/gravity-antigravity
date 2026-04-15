@@ -152,5 +152,688 @@
     "duration": "6330ms",
     "error_log": null,
     "ai_analysis": null
+  },
+  {
+    "id": "1776269288852-0",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Menu lateral carregado",
+    "result": "REPROVADO",
+    "duration": "16903ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('nav, [class*=\"sidebar\"], [class*=\"menu\"], [class*=\"lateral\"]').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('nav, [class*=\"sidebar\"], [class*=\"menu\"], [class*=\"lateral\"]').first()\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Elemento esperado não existe na página",
+      "motivo": "O seletor não encontrou nenhum elemento correspondente no DOM. A tela pode ter sido refatorada e o atributo que o teste usa sumiu, ou o componente ainda não foi montado quando o teste tenta acessá-lo.",
+      "sugestaoCorrecao": "Confirme se o componente ficou com o mesmo `name`/`aria-label`/`data-testid`. Se o refactor mudou a API do componente, atualize o teste para a nova forma — idealmente adicionando `data-testid` para quebrar essa dependência.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-1",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Nome do Produto",
+    "result": "REPROVADO",
+    "duration": "4437ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m",
+      "motivo": "O valor encontrado pelo teste difere do esperado. Pode ser um teste desatualizado (texto/valor mudou no produto), um bug real de renderização, ou um problema de timing (comparação feita antes do dado carregar).",
+      "sugestaoCorrecao": "Verifique se o valor esperado no teste ainda reflete o comportamento desejado do produto. Se sim, o bug é no código; se não, atualize o teste para o novo valor canônico.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-2",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Workspace nome",
+    "result": "REPROVADO",
+    "duration": "4388ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/workspace|espaço de trabalho/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-3",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Organização no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4583ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m",
+      "motivo": "O valor encontrado pelo teste difere do esperado. Pode ser um teste desatualizado (texto/valor mudou no produto), um bug real de renderização, ou um problema de timing (comparação feita antes do dado carregar).",
+      "sugestaoCorrecao": "Verifique se o valor esperado no teste ainda reflete o comportamento desejado do produto. Se sim, o bug é no código; se não, atualize o teste para o novo valor canônico.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-4",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Workspace no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4369ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m",
+      "motivo": "O valor encontrado pelo teste difere do esperado. Pode ser um teste desatualizado (texto/valor mudou no produto), um bug real de renderização, ou um problema de timing (comparação feita antes do dado carregar).",
+      "sugestaoCorrecao": "Verifique se o valor esperado no teste ainda reflete o comportamento desejado do produto. Se sim, o bug é no código; se não, atualize o teste para o novo valor canônico.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-5",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Usuários no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4597ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/usuário|usuario|users|membros/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-6",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Assinaturas no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4489ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/assinatura|plano|billing|subscription/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-7",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Financeiro no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4632ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/financeiro|pagamento|payment|fatura/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-8",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar API Cockpit no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4488ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/api|cockpit|token/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-9",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar logo do título",
+    "result": "APROVADO",
+    "duration": "4610ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776269288852-10",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar título ORGANIZAÇÃO",
+    "result": "REPROVADO",
+    "duration": "2422ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/ORGANIZAÇÃO|ORGANIZATION|EMPRESA|CONFIGURADOR/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-11",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar subtítulo da página",
+    "result": "REPROVADO",
+    "duration": "4396ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m100\u001b[39m\nReceived:   \u001b[31m15\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "O valor encontrado pelo teste difere do esperado. Pode ser um teste desatualizado (texto/valor mudou no produto), um bug real de renderização, ou um problema de timing (comparação feita antes do dado carregar).",
+      "sugestaoCorrecao": "Verifique se o valor esperado no teste ainda reflete o comportamento desejado do produto. Se sim, o bug é no código; se não, atualize o teste para o novo valor canônico.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-12",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar botão de Configurações visível",
+    "result": "REPROVADO",
+    "duration": "4512ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/configur|setting|ajuste/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776269288852-13",
+    "created_at": "2026-04-15T16:08:08.850Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar navegação para Workspace sem erro",
+    "result": "APROVADO",
+    "duration": "6402ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-0",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "modal close button should have visible focus ring when tabbed to",
+    "result": "REPROVADO",
+    "duration": "7418ms",
+    "error_log": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5010/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5010/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Falha de rede ou resposta não esperada da API",
+      "motivo": "O teste recebeu uma resposta HTTP inesperada (erro 4xx/5xx) ou a conexão falhou. O backend pode estar fora, uma rota pode ter mudado, ou o payload enviado pelo teste não é mais válido.",
+      "sugestaoCorrecao": "Confirme se o serviço alvo está rodando (check de `/health`). Se o endpoint mudou, atualize o teste para o novo contrato. Se o payload quebrou, sincronize com o schema Zod atual.",
+      "arquivo": "configurador/accessibility-focus.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-1",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "language switcher trigger should have visible focus ring",
+    "result": "REPROVADO",
+    "duration": "7633ms",
+    "error_log": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5010/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5010/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Falha de rede ou resposta não esperada da API",
+      "motivo": "O teste recebeu uma resposta HTTP inesperada (erro 4xx/5xx) ou a conexão falhou. O backend pode estar fora, uma rota pode ter mudado, ou o payload enviado pelo teste não é mais válido.",
+      "sugestaoCorrecao": "Confirme se o serviço alvo está rodando (check de `/health`). Se o endpoint mudou, atualize o teste para o novo contrato. Se o payload quebrou, sincronize com o schema Zod atual.",
+      "arquivo": "configurador/accessibility-focus.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-2",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "view toggle buttons should have visible focus ring",
+    "result": "REPROVADO",
+    "duration": "7307ms",
+    "error_log": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5010/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5010/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Falha de rede ou resposta não esperada da API",
+      "motivo": "O teste recebeu uma resposta HTTP inesperada (erro 4xx/5xx) ou a conexão falhou. O backend pode estar fora, uma rota pode ter mudado, ou o payload enviado pelo teste não é mais válido.",
+      "sugestaoCorrecao": "Confirme se o serviço alvo está rodando (check de `/health`). Se o endpoint mudou, atualize o teste para o novo contrato. Se o payload quebrou, sincronize com o schema Zod atual.",
+      "arquivo": "configurador/accessibility-focus.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-3",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "table action buttons should have visible focus ring",
+    "result": "REPROVADO",
+    "duration": "7535ms",
+    "error_log": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5010/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5010/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Falha de rede ou resposta não esperada da API",
+      "motivo": "O teste recebeu uma resposta HTTP inesperada (erro 4xx/5xx) ou a conexão falhou. O backend pode estar fora, uma rota pode ter mudado, ou o payload enviado pelo teste não é mais válido.",
+      "sugestaoCorrecao": "Confirme se o serviço alvo está rodando (check de `/health`). Se o endpoint mudou, atualize o teste para o novo contrato. Se o payload quebrou, sincronize com o schema Zod atual.",
+      "arquivo": "configurador/accessibility-focus.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-4",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "global button component (.gb-btn) should have visible focus ring",
+    "result": "REPROVADO",
+    "duration": "7536ms",
+    "error_log": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5010/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5010/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Falha de rede ou resposta não esperada da API",
+      "motivo": "O teste recebeu uma resposta HTTP inesperada (erro 4xx/5xx) ou a conexão falhou. O backend pode estar fora, uma rota pode ter mudado, ou o payload enviado pelo teste não é mais válido.",
+      "sugestaoCorrecao": "Confirme se o serviço alvo está rodando (check de `/health`). Se o endpoint mudou, atualize o teste para o novo contrato. Se o payload quebrou, sincronize com o schema Zod atual.",
+      "arquivo": "configurador/accessibility-focus.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-5",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "focus ring uses correct indigo color (WCAG accessible)",
+    "result": "REPROVADO",
+    "duration": "7750ms",
+    "error_log": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5010/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5010/\", waiting until \"domcontentloaded\"\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Falha de rede ou resposta não esperada da API",
+      "motivo": "O teste recebeu uma resposta HTTP inesperada (erro 4xx/5xx) ou a conexão falhou. O backend pode estar fora, uma rota pode ter mudado, ou o payload enviado pelo teste não é mais válido.",
+      "sugestaoCorrecao": "Confirme se o serviço alvo está rodando (check de `/health`). Se o endpoint mudou, atualize o teste para o novo contrato. Se o payload quebrou, sincronize com o schema Zod atual.",
+      "arquivo": "configurador/accessibility-focus.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-6",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "1. Login como Super Admin (dmmltda@gmail.com)",
+    "result": "REPROVADO",
+    "duration": "2463ms",
+    "error_log": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:5010/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5010/\", waiting until \"networkidle\"\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Falha de rede ou resposta não esperada da API",
+      "motivo": "O teste recebeu uma resposta HTTP inesperada (erro 4xx/5xx) ou a conexão falhou. O backend pode estar fora, uma rota pode ter mudado, ou o payload enviado pelo teste não é mais válido.",
+      "sugestaoCorrecao": "Confirme se o serviço alvo está rodando (check de `/health`). Se o endpoint mudou, atualize o teste para o novo contrato. Se o payload quebrou, sincronize com o schema Zod atual.",
+      "arquivo": "configurador/admin-users-crud.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-7",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "2. Navegar para /admin/usuarios",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-8",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "3. Tabela e cards de stats carregam",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-9",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "4.1. Criar user \"Master\" — Teste Master E2E",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-10",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "4.2. Criar user \"Standard\" — Teste Standard E2E",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-11",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "4.3. Criar user \"Fornecedor\" — Teste Fornecedor E2E",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-12",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "4.4. Criar user \"Admin\" — Teste Admin E2E",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-13",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "4.5. Criar user \"Super Admin\" — Teste SuperAdmin E2E",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-14",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "5. Todos os users criados aparecem na tabela",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-15",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "6. Badges de tipo estão corretos",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-16",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "7. Desativar/suspender users criados",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-17",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "8. Reativar users suspensos",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-18",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "9. Cards de stats atualizados",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-19",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "10. Screenshot final completo",
+    "result": "REPROVADO",
+    "duration": "0ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-20",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Menu lateral carregado",
+    "result": "REPROVADO",
+    "duration": "14166ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('nav, [class*=\"sidebar\"], [class*=\"menu\"], [class*=\"lateral\"]').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('nav, [class*=\"sidebar\"], [class*=\"menu\"], [class*=\"lateral\"]').first()\u001b[22m\n",
+    "ai_analysis": {
+      "erroResumo": "Elemento esperado não existe na página",
+      "motivo": "O seletor não encontrou nenhum elemento correspondente no DOM. A tela pode ter sido refatorada e o atributo que o teste usa sumiu, ou o componente ainda não foi montado quando o teste tenta acessá-lo.",
+      "sugestaoCorrecao": "Confirme se o componente ficou com o mesmo `name`/`aria-label`/`data-testid`. Se o refactor mudou a API do componente, atualize o teste para a nova forma — idealmente adicionando `data-testid` para quebrar essa dependência.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-21",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Nome do Produto",
+    "result": "REPROVADO",
+    "duration": "4737ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m",
+      "motivo": "O valor encontrado pelo teste difere do esperado. Pode ser um teste desatualizado (texto/valor mudou no produto), um bug real de renderização, ou um problema de timing (comparação feita antes do dado carregar).",
+      "sugestaoCorrecao": "Verifique se o valor esperado no teste ainda reflete o comportamento desejado do produto. Se sim, o bug é no código; se não, atualize o teste para o novo valor canônico.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-22",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Workspace nome",
+    "result": "REPROVADO",
+    "duration": "4464ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/workspace|espaço de trabalho/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-23",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Organização no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4714ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m",
+      "motivo": "O valor encontrado pelo teste difere do esperado. Pode ser um teste desatualizado (texto/valor mudou no produto), um bug real de renderização, ou um problema de timing (comparação feita antes do dado carregar).",
+      "sugestaoCorrecao": "Verifique se o valor esperado no teste ainda reflete o comportamento desejado do produto. Se sim, o bug é no código; se não, atualize o teste para o novo valor canônico.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-24",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Workspace no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4530ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m",
+      "motivo": "O valor encontrado pelo teste difere do esperado. Pode ser um teste desatualizado (texto/valor mudou no produto), um bug real de renderização, ou um problema de timing (comparação feita antes do dado carregar).",
+      "sugestaoCorrecao": "Verifique se o valor esperado no teste ainda reflete o comportamento desejado do produto. Se sim, o bug é no código; se não, atualize o teste para o novo valor canônico.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-25",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Usuários no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4323ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/usuário|usuario|users|membros/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-26",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Assinaturas no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4885ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/assinatura|plano|billing|subscription/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-27",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar Financeiro no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4604ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/financeiro|pagamento|payment|fatura/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-28",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar API Cockpit no Menu Lateral",
+    "result": "REPROVADO",
+    "duration": "4466ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/api|cockpit|token/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-29",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar logo do título",
+    "result": "APROVADO",
+    "duration": "4418ms",
+    "error_log": null,
+    "ai_analysis": null
+  },
+  {
+    "id": "1776282837318-30",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar título ORGANIZAÇÃO",
+    "result": "REPROVADO",
+    "duration": "1874ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/ORGANIZAÇÃO|ORGANIZATION|EMPRESA|CONFIGURADOR/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-31",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar subtítulo da página",
+    "result": "REPROVADO",
+    "duration": "4324ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m100\u001b[39m\nReceived:   \u001b[31m15\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "O valor encontrado pelo teste difere do esperado. Pode ser um teste desatualizado (texto/valor mudou no produto), um bug real de renderização, ou um problema de timing (comparação feita antes do dado carregar).",
+      "sugestaoCorrecao": "Verifique se o valor esperado no teste ainda reflete o comportamento desejado do produto. Se sim, o bug é no código; se não, atualize o teste para o novo valor canônico.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-32",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar botão de Configurações visível",
+    "result": "REPROVADO",
+    "duration": "4307ms",
+    "error_log": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/configur|setting|ajuste/i\u001b[39m\nReceived string:  \u001b[31m\"··············\u001b[39m\n\u001b[31m\"\u001b[39m",
+    "ai_analysis": {
+      "erroResumo": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m",
+      "motivo": "Não foi possível classificar a falha automaticamente a partir da mensagem. Abra o erro bruto acima para ver o stack completo.",
+      "sugestaoCorrecao": "Execute o teste localmente com `--headed` e `--debug` para reproduzir passo a passo. Se o erro for intermitente, pode ser uma race condition — envolva a asserção final num `waitFor`.",
+      "arquivo": "configurador/TSTE2E000001-workspace-navigation.spec.ts"
+    }
+  },
+  {
+    "id": "1776282837318-33",
+    "created_at": "2026-04-15T19:53:57.316Z",
+    "type": "E2E",
+    "module": "configurador",
+    "test_name": "Verificar navegação para Workspace sem erro",
+    "result": "APROVADO",
+    "duration": "5944ms",
+    "error_log": null,
+    "ai_analysis": null
   }
 ]

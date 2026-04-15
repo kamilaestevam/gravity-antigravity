@@ -79,6 +79,11 @@ export type SpecialNegotiation = $Result.DefaultSelection<Prisma.$SpecialNegotia
  */
 export type StripeEvent = $Result.DefaultSelection<Prisma.$StripeEventPayload>
 /**
+ * Model DeployLog
+ * 
+ */
+export type DeployLog = $Result.DefaultSelection<Prisma.$DeployLogPayload>
+/**
  * Model SupplierTenantAccess
  * 
  */
@@ -190,6 +195,26 @@ export const UserLimitType: {
 
 export type UserLimitType = (typeof UserLimitType)[keyof typeof UserLimitType]
 
+
+export const DeployEnvironment: {
+  DEVELOPMENT: 'DEVELOPMENT',
+  STAGING: 'STAGING',
+  PRODUCTION: 'PRODUCTION',
+  ALL: 'ALL'
+};
+
+export type DeployEnvironment = (typeof DeployEnvironment)[keyof typeof DeployEnvironment]
+
+
+export const DeployStatus: {
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  ROLLBACK: 'ROLLBACK',
+  IN_PROGRESS: 'IN_PROGRESS'
+};
+
+export type DeployStatus = (typeof DeployStatus)[keyof typeof DeployStatus]
+
 }
 
 export type TenantStatus = $Enums.TenantStatus
@@ -223,6 +248,14 @@ export const BillingType: typeof $Enums.BillingType
 export type UserLimitType = $Enums.UserLimitType
 
 export const UserLimitType: typeof $Enums.UserLimitType
+
+export type DeployEnvironment = $Enums.DeployEnvironment
+
+export const DeployEnvironment: typeof $Enums.DeployEnvironment
+
+export type DeployStatus = $Enums.DeployStatus
+
+export const DeployStatus: typeof $Enums.DeployStatus
 
 /**
  * ##  Prisma Client ʲˢ
@@ -476,6 +509,16 @@ export class PrismaClient<
     * ```
     */
   get stripeEvent(): Prisma.StripeEventDelegate<ExtArgs>;
+
+  /**
+   * `prisma.deployLog`: Exposes CRUD operations for the **DeployLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DeployLogs
+    * const deployLogs = await prisma.deployLog.findMany()
+    * ```
+    */
+  get deployLog(): Prisma.DeployLogDelegate<ExtArgs>;
 
   /**
    * `prisma.supplierTenantAccess`: Exposes CRUD operations for the **SupplierTenantAccess** model.
@@ -980,6 +1023,7 @@ export namespace Prisma {
     PriceTier: 'PriceTier',
     SpecialNegotiation: 'SpecialNegotiation',
     StripeEvent: 'StripeEvent',
+    DeployLog: 'DeployLog',
     SupplierTenantAccess: 'SupplierTenantAccess',
     SecurityEvent: 'SecurityEvent',
     RateLimitMetric: 'RateLimitMetric',
@@ -1000,7 +1044,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "companyProduct" | "product" | "priceTier" | "specialNegotiation" | "stripeEvent" | "supplierTenantAccess" | "securityEvent" | "rateLimitMetric" | "serviceHealth" | "taxaCambio"
+      modelProps: "tenant" | "user" | "subscription" | "userPermission" | "gravityAdminPermission" | "company" | "userMembership" | "productConfig" | "companyProduct" | "product" | "priceTier" | "specialNegotiation" | "stripeEvent" | "deployLog" | "supplierTenantAccess" | "securityEvent" | "rateLimitMetric" | "serviceHealth" | "taxaCambio"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1911,6 +1955,76 @@ export namespace Prisma {
           count: {
             args: Prisma.StripeEventCountArgs<ExtArgs>
             result: $Utils.Optional<StripeEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      DeployLog: {
+        payload: Prisma.$DeployLogPayload<ExtArgs>
+        fields: Prisma.DeployLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DeployLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DeployLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload>
+          }
+          findFirst: {
+            args: Prisma.DeployLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DeployLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload>
+          }
+          findMany: {
+            args: Prisma.DeployLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload>[]
+          }
+          create: {
+            args: Prisma.DeployLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload>
+          }
+          createMany: {
+            args: Prisma.DeployLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DeployLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload>[]
+          }
+          delete: {
+            args: Prisma.DeployLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload>
+          }
+          update: {
+            args: Prisma.DeployLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.DeployLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DeployLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DeployLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DeployLogPayload>
+          }
+          aggregate: {
+            args: Prisma.DeployLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDeployLog>
+          }
+          groupBy: {
+            args: Prisma.DeployLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DeployLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DeployLogCountArgs<ExtArgs>
+            result: $Utils.Optional<DeployLogCountAggregateOutputType> | number
           }
         }
       }
@@ -15854,6 +15968,990 @@ export namespace Prisma {
 
 
   /**
+   * Model DeployLog
+   */
+
+  export type AggregateDeployLog = {
+    _count: DeployLogCountAggregateOutputType | null
+    _avg: DeployLogAvgAggregateOutputType | null
+    _sum: DeployLogSumAggregateOutputType | null
+    _min: DeployLogMinAggregateOutputType | null
+    _max: DeployLogMaxAggregateOutputType | null
+  }
+
+  export type DeployLogAvgAggregateOutputType = {
+    deploy_number: number | null
+  }
+
+  export type DeployLogSumAggregateOutputType = {
+    deploy_number: number | null
+  }
+
+  export type DeployLogMinAggregateOutputType = {
+    id: string | null
+    deploy_number: number | null
+    area: string | null
+    version: string | null
+    description: string | null
+    environment: $Enums.DeployEnvironment | null
+    status: $Enums.DeployStatus | null
+    deployed_by: string | null
+    deployed_by_user_id: string | null
+    deployed_at: Date | null
+    created_at: Date | null
+  }
+
+  export type DeployLogMaxAggregateOutputType = {
+    id: string | null
+    deploy_number: number | null
+    area: string | null
+    version: string | null
+    description: string | null
+    environment: $Enums.DeployEnvironment | null
+    status: $Enums.DeployStatus | null
+    deployed_by: string | null
+    deployed_by_user_id: string | null
+    deployed_at: Date | null
+    created_at: Date | null
+  }
+
+  export type DeployLogCountAggregateOutputType = {
+    id: number
+    deploy_number: number
+    area: number
+    version: number
+    description: number
+    environment: number
+    status: number
+    deployed_by: number
+    deployed_by_user_id: number
+    deployed_at: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type DeployLogAvgAggregateInputType = {
+    deploy_number?: true
+  }
+
+  export type DeployLogSumAggregateInputType = {
+    deploy_number?: true
+  }
+
+  export type DeployLogMinAggregateInputType = {
+    id?: true
+    deploy_number?: true
+    area?: true
+    version?: true
+    description?: true
+    environment?: true
+    status?: true
+    deployed_by?: true
+    deployed_by_user_id?: true
+    deployed_at?: true
+    created_at?: true
+  }
+
+  export type DeployLogMaxAggregateInputType = {
+    id?: true
+    deploy_number?: true
+    area?: true
+    version?: true
+    description?: true
+    environment?: true
+    status?: true
+    deployed_by?: true
+    deployed_by_user_id?: true
+    deployed_at?: true
+    created_at?: true
+  }
+
+  export type DeployLogCountAggregateInputType = {
+    id?: true
+    deploy_number?: true
+    area?: true
+    version?: true
+    description?: true
+    environment?: true
+    status?: true
+    deployed_by?: true
+    deployed_by_user_id?: true
+    deployed_at?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type DeployLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeployLog to aggregate.
+     */
+    where?: DeployLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeployLogs to fetch.
+     */
+    orderBy?: DeployLogOrderByWithRelationInput | DeployLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DeployLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeployLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeployLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DeployLogs
+    **/
+    _count?: true | DeployLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DeployLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DeployLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DeployLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DeployLogMaxAggregateInputType
+  }
+
+  export type GetDeployLogAggregateType<T extends DeployLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateDeployLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDeployLog[P]>
+      : GetScalarType<T[P], AggregateDeployLog[P]>
+  }
+
+
+
+
+  export type DeployLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeployLogWhereInput
+    orderBy?: DeployLogOrderByWithAggregationInput | DeployLogOrderByWithAggregationInput[]
+    by: DeployLogScalarFieldEnum[] | DeployLogScalarFieldEnum
+    having?: DeployLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DeployLogCountAggregateInputType | true
+    _avg?: DeployLogAvgAggregateInputType
+    _sum?: DeployLogSumAggregateInputType
+    _min?: DeployLogMinAggregateInputType
+    _max?: DeployLogMaxAggregateInputType
+  }
+
+  export type DeployLogGroupByOutputType = {
+    id: string
+    deploy_number: number
+    area: string
+    version: string
+    description: string
+    environment: $Enums.DeployEnvironment
+    status: $Enums.DeployStatus
+    deployed_by: string
+    deployed_by_user_id: string | null
+    deployed_at: Date
+    created_at: Date
+    _count: DeployLogCountAggregateOutputType | null
+    _avg: DeployLogAvgAggregateOutputType | null
+    _sum: DeployLogSumAggregateOutputType | null
+    _min: DeployLogMinAggregateOutputType | null
+    _max: DeployLogMaxAggregateOutputType | null
+  }
+
+  type GetDeployLogGroupByPayload<T extends DeployLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DeployLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DeployLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DeployLogGroupByOutputType[P]>
+            : GetScalarType<T[P], DeployLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DeployLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    deploy_number?: boolean
+    area?: boolean
+    version?: boolean
+    description?: boolean
+    environment?: boolean
+    status?: boolean
+    deployed_by?: boolean
+    deployed_by_user_id?: boolean
+    deployed_at?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["deployLog"]>
+
+  export type DeployLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    deploy_number?: boolean
+    area?: boolean
+    version?: boolean
+    description?: boolean
+    environment?: boolean
+    status?: boolean
+    deployed_by?: boolean
+    deployed_by_user_id?: boolean
+    deployed_at?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["deployLog"]>
+
+  export type DeployLogSelectScalar = {
+    id?: boolean
+    deploy_number?: boolean
+    area?: boolean
+    version?: boolean
+    description?: boolean
+    environment?: boolean
+    status?: boolean
+    deployed_by?: boolean
+    deployed_by_user_id?: boolean
+    deployed_at?: boolean
+    created_at?: boolean
+  }
+
+
+  export type $DeployLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DeployLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      deploy_number: number
+      area: string
+      version: string
+      description: string
+      environment: $Enums.DeployEnvironment
+      status: $Enums.DeployStatus
+      deployed_by: string
+      deployed_by_user_id: string | null
+      deployed_at: Date
+      created_at: Date
+    }, ExtArgs["result"]["deployLog"]>
+    composites: {}
+  }
+
+  type DeployLogGetPayload<S extends boolean | null | undefined | DeployLogDefaultArgs> = $Result.GetResult<Prisma.$DeployLogPayload, S>
+
+  type DeployLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<DeployLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: DeployLogCountAggregateInputType | true
+    }
+
+  export interface DeployLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DeployLog'], meta: { name: 'DeployLog' } }
+    /**
+     * Find zero or one DeployLog that matches the filter.
+     * @param {DeployLogFindUniqueArgs} args - Arguments to find a DeployLog
+     * @example
+     * // Get one DeployLog
+     * const deployLog = await prisma.deployLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DeployLogFindUniqueArgs>(args: SelectSubset<T, DeployLogFindUniqueArgs<ExtArgs>>): Prisma__DeployLogClient<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one DeployLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {DeployLogFindUniqueOrThrowArgs} args - Arguments to find a DeployLog
+     * @example
+     * // Get one DeployLog
+     * const deployLog = await prisma.deployLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DeployLogFindUniqueOrThrowArgs>(args: SelectSubset<T, DeployLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DeployLogClient<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first DeployLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeployLogFindFirstArgs} args - Arguments to find a DeployLog
+     * @example
+     * // Get one DeployLog
+     * const deployLog = await prisma.deployLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DeployLogFindFirstArgs>(args?: SelectSubset<T, DeployLogFindFirstArgs<ExtArgs>>): Prisma__DeployLogClient<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first DeployLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeployLogFindFirstOrThrowArgs} args - Arguments to find a DeployLog
+     * @example
+     * // Get one DeployLog
+     * const deployLog = await prisma.deployLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DeployLogFindFirstOrThrowArgs>(args?: SelectSubset<T, DeployLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__DeployLogClient<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more DeployLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeployLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DeployLogs
+     * const deployLogs = await prisma.deployLog.findMany()
+     * 
+     * // Get first 10 DeployLogs
+     * const deployLogs = await prisma.deployLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const deployLogWithIdOnly = await prisma.deployLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DeployLogFindManyArgs>(args?: SelectSubset<T, DeployLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a DeployLog.
+     * @param {DeployLogCreateArgs} args - Arguments to create a DeployLog.
+     * @example
+     * // Create one DeployLog
+     * const DeployLog = await prisma.deployLog.create({
+     *   data: {
+     *     // ... data to create a DeployLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends DeployLogCreateArgs>(args: SelectSubset<T, DeployLogCreateArgs<ExtArgs>>): Prisma__DeployLogClient<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many DeployLogs.
+     * @param {DeployLogCreateManyArgs} args - Arguments to create many DeployLogs.
+     * @example
+     * // Create many DeployLogs
+     * const deployLog = await prisma.deployLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DeployLogCreateManyArgs>(args?: SelectSubset<T, DeployLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DeployLogs and returns the data saved in the database.
+     * @param {DeployLogCreateManyAndReturnArgs} args - Arguments to create many DeployLogs.
+     * @example
+     * // Create many DeployLogs
+     * const deployLog = await prisma.deployLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DeployLogs and only return the `id`
+     * const deployLogWithIdOnly = await prisma.deployLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DeployLogCreateManyAndReturnArgs>(args?: SelectSubset<T, DeployLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a DeployLog.
+     * @param {DeployLogDeleteArgs} args - Arguments to delete one DeployLog.
+     * @example
+     * // Delete one DeployLog
+     * const DeployLog = await prisma.deployLog.delete({
+     *   where: {
+     *     // ... filter to delete one DeployLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DeployLogDeleteArgs>(args: SelectSubset<T, DeployLogDeleteArgs<ExtArgs>>): Prisma__DeployLogClient<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one DeployLog.
+     * @param {DeployLogUpdateArgs} args - Arguments to update one DeployLog.
+     * @example
+     * // Update one DeployLog
+     * const deployLog = await prisma.deployLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DeployLogUpdateArgs>(args: SelectSubset<T, DeployLogUpdateArgs<ExtArgs>>): Prisma__DeployLogClient<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more DeployLogs.
+     * @param {DeployLogDeleteManyArgs} args - Arguments to filter DeployLogs to delete.
+     * @example
+     * // Delete a few DeployLogs
+     * const { count } = await prisma.deployLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DeployLogDeleteManyArgs>(args?: SelectSubset<T, DeployLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DeployLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeployLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DeployLogs
+     * const deployLog = await prisma.deployLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DeployLogUpdateManyArgs>(args: SelectSubset<T, DeployLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DeployLog.
+     * @param {DeployLogUpsertArgs} args - Arguments to update or create a DeployLog.
+     * @example
+     * // Update or create a DeployLog
+     * const deployLog = await prisma.deployLog.upsert({
+     *   create: {
+     *     // ... data to create a DeployLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DeployLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DeployLogUpsertArgs>(args: SelectSubset<T, DeployLogUpsertArgs<ExtArgs>>): Prisma__DeployLogClient<$Result.GetResult<Prisma.$DeployLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of DeployLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeployLogCountArgs} args - Arguments to filter DeployLogs to count.
+     * @example
+     * // Count the number of DeployLogs
+     * const count = await prisma.deployLog.count({
+     *   where: {
+     *     // ... the filter for the DeployLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends DeployLogCountArgs>(
+      args?: Subset<T, DeployLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DeployLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DeployLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeployLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DeployLogAggregateArgs>(args: Subset<T, DeployLogAggregateArgs>): Prisma.PrismaPromise<GetDeployLogAggregateType<T>>
+
+    /**
+     * Group by DeployLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DeployLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DeployLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DeployLogGroupByArgs['orderBy'] }
+        : { orderBy?: DeployLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DeployLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDeployLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DeployLog model
+   */
+  readonly fields: DeployLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DeployLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DeployLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DeployLog model
+   */ 
+  interface DeployLogFieldRefs {
+    readonly id: FieldRef<"DeployLog", 'String'>
+    readonly deploy_number: FieldRef<"DeployLog", 'Int'>
+    readonly area: FieldRef<"DeployLog", 'String'>
+    readonly version: FieldRef<"DeployLog", 'String'>
+    readonly description: FieldRef<"DeployLog", 'String'>
+    readonly environment: FieldRef<"DeployLog", 'DeployEnvironment'>
+    readonly status: FieldRef<"DeployLog", 'DeployStatus'>
+    readonly deployed_by: FieldRef<"DeployLog", 'String'>
+    readonly deployed_by_user_id: FieldRef<"DeployLog", 'String'>
+    readonly deployed_at: FieldRef<"DeployLog", 'DateTime'>
+    readonly created_at: FieldRef<"DeployLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DeployLog findUnique
+   */
+  export type DeployLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * Filter, which DeployLog to fetch.
+     */
+    where: DeployLogWhereUniqueInput
+  }
+
+  /**
+   * DeployLog findUniqueOrThrow
+   */
+  export type DeployLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * Filter, which DeployLog to fetch.
+     */
+    where: DeployLogWhereUniqueInput
+  }
+
+  /**
+   * DeployLog findFirst
+   */
+  export type DeployLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * Filter, which DeployLog to fetch.
+     */
+    where?: DeployLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeployLogs to fetch.
+     */
+    orderBy?: DeployLogOrderByWithRelationInput | DeployLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeployLogs.
+     */
+    cursor?: DeployLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeployLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeployLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeployLogs.
+     */
+    distinct?: DeployLogScalarFieldEnum | DeployLogScalarFieldEnum[]
+  }
+
+  /**
+   * DeployLog findFirstOrThrow
+   */
+  export type DeployLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * Filter, which DeployLog to fetch.
+     */
+    where?: DeployLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeployLogs to fetch.
+     */
+    orderBy?: DeployLogOrderByWithRelationInput | DeployLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DeployLogs.
+     */
+    cursor?: DeployLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeployLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeployLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DeployLogs.
+     */
+    distinct?: DeployLogScalarFieldEnum | DeployLogScalarFieldEnum[]
+  }
+
+  /**
+   * DeployLog findMany
+   */
+  export type DeployLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * Filter, which DeployLogs to fetch.
+     */
+    where?: DeployLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DeployLogs to fetch.
+     */
+    orderBy?: DeployLogOrderByWithRelationInput | DeployLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DeployLogs.
+     */
+    cursor?: DeployLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DeployLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DeployLogs.
+     */
+    skip?: number
+    distinct?: DeployLogScalarFieldEnum | DeployLogScalarFieldEnum[]
+  }
+
+  /**
+   * DeployLog create
+   */
+  export type DeployLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * The data needed to create a DeployLog.
+     */
+    data: XOR<DeployLogCreateInput, DeployLogUncheckedCreateInput>
+  }
+
+  /**
+   * DeployLog createMany
+   */
+  export type DeployLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DeployLogs.
+     */
+    data: DeployLogCreateManyInput | DeployLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DeployLog createManyAndReturn
+   */
+  export type DeployLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many DeployLogs.
+     */
+    data: DeployLogCreateManyInput | DeployLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DeployLog update
+   */
+  export type DeployLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * The data needed to update a DeployLog.
+     */
+    data: XOR<DeployLogUpdateInput, DeployLogUncheckedUpdateInput>
+    /**
+     * Choose, which DeployLog to update.
+     */
+    where: DeployLogWhereUniqueInput
+  }
+
+  /**
+   * DeployLog updateMany
+   */
+  export type DeployLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DeployLogs.
+     */
+    data: XOR<DeployLogUpdateManyMutationInput, DeployLogUncheckedUpdateManyInput>
+    /**
+     * Filter which DeployLogs to update
+     */
+    where?: DeployLogWhereInput
+  }
+
+  /**
+   * DeployLog upsert
+   */
+  export type DeployLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * The filter to search for the DeployLog to update in case it exists.
+     */
+    where: DeployLogWhereUniqueInput
+    /**
+     * In case the DeployLog found by the `where` argument doesn't exist, create a new DeployLog with this data.
+     */
+    create: XOR<DeployLogCreateInput, DeployLogUncheckedCreateInput>
+    /**
+     * In case the DeployLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DeployLogUpdateInput, DeployLogUncheckedUpdateInput>
+  }
+
+  /**
+   * DeployLog delete
+   */
+  export type DeployLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+    /**
+     * Filter which DeployLog to delete.
+     */
+    where: DeployLogWhereUniqueInput
+  }
+
+  /**
+   * DeployLog deleteMany
+   */
+  export type DeployLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DeployLogs to delete
+     */
+    where?: DeployLogWhereInput
+  }
+
+  /**
+   * DeployLog without action
+   */
+  export type DeployLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DeployLog
+     */
+    select?: DeployLogSelect<ExtArgs> | null
+  }
+
+
+  /**
    * Model SupplierTenantAccess
    */
 
@@ -20858,6 +21956,23 @@ export namespace Prisma {
   export type StripeEventScalarFieldEnum = (typeof StripeEventScalarFieldEnum)[keyof typeof StripeEventScalarFieldEnum]
 
 
+  export const DeployLogScalarFieldEnum: {
+    id: 'id',
+    deploy_number: 'deploy_number',
+    area: 'area',
+    version: 'version',
+    description: 'description',
+    environment: 'environment',
+    status: 'status',
+    deployed_by: 'deployed_by',
+    deployed_by_user_id: 'deployed_by_user_id',
+    deployed_at: 'deployed_at',
+    created_at: 'created_at'
+  };
+
+  export type DeployLogScalarFieldEnum = (typeof DeployLogScalarFieldEnum)[keyof typeof DeployLogScalarFieldEnum]
+
+
   export const SupplierTenantAccessScalarFieldEnum: {
     id: 'id',
     clerk_user_id: 'clerk_user_id',
@@ -21169,6 +22284,34 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DeployEnvironment'
+   */
+  export type EnumDeployEnvironmentFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeployEnvironment'>
+    
+
+
+  /**
+   * Reference to a field of type 'DeployEnvironment[]'
+   */
+  export type ListEnumDeployEnvironmentFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeployEnvironment[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DeployStatus'
+   */
+  export type EnumDeployStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeployStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'DeployStatus[]'
+   */
+  export type ListEnumDeployStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeployStatus[]'>
     
 
 
@@ -22271,6 +23414,90 @@ export namespace Prisma {
     type?: StringWithAggregatesFilter<"StripeEvent"> | string
     processed_at?: DateTimeWithAggregatesFilter<"StripeEvent"> | Date | string
     payload?: JsonWithAggregatesFilter<"StripeEvent">
+  }
+
+  export type DeployLogWhereInput = {
+    AND?: DeployLogWhereInput | DeployLogWhereInput[]
+    OR?: DeployLogWhereInput[]
+    NOT?: DeployLogWhereInput | DeployLogWhereInput[]
+    id?: StringFilter<"DeployLog"> | string
+    deploy_number?: IntFilter<"DeployLog"> | number
+    area?: StringFilter<"DeployLog"> | string
+    version?: StringFilter<"DeployLog"> | string
+    description?: StringFilter<"DeployLog"> | string
+    environment?: EnumDeployEnvironmentFilter<"DeployLog"> | $Enums.DeployEnvironment
+    status?: EnumDeployStatusFilter<"DeployLog"> | $Enums.DeployStatus
+    deployed_by?: StringFilter<"DeployLog"> | string
+    deployed_by_user_id?: StringNullableFilter<"DeployLog"> | string | null
+    deployed_at?: DateTimeFilter<"DeployLog"> | Date | string
+    created_at?: DateTimeFilter<"DeployLog"> | Date | string
+  }
+
+  export type DeployLogOrderByWithRelationInput = {
+    id?: SortOrder
+    deploy_number?: SortOrder
+    area?: SortOrder
+    version?: SortOrder
+    description?: SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    deployed_by?: SortOrder
+    deployed_by_user_id?: SortOrderInput | SortOrder
+    deployed_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DeployLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DeployLogWhereInput | DeployLogWhereInput[]
+    OR?: DeployLogWhereInput[]
+    NOT?: DeployLogWhereInput | DeployLogWhereInput[]
+    deploy_number?: IntFilter<"DeployLog"> | number
+    area?: StringFilter<"DeployLog"> | string
+    version?: StringFilter<"DeployLog"> | string
+    description?: StringFilter<"DeployLog"> | string
+    environment?: EnumDeployEnvironmentFilter<"DeployLog"> | $Enums.DeployEnvironment
+    status?: EnumDeployStatusFilter<"DeployLog"> | $Enums.DeployStatus
+    deployed_by?: StringFilter<"DeployLog"> | string
+    deployed_by_user_id?: StringNullableFilter<"DeployLog"> | string | null
+    deployed_at?: DateTimeFilter<"DeployLog"> | Date | string
+    created_at?: DateTimeFilter<"DeployLog"> | Date | string
+  }, "id">
+
+  export type DeployLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    deploy_number?: SortOrder
+    area?: SortOrder
+    version?: SortOrder
+    description?: SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    deployed_by?: SortOrder
+    deployed_by_user_id?: SortOrderInput | SortOrder
+    deployed_at?: SortOrder
+    created_at?: SortOrder
+    _count?: DeployLogCountOrderByAggregateInput
+    _avg?: DeployLogAvgOrderByAggregateInput
+    _max?: DeployLogMaxOrderByAggregateInput
+    _min?: DeployLogMinOrderByAggregateInput
+    _sum?: DeployLogSumOrderByAggregateInput
+  }
+
+  export type DeployLogScalarWhereWithAggregatesInput = {
+    AND?: DeployLogScalarWhereWithAggregatesInput | DeployLogScalarWhereWithAggregatesInput[]
+    OR?: DeployLogScalarWhereWithAggregatesInput[]
+    NOT?: DeployLogScalarWhereWithAggregatesInput | DeployLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DeployLog"> | string
+    deploy_number?: IntWithAggregatesFilter<"DeployLog"> | number
+    area?: StringWithAggregatesFilter<"DeployLog"> | string
+    version?: StringWithAggregatesFilter<"DeployLog"> | string
+    description?: StringWithAggregatesFilter<"DeployLog"> | string
+    environment?: EnumDeployEnvironmentWithAggregatesFilter<"DeployLog"> | $Enums.DeployEnvironment
+    status?: EnumDeployStatusWithAggregatesFilter<"DeployLog"> | $Enums.DeployStatus
+    deployed_by?: StringWithAggregatesFilter<"DeployLog"> | string
+    deployed_by_user_id?: StringNullableWithAggregatesFilter<"DeployLog"> | string | null
+    deployed_at?: DateTimeWithAggregatesFilter<"DeployLog"> | Date | string
+    created_at?: DateTimeWithAggregatesFilter<"DeployLog"> | Date | string
   }
 
   export type SupplierTenantAccessWhereInput = {
@@ -23876,6 +25103,104 @@ export namespace Prisma {
     payload?: JsonNullValueInput | InputJsonValue
   }
 
+  export type DeployLogCreateInput = {
+    id?: string
+    deploy_number?: number
+    area: string
+    version: string
+    description: string
+    environment?: $Enums.DeployEnvironment
+    status?: $Enums.DeployStatus
+    deployed_by: string
+    deployed_by_user_id?: string | null
+    deployed_at?: Date | string
+    created_at?: Date | string
+  }
+
+  export type DeployLogUncheckedCreateInput = {
+    id?: string
+    deploy_number?: number
+    area: string
+    version: string
+    description: string
+    environment?: $Enums.DeployEnvironment
+    status?: $Enums.DeployStatus
+    deployed_by: string
+    deployed_by_user_id?: string | null
+    deployed_at?: Date | string
+    created_at?: Date | string
+  }
+
+  export type DeployLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deploy_number?: IntFieldUpdateOperationsInput | number
+    area?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    environment?: EnumDeployEnvironmentFieldUpdateOperationsInput | $Enums.DeployEnvironment
+    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
+    deployed_by?: StringFieldUpdateOperationsInput | string
+    deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeployLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deploy_number?: IntFieldUpdateOperationsInput | number
+    area?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    environment?: EnumDeployEnvironmentFieldUpdateOperationsInput | $Enums.DeployEnvironment
+    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
+    deployed_by?: StringFieldUpdateOperationsInput | string
+    deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeployLogCreateManyInput = {
+    id?: string
+    deploy_number?: number
+    area: string
+    version: string
+    description: string
+    environment?: $Enums.DeployEnvironment
+    status?: $Enums.DeployStatus
+    deployed_by: string
+    deployed_by_user_id?: string | null
+    deployed_at?: Date | string
+    created_at?: Date | string
+  }
+
+  export type DeployLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deploy_number?: IntFieldUpdateOperationsInput | number
+    area?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    environment?: EnumDeployEnvironmentFieldUpdateOperationsInput | $Enums.DeployEnvironment
+    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
+    deployed_by?: StringFieldUpdateOperationsInput | string
+    deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeployLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    deploy_number?: IntFieldUpdateOperationsInput | number
+    area?: StringFieldUpdateOperationsInput | string
+    version?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    environment?: EnumDeployEnvironmentFieldUpdateOperationsInput | $Enums.DeployEnvironment
+    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
+    deployed_by?: StringFieldUpdateOperationsInput | string
+    deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
+    deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SupplierTenantAccessCreateInput = {
     id?: string
     clerk_user_id: string
@@ -25435,6 +26760,90 @@ export namespace Prisma {
     processed_at?: SortOrder
   }
 
+  export type EnumDeployEnvironmentFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployEnvironment | EnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployEnvironment[] | ListEnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployEnvironment[] | ListEnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployEnvironmentFilter<$PrismaModel> | $Enums.DeployEnvironment
+  }
+
+  export type EnumDeployStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployStatus | EnumDeployStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployStatusFilter<$PrismaModel> | $Enums.DeployStatus
+  }
+
+  export type DeployLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    deploy_number?: SortOrder
+    area?: SortOrder
+    version?: SortOrder
+    description?: SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    deployed_by?: SortOrder
+    deployed_by_user_id?: SortOrder
+    deployed_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DeployLogAvgOrderByAggregateInput = {
+    deploy_number?: SortOrder
+  }
+
+  export type DeployLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    deploy_number?: SortOrder
+    area?: SortOrder
+    version?: SortOrder
+    description?: SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    deployed_by?: SortOrder
+    deployed_by_user_id?: SortOrder
+    deployed_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DeployLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    deploy_number?: SortOrder
+    area?: SortOrder
+    version?: SortOrder
+    description?: SortOrder
+    environment?: SortOrder
+    status?: SortOrder
+    deployed_by?: SortOrder
+    deployed_by_user_id?: SortOrder
+    deployed_at?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type DeployLogSumOrderByAggregateInput = {
+    deploy_number?: SortOrder
+  }
+
+  export type EnumDeployEnvironmentWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployEnvironment | EnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployEnvironment[] | ListEnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployEnvironment[] | ListEnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployEnvironmentWithAggregatesFilter<$PrismaModel> | $Enums.DeployEnvironment
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeployEnvironmentFilter<$PrismaModel>
+    _max?: NestedEnumDeployEnvironmentFilter<$PrismaModel>
+  }
+
+  export type EnumDeployStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployStatus | EnumDeployStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployStatusWithAggregatesFilter<$PrismaModel> | $Enums.DeployStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeployStatusFilter<$PrismaModel>
+    _max?: NestedEnumDeployStatusFilter<$PrismaModel>
+  }
+
   export type SupplierTenantAccessClerk_user_idTenant_idCompoundUniqueInput = {
     clerk_user_id: string
     tenant_id: string
@@ -26525,6 +27934,14 @@ export namespace Prisma {
     update?: XOR<XOR<ProductUpdateToOneWithWhereWithoutNegotiationsInput, ProductUpdateWithoutNegotiationsInput>, ProductUncheckedUpdateWithoutNegotiationsInput>
   }
 
+  export type EnumDeployEnvironmentFieldUpdateOperationsInput = {
+    set?: $Enums.DeployEnvironment
+  }
+
+  export type EnumDeployStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DeployStatus
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -26936,6 +28353,40 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedEnumDeployEnvironmentFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployEnvironment | EnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployEnvironment[] | ListEnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployEnvironment[] | ListEnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployEnvironmentFilter<$PrismaModel> | $Enums.DeployEnvironment
+  }
+
+  export type NestedEnumDeployStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployStatus | EnumDeployStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployStatusFilter<$PrismaModel> | $Enums.DeployStatus
+  }
+
+  export type NestedEnumDeployEnvironmentWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployEnvironment | EnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployEnvironment[] | ListEnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployEnvironment[] | ListEnumDeployEnvironmentFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployEnvironmentWithAggregatesFilter<$PrismaModel> | $Enums.DeployEnvironment
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeployEnvironmentFilter<$PrismaModel>
+    _max?: NestedEnumDeployEnvironmentFilter<$PrismaModel>
+  }
+
+  export type NestedEnumDeployStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployStatus | EnumDeployStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployStatusWithAggregatesFilter<$PrismaModel> | $Enums.DeployStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumDeployStatusFilter<$PrismaModel>
+    _max?: NestedEnumDeployStatusFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -29575,6 +31026,10 @@ export namespace Prisma {
      * @deprecated Use StripeEventDefaultArgs instead
      */
     export type StripeEventArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = StripeEventDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use DeployLogDefaultArgs instead
+     */
+    export type DeployLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DeployLogDefaultArgs<ExtArgs>
     /**
      * @deprecated Use SupplierTenantAccessDefaultArgs instead
      */

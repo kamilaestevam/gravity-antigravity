@@ -33,11 +33,20 @@ interface SecurityEvent {
   created_at: string
 }
 
+interface RecentEventSummary {
+  id: string
+  action: string
+  severity: Severidade
+  created_at: string
+}
+
 interface Stats {
+  period: '24h'
   totalEvents: number
   criticalCount: number
   warningCount: number
   blockedCount: number
+  recentEvents: RecentEventSummary[]
 }
 
 interface ServiceHealthEntry {
@@ -65,24 +74,64 @@ interface RateLimitEntry {
   created_at: string
 }
 
+interface RateLimitResponse {
+  metrics: RateLimitEntry[]
+  blockedCount: number
+  period: '1h'
+}
+
 interface SecretEntry {
   name: string
   configured: boolean
   prefix: string
 }
 
+interface SecretsResponse {
+  secrets: SecretEntry[]
+}
+
+interface EventsResponse {
+  events: SecurityEvent[]
+  pagination: { total: number; limit: number; offset: number }
+}
+
+/**
+ * Resposta consolidada do /api/admin/security/overview — elimina 5 requests
+ * em paralelo por tick de polling. O endpoint /events continua separado porque
+ * depende dos filtros da UI e é pesado demais para bundlar no overview.
+ */
+interface OverviewResponse {
+  stats: Stats
+  health: HealthResponse
+  ratelimit: RateLimitResponse
+  secrets: SecretsResponse
+}
+
 // ─── API helper ───────────────────────────────────────────────────────────
 
 const API_BASE = '/api/admin/security'
 
-async function fetchJSON<T>(path: string): Promise<T | null> {
-  try {
-    const res = await fetch(`${API_BASE}${path}`, { credentials: 'include' })
-    if (!res.ok) return null
-    return await res.json()
-  } catch {
-    return null
+class SecurityApiError extends Error {
+  constructor(message: string, readonly status: number, readonly path: string) {
+    super(message)
+    this.name = 'SecurityApiError'
   }
+}
+
+/**
+ * Fetch tipado com propagação real de erros. O helper antigo retornava `null`
+ * silenciosamente em qualquer falha, escondendo 429/500/timeouts e deixando
+ * a UI com "backend offline" genérico. Agora lança SecurityApiError que o
+ * caller usa para mostrar mensagem precisa + retry button.
+ */
+async function fetchJSON<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, { credentials: 'include' })
+  if (!res.ok) {
+    const body = await res.text().catch(() => '')
+    const preview = body ? ` — ${body.slice(0, 200)}` : ''
+    throw new SecurityApiError(`${res.status} ${res.statusText}${preview}`, res.status, path)
+  }
+  return (await res.json()) as T
 }
 
 // ─── Helpers visuais ──────────────────────────────────────────────────────
@@ -123,7 +172,7 @@ function statusColor(status: ServiceStatus) {
 
 // ─── Componente Principal ─────────────────────────────────────────────────
 
-const POLL_INTERVAL = 15_000 // 15 segundos
+const POLL_INTERVAL = 30_000 // 30s (antes: 15s × 5 endpoints = 20 req/min por tab, estourava rate limit)
 
 export function SegurancaAdmin() {
   const { t } = useTranslation()
@@ -132,9 +181,12 @@ export function SegurancaAdmin() {
   const [filtroAction, setFiltroAction] = useState<string>('TODOS')
   const [lastUpdate, setLastUpdate] = useState<string>('')
   const [loading, setLoading] = useState(true)
+  const [erroCarregar, setErroCarregar] = useState<string | null>(null)
 
   // Dados do backend
-  const [stats, setStats] = useState<Stats>({ totalEvents: 0, criticalCount: 0, warningCount: 0, blockedCount: 0 })
+  const [stats, setStats] = useState<Stats>({
+    period: '24h', totalEvents: 0, criticalCount: 0, warningCount: 0, blockedCount: 0, recentEvents: [],
+  })
   const [events, setEvents] = useState<SecurityEvent[]>([])
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [rateMetrics, setRateMetrics] = useState<RateLimitEntry[]>([])
@@ -143,29 +195,68 @@ export function SegurancaAdmin() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const loadData = useCallback(async () => {
-    const [statsRes, eventsRes, healthRes, rateRes, secretsRes] = await Promise.all([
-      fetchJSON<any>('/stats'),
-      fetchJSON<any>(`/events?limit=50&${filtroSeveridade !== 'TODOS' ? `severity=${filtroSeveridade}` : ''}${filtroAction !== 'TODOS' ? `&action=${filtroAction}` : ''}`),
-      fetchJSON<HealthResponse>('/health'),
-      fetchJSON<any>('/ratelimit'),
-      fetchJSON<any>('/secrets'),
-    ])
+    try {
+      setErroCarregar(null)
 
-    if (statsRes) setStats(statsRes)
-    if (eventsRes) setEvents(eventsRes.events || [])
-    if (healthRes) setHealth(healthRes)
-    if (rateRes) setRateMetrics(rateRes.metrics || [])
-    if (secretsRes) setSecrets(secretsRes.secrets || [])
+      // 1 request consolidada em vez de 4 em paralelo
+      const overview = await fetchJSON<OverviewResponse>('/overview')
+      setStats(overview.stats)
+      setHealth(overview.health)
+      setRateMetrics(overview.ratelimit.metrics)
+      setSecrets(overview.secrets.secrets)
 
-    setLastUpdate(new Date().toLocaleTimeString('pt-BR'))
-    setLoading(false)
+      // /events é separado porque depende dos filtros da UI
+      const params = new URLSearchParams({ limit: '50' })
+      if (filtroSeveridade !== 'TODOS') params.set('severity', filtroSeveridade)
+      if (filtroAction !== 'TODOS') params.set('action', filtroAction)
+      const eventsRes = await fetchJSON<EventsResponse>(`/events?${params.toString()}`)
+      setEvents(eventsRes.events)
+
+      setLastUpdate(new Date().toLocaleTimeString('pt-BR'))
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Falha desconhecida'
+      setErroCarregar(msg)
+    } finally {
+      setLoading(false)
+    }
   }, [filtroSeveridade, filtroAction])
 
-  // Polling
+  // Polling: pausa quando a aba fica invisível pra economizar requests
   useEffect(() => {
-    loadData()
-    intervalRef.current = setInterval(loadData, POLL_INTERVAL)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+    void loadData()
+
+    function startPolling() {
+      if (intervalRef.current) return
+      intervalRef.current = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          void loadData()
+        }
+      }, POLL_INTERVAL)
+    }
+
+    function stopPolling() {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        void loadData() // refresh imediato ao voltar
+        startPolling()
+      } else {
+        stopPolling()
+      }
+    }
+
+    startPolling()
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      stopPolling()
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [loadData])
 
   // Tipos unicos para filtro
@@ -275,8 +366,13 @@ export function SegurancaAdmin() {
         icone={<ShieldCheck weight="duotone" size={24} />}
       />
 
-      {/* ── Stat Cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+      {/* ── Stat Cards ── aria-live pra leitores de tela acompanharem polling ── */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="false"
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}
+      >
         <StatCardGlobal
           titulo={t('admin.security.status_geral')}
           valor={loading ? '...' : (overallOk ? t('admin.security.protegido') : health?.overall || t('admin.security.verificando'))}
@@ -314,6 +410,9 @@ export function SegurancaAdmin() {
           <button
             key={tab.key}
             onClick={() => setAbaAtiva(tab.key)}
+            role="tab"
+            aria-selected={abaAtiva === tab.key}
+            aria-label={tab.label}
             style={{
               display: 'flex', alignItems: 'center', gap: '0.4rem',
               padding: '0.6rem 1rem', border: 'none', cursor: 'pointer',
@@ -330,7 +429,8 @@ export function SegurancaAdmin() {
 
         {/* Botao refresh manual */}
         <button
-          onClick={() => { setLoading(true); loadData() }}
+          onClick={() => { setLoading(true); void loadData() }}
+          aria-label={t('admin.security.btn_atualizar')}
           style={{
             marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.3rem',
             padding: '0.4rem 0.8rem', border: 'none', cursor: 'pointer',
@@ -342,6 +442,40 @@ export function SegurancaAdmin() {
           {t('admin.security.btn_atualizar')}
         </button>
       </div>
+
+      {/* ── Estado de erro global (quando /overview falha) ─────────── */}
+      {erroCarregar && !loading && !health && (
+        <div
+          role="alert"
+          style={{
+            padding: '2rem 1rem', textAlign: 'center',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem',
+            border: '1px solid rgba(248,113,113,0.2)', borderRadius: '8px',
+            background: 'rgba(248,113,113,0.05)', marginBottom: '1.5rem',
+          }}
+        >
+          <div style={{ fontSize: '0.875rem', color: '#f87171', fontWeight: 600 }}>
+            Falha ao carregar painel de segurança
+          </div>
+          <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
+            {erroCarregar}
+          </div>
+          <button
+            type="button"
+            onClick={() => { setLoading(true); void loadData() }}
+            aria-label="Tentar carregar painel de segurança novamente"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              padding: '8px 16px', borderRadius: '8px', cursor: 'pointer',
+              background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)',
+              color: '#10b981', fontSize: '0.8rem', fontWeight: 600,
+            }}
+          >
+            <ArrowsClockwise size={14} />
+            Tentar novamente
+          </button>
+        </div>
+      )}
 
       {/* ── Aba: Servicos & Health ── */}
       {abaAtiva === 'health' && (
@@ -359,9 +493,11 @@ export function SegurancaAdmin() {
             <TabelaGlobal dados={health.services} colunas={colunasHealth} keyField="service" mensagemVazio={t('admin.security.vazio.sem_servicos')} />
           </>
         ) : (
-          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
-            {loading ? t('admin.security.vazio.verificando') : `${t('admin.security.vazio.erro_health')} ${t('admin.security.vazio.backend_offline')}`}
-          </div>
+          !erroCarregar && (
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
+              {loading ? t('admin.security.vazio.verificando') : t('admin.security.vazio.sem_servicos')}
+            </div>
+          )
         )
       )}
 
@@ -384,7 +520,7 @@ export function SegurancaAdmin() {
               label={t('admin.security.filtro.tipo')}
               value={filtroAction}
               onChange={(e) => setFiltroAction(e.target.value)}
-              options={actionsUnicos.map(t => ({ value: t, label: t.replace(/_/g, ' ') }))}
+              options={actionsUnicos.map(tt => ({ value: tt, label: tt.replace(/_/g, ' ') }))}
             />
           </div>
           <TabelaGlobal

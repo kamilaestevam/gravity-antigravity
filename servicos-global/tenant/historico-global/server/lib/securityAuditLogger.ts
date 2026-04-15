@@ -52,8 +52,14 @@ async function logSecurityEvent(event: SecurityEventInput): Promise<void> {
   })
 
   // 2. Persistir na tabela SecurityEvent do Configurador (fire-and-forget)
+  // Usa a rota INTERNA /api/internal/security/events que valida x-internal-key.
+  // A rota /api/admin/security/events (antiga) estava atrás de requireAuth+
+  // requireGravityAdmin e caía em 401 para esta chamada S2S, quebrando o
+  // audit trail silenciosamente.
   if (CONFIGURADOR_URL) {
-    fetch(`${CONFIGURADOR_URL}/api/admin/security/events`, {
+    const ipFromMetadata = typeof event.metadata?.ip === 'string' ? event.metadata.ip : undefined
+    const endpointFromMetadata = typeof event.metadata?.endpoint === 'string' ? event.metadata.endpoint : undefined
+    fetch(`${CONFIGURADOR_URL}/api/internal/security/events`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -68,15 +74,16 @@ async function logSecurityEvent(event: SecurityEventInput): Promise<void> {
         severity: event.severity,
         status: event.metadata?.blocked ? 'BLOCKED' : 'DETECTED',
         description: `${event.action}: ${JSON.stringify(event.metadata)}`.slice(0, 500),
-        ip: event.actor_ip ?? event.metadata?.ip,
-        endpoint: event.metadata?.endpoint,
+        ip: event.actor_ip ?? ipFromMetadata,
+        endpoint: endpointFromMetadata,
         user_id: event.user_id,
         product_id: event.product_id,
         correlation_id: event.correlation_id,
         metadata: event.metadata,
       }),
-    }).catch(() => {
-      console.error('[securityAudit] Falha ao persistir no Configurador')
+    }).catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : 'unknown'
+      console.error(`[securityAudit] Falha ao persistir no Configurador: ${msg}`)
     })
   }
 }

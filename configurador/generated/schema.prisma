@@ -490,6 +490,48 @@ model StripeEvent {
 }
 
 // ---------------------------------------------------------------------------
+// DEPLOY LOG (Histórico de Deploys da Plataforma Gravity)
+// Registro manual de cada deploy feito pelo time (hotfix, migration, release).
+// Global — não é tenant-scoped. Apenas gravity_admin grava/lê.
+// Ver docs/BILLING.md padrão de providers; aqui é simples CRUD.
+// ---------------------------------------------------------------------------
+
+enum DeployEnvironment {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+  ALL
+}
+
+enum DeployStatus {
+  SUCCESS
+  FAILED
+  ROLLBACK
+  IN_PROGRESS
+}
+
+model DeployLog {
+  id                  String            @id @default(cuid())
+  deploy_number       Int               @default(autoincrement())
+  area                String // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
+  version             String // semver (v1.2.3) ou git sha (8f3a1c2)
+  description         String // resumo das alterações (changelog curto)
+  environment         DeployEnvironment @default(PRODUCTION)
+  status              DeployStatus      @default(SUCCESS)
+  deployed_by         String // nome legível do responsável (snapshot no momento do deploy)
+  deployed_by_user_id String? // FK opcional para User (pode ser null se deploy veio de CI)
+  deployed_at         DateTime          @default(now())
+
+  created_at DateTime @default(now())
+
+  @@index([deployed_at])
+  @@index([area])
+  @@index([environment])
+  @@index([status])
+  @@index([area, deployed_at])
+}
+
+// ---------------------------------------------------------------------------
 // SUPPLIER TENANT ACCESS
 // Fornecedor cross-tenant — pode prestar serviços para múltiplos tenants.
 // clerk_user_id único no Clerk, múltiplos vínculos aqui.

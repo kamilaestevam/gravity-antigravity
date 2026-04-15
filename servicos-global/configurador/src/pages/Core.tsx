@@ -349,7 +349,7 @@ export function Core() {
               sessionStorage.removeItem('gravity_company_name')
               signOut()
             }}
-            isAdmin={false}
+            isAdmin={isGravityAdmin}
             onNavigateAdmin={() => navigate('/admin/visao-geral')}
             onNavigateConfigurador={() => navigate('/workspace/workspaces')}
             compact

@@ -289,46 +289,188 @@ export const adminUsersApi = {
   },
 }
 
-// ─── Admin: Billing / Faturas ───────────────────────────────────────────────
+// ─── Admin: Billing / Faturas (BillingProvider abstrato) ────────────────────
+// Shape estável independente do provider (Stripe / Itaú / Santander / ASAAS / ...).
+// Ver servicos-global/configurador/server/lib/billing/types.ts
 
-export interface InvoiceApi {
+export type GravityInvoiceStatus =
+  | 'DRAFT'
+  | 'OPEN'
+  | 'PAID'
+  | 'VOID'
+  | 'OVERDUE'
+  | 'UNCOLLECTIBLE'
+
+export interface GravityInvoiceLineItemApi {
+  description: string
+  amount_cents: number
+  quantity: number
+  currency: string
+}
+
+export interface GravityInvoiceDocumentApi {
+  type: 'boleto' | 'nfe' | 'receipt' | 'pdf' | 'other'
+  name: string
+  url: string
+  size_bytes?: number
+}
+
+export interface GravityInvoiceCustomerApi {
   id: string
-  plan: string
-  status: string
-  stripe_subscription_id: string | null
-  current_period_start: string | null
-  current_period_end: string | null
+  name: string
+  email: string | null
+  tenant_id: string | null
+}
+
+export interface GravityInvoiceApi {
+  id: string
+  number: string | null
+  status: GravityInvoiceStatus
+  customer: GravityInvoiceCustomerApi
+  amount_due_cents: number
+  amount_paid_cents: number
+  currency: string
+  due_date: string | null
+  competencia: string | null
+  description: string
+  line_items: GravityInvoiceLineItemApi[]
+  documents: GravityInvoiceDocumentApi[]
+  hosted_url: string | null
   created_at: string
-  tenant: { id: string; name: string; slug: string; stripe_customer_id: string | null }
+  provider: string
+  provider_id: string
+}
+
+export interface BillingPaginationApi {
+  has_more: boolean
+  next_cursor: string | null
+}
+
+export interface ListInvoicesResponseApi {
+  invoices: GravityInvoiceApi[]
+  pagination: BillingPaginationApi
+  provider: string
+}
+
+export interface CreateInvoiceRequest {
+  customer_tenant_id: string
+  description: string
+  line_items: Array<{
+    description: string
+    amount_cents: number
+    quantity: number
+  }>
+  due_date?: string
+  currency?: string
+  auto_finalize?: boolean
+  metadata?: Record<string, string>
 }
 
 export const adminBillingApi = {
-  async listInvoices(params?: { page?: number }) {
+  async listInvoices(params?: { cursor?: string; limit?: number; status?: GravityInvoiceStatus; customer_id?: string }) {
     const query = new URLSearchParams()
-    if (params?.page) query.set('page', String(params.page))
+    if (params?.cursor) query.set('cursor', params.cursor)
+    if (params?.limit) query.set('limit', String(params.limit))
+    if (params?.status) query.set('status', params.status)
+    if (params?.customer_id) query.set('customer_id', params.customer_id)
     const qs = query.toString()
-    return request<{ invoices: InvoiceApi[]; pagination: PaginationApi }>(
-      `/admin/billing/invoices${qs ? `?${qs}` : ''}`
-    )
+    return request<ListInvoicesResponseApi>(`/admin/billing/invoices${qs ? `?${qs}` : ''}`)
+  },
+
+  async getInvoice(id: string) {
+    return request<{ invoice: GravityInvoiceApi }>(`/admin/billing/invoices/${id}`)
+  },
+
+  async createInvoice(data: CreateInvoiceRequest) {
+    return request<{ invoice: GravityInvoiceApi }>('/admin/billing/invoices', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async voidInvoice(id: string, reason?: string) {
+    return request<{ invoice: GravityInvoiceApi }>(`/admin/billing/invoices/${id}/void`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    })
+  },
+
+  async sendInvoice(id: string) {
+    return request<{ invoice: GravityInvoiceApi }>(`/admin/billing/invoices/${id}/send`, {
+      method: 'POST',
+    })
   },
 }
 
 // ─── Admin: Deploy Logs ─────────────────────────────────────────────────────
+// Histórico manual de deploys da plataforma Gravity.
+
+export type DeployEnvironment = 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION' | 'ALL'
+export type DeployStatus = 'SUCCESS' | 'FAILED' | 'ROLLBACK' | 'IN_PROGRESS'
 
 export interface DeployLogApi {
   id: string
-  created_at: string
-  user: string
+  deploy_number: number
   area: string
-  from_state: string
-  to_state: string
   version: string
-  status: string
+  description: string
+  environment: DeployEnvironment
+  status: DeployStatus
+  deployed_by: string
+  deployed_by_user_id: string | null
+  deployed_at: string
+  created_at: string
+}
+
+export interface ListDeploysResponseApi {
+  deploys: DeployLogApi[]
+  pagination: PaginationApi
+}
+
+export interface CreateDeployRequest {
+  area: string
+  version: string
+  description: string
+  environment?: DeployEnvironment
+  status?: DeployStatus
+  deployed_at?: string
 }
 
 export const adminDeploysApi = {
-  async list() {
-    return request<{ deploys: DeployLogApi[] }>('/admin/deploys')
+  async list(params?: {
+    page?: number
+    limit?: number
+    area?: string
+    environment?: DeployEnvironment
+    status?: DeployStatus
+    search?: string
+    from_date?: string
+    to_date?: string
+  }) {
+    const query = new URLSearchParams()
+    if (params?.page) query.set('page', String(params.page))
+    if (params?.limit) query.set('limit', String(params.limit))
+    if (params?.area) query.set('area', params.area)
+    if (params?.environment) query.set('environment', params.environment)
+    if (params?.status) query.set('status', params.status)
+    if (params?.search) query.set('search', params.search)
+    if (params?.from_date) query.set('from_date', params.from_date)
+    if (params?.to_date) query.set('to_date', params.to_date)
+    const qs = query.toString()
+    return request<ListDeploysResponseApi>(`/admin/deploys${qs ? `?${qs}` : ''}`)
+  },
+
+  async create(data: CreateDeployRequest) {
+    return request<{ deploy: DeployLogApi }>('/admin/deploys', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async delete(id: string) {
+    return request<{ deleted: boolean; id: string }>(`/admin/deploys/${id}`, {
+      method: 'DELETE',
+    })
   },
 }
 

@@ -1,0 +1,79 @@
+{
+  "timestamp": "2026-04-15T20:01:31.784Z",
+  "total": 10,
+  "passed": 10,
+  "ok": true,
+  "results": [
+    {
+      "step": "100 linhas pai renderizadas",
+      "ok": true,
+      "detail": "encontrado: 100"
+    },
+    {
+      "step": "Cabeçalho com colunas (>=100)",
+      "ok": true,
+      "detail": "109 colunas"
+    },
+    {
+      "step": "NCM agregado renderizado em alguma célula pai",
+      "ok": true,
+      "detail": "exemplo: \"—\""
+    },
+    {
+      "step": "Linhas filhas apareceram após expand",
+      "ok": true,
+      "detail": "12 filhas"
+    },
+    {
+      "step": "NCM do item visível",
+      "ok": true,
+      "detail": "exemplo: 8585.85.85"
+    },
+    {
+      "step": "Total de células editáveis renderizadas (proof do wire)",
+      "ok": true,
+      "detail": "9600 células editáveis"
+    },
+    {
+      "step": "Linha pai tem células editáveis (>=15 esperadas)",
+      "ok": true,
+      "detail": "96 editáveis na 1ª linha"
+    },
+    {
+      "step": "Existem células NÃO editáveis (calculados/saldo/somente_leitura)",
+      "ok": true,
+      "detail": "1000 não-editáveis"
+    },
+    {
+      "step": "100 linhas pai sem regressão",
+      "ok": true
+    },
+    {
+      "step": "Total de células editáveis bate com baseline (~9600)",
+      "ok": true,
+      "detail": "9600"
+    }
+  ],
+  "api_calls_count": 19,
+  "console_errors": [
+    "Warning: Received `%s` for a non-boolean attribute `%s`.\n\nIf you want to write it to the DOM, pass a string instead: %s=\"%s\" or %s={value.toString()}.\n\nIf you used to conditionally omit it with %s={condition && value}, pass %s={condition ? value : undefined} instead.%s false carregando carregando false carregando carregando carregando \n    at button\n    at BotaoGlobal (http://localhost:5179/@fs/C:/Users/danie/gravity-antigravity/nucleo-global/Botoes/botao-global/src/botao.js:44:3)\n    at span\n    at TooltipGlobal (http://localhost:5179/@fs/C:/Users/danie/gravity-antigravity/nucleo-global/Feedback/tooltip-global/src/tooltip.js:41:3)\n    at BarraAcoesPedido2 (http://localhost:5179/src/pages/ListaPedidos.tsx:4878:3)\n    at div\n    at div\n    at div\n    at TabelaVirtualGlobal (http://localhost:5179/@fs/C:/Users/danie/gravity-antigravity/nucleo-global/Tabelas/tabela-virtual-global/src/TabelaVirtualGlobal.tsx:1285:3)\n    at div\n    at div\n    at ListaPedidos (http://localhost:5179/src/pages/ListaPedidos.tsx:5646:17)\n    at RenderedRoute (http://localhost:5179/node_modules/.vite/deps/react-router-dom.js?v=f7a7d850:4131:5)\n    at Routes (http://localhost:5179/node_modules/.vite/deps/react-router-dom.js?v=f7a7d850:4601:5)\n    at Suspense\n    at main\n    at div\n    at div\n    at TelaProdutoGlobal (http://localhost:5179/@fs/C:/Users/danie/gravity-antigravity/nucleo-global/Layout/tela-produto-global/src/TelaProdutoGlobal.tsx:24:3)\n    at App (http://localhost:5179/src/App.tsx:147:20)\n    at Router (http://localhost:5179/node_modules/.vite/deps/react-router-dom.js?v=f7a7d850:4544:15)\n    at BrowserRouter (http://localhost:5179/node_modules/.vite/deps/react-router-dom.js?v=f7a7d850:5290:5)\n    at __experimental_CheckoutProvider (http://localhost:5179/node_modules/.vite/deps/@clerk_clerk-react.js?v=57a90269:2038:42)\n    at SWRConfig (http://localhost:5179/node_modules/.vite/deps/@clerk_clerk-react.js?v=57a90269:988:11)\n    at SWRConfigCompat (http://localhost:5179/node_modules/.vite/deps/@clerk_clerk-react.js?v=57a90269:2029:28)\n    at OrganizationProvider (http://localhost:5179/node_modules/.vite/deps/@clerk_clerk-react.js?v=57a90269:2042:31)\n    at ClerkContextProvider (http://localhost:5179/node_modules/.vite/deps/@clerk_clerk-react.js?v=57a90269:6832:11)\n    at ClerkProviderBase (http://localhost:5179/node_modules/.vite/deps/@clerk_clerk-react.js?v=57a90269:6922:11)\n    at Hoc (http://localhost:5179/node_modules/.vite/deps/@clerk_clerk-react.js?v=57a90269:3765:5)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  ],
+  "network_errors": [
+    "401 http://localhost:5179/api/v1/pedidos/gabi/quota",
+    "400 http://localhost:5179/api/v1/pedidos/config/preferencias/usuario",
+    "500 http://localhost:5179/api/v1/pedidos/config/regras",
+    "401 http://localhost:5179/api/v1/pedidos/gabi/quota",
+    "400 http://localhost:5179/api/v1/pedidos/config/preferencias/usuario",
+    "500 http://localhost:5179/api/v1/pedidos/config/regras",
+    "400 http://localhost:5179/api/v1/pedidos/config/preferencias/usuario",
+    "400 http://localhost:5179/api/v1/pedidos/config/preferencias/usuario"
+  ]
+}

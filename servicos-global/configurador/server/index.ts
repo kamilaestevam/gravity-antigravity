@@ -124,17 +124,30 @@ import { historicoRouter } from '../../tenant/historico-global/server/routes.js'
 app.use('/api/tenant/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
 
 import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/server/routes/api.js'
-app.use('/api/tenant/notificacoes', notificacoesRouter)
+// Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
+// próprio `checkAuth` que valida x-tenant-id/x-user-id (passados pelo Shell),
+// mas sem requireAuth as rotas ficam públicas — qualquer caller anônimo
+// podia spammar o endpoint e receber 401 ruidoso que aparecia como 500 na UI.
+app.use('/api/tenant/notificacoes', rateLimitPresets.internal(), requireAuth, notificacoesRouter)
 
 import { apiRoutes as preferenciasRouter } from '../../tenant/preferencias-usuario/server/routes/api.js'
-app.use('/api/tenant/preferencias', preferenciasRouter)
+// Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
+// próprio `checkAuth` que valida x-tenant-id/x-user-id headers, mas sem
+// requireAuth externo as rotas ficavam públicas — mesmo padrão do histórico
+// global e notificacoes. Auditoria da sessão do detetive api-cockpit encontrou.
+app.use('/api/tenant/preferencias', rateLimitPresets.internal(), requireAuth, preferenciasRouter)
 
 app.use('/api/admin', adminRouter)
 app.use('/api/admin/products', adminProductsRouter)       // CRUD catálogo (auth chain interna)
 app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por tenant (auth chain interna)
 
-import { adminSecurityRouter } from './routes/adminSecurity.js'
+import { adminSecurityRouter, adminSecurityInternalRouter } from './routes/adminSecurity.js'
 app.use('/api/admin/security', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
+// Rota interna S2S para ingestão de eventos de segurança (chamada pelo
+// securityAuditLogger do historico-global). Antes: POST /admin/security/events
+// estava atrás de requireAuth+requireGravityAdmin mas o caller usava
+// x-internal-key, resultando em 401 silencioso — audit trail quebrado.
+app.use('/api/internal/security', adminSecurityInternalRouter)
 
 // Ponto Cego 2 — captura 401/403 que ocorrem antes dos route handlers
 import { authErrorLogger } from '../../tenant/historico-global/server/middleware/auth-error-logger.js'

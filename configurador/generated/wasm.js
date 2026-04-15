@@ -290,6 +290,20 @@ exports.Prisma.StripeEventScalarFieldEnum = {
   payload: 'payload'
 };
 
+exports.Prisma.DeployLogScalarFieldEnum = {
+  id: 'id',
+  deploy_number: 'deploy_number',
+  area: 'area',
+  version: 'version',
+  description: 'description',
+  environment: 'environment',
+  status: 'status',
+  deployed_by: 'deployed_by',
+  deployed_by_user_id: 'deployed_by_user_id',
+  deployed_at: 'deployed_at',
+  created_at: 'created_at'
+};
+
 exports.Prisma.SupplierTenantAccessScalarFieldEnum = {
   id: 'id',
   clerk_user_id: 'clerk_user_id',
@@ -442,6 +456,20 @@ exports.UserLimitType = exports.$Enums.UserLimitType = {
   LIMITED: 'LIMITED'
 };
 
+exports.DeployEnvironment = exports.$Enums.DeployEnvironment = {
+  DEVELOPMENT: 'DEVELOPMENT',
+  STAGING: 'STAGING',
+  PRODUCTION: 'PRODUCTION',
+  ALL: 'ALL'
+};
+
+exports.DeployStatus = exports.$Enums.DeployStatus = {
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  ROLLBACK: 'ROLLBACK',
+  IN_PROGRESS: 'IN_PROGRESS'
+};
+
 exports.Prisma.ModelName = {
   Tenant: 'Tenant',
   User: 'User',
@@ -456,6 +484,7 @@ exports.Prisma.ModelName = {
   PriceTier: 'PriceTier',
   SpecialNegotiation: 'SpecialNegotiation',
   StripeEvent: 'StripeEvent',
+  DeployLog: 'DeployLog',
   SupplierTenantAccess: 'SupplierTenantAccess',
   SecurityEvent: 'SecurityEvent',
   RateLimitMetric: 'RateLimitMetric',

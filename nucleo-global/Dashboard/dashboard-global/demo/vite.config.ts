@@ -11,6 +11,9 @@ export default defineConfig({
   plugins: [react()],
 
   resolve: {
+    // Prioriza source (.ts/.tsx) sobre compilados (.js) para evitar version skew
+    // com artefatos stale em nucleo-global (ver commit 6d6eeda).
+    extensions: ['.mjs', '.ts', '.tsx', '.mts', '.jsx', '.js', '.json'],
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', 'recharts', 'react-grid-layout', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
     alias: {
       // ── Dashboard ──

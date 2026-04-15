@@ -1,0 +1,64 @@
+[
+  {
+    "id": "G.08",
+    "desc": "Busca com tab \"Aberto\" ativa retorna interseção (abertos + termo)",
+    "ok": "APROVADO",
+    "ms": 75,
+    "shot": "ok__G.08.png"
+  },
+  {
+    "id": "H.01",
+    "desc": "Checkbox da primeira linha pai está visível",
+    "ok": "REPROVADO",
+    "ms": 10093,
+    "shot": "fail__H.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.gtv-linha--pai').first().locator('input[type=\"checkbox\"]').first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b"
+  },
+  {
+    "id": "H.02",
+    "desc": "Clicar no checkbox marca a linha (checked=true)",
+    "ok": "REPROVADO",
+    "ms": 15057,
+    "shot": "fail__H.02.png",
+    "err": "locator.click: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.gtv-linha--pai').first().locator('input[type=\"checkbox\"]').first()\u001b[22m\n"
+  },
+  {
+    "id": "H.03",
+    "desc": "Linha selecionada recebe estilo visual de seleção imediatamente",
+    "ok": "REPROVADO",
+    "ms": 15049,
+    "shot": "fail__H.03.png",
+    "err": "locator.evaluate: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.gtv-linha--pai').first()\u001b[22m\n"
+  },
+  {
+    "id": "H.04",
+    "desc": "Com 1 pedido selecionado, botões de ação ficam habilitados (sem disabled)",
+    "ok": "REPROVADO",
+    "ms": 70,
+    "shot": "fail__H.04.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m"
+  },
+  {
+    "id": "H.05",
+    "desc": "Botão \"Transferir\" não está disabled com 1 pedido selecionado",
+    "ok": "APROVADO",
+    "ms": 44,
+    "shot": "ok__H.05.png"
+  },
+  {
+    "id": "H.06",
+    "desc": "Clicar novamente no checkbox desmarca a linha",
+    "ok": "REPROVADO",
+    "ms": 9440,
+    "shot": "",
+    "err": "locator.click: Test timeout of 60000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.gtv-linha--pai').first().locator('input[type=\"checkbox\"]').first()\u001b[22m\n"
+  },
+  {
+    "id": "H.07",
+    "desc": "Com 0 pedidos selecionados, botões de ação voltam a disabled",
+    "ok": "REPROVADO",
+    "ms": 4,
+    "shot": "",
+    "err": "page.screenshot: Target page, context or browser has been closed"
+  }
+]

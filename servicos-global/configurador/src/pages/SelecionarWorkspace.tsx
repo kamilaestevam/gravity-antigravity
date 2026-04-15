@@ -257,16 +257,6 @@ export function SelecionarWorkspace() {
 
   const userName = user?.fullName ?? user?.firstName ?? 'Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const rawRole = (user?.publicMetadata?.role as string) ?? ''
-  const ROLE_LABELS: Record<string, string> = {
-    gravity_admin: 'Admin',
-    SUPER_ADMIN: 'Admin',
-    ADMIN: 'Admin',
-    MASTER: 'Master',
-    STANDARD: 'Usuário',
-    SUPPLIER: 'Fornecedor',
-  }
-  const userRole = ROLE_LABELS[rawRole] ?? (rawRole || 'Usuário')
   const userEmail = user?.primaryEmailAddress?.emailAddress ?? ''
 
   const selectedWs = workspaces.find(w => w.id === selectedId)
@@ -278,7 +268,23 @@ export function SelecionarWorkspace() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const { isGravityAdmin } = useLoadSystemRole()
+  // Role canônico vem do banco (via /api/v1/me) — não do publicMetadata do Clerk.
+  // Alinhado com o refactor de auth de 01/04 (commit dea06fd).
+  // Fallback: se /api/v1/me ainda não respondeu ou falhou, usa publicMetadata
+  // do Clerk (legado) para evitar flash de "Usuário" enquanto o backend carrega.
+  const { isGravityAdmin, role: dbRole, isReady: roleReady } = useLoadSystemRole()
+  const ROLE_LABELS: Record<string, string> = {
+    SUPER_ADMIN: 'Super Admin',
+    ADMIN: 'Admin',
+    MASTER: 'Master',
+    STANDARD: 'Usuário',
+    SUPPLIER: 'Fornecedor',
+    gravity_admin: 'Super Admin',
+  }
+  const clerkRole = (user?.publicMetadata?.role as string) ?? ''
+  const userRole = dbRole
+    ? (ROLE_LABELS[dbRole] ?? dbRole)
+    : (clerkRole ? (ROLE_LABELS[clerkRole] ?? clerkRole) : (roleReady ? 'Usuário' : '…'))
   const hubEcosystemNodes = buildEcosystemNodes({
     currentProductId: 'hub',
     includeAdmin: isGravityAdmin,
@@ -894,6 +900,7 @@ export function SelecionarWorkspace() {
               onNavigateWorkspace={() => navigate('/workspace/organizacao')}
               onNavigateMarketPlace={() => navigate('/store')}
               onSignOut={handleSair}
+              isAdmin={isGravityAdmin}
               onNavigateAdmin={() => navigate('/admin/visao-geral')}
               compact
             />

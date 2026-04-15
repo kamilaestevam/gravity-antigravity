@@ -67,8 +67,17 @@
       }
     },
     "notificacoes": {
-      "baseUrl": "http://localhost:3001",
-      "pathPrefix": "/api/v1/notificacoes"
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/tenant/notificacoes",
+      "middleware": ["rateLimitPresets.internal", "requireAuth"],
+      "note": "Montado pelo configurador (porta 8005) com auth Clerk. checkAuth interno valida x-tenant-id/x-user-id passados pelo Shell.",
+      "endpoints": {
+        "GET /": "Lista notificações do usuário (tabela pode não existir ainda — retorna array vazio gracefully)",
+        "PUT /:id/read": "Marcar notificação como lida",
+        "PUT /read-all": "Marcar todas como lidas",
+        "DELETE /:id": "Remover notificação",
+        "GET /stream": "Server-Sent Events para push em tempo real"
+      }
     },
     "agendamento": {
       "baseUrl": "http://localhost:3001",
@@ -82,9 +91,56 @@
       "baseUrl": "http://localhost:3001",
       "pathPrefix": "/api/v1/whatsapp"
     },
+    "admin-security": {
+      "baseUrl": "http://localhost:8005",
+      "note": "Painel de segurança do configurador — dois routers (admin gravity_admin + interno S2S).",
+      "routers": {
+        "admin": {
+          "pathPrefix": "/api/admin/security",
+          "middleware": ["rateLimitPresets.admin (via /api/admin)", "requireAuth", "requireGravityAdmin"],
+          "endpoints": {
+            "GET /overview": "Consolidado: stats + health + ratelimit + secrets em 1 request (substitui 4 endpoints paralelos, registra audit log SECURITY_PANEL_VIEWED)",
+            "GET /events": "Lista de SecurityEvent (paginado, filtros severity/action/tenant_id, limit max 200)",
+            "GET /stats": "Contadores últimas 24h (totalEvents, criticalCount, warningCount, blockedCount, 5 recentEvents) — 1 groupBy em vez de 4 counts",
+            "GET /health": "Health check dos 7 serviços internos com cache TTL 10s (evita 7 fetches HTTP por tick). Persiste snapshot em ServiceHealth",
+            "GET /ratelimit": "RateLimitMetric da última hora (top 100)",
+            "GET /secrets": "Status de env vars críticas (INTERNAL_SERVICE_KEY, CLERK_SECRET_KEY, STRIPE_SECRET_KEY, ENCRYPTION_KEY) com prefixo mascarado"
+          }
+        },
+        "internal": {
+          "pathPrefix": "/api/internal/security",
+          "middleware": ["requireInternalKey"],
+          "note": "Rota S2S para ingestão de SecurityEvent vinda do securityAuditLogger do historico-global. Antes esta rota era POST /admin/security/events e caía em 401 silencioso — audit trail quebrado desde que foi criada.",
+          "endpoints": {
+            "POST /events": "Cria SecurityEvent. Validado via Zod (CreateEventSchema) e Prisma.InputJsonValue cast em metadata"
+          }
+        }
+      }
+    },
     "api-cockpit": {
       "baseUrl": "http://localhost:8016",
-      "pathPrefix": "/api/v1/api-cockpit"
+      "pathPrefix": "/api/v1/cockpit/observability",
+      "note": "Serviço de observabilidade. Frontend nunca chama direto — sempre via proxy do configurador (apiCockpit.ts). Autenticado via x-internal-key entre serviços.",
+      "proxyViaConfigurador": {
+        "workspace": {
+          "pathPrefix": "/api/cockpit",
+          "middleware": ["rateLimitPresets.internal", "requireAuth"]
+        },
+        "admin": {
+          "pathPrefix": "/api/admin/cockpit",
+          "middleware": ["rateLimitPresets.admin", "requireAuth", "requireGravityAdmin"]
+        }
+      },
+      "endpoints": {
+        "POST /ingest": "Recebe batch de métricas dos produtos (até 500 entries). Exige x-internal-key.",
+        "GET /services": "Health check dos 14 serviços conhecidos. Sem filtros.",
+        "GET /logs": "Lista logs de requisições. Filtros: tenant_id, product_id, status_min, status_max. Paginado (limit max: 100).",
+        "GET /stats": "KPIs agregados das últimas 24h: total de requisições, erros 5xx, latência média, uptime, breakdown por produto/status."
+      },
+      "backend": {
+        "persistence": "in-memory store (MAX 10k registros) — TODO: migrar para Prisma ObservabilityEvent via Coordenador",
+        "overflowBehavior": "FIFO — descarta entries mais antigas; warning no console a 90% do limite"
+      }
     },
     "conector-erp": {
       "baseUrl": "http://localhost:8017",

@@ -1,0 +1,49 @@
+[
+  {
+    "id": "TAB-Transferido.01",
+    "desc": "Tab \"Transferido\" está visível na barra de tabs",
+    "ok": "REPROVADO",
+    "ms": 10069,
+    "shot": "fail__TAB-Transferido.01.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[class*=\"tab\"]').filter({ hasText: /^Transferido$/i }).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  "
+  },
+  {
+    "id": "TAB-Transferido.02",
+    "desc": "Clicar \"Transferido\" não recarrega a página (SPA)",
+    "ok": "APROVADO",
+    "ms": 650,
+    "shot": "ok__TAB-Transferido.02.png"
+  },
+  {
+    "id": "TAB-Transferido.03",
+    "desc": "Tab \"Transferido\" fica com estilo ativo após clicar",
+    "ok": "REPROVADO",
+    "ms": 30091,
+    "shot": "fail__TAB-Transferido.03.png",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m"
+  },
+  {
+    "id": "TAB-Transferido.04",
+    "desc": "Tabela permanece visível após clicar em \"Transferido\"",
+    "ok": "REPROVADO",
+    "ms": 5053,
+    "shot": "",
+    "err": "\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.lp-tabela-wrapper')\nExpected: visible\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.lp-tabela-wrapper')\u001b[22m\n"
+  },
+  {
+    "id": "TAB-Transferido.05",
+    "desc": "Se tab \"Transferido\" vazia: exibe mensagem de estado vazio (não tela em branco)",
+    "ok": "REPROVADO",
+    "ms": 5,
+    "shot": "",
+    "err": "locator.count: Target page, context or browser has been closed"
+  },
+  {
+    "id": "TAB-Transferido.06",
+    "desc": "Badges visíveis após tab \"Transferido\" são todos do tipo correto",
+    "ok": "REPROVADO",
+    "ms": 2,
+    "shot": "",
+    "err": "locator.count: Target page, context or browser has been closed"
+  }
+]

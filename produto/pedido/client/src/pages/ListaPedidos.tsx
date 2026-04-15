@@ -4204,6 +4204,7 @@ export default function ListaPedidos() {
   const [findTotalExterno, setFindTotalExterno] = useState<number | null>(null)
   const [paginaAtual, setPaginaAtual]       = useState(1)
   const [total, setTotal]                   = useState(0)
+  const [totalItensBanco, setTotalItensBanco] = useState(0)
   const ITENS_POR_PAGINA: 25 | 50 | 100 | 200 = (() => {
     try {
       const raw = localStorage.getItem('pedido:tabela_config')
@@ -4559,9 +4560,11 @@ export default function ListaPedidos() {
       })
       setPedidos(res.data)
       setTotal(res.total)
+      setTotalItensBanco(res.totalItens ?? 0)
     } catch {
       setPedidos([])
       setTotal(0)
+      setTotalItensBanco(0)
     } finally {
       setCarregando(false)
       carregandoRef.current = false
@@ -5504,7 +5507,7 @@ export default function ListaPedidos() {
     return acc + Number(p.valor_total_pedido ?? 0) * taxa
   }, 0)
   // Stats computadas pelo registry (usadas como fallback no map de cards)
-  const cardStats = computeCardStats(pedidos, todosItens as PedidoItem[], total, new Date().toISOString().slice(0, 10))
+  const cardStats = computeCardStats(pedidos, todosItens as PedidoItem[], total, new Date().toISOString().slice(0, 10), totalItensBanco)
 
   return (
     <div className="ws-fade-up lp-page">
@@ -5525,7 +5528,7 @@ export default function ListaPedidos() {
                 titulo={t('pedido.total_pedidos')}
                 icone={<Package weight="duotone" size={16} style={{ color: 'var(--ws-accent)' }} />}
                 valor={total}
-                subtexto={`${todosItens.length} ${t('pedido.itens_total')}`}
+                subtexto={`${totalItensBanco > 0 ? totalItensBanco : todosItens.length} ${t('pedido.itens_total')}`}
                 tooltip={<>
                   <p className="cg-tooltip__row"><span>{t('pedido.abertos')}</span><strong>{pedidos.filter(p => p.status === 'aberto').length}</strong></p>
                   <p className="cg-tooltip__row"><span>{t('pedido.em_andamento')}</span><strong>{pedidos.filter(p => p.status === 'transferencia').length}</strong></p>

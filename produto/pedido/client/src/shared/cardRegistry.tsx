@@ -239,6 +239,7 @@ export function computeCardStats(
   itens: PedidoItem[],
   total: number,
   hoje: string,
+  totalItensBanco?: number,
 ): CardComputedStats {
   const valorTotal       = pedidos.reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)
   const qtdTotal         = pedidos.reduce((acc, p) => acc + (Number(p.quantidade_total_inicial_pedido) || 0), 0)
@@ -272,6 +273,6 @@ export function computeCardStats(
     qtdTransferida,
     qtdInicial,
     valorItens,
-    nItens: itens.length,
+    nItens: totalItensBanco != null && totalItensBanco > 0 ? totalItensBanco : itens.length,
   }
 }

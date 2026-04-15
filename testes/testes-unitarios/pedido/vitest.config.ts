@@ -41,6 +41,7 @@ export default defineConfig({
       'testes/testes-unitarios/pedido/shellEmbedding.test.ts',
       'testes/testes-unitarios/pedido/casasDecimaisRoute.test.ts',
       'testes/testes-unitarios/pedido/formulaEngine.test.ts',
+      'testes/testes-unitarios/pedido/seed.test.ts',
     ],
     env: {
       NODE_ENV: 'test',

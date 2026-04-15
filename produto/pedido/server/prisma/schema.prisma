@@ -9,49 +9,49 @@ datasource db {
 }
 
 model Pedido {
-  id                                     String              @id
-  tenant_id                              String
-  company_id                             String
-  tipo_operacao                          String
-  numero_pedido                          String
-  status                                 String              @default("draft")
-  status_id                              String?
-  importacao_exportador_id               String?
-  exportacao_importador_id               String?
-  fabricante_id                          String?
-  incoterm                               String?
-  moeda_pedido                           String              @default("USD")
-  valor_total_pedido                     Decimal?            @db.Decimal(18, 6)
-  casas_decimais_valor_pedido            Int                 @default(2)
-  quantidade_total_inicial_pedido        Decimal?            @db.Decimal(18, 6)
-  casas_decimais_quantidade_pedido       Int                 @default(2)
-  unidade_comercializada_pedido          String?
-  condicao_pagamento_pedido              String?
-  numero_proforma                        String?
-  numero_invoice                         String?
-  referencia_importador                  String?
-  referencia_exportador                  String?
-  referencia_fabricante                  String?
-  valor_total_cambio_pedido              Decimal?            @db.Decimal(18, 6)
-  moeda_cambio_pedido                    String?
-  taxa_cambio_estimada_pedido            Decimal?            @db.Decimal(18, 6)
-  contrato_cambio_id_pedido              String?
-  data_emissao_pedido                    DateTime            @default(now())
-  detalhes_operacionais                  Json?
-  campos_custom                          Json?
-  pedidos_origem_id                      Json?
-  cnpj_importador                        String?
-  data_consolidacao_pedido               DateTime?
-  deleted_at                             DateTime?
-  peso_liquido_total_pedido              Decimal?            @db.Decimal(18, 6)
-  peso_bruto_total_pedido                Decimal?            @db.Decimal(18, 6)
-  cubagem_total_pedido                   Decimal?            @db.Decimal(18, 6)
-  casas_decimais_peso_pedido             Int                 @default(3)
-  casas_decimais_cubagem_pedido          Int                 @default(3)
-  pedido_criado_em                       DateTime            @default(now())
-  pedido_atualizado_em                   DateTime            @updatedAt
-  itens                                  PedidoItem[]
-  transferencias                         TransferHistorico[]
+  id                               String              @id
+  tenant_id                        String
+  company_id                       String
+  tipo_operacao                    String
+  numero_pedido                    String
+  status                           String              @default("draft")
+  status_id                        String?
+  importacao_exportador_id         String?
+  exportacao_importador_id         String?
+  fabricante_id                    String?
+  incoterm                         String?
+  moeda_pedido                     String              @default("USD")
+  valor_total_pedido               Decimal?            @db.Decimal(18, 6)
+  casas_decimais_valor_pedido      Int                 @default(2)
+  quantidade_total_inicial_pedido  Decimal?            @db.Decimal(18, 6)
+  casas_decimais_quantidade_pedido Int                 @default(2)
+  unidade_comercializada_pedido    String?
+  condicao_pagamento_pedido        String?
+  numero_proforma                  String?
+  numero_invoice                   String?
+  referencia_importador            String?
+  referencia_exportador            String?
+  referencia_fabricante            String?
+  valor_total_cambio_pedido        Decimal?            @db.Decimal(18, 6)
+  moeda_cambio_pedido              String?
+  taxa_cambio_estimada_pedido      Decimal?            @db.Decimal(18, 6)
+  contrato_cambio_id_pedido        String?
+  data_emissao_pedido              DateTime            @default(now())
+  detalhes_operacionais            Json?
+  campos_custom                    Json?
+  pedidos_origem_id                Json?
+  cnpj_importador                  String?
+  data_consolidacao_pedido         DateTime?
+  deleted_at                       DateTime?
+  peso_liquido_total_pedido        Decimal?            @db.Decimal(18, 6)
+  peso_bruto_total_pedido          Decimal?            @db.Decimal(18, 6)
+  cubagem_total_pedido             Decimal?            @db.Decimal(18, 6)
+  casas_decimais_peso_pedido       Int                 @default(3)
+  casas_decimais_cubagem_pedido    Int                 @default(3)
+  pedido_criado_em                 DateTime            @default(now())
+  pedido_atualizado_em             DateTime            @updatedAt
+  itens                            PedidoItem[]
+  transferencias                   TransferHistorico[]
 
   @@unique([tenant_id, numero_pedido])
   @@index([tenant_id])
@@ -65,15 +65,15 @@ model Pedido {
 }
 
 model PedidoItem {
-  id                          String         @id
-  tenant_id                   String
-  company_id                  String
-  pedido_id                   String
-  sequencia_item              Int?
-  part_number                 String
-  ncm                         String
-  descricao_item              String
-  unidade_comercializada_item String?
+  id                                  String         @id
+  tenant_id                           String
+  company_id                          String
+  pedido_id                           String
+  sequencia_item                      Int?
+  part_number                         String
+  ncm                                 String
+  descricao_item                      String
+  unidade_comercializada_item         String?
   quantidade_inicial_item_pedido      Decimal        @db.Decimal(18, 6)
   saldo_item_pedido                   Decimal        @db.Decimal(18, 6)
   quantidade_pronta_total_item_pedido Decimal        @default(0) @db.Decimal(18, 6)
@@ -99,11 +99,11 @@ model PedidoItem {
   cubagem_unitaria_item               Decimal?       @db.Decimal(18, 6)
   casas_decimais_peso_item            Int            @default(3)
   casas_decimais_cubagem_item         Int            @default(3)
-  campos_custom               Json?
-  item_criado_em              DateTime       @default(now())
-  item_atualizado_em          DateTime       @updatedAt
-  pedido                      Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
-  embarques_efetivos          ProcessoItem[]
+  campos_custom                       Json?
+  item_criado_em                      DateTime       @default(now())
+  item_atualizado_em                  DateTime       @updatedAt
+  pedido                              Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  embarques_efetivos                  ProcessoItem[]
 
   @@index([tenant_id])
   @@index([tenant_id, company_id])
@@ -424,20 +424,20 @@ model PedidoTemplatePdf {
 }
 
 model TransferHistorico {
-  id               String    @id @default(cuid())
-  tenant_id        String
-  product_id       String?
-  pedido_origem_id String
-  item_origem_id   String
-  cenario                   String
+  id                          String    @id @default(cuid())
+  tenant_id                   String
+  product_id                  String?
+  pedido_origem_id            String
+  item_origem_id              String
+  cenario                     String
   quantidade_item_transferida Float
-  destinos_json    String
-  revertido        Boolean   @default(false)
-  revertido_em     DateTime?
-  revertido_por    String?
-  created_at       DateTime  @default(now())
-  created_by       String
-  pedido_origem    Pedido    @relation(fields: [pedido_origem_id], references: [id])
+  destinos_json               String
+  revertido                   Boolean   @default(false)
+  revertido_em                DateTime?
+  revertido_por               String?
+  created_at                  DateTime  @default(now())
+  created_by                  String
+  pedido_origem               Pedido    @relation(fields: [pedido_origem_id], references: [id])
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -530,20 +530,20 @@ model DashboardConfig {
 /// e o formato de exibição de datas (ex: DD/MM/AAAA, MM/DD/AAAA, AAAA-MM-DD).
 /// Itens herdam automaticamente as casas decimais do pedido pai.
 model PedidoCasasDecimaisConfig {
-  id         String   @id @default(cuid())
-  tenant_id  String   @unique
+  id         String  @id @default(cuid())
+  tenant_id  String  @unique
   product_id String?
 
-  valor_total_pedido              Int @default(2)
-  valor_unitario_item             Int @default(2)
-  quantidade_total_inicial_pedido Int @default(2)
-  quantidade_pronta_pedido_total  Int @default(2)
-  saldo_itens_do_pedido           Int @default(2)
-  quantidade_transferida_total    Int @default(2)
+  valor_total_pedido                Int @default(2)
+  valor_unitario_item               Int @default(2)
+  quantidade_total_inicial_pedido   Int @default(2)
+  quantidade_pronta_pedido_total    Int @default(2)
+  saldo_itens_do_pedido             Int @default(2)
+  quantidade_transferida_total      Int @default(2)
   quantidade_cancelada_total_pedido Int @default(2)
-  peso_liquido_total_pedido       Int @default(3)
-  peso_bruto_total_pedido         Int @default(3)
-  cubagem_total_pedido            Int @default(3)
+  peso_liquido_total_pedido         Int @default(3)
+  peso_bruto_total_pedido           Int @default(3)
+  cubagem_total_pedido              Int @default(3)
 
   /// Formato de exibição de datas. Padrão: DD/MM/AAAA (Brasil/Europa)
   formato_data String @default("DD/MM/AAAA")
@@ -572,16 +572,16 @@ model PedidoCasasDecimaisConfig {
 /// A avaliação vive em produto/pedido/server/src/services/formulaEngine.ts
 /// (port do client — MANTER EM SINCRONIA com produto/pedido/client/src/shared/formulaEngine.ts).
 model PedidoSaldoFormulaConfig {
-  id          String   @id @default(cuid())
-  tenant_id   String   @unique
-  product_id  String?
+  id         String  @id @default(cuid())
+  tenant_id  String  @unique
+  product_id String?
 
   /// Expressão da fórmula em forma de chave (nunca alias legível).
   /// Default replica o SALDO_FORMULA_PADRAO do client.
   formula_expressao String @default("quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido")
 
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -604,4 +604,62 @@ model DashboardPainel {
   @@index([tenant_id])
   @@index([tenant_id, user_id])
   @@map("dashboard_paineis")
+}
+
+// ============================================
+// Enums de proteção estrutural
+// ============================================
+// Declarados neste schema mas ainda NÃO usados pelos campos do model Pedido.
+// Uma segunda migration trocará os tipos String atuais por estes enums
+// depois que dados sujos forem limpos via seed --clean.
+
+enum StatusPedido {
+  draft
+  aberto
+  em_andamento
+  aprovado
+  transferencia
+  consolidado
+  cancelado
+}
+
+enum TipoOperacao {
+  importacao
+  exportacao
+}
+
+enum MoedaPedido {
+  USD
+  EUR
+  CNY
+  JPY
+  GBP
+  BRL
+}
+
+enum IncotermPedido {
+  FOB
+  CIF
+  EXW
+  CFR
+  FCA
+  DDP
+  DAP
+  CPT
+  CIP
+  DPU
+  FAS
+}
+
+enum UnidadeComercializada {
+  UNID
+  KG
+  TON
+  M
+  M2
+  M3
+  LT
+  PARES
+  DUZIA
+  JOGO
 }

@@ -20,9 +20,32 @@
  * Dados inventados — formatos reais.
  */
 
+/**
+ * ⚠️  FÓRMULA CANÔNICA DE SALDO DO ITEM
+ * ─────────────────────────────────────
+ * saldo_item_pedido = quantidade_inicial_item_pedido
+ *                    − quantidade_cancelada_item_pedido
+ *                    − quantidade_transferida_item_pedido
+ *
+ * ATENÇÃO: quantidade_pronta NÃO entra no saldo. Pronta é independente.
+ *
+ * Fonte de verdade: saldoEngine.ts em
+ * servicos-global/tenant/processos-core/src/services/saldoEngine.ts
+ *
+ * NUNCA mude essa fórmula sem alinhar com saldoEngine + PedidoSaldoFormulaConfig.
+ * Se mudar, atualize também: testes/testes-unitarios/pedido/seed.test.ts
+ */
+
 import { PrismaClient } from '@prisma/client'
+import { createHash } from 'node:crypto'
 
 const prisma = new PrismaClient()
+
+/** Hash determinístico de 6 chars hex para o tenant_id — usado nos IDs
+ *  dos pedidos para evitar colisão entre tenants no @id global do Prisma. */
+function hashTenant(tenantId: string): string {
+  return createHash('md5').update(tenantId).digest('hex').slice(0, 6)
+}
 
 // ─── Dicionários (valores reais do sistema) ──────────────────────────────────
 
@@ -183,7 +206,7 @@ function randDate(daysAgo: number): Date {
 
 // ─── Perfis de tamanho ───────────────────────────────────────────────────────
 
-type Perfil = {
+export type Perfil = {
   nome: 'pequeno' | 'medio' | 'grande'
   minItens: number
   maxItens: number
@@ -191,7 +214,7 @@ type Perfil = {
   valorMaxItem: number
 }
 
-const PERFIS: Record<'pequeno' | 'medio' | 'grande', Perfil> = {
+export const PERFIS: Record<'pequeno' | 'medio' | 'grande', Perfil> = {
   pequeno: { nome: 'pequeno', minItens: 1,  maxItens: 3,  valorMinItem: 200,    valorMaxItem: 20_000 },
   medio:   { nome: 'medio',   minItens: 4,  maxItens: 15, valorMinItem: 500,    valorMaxItem: 50_000 },
   grande:  { nome: 'grande',  minItens: 16, maxItens: 50, valorMinItem: 1_000,  valorMaxItem: 200_000 },
@@ -199,7 +222,7 @@ const PERFIS: Record<'pequeno' | 'medio' | 'grande', Perfil> = {
 
 // ─── Geração ─────────────────────────────────────────────────────────────────
 
-function gerarPedido(opts: {
+export function gerarPedido(opts: {
   tenantId: string
   perfil: Perfil
   index: number
@@ -209,7 +232,10 @@ function gerarPedido(opts: {
   const tipo = pick(TIPO_OPERACAO)
   const prefix = tipo === 'importacao' ? 'PO' : 'SO'
   const numeroPedido = `${prefix}-${ano}-${String(index).padStart(5, '0')}`
-  const id = `pedi_${perfil.nome.slice(0, 3)}_${String(index).padStart(7, '0')}`
+  // Inclui hash md5(6) do tenant no id para evitar colisões entre tenants
+  // (o @id do model é UNIQUE global, não composto).
+  const tenantHash = hashTenant(tenantId)
+  const id = `pedi_${perfil.nome.slice(0, 3)}_${tenantHash}_${String(index).padStart(7, '0')}`
 
   const moeda = pick(MOEDAS)
   const moedaCambio = 'BRL'
@@ -233,7 +259,7 @@ function gerarPedido(opts: {
     const pronta = Number((quantidade * prontaPct).toFixed(2))
     const cancelada = Number((quantidade * canceladaPct).toFixed(2))
     const transferida = Number((quantidade * transferidaPct).toFixed(2))
-    const saldo = Number(Math.max(0, quantidade - pronta - cancelada - transferida).toFixed(2))
+    const saldo = Number(Math.max(0, quantidade - cancelada - transferida).toFixed(2))
 
     return {
       id: `item_${id}_${String(i + 1).padStart(3, '0')}`,
@@ -269,7 +295,7 @@ function gerarPedido(opts: {
       referencia_fabricante: `REF-FAB-${randInt(1000, 9999)}`,
       incoterm,
       condicao_pagamento_pedido: pick(CONDICOES_PAGAMENTO),
-      data_emissao_pedido: randDate(180),
+      data_emissao_pedido: randDate(730),
       item_criado_em: new Date(),
       item_atualizado_em: new Date(),
     }
@@ -307,7 +333,7 @@ function gerarPedido(opts: {
     valor_total_cambio_pedido: Number((valorTotalPedido * taxaCambio).toFixed(2)),
     moeda_cambio_pedido: moedaCambio,
     taxa_cambio_estimada_pedido: taxaCambio,
-    data_emissao_pedido: randDate(180),
+    data_emissao_pedido: randDate(730),
     detalhes_operacionais: {
       modal: pick(MODAIS),
       porto_origem: pick(PORTOS_ORIGEM),
@@ -329,6 +355,214 @@ function gerarPedido(opts: {
   return { pedido, itens }
 }
 
+// ─── Cenários Edge ───────────────────────────────────────────────────────────
+
+type PedidoShape = ReturnType<typeof gerarPedido>['pedido']
+type ItemShape   = ReturnType<typeof gerarPedido>['itens'][number]
+
+async function gerarCenariosEdge(
+  tenantId: string,
+  offsetBase: number,
+): Promise<{ pedidosCreated: number; itensCreated: number }> {
+  const ano = new Date().getFullYear()
+  const pedidos: PedidoShape[] = []
+  const itens: ItemShape[] = []
+  let seq = 0
+
+  type EdgeCfg = {
+    label: string
+    statusPedido: string
+    qtdItens: number
+    mkItem: (qtd: number, unit: number) => {
+      quantidade: number
+      valorUnit: number
+      pronta: number
+      cancelada: number
+      transferida: number
+    }
+    qtdRange: [number, number]
+    unitRange: [number, number]
+  }
+
+  const cenarios: EdgeCfg[] = [
+    {
+      label: 'transferido',
+      statusPedido: 'consolidado',
+      qtdItens: 3,
+      qtdRange: [100, 1000],
+      unitRange: [10, 500],
+      mkItem: (q, u) => ({ quantidade: q, valorUnit: u, pronta: 0, cancelada: 0, transferida: q }),
+    },
+    {
+      label: 'cancelado',
+      statusPedido: 'cancelado',
+      qtdItens: 3,
+      qtdRange: [100, 1000],
+      unitRange: [10, 500],
+      mkItem: (q, u) => ({ quantidade: q, valorUnit: u, pronta: 0, cancelada: q, transferida: 0 }),
+    },
+    {
+      label: 'draft',
+      statusPedido: 'draft',
+      qtdItens: 1,
+      qtdRange: [10, 50],
+      unitRange: [10, 50],
+      mkItem: (q, u) => ({ quantidade: q, valorUnit: u, pronta: 0, cancelada: 0, transferida: 0 }),
+    },
+    {
+      label: 'virgem',
+      statusPedido: 'aberto',
+      qtdItens: 3,
+      qtdRange: [100, 1000],
+      unitRange: [10, 500],
+      mkItem: (q, u) => ({ quantidade: q, valorUnit: u, pronta: 0, cancelada: 0, transferida: 0 }),
+    },
+    {
+      label: 'unit_alto',
+      statusPedido: 'aberto',
+      qtdItens: 1,
+      qtdRange: [1, 20],
+      unitRange: [10_001, 50_000],
+      mkItem: (q, u) => ({ quantidade: q, valorUnit: u, pronta: 0, cancelada: 0, transferida: 0 }),
+    },
+    {
+      label: 'unit_baixo',
+      statusPedido: 'aberto',
+      qtdItens: 1,
+      qtdRange: [500, 5000],
+      unitRange: [0.5, 9.99],
+      mkItem: (q, u) => ({ quantidade: q, valorUnit: u, pronta: 0, cancelada: 0, transferida: 0 }),
+    },
+  ]
+
+  for (const cfg of cenarios) {
+    for (let i = 0; i < 5; i++) {
+      seq++
+      const tipo = pick(TIPO_OPERACAO)
+      const prefix = tipo === 'importacao' ? 'PO' : 'SO'
+      const tenantHash = hashTenant(tenantId)
+      const id = `pedi_edg_${tenantHash}_${cfg.label.slice(0, 6)}_${String(seq).padStart(4, '0')}`
+      const numeroPedido = `${prefix}-${ano}-EDG${String(offsetBase + seq).padStart(5, '0')}`
+
+      const moeda = pick(MOEDAS)
+      const moedaCambio = 'BRL'
+      const taxaCambio = moeda === 'BRL' ? 1 : randFloat(4.5, 6.5, 4)
+      const incoterm = pick(INCOTERMS)
+      const unidade = pick(UNIDADES)
+      const exportador = pick(EXPORTADORES)
+      const importador = pick(IMPORTADORES)
+      const fabricante = pick(FABRICANTES)
+
+      const itensPedido: ItemShape[] = []
+      for (let k = 0; k < cfg.qtdItens; k++) {
+        const qtd = randFloat(cfg.qtdRange[0], cfg.qtdRange[1], 2)
+        const unit = randFloat(cfg.unitRange[0], cfg.unitRange[1], 4)
+        const v = cfg.mkItem(qtd, unit)
+        const valorTotal = Number((v.quantidade * v.valorUnit).toFixed(2))
+        const saldo = Number(Math.max(0, v.quantidade - v.cancelada - v.transferida).toFixed(2))
+
+        itensPedido.push({
+          id: `item_${id}_${String(k + 1).padStart(3, '0')}`,
+          tenant_id: tenantId,
+          company_id: tenantId,
+          pedido_id: id,
+          sequencia_item: k + 1,
+          part_number: `PN-${randInt(10000, 99999)}-${randInt(100, 999)}`,
+          ncm: pick(NCMS),
+          descricao_item: pick(DESCRICOES_ITEM),
+          unidade_comercializada_item: unidade,
+          quantidade_inicial_item_pedido: v.quantidade,
+          saldo_item_pedido: saldo,
+          quantidade_pronta_total_item_pedido: v.pronta,
+          quantidade_transferida_item_pedido: v.transferida,
+          quantidade_cancelada_item_pedido: v.cancelada,
+          casas_decimais_quantidade_item: 2,
+          moeda_item: moeda,
+          valor_total_itens: valorTotal,
+          valor_unitario_item: v.valorUnit,
+          casas_decimais_valor_item: 2,
+          cobertura_cambial: pick(COBERTURA_CAMBIAL),
+          peso_liquido_unitario_item: randFloat(0.1, 50, 3),
+          peso_bruto_unitario_item: randFloat(0.1, 60, 3),
+          cubagem_unitaria_item: randFloat(0.001, 0.5, 4),
+          casas_decimais_peso_item: 3,
+          casas_decimais_cubagem_item: 4,
+          nome_exportador: tipo === 'importacao' ? exportador.nome : null,
+          nome_importador: tipo === 'exportacao' ? importador.nome : null,
+          nome_fabricante: fabricante.nome,
+          referencia_exportador: `REF-EXP-${randInt(1000, 9999)}`,
+          referencia_importador: `REF-IMP-${randInt(1000, 9999)}`,
+          referencia_fabricante: `REF-FAB-${randInt(1000, 9999)}`,
+          incoterm,
+          condicao_pagamento_pedido: pick(CONDICOES_PAGAMENTO),
+          data_emissao_pedido: randDate(730),
+          item_criado_em: new Date(),
+          item_atualizado_em: new Date(),
+        })
+      }
+
+      const valorTotalPedido = Number(itensPedido.reduce((s, it) => s + Number(it.valor_total_itens ?? 0), 0).toFixed(2))
+      const qtdTotal = Number(itensPedido.reduce((s, it) => s + Number(it.quantidade_inicial_item_pedido), 0).toFixed(2))
+      const pesoLiq = Number(itensPedido.reduce((s, it) => s + Number(it.peso_liquido_unitario_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(3))
+      const pesoBruto = Number(itensPedido.reduce((s, it) => s + Number(it.peso_bruto_unitario_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(3))
+      const cubagem = Number(itensPedido.reduce((s, it) => s + Number(it.cubagem_unitaria_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(4))
+
+      const pedido: PedidoShape = {
+        id,
+        tenant_id: tenantId,
+        company_id: tenantId,
+        tipo_operacao: tipo,
+        numero_pedido: numeroPedido,
+        status: cfg.statusPedido,
+        importacao_exportador_id: tipo === 'importacao' ? exportador.id : null,
+        exportacao_importador_id: tipo === 'exportacao' ? importador.id : null,
+        fabricante_id: fabricante.id,
+        incoterm,
+        moeda_pedido: moeda,
+        valor_total_pedido: valorTotalPedido,
+        casas_decimais_valor_pedido: 2,
+        quantidade_total_inicial_pedido: qtdTotal,
+        casas_decimais_quantidade_pedido: 2,
+        unidade_comercializada_pedido: unidade,
+        condicao_pagamento_pedido: pick(CONDICOES_PAGAMENTO),
+        numero_proforma: `PI-${ano}-EDG${String(offsetBase + seq).padStart(5, '0')}`,
+        numero_invoice: `CI-${ano}-EDG${String(offsetBase + seq).padStart(5, '0')}`,
+        referencia_importador: `REF-IMP-${randInt(1000, 9999)}`,
+        referencia_exportador: `REF-EXP-${randInt(1000, 9999)}`,
+        referencia_fabricante: `REF-FAB-${randInt(1000, 9999)}`,
+        valor_total_cambio_pedido: Number((valorTotalPedido * taxaCambio).toFixed(2)),
+        moeda_cambio_pedido: moedaCambio,
+        taxa_cambio_estimada_pedido: taxaCambio,
+        data_emissao_pedido: randDate(730),
+        detalhes_operacionais: {
+          modal: pick(MODAIS),
+          porto_origem: pick(PORTOS_ORIGEM),
+          porto_destino: pick(PORTOS_DESTINO),
+          transit_time: randInt(15, 45),
+          nome_exportador: tipo === 'importacao' ? exportador.nome : null,
+          nome_importador: tipo === 'exportacao' ? importador.nome : null,
+          nome_fabricante: fabricante.nome,
+        },
+        peso_liquido_total_pedido: pesoLiq,
+        peso_bruto_total_pedido: pesoBruto,
+        cubagem_total_pedido: cubagem,
+        casas_decimais_peso_pedido: 3,
+        casas_decimais_cubagem_pedido: 4,
+        pedido_criado_em: new Date(),
+        pedido_atualizado_em: new Date(),
+      }
+
+      pedidos.push(pedido)
+      itens.push(...itensPedido)
+    }
+  }
+
+  await prisma.pedido.createMany({ data: pedidos as any, skipDuplicates: true })
+  await prisma.pedidoItem.createMany({ data: itens as any, skipDuplicates: true })
+
+  return { pedidosCreated: pedidos.length, itensCreated: itens.length }
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -346,6 +580,16 @@ async function main() {
   if (!Number.isFinite(total) || total <= 0) {
     console.error('❌ --total inválido:', totalArg)
     process.exit(1)
+  }
+
+  // Idempotência — não duplica dados se já existem e não é --clean
+  if (!clean) {
+    const existentes = await prisma.pedido.count({ where: { tenant_id: tenantId } })
+    if (existentes > 0) {
+      console.error(`❌ Tenant "${tenantId}" já possui ${existentes} pedidos.`)
+      console.error(`   Use --clean para apagar antes de regenerar, ou rode em outro tenant.`)
+      process.exit(1)
+    }
   }
 
   console.log(`\n🌱 Seed Pedido — tenant: ${tenantId} | total: ${total.toLocaleString('pt-BR')} | clean: ${clean}\n`)
@@ -411,14 +655,30 @@ async function main() {
     console.log(`   ✓ ${count} pedidos ${perfil.nome}s em ${dt}s`)
   }
 
-  console.log(`\n✅ Seed concluído: ${total.toLocaleString('pt-BR')} pedidos | ${totalItens.toLocaleString('pt-BR')} itens\n`)
+  const { pedidosCreated: edgePedidos, itensCreated: edgeItens } = await gerarCenariosEdge(tenantId, total)
+  totalItens += edgeItens
+  console.log(`\n🎯 Cenários edge: ${edgePedidos} pedidos extras, ${edgeItens} itens`)
+
+  console.log(`\n✅ Seed concluído: ${(total + edgePedidos).toLocaleString('pt-BR')} pedidos | ${totalItens.toLocaleString('pt-BR')} itens\n`)
 }
 
-main()
-  .catch(e => {
-    console.error('\n❌ Erro no seed:', e)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+// Guarda — só executa main() quando rodado direto via CLI (não em import de test)
+const isMainModule = (() => {
+  try {
+    return process.argv[1] && (
+      process.argv[1].endsWith('seed.ts') ||
+      process.argv[1].endsWith('seed.js')
+    )
+  } catch { return false }
+})()
+
+if (isMainModule) {
+  main()
+    .catch(e => {
+      console.error('\n❌ Erro no seed:', e)
+      process.exit(1)
+    })
+    .finally(async () => {
+      await prisma.$disconnect()
+    })
+}

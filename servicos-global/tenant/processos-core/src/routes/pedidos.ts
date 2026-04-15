@@ -316,7 +316,7 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
     const limitNum = Number(limit ?? 20)
     const skip = (pageNum - 1) * limitNum
 
-    const [data, total] = await Promise.all([
+    const [data, total, totalItens] = await Promise.all([
       req.prisma.pedido.findMany({
         where,
         include: { itens: { orderBy: { sequencia_item: 'asc' } } },
@@ -325,10 +325,11 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
         take: limitNum,
       }),
       req.prisma.pedido.count({ where }),
+      req.prisma.pedidoItem.count({ where: { pedido: where } }),
     ])
 
     const dataComColunas = await injetarValoresColunasUsuario(req.prisma, data, tenant_id)
-    res.json({ data: dataComColunas.map(mapPedido), total, page: pageNum, limit: limitNum })
+    res.json({ data: dataComColunas.map(mapPedido), total, totalItens, page: pageNum, limit: limitNum })
   } catch (err) {
     next(err)
   }

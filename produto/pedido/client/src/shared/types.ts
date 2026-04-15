@@ -511,6 +511,8 @@ export interface PedidosListResponse {
   data: Pedido[]
   nextCursor: string | null
   total: number
+  /** Total de itens (PedidoItem.count) no banco para o filtro atual — independente de paginação */
+  totalItens?: number
   hasMore: boolean
 }
 

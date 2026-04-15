@@ -334,7 +334,7 @@ export function ModalEditarWorkspace({
           setCidades([])
           return
         }
-        const opcoes = data.map((c: any) => ({
+        const opcoes: SelectOpcao[] = (data as Array<{ nome: string }>).map(c => ({
           valor: c.nome,
           rotulo: c.nome
         }))

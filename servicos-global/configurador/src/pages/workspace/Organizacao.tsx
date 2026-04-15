@@ -155,9 +155,11 @@ export function Organizacao() {
         }
 
         if (companiesRes.ok) {
-          const { companies } = await companiesRes.json()
+          const { companies } = await companiesRes.json() as {
+            companies: Array<{ id: string; name: string; subdomain: string | null }>
+          }
           setEspacosLocais(
-            companies.map((c: any) => ({
+            companies.map(c => ({
               id: c.id,
               nome: c.name,
               subdominio: c.subdomain ?? '',
@@ -201,12 +203,9 @@ export function Organizacao() {
     setCarregandoCidades(true)
     fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${dados.estado}/municipios`)
       .then(res => res.json())
-      .then(data => {
-        const opcoes = data.map((c: any) => ({
-          valor: c.nome,
-          rotulo: c.nome
-        }))
-        opcoes.sort((a: SelectOpcao, b: SelectOpcao) => a.rotulo.localeCompare(b.rotulo))
+      .then((data: Array<{ nome: string }>) => {
+        const opcoes: SelectOpcao[] = data.map(c => ({ valor: c.nome, rotulo: c.nome }))
+        opcoes.sort((a, b) => a.rotulo.localeCompare(b.rotulo))
         setCidades(opcoes)
       })
       .catch(err => {

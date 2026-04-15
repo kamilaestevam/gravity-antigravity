@@ -102,18 +102,12 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     setCarregandoCidades(true)
     fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estado}/municipios`)
       .then(res => res.json())
-      .then(data => {
-        const opcoes = data.map((c: any) => ({
-          valor: c.nome,
-          rotulo: c.nome
-        }))
-        opcoes.sort((a: SelectOpcao, b: SelectOpcao) => a.rotulo.localeCompare(b.rotulo))
+      .then((data: Array<{ nome: string }>) => {
+        const opcoes: SelectOpcao[] = data.map(c => ({ valor: c.nome, rotulo: c.nome }))
+        opcoes.sort((a, b) => a.rotulo.localeCompare(b.rotulo))
         setCidades(opcoes)
       })
-      .catch(err => {
-        console.error("Erro ao buscar cidades do IBGE:", err)
-        setCidades([])
-      })
+      .catch(() => setCidades([]))
       .finally(() => setCarregandoCidades(false))
   }, [estado])
 

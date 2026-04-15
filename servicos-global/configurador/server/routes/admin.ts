@@ -146,6 +146,11 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       )
     }
 
+    // Impede que admin suspenda/cancele o próprio tenant HQ
+    if (req.params.id === req.auth.tenantId) {
+      throw new AppError('Não é possível alterar o status do próprio tenant HQ', 403, 'FORBIDDEN')
+    }
+
     const existing = await prisma.tenant.findUnique({
       where: { id: req.params.id },
     })
@@ -161,10 +166,7 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       select: { id: true, name: true, status: true },
     })
 
-    console.log(
-      `[admin] Tenant ${req.params.id} atualizado pelo gravity_admin ${req.auth.clerkUserId}:`,
-      parsed.data
-    )
+    console.log(`[admin] Tenant ${req.params.id} status alterado para ${parsed.data.status} por userId=${req.auth.userId}`)
 
     res.json({ tenant })
   } catch (err) {
@@ -408,16 +410,23 @@ let pwRunning = false
  * Dispara os testes Playwright em background e persiste os resultados.
  * Retorna imediatamente com { started: true }.
  */
+const RunTestsSchema = z.object({
+  modulos: z.array(z.string().max(100)).optional(),
+  planos:  z.array(z.string().max(100)).optional(),
+})
+
 adminRouter.post('/run-tests', async (req, res, next) => {
   try {
     if (pwRunning) {
-      res.status(409).json({ error: 'Já existe um run em andamento' })
-      return
+      throw new AppError('Já existe um run em andamento', 409, 'CONFLICT')
     }
 
-    const { modulos } = req.body as { modulos?: string[] }
-    // Resolve spec files a partir dos planos selecionados
-    const { planos } = req.body as { planos?: string[]; modulos?: string[] }
+    const parsed = RunTestsSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const { modulos, planos } = parsed.data
     let specArgs: string[] = []
     let projectArgs: string[] = []
 
@@ -541,8 +550,7 @@ adminRouter.post('/test-logs', async (req, res, next) => {
   try {
     const parse = TestLogBatchSchema.safeParse(req.body)
     if (!parse.success) {
-      res.status(400).json({ error: 'Payload inválido', details: parse.error.flatten() })
-      return
+      throw new AppError(parse.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR')
     }
 
     const { entries } = parse.data
@@ -698,9 +706,9 @@ adminRouter.post('/users/:userId/promote', async (req, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: { id: req.params.userId },
-      select: { id: true, email: true, role: true, clerk_user_id: true },
+      select: { id: true, email: true, role: true, clerk_user_id: true, tenant_id: true },
     })
-    if (!user) {
+    if (!user || user.tenant_id !== req.auth.tenantId) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
@@ -718,9 +726,7 @@ adminRouter.post('/users/:userId/promote', async (req, res, next) => {
       })
     }
 
-    console.log(
-      `[admin] Usuário ${updated.email} promovido para ${updated.role} por ${req.auth.userId}`
-    )
+    console.log(`[admin] userId=${req.params.userId} promovido para ${updated.role} por userId=${req.auth.userId}`)
 
     res.json({ user: updated })
   } catch (err) {
@@ -754,8 +760,8 @@ adminRouter.post('/users/invite', async (req, res, next) => {
       throw new AppError('ADMIN não pode convidar usuários com role SUPER_ADMIN ou ADMIN', 403, 'FORBIDDEN')
     }
 
-    // Verifica se já existe usuário com esse e-mail
-    const existing = await prisma.user.findFirst({ where: { email } })
+    // Verifica se já existe usuário com esse e-mail no tenant HQ
+    const existing = await prisma.user.findFirst({ where: { email, tenant_id: req.auth.tenantId } })
     if (existing) {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
@@ -777,7 +783,7 @@ adminRouter.post('/users/invite', async (req, res, next) => {
       },
     })
 
-    console.log(`[admin] Convite enviado para ${email} (${role}) por ${req.auth.userId}`)
+    console.log(`[admin] convite enviado — role=${role} por userId=${req.auth.userId}`)
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
@@ -824,7 +830,7 @@ adminRouter.put('/platform-config', async (req, res, next) => {
       },
     })
 
-    console.log(`[admin] platform-config atualizado por ${req.auth.clerkUserId} — tenant ${tenant.id}`, Object.keys(parsed.data))
+    console.log(`[admin] platform-config atualizado — tenant ${tenant.id} campos=${Object.keys(parsed.data).join(',')}`)
 
     res.json({ config: tenant })
   } catch (err) {

@@ -18,6 +18,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { ModalNovaOrganizacao, type DadosNovaOrg } from './admin/ModalNovaOrganizacao'
 import { ModalEditarOrganizacao, type DadosEditarOrg } from './admin/ModalEditarOrganizacao'
 import { ModalEditarWorkspace } from './workspace/ModalEditarWorkspace'
+import type { Empresa } from './workspace/Workspaces'
 import { Tenant as GlobalTenant } from '../types/entidades'
 import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
 
@@ -226,7 +227,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     setWorkspaceEditando(linha)
   }
 
-  function handleUpdateWorkspace(dados: Partial<Workspace>) {
+  function handleUpdateWorkspace(dados: Partial<Empresa>) {
     if (!workspaceEditando) return
     setTenants(prev => prev.map(t => ({
       ...t,
@@ -286,7 +287,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       render: (v: unknown) => <StatusBadgeGlobal valor={v as string} />
     },
     {
-      key: 'id' as any, label: 'Plano / Produtos', tipo: 'texto',
+      key: 'subscriptions', label: 'Plano / Produtos', tipo: 'texto',
       tooltipTitulo: 'Plano Contratado & Serviços',
       tooltipDescricao: 'Define quota de endpoints, restrições e armazenamento.',
       render: (_v: unknown, item: Tenant) => {
@@ -312,7 +313,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       }
     },
     {
-      key: 'id' as any, label: 'Usuários', align: 'center', tipo: 'texto',
+      key: '_count', label: 'Usuários', align: 'center', tipo: 'texto',
       tooltipTitulo: 'Pool de Usuários',
       tooltipDescricao: 'Registros na tabela Identity associados a este WorkspaceRoot',
       render: (_v: unknown, item: Tenant) => <span style={{ fontWeight: 600 }}>{item._count?.users || 0}</span>
@@ -466,8 +467,8 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       cabecalho={
         <CabecalhoGlobal
           icone={<HardDrives weight="duotone" size={22} color="#6366f1" />}
-          titulo="Gestão de Instâncias & Tenants [SYS_ADMIN]"
-          subtitulo="Visão arquitetural global do cluster Gravity. Monitore isolamentos, subdomínios, uso de banco e integridade de conexões."
+          titulo="Organizações"
+          subtitulo="Gerencie as organizações e seus workspaces, planos e usuários."
         />
       }
       stats={
@@ -596,9 +597,9 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
 
       <ModalEditarWorkspace
         aberto={!!workspaceEditando}
-        empresa={workspaceEditando as any}
+        empresa={workspaceEditando as Empresa | null}
         aoFechar={() => setWorkspaceEditando(null)}
-        aoSalvar={handleUpdateWorkspace as any}
+        aoSalvar={handleUpdateWorkspace}
       />
     </PaginaGlobal>
   )

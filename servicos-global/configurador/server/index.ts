@@ -131,7 +131,11 @@ import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/serve
 app.use('/api/tenant/notificacoes', rateLimitPresets.internal(), requireAuth, notificacoesRouter)
 
 import { apiRoutes as preferenciasRouter } from '../../tenant/preferencias-usuario/server/routes/api.js'
-app.use('/api/tenant/preferencias', preferenciasRouter)
+// Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
+// próprio `checkAuth` que valida x-tenant-id/x-user-id headers, mas sem
+// requireAuth externo as rotas ficavam públicas — mesmo padrão do histórico
+// global e notificacoes. Auditoria da sessão do detetive api-cockpit encontrou.
+app.use('/api/tenant/preferencias', rateLimitPresets.internal(), requireAuth, preferenciasRouter)
 
 app.use('/api/admin', adminRouter)
 app.use('/api/admin/products', adminProductsRouter)       // CRUD catálogo (auth chain interna)

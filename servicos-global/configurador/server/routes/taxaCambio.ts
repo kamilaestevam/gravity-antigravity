@@ -14,6 +14,7 @@ import axios from 'axios'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
+import { requireAuth } from '../middleware/requireAuth.js'
 
 export const taxaCambioRouter = Router()
 
@@ -123,10 +124,12 @@ taxaCambioRouter.get('/historico', async (req: Request, res: Response, next: Nex
 
 // ---------------------------------------------------------------------------
 // POST /api/v1/taxa-cambio/sync
-// Busca cotação atual do BCB (via bid-cambio) e persiste no banco
+// Busca cotação atual do BCB (via bid-cambio) e persiste no banco.
+// Requer auth: sem proteção, qualquer cliente anônimo pode disparar o sync
+// e sobrecarregar o bid-cambio/BCB (abuso de origem externa).
 // ---------------------------------------------------------------------------
 
-taxaCambioRouter.post('/sync', async (_req: Request, res: Response, next: NextFunction) => {
+taxaCambioRouter.post('/sync', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   const resultados: Array<{ moeda: Moeda; boletim: string; status: 'ok' | 'erro'; detalhe?: string }> = []
 
   for (const moeda of MOEDAS_SUPORTADAS) {

@@ -6,7 +6,6 @@ import {
   Package,
   CheckCircle,
   SpinnerGap,
-  ArrowLeft,
   ArrowRight,
   Info,
   MagnifyingGlass,
@@ -20,15 +19,24 @@ import {
   Lightning,
   Star,
   ArrowDown,
+  Bell,
+  Gear,
 } from '@phosphor-icons/react'
 import './hub-store.css'
+import './hub.css'
 import '../pages/workspace/workspace.css'
 import './selecionar-workspace.css'
 import { BotaoGlobal } from '@nucleo/botao-global'
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
-import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
+import { LogoHub } from '@nucleo/logo-produtos'
+import {
+  LocalizadorGlobal,
+  useLocalizadorHistory,
+  buildEcosystemNodes,
+  type EcosystemNode,
+} from '@nucleo/localizador-global'
+import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { Notificacoes } from '../../../tenant/notificacoes/src/Notificacoes'
@@ -182,6 +190,8 @@ export function Store() {
   const { user } = useUser()
   const { signOut } = useClerk()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification } = useShellStore()
+  const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
+  const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'
   const isLight = currentTheme === 'light'
   const { isGravityAdmin, role: dbRole } = useLoadSystemRole()
 
@@ -327,37 +337,118 @@ export function Store() {
 
   const showComingSoon = activeFilter === 'todos' || activeFilter === 'em_breve'
 
+  // ── Localizador — nós do ecossistema ──────────────────────────────────────
+  const { history } = useLocalizadorHistory('store')
+
+  const produtoNodes: EcosystemNode[] = catalog.map(p => {
+    const meta = PRODUCT_META[p.slug]
+    return {
+      id:       p.slug,
+      label:    p.name,
+      sublabel: 'produto',
+      color:    meta?.iconColor ?? '#818cf8',
+      type:     'produto',
+      status:   allowedProducts.some(a => a.product_key === p.slug && a.is_active) ? 'accessible' : 'locked',
+    }
+  })
+
+  const ecosystemNodes = buildEcosystemNodes({
+    currentProductId: 'store',
+    produtoNodes,
+    includeAdmin: isGravityAdmin,
+  })
+
   return (
     <div className="gs-root">
 
       {/* Topbar fixada — sempre visível independente do scroll */}
-      <header className="gs-topbar">
-        <div className="sw-t-brand">
-          <LogoGlobal iconSize={26} iconColor="#818cf8" />
+      <header className="hb-topbar">
+        <div className="hb-topbar-left">
+          <div className="hb-logo">
+            <LogoGlobal iconSize={22} iconColor="#818cf8" />
+          </div>
+          <div className="hb-topbar-div" />
+          <span className="hb-topbar-label">Store</span>
         </div>
-        <div className="sw-t-right">
-          <TooltipGlobal titulo={t('store.voltar_hub')} descricao={t('store.voltar_hub_desc')}>
-            <button
-              type="button"
-              onClick={() => navigate('/hub')}
-              className="gs-back-btn"
-            >
-              <ArrowLeft size={16} weight="bold" />
-              Hub
-            </button>
-          </TooltipGlobal>
-          <LocalizarExpandidoCampoGlobal onBuscarNavigate={() => {}} />
+
+        <div className="hb-topbar-right">
+          {/* Atalho para Hub */}
           <button
-            className="sw-t-icon"
+            className="hb-topbar-navlink"
             type="button"
-            onClick={toggleTooltips}
-            style={{ color: tooltipsDisabled ? 'var(--sw-muted, #64748b)' : 'var(--sw-accent-2, #818cf8)' }}
-            title={tooltipsDisabled ? t('store.habilitar_dicas') : t('store.desabilitar_dicas')}
+            title={t('store.voltar_hub')}
+            onClick={() => navigate('/hub')}
           >
-            <Info size={15} weight={tooltipsDisabled ? 'regular' : 'fill'} />
+            <LogoHub size={13} color="#818cf8" />
+            Hub
           </button>
+
+          <div className="hb-topbar-sep" />
+
+          {/* Busca — foca o campo de busca de módulos no corpo */}
+          <button
+            className="hb-topbar-btn"
+            type="button"
+            title={t('comum.buscar')}
+            onClick={() => {
+              const el = document.querySelector<HTMLInputElement>('.gs-search__input')
+              if (el) {
+                el.focus()
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+              }
+            }}
+          >
+            <MagnifyingGlass weight="bold" size={16} />
+          </button>
+
+          {/* Notificações — componente tenant self-contained */}
           <Notificacoes tenantId="store" userId={user?.id ?? 'mock-user'} />
-          <div className="sw-t-sep" />
+
+          {/* Toggle tooltips */}
+          <button
+            className="hb-topbar-btn"
+            type="button"
+            title={tooltipsDisabled ? t('shell.label_habilitar_dicas') : t('shell.label_desabilitar_dicas')}
+            onClick={toggleTooltips}
+            style={{ color: tooltipsDisabled ? 'var(--hb-muted)' : 'var(--hb-accent)' }}
+          >
+            <Info weight={tooltipsDisabled ? 'regular' : 'fill'} size={16} />
+          </button>
+
+          {/* Localizador — ecosistema */}
+          <LocalizadorGlobal
+            workspaceName={companyName}
+            iconOnly
+            currentProductId="store"
+            currentProductLabel="Store"
+            currentProductColor="#818cf8"
+            currentPageLabel="Store"
+            history={history}
+            nodes={ecosystemNodes}
+            onNavigate={(node) => {
+              if (node.type === 'hub')               navigate('/hub')
+              else if (node.type === 'core')         navigate('/core')
+              else if (node.type === 'configurador') navigate('/workspace')
+              else if (node.type === 'admin')        navigate('/admin/visao-geral')
+              else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+            }}
+          />
+
+          {/* Seletor de idioma */}
+          <LanguageSwitcherGlobal iconOnly />
+
+          <div className="hb-topbar-sep" />
+
+          {/* Engrenagem — workspace */}
+          <button
+            className="hb-topbar-btn"
+            type="button"
+            title={t('workspace.layout.modulo_nome')}
+            onClick={() => navigate('/workspace')}
+          >
+            <Gear weight="duotone" size={16} />
+          </button>
+
           <UsuarioGlobal
             userName={userName}
             userEmail={userEmail}

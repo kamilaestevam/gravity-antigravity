@@ -20,26 +20,9 @@
   color: var(--sw-text-1);
 }
 
-/* Topbar fixada no topo da janela */
-.gs-topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 54px;
-  display: flex;
-  align-items: center;
-  padding: 0 32px;
-  gap: 16px;
-  background: var(--sw-surface, var(--color-surface, #1e293b));
-  border-bottom: 1px solid var(--sw-border, rgba(99,102,241,0.15));
-  z-index: 100;
-}
-
-/* Wrapper geral do conteúdo — começa logo abaixo da topbar */
+/* Wrapper geral do conteúdo — topbar agora é .hb-topbar sticky, toma seu próprio espaço */
 .gs-store {
   padding: 1.5rem 2rem 4rem;
-  padding-top: calc(54px + 1.5rem);
   max-width: 1280px;
   margin: 0 auto;
 }

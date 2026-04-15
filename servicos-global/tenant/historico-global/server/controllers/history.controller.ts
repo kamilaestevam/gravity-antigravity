@@ -15,6 +15,34 @@ import { securityAudit } from '../lib/securityAuditLogger.js'
 import { getBoss } from '../queue/pg-boss.js'
 import { EXPORT_QUEUE, EXPORT_DIR } from '../queue/export-worker.js'
 
+// Augmentação do Express.Request com req.auth injetado pelo middleware
+// requireAuth do configurador (ver configurador/server/middleware/requireAuth.ts).
+// Precisa ser idêntica à declaração do configurador para merge de tipos funcionar.
+// Chamadas à historico-global que não passam por requireAuth (ex: internas com
+// x-internal-key) devem usar x-tenant-id header explicitamente.
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      auth: {
+        userId: string
+        tenantId: string
+        clerkUserId: string
+        role: string
+      }
+    }
+  }
+}
+
+/** Actor types permitidos por chamadas com x-internal-key (serviços internos). */
+const INTERNAL_ALLOWED_ACTOR_TYPES = new Set(['AI', 'API', 'JOB', 'INTEGRATION'])
+
+/** Metadados de job do PG Boss (tipagem local — a lib não exporta este shape). */
+interface PgBossJobMeta {
+  createdon?: string | Date
+  completedon?: string | Date
+}
+
 let _prisma: PrismaClient | null = null
 function getPrisma(): PrismaClient {
   if (!_prisma) _prisma = new PrismaClient({ datasources: { db: { url: process.env.TENANT_DATABASE_URL } } })
@@ -22,21 +50,51 @@ function getPrisma(): PrismaClient {
 }
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY ?? ''
 
+/** Limite superior do tamanho de página para queries de listagem. */
+const MAX_PAGE_SIZE = 200
+
+/** Extrai tenant_id do request (header x-tenant-id ou req.auth do middleware). */
+function getTenantId(req: Request): string {
+  // req.auth pode estar ausente em rotas com x-internal-key (chamadas inter-serviço)
+  const authTenantId = (req as { auth?: { tenantId?: string } }).auth?.tenantId
+  const tenantId = (req.headers['x-tenant-id'] as string) || authTenantId
+  if (!tenantId) throw AppError.unauthorized('tenant_id obrigatório')
+  return tenantId
+}
+
+/** Extrai userId do req.auth se presente (null em chamadas internas). */
+function getAuthUserId(req: Request): string | null {
+  return (req as { auth?: { userId?: string } }).auth?.userId ?? null
+}
+
 // POST /logs
 export async function ingestLog(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
-    if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
+    const tenant_id = getTenantId(req)
 
     const parsed = IngestHistorySchema.safeParse(req.body)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
     // Ponto C — validar que actor_id corresponde ao usuário autenticado.
-    // Chamadas internas (x-internal-key) são isentas: o serviço que chama é responsável.
+    // Chamadas internas (x-internal-key) só podem gravar actor_type ∈ {AI, API, JOB, INTEGRATION}
+    // — nunca USER (um serviço interno não deve fingir ser um humano específico).
     const isInternalCall = req.headers['x-internal-key'] === INTERNAL_KEY && !!INTERNAL_KEY
-    const authUserId = (req as any).auth?.userId
-    if (
-      !isInternalCall &&
+    const authUserId = getAuthUserId(req)
+
+    if (isInternalCall) {
+      if (!INTERNAL_ALLOWED_ACTOR_TYPES.has(parsed.data.actor_type)) {
+        setImmediate(() => {
+          securityAudit.crossTenantAttempt(tenant_id, 'internal-service', {
+            targetTenantId: tenant_id,
+            resource: `audit_log:invalid_internal_actor_type:${parsed.data.actor_type}`,
+            blocked: true,
+          })
+        })
+        throw AppError.forbidden(
+          `Chamadas internas só podem gravar actor_type ∈ {AI, API, JOB, INTEGRATION} — recebido: ${parsed.data.actor_type}`
+        )
+      }
+    } else if (
       authUserId &&
       parsed.data.actor_type === 'USER' &&
       parsed.data.actor_id !== authUserId
@@ -62,13 +120,14 @@ export async function ingestLog(req: Request, res: Response, next: NextFunction)
 // GET /logs
 export async function listLogs(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
-    if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
+    const tenant_id = getTenantId(req)
 
     const parsed = ListHistoryQuerySchema.safeParse(req.query)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
 
     const q = parsed.data
+    // Cap de segurança: impede payloads gigantes de clientes maliciosos
+    const safeLimit = Math.min(q.limit ?? 50, MAX_PAGE_SIZE)
 
     const user = extractAuthUser(req)
 
@@ -126,14 +185,14 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
     const logs = await getPrisma().historyLog.findMany({
       where,
       orderBy: { created_at: 'desc' },
-      take: q.limit + 1, // +1 para saber se há próxima página
+      take: safeLimit + 1, // +1 para saber se há próxima página
     })
 
-    const hasMore = logs.length > q.limit
-    const data = hasMore ? logs.slice(0, q.limit) : logs
+    const hasMore = logs.length > safeLimit
+    const data = hasMore ? logs.slice(0, safeLimit) : logs
     const nextCursor = hasMore ? data[data.length - 1].created_at.toISOString() : null
 
-    res.json({ data, meta: { hasMore, nextCursor, limit: q.limit } })
+    res.json({ data, meta: { hasMore, nextCursor, limit: safeLimit } })
   } catch (error) {
     next(error)
   }
@@ -142,8 +201,7 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
 // GET /logs/:id
 export async function getLogById(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
-    if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
+    const tenant_id = getTenantId(req)
 
     const user = extractAuthUser(req)
     const visibilityFilter = user ? buildVisibilityFilter(user) : { tenant_id }
@@ -198,8 +256,7 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
 // GET /logs/export
 export async function exportLogs(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
-    if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
+    const tenant_id = getTenantId(req)
 
     const parsed = ExportHistoryQuerySchema.safeParse(req.query)
     if (!parsed.success) throw AppError.validation(parsed.error.issues[0].message)
@@ -289,8 +346,7 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
 // GET /logs/export/:jobId/status
 export async function exportJobStatus(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
-    if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
+    const tenant_id = getTenantId(req)
 
     const { jobId } = req.params
 
@@ -298,7 +354,13 @@ export async function exportJobStatus(req: Request, res: Response, next: NextFun
     let ready = false
     let status = 'processing'
     try {
-      const result = await (prisma as any).exportResult.findUnique({ where: { id: jobId } })
+      // NOTE: exportResult pode não estar no schema composto em ambientes antigos —
+      // o catch serve de fallback pra filesystem. O cast via PrismaClient genérico
+      // permite build mesmo quando o modelo não está gerado.
+      const prismaAny = getPrisma() as unknown as {
+        exportResult: { findUnique: (args: { where: { id: string } }) => Promise<{ tenant_id: string; status: string } | null> }
+      }
+      const result = await prismaAny.exportResult.findUnique({ where: { id: jobId } })
       if (result) {
         if (result.tenant_id !== tenant_id) throw AppError.forbidden('Acesso negado')
         ready = result.status === 'ready'
@@ -314,15 +376,15 @@ export async function exportJobStatus(req: Request, res: Response, next: NextFun
 
     // Também verificar via PG Boss para metadados do job
     const boss = getBoss()
-    const job = await boss.getJobById(EXPORT_QUEUE, jobId).catch(() => null)
+    const job = (await boss.getJobById(EXPORT_QUEUE, jobId).catch(() => null)) as PgBossJobMeta | null
 
     res.json({
       jobId,
       status,
       ready,
       downloadUrl: ready ? `/api/v1/historico/logs/export/${jobId}/download` : null,
-      createdAt: (job as any)?.createdon ?? null,
-      completedAt: (job as any)?.completedon ?? null,
+      createdAt: job?.createdon ?? null,
+      completedAt: job?.completedon ?? null,
     })
   } catch (error) {
     next(error)
@@ -332,14 +394,20 @@ export async function exportJobStatus(req: Request, res: Response, next: NextFun
 // GET /logs/export/:jobId/download
 export async function exportJobDownload(req: Request, res: Response, next: NextFunction) {
   try {
-    const tenant_id = (req.headers['x-tenant-id'] as string) || (req as any).auth?.tenantId
-    if (!tenant_id) throw AppError.unauthorized('tenant_id obrigatório')
+    const tenant_id = getTenantId(req)
 
     const { jobId } = req.params
 
     // Ponto Cego 6 — ler do banco (persistente), fallback para filesystem (dev)
     try {
-      const result = await (prisma as any).exportResult.findUnique({ where: { id: jobId } })
+      const prismaAny = getPrisma() as unknown as {
+        exportResult: {
+          findUnique: (args: { where: { id: string } }) => Promise<
+            { tenant_id: string; status: string; format: 'csv' | 'json'; content: string } | null
+          >
+        }
+      }
+      const result = await prismaAny.exportResult.findUnique({ where: { id: jobId } })
       if (result) {
         if (result.tenant_id !== tenant_id) throw AppError.forbidden('Acesso negado')
         if (result.status !== 'ready') {

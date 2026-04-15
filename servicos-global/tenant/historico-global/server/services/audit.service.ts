@@ -110,9 +110,7 @@ export const AuditService = {
       console.error('[AuditService] boss.send falhou:', (error as Error).message)
       // Fallback: persistir diretamente se a fila falhar
       try {
-        console.log('[AuditService] tentando persist direto, TENANT_DATABASE_URL:', process.env.TENANT_DATABASE_URL ? 'SET' : 'UNSET')
         await AuditService.persist(input)
-        console.log('[AuditService] persist direto OK')
       } catch (persistError) {
         console.error('[AuditService] persist direto falhou:', (persistError as Error).message)
         captureException(persistError, {

@@ -380,22 +380,19 @@ export function HistoricoGlobalAdmin() {
 
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
+  const [erroCarregar, setErroCarregar] = useState<string | null>(null)
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [loadingMore, setLoadingMore] = useState(false)
   const [alertasAbertos, setAlertasAbertos] = useState(false)
   const [alertasPendentes, setAlertasPendentes] = useState(0)
 
   const [filtroAtorType, setFiltroAtorType] = useState<string | null>(null)
-  const [filtroAcao, setFiltroAcao] = useState<string | null>(null)
-  const [filtroModulo, setFiltroModulo] = useState<string | null>(null)
   const [filtroStatus, setFiltroStatus] = useState<string | null>(null)
   const [filtroDataRange, setFiltroDataRange] = useState<{ inicio: Date | null; fim: Date | null }>({ inicio: null, fim: null })
 
   function buildQuery(cursor?: string) {
     const params = new URLSearchParams()
     if (filtroAtorType && filtroAtorType !== 'todos') params.set('actor_type', filtroAtorType)
-    if (filtroAcao && filtroAcao !== 'todas') params.set('action', filtroAcao)
-    if (filtroModulo && filtroModulo !== 'todos') params.set('module', filtroModulo)
     if (filtroStatus && filtroStatus !== 'todos') params.set('status', filtroStatus)
     if (filtroDataRange.inicio) params.set('startDate', filtroDataRange.inicio.toISOString())
     if (filtroDataRange.fim) params.set('endDate', filtroDataRange.fim.toISOString())
@@ -404,28 +401,47 @@ export function HistoricoGlobalAdmin() {
     return params.toString()
   }
 
-  const loadLogs = useCallback(async () => {
+  const loadLogs = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
-      const res = await fetch(`/api/tenant/historico-global/logs?${buildQuery()}`)
-      if (!res.ok) throw new Error('Falha ao carregar logs')
+      setErroCarregar(null)
+      const res = await fetch(`/api/tenant/historico-global/logs?${buildQuery()}`, { signal })
+      if (!res.ok) {
+        const body = await res.text().catch(() => '')
+        throw new Error(`${res.status} ${res.statusText}${body ? ` — ${body.slice(0, 200)}` : ''}`)
+      }
       const result = await res.json()
       setLogs(result.data ?? [])
       setNextCursor(result.meta?.nextCursor ?? null)
     } catch (err) {
-      addNotification({ type: 'error', message: 'Falha ao carregar histórico.' })
+      // Ignora AbortError (cleanup do useEffect no StrictMode em dev — evita toast duplicado)
+      if (err instanceof DOMException && err.name === 'AbortError') return
+      const msg = err instanceof Error ? err.message : 'Falha desconhecida'
+      setErroCarregar(msg)
+      addNotification({ type: 'error', message: `Falha ao carregar histórico: ${msg}` })
     } finally {
       setLoading(false)
     }
-  }, [filtroAtorType, filtroAcao, filtroModulo, filtroStatus, filtroDataRange])
-
-  useEffect(() => { loadLogs() }, [loadLogs])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtroAtorType, filtroStatus, filtroDataRange])
 
   useEffect(() => {
-    fetch('/api/tenant/historico-global/alerts?status=PENDING&limit=1')
-      .then((r) => r.json())
-      .then((d) => setAlertasPendentes(d.data?.length ?? 0))
-      .catch(() => {})
+    const ctrl = new AbortController()
+    void loadLogs(ctrl.signal)
+    return () => ctrl.abort()
+  }, [loadLogs])
+
+  // Polling de alertas pendentes a cada 30s (além do carregamento inicial)
+  useEffect(() => {
+    const fetchAlertas = () => {
+      fetch('/api/tenant/historico-global/alerts?status=PENDING&limit=1')
+        .then((r) => r.json())
+        .then((d) => setAlertasPendentes(d.data?.length ?? 0))
+        .catch(() => { /* silencioso — indicador não-crítico */ })
+    }
+    fetchAlertas()
+    const interval = setInterval(fetchAlertas, 30_000)
+    return () => clearInterval(interval)
   }, [])
 
   async function carregarMais() {
@@ -433,11 +449,13 @@ export function HistoricoGlobalAdmin() {
     setLoadingMore(true)
     try {
       const res = await fetch(`/api/tenant/historico-global/logs?${buildQuery(nextCursor)}`)
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
       const result = await res.json()
       setLogs((prev) => [...prev, ...(result.data ?? [])])
       setNextCursor(result.meta?.nextCursor ?? null)
-    } catch {
-      addNotification({ type: 'error', message: 'Falha ao carregar mais logs.' })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Falha desconhecida'
+      addNotification({ type: 'error', message: `Falha ao carregar mais logs: ${msg}` })
     } finally {
       setLoadingMore(false)
     }
@@ -447,8 +465,6 @@ export function HistoricoGlobalAdmin() {
     try {
       const params = new URLSearchParams()
       if (filtroAtorType && filtroAtorType !== 'todos') params.set('actor_type', filtroAtorType)
-      if (filtroAcao && filtroAcao !== 'todas') params.set('action', filtroAcao)
-      if (filtroModulo && filtroModulo !== 'todos') params.set('module', filtroModulo)
       if (filtroStatus && filtroStatus !== 'todos') params.set('status', filtroStatus)
       params.set('format', format)
 
@@ -556,6 +572,7 @@ export function HistoricoGlobalAdmin() {
                 {/* Botão alertas */}
                 <button
                   onClick={() => setAlertasAbertos(true)}
+                  aria-label={`Ver alertas pendentes${alertasPendentes > 0 ? ` (${alertasPendentes})` : ''}`}
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
@@ -577,6 +594,7 @@ export function HistoricoGlobalAdmin() {
                 {/* Exportar */}
                 <button
                   onClick={() => exportar('csv')}
+                  aria-label="Exportar histórico em CSV"
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
@@ -590,6 +608,7 @@ export function HistoricoGlobalAdmin() {
 
                 <button
                   onClick={() => exportar('json')}
+                  aria-label="Exportar histórico em JSON"
                   style={{
                     display: 'flex', alignItems: 'center', gap: '6px',
                     padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
@@ -636,7 +655,8 @@ export function HistoricoGlobalAdmin() {
             </div>
 
             <button
-              onClick={loadLogs}
+              onClick={() => void loadLogs()}
+              aria-label="Atualizar lista de logs"
               style={{
                 display: 'flex', alignItems: 'center', gap: '6px',
                 padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
@@ -649,18 +669,51 @@ export function HistoricoGlobalAdmin() {
             </button>
           </div>
 
-          {/* Tabela */}
-          <TabelaGlobal<AuditLog>
-            id="admin-historico-global"
-            dados={logs}
-            colunas={COLUNAS}
-            mensagemVazio={loading ? 'Carregando...' : 'Nenhum log encontrado com os filtros aplicados.'}
-            mensagemSemFiltro="Nenhum log encontrado."
-            tooltipBusca="Buscar por ação, ator ou recurso"
-            tooltipExpandir="Ver antes/depois e detalhes"
-            tooltipRecolher="Recolher detalhes"
-            renderExpandido={(item) => <DetalheLog log={item} />}
-          />
+          {/* Estado de erro — retry inline */}
+          {erroCarregar && !loading ? (
+            <div
+              role="alert"
+              style={{
+                padding: '2rem 1rem', textAlign: 'center',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem',
+                border: '1px solid rgba(248,113,113,0.2)', borderRadius: '8px',
+                background: 'rgba(248,113,113,0.05)',
+              }}
+            >
+              <div style={{ fontSize: '0.875rem', color: '#f87171', fontWeight: 600 }}>
+                Falha ao carregar histórico
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted)' }}>
+                {erroCarregar}
+              </div>
+              <button
+                type="button"
+                onClick={() => void loadLogs()}
+                aria-label="Tentar carregar histórico novamente"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '8px 16px', borderRadius: '8px', cursor: 'pointer',
+                  background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)',
+                  color: '#818cf8', fontSize: '0.8rem', fontWeight: 600,
+                }}
+              >
+                <ArrowsClockwise size={14} />
+                Tentar novamente
+              </button>
+            </div>
+          ) : (
+            <TabelaGlobal<AuditLog>
+              id="admin-historico-global"
+              dados={logs}
+              colunas={COLUNAS}
+              mensagemVazio={loading ? 'Carregando...' : 'Nenhum log encontrado com os filtros aplicados.'}
+              mensagemSemFiltro="Nenhum log encontrado."
+              tooltipBusca="Buscar por ação, ator ou recurso"
+              tooltipExpandir="Ver antes/depois e detalhes"
+              tooltipRecolher="Recolher detalhes"
+              renderExpandido={(item) => <DetalheLog log={item} />}
+            />
+          )}
 
           {/* Carregar mais */}
           {nextCursor && (
@@ -668,6 +721,7 @@ export function HistoricoGlobalAdmin() {
               <button
                 onClick={carregarMais}
                 disabled={loadingMore}
+                aria-label={loadingMore ? 'Carregando mais logs' : 'Carregar mais logs'}
                 style={{
                   padding: '8px 24px', borderRadius: '8px', cursor: loadingMore ? 'not-allowed' : 'pointer',
                   background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',

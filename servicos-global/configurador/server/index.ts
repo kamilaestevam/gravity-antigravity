@@ -18,6 +18,8 @@ import cors from 'cors'
 import { correlationMiddleware } from './middleware/correlationId.js'
 import { rateLimitPresets } from './middleware/rateLimiter.js'
 import { errorHandler } from './middleware/errorHandler.js'
+import { requireAuth } from './middleware/requireAuth.js'
+import { requireGravityAdmin } from './middleware/requireGravityAdmin.js'
 import { authRouter } from './routes/auth.js'
 import { tenantsRouter } from './routes/tenants.js'
 import { usersRouter } from './routes/users.js'
@@ -116,7 +118,10 @@ app.use('/api/internal', serviceTokenRouter)
 // ─── Rotas admin (gravity_admin only) ───────────────────────────────────────
 
 import { historicoRouter } from '../../tenant/historico-global/server/routes.js'
-app.use('/api/tenant/historico-global', historicoRouter)
+// Middleware obrigatório: rate limit + auth Clerk + role check (SUPER_ADMIN/ADMIN)
+// Sem isso, /api/tenant/historico-global/* ficou exposto publicamente — todas as 12 rotas
+// do histórico (incluindo POST /logs de ingestão) eram chamáveis sem token.
+app.use('/api/tenant/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
 
 import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/server/routes/api.js'
 app.use('/api/tenant/notificacoes', notificacoesRouter)

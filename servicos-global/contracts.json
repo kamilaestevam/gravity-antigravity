@@ -38,14 +38,18 @@
       "pathPrefix": "/api/v1/relatorios"
     },
     "historico": {
-      "baseUrl": "http://localhost:3001",
-      "pathPrefix": "/api/v1/historico",
+      "baseUrl": "http://localhost:8005",
+      "pathPrefix": "/api/tenant/historico-global",
+      "middleware": ["rateLimitPresets.admin", "requireAuth", "requireGravityAdmin"],
+      "note": "Montado pelo configurador (porta 8005) — proxy interno para historico-global. Todas as rotas exigem SUPER_ADMIN ou ADMIN.",
       "endpoints": {
         "logs": {
-          "POST /logs": "Ingerir log de auditoria (aceita e enfileira)",
-          "GET /logs": "Listar logs (cursor pagination, filtros: actor_type, module, action, status, startDate, endDate, search)",
-          "GET /logs/export": "Exportar logs em CSV ou JSON (>10k registros → background job)",
-          "GET /logs/:id": "Buscar log por ID"
+          "POST /logs": "Ingerir log de auditoria (aceita e enfileira). Chamadas via x-internal-key só podem gravar actor_type em {AI, API, JOB, INTEGRATION}.",
+          "GET /logs": "Listar logs (cursor pagination, limit máximo: 200). Filtros: actor_type, module, action, status, startDate, endDate, search",
+          "GET /logs/export": "Exportar logs em CSV ou JSON (>10k registros vai para background job via PG Boss)",
+          "GET /logs/export/:jobId/status": "Status do job de exportação assíncrona",
+          "GET /logs/export/:jobId/download": "Download do arquivo exportado",
+          "GET /logs/:id": "Buscar log por ID (cross-tenant bloqueado para STANDARD/SUPPLIER)"
         },
         "alerts": {
           "GET /alerts": "Listar eventos de alerta (filtro: status=PENDING|REVIEWED|ESCALATED)",
@@ -56,6 +60,9 @@
           "POST /alert-rules": "Criar regra de alerta",
           "PUT /alert-rules/:id": "Atualizar regra de alerta",
           "DELETE /alert-rules/:id": "Remover regra de alerta"
+        },
+        "lgpd": {
+          "POST /lgpd/anonymize": "Anonimizar actor em todos os logs (SUPER_ADMIN/ADMIN/MASTER)"
         }
       }
     },

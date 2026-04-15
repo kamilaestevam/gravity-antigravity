@@ -32,6 +32,7 @@ import { LogoGlobal } from '@nucleo/logo-global'
 import {
   LocalizadorGlobal,
   useLocalizadorHistory,
+  buildEcosystemNodes,
   type EcosystemNode,
 } from '@nucleo/localizador-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
@@ -226,23 +227,25 @@ export function Hub() {
   const activeCount = products.length
 
   // ── Localizador — nós do ecossistema ──────────────────────────────────────
-  const { history, addEntry } = useLocalizadorHistory('gravity')
+  const { history, addEntry } = useLocalizadorHistory('hub')
 
-  const ecosystemNodes: EcosystemNode[] = [
-    { id: 'hub', label: 'Hub', sublabel: 'command center', color: '#818cf8', type: 'hub', status: 'current' },
-    { id: 'configurador', label: 'Configurador', sublabel: 'auth · billing', color: '#f59e0b', type: 'configurador', status: 'accessible' },
-    ...products.map((p): EcosystemNode => {
-      const v = PROD_VISUAL[p.product_key] ?? DEFAULT_VISUAL
-      return {
-        id:       p.product_key,
-        label:    p.catalog?.name ?? p.product_key,
-        sublabel: 'produto',
-        color:    v.color,
-        type:     'produto',
-        status:   allowedProducts.some(a => a.product_key === p.product_key && a.is_active) ? 'accessible' : 'locked',
-      }
-    }),
-  ]
+  const produtoNodes: EcosystemNode[] = products.map(p => {
+    const v = PROD_VISUAL[p.product_key] ?? DEFAULT_VISUAL
+    return {
+      id:       p.product_key,
+      label:    p.catalog?.name ?? p.product_key,
+      sublabel: 'produto',
+      color:    v.color,
+      type:     'produto',
+      status:   allowedProducts.some(a => a.product_key === p.product_key && a.is_active) ? 'accessible' : 'locked',
+    }
+  })
+
+  const ecosystemNodes = buildEcosystemNodes({
+    currentProductId: 'hub',
+    produtoNodes,
+    includeAdmin: isAdmin,
+  })
 
   return (
     <div className="hb-shell">
@@ -295,16 +298,18 @@ export function Hub() {
           <LocalizadorGlobal
             workspaceName={companyName}
             iconOnly
-            currentProductId="gravity"
+            currentProductId="hub"
             currentProductLabel="Hub"
             currentProductColor="#818cf8"
             currentPageLabel="Hub"
             history={history}
             nodes={ecosystemNodes}
             onNavigate={(node) => {
-              if (node.type === 'configurador') navigate('/workspace')
-              else if (node.type === 'gravity')  navigate('/core')
-              else if (node.type === 'produto')  navigate(`/produto/${node.id}`)
+              if (node.type === 'hub')               navigate('/hub')
+              else if (node.type === 'core')         navigate('/core')
+              else if (node.type === 'configurador') navigate('/workspace')
+              else if (node.type === 'admin')        navigate('/admin/visao-geral')
+              else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
             }}
           />
 

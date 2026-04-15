@@ -16,7 +16,9 @@ const HUB_CY    = 155
 const CORE_CX   = 430
 const CORE_CY   = 155
 const CONFIG_CX = 88
-const CONFIG_CY = 82
+const CONFIG_CY = 60
+const ADMIN_CX  = 88
+const ADMIN_CY  = 140
 const STORE_CX  = 158
 const STORE_CY  = 255
 
@@ -107,17 +109,17 @@ function ProductNode({ node, cx, cy, isCurrent, isVisited, isHovered, onHover, o
       {/* Label — placeholder vazio mostra "+prod", produto real sempre mostra o nome */}
       {node.id.startsWith('locked-') ? (
         <>
-          <text x={cx} y={cy - 2} textAnchor="middle" fontSize="8" fontWeight="700" fill="#94a3b8" fontFamily="Inter,system-ui">+prod</text>
-          <text x={cx} y={cy + 8} textAnchor="middle" fontSize="6.5" fill="#94a3b899" fontFamily="Inter,system-ui">breve</text>
+          <text x={cx} y={cy - 3} textAnchor="middle" dominantBaseline="auto" fontSize="8" fontWeight="700" fill="#94a3b8" fontFamily="Inter,system-ui">+prod</text>
+          <text x={cx} y={cy + 6} textAnchor="middle" dominantBaseline="auto" fontSize="6.5" fill="#94a3b899" fontFamily="Inter,system-ui">breve</text>
         </>
       ) : (
         <>
-          <text x={cx} y={cy - 2} textAnchor="middle" fontSize={isCurrent ? 8.5 : 8} fontWeight="800"
+          <text x={cx} y={cy - 3} textAnchor="middle" dominantBaseline="auto" fontSize={isCurrent ? 8.5 : 8} fontWeight="800"
             fill={isLocked ? '#6b7280' : isVisited ? '#fff' : '#94a3b8'}
             fontFamily="Inter,system-ui" letterSpacing=".02em">
             {shortLabel.toUpperCase()}
           </text>
-          <text x={cx} y={cy + 9} textAnchor="middle" fontSize="7"
+          <text x={cx} y={cy + 6} textAnchor="middle" dominantBaseline="auto" fontSize="7"
             fill={isLocked ? '#37415199' : isVisited ? `${node.color}cc` : '#47556980'}
             fontFamily="Inter,system-ui">
             {node.sublabel}
@@ -247,14 +249,19 @@ export function LocalizadorGlobal({
   const hubNode          = nodes.find(n => n.type === 'hub')
   const coreNode         = nodes.find(n => n.type === 'core')
   const configuradorNode = nodes.find(n => n.type === 'configurador')
+  const adminNode        = nodes.find(n => n.type === 'admin')
   const hubStoreNode     = nodes.find(n => n.type === 'hub-store')
   const produtoNodes     = nodes.filter(n => n.type === 'produto')
   const hoveredNode      = nodes.find(n => n.id === hoveredId) ?? null
 
-  // Rastro de navegação
-  const visited        = new Set([...visitedNodeIds, currentProductId])
-  const isCoreVisited  = visited.has('core')
-  const isStoreVisited = visited.has('hub-store')
+  // Rastro de navegação — deriva visitados do histórico + visitedNodeIds explícitos
+  const visited        = new Set([
+    ...visitedNodeIds,
+    ...history.map(e => e.productId),
+    currentProductId,
+  ])
+  const isCoreVisited  = visited.has('core')  && currentProductId !== 'core'
+  const isStoreVisited = visited.has('hub-store') && currentProductId !== 'hub-store'
 
   // Atalho: produto atual sem ter passado pelo CORE
   const currentProdSlotIdx = produtoNodes.findIndex(n => n.id === currentProductId)
@@ -383,6 +390,10 @@ export function LocalizadorGlobal({
                     <stop offset="0%"   stopColor="#f9a8d4" stopOpacity=".95"/>
                     <stop offset="100%" stopColor="#9d174d" stopOpacity=".9"/>
                   </radialGradient>
+                  <radialGradient id="lcg-g-admin" cx="50%" cy="30%" r="60%">
+                    <stop offset="0%"   stopColor="#6ee7b7" stopOpacity=".95"/>
+                    <stop offset="100%" stopColor="#065f46" stopOpacity=".9"/>
+                  </radialGradient>
                   <radialGradient id="lcg-g-hub-store" cx="50%" cy="30%" r="60%">
                     <stop offset="0%"   stopColor="#fbbf24" stopOpacity=".9"/>
                     <stop offset="100%" stopColor="#92400e" stopOpacity=".85"/>
@@ -407,17 +418,28 @@ export function LocalizadorGlobal({
                 </defs>
 
                 {/* ── Espinha principal: HUB → CORE ── */}
-                <line
-                  x1={HUB_CX} y1={HUB_CY}
-                  x2={CORE_CX} y2={CORE_CY}
-                  stroke={isCoreVisited ? '#818cf840' : '#1e253870'}
-                  strokeWidth={isCoreVisited ? 2.5 : 1.5}
-                />
-                {/* Seta direcional na linha HUB→CORE */}
-                <polygon
-                  points={`${CORE_CX - 52},${CORE_CY - 5} ${CORE_CX - 42},${CORE_CY} ${CORE_CX - 52},${CORE_CY + 5}`}
-                  fill={isCoreVisited ? '#818cf840' : '#1e253870'}
-                />
+                {(() => {
+                  const isCoreCurrent_ = currentProductId === 'core'
+                  const lineColor =
+                    isCoreCurrent_  ? '#818cf888' :
+                    isCoreVisited   ? '#818cf855' :
+                    '#1e253870'
+                  const lineWidth = isCoreCurrent_ ? 2.4 : isCoreVisited ? 2 : 1.5
+                  return (
+                    <>
+                      <line
+                        x1={HUB_CX} y1={HUB_CY}
+                        x2={CORE_CX} y2={CORE_CY}
+                        stroke={lineColor}
+                        strokeWidth={lineWidth}
+                      />
+                      <polygon
+                        points={`${CORE_CX - 52},${CORE_CY - 5} ${CORE_CX - 42},${CORE_CY} ${CORE_CX - 52},${CORE_CY + 5}`}
+                        fill={lineColor}
+                      />
+                    </>
+                  )
+                })()}
 
                 {/* ── Atalho direto: HUB → produto atual (se pulou o CORE) ── */}
                 {usedShortcut && currentProdSlotIdx < PRODUCT_SLOTS.length && (() => {
@@ -440,61 +462,184 @@ export function LocalizadorGlobal({
                 })()}
 
                 {/* ── HUB → Configurador (dashed, isolado) ── */}
-                <line
-                  x1={HUB_CX - 32} y1={HUB_CY - 28}
-                  x2={CONFIG_CX + 22} y2={CONFIG_CY + 12}
-                  stroke="#f472b628" strokeWidth="1.5" strokeDasharray="6 5"
-                />
+                {(() => {
+                  const isConfigCurrent_ = currentProductId === 'configurador'
+                  const isConfigVisited_ = !isConfigCurrent_ && visited.has('configurador')
+                  return (
+                    <line
+                      x1={HUB_CX - 32} y1={HUB_CY - 28}
+                      x2={CONFIG_CX + 22} y2={CONFIG_CY + 12}
+                      stroke={
+                        isConfigCurrent_ ? '#f472b660' :
+                        isConfigVisited_  ? '#f472b642' :
+                        '#f472b820'
+                      }
+                      strokeWidth={isConfigCurrent_ ? 2 : isConfigVisited_ ? 1.6 : 1.2}
+                      strokeDasharray="6 5"
+                    />
+                  )
+                })()}
+
+                {/* ── HUB → Admin (dashed, isolado — somente se admin node existe) ── */}
+                {adminNode && (() => {
+                  const isAdminCurrent_ = currentProductId === 'admin'
+                  const isAdminVisited_ = !isAdminCurrent_ && visited.has('admin')
+                  return (
+                    <line
+                      x1={HUB_CX - 38} y1={HUB_CY - 6}
+                      x2={ADMIN_CX + 22} y2={ADMIN_CY + 4}
+                      stroke={
+                        isAdminCurrent_ ? '#10b98170' :
+                        isAdminVisited_  ? '#10b98148' :
+                        '#10b98122'
+                      }
+                      strokeWidth={isAdminCurrent_ ? 2 : isAdminVisited_ ? 1.6 : 1.2}
+                      strokeDasharray="6 5"
+                    />
+                  )
+                })()}
 
                 {/* ── HUB → HUB Store ── */}
-                <line
-                  x1={HUB_CX - 18} y1={HUB_CY + 40}
-                  x2={STORE_CX + 8} y2={STORE_CY - 22}
-                  stroke={isStoreVisited ? '#fbbf2440' : '#1e253870'}
-                  strokeWidth={isStoreVisited ? 2 : 1.5}
-                  strokeDasharray={isStoreVisited ? undefined : '5 4'}
-                />
-
-                {/* ── CORE → Produtos ── */}
-                {productSlots.map((node, i) => {
-                  if (!node) return null
-                  const pos       = PRODUCT_SLOTS[i]
-                  const isCurrent = node.id === currentProductId
-                  const isVis     = visited.has(node.id)
-                  const isLocked  = node.status === 'locked'
+                {(() => {
+                  const isStoreCurrent_ = currentProductId === 'hub-store'
                   return (
-                    <line key={`conn-${node.id}`}
+                    <line
+                      x1={HUB_CX - 18} y1={HUB_CY + 40}
+                      x2={STORE_CX + 8} y2={STORE_CY - 22}
+                      stroke={
+                        isStoreCurrent_ ? '#fbbf2465' :
+                        isStoreVisited   ? '#fbbf2445' :
+                        '#1e253860'
+                      }
+                      strokeWidth={isStoreCurrent_ ? 2.2 : isStoreVisited ? 1.8 : 1.4}
+                      strokeDasharray={isStoreCurrent_ || isStoreVisited ? undefined : '5 4'}
+                    />
+                  )
+                })()}
+
+                {/* ── CORE → Produtos (todos os 6 slots, mesmo os vazios) ── */}
+                {PRODUCT_SLOTS.map((pos, i) => {
+                  const node      = productSlots[i]
+                  const isPlaceholder = !node || node.id.startsWith('locked-')
+                  const isCurrent = !isPlaceholder && node!.id === currentProductId
+                  const isVis     = !isPlaceholder && visited.has(node!.id)
+                  const isLocked  = isPlaceholder || node!.status === 'locked'
+                  const color     = !isPlaceholder ? node!.color : '#475569'
+                  return (
+                    <line key={`conn-slot-${i}`}
                       x1={CORE_CX} y1={CORE_CY}
                       x2={pos.cx}  y2={pos.cy}
                       stroke={
-                        isLocked   ? '#1e253850'         :
-                        isCurrent  ? `${node.color}50`   :
-                        isVis      ? `${node.color}30`   :
-                        `${node.color}14`
+                        isCurrent ? `${color}72` :
+                        isVis     ? `${color}52` :
+                        isLocked  ? '#47556942' :
+                        `${color}28`
                       }
-                      strokeWidth={isCurrent ? 1.8 : 1.2}
+                      strokeWidth={isCurrent ? 2.2 : isVis ? 1.8 : 1.2}
                       strokeDasharray={isLocked ? '4 4' : undefined}
                     />
                   )
                 })}
 
                 {/* ── CONFIGURADOR (isolado, topo esquerdo) ── */}
-                <g
-                  className="lcg-node"
-                  onMouseEnter={e => handleNodeHover('configurador', e)}
-                  onMouseLeave={() => handleNodeHover(null)}
-                  onClick={() => configuradorNode && handleNavigate(configuradorNode)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <circle cx={CONFIG_CX} cy={CONFIG_CY} r={26}
-                    fill="url(#lcg-g-configurador)" filter="url(#lcg-glow-soft)" opacity=".8"/>
-                  <circle cx={CONFIG_CX} cy={CONFIG_CY} r={26}
-                    fill="none" stroke="#f472b640" strokeWidth="1.5" strokeDasharray="3 2"/>
-                  <text x={CONFIG_CX} y={CONFIG_CY - 4} textAnchor="middle" fontSize="8" fontWeight="800" fill="#fff" fontFamily="Inter,system-ui">CONFIG</text>
-                  <text x={CONFIG_CX} y={CONFIG_CY + 7} textAnchor="middle" fontSize="6.5" fill="#fce7f390" fontFamily="Inter,system-ui">auth · billing</text>
-                  <rect x={CONFIG_CX - 22} y={CONFIG_CY - 43} width="44" height="12" rx="4" fill="#0c0e16" stroke="#f472b630" strokeWidth="1"/>
-                  <text x={CONFIG_CX} y={CONFIG_CY - 34} textAnchor="middle" fontSize="6.5" fontWeight="700" fill="#f472b470" fontFamily="Inter,system-ui" letterSpacing=".05em">ISOLADO</text>
-                </g>
+                {(() => {
+                  const isConfigCurrent = currentProductId === 'configurador'
+                  const isConfigVisited = !isConfigCurrent && visited.has('configurador')
+                  return (
+                    <g
+                      className="lcg-node"
+                      onMouseEnter={e => handleNodeHover('configurador', e)}
+                      onMouseLeave={() => handleNodeHover(null)}
+                      onClick={() => configuradorNode && handleNavigate(configuradorNode)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {isConfigCurrent && (
+                        <>
+                          <circle cx={CONFIG_CX} cy={CONFIG_CY} r={32} fill="none" stroke="#f472b6" strokeWidth="1">
+                            <animate attributeName="r"       values="30;40;30" dur="2.8s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values=".5;0;.5"  dur="2.8s" repeatCount="indefinite"/>
+                          </circle>
+                          <circle cx={CONFIG_CX} cy={CONFIG_CY} r={28} fill="none" stroke="#f472b6" strokeWidth="1.5" opacity=".3"/>
+                        </>
+                      )}
+                      <circle cx={CONFIG_CX} cy={CONFIG_CY} r={26}
+                        fill="url(#lcg-g-configurador)"
+                        filter={isConfigCurrent || isConfigVisited ? 'url(#lcg-glow-soft)' : 'none'}
+                        opacity={isConfigCurrent ? 1 : isConfigVisited ? 0.8 : 0.38}
+                      />
+                      <circle cx={CONFIG_CX} cy={CONFIG_CY} r={26}
+                        fill="none"
+                        stroke={isConfigCurrent ? '#f472b6' : isConfigVisited ? '#f472b640' : '#f472b820'}
+                        strokeWidth={isConfigCurrent ? 2 : 1.5}
+                        strokeDasharray="3 2"
+                      />
+                      {isConfigCurrent && (
+                        <>
+                          <circle cx={CONFIG_CX + 23} cy={CONFIG_CY - 23} r={6} fill="#0c0e16" stroke="#f472b6" strokeWidth="1.5"/>
+                          <text x={CONFIG_CX + 23} y={CONFIG_CY - 19.5} textAnchor="middle" fontSize="7" fontWeight="900" fill="#f472b6" fontFamily="Inter,system-ui">✦</text>
+                        </>
+                      )}
+                      <text x={CONFIG_CX} y={CONFIG_CY - 4} textAnchor="middle" fontSize="8" fontWeight="800"
+                        fill={isConfigCurrent || isConfigVisited ? '#fff' : '#64748b'}
+                        fontFamily="Inter,system-ui">CONFIG</text>
+                      <text x={CONFIG_CX} y={CONFIG_CY + 7} textAnchor="middle" fontSize="6.5"
+                        fill={isConfigCurrent ? '#fce7f390' : isConfigVisited ? '#f472b460' : '#fce7f330'}
+                        fontFamily="Inter,system-ui">auth · billing</text>
+                      <rect x={CONFIG_CX - 22} y={CONFIG_CY - 43} width="44" height="12" rx="4" fill="#0c0e16" stroke="#f472b630" strokeWidth="1"/>
+                      <text x={CONFIG_CX} y={CONFIG_CY - 34} textAnchor="middle" fontSize="6.5" fontWeight="700"
+                        fill={isConfigCurrent ? '#f472b490' : '#f472b440'}
+                        fontFamily="Inter,system-ui" letterSpacing=".05em">ISOLADO</text>
+                    </g>
+                  )
+                })()}
+
+                {/* ── ADMIN (isolado, abaixo do Configurador — só quando usuário é admin) ── */}
+                {adminNode && (() => {
+                  const isAdminCurrent = currentProductId === 'admin'
+                  const isAdminVisited = !isAdminCurrent && visited.has('admin')
+                  return (
+                    <g
+                      className="lcg-node"
+                      onMouseEnter={e => handleNodeHover('admin', e)}
+                      onMouseLeave={() => handleNodeHover(null)}
+                      onClick={() => handleNavigate(adminNode)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {isAdminCurrent && (
+                        <>
+                          <circle cx={ADMIN_CX} cy={ADMIN_CY} r={32} fill="none" stroke="#10b981" strokeWidth="1">
+                            <animate attributeName="r"       values="30;40;30" dur="2.8s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values=".5;0;.5"  dur="2.8s" repeatCount="indefinite"/>
+                          </circle>
+                          <circle cx={ADMIN_CX} cy={ADMIN_CY} r={28} fill="none" stroke="#10b981" strokeWidth="1.5" opacity=".3"/>
+                        </>
+                      )}
+                      <circle cx={ADMIN_CX} cy={ADMIN_CY} r={26}
+                        fill="url(#lcg-g-admin)"
+                        filter={isAdminCurrent || isAdminVisited ? 'url(#lcg-glow-soft)' : 'none'}
+                        opacity={isAdminCurrent ? 1 : isAdminVisited ? 0.8 : 0.38}
+                      />
+                      <circle cx={ADMIN_CX} cy={ADMIN_CY} r={26}
+                        fill="none"
+                        stroke={isAdminCurrent ? '#10b981' : isAdminVisited ? '#10b98140' : '#10b98120'}
+                        strokeWidth={isAdminCurrent ? 2 : 1.5}
+                        strokeDasharray="3 2"
+                      />
+                      {isAdminCurrent && (
+                        <>
+                          <circle cx={ADMIN_CX + 23} cy={ADMIN_CY - 23} r={6} fill="#0c0e16" stroke="#10b981" strokeWidth="1.5"/>
+                          <text x={ADMIN_CX + 23} y={ADMIN_CY - 19.5} textAnchor="middle" fontSize="7" fontWeight="900" fill="#10b981" fontFamily="Inter,system-ui">✦</text>
+                        </>
+                      )}
+                      <text x={ADMIN_CX} y={ADMIN_CY - 4} textAnchor="middle" fontSize="8" fontWeight="800"
+                        fill={isAdminCurrent || isAdminVisited ? '#fff' : '#64748b'}
+                        fontFamily="Inter,system-ui">ADMIN</text>
+                      <text x={ADMIN_CX} y={ADMIN_CY + 7} textAnchor="middle" fontSize="6.5"
+                        fill={isAdminCurrent ? '#d1fae590' : isAdminVisited ? '#10b98160' : '#d1fae530'}
+                        fontFamily="Inter,system-ui">gravity hq</text>
+                    </g>
+                  )
+                })()}
 
                 {/* ── HUB STORE (abaixo do HUB) ── */}
                 {hubStoreNode && (
@@ -714,10 +859,6 @@ export function LocalizadorGlobal({
               <div className="lcg-legend__item">
                 <div className="lcg-legend__dot" style={{ background: '#4b5563' }}/>
                 <span>Disponível</span>
-              </div>
-              <div className="lcg-legend__item">
-                <div className="lcg-legend__dot" style={{ background: '#f472b6' }}/>
-                <span>Configurador (isolado)</span>
               </div>
               <div className="lcg-legend__item">
                 <div className="lcg-legend__dash"/>

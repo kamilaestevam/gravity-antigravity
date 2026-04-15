@@ -41,7 +41,8 @@ import { type NavItem } from '@nucleo/menu-lateral-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
-import { LocalizadorGlobal, useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
+import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
+import { useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import { ToastContainer, useShellStore } from '@gravity/shell'
 import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
 import { ModalGlobal } from '@nucleo/modal-global'
@@ -277,10 +278,11 @@ export function SelecionarWorkspace() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const hubEcosystemNodes: EcosystemNode[] = [
-    { id: 'hub',          label: 'Hub',            sublabel: 'workspaces',          color: '#818cf8', type: 'gravity',      status: 'current'    },
-    { id: 'configurador', label: 'Configurador',   sublabel: 'auth · billing',      color: '#f472b6', type: 'configurador', status: 'accessible' },
-  ]
+  const { isGravityAdmin } = useLoadSystemRole()
+  const hubEcosystemNodes = buildEcosystemNodes({
+    currentProductId: 'hub',
+    includeAdmin: isGravityAdmin,
+  })
 
   // Workspaces filtrados por busca e ordenados: favoritos primeiro
   const wsFiltrados = useMemo(() => {
@@ -768,7 +770,10 @@ export function SelecionarWorkspace() {
               history={locHistory}
               nodes={hubEcosystemNodes}
               onNavigate={(node) => {
-                if (node.type === 'configurador') navigate('/configurador')
+                if (node.type === 'hub')               navigate('/hub')
+                else if (node.type === 'core')         navigate('/core')
+                else if (node.type === 'configurador') navigate('/configurador')
+                else if (node.type === 'admin')        navigate('/admin/visao-geral')
               }}
             />
 

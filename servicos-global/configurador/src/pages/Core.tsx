@@ -37,10 +37,10 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
-import { LocalizadorGlobal, useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
-import { buildTenantProductNodes, HUB_NODE, CONFIGURADOR_NODE, type CompanyProductItem } from '../utils/ecosystemNodes'
+import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
+import { buildTenantProductNodes, type CompanyProductItem } from '../utils/ecosystemNodes'
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
-import { invalidateRoleCache } from '../hooks/useLoadSystemRole'
+import { invalidateRoleCache, useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import './workspace/workspace.css'
 import './workspace/gabi.css'
 
@@ -69,13 +69,16 @@ export function Core() {
 
   // ── Localizador ────────────────────────────────────────────────────────────
   const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('core')
+  const { isGravityAdmin } = useLoadSystemRole()
   useEffect(() => {
     locAddEntry({ productId: 'core', productLabel: 'Core', productColor: '#a78bfa', pageLabel: 'Core', pagePath: '/core' })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Nós do ecossistema — populados dinamicamente após carregar produtos
-  const [coreEcosystemNodes, setCoreEcosystemNodes] = useState<EcosystemNode[]>([HUB_NODE, CONFIGURADOR_NODE])
+  const [coreEcosystemNodes, setCoreEcosystemNodes] = useState<EcosystemNode[]>(
+    buildEcosystemNodes({ currentProductId: 'core', includeAdmin: false })
+  )
 
   const [tipoEmpresa, setTipoEmpresa] = useState('')
 
@@ -129,16 +132,20 @@ export function Core() {
               rota: `/produto/${p.catalog?.slug ?? p.product_key}`,
             }))
           setProdutosAtivos(ativos)
-          // Mapa do ecossistema — todos os produtos (ativos=accessible, inativos=locked)
+          // Mapa do ecossistema — usa builder único
           const productNodes = buildTenantProductNodes(allProds)
-          setCoreEcosystemNodes([HUB_NODE, CONFIGURADOR_NODE, ...productNodes])
+          setCoreEcosystemNodes(buildEcosystemNodes({
+            currentProductId: 'core',
+            produtoNodes: productNodes,
+            includeAdmin: isGravityAdmin,
+          }))
         }
       } catch (err) {
         addNotification({ type: 'error', message: err instanceof Error ? err.message : t('hub.erro_carregar_produtos') })
       }
     }
     loadProducts()
-  }, [companyId, getToken])
+  }, [companyId, getToken, isGravityAdmin])
 
   // Menu lateral
   const navItems: NavItem[] = useMemo(() => {
@@ -311,9 +318,10 @@ export function Core() {
             history={locHistory}
             nodes={coreEcosystemNodes}
             onNavigate={(node) => {
-              if (node.type === 'hub')          navigate('/hub')
+              if (node.type === 'hub')               navigate('/hub')
               else if (node.type === 'configurador') navigate('/configurador')
-              else if (node.type === 'produto') navigate(`/produto/${node.id}`)
+              else if (node.type === 'admin')        navigate('/admin/visao-geral')
+              else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
             }}
           />
 

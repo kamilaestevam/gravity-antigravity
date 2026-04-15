@@ -1,4 +1,4 @@
-export type EcosystemNodeType   = 'hub' | 'core' | 'hub-store' | 'configurador' | 'produto'
+export type EcosystemNodeType   = 'hub' | 'core' | 'hub-store' | 'configurador' | 'admin' | 'produto'
 export type EcosystemNodeStatus = 'current' | 'accessible' | 'locked'
 
 export interface EcosystemNode {

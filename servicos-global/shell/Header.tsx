@@ -17,6 +17,7 @@ import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import {
   LocalizadorGlobal,
   useLocalizadorHistory,
+  buildEcosystemNodes,
   type EcosystemNode,
 } from '@nucleo/localizador-global'
 
@@ -101,6 +102,10 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
     currentUser,
     clearCurrentUser,
     allowedProducts,
+    avisos: avisosStore,
+    addAviso,
+    marcarAvisoLido,
+    marcarTodosAvisosLidos,
   } = useShellStore()
 
   // ── Localizador ──────────────────────────────────────────────────────────
@@ -127,74 +132,55 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname])
 
-  // Monta nós do ecossistema
-  const ecosystemNodes: EcosystemNode[] = [
-    {
-      id:       'hub',
-      label:    'Hub',
-      sublabel: 'ecossistema',
-      color:    '#818cf8',
-      type:     'hub',
-      status:   ctx.productId === 'hub' ? 'current' : 'accessible',
-    },
-    {
-      id:       'core',
-      label:    'Core',
-      sublabel: 'dashboard',
-      color:    '#a78bfa',
-      type:     'core',
-      status:   ctx.productId === 'core' ? 'current' : 'accessible',
-    },
-    {
-      id:       'hub-store',
-      label:    'HUB Store',
-      sublabel: 'marketplace',
-      color:    '#fbbf24',
-      type:     'hub-store',
-      status:   ctx.productId === 'hub-store' ? 'current' : 'accessible',
-    },
-    {
-      id:       'configurador',
-      label:    'Configurador',
-      sublabel: 'auth · billing',
-      color:    '#f472b6',
-      type:     'configurador',
-      status:   'accessible',
-    },
-    // Produtos — habilitados ou bloqueados conforme contrato
-    ...Object.entries(PRODUCT_META).map(([id, meta]): EcosystemNode => {
-      const isAllowed = allowedProducts.some(p => p.product_key === id && p.is_active)
-      return {
-        id,
-        label:    meta.label,
-        sublabel: meta.sublabel,
-        color:    meta.color,
-        type:     'produto',
-        status:   id === ctx.productId ? 'current' : isAllowed ? 'accessible' : 'locked',
-      }
-    }),
-  ]
+  // Produtos do usuário (habilitados ou bloqueados conforme contrato)
+  const produtoNodes: EcosystemNode[] = Object.entries(PRODUCT_META).map(([id, meta]) => {
+    const isAllowed = allowedProducts.some(p => p.product_key === id && p.is_active)
+    return {
+      id,
+      label:    meta.label,
+      sublabel: meta.sublabel,
+      color:    meta.color,
+      type:     'produto',
+      status:   id === ctx.productId ? 'current' : isAllowed ? 'accessible' : 'locked',
+    }
+  })
 
-  const avisosMock: AvisoInterno[] = [
-    {
-      id: '1',
+  // ADMIN só aparece para usuários Gravity admin
+  const isGravityAdmin =
+    currentUser.role === 'Super Admin' || currentUser.role === 'Admin' ||
+    currentUser.role === 'SUPER_ADMIN' || currentUser.role === 'ADMIN'
+
+  // Monta nós via builder único (fonte de verdade compartilhada com o configurador)
+  const ecosystemNodes = buildEcosystemNodes({
+    currentProductId: ctx.productId,
+    produtoNodes,
+    includeAdmin: isGravityAdmin,
+    includeStore: true,
+  })
+
+  // Seed inicial dos avisos (uma única vez enquanto o store estiver vazio).
+  // Mocks mantidos para preservar a experiência de primeiro acesso.
+  const seededRef = useRef(false)
+  useEffect(() => {
+    if (seededRef.current) return
+    if (avisosStore.length > 0) { seededRef.current = true; return }
+    seededRef.current = true
+    addAviso({
       conteudo: t('shell.notificacoes_mock.boas_vindas'),
       autor: { nome: t('shell.sistema') },
-      dataHora: new Date().toLocaleString('pt-BR'),
-      lido: false,
       tipo: 'sistema',
-    },
-    {
-      id: '2',
+    })
+    addAviso({
       conteudo: t('shell.notificacoes_mock.simulacao_concluida'),
       autor: { nome: 'SimulaCusto' },
       dataHora: new Date(Date.now() - 3600_000).toLocaleString('pt-BR'),
-      lido: false,
       tipo: 'aviso',
-    },
-  ]
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const [avisos, setAvisos] = useState<AvisoInterno[]>(avisosMock)
+  // Avisos persistidos no store já satisfazem a interface de AvisoInterno (campos compatíveis).
+  const avisos: AvisoInterno[] = avisosStore
 
   function getPageLabel(pathname: string): string {
     const key = ROUTE_LABEL_KEYS[pathname]
@@ -206,24 +192,14 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
 
   const pageLabel = getPageLabel(location.pathname)
 
-  const handleMarcarLido = (id: string) => {
-    setAvisos(prev => prev.map(a => a.id === id ? { ...a, lido: true } : a))
-  }
-
-  const handleMarcarTodosLidos = () => {
-    setAvisos(prev => prev.map(a => ({ ...a, lido: true })))
-  }
-
+  const handleMarcarLido = (id: string) => marcarAvisoLido(id)
+  const handleMarcarTodosLidos = () => marcarTodosAvisosLidos()
   const handleCriarAviso = (texto: string) => {
-    const novo: AvisoInterno = {
-      id: `aviso-${Date.now()}`,
+    addAviso({
       conteudo: texto,
       autor: { nome: t('shell.voce') },
-      dataHora: new Date().toLocaleString('pt-BR'),
-      lido: false,
       tipo: 'aviso',
-    }
-    setAvisos(prev => [novo, ...prev])
+    })
   }
 
   const initials = currentUser.name
@@ -318,10 +294,11 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           nodes={ecosystemNodes}
           visitedNodeIds={visitedNodeIds}
           onNavigate={(node) => {
-            if (node.type === 'hub')          window.location.href = '/hub'
-            else if (node.type === 'core')        window.location.href = '/core'
-            else if (node.type === 'hub-store')   window.location.href = '/store'
+            if (node.type === 'hub')               window.location.href = '/hub'
+            else if (node.type === 'core')         window.location.href = '/core'
+            else if (node.type === 'hub-store')    window.location.href = '/store'
             else if (node.type === 'configurador') window.location.href = '/configurador'
+            else if (node.type === 'admin')        window.location.href = '/admin'
             else if (node.type === 'produto')      window.location.href = `/produto/${node.id}`
           }}
         />

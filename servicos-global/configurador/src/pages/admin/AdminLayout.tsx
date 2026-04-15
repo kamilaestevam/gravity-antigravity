@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, Outlet, useNavigate, Navigate } from 'react-router-dom'
-import { useUser, useClerk } from '@clerk/clerk-react'
+import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -10,6 +10,8 @@ import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
+import { buildAdminProductNodes, type AdminProductItem } from '../../utils/ecosystemNodes'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
   Buildings,
@@ -36,6 +38,7 @@ export function AdminLayout() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useUser()
+  const { getToken } = useAuth()
 
   // Defesa em profundidade: bloqueia rendering se não for admin Gravity,
   // mesmo que o roteador (AdminRoute) já tenha feito essa verificação.
@@ -67,6 +70,36 @@ export function AdminLayout() {
   const isLight = currentTheme === 'light'
 
   const { signOut } = useClerk()
+
+  // ── Localizador ────────────────────────────────────────────────────────────
+  const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('admin')
+  const [adminEcosystemNodes, setAdminEcosystemNodes] = useState<EcosystemNode[]>(
+    buildEcosystemNodes({ currentProductId: 'admin', includeAdmin: true })
+  )
+
+  useEffect(() => {
+    locAddEntry({ productId: 'admin', productLabel: 'Admin', productColor: '#10b981', pageLabel: 'Admin Panel', pagePath: '/admin' })
+    async function loadAdminProducts() {
+      try {
+        const token = await getToken()
+        const res = await fetch('/api/admin/products', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const allProds: AdminProductItem[] = data.products ?? data
+          const productNodes = buildAdminProductNodes(allProds)
+          setAdminEcosystemNodes(buildEcosystemNodes({
+            currentProductId: 'admin',
+            produtoNodes: productNodes,
+            includeAdmin: true,
+          }))
+        }
+      } catch { /* silencioso */ }
+    }
+    loadAdminProducts()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const userName = user?.fullName ?? user?.firstName ?? 'Gravity Admin'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
@@ -182,6 +215,24 @@ export function AdminLayout() {
           </TooltipGlobal>
 
           <LanguageSwitcherGlobal />
+
+          <LocalizadorGlobal
+            workspaceName="Gravity HQ"
+            currentProductId="admin"
+            currentProductLabel="Admin Panel"
+            currentProductColor="#10b981"
+            currentPageLabel="Admin Panel"
+            history={locHistory}
+            nodes={adminEcosystemNodes}
+            onNavigate={(node) => {
+              if (node.type === 'hub')               navigate('/hub')
+              else if (node.type === 'configurador') navigate('/workspace/workspaces')
+              else if (node.type === 'core')         navigate('/core')
+              else if (node.type === 'admin')        navigate('/admin/visao-geral')
+              else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+            }}
+            iconOnly
+          />
 
           <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
 

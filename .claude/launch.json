@@ -2,16 +2,29 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "configurador",
+      "name": "configurador-frontend",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd servicos-global\\configurador && npm run dev:full"],
+      "runtimeArgs": ["/c", "cd servicos-global\\configurador && npx vite --port 8000"],
       "port": 8000
+    },
+    {
+      "name": "configurador-backend",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd servicos-global\\configurador && npx tsx watch server/index.ts"],
+      "port": 8005,
+      "autoPort": false
     },
     {
       "name": "pedido-frontend",
       "runtimeExecutable": "cmd",
       "runtimeArgs": ["/c", "cd produto\\pedido\\client && npx vite --port 5179"],
       "port": 5179
+    },
+    {
+      "name": "pedido-backend",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd produto\\pedido\\server && npm run dev"],
+      "port": 8030
     },
     {
       "name": "dashboard-global-demo",

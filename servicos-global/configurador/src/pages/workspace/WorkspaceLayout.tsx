@@ -208,7 +208,7 @@ export function WorkspaceLayout() {
 
           <LanguageSwitcherGlobal />
 
-          <Notificacoes tenantId="importes-sa" userId={user?.id ?? 'mock-user'} />
+          <Notificacoes />
 
           <UsuarioGlobal
             userName={userName}

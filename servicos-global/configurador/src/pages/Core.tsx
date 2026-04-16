@@ -331,7 +331,7 @@ export function Core() {
           <LanguageSwitcherGlobal />
 
           <React.Suspense fallback={null}>
-            <Notificacoes tenantId={user?.organizationMemberships?.[0]?.organization?.id ?? 'default'} userId={user?.id ?? 'user'} />
+            <Notificacoes />
           </React.Suspense>
 
           <UsuarioGlobal

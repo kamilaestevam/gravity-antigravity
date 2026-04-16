@@ -33,6 +33,13 @@ export interface AvisoInternoGlobalProps {
   onMarcarLido?: (id: string) => void;
   onMarcarTodosLidos?: () => void;
   onCriarAviso?: (texto: string) => void;
+  /** Callback opcional disparado quando um aviso com `href` é clicado. Permite
+   * navegação SPA (React Router) em vez de hard reload via window.location. */
+  onNavegarHref?: (href: string) => void;
+  /** Estado de carregamento — exibe skeleton/loader em vez da lista. */
+  carregando?: boolean;
+  /** Mensagem de erro — exibida no lugar da lista quando presente. */
+  erro?: string | null;
   className?: string;
   onFechar?: () => void;
 }
@@ -43,6 +50,9 @@ export function AvisoInternoGlobal({
   onMarcarLido,
   onMarcarTodosLidos,
   onCriarAviso,
+  onNavegarHref,
+  carregando = false,
+  erro = null,
   onFechar,
   className = ''
 }: AvisoInternoGlobalProps) {
@@ -50,6 +60,7 @@ export function AvisoInternoGlobal({
 
   const [busca, setBusca] = useState('');
   const [dataFiltro, setDataFiltro] = useState<{ inicio: Date | null, fim: Date | null }>({ inicio: null, fim: null });
+  const [mostrarLidas, setMostrarLidas] = useState(false);
   const [novoAviso, setNovoAviso] = useState('');
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -94,7 +105,7 @@ export function AvisoInternoGlobal({
         const textToSearch = [a.conteudo, a.autor?.nome || 'Sistema'].join(' ').toLowerCase();
         if (!textToSearch.includes(termo)) return false;
       }
-      if (a.lido) return false;
+      if (a.lido && !mostrarLidas) return false;
 
       if (dataFiltro.inicio || dataFiltro.fim) {
         // Formato BR esperado gerado pelo backend toLocaleString() => dd/mm/yyyy
@@ -126,18 +137,21 @@ export function AvisoInternoGlobal({
       
       return true;
     });
-  }, [avisos, busca, dataFiltro]);
+  }, [avisos, busca, dataFiltro, mostrarLidas]);
 
   return (
     <div style={{ position: 'relative', display: 'flex' }} ref={dropdownRef}>
       <TooltipGlobal titulo="Quadro de Avisos" descricao="Acompanhe lembretes e pendências que exigem sua ação">
-        <button 
+        <button
           className="ws-global-btn"
           onClick={() => setIsOpen(!isOpen)}
-          type="button" 
+          type="button"
+          aria-label={`Notificações${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ''}`}
+          aria-haspopup="dialog"
+          aria-expanded={isOpen}
           style={{ position: 'relative' }}
         >
-          <Bell weight="bold" size={18} />
+          <Bell weight="bold" size={18} aria-hidden="true" />
           {badgeText && (
             <span className="ws-global-badge" style={{ 
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -153,7 +167,12 @@ export function AvisoInternoGlobal({
       </TooltipGlobal>
 
       {isOpen && (
-        <div style={{ position: 'absolute', right: 0, top: '44px', zIndex: 1000 }} className={`aig-dropdown ${className}`}>
+        <div
+          style={{ position: 'absolute', right: 0, top: '44px', zIndex: 1000 }}
+          className={`aig-dropdown ${className}`}
+          role="dialog"
+          aria-label="Quadro de notificações"
+        >
       <style>{`
         .aig-combo-wrap .ws-global-search { width: 100% !important; padding: 0 0.75rem !important; }
         .aig-combo-wrap .ws-global-search__input { display: block !important; width: 100% !important; }
@@ -239,10 +258,15 @@ export function AvisoInternoGlobal({
             style={{ flex: 1, height: '100%', margin: 0 }}
           />
           <div style={{ width: '130px', flexShrink: 0, height: '100%', margin: 0 }}>
-            <CalendarioCampoGlobal 
+            <CalendarioCampoGlobal
               className="aig-calendar-right"
               valor={dataFiltro}
-              aoMudarValor={(val) => setDataFiltro(val as any)}
+              aoMudarValor={(val) => {
+                if (val && typeof val === 'object' && 'inicio' in val && 'fim' in val) {
+                  const r = val as { inicio: Date | null; fim: Date | null }
+                  setDataFiltro({ inicio: r.inicio, fim: r.fim })
+                }
+              }}
               placeholder="Data..."
             />
           </div>
@@ -251,8 +275,32 @@ export function AvisoInternoGlobal({
 
       {/* LISTA */}
       <div className="aig-list">
-        {avisosFiltrados.length === 0 ? (
-          <div className="aig-empty-msg">Nenhuma mensagem encontrada.</div>
+        {carregando ? (
+          <div className="aig-empty-msg" role="status" aria-live="polite">Carregando notificações…</div>
+        ) : erro ? (
+          <div className="aig-empty-msg" role="alert" style={{ color: 'var(--accent-red, #f87171)' }}>
+            Não foi possível carregar: {erro}
+          </div>
+        ) : avisos.length === 0 ? (
+          <div className="aig-empty-msg">Você não tem notificações.</div>
+        ) : avisosFiltrados.length === 0 ? (
+          <div className="aig-empty-msg">
+            {busca || dataFiltro.inicio || dataFiltro.fim
+              ? 'Nenhuma mensagem para os filtros aplicados.'
+              : mostrarLidas
+                ? 'Nenhuma mensagem.'
+                : 'Nenhuma mensagem nova. '}
+            {!busca && !dataFiltro.inicio && !dataFiltro.fim && !mostrarLidas && avisos.some(a => a.lido) && (
+              <button
+                type="button"
+                className="aig-footer-btn"
+                onClick={() => setMostrarLidas(true)}
+                style={{ marginLeft: 4 }}
+              >
+                Mostrar lidas
+              </button>
+            )}
+          </div>
         ) : (
           avisosFiltrados.map((aviso) => (
             <div
@@ -261,7 +309,11 @@ export function AvisoInternoGlobal({
               onClick={aviso.href ? () => {
                 onMarcarLido?.(aviso.id);
                 setIsOpen(false);
-                window.location.href = aviso.href!;
+                if (onNavegarHref) {
+                  onNavegarHref(aviso.href!);
+                } else {
+                  window.location.href = aviso.href!;
+                }
               } : undefined}
               style={aviso.href ? { cursor: 'pointer' } : undefined}
             >
@@ -301,10 +353,20 @@ export function AvisoInternoGlobal({
         <button type="button" className="aig-footer-btn" onClick={() => {
            setBusca('');
            setDataFiltro({ inicio: null, fim: null });
+           setMostrarLidas(false);
            if (onFechar) onFechar();
         }}>
           <X size={14} weight="bold" /> Limpar filtros
         </button>
+        {avisos.some(a => a.lido) && (
+          <button
+            type="button"
+            className="aig-footer-btn"
+            onClick={() => setMostrarLidas(v => !v)}
+          >
+            {mostrarLidas ? 'Esconder lidas' : 'Mostrar lidas'}
+          </button>
+        )}
       </div>
         </div>
       )}

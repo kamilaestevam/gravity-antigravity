@@ -38,11 +38,14 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       'react-i18next', 'i18next', 'zustand', '@clerk/clerk-react',
-      // Pacotes do produto Pedido — pré-bundle evita delay no primeiro carregamento
-      // e garante que exceljs (Node.js heavy) seja processado com o polyfill de process.env
+      // exceljs: Node.js-heavy — pré-bundle garante que o polyfill process.env seja aplicado
       'exceljs',
-      '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities',
+      // @tanstack/react-virtual: CJS com exports condicionais — pré-bundle evita problemas de interop
       '@tanstack/react-virtual',
+      // NOTA: @dnd-kit/* NÃO entra aqui — já tem alias explícito em resolve.alias.
+      // Colocar em optimizeDeps.include E ter alias cria dual-instance: Vite serve
+      // a versão pré-bundled (.vite/deps/) E a aliasada (raw source) → DndContext e
+      // useSortable ficam em instâncias separadas → drag-and-drop quebra.
     ],
     exclude: ['@nucleo/localizador-global'],
   },

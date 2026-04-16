@@ -11,7 +11,7 @@ import {
   Hexagon,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
-import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
+import { Notificacoes } from '../tenant/notificacoes/src/Notificacoes'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import {
@@ -102,10 +102,6 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
     currentUser,
     clearCurrentUser,
     allowedProducts,
-    avisos: avisosStore,
-    addAviso,
-    marcarAvisoLido,
-    marcarTodosAvisosLidos,
   } = useShellStore()
 
   // ── Localizador ──────────────────────────────────────────────────────────
@@ -158,29 +154,10 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
     includeStore: true,
   })
 
-  // Seed inicial dos avisos (uma única vez enquanto o store estiver vazio).
-  // Mocks mantidos para preservar a experiência de primeiro acesso.
-  const seededRef = useRef(false)
-  useEffect(() => {
-    if (seededRef.current) return
-    if (avisosStore.length > 0) { seededRef.current = true; return }
-    seededRef.current = true
-    addAviso({
-      conteudo: t('shell.notificacoes_mock.boas_vindas'),
-      autor: { nome: t('shell.sistema') },
-      tipo: 'sistema',
-    })
-    addAviso({
-      conteudo: t('shell.notificacoes_mock.simulacao_concluida'),
-      autor: { nome: 'SimulaCusto' },
-      dataHora: new Date(Date.now() - 3600_000).toLocaleString('pt-BR'),
-      tipo: 'aviso',
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Avisos persistidos no store já satisfazem a interface de AvisoInterno (campos compatíveis).
-  const avisos: AvisoInterno[] = avisosStore
+  // Onda 2 do Detetive de Tela: removido o seed de mocks de boas-vindas
+  // (boas_vindas + simulacao_concluida). A fonte única agora é o componente
+  // <Notificacoes /> abaixo, que combina avisos do shell store (push síncrono
+  // do motor de testes etc.) com a API real do tenant.
 
   function getPageLabel(pathname: string): string {
     const key = ROUTE_LABEL_KEYS[pathname]
@@ -191,16 +168,6 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
   }
 
   const pageLabel = getPageLabel(location.pathname)
-
-  const handleMarcarLido = (id: string) => marcarAvisoLido(id)
-  const handleMarcarTodosLidos = () => marcarTodosAvisosLidos()
-  const handleCriarAviso = (texto: string) => {
-    addAviso({
-      conteudo: texto,
-      autor: { nome: t('shell.voce') },
-      tipo: 'aviso',
-    })
-  }
 
   const initials = currentUser.name
     ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -273,14 +240,9 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           <Info size={18} weight={tooltipsDisabled ? 'regular' : 'fill'} />
         </button>
 
-        {/* Mensageria — Quadro de Avisos Internos */}
+        {/* Mensageria — Quadro de Avisos Internos (fonte única via Notificacoes do tenant) */}
         <div className="shell-header__icon-btn" style={{ padding: 0, background: 'none', border: 'none' }}>
-          <AvisoInternoGlobal
-            avisos={avisos}
-            onMarcarLido={handleMarcarLido}
-            onMarcarTodosLidos={handleMarcarTodosLidos}
-            onCriarAviso={handleCriarAviso}
-          />
+          <Notificacoes />
         </div>
 
         {/* Localizador — Onde estou (sempre visível) */}

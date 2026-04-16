@@ -1,8 +1,8 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-13T00:56:18.075Z
-// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core, ncm-sync
+// Gerado em: 2026-04-16T00:34:27.001Z
+// Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core, ncm-sync, notificacoes
 // Todos os fragments encontrados.
 // ============================================================================
 
@@ -1758,6 +1758,50 @@ model NcmScheduleConfig {
   criado_em      DateTime @default(now())
   atualizado_em  DateTime @updatedAt
 
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+}
+
+
+// --- Fragment: notificacoes ---
+model Notification {
+  id          String   @id @default(cuid())
+  tenant_id   String
+  product_id  String?  // nullable — applicable when related to a product
+  user_id     String   // Clerk ID or direct email
+  type        String   // mentioned | task-assigned | reminder | next-step | etc.
+  title       String?
+  message     String
+  read        Boolean  @default(false)
+  activity_id String?  // for direct navigation
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@index([tenant_id, user_id, read])
+  @@index([tenant_id, created_at])
+}
+
+model NotificationPreferences {
+  id            String  @id @default(cuid())
+  tenant_id     String
+  product_id    String? // nullable — preferências podem ser globais por tenant ou específicas de produto
+  user_id       String  // Clerk ID
+  email_enabled Boolean @default(true)
+  push_enabled  Boolean @default(true)
+  wa_enabled    Boolean @default(true)
+
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Uniqueness composta: dois tenants podem ter o mesmo Clerk user_id.
+  // Antes era `user_id @unique` global — colisão entre tenants. Detetive de Tela
+  // identificou na Onda 1 (item A9 / #13).
+  @@unique([tenant_id, user_id, product_id])
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])

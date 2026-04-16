@@ -1,35 +1,26 @@
-import cron from 'node-cron'
-import { getBoss } from './queue/pg-boss'
+/**
+ * Cron daemon do serviço de notificações.
+ *
+ * STATUS: DESLIGADO (Onda 3 do Detetive de Tela, item #10).
+ *
+ * As funções abaixo (scanReminders, scanNextSteps, scanRecordings) foram criadas
+ * como stubs com `console.log` e nunca foram implementadas. O daemon disparava
+ * a cada 5 minutos sem fazer nada e, em deploy escalado horizontalmente (Railway),
+ * dispararia N vezes em paralelo sem lock — risco de duplicação quando o corpo
+ * for implementado.
+ *
+ * Plano para reativar:
+ *   1. Implementar cada scan lendo de prisma.activity (ou model equivalente) com
+ *      filtros do tipo `where: { reminder_at: { lte: now }, reminder_sent: false }`.
+ *   2. Substituir node-cron por pg-boss schedule, que tem lock distribuído nativo
+ *      (já temos pg-boss inicializado em initPgBoss). Isso elimina o problema de
+ *      múltiplas instâncias rodarem o mesmo job.
+ *   3. Cada scan deve enfileirar um job no pg-boss e marcar `*_sent = true` na
+ *      mesma transação para evitar reentrância.
+ *   4. Reativar chamando `initCron()` em init.ts.
+ */
 
-// Simulated Prisma 
-const prisma = {} as any
-
-export function initCron() {
-  cron.schedule('*/5 * * * *', async () => {
-    console.log('[Cron] Scanning for scheduled notifications...')
-    try {
-      await scanReminders()
-      await scanNextSteps()
-      await scanRecordings()
-    } catch (err) {
-      console.error('[Cron] Error running scans:', err)
-    }
-  })
-  console.log('Cron daemon initialized.')
-}
-
-async function scanReminders() {
-  // Select activities where reminder_at <= now AND reminder_sent == false
-  // For each: enqueue job and mark reminder_sent = true
-  console.log('Scanning Reminders...')
-}
-
-async function scanNextSteps() {
-  // Select activities where next_step_date <= tomorrow AND next_step_reminder_sent == false
-  console.log('Scanning Next Steps...')
-}
-
-async function scanRecordings() {
-  // Select activities where recording_url != null AND recording_sent == false
-  console.log('Scanning Recordings...')
+export function initCron(): void {
+  // eslint-disable-next-line no-console
+  console.log('[Notificacoes] Cron daemon DESLIGADO até implementação real (ver cron.ts)')
 }

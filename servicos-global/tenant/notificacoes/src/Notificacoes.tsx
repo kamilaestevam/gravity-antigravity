@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { AvisoInternoGlobal, AvisoInterno } from '@nucleo/mensageria-global'
+import { useNavigate } from 'react-router-dom'
+import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao } from '@nucleo/mensageria-global'
 import { useShellStore } from '@gravity/shell'
 
 export interface NotificationItem {
@@ -10,118 +11,146 @@ export interface NotificationItem {
   read: boolean
   activity_id?: string
   created_at: string
-  _isAtrasado?: boolean // Mock field temporarily for testing filters
 }
 
-const MOCK_NOTIFICATIONS: NotificationItem[] = Array.from({ length: 30 }).map((_, i) => {
-  const diasAtras = Math.floor(i / 4);
-  const data = new Date();
-  data.setDate(data.getDate() - diasAtras);
-  data.setHours(10 - (i % 8)); // varied times
-  
-  const isAtrasado = i === 2 || i === 7 || i === 14;
-  const isUnread = i < 8; // Deixando mais algumas nao lidas para teste visual
-  
-  return {
-    id: `mock-${i + 1}`,
-    type: i % 4 === 0 ? 'sistema' : 'aviso',
-    title: i % 3 === 0 ? 'Maria Carla' : i % 5 === 0 ? 'Suporte Gravity' : 'Sistema',
-    message: isAtrasado 
-      ? `🚨 Atenção requerida: O prazo do contrato #${990 + i} esgotou. Por favor, regularize imediatamente. Caso o sistema não identifique compensação em nosso parceiro de pagamentos nas próximas 48 horas úteis, medidas automáticas de suspensão parcial do tenant podem entrar em vigor sem aviso prévio. Fale com a GABI-IA em caso de erro.`
-      : i % 4 === 0
-        ? `Este é um teste intensivo de estresse de leitura. O objetivo aqui é ter uma massa de dados absolutamente surreal para validar a trava de quatro linhas implementada no CSS do AvisoInternoGlobal. O desenvolvedor deve observar e bater o martelo se as reticências cortam o parágrafo de forma elegante (truncamento via CSS line-clamp). Se você estiver conseguindo ler esta parte final do meu texto nas notificações do dropdown nativo, quer dizer que eu fracassei e o painel "estourou" a tela. Parabéns por chegar até aqui (Notificação ${i + 1}).`
-      : i % 3 === 0
-        ? `Lembrete direto e curto. Reunião às 14h na Sala A.`
-      : i % 2 === 0 
-        ? `Relatório exportado com sucesso. Verifique seus downloads para analisar o consolidado de vendas de março. (Notificação ${i + 1}).`
-        : `Uma nova versão do módulo de Vendas foi publicada. O funil foi revisado e a pipeline está 43% mais veloz na tela inicial.`,
-    read: !isUnread,
-    created_at: data.toISOString(),
-    _isAtrasado: isAtrasado
-  };
-});
+interface NotificationApiResponse {
+  status: 'success' | 'error'
+  data?: NotificationItem[]
+  unread_count?: number
+  message?: string
+}
 
-export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: string }) {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS)
-  const [backendDisponivel, setBackendDisponivel] = useState<boolean | null>(null)
+/**
+ * Obtém o JWT do Clerk via window global. Mesma estratégia usada pelo
+ * apiClient.ts do configurador (fallback path). Sem isso, o requireAuth
+ * do proxy retorna 401 e o componente cai silenciosamente para mocks.
+ */
+async function getClerkToken(): Promise<string | null> {
+  try {
+    const clerk = (window as unknown as {
+      Clerk?: { session?: { getToken: () => Promise<string | null> } }
+    }).Clerk
+    if (clerk?.session?.getToken) {
+      return await clerk.session.getToken()
+    }
+  } catch {
+    // sem clerk disponível
+  }
+  return null
+}
+
+async function authedFetch(input: string, init: RequestInit = {}): Promise<Response> {
+  const token = await getClerkToken()
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((init.headers as Record<string, string>) ?? {}),
+  }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  return fetch(input, { ...init, headers })
+}
+
+const BASE_URL = '/api/tenant/notificacoes'
+
+/**
+ * Componente do sininho de notificações.
+ *
+ * Onda 1 do Detetive de Tela:
+ *   - Removida prop `tenantId` (vinha hardcoded de 4 layouts) — backend agora
+ *     resolve tenant_id/user_id a partir do JWT Clerk validado pelo proxy.
+ *   - Removidos 30 mocks de "Maria Carla / Suporte Gravity / Sistema".
+ *   - Removido SSE inseguro com credenciais em query string (item #3) — fica
+ *     desligado até a Onda 3 substituir EventSource por fetch streaming.
+ *   - Não engole mais erros silenciosamente (item #4).
+ */
+export function Notificacoes() {
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
+  const [usuariosTenant, setUsuariosTenant] = useState<UsuarioMencao[]>([])
+  const navigate = useNavigate()
 
   // Avisos vindos do shell store (ex: motor de testes empurrando via addAviso).
-  // Ficam em uma lista separada até a fusão no render, para não conflitar com
-  // notifications legadas (backend + mocks).
-  const storeAvisos                 = useShellStore((s) => s.avisos)
-  const marcarAvisoLidoStore        = useShellStore((s) => s.marcarAvisoLido)
+  // Mantidos em lista separada — fundidos no render abaixo.
+  const storeAvisos = useShellStore((s) => s.avisos)
+  const marcarAvisoLidoStore = useShellStore((s) => s.marcarAvisoLido)
   const marcarTodosAvisosLidosStore = useShellStore((s) => s.marcarTodosAvisosLidos)
+  const currentUserName = useShellStore((s) => s.currentUser.name)
 
   const syncState = useCallback(async () => {
     try {
-      const res = await fetch(`/api/tenant/notificacoes`, {
-        headers: { 'x-tenant-id': tenantId, 'x-user-id': userId }
-      })
+      const res = await authedFetch(BASE_URL)
       if (!res.ok) {
-        // Backend indisponível — para de tentar (usa mocks locais)
-        setBackendDisponivel(false)
-        return
+        throw new Error(`Falha ao carregar notificações (HTTP ${res.status})`)
       }
-      const data = await res.json()
-      setBackendDisponivel(true)
-      if (data.status === 'success' && data.data && data.data.length > 0) {
-        setNotifications(data.data)
+      const data = (await res.json()) as NotificationApiResponse
+      if (data.status !== 'success') {
+        throw new Error(data.message ?? 'Resposta inválida do servidor')
       }
-    } catch {
-      // Sem backend — opera com mocks, sem spam no console
-      setBackendDisponivel(false)
+      setNotifications(data.data ?? [])
+      setErro(null)
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : 'Erro desconhecido')
+    } finally {
+      setCarregando(false)
     }
-  }, [tenantId, userId])
+  }, [])
 
   useEffect(() => {
-    if (!userId) return
+    syncState()
+    // Polling 60s — substitui SSE até Onda 3 implementar streaming autenticado.
+    const interval = setInterval(() => syncState(), 60_000)
+    return () => clearInterval(interval)
+  }, [syncState])
 
-    let eventSource: EventSource | null = null
-    let pollInterval: ReturnType<typeof setInterval> | null = null
-
-    // Tenta conectar ao backend uma vez
-    syncState().then(() => {
-      // Se backend não respondeu, não inicia SSE nem polling
-      // O state backendDisponivel é atualizado dentro de syncState
-    })
-
-    // SSE apenas se backend estiver disponível (tenta uma vez)
-    try {
-      eventSource = new EventSource(`/api/tenant/notificacoes/stream?userId=${userId}&tenantId=${tenantId}`)
-
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data)
-          if (data.type === 'new_notification') {
-            syncState()
-          }
-        } catch {}
+  // Busca lista de usuários do tenant para @mention e Enviar Para.
+  // Chamado 1x no mount — a lista de membros muda raramente.
+  useEffect(() => {
+    let cancelled = false
+    async function fetchUsers() {
+      try {
+        const res = await authedFetch('/api/v1/users')
+        if (!res.ok) return
+        const payload = await res.json() as {
+          users?: Array<{ id: string; name: string; email?: string }>
+        }
+        if (cancelled || !payload.users) return
+        setUsuariosTenant(
+          payload.users.map((u) => ({ id: u.id, nome: u.name, email: u.email }))
+        )
+      } catch {
+        // Silencioso — @mention e Enviar Para ficam desabilitados se falhar
       }
-
-      eventSource.onerror = () => {
-        // SSE falhou — fecha sem spam, polling cuida do resto
-        eventSource?.close()
-        eventSource = null
-      }
-    } catch {
-      // SSE não suportado — ok, polling cuida
     }
+    fetchUsers()
+    return () => { cancelled = true }
+  }, [])
 
-    // Polling a cada 60s — mas só se o backend respondeu na primeira tentativa
-    pollInterval = setInterval(() => {
-      if (backendDisponivel !== false) {
-        syncState()
+  // Callback do painel "Enviar Para" — cria notificações para os destinatários
+  // usando a rota autenticada POST /send (browser-facing, JWT).
+  const handleEnviarPara = useCallback(
+    async (destinatarios: string[], mensagem: string, link?: string) => {
+      try {
+        const res = await authedFetch(`${BASE_URL}/send`, {
+          method: 'POST',
+          body: JSON.stringify({
+            user_ids: destinatarios,
+            message: mensagem,
+            sender_name: currentUserName || undefined,
+            activity_id: link || undefined,
+          }),
+        })
+        if (!res.ok) {
+          const body = await res.json().catch(() => null) as { message?: string } | null
+          throw new Error(body?.message ?? `HTTP ${res.status}`)
+        }
+      } catch (err) {
+        setErro(err instanceof Error ? err.message : 'Falha ao enviar notificação')
       }
-    }, 60_000)
+    },
+    [currentUserName]
+  )
 
-    return () => {
-      eventSource?.close()
-      if (pollInterval) clearInterval(pollInterval)
-    }
-  }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // IDs de avisos vindos do store começam com "aviso-" (gerados por generateAvisoId()).
-  // Usamos o prefixo pra rotear a ação de leitura/escrita pro store ou pro backend.
+  // IDs vindos do shell store começam com "aviso-" (gerados por generateAvisoId()).
   const isStoreAvisoId = (id: string) => id.startsWith('aviso-')
 
   const handleMarkAsRead = async (id: string) => {
@@ -129,86 +158,88 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
       marcarAvisoLidoStore(id)
       return
     }
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
-    if (backendDisponivel === false) return
+    // Otimista
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
     try {
-      await fetch(`/api/tenant/notificacoes/${id}/read`, {
+      const res = await authedFetch(`${BASE_URL}/${encodeURIComponent(id)}/read`, {
         method: 'PUT',
-        headers: { 'x-tenant-id': tenantId, 'x-user-id': userId }
       })
-    } catch {}
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    } catch (err) {
+      // Reverte
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: false } : n)))
+      setErro(err instanceof Error ? err.message : 'Falha ao marcar como lida')
+    }
   }
 
   const handleReadAll = async () => {
-    // Marca todos os avisos do store como lidos também
     marcarTodosAvisosLidosStore()
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-    if (backendDisponivel === false) return
+    const previous = notifications
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
     try {
-      await fetch(`/api/tenant/notificacoes/read-all`, {
-        method: 'PUT',
-        headers: { 'x-tenant-id': tenantId, 'x-user-id': userId }
-      })
-    } catch {}
+      const res = await authedFetch(`${BASE_URL}/read-all`, { method: 'PUT' })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    } catch (err) {
+      setNotifications(previous)
+      setErro(err instanceof Error ? err.message : 'Falha ao marcar todas como lidas')
+    }
   }
 
   const handleCriarAviso = async (texto: string) => {
-    // Atualização Otimista local
+    // Otimista: insere no estado local com id temporário
     const tempId = `temp-${Date.now()}`
-    const novoAviso: NotificationItem = {
+    const optimistic: NotificationItem = {
       id: tempId,
       type: 'aviso',
-      title: 'Auto-lembrete',
+      title: 'Você',
       message: texto,
-      read: false, // Avisos recém-criados muitas vezes aparecem como nova "tarefa" pra você mesmo
+      read: false,
       created_at: new Date().toISOString(),
     }
+    setNotifications((prev) => [optimistic, ...prev])
 
-    setNotifications(prev => [novoAviso, ...prev])
-
-    if (backendDisponivel === false) return
     try {
-      const res = await fetch(`/api/tenant/notificacoes`, {
+      const res = await authedFetch(BASE_URL, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'x-tenant-id': tenantId, 
-          'x-user-id': userId 
-        },
-        body: JSON.stringify({
-          type: 'aviso',
-          title: 'Auto-lembrete',
-          message: texto
-        })
+        body: JSON.stringify({ type: 'aviso', title: 'Você', message: texto }),
       })
-      if (!res.ok) throw new Error('Falha ao criar aviso')
-      
-      const data = await res.json()
-      // Atualiza o id temporário com o real oficial se o sistema retornar
-      if (data && data.id) {
-        setNotifications(prev => prev.map(n => n.id === tempId ? { ...n, id: data.id } : n))
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const payload = (await res.json()) as { status: string; data?: NotificationItem }
+      if (payload.status !== 'success' || !payload.data) {
+        throw new Error('Resposta inválida do servidor')
       }
+      // Substitui o id temporário pelo real
+      const realData = payload.data
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === tempId ? { ...realData, read: false } : n))
+      )
     } catch (err) {
-      console.error(err)
-      syncState() // Reverte estado se der erro
+      // Reverte
+      setNotifications((prev) => prev.filter((n) => n.id !== tempId))
+      setErro(err instanceof Error ? err.message : 'Falha ao criar aviso')
     }
   }
 
-  // Mapear os dados vindos da API/mocks para o formato do AvisoInternoGlobal
-  const avisosDaApi: AvisoInterno[] = notifications.map(n => ({
+  // Mapeia notificações da API para o formato do AvisoInternoGlobal
+  const avisosDaApi: AvisoInterno[] = notifications.map((n) => ({
     id: n.id,
     conteudo: n.message,
-    autor: { nome: n.title || 'Sistema' },
-    dataHora: new Date(n.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }),
+    autor: { nome: n.title ?? 'Sistema' },
+    dataHora: new Date(n.created_at).toLocaleString([], {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }),
     lido: n.read,
-    tipo: (['aviso', 'mencao', 'sistema', 'tarefa'].includes(n.type) ? n.type : 'sistema') as AvisoInterno['tipo'],
-    statusReal: n._isAtrasado ? 'atrasado' : 'em_dia'
+    tipo: (['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento'].includes(n.type)
+      ? (n.type === 'compartilhamento' ? 'aviso' : n.type)
+      : 'sistema') as AvisoInterno['tipo'],
+    // activity_id serve como deep link — pode ser rota relativa (/produto/pedido/123)
+    // ou ID de entidade. Quando presente, o item fica clicável no sininho.
+    href: n.activity_id || undefined,
   }))
 
-  // Avisos do shell store já estão no formato correto — adiciona no topo, mais
-  // recentes primeiro, para que push síncronos (ex: motor de testes) apareçam
-  // antes dos mocks/API.
-  const avisosDoStore: AvisoInterno[] = storeAvisos.map(a => ({
+  // Avisos do shell store (mais recentes primeiro, para que push síncronos apareçam no topo)
+  const avisosDoStore: AvisoInterno[] = storeAvisos.map((a) => ({
     id: a.id,
     conteudo: a.conteudo,
     autor: a.autor,
@@ -223,9 +254,14 @@ export function Notificacoes({ tenantId, userId }: { tenantId: string, userId: s
   return (
     <AvisoInternoGlobal
       avisos={avisosFinal}
+      carregando={carregando && avisosFinal.length === 0}
+      erro={erro}
       onMarcarLido={handleMarkAsRead}
       onMarcarTodosLidos={handleReadAll}
       onCriarAviso={handleCriarAviso}
+      onNavegarHref={(href) => navigate(href)}
+      onEnviarPara={handleEnviarPara}
+      usuariosTenant={usuariosTenant}
     />
   )
 }

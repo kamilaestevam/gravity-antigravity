@@ -245,7 +245,7 @@ export function AdminLayout() {
             iconOnly
           />
 
-          <Notificacoes tenantId="gravity-hq" userId={user?.id ?? 'admin-root'} />
+          <Notificacoes />
 
           <UsuarioGlobal
             userName={userName}

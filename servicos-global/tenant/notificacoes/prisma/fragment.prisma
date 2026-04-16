@@ -20,16 +20,22 @@ model Notification {
 }
 
 model NotificationPreferences {
-  id           String  @id @default(cuid())
-  tenant_id    String
-  user_id      String  @unique // Clerk ID or direct email
+  id            String  @id @default(cuid())
+  tenant_id     String
+  product_id    String? // nullable — preferências podem ser globais por tenant ou específicas de produto
+  user_id       String  // Clerk ID
   email_enabled Boolean @default(true)
   push_enabled  Boolean @default(true)
   wa_enabled    Boolean @default(true)
 
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
+  // Uniqueness composta: dois tenants podem ter o mesmo Clerk user_id.
+  // Antes era `user_id @unique` global — colisão entre tenants. Detetive de Tela
+  // identificou na Onda 1 (item A9 / #13).
+  @@unique([tenant_id, user_id, product_id])
   @@index([tenant_id])
+  @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
 }

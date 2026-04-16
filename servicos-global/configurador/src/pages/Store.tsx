@@ -402,7 +402,7 @@ export function Store() {
           </button>
 
           {/* Notificações — componente tenant self-contained */}
-          <Notificacoes tenantId="store" userId={user?.id ?? 'mock-user'} />
+          <Notificacoes />
 
           {/* Toggle tooltips */}
           <button

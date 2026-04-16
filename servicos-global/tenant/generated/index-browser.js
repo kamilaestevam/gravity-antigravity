@@ -1073,6 +1073,32 @@ exports.Prisma.NcmScheduleConfigScalarFieldEnum = {
   atualizado_em: 'atualizado_em'
 };
 
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  type: 'type',
+  title: 'title',
+  message: 'message',
+  read: 'read',
+  activity_id: 'activity_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.NotificationPreferencesScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  user_id: 'user_id',
+  email_enabled: 'email_enabled',
+  push_enabled: 'push_enabled',
+  wa_enabled: 'wa_enabled',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1245,7 +1271,9 @@ exports.Prisma.ModelName = {
   MapeamentoImport: 'MapeamentoImport',
   NcmItem: 'NcmItem',
   NcmSyncLog: 'NcmSyncLog',
-  NcmScheduleConfig: 'NcmScheduleConfig'
+  NcmScheduleConfig: 'NcmScheduleConfig',
+  Notification: 'Notification',
+  NotificationPreferences: 'NotificationPreferences'
 };
 
 /**

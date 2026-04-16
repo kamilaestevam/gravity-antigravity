@@ -3,60 +3,6 @@ import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../lib/errors'
 
-// ─── Tipagem local de Notification ───────────────────────────────────────────
-// O cliente Prisma compilado em servicos-global/tenant/generated NÃO inclui o
-// model Notification. O fragment.prisma existe (servicos-global/tenant/notificacoes/
-// prisma/fragment.prisma), mas a recomposição via schema-composition nunca rodou
-// para regenerar o cliente. Detetive de Tela identificou na Onda 1 (item C4 do
-// relatório) que por isso o backend antigo engolia erros silenciosamente — o
-// `notificationModel` é undefined em runtime.
-//
-// TODO Onda 2 (Coordenador): rodar `npx ts-node scripts/compose-tenant-schema.ts`
-// para incluir o fragment de notificacoes e regenerar o cliente. Quando o tipo
-// Notification existir nativamente, remover este cast.
-interface NotificationRow {
-  id: string
-  tenant_id: string
-  product_id: string | null
-  user_id: string
-  type: string
-  title: string | null
-  message: string
-  read: boolean
-  activity_id: string | null
-  created_at: Date
-  updated_at: Date
-}
-
-interface NotificationDelegate {
-  findMany(args: {
-    where: { tenant_id: string; user_id: string }
-    orderBy: { created_at: 'desc' }
-    take: number
-  }): Promise<NotificationRow[]>
-  count(args: { where: { tenant_id: string; user_id: string; read?: boolean } }): Promise<number>
-  create(args: {
-    data: {
-      tenant_id: string
-      user_id: string
-      product_id?: string | null
-      type: string
-      title?: string | null
-      message: string
-      activity_id?: string | null
-    }
-  }): Promise<NotificationRow>
-  updateMany(args: {
-    where: { id?: string; tenant_id: string; user_id: string; read?: boolean }
-    data: { read: boolean }
-  }): Promise<{ count: number }>
-  deleteMany(args: {
-    where: { id: string; tenant_id: string; user_id: string }
-  }): Promise<{ count: number }>
-}
-
-const notificationModel = (prisma as unknown as { notification: NotificationDelegate }).notification
-
 export const apiRoutes = Router()
 
 // ─── SSE — registro de clientes com limite por tenant ───────────────────────
@@ -172,7 +118,7 @@ apiRoutes.post('/', async (req, res, next) => {
     const { tenant_id, user_id } = req
     const body = createBodySchema.parse(req.body)
 
-    const created = await notificationModel.create({
+    const created = await prisma.notification.create({
       data: {
         tenant_id,
         user_id,
@@ -203,12 +149,12 @@ apiRoutes.get('/', async (req, res, next) => {
     const { take = 50 } = listQuerySchema.parse(req.query)
 
     const [notifications, unread_count] = await Promise.all([
-      notificationModel.findMany({
+      prisma.notification.findMany({
         where: { tenant_id, user_id },
         orderBy: { created_at: 'desc' },
         take,
       }),
-      notificationModel.count({
+      prisma.notification.count({
         where: { tenant_id, user_id, read: false },
       }),
     ])
@@ -265,7 +211,7 @@ apiRoutes.put('/:id/read', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
     const { id } = idParamSchema.parse(req.params)
-    const result = await notificationModel.updateMany({
+    const result = await prisma.notification.updateMany({
       where: { id, tenant_id, user_id },
       data: { read: true },
     })
@@ -282,7 +228,7 @@ apiRoutes.put('/:id/read', async (req, res, next) => {
 apiRoutes.put('/read-all', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
-    await notificationModel.updateMany({
+    await prisma.notification.updateMany({
       where: { tenant_id, user_id, read: false },
       data: { read: true },
     })
@@ -298,7 +244,7 @@ apiRoutes.delete('/:id', async (req, res, next) => {
     const { tenant_id, user_id } = req
     const { id } = idParamSchema.parse(req.params)
 
-    const result = await notificationModel.deleteMany({
+    const result = await prisma.notification.deleteMany({
       where: { id, tenant_id, user_id },
     })
 

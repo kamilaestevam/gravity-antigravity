@@ -1,9 +1,9 @@
 // server/routes/users.ts
 // Gestão de usuários e permissões no tenant
-// GET  /api/v1/users          — listar usuários do tenant
-// POST /api/v1/users/invite   — convidar usuário
-// POST /api/v1/users/:id/memberships — habilitar em empresa filha
-// PATCH /api/v1/users/:id/role — definir role
+// GET  /api/v1/usuarios          — listar usuários do tenant
+// POST /api/v1/usuarios/invite   — convidar usuário
+// POST /api/v1/usuarios/:id/memberships — habilitar em empresa filha
+// PATCH /api/v1/usuarios/:id/role — definir role
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -36,7 +36,7 @@ const MembershipSchema = z.object({
 // ─── Rotas ──────────────────────────────────────────────────────────────────
 
 /**
- * GET /api/v1/users
+ * GET /api/v1/usuarios
  * Lista usuários do tenant autenticado
  */
 usersRouter.get('/', async (req, res, next) => {
@@ -67,7 +67,7 @@ usersRouter.get('/', async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/users/invite
+ * POST /api/v1/usuarios/invite
  * Convida um usuário para o tenant — dispara e-mail via Clerk
  */
 usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
@@ -122,7 +122,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/users/:id/memberships
+ * POST /api/v1/usuarios/:id/memberships
  * Habilita usuário em uma empresa filha com um papel específico
  */
 usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) => {
@@ -180,7 +180,7 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
 })
 
 /**
- * PATCH /api/v1/users/:id/role
+ * PATCH /api/v1/usuarios/:id/role
  * Atualiza o role de um usuário no tenant
  */
 usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {

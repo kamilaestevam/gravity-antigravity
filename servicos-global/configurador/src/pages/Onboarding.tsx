@@ -50,7 +50,7 @@ export function Onboarding() {
         },
       }
 
-      const res = await fetch('/api/v1/tenants', {
+      const res = await fetch('/api/v1/organizacao', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,8 +67,8 @@ export function Onboarding() {
       // Sucesso — redireciona para selecionar workspace (que agora tem 1 company)
       window.location.href = '/selecionar-workspace'
 
-    } catch (err: any) {
-      setError(err.message || 'Erro inesperado. Verifique a conexao com o servidor.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro inesperado. Verifique a conexao com o servidor.')
     } finally {
       setLoading(false)
     }

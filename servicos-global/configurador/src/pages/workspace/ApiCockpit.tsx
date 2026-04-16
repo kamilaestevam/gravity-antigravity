@@ -59,8 +59,8 @@ export function ApiCockpit() {
       setLoading(true)
       try {
         const [svcRes, logsRes] = await Promise.all([
-          fetch('/api/cockpit/services', { credentials: 'include' }),
-          fetch('/api/cockpit/logs?limit=50', { credentials: 'include' }),
+          fetch('/api/v1/api-cockpit/services', { credentials: 'include' }),
+          fetch('/api/v1/api-cockpit/logs?limit=50', { credentials: 'include' }),
         ])
 
         if (svcRes.ok) {

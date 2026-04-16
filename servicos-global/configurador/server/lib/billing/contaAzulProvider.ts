@@ -45,13 +45,13 @@
 //
 //   6. Endpoint de callback OAuth no Gravity — criar em
 //      server/routes/billing.ts:
-//      GET /api/v1/billing/conta-azul/oauth-callback
+//      GET /api/v1/financeiro/conta-azul/oauth-callback
 //
 // ─── Env vars necessárias ───────────────────────────────────────────────────
 //
 //   CONTA_AZUL_CLIENT_ID
 //   CONTA_AZUL_CLIENT_SECRET
-//   CONTA_AZUL_REDIRECT_URI         (ex: https://configurador.gravity.com.br/api/v1/billing/conta-azul/oauth-callback)
+//   CONTA_AZUL_REDIRECT_URI         (ex: https://configurador.gravity.com.br/api/v1/financeiro/conta-azul/oauth-callback)
 //   CONTA_AZUL_REFRESH_TOKEN        (obtido no fluxo OAuth — armazenar em DB depois)
 //   CONTA_AZUL_ENVIRONMENT          ('sandbox' | 'production')
 //
@@ -79,7 +79,7 @@
 // ─── Fluxo esperado após ativação ───────────────────────────────────────────
 //
 //   1. Admin Gravity clica "Lançar Fatura" na tela
-//   2. POST /api/admin/billing/invoices → createInvoice()
+//   2. POST /api/admin/financeiro-admin/invoices → createInvoice()
 //   3. ContaAzulProvider.createInvoice:
 //      a. Acha ou cria o cliente no Conta Azul (via CNPJ do tenant)
 //      b. Cria a venda com o item

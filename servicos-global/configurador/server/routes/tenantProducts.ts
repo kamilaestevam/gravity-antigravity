@@ -4,9 +4,9 @@
 // Ex: POST /api/admin/tenants/:tenantId/products/:productKey/activate
 //
 // Gestão de produtos contratados por um tenant (self-service)
-// POST /api/v1/tenants/products/subscribe  — Contratar produto
-// GET  /api/v1/tenants/products            — Listar produtos contratados
-// DELETE /api/v1/tenants/products/:key     — Cancelar produto
+// POST /api/v1/assinaturas/subscribe  — Contratar produto
+// GET  /api/v1/assinaturas            — Listar produtos contratados
+// DELETE /api/v1/assinaturas/:key     — Cancelar produto
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -25,7 +25,7 @@ const SubscribeSchema = z.object({
 })
 
 /**
- * GET /api/v1/tenants/products
+ * GET /api/v1/assinaturas
  * Lista todos os produtos contratados pelo tenant autenticado
  */
 tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
@@ -58,7 +58,7 @@ tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/tenants/products/subscribe
+ * POST /api/v1/assinaturas/subscribe
  * Contrata um produto do catálogo para o tenant autenticado
  */
 tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
@@ -104,7 +104,7 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 })
 
 /**
- * DELETE /api/v1/tenants/products/:key
+ * DELETE /api/v1/assinaturas/:key
  * Cancela (desativa) um produto do tenant
  */
 tenantProductsRouter.delete('/:key', requireAuth, async (req, res, next) => {

@@ -50,6 +50,7 @@ const Financeiro = lazy(() => import('./pages/workspace/Financeiro'), 'Financeir
 const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
 const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
 const TaxaCambioPage = lazy(() => import('./pages/workspace/TaxaCambio'), 'TaxaCambio')
+const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrganizacao').then(m => ({ default: m.HistoricoOrganizacao })))
 
 // Core — tela pós-seleção de workspace (menu lateral + conteúdo)
 const Core = lazy(() => import('./pages/Core'), 'Core')
@@ -64,6 +65,25 @@ const ProcessoApp = React.lazy(() => import('../../../produto/processo/client/sr
 const BidFreteApp = React.lazy(() => import('../../../produto/bid-frete/client/src/App'))
 const BidCambioApp = React.lazy(() => import('../../../produto/bid-cambio/client/src/App'))
 const PedidoApp = React.lazy(() => import('../../../produto/pedido/client/src/App'))
+
+/** Guard contra routing loop do catch-all do Pedido (Navigate to="pedidos" relativo).
+ *  Quando embarcado no shell, o splat resolve relativo ao match, duplicando segmentos.
+ *  Interceptamos aqui no configurador para não alterar o código do produto. */
+function PedidoRouteGuard() {
+  const location = useLocation()
+  const base = '/produto/pedido'
+
+  if (location.pathname.includes('/pedidos/pedidos')) {
+    // Extrai o destino real: /produto/pedido/pedidos/pedidos/dashboard → pedidos/dashboard
+    const rel = location.pathname.slice(base.length).replace(/^\/+/, '')
+    // Remove duplicações consecutivas de "pedidos/"
+    const limpo = rel.replace(/^(pedidos\/)+/, 'pedidos/')
+      .replace(/^pedidos\/pedidos$/, 'pedidos')
+    return <Navigate to={`${base}/${limpo}`} replace />
+  }
+
+  return <React.Suspense fallback={<ProductLoading />}><PedidoApp /></React.Suspense>
+}
 
 const ProductLoading = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh', color: 'var(--color-text-muted)' }}>
@@ -243,7 +263,7 @@ export default function App() {
         <Route path="/produto/processo/*" element={<ProtectedRoute><ProductErrorBoundary name="Processo"><React.Suspense fallback={<ProductLoading />}><ProcessoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/produto/bid-frete/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Frete"><React.Suspense fallback={<ProductLoading />}><BidFreteApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
         <Route path="/produto/bid-cambio/*" element={<ProtectedRoute><ProductErrorBoundary name="BID Câmbio"><React.Suspense fallback={<ProductLoading />}><BidCambioApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
-        <Route path="/produto/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><React.Suspense fallback={<ProductLoading />}><PedidoApp /></React.Suspense></ProductErrorBoundary></ProtectedRoute>} />
+        <Route path="/produto/pedido/*" element={<ProtectedRoute><ProductErrorBoundary name="Pedido"><PedidoRouteGuard /></ProductErrorBoundary></ProtectedRoute>} />
 
         {/* Admin — área interna restrita — exclusivo gravity_admin */}
         <Route path="/admin" element={<AdminRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></AdminRoute>}>
@@ -273,6 +293,7 @@ export default function App() {
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />
           <Route path="conector-cargowise" element={<React.Suspense fallback={<ProductLoading />}><ConectorCargoWise /></React.Suspense>} />
           <Route path="taxa-cambio" element={<React.Suspense fallback={<ProductLoading />}><TaxaCambioPage /></React.Suspense>} />
+          <Route path="historico-organizacao" element={<React.Suspense fallback={<ProductLoading />}><HistoricoOrganizacao /></React.Suspense>} />
         </Route>
 
         {/* 404 — rota nao encontrada */}

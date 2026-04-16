@@ -74,14 +74,14 @@ export function Assinaturas() {
 
         const [allProducts, subRes, companiesRes] = await Promise.all([
           catalogService.getProdutos(),
-          fetch('/api/v1/tenants/products', { headers }).catch(() => null),
-          fetch('/api/v1/tenants/companies', { headers }).catch(() => null),
+          fetch('/api/v1/assinaturas', { headers }).catch(() => null),
+          fetch('/api/v1/organizacao/companies', { headers }).catch(() => null),
         ])
 
         // Carregar workspaces reais
         if (companiesRes && companiesRes.ok) {
           const { companies } = await companiesRes.json()
-          setWorkspaces(companies.map((c: any) => ({
+          setWorkspaces(companies.map((c: Record<string, unknown>) => ({
             id: c.id,
             nome: c.name ?? '',
             status: c.status === 'ACTIVE' ? 'Ativa' : 'Suspensa',
@@ -92,7 +92,7 @@ export function Assinaturas() {
         const subscribedProducts: Produto[] = []
         if (subRes && subRes.ok) {
           const subData = await subRes.json()
-          subData.products.forEach((p: any) => {
+          subData.products.forEach((p: Record<string, unknown>) => {
             if (p.is_active) subscribedSlugs.add(p.product_key)
             subscribedProducts.push({
               id: p.product_key ?? p.id,
@@ -111,7 +111,7 @@ export function Assinaturas() {
         }
 
         // Show only catalog products that are NOT subscribed
-        setCatalogProdutos(allProducts.filter((p: any) => !subscribedSlugs.has(p.slug)))
+        setCatalogProdutos(allProducts.filter((p: Record<string, unknown>) => !subscribedSlugs.has(p.slug)))
       } catch (err) {
         addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao carregar assinaturas.' })
         // fallback: show all catalog products
@@ -140,14 +140,14 @@ export function Assinaturas() {
       const headers = await getAuthHeaders()
       if (isActivating) {
         // Reativar: subscribe novamente
-        const res = await fetch('/api/v1/tenants/products/subscribe', {
+        const res = await fetch('/api/v1/assinaturas/subscribe', {
           method: 'POST', headers,
           body: JSON.stringify({ product_key: p.id }),
         })
         if (!res.ok) throw new Error('Falha ao reativar')
       } else {
         // Suspender: deactivate via DELETE (sets is_active=false)
-        const res = await fetch(`/api/v1/tenants/products/${p.id}`, {
+        const res = await fetch(`/api/v1/assinaturas/${p.id}`, {
           method: 'DELETE', headers,
         })
         if (!res.ok) throw new Error('Falha ao suspender')
@@ -175,7 +175,7 @@ export function Assinaturas() {
     const key = produtoParaExcluir.id
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch(`/api/v1/tenants/products/${key}`, {
+      const res = await fetch(`/api/v1/assinaturas/${key}`, {
         method: 'DELETE', headers,
       })
       if (!res.ok) throw new Error('Falha ao cancelar')
@@ -186,7 +186,7 @@ export function Assinaturas() {
         // Recarregar catálogo para mostrar produto devolvido
         catalogService.getProdutos().then(all => {
           const subscribedIds = new Set(produtos.filter(p => p.id !== key).map(p => p.id))
-          setCatalogProdutos(all.filter((p: any) => !subscribedIds.has(p.slug)))
+          setCatalogProdutos(all.filter((p: Record<string, unknown>) => !subscribedIds.has(p.slug)))
         }).catch(() => {})
       }
       addNotification({ type: 'success', message: `Assinatura de "${nome}" cancelada com sucesso.` })
@@ -199,7 +199,7 @@ export function Assinaturas() {
   async function handleAssinar(slug: string, nome: string) {
     try {
       const headers = await getAuthHeaders()
-      const res = await fetch('/api/v1/tenants/products/subscribe', {
+      const res = await fetch('/api/v1/assinaturas/subscribe', {
         method: 'POST', headers,
         body: JSON.stringify({ product_key: slug }),
       })

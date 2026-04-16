@@ -57,7 +57,7 @@ export function AdminLayout() {
     { to: '/admin/financeiro-admin', label: t('admin.layout.financeiro'),       icon: <Receipt      weight="duotone" size={18} /> },
     { to: '/admin/historico-global', label: t('admin.layout.historico_global'), icon: <Desktop       weight="duotone" size={18} /> },
     { to: '/admin/deploy',       label: t('admin.layout.deploy_railway'),   icon: <CloudArrowUp    weight="duotone" size={18} /> },
-    { to: '/admin/api-cockpit',  label: t('admin.layout.api_cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
+    { to: '/admin/api-cockpit',  label: t('admin.layout.api-cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
     { to: '/admin/seguranca-admin', label: t('admin.layout.seguranca'),     icon: <ShieldCheck     weight="duotone" size={18} /> },
     { to: '/admin/ncm-integracao', label: t('admin.layout.ncm_sync', 'NCM Siscomex'), icon: <ArrowsClockwise weight="duotone" size={18} /> },
     { to: '/admin/testes-gerais', label: t('admin.layout.log_testes'),      icon: <Bug             weight="duotone" size={18} /> },

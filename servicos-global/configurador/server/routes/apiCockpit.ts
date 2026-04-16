@@ -5,14 +5,14 @@
  * O frontend NAO fala diretamente com o api-cockpit; passa pelo Configurador.
  *
  * Rotas workspace (qualquer usuario autenticado):
- *   GET /api/cockpit/services    — Health check dos servicos
- *   GET /api/cockpit/logs        — Logs de requisicoes (filtrado por tenant)
- *   GET /api/cockpit/stats       — KPIs (filtrado por tenant)
+ *   GET /api/v1/api-cockpit/services    — Health check dos servicos
+ *   GET /api/v1/api-cockpit/logs        — Logs de requisicoes (filtrado por tenant)
+ *   GET /api/v1/api-cockpit/stats       — KPIs (filtrado por tenant)
  *
  * Rotas admin (gravity_admin):
- *   GET /api/admin/cockpit/services  — Health check (todos)
- *   GET /api/admin/cockpit/logs      — Logs (todos os tenants)
- *   GET /api/admin/cockpit/stats     — KPIs (globais)
+ *   GET /api/admin/api-cockpit/services  — Health check (todos)
+ *   GET /api/admin/api-cockpit/logs      — Logs (todos os tenants)
+ *   GET /api/admin/api-cockpit/stats     — KPIs (globais)
  */
 
 import { Router } from 'express'

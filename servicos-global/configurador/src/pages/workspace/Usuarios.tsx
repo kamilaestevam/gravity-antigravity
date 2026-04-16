@@ -159,8 +159,8 @@ export function Usuarios() {
         const headers = await getAuthHeaders()
 
         const [usersRes, companiesRes] = await Promise.all([
-          fetch('/api/v1/users', { headers }),
-          fetch('/api/v1/tenants/companies', { headers }),
+          fetch('/api/v1/usuarios', { headers }),
+          fetch('/api/v1/organizacao/companies', { headers }),
         ])
 
         if (usersRes.ok) {
@@ -222,7 +222,7 @@ export function Usuarios() {
         'Standard': 'STANDARD',
         'Fornecedor': 'SUPPLIER',
       }
-      const res = await fetch('/api/v1/users/invite', {
+      const res = await fetch('/api/v1/usuarios/invite', {
         method: 'POST',
         headers,
         body: JSON.stringify({

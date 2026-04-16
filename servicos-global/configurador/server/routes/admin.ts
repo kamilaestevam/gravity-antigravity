@@ -1,16 +1,16 @@
 // server/routes/admin.ts
 // Rotas exclusivas para gravity_admin — gestão de todos os tenants da plataforma
-// GET   /api/admin/tenants       — listar todos os tenants
-// GET   /api/admin/tenants/:id   — detalhes de um tenant
-// PATCH /api/admin/tenants/:id   — atualizar status
-// GET   /api/admin/stats         — estatísticas globais da plataforma
-// GET   /api/admin/usuarios-globais         — listar todos os usuários de todos os tenants
-// GET   /api/admin/financeiro-admin/invoices — listar faturas globais
-// GET   /api/admin/deploy       — listar histórico de deploys
-// GET   /api/admin/testes-gerais/logs     — listar logs de testes
-// POST  /api/admin/testes-gerais/logs     — registrar resultados de um run de testes
-// GET   /api/admin/visao-geral — dados da plataforma (Visão Geral Admin)
-// PUT   /api/admin/visao-geral — atualizar dados da plataforma
+// GET   /api/v1/admin/tenants       — listar todos os tenants
+// GET   /api/v1/admin/tenants/:id   — detalhes de um tenant
+// PATCH /api/v1/admin/tenants/:id   — atualizar status
+// GET   /api/v1/admin/stats         — estatísticas globais da plataforma
+// GET   /api/v1/admin/usuarios-globais         — listar todos os usuários de todos os tenants
+// GET   /api/v1/admin/financeiro-admin/invoices — listar faturas globais
+// GET   /api/v1/admin/deploy       — listar histórico de deploys
+// GET   /api/v1/admin/testes-gerais/logs     — listar logs de testes
+// POST  /api/v1/admin/testes-gerais/logs     — registrar resultados de um run de testes
+// GET   /api/v1/admin/visao-geral — dados da plataforma (Visão Geral Admin)
+// PUT   /api/v1/admin/visao-geral — atualizar dados da plataforma
 
 import { Router } from 'express'
 import { z } from 'zod'

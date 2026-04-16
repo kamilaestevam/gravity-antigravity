@@ -1,9 +1,9 @@
 // server/routes/tenants.ts
 // Gestão de tenants e empresas filhas
-// POST /api/v1/tenants       — criar tenant (onboarding)
-// GET  /api/v1/tenants/me    — dados do tenant atual
-// GET  /api/v1/tenants/companies — listar empresas filhas
-// POST /api/v1/tenants/companies — criar empresa filha
+// POST /api/v1/organizacao       — criar tenant (onboarding)
+// GET  /api/v1/organizacao/me    — dados do tenant atual
+// GET  /api/v1/organizacao/companies — listar empresas filhas
+// POST /api/v1/organizacao/companies — criar empresa filha
 
 import { Router } from 'express'
 import { z } from 'zod'
@@ -54,7 +54,7 @@ const UpdateCompanySchema = z.object({
 // ─── Rotas ──────────────────────────────────────────────────────────────────
 
 /**
- * POST /api/v1/tenants
+ * POST /api/v1/organizacao
  * Cria um novo tenant + usuário owner durante o onboarding
  * Público — chamado logo após o checkout do Stripe
  */
@@ -77,7 +77,7 @@ tenantsRouter.post('/', async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/tenants/me
+ * GET /api/v1/organizacao/me
  * Retorna dados do tenant do usuário autenticado
  */
 tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
@@ -93,7 +93,7 @@ tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
 })
 
 /**
- * PATCH /api/v1/tenants/me
+ * PATCH /api/v1/organizacao/me
  * Atualiza dados cadastrais do tenant autenticado
  */
 tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
@@ -130,7 +130,7 @@ tenantsRouter.patch('/me', requireAuth, async (req, res, next) => {
 })
 
 /**
- * GET /api/v1/tenants/companies
+ * GET /api/v1/organizacao/companies
  * Lista empresas filhas do tenant autenticado
  */
 tenantsRouter.get('/companies', requireAuth, async (req, res, next) => {
@@ -143,7 +143,7 @@ tenantsRouter.get('/companies', requireAuth, async (req, res, next) => {
 })
 
 /**
- * POST /api/v1/tenants/companies
+ * POST /api/v1/organizacao/companies
  * Cria uma empresa filha no tenant autenticado
  */
 tenantsRouter.post('/companies', requireAuth, async (req, res, next) => {
@@ -181,7 +181,7 @@ tenantsRouter.post('/companies', requireAuth, async (req, res, next) => {
 })
 
 /**
- * PATCH /api/v1/tenants/companies/:id
+ * PATCH /api/v1/organizacao/companies/:id
  * Atualiza uma empresa filha (nome, subdomain, cnpj, status)
  */
 tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
@@ -220,7 +220,7 @@ tenantsRouter.patch('/companies/:id', requireAuth, async (req, res, next) => {
 })
 
 /**
- * DELETE /api/v1/tenants/companies/:id
+ * DELETE /api/v1/organizacao/companies/:id
  * Remove uma empresa filha do tenant autenticado
  */
 tenantsRouter.delete('/companies/:id', requireAuth, async (req, res, next) => {

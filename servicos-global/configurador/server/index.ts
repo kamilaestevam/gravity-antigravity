@@ -35,6 +35,7 @@ import { publicCatalogRouter } from './routes/publicCatalog.js'
 import { hubRouter } from './routes/hubInit.js'
 import { meRouter } from './routes/me.js'
 import { taxaCambioRouter } from './routes/taxaCambio.js'
+import { historicoOrganizacaoRouter } from './routes/historicoOrganizacao.js'
 import { prisma } from './lib/prisma.js'
 
 export const app = express()
@@ -101,13 +102,13 @@ app.use('/api/admin', rateLimitPresets.admin())
 app.use('/api/v1/webhooks', authRouter)
 app.use('/api/v1/me', meRouter)
 app.use('/api/v1/hub', hubRouter)
-app.use('/api/v1/tenants', tenantsRouter)
-app.use('/api/v1/billing', billingRouter)
+app.use('/api/v1/organizacao', tenantsRouter)
+app.use('/api/v1/financeiro', billingRouter)
 app.use('/api/v1/admin', adminRouter)
 app.use('/api/v1/products', productsRouter)
-app.use('/api/v1/tenants/products', tenantProductsRouter)
+app.use('/api/v1/assinaturas', tenantProductsRouter)
 app.use('/api/v1/companies/:companyId/products', companyProductsRouter)
-app.use('/api/v1/users', usersRouter)
+app.use('/api/v1/usuarios', usersRouter)
 app.use('/api/v1/service-tokens', serviceTokenRouter)
 
 // ─── Rotas internas (x-internal-key obrigatória) ────────────────────────────
@@ -155,13 +156,17 @@ app.use(authErrorLogger)
 
 import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/apiCockpit.js'
 import { adminNcmIntegracaoRouter } from './routes/adminNcmIntegracao.js'
-app.use('/api/cockpit', apiCockpitRouter)                  // workspace: observabilidade por tenant
+app.use('/api/v1/api-cockpit', apiCockpitRouter)             // workspace: observabilidade por tenant
 app.use('/api/admin/api-cockpit', apiCockpitAdminRouter)       // admin: observabilidade global
 app.use('/api/admin/ncm-integracao', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
 
 // ─── Taxa de câmbio PTAX — sem auth (dados públicos do BCB) ─────────────────
 
 app.use('/api/v1/taxa-cambio', taxaCambioRouter)
+
+// ─── Histórico da organização — workspace page (requireAuth interno) ────────
+
+app.use('/api/v1/historico-organizacao', historicoOrganizacaoRouter)
 
 // ─── Catálogo público (sem auth — usado pelo Store/Marketplace) ─────────────
 

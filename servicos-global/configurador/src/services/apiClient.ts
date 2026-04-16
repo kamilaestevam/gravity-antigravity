@@ -734,17 +734,17 @@ export const publicCatalogApi = {
 
 export const workspaceApi = {
   async getMyTenant() {
-    return request<{ tenant: TenantApi }>('/v1/tenants/me')
+    return request<{ tenant: TenantApi }>('/v1/organizacao/me')
   },
 
   async getCompanies() {
     return request<{ companies: Array<{ id: string; name: string; subdomain: string | null; cnpj: string | null; status: string }> }>(
-      '/v1/tenants/companies'
+      '/v1/organizacao/companies'
     )
   },
 
   async createCompany(data: { name: string; subdomain?: string; cnpj?: string }) {
-    return request<{ company: { id: string; name: string } }>('/v1/tenants/companies', {
+    return request<{ company: { id: string; name: string } }>('/v1/organizacao/companies', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -752,26 +752,26 @@ export const workspaceApi = {
 
   async getUsers() {
     return request<{ users: Array<{ id: string; name: string; email: string; role: string; created_at: string; memberships: Array<{ company_id: string; role: string; is_active: boolean }> }> }>(
-      '/v1/users'
+      '/v1/usuarios'
     )
   },
 
   async inviteUser(data: { email: string; name: string; role: string }) {
-    return request<{ user: { id: string; email: string } }>('/v1/users/invite', {
+    return request<{ user: { id: string; email: string } }>('/v1/usuarios/invite', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async setUserMembership(userId: string, data: { company_id: string; role: string }) {
-    return request<{ membership: { id: string } }>(`/v1/users/${userId}/memberships`, {
+    return request<{ membership: { id: string } }>(`/v1/usuarios/${userId}/memberships`, {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async updateUserRole(userId: string, role: string) {
-    return request<{ user: { id: string; role: string } }>(`/v1/users/${userId}/role`, {
+    return request<{ user: { id: string; role: string } }>(`/v1/usuarios/${userId}/role`, {
       method: 'PATCH',
       body: JSON.stringify({ role }),
     })

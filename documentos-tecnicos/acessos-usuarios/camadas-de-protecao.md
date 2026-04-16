@@ -1,7 +1,18 @@
 # Camadas de Protecao do Admin Panel
 
-> Ultima atualizacao: 2026-03-31
+> Ultima atualizacao: 2026-04-16
 > Status: 3 camadas ativas e independentes
+
+---
+
+## Contexto Arquitetural
+
+Todas as tres camadas verificam `publicMetadata.role` do Clerk. E fundamental entender **de onde esse valor vem**:
+
+- O Clerk **nao define** o role de negocio — ele e apenas o repositorio de `publicMetadata`.
+- O **Prisma (banco)** e a fonte da verdade. Apos criar ou atualizar um usuario, o backend chama a API do Clerk com `CLERK_SECRET_KEY` para gravar `publicMetadata.role`.
+- **Nunca** o sistema de Organizations nativo do Clerk e usado — esse sistema foi removido em 2026-04-16.
+- O `publicMetadata` e server-side: o cliente nao consegue alterar esse campo.
 
 ---
 
@@ -157,6 +168,8 @@ export async function isGravityAdmin(clerkUserId: string): Promise<boolean> {
 | `products.ts` | `requireGravityAdmin` em POST, PUT, DELETE |
 
 **Caracteristica importante:** Chama a API do Clerk (`clerkClient.users.getUser`) — nao confia no token JWT local. Isso significa que mesmo que alguem consiga forjar um token localmente, o Clerk nao confirmara o role `gravity_admin` para esse usuario.
+
+**Por que o Clerk e consultado em tempo real aqui (e nao o Prisma)?** Para o check de `gravity_admin` (equipe interna), o Clerk e a fonte autoritativa porque o `gravity_admin` nao e um role do Prisma — e um marcador de identidade que pertence ao IdP. Roles de tenant (`MASTER`, `STANDARD`, `SUPPLIER`) sao verificados via Prisma. Essa e a unica excecao ao principio "Prisma e fonte da verdade", e so se aplica ao acesso ao Admin Panel.
 
 **Custo de performance:** 1 request HTTP ao Clerk por chamada admin. So afeta `dmmltda@gmail.com` (unico admin). Clientes nao chegam nessa camada.
 

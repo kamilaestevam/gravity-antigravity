@@ -1,6 +1,20 @@
 # Modelo de Roles — Gravity Platform
 
-> Ultima atualizacao: 2026-03-31
+> Ultima atualizacao: 2026-04-16
+
+---
+
+## Principio Arquitetural Absoluto
+
+> **O Clerk e exclusivamente um Provedor de Identidade (IdP). Ele nao gerencia multi-tenancy.**
+
+O sistema de **Organizations nativo do Clerk foi completamente removido em 2026-04-16** e esta proibido para sempre. As seguintes regras nao admitem excecao:
+
+1. **Fonte da Verdade de tenancy e role:** banco de dados (Prisma) — nao o Clerk.
+2. **Ponte Prisma → Frontend:** exclusivamente `user.publicMetadata.tenantId` e `user.publicMetadata.role`, escritos pelo backend com `CLERK_SECRET_KEY`. O cliente nunca escreve esses campos.
+3. **Consumo no frontend:** o hook `useSyncClerkToShell` le o `publicMetadata` e popula `ShellStore.currentUser`. **Nenhum componente le o Clerk diretamente** para exibir cargo ou avatar — todos leem o ShellStore.
+4. **Roles validos:** apenas `SUPER_ADMIN`, `ADMIN`, `MASTER`, `STANDARD`, `SUPPLIER` (e `gravity_admin` para equipe interna). Qualquer outro valor — incluindo conceitos nativos do Clerk como `org:member`, `basic_member` ou "Membro" — e invalido e deve ser rejeitado.
+5. **Fallback de role na UI:** o unico fallback permitido e `'Standard'`. Nunca exibir "Membro", "member", ou qualquer string de Organizations do Clerk.
 
 ---
 
@@ -60,7 +74,9 @@ Cliente (Organizacao / Tenant)
 | Pode | Convidar usuarios, habilitar workspaces, definir permissoes de Standard e Fornecedor |
 | Restricoes | Nao acessa dados de outras organizacoes; **jamais acessa o Admin Panel da Gravity** |
 | Quem atribui | Sistema — o primeiro usuario de uma organizacao e sempre Master |
-| Armazenado em | `publicMetadata.role = 'MASTER'` no Clerk + `role = 'MASTER'` no banco |
+| Armazenado em (banco) | `User.role = 'MASTER'` no Prisma |
+| Armazenado em (Clerk) | `publicMetadata.role = 'MASTER'` — escrito pelo backend apos gravacao no Prisma |
+| Exibido na UI como | **Master** (via `resolveRole()` em `useSyncClerkToShell.ts`) |
 
 ---
 
@@ -73,6 +89,9 @@ Cliente (Organizacao / Tenant)
 | Escopo | Apenas os workspaces onde foi habilitado, apenas os produtos com permissao |
 | Restricoes | Nao gere outros usuarios (a menos que o Master libere explicitamente) |
 | Quem atribui | Master da organizacao |
+| Armazenado em (banco) | `User.role = 'STANDARD'` no Prisma |
+| Armazenado em (Clerk) | `publicMetadata.role = 'STANDARD'` — escrito pelo backend |
+| Exibido na UI como | **Standard** (via `resolveRole()`) |
 
 ---
 
@@ -85,6 +104,9 @@ Cliente (Organizacao / Tenant)
 | Escopo | Apenas os recursos explicitamente liberados |
 | Caracteristica | Pode ter vinculos com multiplas organizacoes (cross-tenant) com o mesmo email |
 | Quem atribui | Master da organizacao |
+| Armazenado em (banco) | `User.role = 'SUPPLIER'` no Prisma |
+| Armazenado em (Clerk) | `publicMetadata.role = 'SUPPLIER'` — escrito pelo backend |
+| Exibido na UI como | **Fornecedor** (via `resolveRole()`) |
 
 ---
 
@@ -142,6 +164,32 @@ model UserPermission {
 
 ---
 
+## Labels de Exibicao na UI
+
+O frontend nunca exibe a chave interna do banco (`MASTER`, `SUPPLIER`, etc.). A funcao `resolveRole()` em `useSyncClerkToShell.ts` converte o valor do `publicMetadata.role` para o label humano exibido no Header e no dropdown de perfil.
+
+```typescript
+// servicos-global/shell/hooks/useSyncClerkToShell.ts
+const ROLE_LABELS: Record<string, string> = {
+  gravity_admin: 'Admin',     // equipe Gravity com acesso admin
+  SUPER_ADMIN:   'Super Admin',
+  ADMIN:         'Admin',
+  MASTER:        'Master',
+  STANDARD:      'Standard',
+  SUPPLIER:      'Fornecedor',
+}
+
+function resolveRole(raw: string): string {
+  return ROLE_LABELS[raw] ?? (raw || 'Standard')
+}
+```
+
+**Roles invalidos na UI:** `'Membro'`, `'Member'`, `'org:member'`, `'basic_member'`, ou qualquer string nativa do Clerk Organizations. Se algum desses valores aparecer, significa que o `publicMetadata` nao foi gravado corretamente pelo Prisma.
+
+**Fallback:** se `publicMetadata.role` estiver vazio, o sistema exibe `'Standard'` — nunca string hardcoded de Organizations.
+
+---
+
 ## Enum de Roles no Banco (Prisma)
 
 ```prisma
@@ -160,9 +208,11 @@ enum UserRole {
 
 ## Regras Criticas
 
-1. O role do usuario **sempre vem do JWT/Clerk** — nunca do payload da requisicao
-2. `master` **nunca recebe verificacao granular** — implica acesso total na organizacao
-3. `fornecedor` **nunca tem acesso amplo** — sempre requer permissoes explicitas
-4. `super_admin` so existe via seed — impossivel criar via UI ou API publica
-5. Permissoes granulares sao **por workspace (`company_id`)** — acesso no workspace A nao implica acesso no workspace B
-6. `publicMetadata` do Clerk e server-side — **clientes nao conseguem alterar por conta propria**
+1. O role do usuario **sempre vem do `publicMetadata.role` do Clerk** — nunca do payload da requisicao, nunca de Organizations do Clerk, nunca de localStorage.
+2. O `publicMetadata` **e escrito exclusivamente pelo backend** com `CLERK_SECRET_KEY` apos operacao confirmada no Prisma. Clientes nao conseguem alterar.
+3. O frontend **nunca le o Clerk diretamente** para exibir cargo — le `useShellStore().currentUser.role`, que e populado pelo `useSyncClerkToShell`.
+4. `master` **nunca recebe verificacao granular** — implica acesso total na organizacao.
+5. `fornecedor` **nunca tem acesso amplo** — sempre requer permissoes explicitas.
+6. `super_admin` so existe via seed do banco — impossivel criar via UI ou API publica.
+7. Permissoes granulares sao **por workspace (`company_id`)** — acesso no workspace A nao implica acesso no workspace B.
+8. **Sistema de Organizations do Clerk esta banido** — nenhuma feature, componente ou rota pode depender de `useOrganization`, `useOrganizationList`, `OrganizationSwitcher` ou qualquer API de Organizations do Clerk.

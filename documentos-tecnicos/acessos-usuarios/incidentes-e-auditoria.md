@@ -129,6 +129,39 @@ Reportado manualmente pelo dono da plataforma ao observar que `daniel@dmm-ie.com
 |------|------|-----------|-------------|
 | 2026-03-29 | Auditoria de seguranca geral | 26/37 itens OK | Ver `documentos-tecnicos/seguranca/auditoria-seguranca-2026-03-29.md` |
 | 2026-03-31 | Auditoria de acesso admin — incidente #001 | 4 vulnerabilidades encontradas e corrigidas | Claude Code |
+| 2026-04-16 | Refatoracao arquitetural — remocao do Clerk Organizations | Concluida sem incidentes | Claude Code |
+
+---
+
+## Refatoracao #001 — Remocao do Clerk Organizations (2026-04-16)
+
+| Campo | Detalhe |
+|-------|---------|
+| Data | 2026-04-16 |
+| Tipo | Refatoracao arquitetural de autenticacao e multi-tenancy |
+| Motivacao | O sistema de Organizations nativo do Clerk (B2B) foi identificado como ponto de acoplamento incorreto — roles e tenancy nao devem ser responsabilidade do IdP |
+| Impacto | Backend, Frontend (Shell/Header), Nucleo Global (UsuarioGlobal) |
+| Status | Concluido |
+
+### O que foi removido
+
+- Toda dependencia de `useOrganization`, `useOrganizationList`, `OrganizationSwitcher` do Clerk
+- Fallback `t('shell.papel_membro')` no `Header.tsx` (exibia "Membro" — role nativo do Clerk Organizations)
+- Fallback de avatar `'??'` no `Header.tsx` (exibia iniciais invalidas quando Clerk Organizations nao resolvia o nome)
+- Qualquer logica de role baseada em `organizationMemberships` ou `orgRole` do Clerk
+
+### O que foi implementado
+
+- `publicMetadata.tenantId` e `publicMetadata.role` como unica ponte Prisma → Frontend
+- Hook `useSyncClerkToShell.ts` como sincronizador canonico: le `publicMetadata`, mapeia para labels humanos via `resolveRole()`, popula `ShellStore.currentUser`
+- Prop `avatarUrl` no componente `UsuarioGlobal` — renderiza `user.imageUrl` do Clerk via ShellStore, com fallback para primeira letra do email
+- Fallback de role na UI: `'Standard'` (consistente com `resolveRole()`) — nunca "Membro"
+
+### Licoes Aprendidas
+
+1. **O IdP autentica, o banco autoriza.** O Clerk sabe *quem* e o usuario; o Prisma sabe *o que* ele pode fazer e *a qual empresa* pertence.
+2. **`publicMetadata` e o contrato entre os dois mundos.** Escrito pelo backend, lido pelo frontend — imutavel pelo cliente.
+3. **Fallbacks de UI devem ser semanticamente corretos.** "Membro" e um conceito do Clerk Organizations que nao existe no modelo de negocio do Gravity. O fallback correto e `'Standard'`, que e um role real do sistema.
 
 ---
 

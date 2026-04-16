@@ -1,0 +1,55 @@
+{
+  "$schema": "./test-plans-registry.schema.json",
+  "versao": "1.0.0",
+  "atualizadoEm": "2026-04-15T19:00:00Z",
+  "totalPlanos": 1,
+  "totalPorTipo": {
+    "UNI": 0,
+    "CON": 0,
+    "FUN": 0,
+    "CRO": 0,
+    "E2E": 1,
+    "PEN": 0
+  },
+  "totalPorEscopo": {
+    "LOGIN": 0,
+    "CONFIG": 1,
+    "ADMIN": 0,
+    "HUB": 0,
+    "CORE": 0,
+    "MARKET": 0,
+    "TENANT": 0,
+    "DBASE": 0,
+    "PEDIDO": 0,
+    "NFIMP": 0,
+    "LPCO": 0,
+    "BIDFRT": 0,
+    "BIDCAM": 0,
+    "SIMCUS": 0,
+    "FINCOM": 0,
+    "PROCSO": 0
+  },
+  "deletados": [],
+  "planos": [
+    {
+      "id": "TST-E2E-CONFIG-000001",
+      "tipo": "E2E",
+      "escopo": "CONFIG",
+      "sublocal": "Organização",
+      "tela": "Organização",
+      "rota": "/workspace/organizacao",
+      "criticidade": "alta",
+      "ambientes": ["Local", "Staging", "Producao"],
+      "planoFile": "_planos/configurador/organizacao.json",
+      "specFile": "testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts",
+      "mapeamentoFile": "_mapeamentos/configurador/organizacao.testids.json",
+      "componenteFile": "servicos-global/configurador/src/pages/Organizacao.tsx",
+      "passosTotal": 129,
+      "coberturaPercentual": 90,
+      "status": "pendente_validacao",
+      "criadoEm": "2026-04-15T18:30:00Z",
+      "ultimaExecucao": null,
+      "ultimoResultado": null
+    }
+  ]
+}

@@ -58,6 +58,9 @@
     "test": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts",
     "test:e2e": "playwright test --project=i18n",
     "test:all": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts && playwright test --project=i18n",
+    "validate:test-ids": "npx tsx scripts/validate-test-ids.ts",
+    "validate:cobertura": "npx tsx scripts/validate-cobertura.ts",
+    "validate:testes": "npx tsx scripts/validate-testes.ts",
     "check:deps": "npx tsx scripts/check-deps.ts",
     "prepare": "husky"
   },

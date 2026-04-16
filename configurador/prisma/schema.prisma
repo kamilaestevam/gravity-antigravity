@@ -654,4 +654,89 @@ model TaxaCambio {
 }
 
 // ---------------------------------------------------------------------------
+// SISTEMA DE TESTES — TestLog, TestSchedule, TestPlan
+// ---------------------------------------------------------------------------
+// Tabelas que suportam o sistema de testes automatizado do Admin/Testes.
+// Documentação completa em documentos-tecnicos/testes/tecnico/.
+// Convenção de IDs: TST-{TIPO}-{ESCOPO}-{NNNNNN}
+
+model TestLog {
+  id           String   @id @default(cuid())
+  tenant_id    String   @default("platform") // sempre "platform" — logs globais
+  type         String   // UNI | CON | FUN | CRO | E2E | PEN
+  escopo       String   // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
+  sublocal     String?
+  module       String
+  test_name    String
+  test_id      String?  // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
+  result       String   // APROVADO | REPROVADO | ERRO
+  duration     String
+  error_log    String?  @db.Text
+  ai_analysis  Json?    // AiAnalysis schema do gemini-test-analyzer
+  screenshot   String?  // path do PNG capturado pela fixture
+  ambiente     String   @default("Local") // Local | Staging | Producao
+  run_id       String?  // agrupa logs do mesmo run
+  triggered_by String?  // userId que disparou (manual) ou "cron" (automático)
+  created_at   DateTime @default(now())
+
+  @@index([tenant_id])
+  @@index([created_at])
+  @@index([type, escopo])
+  @@index([result])
+  @@index([run_id])
+  @@index([test_id])
+}
+
+model TestSchedule {
+  id            String    @id @default(cuid())
+  tenant_id     String    @default("platform")
+  ativo         Boolean   @default(false)
+  frequencia    String    @default("Manual") // Manual | Diario | Semanal
+  hora          Int       @default(0) // 0-23
+  minuto        Int       @default(0) // 0-59
+  tipos         Json      // { uni: bool, con: bool, fun: bool, cro: bool, e2e: bool, pen: bool }
+  escopos       String[]  // ['CONFIG','PEDIDO','ADMIN',...]
+  ambiente      String    @default("Local") // Local | Staging | Producao
+  alertas       Json      @default("[]") // [{ nome, contato, condicao, canal }]
+  ultima_exec   DateTime?
+  proxima_exec  DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  @@index([tenant_id])
+  @@index([ativo])
+  @@index([proxima_exec])
+}
+
+model TestPlan {
+  id                  String    @id // TST-E2E-CONFIG-000001
+  tenant_id           String    @default("platform")
+  versao              String    @default("1.0")
+  tipo                String    // UNI | CON | FUN | CRO | E2E | PEN
+  escopo              String    // LOGIN | CONFIG | ...
+  sublocal            String
+  tela                String
+  rota                String
+  criticidade         String    @default("media") // baixa | media | alta | critica
+  ambientes           String[]
+  componente_path     String
+  spec_path           String?
+  mapeamento_path     String
+  cobertura_pct       Int       @default(0)
+  passos_total        Int       @default(0)
+  resumo_executivo    String    @db.Text
+  plano_completo      Json      // o JSON inteiro do plano (formato do agente-plano-teste)
+  status              String    @default("pendente_validacao") // pendente_validacao | aprovado | obsoleto
+  ultima_execucao     DateTime?
+  ultimo_resultado    String?   // APROVADO | REPROVADO | ERRO | NAO_EXECUTADO
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  @@index([tenant_id])
+  @@index([tipo, escopo])
+  @@index([status])
+  @@index([sublocal])
+}
+
+// ---------------------------------------------------------------------------
 // GLOBAL PRODUCT

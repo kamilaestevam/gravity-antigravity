@@ -1,6 +1,0 @@
-PO Number,Shipper,Manufacturer,Incoterm,Currency,Invoice Date,Part Number,Description,NCM,Quantity,Unit,Unit Price,Total Value
-PO-2026-010,TechParts Europe BV,TechParts Europe BV,FOB Rotterdam,EUR,2026-02-10,TP-4401,Industrial Motor 3kW,8501.20.20,15,UN,540.00,8100.00
-PO-2026-010,TechParts Europe BV,TechParts Europe BV,FOB Rotterdam,EUR,2026-02-10,TP-4402,Frequency Inverter 7.5kW,8504.40.10,8,UN,1250.00,10000.00
-PO-2026-010,TechParts Europe BV,TechParts Europe BV,FOB Rotterdam,EUR,2026-02-10,TP-4403,Encoder 1024 PPR,9031.80.90,20,UN,185.00,3700.00
-PO-2026-010,TechParts Europe BV,TechParts Europe BV,FOB Rotterdam,EUR,2026-02-10,TP-4404,PLC Controller S7-1200,8537.10.20,10,UN,920.00,9200.00
-PO-2026-010,TechParts Europe BV,TechParts Europe BV,FOB Rotterdam,EUR,2026-02-10,TP-4405,Safety Relay 24VDC,8536.49.00,25,UN,145.00,3625.00

@@ -18,6 +18,7 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
+import { syncRoleToClerk } from '../lib/syncRole.js'
 import { AppError } from '../lib/appError.js'
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
@@ -1104,11 +1105,11 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
       select: { id: true, email: true, role: true },
     })
 
-    // Sincroniza publicMetadata no Clerk para que o frontend reflita o novo role imediatamente.
+    // Sincroniza publicMetadata no Clerk (com spread de metadata existente + anti-downgrade de SUPER_ADMIN).
     // Usuários com clerk_user_id 'pending_...' ainda não aceitaram o convite — não há conta para atualizar.
     if (!user.clerk_user_id.startsWith('pending_')) {
-      await clerkClient.users.updateUserMetadata(user.clerk_user_id, {
-        publicMetadata: { role: parsed.data.role },
+      syncRoleToClerk(user.clerk_user_id, user.tenant_id, parsed.data.role).catch((err) => {
+        console.error('[admin.promote] syncRoleToClerk falhou:', err)
       })
     }
 

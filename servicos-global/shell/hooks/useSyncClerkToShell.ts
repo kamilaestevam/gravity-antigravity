@@ -52,6 +52,9 @@ export function useSyncClerkToShell() {
 
     const role = resolveRole((user.publicMetadata?.role as string) ?? '')
 
+    // Guard: publicMetadata vazio durante refresh transitório do Clerk não deve derrubar role já definido
+    if (!user.publicMetadata?.role && currentUser.role) return
+
     // Só atualiza se mudou (evita loop)
     if (
       currentUser.id === user.id &&

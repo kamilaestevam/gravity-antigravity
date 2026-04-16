@@ -13,6 +13,7 @@
 
 import 'dotenv/config'
 import { PrismaClient } from '../../../../configurador/generated/index.js'
+import { syncRoleToClerk } from '../lib/syncRole.js'
 
 const prisma = new PrismaClient({
   datasources: { db: { url: process.env.CONFIGURADOR_DATABASE_URL } },
@@ -34,7 +35,7 @@ async function main() {
 
   const user = await prisma.user.findFirst({
     where: { email },
-    select: { id: true, email: true, role: true, tenant_id: true },
+    select: { id: true, email: true, role: true, tenant_id: true, clerk_user_id: true },
   })
 
   if (!user) {
@@ -61,6 +62,14 @@ async function main() {
 
   console.log(`\n✓ Role atualizado: ${user.role} → ${updated.role}`)
   console.log(`  Usuário: ${updated.email}`)
+
+  // Sincroniza publicMetadata no Clerk para que o frontend reflita o novo role imediatamente.
+  if (user.clerk_user_id && !user.clerk_user_id.startsWith('pending_')) {
+    await syncRoleToClerk(user.clerk_user_id, user.tenant_id, role)
+    console.log(`✓ Clerk publicMetadata sincronizado`)
+  } else {
+    console.log(`⚠ clerk_user_id ausente ou pendente — Clerk não sincronizado`)
+  }
 }
 
 main()

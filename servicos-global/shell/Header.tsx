@@ -285,7 +285,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
             clearCurrentUser()
             window.location.href = '/'
           }}
-          isAdmin={currentUser.role === 'Super Admin' || currentUser.role === 'Admin'}
+          isAdmin={isGravityAdmin}
           onNavigateAdmin={() => window.location.href = '/admin'}
           compact
         />

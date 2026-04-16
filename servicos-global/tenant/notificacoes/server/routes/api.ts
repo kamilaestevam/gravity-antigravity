@@ -101,7 +101,7 @@ const listQuerySchema = z.object({
   take: z.coerce.number().int().min(1).max(100).optional(),
 })
 const createBodySchema = z.object({
-  type: z.enum(['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento']),
+  type: z.enum(['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento', 'enviado']),
   title: z.string().min(1).max(120).optional(),
   message: z.string().min(1).max(2000),
   product_id: z.string().min(1).optional(),
@@ -246,6 +246,7 @@ const sendBodySchema = z.object({
   user_ids: z.array(z.string().min(1)).min(1).max(20),
   message: z.string().min(1).max(2000),
   sender_name: z.string().min(1).max(120).optional(),
+  recipient_names: z.array(z.string().max(120)).max(20).optional(),
   activity_id: z.string().min(1).max(2000).optional(),
 })
 
@@ -272,6 +273,23 @@ apiRoutes.post('/send', async (req, res, next) => {
         message: body.message,
         activity_id: body.activity_id ?? null,
       })),
+    })
+
+    // Registro de "enviado" para o remetente — aparece no histórico dele
+    const recipientLabel = body.recipient_names?.length
+      ? body.recipient_names.join(', ')
+      : `${targets.length} usuário(s)`
+    await prisma.notification.create({
+      data: {
+        tenant_id,
+        user_id,
+        product_id: null,
+        type: 'enviado' as const,
+        title: `Enviado para ${recipientLabel}`,
+        message: body.message,
+        activity_id: body.activity_id ?? null,
+        read: true, // já nasce lida — é registro, não alerta
+      },
     })
 
     // Push SSE para cada destinatário online

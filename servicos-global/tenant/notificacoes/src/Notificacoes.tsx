@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao } from '@nucleo/mensageria-global'
 import { useShellStore } from '@gravity/shell'
 
@@ -68,6 +68,7 @@ export function Notificacoes() {
   const [erro, setErro] = useState<string | null>(null)
   const [usuariosTenant, setUsuariosTenant] = useState<UsuarioMencao[]>([])
   const navigate = useNavigate()
+  const location = useLocation()
 
   // Avisos vindos do shell store (ex: motor de testes empurrando via addAviso).
   // Mantidos em lista separada — fundidos no render abaixo.
@@ -130,12 +131,18 @@ export function Notificacoes() {
   const handleEnviarPara = useCallback(
     async (destinatarios: string[], mensagem: string, link?: string) => {
       try {
+        // Resolve nomes dos destinatários para o registro "enviado"
+        const recipientNames = destinatarios
+          .map((uid) => usuariosTenant.find((u) => u.id === uid)?.nome)
+          .filter(Boolean) as string[]
+
         const res = await authedFetch(`${BASE_URL}/send`, {
           method: 'POST',
           body: JSON.stringify({
             user_ids: destinatarios,
             message: mensagem,
             sender_name: currentUserName || undefined,
+            recipient_names: recipientNames,
             activity_id: link || undefined,
           }),
         })
@@ -143,6 +150,8 @@ export function Notificacoes() {
           const body = await res.json().catch(() => null) as { message?: string } | null
           throw new Error(body?.message ?? `HTTP ${res.status}`)
         }
+        // Recarrega para mostrar o registro "enviado" no histórico
+        await syncState()
       } catch (err) {
         setErro(err instanceof Error ? err.message : 'Falha ao enviar notificação')
       }
@@ -230,8 +239,8 @@ export function Notificacoes() {
       timeStyle: 'short',
     }),
     lido: n.read,
-    tipo: (['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento'].includes(n.type)
-      ? (n.type === 'compartilhamento' ? 'aviso' : n.type)
+    tipo: (['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento', 'enviado'].includes(n.type)
+      ? (n.type === 'compartilhamento' || n.type === 'enviado' ? 'aviso' : n.type)
       : 'sistema') as AvisoInterno['tipo'],
     // activity_id serve como deep link — pode ser rota relativa (/produto/pedido/123)
     // ou ID de entidade. Quando presente, o item fica clicável no sininho.
@@ -262,6 +271,7 @@ export function Notificacoes() {
       onNavegarHref={(href) => navigate(href)}
       onEnviarPara={handleEnviarPara}
       usuariosTenant={usuariosTenant}
+      linkAtual={location.pathname}
     />
   )
 }

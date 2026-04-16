@@ -50,6 +50,8 @@ export interface AvisoInternoGlobalProps {
   onEnviarPara?: (destinatarios: string[], mensagem: string, link?: string) => void;
   /** Lista de usuários do tenant — alimenta @mention no composer e o modal Enviar Para. */
   usuariosTenant?: UsuarioMencao[];
+  /** Rota atual do browser — preenchida automaticamente no campo de link do Enviar Para. */
+  linkAtual?: string;
   /** Estado de carregamento — exibe skeleton/loader em vez da lista. */
   carregando?: boolean;
   /** Mensagem de erro — exibida no lugar da lista quando presente. */
@@ -67,6 +69,7 @@ export function AvisoInternoGlobal({
   onNavegarHref,
   onEnviarPara,
   usuariosTenant = [],
+  linkAtual,
   carregando = false,
   erro = null,
   onFechar,
@@ -327,8 +330,12 @@ export function AvisoInternoGlobal({
                 type="button"
                 className={isEnviarParaOpen ? 'aig-top-btn-primary' : 'aig-top-btn-secondary'}
                 onClick={() => {
-                  setIsEnviarParaOpen(!isEnviarParaOpen);
-                  if (!isEnviarParaOpen) setIsComposerOpen(false);
+                  const opening = !isEnviarParaOpen;
+                  setIsEnviarParaOpen(opening);
+                  if (opening) {
+                    setIsComposerOpen(false);
+                    setEnviarLink(linkAtual ?? '');
+                  }
                 }}
                 aria-label="Enviar para outro usuário"
               >
@@ -507,7 +514,7 @@ export function AvisoInternoGlobal({
               type="text"
               value={enviarLink}
               onChange={e => setEnviarLink(e.target.value)}
-              placeholder="Link (opcional) — ex: /produto/pedido/123"
+              placeholder="Link — preenchido com a página atual"
               aria-label="Link para o destinatário"
               style={{
                 all: 'unset', flex: 1, fontSize: '0.6875rem',

@@ -18,7 +18,7 @@ export default defineConfig({
     // Prioriza source (.ts/.tsx) sobre compilados (.js) para evitar version skew
     // com artefatos stale que sobreviveram a refactors antigos em nucleo-global.
     extensions: ['.mjs', '.ts', '.tsx', '.mts', '.jsx', '.js', '.json'],
-    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+    dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', 'react-grid-layout', 'react-resizable'],
     alias: {
       // Aliases específicos de tenant devem vir ANTES do base '@tenant' de createServiceAliases
       // (Vite usa o primeiro match — mais específico deve ter precedência)
@@ -36,7 +36,14 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['react-i18next', 'i18next', 'zustand', '@clerk/clerk-react'],
+    include: [
+      'react-i18next', 'i18next', 'zustand', '@clerk/clerk-react',
+      // Pacotes do produto Pedido — pré-bundle evita delay no primeiro carregamento
+      // e garante que exceljs (Node.js heavy) seja processado com o polyfill de process.env
+      'exceljs',
+      '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities',
+      '@tanstack/react-virtual',
+    ],
     exclude: ['@nucleo/localizador-global'],
   },
   build: {
@@ -84,6 +91,21 @@ export default defineConfig({
       '/api/v1/analytics/pedido': {
         target: 'http://localhost:8030',
         changeOrigin: true,
+        configure(proxy) {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')
+          })
+        },
+        onError(err, _req, res) {
+          if (!res.headersSent) res.writeHead(502).end()
+        },
+      },
+      // historico-global — serviço tenant em porta dedicada
+      // Mesma estrutura do proxy 5179: rewrite remove o prefixo antes de repassar ao backend
+      '/historico-api': {
+        target: 'http://localhost:8012',
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/historico-api/, ''),
         configure(proxy) {
           proxy.on('proxyReq', (proxyReq) => {
             proxyReq.setHeader('x-internal-key', 'gravity-dev-internal-key-2026')

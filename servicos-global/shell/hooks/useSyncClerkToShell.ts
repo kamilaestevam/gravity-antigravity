@@ -44,6 +44,7 @@ export function useSyncClerkToShell() {
     const tenantId =
       orgId ??
       user.organizationMemberships?.[0]?.organization?.id ??
+      (user.publicMetadata?.tenantId as string | undefined) ??
       undefined
 
     const tenantName =

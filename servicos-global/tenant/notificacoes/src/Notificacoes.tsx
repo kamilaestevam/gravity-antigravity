@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AvisoInternoGlobal, type AvisoInterno } from '@nucleo/mensageria-global'
+import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao } from '@nucleo/mensageria-global'
 import { useShellStore } from '@gravity/shell'
 
 export interface NotificationItem {
@@ -66,6 +66,7 @@ export function Notificacoes() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
+  const [usuariosTenant, setUsuariosTenant] = useState<UsuarioMencao[]>([])
   const navigate = useNavigate()
 
   // Avisos vindos do shell store (ex: motor de testes empurrando via addAviso).
@@ -73,6 +74,7 @@ export function Notificacoes() {
   const storeAvisos = useShellStore((s) => s.avisos)
   const marcarAvisoLidoStore = useShellStore((s) => s.marcarAvisoLido)
   const marcarTodosAvisosLidosStore = useShellStore((s) => s.marcarTodosAvisosLidos)
+  const currentUserName = useShellStore((s) => s.currentUser.name)
 
   const syncState = useCallback(async () => {
     try {
@@ -99,6 +101,54 @@ export function Notificacoes() {
     const interval = setInterval(() => syncState(), 60_000)
     return () => clearInterval(interval)
   }, [syncState])
+
+  // Busca lista de usuários do tenant para @mention e Enviar Para.
+  // Chamado 1x no mount — a lista de membros muda raramente.
+  useEffect(() => {
+    let cancelled = false
+    async function fetchUsers() {
+      try {
+        const res = await authedFetch('/api/v1/users')
+        if (!res.ok) return
+        const payload = await res.json() as {
+          users?: Array<{ id: string; name: string; email?: string }>
+        }
+        if (cancelled || !payload.users) return
+        setUsuariosTenant(
+          payload.users.map((u) => ({ id: u.id, nome: u.name, email: u.email }))
+        )
+      } catch {
+        // Silencioso — @mention e Enviar Para ficam desabilitados se falhar
+      }
+    }
+    fetchUsers()
+    return () => { cancelled = true }
+  }, [])
+
+  // Callback do painel "Enviar Para" — cria notificações para os destinatários
+  // usando a rota autenticada POST /send (browser-facing, JWT).
+  const handleEnviarPara = useCallback(
+    async (destinatarios: string[], mensagem: string, link?: string) => {
+      try {
+        const res = await authedFetch(`${BASE_URL}/send`, {
+          method: 'POST',
+          body: JSON.stringify({
+            user_ids: destinatarios,
+            message: mensagem,
+            sender_name: currentUserName || undefined,
+            activity_id: link || undefined,
+          }),
+        })
+        if (!res.ok) {
+          const body = await res.json().catch(() => null) as { message?: string } | null
+          throw new Error(body?.message ?? `HTTP ${res.status}`)
+        }
+      } catch (err) {
+        setErro(err instanceof Error ? err.message : 'Falha ao enviar notificação')
+      }
+    },
+    [currentUserName]
+  )
 
   // IDs vindos do shell store começam com "aviso-" (gerados por generateAvisoId()).
   const isStoreAvisoId = (id: string) => id.startsWith('aviso-')
@@ -180,8 +230,8 @@ export function Notificacoes() {
       timeStyle: 'short',
     }),
     lido: n.read,
-    tipo: (['aviso', 'mencao', 'sistema', 'tarefa'].includes(n.type)
-      ? n.type
+    tipo: (['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento'].includes(n.type)
+      ? (n.type === 'compartilhamento' ? 'aviso' : n.type)
       : 'sistema') as AvisoInterno['tipo'],
     // activity_id serve como deep link — pode ser rota relativa (/produto/pedido/123)
     // ou ID de entidade. Quando presente, o item fica clicável no sininho.
@@ -210,6 +260,8 @@ export function Notificacoes() {
       onMarcarTodosLidos={handleReadAll}
       onCriarAviso={handleCriarAviso}
       onNavegarHref={(href) => navigate(href)}
+      onEnviarPara={handleEnviarPara}
+      usuariosTenant={usuariosTenant}
     />
   )
 }

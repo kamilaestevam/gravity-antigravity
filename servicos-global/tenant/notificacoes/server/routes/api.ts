@@ -238,6 +238,56 @@ apiRoutes.put('/read-all', async (req, res, next) => {
   }
 })
 
+// ─── POST /send — envia notificação a outro(s) usuário(s) do mesmo tenant ──
+// Rota autenticada via JWT (browser). Diferente do POST / que só cria para o
+// próprio usuário, esta aceita target_user_ids e cria para cada destinatário.
+// O sender_name é enviado pelo frontend (vem do Clerk).
+const sendBodySchema = z.object({
+  user_ids: z.array(z.string().min(1)).min(1).max(20),
+  message: z.string().min(1).max(2000),
+  sender_name: z.string().min(1).max(120).optional(),
+  activity_id: z.string().min(1).max(2000).optional(),
+})
+
+apiRoutes.post('/send', async (req, res, next) => {
+  try {
+    const { tenant_id, user_id } = req
+    const body = sendBodySchema.parse(req.body)
+
+    // Impede enviar para si mesmo (lista final sem o sender)
+    const targets = body.user_ids.filter((uid) => uid !== user_id)
+    if (targets.length === 0) {
+      return next(new AppError('Nenhum destinatário válido (não é possível enviar para si mesmo)', 400))
+    }
+
+    const senderLabel = body.sender_name ?? 'Usuário'
+
+    const created = await prisma.notification.createMany({
+      data: targets.map((uid) => ({
+        tenant_id,
+        user_id: uid,
+        product_id: null,
+        type: 'compartilhamento' as const,
+        title: senderLabel,
+        message: body.message,
+        activity_id: body.activity_id ?? null,
+      })),
+    })
+
+    // Push SSE para cada destinatário online
+    for (const uid of targets) {
+      emitToUser(uid, 'new_notification', { type: 'compartilhamento' })
+    }
+
+    res.status(201).json({ status: 'success', count: created.count })
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return next(new AppError(`Body inválido: ${err.issues.map((i) => i.message).join(', ')}`, 400))
+    }
+    next(err)
+  }
+})
+
 // ─── DELETE /:id ─────────────────────────────────────────────────────────────
 apiRoutes.delete('/:id', async (req, res, next) => {
   try {

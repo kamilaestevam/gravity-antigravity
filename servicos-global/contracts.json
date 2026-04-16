@@ -78,6 +78,7 @@
         "PUT /read-all": "Marcar todas as não lidas do usuário como lidas",
         "DELETE /:id": "Remover notificação (404 se não pertence ao tenant/usuário)",
         "GET /stream": "Server-Sent Events para push em tempo real (auth via Clerk JWT no header — query string desativada)",
+        "POST /send": "Envia notificação a outro(s) usuário(s) do mesmo tenant. Auth: JWT Clerk (browser). Body Zod: user_ids[] (max 20), message, sender_name?, activity_id? (deep link). Cria tipo 'compartilhamento'. Filtra self-send.",
         "POST /internal": "S2S — cria notificação(ões) direcionada(s) a outros usuários. Auth: x-internal-key (timing-safe). Body Zod: tenant_id, user_ids[], type, title, message, product_id?, activity_id? (deep link). Aceita tipo 'compartilhamento' para envio de links."
       }
     },

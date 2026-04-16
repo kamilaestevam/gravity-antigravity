@@ -2,7 +2,16 @@
 // Agente Configurador — Servidor Express
 // Porta: 8005 | Banco: configurador-db | Auth: Clerk | Billing: Stripe
 
-import 'dotenv/config'
+import dotenv from 'dotenv'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
+
+const __dir = dirname(fileURLToPath(import.meta.url))
+// Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
+dotenv.config({ path: resolve(__dir, '../../../.env.local') })
+// Chaves específicas do serviço vêm do .env na raiz do pacote (configurador/)
+// ATENÇÃO: __dir aponta para server/ — por isso '../.env' e não '.env'
+dotenv.config({ path: resolve(__dir, '../.env') })
 
 // Fail-fast: validar env vars criticas antes de qualquer import
 const requiredEnvVars = ['CONFIGURADOR_DATABASE_URL', 'CLERK_SECRET_KEY', 'INTERNAL_SERVICE_KEY'] as const

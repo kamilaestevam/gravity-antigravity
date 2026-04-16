@@ -56,6 +56,15 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
+      // Notificacoes + users — proxy para configurador que valida JWT e repassa ao tenant-server
+      '/api/tenant/notificacoes': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
+      '/api/v1/users': {
+        target: 'http://localhost:8005',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://localhost:8030',
         changeOrigin: true,

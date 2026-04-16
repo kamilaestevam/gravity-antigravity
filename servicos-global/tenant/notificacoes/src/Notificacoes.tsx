@@ -240,7 +240,7 @@ export function Notificacoes() {
     }),
     lido: n.read,
     tipo: (['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento', 'enviado'].includes(n.type)
-      ? (n.type === 'compartilhamento' || n.type === 'enviado' ? 'aviso' : n.type)
+      ? (n.type === 'compartilhamento' ? 'aviso' : n.type)
       : 'sistema') as AvisoInterno['tipo'],
     // activity_id serve como deep link — pode ser rota relativa (/produto/pedido/123)
     // ou ID de entidade. Quando presente, o item fica clicável no sininho.

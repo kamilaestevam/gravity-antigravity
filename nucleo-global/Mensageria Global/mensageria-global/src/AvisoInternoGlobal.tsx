@@ -23,7 +23,7 @@ export interface AvisoInterno {
   autor?: { nome: string; avatarUrl?: string };
   dataHora: string;
   lido: boolean;
-  tipo: 'aviso' | 'mencao' | 'sistema' | 'tarefa';
+  tipo: 'aviso' | 'mencao' | 'sistema' | 'tarefa' | 'enviado';
   statusReal?: 'em_dia' | 'atrasado';
   /** Link opcional — quando presente, o item do aviso vira clicável e navega para a rota indicada. */
   href?: string;
@@ -81,6 +81,7 @@ export function AvisoInternoGlobal({
   const [busca, setBusca] = useState('');
   const [dataFiltro, setDataFiltro] = useState<{ inicio: Date | null, fim: Date | null }>({ inicio: null, fim: null });
   const [mostrarLidas, setMostrarLidas] = useState(false);
+  const [filtroVisao, setFiltroVisao] = useState<'todas' | 'recebidas' | 'enviadas'>('todas');
   const [novoAviso, setNovoAviso] = useState('');
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const [isEnviarParaOpen, setIsEnviarParaOpen] = useState(false);
@@ -222,14 +223,23 @@ export function AvisoInternoGlobal({
     }
   };
 
+  // Contadores por visão (antes de filtros de busca/data)
+  const countEnviadas = useMemo(() => avisos.filter(a => a.tipo === 'enviado').length, [avisos]);
+  const countRecebidas = useMemo(() => avisos.filter(a => a.tipo !== 'enviado').length, [avisos]);
+
   const avisosFiltrados = useMemo(() => {
     return avisos.filter(a => {
+      // Filtro por visão (Todas / Recebidas / Enviadas)
+      if (filtroVisao === 'enviadas' && a.tipo !== 'enviado') return false;
+      if (filtroVisao === 'recebidas' && a.tipo === 'enviado') return false;
+
       if (busca) {
         const termo = busca.toLowerCase();
         const textToSearch = [a.conteudo, a.autor?.nome || 'Sistema'].join(' ').toLowerCase();
         if (!textToSearch.includes(termo)) return false;
       }
-      if (a.lido && !mostrarLidas) return false;
+      // Na visão "enviadas", mostrar todas (são lidas por padrão)
+      if (filtroVisao !== 'enviadas' && a.lido && !mostrarLidas) return false;
 
       if (dataFiltro.inicio || dataFiltro.fim) {
         // Formato BR esperado gerado pelo backend toLocaleString() => dd/mm/yyyy
@@ -245,7 +255,7 @@ export function AvisoInternoGlobal({
 
         if (avisoDate && !isNaN(avisoDate.getTime())) {
           avisoDate.setHours(0,0,0,0);
-          
+
           if (dataFiltro.inicio) {
             const ini = new Date(dataFiltro.inicio);
             ini.setHours(0,0,0,0);
@@ -258,10 +268,10 @@ export function AvisoInternoGlobal({
           }
         }
       }
-      
+
       return true;
     });
-  }, [avisos, busca, dataFiltro, mostrarLidas]);
+  }, [avisos, busca, dataFiltro, mostrarLidas, filtroVisao]);
 
   return (
     <div style={{ position: 'relative', display: 'flex' }} ref={dropdownRef}>
@@ -542,6 +552,38 @@ export function AvisoInternoGlobal({
         </div>
       )}
 
+      {/* FILTRO VISÃO: Todas / Recebidas / Enviadas */}
+      <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0', paddingTop: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.25rem' }}>
+          {(['todas', 'recebidas', 'enviadas'] as const).map((v) => {
+            const isActive = filtroVisao === v;
+            const label = v === 'todas' ? 'Todas' : v === 'recebidas' ? `Recebidas${countRecebidas > 0 ? ` (${countRecebidas})` : ''}` : `Enviadas${countEnviadas > 0 ? ` (${countEnviadas})` : ''}`;
+            return (
+              <button
+                key={v}
+                type="button"
+                onClick={() => {
+                  setFiltroVisao(v);
+                  // Enviadas são sempre "lidas" — forçar mostrar
+                  if (v === 'enviadas') setMostrarLidas(true);
+                }}
+                style={{
+                  all: 'unset', cursor: 'pointer',
+                  padding: '0.25rem 0.625rem', borderRadius: '999px',
+                  fontSize: '0.6875rem', fontWeight: 600, lineHeight: 1.2,
+                  transition: 'all 0.15s ease',
+                  background: isActive ? 'var(--aig-accent, #818cf8)' : 'transparent',
+                  color: isActive ? '#fff' : 'var(--aig-muted, #94a3b8)',
+                  border: isActive ? 'none' : '1px solid var(--aig-border, #334155)',
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* BUSCA / DATA COMBO */}
       <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0' }}>
         <div className="aig-combo-wrap" style={{ height: '36px' }}>
@@ -583,10 +625,12 @@ export function AvisoInternoGlobal({
           <div className="aig-empty-msg">
             {busca || dataFiltro.inicio || dataFiltro.fim
               ? 'Nenhuma mensagem para os filtros aplicados.'
-              : mostrarLidas
-                ? 'Nenhuma mensagem.'
-                : 'Nenhuma mensagem nova. '}
-            {!busca && !dataFiltro.inicio && !dataFiltro.fim && !mostrarLidas && avisos.some(a => a.lido) && (
+              : filtroVisao === 'enviadas'
+                ? 'Nenhuma mensagem enviada.'
+                : filtroVisao === 'recebidas'
+                  ? (mostrarLidas ? 'Nenhuma mensagem recebida.' : 'Nenhuma mensagem nova. ')
+                  : (mostrarLidas ? 'Nenhuma mensagem.' : 'Nenhuma mensagem nova. ')}
+            {filtroVisao !== 'enviadas' && !busca && !dataFiltro.inicio && !dataFiltro.fim && !mostrarLidas && avisos.some(a => a.lido && a.tipo !== 'enviado') && (
               <button
                 type="button"
                 className="aig-footer-btn"
@@ -613,8 +657,10 @@ export function AvisoInternoGlobal({
               } : undefined}
               style={aviso.href ? { cursor: 'pointer' } : undefined}
             >
-              <div className="aig-list-avatar">
-                {aviso.autor?.nome.charAt(0).toUpperCase() || 'S'}
+              <div className="aig-list-avatar" style={aviso.tipo === 'enviado' ? { background: 'var(--aig-accent, #818cf8)' } : undefined}>
+                {aviso.tipo === 'enviado'
+                  ? <PaperPlaneTilt size={14} weight="bold" />
+                  : (aviso.autor?.nome.charAt(0).toUpperCase() || 'S')}
               </div>
               <div className="aig-list-content">
                 <div className="aig-list-header">
@@ -650,6 +696,7 @@ export function AvisoInternoGlobal({
            setBusca('');
            setDataFiltro({ inicio: null, fim: null });
            setMostrarLidas(false);
+           setFiltroVisao('todas');
            if (onFechar) onFechar();
         }}>
           <X size={14} weight="bold" /> Limpar filtros

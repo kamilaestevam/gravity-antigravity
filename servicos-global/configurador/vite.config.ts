@@ -9,12 +9,21 @@ const monorepoRoot = path.resolve(__dirname, '../..')
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // Polyfill para pacotes Node.js (exceljs, jspdf) rodando no browser
+    'process.env': '{}',
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV ?? 'development'),
+  },
   resolve: {
     // Prioriza source (.ts/.tsx) sobre compilados (.js) para evitar version skew
     // com artefatos stale que sobreviveram a refactors antigos em nucleo-global.
     extensions: ['.mjs', '.ts', '.tsx', '.mts', '.jsx', '.js', '.json'],
     dedupe: ['react', 'react-dom', '@phosphor-icons/react', '@clerk/clerk-react', 'react-router-dom', 'zustand', 'i18next', 'react-i18next', '@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
     alias: {
+      // Aliases específicos de tenant devem vir ANTES do base '@tenant' de createServiceAliases
+      // (Vite usa o primeiro match — mais específico deve ter precedência)
+      // historico-global: nome de pasta difere do alias usado pelo produto
+      '@tenant/historico': path.resolve(monorepoRoot, 'servicos-global/tenant/historico-global/src/index.ts'),
       ...createNucleoAliases(monorepoRoot),
       ...createServiceAliases(monorepoRoot),
       ...createTenantAliases(monorepoRoot, ['gabi', 'dashboard', 'atividades']),

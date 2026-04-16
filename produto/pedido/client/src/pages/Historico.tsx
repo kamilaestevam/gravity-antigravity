@@ -13,11 +13,13 @@ export default function Historico() {
     || 'tenant-pedido-dev-001'
 
   return (
-    <HistoricoGlobal
-      productId="pedido"
-      apiBaseUrl="/historico-api"
-      tenantId={tenantId}
-      useMock={false}
-    />
+    <div className="ws-fade-up" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, padding: '0.5rem 2rem 1.5rem', gap: '1rem' }}>
+      <HistoricoGlobal
+        productId="pedido"
+        apiBaseUrl="/historico-api"
+        tenantId={tenantId}
+        useMock={false}
+      />
+    </div>
   )
 }

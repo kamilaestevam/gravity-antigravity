@@ -63,7 +63,7 @@ export function WorkspaceLayout() {
   // Sincroniza dados do Clerk → Shell store (currentUser com tenantId)
   useSyncClerkToShell()
   // Sincroniza preferências de UI com o backend (cross-device)
-  useUserPreferences({ userId: user?.id, tenantId: user?.organizationMemberships?.[0]?.organization?.id ?? 'importes-sa' })
+  useUserPreferences({ userId: user?.id, tenantId: user?.publicMetadata?.tenantId as string | undefined })
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
 

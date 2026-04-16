@@ -100,7 +100,7 @@ export function Core() {
 
   useUserPreferences({
     userId: user?.id,
-    tenantId: user?.organizationMemberships?.[0]?.organization?.id ?? 'default',
+    tenantId: user?.publicMetadata?.tenantId as string | undefined,
   })
 
   const isLight = currentTheme === 'light'

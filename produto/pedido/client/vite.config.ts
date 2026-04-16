@@ -61,7 +61,7 @@ export default defineConfig({
         target: 'http://localhost:8005',
         changeOrigin: true,
       },
-      '/api/v1/users': {
+      '/api/v1/usuarios': {
         target: 'http://localhost:8005',
         changeOrigin: true,
       },

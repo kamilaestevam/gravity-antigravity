@@ -509,6 +509,73 @@
   margin-left: auto;
 }
 
+/* ── COMPOSER UNIFICADO (fixo na base do dropdown) ── */
+.aig-composer {
+  padding: 0.5rem 0.75rem 0.625rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  background: var(--aig-bg);
+  border-radius: 0 0 8px 8px;
+}
+
+.aig-composer-para {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--aig-bg-input, #0f172a);
+  border: 1px solid var(--aig-border);
+  border-radius: 5px;
+  cursor: pointer;
+  min-height: 1.75rem;
+  transition: border-color 0.15s;
+}
+.aig-composer-para:hover,
+.aig-composer-para:focus-visible {
+  border-color: var(--aig-accent);
+  outline: none;
+}
+
+.aig-composer-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--aig-bg-input, #0f172a);
+  border: 1px solid var(--aig-border);
+  border-radius: 5px;
+  padding: 0.375rem 0.5rem;
+  color: var(--aig-text, #f1f5f9);
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.aig-composer-textarea:focus {
+  border-color: var(--aig-accent);
+}
+.aig-composer-textarea::placeholder {
+  color: var(--aig-muted, #94a3b8);
+}
+
+/* Picker de usuários — abre para CIMA */
+.aig-picker-up {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--aig-bg, #1e293b);
+  border: 1px solid var(--aig-border);
+  border-radius: 6px;
+  box-shadow: 0 -8px 20px -4px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  overflow: hidden;
+}
+.aig-picker-up > div:last-child::-webkit-scrollbar { width: 4px; }
+.aig-picker-up > div:last-child::-webkit-scrollbar-track { background: transparent; }
+.aig-picker-up > div:last-child::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 99px; }
+
 /* ── ENVIAR PARA ── */
 .aig-enviar-pill {
   display: inline-flex;
@@ -617,6 +684,23 @@ body.light-theme .aig-mention-dropdown {
 body.light-theme .aig-mention-item:hover,
 body.light-theme .aig-mention-item.active {
   background: #e0e7ff;
+}
+
+body.light-theme .aig-composer-para {
+  background: var(--aig-bg-input, #f1f5f9);
+}
+
+body.light-theme .aig-composer-textarea {
+  background: var(--aig-bg-input, #f1f5f9);
+}
+
+body.light-theme .aig-picker-up {
+  background: #ffffff;
+  box-shadow: 0 -8px 20px -4px rgba(15, 23, 42, 0.15);
+}
+
+body.light-theme .aig-picker-up > div:last-child::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
 }
 
 body.light-theme .aig-enviar-pill {

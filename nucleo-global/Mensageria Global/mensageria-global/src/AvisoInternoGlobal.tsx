@@ -2,13 +2,12 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import {
   X,
   MagnifyingGlass,
-  PaperPlaneRight,
   PaperPlaneTilt,
   CheckCircle,
   Checks,
   Bell,
-  Plus,
-  CalendarBlank,
+  CaretDown,
+  CaretUp,
   At,
   LinkSimple
 } from '@phosphor-icons/react';
@@ -25,11 +24,9 @@ export interface AvisoInterno {
   lido: boolean;
   tipo: 'aviso' | 'mencao' | 'sistema' | 'tarefa' | 'enviado';
   statusReal?: 'em_dia' | 'atrasado';
-  /** Link opcional — quando presente, o item do aviso vira clicável e navega para a rota indicada. */
   href?: string;
 }
 
-/** Usuário disponível para @mention e para o modal Enviar Para. */
 export interface UsuarioMencao {
   id: string;
   nome: string;
@@ -43,18 +40,11 @@ export interface AvisoInternoGlobalProps {
   onMarcarLido?: (id: string) => void;
   onMarcarTodosLidos?: () => void;
   onCriarAviso?: (texto: string) => void;
-  /** Callback opcional disparado quando um aviso com `href` é clicado. Permite
-   * navegação SPA (React Router) em vez de hard reload via window.location. */
   onNavegarHref?: (href: string) => void;
-  /** Callback para enviar notificação a outro(s) usuário(s) com deep link opcional. */
   onEnviarPara?: (destinatarios: string[], mensagem: string, link?: string) => void;
-  /** Lista de usuários do tenant — alimenta @mention no composer e o modal Enviar Para. */
   usuariosTenant?: UsuarioMencao[];
-  /** Rota atual do browser — preenchida automaticamente no campo de link do Enviar Para. */
   linkAtual?: string;
-  /** Estado de carregamento — exibe skeleton/loader em vez da lista. */
   carregando?: boolean;
-  /** Mensagem de erro — exibida no lugar da lista quando presente. */
   erro?: string | null;
   className?: string;
   onFechar?: () => void;
@@ -75,24 +65,26 @@ export function AvisoInternoGlobal({
   onFechar,
   className = ''
 }: AvisoInternoGlobalProps) {
-  const CHAR_LIMIT = 170;
-  const CHAR_LIMIT_ENVIAR = 500;
+  const CHAR_LIMIT = 500;
 
   const [busca, setBusca] = useState('');
   const [dataFiltro, setDataFiltro] = useState<{ inicio: Date | null, fim: Date | null }>({ inicio: null, fim: null });
   const [mostrarLidas, setMostrarLidas] = useState(false);
   const [filtroVisao, setFiltroVisao] = useState<'todas' | 'recebidas' | 'enviadas'>('todas');
-  const [novoAviso, setNovoAviso] = useState('');
-  const [isComposerOpen, setIsComposerOpen] = useState(false);
-  const [isEnviarParaOpen, setIsEnviarParaOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // ─── Composer unificado state ─────────────────────────────────────────────
+  const [composerText, setComposerText] = useState('');
+  const [composerLink, setComposerLink] = useState('');
+  const [destinatarios, setDestinatarios] = useState<string[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerBusca, setPickerBusca] = useState('');
+
   // ─── @mention state ────────────────────────────────────────────────────────
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [mentionIndex, setMentionIndex] = useState(0);
-  const [mentionDropdownPos, setMentionDropdownPos] = useState<{ top: number; left: number } | null>(null);
 
   const mentionResults = useMemo(() => {
     if (mentionQuery === null) return [];
@@ -105,17 +97,14 @@ export function AvisoInternoGlobal({
   const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     if (val.length > CHAR_LIMIT) return;
-    setNovoAviso(val);
+    setComposerText(val);
 
-    // Detect @ mention
     const cursor = e.target.selectionStart ?? val.length;
     const textBefore = val.slice(0, cursor);
     const atMatch = textBefore.match(/@([^\s@]*)$/);
     if (atMatch && usuariosTenant.length > 0) {
       setMentionQuery(atMatch[1]);
       setMentionIndex(0);
-      // Position dropdown near textarea
-      setMentionDropdownPos({ top: 0, left: 0 });
     } else {
       setMentionQuery(null);
     }
@@ -124,72 +113,63 @@ export function AvisoInternoGlobal({
   const insertMention = useCallback((user: UsuarioMencao) => {
     const ta = textareaRef.current;
     if (!ta) return;
-    const cursor = ta.selectionStart ?? novoAviso.length;
-    const textBefore = novoAviso.slice(0, cursor);
-    const textAfter = novoAviso.slice(cursor);
+    const cursor = ta.selectionStart ?? composerText.length;
+    const textBefore = composerText.slice(0, cursor);
+    const textAfter = composerText.slice(cursor);
     const atPos = textBefore.lastIndexOf('@');
     if (atPos === -1) return;
     const newText = textBefore.slice(0, atPos) + `@${user.nome} ` + textAfter;
-    if (newText.length <= CHAR_LIMIT) {
-      setNovoAviso(newText);
-    }
+    if (newText.length <= CHAR_LIMIT) setComposerText(newText);
     setMentionQuery(null);
     ta.focus();
-  }, [novoAviso]);
+  }, [composerText]);
 
   const handleMentionKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (mentionQuery !== null && mentionResults.length > 0) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setMentionIndex(i => (i + 1) % mentionResults.length);
-        return;
-      }
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setMentionIndex(i => (i - 1 + mentionResults.length) % mentionResults.length);
-        return;
-      }
-      if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault();
-        insertMention(mentionResults[mentionIndex]);
-        return;
-      }
-      if (e.key === 'Escape') {
-        setMentionQuery(null);
-        return;
-      }
+      if (e.key === 'ArrowDown') { e.preventDefault(); setMentionIndex(i => (i + 1) % mentionResults.length); return; }
+      if (e.key === 'ArrowUp') { e.preventDefault(); setMentionIndex(i => (i - 1 + mentionResults.length) % mentionResults.length); return; }
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); insertMention(mentionResults[mentionIndex]); return; }
+      if (e.key === 'Escape') { setMentionQuery(null); return; }
     }
   }, [mentionQuery, mentionResults, mentionIndex, insertMention]);
 
-  // ─── Enviar Para state ─────────────────────────────────────────────────────
-  const [enviarDestinatarios, setEnviarDestinatarios] = useState<string[]>([]);
-  const [enviarMensagem, setEnviarMensagem] = useState('');
-  const [enviarLink, setEnviarLink] = useState('');
-  const [enviarBuscaUsuario, setEnviarBuscaUsuario] = useState('');
-
-  const enviarUsuariosFiltrados = useMemo(() => {
-    if (!enviarBuscaUsuario.trim()) return usuariosTenant;
-    const q = enviarBuscaUsuario.toLowerCase();
+  // ─── User picker ──────────────────────────────────────────────────────────
+  const pickerUsuariosFiltrados = useMemo(() => {
+    if (!pickerBusca.trim()) return usuariosTenant;
+    const q = pickerBusca.toLowerCase();
     return usuariosTenant.filter(
       u => u.nome.toLowerCase().includes(q) || (u.email?.toLowerCase().includes(q) ?? false)
     );
-  }, [usuariosTenant, enviarBuscaUsuario]);
+  }, [usuariosTenant, pickerBusca]);
 
   const toggleDestinatario = (id: string) => {
-    setEnviarDestinatarios(prev =>
+    setDestinatarios(prev =>
       prev.includes(id) ? prev.filter(uid => uid !== id) : prev.length < 20 ? [...prev, id] : prev
     );
   };
 
-  const handleEnviar = () => {
-    if (enviarDestinatarios.length === 0 || !enviarMensagem.trim()) return;
-    onEnviarPara?.(enviarDestinatarios, enviarMensagem.trim(), enviarLink.trim() || undefined);
-    setEnviarDestinatarios([]);
-    setEnviarMensagem('');
-    setEnviarLink('');
-    setEnviarBuscaUsuario('');
-    setIsEnviarParaOpen(false);
+  // ─── Enviar / Salvar ─────────────────────────────────────────────────────
+  const handleComposerSend = () => {
+    if (!composerText.trim()) return;
+
+    if (destinatarios.length > 0 && onEnviarPara) {
+      // Enviar para outros
+      onEnviarPara(destinatarios, composerText.trim(), composerLink.trim() || undefined);
+      setDestinatarios([]);
+    } else if (onCriarAviso) {
+      // Nota pessoal
+      onCriarAviso(composerText.trim());
+    }
+    setComposerText('');
+    setComposerLink(linkAtual ?? '');
+    setPickerOpen(false);
+    setPickerBusca('');
   };
+
+  // Inicializa link quando dropdown abre
+  useEffect(() => {
+    if (isOpen && linkAtual) setComposerLink(linkAtual);
+  }, [isOpen, linkAtual]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -204,32 +184,12 @@ export function AvisoInternoGlobal({
   const unreadCount = avisos.filter(a => !a.lido).length;
   const badgeText = unreadCount > 9 ? '9+' : unreadCount > 0 ? unreadCount : null;
 
-  const handleBuscar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBusca(e.target.value);
-    onBuscar?.(e.target.value);
-  };
-
-  const handleCriar = () => {
-    if (!novoAviso.trim()) return;
-    onCriarAviso?.(novoAviso.trim());
-    setNovoAviso('');
-    setIsComposerOpen(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && e.shiftKey === false) {
-      e.preventDefault();
-      handleCriar();
-    }
-  };
-
-  // Contadores por visão (antes de filtros de busca/data)
+  // Contadores por visão
   const countEnviadas = useMemo(() => avisos.filter(a => a.tipo === 'enviado').length, [avisos]);
   const countRecebidas = useMemo(() => avisos.filter(a => a.tipo !== 'enviado').length, [avisos]);
 
   const avisosFiltrados = useMemo(() => {
     return avisos.filter(a => {
-      // Filtro por visão (Todas / Recebidas / Enviadas)
       if (filtroVisao === 'enviadas' && a.tipo !== 'enviado') return false;
       if (filtroVisao === 'recebidas' && a.tipo === 'enviado') return false;
 
@@ -238,11 +198,9 @@ export function AvisoInternoGlobal({
         const textToSearch = [a.conteudo, a.autor?.nome || 'Sistema'].join(' ').toLowerCase();
         if (!textToSearch.includes(termo)) return false;
       }
-      // Na visão "enviadas", mostrar todas (são lidas por padrão)
       if (filtroVisao !== 'enviadas' && a.lido && !mostrarLidas) return false;
 
       if (dataFiltro.inicio || dataFiltro.fim) {
-        // Formato BR esperado gerado pelo backend toLocaleString() => dd/mm/yyyy
         const rawDate = a.dataHora.split(',')[0].trim();
         const p = rawDate.split('/');
         let avisoDate: Date | null = null;
@@ -252,26 +210,17 @@ export function AvisoInternoGlobal({
           const dash = rawDate.split(' ')[0].split('-');
           avisoDate = new Date(parseInt(dash[0]), parseInt(dash[1]) - 1, parseInt(dash[2]));
         }
-
         if (avisoDate && !isNaN(avisoDate.getTime())) {
           avisoDate.setHours(0,0,0,0);
-
-          if (dataFiltro.inicio) {
-            const ini = new Date(dataFiltro.inicio);
-            ini.setHours(0,0,0,0);
-            if (avisoDate < ini) return false;
-          }
-          if (dataFiltro.fim) {
-            const fim = new Date(dataFiltro.fim);
-            fim.setHours(23,59,59,999);
-            if (avisoDate > fim) return false;
-          }
+          if (dataFiltro.inicio) { const ini = new Date(dataFiltro.inicio); ini.setHours(0,0,0,0); if (avisoDate < ini) return false; }
+          if (dataFiltro.fim) { const fim = new Date(dataFiltro.fim); fim.setHours(23,59,59,999); if (avisoDate > fim) return false; }
         }
       }
-
       return true;
     });
   }, [avisos, busca, dataFiltro, mostrarLidas, filtroVisao]);
+
+  const hasDestinatarios = destinatarios.length > 0;
 
   return (
     <div style={{ position: 'relative', display: 'flex' }} ref={dropdownRef}>
@@ -287,10 +236,10 @@ export function AvisoInternoGlobal({
         >
           <Bell weight="bold" size={18} aria-hidden="true" />
           {badgeText && (
-            <span className="ws-global-badge" style={{ 
+            <span className="ws-global-badge" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               position: 'absolute', top: '-2px', right: '-2px',
-              fontSize: '11px', fontWeight: 'bold', color: '#ffffff', background: '#3b82f6', 
+              fontSize: '11px', fontWeight: 'bold', color: '#ffffff', background: '#3b82f6',
               lineHeight: 1, padding: '2px', minWidth: '18px', height: '18px', borderRadius: '50%',
               boxShadow: '0 0 0 2px var(--ws-bg-body, #0f172a)'
             }}>
@@ -317,7 +266,7 @@ export function AvisoInternoGlobal({
         .aig-combo-wrap .sg-campo { padding: 0 0.75rem !important; }
       `}</style>
 
-      {/* HEADER */}
+      {/* HEADER — limpo: título + ler todas */}
       <div className="aig-top-header">
         <span className="aig-top-title">
            <Bell size={16} weight="duotone" /> NOTIFICAÇÕES
@@ -325,248 +274,27 @@ export function AvisoInternoGlobal({
         <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
           {avisos.length > 0 && (
             <TooltipGlobal titulo="Ler todas" descricao="">
-              <button
-                type="button"
-                className="aig-top-btn-secondary"
-                onClick={onMarcarTodosLidos}
-              >
-                 <Checks size={14} weight="bold" />
+              <button type="button" className="aig-top-btn-secondary" onClick={onMarcarTodosLidos}>
+                <Checks size={14} weight="bold" />
               </button>
             </TooltipGlobal>
           )}
-          {onEnviarPara && (
-            <TooltipGlobal titulo={isEnviarParaOpen ? "Cancelar envio" : "Enviar para alguém"} descricao="">
-              <button
-                type="button"
-                className={isEnviarParaOpen ? 'aig-top-btn-primary' : 'aig-top-btn-secondary'}
-                onClick={() => {
-                  const opening = !isEnviarParaOpen;
-                  setIsEnviarParaOpen(opening);
-                  if (opening) {
-                    setIsComposerOpen(false);
-                    setEnviarLink(linkAtual ?? '');
-                  }
-                }}
-                aria-label="Enviar para outro usuário"
-              >
-                {isEnviarParaOpen ? <X size={14} weight="bold" /> : <PaperPlaneTilt size={14} weight="bold" />}
-              </button>
-            </TooltipGlobal>
-          )}
-          <TooltipGlobal titulo={isComposerOpen ? "Cancelar" : "Nova notificação"} descricao="">
-            <button
-              type="button"
-              className="aig-top-btn-primary"
-              onClick={() => {
-                setIsComposerOpen(!isComposerOpen);
-                if (!isComposerOpen) setIsEnviarParaOpen(false);
-              }}
-            >
-              {isComposerOpen ? <X size={14} weight="bold" /> : <Plus size={14} weight="bold" />}
-            </button>
-          </TooltipGlobal>
         </div>
       </div>
-
-      {/* COMPOSER (Aberto pelo '+') — com @mention */}
-      {isComposerOpen && (
-        <div className="aig-section" style={{ background: 'var(--ws-bg-body, #0f172a)', position: 'relative' }}>
-          <div style={{ position: 'relative' }}>
-            <textarea
-              ref={textareaRef}
-              className="aig-textarea-tall"
-              placeholder={usuariosTenant.length > 0
-                ? 'Escreva sua mensagem... (use @ para mencionar)'
-                : 'Escreva sua mensagem ou aviso aqui...'}
-              value={novoAviso}
-              onChange={handleTextareaChange}
-              onKeyDown={(e) => {
-                handleMentionKeyDown(e);
-                if (mentionQuery === null && e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleCriar();
-                }
-              }}
-              rows={4}
-              autoFocus
-            />
-            {/* @mention dropdown */}
-            {mentionQuery !== null && mentionResults.length > 0 && (
-              <div className="aig-mention-dropdown" role="listbox" aria-label="Mencionar usuário">
-                {mentionResults.map((u, i) => (
-                  <button
-                    key={u.id}
-                    type="button"
-                    role="option"
-                    aria-selected={i === mentionIndex}
-                    className={`aig-mention-item ${i === mentionIndex ? 'active' : ''}`}
-                    onMouseDown={(e) => { e.preventDefault(); insertMention(u); }}
-                    onMouseEnter={() => setMentionIndex(i)}
-                  >
-                    <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
-                    <span className="aig-mention-name">{u.nome}</span>
-                    {u.email && <span className="aig-mention-email">{u.email}</span>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.375rem' }}>
-            <span style={{
-              fontSize: '0.6rem',
-              fontWeight: 500,
-              color: 'var(--ws-muted, #94a3b8)'
-            }}>
-              {novoAviso.length} / {CHAR_LIMIT}
-              {usuariosTenant.length > 0 && (
-                <span style={{ marginLeft: '0.5rem', color: 'var(--aig-accent, #818cf8)' }}>
-                  <At size={10} weight="bold" style={{ verticalAlign: 'middle' }} /> mencionar
-                </span>
-              )}
-            </span>
-            <button
-              type="button"
-              className="aig-btn-primary"
-              onClick={handleCriar}
-              disabled={!novoAviso.trim() || novoAviso.length > CHAR_LIMIT}
-            >
-              Salvar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ENVIAR PARA (Aberto pelo ➤) */}
-      {isEnviarParaOpen && (
-        <div className="aig-section" style={{ background: 'var(--ws-bg-body, #0f172a)' }}>
-          {/* Destinatários selecionados (pills) */}
-          {enviarDestinatarios.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', marginBottom: '0.5rem' }}>
-              {enviarDestinatarios.map(uid => {
-                const u = usuariosTenant.find(x => x.id === uid);
-                return u ? (
-                  <span key={uid} className="aig-enviar-pill">
-                    {u.nome}
-                    <button type="button" onClick={() => toggleDestinatario(uid)} aria-label={`Remover ${u.nome}`}
-                      style={{ all: 'unset', cursor: 'pointer', display: 'inline-flex', marginLeft: '0.25rem' }}>
-                      <X size={10} weight="bold" />
-                    </button>
-                  </span>
-                ) : null;
-              })}
-            </div>
-          )}
-
-          {/* Busca de usuários */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.375rem',
-            background: 'var(--aig-bg-input, #0f172a)', border: '1px solid var(--aig-border)',
-            borderRadius: '6px', padding: '0.375rem 0.5rem', marginBottom: '0.5rem'
-          }}>
-            <MagnifyingGlass size={13} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
-            <input
-              type="text"
-              value={enviarBuscaUsuario}
-              onChange={e => setEnviarBuscaUsuario(e.target.value)}
-              placeholder="Buscar usuário..."
-              aria-label="Buscar usuário para enviar"
-              style={{
-                all: 'unset', flex: 1, fontSize: '0.75rem',
-                color: 'var(--aig-text, #f1f5f9)'
-              }}
-            />
-          </div>
-
-          {/* Lista de usuários (max 120px scroll) */}
-          <div style={{ maxHeight: '120px', overflowY: 'auto', marginBottom: '0.5rem' }} role="listbox" aria-label="Selecionar destinatários">
-            {enviarUsuariosFiltrados.length === 0 ? (
-              <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.75rem', color: 'var(--aig-muted)' }}>
-                Nenhum usuário encontrado.
-              </div>
-            ) : enviarUsuariosFiltrados.map(u => {
-              const sel = enviarDestinatarios.includes(u.id);
-              return (
-                <button
-                  key={u.id}
-                  type="button"
-                  role="option"
-                  aria-selected={sel}
-                  onClick={() => toggleDestinatario(u.id)}
-                  className={`aig-enviar-user-item ${sel ? 'selected' : ''}`}
-                >
-                  <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
-                  <span style={{ flex: 1, fontSize: '0.75rem', fontWeight: 500 }}>{u.nome}</span>
-                  {u.email && <span style={{ fontSize: '0.625rem', color: 'var(--aig-muted)' }}>{u.email}</span>}
-                  {sel && <CheckCircle size={14} weight="fill" style={{ color: 'var(--aig-accent)', flexShrink: 0 }} />}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Mensagem */}
-          <textarea
-            className="aig-textarea-tall"
-            placeholder="Mensagem para o destinatário..."
-            value={enviarMensagem}
-            onChange={e => { if (e.target.value.length <= CHAR_LIMIT_ENVIAR) setEnviarMensagem(e.target.value); }}
-            onKeyDown={e => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); handleEnviar(); } }}
-            rows={2}
-          />
-
-          {/* Link opcional */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.375rem',
-            background: 'var(--aig-bg-input, #0f172a)', border: '1px solid var(--aig-border)',
-            borderRadius: '6px', padding: '0.375rem 0.5rem', marginTop: '0.375rem'
-          }}>
-            <LinkSimple size={13} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
-            <input
-              type="text"
-              value={enviarLink}
-              onChange={e => setEnviarLink(e.target.value)}
-              placeholder="Link — preenchido com a página atual"
-              aria-label="Link para o destinatário"
-              style={{
-                all: 'unset', flex: 1, fontSize: '0.6875rem',
-                color: 'var(--aig-text, #f1f5f9)'
-              }}
-            />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.375rem' }}>
-            <span style={{ fontSize: '0.6rem', fontWeight: 500, color: 'var(--ws-muted, #94a3b8)' }}>
-              {enviarMensagem.length} / {CHAR_LIMIT_ENVIAR}
-              <span style={{ marginLeft: '0.5rem', opacity: 0.7 }}>Ctrl+Enter envia</span>
-            </span>
-            <button
-              type="button"
-              className="aig-btn-primary"
-              onClick={handleEnviar}
-              disabled={enviarDestinatarios.length === 0 || !enviarMensagem.trim()}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-            >
-              <PaperPlaneTilt size={12} weight="bold" />
-              {enviarDestinatarios.length > 1 ? `Enviar (${enviarDestinatarios.length})` : 'Enviar'}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* FILTRO VISÃO: Todas / Recebidas / Enviadas */}
       <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0', paddingTop: '0.5rem' }}>
         <div style={{ display: 'flex', gap: '0.25rem' }}>
           {(['todas', 'recebidas', 'enviadas'] as const).map((v) => {
             const isActive = filtroVisao === v;
-            const label = v === 'todas' ? 'Todas' : v === 'recebidas' ? `Recebidas${countRecebidas > 0 ? ` (${countRecebidas})` : ''}` : `Enviadas${countEnviadas > 0 ? ` (${countEnviadas})` : ''}`;
+            const label = v === 'todas' ? 'Todas'
+              : v === 'recebidas' ? `Recebidas${countRecebidas > 0 ? ` (${countRecebidas})` : ''}`
+              : `Enviadas${countEnviadas > 0 ? ` (${countEnviadas})` : ''}`;
             return (
               <button
                 key={v}
                 type="button"
-                onClick={() => {
-                  setFiltroVisao(v);
-                  // Enviadas são sempre "lidas" — forçar mostrar
-                  if (v === 'enviadas') setMostrarLidas(true);
-                }}
+                onClick={() => { setFiltroVisao(v); if (v === 'enviadas') setMostrarLidas(true); }}
                 style={{
                   all: 'unset', cursor: 'pointer',
                   padding: '0.25rem 0.625rem', borderRadius: '999px',
@@ -587,7 +315,7 @@ export function AvisoInternoGlobal({
       {/* BUSCA / DATA COMBO */}
       <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0' }}>
         <div className="aig-combo-wrap" style={{ height: '36px' }}>
-          <LocalizarExpandidoCampoGlobal 
+          <LocalizarExpandidoCampoGlobal
             value={busca}
             onChange={setBusca}
             disableGlobalDOMFilter
@@ -631,12 +359,7 @@ export function AvisoInternoGlobal({
                   ? (mostrarLidas ? 'Nenhuma mensagem recebida.' : 'Nenhuma mensagem nova. ')
                   : (mostrarLidas ? 'Nenhuma mensagem.' : 'Nenhuma mensagem nova. ')}
             {filtroVisao !== 'enviadas' && !busca && !dataFiltro.inicio && !dataFiltro.fim && !mostrarLidas && avisos.some(a => a.lido && a.tipo !== 'enviado') && (
-              <button
-                type="button"
-                className="aig-footer-btn"
-                onClick={() => setMostrarLidas(true)}
-                style={{ marginLeft: 4 }}
-              >
+              <button type="button" className="aig-footer-btn" onClick={() => setMostrarLidas(true)} style={{ marginLeft: 4 }}>
                 Mostrar lidas
               </button>
             )}
@@ -649,11 +372,7 @@ export function AvisoInternoGlobal({
               onClick={aviso.href ? () => {
                 onMarcarLido?.(aviso.id);
                 setIsOpen(false);
-                if (onNavegarHref) {
-                  onNavegarHref(aviso.href!);
-                } else {
-                  window.location.href = aviso.href!;
-                }
+                if (onNavegarHref) { onNavegarHref(aviso.href!); } else { window.location.href = aviso.href!; }
               } : undefined}
               style={aviso.href ? { cursor: 'pointer' } : undefined}
             >
@@ -671,18 +390,14 @@ export function AvisoInternoGlobal({
               </div>
               {!aviso.lido && (
                 <TooltipGlobal titulo="Marcar como lida" descricao="">
-                  <button
-                    type="button"
-                    className="aig-list-check"
-                    onClick={(e) => { e.stopPropagation(); onMarcarLido?.(aviso.id); }}
-                  >
-                     <CheckCircle size={18} weight="duotone" />
+                  <button type="button" className="aig-list-check" onClick={(e) => { e.stopPropagation(); onMarcarLido?.(aviso.id); }}>
+                    <CheckCircle size={18} weight="duotone" />
                   </button>
                 </TooltipGlobal>
               )}
               {aviso.lido && (
                 <div className="aig-list-check" style={{ cursor: 'default' }}>
-                   <Checks size={18} weight="bold" />
+                  <Checks size={18} weight="bold" />
                 </div>
               )}
             </div>
@@ -690,27 +405,196 @@ export function AvisoInternoGlobal({
         )}
       </div>
 
-      {/* FOOTER */}
+      {/* FOOTER — filtros */}
       <div className="aig-footer">
         <button type="button" className="aig-footer-btn" onClick={() => {
-           setBusca('');
-           setDataFiltro({ inicio: null, fim: null });
-           setMostrarLidas(false);
-           setFiltroVisao('todas');
+           setBusca(''); setDataFiltro({ inicio: null, fim: null }); setMostrarLidas(false); setFiltroVisao('todas');
            if (onFechar) onFechar();
         }}>
           <X size={14} weight="bold" /> Limpar filtros
         </button>
         {avisos.some(a => a.lido) && (
-          <button
-            type="button"
-            className="aig-footer-btn"
-            onClick={() => setMostrarLidas(v => !v)}
-          >
+          <button type="button" className="aig-footer-btn" onClick={() => setMostrarLidas(v => !v)}>
             {mostrarLidas ? 'Esconder lidas' : 'Mostrar lidas'}
           </button>
         )}
       </div>
+
+      {/* ══════ COMPOSER UNIFICADO (fixo na base) ══════ */}
+      <div className="aig-composer" style={{ borderTop: '1px solid var(--aig-border, #334155)' }}>
+
+        {/* Linha "Para:" — clicável, expande picker pra cima */}
+        {usuariosTenant.length > 0 && (
+          <div style={{ position: 'relative' }}>
+            <div
+              className="aig-composer-para"
+              onClick={() => setPickerOpen(!pickerOpen)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setPickerOpen(!pickerOpen); }}
+              aria-expanded={pickerOpen}
+              aria-label="Selecionar destinatários"
+            >
+              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--aig-muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
+                Para:
+              </span>
+              <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '0.2rem', minHeight: '1.25rem', alignItems: 'center' }}>
+                {destinatarios.length === 0 ? (
+                  <span style={{ fontSize: '0.6875rem', color: 'var(--aig-muted, #64748b)', fontStyle: 'italic' }}>
+                    Ninguém (nota pessoal)
+                  </span>
+                ) : (
+                  destinatarios.map(uid => {
+                    const u = usuariosTenant.find(x => x.id === uid);
+                    return u ? (
+                      <span key={uid} className="aig-enviar-pill">
+                        {u.nome}
+                        <button type="button" onClick={(e) => { e.stopPropagation(); toggleDestinatario(uid); }} aria-label={`Remover ${u.nome}`}
+                          style={{ all: 'unset', cursor: 'pointer', display: 'inline-flex', marginLeft: '0.2rem' }}>
+                          <X size={9} weight="bold" />
+                        </button>
+                      </span>
+                    ) : null;
+                  })
+                )}
+              </div>
+              {pickerOpen ? <CaretUp size={12} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
+                          : <CaretDown size={12} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />}
+            </div>
+
+            {/* Picker dropdown (abre pra CIMA) */}
+            {pickerOpen && (
+              <div className="aig-picker-up">
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '0.375rem',
+                  padding: '0.375rem 0.5rem', borderBottom: '1px solid var(--aig-border, #334155)'
+                }}>
+                  <MagnifyingGlass size={12} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
+                  <input
+                    type="text"
+                    value={pickerBusca}
+                    onChange={e => setPickerBusca(e.target.value)}
+                    placeholder="Buscar usuário..."
+                    autoFocus
+                    style={{ all: 'unset', flex: 1, fontSize: '0.6875rem', color: 'var(--aig-text, #f1f5f9)' }}
+                  />
+                </div>
+                <div style={{ maxHeight: '140px', overflowY: 'auto' }} role="listbox">
+                  {pickerUsuariosFiltrados.length === 0 ? (
+                    <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.6875rem', color: 'var(--aig-muted)' }}>
+                      Nenhum usuário.
+                    </div>
+                  ) : pickerUsuariosFiltrados.map(u => {
+                    const sel = destinatarios.includes(u.id);
+                    return (
+                      <button
+                        key={u.id}
+                        type="button"
+                        role="option"
+                        aria-selected={sel}
+                        onClick={() => toggleDestinatario(u.id)}
+                        className={`aig-enviar-user-item ${sel ? 'selected' : ''}`}
+                      >
+                        <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
+                        <span style={{ flex: 1, fontSize: '0.6875rem', fontWeight: 500 }}>{u.nome}</span>
+                        {u.email && <span style={{ fontSize: '0.6rem', color: 'var(--aig-muted)' }}>{u.email}</span>}
+                        {sel && <CheckCircle size={13} weight="fill" style={{ color: 'var(--aig-accent)', flexShrink: 0 }} />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Textarea com @mention */}
+        <div style={{ position: 'relative' }}>
+          <textarea
+            ref={textareaRef}
+            className="aig-composer-textarea"
+            placeholder={usuariosTenant.length > 0 ? 'Mensagem... (@ para mencionar)' : 'Escreva sua mensagem...'}
+            value={composerText}
+            onChange={handleTextareaChange}
+            onKeyDown={(e) => {
+              handleMentionKeyDown(e);
+              if (mentionQuery === null && e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                handleComposerSend();
+              }
+            }}
+            rows={2}
+          />
+          {/* @mention dropdown (acima do textarea) */}
+          {mentionQuery !== null && mentionResults.length > 0 && (
+            <div className="aig-mention-dropdown" style={{ bottom: '100%', top: 'auto' }} role="listbox" aria-label="Mencionar usuário">
+              {mentionResults.map((u, i) => (
+                <button
+                  key={u.id}
+                  type="button"
+                  role="option"
+                  aria-selected={i === mentionIndex}
+                  className={`aig-mention-item ${i === mentionIndex ? 'active' : ''}`}
+                  onMouseDown={(e) => { e.preventDefault(); insertMention(u); }}
+                  onMouseEnter={() => setMentionIndex(i)}
+                >
+                  <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
+                  <span className="aig-mention-name">{u.nome}</span>
+                  {u.email && <span className="aig-mention-email">{u.email}</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Link + botão enviar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+          <div style={{
+            flex: 1, display: 'flex', alignItems: 'center', gap: '0.25rem',
+            background: 'var(--aig-bg-input, #0f172a)', border: '1px solid var(--aig-border)',
+            borderRadius: '5px', padding: '0.25rem 0.4rem',
+          }}>
+            <LinkSimple size={11} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
+            <input
+              type="text"
+              value={composerLink}
+              onChange={e => setComposerLink(e.target.value)}
+              placeholder="Link da página atual"
+              aria-label="Link para o destinatário"
+              style={{ all: 'unset', flex: 1, fontSize: '0.625rem', color: 'var(--aig-text, #f1f5f9)' }}
+            />
+          </div>
+          <button
+            type="button"
+            className="aig-btn-primary"
+            onClick={handleComposerSend}
+            disabled={!composerText.trim()}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.625rem', flexShrink: 0 }}
+            title="Ctrl+Enter"
+          >
+            <PaperPlaneTilt size={12} weight="bold" />
+            {hasDestinatarios
+              ? (destinatarios.length > 1 ? `Enviar (${destinatarios.length})` : 'Enviar')
+              : 'Salvar'}
+          </button>
+        </div>
+
+        {/* Dica */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.125rem' }}>
+          <span style={{ fontSize: '0.5625rem', color: 'var(--aig-muted, #64748b)' }}>
+            {composerText.length}/{CHAR_LIMIT}
+            {usuariosTenant.length > 0 && (
+              <span style={{ marginLeft: '0.375rem' }}>
+                <At size={9} weight="bold" style={{ verticalAlign: 'middle' }} /> mencionar
+              </span>
+            )}
+          </span>
+          <span style={{ fontSize: '0.5625rem', color: 'var(--aig-muted, #64748b)' }}>
+            Ctrl+Enter {hasDestinatarios ? 'envia' : 'salva'}
+          </span>
+        </div>
+      </div>
+
         </div>
       )}
     </div>

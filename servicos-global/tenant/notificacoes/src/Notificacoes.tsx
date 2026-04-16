@@ -110,7 +110,7 @@ export function Notificacoes() {
     let cancelled = false
     async function fetchUsers() {
       try {
-        const res = await authedFetch('/api/v1/users')
+        const res = await authedFetch('/api/v1/usuarios')
         if (!res.ok) return
         const payload = await res.json() as {
           users?: Array<{ id: string; name: string; email?: string }>

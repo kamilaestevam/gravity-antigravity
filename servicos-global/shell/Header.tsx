@@ -171,7 +171,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
 
   const initials = currentUser.name
     ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : '??'
+    : (currentUser.email?.[0]?.toUpperCase() ?? 'U')
 
   return (
     <header className="shell-header" role="banner">
@@ -276,7 +276,8 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           userName={currentUser.name || t('shell.usuario_padrao')}
           userEmail={currentUser.email || t('shell.email_padrao')}
           userInitials={initials}
-          userRole={currentUser.role ?? t('shell.papel_membro')}
+          userRole={currentUser.role || 'Standard'}
+          avatarUrl={currentUser.avatarUrl}
           isLight={currentTheme === 'light'}
           onToggleTheme={toggleTheme}
           onNavigateWorkspace={() => console.log('Navegar para Organização')}

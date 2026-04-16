@@ -9,6 +9,7 @@ export interface UsuarioGlobalProps {
   userEmail: string
   userInitials: string
   userRole: string
+  avatarUrl?: string
   isLight: boolean
   onToggleTheme: () => void
   onNavigateWorkspace: () => void
@@ -27,6 +28,7 @@ export function UsuarioGlobal({
   userEmail,
   userInitials,
   userRole,
+  avatarUrl,
   isLight,
   onToggleTheme,
   onNavigateWorkspace,
@@ -78,7 +80,11 @@ export function UsuarioGlobal({
           onClick={() => setIsProfileOpen(v => !v)}
           aria-expanded={isProfileOpen}
         >
-          <div className="ws-global-user__avatar">{userInitials}</div>
+          <div className="ws-global-user__avatar">
+            {avatarUrl
+              ? <img src={avatarUrl} alt={userName} className="ws-global-user__avatar-img" />
+              : userInitials}
+          </div>
           {!compact && (
             <>
               <div className="ws-global-user__info">
@@ -94,7 +100,11 @@ export function UsuarioGlobal({
       {isProfileOpen && (
         <div className={`ws-profile-dropdown ${isSuperAdmin ? 'ws-profile-dropdown--super-admin' : ''}`}>
           <div className="ws-profile-header">
-            <div className="ws-profile-avatar-lg">{userInitials}</div>
+            <div className="ws-profile-avatar-lg">
+              {avatarUrl
+                ? <img src={avatarUrl} alt={userName} className="ws-profile-avatar-lg-img" />
+                : userInitials}
+            </div>
             <div className="ws-profile-details">
               <span className="ws-profile-name" title={userName}>{userName}</span>
               <span className="ws-profile-email" title={userEmail}>{userEmail}</span>

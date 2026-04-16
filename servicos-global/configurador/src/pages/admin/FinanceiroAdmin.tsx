@@ -89,7 +89,7 @@ function statusColor(s: GravityInvoiceStatus): { cor: string; bg: string } {
 
 // ─── Componente ─────────────────────────────────────────────────────────────
 
-export function AdminFinanceiro() {
+export function FinanceiroAdmin() {
   const { t } = useTranslation()
   const { getToken } = useAuth()
   const addNotification = useShellStore(s => s.addNotification)

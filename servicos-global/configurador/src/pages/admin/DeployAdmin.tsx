@@ -127,7 +127,7 @@ function statusVisual(status: DeployStatus): { icone: React.ReactNode; bg: strin
 
 // ─── Componente ─────────────────────────────────────────────────────────────
 
-export function DeployRailwayAdmin() {
+export function DeployAdmin() {
   const { t } = useTranslation()
   const { getToken } = useAuth()
   const addNotification = useShellStore(s => s.addNotification)

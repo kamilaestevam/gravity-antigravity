@@ -96,7 +96,7 @@ function mascaraMoeda(valor: string): string {
   return `${inteiroFormatado},${dec}`
 }
 
-export function ProdutosAdmin() {
+export function ProdutosGravityAdmin() {
   const { t } = useTranslation()
   const { getToken } = useAuth()
   const addNotification = useShellStore((s) => s.addNotification)

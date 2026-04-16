@@ -50,7 +50,7 @@ const Financeiro = lazy(() => import('./pages/workspace/Financeiro'), 'Financeir
 const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
 const ConectorCargoWise = lazy(() => import('./pages/workspace/ConectorCargoWise'), 'ConectorCargoWise')
 const TaxaCambioPage = lazy(() => import('./pages/workspace/TaxaCambio'), 'TaxaCambio')
-const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrganizacao').then(m => ({ default: m.HistoricoOrganizacao })))
+const HistoricoOrganizacao = lazy(() => import('./pages/workspace/HistoricoOrganizacao'), 'HistoricoOrganizacao')
 
 // Core — tela pós-seleção de workspace (menu lateral + conteúdo)
 const Core = lazy(() => import('./pages/Core'), 'Core')
@@ -66,20 +66,45 @@ const BidFreteApp = React.lazy(() => import('../../../produto/bid-frete/client/s
 const BidCambioApp = React.lazy(() => import('../../../produto/bid-cambio/client/src/App'))
 const PedidoApp = React.lazy(() => import('../../../produto/pedido/client/src/App'))
 
-/** Guard contra routing loop do catch-all do Pedido (Navigate to="pedidos" relativo).
- *  Quando embarcado no shell, o splat resolve relativo ao match, duplicando segmentos.
- *  Interceptamos aqui no configurador para não alterar o código do produto. */
+/**
+ * Guard contra routing loop do catch-all do Pedido.
+ *
+ * Problema: NavLinks resolvem `to="pedidos/kanban"` relativo à URL atual em vez do
+ * base `/produto/pedido`, produzindo paths acumulados como:
+ *   - /produto/pedido/pedidos/pedidos/kanban  (de Lista → Kanban)
+ *   - /produto/pedido/pedidos/dashboard/pedidos/kanban  (de Dashboard → Kanban)
+ *
+ * Solução: validar o inner path contra o conjunto de rotas conhecidas.
+ * Se inválido, extrair o sufixo válido mais curto (= destino pretendido pelo usuário).
+ * Sem tocar no código do produto Pedido.
+ */
+const PEDIDO_VALID_PATHS = new Set([
+  '', 'pedidos', 'pedidos/dashboard', 'pedidos/kanban',
+  'pedidos/novo', 'historico', 'configuracoes',
+])
+
 function PedidoRouteGuard() {
   const location = useLocation()
-  const base = '/produto/pedido'
+  const BASE = '/produto/pedido'
 
-  if (location.pathname.includes('/pedidos/pedidos')) {
-    // Extrai o destino real: /produto/pedido/pedidos/pedidos/dashboard → pedidos/dashboard
-    const rel = location.pathname.slice(base.length).replace(/^\/+/, '')
-    // Remove duplicações consecutivas de "pedidos/"
-    const limpo = rel.replace(/^(pedidos\/)+/, 'pedidos/')
-      .replace(/^pedidos\/pedidos$/, 'pedidos')
-    return <Navigate to={`${base}/${limpo}`} replace />
+  const inner = location.pathname.startsWith(BASE + '/')
+    ? location.pathname.slice(BASE.length + 1)
+    : ''
+
+  const isValid =
+    PEDIDO_VALID_PATHS.has(inner) ||
+    /^pedidos\/[^/]+\/editar$/.test(inner)
+
+  if (!isValid) {
+    // Extrai o sufixo válido mais curto = destino pretendido
+    // Ex: "pedidos/dashboard/pedidos/kanban" → sufixo "pedidos/kanban" ✓
+    const segs = inner.split('/').filter(Boolean)
+    let target = 'pedidos'
+    for (let len = 1; len <= Math.min(segs.length, 3); len++) {
+      const candidate = segs.slice(-len).join('/')
+      if (PEDIDO_VALID_PATHS.has(candidate)) { target = candidate; break }
+    }
+    return <Navigate to={`${BASE}/${target}`} replace />
   }
 
   return <React.Suspense fallback={<ProductLoading />}><PedidoApp /></React.Suspense>

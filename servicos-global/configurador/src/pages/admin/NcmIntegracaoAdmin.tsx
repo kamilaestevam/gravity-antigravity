@@ -71,7 +71,7 @@ function OrigemBadge({ origem }: { origem: NcmSyncLogApi['origem'] }) {
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
-export function NcmSyncAdmin() {
+export function NcmIntegracaoAdmin() {
   const addNotification = useShellStore((s) => s.addNotification)
 
   const [status, setStatus]     = useState<NcmSyncStatusApi | null>(null)

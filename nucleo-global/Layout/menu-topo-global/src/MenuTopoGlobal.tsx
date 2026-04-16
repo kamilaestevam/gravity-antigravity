@@ -50,6 +50,9 @@ export interface MenuTopoGlobalProps {
   onNavigateHub?: () => void
   /** Navegar para o Core — omitir ou passar false oculta o botão (ex: na tela Core) */
   onNavigateCore?: () => void
+  /** Slot para ações extras no header (ex: sininho de notificações). Renderizado entre
+   *  o toggle de dicas e o seletor de idioma — mesma posição que no shell Header. */
+  headerActions?: React.ReactNode
 }
 
 // ── Componente ───────────────────────────────────────────────────────────────
@@ -66,6 +69,7 @@ export function MenuTopoGlobal({
   usuario,
   onNavigateHub,
   onNavigateCore,
+  headerActions,
 }: MenuTopoGlobalProps) {
   const { t } = useTranslation()
 
@@ -169,6 +173,9 @@ export function MenuTopoGlobal({
             <Info size={17} weight={tooltipsDisabled ? 'regular' : 'fill'} />
           </button>
         </TooltipGlobal>
+
+        {/* Ações extras (ex: sininho de notificações) */}
+        {headerActions}
 
         {/* Seletor de idioma */}
         <LanguageSwitcherGlobal iconOnly />

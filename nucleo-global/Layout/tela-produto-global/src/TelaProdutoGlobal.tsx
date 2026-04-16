@@ -28,6 +28,8 @@ export interface TelaProdutoGlobalProps {
   usuario:     MenuTopoUsuarioConfig
   onNavigateHub?:  () => void
   onNavigateCore?: () => void
+  /** Slot para ações extras no header (ex: sininho de notificações) */
+  headerActions?: React.ReactNode
   children:    React.ReactNode
 }
 
@@ -47,6 +49,7 @@ export function TelaProdutoGlobal({
   usuario,
   onNavigateHub,
   onNavigateCore,
+  headerActions,
   children,
 }: TelaProdutoGlobalProps) {
   const meta        = getProdutoMeta(productId)
@@ -96,6 +99,7 @@ export function TelaProdutoGlobal({
             usuario={usuario}
             onNavigateHub={onNavigateHub}
             onNavigateCore={onNavigateCore}
+            headerActions={headerActions}
           />
         </div>
 

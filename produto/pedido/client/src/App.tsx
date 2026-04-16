@@ -6,6 +6,7 @@ import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-g
 import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
+import { Notificacoes } from '@tenant/notificacoes/src/Notificacoes'
 import { setApiContext } from './shared/api'
 import type { NavItem } from '@nucleo/tela-produto-global'
 
@@ -158,6 +159,7 @@ export function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
+      headerActions={<Notificacoes />}
       localizador={{
         workspaceName:    currentUser.tenantName ?? 'Minha Empresa',
         currentPageLabel: pageLabel,

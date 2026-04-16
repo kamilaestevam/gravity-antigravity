@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect } from 'react'
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer } from '@gravity/shell'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
@@ -85,6 +85,7 @@ function LoadingFallback() {
 
 export function App() {
   const location = useLocation()
+  const navigate = useNavigate()
   const currentUser      = useShellStore(s => s.currentUser)
   const tooltipsDisabled = useShellStore(s => s.tooltipsDisabled)
   const toggleTooltips   = useShellStore(s => s.toggleTooltips)
@@ -159,6 +160,7 @@ export function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
+      onNavigateSettings={() => { navigate('/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
         workspaceName:    currentUser.tenantName ?? 'Minha Empresa',

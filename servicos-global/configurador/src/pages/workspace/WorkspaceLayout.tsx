@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
+import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
@@ -16,6 +17,7 @@ import {
   Receipt,
   PlugsConnected,
   CurrencyCircleDollar,
+  ClockCounterClockwise,
   Sun,
   Moon,
   MagnifyingGlass,
@@ -49,8 +51,9 @@ export function WorkspaceLayout() {
     { to: '/workspace/usuarios',     label: t('workspace.layout.usuarios'),        icon: <Users       weight="duotone" size={18} /> },
     { to: '/workspace/assinaturas',  label: t('workspace.layout.assinaturas'),     icon: <CreditCard  weight="duotone" size={18} /> },
     { to: '/workspace/financeiro',   label: t('workspace.layout.financeiro'),      icon: <Receipt     weight="duotone" size={18} /> },
-    { to: '/workspace/api-cockpit',  label: t('workspace.layout.api_cockpit'),     icon: <PlugsConnected weight="duotone" size={18} /> },
-    { to: '/workspace/taxa-cambio',  label: 'Taxa de Câmbio',                       icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
+    { to: '/workspace/api-cockpit',  label: t('workspace.layout.api-cockpit'),     icon: <PlugsConnected weight="duotone" size={18} /> },
+    { to: '/workspace/taxa-cambio',  label: t('workspace.layout.taxa-cambio'),       icon: <CurrencyCircleDollar weight="duotone" size={18} /> },
+    { to: '/workspace/historico-organizacao', label: t('workspace.layout.historico-organizacao'), icon: <ClockCounterClockwise weight="duotone" size={18} /> },
   ]
 
   const navigate = useNavigate()
@@ -83,13 +86,24 @@ export function WorkspaceLayout() {
   const { signOut } = useClerk()
   const { getToken } = useAuth()
 
+  // ── Localizador ────────────────────────────────────────────────────────────
+  const { history: locHistory, addEntry: locAddEntry } = useLocalizadorHistory('configurador')
+  const [wsEcosystemNodes] = useState<EcosystemNode[]>(
+    buildEcosystemNodes({ currentProductId: 'configurador' })
+  )
+
+  useEffect(() => {
+    locAddEntry({ productId: 'configurador', productLabel: 'Configurador', productColor: '#f59e0b', pageLabel: 'Configurador', pagePath: '/workspace' })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const [tipoEmpresa, setTipoEmpresa] = useState('')
 
   useEffect(() => {
     async function fetchTipoEmpresa() {
       try {
         const token = await getToken()
-        const res = await fetch('/api/v1/tenants/me', {
+        const res = await fetch('/api/v1/organizacao/me', {
           headers: { Authorization: `Bearer ${token}` },
         })
         if (res.ok) {
@@ -146,17 +160,17 @@ export function WorkspaceLayout() {
                 gap: '0.375rem',
                 padding: '0.375rem 0.875rem',
                 borderRadius: '9999px',
-                border: '1px solid rgba(245,158,11,0.25)',
-                background: 'rgba(245,158,11,0.08)',
-                color: '#f59e0b',
+                border: '1px solid rgba(129,140,248,0.25)',
+                background: 'rgba(129,140,248,0.08)',
+                color: '#818cf8',
                 fontSize: '0.8125rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s',
                 whiteSpace: 'nowrap',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.15)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.4)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.08)'; e.currentTarget.style.borderColor = 'rgba(245,158,11,0.25)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.15)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)' }}
             >
               <ArrowLeft size={16} weight="bold" />
               Hub
@@ -206,9 +220,30 @@ export function WorkspaceLayout() {
             </button>
           </TooltipGlobal>
 
+          <Notificacoes />
+
+          <LocalizadorGlobal
+            workspaceName={tenantName}
+            currentProductId="configurador"
+            currentProductLabel="Configurador"
+            currentProductColor="#f59e0b"
+            currentPageLabel="Configurador"
+            history={locHistory}
+            nodes={wsEcosystemNodes}
+            onNavigate={(node) => {
+              if (node.type === 'hub')               navigate('/hub')
+              else if (node.type === 'configurador') navigate('/workspace/workspaces')
+              else if (node.type === 'core')         navigate('/core')
+              else if (node.type === 'admin')        navigate('/admin/visao-geral')
+              else if (node.type === 'produto')      navigate(`/produto/${node.id}`)
+            }}
+            iconOnly
+          />
+
           <LanguageSwitcherGlobal />
 
-          <Notificacoes />
+          {/* Divisor visual */}
+          <div style={{ width: '1px', height: '24px', background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />
 
           <UsuarioGlobal
             userName={userName}

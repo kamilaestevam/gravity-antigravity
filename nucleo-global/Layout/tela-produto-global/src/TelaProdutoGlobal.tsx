@@ -30,6 +30,8 @@ export interface TelaProdutoGlobalProps {
   onNavigateCore?: () => void
   /** Slot para ações extras no header (ex: sininho de notificações) */
   headerActions?: React.ReactNode
+  /** Navegar para Configurações do produto — omitir oculta o botão */
+  onNavigateSettings?: () => void
   children:    React.ReactNode
 }
 
@@ -50,6 +52,7 @@ export function TelaProdutoGlobal({
   onNavigateHub,
   onNavigateCore,
   headerActions,
+  onNavigateSettings,
   children,
 }: TelaProdutoGlobalProps) {
   const meta        = getProdutoMeta(productId)
@@ -100,6 +103,7 @@ export function TelaProdutoGlobal({
             onNavigateHub={onNavigateHub}
             onNavigateCore={onNavigateCore}
             headerActions={headerActions}
+            onNavigateSettings={onNavigateSettings}
           />
         </div>
 

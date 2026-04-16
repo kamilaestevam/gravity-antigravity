@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MagnifyingGlass, Info, X } from '@phosphor-icons/react'
+import { MagnifyingGlass, Info, X, Gear } from '@phosphor-icons/react'
 import { LogoHub, LogoCore } from '@nucleo/logo-produtos'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { UsuarioGlobal, type UsuarioGlobalProps } from '@nucleo/usuario-global'
@@ -53,6 +53,8 @@ export interface MenuTopoGlobalProps {
   /** Slot para ações extras no header (ex: sininho de notificações). Renderizado entre
    *  o toggle de dicas e o seletor de idioma — mesma posição que no shell Header. */
   headerActions?: React.ReactNode
+  /** Navegar para Configurações do produto — omitir oculta o botão */
+  onNavigateSettings?: () => void
 }
 
 // ── Componente ───────────────────────────────────────────────────────────────
@@ -70,6 +72,7 @@ export function MenuTopoGlobal({
   onNavigateHub,
   onNavigateCore,
   headerActions,
+  onNavigateSettings,
 }: MenuTopoGlobalProps) {
   const { t } = useTranslation()
 
@@ -123,8 +126,52 @@ export function MenuTopoGlobal({
         }
       </div>
 
-      {/* ── DIREITA: ações + usuário ── */}
+      {/* ── DIREITA: atalhos + ações + usuário ── */}
       <div className="mtg-right">
+
+        {/* Atalho Hub */}
+        {onNavigateHub && (
+          <TooltipGlobal descricao={t('shell.voltar_hub', 'Voltar ao Hub')}>
+            <button
+              className="mtg-nav-btn"
+              type="button"
+              aria-label={t('shell.voltar_hub', 'Voltar ao Hub')}
+              onClick={onNavigateHub}
+              style={{
+                '--mtg-btn-color':        '#818cf8',
+                '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
+                '--mtg-btn-border':       'rgba(129,140,248,0.22)',
+                '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
+                '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
+              } as React.CSSProperties}
+            >
+              <LogoHub size={13} color="#818cf8" />
+              Hub
+            </button>
+          </TooltipGlobal>
+        )}
+
+        {/* Atalho Core */}
+        {onNavigateCore && (
+          <TooltipGlobal descricao={t('shell.ir_core', 'Ir para o Core')}>
+            <button
+              className="mtg-nav-btn"
+              type="button"
+              aria-label={t('shell.ir_core', 'Ir para o Core')}
+              onClick={onNavigateCore}
+              style={{
+                '--mtg-btn-color':        '#818cf8',
+                '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
+                '--mtg-btn-border':       'rgba(129,140,248,0.22)',
+                '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
+                '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
+              } as React.CSSProperties}
+            >
+              <LogoCore size={13} color="#818cf8" />
+              Core
+            </button>
+          </TooltipGlobal>
+        )}
 
         {/* Busca funcional — expande para input ao clicar */}
         {searchOpen ? (
@@ -177,9 +224,6 @@ export function MenuTopoGlobal({
         {/* Ações extras (ex: sininho de notificações) */}
         {headerActions}
 
-        {/* Seletor de idioma */}
-        <LanguageSwitcherGlobal iconOnly />
-
         {/* Localizador — onde estou (cor fixa Gravity, não herda cor do produto) */}
         <div style={{ '--lcg-color': '#818cf8' } as React.CSSProperties}>
           <LocalizadorGlobal
@@ -195,52 +239,24 @@ export function MenuTopoGlobal({
           />
         </div>
 
-        <div className="mtg-sep" />
+        {/* Seletor de idioma */}
+        <LanguageSwitcherGlobal iconOnly />
 
-        {/* Atalho Hub */}
-        {onNavigateHub && (
-          <TooltipGlobal descricao={t('shell.voltar_hub', 'Voltar ao Hub')}>
+        {/* Atalho para Configurações do produto */}
+        {onNavigateSettings && (
+          <TooltipGlobal descricao={t('shell.configuracoes', 'Configurações')}>
             <button
-              className="mtg-nav-btn"
+              className="mtg-icon-btn"
               type="button"
-              aria-label={t('shell.voltar_hub', 'Voltar ao Hub')}
-              onClick={onNavigateHub}
-              style={{
-                '--mtg-btn-color':        '#818cf8',
-                '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
-                '--mtg-btn-border':       'rgba(129,140,248,0.22)',
-                '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
-                '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
-              } as React.CSSProperties}
+              aria-label={t('shell.configuracoes', 'Configurações')}
+              onClick={onNavigateSettings}
             >
-              <LogoHub size={13} color="#818cf8" />
-              Hub
+              <Gear size={17} weight="duotone" />
             </button>
           </TooltipGlobal>
         )}
 
-        {/* Atalho Core — cor fixa #818cf8 (identidade Gravity), não herda cor do produto */}
-        {onNavigateCore && (
-          <TooltipGlobal descricao={t('shell.ir_core', 'Ir para o Core')}>
-            <button
-              className="mtg-nav-btn"
-              type="button"
-              aria-label={t('shell.ir_core', 'Ir para o Core')}
-              onClick={onNavigateCore}
-              style={{
-                '--mtg-btn-color':        '#818cf8',
-                '--mtg-btn-bg':           'rgba(129,140,248,0.08)',
-                '--mtg-btn-border':       'rgba(129,140,248,0.22)',
-                '--mtg-btn-bg-hover':     'rgba(129,140,248,0.16)',
-                '--mtg-btn-border-hover': 'rgba(129,140,248,0.4)',
-              } as React.CSSProperties}
-            >
-              <LogoCore size={13} color="#818cf8" />
-              Core
-            </button>
-          </TooltipGlobal>
-        )}
-
+        {/* Divisor visual */}
         <div className="mtg-sep" />
 
         {/* Usuário — modo compacto (só avatar) */}

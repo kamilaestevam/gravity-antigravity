@@ -101,7 +101,7 @@ const listQuerySchema = z.object({
   take: z.coerce.number().int().min(1).max(100).optional(),
 })
 const createBodySchema = z.object({
-  type: z.enum(['aviso', 'mencao', 'sistema', 'tarefa']),
+  type: z.enum(['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento']),
   title: z.string().min(1).max(120).optional(),
   message: z.string().min(1).max(2000),
   product_id: z.string().min(1).optional(),

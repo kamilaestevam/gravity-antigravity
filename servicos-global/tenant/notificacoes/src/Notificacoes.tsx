@@ -183,6 +183,9 @@ export function Notificacoes() {
     tipo: (['aviso', 'mencao', 'sistema', 'tarefa'].includes(n.type)
       ? n.type
       : 'sistema') as AvisoInterno['tipo'],
+    // activity_id serve como deep link — pode ser rota relativa (/produto/pedido/123)
+    // ou ID de entidade. Quando presente, o item fica clicável no sininho.
+    href: n.activity_id || undefined,
   }))
 
   // Avisos do shell store (mais recentes primeiro, para que push síncronos apareçam no topo)

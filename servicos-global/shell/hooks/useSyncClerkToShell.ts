@@ -1,9 +1,13 @@
 // shell/hooks/useSyncClerkToShell.ts
 // Sincroniza dados do Clerk (auth provider) com o Shell store.
 //
+// Fonte única de verdade para multi-tenancy: publicMetadata do Clerk.
+// NÃO usamos o sistema de Organizations nativo do Clerk — o tenantId
+// é gerenciado inteiramente via Prisma e gravado no publicMetadata.
+//
 // Quando o Clerk carrega e o usuário está autenticado, este hook:
 // 1. Lê user.id, email, fullName, imageUrl do Clerk
-// 2. Lê organizationMemberships[0] para extrair o tenantId (orgId do Clerk)
+// 2. Lê tenantId e role do publicMetadata (fonte de verdade)
 // 3. Seta currentUser no ShellStore
 //
 // Isso garante que todos os componentes que leem useShellStore().currentUser
@@ -13,7 +17,7 @@
 // - useUserPreferences (persiste tema/tooltips)
 
 import { useEffect } from 'react'
-import { useUser, useAuth } from '@clerk/clerk-react'
+import { useUser } from '@clerk/clerk-react'
 import { useShellStore } from '../store'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -35,23 +39,14 @@ function resolveRole(raw: string): string {
  */
 export function useSyncClerkToShell() {
   const { user, isLoaded: userLoaded } = useUser()
-  const { orgId } = useAuth()
   const { currentUser, setCurrentUser } = useShellStore()
 
   useEffect(() => {
     if (!userLoaded || !user) return
 
-    const tenantId =
-      orgId ??
-      user.organizationMemberships?.[0]?.organization?.id ??
-      (user.publicMetadata?.tenantId as string | undefined) ??
-      undefined
-
-    const tenantName =
-      user.organizationMemberships?.[0]?.organization?.name ??
-      undefined
-
-    const role = resolveRole((user.publicMetadata?.role as string) ?? '')
+    // Fonte única de verdade: publicMetadata gerenciado pelo Prisma
+    const tenantId = user.publicMetadata?.tenantId as string | undefined
+    const role     = resolveRole((user.publicMetadata?.role as string) ?? '')
 
     // Guard: publicMetadata vazio durante refresh transitório do Clerk não deve derrubar role já definido
     if (!user.publicMetadata?.role && currentUser.role) return
@@ -66,13 +61,12 @@ export function useSyncClerkToShell() {
     }
 
     setCurrentUser({
-      id: user.id,
-      name: user.fullName ?? user.firstName ?? '',
-      email: user.emailAddresses?.[0]?.emailAddress ?? '',
+      id:       user.id,
+      name:     user.fullName ?? user.firstName ?? '',
+      email:    user.emailAddresses?.[0]?.emailAddress ?? '',
       avatarUrl: user.imageUrl ?? undefined,
       tenantId,
-      tenantName,
       role,
     })
-  }, [userLoaded, user, orgId, currentUser.id, currentUser.tenantId, currentUser.role, setCurrentUser])
+  }, [userLoaded, user, currentUser.id, currentUser.tenantId, currentUser.role, setCurrentUser])
 }

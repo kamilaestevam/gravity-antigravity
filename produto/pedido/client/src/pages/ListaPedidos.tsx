@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
 import { useSelecaoStore, usePedidosSelecionados, useItensSelecionados, useHasMixedTipos } from '../shared/state/selecaoStore'
+import { useLinkContextualSync } from '../shared/state/useLinkContextualSync'
 import {
   Package,
   Plus,
@@ -984,7 +985,7 @@ const COLUNAS_PAI: GTColuna<Pedido>[] = [
     tooltipDescricao: 'Prazo e forma de pagamento acordados com o exportador. Editar no pedido propaga para todos os itens.',
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.condicao_pagamento_pedido, row.condicao_pagamento_divergente, 'Condições de pagamento divergentes entre itens'),
+      renderAgregado(row.condicao_pagamento_pedido, row.condicao_pagamento_pedido_divergente, 'Condições de pagamento divergentes entre itens'),
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {
@@ -4222,6 +4223,7 @@ export default function ListaPedidos() {
   const pedidosSelecionados = usePedidosSelecionados()
   const itensSelecionados = useItensSelecionados()
   const hasMixedTipos = useHasMixedTipos()
+  useLinkContextualSync()
 
   // ── Estado de exclusão de itens ───────────────────────────────────────────────
   const [excluindoItens, setExcluindoItens] = useState(false)
@@ -4857,22 +4859,15 @@ export default function ListaPedidos() {
     }, 350)
   }, [abaAtiva, busca])
 
-  // Campos que ao serem editados no pedido propagam para todos os itens
-  // Apenas campos que existem em PedidoItem — tipo_operacao, numero_proforma e
-  // numero_invoice são colunas exclusivas do Pedido pai (não existem em PedidoItem)
-  const CAMPOS_PROPAGAR_ITENS = new Set([
+  // Campos que existem TANTO em Pedido (pai) quanto em PedidoItem (filho)
+  // Backend propaga via updateMany atômico no PATCH /:id/campo
+  const CAMPOS_PROPAGA_BACKEND = new Set([
     'nome_exportador', 'nome_importador', 'nome_fabricante',
     'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
-    'ncm', 'cobertura_cambial', 'data_emissao_pedido',
+    'incoterm', 'condicao_pagamento_pedido', 'data_emissao_pedido',
   ])
-  // Subconjunto de CAMPOS_PROPAGAR_ITENS que também têm correspondente no PAI
-  // (nome/referência existem em detalhes_operacionais ou como coluna direta no Pedido)
-  // ncm e cobertura_cambial são somente por item — não têm campo equivalente direto no Pedido
-  const PROPAGAR_COM_PAI = new Set([
-    'nome_fabricante', 'nome_exportador', 'nome_importador',
-    'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
-    'data_emissao_pedido',
-  ])
+  // Campos "ghost" — existem no item mas NÃO no pai. PATCH direto nos itens.
+  const CAMPOS_GHOST_ITENS = new Set(['ncm', 'cobertura_cambial'])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
   const handleEditar = useCallback(async (id: string, campo: string, valor: unknown): Promise<Pedido> => {
@@ -4900,58 +4895,31 @@ export default function ListaPedidos() {
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
     }
-    // incoterm — atualiza o pedido pai E propaga para todos os itens
-    if (campo === 'incoterm') {
+    // ── Propagação pai → itens ──────────────────────────────────────────────────
+    // Backend (9 campos): PATCH /:id/campo → updateMany atômico (1 request)
+    // Ghost (2 campos): PATCH direto nos itens (sem coluna no Pedido pai)
+    if (CAMPOS_PROPAGA_BACKEND.has(campo) || CAMPOS_GHOST_ITENS.has(campo)) {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
-      const itensRef = itensCarregadosRef.current.get(id) ?? []
-      await Promise.all([
-        pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
-        ...itensRef.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
-      ])
-      const itensIncoterm = itensRef.map(i => ({ ...i, incoterm: valor as string | null }))
-      itensCarregadosRef.current.set(id, itensIncoterm)
-      const divIncoterm = itensRef.length > 0 ? calcularDivergencias(itensIncoterm) : {}
-      // Só atualiza o campo editado — não sobrescreve outros campos locais com dados do servidor
-      const merged = { ...pedidoAtual, incoterm: valor as string | null, ...divIncoterm, itens: itensIncoterm }
-      setPedidos(prev => prev.map(p => p.id === id ? merged : p))
-      return merged
-    }
-    // condicao_pagamento_pedido — atualiza o pedido pai E propaga para todos os itens
-    if (campo === 'condicao_pagamento_pedido') {
-      const pedidoAtual = pedidos.find(p => p.id === id)
-      if (!pedidoAtual) throw new Error('Pedido não encontrado')
-      const itensRef = itensCarregadosRef.current.get(id) ?? []
-      await Promise.all([
-        pedidoVirtualApi.editarCampo(id, campo, valor).catch(err => { if (!import.meta.env.DEV) throw err }),
-        ...itensRef.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valor)),
-      ])
-      const itensCond = itensRef.map(i => ({ ...i, condicao_pagamento_pedido: valor as string | null }))
-      itensCarregadosRef.current.set(id, itensCond)
-      const divCond = itensRef.length > 0 ? calcularDivergencias(itensCond) : {}
-      // Só atualiza o campo editado — não sobrescreve outros campos locais com dados do servidor
-      const merged = { ...pedidoAtual, condicao_pagamento_pedido: valor as string | null, ...divCond, itens: itensCond }
-      setPedidos(prev => prev.map(p => p.id === id ? merged : p))
-      return merged
-    }
-    // Campos que vivem nos itens — propagar para todos os itens
-    // Campos em PROPAGAR_COM_PAI também atualizam o Pedido pai em paralelo
-    if (CAMPOS_PROPAGAR_ITENS.has(campo)) {
-      const pedidoAtual = pedidos.find(p => p.id === id)
-      if (!pedidoAtual) throw new Error('Pedido não encontrado')
-      const itens = itensCarregadosRef.current.get(id) ?? []
-      // Normaliza datas para ISO antes de enviar ao servidor
       const valorEnviar = campo === 'data_emissao_pedido' ? normalizarDataISO(valor) : valor
-      await Promise.all([
-        PROPAGAR_COM_PAI.has(campo)
-          ? pedidoVirtualApi.editarCampo(id, campo, valorEnviar).catch(() => null as null)
-          : Promise.resolve(null as null),
-        ...itens.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valorEnviar)),
-      ])
-      const itensAtualizados = itens.map(i => ({ ...i, [campo]: valorEnviar }))
+
+      if (CAMPOS_PROPAGA_BACKEND.has(campo)) {
+        // Backend propaga para itens via updateMany — uma única chamada
+        await pedidoVirtualApi.editarCampo(id, campo, valorEnviar)
+          .catch(err => { if (!import.meta.env.DEV) throw err })
+      } else {
+        // Ghost: PATCH direto nos itens (ncm, cobertura_cambial)
+        const itensGhost = itensCarregadosRef.current.get(id) ?? []
+        await Promise.all(
+          itensGhost.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valorEnviar))
+        )
+      }
+
+      // Atualiza cache local de itens para refletir propagação
+      const itensRef = itensCarregadosRef.current.get(id) ?? []
+      const itensAtualizados = itensRef.map(i => ({ ...i, [campo]: valorEnviar }))
       itensCarregadosRef.current.set(id, itensAtualizados)
-      const divPropagar = itens.length > 0 ? calcularDivergencias(itensAtualizados) : {}
-      // Só atualiza o campo editado — não sobrescreve outros campos locais com dados do servidor
+      const divPropagar = itensRef.length > 0 ? calcularDivergencias(itensAtualizados) : {}
       const pedidoAtualizado = { ...pedidoAtual, [campo]: valorEnviar, ...divPropagar, itens: itensAtualizados }
       setPedidos(prev => prev.map(p => p.id === id ? pedidoAtualizado : p))
       return pedidoAtualizado
@@ -4975,34 +4943,32 @@ export default function ListaPedidos() {
   }, [pedidos, colunasUsuario])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
+  // Genérico: itera sobre campos com alerta (columnBehaviorConfig) que existem em PedidoItem.
+  // Convenção: {key}_divergente (boolean), {key}_valor_unico (string|null) para campos ghost.
+  const CAMPOS_DIVERGENCIA_ITEM = [
+    'nome_exportador', 'nome_importador', 'nome_fabricante',
+    'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
+    'incoterm', 'condicao_pagamento_pedido',
+    'ncm', 'cobertura_cambial', 'data_emissao_pedido',
+  ] as const
+  const CAMPOS_GHOST = new Set(['ncm', 'cobertura_cambial', 'data_emissao_pedido'])
+
   function calcularDivergencias(itens: PedidoItem[]): Partial<Pedido> {
-    const vals = (fn: (i: PedidoItem) => string | null | undefined): string[] =>
-      itens.map(fn).filter((v): v is string => v != null && v !== '')
-    const distintos = (arr: string[]) => new Set(arr).size
-    const div = (arr: string[]) => distintos(arr) > 1
-
-    const ncms = vals(i => i.ncm)
-    const coberturas = vals(i => i.cobertura_cambial)
-    const nCobertura = distintos(coberturas)
-    const datas = vals(i => i.data_emissao_pedido)
-
-    return {
-      nome_exportador_divergente:       div(vals(i => i.nome_exportador)),
-      nome_importador_divergente:       div(vals(i => i.nome_importador)),
-      nome_fabricante_divergente:       div(vals(i => i.nome_fabricante)),
-      referencia_importador_divergente: div(vals(i => i.referencia_importador)),
-      referencia_exportador_divergente: div(vals(i => i.referencia_exportador)),
-      referencia_fabricante_divergente: div(vals(i => i.referencia_fabricante)),
-      incoterm_divergente:              div(vals(i => i.incoterm)),
-      condicao_pagamento_divergente:    div(vals(i => i.condicao_pagamento_pedido)),
-      ncm_divergente:                   distintos(ncms) > 1,
-      ncm_valor_unico:                  distintos(ncms) === 1 ? ncms[0] : null,
-      ncms_distintos_count:             distintos(ncms),
-      cobertura_cambial_divergente:     nCobertura > 1,
-      cobertura_cambial_valor_unico:    nCobertura === 1 ? coberturas[0] : null,
-      data_emissao_pedido_divergente:   distintos(datas) > 1,
-      data_emissao_pedido_valor_unico:  distintos(datas) === 1 ? datas[0] : null,
+    const result: Record<string, unknown> = {}
+    for (const campo of CAMPOS_DIVERGENCIA_ITEM) {
+      const valores = itens
+        .map(i => (i as Record<string, unknown>)[campo])
+        .filter((v): v is string => v != null && v !== '')
+      const distintos = new Set(valores).size
+      result[`${campo}_divergente`] = distintos > 1
+      if (CAMPOS_GHOST.has(campo)) {
+        result[`${campo}_valor_unico`] = distintos === 1 ? valores[0] : null
+      }
     }
+    // ncms_distintos_count — usado pelo badge NCM
+    const ncms = itens.map(i => i.ncm).filter((v): v is string => v != null && v !== '')
+    result.ncms_distintos_count = new Set(ncms).size
+    return result as Partial<Pedido>
   }
 
   // ── Edição inline (filho / item) ──────────────────────────────────────────────

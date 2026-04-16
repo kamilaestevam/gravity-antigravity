@@ -76,6 +76,7 @@ export function Notificacoes() {
   const marcarAvisoLidoStore = useShellStore((s) => s.marcarAvisoLido)
   const marcarTodosAvisosLidosStore = useShellStore((s) => s.marcarTodosAvisosLidos)
   const currentUserName = useShellStore((s) => s.currentUser.name)
+  const linkContextual = useShellStore((s) => s.linkContextual)
 
   const syncState = useCallback(async () => {
     try {
@@ -271,7 +272,7 @@ export function Notificacoes() {
       onNavegarHref={(href) => navigate(href)}
       onEnviarPara={handleEnviarPara}
       usuariosTenant={usuariosTenant}
-      linkAtual={location.pathname}
+      linkAtual={linkContextual ?? location.pathname}
     />
   )
 }

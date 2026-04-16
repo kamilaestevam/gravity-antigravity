@@ -32,6 +32,7 @@ export const useShellStore = create<ShellState>()(
       productsLoaded: false,
       notifications: [],
       avisos: [],
+      linkContextual: null,
 
       // ─── Sidebar ──────────────────────────────────────────────────────────
       toggleSidebar: () =>
@@ -144,6 +145,9 @@ export const useShellStore = create<ShellState>()(
         set((state) => ({
           avisos: state.avisos.map((a) => ({ ...a, lido: true })),
         })),
+
+      setLinkContextual: (link: string | null) =>
+        set({ linkContextual: link }),
     }),
     {
       name: 'gravity-shell-state',

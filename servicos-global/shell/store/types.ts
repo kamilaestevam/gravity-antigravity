@@ -63,6 +63,15 @@ export interface ShellState {
   // --- Avisos persistentes (sininho / mensageria) ---
   avisos: AvisoShell[]
 
+  /**
+   * Link contextual para o "Enviar Para" do sininho.
+   * Cada tela pode chamar setLinkContextual() com a rota do item selecionado
+   * (ex: /workspace/pedido/PED-2024-001). Quando presente, sobrescreve o
+   * pathname genérico no campo de link do painel "Enviar Para".
+   * Chamar com null para limpar (ex: ao desselecionar).
+   */
+  linkContextual: string | null
+
   // --- Actions ---
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
@@ -89,4 +98,5 @@ export interface ShellState {
   addAviso: (aviso: Omit<AvisoShell, 'id' | 'lido' | 'dataHora'> & { dataHora?: string }) => string
   marcarAvisoLido: (id: string) => void
   marcarTodosAvisosLidos: () => void
+  setLinkContextual: (link: string | null) => void
 }

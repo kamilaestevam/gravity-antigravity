@@ -51,6 +51,61 @@ async function authedFetch(input: string, init: RequestInit = {}): Promise<Respo
 
 const BASE_URL = '/api/tenant/notificacoes'
 
+// ─── Mocks de desenvolvimento — visíveis apenas quando DEV=true ──────────────
+const DEV_MOCKS: AvisoInterno[] = import.meta.env.DEV ? [
+  {
+    id: 'mock-1',
+    conteudo: 'Pedido #PED-2024-089 está com prazo vencido há 3 dias. Verificar junto ao cliente antes do fechamento do mês.',
+    autor: { nome: 'Carlos Mendes' },
+    dataHora: '16/04/2026, 09:14',
+    lido: false,
+    tipo: 'mencao',
+    href: '/produto/pedido/pedidos/PED-2024-089',
+  },
+  {
+    id: 'mock-2',
+    conteudo: 'Para: Ana Lima, Bruno Souza — Reunião de alinhamento amanhã às 10h sobre o fechamento do trimestre. Link da pauta no Drive.',
+    autor: { nome: 'Você' },
+    dataHora: '16/04/2026, 08:52',
+    lido: false,
+    tipo: 'enviado',
+  },
+  {
+    id: 'mock-3',
+    conteudo: 'Nova importação de NF concluída: 47 itens importados com sucesso, 2 com divergência de NCM. Revisar antes de confirmar.',
+    autor: { nome: 'Sistema' },
+    dataHora: '15/04/2026, 17:30',
+    lido: false,
+    tipo: 'sistema',
+  },
+  {
+    id: 'mock-4',
+    conteudo: '@você Preciso que você revise os valores do SimulaCusto para o cliente Importadora Delta — tem uma diferença de R$ 1.240 no cálculo do II.',
+    autor: { nome: 'Ana Lima' },
+    dataHora: '15/04/2026, 14:10',
+    lido: false,
+    tipo: 'mencao',
+    href: '/produto/simulacusto',
+  },
+  {
+    id: 'mock-5',
+    conteudo: 'Lembrete pessoal: confirmar com o financeiro o câmbio de fechamento do USD para os pedidos de abril.',
+    autor: { nome: 'Você' },
+    dataHora: '15/04/2026, 11:00',
+    lido: false,
+    tipo: 'aviso',
+  },
+  {
+    id: 'mock-6',
+    conteudo: 'Para: Pedro Costa — Segue o link da simulação de custo que discutimos. Qualquer dúvida é só chamar.',
+    autor: { nome: 'Você' },
+    dataHora: '14/04/2026, 16:45',
+    lido: false,
+    tipo: 'enviado',
+    href: '/produto/simulacusto/resultado/123',
+  },
+] : []
+
 /**
  * Componente do sininho de notificações.
  *
@@ -130,11 +185,15 @@ export function Notificacoes() {
   // Callback do painel "Enviar Para" — cria notificações para os destinatários
   // usando a rota autenticada POST /send (browser-facing, JWT).
   const handleEnviarPara = useCallback(
-    async (destinatarios: string[], mensagem: string, link?: string) => {
+    async (destinatarios: string[], mensagem: string, link?: string, viaEmail?: boolean) => {
       try {
-        // Resolve nomes dos destinatários para o registro "enviado"
+        // Resolve nomes e e-mails dos destinatários
         const recipientNames = destinatarios
           .map((uid) => usuariosTenant.find((u) => u.id === uid)?.nome)
+          .filter(Boolean) as string[]
+
+        const recipientEmails = destinatarios
+          .map((uid) => usuariosTenant.find((u) => u.id === uid)?.email)
           .filter(Boolean) as string[]
 
         const res = await authedFetch(`${BASE_URL}/send`, {
@@ -145,6 +204,8 @@ export function Notificacoes() {
             sender_name: currentUserName || undefined,
             recipient_names: recipientNames,
             activity_id: link || undefined,
+            via_email: viaEmail === true && recipientEmails.length > 0,
+            recipient_emails: viaEmail ? recipientEmails : undefined,
           }),
         })
         if (!res.ok) {
@@ -157,7 +218,7 @@ export function Notificacoes() {
         setErro(err instanceof Error ? err.message : 'Falha ao enviar notificação')
       }
     },
-    [currentUserName]
+    [currentUserName, usuariosTenant, syncState]
   )
 
   // IDs vindos do shell store começam com "aviso-" (gerados por generateAvisoId()).
@@ -259,7 +320,7 @@ export function Notificacoes() {
     href: a.href,
   }))
 
-  const avisosFinal = [...avisosDoStore, ...avisosDaApi]
+  const avisosFinal = [...avisosDoStore, ...avisosDaApi, ...DEV_MOCKS]
 
   return (
     <AvisoInternoGlobal

@@ -248,7 +248,74 @@ const sendBodySchema = z.object({
   sender_name: z.string().min(1).max(120).optional(),
   recipient_names: z.array(z.string().max(120)).max(20).optional(),
   activity_id: z.string().min(1).max(2000).optional(),
+  via_email: z.boolean().optional(),
+  recipient_emails: z.array(z.string().email()).max(20).optional(),
 })
+
+// ─── URL interna do serviço de e-mail (mesma rede — S2S) ─────────────────────
+const EMAIL_SERVICE_URL = process.env.TENANT_EMAIL_SERVICE_URL ?? 'http://localhost:8008'
+
+/**
+ * Envia notificação por e-mail via serviço de e-mail (S2S com x-internal-key).
+ * Chamada fire-and-forget — não bloqueia a resposta da rota /send.
+ */
+async function dispararEmailNotificacao(opts: {
+  tenantId: string
+  userId: string
+  senderName: string
+  recipientEmails: string[]
+  message: string
+  link?: string
+}): Promise<void> {
+  const { tenantId, userId, senderName, recipientEmails, message, link } = opts
+  const internalKey = process.env.INTERNAL_API_KEY ?? ''
+
+  const linkHtml = link
+    ? `<p style="margin-top:12px"><a href="${link}" style="color:#4f46e5;font-weight:600;">Ver contexto →</a></p>`
+    : ''
+
+  const html = `
+<div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#0f172a;color:#f1f5f9;border-radius:8px">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+    <span style="font-size:20px">🔔</span>
+    <span style="font-size:13px;font-weight:700;color:#818cf8;letter-spacing:.05em;text-transform:uppercase">Nova mensagem via Gravity</span>
+  </div>
+  <div style="background:#1e293b;border-left:3px solid #818cf8;padding:16px;border-radius:4px">
+    <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">De: ${senderName}</p>
+    <p style="margin:0;font-size:14px;line-height:1.6;color:#f1f5f9">${message.replace(/\n/g, '<br/>')}</p>
+    ${linkHtml}
+  </div>
+  <hr style="border:none;border-top:1px solid #334155;margin:20px 0"/>
+  <p style="font-size:11px;color:#475569;margin:0">Enviado pela plataforma Gravity · responda diretamente neste e-mail</p>
+</div>`
+
+  const text = `Nova mensagem de ${senderName}:\n\n${message}${link ? `\n\nVer contexto: ${link}` : ''}`
+
+  try {
+    const res = await fetch(`${EMAIL_SERVICE_URL}/api/v1/email/enviar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-internal-key': internalKey,
+        'x-tenant-id': tenantId,
+        'x-user-id': userId,
+      },
+      body: JSON.stringify({
+        to: recipientEmails,
+        subject: `Mensagem de ${senderName} via Gravity`,
+        body_html: html,
+        body: text,
+      }),
+    })
+    if (!res.ok) {
+      const body = await res.json().catch(() => null)
+      console.error('[NOTIFICACOES] Falha ao disparar e-mail S2S:', body)
+    }
+  } catch (err) {
+    // Fire-and-forget — não falha a notificação in-app se o e-mail falhar
+    console.error('[NOTIFICACOES] Erro ao chamar email service:', err)
+  }
+}
 
 apiRoutes.post('/send', async (req, res, next) => {
   try {
@@ -295,6 +362,18 @@ apiRoutes.post('/send', async (req, res, next) => {
     // Push SSE para cada destinatário online
     for (const uid of targets) {
       emitToUser(uid, 'new_notification', { type: 'compartilhamento' })
+    }
+
+    // Disparo de e-mail S2S — fire-and-forget (não bloqueia resposta)
+    if (body.via_email && body.recipient_emails && body.recipient_emails.length > 0) {
+      void dispararEmailNotificacao({
+        tenantId: tenant_id,
+        userId: user_id,
+        senderName: senderLabel,
+        recipientEmails: body.recipient_emails,
+        message: body.message,
+        link: body.activity_id,
+      })
     }
 
     res.status(201).json({ status: 'success', count: created.count })

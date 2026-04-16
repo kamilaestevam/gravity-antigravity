@@ -9,7 +9,8 @@ import {
   CaretDown,
   CaretUp,
   At,
-  LinkSimple
+  LinkSimple,
+  EnvelopeSimple,
 } from '@phosphor-icons/react';
 import { TooltipGlobal } from '@nucleo/tooltip-global';
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global';
@@ -41,7 +42,7 @@ export interface AvisoInternoGlobalProps {
   onMarcarTodosLidos?: () => void;
   onCriarAviso?: (texto: string) => void;
   onNavegarHref?: (href: string) => void;
-  onEnviarPara?: (destinatarios: string[], mensagem: string, link?: string) => void;
+  onEnviarPara?: (destinatarios: string[], mensagem: string, link?: string, viaEmail?: boolean) => void;
   usuariosTenant?: UsuarioMencao[];
   linkAtual?: string;
   carregando?: boolean;
@@ -81,6 +82,7 @@ export function AvisoInternoGlobal({
   const [destinatarios, setDestinatarios] = useState<string[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerBusca, setPickerBusca] = useState('');
+  const [viaEmail, setViaEmail] = useState(false);
 
   // ─── @mention state ────────────────────────────────────────────────────────
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
@@ -153,9 +155,10 @@ export function AvisoInternoGlobal({
     if (!composerText.trim()) return;
 
     if (destinatarios.length > 0 && onEnviarPara) {
-      // Enviar para outros
-      onEnviarPara(destinatarios, composerText.trim(), composerLink.trim() || undefined);
+      // Enviar para outros (in-app + opcionalmente por e-mail)
+      onEnviarPara(destinatarios, composerText.trim(), composerLink.trim() || undefined, viaEmail);
       setDestinatarios([]);
+      setViaEmail(false);
     } else if (onCriarAviso) {
       // Nota pessoal
       onCriarAviso(composerText.trim());
@@ -546,6 +549,22 @@ export function AvisoInternoGlobal({
             </div>
           )}
         </div>
+
+        {/* Toggle via e-mail — aparece só quando há destinatários */}
+        {hasDestinatarios && (
+          <button
+            type="button"
+            className={`aig-email-toggle ${viaEmail ? 'active' : ''}`}
+            onClick={() => setViaEmail(v => !v)}
+            aria-pressed={viaEmail}
+            title="Enviar também por e-mail via Resend"
+          >
+            <EnvelopeSimple size={12} weight={viaEmail ? 'fill' : 'regular'} />
+            <span>Enviar por e-mail</span>
+            {/* indicador visual */}
+            <span className="aig-email-toggle-dot" />
+          </button>
+        )}
 
         {/* Link + botão enviar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>

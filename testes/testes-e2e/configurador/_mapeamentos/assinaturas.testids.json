@@ -1,0 +1,18 @@
+{
+  "componente": "servicos-global/configurador/src/pages/workspace/Assinaturas.tsx",
+  "extraidoEm": "2026-04-16T01:44:18.191Z",
+  "elementos": {},
+  "testidsFaltando": [
+    "nav-financeiro",
+    "btn-expand-assin-0",
+    "btn-edit-assin-0",
+    "btn-suspend-assin-0",
+    "btn-toggle-ws-0",
+    "btn-assinar-produto",
+    "btn-cancel-assin-0",
+    "btn-confirmar-cancel",
+    "btn-remover-ws-0",
+    "input-busca-assin",
+    "col-preco"
+  ]
+}

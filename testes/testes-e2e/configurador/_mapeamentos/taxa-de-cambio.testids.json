@@ -1,0 +1,16 @@
+{
+  "componente": "servicos-global/configurador/src/pages/workspace/TaxaCambio.tsx",
+  "extraidoEm": "2026-04-16T01:44:18.196Z",
+  "elementos": {},
+  "testidsFaltando": [
+    "nav-taxa-cambio",
+    "nav-api-cockpit",
+    "btn-sincronizar-ptax",
+    "tab-moeda-usd",
+    "tab-moeda-eur",
+    "tab-moeda-gbp",
+    "tab-moeda-chf",
+    "tab-moeda-cny",
+    "tab-moeda-jpy"
+  ]
+}

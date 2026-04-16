@@ -1,0 +1,16 @@
+{
+  "componente": "servicos-global/configurador/src/pages/workspace/ModalPermissoesUsuario.tsx",
+  "extraidoEm": "2026-04-16T01:44:18.189Z",
+  "elementos": {},
+  "testidsFaltando": [
+    "btn-permissoes-0",
+    "tab-configurador",
+    "tab-menu",
+    "tab-comunicacao",
+    "tab-produtos",
+    "perm-organizacao-editar",
+    "btn-selecionar-todos",
+    "btn-limpar-todos",
+    "btn-salvar-permissoes"
+  ]
+}

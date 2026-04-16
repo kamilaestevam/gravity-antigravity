@@ -389,7 +389,7 @@
         "negado": "NEGADO"
       }
     },
-    "monitor": {
+    "api-cockpit": {
       "titulo": "Monitor de Infraestrutura",
       "subtitulo": "Visão administrativa global da saúde das APIs no Railway",
       "apis_online": "APIs Online",
@@ -418,7 +418,7 @@
         "ativo": "Ativo"
       }
     },
-    "overview": {
+    "visao-geral": {
       "titulo": "Visão Geral da Plataforma",
       "subtitulo": "Informações globais do Núcleo Gravity",
       "badge_nivel_super": "Nível Super",
@@ -460,7 +460,7 @@
       "infra_regiao_desc": "Região e cidade onde o registro master está localizado",
       "dados_basicos_tooltip": "Identificação e configuração geral do produto"
     },
-    "security": {
+    "seguranca-admin": {
       "titulo": "Segurança",
       "subtitulo": "Monitoramento em tempo real — atualizado",
       "subtitulo_template": "Monitoramento em tempo real — atualizado {{time}} (a cada {{interval}}s)",
@@ -531,7 +531,7 @@
         "rotacao_instrucao": "Para rotacionar chaves, execute:"
       }
     },
-    "financial": {
+    "financeiro-admin": {
       "titulo": "Financeiro Global",
       "subtitulo": "Relatório consolidado por cliente, produto e data com acompanhamento de inadimplências.",
       "btn_lancar": "Lançar Fatura",
@@ -657,7 +657,7 @@
       "campo_competencia_placeholder": "Ex: Abr/2025",
       "campo_valor_placeholder": "R$ 0,00"
     },
-    "users": {
+    "usuarios-globais": {
       "titulo": "Usuários Globais",
       "subtitulo": "Gestão central de todos os usuários da plataforma Gravity",
       "card_total": "Total de Usuários",
@@ -747,7 +747,7 @@
       "acao_toggle_status": "Alternar status do usuário",
       "form_email_placeholder": "usuario@empresa.com"
     },
-    "products": {
+    "produtos-gravity": {
       "titulo": "Produtos Gravity",
       "subtitulo": "Toda a gestão de produtos, catálogos e negociações da plataforma Gravity é realizada por aqui.",
       "card_total": "Total de Produtos",
@@ -922,7 +922,7 @@
       "card_negociacoes_tooltip_taxa": "Taxa de Conversão",
       "card_negociacoes_tooltip_alta": "Alta"
     },
-    "history": {
+    "historico-global": {
       "titulo": "Histórico Global",
       "subtitulo": "Registro cronológico completo de todas as alterações feitas na plataforma Gravity",
       "tooltip_processamento": "Processamento Descentralizado",
@@ -987,7 +987,7 @@
       "tooltip_expandir": "Ver detalhes técnicos da alteração (diff do estado)",
       "tooltip_recolher": "Recolher detalhes técnicos"
     },
-    "tests": {
+    "testes-gerais": {
       "titulo": "Testes",
       "subtitulo": "Acompanhamento e correção automatizada de testes vitest e playwright",
       "card_aprovados": "Aprovados",

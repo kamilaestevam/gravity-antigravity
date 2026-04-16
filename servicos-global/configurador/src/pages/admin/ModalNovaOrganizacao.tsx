@@ -133,23 +133,23 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
   const abas: AbaFormulario[] = useMemo(() => [
     {
       id: 'geral',
-      rotulo: t('admin.tests.org.aba_geral'),
-      tooltipTitulo: t('admin.tests.org.aba_geral_tooltip'),
-      tooltipDescricao: t('admin.tests.org.aba_geral_desc'),
+      rotulo: t('admin.testes-gerais.org.aba_geral'),
+      tooltipTitulo: t('admin.testes-gerais.org.aba_geral_tooltip'),
+      tooltipDescricao: t('admin.testes-gerais.org.aba_geral_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid">
             <GeralCampoGlobal
-              label={t('admin.tests.org.campo_nome_org')}
+              label={t('admin.testes-gerais.org.campo_nome_org')}
               obrigatorio
-              tooltipTitulo={t('admin.tests.org.campo_nome_tooltip')}
-              tooltipDescricao={t('admin.tests.org.campo_nome_desc')}
+              tooltipTitulo={t('admin.testes-gerais.org.campo_nome_tooltip')}
+              tooltipDescricao={t('admin.testes-gerais.org.campo_nome_desc')}
             >
               <div className="ws-input-icon-wrap">
                 <Buildings size={16} />
                 <input
                   value={nome}
-                  placeholder={t('admin.tests.org.campo_nome_placeholder')}
+                  placeholder={t('admin.testes-gerais.org.campo_nome_placeholder')}
                   onChange={e => {
                     setNome(e.target.value)
                     const sugerido = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '-')
@@ -163,15 +163,15 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
             </GeralCampoGlobal>
 
             <GeralCampoGlobal
-              label={t('admin.overview.campo_cnpj')}
-              tooltipTitulo={t('admin.tests.org.campo_cnpj_tooltip')}
-              tooltipDescricao={t('admin.tests.org.campo_cnpj_desc')}
+              label={t('admin.visao-geral.campo_cnpj')}
+              tooltipTitulo={t('admin.testes-gerais.org.campo_cnpj_tooltip')}
+              tooltipDescricao={t('admin.testes-gerais.org.campo_cnpj_desc')}
             >
               <div className="ws-input-icon-wrap">
                 <IdentificationCard size={16} />
                 <input
                   value={cnpj}
-                  placeholder={t('admin.tests.org.campo_cnpj_placeholder')}
+                  placeholder={t('admin.testes-gerais.org.campo_cnpj_placeholder')}
                   onChange={e => setCnpj(e.target.value)}
                   style={{ width: '100%' }}
                 />
@@ -180,23 +180,23 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
           </div>
 
           <GeralCampoGlobal
-            label={t('admin.tests.org.campo_subdominio_dns')}
+            label={t('admin.testes-gerais.org.campo_subdominio_dns')}
             obrigatorio
-            tooltipTitulo={t('admin.tests.org.campo_subdominio_tooltip')}
-            tooltipDescricao={t('admin.tests.org.campo_subdominio_desc')}
+            tooltipTitulo={t('admin.testes-gerais.org.campo_subdominio_tooltip')}
+            tooltipDescricao={t('admin.testes-gerais.org.campo_subdominio_desc')}
           >
             <div className="ws-input-icon-wrap">
               <Globe size={16} />
               <input
                 value={subdominio}
-                placeholder={t('admin.tests.org.campo_subdominio_placeholder_novo')}
+                placeholder={t('admin.testes-gerais.org.campo_subdominio_placeholder_novo')}
                 onChange={e => setSubdominio(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '-'))}
                 style={{ width: '100%' }}
               />
               <span style={{ position: 'absolute', right: '1rem', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>.gravity.com.br</span>
             </div>
             <p style={{ fontSize: '0.75rem', color: 'var(--ws-muted)', marginTop: '0.5rem' }}>
-              {t('admin.tests.org.subdominio_hint')}
+              {t('admin.testes-gerais.org.subdominio_hint')}
             </p>
           </GeralCampoGlobal>
         </div>
@@ -204,13 +204,13 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     },
     {
       id: 'localizacao',
-      rotulo: t('admin.tests.org.aba_localizacao'),
-      tooltipTitulo: t('admin.tests.org.aba_localizacao_tooltip'),
-      tooltipDescricao: t('admin.tests.org.aba_localizacao_desc'),
+      rotulo: t('admin.testes-gerais.org.aba_localizacao'),
+      tooltipTitulo: t('admin.testes-gerais.org.aba_localizacao_tooltip'),
+      tooltipDescricao: t('admin.testes-gerais.org.aba_localizacao_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div className="em-grid em-grid--2">
-            <GeralCampoGlobal label={t('admin.overview.campo_estado')}>
+            <GeralCampoGlobal label={t('admin.visao-geral.campo_estado')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={OPCOES_ESTADOS}
@@ -219,18 +219,18 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
                   setEstado(String(v ?? ''))
                   setCidade('')
                 }}
-                placeholder={t('admin.tests.org.campo_selecione_placeholder')}
+                placeholder={t('admin.testes-gerais.org.campo_selecione_placeholder')}
                 buscavel
               />
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label={t('admin.overview.campo_cidade')}>
+            <GeralCampoGlobal label={t('admin.visao-geral.campo_cidade')}>
               <SelectGlobal
                 iconeEsquerda={<MapPin size={16} />}
                 opcoes={cidades}
                 valor={cidade || null}
                 aoMudarValor={v => setCidade(String(v ?? ''))}
-                placeholder={estado ? t('admin.tests.org.cidade_placeholder_com_estado') : t('admin.tests.org.cidade_placeholder_sem_estado')}
+                placeholder={estado ? t('admin.testes-gerais.org.cidade_placeholder_com_estado') : t('admin.testes-gerais.org.cidade_placeholder_sem_estado')}
                 buscavel
                 desabilitado={!estado}
                 carregando={carregandoCidades}
@@ -239,24 +239,24 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
           </div>
 
           <div className="em-grid em-grid--2">
-            <GeralCampoGlobal label={t('admin.overview.campo_segmento')}>
+            <GeralCampoGlobal label={t('admin.visao-geral.campo_segmento')}>
               <SelectGlobal
                 iconeEsquerda={<Archive size={16} />}
                 opcoes={OPCOES_SEGMENTOS}
                 valor={segmento}
                 aoMudarValor={v => setSegmento(String(v ?? ''))}
-                placeholder={t('admin.tests.org.campo_selecione_placeholder')}
+                placeholder={t('admin.testes-gerais.org.campo_selecione_placeholder')}
                 buscavel
               />
             </GeralCampoGlobal>
 
-            <GeralCampoGlobal label={t('admin.overview.campo_tipo_empresa')}>
+            <GeralCampoGlobal label={t('admin.visao-geral.campo_tipo_empresa')}>
               <SelectGlobal
                 iconeEsquerda={<Buildings size={16} />}
                 opcoes={OPCOES_TIPOS_EMPRESA}
                 valor={tipoEmpresa}
                 aoMudarValor={v => setTipoEmpresa(String(v ?? ''))}
-                placeholder={t('admin.tests.org.campo_selecione_placeholder')}
+                placeholder={t('admin.testes-gerais.org.campo_selecione_placeholder')}
               />
             </GeralCampoGlobal>
           </div>
@@ -265,12 +265,12 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
     },
     {
       id: 'plano',
-      rotulo: t('admin.tests.org.aba_plano'),
-      tooltipTitulo: t('admin.tests.org.aba_plano_tooltip'),
-      tooltipDescricao: t('admin.tests.org.aba_plano_desc'),
+      rotulo: t('admin.testes-gerais.org.aba_plano'),
+      tooltipTitulo: t('admin.testes-gerais.org.aba_plano_tooltip'),
+      tooltipDescricao: t('admin.testes-gerais.org.aba_plano_desc'),
       conteudo: (
         <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <GeralCampoGlobal label={t('admin.tests.org.campo_plano_inicial')}>
+          <GeralCampoGlobal label={t('admin.testes-gerais.org.campo_plano_inicial')}>
             <div className="ws-input-icon-wrap" style={{ padding: 0 }}>
               <select
                 value={plano}
@@ -284,16 +284,16 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
           </GeralCampoGlobal>
 
           <GeralCampoGlobal
-            label={t('admin.tests.org.campo_acesso_padrao')}
-            tooltipTitulo={t('admin.tests.org.acesso_padrao_tooltip')}
-            tooltipDescricao={t('admin.tests.org.acesso_padrao_desc')}
+            label={t('admin.testes-gerais.org.campo_acesso_padrao')}
+            tooltipTitulo={t('admin.testes-gerais.org.acesso_padrao_tooltip')}
+            tooltipDescricao={t('admin.testes-gerais.org.acesso_padrao_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<CheckCircle size={16} />}
               opcoes={[]} // Inicialmente vazio para nova organização
               valor={espacoPadrao || null}
               aoMudarValor={v => setEspacoPadrao(String(v ?? ''))}
-              placeholder={t('admin.tests.org.campo_acesso_placeholder')}
+              placeholder={t('admin.testes-gerais.org.campo_acesso_placeholder')}
               desabilitado
             />
           </GeralCampoGlobal>
@@ -309,9 +309,9 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
           }}>
             <Package size={20} weight="duotone" color="#38bdf8" style={{ marginTop: '2px' }} />
             <div>
-              <p style={{ color: '#bae6fd', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>{t('admin.tests.org.resumo_provisao_titulo')}</p>
+              <p style={{ color: '#bae6fd', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.25rem' }}>{t('admin.testes-gerais.org.resumo_provisao_titulo')}</p>
               <p style={{ color: 'var(--ws-muted)', fontSize: '0.75rem', lineHeight: '1.4' }}>
-                {t('admin.tests.org.resumo_provisao_desc', { plano })}
+                {t('admin.testes-gerais.org.resumo_provisao_desc', { plano })}
               </p>
             </div>
           </div>
@@ -326,13 +326,13 @@ export function ModalNovaOrganizacao({ aberto, aoFechar, aoSalvar }: ModalNovaOr
       aoFechar={handleFechar}
       aoSalvar={handleSalvar}
       icone={<Buildings size={24} weight="duotone" />}
-      titulo={t('admin.tests.org.novo_titulo')}
-      subtitulo={t('admin.tests.org.novo_subtitulo')}
+      titulo={t('admin.testes-gerais.org.novo_titulo')}
+      subtitulo={t('admin.testes-gerais.org.novo_subtitulo')}
       tamanho="lg"
       altura="600px"
       dirty={dirty}
       podesSalvar={podesSalvar}
-      textoSalvar={t('admin.tests.org.novo_btn_criar')}
+      textoSalvar={t('admin.testes-gerais.org.novo_btn_criar')}
       abas={abas}
       tipoAbas="pill"
     />

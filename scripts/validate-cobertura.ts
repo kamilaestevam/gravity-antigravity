@@ -19,7 +19,8 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'fs'
 import { join, relative } from 'path'
 
 const ROOT    = process.cwd()
-const PLANOS  = join(ROOT, 'testes', '_planos')
+// Busca _planos/ dentro de cada escopo em testes-e2e/
+const PLANOS  = join(ROOT, 'testes', 'testes-e2e')
 
 const CATEGORIAS_VALIDAS = 20
 
@@ -56,7 +57,7 @@ interface Plano {
 const errors:   string[] = []
 const warnings: string[] = []
 
-// ─── Varre _planos/ recursivamente ────────────────────────────────────────────
+// ─── Varre testes-e2e/<escopo>/_planos/ recursivamente ───────────────────────
 function walkPlanos(dir: string): string[] {
   if (!existsSync(dir)) return []
   const found: string[] = []
@@ -64,9 +65,16 @@ function walkPlanos(dir: string): string[] {
     const path = join(dir, name)
     const stat = statSync(path)
     if (stat.isDirectory()) {
-      found.push(...walkPlanos(path))
-    } else if (name.endsWith('.json')) {
-      found.push(path)
+      // Se encontrou _planos, varre só JSONs dentro
+      if (name === '_planos') {
+        for (const planFile of readdirSync(path)) {
+          if (planFile.endsWith('.json')) {
+            found.push(join(path, planFile))
+          }
+        }
+      } else {
+        found.push(...walkPlanos(path))
+      }
     }
   }
   return found

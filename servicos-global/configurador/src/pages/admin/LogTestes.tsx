@@ -31,9 +31,14 @@ interface LogTeste {
     motivo: string
     sugestaoCorrecao: string
     arquivo: string
-    codigoDiff?: { old: string; new: string }
+    codigoDiff?: { arquivo?: string; linha?: number; old: string; new: string; explicacao?: string }
     provaVisual?: string
+    categoria?: 'BUG_REAL' | 'TESTE_DESATUALIZADO' | 'FLAKY_TIMING' | 'REGRESSAO_RECENTE' | 'INFRA' | 'NAO_CLASSIFICAVEL'
+    confianca?: 'alta' | 'media' | 'baixa'
+    commitSuspeito?: { hash: string; autor: string; data: string; mensagem: string }
+    modeloUsado?: string
   }
+  aiRejected?: boolean
 }
 
 // Helper: mapeia dados do backend para o formato do frontend
@@ -55,7 +60,13 @@ function mapTestLogToLocal(log: TestLogApi): LogTeste {
       motivo: (log.ai_analysis as Record<string, string>).motivo ?? '',
       sugestaoCorrecao: (log.ai_analysis as Record<string, string>).sugestaoCorrecao ?? '',
       arquivo: (log.ai_analysis as Record<string, string>).arquivo ?? '',
+      codigoDiff: (log.ai_analysis as Record<string, unknown>).codigoDiff as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['codigoDiff'],
+      categoria: (log.ai_analysis as Record<string, string>).categoria as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['categoria'],
+      confianca: (log.ai_analysis as Record<string, string>).confianca as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['confianca'],
+      commitSuspeito: (log.ai_analysis as Record<string, unknown>).commitSuspeito as LogTeste['aiAnalise'] extends undefined ? never : NonNullable<LogTeste['aiAnalise']>['commitSuspeito'],
+      modeloUsado: (log.ai_analysis as Record<string, string>).modeloUsado,
     } : undefined,
+    aiRejected: Boolean((log as unknown as Record<string, unknown>).ai_rejected),
   }
 }
 
@@ -78,7 +89,7 @@ export function LogTestes() {
       setDados(novos)
       return novos
     } catch (err) {
-      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.tests.msg_erro_carregar') })
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.testes-gerais.msg_erro_carregar') })
       return []
     } finally {
       setCarregando(false)
@@ -132,7 +143,7 @@ export function LogTestes() {
           : `Execução de testes concluída com falhas — ${resultado}. Clique para ver detalhes.`,
         autor: { nome: 'Motor de Testes' },
         tipo: tudoVerde ? 'sistema' : 'aviso',
-        href: '/admin/testes',
+        href: '/admin/testes-gerais',
       })
     }
 
@@ -159,29 +170,56 @@ export function LogTestes() {
   const reprovadosCount = dados.filter(d => d.resultado === 'REPROVADO').length
   const erroCount = dados.filter(d => d.resultado === 'ERRO_CATASTROFICO').length
 
-  // NOTA: os botões "Corrigir com IA" e "Alterar Manualmente" foram removidos
-  // do renderExpandido porque eram UX mentiroso — o handler era um setTimeout
-  // que só mudava o estado local pra APROVADO sem corrigir nada no código
-  // real. A análise IA heurística (generateAiAnalysis em playwright-parser.ts)
-  // continua sendo exibida como referência; a correção real precisa ser feita
-  // manualmente no código ou via endpoint de apply-fix que ainda não existe.
+  // Handlers para os botões de ação Gemini
+  const handleReanalyze = async (id: string) => {
+    try {
+      const res = await adminTestLogsApi.reanalyze(id)
+      addNotification({ type: 'success', message: 'Re-análise concluída' })
+      await loadLogs()
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao reanalisar' })
+    }
+  }
+
+  const handleApplyFix = async (id: string) => {
+    try {
+      const res = await adminTestLogsApi.applyFix(id)
+      addNotification({ type: 'success', message: `Correção aplicada em ${res.arquivo}` })
+      await loadLogs()
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao aplicar correção' })
+    }
+  }
+
+  const handleReject = async (id: string) => {
+    const motivo = window.prompt('Motivo da rejeição (min 10 chars):')
+    if (!motivo || motivo.length < 10) return
+    try {
+      await adminTestLogsApi.reject(id, motivo)
+      addNotification({ type: 'success', message: 'Análise rejeitada — feedback registrado' })
+      await loadLogs()
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao rejeitar' })
+    }
+  }
+
   const colunas: TabelaGlobalColuna<LogTeste>[] = [
     {
-      key: 'data', label: t('admin.tests.col_data'), tipo: 'texto',
-      tooltipTitulo: t('admin.tests.tooltip_data'),
-      tooltipDescricao: t('admin.tests.tooltip_data_desc')
+      key: 'data', label: t('admin.testes-gerais.col_data'), tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_data'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_data_desc')
     },
     {
-      key: 'hora', label: t('admin.tests.col_hora'), tipo: 'texto',
-      tooltipTitulo: t('admin.tests.tooltip_hora'),
-      tooltipDescricao: t('admin.tests.tooltip_hora_desc')
+      key: 'hora', label: t('admin.testes-gerais.col_hora'), tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_hora'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_hora_desc')
     },
     {
       key: 'tipo',
-      label: t('admin.tests.col_tipo'),
+      label: t('admin.testes-gerais.col_tipo'),
       tipo: 'texto',
-      tooltipTitulo: t('admin.tests.tooltip_tipo'),
-      tooltipDescricao: t('admin.tests.tooltip_tipo_desc'),
+      tooltipTitulo: t('admin.testes-gerais.tooltip_tipo'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_tipo_desc'),
       render: (v: TipoTeste) => (
         <span style={{
           display: 'inline-flex', padding: '0.15rem 0.6rem', borderRadius: '4px',
@@ -195,22 +233,22 @@ export function LogTestes() {
       )
     },
     {
-      key: 'modulo', label: t('admin.tests.col_modulo'), tipo: 'texto',
-      tooltipTitulo: t('admin.tests.tooltip_modulo'),
-      tooltipDescricao: t('admin.tests.tooltip_modulo_desc')
+      key: 'modulo', label: t('admin.testes-gerais.col_modulo'), tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_modulo'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_modulo_desc')
     },
     {
-      key: 'teste', label: t('admin.tests.col_teste'), tipo: 'texto',
-      tooltipTitulo: t('admin.tests.tooltip_teste'),
-      tooltipDescricao: t('admin.tests.tooltip_teste_desc'),
+      key: 'teste', label: t('admin.testes-gerais.col_teste'), tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_teste'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_teste_desc'),
       render: (v) => <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{v}</span> 
     },
     {
       key: 'resultado',
-      label: t('admin.tests.col_resultado'),
+      label: t('admin.testes-gerais.col_resultado'),
       tipo: 'texto',
-      tooltipTitulo: t('admin.tests.tooltip_resultado'),
-      tooltipDescricao: t('admin.tests.tooltip_resultado_desc'),
+      tooltipTitulo: t('admin.testes-gerais.tooltip_resultado'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_resultado_desc'),
       render: (v: Resultado) => {
         const pass = v === 'APROVADO'
         return (
@@ -228,9 +266,9 @@ export function LogTestes() {
       }
     },
     {
-      key: 'duracao', label: t('admin.tests.col_duracao'), tipo: 'texto',
-      tooltipTitulo: t('admin.tests.tooltip_duracao'),
-      tooltipDescricao: t('admin.tests.tooltip_duracao_desc'),
+      key: 'duracao', label: t('admin.testes-gerais.col_duracao'), tipo: 'texto',
+      tooltipTitulo: t('admin.testes-gerais.tooltip_duracao'),
+      tooltipDescricao: t('admin.testes-gerais.tooltip_duracao_desc'),
       render: (v) => <span style={{ color: '#94a3b8' }}>{v}</span> 
     },
   ]
@@ -239,7 +277,7 @@ export function LogTestes() {
     if (item.resultado === 'APROVADO') return (
        <div style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#10b981', background: 'rgba(16, 185, 129, 0.05)', borderRadius: '8px', margin: '0.5rem 1rem' }}>
           <CheckCircle size={20} weight="fill" /> 
-          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t('admin.tests.expandido_sucesso')}</span>
+          <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{t('admin.testes-gerais.expandido_sucesso')}</span>
        </div>
     )
 
@@ -250,7 +288,7 @@ export function LogTestes() {
           <div style={{ background: 'var(--ws-bg-body, #0f172a)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', overflow: 'hidden' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(239,68,68,0.1)', padding: '0.6rem 1rem', borderBottom: '1px solid rgba(239,68,68,0.15)' }}>
                <Warning size={16} color="#ef4444" weight="bold" />
-               <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#f87171' }}>{t('admin.tests.expandido_erro_titulo')}</span>
+               <span style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#f87171' }}>{t('admin.testes-gerais.expandido_erro_titulo')}</span>
             </div>
             <div style={{ padding: '1rem' }}>
                <code style={{ color: '#fca5a5', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.85rem', wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>
@@ -260,66 +298,134 @@ export function LogTestes() {
           </div>
         )}
 
-        {/* Análise da IA - Correção em Um Clique */}
+        {/* Análise Gemini — badges, diff, ações */}
         {item.aiAnalise && (
-           <div style={{ 
-               background: 'linear-gradient(145deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)', 
-               borderRadius: '12px', 
-               border: '1px solid rgba(139, 92, 246, 0.4)', 
+           <div style={{
+               background: 'linear-gradient(145deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%)',
+               borderRadius: '12px',
+               border: '1px solid rgba(139, 92, 246, 0.4)',
                boxShadow: '0 8px 32px rgba(139, 92, 246, 0.1)',
-               position: 'relative', overflow: 'hidden' 
+               position: 'relative', overflow: 'hidden'
             }}>
-             {/* Glow decorativo */}
              <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '150%', height: '100%', background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
-             
+
+             {/* Header com badges e botões de ação */}
              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', borderBottom: '1px solid rgba(139, 92, 246, 0.2)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: '8px', background: 'rgba(139,92,246,0.2)', color: '#c084fc', boxShadow: '0 0 12px rgba(139,92,246,0.3)' }}>
                       <Sparkle size={18} weight="fill" />
                    </div>
                    <div>
-                     <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{t('admin.tests.expandido_ia_titulo')}</h4>
-                     <p style={{ fontSize: '0.75rem', color: '#a78bfa', margin: 0 }}>{t('admin.tests.expandido_ia_subtitulo')}</p>
+                     <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f1f5f9', margin: 0 }}>{t('admin.testes-gerais.expandido_ia_titulo')}</h4>
+                     <p style={{ fontSize: '0.75rem', color: '#a78bfa', margin: 0 }}>
+                       {item.aiAnalise.modeloUsado ? `via ${item.aiAnalise.modeloUsado}` : t('admin.testes-gerais.expandido_ia_subtitulo')}
+                     </p>
                    </div>
+                   {/* Badge de categoria */}
+                   {item.aiAnalise.categoria && (() => {
+                     const catColors: Record<string, { bg: string; border: string; text: string }> = {
+                       BUG_REAL:             { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.4)', text: '#ef4444' },
+                       TESTE_DESATUALIZADO:  { bg: 'rgba(234,179,8,0.15)', border: 'rgba(234,179,8,0.4)', text: '#eab308' },
+                       FLAKY_TIMING:         { bg: 'rgba(251,146,60,0.15)', border: 'rgba(251,146,60,0.4)', text: '#fb923c' },
+                       REGRESSAO_RECENTE:    { bg: 'rgba(168,85,247,0.15)', border: 'rgba(168,85,247,0.4)', text: '#a855f7' },
+                       INFRA:                { bg: 'rgba(100,116,139,0.15)', border: 'rgba(100,116,139,0.4)', text: '#94a3b8' },
+                       NAO_CLASSIFICAVEL:    { bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)', text: '#64748b' },
+                     }
+                     const c = catColors[item.aiAnalise!.categoria!] ?? catColors.NAO_CLASSIFICAVEL
+                     return (
+                       <span style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: c.bg, border: `1px solid ${c.border}`, color: c.text, fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.04em' }}>
+                         {item.aiAnalise!.categoria!.replace(/_/g, ' ')}
+                       </span>
+                     )
+                   })()}
+                   {/* Badge de confiança */}
+                   {item.aiAnalise.confianca && (() => {
+                     const confColors: Record<string, { bg: string; border: string; text: string }> = {
+                       alta:  { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.4)', text: '#10b981' },
+                       media: { bg: 'rgba(234,179,8,0.15)', border: 'rgba(234,179,8,0.4)', text: '#eab308' },
+                       baixa: { bg: 'rgba(100,116,139,0.1)', border: 'rgba(100,116,139,0.3)', text: '#64748b' },
+                     }
+                     const c = confColors[item.aiAnalise!.confianca!] ?? confColors.baixa
+                     return (
+                       <span style={{ padding: '0.15rem 0.5rem', borderRadius: '4px', background: c.bg, border: `1px solid ${c.border}`, color: c.text, fontSize: '0.65rem', fontWeight: 800 }}>
+                         {item.aiAnalise!.confianca}
+                       </span>
+                     )
+                   })()}
                 </div>
-                {/* Os botões "Corrigir com IA" e "Alterar Manualmente" foram
-                    removidos porque eram UX mentiroso (setTimeout + setState fake).
-                    A análise IA abaixo segue como referência pra correção manual. */}
+                {/* Botões de ação */}
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  {item.aiAnalise.confianca === 'alta' && item.aiAnalise.codigoDiff && (
+                    <button
+                      onClick={() => handleApplyFix(item.id)}
+                      style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', color: '#10b981', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      Aplicar correção
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleReanalyze(item.id)}
+                    style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.3)', color: '#38bdf8', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Reanalisar
+                  </button>
+                  <button
+                    onClick={() => handleReject(item.id)}
+                    style={{ padding: '0.3rem 0.7rem', borderRadius: '6px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Rejeitar
+                  </button>
+                </div>
              </div>
-             
+
              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(250px, 1fr) minmax(350px, 1.5fr)', gap: '1rem', padding: '1.25rem', position: 'relative' }}>
-               {/* Resumo e Motivos */}
                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.tests.expandido_ia_o_que_e')}</span>
+                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_o_que_e')}</span>
                     <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>{item.aiAnalise.erroResumo}</strong>
                   </div>
                   <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.tests.expandido_ia_motivo')}</span>
+                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_motivo')}</span>
                     <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>{item.aiAnalise.motivo}</p>
                   </div>
                   <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.tests.expandido_ia_onde')}</span>
+                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_onde')}</span>
                     <code style={{ display: 'inline-block', padding: '0.3rem 0.6rem', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '6px', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'var(--font-mono, monospace)' }}>
                        {item.aiAnalise.arquivo}
                     </code>
                   </div>
+                  {/* Commit suspeito */}
+                  {item.aiAnalise.commitSuspeito && (
+                    <div style={{ padding: '0.75rem', background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: '8px' }}>
+                      <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', color: '#a855f7', marginBottom: '0.4rem' }}>COMMIT SUSPEITO</span>
+                      <code style={{ fontSize: '0.75rem', color: '#e2e8f0', fontFamily: 'var(--font-mono, monospace)' }}>
+                        {item.aiAnalise.commitSuspeito.hash.slice(0, 7)}
+                      </code>
+                      <span style={{ color: '#94a3b8', fontSize: '0.75rem' }}> por {item.aiAnalise.commitSuspeito.autor} em {item.aiAnalise.commitSuspeito.data}</span>
+                      <p style={{ fontSize: '0.8rem', color: '#cbd5e1', margin: '0.25rem 0 0' }}>{item.aiAnalise.commitSuspeito.mensagem}</p>
+                    </div>
+                  )}
                </div>
 
-               {/* Sugestão de Código e Preview de Alteração */}
                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
                   <div>
-                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.tests.expandido_ia_correcao')}</span>
+                    <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.25rem' }}>{t('admin.testes-gerais.expandido_ia_correcao')}</span>
                     <p style={{ fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>{item.aiAnalise.sugestaoCorrecao}</p>
                   </div>
-                  
+
                   {item.aiAnalise.codigoDiff && (
                     <div style={{ marginTop: '0.5rem', fontFamily: 'var(--font-mono, monospace)', fontSize: '0.75rem', borderRadius: '6px', overflow: 'hidden', border: '1px solid rgba(139,92,246,0.3)' }}>
-                       <div style={{ background: 'rgba(239,68,68,0.1)', color: '#fca5a5', padding: '0.5rem 0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                       {item.aiAnalise.codigoDiff.explicacao && (
+                         <div style={{ background: 'rgba(139,92,246,0.08)', color: '#a78bfa', padding: '0.35rem 0.75rem', fontSize: '0.7rem', borderBottom: '1px solid rgba(139,92,246,0.15)' }}>
+                           {item.aiAnalise.codigoDiff.arquivo && <span style={{ color: '#64748b' }}>{item.aiAnalise.codigoDiff.arquivo}{item.aiAnalise.codigoDiff.linha ? `:${item.aiAnalise.codigoDiff.linha}` : ''} — </span>}
+                           {item.aiAnalise.codigoDiff.explicacao}
+                         </div>
+                       )}
+                       <div style={{ background: 'rgba(239,68,68,0.1)', color: '#fca5a5', padding: '0.5rem 0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
                           <span style={{ opacity: 0.5, userSelect: 'none' }}>-</span>
                           <span style={{ whiteSpace: 'pre-wrap' }}>{item.aiAnalise.codigoDiff.old}</span>
                        </div>
-                       <div style={{ background: 'rgba(16,185,129,0.1)', color: '#6ee7b7', padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                       <div style={{ background: 'rgba(16,185,129,0.1)', color: '#6ee7b7', padding: '0.5rem 0.75rem', display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
                           <span style={{ opacity: 0.5, userSelect: 'none' }}>+</span>
                           <span style={{ whiteSpace: 'pre-wrap' }}>{item.aiAnalise.codigoDiff.new}</span>
                        </div>
@@ -329,10 +435,10 @@ export function LogTestes() {
                   {item.aiAnalise.provaVisual && (
                     <div style={{ marginTop: '1rem' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', color: '#f87171', marginBottom: '0.5rem' }}>
-                        📸 {t('admin.tests.expandido_ia_prova_visual')}
+                        {t('admin.testes-gerais.expandido_ia_prova_visual')}
                       </span>
                       <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid rgba(239, 68, 68, 0.4)', boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
-                        <img src={item.aiAnalise.provaVisual} alt={t('admin.tests.expandido_ia_evidencia_alt')} style={{ width: '100%', display: 'block' }} />
+                        <img src={item.aiAnalise.provaVisual} alt={t('admin.testes-gerais.expandido_ia_evidencia_alt')} style={{ width: '100%', display: 'block' }} />
                       </div>
                     </div>
                   )}
@@ -363,8 +469,8 @@ export function LogTestes() {
               )}
             </div>
           }
-          titulo={t('admin.tests.titulo')}
-          subtitulo={t('admin.tests.subtitulo')}
+          titulo={t('admin.testes-gerais.titulo')}
+          subtitulo={t('admin.testes-gerais.subtitulo')}
         />
       }
       acoes={
@@ -393,7 +499,7 @@ export function LogTestes() {
               }
             `}
           </style>
-          <TooltipGlobal descricao={t('admin.tests.tooltip_agendamento')}>
+          <TooltipGlobal descricao={t('admin.testes-gerais.tooltip_agendamento')}>
             <button
                type="button"
                onClick={() => setModalAgendamentoAberto(true)}
@@ -410,10 +516,10 @@ export function LogTestes() {
                onMouseLeave={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)'}
             >
               <Clock size={16} weight={agendamentoAtivo ? "fill" : "bold"} style={{ color: agendamentoAtivo ? '#10b981' : 'inherit' }} />
-              {t('admin.tests.btn_agendamento')}
+              {t('admin.testes-gerais.btn_agendamento')}
             </button>
           </TooltipGlobal>
-          <TooltipGlobal descricao={t('admin.tests.tooltip_rodar')}>
+          <TooltipGlobal descricao={t('admin.testes-gerais.tooltip_rodar')}>
             <button
                disabled={rodandoTestes}
                onClick={() => setModalExecutarAberto(true)}
@@ -431,7 +537,7 @@ export function LogTestes() {
                onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
             >
               <PlayCircle size={16} weight="bold" />
-              {rodandoTestes ? 'Rodando...' : t('admin.tests.btn_rodar')}
+              {rodandoTestes ? 'Rodando...' : t('admin.testes-gerais.btn_rodar')}
             </button>
           </TooltipGlobal>
         </div>
@@ -439,25 +545,25 @@ export function LogTestes() {
       stats={
         <>
           <CardBasicoGlobal
-            titulo={t('admin.tests.card_aprovados')}
+            titulo={t('admin.testes-gerais.card_aprovados')}
             valor={aprovadosCount}
             icone={<CheckCircle weight="duotone" size={18} />}
             variante="sucesso"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.tests.card_aprovados_tooltip')}</span>}
+            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.testes-gerais.card_aprovados_tooltip')}</span>}
           />
           <CardBasicoGlobal
-            titulo={t('admin.tests.card_reprovados')}
+            titulo={t('admin.testes-gerais.card_reprovados')}
             valor={reprovadosCount}
             icone={<XCircle weight="duotone" size={18} />}
             variante="perigo"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.tests.card_reprovados_tooltip')}</span>}
+            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.testes-gerais.card_reprovados_tooltip')}</span>}
           />
           <CardBasicoGlobal
-            titulo={t('admin.tests.card_erro')}
+            titulo={t('admin.testes-gerais.card_erro')}
             valor={erroCount}
             icone={<Warning weight="duotone" size={18} />}
             variante="aviso"
-            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.tests.card_erro_tooltip')}</span>}
+            tooltip={<span style={{ color: '#cbd5e1', fontSize: '0.75rem', lineHeight: 1.5 }}>{t('admin.testes-gerais.card_erro_tooltip')}</span>}
           />
         </>
       }
@@ -559,10 +665,10 @@ export function LogTestes() {
           colunas={colunas}
           idKey="id"
           renderExpandido={renderExpandido}
-          mensagemVazio={t('admin.tests.vazio')}
-          mensagemSemFiltro={t('admin.tests.vazio_filtro')}
-          tooltipBusca={t('admin.tests.tooltip_busca')}
-          tooltipExpandir={t('admin.tests.tooltip_expandir')}
+          mensagemVazio={t('admin.testes-gerais.vazio')}
+          mensagemSemFiltro={t('admin.testes-gerais.vazio_filtro')}
+          tooltipBusca={t('admin.testes-gerais.tooltip_busca')}
+          tooltipExpandir={t('admin.testes-gerais.tooltip_expandir')}
         
         acoesExportacao={getAcoesExportacaoPadrao(colunas, 'dados_tabela', 'Exportação de Logs')}
       />

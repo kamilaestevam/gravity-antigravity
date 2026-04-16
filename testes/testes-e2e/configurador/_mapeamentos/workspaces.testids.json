@@ -1,0 +1,22 @@
+{
+  "componente": "servicos-global/configurador/src/pages/workspace/Workspaces.tsx",
+  "extraidoEm": "2026-04-16T01:44:18.195Z",
+  "elementos": {},
+  "testidsFaltando": [
+    "nav-organizacao",
+    "nav-workspaces",
+    "btn-edit-ws-0",
+    "input-nome-ws",
+    "input-subdominio-ws",
+    "btn-salvar-ws",
+    "btn-toggle-ws-0",
+    "btn-novo-ws",
+    "btn-delete-ws-0",
+    "btn-confirmar-delete",
+    "input-busca-ws",
+    "col-nome-ws",
+    "col-criada-em",
+    "col-status-ws",
+    "col-usuarios-ws"
+  ]
+}

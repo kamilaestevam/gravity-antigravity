@@ -1,0 +1,1341 @@
+{
+  "id": "TST-E2E-CONFIG-000009",
+  "versao": "1.0",
+  "geradoEm": "2026-04-16T01:44:18.196Z",
+  "geradoPor": "agente-plano-teste",
+  "escopo": "CONFIG",
+  "sublocal": "Taxa-de-Cambio",
+  "tela": "Taxa de Câmbio",
+  "rota": "/workspace/taxa-cambio",
+  "componenteFilePath": "servicos-global/configurador/src/pages/workspace/TaxaCambio.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/configurador/taxa-de-cambio.testids.json",
+  "ambientes": [
+    "Local",
+    "Staging",
+    "Producao"
+  ],
+  "criticidade": "alta",
+  "temDinheiro": true,
+  "resumoExecutivo": "Tela de cotações PTAX oficiais do Banco Central. Exibe taxas atuais (USD, EUR, GBP, CHF, CNY, JPY) e histórico de 30 dias. Risco: dados financeiros, sincronização com BC. temDinheiro=true pela natureza cambial.",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador ABC",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-server-8005",
+      "configurador-front-8000"
+    ]
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/configurador/src/pages/workspace/TaxaCambio.tsx",
+    "extraidoEm": "2026-04-16T01:44:18.196Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "nav-taxa-cambio",
+      "nav-api-cockpit",
+      "btn-sincronizar-ptax",
+      "tab-moeda-usd",
+      "tab-moeda-eur",
+      "tab-moeda-gbp",
+      "tab-moeda-chf",
+      "tab-moeda-cny",
+      "tab-moeda-jpy"
+    ]
+  },
+  "cobertura": [
+    {
+      "categoria": 1,
+      "nome": "Carregamento da tela",
+      "status": "coberta",
+      "passosAssociados": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "categoria": 2,
+      "nome": "Identidade visual",
+      "status": "coberta",
+      "passosAssociados": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "categoria": 3,
+      "nome": "Navegacao lateral / breadcrumb",
+      "status": "coberta",
+      "passosAssociados": [
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    {
+      "categoria": 4,
+      "nome": "Read / Listagem / Visualizacao",
+      "status": "coberta",
+      "passosAssociados": [
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25
+      ]
+    },
+    {
+      "categoria": 5,
+      "nome": "Update / Edicao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Tela read-only de cotações — taxas são sincronizadas automaticamente do Banco Central, não editadas manualmente"
+    },
+    {
+      "categoria": 6,
+      "nome": "Create / Criacao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Taxas são importadas do Banco Central via sincronização, não criadas manualmente pelo usuario"
+    },
+    {
+      "categoria": 7,
+      "nome": "Delete / Exclusao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Cotações são dados historicos imutaveis do Banco Central, não podem ser deletadas pelo usuario"
+    },
+    {
+      "categoria": 8,
+      "nome": "Validacoes de campo",
+      "status": "coberta",
+      "passosAssociados": [
+        26,
+        27,
+        28
+      ]
+    },
+    {
+      "categoria": 9,
+      "nome": "Estados de erro",
+      "status": "coberta",
+      "passosAssociados": [
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ]
+    },
+    {
+      "categoria": 10,
+      "nome": "Estados vazios",
+      "status": "coberta",
+      "passosAssociados": [
+        35,
+        36,
+        37
+      ]
+    },
+    {
+      "categoria": 11,
+      "nome": "Estados de loading",
+      "status": "coberta",
+      "passosAssociados": [
+        38,
+        39,
+        40
+      ]
+    },
+    {
+      "categoria": 12,
+      "nome": "Filtros e busca",
+      "status": "coberta",
+      "passosAssociados": [
+        41,
+        42,
+        43,
+        44,
+        45,
+        46
+      ]
+    },
+    {
+      "categoria": 13,
+      "nome": "Ordenacao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Tabelas de cotação são cronológicas por natureza — ordenação fixa por data, sem necessidade de reordenar"
+    },
+    {
+      "categoria": 14,
+      "nome": "Permissoes / RBAC",
+      "status": "coberta",
+      "passosAssociados": [
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "categoria": 15,
+      "nome": "Multi-tenant / isolamento",
+      "status": "coberta",
+      "passosAssociados": [
+        50,
+        51,
+        52,
+        53
+      ]
+    },
+    {
+      "categoria": 16,
+      "nome": "Acessibilidade (a11y)",
+      "status": "coberta",
+      "passosAssociados": [
+        54,
+        55,
+        56,
+        57
+      ]
+    },
+    {
+      "categoria": 17,
+      "nome": "Responsividade",
+      "status": "coberta",
+      "passosAssociados": [
+        58,
+        59,
+        60,
+        61
+      ]
+    },
+    {
+      "categoria": 18,
+      "nome": "Internacionalizacao (i18n)",
+      "status": "coberta",
+      "passosAssociados": [
+        62,
+        63,
+        64,
+        65
+      ]
+    },
+    {
+      "categoria": 19,
+      "nome": "Performance",
+      "status": "coberta",
+      "passosAssociados": [
+        66,
+        67,
+        68,
+        69
+      ]
+    },
+    {
+      "categoria": 20,
+      "nome": "Persistencia e refresh",
+      "status": "coberta",
+      "passosAssociados": [
+        70,
+        71,
+        72
+      ]
+    }
+  ],
+  "coberturaPercentual": 100,
+  "passos": [
+    {
+      "numero": 1,
+      "acao": "Navegar para /workspace/taxa-cambio",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "goto",
+        "rota": "/workspace/taxa-cambio"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/taxa-cambio"
+      },
+      "resultadoEsperado": "URL correta",
+      "screenshot": "01_navegar_para_workspacetaxac",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 2,
+      "acao": "Verificar cards de cotacao USD e EUR",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cards com valores de compra/venda",
+      "screenshot": "02_verificar_cards_de_cotacao_usd",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 3,
+      "acao": "Verificar tabela de cotacoes atuais",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela com 6 moedas",
+      "screenshot": "03_verificar_tabela_de_cotacoes_a",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 4,
+      "acao": "Verificar tabela de historico",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela com historico 30 dias",
+      "screenshot": "04_verificar_tabela_de_historico",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 5,
+      "acao": "Verificar sem erros JS",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Console limpo",
+      "screenshot": "05_verificar_sem_erros_js",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 6,
+      "acao": "Verificar titulo Taxa de Cambio",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Titulo e icone CurrencyCircleDollar",
+      "screenshot": "06_verificar_titulo_taxa_de_cambi",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 7,
+      "acao": "Verificar subtitulo PTAX Banco Central",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Descricao sobre PTAX",
+      "screenshot": "07_verificar_subtitulo_ptax_banco",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 8,
+      "acao": "Verificar botao Sincronizar PTAX",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botao com icone ArrowsClockwise",
+      "screenshot": "08_verificar_botao_sincronizar_pt",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 9,
+      "acao": "Verificar timestamp de ultima sincronizacao",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Data/hora com icone Clock",
+      "screenshot": "09_verificar_timestamp_de_ultima_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 10,
+      "acao": "Verificar card USD formatado em R$",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Valor com 4 casas decimais",
+      "screenshot": "10_verificar_card_usd_formatado_e",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 11,
+      "acao": "Verificar card EUR formatado em R$",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Valor com 4 casas decimais",
+      "screenshot": "11_verificar_card_eur_formatado_e",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 12,
+      "acao": "Verificar card Moedas Ativas",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Contagem de moedas ativas (6)",
+      "screenshot": "12_verificar_card_moedas_ativas",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 13,
+      "acao": "Verificar tabs de filtro de moeda (USD/EUR/GBP/CHF/CNY/JPY)",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "6 tabs de moeda",
+      "screenshot": "13_verificar_tabs_de_filtro_de_mo",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 14,
+      "acao": "Sidebar com Taxa de Cambio selecionado",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Item highlighted",
+      "screenshot": "14_sidebar_com_taxa_de_cambio_sel",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 15,
+      "acao": "Navegar para Financeiro via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-financeiro"
+      },
+      "resultadoEsperado": "Navega para Financeiro",
+      "screenshot": "15_navegar_para_financeiro_via_si",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 16,
+      "acao": "Voltar para Taxa de Cambio via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-taxa-cambio"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/taxa-cambio"
+      },
+      "resultadoEsperado": "Volta corretamente",
+      "screenshot": "16_voltar_para_taxa_de_cambio_via",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "nav-taxa-cambio"
+    },
+    {
+      "numero": 17,
+      "acao": "Navegar para API Cockpit via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-api-cockpit"
+      },
+      "resultadoEsperado": "Navega para API Cockpit",
+      "screenshot": "17_navegar_para_api_cockpit_via_s",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "nav-api-cockpit"
+    },
+    {
+      "numero": 18,
+      "acao": "Verificar colunas da tabela Cotacoes Atuais",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Moeda, Compra, Venda, Data, Hora, Fonte, Armazenado",
+      "screenshot": "18_verificar_colunas_da_tabela_co",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 19,
+      "acao": "Verificar valores com 4 casas decimais",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Ex: 5,1234",
+      "screenshot": "19_verificar_valores_com_4_casas_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 20,
+      "acao": "Verificar tabela de historico com 30 dias",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Aproximadamente 22 linhas (dias uteis)",
+      "screenshot": "20_verificar_tabela_de_historico_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 21,
+      "acao": "Verificar colunas do historico",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Data, Compra, Venda, Hora, Fonte",
+      "screenshot": "21_verificar_colunas_do_historico",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 22,
+      "acao": "Verificar API GET /taxa-cambio retorna dados",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/taxa-cambio",
+        "status": 200
+      },
+      "resultadoEsperado": "API OK",
+      "screenshot": "22_verificar_api_get_taxacambio",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 23,
+      "acao": "Verificar API historico retorna dados",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/taxa-cambio/historico",
+        "status": 200
+      },
+      "resultadoEsperado": "API OK",
+      "screenshot": "23_verificar_api_historico_retorn",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 24,
+      "acao": "Verificar fonte PTAX nos dados",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Fonte = PTAX/BCB",
+      "screenshot": "24_verificar_fonte_ptax_nos_dados",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 25,
+      "acao": "Verificar que datas estao em pt-BR",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "DD/MM/YYYY",
+      "screenshot": "25_verificar_que_datas_estao_em_p",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 26,
+      "acao": "Validar que Sincronizar so funciona com servico online",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro claro se bid-cambio offline",
+      "screenshot": "26_validar_que_sincronizar_so_fun",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 27,
+      "acao": "Verificar tratamento de moeda inexistente no filtro",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Filtro so aceita moedas validas",
+      "screenshot": "27_verificar_tratamento_de_moeda_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 28,
+      "acao": "Verificar que valores numericos sao validos",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Sem NaN ou undefined nos cards/tabela",
+      "screenshot": "28_verificar_que_valores_numerico",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 29,
+      "acao": "Clicar Sincronizar PTAX (sucesso)",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-sincronizar-ptax"
+      },
+      "resultadoEsperado": "Dados atualizados, timestamp muda",
+      "screenshot": "29_clicar_sincronizar_ptax_suces",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-sincronizar-ptax"
+    },
+    {
+      "numero": 30,
+      "acao": "Sincronizar com bid-cambio offline",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem de erro: bid-cambio offline",
+      "screenshot": "30_sincronizar_com_bidcambio_off",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 31,
+      "acao": "Sincronizar com erro de rede",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem: erro de comunicacao",
+      "screenshot": "31_sincronizar_com_erro_de_rede",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 32,
+      "acao": "Sincronizar com resposta parcial (algumas moedas falharam)",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mostra total_ok vs total_erro",
+      "screenshot": "32_sincronizar_com_resposta_parci",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 33,
+      "acao": "API retorna erro 500",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast de erro",
+      "screenshot": "33_api_retorna_erro_500",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 34,
+      "acao": "Alerta de erro visivel e descritivo",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Box vermelho com mensagem clara",
+      "screenshot": "34_alerta_de_erro_visivel_e_descr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 35,
+      "acao": "Sem dados de cotacao (BD vazio)",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cards zerados, tabelas vazias com mensagem",
+      "screenshot": "35_sem_dados_de_cotacao_bd_vazio",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 36,
+      "acao": "Historico sem dados para moeda selecionada",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela vazia com mensagem",
+      "screenshot": "36_historico_sem_dados_para_moeda",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 37,
+      "acao": "Cards sem valores antes da primeira sync",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Valores zerados ou placeholder",
+      "screenshot": "37_cards_sem_valores_antes_da_pri",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 38,
+      "acao": "Loading durante sincronizacao",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botao com spinner, disabled",
+      "screenshot": "38_loading_durante_sincronizacao",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 39,
+      "acao": "Loading ao carregar cotacoes",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Skeleton nas tabelas",
+      "screenshot": "39_loading_ao_carregar_cotacoes",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 40,
+      "acao": "Loading ao trocar filtro de moeda",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela historico recarrega",
+      "screenshot": "40_loading_ao_trocar_filtro_de_mo",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 41,
+      "acao": "Filtrar historico por USD",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-moeda-usd"
+      },
+      "resultadoEsperado": "Historico mostra USD",
+      "screenshot": "41_filtrar_historico_por_usd",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-moeda-usd"
+    },
+    {
+      "numero": 42,
+      "acao": "Filtrar historico por EUR",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-moeda-eur"
+      },
+      "resultadoEsperado": "Historico mostra EUR",
+      "screenshot": "42_filtrar_historico_por_eur",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-moeda-eur"
+    },
+    {
+      "numero": 43,
+      "acao": "Filtrar historico por GBP",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-moeda-gbp"
+      },
+      "resultadoEsperado": "Historico mostra GBP",
+      "screenshot": "43_filtrar_historico_por_gbp",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-moeda-gbp"
+    },
+    {
+      "numero": 44,
+      "acao": "Filtrar historico por CHF",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-moeda-chf"
+      },
+      "resultadoEsperado": "Historico mostra CHF",
+      "screenshot": "44_filtrar_historico_por_chf",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-moeda-chf"
+    },
+    {
+      "numero": 45,
+      "acao": "Filtrar historico por CNY",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-moeda-cny"
+      },
+      "resultadoEsperado": "Historico mostra CNY",
+      "screenshot": "45_filtrar_historico_por_cny",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-moeda-cny"
+    },
+    {
+      "numero": 46,
+      "acao": "Filtrar historico por JPY",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-moeda-jpy"
+      },
+      "resultadoEsperado": "Historico mostra JPY",
+      "screenshot": "46_filtrar_historico_por_jpy",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-moeda-jpy"
+    },
+    {
+      "numero": 47,
+      "acao": "STANDARD pode ver cotacoes",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "STANDARD"
+      },
+      "resultadoEsperado": "Tabelas visiveis, botao sync oculto",
+      "screenshot": "47_standard_pode_ver_cotacoes",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 48,
+      "acao": "Apenas ADMIN+ pode sincronizar",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botao Sincronizar PTAX oculto para STANDARD",
+      "screenshot": "48_apenas_admin_pode_sincronizar",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 49,
+      "acao": "SUPER_ADMIN pode sincronizar",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "SUPER_ADMIN"
+      },
+      "resultadoEsperado": "Botao visivel",
+      "screenshot": "49_super_admin_pode_sincronizar",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 50,
+      "acao": "Cotacoes isoladas por tenant",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cada tenant ve suas proprias cotacoes",
+      "screenshot": "50_cotacoes_isoladas_por_tenant",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 51,
+      "acao": "Sync de tenant A nao afeta tenant B",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Dados isolados",
+      "screenshot": "51_sync_de_tenant_a_nao_afeta_ten",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 52,
+      "acao": "API filtra por tenant_id",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "WHERE tenant_id na query",
+      "screenshot": "52_api_filtra_por_tenant_id",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 53,
+      "acao": "Tentar acessar cotacoes de outro tenant",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "403 ou 404",
+      "screenshot": "53_tentar_acessar_cotacoes_de_out",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 54,
+      "acao": "Navegar tabs com Tab",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Tab"
+      },
+      "resultadoEsperado": "Focus ring nos tabs de moeda",
+      "screenshot": "54_navegar_tabs_com_tab",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 55,
+      "acao": "Selecionar tab com Enter",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Enter"
+      },
+      "resultadoEsperado": "Tab ativa muda",
+      "screenshot": "55_selecionar_tab_com_enter",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 56,
+      "acao": "Verificar aria-labels nas tabelas",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabelas acessiveis",
+      "screenshot": "56_verificar_arialabels_nas_tabe",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 57,
+      "acao": "Verificar contraste dos valores",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Numeros legiveis",
+      "screenshot": "57_verificar_contraste_dos_valore",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 58,
+      "acao": "Resize mobile 375px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 375,
+        "altura": 812
+      },
+      "resultadoEsperado": "Layout adaptado",
+      "screenshot": "58_resize_mobile_375px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 59,
+      "acao": "Resize tablet 768px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 768,
+        "altura": 1024
+      },
+      "resultadoEsperado": "Layout tablet",
+      "screenshot": "59_resize_tablet_768px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 60,
+      "acao": "Resize desktop 1280px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 1280,
+        "altura": 800
+      },
+      "resultadoEsperado": "Layout desktop",
+      "screenshot": "60_resize_desktop_1280px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 61,
+      "acao": "Cards empilham em mobile",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Grid responsivo",
+      "screenshot": "61_cards_empilham_em_mobile",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 62,
+      "acao": "Textos em PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Labels corretos",
+      "screenshot": "62_textos_em_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 63,
+      "acao": "Trocar para EN",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "en"
+      },
+      "resultadoEsperado": "Labels em ingles",
+      "screenshot": "63_trocar_para_en",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 64,
+      "acao": "Formato numerico BR (virgula decimal)",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "5,1234 e nao 5.1234",
+      "screenshot": "64_formato_numerico_br_virgula_d",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 65,
+      "acao": "Formato de data BR (DD/MM/YYYY)",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Datas no formato brasileiro",
+      "screenshot": "65_formato_de_data_br_ddmmyyyy",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 66,
+      "acao": "FCP < 1.5s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Rapido",
+      "screenshot": "66_fcp__15s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 67,
+      "acao": "TTI < 3s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Interativo rapidamente",
+      "screenshot": "67_tti__3s",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 68,
+      "acao": "Historico de 30 dias renderiza em < 1s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela rapida",
+      "screenshot": "68_historico_de_30_dias_renderiza",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 69,
+      "acao": "Troca de moeda no filtro < 500ms",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Transicao rapida",
+      "screenshot": "69_troca_de_moeda_no_filtro__500",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 70,
+      "acao": "Dados persistem apos F5",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Cotacoes recarregam",
+      "screenshot": "70_dados_persistem_apos_f5",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 71,
+      "acao": "Filtro de moeda persiste apos reload",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Moeda selecionada mantida ou volta para USD",
+      "screenshot": "71_filtro_de_moeda_persiste_apos_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 72,
+      "acao": "Timestamp de ultima sync persiste",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Ultimo sync visivel apos F5",
+      "screenshot": "72_timestamp_de_ultima_sync_persi",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    }
+  ],
+  "estimativaDuracao": "~3 min",
+  "estimativaCustoIA": 0.08,
+  "ultimaExecucao": null,
+  "ultimoResultado": null
+}

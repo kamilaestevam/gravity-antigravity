@@ -1,0 +1,1053 @@
+{
+  "id": "TST-E2E-CONFIG-000003",
+  "versao": "1.0",
+  "geradoEm": "2026-04-16T01:44:18.189Z",
+  "geradoPor": "agente-plano-teste",
+  "escopo": "CONFIG",
+  "sublocal": "Permissoes",
+  "tela": "Permissões",
+  "rota": "/workspace/usuarios",
+  "componenteFilePath": "servicos-global/configurador/src/pages/workspace/ModalPermissoesUsuario.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/configurador/permissoes.testids.json",
+  "ambientes": [
+    "Local",
+    "Staging",
+    "Producao"
+  ],
+  "criticidade": "alta",
+  "temDinheiro": false,
+  "resumoExecutivo": "Modal de permissões granulares por módulo (Configurador, Menu, Comunicação, Produtos). Risco: escalação de privilégios. 4 abas com checkboxes agrupadas. RBAC define quais checkboxes são editáveis.",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador ABC",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-server-8005",
+      "configurador-front-8000"
+    ]
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/configurador/src/pages/workspace/ModalPermissoesUsuario.tsx",
+    "extraidoEm": "2026-04-16T01:44:18.189Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "btn-permissoes-0",
+      "tab-configurador",
+      "tab-menu",
+      "tab-comunicacao",
+      "tab-produtos",
+      "perm-organizacao-editar",
+      "btn-selecionar-todos",
+      "btn-limpar-todos",
+      "btn-salvar-permissoes"
+    ]
+  },
+  "cobertura": [
+    {
+      "categoria": 1,
+      "nome": "Carregamento da tela",
+      "status": "coberta",
+      "passosAssociados": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "categoria": 2,
+      "nome": "Identidade visual",
+      "status": "coberta",
+      "passosAssociados": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "categoria": 3,
+      "nome": "Navegacao lateral / breadcrumb",
+      "status": "coberta",
+      "passosAssociados": [
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "categoria": 4,
+      "nome": "Read / Listagem / Visualizacao",
+      "status": "coberta",
+      "passosAssociados": [
+        17,
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "categoria": 5,
+      "nome": "Update / Edicao",
+      "status": "coberta",
+      "passosAssociados": [
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    },
+    {
+      "categoria": 6,
+      "nome": "Create / Criacao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Permissões não são criadas — são toggle on/off"
+    },
+    {
+      "categoria": 7,
+      "nome": "Delete / Exclusao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Permissões não são deletadas — são revogadas (toggle off)"
+    },
+    {
+      "categoria": 8,
+      "nome": "Validacoes de campo",
+      "status": "coberta",
+      "passosAssociados": [
+        27,
+        28,
+        29,
+        30
+      ]
+    },
+    {
+      "categoria": 9,
+      "nome": "Estados de erro",
+      "status": "coberta",
+      "passosAssociados": [
+        31,
+        32
+      ]
+    },
+    {
+      "categoria": 10,
+      "nome": "Estados vazios",
+      "status": "coberta",
+      "passosAssociados": [
+        33
+      ]
+    },
+    {
+      "categoria": 11,
+      "nome": "Estados de loading",
+      "status": "coberta",
+      "passosAssociados": [
+        34,
+        35
+      ]
+    },
+    {
+      "categoria": 12,
+      "nome": "Filtros e busca",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Modal de permissoes nao tem filtros nem busca — o layout e um grid fixo de checkboxes agrupadas por modulo"
+    },
+    {
+      "categoria": 13,
+      "nome": "Ordenacao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Sem ordenacao — layout fixo de checkboxes agrupadas por modulo, nao ha coluna ordenavel"
+    },
+    {
+      "categoria": 14,
+      "nome": "Permissoes / RBAC",
+      "status": "coberta",
+      "passosAssociados": [
+        36,
+        37,
+        38,
+        39
+      ]
+    },
+    {
+      "categoria": 15,
+      "nome": "Multi-tenant / isolamento",
+      "status": "coberta",
+      "passosAssociados": [
+        40,
+        41
+      ]
+    },
+    {
+      "categoria": 16,
+      "nome": "Acessibilidade (a11y)",
+      "status": "coberta",
+      "passosAssociados": [
+        42,
+        43,
+        44,
+        45
+      ]
+    },
+    {
+      "categoria": 17,
+      "nome": "Responsividade",
+      "status": "coberta",
+      "passosAssociados": [
+        46,
+        47,
+        48
+      ]
+    },
+    {
+      "categoria": 18,
+      "nome": "Internacionalizacao (i18n)",
+      "status": "coberta",
+      "passosAssociados": [
+        49,
+        50
+      ]
+    },
+    {
+      "categoria": 19,
+      "nome": "Performance",
+      "status": "coberta",
+      "passosAssociados": [
+        51,
+        52
+      ]
+    },
+    {
+      "categoria": 20,
+      "nome": "Persistencia e refresh",
+      "status": "coberta",
+      "passosAssociados": [
+        53,
+        54
+      ]
+    }
+  ],
+  "coberturaPercentual": 100,
+  "passos": [
+    {
+      "numero": 1,
+      "acao": "Abrir modal de permissoes",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-permissoes-0"
+      },
+      "resultadoEsperado": "Modal de permissoes abre",
+      "screenshot": "01_abrir_modal_de_permissoes",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-permissoes-0"
+    },
+    {
+      "numero": 2,
+      "acao": "Verificar 4 abas visiveis",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Abas Configurador, Menu, Comunicação, Produtos",
+      "screenshot": "02_verificar_4_abas_visiveis",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 3,
+      "acao": "Verificar banner de tipo de usuario",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Banner com role do usuario e explicacao",
+      "screenshot": "03_verificar_banner_de_tipo_de_us",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 4,
+      "acao": "Verificar sem erros JS no console",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Console limpo",
+      "screenshot": "04_verificar_sem_erros_js_no_cons",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 5,
+      "acao": "Verificar titulo do modal com nome do usuario",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nome do usuario no titulo",
+      "screenshot": "05_verificar_titulo_do_modal_com_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 6,
+      "acao": "Verificar icone de permissoes",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Icone Shield visivel",
+      "screenshot": "06_verificar_icone_de_permissoes",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 7,
+      "acao": "Verificar cores dos badges de role",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Master=roxo, Admin=azul, Super Admin=vermelho",
+      "screenshot": "07_verificar_cores_dos_badges_de_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 8,
+      "acao": "Verificar contador de permissoes ativas por aba",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badge numerico em cada aba",
+      "screenshot": "08_verificar_contador_de_permisso",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 9,
+      "acao": "Verificar layout de grid de checkboxes",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Checkboxes agrupadas por modulo",
+      "screenshot": "09_verificar_layout_de_grid_de_ch",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 10,
+      "acao": "Verificar botoes Selecionar Todos / Limpar",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botoes de acao em massa visiveis",
+      "screenshot": "10_verificar_botoes_selecionar_to",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 11,
+      "acao": "Verificar estilo desabilitado para Master/SuperAdmin",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Checkboxes readonly com tooltip explicativo",
+      "screenshot": "11_verificar_estilo_desabilitado_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 12,
+      "acao": "Clicar na aba Configurador",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-configurador"
+      },
+      "resultadoEsperado": "Aba Configurador selecionada",
+      "screenshot": "12_clicar_na_aba_configurador",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-configurador"
+    },
+    {
+      "numero": 13,
+      "acao": "Clicar na aba Menu",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-menu"
+      },
+      "resultadoEsperado": "Aba Menu selecionada",
+      "screenshot": "13_clicar_na_aba_menu",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-menu"
+    },
+    {
+      "numero": 14,
+      "acao": "Clicar na aba Comunicacao",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-comunicacao"
+      },
+      "resultadoEsperado": "Aba Comunicacao selecionada",
+      "screenshot": "14_clicar_na_aba_comunicacao",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-comunicacao"
+    },
+    {
+      "numero": 15,
+      "acao": "Clicar na aba Produtos",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-produtos"
+      },
+      "resultadoEsperado": "Aba Produtos selecionada",
+      "screenshot": "15_clicar_na_aba_produtos",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-produtos"
+    },
+    {
+      "numero": 16,
+      "acao": "Verificar que abas preservam estado ao navegar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Checkboxes mantem valores ao trocar aba",
+      "screenshot": "16_verificar_que_abas_preservam_e",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 17,
+      "acao": "Verificar grid de permissoes do Configurador",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Modulos Organizacao, Workspaces, Usuarios, Assinaturas, Financeiro, APIs visiveis",
+      "screenshot": "17_verificar_grid_de_permissoes_d",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 18,
+      "acao": "Verificar estado atual das permissoes",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Checkboxes refletem permissoes reais do usuario",
+      "screenshot": "18_verificar_estado_atual_das_per",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 19,
+      "acao": "Verificar total de permissoes por aba",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Contador numerico correto",
+      "screenshot": "19_verificar_total_de_permissoes_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 20,
+      "acao": "Verificar permissoes de todos os modulos",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Todas permissoes visiveis nas 4 abas",
+      "screenshot": "20_verificar_permissoes_de_todos_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 21,
+      "acao": "Verificar label descritivo de cada permissao",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cada checkbox tem label descritivo",
+      "screenshot": "21_verificar_label_descritivo_de_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 22,
+      "acao": "Toggle uma permissao individual",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "perm-organizacao-editar"
+      },
+      "resultadoEsperado": "Checkbox alterna estado",
+      "screenshot": "22_toggle_uma_permissao_individua",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "perm-organizacao-editar"
+    },
+    {
+      "numero": 23,
+      "acao": "Clicar Selecionar Todos",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-selecionar-todos"
+      },
+      "resultadoEsperado": "Todas checkboxes da aba marcadas",
+      "screenshot": "23_clicar_selecionar_todos",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-selecionar-todos"
+    },
+    {
+      "numero": 24,
+      "acao": "Clicar Limpar Todos",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-limpar-todos"
+      },
+      "resultadoEsperado": "Todas checkboxes da aba desmarcadas",
+      "screenshot": "24_clicar_limpar_todos",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-limpar-todos"
+    },
+    {
+      "numero": 25,
+      "acao": "Salvar permissoes alteradas",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-salvar-permissoes"
+      },
+      "assercao": {
+        "tipo": "toastShown",
+        "texto": "salv"
+      },
+      "resultadoEsperado": "Permissoes salvas com toast",
+      "screenshot": "25_salvar_permissoes_alteradas",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-salvar-permissoes"
+    },
+    {
+      "numero": 26,
+      "acao": "Verificar que alteracao persiste ao reabrir modal",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Permissoes alteradas mantidas",
+      "screenshot": "26_verificar_que_alteracao_persis",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 27,
+      "acao": "Verificar validacao de permissoes minimas",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nao permite revogar todas permissoes",
+      "screenshot": "27_verificar_validacao_de_permiss",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 28,
+      "acao": "Verificar que Master tem checkboxes disabled",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Checkboxes readonly para Master",
+      "screenshot": "28_verificar_que_master_tem_check",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 29,
+      "acao": "Verificar que Super Admin tem todas marcadas e disabled",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Todas permissoes ativas e nao editaveis",
+      "screenshot": "29_verificar_que_super_admin_tem_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 30,
+      "acao": "Verificar conflito de permissoes (ex: editar sem visualizar)",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Sistema previne combinacoes invalidas",
+      "screenshot": "30_verificar_conflito_de_permisso",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 31,
+      "acao": "Simular erro ao salvar permissoes",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast de erro, modal nao fecha",
+      "screenshot": "31_simular_erro_ao_salvar_permiss",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 32,
+      "acao": "Simular erro 403 ao editar permissoes de outro admin",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro de permissao negada",
+      "screenshot": "32_simular_erro_403_ao_editar_per",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 33,
+      "acao": "Verificar estado vazio em aba sem permissoes",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem informativa se aba vazia",
+      "screenshot": "33_verificar_estado_vazio_em_aba_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 34,
+      "acao": "Verificar loading ao carregar permissoes",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Skeleton enquanto API responde",
+      "screenshot": "34_verificar_loading_ao_carregar_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 35,
+      "acao": "Verificar loading no botao salvar",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Spinner durante salvamento",
+      "screenshot": "35_verificar_loading_no_botao_sal",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 36,
+      "acao": "ADMIN nao pode editar permissoes de SUPER_ADMIN",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Modal abre em modo readonly",
+      "screenshot": "36_admin_nao_pode_editar_permisso",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 37,
+      "acao": "STANDARD nao pode acessar modal de permissoes",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botao de permissoes oculto",
+      "screenshot": "37_standard_nao_pode_acessar_moda",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 38,
+      "acao": "SUPER_ADMIN pode editar qualquer usuario",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Checkboxes editaveis",
+      "screenshot": "38_super_admin_pode_editar_qualqu",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 39,
+      "acao": "Verificar escalacao de privilegios impossivel",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "ADMIN nao pode dar permissoes que nao tem",
+      "screenshot": "39_verificar_escalacao_de_privile",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 40,
+      "acao": "Verificar isolamento de permissoes entre tenants",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Permissoes de tenant A nao afetam tenant B",
+      "screenshot": "40_verificar_isolamento_de_permis",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 41,
+      "acao": "Verificar que permissoes sao por tenant_id",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Filtro por tenant_id na query",
+      "screenshot": "41_verificar_que_permissoes_sao_p",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 42,
+      "acao": "Navegar checkboxes com Tab",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Tab"
+      },
+      "resultadoEsperado": "Focus ring nas checkboxes",
+      "screenshot": "42_navegar_checkboxes_com_tab",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 43,
+      "acao": "Toggle checkbox com Space",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Space"
+      },
+      "resultadoEsperado": "Checkbox alterna com Space",
+      "screenshot": "43_toggle_checkbox_com_space",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 44,
+      "acao": "Verificar aria-labels nas checkboxes",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cada checkbox tem aria-label",
+      "screenshot": "44_verificar_arialabels_nas_chec",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 45,
+      "acao": "Fechar modal com Escape",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Modal fecha",
+      "screenshot": "45_fechar_modal_com_escape",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 46,
+      "acao": "Resize para mobile 375px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 375,
+        "altura": 812
+      },
+      "resultadoEsperado": "Modal adaptado sem overflow",
+      "screenshot": "46_resize_para_mobile_375px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 47,
+      "acao": "Resize para tablet 768px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 768,
+        "altura": 1024
+      },
+      "resultadoEsperado": "Grid de checkboxes responsivo",
+      "screenshot": "47_resize_para_tablet_768px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 48,
+      "acao": "Resize para desktop 1280px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 1280,
+        "altura": 800
+      },
+      "resultadoEsperado": "Layout desktop padrao",
+      "screenshot": "48_resize_para_desktop_1280px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 49,
+      "acao": "Verificar labels em PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Todos labels em portugues",
+      "screenshot": "49_verificar_labels_em_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 50,
+      "acao": "Trocar para EN",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "en"
+      },
+      "resultadoEsperado": "Labels em ingles",
+      "screenshot": "50_trocar_para_en",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 51,
+      "acao": "Verificar rendering < 500ms",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Modal renderiza rapidamente",
+      "screenshot": "51_verificar_rendering__500ms",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 52,
+      "acao": "Verificar que muitas checkboxes nao travam UI",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Performance OK com 50+ checkboxes",
+      "screenshot": "52_verificar_que_muitas_checkboxe",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 53,
+      "acao": "Verificar que alteracoes nao salvas geram dirty check",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Alerta ao tentar fechar com mudancas pendentes",
+      "screenshot": "53_verificar_que_alteracoes_nao_s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 54,
+      "acao": "Verificar que salvar limpa dirty state",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Fechar modal sem alerta apos salvar",
+      "screenshot": "54_verificar_que_salvar_limpa_dir",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    }
+  ],
+  "estimativaDuracao": "~2 min",
+  "estimativaCustoIA": 0.08,
+  "ultimaExecucao": null,
+  "ultimoResultado": null
+}

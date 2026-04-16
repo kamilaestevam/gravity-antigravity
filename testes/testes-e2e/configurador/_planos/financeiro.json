@@ -1,0 +1,592 @@
+{
+  "id": "TST-E2E-CONFIG-000005",
+  "versao": "1.0",
+  "geradoEm": "2026-04-16T01:44:18.192Z",
+  "geradoPor": "agente-plano-teste",
+  "escopo": "CONFIG",
+  "sublocal": "Financeiro",
+  "tela": "Financeiro",
+  "rota": "/workspace/financeiro",
+  "componenteFilePath": "servicos-global/configurador/src/pages/workspace/Financeiro.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/configurador/financeiro.testids.json",
+  "ambientes": [
+    "Local",
+    "Staging",
+    "Producao"
+  ],
+  "criticidade": "critica",
+  "temDinheiro": true,
+  "resumoExecutivo": "Tela financeira com historico de faturas e detalhamento de produtos/valores. Risco: dados financeiros sensiveis, download de boletos/NF-e. Criticidade critica (temDinheiro=true). 2 tabs: Faturas e Produtos.",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador ABC",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-server-8005",
+      "configurador-front-8000"
+    ]
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/configurador/src/pages/workspace/Financeiro.tsx",
+    "extraidoEm": "2026-04-16T01:44:18.192Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "valor-fatura-0",
+      "btn-expand-fatura-0",
+      "tab-produtos-valores",
+      "btn-ver-detalhes-0",
+      "col-vencimento"
+    ]
+  },
+  "cobertura": [
+    {
+      "categoria": 1,
+      "nome": "Carregamento da tela",
+      "status": "coberta",
+      "passosAssociados": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "categoria": 2,
+      "nome": "Identidade visual",
+      "status": "coberta",
+      "passosAssociados": [
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "categoria": 3,
+      "nome": "Navegacao lateral / breadcrumb",
+      "status": "coberta",
+      "passosAssociados": [
+        7
+      ]
+    },
+    {
+      "categoria": 4,
+      "nome": "Read / Listagem / Visualizacao",
+      "status": "coberta",
+      "passosAssociados": [
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "categoria": 5,
+      "nome": "Update / Edicao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Tela read-only — faturas nao sao editaveis pelo usuario"
+    },
+    {
+      "categoria": 6,
+      "nome": "Create / Criacao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Faturas sao criadas pelo sistema, nao pelo usuario"
+    },
+    {
+      "categoria": 7,
+      "nome": "Delete / Exclusao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Faturas nao sao deletaveis pelo usuario"
+    },
+    {
+      "categoria": 8,
+      "nome": "Validacoes de campo",
+      "status": "coberta",
+      "passosAssociados": [
+        13
+      ]
+    },
+    {
+      "categoria": 9,
+      "nome": "Estados de erro",
+      "status": "coberta",
+      "passosAssociados": [
+        14
+      ]
+    },
+    {
+      "categoria": 10,
+      "nome": "Estados vazios",
+      "status": "coberta",
+      "passosAssociados": [
+        15
+      ]
+    },
+    {
+      "categoria": 11,
+      "nome": "Estados de loading",
+      "status": "coberta",
+      "passosAssociados": [
+        16
+      ]
+    },
+    {
+      "categoria": 12,
+      "nome": "Filtros e busca",
+      "status": "coberta",
+      "passosAssociados": [
+        17
+      ]
+    },
+    {
+      "categoria": 13,
+      "nome": "Ordenacao",
+      "status": "coberta",
+      "passosAssociados": [
+        18
+      ]
+    },
+    {
+      "categoria": 14,
+      "nome": "Permissoes / RBAC",
+      "status": "coberta",
+      "passosAssociados": [
+        19
+      ]
+    },
+    {
+      "categoria": 15,
+      "nome": "Multi-tenant / isolamento",
+      "status": "coberta",
+      "passosAssociados": [
+        20
+      ]
+    },
+    {
+      "categoria": 16,
+      "nome": "Acessibilidade (a11y)",
+      "status": "coberta",
+      "passosAssociados": [
+        21
+      ]
+    },
+    {
+      "categoria": 17,
+      "nome": "Responsividade",
+      "status": "coberta",
+      "passosAssociados": [
+        22
+      ]
+    },
+    {
+      "categoria": 18,
+      "nome": "Internacionalizacao (i18n)",
+      "status": "coberta",
+      "passosAssociados": [
+        23
+      ]
+    },
+    {
+      "categoria": 19,
+      "nome": "Performance",
+      "status": "coberta",
+      "passosAssociados": [
+        24
+      ]
+    },
+    {
+      "categoria": 20,
+      "nome": "Persistencia e refresh",
+      "status": "coberta",
+      "passosAssociados": [
+        25
+      ]
+    }
+  ],
+  "coberturaPercentual": 100,
+  "passos": [
+    {
+      "numero": 1,
+      "acao": "Navegar para /workspace/financeiro",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "goto",
+        "rota": "/workspace/financeiro"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/financeiro"
+      },
+      "resultadoEsperado": "URL correta",
+      "screenshot": "01_navegar_para_workspacefinanc",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 2,
+      "acao": "Verificar cards financeiros",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "3 cards: Proximo pagamento, Valor, Faturas abertas",
+      "screenshot": "02_verificar_cards_financeiros",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 3,
+      "acao": "Verificar tabs Faturas e Produtos",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "2 abas visiveis",
+      "screenshot": "03_verificar_tabs_faturas_e_produ",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 4,
+      "acao": "Verificar titulo Financeiro",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Titulo e icone corretos",
+      "screenshot": "04_verificar_titulo_financeiro",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 5,
+      "acao": "Verificar formatacao BRL nos valores",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "R$ com separadores corretos",
+      "screenshot": "05_verificar_formatacao_brl_nos_v",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 6,
+      "acao": "Verificar badge de status da fatura",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badges coloridos por status",
+      "screenshot": "06_verificar_badge_de_status_da_f",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 7,
+      "acao": "Sidebar com Financeiro selecionado",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Item highlighted",
+      "screenshot": "07_sidebar_com_financeiro_selecio",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 8,
+      "acao": "Verificar colunas da tab Faturas",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Fatura, Competencia, Descricao, Valor, Vencimento, Status",
+      "screenshot": "08_verificar_colunas_da_tab_fatur",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 9,
+      "acao": "Hover no valor para ver composicao",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "hover",
+        "testid": "valor-fatura-0"
+      },
+      "resultadoEsperado": "Popover com breakdown de itens",
+      "screenshot": "09_hover_no_valor_para_ver_compos",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "valor-fatura-0"
+    },
+    {
+      "numero": 10,
+      "acao": "Expandir fatura para ver composicao",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-expand-fatura-0"
+      },
+      "resultadoEsperado": "Itens da fatura expandidos",
+      "screenshot": "10_expandir_fatura_para_ver_compo",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-expand-fatura-0"
+    },
+    {
+      "numero": 11,
+      "acao": "Clicar tab Produtos & Valores",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-produtos-valores"
+      },
+      "resultadoEsperado": "Tabela de produtos visivel",
+      "screenshot": "11_clicar_tab_produtos__valores",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-produtos-valores"
+    },
+    {
+      "numero": 12,
+      "acao": "Clicar Ver Detalhes do produto",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-ver-detalhes-0"
+      },
+      "resultadoEsperado": "Modal com 6 tabs de detalhes",
+      "screenshot": "12_clicar_ver_detalhes_do_produto",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-ver-detalhes-0"
+    },
+    {
+      "numero": 13,
+      "acao": "Verificar validacao de download sem fatura",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botao desabilitado se nao ha arquivo",
+      "screenshot": "13_verificar_validacao_de_downloa",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 14,
+      "acao": "Erro ao carregar faturas",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast de erro",
+      "screenshot": "14_erro_ao_carregar_faturas",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 15,
+      "acao": "Tenant sem faturas",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem vazia",
+      "screenshot": "15_tenant_sem_faturas",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 16,
+      "acao": "Skeleton durante carregamento",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Loading visual",
+      "screenshot": "16_skeleton_durante_carregamento",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 17,
+      "acao": "Filtrar faturas por status",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Filtro funciona",
+      "screenshot": "17_filtrar_faturas_por_status",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 18,
+      "acao": "Ordenar por vencimento",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-vencimento"
+      },
+      "resultadoEsperado": "Ordenado",
+      "screenshot": "18_ordenar_por_vencimento",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-vencimento"
+    },
+    {
+      "numero": 19,
+      "acao": "STANDARD pode ver faturas mas nao baixar",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Permissao correta",
+      "screenshot": "19_standard_pode_ver_faturas_mas_",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 20,
+      "acao": "Isolamento de faturas entre tenants",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Isolamento de dados",
+      "screenshot": "20_isolamento_de_faturas_entre_te",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 21,
+      "acao": "Navegacao por Tab",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Tab"
+      },
+      "resultadoEsperado": "Focus ring",
+      "screenshot": "21_navegacao_por_tab",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 22,
+      "acao": "Resize mobile",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 375,
+        "altura": 812
+      },
+      "resultadoEsperado": "Layout adaptado",
+      "screenshot": "22_resize_mobile",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 23,
+      "acao": "Textos em PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Labels corretos",
+      "screenshot": "23_textos_em_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 24,
+      "acao": "Performance < 2s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Carregamento rapido",
+      "screenshot": "24_performance__2s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 25,
+      "acao": "Dados persistem apos F5",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Dados mantidos",
+      "screenshot": "25_dados_persistem_apos_f5",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    }
+  ],
+  "estimativaDuracao": "~1 min",
+  "estimativaCustoIA": 0.08,
+  "ultimaExecucao": null,
+  "ultimoResultado": null
+}

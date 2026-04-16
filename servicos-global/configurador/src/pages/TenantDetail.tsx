@@ -158,7 +158,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
 
         // Tentar carregar logs de auditoria do histórico global
         try {
-          const logsRes = await fetch(`/api/tenant/historico-global/logs?tenant_id=${tenantId}`)
+          const logsRes = await fetch(`/api/admin/historico-global/logs?tenant_id=${tenantId}`)
           if (logsRes.ok) {
             const logsData = await logsRes.json()
             const mappedLogs: LogAuditoria[] = (logsData.data || []).map((dbLog: Record<string, unknown>) => ({

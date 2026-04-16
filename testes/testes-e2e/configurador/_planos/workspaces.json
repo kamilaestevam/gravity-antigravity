@@ -1,0 +1,1980 @@
+{
+  "id": "TST-E2E-CONFIG-000008",
+  "versao": "1.0",
+  "geradoEm": "2026-04-16T01:44:18.195Z",
+  "geradoPor": "agente-plano-teste",
+  "escopo": "CONFIG",
+  "sublocal": "Workspaces",
+  "tela": "Workspaces",
+  "rota": "/workspace/workspaces",
+  "componenteFilePath": "servicos-global/configurador/src/pages/workspace/Workspaces.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/configurador/workspaces.testids.json",
+  "ambientes": [
+    "Local",
+    "Staging",
+    "Producao"
+  ],
+  "criticidade": "alta",
+  "temDinheiro": false,
+  "resumoExecutivo": "Tela de gestão de workspaces (empresas) do tenant. CRUD completo: criar, editar nome/subdomínio/CNPJ, suspender, excluir. Risco: subdomínio duplicado, exclusão acidental, isolamento entre workspaces do mesmo tenant.",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador ABC",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-server-8005",
+      "configurador-front-8000"
+    ]
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/configurador/src/pages/workspace/Workspaces.tsx",
+    "extraidoEm": "2026-04-16T01:44:18.195Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "nav-organizacao",
+      "nav-workspaces",
+      "btn-edit-ws-0",
+      "input-nome-ws",
+      "input-subdominio-ws",
+      "btn-salvar-ws",
+      "btn-toggle-ws-0",
+      "btn-novo-ws",
+      "btn-delete-ws-0",
+      "btn-confirmar-delete",
+      "input-busca-ws",
+      "col-nome-ws",
+      "col-criada-em",
+      "col-status-ws",
+      "col-usuarios-ws"
+    ]
+  },
+  "cobertura": [
+    {
+      "categoria": 1,
+      "nome": "Carregamento da tela",
+      "status": "coberta",
+      "passosAssociados": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "categoria": 2,
+      "nome": "Identidade visual",
+      "status": "coberta",
+      "passosAssociados": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "categoria": 3,
+      "nome": "Navegacao lateral / breadcrumb",
+      "status": "coberta",
+      "passosAssociados": [
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "categoria": 4,
+      "nome": "Read / Listagem / Visualizacao",
+      "status": "coberta",
+      "passosAssociados": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "categoria": 5,
+      "nome": "Update / Edicao",
+      "status": "coberta",
+      "passosAssociados": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ]
+    },
+    {
+      "categoria": 6,
+      "nome": "Create / Criacao",
+      "status": "coberta",
+      "passosAssociados": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42
+      ]
+    },
+    {
+      "categoria": 7,
+      "nome": "Delete / Exclusao",
+      "status": "coberta",
+      "passosAssociados": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ]
+    },
+    {
+      "categoria": 8,
+      "nome": "Validacoes de campo",
+      "status": "coberta",
+      "passosAssociados": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58
+      ]
+    },
+    {
+      "categoria": 9,
+      "nome": "Estados de erro",
+      "status": "coberta",
+      "passosAssociados": [
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ]
+    },
+    {
+      "categoria": 10,
+      "nome": "Estados vazios",
+      "status": "coberta",
+      "passosAssociados": [
+        65,
+        66,
+        67
+      ]
+    },
+    {
+      "categoria": 11,
+      "nome": "Estados de loading",
+      "status": "coberta",
+      "passosAssociados": [
+        68,
+        69,
+        70
+      ]
+    },
+    {
+      "categoria": 12,
+      "nome": "Filtros e busca",
+      "status": "coberta",
+      "passosAssociados": [
+        71,
+        72,
+        73,
+        74,
+        75,
+        76
+      ]
+    },
+    {
+      "categoria": 13,
+      "nome": "Ordenacao",
+      "status": "coberta",
+      "passosAssociados": [
+        77,
+        78,
+        79,
+        80
+      ]
+    },
+    {
+      "categoria": 14,
+      "nome": "Permissoes / RBAC",
+      "status": "coberta",
+      "passosAssociados": [
+        81,
+        82,
+        83,
+        84,
+        85,
+        86
+      ]
+    },
+    {
+      "categoria": 15,
+      "nome": "Multi-tenant / isolamento",
+      "status": "coberta",
+      "passosAssociados": [
+        87,
+        88,
+        89,
+        90
+      ]
+    },
+    {
+      "categoria": 16,
+      "nome": "Acessibilidade (a11y)",
+      "status": "coberta",
+      "passosAssociados": [
+        91,
+        92,
+        93,
+        94
+      ]
+    },
+    {
+      "categoria": 17,
+      "nome": "Responsividade",
+      "status": "coberta",
+      "passosAssociados": [
+        95,
+        96,
+        97,
+        98
+      ]
+    },
+    {
+      "categoria": 18,
+      "nome": "Internacionalizacao (i18n)",
+      "status": "coberta",
+      "passosAssociados": [
+        99,
+        100,
+        101,
+        102
+      ]
+    },
+    {
+      "categoria": 19,
+      "nome": "Performance",
+      "status": "coberta",
+      "passosAssociados": [
+        103,
+        104,
+        105,
+        106
+      ]
+    },
+    {
+      "categoria": 20,
+      "nome": "Persistencia e refresh",
+      "status": "coberta",
+      "passosAssociados": [
+        107,
+        108,
+        109
+      ]
+    }
+  ],
+  "coberturaPercentual": 100,
+  "passos": [
+    {
+      "numero": 1,
+      "acao": "Navegar para /workspace/workspaces",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "goto",
+        "rota": "/workspace/workspaces"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/workspaces"
+      },
+      "resultadoEsperado": "URL correta",
+      "screenshot": "01_navegar_para_workspaceworksp",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 2,
+      "acao": "Verificar tabela de workspaces visivel",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela renderizada",
+      "screenshot": "02_verificar_tabela_de_workspaces",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 3,
+      "acao": "Verificar 3 cards de estatistica",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cards: Total, Ativas, Grafico pizza",
+      "screenshot": "03_verificar_3_cards_de_estatisti",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 4,
+      "acao": "Verificar sem erros JS no console",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Console limpo",
+      "screenshot": "04_verificar_sem_erros_js_no_cons",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 5,
+      "acao": "Verificar titulo Workspaces",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Titulo e icone Buildings",
+      "screenshot": "05_verificar_titulo_workspaces",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 6,
+      "acao": "Verificar avatar badge em cada workspace",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Avatar com inicial da empresa",
+      "screenshot": "06_verificar_avatar_badge_em_cada",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 7,
+      "acao": "Verificar badge de status Ativa/Suspensa",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Verde para Ativa, amarelo para Suspensa",
+      "screenshot": "07_verificar_badge_de_status_ativ",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 8,
+      "acao": "Verificar subdominio como link clicavel",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Subdominio renderizado como link",
+      "screenshot": "08_verificar_subdominio_como_link",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 9,
+      "acao": "Verificar grafico pizza de distribuicao",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Grafico com Ativa vs Suspensa",
+      "screenshot": "09_verificar_grafico_pizza_de_dis",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 10,
+      "acao": "Verificar formato de data DD/MM/YYYY",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Datas formatadas corretamente",
+      "screenshot": "10_verificar_formato_de_data_ddm",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 11,
+      "acao": "Verificar botao + Novo Workspace visivel",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botao primario no header",
+      "screenshot": "11_verificar_botao__novo_workspa",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 12,
+      "acao": "Sidebar com Workspaces selecionado",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Item highlighted",
+      "screenshot": "12_sidebar_com_workspaces_selecio",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 13,
+      "acao": "Navegar para Organizacao via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-organizacao"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/organizacao"
+      },
+      "resultadoEsperado": "Navega corretamente",
+      "screenshot": "13_navegar_para_organizacao_via_s",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "nav-organizacao"
+    },
+    {
+      "numero": 14,
+      "acao": "Voltar para Workspaces via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-workspaces"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/workspaces"
+      },
+      "resultadoEsperado": "Volta para Workspaces",
+      "screenshot": "14_voltar_para_workspaces_via_sid",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "nav-workspaces"
+    },
+    {
+      "numero": 15,
+      "acao": "Navegar para Usuarios via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-usuarios"
+      },
+      "resultadoEsperado": "Navega para Usuarios",
+      "screenshot": "15_navegar_para_usuarios_via_side",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 16,
+      "acao": "Navegar via breadcrumb",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Breadcrumb funcional",
+      "screenshot": "16_navegar_via_breadcrumb",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 17,
+      "acao": "Verificar colunas da tabela",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nome, Subdominio, Usuarios, Status, Criada Em",
+      "screenshot": "17_verificar_colunas_da_tabela",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 18,
+      "acao": "Verificar dados dos workspaces carregados",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/tenants/companies",
+        "status": 200
+      },
+      "resultadoEsperado": "API retorna 200",
+      "screenshot": "18_verificar_dados_dos_workspaces",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 19,
+      "acao": "Verificar contagem de usuarios por workspace",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Numero de usuarios correto",
+      "screenshot": "19_verificar_contagem_de_usuarios",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 20,
+      "acao": "Verificar contagem total no card",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Card Total bate com linhas da tabela",
+      "screenshot": "20_verificar_contagem_total_no_ca",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 21,
+      "acao": "Verificar que apenas workspaces do tenant aparecem",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nenhum workspace de outro tenant",
+      "screenshot": "21_verificar_que_apenas_workspace",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 22,
+      "acao": "Verificar exportacao para Excel",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Download de .xlsx funciona",
+      "screenshot": "22_verificar_exportacao_para_exce",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 23,
+      "acao": "Verificar exportacao para CSV",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Download de .csv funciona",
+      "screenshot": "23_verificar_exportacao_para_csv",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 24,
+      "acao": "Verificar exportacao para PDF",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Download de .pdf funciona",
+      "screenshot": "24_verificar_exportacao_para_pdf",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 25,
+      "acao": "Clicar editar workspace",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-edit-ws-0"
+      },
+      "resultadoEsperado": "Modal de edicao abre",
+      "screenshot": "25_clicar_editar_workspace",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-edit-ws-0"
+    },
+    {
+      "numero": 26,
+      "acao": "Editar nome do workspace",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-nome-ws",
+        "valor": "Workspace Editado"
+      },
+      "resultadoEsperado": "Campo aceita valor",
+      "screenshot": "26_editar_nome_do_workspace",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-nome-ws"
+    },
+    {
+      "numero": 27,
+      "acao": "Editar subdominio",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-subdominio-ws",
+        "valor": "editado"
+      },
+      "resultadoEsperado": "Subdominio aceita valor",
+      "screenshot": "27_editar_subdominio",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-subdominio-ws"
+    },
+    {
+      "numero": 28,
+      "acao": "Salvar edicao de workspace",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-salvar-ws"
+      },
+      "assercao": {
+        "tipo": "toastShown",
+        "texto": "salvo"
+      },
+      "resultadoEsperado": "Toast de sucesso",
+      "screenshot": "28_salvar_edicao_de_workspace",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-salvar-ws"
+    },
+    {
+      "numero": 29,
+      "acao": "Suspender workspace (toggle status)",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-toggle-ws-0"
+      },
+      "resultadoEsperado": "Status muda para Suspensa",
+      "screenshot": "29_suspender_workspace_toggle_st",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-toggle-ws-0"
+    },
+    {
+      "numero": 30,
+      "acao": "Reativar workspace",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-toggle-ws-0"
+      },
+      "resultadoEsperado": "Status volta para Ativa",
+      "screenshot": "30_reativar_workspace",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 31,
+      "acao": "Cancelar edicao (fechar modal)",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Modal fecha sem salvar",
+      "screenshot": "31_cancelar_edicao_fechar_modal",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 32,
+      "acao": "Abrir modal via query param ?id=",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Modal abre automaticamente para o workspace",
+      "screenshot": "32_abrir_modal_via_query_param_i",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 33,
+      "acao": "Verificar PATCH via API",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/tenants/companies",
+        "status": 200
+      },
+      "resultadoEsperado": "API atualiza corretamente",
+      "screenshot": "33_verificar_patch_via_api",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 34,
+      "acao": "Verificar edicao persiste apos F5",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Dados editados mantidos",
+      "screenshot": "34_verificar_edicao_persiste_apos",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 35,
+      "acao": "Clicar + Novo Workspace",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-novo-ws"
+      },
+      "resultadoEsperado": "Modal de criacao abre",
+      "screenshot": "35_clicar__novo_workspace",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-novo-ws"
+    },
+    {
+      "numero": 36,
+      "acao": "Preencher nome do novo workspace",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-nome-ws",
+        "valor": "Novo Workspace Teste"
+      },
+      "resultadoEsperado": "Campo aceita valor",
+      "screenshot": "36_preencher_nome_do_novo_workspa",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 37,
+      "acao": "Preencher subdominio do novo workspace",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-subdominio-ws",
+        "valor": "novo-teste"
+      },
+      "resultadoEsperado": "Subdominio aceita valor",
+      "screenshot": "37_preencher_subdominio_do_novo_w",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 38,
+      "acao": "Criar workspace",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-salvar-ws"
+      },
+      "assercao": {
+        "tipo": "toastShown",
+        "texto": "criado"
+      },
+      "resultadoEsperado": "Workspace criado com sucesso",
+      "screenshot": "38_criar_workspace",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 39,
+      "acao": "Verificar POST via API",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/tenants/companies",
+        "status": 201
+      },
+      "resultadoEsperado": "API retorna 201",
+      "screenshot": "39_verificar_post_via_api",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 40,
+      "acao": "Verificar novo workspace na tabela",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Novo workspace aparece na lista",
+      "screenshot": "40_verificar_novo_workspace_na_ta",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 41,
+      "acao": "Cancelar criacao (fechar modal)",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Modal fecha sem criar",
+      "screenshot": "41_cancelar_criacao_fechar_modal",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 42,
+      "acao": "Verificar card Total incrementou",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Contagem atualizada",
+      "screenshot": "42_verificar_card_total_increment",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 43,
+      "acao": "Clicar excluir workspace",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-delete-ws-0"
+      },
+      "resultadoEsperado": "Modal de confirmacao abre",
+      "screenshot": "43_clicar_excluir_workspace",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-delete-ws-0"
+    },
+    {
+      "numero": 44,
+      "acao": "Confirmar exclusao",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-confirmar-delete"
+      },
+      "resultadoEsperado": "Workspace removido",
+      "screenshot": "44_confirmar_exclusao",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-confirmar-delete"
+    },
+    {
+      "numero": 45,
+      "acao": "Verificar DELETE via API",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/tenants/companies",
+        "status": 200
+      },
+      "resultadoEsperado": "API retorna 200",
+      "screenshot": "45_verificar_delete_via_api",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 46,
+      "acao": "Verificar workspace sumiu da tabela",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Linha removida",
+      "screenshot": "46_verificar_workspace_sumiu_da_t",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 47,
+      "acao": "Cancelar exclusao",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Workspace preservado",
+      "screenshot": "47_cancelar_exclusao",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 48,
+      "acao": "Verificar confirmacao obrigatoria antes de deletar",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nao deleta sem confirmar",
+      "screenshot": "48_verificar_confirmacao_obrigato",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 49,
+      "acao": "Nome vazio rejeitado",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-nome-ws",
+        "valor": ""
+      },
+      "resultadoEsperado": "Erro de campo obrigatorio",
+      "screenshot": "49_nome_vazio_rejeitado",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 50,
+      "acao": "Subdominio vazio rejeitado",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-subdominio-ws",
+        "valor": ""
+      },
+      "resultadoEsperado": "Erro de campo obrigatorio",
+      "screenshot": "50_subdominio_vazio_rejeitado",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 51,
+      "acao": "Subdominio duplicado rejeitado",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro 409 Conflict",
+      "screenshot": "51_subdominio_duplicado_rejeitado",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 52,
+      "acao": "Subdominio com caracteres invalidos",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-subdominio-ws",
+        "valor": "tem espaço!"
+      },
+      "resultadoEsperado": "Erro de formato",
+      "screenshot": "52_subdominio_com_caracteres_inva",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 53,
+      "acao": "CNPJ invalido rejeitado",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Validacao de CNPJ",
+      "screenshot": "53_cnpj_invalido_rejeitado",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 54,
+      "acao": "Verificar Zod validation no backend",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Backend rejeita com 400",
+      "screenshot": "54_verificar_zod_validation_no_ba",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 55,
+      "acao": "Nome max 200 chars",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Truncado ou rejeitado",
+      "screenshot": "55_nome_max_200_chars",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 56,
+      "acao": "Subdominio max 50 chars",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Truncado ou rejeitado",
+      "screenshot": "56_subdominio_max_50_chars",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 57,
+      "acao": "Verificar minimo 1 workspace ativo",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nao permite suspender ultimo workspace",
+      "screenshot": "57_verificar_minimo_1_workspace_a",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 58,
+      "acao": "Nome com acentos aceito",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-nome-ws",
+        "valor": "Importação São Paulo"
+      },
+      "resultadoEsperado": "Aceita caracteres especiais",
+      "screenshot": "58_nome_com_acentos_aceito",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 59,
+      "acao": "Erro 500 ao criar workspace",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast de erro",
+      "screenshot": "59_erro_500_ao_criar_workspace",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 60,
+      "acao": "Erro 403 sem permissao",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem de acesso negado",
+      "screenshot": "60_erro_403_sem_permissao",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 61,
+      "acao": "Erro de rede ao salvar",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Feedback visual de erro",
+      "screenshot": "61_erro_de_rede_ao_salvar",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 62,
+      "acao": "Erro ao deletar workspace com usuarios",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro descriptivo",
+      "screenshot": "62_erro_ao_deletar_workspace_com_",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 63,
+      "acao": "Erro 409 subdominio em uso",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem clara de conflito",
+      "screenshot": "63_erro_409_subdominio_em_uso",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 64,
+      "acao": "Erro ao editar workspace inexistente",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast 404",
+      "screenshot": "64_erro_ao_editar_workspace_inexi",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 65,
+      "acao": "Tenant sem workspaces",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Estado vazio com botao Novo Workspace",
+      "screenshot": "65_tenant_sem_workspaces",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 66,
+      "acao": "Busca sem resultados",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem sem resultados",
+      "screenshot": "66_busca_sem_resultados",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 67,
+      "acao": "Cards zerados quando vazio",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cards mostram 0",
+      "screenshot": "67_cards_zerados_quando_vazio",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 68,
+      "acao": "Skeleton durante carregamento",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Loading visual",
+      "screenshot": "68_skeleton_durante_carregamento",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 69,
+      "acao": "Loading no botao salvar",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Spinner no botao",
+      "screenshot": "69_loading_no_botao_salvar",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 70,
+      "acao": "Loading no botao deletar",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Spinner durante exclusao",
+      "screenshot": "70_loading_no_botao_deletar",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 71,
+      "acao": "Buscar por nome do workspace",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-busca-ws",
+        "valor": "Importador"
+      },
+      "resultadoEsperado": "Tabela filtrada",
+      "screenshot": "71_buscar_por_nome_do_workspace",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-busca-ws"
+    },
+    {
+      "numero": 72,
+      "acao": "Buscar por subdominio",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-busca-ws",
+        "valor": "importador"
+      },
+      "resultadoEsperado": "Tabela filtrada",
+      "screenshot": "72_buscar_por_subdominio",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 73,
+      "acao": "Filtrar por status Ativa/Suspensa",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Filtro funcional",
+      "screenshot": "73_filtrar_por_status_ativasuspe",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 74,
+      "acao": "Limpar filtros",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Todos workspaces voltam",
+      "screenshot": "74_limpar_filtros",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 75,
+      "acao": "Busca case-insensitive",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-busca-ws",
+        "valor": "IMPORTADOR"
+      },
+      "resultadoEsperado": "Encontra mesmo em maiusculo",
+      "screenshot": "75_busca_caseinsensitive",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 76,
+      "acao": "Filtrar por numero de usuarios",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Filtro numerico funcional",
+      "screenshot": "76_filtrar_por_numero_de_usuarios",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 77,
+      "acao": "Ordenar por nome A-Z",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-nome-ws"
+      },
+      "resultadoEsperado": "Tabela ordenada",
+      "screenshot": "77_ordenar_por_nome_az",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-nome-ws"
+    },
+    {
+      "numero": 78,
+      "acao": "Ordenar por data de criacao",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-criada-em"
+      },
+      "resultadoEsperado": "Mais recentes primeiro",
+      "screenshot": "78_ordenar_por_data_de_criacao",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-criada-em"
+    },
+    {
+      "numero": 79,
+      "acao": "Ordenar por status",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-status-ws"
+      },
+      "resultadoEsperado": "Ativas primeiro",
+      "screenshot": "79_ordenar_por_status",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-status-ws"
+    },
+    {
+      "numero": 80,
+      "acao": "Ordenar por usuarios",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-usuarios-ws"
+      },
+      "resultadoEsperado": "Ordenado por quantidade",
+      "screenshot": "80_ordenar_por_usuarios",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-usuarios-ws"
+    },
+    {
+      "numero": 81,
+      "acao": "STANDARD nao pode criar workspace",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "STANDARD"
+      },
+      "resultadoEsperado": "Botao Novo oculto",
+      "screenshot": "81_standard_nao_pode_criar_worksp",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 82,
+      "acao": "STANDARD nao pode excluir",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botao excluir oculto",
+      "screenshot": "82_standard_nao_pode_excluir",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 83,
+      "acao": "ADMIN pode criar e editar",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "ADMIN"
+      },
+      "resultadoEsperado": "CRUD completo disponivel",
+      "screenshot": "83_admin_pode_criar_e_editar",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 84,
+      "acao": "SUPER_ADMIN tem acesso total",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "SUPER_ADMIN"
+      },
+      "resultadoEsperado": "Tudo visivel",
+      "screenshot": "84_super_admin_tem_acesso_total",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 85,
+      "acao": "USER so ve workspaces que tem acesso",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "USER"
+      },
+      "resultadoEsperado": "Lista filtrada por membership",
+      "screenshot": "85_user_so_ve_workspaces_que_tem_",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 86,
+      "acao": "Backend valida role antes de operar",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "API retorna 403 para role insuficiente",
+      "screenshot": "86_backend_valida_role_antes_de_o",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 87,
+      "acao": "Tenant A nao ve workspaces de Tenant B",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Isolamento total",
+      "screenshot": "87_tenant_a_nao_ve_workspaces_de_",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 88,
+      "acao": "API filtra por tenant_id",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "WHERE tenant_id na query",
+      "screenshot": "88_api_filtra_por_tenant_id",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 89,
+      "acao": "Subdominio unico por tenant mas pode repetir entre tenants",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Constraint por tenant, nao global",
+      "screenshot": "89_subdominio_unico_por_tenant_ma",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 90,
+      "acao": "Tentar acessar workspace de outro tenant via API direta",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "404 ou 403",
+      "screenshot": "90_tentar_acessar_workspace_de_ou",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 91,
+      "acao": "Navegar com Tab",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Tab"
+      },
+      "resultadoEsperado": "Focus ring",
+      "screenshot": "91_navegar_com_tab",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 92,
+      "acao": "Abrir modal com Enter",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Enter"
+      },
+      "resultadoEsperado": "Modal abre via teclado",
+      "screenshot": "92_abrir_modal_com_enter",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 93,
+      "acao": "Fechar modal com Escape",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Modal fecha",
+      "screenshot": "93_fechar_modal_com_escape",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 94,
+      "acao": "Verificar aria-labels",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botoes com aria-label",
+      "screenshot": "94_verificar_arialabels",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 95,
+      "acao": "Resize mobile 375px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 375,
+        "altura": 812
+      },
+      "resultadoEsperado": "Layout adaptado",
+      "screenshot": "95_resize_mobile_375px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 96,
+      "acao": "Resize tablet 768px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 768,
+        "altura": 1024
+      },
+      "resultadoEsperado": "Layout tablet",
+      "screenshot": "96_resize_tablet_768px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 97,
+      "acao": "Resize desktop 1280px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 1280,
+        "altura": 800
+      },
+      "resultadoEsperado": "Layout desktop",
+      "screenshot": "97_resize_desktop_1280px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 98,
+      "acao": "Sidebar responsiva",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Sidebar colapsa em mobile",
+      "screenshot": "98_sidebar_responsiva",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 99,
+      "acao": "Textos em PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Labels corretos",
+      "screenshot": "99_textos_em_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 100,
+      "acao": "Trocar para EN",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "en"
+      },
+      "resultadoEsperado": "Labels em ingles",
+      "screenshot": "100_trocar_para_en",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 101,
+      "acao": "Formato de data BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "DD/MM/YYYY",
+      "screenshot": "101_formato_de_data_br",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 102,
+      "acao": "Voltar para PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Portugues restaurado",
+      "screenshot": "102_voltar_para_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 103,
+      "acao": "FCP < 1.5s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "First Contentful Paint rapido",
+      "screenshot": "103_fcp__15s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 104,
+      "acao": "TTI < 3s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Interativo rapidamente",
+      "screenshot": "104_tti__3s",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 105,
+      "acao": "Sem N+1 queries",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Queries eficientes",
+      "screenshot": "105_sem_n1_queries",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 106,
+      "acao": "50 workspaces renderizam em < 2s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Performance OK com volume",
+      "screenshot": "106_50_workspaces_renderizam_em__",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 107,
+      "acao": "Dados persistem apos F5",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Tabela recarrega",
+      "screenshot": "107_dados_persistem_apos_f5",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 108,
+      "acao": "Filtro na URL persiste",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Query string preservada",
+      "screenshot": "108_filtro_na_url_persiste",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 109,
+      "acao": "Dirty check ao sair com edicao pendente",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Alerta de mudancas nao salvas",
+      "screenshot": "109_dirty_check_ao_sair_com_edicao",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    }
+  ],
+  "estimativaDuracao": "~4 min",
+  "estimativaCustoIA": 0.08,
+  "ultimaExecucao": null,
+  "ultimoResultado": null
+}

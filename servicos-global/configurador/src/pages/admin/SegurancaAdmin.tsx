@@ -96,7 +96,7 @@ interface EventsResponse {
 }
 
 /**
- * Resposta consolidada do /api/admin/security/overview — elimina 5 requests
+ * Resposta consolidada do /api/admin/seguranca-admin/overview — elimina 5 requests
  * em paralelo por tick de polling. O endpoint /events continua separado porque
  * depende dos filtros da UI e é pesado demais para bundlar no overview.
  */
@@ -109,7 +109,7 @@ interface OverviewResponse {
 
 // ─── API helper ───────────────────────────────────────────────────────────
 
-const API_BASE = '/api/admin/security'
+const API_BASE = '/api/admin/seguranca-admin'
 
 class SecurityApiError extends Error {
   constructor(message: string, readonly status: number, readonly path: string) {
@@ -293,12 +293,12 @@ export function SegurancaAdmin() {
 
   const colunasEventos: TabelaGlobalColuna<SecurityEvent>[] = [
     {
-      key: 'created_at', label: t('admin.security.tabela.horario'), tipo: 'texto', largura: '140px',
+      key: 'created_at', label: t('admin.seguranca-admin.tabela.horario'), tipo: 'texto', largura: '140px',
       tooltipTitulo: 'Horário', tooltipDescricao: 'Data e hora em que o evento de segurança foi registrado',
       render: (v) => new Date(v as string).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit', day: '2-digit', month: '2-digit' }),
     },
     {
-      key: 'severity', label: t('admin.security.tabela.severidade'), tipo: 'texto', largura: '100px',
+      key: 'severity', label: t('admin.seguranca-admin.tabela.severidade'), tipo: 'texto', largura: '100px',
       tooltipTitulo: 'Severidade', tooltipDescricao: 'Nível de criticidade do evento: info, warning ou critical',
       render: (v) => {
         const sev = v as Severidade
@@ -310,7 +310,7 @@ export function SegurancaAdmin() {
       },
     },
     {
-      key: 'status', label: t('admin.security.tabela.status'), tipo: 'texto', largura: '90px',
+      key: 'status', label: t('admin.seguranca-admin.tabela.status'), tipo: 'texto', largura: '90px',
       tooltipTitulo: 'Status', tooltipDescricao: 'Indica se o evento foi resolvido ou ainda está aberto',
       render: (v) => {
         const st = v as EventStatus
@@ -321,26 +321,26 @@ export function SegurancaAdmin() {
         )
       },
     },
-    { key: 'action', label: t('admin.security.tabela.tipo'), tipo: 'texto', largura: '200px',
+    { key: 'action', label: t('admin.seguranca-admin.tabela.tipo'), tipo: 'texto', largura: '200px',
       tooltipTitulo: 'Tipo', tooltipDescricao: 'Classificação do evento: login, acesso negado, rate limit, etc' },
-    { key: 'tenant_id', label: t('admin.security.tabela.tenant'), tipo: 'texto', largura: '120px',
+    { key: 'tenant_id', label: t('admin.seguranca-admin.tabela.tenant'), tipo: 'texto', largura: '120px',
       tooltipTitulo: 'Tenant', tooltipDescricao: 'Empresa associada a este evento de segurança' },
-    { key: 'actor_id', label: t('admin.security.tabela.ator'), tipo: 'texto', largura: '110px',
+    { key: 'actor_id', label: t('admin.seguranca-admin.tabela.ator'), tipo: 'texto', largura: '110px',
       tooltipTitulo: 'Ator', tooltipDescricao: 'Usuário ou serviço que originou o evento' },
-    { key: 'description', label: t('admin.security.tabela.descricao'), tipo: 'texto',
+    { key: 'description', label: t('admin.seguranca-admin.tabela.descricao'), tipo: 'texto',
       tooltipTitulo: 'Descrição', tooltipDescricao: 'Detalhes do evento registrado pelo sistema',
       render: (v) => {
         const desc = (v as string | null) ?? ''
         return <span title={desc}>{desc.slice(0, 80)}</span>
       },
     },
-    { key: 'ip', label: t('admin.security.tabela.ip'), tipo: 'texto', largura: '120px',
+    { key: 'ip', label: t('admin.seguranca-admin.tabela.ip'), tipo: 'texto', largura: '120px',
       tooltipTitulo: 'IP', tooltipDescricao: 'Endereço de rede de onde partiu a requisição' },
   ]
 
   const colunasHealth: TabelaGlobalColuna<ServiceHealthEntry>[] = [
     {
-      key: 'service', label: t('admin.security.tabela.servico'), tipo: 'texto', largura: '180px',
+      key: 'service', label: t('admin.seguranca-admin.tabela.servico'), tipo: 'texto', largura: '180px',
       tooltipTitulo: 'Serviço', tooltipDescricao: 'Nome do serviço interno monitorado pela plataforma',
       render: (_v, item) => (
         <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -349,7 +349,7 @@ export function SegurancaAdmin() {
       ),
     },
     {
-      key: 'status', label: t('admin.security.tabela.status'), tipo: 'texto', largura: '100px',
+      key: 'status', label: t('admin.seguranca-admin.tabela.status'), tipo: 'texto', largura: '100px',
       tooltipTitulo: 'Status', tooltipDescricao: 'Condição atual do serviço: online, degradado ou offline',
       render: (v) => {
         const st = v as ServiceStatus
@@ -357,29 +357,29 @@ export function SegurancaAdmin() {
       },
     },
     {
-      key: 'latency_ms', label: t('admin.security.tabela.latencia'), tipo: 'texto', largura: '100px',
+      key: 'latency_ms', label: t('admin.seguranca-admin.tabela.latencia'), tipo: 'texto', largura: '100px',
       tooltipTitulo: 'Latência', tooltipDescricao: 'Tempo de resposta do serviço em milissegundos',
       render: (v) => {
         const ms = Number(v ?? 0)
         return <span style={{ color: ms > 2000 ? '#fbbf24' : '#34d399' }}>{ms}ms</span>
       },
     },
-    { key: 'error', label: t('admin.security.tabela.erro'), tipo: 'texto',
+    { key: 'error', label: t('admin.seguranca-admin.tabela.erro'), tipo: 'texto',
       tooltipTitulo: 'Erro', tooltipDescricao: 'Mensagem de erro registrada na última verificação',
       render: (v) => (v as string | undefined) || '-' },
   ]
 
   const colunasRateLimit: TabelaGlobalColuna<RateLimitEntry>[] = [
-    { key: 'tenant_id', label: t('admin.security.tabela.tenant'), tipo: 'texto', largura: '140px',
+    { key: 'tenant_id', label: t('admin.seguranca-admin.tabela.tenant'), tipo: 'texto', largura: '140px',
       tooltipTitulo: 'Tenant', tooltipDescricao: 'Empresa que atingiu o limite de requisições',
       render: (v) => (v as string | null) || 'anonymous' },
-    { key: 'ip', label: t('admin.security.tabela.ip'), tipo: 'texto', largura: '130px',
+    { key: 'ip', label: t('admin.seguranca-admin.tabela.ip'), tipo: 'texto', largura: '130px',
       tooltipTitulo: 'IP', tooltipDescricao: 'Endereço de rede de onde as requisições partiram',
       render: (v) => (v as string | null) || '-' },
     { key: 'endpoint', label: 'Endpoint', tipo: 'texto',
       tooltipTitulo: 'Endpoint', tooltipDescricao: 'Rota que recebeu o volume excessivo de chamadas' },
     {
-      key: 'count', label: t('admin.security.tabela.requests'), tipo: 'texto', largura: '100px',
+      key: 'count', label: t('admin.seguranca-admin.tabela.requests'), tipo: 'texto', largura: '100px',
       tooltipTitulo: 'Requests', tooltipDescricao: 'Total de requisições feitas versus o limite permitido',
       render: (_v, item) => (
         <span style={{ color: item.blocked ? '#f87171' : '#34d399', fontWeight: 600 }}>
@@ -388,7 +388,7 @@ export function SegurancaAdmin() {
       ),
     },
     {
-      key: 'blocked', label: t('admin.security.tabela.bloqueado'), tipo: 'texto', largura: '100px',
+      key: 'blocked', label: t('admin.seguranca-admin.tabela.bloqueado'), tipo: 'texto', largura: '100px',
       tooltipTitulo: 'Bloqueado', tooltipDescricao: 'Indica se o acesso foi bloqueado por excesso de requisições',
       render: (v) => (v as boolean)
         ? <span style={{ color: '#f87171', fontWeight: 600 }}>{t('comum.sim')}</span>
@@ -401,10 +401,10 @@ export function SegurancaAdmin() {
   return (
     <PaginaGlobal>
       <CabecalhoGlobal
-        titulo={t('admin.security.titulo')}
+        titulo={t('admin.seguranca-admin.titulo')}
         subtitulo={
-          loading ? t('admin.security.carregando') :
-          t('admin.security.subtitulo_template', { time: lastUpdate, interval: POLL_INTERVAL / 1000 })
+          loading ? t('admin.seguranca-admin.carregando') :
+          t('admin.seguranca-admin.subtitulo_template', { time: lastUpdate, interval: POLL_INTERVAL / 1000 })
         }
         icone={<ShieldCheck weight="duotone" size={24} />}
       />
@@ -417,25 +417,25 @@ export function SegurancaAdmin() {
         style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}
       >
         <StatCardGlobal
-          titulo={t('admin.security.status_geral')}
-          valor={loading ? '...' : (overallOk ? t('admin.security.protegido') : health?.overall || t('admin.security.verificando'))}
+          titulo={t('admin.seguranca-admin.status_geral')}
+          valor={loading ? '...' : (overallOk ? t('admin.seguranca-admin.protegido') : health?.overall || t('admin.seguranca-admin.verificando'))}
           icone={overallOk ? <ShieldCheck weight="fill" size={22} /> : <ShieldWarning weight="fill" size={22} />}
           variante={overallOk ? 'sucesso' : 'aviso'}
         />
         <StatCardGlobal
-          titulo={t('admin.security.criticos_24h')}
+          titulo={t('admin.seguranca-admin.criticos_24h')}
           valor={String(stats.criticalCount)}
           icone={<Warning weight="fill" size={22} />}
           variante={stats.criticalCount > 0 ? 'perigo' : 'sucesso'}
         />
         <StatCardGlobal
-          titulo={t('admin.security.alertas_24h')}
+          titulo={t('admin.seguranca-admin.alertas_24h')}
           valor={String(stats.warningCount)}
           icone={<ShieldWarning weight="fill" size={22} />}
           variante={stats.warningCount > 0 ? 'aviso' : 'sucesso'}
         />
         <StatCardGlobal
-          titulo={t('admin.security.bloqueados_24h')}
+          titulo={t('admin.seguranca-admin.bloqueados_24h')}
           valor={String(stats.blockedCount)}
           icone={<Lock weight="fill" size={22} />}
           variante="primario"
@@ -445,10 +445,10 @@ export function SegurancaAdmin() {
       {/* ── Abas ── */}
       <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--ws-border, #334155)' }}>
         {[
-          { key: 'health' as const, label: t('admin.security.aba_health'), icon: <ShieldCheck size={16} /> },
-          { key: 'events' as const, label: t('admin.security.aba_eventos'), icon: <Eye size={16} /> },
-          { key: 'ratelimit' as const, label: t('admin.security.aba_rate_limit'), icon: <Timer size={16} /> },
-          { key: 'secrets' as const, label: t('admin.security.aba_secrets'), icon: <Key size={16} /> },
+          { key: 'health' as const, label: t('admin.seguranca-admin.aba_health'), icon: <ShieldCheck size={16} /> },
+          { key: 'events' as const, label: t('admin.seguranca-admin.aba_eventos'), icon: <Eye size={16} /> },
+          { key: 'ratelimit' as const, label: t('admin.seguranca-admin.aba_rate_limit'), icon: <Timer size={16} /> },
+          { key: 'secrets' as const, label: t('admin.seguranca-admin.aba_secrets'), icon: <Key size={16} /> },
         ].map(tab => (
           <button
             key={tab.key}
@@ -473,7 +473,7 @@ export function SegurancaAdmin() {
         {/* Botao refresh manual */}
         <button
           onClick={() => { setLoading(true); void loadData() }}
-          aria-label={t('admin.security.btn_atualizar')}
+          aria-label={t('admin.seguranca-admin.btn_atualizar')}
           style={{
             marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.3rem',
             padding: '0.4rem 0.8rem', border: 'none', cursor: 'pointer',
@@ -482,7 +482,7 @@ export function SegurancaAdmin() {
           }}
         >
           <ArrowsClockwise size={14} weight={loading ? 'bold' : 'regular'} style={loading ? { animation: 'spin 1s linear infinite' } : {}} />
-          {t('admin.security.btn_atualizar')}
+          {t('admin.seguranca-admin.btn_atualizar')}
         </button>
       </div>
 
@@ -530,15 +530,15 @@ export function SegurancaAdmin() {
               border: '1px solid var(--ws-border, #334155)',
               fontSize: '0.82rem', color: 'var(--ws-muted, #94a3b8)',
             }}>
-              <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>{t('admin.security.health.resumo')}</strong>{' '}
-              {health.summary.ok} {t('admin.security.health.ok')} {health.summary.degraded} {t('admin.security.health.degradados')} {health.summary.down} {t('admin.security.health.offline')} {health.summary.total} {t('admin.security.health.servicos')}
+              <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>{t('admin.seguranca-admin.health.resumo')}</strong>{' '}
+              {health.summary.ok} {t('admin.seguranca-admin.health.ok')} {health.summary.degraded} {t('admin.seguranca-admin.health.degradados')} {health.summary.down} {t('admin.seguranca-admin.health.offline')} {health.summary.total} {t('admin.seguranca-admin.health.servicos')}
             </div>
-            <TabelaGlobal dados={health.services} colunas={colunasHealth} idKey="service" mensagemVazio={t('admin.security.vazio.sem_servicos')} />
+            <TabelaGlobal dados={health.services} colunas={colunasHealth} idKey="service" mensagemVazio={t('admin.seguranca-admin.vazio.sem_servicos')} />
           </>
         ) : (
           !erroCarregar && (
             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
-              {loading ? t('admin.security.vazio.verificando') : t('admin.security.vazio.sem_servicos')}
+              {loading ? t('admin.seguranca-admin.vazio.verificando') : t('admin.seguranca-admin.vazio.sem_servicos')}
             </div>
           )
         )
@@ -552,18 +552,18 @@ export function SegurancaAdmin() {
               valor={filtroSeveridade}
               aoMudarValor={(v) => setFiltroSeveridade(String(v ?? 'TODOS'))}
               opcoes={[
-                { valor: 'TODOS', rotulo: t('admin.security.filtro.todas') },
-                { valor: 'CRITICAL', rotulo: t('admin.security.filtro.critica') },
-                { valor: 'WARNING', rotulo: t('admin.security.filtro.alerta') },
-                { valor: 'INFO', rotulo: t('admin.security.filtro.info') },
+                { valor: 'TODOS', rotulo: t('admin.seguranca-admin.filtro.todas') },
+                { valor: 'CRITICAL', rotulo: t('admin.seguranca-admin.filtro.critica') },
+                { valor: 'WARNING', rotulo: t('admin.seguranca-admin.filtro.alerta') },
+                { valor: 'INFO', rotulo: t('admin.seguranca-admin.filtro.info') },
               ]}
-              placeholder={t('admin.security.filtro.severidade')}
+              placeholder={t('admin.seguranca-admin.filtro.severidade')}
             />
             <SelectGlobal
               valor={filtroAction}
               aoMudarValor={(v) => setFiltroAction(String(v ?? 'TODOS'))}
               opcoes={actionsUnicos.map(tt => ({ valor: tt, rotulo: tt.replace(/_/g, ' ') }))}
-              placeholder={t('admin.security.filtro.tipo')}
+              placeholder={t('admin.seguranca-admin.filtro.tipo')}
               buscavel
             />
           </div>
@@ -571,7 +571,7 @@ export function SegurancaAdmin() {
             dados={events}
             colunas={colunasEventos}
             idKey="id"
-            mensagemVazio={loading ? t('admin.security.vazio.carregando_eventos') : t('admin.security.vazio.sem_eventos')}
+            mensagemVazio={loading ? t('admin.seguranca-admin.vazio.carregando_eventos') : t('admin.seguranca-admin.vazio.sem_eventos')}
           />
         </>
       )}
@@ -585,11 +585,11 @@ export function SegurancaAdmin() {
             border: '1px solid var(--ws-border, #334155)',
             fontSize: '0.82rem', color: 'var(--ws-muted, #94a3b8)',
           }}>
-            <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>{t('admin.security.rate_limit.presets')}</strong>{' '}
-            {t('admin.security.rate_limit.publico')} | {t('admin.security.rate_limit.auth')} | {t('admin.security.rate_limit.webhook')} | {t('admin.security.rate_limit.interno')}
+            <strong style={{ color: 'var(--ws-text, #f1f5f9)' }}>{t('admin.seguranca-admin.rate_limit.presets')}</strong>{' '}
+            {t('admin.seguranca-admin.rate_limit.publico')} | {t('admin.seguranca-admin.rate_limit.auth')} | {t('admin.seguranca-admin.rate_limit.webhook')} | {t('admin.seguranca-admin.rate_limit.interno')}
             <br />
             <span style={{ fontSize: '0.75rem' }}>
-              {t('admin.security.rate_limit.bloqueados_hora')} <strong style={{ color: rateMetrics.filter(m => m.blocked).length > 0 ? '#f87171' : '#34d399' }}>
+              {t('admin.seguranca-admin.rate_limit.bloqueados_hora')} <strong style={{ color: rateMetrics.filter(m => m.blocked).length > 0 ? '#f87171' : '#34d399' }}>
                 {rateMetrics.filter(m => m.blocked).length}
               </strong>
             </span>
@@ -598,7 +598,7 @@ export function SegurancaAdmin() {
             dados={rateMetrics}
             colunas={colunasRateLimit}
             idKey="id"
-            mensagemVazio={loading ? t('comum.carregando') : t('admin.security.vazio.sem_rate_limit')}
+            mensagemVazio={loading ? t('comum.carregando') : t('admin.seguranca-admin.vazio.sem_rate_limit')}
           />
         </>
       )}
@@ -608,7 +608,7 @@ export function SegurancaAdmin() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {secrets.length === 0 && !loading && (
             <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)' }}>
-              {t('admin.security.secrets.erro_carregar')}
+              {t('admin.seguranca-admin.secrets.erro_carregar')}
             </div>
           )}
           {secrets.map((secret, idx) => (
@@ -631,7 +631,7 @@ export function SegurancaAdmin() {
                 </TooltipGlobal>
                 <TooltipGlobal titulo="Prefixo" descricao="Primeiros caracteres do valor configurado, para confirmação">
                   <div style={{ fontSize: '0.75rem', color: 'var(--ws-muted, #94a3b8)', marginTop: '2px', display: 'inline-block' }}>
-                    {t('admin.security.secrets.prefixo')} <code>{secret.prefix}</code>
+                    {t('admin.seguranca-admin.secrets.prefixo')} <code>{secret.prefix}</code>
                   </div>
                 </TooltipGlobal>
               </div>
@@ -645,7 +645,7 @@ export function SegurancaAdmin() {
                   color: secret.configured ? '#86efac' : '#fca5a5',
                   cursor: 'default',
                 }}>
-                  {secret.configured ? t('admin.security.secrets.configurada') : t('admin.security.secrets.ausente')}
+                  {secret.configured ? t('admin.seguranca-admin.secrets.configurada') : t('admin.seguranca-admin.secrets.ausente')}
                 </div>
               </TooltipGlobal>
             </div>
@@ -657,7 +657,7 @@ export function SegurancaAdmin() {
             border: '1px solid var(--ws-border, #334155)',
             fontSize: '0.8rem', color: 'var(--ws-muted, #94a3b8)',
           }}>
-            {t('admin.security.secrets.rotacao_instrucao')} <code style={{ color: '#10b981' }}>npx tsx scripts/rotate-internal-key.ts</code>
+            {t('admin.seguranca-admin.secrets.rotacao_instrucao')} <code style={{ color: '#10b981' }}>npx tsx scripts/rotate-internal-key.ts</code>
           </div>
         </div>
       )}

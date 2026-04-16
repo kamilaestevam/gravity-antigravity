@@ -261,7 +261,7 @@ async function seedData() {
   ${C.cyan}# Seed manual (após iniciar o servidor):${C.reset}
 
   # 1. Seed do catálogo de produtos
-  curl -X POST ${BASE}/api/admin/products/seed \\
+  curl -X POST ${BASE}/api/admin/produtos-gravity/seed \\
     -H "x-internal-key: ${DEV_INTERNAL_KEY}"
 
   # 2. Criar tenant demo
@@ -284,7 +284,7 @@ async function seedData() {
   log('Fazendo seed do catálogo de produtos...')
   try {
     // O seed via API requer auth admin, então vamos usar o Prisma diretamente
-    const seedRes = await fetch(`${BASE}/api/admin/products/seed`, {
+    const seedRes = await fetch(`${BASE}/api/admin/produtos-gravity/seed`, {
       method: 'POST',
       headers: HEADERS,
     })

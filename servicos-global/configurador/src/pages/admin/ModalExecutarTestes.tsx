@@ -106,7 +106,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
                 aoMudarValor={v => setDadosManual({ ...dadosManual, produto: String(v) })}
               />
             </GeralCampoGlobal>
-            <GeralCampoGlobal label={t('admin.tests.agendamento.campo_ambiente_origem')}>
+            <GeralCampoGlobal label={t('admin.testes-gerais.agendamento.campo_ambiente_origem')}>
               <SelectGlobal
                 opcoes={opcoesAmbiente}
                 valor={dadosManual.ambiente}

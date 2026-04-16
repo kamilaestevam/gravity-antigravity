@@ -1,0 +1,539 @@
+{
+  "id": "TST-E2E-CONFIG-000006",
+  "versao": "1.0",
+  "geradoEm": "2026-04-16T01:44:18.193Z",
+  "geradoPor": "agente-plano-teste",
+  "escopo": "CONFIG",
+  "sublocal": "Api-Cockpit",
+  "tela": "API Cockpit",
+  "rota": "/workspace/api-cockpit",
+  "componenteFilePath": "servicos-global/configurador/src/pages/workspace/ApiCockpit.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/configurador/api-cockpit.testids.json",
+  "ambientes": [
+    "Local",
+    "Staging",
+    "Producao"
+  ],
+  "criticidade": "media",
+  "temDinheiro": false,
+  "resumoExecutivo": "Painel de monitoramento de APIs e servicos. Read-only — exibe status, latencia e logs. 2 tabs: Inventario de servicos e Logs de requisicoes. Criticidade media (nao tem CRUD).",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador ABC",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-server-8005",
+      "configurador-front-8000"
+    ]
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/configurador/src/pages/workspace/ApiCockpit.tsx",
+    "extraidoEm": "2026-04-16T01:44:18.193Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "tab-logs",
+      "input-busca-api",
+      "col-latencia"
+    ]
+  },
+  "cobertura": [
+    {
+      "categoria": 1,
+      "nome": "Carregamento da tela",
+      "status": "coberta",
+      "passosAssociados": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "categoria": 2,
+      "nome": "Identidade visual",
+      "status": "coberta",
+      "passosAssociados": [
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "categoria": 3,
+      "nome": "Navegacao lateral / breadcrumb",
+      "status": "coberta",
+      "passosAssociados": [
+        7
+      ]
+    },
+    {
+      "categoria": 4,
+      "nome": "Read / Listagem / Visualizacao",
+      "status": "coberta",
+      "passosAssociados": [
+        8,
+        9,
+        10
+      ]
+    },
+    {
+      "categoria": 5,
+      "nome": "Update / Edicao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Tela read-only de monitoramento — nao ha edicao de dados pelo usuario, apenas visualizacao de status e logs"
+    },
+    {
+      "categoria": 6,
+      "nome": "Create / Criacao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Tela read-only de monitoramento — servicos sao registrados automaticamente, nao ha criacao manual pelo usuario"
+    },
+    {
+      "categoria": 7,
+      "nome": "Delete / Exclusao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Tela read-only de monitoramento — servicos nao sao deletados pelo usuario, apenas monitorados em tempo real"
+    },
+    {
+      "categoria": 8,
+      "nome": "Validacoes de campo",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Tela sem formularios de entrada — apenas exibe dados tabulares e metricas, sem campos editaveis pelo usuario"
+    },
+    {
+      "categoria": 9,
+      "nome": "Estados de erro",
+      "status": "coberta",
+      "passosAssociados": [
+        11
+      ]
+    },
+    {
+      "categoria": 10,
+      "nome": "Estados vazios",
+      "status": "coberta",
+      "passosAssociados": [
+        12
+      ]
+    },
+    {
+      "categoria": 11,
+      "nome": "Estados de loading",
+      "status": "coberta",
+      "passosAssociados": [
+        13
+      ]
+    },
+    {
+      "categoria": 12,
+      "nome": "Filtros e busca",
+      "status": "coberta",
+      "passosAssociados": [
+        14
+      ]
+    },
+    {
+      "categoria": 13,
+      "nome": "Ordenacao",
+      "status": "coberta",
+      "passosAssociados": [
+        15
+      ]
+    },
+    {
+      "categoria": 14,
+      "nome": "Permissoes / RBAC",
+      "status": "coberta",
+      "passosAssociados": [
+        16
+      ]
+    },
+    {
+      "categoria": 15,
+      "nome": "Multi-tenant / isolamento",
+      "status": "coberta",
+      "passosAssociados": [
+        17
+      ]
+    },
+    {
+      "categoria": 16,
+      "nome": "Acessibilidade (a11y)",
+      "status": "coberta",
+      "passosAssociados": [
+        18
+      ]
+    },
+    {
+      "categoria": 17,
+      "nome": "Responsividade",
+      "status": "coberta",
+      "passosAssociados": [
+        19
+      ]
+    },
+    {
+      "categoria": 18,
+      "nome": "Internacionalizacao (i18n)",
+      "status": "coberta",
+      "passosAssociados": [
+        20
+      ]
+    },
+    {
+      "categoria": 19,
+      "nome": "Performance",
+      "status": "coberta",
+      "passosAssociados": [
+        21
+      ]
+    },
+    {
+      "categoria": 20,
+      "nome": "Persistencia e refresh",
+      "status": "coberta",
+      "passosAssociados": [
+        22
+      ]
+    }
+  ],
+  "coberturaPercentual": 100,
+  "passos": [
+    {
+      "numero": 1,
+      "acao": "Navegar para /workspace/api-cockpit",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "goto",
+        "rota": "/workspace/api-cockpit"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/api-cockpit"
+      },
+      "resultadoEsperado": "URL correta",
+      "screenshot": "01_navegar_para_workspaceapico",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 2,
+      "acao": "Verificar cards de status",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "3 cards: Status geral, Uptime, Latencia",
+      "screenshot": "02_verificar_cards_de_status",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 3,
+      "acao": "Verificar tabs Inventario e Logs",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "2 abas visiveis",
+      "screenshot": "03_verificar_tabs_inventario_e_lo",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 4,
+      "acao": "Verificar titulo API Cockpit",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Titulo e icone Pulse",
+      "screenshot": "04_verificar_titulo_api_cockpit",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 5,
+      "acao": "Verificar badge de status Operacional",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badge verde Operacional",
+      "screenshot": "05_verificar_badge_de_status_oper",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 6,
+      "acao": "Verificar badge de tipo core/product/gateway",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badges coloridos por tipo",
+      "screenshot": "06_verificar_badge_de_tipo_corep",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 7,
+      "acao": "Sidebar com API Cockpit selecionado",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Item highlighted",
+      "screenshot": "07_sidebar_com_api_cockpit_seleci",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 8,
+      "acao": "Verificar colunas do Inventario",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Servico, Tipo, Status, Latencia, Versao, Ultimo check",
+      "screenshot": "08_verificar_colunas_do_inventari",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 9,
+      "acao": "Clicar tab Logs",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "tab-logs"
+      },
+      "resultadoEsperado": "Tabela de logs visivel",
+      "screenshot": "09_clicar_tab_logs",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tab-logs"
+    },
+    {
+      "numero": 10,
+      "acao": "Verificar colunas dos Logs",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Timestamp, Metodo, Endpoint, Status, Org, Produto, Duracao",
+      "screenshot": "10_verificar_colunas_dos_logs",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 11,
+      "acao": "Erro ao carregar servicos",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast de erro",
+      "screenshot": "11_erro_ao_carregar_servicos",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 12,
+      "acao": "Nenhum servico cadastrado",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem vazia",
+      "screenshot": "12_nenhum_servico_cadastrado",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 13,
+      "acao": "Skeleton de loading",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Loading visual",
+      "screenshot": "13_skeleton_de_loading",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 14,
+      "acao": "Buscar servico por nome",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-busca-api",
+        "valor": "configurador"
+      },
+      "resultadoEsperado": "Tabela filtrada",
+      "screenshot": "14_buscar_servico_por_nome",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-busca-api"
+    },
+    {
+      "numero": 15,
+      "acao": "Ordenar por latencia",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-latencia"
+      },
+      "resultadoEsperado": "Ordenado por latencia",
+      "screenshot": "15_ordenar_por_latencia",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-latencia"
+    },
+    {
+      "numero": 16,
+      "acao": "Verificar acesso por role",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Acesso correto por permissao",
+      "screenshot": "16_verificar_acesso_por_role",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 17,
+      "acao": "Isolamento de logs entre tenants",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Logs filtrados por tenant",
+      "screenshot": "17_isolamento_de_logs_entre_tenan",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 18,
+      "acao": "Navegacao por teclado",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Tab"
+      },
+      "resultadoEsperado": "Focus ring",
+      "screenshot": "18_navegacao_por_teclado",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 19,
+      "acao": "Resize mobile",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 375,
+        "altura": 812
+      },
+      "resultadoEsperado": "Layout adaptado",
+      "screenshot": "19_resize_mobile",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 20,
+      "acao": "Textos em PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Labels corretos",
+      "screenshot": "20_textos_em_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 21,
+      "acao": "FCP < 1.5s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Rapido",
+      "screenshot": "21_fcp__15s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 22,
+      "acao": "Dados persistem apos F5",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Dados mantidos",
+      "screenshot": "22_dados_persistem_apos_f5",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    }
+  ],
+  "estimativaDuracao": "~1 min",
+  "estimativaCustoIA": 0.08,
+  "ultimaExecucao": null,
+  "ultimoResultado": null
+}

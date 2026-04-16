@@ -12,7 +12,7 @@
 
   "componenteFilePath": "servicos-global/configurador/src/pages/Organizacao.tsx",
   "specFilePath": "testes/testes-e2e/configurador/organizacao/TST-E2E-CONFIG-000001.spec.ts",
-  "mapeamentoFilePath": "testes/_mapeamentos/configurador/organizacao.testids.json",
+  "mapeamentoFilePath": "testes/testes-e2e/configurador/_mapeamentos/organizacao.testids.json",
 
   "ambientes": ["Local", "Staging", "Producao"],
   "criticidade": "alta",

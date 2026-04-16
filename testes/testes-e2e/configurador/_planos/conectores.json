@@ -1,0 +1,897 @@
+{
+  "id": "TST-E2E-CONFIG-000007",
+  "versao": "1.0",
+  "geradoEm": "2026-04-16T01:44:18.194Z",
+  "geradoPor": "agente-plano-teste",
+  "escopo": "CONFIG",
+  "sublocal": "Conectores",
+  "tela": "Conectores",
+  "rota": "/workspace/conectores",
+  "componenteFilePath": "servicos-global/configurador/src/pages/workspace/Conectores.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/configurador/conectores.testids.json",
+  "ambientes": [
+    "Local",
+    "Staging",
+    "Producao"
+  ],
+  "criticidade": "alta",
+  "temDinheiro": false,
+  "resumoExecutivo": "Tela de gestão de conectores ERP (SAP, ONESOURCE, CargoWise, Bysoft). Permite configurar OAuth, mappings de-para e testar conexao. Risco: credenciais OAuth armazenadas. 4 conectores, cada um com sub-tabs de config.",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador ABC",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-server-8005",
+      "configurador-front-8000"
+    ]
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/configurador/src/pages/workspace/Conectores.tsx",
+    "extraidoEm": "2026-04-16T01:44:18.194Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "card-conector-sap",
+      "btn-voltar-conectores",
+      "input-sap-base-url",
+      "input-sap-user",
+      "btn-salvar-sap",
+      "input-onesource-client-id",
+      "btn-add-mapping-sap",
+      "input-mapping-gravity-0",
+      "btn-import-csv",
+      "btn-testar-sap"
+    ]
+  },
+  "cobertura": [
+    {
+      "categoria": 1,
+      "nome": "Carregamento da tela",
+      "status": "coberta",
+      "passosAssociados": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "categoria": 2,
+      "nome": "Identidade visual",
+      "status": "coberta",
+      "passosAssociados": [
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "categoria": 3,
+      "nome": "Navegacao lateral / breadcrumb",
+      "status": "coberta",
+      "passosAssociados": [
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "categoria": 4,
+      "nome": "Read / Listagem / Visualizacao",
+      "status": "coberta",
+      "passosAssociados": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "categoria": 5,
+      "nome": "Update / Edicao",
+      "status": "coberta",
+      "passosAssociados": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ]
+    },
+    {
+      "categoria": 6,
+      "nome": "Create / Criacao",
+      "status": "coberta",
+      "passosAssociados": [
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "categoria": 7,
+      "nome": "Delete / Exclusao",
+      "status": "nao_aplicavel",
+      "passosAssociados": [],
+      "justificativa": "Conectores nao sao deletados — sao desconectados"
+    },
+    {
+      "categoria": 8,
+      "nome": "Validacoes de campo",
+      "status": "coberta",
+      "passosAssociados": [
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "categoria": 9,
+      "nome": "Estados de erro",
+      "status": "coberta",
+      "passosAssociados": [
+        28,
+        29
+      ]
+    },
+    {
+      "categoria": 10,
+      "nome": "Estados vazios",
+      "status": "coberta",
+      "passosAssociados": [
+        30
+      ]
+    },
+    {
+      "categoria": 11,
+      "nome": "Estados de loading",
+      "status": "coberta",
+      "passosAssociados": [
+        31
+      ]
+    },
+    {
+      "categoria": 12,
+      "nome": "Filtros e busca",
+      "status": "coberta",
+      "passosAssociados": [
+        32
+      ]
+    },
+    {
+      "categoria": 13,
+      "nome": "Ordenacao",
+      "status": "coberta",
+      "passosAssociados": [
+        33
+      ]
+    },
+    {
+      "categoria": 14,
+      "nome": "Permissoes / RBAC",
+      "status": "coberta",
+      "passosAssociados": [
+        34
+      ]
+    },
+    {
+      "categoria": 15,
+      "nome": "Multi-tenant / isolamento",
+      "status": "coberta",
+      "passosAssociados": [
+        35,
+        36
+      ]
+    },
+    {
+      "categoria": 16,
+      "nome": "Acessibilidade (a11y)",
+      "status": "coberta",
+      "passosAssociados": [
+        37
+      ]
+    },
+    {
+      "categoria": 17,
+      "nome": "Responsividade",
+      "status": "coberta",
+      "passosAssociados": [
+        38
+      ]
+    },
+    {
+      "categoria": 18,
+      "nome": "Internacionalizacao (i18n)",
+      "status": "coberta",
+      "passosAssociados": [
+        39,
+        40
+      ]
+    },
+    {
+      "categoria": 19,
+      "nome": "Performance",
+      "status": "coberta",
+      "passosAssociados": [
+        41
+      ]
+    },
+    {
+      "categoria": 20,
+      "nome": "Persistencia e refresh",
+      "status": "coberta",
+      "passosAssociados": [
+        42,
+        43
+      ]
+    }
+  ],
+  "coberturaPercentual": 100,
+  "passos": [
+    {
+      "numero": 1,
+      "acao": "Navegar para /workspace/conectores",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "goto",
+        "rota": "/workspace/conectores"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/conectores"
+      },
+      "resultadoEsperado": "URL correta",
+      "screenshot": "01_navegar_para_workspaceconect",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 2,
+      "acao": "Verificar grid de 4 conectores",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cards SAP, ONESOURCE, CargoWise, Bysoft",
+      "screenshot": "02_verificar_grid_de_4_conectores",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 3,
+      "acao": "Verificar sem erros JS",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Console limpo",
+      "screenshot": "03_verificar_sem_erros_js",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 4,
+      "acao": "Verificar card layout premium",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Logo, nome, descricao, features, status",
+      "screenshot": "04_verificar_card_layout_premium",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 5,
+      "acao": "Verificar titulo Conectores",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Titulo e icone corretos",
+      "screenshot": "05_verificar_titulo_conectores",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 6,
+      "acao": "Verificar animacao hover nos cards",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "hover",
+        "testid": "card-conector-sap"
+      },
+      "resultadoEsperado": "Card levanta com sombra",
+      "screenshot": "06_verificar_animacao_hover_nos_c",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "card-conector-sap"
+    },
+    {
+      "numero": 7,
+      "acao": "Verificar badge de status por conector",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Conectado/Desconectado/Em Dev",
+      "screenshot": "07_verificar_badge_de_status_por_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 8,
+      "acao": "Verificar chips de features",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badges com features do conector",
+      "screenshot": "08_verificar_chips_de_features",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 9,
+      "acao": "Sidebar com Conectores selecionado",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Item highlighted",
+      "screenshot": "09_sidebar_com_conectores_selecio",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 10,
+      "acao": "Clicar em conector SAP",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "card-conector-sap"
+      },
+      "resultadoEsperado": "Tela de config SAP abre",
+      "screenshot": "10_clicar_em_conector_sap",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 11,
+      "acao": "Botao Voltar para lista",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-voltar-conectores"
+      },
+      "resultadoEsperado": "Volta para grid de conectores",
+      "screenshot": "11_botao_voltar_para_lista",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-voltar-conectores"
+    },
+    {
+      "numero": 12,
+      "acao": "Verificar grid de conectores (leitura)",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "4 conectores com dados corretos",
+      "screenshot": "12_verificar_grid_de_conectores_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 13,
+      "acao": "Verificar sub-tabs SAP (OData, De-Para, Teste)",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "card-conector-sap"
+      },
+      "resultadoEsperado": "3 sub-tabs visiveis",
+      "screenshot": "13_verificar_subtabs_sap_odata",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 14,
+      "acao": "Verificar sub-tabs ONESOURCE",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "3 sub-tabs visiveis",
+      "screenshot": "14_verificar_subtabs_onesource",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 15,
+      "acao": "Verificar CargoWise/Bysoft Em Desenvolvimento",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Placeholder Em Desenvolvimento",
+      "screenshot": "15_verificar_cargowisebysoft_em_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 16,
+      "acao": "Preencher credenciais OData SAP",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-sap-base-url",
+        "valor": "https://sap.empresa.com/odata"
+      },
+      "resultadoEsperado": "Campo aceita URL",
+      "screenshot": "16_preencher_credenciais_odata_sa",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-sap-base-url"
+    },
+    {
+      "numero": 17,
+      "acao": "Preencher usuario SAP",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-sap-user",
+        "valor": "admin"
+      },
+      "resultadoEsperado": "Campo aceita valor",
+      "screenshot": "17_preencher_usuario_sap",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-sap-user"
+    },
+    {
+      "numero": 18,
+      "acao": "Salvar config SAP",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-salvar-sap"
+      },
+      "assercao": {
+        "tipo": "toastShown",
+        "texto": "salv"
+      },
+      "resultadoEsperado": "Config salva",
+      "screenshot": "18_salvar_config_sap",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-salvar-sap"
+    },
+    {
+      "numero": 19,
+      "acao": "Preencher OAuth ONESOURCE",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-onesource-client-id",
+        "valor": "client123"
+      },
+      "resultadoEsperado": "Client ID preenchido",
+      "screenshot": "19_preencher_oauth_onesource",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-onesource-client-id"
+    },
+    {
+      "numero": 20,
+      "acao": "Adicionar mapeamento de-para SAP",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-add-mapping-sap"
+      },
+      "resultadoEsperado": "Nova linha no grid",
+      "screenshot": "20_adicionar_mapeamento_depara_s",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-add-mapping-sap"
+    },
+    {
+      "numero": 21,
+      "acao": "Editar campo mapeado",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-mapping-gravity-0",
+        "valor": "numero_pedido"
+      },
+      "resultadoEsperado": "Campo Gravity preenchido",
+      "screenshot": "21_editar_campo_mapeado",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-mapping-gravity-0"
+    },
+    {
+      "numero": 22,
+      "acao": "Criar novo conector (configurar SAP do zero)",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Fluxo de primeira configuracao funciona",
+      "screenshot": "22_criar_novo_conector_configura",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 23,
+      "acao": "Adicionar novo mapeamento de-para",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-add-mapping-sap"
+      },
+      "resultadoEsperado": "Linha adicionada",
+      "screenshot": "23_adicionar_novo_mapeamento_dep",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 24,
+      "acao": "Importar mapeamento via CSV",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-import-csv"
+      },
+      "resultadoEsperado": "File input abre",
+      "screenshot": "24_importar_mapeamento_via_csv",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-import-csv"
+    },
+    {
+      "numero": 25,
+      "acao": "Validar URL OData obrigatoria",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-sap-base-url",
+        "valor": ""
+      },
+      "resultadoEsperado": "Erro de campo obrigatorio",
+      "screenshot": "25_validar_url_odata_obrigatoria",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 26,
+      "acao": "Validar formato de URL",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-sap-base-url",
+        "valor": "nao-e-url"
+      },
+      "resultadoEsperado": "Erro de formato de URL",
+      "screenshot": "26_validar_formato_de_url",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 27,
+      "acao": "Validar Client ID obrigatorio ONESOURCE",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro se vazio",
+      "screenshot": "27_validar_client_id_obrigatorio_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 28,
+      "acao": "Testar conexao SAP (sucesso)",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-testar-sap"
+      },
+      "resultadoEsperado": "Status success com detalhes",
+      "screenshot": "28_testar_conexao_sap_sucesso",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-testar-sap"
+    },
+    {
+      "numero": 29,
+      "acao": "Testar conexao SAP (falha)",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Status error com mensagem",
+      "screenshot": "29_testar_conexao_sap_falha",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 30,
+      "acao": "Conector sem configuracao",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Campos vazios com placeholder",
+      "screenshot": "30_conector_sem_configuracao",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 31,
+      "acao": "Loading durante teste de conexao",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Spinner e status testing",
+      "screenshot": "31_loading_durante_teste_de_conex",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 32,
+      "acao": "Filtrar conectores por status",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Grid filtra por conectado/desconectado",
+      "screenshot": "32_filtrar_conectores_por_status",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 33,
+      "acao": "Ordenar mapeamentos",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela de-para ordenavel",
+      "screenshot": "33_ordenar_mapeamentos",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 34,
+      "acao": "STANDARD nao pode editar conectores",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Campos desabilitados para STANDARD",
+      "screenshot": "34_standard_nao_pode_editar_conec",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 35,
+      "acao": "Isolamento de config entre tenants",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Config SAP de tenant A nao vaza para B",
+      "screenshot": "35_isolamento_de_config_entre_ten",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 36,
+      "acao": "Credenciais nao expostas em tenant B",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Isolamento total de credenciais",
+      "screenshot": "36_credenciais_nao_expostas_em_te",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 37,
+      "acao": "Navegar sub-tabs com Tab",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Tab"
+      },
+      "resultadoEsperado": "Focus ring nas tabs e inputs",
+      "screenshot": "37_navegar_subtabs_com_tab",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 38,
+      "acao": "Resize mobile",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 375,
+        "altura": 812
+      },
+      "resultadoEsperado": "Layout adaptado, cards empilham",
+      "screenshot": "38_resize_mobile",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 39,
+      "acao": "Textos em PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Labels corretos",
+      "screenshot": "39_textos_em_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 40,
+      "acao": "Textos em EN",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "en"
+      },
+      "resultadoEsperado": "Labels em ingles",
+      "screenshot": "40_textos_em_en",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 41,
+      "acao": "FCP < 1.5s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Rapido",
+      "screenshot": "41_fcp__15s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 42,
+      "acao": "Config persiste apos F5",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Credenciais mantidas",
+      "screenshot": "42_config_persiste_apos_f5",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 43,
+      "acao": "Mapeamentos persistem apos reload",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Tabela de-para mantida",
+      "screenshot": "43_mapeamentos_persistem_apos_rel",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    }
+  ],
+  "estimativaDuracao": "~2 min",
+  "estimativaCustoIA": 0.08,
+  "ultimaExecucao": null,
+  "ultimoResultado": null
+}

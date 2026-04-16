@@ -37,7 +37,7 @@ async function main() {
   // 2. Seed produtos
   console.log('\n── Seed do Catálogo ──')
   try {
-    const res = await fetch(`${BASE}/api/admin/products/seed`, {
+    const res = await fetch(`${BASE}/api/admin/produtos-gravity/seed`, {
       method: 'POST',
       headers: HEADERS,
     })

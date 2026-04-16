@@ -31,16 +31,16 @@ const Store = lazy(() => import('./pages/Store'), 'Store')
 const AdminPanel = lazy(() => import('./pages/AdminPanel'), 'AdminPanel')
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'), 'AdminLayout')
 const VisaoGeralAdmin = lazy(() => import('./pages/admin/VisaoGeralAdmin'), 'VisaoGeralAdmin')
-const ProdutosAdmin = lazy(() => import('./pages/admin/ProdutosAdmin'), 'ProdutosAdmin')
+const ProdutosGravityAdmin = lazy(() => import('./pages/admin/ProdutosGravityAdmin'), 'ProdutosGravityAdmin')
 const HistoricoGlobalAdmin = lazy(() => import('./pages/admin/HistoricoGlobalAdmin'), 'HistoricoGlobalAdmin')
-const AdminFinanceiro = lazy(() => import('./pages/admin/AdminFinanceiro'), 'AdminFinanceiro')
-const LogTestes = lazy(() => import('./pages/admin/LogTestes'), 'LogTestes')
-const MonitorApisAdmin = lazy(() => import('./pages/admin/MonitorApisAdmin'), 'MonitorApisAdmin')
+const FinanceiroAdmin = lazy(() => import('./pages/admin/FinanceiroAdmin'), 'FinanceiroAdmin')
+const TestesGeraisAdmin = lazy(() => import('./pages/admin/TestesGeraisAdmin'), 'TestesGeraisAdmin')
+const ApiCockpitAdmin = lazy(() => import('./pages/admin/ApiCockpitAdmin'), 'ApiCockpitAdmin')
 const UsuariosGlobaisAdmin = lazy(() => import('./pages/admin/UsuariosGlobaisAdmin'), 'UsuariosGlobaisAdmin')
 const TenantDetail = lazy(() => import('./pages/TenantDetail'), 'TenantDetail')
-const DeployRailwayAdmin = lazy(() => import('./pages/admin/DeployRailwayAdmin'), 'DeployRailwayAdmin')
+const DeployAdmin = lazy(() => import('./pages/admin/DeployAdmin'), 'DeployAdmin')
 const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
-const NcmSyncAdmin = lazy(() => import('./pages/admin/NcmSyncAdmin'), 'NcmSyncAdmin')
+const NcmIntegracaoAdmin = lazy(() => import('./pages/admin/NcmIntegracaoAdmin'), 'NcmIntegracaoAdmin')
 const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
 const Organizacao = lazy(() => import('./pages/workspace/Organizacao'), 'Organizacao')
 const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspaces')
@@ -249,15 +249,15 @@ export default function App() {
         <Route path="/admin" element={<AdminRoute><React.Suspense fallback={<ProductLoading />}><AdminLayout /></React.Suspense></AdminRoute>}>
           <Route index element={<Navigate to="/admin/visao-geral" replace />} />
           <Route path="visao-geral" element={<React.Suspense fallback={<ProductLoading />}><VisaoGeralAdmin /></React.Suspense>} />
-          <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><UsuariosGlobaisAdmin /></React.Suspense>} />
-          <Route path="produtos" element={<React.Suspense fallback={<ProductLoading />}><ProdutosAdmin /></React.Suspense>} />
-          <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><AdminFinanceiro /></React.Suspense>} />
-          <Route path="historico" element={<React.Suspense fallback={<ProductLoading />}><HistoricoGlobalAdmin /></React.Suspense>} />
-          <Route path="deploy" element={<React.Suspense fallback={<ProductLoading />}><DeployRailwayAdmin /></React.Suspense>} />
-          <Route path="testes" element={<React.Suspense fallback={<ProductLoading />}><LogTestes /></React.Suspense>} />
-          <Route path="apis" element={<React.Suspense fallback={<ProductLoading />}><MonitorApisAdmin /></React.Suspense>} />
-          <Route path="seguranca" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
-          <Route path="ncm-sync" element={<React.Suspense fallback={<ProductLoading />}><NcmSyncAdmin /></React.Suspense>} />
+          <Route path="usuarios-globais" element={<React.Suspense fallback={<ProductLoading />}><UsuariosGlobaisAdmin /></React.Suspense>} />
+          <Route path="produtos-gravity" element={<React.Suspense fallback={<ProductLoading />}><ProdutosGravityAdmin /></React.Suspense>} />
+          <Route path="financeiro-admin" element={<React.Suspense fallback={<ProductLoading />}><FinanceiroAdmin /></React.Suspense>} />
+          <Route path="historico-global" element={<React.Suspense fallback={<ProductLoading />}><HistoricoGlobalAdmin /></React.Suspense>} />
+          <Route path="deploy" element={<React.Suspense fallback={<ProductLoading />}><DeployAdmin /></React.Suspense>} />
+          <Route path="testes-gerais" element={<React.Suspense fallback={<ProductLoading />}><TestesGeraisAdmin /></React.Suspense>} />
+          <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpitAdmin /></React.Suspense>} />
+          <Route path="seguranca-admin" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
+          <Route path="ncm-integracao" element={<React.Suspense fallback={<ProductLoading />}><NcmIntegracaoAdmin /></React.Suspense>} />
           <Route path="tenants" element={<React.Suspense fallback={<ProductLoading />}><AdminPanel navigate={adminNavigate} /></React.Suspense>} />
           <Route path="tenant/:id" element={<React.Suspense fallback={<ProductLoading />}><TenantDetailWrapper /></React.Suspense>} />
         </Route>

@@ -305,7 +305,7 @@ function validateCoverage(plan: PlanoTeste, criticidade: string): void {
 // ─── Persistencia ────────────────────────────────────────────────────────────
 
 function persistPlan(plan: PlanoTeste, escopo: string, sublocal: string): void {
-  const planDir = resolve(process.cwd(), `testes/_planos/${escopo.toLowerCase()}`)
+  const planDir = resolve(process.cwd(), `testes/testes-e2e/${escopo.toLowerCase()}/_planos`)
   const planFile = resolve(planDir, `${sublocal.toLowerCase().replace(/\s+/g, '-')}.json`)
 
   if (!existsSync(planDir)) {
@@ -344,7 +344,7 @@ function updateRegistry(plan: PlanoTeste, escopo: string, sublocal: string): voi
     rota:               plan.rota,
     criticidade:        plan.criticidade,
     ambientes:          plan.ambientes,
-    planoFile:          `_planos/${escopo.toLowerCase()}/${sublocal.toLowerCase().replace(/\s+/g, '-')}.json`,
+    planoFile:          `testes-e2e/${escopo.toLowerCase()}/_planos/${sublocal.toLowerCase().replace(/\s+/g, '-')}.json`,
     specFile:           plan.specFilePath ?? null,
     mapeamentoFile:     plan.mapeamentoFilePath,
     componenteFile:     plan.componenteFilePath,

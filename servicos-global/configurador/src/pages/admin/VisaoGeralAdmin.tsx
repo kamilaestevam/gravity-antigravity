@@ -123,7 +123,7 @@ export function VisaoGeralAdmin() {
           resetDirty(loaded)
         }
       } catch (err) {
-        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.overview.msg_erro_carregar') })
+        addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.visao-geral.msg_erro_carregar') })
       } finally {
         setCarregando(false)
       }
@@ -152,12 +152,12 @@ export function VisaoGeralAdmin() {
       resetDirty(dados)
       addNotification({
         type: 'success',
-        message: t('admin.overview.msg_sucesso')
+        message: t('admin.visao-geral.msg_sucesso')
       })
     } catch (err) {
       addNotification({
         type: 'error',
-        message: err instanceof Error ? err.message : t('admin.overview.msg_erro')
+        message: err instanceof Error ? err.message : t('admin.visao-geral.msg_erro')
       })
     } finally {
       setSalvando(false)
@@ -176,8 +176,8 @@ export function VisaoGeralAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Crown weight="duotone" size={22} />}
-          titulo={t('admin.overview.titulo')}
-          subtitulo={t('admin.overview.subtitulo')}
+          titulo={t('admin.visao-geral.titulo')}
+          subtitulo={t('admin.visao-geral.subtitulo')}
         />
       }
     >
@@ -188,12 +188,12 @@ export function VisaoGeralAdmin() {
             <RocketLaunch weight="duotone" size={32} />
           </div>
           <div className="em-identity__text">
-            <TooltipGlobal titulo={t('admin.overview.badge_nivel_super')} descricao={t('admin.overview.badge_nivel_super_desc')}>
-              <span className="em-identity__badge" style={{ cursor: 'help', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>{t('admin.overview.badge_hq_owner')}</span>
+            <TooltipGlobal titulo={t('admin.visao-geral.badge_nivel_super')} descricao={t('admin.visao-geral.badge_nivel_super_desc')}>
+              <span className="em-identity__badge" style={{ cursor: 'help', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981' }}>{t('admin.visao-geral.badge_hq_owner')}</span>
             </TooltipGlobal>
             <h2 className="em-identity__nome">{dados.nome}</h2>
             <p className="em-identity__sub">
-              <TooltipGlobal titulo={t('admin.overview.badge_plano')} descricao={t('admin.overview.badge_status_master')}>
+              <TooltipGlobal titulo={t('admin.visao-geral.badge_plano')} descricao={t('admin.visao-geral.badge_status_master')}>
                 <span className="em-tag" style={{ cursor: 'help', borderColor: '#10b981', color: '#10b981' }}>{dados.plano}</span>
               </TooltipGlobal>
               <span className="em-identity__sep">·</span>
@@ -206,18 +206,18 @@ export function VisaoGeralAdmin() {
       {/* ── Dados Básicos ── */}
       <div className="em-section ws-fade-up ws-fade-up-d1">
         <p className="ws-section-title" style={{ width: 'max-content' }}>
-          <TooltipGlobal titulo={t('admin.overview.dados_registrados')} descricao={t('admin.overview.dados_registrados_desc')}>
+          <TooltipGlobal titulo={t('admin.visao-geral.dados_registrados')} descricao={t('admin.visao-geral.dados_registrados_desc')}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
               <Buildings weight="duotone" size={14} color="#10b981" />
-              {t('admin.overview.secao_institucional')}
+              {t('admin.visao-geral.secao_institucional')}
             </span>
           </TooltipGlobal>
         </p>
         <div className="em-grid">
           <GeralCampoGlobal
-            label={t('admin.overview.campo_empresa')} obrigatorio
-            tooltipTitulo={t('admin.overview.campo_empresa_tooltip')}
-            tooltipDescricao={t('admin.overview.campo_empresa_desc')}
+            label={t('admin.visao-geral.campo_empresa')} obrigatorio
+            tooltipTitulo={t('admin.visao-geral.campo_empresa_tooltip')}
+            tooltipDescricao={t('admin.visao-geral.campo_empresa_desc')}
           >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <Buildings size={16} />
@@ -225,9 +225,9 @@ export function VisaoGeralAdmin() {
             </div>
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label={t('admin.overview.campo_cnpj')}
-            tooltipTitulo={t('admin.overview.campo_cnpj_tooltip')}
-            tooltipDescricao={t('admin.overview.campo_cnpj_desc')}
+            label={t('admin.visao-geral.campo_cnpj')}
+            tooltipTitulo={t('admin.visao-geral.campo_cnpj_tooltip')}
+            tooltipDescricao={t('admin.visao-geral.campo_cnpj_desc')}
           >
             <div className="ws-input-icon-wrap" style={{ '--ws-focus-ring': '#10b981' } as React.CSSProperties}>
               <IdentificationCard size={16} />
@@ -237,9 +237,9 @@ export function VisaoGeralAdmin() {
         </div>
         <div className="em-grid em-grid--4">
           <GeralCampoGlobal
-            label={t('admin.overview.campo_estado')}
-            tooltipTitulo={t('admin.overview.campo_estado_tooltip')}
-            tooltipDescricao={t('admin.overview.campo_estado_desc')}
+            label={t('admin.visao-geral.campo_estado')}
+            tooltipTitulo={t('admin.visao-geral.campo_estado_tooltip')}
+            tooltipDescricao={t('admin.visao-geral.campo_estado_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
@@ -250,23 +250,23 @@ export function VisaoGeralAdmin() {
             />
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label={t('admin.overview.campo_cidade')}
-            tooltipTitulo={t('admin.overview.campo_cidade_tooltip')}
-            tooltipDescricao={t('admin.overview.campo_cidade_desc')}
+            label={t('admin.visao-geral.campo_cidade')}
+            tooltipTitulo={t('admin.visao-geral.campo_cidade_tooltip')}
+            tooltipDescricao={t('admin.visao-geral.campo_cidade_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<MapPin size={16} />}
               opcoes={cidades}
               valor={dados.cidade || null}
               aoMudarValor={v => set('cidade', String(v ?? ''))}
-              placeholder={dados.estado ? t('comum.selecione') : t('admin.overview.aguardando_estado')}
+              placeholder={dados.estado ? t('comum.selecione') : t('admin.visao-geral.aguardando_estado')}
               buscavel desabilitado={!dados.estado} carregando={carregandoCidades}
             />
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label={t('admin.overview.campo_segmento')}
-            tooltipTitulo={t('admin.overview.campo_segmento_tooltip')}
-            tooltipDescricao={t('admin.overview.campo_segmento_desc')}
+            label={t('admin.visao-geral.campo_segmento')}
+            tooltipTitulo={t('admin.visao-geral.campo_segmento_tooltip')}
+            tooltipDescricao={t('admin.visao-geral.campo_segmento_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<Package size={16} />}
@@ -277,9 +277,9 @@ export function VisaoGeralAdmin() {
             />
           </GeralCampoGlobal>
           <GeralCampoGlobal
-            label={t('admin.overview.campo_tipo_empresa')}
-            tooltipTitulo={t('admin.overview.campo_tipo_empresa_tooltip')}
-            tooltipDescricao={t('admin.overview.campo_tipo_empresa_desc')}
+            label={t('admin.visao-geral.campo_tipo_empresa')}
+            tooltipTitulo={t('admin.visao-geral.campo_tipo_empresa_tooltip')}
+            tooltipDescricao={t('admin.visao-geral.campo_tipo_empresa_desc')}
           >
             <SelectGlobal
               iconeEsquerda={<Buildings size={16} />}
@@ -297,16 +297,16 @@ export function VisaoGeralAdmin() {
         <p className="ws-section-title" style={{ width: 'max-content' }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', cursor: 'help' }}>
             <Package weight="duotone" size={14} color="#10b981" />
-            {t('admin.overview.secao_infra')}
+            {t('admin.visao-geral.secao_infra')}
           </span>
         </p>
         <div className="em-plan-row">
           <div className="em-plan-info">
-            <TooltipGlobal descricao={t('admin.overview.infra_nucleo_desc')}>
+            <TooltipGlobal descricao={t('admin.visao-geral.infra_nucleo_desc')}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <div className="em-plan-icon" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}><Package weight="duotone" size={22} /></div>
                 <div>
-                  <p className="em-plan-label">{t('admin.overview.instancia_atual')}</p>
+                  <p className="em-plan-label">{t('admin.visao-geral.instancia_atual')}</p>
                   <p className="em-plan-name">{dados.plano}</p>
                 </div>
               </div>
@@ -314,21 +314,21 @@ export function VisaoGeralAdmin() {
           </div>
           <div className="em-plan-meta">
             <div className="em-plan-meta-item">
-              <TooltipGlobal descricao={t('admin.overview.infra_url_desc')}>
+              <TooltipGlobal descricao={t('admin.visao-geral.infra_url_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
                   <Globe size={14} weight="duotone" /> <span>{dados.subdominio}.gravity.com.br</span>
                 </span>
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <TooltipGlobal descricao={t('admin.overview.infra_data_desc')}>
+              <TooltipGlobal descricao={t('admin.visao-geral.infra_data_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
-                  <CalendarBlank size={14} weight="duotone" /> <span>{t('admin.overview.operando_desde')} {dados.criadaEm}</span>
+                  <CalendarBlank size={14} weight="duotone" /> <span>{t('admin.visao-geral.operando_desde')} {dados.criadaEm}</span>
                 </span>
               </TooltipGlobal>
             </div>
             <div className="em-plan-meta-item">
-              <TooltipGlobal descricao={t('admin.overview.infra_regiao_desc')}>
+              <TooltipGlobal descricao={t('admin.visao-geral.infra_regiao_desc')}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'help' }}>
                   <MapPin size={14} weight="duotone" /> <span>{dados.cidade}, {dados.estado}</span>
                 </span>

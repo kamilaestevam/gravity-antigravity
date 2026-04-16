@@ -121,7 +121,7 @@ import { historicoRouter } from '../../tenant/historico-global/server/routes.js'
 // Middleware obrigatório: rate limit + auth Clerk + role check (SUPER_ADMIN/ADMIN)
 // Sem isso, /api/tenant/historico-global/* ficou exposto publicamente — todas as 12 rotas
 // do histórico (incluindo POST /logs de ingestão) eram chamáveis sem token.
-app.use('/api/tenant/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
+app.use('/api/admin/historico-global', rateLimitPresets.admin(), requireAuth, requireGravityAdmin, historicoRouter)
 
 import { apiRoutes as notificacoesRouter } from '../../tenant/notificacoes/server/routes/api.js'
 // Middleware obrigatório: rate limit + auth Clerk. O router interno tem seu
@@ -138,11 +138,11 @@ import { apiRoutes as preferenciasRouter } from '../../tenant/preferencias-usuar
 app.use('/api/tenant/preferencias', rateLimitPresets.internal(), requireAuth, preferenciasRouter)
 
 app.use('/api/admin', adminRouter)
-app.use('/api/admin/products', adminProductsRouter)       // CRUD catálogo (auth chain interna)
+app.use('/api/admin/produtos-gravity', adminProductsRouter)       // CRUD catálogo (auth chain interna)
 app.use('/api/admin/tenants', tenantProductsRouter)        // ativação por tenant (auth chain interna)
 
 import { adminSecurityRouter, adminSecurityInternalRouter } from './routes/adminSecurity.js'
-app.use('/api/admin/security', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
+app.use('/api/admin/seguranca-admin', adminSecurityRouter)        // painel de seguranca (gravity_admin only)
 // Rota interna S2S para ingestão de eventos de segurança (chamada pelo
 // securityAuditLogger do historico-global). Antes: POST /admin/security/events
 // estava atrás de requireAuth+requireGravityAdmin mas o caller usava
@@ -154,8 +154,10 @@ import { authErrorLogger } from '../../tenant/historico-global/server/middleware
 app.use(authErrorLogger)
 
 import { apiCockpitRouter, apiCockpitAdminRouter } from './routes/apiCockpit.js'
+import { adminNcmIntegracaoRouter } from './routes/adminNcmIntegracao.js'
 app.use('/api/cockpit', apiCockpitRouter)                  // workspace: observabilidade por tenant
-app.use('/api/admin/cockpit', apiCockpitAdminRouter)       // admin: observabilidade global
+app.use('/api/admin/api-cockpit', apiCockpitAdminRouter)       // admin: observabilidade global
+app.use('/api/admin/ncm-integracao', adminNcmIntegracaoRouter) // admin: sincronização NCM Siscomex
 
 // ─── Taxa de câmbio PTAX — sem auth (dados públicos do BCB) ─────────────────
 

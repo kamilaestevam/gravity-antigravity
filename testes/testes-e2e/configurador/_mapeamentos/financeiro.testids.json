@@ -1,0 +1,12 @@
+{
+  "componente": "servicos-global/configurador/src/pages/workspace/Financeiro.tsx",
+  "extraidoEm": "2026-04-16T01:44:18.192Z",
+  "elementos": {},
+  "testidsFaltando": [
+    "valor-fatura-0",
+    "btn-expand-fatura-0",
+    "tab-produtos-valores",
+    "btn-ver-detalhes-0",
+    "col-vencimento"
+  ]
+}

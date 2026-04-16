@@ -1,0 +1,17 @@
+{
+  "componente": "servicos-global/configurador/src/pages/workspace/Conectores.tsx",
+  "extraidoEm": "2026-04-16T01:44:18.194Z",
+  "elementos": {},
+  "testidsFaltando": [
+    "card-conector-sap",
+    "btn-voltar-conectores",
+    "input-sap-base-url",
+    "input-sap-user",
+    "btn-salvar-sap",
+    "input-onesource-client-id",
+    "btn-add-mapping-sap",
+    "input-mapping-gravity-0",
+    "btn-import-csv",
+    "btn-testar-sap"
+  ]
+}

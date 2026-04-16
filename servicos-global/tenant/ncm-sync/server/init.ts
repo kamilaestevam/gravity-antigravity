@@ -5,7 +5,7 @@
  * Registra o cron diário para sincronizar a tabela NCM de TODOS os tenants.
  *
  * Exporta `reagendarJob(cron, ativo)` para re-agendamento dinâmico em runtime
- * quando o admin altera a configuração via PUT /api/v1/ncm/admin/schedule.
+ * quando o admin altera a configuração via PUT /api/admin/ncm-integracao/schedule.
  */
 
 import cron, { type ScheduledTask } from 'node-cron'

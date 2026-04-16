@@ -389,7 +389,7 @@
         "negado": "DENIED"
       }
     },
-    "monitor": {
+    "api-cockpit": {
       "titulo": "Infrastructure Monitor",
       "subtitulo": "Global administrative view of API health on Railway",
       "apis_online": "APIs Online",
@@ -418,7 +418,7 @@
         "ativo": "Active"
       }
     },
-    "overview": {
+    "visao-geral": {
       "titulo": "Platform Overview",
       "subtitulo": "Global information about the Gravity Core",
       "badge_nivel_super": "Super Level",
@@ -460,7 +460,7 @@
       "infra_regiao_desc": "Region and city where the master record is located",
       "dados_basicos_tooltip": "Product identification and general configuration"
     },
-    "security": {
+    "seguranca-admin": {
       "titulo": "Security",
       "subtitulo": "Real-time monitoring — updated",
       "subtitulo_template": "Real-time monitoring — updated {{time}} (every {{interval}}s)",
@@ -531,7 +531,7 @@
         "rotacao_instrucao": "To rotate keys, run:"
       }
     },
-    "financial": {
+    "financeiro-admin": {
       "titulo": "Global Financial",
       "subtitulo": "Consolidated report by client, product, and date with delinquency tracking.",
       "btn_lancar": "Post Invoice",
@@ -657,7 +657,7 @@
       "campo_competencia_placeholder": "e.g. Apr/2025",
       "campo_valor_placeholder": "$ 0.00"
     },
-    "users": {
+    "usuarios-globais": {
       "titulo": "Global Users",
       "subtitulo": "Central management of all Gravity platform users",
       "card_total": "Total Users",
@@ -747,7 +747,7 @@
       "acao_toggle_status": "Toggle user status",
       "form_email_placeholder": "user@company.com"
     },
-    "products": {
+    "produtos-gravity": {
       "titulo": "Gravity Products",
       "subtitulo": "All product, catalog, and negotiation management for the Gravity platform is done here.",
       "card_total": "Total Products",
@@ -922,7 +922,7 @@
       "card_negociacoes_tooltip_taxa": "Conversion Rate",
       "card_negociacoes_tooltip_alta": "High"
     },
-    "history": {
+    "historico-global": {
       "titulo": "Global History",
       "subtitulo": "Complete chronological record of all changes made on the Gravity platform",
       "tooltip_processamento": "Decentralized Processing",
@@ -987,7 +987,7 @@
       "tooltip_expandir": "View technical details of the change (state diff)",
       "tooltip_recolher": "Collapse technical details"
     },
-    "tests": {
+    "testes-gerais": {
       "titulo": "Tests",
       "subtitulo": "Automated tracking and correction of vitest and playwright tests",
       "card_aprovados": "Passed",

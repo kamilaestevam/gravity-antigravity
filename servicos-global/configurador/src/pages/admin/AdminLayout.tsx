@@ -52,15 +52,15 @@ export function AdminLayout() {
   const navItems = [
     { to: '/admin/visao-geral',  label: t('admin.layout.visao_geral'),      icon: <Crown           weight="duotone" size={18} /> },
     { to: '/admin/tenants',      label: t('admin.layout.organizacoes'),     icon: <Buildings       weight="duotone" size={18} /> },
-    { to: '/admin/produtos',     label: t('admin.layout.produtos'),         icon: <ShoppingBagOpen weight="duotone" size={18} /> },
-    { to: '/admin/usuarios',     label: t('admin.layout.usuarios_globais'), icon: <Users           weight="duotone" size={18} /> },
-    { to: '/admin/financeiro',   label: t('admin.layout.financeiro'),       icon: <Receipt         weight="duotone" size={18} /> },
-    { to: '/admin/historico',    label: t('admin.layout.historico_global'), icon: <Desktop         weight="duotone" size={18} /> },
+    { to: '/admin/produtos-gravity', label: t('admin.layout.produtos'),         icon: <ShoppingBagOpen weight="duotone" size={18} /> },
+    { to: '/admin/usuarios-globais', label: t('admin.layout.usuarios_globais'), icon: <Users        weight="duotone" size={18} /> },
+    { to: '/admin/financeiro-admin', label: t('admin.layout.financeiro'),       icon: <Receipt      weight="duotone" size={18} /> },
+    { to: '/admin/historico-global', label: t('admin.layout.historico_global'), icon: <Desktop       weight="duotone" size={18} /> },
     { to: '/admin/deploy',       label: t('admin.layout.deploy_railway'),   icon: <CloudArrowUp    weight="duotone" size={18} /> },
-    { to: '/admin/apis',         label: t('admin.layout.api_cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
-    { to: '/admin/seguranca',    label: t('admin.layout.seguranca'),        icon: <ShieldCheck     weight="duotone" size={18} /> },
-    { to: '/admin/ncm-sync',     label: t('admin.layout.ncm_sync', 'NCM Siscomex'),   icon: <ArrowsClockwise weight="duotone" size={18} /> },
-    { to: '/admin/testes',       label: t('admin.layout.log_testes'),       icon: <Bug             weight="duotone" size={18} /> },
+    { to: '/admin/api-cockpit',  label: t('admin.layout.api_cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
+    { to: '/admin/seguranca-admin', label: t('admin.layout.seguranca'),     icon: <ShieldCheck     weight="duotone" size={18} /> },
+    { to: '/admin/ncm-integracao', label: t('admin.layout.ncm_sync', 'NCM Siscomex'), icon: <ArrowsClockwise weight="duotone" size={18} /> },
+    { to: '/admin/testes-gerais', label: t('admin.layout.log_testes'),      icon: <Bug             weight="duotone" size={18} /> },
   ]
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
 
@@ -73,7 +73,7 @@ export function AdminLayout() {
   // Precisa rodar no layout (e não nas páginas individuais) senão qualquer
   // página admin acessada diretamente sem passar por /admin/produtos fica
   // sem token e recebe 401 em todas as chamadas — inclusive o runner de
-  // testes (POST /admin/run-tests, GET /admin/run-tests/status).
+  // testes (POST /admin/testes-gerais/run, GET /admin/testes-gerais/run/status).
   useEffect(() => {
     setAuthTokenProvider(() => getToken())
   }, [getToken])
@@ -167,17 +167,17 @@ export function AdminLayout() {
                 gap: '0.375rem',
                 padding: '0.375rem 0.875rem',
                 borderRadius: '9999px',
-                border: '1px solid rgba(16,185,129,0.25)',
-                background: 'rgba(16,185,129,0.08)',
-                color: '#10b981',
+                border: '1px solid rgba(129,140,248,0.25)',
+                background: 'rgba(129,140,248,0.08)',
+                color: '#818cf8',
                 fontSize: '0.8125rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s',
                 whiteSpace: 'nowrap',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.15)'; e.currentTarget.style.borderColor = 'rgba(16,185,129,0.4)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.08)'; e.currentTarget.style.borderColor = 'rgba(16,185,129,0.25)' }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.15)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)' }}
             >
               <ArrowLeft size={16} weight="bold" />
               Hub
@@ -225,7 +225,7 @@ export function AdminLayout() {
             </button>
           </TooltipGlobal>
 
-          <LanguageSwitcherGlobal />
+          <Notificacoes />
 
           <LocalizadorGlobal
             workspaceName="Gravity HQ"
@@ -245,7 +245,10 @@ export function AdminLayout() {
             iconOnly
           />
 
-          <Notificacoes />
+          <LanguageSwitcherGlobal />
+
+          {/* Divisor visual */}
+          <div style={{ width: '1px', height: '24px', background: 'var(--bg-elevated)', margin: '0 0.25rem' }} />
 
           <UsuarioGlobal
             userName={userName}

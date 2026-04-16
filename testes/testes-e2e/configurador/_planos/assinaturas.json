@@ -1,0 +1,936 @@
+{
+  "id": "TST-E2E-CONFIG-000004",
+  "versao": "1.0",
+  "geradoEm": "2026-04-16T01:44:18.191Z",
+  "geradoPor": "agente-plano-teste",
+  "escopo": "CONFIG",
+  "sublocal": "Assinaturas",
+  "tela": "Assinaturas",
+  "rota": "/workspace/assinaturas",
+  "componenteFilePath": "servicos-global/configurador/src/pages/workspace/Assinaturas.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/configurador/assinaturas.testids.json",
+  "ambientes": [
+    "Local",
+    "Staging",
+    "Producao"
+  ],
+  "criticidade": "critica",
+  "temDinheiro": true,
+  "resumoExecutivo": "Tela de gestão de assinaturas de produtos. Permite assinar, suspender, cancelar e gerenciar acesso por workspace. Risco: operações financeiras e impacto cross-product. Criticidade crítica (temDinheiro=true).",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador ABC",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-server-8005",
+      "configurador-front-8000"
+    ]
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/configurador/src/pages/workspace/Assinaturas.tsx",
+    "extraidoEm": "2026-04-16T01:44:18.191Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "nav-financeiro",
+      "btn-expand-assin-0",
+      "btn-edit-assin-0",
+      "btn-suspend-assin-0",
+      "btn-toggle-ws-0",
+      "btn-assinar-produto",
+      "btn-cancel-assin-0",
+      "btn-confirmar-cancel",
+      "btn-remover-ws-0",
+      "input-busca-assin",
+      "col-preco"
+    ]
+  },
+  "cobertura": [
+    {
+      "categoria": 1,
+      "nome": "Carregamento da tela",
+      "status": "coberta",
+      "passosAssociados": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "categoria": 2,
+      "nome": "Identidade visual",
+      "status": "coberta",
+      "passosAssociados": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "categoria": 3,
+      "nome": "Navegacao lateral / breadcrumb",
+      "status": "coberta",
+      "passosAssociados": [
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "categoria": 4,
+      "nome": "Read / Listagem / Visualizacao",
+      "status": "coberta",
+      "passosAssociados": [
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "categoria": 5,
+      "nome": "Update / Edicao",
+      "status": "coberta",
+      "passosAssociados": [
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "categoria": 6,
+      "nome": "Create / Criacao",
+      "status": "coberta",
+      "passosAssociados": [
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "categoria": 7,
+      "nome": "Delete / Exclusao",
+      "status": "coberta",
+      "passosAssociados": [
+        28,
+        29,
+        30
+      ]
+    },
+    {
+      "categoria": 8,
+      "nome": "Validacoes de campo",
+      "status": "coberta",
+      "passosAssociados": [
+        31,
+        32
+      ]
+    },
+    {
+      "categoria": 9,
+      "nome": "Estados de erro",
+      "status": "coberta",
+      "passosAssociados": [
+        33,
+        34
+      ]
+    },
+    {
+      "categoria": 10,
+      "nome": "Estados vazios",
+      "status": "coberta",
+      "passosAssociados": [
+        35
+      ]
+    },
+    {
+      "categoria": 11,
+      "nome": "Estados de loading",
+      "status": "coberta",
+      "passosAssociados": [
+        36
+      ]
+    },
+    {
+      "categoria": 12,
+      "nome": "Filtros e busca",
+      "status": "coberta",
+      "passosAssociados": [
+        37
+      ]
+    },
+    {
+      "categoria": 13,
+      "nome": "Ordenacao",
+      "status": "coberta",
+      "passosAssociados": [
+        38
+      ]
+    },
+    {
+      "categoria": 14,
+      "nome": "Permissoes / RBAC",
+      "status": "coberta",
+      "passosAssociados": [
+        39
+      ]
+    },
+    {
+      "categoria": 15,
+      "nome": "Multi-tenant / isolamento",
+      "status": "coberta",
+      "passosAssociados": [
+        40
+      ]
+    },
+    {
+      "categoria": 16,
+      "nome": "Acessibilidade (a11y)",
+      "status": "coberta",
+      "passosAssociados": [
+        41
+      ]
+    },
+    {
+      "categoria": 17,
+      "nome": "Responsividade",
+      "status": "coberta",
+      "passosAssociados": [
+        42
+      ]
+    },
+    {
+      "categoria": 18,
+      "nome": "Internacionalizacao (i18n)",
+      "status": "coberta",
+      "passosAssociados": [
+        43
+      ]
+    },
+    {
+      "categoria": 19,
+      "nome": "Performance",
+      "status": "coberta",
+      "passosAssociados": [
+        44
+      ]
+    },
+    {
+      "categoria": 20,
+      "nome": "Persistencia e refresh",
+      "status": "coberta",
+      "passosAssociados": [
+        45
+      ]
+    }
+  ],
+  "coberturaPercentual": 100,
+  "passos": [
+    {
+      "numero": 1,
+      "acao": "Navegar para /workspace/assinaturas",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "goto",
+        "rota": "/workspace/assinaturas"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/assinaturas"
+      },
+      "resultadoEsperado": "URL correta",
+      "screenshot": "01_navegar_para_workspaceassina",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 2,
+      "acao": "Verificar tabela de assinaturas visivel",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela renderizada",
+      "screenshot": "02_verificar_tabela_de_assinatura",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 3,
+      "acao": "Verificar cards de estatistica",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "3 cards: Produtos ativos, Custo mensal, Suspensos",
+      "screenshot": "03_verificar_cards_de_estatistica",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 4,
+      "acao": "Verificar catalogo de produtos disponíveis",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Grid de cards de produtos",
+      "screenshot": "04_verificar_catalogo_de_produtos",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 5,
+      "acao": "Verificar sem erros JS",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Console limpo",
+      "screenshot": "05_verificar_sem_erros_js",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 6,
+      "acao": "Verificar titulo Assinaturas",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Titulo correto",
+      "screenshot": "06_verificar_titulo_assinaturas",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 7,
+      "acao": "Verificar badge de tipo billing",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badges Mensal/Anual/Setup",
+      "screenshot": "07_verificar_badge_de_tipo_billin",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 8,
+      "acao": "Verificar badge de status",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Ativo=verde, Suspenso=amarelo",
+      "screenshot": "08_verificar_badge_de_status",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 9,
+      "acao": "Verificar cards do catalogo com animacao hover",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cards levantam no hover",
+      "screenshot": "09_verificar_cards_do_catalogo_co",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 10,
+      "acao": "Verificar secao Coming Soon",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cards desabilitados com badge Coming Soon",
+      "screenshot": "10_verificar_secao_coming_soon",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 11,
+      "acao": "Verificar precos formatados em BRL",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "R$ XX,XX formatado corretamente",
+      "screenshot": "11_verificar_precos_formatados_em",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 12,
+      "acao": "Verificar data de renovacao",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Data no formato DD/MM/YYYY",
+      "screenshot": "12_verificar_data_de_renovacao",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 13,
+      "acao": "Sidebar com item Assinaturas selecionado",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Item highlighted",
+      "screenshot": "13_sidebar_com_item_assinaturas_s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 14,
+      "acao": "Navegar para Financeiro via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-financeiro"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/financeiro"
+      },
+      "resultadoEsperado": "Navega para Financeiro",
+      "screenshot": "14_navegar_para_financeiro_via_si",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "nav-financeiro"
+    },
+    {
+      "numero": 15,
+      "acao": "Voltar para Assinaturas",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-assinaturas"
+      },
+      "resultadoEsperado": "Volta para Assinaturas",
+      "screenshot": "15_voltar_para_assinaturas",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 16,
+      "acao": "Verificar colunas da tabela",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nome, Billing, Preco, Renovacao, Workspaces, Status",
+      "screenshot": "16_verificar_colunas_da_tabela",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 17,
+      "acao": "Expandir assinatura para ver audit trail",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-expand-assin-0"
+      },
+      "resultadoEsperado": "Detalhes expandidos com workspaces",
+      "screenshot": "17_expandir_assinatura_para_ver_a",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-expand-assin-0"
+    },
+    {
+      "numero": 18,
+      "acao": "Verificar toggle de workspace na expansao",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botoes de ativar/desativar por workspace",
+      "screenshot": "18_verificar_toggle_de_workspace_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 19,
+      "acao": "Verificar card de preco no catalogo",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Preco, features e botao Assinar",
+      "screenshot": "19_verificar_card_de_preco_no_cat",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 20,
+      "acao": "Verificar dados corretos via API",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/tenants/products",
+        "status": 200
+      },
+      "resultadoEsperado": "API retorna 200",
+      "screenshot": "20_verificar_dados_corretos_via_a",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 21,
+      "acao": "Editar assinatura (abrir modal)",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-edit-assin-0"
+      },
+      "resultadoEsperado": "Modal de edicao abre",
+      "screenshot": "21_editar_assinatura_abrir_modal",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-edit-assin-0"
+    },
+    {
+      "numero": 22,
+      "acao": "Suspender assinatura",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-suspend-assin-0"
+      },
+      "resultadoEsperado": "Status muda para Suspenso",
+      "screenshot": "22_suspender_assinatura",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-suspend-assin-0"
+    },
+    {
+      "numero": 23,
+      "acao": "Reativar assinatura",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-suspend-assin-0"
+      },
+      "resultadoEsperado": "Status volta para Ativo",
+      "screenshot": "23_reativar_assinatura",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 24,
+      "acao": "Toggle workspace em assinatura",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-toggle-ws-0"
+      },
+      "resultadoEsperado": "Workspace ativado/desativado",
+      "screenshot": "24_toggle_workspace_em_assinatura",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-toggle-ws-0"
+    },
+    {
+      "numero": 25,
+      "acao": "Assinar novo produto do catalogo",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-assinar-produto"
+      },
+      "resultadoEsperado": "Produto adicionado as assinaturas",
+      "screenshot": "25_assinar_novo_produto_do_catalo",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-assinar-produto"
+    },
+    {
+      "numero": 26,
+      "acao": "Verificar POST /subscribe chamado",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/tenants/products/subscribe",
+        "status": 201
+      },
+      "resultadoEsperado": "API retorna 201",
+      "screenshot": "26_verificar_post_subscribe_cham",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 27,
+      "acao": "Verificar novo produto na tabela",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Produto aparece na lista",
+      "screenshot": "27_verificar_novo_produto_na_tabe",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 28,
+      "acao": "Cancelar assinatura",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-cancel-assin-0"
+      },
+      "resultadoEsperado": "Modal de confirmacao",
+      "screenshot": "28_cancelar_assinatura",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-cancel-assin-0"
+    },
+    {
+      "numero": 29,
+      "acao": "Confirmar cancelamento",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-confirmar-cancel"
+      },
+      "resultadoEsperado": "Assinatura removida",
+      "screenshot": "29_confirmar_cancelamento",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-confirmar-cancel"
+    },
+    {
+      "numero": 30,
+      "acao": "Remover workspace de assinatura",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-remover-ws-0"
+      },
+      "resultadoEsperado": "Workspace removido",
+      "screenshot": "30_remover_workspace_de_assinatur",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-remover-ws-0"
+    },
+    {
+      "numero": 31,
+      "acao": "Verificar validacao de assinatura duplicada",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro ao assinar produto ja ativo",
+      "screenshot": "31_verificar_validacao_de_assinat",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 32,
+      "acao": "Verificar que Coming Soon nao permite assinar",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botao desabilitado",
+      "screenshot": "32_verificar_que_coming_soon_nao_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 33,
+      "acao": "Erro 500 ao assinar",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast de erro",
+      "screenshot": "33_erro_500_ao_assinar",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 34,
+      "acao": "Erro 403 sem permissao para assinar",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Acesso negado",
+      "screenshot": "34_erro_403_sem_permissao_para_as",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 35,
+      "acao": "Tenant sem assinaturas",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem vazia + catalogo",
+      "screenshot": "35_tenant_sem_assinaturas",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 36,
+      "acao": "Skeleton durante carregamento",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Loading visual",
+      "screenshot": "36_skeleton_durante_carregamento",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 37,
+      "acao": "Buscar por nome do produto",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-busca-assin",
+        "valor": "Pedido"
+      },
+      "resultadoEsperado": "Tabela filtrada",
+      "screenshot": "37_buscar_por_nome_do_produto",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-busca-assin"
+    },
+    {
+      "numero": 38,
+      "acao": "Ordenar por preco",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-preco"
+      },
+      "resultadoEsperado": "Ordenado por valor",
+      "screenshot": "38_ordenar_por_preco",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-preco"
+    },
+    {
+      "numero": 39,
+      "acao": "STANDARD nao pode assinar",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Botoes ocultos para STANDARD",
+      "screenshot": "39_standard_nao_pode_assinar",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 40,
+      "acao": "Isolamento de assinaturas entre tenants",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tenant A nao ve assinaturas de B",
+      "screenshot": "40_isolamento_de_assinaturas_entr",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 41,
+      "acao": "Navegar com Tab",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Tab"
+      },
+      "resultadoEsperado": "Focus ring funcional",
+      "screenshot": "41_navegar_com_tab",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 42,
+      "acao": "Resize mobile",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 375,
+        "altura": 812
+      },
+      "resultadoEsperado": "Layout adaptado",
+      "screenshot": "42_resize_mobile",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 43,
+      "acao": "Textos em PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Labels corretos",
+      "screenshot": "43_textos_em_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 44,
+      "acao": "FCP < 1.5s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Carregamento rapido",
+      "screenshot": "44_fcp__15s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 45,
+      "acao": "Dados persistem apos F5",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Tabela recarrega com dados",
+      "screenshot": "45_dados_persistem_apos_f5",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    }
+  ],
+  "estimativaDuracao": "~2 min",
+  "estimativaCustoIA": 0.08,
+  "ultimaExecucao": null,
+  "ultimoResultado": null
+}

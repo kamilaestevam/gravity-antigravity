@@ -1,0 +1,2053 @@
+{
+  "id": "TST-E2E-CONFIG-000002",
+  "versao": "1.0",
+  "geradoEm": "2026-04-16T01:44:18.187Z",
+  "geradoPor": "agente-plano-teste",
+  "escopo": "CONFIG",
+  "sublocal": "Usuarios",
+  "tela": "Usuários",
+  "rota": "/workspace/usuarios",
+  "componenteFilePath": "servicos-global/configurador/src/pages/workspace/Usuarios.tsx",
+  "mapeamentoFilePath": "testes/_mapeamentos/configurador/usuarios.testids.json",
+  "ambientes": [
+    "Local",
+    "Staging",
+    "Producao"
+  ],
+  "criticidade": "alta",
+  "temDinheiro": false,
+  "resumoExecutivo": "Tela de gestão de usuários do tenant. Permite convidar, editar, suspender e gerenciar permissões. Risco: vazamento de dados entre tenants. Cobertura: 20/20 categorias.",
+  "preRequisitos": {
+    "ambiente": "Local",
+    "organizacao": "Gravity Ltda",
+    "workspace": "Importador ABC",
+    "roleUsuario": "ADMIN",
+    "servicosAtivos": [
+      "configurador-server-8005",
+      "configurador-front-8000"
+    ]
+  },
+  "mapeamentoTestids": {
+    "componente": "servicos-global/configurador/src/pages/workspace/Usuarios.tsx",
+    "extraidoEm": "2026-04-16T01:44:18.187Z",
+    "elementos": {},
+    "testidsFaltando": [
+      "page-usuarios",
+      "tabela-usuarios",
+      "titulo-usuarios",
+      "nav-organizacao",
+      "nav-usuarios",
+      "nav-assinaturas",
+      "btn-expand-user-0",
+      "btn-edit-user-0",
+      "input-nome-usuario",
+      "btn-salvar-usuario",
+      "btn-toggle-status-0",
+      "btn-permissoes-0",
+      "input-email-usuario",
+      "btn-convidar-usuario",
+      "input-nome-convite",
+      "input-email-convite",
+      "select-tipo-convite",
+      "btn-enviar-convite",
+      "btn-confirmar-suspensao",
+      "btn-remover-workspace-0",
+      "input-busca-usuarios",
+      "col-nome",
+      "col-tipo",
+      "col-status"
+    ]
+  },
+  "cobertura": [
+    {
+      "categoria": 1,
+      "nome": "Carregamento da tela",
+      "status": "coberta",
+      "passosAssociados": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "categoria": 2,
+      "nome": "Identidade visual",
+      "status": "coberta",
+      "passosAssociados": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "categoria": 3,
+      "nome": "Navegacao lateral / breadcrumb",
+      "status": "coberta",
+      "passosAssociados": [
+        12,
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "categoria": 4,
+      "nome": "Read / Listagem / Visualizacao",
+      "status": "coberta",
+      "passosAssociados": [
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ]
+    },
+    {
+      "categoria": 5,
+      "nome": "Update / Edicao",
+      "status": "coberta",
+      "passosAssociados": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+      ]
+    },
+    {
+      "categoria": 6,
+      "nome": "Create / Criacao",
+      "status": "coberta",
+      "passosAssociados": [
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42
+      ]
+    },
+    {
+      "categoria": 7,
+      "nome": "Delete / Exclusao",
+      "status": "coberta",
+      "passosAssociados": [
+        43,
+        44,
+        45,
+        46,
+        47,
+        48
+      ]
+    },
+    {
+      "categoria": 8,
+      "nome": "Validacoes de campo",
+      "status": "coberta",
+      "passosAssociados": [
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58
+      ]
+    },
+    {
+      "categoria": 9,
+      "nome": "Estados de erro",
+      "status": "coberta",
+      "passosAssociados": [
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ]
+    },
+    {
+      "categoria": 10,
+      "nome": "Estados vazios",
+      "status": "coberta",
+      "passosAssociados": [
+        65,
+        66,
+        67
+      ]
+    },
+    {
+      "categoria": 11,
+      "nome": "Estados de loading",
+      "status": "coberta",
+      "passosAssociados": [
+        68,
+        69,
+        70
+      ]
+    },
+    {
+      "categoria": 12,
+      "nome": "Filtros e busca",
+      "status": "coberta",
+      "passosAssociados": [
+        71,
+        72,
+        73,
+        74,
+        75,
+        76
+      ]
+    },
+    {
+      "categoria": 13,
+      "nome": "Ordenacao",
+      "status": "coberta",
+      "passosAssociados": [
+        77,
+        78,
+        79,
+        80
+      ]
+    },
+    {
+      "categoria": 14,
+      "nome": "Permissoes / RBAC",
+      "status": "coberta",
+      "passosAssociados": [
+        81,
+        82,
+        83,
+        84,
+        85,
+        86
+      ]
+    },
+    {
+      "categoria": 15,
+      "nome": "Multi-tenant / isolamento",
+      "status": "coberta",
+      "passosAssociados": [
+        87,
+        88,
+        89,
+        90
+      ]
+    },
+    {
+      "categoria": 16,
+      "nome": "Acessibilidade (a11y)",
+      "status": "coberta",
+      "passosAssociados": [
+        91,
+        92,
+        93,
+        94,
+        95,
+        96
+      ]
+    },
+    {
+      "categoria": 17,
+      "nome": "Responsividade",
+      "status": "coberta",
+      "passosAssociados": [
+        97,
+        98,
+        99,
+        100
+      ]
+    },
+    {
+      "categoria": 18,
+      "nome": "Internacionalizacao (i18n)",
+      "status": "coberta",
+      "passosAssociados": [
+        101,
+        102,
+        103,
+        104
+      ]
+    },
+    {
+      "categoria": 19,
+      "nome": "Performance",
+      "status": "coberta",
+      "passosAssociados": [
+        105,
+        106,
+        107,
+        108
+      ]
+    },
+    {
+      "categoria": 20,
+      "nome": "Persistencia e refresh",
+      "status": "coberta",
+      "passosAssociados": [
+        109,
+        110,
+        111
+      ]
+    }
+  ],
+  "coberturaPercentual": 100,
+  "passos": [
+    {
+      "numero": 1,
+      "acao": "Navegar para /workspace/usuarios",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "goto",
+        "rota": "/workspace/usuarios"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/usuarios"
+      },
+      "resultadoEsperado": "URL correta carregada",
+      "screenshot": "01_navegar_para_workspaceusuari",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "page-usuarios"
+    },
+    {
+      "numero": 2,
+      "acao": "Verificar tabela de usuarios visivel",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "visible",
+        "testid": "tabela-usuarios"
+      },
+      "resultadoEsperado": "Tabela de usuarios renderizada",
+      "screenshot": "02_verificar_tabela_de_usuarios_v",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "tabela-usuarios"
+    },
+    {
+      "numero": 3,
+      "acao": "Verificar sem erros JS no console",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Console sem erros JS",
+      "screenshot": "03_verificar_sem_erros_js_no_cons",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 4,
+      "acao": "Verificar sem requisicoes 4xx/5xx",
+      "categoria": 1,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Todas requisicoes OK",
+      "screenshot": "04_verificar_sem_requisicoes_4xx",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 5,
+      "acao": "Verificar titulo Usuarios",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "visible",
+        "testid": "titulo-usuarios"
+      },
+      "resultadoEsperado": "Titulo visivel",
+      "screenshot": "05_verificar_titulo_usuarios",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "titulo-usuarios"
+    },
+    {
+      "numero": 6,
+      "acao": "Verificar icone de usuarios no header",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Icone Users visivel no cabecalho",
+      "screenshot": "06_verificar_icone_de_usuarios_no",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 7,
+      "acao": "Verificar 4 cards de estatistica",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Cards de total usuarios, acessos e distribuicao visiveis",
+      "screenshot": "07_verificar_4_cards_de_estatisti",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 8,
+      "acao": "Verificar subtitulo informativo",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Subtitulo descritivo visivel",
+      "screenshot": "08_verificar_subtitulo_informativ",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 9,
+      "acao": "Verificar badge de role com cor correta",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badges de role com cores corretas (ADMIN=azul, MASTER=roxo)",
+      "screenshot": "09_verificar_badge_de_role_com_co",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 10,
+      "acao": "Verificar avatar do usuario na tabela",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Avatar circular com iniciais visivel",
+      "screenshot": "10_verificar_avatar_do_usuario_na",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 11,
+      "acao": "Verificar status Ativo/Inativo com badge",
+      "categoria": 2,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badge verde para Ativo, cinza para Inativo",
+      "screenshot": "11_verificar_status_ativoinativo",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 12,
+      "acao": "Verificar sidebar com item Usuarios selecionado",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Item Usuarios highlighted na sidebar",
+      "screenshot": "12_verificar_sidebar_com_item_usu",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 13,
+      "acao": "Verificar breadcrumb Configurador > Usuarios",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Breadcrumb correto",
+      "screenshot": "13_verificar_breadcrumb_configura",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 14,
+      "acao": "Navegar para Organizacao via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-organizacao"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/organizacao"
+      },
+      "resultadoEsperado": "Navega para Organizacao",
+      "screenshot": "14_navegar_para_organizacao_via_s",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "nav-organizacao"
+    },
+    {
+      "numero": 15,
+      "acao": "Voltar para Usuarios via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-usuarios"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/usuarios"
+      },
+      "resultadoEsperado": "Volta para Usuarios",
+      "screenshot": "15_voltar_para_usuarios_via_sideb",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "nav-usuarios"
+    },
+    {
+      "numero": 16,
+      "acao": "Navegar para Assinaturas via sidebar",
+      "categoria": 3,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "nav-assinaturas"
+      },
+      "assercao": {
+        "tipo": "urlMatches",
+        "regex": "/workspace/assinaturas"
+      },
+      "resultadoEsperado": "Navega para Assinaturas",
+      "screenshot": "16_navegar_para_assinaturas_via_s",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "nav-assinaturas"
+    },
+    {
+      "numero": 17,
+      "acao": "Verificar colunas da tabela de usuarios",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Colunas Nome, Email, Tipo, Status, Empresas visiveis",
+      "screenshot": "17_verificar_colunas_da_tabela_de",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 18,
+      "acao": "Expandir linha de usuario",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-expand-user-0"
+      },
+      "resultadoEsperado": "Detalhes de acesso aos workspaces expandidos",
+      "screenshot": "18_expandir_linha_de_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-expand-user-0"
+    },
+    {
+      "numero": 19,
+      "acao": "Verificar dados do usuario na expansao",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Workspaces vinculados visiveis",
+      "screenshot": "19_verificar_dados_do_usuario_na_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 20,
+      "acao": "Recolher linha expandida",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-expand-user-0"
+      },
+      "resultadoEsperado": "Linha recolhida",
+      "screenshot": "20_recolher_linha_expandida",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 21,
+      "acao": "Verificar contagem de usuarios no card",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Card mostra total correto",
+      "screenshot": "21_verificar_contagem_de_usuarios",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 22,
+      "acao": "Verificar dados do usuario exibidos corretamente",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nome, email e role corretos na tabela",
+      "screenshot": "22_verificar_dados_do_usuario_exi",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 23,
+      "acao": "Verificar que apenas usuarios do tenant logado aparecem",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Nenhum usuario de outro tenant visivel",
+      "screenshot": "23_verificar_que_apenas_usuarios_",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 24,
+      "acao": "Verificar paginacao quando mais de N usuarios",
+      "categoria": 4,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Paginacao funcional",
+      "screenshot": "24_verificar_paginacao_quando_mai",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 25,
+      "acao": "Clicar botao Editar em usuario",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-edit-user-0"
+      },
+      "resultadoEsperado": "Modal de edicao abre",
+      "screenshot": "25_clicar_botao_editar_em_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-edit-user-0"
+    },
+    {
+      "numero": 26,
+      "acao": "Alterar nome do usuario",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-nome-usuario",
+        "valor": "Teste Editado"
+      },
+      "resultadoEsperado": "Campo aceita valor",
+      "screenshot": "26_alterar_nome_do_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-nome-usuario"
+    },
+    {
+      "numero": 27,
+      "acao": "Salvar edicao de usuario",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-salvar-usuario"
+      },
+      "assercao": {
+        "tipo": "toastShown",
+        "texto": "salvo"
+      },
+      "resultadoEsperado": "Toast de sucesso e dados atualizados",
+      "screenshot": "27_salvar_edicao_de_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-salvar-usuario"
+    },
+    {
+      "numero": 28,
+      "acao": "Alterar status para Inativo",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-toggle-status-0"
+      },
+      "resultadoEsperado": "Status muda para Inativo",
+      "screenshot": "28_alterar_status_para_inativo",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-toggle-status-0"
+    },
+    {
+      "numero": 29,
+      "acao": "Reativar usuario",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-toggle-status-0"
+      },
+      "resultadoEsperado": "Status volta para Ativo",
+      "screenshot": "29_reativar_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 30,
+      "acao": "Editar permissoes de usuario",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-permissoes-0"
+      },
+      "resultadoEsperado": "Modal de permissoes abre",
+      "screenshot": "30_editar_permissoes_de_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-permissoes-0"
+    },
+    {
+      "numero": 31,
+      "acao": "Verificar edicao via API PATCH",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/users",
+        "status": 200
+      },
+      "resultadoEsperado": "API retorna 200",
+      "screenshot": "31_verificar_edicao_via_api_patch",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 32,
+      "acao": "Cancelar edicao (fechar modal sem salvar)",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Modal fecha sem alterar dados",
+      "screenshot": "32_cancelar_edicao_fechar_modal_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 33,
+      "acao": "Verificar que alteracao persiste apos F5",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Dados editados persistem",
+      "screenshot": "33_verificar_que_alteracao_persis",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 34,
+      "acao": "Editar email do usuario",
+      "categoria": 5,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-email-usuario",
+        "valor": "novo@teste.com"
+      },
+      "resultadoEsperado": "Email aceita novo valor",
+      "screenshot": "34_editar_email_do_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-email-usuario"
+    },
+    {
+      "numero": 35,
+      "acao": "Clicar botao Convidar Usuario",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-convidar-usuario"
+      },
+      "resultadoEsperado": "Modal de convite abre",
+      "screenshot": "35_clicar_botao_convidar_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-convidar-usuario"
+    },
+    {
+      "numero": 36,
+      "acao": "Preencher nome do convidado",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-nome-convite",
+        "valor": "Novo Usuario Teste"
+      },
+      "resultadoEsperado": "Campo aceita valor",
+      "screenshot": "36_preencher_nome_do_convidado",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-nome-convite"
+    },
+    {
+      "numero": 37,
+      "acao": "Preencher email do convidado",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-email-convite",
+        "valor": "novo@teste.com"
+      },
+      "resultadoEsperado": "Campo aceita valor",
+      "screenshot": "37_preencher_email_do_convidado",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-email-convite"
+    },
+    {
+      "numero": 38,
+      "acao": "Selecionar tipo de usuario",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "select",
+        "testid": "select-tipo-convite",
+        "opcao": "STANDARD"
+      },
+      "resultadoEsperado": "Tipo selecionado",
+      "screenshot": "38_selecionar_tipo_de_usuario",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "select-tipo-convite"
+    },
+    {
+      "numero": 39,
+      "acao": "Enviar convite",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-enviar-convite"
+      },
+      "assercao": {
+        "tipo": "toastShown",
+        "texto": "convite"
+      },
+      "resultadoEsperado": "Convite enviado, toast de sucesso",
+      "screenshot": "39_enviar_convite",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-enviar-convite"
+    },
+    {
+      "numero": 40,
+      "acao": "Verificar novo usuario na tabela",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Novo usuario aparece na lista",
+      "screenshot": "40_verificar_novo_usuario_na_tabe",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 41,
+      "acao": "Verificar API POST /users/invite chamada",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/users/invite",
+        "status": 201
+      },
+      "resultadoEsperado": "API retorna 201",
+      "screenshot": "41_verificar_api_post_usersinvi",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 42,
+      "acao": "Cancelar convite (fechar modal)",
+      "categoria": 6,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Modal fecha sem enviar",
+      "screenshot": "42_cancelar_convite_fechar_modal",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 43,
+      "acao": "Suspender usuario (soft delete)",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-toggle-status-0"
+      },
+      "resultadoEsperado": "Status muda para Inativo",
+      "screenshot": "43_suspender_usuario_soft_delete",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 44,
+      "acao": "Confirmar suspensao na modal",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-confirmar-suspensao"
+      },
+      "resultadoEsperado": "Usuario suspenso com sucesso",
+      "screenshot": "44_confirmar_suspensao_na_modal",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-confirmar-suspensao"
+    },
+    {
+      "numero": 45,
+      "acao": "Verificar que usuario suspenso nao tem acesso",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Badge Inativo visivel",
+      "screenshot": "45_verificar_que_usuario_suspenso",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 46,
+      "acao": "Remover acesso de workspace especifico",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "btn-remover-workspace-0"
+      },
+      "resultadoEsperado": "Workspace removido da lista",
+      "screenshot": "46_remover_acesso_de_workspace_es",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "btn-remover-workspace-0"
+    },
+    {
+      "numero": 47,
+      "acao": "Verificar confirmacao antes de deletar",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Modal de confirmacao aparece antes de acao destrutiva",
+      "screenshot": "47_verificar_confirmacao_antes_de",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 48,
+      "acao": "Cancelar exclusao",
+      "categoria": 7,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Exclusao cancelada, dados intactos",
+      "screenshot": "48_cancelar_exclusao",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 49,
+      "acao": "Convite com email invalido",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-email-convite",
+        "valor": "invalido"
+      },
+      "resultadoEsperado": "Erro de validacao no email",
+      "screenshot": "49_convite_com_email_invalido",
+      "tiposAplicaveis": [
+        "E2E",
+        "UNI"
+      ]
+    },
+    {
+      "numero": 50,
+      "acao": "Convite com nome vazio",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-nome-convite",
+        "valor": ""
+      },
+      "resultadoEsperado": "Campo obrigatorio destacado",
+      "screenshot": "50_convite_com_nome_vazio",
+      "tiposAplicaveis": [
+        "E2E",
+        "UNI"
+      ]
+    },
+    {
+      "numero": 51,
+      "acao": "Convite com email duplicado",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-email-convite",
+        "valor": "existente@empresa.com"
+      },
+      "resultadoEsperado": "Erro 409 Conflict",
+      "screenshot": "51_convite_com_email_duplicado",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 52,
+      "acao": "Convite com email vazio",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-email-convite",
+        "valor": ""
+      },
+      "resultadoEsperado": "Botao enviar desabilitado",
+      "screenshot": "52_convite_com_email_vazio",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 53,
+      "acao": "Verificar validacao Zod no backend",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Backend rejeita payload invalido com 400",
+      "screenshot": "53_verificar_validacao_zod_no_bac",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 54,
+      "acao": "Nome com caracteres especiais aceitos",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-nome-convite",
+        "valor": "José da Silva"
+      },
+      "resultadoEsperado": "Nome com acentos aceito",
+      "screenshot": "54_nome_com_caracteres_especiais_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 55,
+      "acao": "Email max 255 chars",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Email truncado/rejeitado acima de 255",
+      "screenshot": "55_email_max_255_chars",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 56,
+      "acao": "Verificar tipo de usuario obrigatorio",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Select de tipo tem valor padrao",
+      "screenshot": "56_verificar_tipo_de_usuario_obri",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 57,
+      "acao": "Verificar que ADMIN nao pode convidar SUPER_ADMIN",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Opcao SUPER_ADMIN nao disponivel para ADMIN",
+      "screenshot": "57_verificar_que_admin_nao_pode_c",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 58,
+      "acao": "Testar auto-convite (mesmo email do logado)",
+      "categoria": 8,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro ao tentar convidar proprio email",
+      "screenshot": "58_testar_autoconvite_mesmo_ema",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 59,
+      "acao": "Simular erro 500 na API de usuarios",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast de erro exibido, tabela vazia",
+      "screenshot": "59_simular_erro_500_na_api_de_usu",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 60,
+      "acao": "Simular timeout na API",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem de erro amigavel",
+      "screenshot": "60_simular_timeout_na_api",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 61,
+      "acao": "Simular erro 403 (sem permissao)",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem de acesso negado",
+      "screenshot": "61_simular_erro_403_sem_permissa",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 62,
+      "acao": "Simular erro de rede",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Feedback visual de erro de conexao",
+      "screenshot": "62_simular_erro_de_rede",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 63,
+      "acao": "Convite falha no Clerk (serviço externo)",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro tratado sem crash",
+      "screenshot": "63_convite_falha_no_clerk_servi",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 64,
+      "acao": "Erro ao editar usuario inexistente",
+      "categoria": 9,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Toast de erro 404",
+      "screenshot": "64_erro_ao_editar_usuario_inexist",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 65,
+      "acao": "Tela sem usuarios (tenant novo)",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem de estado vazio e botao convidar",
+      "screenshot": "65_tela_sem_usuarios_tenant_novo",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 66,
+      "acao": "Busca sem resultados",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem sem resultados para filtro",
+      "screenshot": "66_busca_sem_resultados",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 67,
+      "acao": "Expansao sem workspaces vinculados",
+      "categoria": 10,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Mensagem vazia na expansao",
+      "screenshot": "67_expansao_sem_workspaces_vincul",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 68,
+      "acao": "Verificar skeleton durante carregamento",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Skeleton/shimmer enquanto API responde",
+      "screenshot": "68_verificar_skeleton_durante_car",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 69,
+      "acao": "Verificar loading no botao de convite",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Spinner no botao durante envio",
+      "screenshot": "69_verificar_loading_no_botao_de_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 70,
+      "acao": "Verificar loading no toggle de status",
+      "categoria": 11,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Indicador de loading durante alteracao",
+      "screenshot": "70_verificar_loading_no_toggle_de",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 71,
+      "acao": "Buscar usuario por nome",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-busca-usuarios",
+        "valor": "Daniel"
+      },
+      "resultadoEsperado": "Tabela filtra por nome",
+      "screenshot": "71_buscar_usuario_por_nome",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "input-busca-usuarios"
+    },
+    {
+      "numero": 72,
+      "acao": "Buscar por email",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-busca-usuarios",
+        "valor": "@empresa"
+      },
+      "resultadoEsperado": "Tabela filtra por email",
+      "screenshot": "72_buscar_por_email",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 73,
+      "acao": "Filtrar por role",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Filtro por tipo funciona",
+      "screenshot": "73_filtrar_por_role",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 74,
+      "acao": "Filtrar por status Ativo/Inativo",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Apenas status filtrado visivel",
+      "screenshot": "74_filtrar_por_status_ativoinati",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 75,
+      "acao": "Limpar filtros",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Todos usuarios voltam a aparecer",
+      "screenshot": "75_limpar_filtros",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 76,
+      "acao": "Busca case-insensitive",
+      "categoria": 12,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "fill",
+        "testid": "input-busca-usuarios",
+        "valor": "DANIEL"
+      },
+      "resultadoEsperado": "Encontra resultados independente de case",
+      "screenshot": "76_busca_caseinsensitive",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 77,
+      "acao": "Ordenar por nome A-Z",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-nome"
+      },
+      "resultadoEsperado": "Tabela ordenada alfabeticamente",
+      "screenshot": "77_ordenar_por_nome_az",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-nome"
+    },
+    {
+      "numero": 78,
+      "acao": "Ordenar por nome Z-A",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-nome"
+      },
+      "resultadoEsperado": "Tabela ordenada inversamente",
+      "screenshot": "78_ordenar_por_nome_za",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 79,
+      "acao": "Ordenar por tipo",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-tipo"
+      },
+      "resultadoEsperado": "Agrupado por role",
+      "screenshot": "79_ordenar_por_tipo",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-tipo"
+    },
+    {
+      "numero": 80,
+      "acao": "Ordenar por status",
+      "categoria": 13,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "click",
+        "testid": "col-status"
+      },
+      "resultadoEsperado": "Ativos primeiro",
+      "screenshot": "80_ordenar_por_status",
+      "tiposAplicaveis": [
+        "E2E"
+      ],
+      "requerNovoTestid": true,
+      "requerNovoTestidNome": "col-status"
+    },
+    {
+      "numero": 81,
+      "acao": "Verificar que STANDARD nao ve botao Convidar",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "STANDARD"
+      },
+      "resultadoEsperado": "Botao convidar oculto para STANDARD",
+      "screenshot": "81_verificar_que_standard_nao_ve_",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 82,
+      "acao": "Verificar que ADMIN pode convidar STANDARD",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "ADMIN"
+      },
+      "resultadoEsperado": "ADMIN pode convidar STANDARD/MASTER",
+      "screenshot": "82_verificar_que_admin_pode_convi",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 83,
+      "acao": "Verificar que ADMIN nao pode promover para SUPER_ADMIN",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Opcao SUPER_ADMIN desabilitada para ADMIN",
+      "screenshot": "83_verificar_que_admin_nao_pode_p",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 84,
+      "acao": "Verificar que SUPER_ADMIN tem acesso total",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "SUPER_ADMIN"
+      },
+      "resultadoEsperado": "Todos botoes e acoes visiveis",
+      "screenshot": "84_verificar_que_super_admin_tem_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 85,
+      "acao": "Verificar que USER so ve propria ficha",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setRole",
+        "role": "USER"
+      },
+      "resultadoEsperado": "Apenas dados do proprio usuario visiveis",
+      "screenshot": "85_verificar_que_user_so_ve_propr",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 86,
+      "acao": "Verificar middleware requireAuth no backend",
+      "categoria": 14,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "assercao": {
+        "tipo": "apiResponse",
+        "rota": "/api/v1/users",
+        "status": 401
+      },
+      "resultadoEsperado": "Sem token retorna 401",
+      "screenshot": "86_verificar_middleware_requireau",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 87,
+      "acao": "Verificar que usuario de Tenant A nao ve usuarios de Tenant B",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Isolamento de dados entre tenants",
+      "screenshot": "87_verificar_que_usuario_de_tenan",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 88,
+      "acao": "Verificar que API filtra por tenant_id",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "WHERE tenant_id presente em toda query",
+      "screenshot": "88_verificar_que_api_filtra_por_t",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 89,
+      "acao": "Tentar acessar usuario de outro tenant via URL direta",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Erro 404 ou 403",
+      "screenshot": "89_tentar_acessar_usuario_de_outr",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 90,
+      "acao": "Verificar que convite so cria no tenant correto",
+      "categoria": 15,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Usuario criado com tenant_id do logado",
+      "screenshot": "90_verificar_que_convite_so_cria_",
+      "tiposAplicaveis": [
+        "CRO"
+      ]
+    },
+    {
+      "numero": 91,
+      "acao": "Navegar tabela com Tab",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Tab"
+      },
+      "resultadoEsperado": "Focus ring visivel nos elementos interativos",
+      "screenshot": "91_navegar_tabela_com_tab",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 92,
+      "acao": "Verificar aria-label nos botoes",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Todos botoes tem aria-label descritivo",
+      "screenshot": "92_verificar_arialabel_nos_botoe",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 93,
+      "acao": "Verificar contraste de texto",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Ratio >= 4.5:1 para texto",
+      "screenshot": "93_verificar_contraste_de_texto",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 94,
+      "acao": "Abrir modal com Enter",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Enter"
+      },
+      "resultadoEsperado": "Modal abre via teclado",
+      "screenshot": "94_abrir_modal_com_enter",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 95,
+      "acao": "Fechar modal com Escape",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "press",
+        "tecla": "Escape"
+      },
+      "resultadoEsperado": "Modal fecha via Escape",
+      "screenshot": "95_fechar_modal_com_escape",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 96,
+      "acao": "Verificar role=table na tabela",
+      "categoria": 16,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Tabela acessivel para screen reader",
+      "screenshot": "96_verificar_roletable_na_tabela",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 97,
+      "acao": "Resize para mobile 375px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 375,
+        "altura": 812
+      },
+      "resultadoEsperado": "Layout adaptado sem overflow horizontal",
+      "screenshot": "97_resize_para_mobile_375px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 98,
+      "acao": "Resize para tablet 768px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 768,
+        "altura": 1024
+      },
+      "resultadoEsperado": "Layout de tablet funcional",
+      "screenshot": "98_resize_para_tablet_768px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 99,
+      "acao": "Resize para desktop 1280px",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "resize",
+        "largura": 1280,
+        "altura": 800
+      },
+      "resultadoEsperado": "Layout desktop padrao",
+      "screenshot": "99_resize_para_desktop_1280px",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 100,
+      "acao": "Verificar sidebar responsiva",
+      "categoria": 17,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Sidebar colapsa em telas menores",
+      "screenshot": "100_verificar_sidebar_responsiva",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 101,
+      "acao": "Verificar textos em PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Todos labels em portugues",
+      "screenshot": "101_verificar_textos_em_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 102,
+      "acao": "Trocar para EN",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "en"
+      },
+      "resultadoEsperado": "Labels trocam para ingles",
+      "screenshot": "102_trocar_para_en",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 103,
+      "acao": "Verificar formato de data BR (DD/MM/YYYY)",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Datas no formato brasileiro",
+      "screenshot": "103_verificar_formato_de_data_br_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 104,
+      "acao": "Voltar para PT-BR",
+      "categoria": 18,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "setLocale",
+        "locale": "pt"
+      },
+      "resultadoEsperado": "Interface volta para portugues",
+      "screenshot": "104_voltar_para_ptbr",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 105,
+      "acao": "Verificar FCP < 1.5s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "First Contentful Paint abaixo de 1.5s",
+      "screenshot": "105_verificar_fcp__15s",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 106,
+      "acao": "Verificar TTI < 3s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Time to Interactive abaixo de 3s",
+      "screenshot": "106_verificar_tti__3s",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 107,
+      "acao": "Verificar ausencia de N+1 queries",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Sem queries excessivas no load",
+      "screenshot": "107_verificar_ausencia_de_n1_quer",
+      "tiposAplicaveis": [
+        "FUN"
+      ]
+    },
+    {
+      "numero": 108,
+      "acao": "Verificar que lista de 100 usuarios renderiza em < 2s",
+      "categoria": 19,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Performance aceitavel com volume",
+      "screenshot": "108_verificar_que_lista_de_100_usu",
+      "tiposAplicaveis": [
+        "E2E",
+        "FUN"
+      ]
+    },
+    {
+      "numero": 109,
+      "acao": "Verificar que dados persistem apos F5",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "reload"
+      },
+      "resultadoEsperado": "Tabela recarrega com mesmos dados",
+      "screenshot": "109_verificar_que_dados_persistem_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 110,
+      "acao": "Verificar que filtro na URL persiste",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Query string preservada",
+      "screenshot": "110_verificar_que_filtro_na_url_pe",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    },
+    {
+      "numero": 111,
+      "acao": "Verificar dirty check ao sair com edicao pendente",
+      "categoria": 20,
+      "origem": "agente-adicionado",
+      "interacao": {
+        "tipo": "verificacao"
+      },
+      "resultadoEsperado": "Alerta de alteracoes nao salvas",
+      "screenshot": "111_verificar_dirty_check_ao_sair_",
+      "tiposAplicaveis": [
+        "E2E"
+      ]
+    }
+  ],
+  "estimativaDuracao": "~4 min",
+  "estimativaCustoIA": 0.08,
+  "ultimaExecucao": null,
+  "ultimoResultado": null
+}

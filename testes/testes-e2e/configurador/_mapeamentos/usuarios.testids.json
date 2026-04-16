@@ -1,0 +1,31 @@
+{
+  "componente": "servicos-global/configurador/src/pages/workspace/Usuarios.tsx",
+  "extraidoEm": "2026-04-16T01:44:18.187Z",
+  "elementos": {},
+  "testidsFaltando": [
+    "page-usuarios",
+    "tabela-usuarios",
+    "titulo-usuarios",
+    "nav-organizacao",
+    "nav-usuarios",
+    "nav-assinaturas",
+    "btn-expand-user-0",
+    "btn-edit-user-0",
+    "input-nome-usuario",
+    "btn-salvar-usuario",
+    "btn-toggle-status-0",
+    "btn-permissoes-0",
+    "input-email-usuario",
+    "btn-convidar-usuario",
+    "input-nome-convite",
+    "input-email-convite",
+    "select-tipo-convite",
+    "btn-enviar-convite",
+    "btn-confirmar-suspensao",
+    "btn-remover-workspace-0",
+    "input-busca-usuarios",
+    "col-nome",
+    "col-tipo",
+    "col-status"
+  ]
+}

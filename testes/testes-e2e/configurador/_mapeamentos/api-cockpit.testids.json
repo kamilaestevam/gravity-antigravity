@@ -1,0 +1,10 @@
+{
+  "componente": "servicos-global/configurador/src/pages/workspace/ApiCockpit.tsx",
+  "extraidoEm": "2026-04-16T01:44:18.193Z",
+  "elementos": {},
+  "testidsFaltando": [
+    "tab-logs",
+    "input-busca-api",
+    "col-latencia"
+  ]
+}

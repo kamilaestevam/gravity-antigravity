@@ -163,30 +163,30 @@ export const adminProductsApi = {
     if (params?.status) query.set('status', params.status)
     const qs = query.toString()
     return request<{ products: ProductApi[]; pagination: PaginationApi }>(
-      `/admin/products${qs ? `?${qs}` : ''}`
+      `/admin/produtos-gravity${qs ? `?${qs}` : ''}`
     )
   },
 
   async getById(id: string) {
-    return request<{ product: ProductApi }>(`/admin/products/${id}`)
+    return request<{ product: ProductApi }>(`/admin/produtos-gravity/${id}`)
   },
 
   async create(data: Record<string, unknown>) {
-    return request<{ product: ProductApi }>('/admin/products', {
+    return request<{ product: ProductApi }>('/admin/produtos-gravity', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async update(id: string, data: Record<string, unknown>) {
-    return request<{ product: ProductApi }>(`/admin/products/${id}`, {
+    return request<{ product: ProductApi }>(`/admin/produtos-gravity/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   },
 
   async toggleStatus(id: string) {
-    return request<{ product: ProductApi }>(`/admin/products/${id}/status`, {
+    return request<{ product: ProductApi }>(`/admin/produtos-gravity/${id}/status`, {
       method: 'PATCH',
     })
   },
@@ -197,13 +197,13 @@ export const adminProductsApi = {
     if (opts?.ackNegotiations) query.set('ack_negotiations', 'true')
     const qs = query.toString()
     return request<{ deleted: boolean; id: string; mode: 'hard' | 'soft' }>(
-      `/admin/products/${id}${qs ? `?${qs}` : ''}`,
+      `/admin/produtos-gravity/${id}${qs ? `?${qs}` : ''}`,
       { method: 'DELETE' },
     )
   },
 
   async getAvailableSlugs() {
-    return request<{ available: string[]; all: string[] }>('/admin/products/available-slugs')
+    return request<{ available: string[]; all: string[] }>('/admin/produtos-gravity/available-slugs')
   },
 }
 
@@ -270,20 +270,20 @@ export const adminUsersApi = {
     if (params?.search) query.set('search', params.search)
     const qs = query.toString()
     return request<{ users: GlobalUserApi[]; pagination: PaginationApi }>(
-      `/admin/users${qs ? `?${qs}` : ''}`
+      `/admin/usuarios-globais${qs ? `?${qs}` : ''}`
     )
   },
 
   async promoteUser(userId: string, role: 'SUPER_ADMIN' | 'ADMIN') {
     return request<{ user: { id: string; email: string; role: string } }>(
-      `/admin/users/${userId}/promote`,
+      `/admin/usuarios-globais/${userId}/promote`,
       { method: 'POST', body: JSON.stringify({ role }) }
     )
   },
 
   async inviteUser(data: { email: string; name: string; role: string }) {
     return request<{ user: { id: string; email: string; role: string } }>(
-      '/admin/users/invite',
+      '/admin/usuarios-globais/invite',
       { method: 'POST', body: JSON.stringify(data) }
     )
   },
@@ -374,29 +374,29 @@ export const adminBillingApi = {
     if (params?.status) query.set('status', params.status)
     if (params?.customer_id) query.set('customer_id', params.customer_id)
     const qs = query.toString()
-    return request<ListInvoicesResponseApi>(`/admin/billing/invoices${qs ? `?${qs}` : ''}`)
+    return request<ListInvoicesResponseApi>(`/admin/financeiro-admin/invoices${qs ? `?${qs}` : ''}`)
   },
 
   async getInvoice(id: string) {
-    return request<{ invoice: GravityInvoiceApi }>(`/admin/billing/invoices/${id}`)
+    return request<{ invoice: GravityInvoiceApi }>(`/admin/financeiro-admin/invoices/${id}`)
   },
 
   async createInvoice(data: CreateInvoiceRequest) {
-    return request<{ invoice: GravityInvoiceApi }>('/admin/billing/invoices', {
+    return request<{ invoice: GravityInvoiceApi }>('/admin/financeiro-admin/invoices', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async voidInvoice(id: string, reason?: string) {
-    return request<{ invoice: GravityInvoiceApi }>(`/admin/billing/invoices/${id}/void`, {
+    return request<{ invoice: GravityInvoiceApi }>(`/admin/financeiro-admin/invoices/${id}/void`, {
       method: 'POST',
       body: JSON.stringify({ reason }),
     })
   },
 
   async sendInvoice(id: string) {
-    return request<{ invoice: GravityInvoiceApi }>(`/admin/billing/invoices/${id}/send`, {
+    return request<{ invoice: GravityInvoiceApi }>(`/admin/financeiro-admin/invoices/${id}/send`, {
       method: 'POST',
     })
   },
@@ -457,18 +457,18 @@ export const adminDeploysApi = {
     if (params?.from_date) query.set('from_date', params.from_date)
     if (params?.to_date) query.set('to_date', params.to_date)
     const qs = query.toString()
-    return request<ListDeploysResponseApi>(`/admin/deploys${qs ? `?${qs}` : ''}`)
+    return request<ListDeploysResponseApi>(`/admin/deploy${qs ? `?${qs}` : ''}`)
   },
 
   async create(data: CreateDeployRequest) {
-    return request<{ deploy: DeployLogApi }>('/admin/deploys', {
+    return request<{ deploy: DeployLogApi }>('/admin/deploy', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
   async delete(id: string) {
-    return request<{ deleted: boolean; id: string }>(`/admin/deploys/${id}`, {
+    return request<{ deleted: boolean; id: string }>(`/admin/deploy/${id}`, {
       method: 'DELETE',
     })
   },
@@ -500,21 +500,60 @@ export interface TestPlanApi {
 
 export const adminTestLogsApi = {
   async list() {
-    return request<{ logs: TestLogApi[] }>('/admin/test-logs')
+    return request<{ logs: TestLogApi[] }>('/admin/testes-gerais/logs')
   },
   async runTests(opts?: { planos?: string[]; modulos?: string[] }) {
-    return request<{ started: boolean }>('/admin/run-tests', {
+    return request<{ started: boolean }>('/admin/testes-gerais/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(opts ?? {}),
     })
   },
   async runStatus() {
-    return request<{ running: boolean }>('/admin/run-tests/status')
+    return request<{ running: boolean }>('/admin/testes-gerais/run/status')
   },
   async listPlans(product?: string) {
     const qs = product ? `?product=${encodeURIComponent(product)}` : ''
-    return request<{ plans: TestPlanApi[] }>(`/admin/test-plans${qs}`)
+    return request<{ plans: TestPlanApi[] }>(`/admin/testes-gerais/plans${qs}`)
+  },
+  async reanalyze(id: string) {
+    return request<{ analysis: Record<string, unknown> }>(`/admin/testes-gerais/logs/${id}/reanalyze`, { method: 'POST' })
+  },
+  async applyFix(id: string) {
+    return request<{ applied: boolean; arquivo: string }>(`/admin/testes-gerais/logs/${id}/apply-fix`, { method: 'POST' })
+  },
+  async reject(id: string, motivo: string) {
+    return request<{ rejected: boolean }>(`/admin/testes-gerais/logs/${id}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ motivo }),
+    })
+  },
+  async generatePlan(data: { escopo: string; sublocal: string; tela: string; rota: string; componenteFilePath: string; criticidade: string; temDinheiro?: boolean }) {
+    return request<{ plan: Record<string, unknown> }>('/admin/testes-gerais/plans/generate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+  async geminiMetrics() {
+    return request<{ cache: Record<string, unknown>; daily: Array<Record<string, unknown>> }>('/admin/testes-gerais/gemini-metrics')
+  },
+  async listSchedules() {
+    return request<{ schedules: Array<Record<string, unknown>> }>('/admin/testes-gerais/schedules')
+  },
+  async createSchedule(data: Record<string, unknown>) {
+    return request<{ schedule: Record<string, unknown> }>('/admin/testes-gerais/schedules', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+  async updateSchedule(id: string, data: Record<string, unknown>) {
+    return request<{ schedule: Record<string, unknown> }>(`/admin/testes-gerais/schedules/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+  async deleteSchedule(id: string) {
+    return request<{ deleted: boolean }>(`/admin/testes-gerais/schedules/${id}`, { method: 'DELETE' })
   },
 }
 
@@ -535,7 +574,7 @@ export interface PlatformConfigApi {
 
 export const adminPlatformApi = {
   async getConfig() {
-    return request<{ config: PlatformConfigApi | null }>('/admin/platform-config')
+    return request<{ config: PlatformConfigApi | null }>('/admin/visao-geral')
   },
 
   async updateConfig(data: {
@@ -546,7 +585,7 @@ export const adminPlatformApi = {
     segment?: string
     tipo_empresa?: string
   }) {
-    return request<{ config: PlatformConfigApi }>('/admin/platform-config', {
+    return request<{ config: PlatformConfigApi }>('/admin/visao-geral', {
       method: 'PUT',
       body: JSON.stringify(data),
     })
@@ -604,8 +643,6 @@ export interface NcmSyncLogApi {
   created_at:   string
 }
 
-const NCM_INTERNAL_KEY = import.meta.env.VITE_INTERNAL_API_KEY ?? 'develop-internal-key'
-
 // ── Tipos de schedule ──────────────────────────────────────────────────────
 
 export interface NcmNotificador {
@@ -637,9 +674,7 @@ export interface NcmExecuteResultado {
 
 export const adminNcmApi = {
   async getStatus() {
-    return request<NcmSyncStatusApi>('/v1/ncm/admin/status', {
-      headers: { 'x-internal-key': NCM_INTERNAL_KEY },
-    })
+    return request<NcmSyncStatusApi>('/admin/ncm-integracao')
   },
 
   async getHistorico(params?: { pagina?: number; por_page?: number }) {
@@ -648,42 +683,37 @@ export const adminNcmApi = {
     if (params?.por_page) query.set('por_page', String(params.por_page))
     const qs = query.toString()
     return request<{ logs: NcmSyncLogApi[]; paginacao: { pagina: number; por_page: number; total: number; paginas: number } }>(
-      `/v1/ncm/admin/historico${qs ? `?${qs}` : ''}`,
-      { headers: { 'x-internal-key': NCM_INTERNAL_KEY } }
+      `/admin/ncm-integracao/historico${qs ? `?${qs}` : ''}`,
     )
   },
 
   async triggerSync(tenantId: string) {
     return request<{ sucesso: boolean; total: number; adicionados: number; alterados: number; removidos: number; duracaoMs: number }>(
-      `/v1/ncm/admin/sync/${tenantId}`,
-      { method: 'POST', headers: { 'x-internal-key': NCM_INTERNAL_KEY } }
+      `/admin/ncm-integracao/sync/${tenantId}`,
+      { method: 'POST' },
     )
   },
 
   // ── Schedule endpoints ──────────────────────────────────────────────────
 
   async getSchedule() {
-    return request<NcmScheduleConfigApi>('/v1/ncm/admin/schedule', {
-      headers: { 'x-internal-key': NCM_INTERNAL_KEY },
-    })
+    return request<NcmScheduleConfigApi>('/admin/ncm-integracao/schedule')
   },
 
   async saveSchedule(data: { ativo: boolean; cron_expressao: string; notificadores: NcmNotificador[] }) {
-    return request<NcmScheduleConfigApi>('/v1/ncm/admin/schedule', {
+    return request<NcmScheduleConfigApi>('/admin/ncm-integracao/schedule', {
       method: 'PUT',
-      headers: { 'x-internal-key': NCM_INTERNAL_KEY },
       body: JSON.stringify(data),
     })
   },
 
   async executeManual(tenantId?: string) {
     return request<{ sucesso: boolean; tenants_executados: number; resultados: NcmExecuteResultado[]; aviso?: string }>(
-      '/v1/ncm/admin/schedule/execute',
+      '/admin/ncm-integracao/schedule/execute',
       {
         method: 'POST',
-        headers: { 'x-internal-key': NCM_INTERNAL_KEY },
         body: JSON.stringify(tenantId ? { tenant_id: tenantId } : {}),
-      }
+      },
     )
   },
 }

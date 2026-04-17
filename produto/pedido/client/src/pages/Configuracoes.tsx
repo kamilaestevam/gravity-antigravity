@@ -42,6 +42,14 @@ import { SelecaoExcluirGlobal } from '@nucleo/modal-confirmar-excluir-global'
 import { useCardPreferences, CARDS_CATALOGO, type CardPreferencia } from '../shared/useCardPreferences'
 import { pdfApi, colunasUsuarioApi, configRegrasApi, kanbanConfigApi, pedidoConfigApi, casasDecimaisApi, saldoFormulaApi, type PdfTemplate } from '../shared/api'
 import { FORMATOS_DATA, setFormatoData, getFormatoData, type FormatoData } from '../shared/useFormatoData'
+
+const FMT_REGIAO_KEYS: Record<string, string> = {
+  'DD/MM/AAAA': 'brasil_europa',
+  'MM/DD/AAAA': 'eua',
+  'AAAA-MM-DD': 'iso_asia',
+  'DD.MM.AAAA': 'alemanha_russia',
+  'DD/MM/AA':   'compacto',
+}
 import { SecaoKanbanColunas } from './SecaoKanbanColunas'
 import type { KanbanPreferencias, KanbanCampoConfig, KanbanCampoDisponivel, PedidoStatusConfig } from '../shared/types'
 import { KANBAN_LIMITES, KANBAN_PADRAO, KANBAN_CAMPOS_DISPONIVEIS, KANBAN_CARD_CAMPOS_DISPONIVEIS, KANBAN_CARD_GRUPOS } from '../shared/types'
@@ -3556,30 +3564,30 @@ export default function Configuracoes() {
             {categoria === 'colunas-casas-decimais' && <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Casas Decimais por Coluna</h2>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.colunas.casas_decimais.titulo')}</h2>
                   <p className="cfg-secao__desc">
-                    Define quantas casas decimais são exibidas em colunas numéricas. Padrão: 2
+                    {t('pedido.config.colunas.casas_decimais.desc')}
                   </p>
                 </div>
               </div>
 
               {/* Body — grupo Pedido */}
               <div className="cfg-colunas-lista">
-                <CfgSectionLabel label="PEDIDO" hint="Itens herdam automaticamente as casas decimais do pedido pai." />
+                <CfgSectionLabel label={t('pedido.config.colunas.casas_decimais.grupo_pedido')} hint={t('pedido.config.colunas.casas_decimais.grupo_pedido_hint')} />
                 {COLUNAS_NUMERICAS.map(col => {
                   const val = pendingCasas[col.campo] ?? col.padrao
                   return (
                     <div key={col.campo} className="cfg-coluna-row">
                       <div className="cfg-coluna-row__info">
-                        <span className="cfg-coluna-row__label">{col.label}</span>
+                        <span className="cfg-coluna-row__label">{t(`pedido.config.colunas.casas_decimais.col_${col.campo}`)}</span>
                         {col.itemHint && (
-                          <span className="cfg-coluna-row__hint">{col.itemHint}</span>
+                          <span className="cfg-coluna-row__hint">{t(`pedido.config.colunas.casas_decimais.hint_${col.campo}`)}</span>
                         )}
                       </div>
-                      <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.label}`}>
-                        <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.campo, val - 1)} aria-label="Diminuir">−</button>
+                      <div className="cfg-casas-stepper" aria-label={t('pedido.config.colunas.casas_decimais.aria_casas_para', { label: t(`pedido.config.colunas.casas_decimais.col_${col.campo}`) })}>
+                        <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.campo, val - 1)} aria-label={t('pedido.config.colunas.casas_decimais.aria_diminuir')}>−</button>
                         <span className="cfg-casas-stepper__value">{val}</span>
-                        <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.campo, val + 1)} aria-label="Aumentar">+</button>
+                        <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.campo, val + 1)} aria-label={t('pedido.config.colunas.casas_decimais.aria_aumentar')}>+</button>
                       </div>
                     </div>
                   )
@@ -3588,7 +3596,7 @@ export default function Configuracoes() {
                 {/* Grupo de colunas personalizadas numéricas (se houver) */}
                 {colunasUsuarioApi_.filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula').length > 0 && (
                   <>
-                    <CfgSectionLabel label="PERSONALIZADAS" />
+                    <CfgSectionLabel label={t('pedido.config.colunas.casas_decimais.grupo_personalizadas')} />
                     {colunasUsuarioApi_
                       .filter(col => col.tipo === 'numero' || col.tipo === 'percentual' || col.tipo === 'formula')
                       .map(col => {
@@ -3596,10 +3604,10 @@ export default function Configuracoes() {
                         return (
                           <div key={col.id} className="cfg-coluna-row">
                             <span className="cfg-coluna-row__label">{col.nome}</span>
-                            <div className="cfg-casas-stepper" aria-label={`Casas decimais para ${col.nome}`}>
-                              <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.id, val - 1)} aria-label="Diminuir">−</button>
+                            <div className="cfg-casas-stepper" aria-label={t('pedido.config.colunas.casas_decimais.aria_casas_para', { label: col.nome })}>
+                              <button type="button" className="cfg-casas-stepper__btn" disabled={val <= 0} onClick={() => handleCasasDecimaisChange(col.id, val - 1)} aria-label={t('pedido.config.colunas.casas_decimais.aria_diminuir')}>−</button>
                               <span className="cfg-casas-stepper__value">{val}</span>
-                              <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.id, val + 1)} aria-label="Aumentar">+</button>
+                              <button type="button" className="cfg-casas-stepper__btn" disabled={val >= 8} onClick={() => handleCasasDecimaisChange(col.id, val + 1)} aria-label={t('pedido.config.colunas.casas_decimais.aria_aumentar')}>+</button>
                             </div>
                           </div>
                         )
@@ -3613,14 +3621,12 @@ export default function Configuracoes() {
               {aguardandoConfirmacaoCasas && auditoriaCasas && (
                 <div className="cfg-migracao-banner">
                   <p className="cfg-migracao-banner__texto">
-                    Esta configuração afeta <strong>{auditoriaCasas.total_pedidos}</strong> pedidos
-                    e <strong>{auditoriaCasas.total_itens}</strong> itens existentes.
-                    Confirme para aplicar a migração em background.
+                    {t('pedido.config.colunas.casas_decimais.banner_pre')} <strong>{auditoriaCasas.total_pedidos}</strong> {t('pedido.config.colunas.casas_decimais.banner_mid')} <strong>{auditoriaCasas.total_itens}</strong> {t('pedido.config.colunas.casas_decimais.banner_post')}
                   </p>
                   <div className="cfg-migracao-banner__acoes">
-                    <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={restaurarCasasDecimais}>Cancelar</button>
+                    <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={restaurarCasasDecimais}>{t('pedido.config.colunas.casas_decimais.btn_cancelar_migracao')}</button>
                     <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={confirmarMigracaoCasas} disabled={salvandoCasas}>
-                      {salvandoCasas ? 'Iniciando…' : 'Confirmar migração'}
+                      {salvandoCasas ? t('pedido.config.colunas.casas_decimais.btn_iniciando') : t('pedido.config.colunas.casas_decimais.btn_confirmar_migracao')}
                     </button>
                   </div>
                 </div>
@@ -3628,8 +3634,8 @@ export default function Configuracoes() {
 
               {/* Footer */}
               <div className="cfg-secao__footer">
-                <BotaoCancelar dirty={casasDirty} rotulo="Descartar" onClick={restaurarCasasDecimais} />
-                <BotaoSalvar   dirty={casasDirty} rotulo="Salvar"    onClick={salvarCasasDecimais} loading={salvandoCasas} />
+                <BotaoCancelar dirty={casasDirty} rotulo={t('pedido.config.colunas.casas_decimais.btn_descartar')} onClick={restaurarCasasDecimais} />
+                <BotaoSalvar   dirty={casasDirty} rotulo={t('pedido.config.acao.salvar')}    onClick={salvarCasasDecimais} loading={salvandoCasas} />
               </div>
             </section>}
 
@@ -3637,9 +3643,9 @@ export default function Configuracoes() {
             {categoria === 'colunas-formato-data' && <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Formato de Data</h2>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.colunas.formato_data.titulo')}</h2>
                   <p className="cfg-secao__desc">
-                    Define como as datas são exibidas em todas as colunas da tabela, nos inputs de edição e nas exportações.
+                    {t('pedido.config.colunas.formato_data.desc')}
                   </p>
                 </div>
               </div>
@@ -3655,7 +3661,7 @@ export default function Configuracoes() {
                     >
                       <span className="cfg-formato-data-label">{fmt.label}</span>
                       <span className="cfg-formato-data-exemplo">{fmt.exemplo}</span>
-                      <span className="cfg-formato-data-regiao">{fmt.regiao}</span>
+                      <span className="cfg-formato-data-regiao">{t(`pedido.config.colunas.formato_data.regiao_${FMT_REGIAO_KEYS[fmt.valor] ?? 'brasil_europa'}`)}</span>
                     </button>
                   ))}
                 </div>
@@ -3663,7 +3669,7 @@ export default function Configuracoes() {
 
               {/* Preview ao vivo */}
               <div className="cfg-formato-data-preview" style={{ marginTop: 16 }}>
-                <span className="cfg-formato-data-preview__label">Preview com data de hoje:</span>
+                <span className="cfg-formato-data-preview__label">{t('pedido.config.colunas.formato_data.preview_label')}</span>
                 <strong className="cfg-formato-data-preview__valor">
                   {(() => {
                     const hoje = new Date()
@@ -3700,18 +3706,18 @@ export default function Configuracoes() {
             {categoria === 'colunas-personalizadas' && <section className="cfg-secao" ref={novaColunaSectionRef}>
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Colunas Personalizadas</h2>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.colunas.personalizadas.titulo')}</h2>
                   <p className="cfg-secao__desc">
-                    Adicione campos extras à tabela de pedidos. As colunas criadas ficam disponíveis para todos os usuários.
+                    {t('pedido.config.colunas.personalizadas.desc')}
                   </p>
                 </div>
               </div>
 
               {/* ── Ativas ── */}
               <CfgSectionLabel
-                label="ATIVAS"
+                label={t('pedido.config.colunas.personalizadas.label_ativas')}
                 count={pendingColunas.length}
-                hint="Arraste para reordenar · olho para ocultar · X para excluir"
+                hint={t('pedido.config.colunas.personalizadas.hint_ativas')}
               />
               {pendingColunas.length === 0 ? (
                 <div style={{
@@ -3722,10 +3728,10 @@ export default function Configuracoes() {
                 }}>
                   <Columns size={28} weight="duotone" style={{ color: 'var(--ws-muted, #64748b)' }} />
                   <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', margin: 0 }}>
-                    Nenhuma coluna criada ainda
+                    {t('pedido.config.colunas.personalizadas.empty_titulo')}
                   </p>
                   <p style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', margin: 0 }}>
-                    Use o formulário abaixo para criar a primeira
+                    {t('pedido.config.colunas.personalizadas.empty_desc')}
                   </p>
                 </div>
               ) : (
@@ -3747,8 +3753,8 @@ export default function Configuracoes() {
                     </DndContext>
                   </div>
                   <div className="cfg-secao__footer" style={{ marginTop: '0.75rem' }}>
-                    <BotaoCancelar dirty={colunasDirty} rotulo="Descartar" onClick={cancelarOrdemColunas} />
-                    <BotaoSalvar   dirty={colunasDirty} carregando={salvandoColunas} rotulo="Salvar ordem" onClick={salvarOrdemColunas} />
+                    <BotaoCancelar dirty={colunasDirty} rotulo={t('pedido.config.colunas.personalizadas.btn_descartar')} onClick={cancelarOrdemColunas} />
+                    <BotaoSalvar   dirty={colunasDirty} carregando={salvandoColunas} rotulo={t('pedido.config.colunas.personalizadas.btn_salvar_ordem')} onClick={salvarOrdemColunas} />
                   </div>
                 </>
               )}
@@ -3756,23 +3762,17 @@ export default function Configuracoes() {
               {/* ── Editar Coluna ── */}
               {editandoColunaId && (() => {
                 const d = editandoColunaData
-                const tipoLabel = [
-                  { id: 'texto', label: 'Texto' }, { id: 'numero', label: 'Numérico' },
-                  { id: 'data', label: 'Data' }, { id: 'percentual', label: 'Percentual %' },
-                  { id: 'select', label: 'Select/Lista' }, { id: 'checkbox', label: 'Checkbox' },
-                  { id: 'tipo_documento', label: 'Tipo Documento' }, { id: 'formula', label: 'Fórmula' },
-                  { id: 'anexo', label: 'Anexo' },
-                ].find(t => t.id === d.tipo)?.label ?? d.tipo
+                const tipoLabel = t(`pedido.config.colunas.personalizadas.tipo_${d.tipo}`)
                 return (
                   <>
                     <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />
-                    <CfgSectionLabel label="EDITAR COLUNA" />
+                    <CfgSectionLabel label={t('pedido.config.colunas.personalizadas.label_editar_coluna')} />
                     <div className="cfg-campo-calc-item" style={{ marginTop: '0.5rem' }}>
                       <div className="cfg-nova-coluna-form cfg-campo-calc-item__body">
 
                         {/* Nome */}
                         <div className="cfg-form-group">
-                          <label className="cfg-form-label">Nome da Coluna <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                          <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_nome_coluna')} <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                           <input
                             type="text"
                             className="cfg-form-input"
@@ -3784,15 +3784,15 @@ export default function Configuracoes() {
 
                         {/* Tipo (read-only) */}
                         <div className="cfg-form-group">
-                          <label className="cfg-form-label">Tipo de coluna</label>
+                          <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_tipo_coluna')}</label>
                           <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)', margin: 0 }}>{tipoLabel}</p>
                         </div>
 
                         {/* Itens com dados diferentes */}
                         <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                           <div>
-                            <label className="cfg-form-label" style={{ margin: 0 }}>Itens podem ter dados diferentes</label>
-                            <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>Cada item do pedido pode ter um valor próprio nesta coluna.</p>
+                            <label className="cfg-form-label" style={{ margin: 0 }}>{t('pedido.config.colunas.personalizadas.form_itens_diferentes')}</label>
+                            <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>{t('pedido.config.colunas.personalizadas.form_itens_diferentes_hint')}</p>
                           </div>
                           <Toggle
                             checked={d.itensDiferentes ?? false}
@@ -3804,7 +3804,7 @@ export default function Configuracoes() {
                         {d.itensDiferentes && (
                           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', padding: '0.625rem 0.75rem', background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)', borderRadius: '6px', fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)' }}>
                             <Warning size={16} weight="fill" style={{ color: '#f59e0b', flexShrink: 0, marginTop: '0.05rem' }} />
-                            <span>Valores salvos no nível do pedido não são migrados automaticamente para os itens. Cada item precisará ser preenchido individualmente.</span>
+                            <span>{t('pedido.config.colunas.personalizadas.form_alerta_migr')}</span>
                           </div>
                         )}
 
@@ -3812,8 +3812,8 @@ export default function Configuracoes() {
                         {d.itensDiferentes && (
                           <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div>
-                              <label className="cfg-form-label" style={{ margin: 0 }}>O pedido também é editável</label>
-                              <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>Permite definir um valor padrão a nível de pedido além dos valores por item.</p>
+                              <label className="cfg-form-label" style={{ margin: 0 }}>{t('pedido.config.colunas.personalizadas.form_pedido_editavel')}</label>
+                              <p className="cfg-form-hint" style={{ marginTop: '0.125rem' }}>{t('pedido.config.colunas.personalizadas.form_pedido_editavel_hint')}</p>
                             </div>
                             <Toggle
                               checked={d.pedidoEditavel ?? true}
@@ -3825,7 +3825,7 @@ export default function Configuracoes() {
                         {/* Obrigatório */}
                         {d.tipo !== 'anexo' && (
                           <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <label className="cfg-form-label" style={{ margin: 0 }}>Obrigatório</label>
+                            <label className="cfg-form-label" style={{ margin: 0 }}>{t('pedido.config.colunas.personalizadas.form_obrigatorio')}</label>
                             <Toggle
                               checked={d.obrigatorio ?? false}
                               onChange={v => setEditandoColunaData(prev => ({ ...prev, obrigatorio: v }))}
@@ -3836,12 +3836,12 @@ export default function Configuracoes() {
                         {/* Valor padrão */}
                         {d.tipo !== 'anexo' && d.tipo !== 'formula' && (
                           <div className="cfg-form-group">
-                            <label className="cfg-form-label">Valor padrão</label>
-                            <p className="cfg-form-hint">Preenchido automaticamente ao criar um novo pedido.</p>
+                            <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_valor_padrao')}</label>
+                            <p className="cfg-form-hint">{t('pedido.config.colunas.personalizadas.form_valor_padrao_hint')}</p>
                             <input
                               type={d.tipo === 'numero' || d.tipo === 'percentual' ? 'number' : d.tipo === 'data' ? 'date' : 'text'}
                               className="cfg-form-input"
-                              placeholder="Deixe em branco para não definir"
+                              placeholder={t('pedido.config.colunas.personalizadas.form_valor_padrao_placeholder')}
                               value={d.valor_padrao ?? ''}
                               onChange={e => setEditandoColunaData(prev => ({ ...prev, valor_padrao: e.target.value }))}
                               maxLength={1000}
@@ -3851,12 +3851,12 @@ export default function Configuracoes() {
 
                         {/* Descrição */}
                         <div className="cfg-form-group">
-                          <label className="cfg-form-label">Descrição</label>
-                          <p className="cfg-form-hint">Exibido como tooltip no cabeçalho da coluna na tabela.</p>
+                          <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_descricao')}</label>
+                          <p className="cfg-form-hint">{t('pedido.config.colunas.personalizadas.form_descricao_hint')}</p>
                           <input
                             type="text"
                             className="cfg-form-input"
-                            placeholder="Ex: Número do contrato de referência"
+                            placeholder={t('pedido.config.colunas.personalizadas.form_descricao_placeholder')}
                             value={d.descricao ?? ''}
                             onChange={e => setEditandoColunaData(prev => ({ ...prev, descricao: e.target.value }))}
                             maxLength={200}
@@ -3868,11 +3868,11 @@ export default function Configuracoes() {
                         )}
                       </div>
                       <div className="cfg-campo-calc-item__footer">
-                        <BotaoCancelar dirty={true} rotulo="Fechar" onClick={fecharEdicaoColuna} />
+                        <BotaoCancelar dirty={true} rotulo={t('pedido.config.colunas.personalizadas.btn_fechar')} onClick={fecharEdicaoColuna} />
                         <BotaoSalvar
                           dirty={!!d.nome?.trim()}
                           carregando={salvandoEdicaoColuna}
-                          rotulo={salvandoEdicaoColuna ? 'Salvando...' : 'Salvar alterações'}
+                          rotulo={salvandoEdicaoColuna ? t('pedido.config.colunas.personalizadas.btn_salvando') : t('pedido.config.colunas.personalizadas.btn_salvar_alteracoes')}
                           onClick={handleAtualizarColuna}
                         />
                       </div>
@@ -3885,7 +3885,7 @@ export default function Configuracoes() {
               <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '1.5rem 0' }} />
 
               {/* ── Nova Coluna ── */}
-              <CfgSectionLabel label="NOVA COLUNA" />
+              <CfgSectionLabel label={t('pedido.config.colunas.personalizadas.label_nova_coluna')} />
               <div className="cfg-campo-calc-item" style={{ marginTop: '0.5rem' }}>
 
                 {/* ── Campos do formulário ── */}
@@ -3893,13 +3893,13 @@ export default function Configuracoes() {
 
                   {/* Nome */}
                   <div className="cfg-form-group">
-                    <label className="cfg-form-label" htmlFor="nova-coluna-nome">Nome da Coluna <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                    <label className="cfg-form-label" htmlFor="nova-coluna-nome">{t('pedido.config.colunas.personalizadas.form_nome_coluna')} <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                     <input
                       id="nova-coluna-nome"
                       ref={novaColunaInputRef}
                       type="text"
                       className="cfg-form-input"
-                      placeholder="Ex: Código ERP, Margem %, Prioridade"
+                      placeholder={t('pedido.config.colunas.personalizadas.form_nome_placeholder')}
                       value={novaColuna.nome}
                       onChange={e => setNovaColuna(prev => ({ ...prev, nome: e.target.value }))}
                       maxLength={50}
@@ -3908,7 +3908,7 @@ export default function Configuracoes() {
 
                   {/* Tipo */}
                   <div className="cfg-form-group">
-                    <label className="cfg-form-label">Tipo de coluna <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                    <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_tipo_coluna')} <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                     <div className="cfg-tipo-grid">
                       {TIPOS_COLUNA.map(tipo => (
                         <button
@@ -3919,7 +3919,7 @@ export default function Configuracoes() {
                           aria-pressed={novaColuna.tipo === tipo.id}
                         >
                           <span className="cfg-tipo-btn__icone">{tipo.icone}</span>
-                          <span className="cfg-tipo-btn__label">{tipo.label}</span>
+                          <span className="cfg-tipo-btn__label">{t(`pedido.config.colunas.personalizadas.tipo_${tipo.id}`)}</span>
                         </button>
                       ))}
                     </div>
@@ -3931,7 +3931,7 @@ export default function Configuracoes() {
                       {/* Área de tokens */}
                       <div className="cfg-form-group" style={{ marginBottom: 0 }}>
                         <label className="cfg-form-label">
-                          Expressão <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span>
+                          {t('pedido.config.colunas.personalizadas.formula_expressao')} <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span>
                         </label>
                       </div>
                       <div className="cfg-campo-calc-item__formula" style={{ border: 'none', padding: 0 }}>
@@ -3942,7 +3942,7 @@ export default function Configuracoes() {
                         ].filter(Boolean).join(' ')}>
                           {formulaTokens.length === 0 ? (
                             <span className="cfg-saldo-tokens__placeholder">
-                              Selecione campos abaixo para montar a fórmula
+                              {t('pedido.config.colunas.personalizadas.formula_placeholder')}
                             </span>
                           ) : (
                             formulaTokens.map((token, i) =>
@@ -3968,14 +3968,14 @@ export default function Configuracoes() {
                             <button key={op} type="button" className="cfg-saldo-op-btn" onClick={() => adicionarOpFormulaToken(op)}>{op}</button>
                           ))}
                           {formulaTokens.length > 0 && (
-                            <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setFormulaTokens([])}>Limpar</button>
+                            <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setFormulaTokens([])}>{t('pedido.config.colunas.personalizadas.formula_limpar')}</button>
                           )}
                         </div>
                       </div>
 
                       {/* Campos disponíveis */}
                       <div className="cfg-campo-calc-item__campos" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '0 0', padding: '0.75rem 0 0' }}>
-                        <span className="cfg-campo-calc-item__campos-label">Adicionar campo</span>
+                        <span className="cfg-campo-calc-item__campos-label">{t('pedido.config.colunas.personalizadas.formula_adicionar_campo')}</span>
                         {CAMPOS_FORMULA.flatMap(g => g.campos).map(campo => (
                           <button key={campo.chave} type="button" className="cfg-formula-chip" onClick={() => adicionarCampoFormulaToken(campo)}>
                             {campo.label}
@@ -3989,19 +3989,17 @@ export default function Configuracoes() {
                           <div className="cfg-gabi-card cfg-gabi-card--info" role="note" style={{ marginTop: '0.5rem' }}>
                             <div className="cfg-gabi-card__header">
                               <span className="cfg-gabi-card__ico">✦</span>
-                              <span className="cfg-gabi-card__titulo">Gabi · Como montar sua fórmula</span>
+                              <span className="cfg-gabi-card__titulo">Gabi · {t('pedido.config.colunas.personalizadas.gabi_como_montar')}</span>
                             </div>
                             <p className="cfg-gabi-card__texto">
-                              Clique em um campo acima para inseri-lo.
-                              Use <code>+  −  *  /</code> entre campos numéricos.
-                              Para divisão segura: <code>SE(denominador == 0, 0, numerador / denominador)</code>.
+                              {t('pedido.config.colunas.personalizadas.gabi_instrucoes')}
                             </p>
                           </div>
                         )
                         if (!formulaErro && !formulaGabi && !formulaValida) return null
                         const variante = formulaErro ? 'erro' : formulaGabi ? 'aviso' : 'ok'
-                        const titulo   = formulaErro ? 'Erro na expressão' : formulaGabi ? formulaGabi.titulo : 'Fórmula válida ✓'
-                        const texto    = formulaErro ?? formulaGabi?.texto ?? 'Tudo certo! Preencha os campos restantes e clique em Criar.'
+                        const titulo   = formulaErro ? t('pedido.config.colunas.personalizadas.gabi_erro') : formulaGabi ? formulaGabi.titulo : t('pedido.config.colunas.personalizadas.gabi_formula_valida')
+                        const texto    = formulaErro ?? formulaGabi?.texto ?? t('pedido.config.colunas.personalizadas.gabi_ok_preencher')
                         const sugestao = formulaGabi?.sugestao
                         return (
                           <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite" style={{ marginTop: '0.5rem' }}>
@@ -4024,9 +4022,9 @@ export default function Configuracoes() {
                                     })
                                     setFormulaTokens(tokens)
                                   }}
-                                  title="Usar esta sugestão"
+                                  title={t('pedido.config.colunas.personalizadas.gabi_usar')}
                                 >
-                                  Usar
+                                  {t('pedido.config.colunas.personalizadas.gabi_usar')}
                                 </button>
                               </div>
                             )}
@@ -4039,12 +4037,12 @@ export default function Configuracoes() {
                   {/* Opções (select / tipo_documento) */}
                   {(novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') && (
                     <div className="cfg-form-group">
-                      <label className="cfg-form-label">Opções da lista <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
+                      <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_opcoes_lista')} <span style={{ color: 'var(--color-danger, #f87171)' }}>*</span></label>
                       <div className="cfg-opcoes-add-row">
                         <input
                           type="text"
                           className="cfg-form-input"
-                          placeholder="Digite e pressione Enter ou clique em +"
+                          placeholder={t('pedido.config.colunas.personalizadas.form_opcoes_placeholder')}
                           value={novaOpcao}
                           onChange={e => setNovaOpcao(e.target.value)}
                           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleAdicionarOpcao() } }}
@@ -4070,9 +4068,9 @@ export default function Configuracoes() {
 
                   {/* Visibilidade */}
                   <div className="cfg-form-group">
-                    <label className="cfg-form-label">Visibilidade</label>
+                    <label className="cfg-form-label">{t('pedido.config.colunas.personalizadas.form_visibilidade')}</label>
                     <SelectGlobal
-                      opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: o.label, descricao: o.descricao }))}
+                      opcoes={VISIBILIDADE_OPCOES.map(o => ({ valor: o.valor, rotulo: t(`pedido.config.colunas.personalizadas.vis_${o.valor}_label`), descricao: t(`pedido.config.colunas.personalizadas.vis_${o.valor}_desc`) }))}
                       valor={novaColuna.visibilidade}
                       aoMudarValor={v => v != null && setNovaColuna(prev => ({ ...prev, visibilidade: v as VisibilidadeColunaUsuario }))}
                       buscavel={false}
@@ -4083,7 +4081,7 @@ export default function Configuracoes() {
                   {novaColuna.tipo !== 'anexo' && (
                     <div className="cfg-form-group" style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                       <label className="cfg-form-label" htmlFor="nova-coluna-obrigatorio" style={{ margin: 0 }}>
-                        Obrigatório
+                        {t('pedido.config.colunas.personalizadas.form_obrigatorio')}
                       </label>
                       <Toggle
                         id="nova-coluna-obrigatorio"
@@ -4096,8 +4094,8 @@ export default function Configuracoes() {
                   {/* Valor padrão */}
                   {novaColuna.tipo !== 'anexo' && novaColuna.tipo !== 'formula' && (
                     <div className="cfg-form-group">
-                      <label className="cfg-form-label" htmlFor="nova-coluna-padrao">Valor padrão</label>
-                      <p className="cfg-form-hint">Preenchido automaticamente ao criar um novo pedido.</p>
+                      <label className="cfg-form-label" htmlFor="nova-coluna-padrao">{t('pedido.config.colunas.personalizadas.form_valor_padrao')}</label>
+                      <p className="cfg-form-hint">{t('pedido.config.colunas.personalizadas.form_valor_padrao_hint')}</p>
                       {novaColuna.tipo === 'checkbox' ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                           <input
@@ -4107,14 +4105,14 @@ export default function Configuracoes() {
                             onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.checked ? 'true' : 'false' }))}
                           />
                           <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                            {novaColuna.valor_padrao === 'true' ? 'Marcado' : 'Desmarcado'}
+                            {novaColuna.valor_padrao === 'true' ? t('pedido.config.colunas.personalizadas.form_valor_checkbox_marcado') : t('pedido.config.colunas.personalizadas.form_valor_checkbox_desmarcado')}
                           </span>
                         </div>
                       ) : (novaColuna.tipo === 'select' || novaColuna.tipo === 'tipo_documento') ? (
                         novaColuna.opcoes.length > 0 ? (
                           <SelectGlobal
                             opcoes={[
-                              { valor: '', rotulo: 'Sem padrão' },
+                              { valor: '', rotulo: t('pedido.config.colunas.personalizadas.form_valor_sem_padrao') },
                               ...novaColuna.opcoes.map(o => ({ valor: o, rotulo: o })),
                             ]}
                             valor={novaColuna.valor_padrao}
@@ -4122,14 +4120,14 @@ export default function Configuracoes() {
                             buscavel={false}
                           />
                         ) : (
-                          <p className="cfg-form-hint" style={{ fontStyle: 'italic' }}>Adicione as opções da lista acima para definir um valor padrão.</p>
+                          <p className="cfg-form-hint" style={{ fontStyle: 'italic' }}>{t('pedido.config.colunas.personalizadas.form_valor_add_opcoes_first')}</p>
                         )
                       ) : (
                         <input
                           id="nova-coluna-padrao"
                           type={novaColuna.tipo === 'numero' || novaColuna.tipo === 'percentual' ? 'number' : novaColuna.tipo === 'data' ? 'date' : 'text'}
                           className="cfg-form-input"
-                          placeholder="Deixe em branco para não definir"
+                          placeholder={t('pedido.config.colunas.personalizadas.form_valor_padrao_placeholder')}
                           value={novaColuna.valor_padrao}
                           onChange={e => setNovaColuna(prev => ({ ...prev, valor_padrao: e.target.value }))}
                           maxLength={1000}
@@ -4140,13 +4138,13 @@ export default function Configuracoes() {
 
                   {/* Descrição */}
                   <div className="cfg-form-group">
-                    <label className="cfg-form-label" htmlFor="nova-coluna-desc">Descrição</label>
-                    <p className="cfg-form-hint">Exibido como tooltip no cabeçalho da coluna na tabela.</p>
+                    <label className="cfg-form-label" htmlFor="nova-coluna-desc">{t('pedido.config.colunas.personalizadas.form_descricao')}</label>
+                    <p className="cfg-form-hint">{t('pedido.config.colunas.personalizadas.form_descricao_hint')}</p>
                     <input
                       id="nova-coluna-desc"
                       type="text"
                       className="cfg-form-input"
-                      placeholder="Ex: Número do contrato de referência"
+                      placeholder={t('pedido.config.colunas.personalizadas.form_descricao_placeholder')}
                       value={novaColuna.descricao}
                       onChange={e => setNovaColuna(prev => ({ ...prev, descricao: e.target.value }))}
                       maxLength={200}
@@ -4170,12 +4168,12 @@ export default function Configuracoes() {
                     <div className="cfg-campo-calc-item__footer">
                       <BotaoCancelar
                         dirty={formDirty}
-                        rotulo="Limpar"
+                        rotulo={t('pedido.config.colunas.personalizadas.btn_limpar')}
                         onClick={() => { setNovaColuna(NOVA_COLUNA_PADRAO); setNovaOpcao(''); setFormulaTokens([]) }}
                       />
                       <BotaoSalvar
                         dirty={canSave}
-                        rotulo={salvandoColuna ? 'Criando...' : 'Criar Coluna'}
+                        rotulo={salvandoColuna ? t('pedido.config.colunas.personalizadas.btn_criando') : t('pedido.config.colunas.personalizadas.btn_criar_coluna')}
                         onClick={handleCriarColuna}
                       />
                     </div>
@@ -4189,8 +4187,8 @@ export default function Configuracoes() {
             {categoria === 'colunas-campos-calculados' && <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Campos Calculados</h2>
-                  <p className="cfg-secao__desc">Campos cujo valor é gerado por fórmula. A fórmula pode ser ajustada por workspace.</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.colunas.campos_calculados.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.colunas.campos_calculados.desc')}</p>
                 </div>
               </div>
 
@@ -4201,8 +4199,8 @@ export default function Configuracoes() {
                 <div className="cfg-campo-calc-item__header">
                   <div className="cfg-campo-calc-item__id">
                     <MathOperations size={14} weight="duotone" style={{ color: 'var(--ws-accent)', flexShrink: 0 }} />
-                    <span className="cfg-campo-calc-item__nome">Saldo do Pedido</span>
-                    <span className="cfg-campo-calc-item__badge">campo nativo</span>
+                    <span className="cfg-campo-calc-item__nome">{t('pedido.config.colunas.campos_calculados.nome_saldo')}</span>
+                    <span className="cfg-campo-calc-item__badge">{t('pedido.config.colunas.campos_calculados.badge_nativo')}</span>
                   </div>
                 </div>
 
@@ -4213,10 +4211,10 @@ export default function Configuracoes() {
                     saldoFormulaErro ? 'cfg-saldo-tokens--erro' : '',
                     saldoFormulaValida && saldoTokens.length > 0 ? 'cfg-saldo-tokens--ok' : '',
                   ].filter(Boolean).join(' ')}>
-                    <span className="cfg-saldo-tokens__label-fixo">Saldo do Pedido&nbsp;=</span>
+                    <span className="cfg-saldo-tokens__label-fixo">{t('pedido.config.colunas.campos_calculados.nome_saldo')}&nbsp;=</span>
                     {saldoTokens.length === 0 ? (
                       <span className="cfg-saldo-tokens__placeholder">
-                        Selecione campos abaixo para montar a fórmula
+                        {t('pedido.config.colunas.campos_calculados.formula_placeholder')}
                       </span>
                     ) : (
                       saldoTokens.map((token, i) =>
@@ -4242,23 +4240,23 @@ export default function Configuracoes() {
                       <button key={op} type="button" className="cfg-saldo-op-btn" onClick={() => adicionarOpSaldo(op)}>{op}</button>
                     ))}
                     {saldoTokens.length > 0 && (
-                      <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setSaldoTokens([])}>Limpar</button>
+                      <button type="button" className="cfg-saldo-op-btn cfg-saldo-op-btn--clear" onClick={() => setSaldoTokens([])}>{t('pedido.config.colunas.campos_calculados.limpar')}</button>
                     )}
                   </div>
                 </div>
 
                 {/* ── Campos disponíveis ── */}
                 <div className="cfg-campo-calc-item__campos">
-                  <span className="cfg-campo-calc-item__campos-label">Adicionar campo</span>
+                  <span className="cfg-campo-calc-item__campos-label">{t('pedido.config.colunas.campos_calculados.adicionar_campo')}</span>
                   {CAMPOS_SALDO.flatMap(g => g.campos).map(campo => (
                     <button key={campo.chave} type="button" className="cfg-formula-chip" onClick={() => adicionarCampoSaldo(campo)}>
                       {campo.label}
                     </button>
                   ))}
                   {colunasUsuarioApi_.some(c => (c.tipo === 'numero' || c.tipo === 'formula') && c.ativo) && (
-                    <TooltipGlobal descricao="Colunas personalizadas numéricas também podem entrar na fórmula">
+                    <TooltipGlobal descricao={t('pedido.config.colunas.campos_calculados.tooltip_colunas_custom')}>
                       <span style={{ fontSize: '0.72rem', color: 'var(--ws-muted)', alignSelf: 'center', cursor: 'help' }}>
-                        + colunas personalizadas
+                        {t('pedido.config.colunas.campos_calculados.mais_colunas_custom')}
                       </span>
                     </TooltipGlobal>
                   )}
@@ -4271,14 +4269,14 @@ export default function Configuracoes() {
                     <div className="cfg-gabi-card cfg-gabi-card--analisando" role="status" aria-live="polite" style={{ margin: '0 1rem 0' }}>
                       <div className="cfg-gabi-card__header">
                         <span className="cfg-gabi-card__ico">✦</span>
-                        <span className="cfg-gabi-card__titulo">Gabi · Analisando…</span>
+                        <span className="cfg-gabi-card__titulo">Gabi · {t('pedido.config.colunas.campos_calculados.gabi_analisando')}</span>
                       </div>
                     </div>
                   )
                   if (!saldoFormulaErro && !saldoFormulaGabi && !saldoFormulaValida) return null
                   const variante = saldoFormulaErro ? 'erro' : saldoFormulaGabi ? 'aviso' : 'ok'
-                  const titulo   = saldoFormulaErro ? 'Erro na expressão' : saldoFormulaGabi ? saldoFormulaGabi.titulo : 'Fórmula válida ✓'
-                  const texto    = saldoFormulaErro ?? saldoFormulaGabi?.texto ?? 'Tudo certo! Clique em Salvar para aplicar.'
+                  const titulo   = saldoFormulaErro ? t('pedido.config.colunas.campos_calculados.gabi_erro') : saldoFormulaGabi ? saldoFormulaGabi.titulo : t('pedido.config.colunas.campos_calculados.gabi_formula_valida')
+                  const texto    = saldoFormulaErro ?? saldoFormulaGabi?.texto ?? t('pedido.config.colunas.campos_calculados.gabi_ok')
                   const sugestao = saldoFormulaGabi?.sugestao
                   return (
                     <div className={`cfg-gabi-card cfg-gabi-card--${variante}`} role="note" aria-live="polite" style={{ margin: '0 1rem 0' }}>
@@ -4290,7 +4288,7 @@ export default function Configuracoes() {
                       {sugestao && (
                         <div className="cfg-gabi-card__sugestao-row">
                           <code className="cfg-gabi-card__sugestao">{sugestao}</code>
-                          <button type="button" className="cfg-gabi-card__usar" onClick={() => setSaldoTokens(aliasFormulaParaTokens(sugestao))}>Usar</button>
+                          <button type="button" className="cfg-gabi-card__usar" onClick={() => setSaldoTokens(aliasFormulaParaTokens(sugestao))}>{t('pedido.config.colunas.campos_calculados.gabi_usar')}</button>
                         </div>
                       )}
                     </div>
@@ -4301,12 +4299,12 @@ export default function Configuracoes() {
                 <div className="cfg-campo-calc-item__footer">
                   <BotaoCancelar
                     dirty={saldoFormulaAlterada}
-                    rotulo="Restaurar padrão"
+                    rotulo={t('pedido.config.acao.restaurar_padrao')}
                     onClick={restaurarSaldoPadrao}
                   />
                   <BotaoSalvar
                     dirty={saldoFormulaAlterada && !saldoFormulaErro}
-                    rotulo="Salvar"
+                    rotulo={t('pedido.config.acao.salvar')}
                     onClick={salvarSaldoFormula}
                   />
                 </div>

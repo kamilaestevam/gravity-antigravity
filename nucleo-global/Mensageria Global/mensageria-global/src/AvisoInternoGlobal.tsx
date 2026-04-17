@@ -14,9 +14,9 @@ import {
   Eye,
   WhatsappLogo,
   Warning,
+  CalendarBlank,
 } from '@phosphor-icons/react';
 import { TooltipGlobal } from '@nucleo/tooltip-global';
-import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global';
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global';
 import './aviso-interno.css';
 
@@ -85,8 +85,15 @@ export function AvisoInternoGlobal({
   const [mostrarLidas, setMostrarLidas] = useState(false);
   const [filtroVisao, setFiltroVisao] = useState<'todas' | 'recebidas' | 'enviadas'>('todas');
   const [isOpen, setIsOpen] = useState(false);
+  const [buscaAberta, setBuscaAberta] = useState(false);
+  const [calendarioAberto, setCalendarioAberto] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const buscaInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (buscaAberta) buscaInputRef.current?.focus();
+  }, [buscaAberta]);
 
   // ─── Composer unificado state ─────────────────────────────────────────────
   const [composerText, setComposerText] = useState('');
@@ -336,6 +343,26 @@ export function AvisoInternoGlobal({
             );
           })}
           <div style={{ flex: 1 }} />
+          <TooltipGlobal titulo="Buscar mensagens" descricao="">
+            <button
+              type="button"
+              className={`aig-filter-icon-btn${(buscaAberta || busca) ? ' active' : ''}`}
+              onClick={() => { setBuscaAberta(v => !v); setCalendarioAberto(false); }}
+              aria-pressed={buscaAberta}
+            >
+              <MagnifyingGlass size={13} weight={(buscaAberta || busca) ? 'fill' : 'regular'} />
+            </button>
+          </TooltipGlobal>
+          <TooltipGlobal titulo="Filtrar por data" descricao="">
+            <button
+              type="button"
+              className={`aig-filter-icon-btn${(calendarioAberto || dataFiltro.inicio || dataFiltro.fim) ? ' active' : ''}`}
+              onClick={() => { setCalendarioAberto(v => !v); setBuscaAberta(false); }}
+              aria-pressed={calendarioAberto}
+            >
+              <CalendarBlank size={13} weight={(calendarioAberto || dataFiltro.inicio || dataFiltro.fim) ? 'fill' : 'regular'} />
+            </button>
+          </TooltipGlobal>
           <TooltipGlobal titulo={mostrarLidas ? 'Ocultar lidas' : 'Mostrar lidas'} descricao="">
             <button
               type="button"
@@ -351,7 +378,7 @@ export function AvisoInternoGlobal({
               <button
                 type="button"
                 className="aig-filter-icon-btn active"
-                onClick={() => { setBusca(''); setDataFiltro({ inicio: null, fim: null }); setMostrarLidas(false); setFiltroVisao('todas'); if (onFechar) onFechar(); }}
+                onClick={() => { setBusca(''); setDataFiltro({ inicio: null, fim: null }); setMostrarLidas(false); setFiltroVisao('todas'); setBuscaAberta(false); setCalendarioAberto(false); if (onFechar) onFechar(); }}
               >
                 <X size={13} weight="bold" />
               </button>
@@ -360,32 +387,44 @@ export function AvisoInternoGlobal({
         </div>
       </div>
 
-      {/* BUSCA / DATA COMBO */}
-      <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0' }}>
-        <div className="aig-combo-wrap" style={{ height: '36px' }}>
-          <LocalizarExpandidoCampoGlobal
-            value={busca}
-            onChange={setBusca}
-            disableGlobalDOMFilter
-            alwaysExpanded
-            placeholder="Buscar..."
-            style={{ flex: 1, height: '100%', margin: 0 }}
-          />
-          <div style={{ width: '130px', flexShrink: 0, height: '100%', margin: 0 }}>
-            <CalendarioCampoGlobal
-              className="aig-calendar-right"
-              valor={dataFiltro}
-              aoMudarValor={(val) => {
-                if (val && typeof val === 'object' && 'inicio' in val && 'fim' in val) {
-                  const r = val as { inicio: Date | null; fim: Date | null }
-                  setDataFiltro({ inicio: r.inicio, fim: r.fim })
-                }
-              }}
-              placeholder="Data..."
+      {/* BUSCA EXPANSÍVEL */}
+      {buscaAberta && (
+        <div className="aig-section" style={{ borderBottom: 'none', paddingTop: '0.25rem', paddingBottom: '0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', background: 'var(--aig-bg-input, #0f172a)', border: '1px solid var(--aig-accent, #818cf8)', borderRadius: '5px', padding: '0 0.5rem', height: '28px' }}>
+            <MagnifyingGlass size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
+            <input
+              ref={buscaInputRef}
+              type="text"
+              value={busca}
+              onChange={e => setBusca(e.target.value)}
+              placeholder="Buscar mensagens..."
+              style={{ all: 'unset', flex: 1, fontSize: '0.6875rem', color: 'var(--aig-text, #f1f5f9)' }}
             />
+            {busca && (
+              <button type="button" onClick={() => setBusca('')} style={{ all: 'unset', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--aig-muted)' }}>
+                <X size={10} weight="bold" />
+              </button>
+            )}
           </div>
         </div>
-      </div>
+      )}
+
+      {/* CALENDÁRIO EXPANSÍVEL */}
+      {calendarioAberto && (
+        <div className="aig-section" style={{ borderBottom: 'none', paddingTop: '0.25rem', paddingBottom: '0' }}>
+          <CalendarioCampoGlobal
+            className="aig-calendar-right"
+            valor={dataFiltro}
+            aoMudarValor={(val) => {
+              if (val && typeof val === 'object' && 'inicio' in val && 'fim' in val) {
+                const r = val as { inicio: Date | null; fim: Date | null }
+                setDataFiltro({ inicio: r.inicio, fim: r.fim })
+              }
+            }}
+            placeholder="Selecionar período..."
+          />
+        </div>
+      )}
 
       {/* LISTA */}
       <div className="aig-list">

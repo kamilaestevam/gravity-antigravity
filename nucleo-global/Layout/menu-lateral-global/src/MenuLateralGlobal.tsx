@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { SidebarSimple, CaretDown, Lock, Check, Plus, Gear } from '@phosphor-icons/react'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
@@ -157,22 +157,23 @@ export function MenuLateralGlobal({
       )
     ) : null
 
-    // Item normal (link)
+    // Item normal (link) — navegação nativa via <a href> força reload completo (F5).
+    // Evita race conditions de SPA entre Clerk/Zustand/API ao trocar de tela.
+    const isActive = !!item.to && location.pathname === item.to
     const navLink = item.disabled ? (
       <div className={`mlg-nav-item mlg-disabled ${isSubmenu ? 'mlg-submenu-item' : ''}`}>
         <div className="mlg-nav-icon">{item.icon}</div>
         {textContent}
       </div>
     ) : (
-      <NavLink
+      <a
         key={item.to || item.label}
-        to={item.to || '#'}
-        end
-        className={({ isActive }: { isActive: boolean }) => `mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`}
+        href={item.to || '#'}
+        className={`mlg-nav-item ${isSubmenu ? 'mlg-submenu-item' : ''} ${isActive ? 'active' : ''}`}
       >
         <div className="mlg-nav-icon">{item.icon}</div>
         {textContent}
-      </NavLink>
+      </a>
     )
 
     if (isCollapsed && !isSubmenu) {

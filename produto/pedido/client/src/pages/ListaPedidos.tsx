@@ -2900,7 +2900,9 @@ export default function ListaPedidos() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // stable: context populated before mount, doesn't change
-  const { quota: gabiQuota } = useGabiQuota('/api/v1/pedidos/gabi/quota', gabiQuotaFetchOptions)
+  // Conditional fetching: só dispara quando tenantId já está hidratado do store.
+  // Evita requisição prematura no milissegundo 0 do render (que resulta em 400).
+  const { quota: gabiQuota } = useGabiQuota(tenantId ? '/api/v1/pedidos/gabi/quota' : null, gabiQuotaFetchOptions)
 
   // ── Taxas PTAX (para conversão BRL) — cache singleton por sessão ────────────
   const taxasVenda = useTaxasCambio()
@@ -3440,6 +3442,10 @@ export default function ListaPedidos() {
     const abasLocal = lerAbasDoLocalStorage(t)
     if (abasLocal && abasLocal.length > 1) setAbas(abasLocal)
 
+    // Conditional fetching: aguarda tenantId hidratar antes de chamar as APIs,
+    // caso contrário /config/preferencias/usuario e afins retornam 400.
+    if (!tenantId) return
+
     pedidoConfigApi.listarStatus()
       .then(res => {
         if (res.data.length > 0) {
@@ -3493,7 +3499,7 @@ export default function ListaPedidos() {
 
       setPreferencias({ colunas_visiveis: finalVisible })
     })
-  }, [])
+  }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Fechar dropdown ao clicar fora ──────────────────────────────────────────
   useEffect(() => {

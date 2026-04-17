@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import type { TFunction } from 'i18next'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import type { GTColuna, GTMapaColunasFilho } from '@nucleo/tabela-virtual-global'
@@ -128,36 +129,37 @@ export function mapColunaUsuarioParaGTColuna(col: ColunaUsuario): GTColuna<Pedid
 
 // ── Colunas filha (PedidoItem) ────────────────────────────────────────────────
 
-export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
+export function buildColunasFilho(t: TFunction): GTColuna<PedidoItem>[] {
+  return [
   {
     key: 'part_number',
-    label: 'Nº do Item',
+    label: t('pedido.item.part_number'),
     tipo: 'texto',
-    grupo: 'Identificação',
+    grupo: t('pedido.item_grupo.identificacao'),
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.part_number}</span>,
   },
   {
     key: 'ncm',
-    label: 'NCM',
+    label: t('pedido.item.ncm'),
     tipo: 'texto',
-    grupo: 'Identificação',
+    grupo: t('pedido.item_grupo.identificacao'),
     render: (_val: unknown, row: PedidoItem) => <span style={{ fontFamily: 'var(--font-mono, monospace)' }}>{row.ncm}</span>,
   },
   {
     key: 'descricao_item',
-    label: 'Descrição do Item',
+    label: t('pedido.item.descricao_item'),
     tipo: 'texto',
-    grupo: 'Identificação',
+    grupo: t('pedido.item_grupo.identificacao'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_item}</span>,
   },
   {
     key: 'quantidade_inicial_item_pedido',
-    label: 'Qtd Inicial do Item no Pedido',
+    label: t('pedido.item.qtd_inicial'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Quantidades',
-    tooltipTitulo: 'Quantidade Inicial',
-    tooltipDescricao: 'Quantidade original do item — valor imutável',
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: t('pedido.item.qtd_inicial_tooltip'),
+    tooltipDescricao: t('pedido.item.qtd_inicial_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_inicial_item_pedido, getCasas('quantidade_item', 0))}
@@ -166,12 +168,12 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'saldo_item_pedido',
-    label: 'Saldo do Item',
+    label: t('pedido.item.saldo'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Quantidades',
-    tooltipTitulo: 'Saldo',
-    tooltipDescricao: 'Quantidade inicial menos canceladas e transferidas',
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: t('pedido.item.saldo_tooltip'),
+    tooltipDescricao: t('pedido.item.saldo_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{
         fontVariantNumeric: 'tabular-nums',
@@ -184,12 +186,12 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'quantidade_pronta_total_item_pedido',
-    label: 'Quantidade Pronta do Item no Pedido',
+    label: t('pedido.item.qtd_pronta'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Quantidades',
-    tooltipTitulo: 'Quantidade Pronta',
-    tooltipDescricao: 'Montante produzido pela fábrica e validado para embarque',
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: t('pedido.item.qtd_pronta_tooltip'),
+    tooltipDescricao: t('pedido.item.qtd_pronta_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {fmtQuantidade(row.quantidade_pronta_total_item_pedido, getCasas('quantidade_item', 0))}
@@ -198,13 +200,13 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'quantidade_transferida_item_pedido',
-    label: 'Quantidade Transferida do Item no Pedido',
+    label: t('pedido.item.qtd_transferida'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Quantidades',
-    tooltipTitulo: 'Quantidade Transferida',
-    tooltipDescricao: 'Quantidade já transferida deste item para outros pedidos.',
-    tooltipBloqueado: 'Campo calculado — incrementado automaticamente ao executar uma transferência. Não pode ser editado diretamente.',
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: t('pedido.item.qtd_transferida_tooltip'),
+    tooltipDescricao: t('pedido.item.qtd_transferida_desc'),
+    tooltipBloqueado: t('pedido.item.qtd_transferida_bloqueado'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
         {fmtQuantidade(row.quantidade_transferida_item_pedido, getCasas('quantidade_item', 0))}
@@ -213,12 +215,12 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'quantidade_cancelada_item_pedido',
-    label: 'Quantidade Cancelada do Item no Pedido',
+    label: t('pedido.item.qtd_cancelada'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Quantidades',
-    tooltipTitulo: 'Quantidade Cancelada',
-    tooltipDescricao: 'Total cancelado permanentemente — subtrai do saldo inicial',
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: t('pedido.item.qtd_cancelada_tooltip'),
+    tooltipDescricao: t('pedido.item.qtd_cancelada_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{
         fontVariantNumeric: 'tabular-nums',
@@ -230,12 +232,12 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'sequencia_item',
-    label: 'Seq. Item',
+    label: t('pedido.item.seq_item'),
     tipo: 'numero',
     align: 'center',
-    grupo: 'Identificação',
-    tooltipTitulo: 'Sequência do Item',
-    tooltipDescricao: 'Número sequencial do item dentro do pedido (conforme invoice)',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.seq_item_tooltip'),
+    tooltipDescricao: t('pedido.item.seq_item_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.sequencia_item != null ? String(row.sequencia_item).padStart(3, '0') : '—'}
@@ -244,30 +246,30 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'descricao_completa_item_pt',
-    label: 'Descrição Completa do Item/Produto',
+    label: t('pedido.item.desc_completa_pt'),
     tipo: 'texto',
-    grupo: 'Identificação',
-    tooltipTitulo: 'Descrição Completa do Produto',
-    tooltipDescricao: 'Descrição técnica detalhada do produto conforme catálogo',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.desc_completa_pt_tooltip'),
+    tooltipDescricao: t('pedido.item.desc_completa_pt_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_pt ?? '—'}</span>,
   },
   {
     key: 'descricao_completa_item_nf',
-    label: 'Descrição Completa do Item/Produto- NF',
+    label: t('pedido.item.desc_completa_nf'),
     tipo: 'texto',
-    grupo: 'Identificação',
-    tooltipTitulo: 'Descrição Espelho da Nota Fiscal',
-    tooltipDescricao: 'Descrição do produto conforme será exibida na nota fiscal de entrada',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.desc_completa_nf_tooltip'),
+    tooltipDescricao: t('pedido.item.desc_completa_nf_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_nf ?? '—'}</span>,
   },
   {
     key: 'quantidade_unidade_estatistica',
-    label: 'Qtd Est.',
+    label: t('pedido.item.qtd_estatistica'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Quantidades',
-    tooltipTitulo: 'Quantidade na Unidade Estatística',
-    tooltipDescricao: 'Quantidade do item expressa na unidade estatística exigida pela DUIMP',
+    grupo: t('pedido.item_grupo.quantidades'),
+    tooltipTitulo: t('pedido.item.qtd_estatistica_tooltip'),
+    tooltipDescricao: t('pedido.item.qtd_estatistica_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.quantidade_unidade_estatistica_duimp != null
@@ -279,12 +281,12 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── Pesos e cubagem ──────────────────────────────────────────────────────────
   {
     key: 'peso_liquido_unitario_item',
-    label: 'Peso Líquido Unitário do Item',
+    label: t('pedido.item.peso_liq_unitario'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Dados Físicos',
-    tooltipTitulo: 'Peso Líquido Unitário',
-    tooltipDescricao: 'Peso líquido unitário do produto, em kg',
+    grupo: t('pedido.item_grupo.dados_fisicos'),
+    tooltipTitulo: t('pedido.item.peso_liq_unitario_tooltip'),
+    tooltipDescricao: t('pedido.item.peso_liq_unitario_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_liquido_unitario_item != null
@@ -295,12 +297,12 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'peso_bruto_unitario_item',
-    label: 'Peso Bruto Unitário do Item',
+    label: t('pedido.item.peso_bruto_unitario'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Dados Físicos',
-    tooltipTitulo: 'Peso Bruto Unitário',
-    tooltipDescricao: 'Peso bruto unitário incluindo embalagem, em kg',
+    grupo: t('pedido.item_grupo.dados_fisicos'),
+    tooltipTitulo: t('pedido.item.peso_bruto_unitario_tooltip'),
+    tooltipDescricao: t('pedido.item.peso_bruto_unitario_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.peso_bruto_unitario_item != null
@@ -311,12 +313,12 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   },
   {
     key: 'cubagem_unitaria_item',
-    label: 'Cubagem Unitária do Item',
+    label: t('pedido.item.cubagem_unitaria'),
     tipo: 'numero',
     align: 'right',
-    grupo: 'Dados Físicos',
-    tooltipTitulo: 'Cubagem Unitária',
-    tooltipDescricao: 'Volume unitário do produto, em m³',
+    grupo: t('pedido.item_grupo.dados_fisicos'),
+    tooltipTitulo: t('pedido.item.cubagem_unitaria_tooltip'),
+    tooltipDescricao: t('pedido.item.cubagem_unitaria_desc'),
     render: (_val: unknown, row: PedidoItem) => (
       <span style={{ fontVariantNumeric: 'tabular-nums' }}>
         {row.cubagem_unitaria_item != null
@@ -328,140 +330,140 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
   // ── Embalagem e documentos ───────────────────────────────────────────────────
   {
     key: 'tipo_embalagem',
-    label: 'Tipo de Embalagem',
+    label: t('pedido.item.tipo_embalagem'),
     tipo: 'texto',
     filtravel: true,
-    grupo: 'Dados Físicos',
-    tooltipTitulo: 'Tipo de Embalagem',
-    tooltipDescricao: 'Tipo de embalagem do produto (ex: Caixa, Pallet, Tambor)',
+    grupo: t('pedido.item_grupo.dados_fisicos'),
+    tooltipTitulo: t('pedido.item.tipo_embalagem_tooltip'),
+    tooltipDescricao: t('pedido.item.tipo_embalagem_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.tipo_embalagem ?? '—'}</span>,
   },
   {
     key: 'numero_lpco',
-    label: 'Número da LPCO',
+    label: t('pedido.item.numero_lpco'),
     tipo: 'texto',
     filtravel: true,
-    grupo: 'DUIMP / Fiscal',
-    tooltipTitulo: 'Número da LPCO',
-    tooltipDescricao: 'Licença, Permissão, Certificado ou Outros documentos exigidos para importação',
+    grupo: t('pedido.item_grupo.duimp_fiscal'),
+    tooltipTitulo: t('pedido.item.numero_lpco_tooltip'),
+    tooltipDescricao: t('pedido.item.numero_lpco_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.numero_lpco ?? '—'}</span>,
   },
   {
     key: 'numero_certificado_origem',
-    label: 'Número do Certificado de Origem',
+    label: t('pedido.item.numero_cert_origem'),
     tipo: 'texto',
     filtravel: true,
-    grupo: 'DUIMP / Fiscal',
-    tooltipTitulo: 'Número do Certificado de Origem',
-    tooltipDescricao: 'Número do certificado de origem emitido pelo exportador ou câmara de comércio',
+    grupo: t('pedido.item_grupo.duimp_fiscal'),
+    tooltipTitulo: t('pedido.item.numero_cert_origem_tooltip'),
+    tooltipDescricao: t('pedido.item.numero_cert_origem_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.numero_certificado_origem ?? '—'}</span>,
   },
   {
     key: 'data_certificado_origem',
-    label: 'Dt Cert. Origem',
+    label: t('pedido.item.data_cert_origem'),
     tipo: 'periodo',
-    grupo: 'DUIMP / Fiscal',
-    tooltipTitulo: 'Data do Certificado de Origem',
-    tooltipDescricao: 'Data de emissão do certificado de origem',
+    grupo: t('pedido.item_grupo.duimp_fiscal'),
+    tooltipTitulo: t('pedido.item.data_cert_origem_tooltip'),
+    tooltipDescricao: t('pedido.item.data_cert_origem_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.data_certificado_origem ? fmtData(row.data_certificado_origem) : '—'}</span>,
   },
   // ── Classificação ────────────────────────────────────────────────────────────
   {
     key: 'grupo_item',
-    label: 'Grupo do Item/Produto',
+    label: t('pedido.item.grupo_item'),
     tipo: 'texto',
     filtravel: true,
-    grupo: 'Identificação',
-    tooltipTitulo: 'Grupo do Produto',
-    tooltipDescricao: 'Grupo de classificação do produto conforme cadastro',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.grupo_item_tooltip'),
+    tooltipDescricao: t('pedido.item.grupo_item_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.grupo_item ?? '—'}</span>,
   },
   {
     key: 'subgrupo_item',
-    label: 'Subgrupo do Item/Produto',
+    label: t('pedido.item.subgrupo_item'),
     tipo: 'texto',
     filtravel: true,
-    grupo: 'Identificação',
-    tooltipTitulo: 'Subgrupo do Produto',
-    tooltipDescricao: 'Subgrupo de classificação do produto dentro do grupo principal',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.subgrupo_item_tooltip'),
+    tooltipDescricao: t('pedido.item.subgrupo_item_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.subgrupo_item ?? '—'}</span>,
   },
   {
     key: 'campo_especial_item',
-    label: 'Campo Especial do Item/Produto',
+    label: t('pedido.item.campo_especial'),
     tipo: 'texto',
-    grupo: 'Identificação',
-    tooltipTitulo: 'Campo Especial',
-    tooltipDescricao: 'Campo configurável para uso interno ou integrações específicas',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.campo_especial_tooltip'),
+    tooltipDescricao: t('pedido.item.campo_especial_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.campo_especial_item ?? '—'}</span>,
   },
   // ── Descrições multilíngues ──────────────────────────────────────────────────
   {
     key: 'descricao_completa_item_en',
-    label: 'Descrição Completa do Item/Produto- Inglês',
+    label: t('pedido.item.desc_completa_en'),
     tipo: 'texto',
-    grupo: 'Identificação',
-    tooltipTitulo: 'Product Description (English)',
-    tooltipDescricao: 'Descrição do produto em inglês, conforme invoice internacional',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.desc_completa_en_tooltip'),
+    tooltipDescricao: t('pedido.item.desc_completa_en_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_en ?? '—'}</span>,
   },
   {
     key: 'descricao_completa_item_es',
-    label: 'Descrição Completa do Item/Produto- Espanhol',
+    label: t('pedido.item.desc_completa_es'),
     tipo: 'texto',
-    grupo: 'Identificação',
-    tooltipTitulo: 'Descripción del Producto (Español)',
-    tooltipDescricao: 'Descrição do produto em espanhol',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.desc_completa_es_tooltip'),
+    tooltipDescricao: t('pedido.item.desc_completa_es_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.descricao_completa_item_es ?? '—'}</span>,
   },
   {
     key: 'texto_posicao_ncm',
-    label: 'Texto NCM',
+    label: t('pedido.item.texto_ncm'),
     tipo: 'texto',
-    grupo: 'Identificação',
-    tooltipTitulo: 'Texto da Posição da NCM',
-    tooltipDescricao: 'Descrição oficial da posição tarifária NCM conforme TEC',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.texto_ncm_tooltip'),
+    tooltipDescricao: t('pedido.item.texto_ncm_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.texto_posicao_ncm ?? '—'}</span>,
   },
   {
     key: 'atributos_catalogo',
-    label: 'Atributo do Produto - Catálogo',
+    label: t('pedido.item.atributos_catalogo'),
     tipo: 'texto',
-    grupo: 'Identificação',
-    tooltipTitulo: 'Atributos — Catálogo de Produtos',
-    tooltipDescricao: 'Atributos técnicos do produto conforme catálogo (cor, voltagem, etc.)',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.atributos_catalogo_tooltip'),
+    tooltipDescricao: t('pedido.item.atributos_catalogo_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.atributos_catalogo ?? '—'}</span>,
   },
   {
     key: 'anexo_lpco',
-    label: 'Anexo LPCO',
+    label: t('pedido.item.anexo_lpco'),
     tipo: 'texto',
-    grupo: 'DUIMP / Fiscal',
-    tooltipTitulo: 'Anexo da LPCO',
-    tooltipDescricao: 'Arquivo da Licença, Permissão, Certificado ou Outros (LPCO)',
+    grupo: t('pedido.item_grupo.duimp_fiscal'),
+    tooltipTitulo: t('pedido.item.anexo_lpco_tooltip'),
+    tooltipDescricao: t('pedido.item.anexo_lpco_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.anexo_lpco ? '📎' : '—'}</span>,
   },
   // ── Datas do item ────────────────────────────────────────────────────────────
   {
     key: 'data_transferencia_item',
-    label: 'Data de Transferência do Item',
+    label: t('pedido.item.data_transferencia'),
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    grupo: 'Identificação',
-    tooltipTitulo: 'Data de Transferência do Produto/Item',
-    tooltipDescricao: 'Data em que o item foi transferido para um processo logístico',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.data_transferencia_tooltip'),
+    tooltipDescricao: t('pedido.item.data_transferencia_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.data_transferencia_item ? fmtData(row.data_transferencia_item) : '—'}</span>,
   },
   {
     key: 'data_consolidacao_item',
-    label: 'Data de Consolidação do Item',
+    label: t('pedido.item.data_consolidacao'),
     tipo: 'periodo',
     filtravel: true,
     sortavel: true,
-    grupo: 'Identificação',
-    tooltipTitulo: 'Data de Consolidação do Produto/Item',
-    tooltipDescricao: 'Data em que o item foi consolidado em um processo',
+    grupo: t('pedido.item_grupo.identificacao'),
+    tooltipTitulo: t('pedido.item.data_consolidacao_tooltip'),
+    tooltipDescricao: t('pedido.item.data_consolidacao_desc'),
     render: (_val: unknown, row: PedidoItem) => <span>{row.data_consolidacao_item ? fmtData(row.data_consolidacao_item) : '—'}</span>,
   },
   // ── Datas LPCO ───────────────────────────────────────────────────────────────
@@ -1393,7 +1395,7 @@ export const COLUNAS_FILHO: GTColuna<PedidoItem>[] = [
     tooltipDescricao: 'Número da LPCO vinculada ao tratamento administrativo na DUIMP',
     render: (_val: unknown, row: PedidoItem) => <span>{row.numero_lpco_trat_adm_duimp ?? '—'}</span>,
   },
-]
+] }
 
 // ── Tipo auxiliar: item enriquecido com dados do pedido pai para renderização ──
 

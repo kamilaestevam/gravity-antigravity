@@ -7,6 +7,7 @@
  */
 
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Plus,
   CaretDown,
@@ -89,8 +90,9 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 }: BarraAcoesPedidoProps) {
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()
+  const { t } = useTranslation()
 
-  const MSG_MIXED_TIPOS = 'Selecione apenas pedidos de importação ou apenas de exportação para realizar esta ação.'
+  const MSG_MIXED_TIPOS = t('pedido.barra.msg_mixed_tipos')
 
   return (
     <>
@@ -102,7 +104,7 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           icone={<Plus size={14} weight="bold" />}
           onClick={() => { setNovoDropdownAberto(prev => !prev); setNovoSubmenu(null) }}
         >
-          Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
+          {t('pedido.barra.novo')} <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
         </BotaoGlobal>
 
         {novoDropdownAberto && (
@@ -129,7 +131,7 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(129,140,248,0.12)', flexShrink: 0 }}>
                     <Package size={13} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)' }} />
                   </span>
-                  Novo Pedido
+                  {t('pedido.barra.novo_pedido')}
                 </span>
                 <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
               </button>
@@ -142,10 +144,10 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
                 }}>
                   {([
-                    { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai dados do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'upload' as const, label: t('pedido.barra.importacao'), desc: t('pedido.barra.importacao_desc_pedido'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'api' as const, label: t('pedido.barra.api'), desc: t('pedido.barra.api_desc_pedido'), action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'sparkle' as const, label: t('pedido.barra.smart_read'), desc: t('pedido.barra.smart_read_desc_pedido'), badge: t('pedido.barra.em_breve'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'pencil' as const, label: t('pedido.barra.manual'), desc: t('pedido.barra.manual_desc_pedido'), action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
                   ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                     <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
                       <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
@@ -183,7 +185,7 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(52,211,153,0.12)', flexShrink: 0 }}>
                     <Tag size={13} weight="duotone" style={{ color: '#34d399' }} />
                   </span>
-                  Novo Item
+                  {t('pedido.barra.novo_item')}
                 </span>
                 <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
               </button>
@@ -196,10 +198,10 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
                 }}>
                   {([
-                    { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai itens do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'upload' as const, label: t('pedido.barra.importacao'), desc: t('pedido.barra.importacao_desc_item'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'api' as const, label: t('pedido.barra.api'), desc: t('pedido.barra.api_desc_item'), action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'sparkle' as const, label: t('pedido.barra.smart_read'), desc: t('pedido.barra.smart_read_desc_item'), badge: t('pedido.barra.em_breve'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'pencil' as const, label: t('pedido.barra.manual'), desc: t('pedido.barra.manual_desc_item'), action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
                   ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                     <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
                       <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
@@ -227,7 +229,7 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                 <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(99,102,241,0.12)', flexShrink: 0 }}>
                   <Columns size={13} weight="duotone" style={{ color: '#818cf8' }} />
                 </span>
-                Nova Coluna
+                {t('pedido.barra.nova_coluna')}
               </span>
               <ArrowRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             </button>
@@ -242,11 +244,11 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
         {/* Transferir */}
         <TooltipGlobal
           titulo={
-            pedidosSelecionados.length > 0 ? `Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` :
-            itensSelecionados.length > 0   ? `Transferir · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 's' : ''}` :
-            'Transferir'
+            pedidosSelecionados.length > 0 ? `${t('pedido.barra.transferir')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` :
+            itensSelecionados.length > 0   ? `${t('pedido.barra.transferir')} · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 's' : ''}` :
+            t('pedido.barra.transferir')
           }
-          descricao="Transfere saldo dos pedidos selecionados para um processo logístico"
+          descricao={t('pedido.barra.transferir_desc')}
         >
           <BotaoGlobal
             variante="secundario"
@@ -255,9 +257,9 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
             onClick={() => { setModalTransferirAberto(true) }}
           >
-            {pedidosSelecionados.length > 0 ? `Transferir (${pedidosSelecionados.length})` :
-             itensSelecionados.length > 0   ? `Transferir (${itensSelecionados.length})` :
-             'Transferir'}
+            {pedidosSelecionados.length > 0 ? `${t('pedido.barra.transferir')} (${pedidosSelecionados.length})` :
+             itensSelecionados.length > 0   ? `${t('pedido.barra.transferir')} (${itensSelecionados.length})` :
+             t('pedido.barra.transferir')}
           </BotaoGlobal>
         </TooltipGlobal>
 
@@ -265,17 +267,17 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
         <TooltipGlobal
           titulo={
             hasMixedTipos
-              ? 'Consolidar — tipos incompatíveis'
+              ? t('pedido.barra.tipos_incompativeis')
               : pedidosSelecionados.length >= 2
-                ? `Consolidar · ${pedidosSelecionados.length} pedidos`
-                : 'Consolidar'
+                ? `${t('pedido.barra.consolidar')} · ${pedidosSelecionados.length} pedidos`
+                : t('pedido.barra.consolidar')
           }
           descricao={
             hasMixedTipos
               ? MSG_MIXED_TIPOS
               : pedidosSelecionados.length < 2
-                ? 'Selecione ao menos 2 pedidos para consolidar'
-                : 'Agrupa os pedidos selecionados em um único processo logístico'
+                ? t('pedido.barra.consolidar_min')
+                : t('pedido.barra.consolidar_desc')
           }
         >
           <BotaoGlobal
@@ -295,8 +297,8 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Editar em Massa */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Editar em Massa · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Editar em Massa'}
-          descricao="Edita campos comuns nos pedidos selecionados"
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.editar_massa')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.editar_massa')}
+          descricao={t('pedido.barra.editar_massa_desc')}
         >
           <BotaoGlobal
             variante="secundario"
@@ -309,8 +311,8 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Gerar Documento */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Gerar Documento · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Gerar Documento'}
-          descricao="Gera PDF a partir de um template ou documento padrão"
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.gerar_documento')}
+          descricao={t('pedido.barra.gerar_documento_desc')}
         >
           <BotaoGlobal
             variante="secundario"
@@ -323,14 +325,14 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Duplicar */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Duplicar'}
-          descricao="Cria cópias dos pedidos selecionados"
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.duplicar')}
+          descricao={t('pedido.barra.duplicar_desc')}
         >
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
             icone={<CopySimple size={14} weight="duotone" />}
-            aria-label="Duplicar"
+            aria-label={t('pedido.barra.duplicar')}
             disabled={pedidosSelecionados.length === 0}
             onClick={() => setModalDuplicarAberto(true)}
           />
@@ -338,8 +340,8 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Excluir */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Excluir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Excluir'}
-          descricao="Exclui permanentemente os pedidos selecionados"
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.excluir')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.excluir')}
+          descricao={t('pedido.barra.excluir_desc')}
         >
           <BotaoGlobal
             variante="perigo"
@@ -356,7 +358,7 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
       {Object.keys(filtrosAtivos).length > 0 && (
         <div
           role="status"
-          aria-label="Filtros ativos"
+          aria-label={t('pedido.barra.filtros_ativos', { defaultValue: 'Filtros ativos' })}
           style={{ flex: '0 0 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem', paddingTop: '0.375rem' }}
         >
           {colunasVisiveis.filter(col => filtrosAtivos[col.key] != null).map(col => {
@@ -368,7 +370,7 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                 <button
                   className="lp-filtro-chip-remove"
                   onClick={() => handleLimparFiltro(col.key)}
-                  aria-label={`Remover filtro ${col.label}`}
+                  aria-label={t('pedido.barra.remover_filtro', { label: col.label })}
                 >
                   <X size={10} weight="bold" />
                 </button>
@@ -376,7 +378,7 @@ export const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             )
           })}
           <button className="lp-filtros-limpar-tudo" onClick={handleLimparTodosFiltros}>
-            Limpar tudo
+            {t('pedido.barra.limpar_tudo')}
           </button>
         </div>
       )}

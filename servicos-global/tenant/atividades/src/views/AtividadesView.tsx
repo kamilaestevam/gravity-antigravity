@@ -16,10 +16,10 @@ import '../atividades.css'
 // ─── Constantes (espelham o Journey) ─────────────────────────────────────────
 
 const KANBAN_COLS = [
-  { key: 'A Fazer',      label: 'A Fazer',      color: '#6366f1', icon: '▷' },
-  { key: 'Em Andamento', label: 'Em Andamento', color: '#f59e0b', icon: '↻' },
-  { key: 'Concluída',    label: 'Concluída',    color: '#10b981', icon: '✓' },
-  { key: 'Cancelada',    label: 'Cancelada',    color: '#64748b', icon: '✕' },
+  { key: 'A Fazer',      labelKey: 'atividades.kanban_col.a_fazer',      color: '#6366f1', icon: '▷' },
+  { key: 'Em Andamento', labelKey: 'atividades.kanban_col.em_andamento', color: '#f59e0b', icon: '↻' },
+  { key: 'Concluída',    labelKey: 'atividades.kanban_col.concluida',    color: '#10b981', icon: '✓' },
+  { key: 'Cancelada',    labelKey: 'atividades.kanban_col.cancelada',    color: '#64748b', icon: '✕' },
 ] as const
 
 type KanbanStatus = typeof KANBAN_COLS[number]['key']
@@ -38,9 +38,17 @@ const TYPE_CONFIG: Record<string, { color: string }> = {
   'Outros':          { color: '#64748b' },
 }
 
-const TIPOS   = ['Comentário','Reunião','Chamados HD','Chamados CS','Ação necessária','Tarefa','Outros'] as const
+const TIPOS = [
+  { value: 'Comentário',      labelKey: 'atividades.tipo.comentario' },
+  { value: 'Reunião',         labelKey: 'atividades.tipo.reuniao' },
+  { value: 'Chamados HD',     labelKey: 'atividades.tipo.chamados_hd' },
+  { value: 'Chamados CS',     labelKey: 'atividades.tipo.chamados_cs' },
+  { value: 'Ação necessária', labelKey: 'atividades.tipo.acao_necessaria' },
+  { value: 'Tarefa',          labelKey: 'atividades.tipo.tarefa' },
+  { value: 'Outros',          labelKey: 'atividades.tipo.outros' },
+] as const
 const PRIOS   = ['baixa','média','alta','urgente'] as const
-const PRIO_LABEL: Record<string, string> = { baixa:'Baixa', 'média':'Média', alta:'Alta', urgente:'Urgente' }
+const PRIO_LABEL_KEY: Record<string, string> = { baixa: 'atividades.prio.baixa', 'média': 'atividades.prio.media', alta: 'atividades.prio.alta', urgente: 'atividades.prio.urgente' }
 const STATUS_COLORS: Record<string, string> = {
   'A Fazer':'#818cf8','Em Andamento':'#f59e0b','Concluída':'#10b981','Cancelada':'#64748b',
 }
@@ -268,7 +276,7 @@ export default function AtividadesView(): React.ReactElement {
             <div className="ativ-search-wrap">
               <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>🔍</span>
               <input
-                placeholder="Buscar..."
+                placeholder={t('atividades.buscar')}
                 value={filters.search}
                 onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
               />
@@ -281,7 +289,7 @@ export default function AtividadesView(): React.ReactElement {
               onChange={e => setFilters(f => ({ ...f, status: e.target.value }))}
             >
               <option value="">{t('atividades.status')}</option>
-              {KANBAN_COLS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
+              {KANBAN_COLS.map(c => <option key={c.key} value={c.key}>{t(c.labelKey)}</option>)}
             </select>
 
             {/* Prazo */}
@@ -304,7 +312,7 @@ export default function AtividadesView(): React.ReactElement {
               onChange={e => setFilters(f => ({ ...f, prioridade: e.target.value }))}
             >
               <option value="">{t('atividades.prioridade')}</option>
-              {PRIOS.map(p => <option key={p} value={p}>{PRIO_LABEL[p]}</option>)}
+              {PRIOS.map(p => <option key={p} value={p}>{t(PRIO_LABEL_KEY[p])}</option>)}
             </select>
 
             {/* Datas */}
@@ -315,7 +323,7 @@ export default function AtividadesView(): React.ReactElement {
                 onChange={e => setFilters(f => ({ ...f, dateFrom: e.target.value }))}
                 title={t('atividades.data_inicial')}
               />
-              <span>até</span>
+              <span>{t('atividades.ate')}</span>
               <input
                 type="date"
                 value={filters.dateTo}
@@ -437,7 +445,7 @@ function KanbanBoard({ atividades, onOpen, onStatusChange }: KanbanBoardProps) {
             <div className="ativ-kanban-col__header">
               <div className="ativ-kanban-col__title" style={{ color: col.color }}>
                 <span>{col.icon}</span>
-                <span style={{ color: 'var(--text-primary)' }}>{col.label}</span>
+                <span style={{ color: 'var(--text-primary)' }}>{t(col.labelKey)}</span>
               </div>
               <span
                 className="ativ-kanban-col__badge"
@@ -512,7 +520,7 @@ function KanbanCard({ atividade: a, onOpen, onDragStart, onDragEnd, isDragging }
           className="ativ-card__priority"
           style={{ background: pc + '20', color: pc, border: `1px solid ${pc}44` }}
         >
-          {PRIO_LABEL[a.prioridade!]}
+          {t(PRIO_LABEL_KEY[a.prioridade!])}
         </span>
       )}
       <div className="ativ-card__company">
@@ -600,7 +608,7 @@ function ListaView({ atividades, page, pageSize, onPage, onOpen, onDelete }: Lis
                 <td>
                   {pc && (
                     <span className="ativ-badge" style={{ background: pc + '20', color: pc, borderColor: pc + '44' }}>
-                      {PRIO_LABEL[a.prioridade!]}
+                      {t(PRIO_LABEL_KEY[a.prioridade!])}
                     </span>
                   )}
                 </td>
@@ -858,7 +866,7 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
               </span>
               {atividade!.prioridade && (
                 <span className="ativ-badge" style={{ background: PRIORITY_COLORS[atividade!.prioridade] + '20', color: PRIORITY_COLORS[atividade!.prioridade], borderColor: PRIORITY_COLORS[atividade!.prioridade] + '44' }}>
-                  {PRIO_LABEL[atividade!.prioridade]}
+                  {t(PRIO_LABEL_KEY[atividade!.prioridade])}
                 </span>
               )}
             </div>
@@ -892,13 +900,13 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
                 <div className="ativ-field">
                   <label>{t('atividades.modal.tipo_atividade')}</label>
                   <select value={tipo} onChange={e => setTipo(e.target.value)}>
-                    {TIPOS.map(tp => <option key={tp} value={tp}>{tp}</option>)}
+                    {TIPOS.map(tp => <option key={tp.value} value={tp.value}>{t(tp.labelKey)}</option>)}
                   </select>
                 </div>
                 <div className="ativ-field">
                   <label>{t('atividades.modal.fase_atividade')}</label>
                   <select value={status} onChange={e => setStatus(e.target.value as KanbanStatus)}>
-                    {KANBAN_COLS.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
+                    {KANBAN_COLS.map(c => <option key={c.key} value={c.key}>{t(c.labelKey)}</option>)}
                   </select>
                 </div>
               </div>
@@ -907,7 +915,7 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
                   <label>{t('atividades.modal.prioridade')}</label>
                   <select value={prioridade} onChange={e => setPrioridade(e.target.value)}>
                     <option value="">{t('atividades.modal.sem_prioridade')}</option>
-                    {PRIOS.map(p => <option key={p} value={p}>{PRIO_LABEL[p]}</option>)}
+                    {PRIOS.map(p => <option key={p} value={p}>{t(PRIO_LABEL_KEY[p])}</option>)}
                   </select>
                 </div>
                 <div className="ativ-field">
@@ -1137,11 +1145,11 @@ function AtividadeModal({ atividade, onClose, onSave, onDelete, onSaveTimer }: A
             <div className="ativ-modal-actions__right">
               <StatusSalvarGlobal
                 status={isDirty && saveStatus === 'idle' ? 'dirty' : saveStatus}
-                textIdle="Sem alterações"
-                textDirty="Alterações não salvas"
+                textIdle={t('atividades.status_salvar.idle')}
+                textDirty={t('atividades.status_salvar.dirty')}
                 textSaving={t('atividades.modal.salvando')}
-                textSuccess="Salvo com sucesso"
-                textError="Erro ao salvar"
+                textSuccess={t('atividades.status_salvar.success')}
+                textError={t('atividades.status_salvar.error')}
                 hideOnIdle={false}
                 autoResetMs={0}
               />

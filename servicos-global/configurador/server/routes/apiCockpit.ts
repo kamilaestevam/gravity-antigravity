@@ -13,6 +13,7 @@
  *   GET /api/admin/api-cockpit/services  — Health check (todos)
  *   GET /api/admin/api-cockpit/logs      — Logs (todos os tenants)
  *   GET /api/admin/api-cockpit/stats     — KPIs (globais)
+ *   GET /api/admin/api-cockpit/gabi-usage — Custos GABI IA agregados (todos os tenants)
  */
 
 import { Router } from 'express'
@@ -21,6 +22,7 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { rateLimitPresets } from '../middleware/rateLimiter.js'
 
 const API_COCKPIT_URL = process.env.API_COCKPIT_SERVICE_URL || 'http://localhost:8016'
+const GABI_SERVICE_URL = process.env.GABI_SERVICE_URL || 'http://localhost:3001'
 const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || ''
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
@@ -133,5 +135,73 @@ apiCockpitAdminRouter.get('/stats', async (_req, res) => {
     res.json(data)
   } catch {
     res.json({ requisicoes_24h: 0, erros_24h: 0, latencia_media_ms: 0, uptime_24h: '100.0%' })
+  }
+})
+
+// ─── GABI Usage — custos de IA agregados (admin global) ─────────────────
+
+/**
+ * GET /api/admin/api-cockpit/gabi-usage
+ * Proxy para GET /api/v1/gabi/usage do serviço Gabi (tenant super-server).
+ * Quando tenant_id não é informado, retorna uso global (sem filtro).
+ */
+apiCockpitAdminRouter.get('/gabi-usage', async (req, res) => {
+  try {
+    const month = (req.query.month as string) || ''
+    const tenantId = (req.query.tenant_id as string) || ''
+    const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/usage`)
+    if (month) url.searchParams.set('month', month)
+    if (tenantId) url.searchParams.set('tenant_id', tenantId)
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-tenant-id': tenantId || '__admin_global__',
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(5_000),
+    })
+
+    if (!response.ok) throw new Error(`gabi usage ${response.status}`)
+    const data = await response.json()
+    res.json(data)
+  } catch (err) {
+    res.json({
+      month: '',
+      total_calls: 0,
+      total_tokens_input: 0,
+      total_tokens_output: 0,
+      total_cost_usd: 0,
+      by_model: {},
+      by_day: {},
+      error: maskError(err),
+    })
+  }
+})
+
+/**
+ * GET /api/admin/api-cockpit/gabi-usage/history
+ * Proxy para GET /api/v1/gabi/usage/history — últimos 6 meses.
+ */
+apiCockpitAdminRouter.get('/gabi-usage/history', async (req, res) => {
+  try {
+    const tenantId = (req.query.tenant_id as string) || ''
+    const url = new URL(`${GABI_SERVICE_URL}/api/v1/gabi/usage/history`)
+    if (tenantId) url.searchParams.set('tenant_id', tenantId)
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'x-internal-key': INTERNAL_SERVICE_KEY,
+        'x-tenant-id': tenantId || '__admin_global__',
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(5_000),
+    })
+
+    if (!response.ok) throw new Error(`gabi history ${response.status}`)
+    const data = await response.json()
+    res.json(data)
+  } catch (err) {
+    res.json({ history: {}, error: maskError(err) })
   }
 })

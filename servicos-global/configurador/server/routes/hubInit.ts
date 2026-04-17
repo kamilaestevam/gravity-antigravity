@@ -1,12 +1,14 @@
 // server/routes/hubInit.ts
 // Endpoint agregado para a tela Hub (SelecionarWorkspace)
 // GET /api/v1/hub/init — retorna companies + tenant + produtos + catálogo em 1 chamada
+// GET /api/v1/hub/insights — retorna insights cross-produto da GABI para o carrossel do Hub
 // Elimina 4 round-trips (cada um com verifyToken + DB lookup) → 1 único
 
 import { Router } from 'express'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { tenantService } from '../services/tenantService.js'
 import { prisma } from '../lib/prisma.js'
+import { generateHubInsights, normalizeHubRole } from '../services/hubInsightsService.js'
 
 export const hubRouter = Router()
 
@@ -103,5 +105,52 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     })
   } catch (err) {
     next(err)
+  }
+})
+
+/**
+ * GET /api/v1/hub/insights
+ * Insights cross-produto da GABI para o carrossel do Hub.
+ * Busca KPIs de cada produto ativo via inter-service REST (Promise.allSettled).
+ * Ranqueia por role-weights. Cache in-memory por tenant+user (TTL 5min).
+ * Resiliente: se nenhum produto responde, retorna fallback estático.
+ */
+hubRouter.get('/insights', requireAuth, async (req, res) => {
+  try {
+    const tenantId = req.auth.tenantId
+    const userId = req.auth.userId
+    const role = normalizeHubRole(req.auth.role)
+
+    // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
+    const configs = await prisma.productConfig.findMany({
+      where: { tenant_id: tenantId, is_active: true },
+      select: { product_key: true },
+    })
+
+    const activeProductKeys = new Set(configs.map(c => c.product_key))
+
+    const insights = await generateHubInsights(
+      tenantId,
+      userId,
+      role,
+      activeProductKeys,
+    )
+
+    res.json({ insights, count: insights.length, cached: false })
+  } catch {
+    // Resilient — always return something usable
+    res.json({
+      insights: [
+        {
+          id: 'hub_error_fallback',
+          variante: 'default',
+          tag: 'GABI AI · Pronta',
+          texto: 'Sua assistente está monitorando seus produtos. Insights serão atualizados em breve.',
+          score: 0,
+        },
+      ],
+      count: 1,
+      cached: false,
+    })
   }
 })

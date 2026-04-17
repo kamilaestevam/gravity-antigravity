@@ -4,6 +4,16 @@
  * Skill: antigravity-criar-produto (Passo 12 — 11 middlewares na ordem correta)
  */
 
+import dotenv from 'dotenv'
+import { fileURLToPath } from 'node:url'
+import { dirname, resolve } from 'node:path'
+
+const __dir = dirname(fileURLToPath(import.meta.url))
+// Chaves globais (GEMINI_API_KEY, INTERNAL_SERVICE_KEY) vêm do .env.local da raiz
+dotenv.config({ path: resolve(__dir, '../../../../.env.local') })
+// Chaves específicas do serviço vêm do .env local
+dotenv.config({ path: resolve(__dir, '../../../.env') })
+
 import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'

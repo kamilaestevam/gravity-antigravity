@@ -59,72 +59,72 @@ interface ProdVisual {
   description: string
 }
 
-const PROD_VISUAL: Record<string, ProdVisual> = {
+const getProdVisual = (t: (key: string) => string): Record<string, ProdVisual> => ({
   'simula-custo': {
     color: '#818cf8',
     dim: 'rgba(129,140,248,0.12)',
     icon: <Calculator weight="duotone" size={22} />,
-    description: 'Simulação fiscal de importação com cálculo de II, IPI, ICMS, PIS/COFINS.',
+    description: t('hub.produto_visual_simula_custo'),
   },
   'nf-importacao': {
     color: '#f59e0b',
     dim: 'rgba(245,158,11,0.12)',
     icon: <FileText weight="duotone" size={22} />,
-    description: 'Geração e gestão de notas fiscais de importação com validação SEFAZ.',
+    description: t('hub.produto_visual_nf_importacao'),
   },
   'processo': {
     color: '#14b8a6',
     dim: 'rgba(20,184,166,0.12)',
     icon: <ArrowsClockwise weight="duotone" size={22} />,
-    description: 'Visão consolidada de todos os processos de importação em andamento.',
+    description: t('hub.produto_visual_processo'),
   },
   'bid-frete': {
     color: '#ec4899',
     dim: 'rgba(236,72,153,0.12)',
     icon: <Truck weight="duotone" size={22} />,
-    description: 'Cotação competitiva de frete internacional com múltiplos armadores.',
+    description: t('hub.produto_visual_bid_frete'),
   },
   'bid-cambio': {
     color: '#38bdf8',
     dim: 'rgba(56,189,248,0.12)',
     icon: <CurrencyDollar weight="duotone" size={22} />,
-    description: 'Comparativo de taxas de câmbio entre corretoras em tempo real.',
+    description: t('hub.produto_visual_bid_cambio'),
   },
   'lpco': {
     color: '#a78bfa',
     dim: 'rgba(167,139,250,0.12)',
     icon: <ClipboardText weight="duotone" size={22} />,
-    description: 'Gestão de licenças, permissões, certificados e documentos LPCO.',
+    description: t('hub.produto_visual_lpco'),
   },
-}
+})
 
-const DEFAULT_VISUAL: ProdVisual = {
+const getDefaultVisual = (t: (key: string) => string): ProdVisual => ({
   color: '#6366f1',
   dim: 'rgba(99,102,241,0.12)',
   icon: <Package weight="duotone" size={22} />,
-  description: 'Módulo Gravity.',
-}
+  description: t('hub.produto_visual_default'),
+})
 
 // ── Dados mock para KPIs e atividade (substituir por API futuramente) ───────
-const MOCK_ACTIVITY = [
-  { id: 'a1', color: '#818cf8', text: <><strong>IMP-2026/0150</strong> avançou para Embarque</>,          time: 'há 23 min' },
-  { id: 'a2', color: '#34d399', text: <><strong>EST-0412</strong> estimativa calculada com sucesso</>,    time: 'há 1 hora' },
-  { id: 'a3', color: '#fbbf24', text: <><strong>NF 000.234</strong> aguarda aprovação SEFAZ</>,           time: 'há 2 horas' },
-  { id: 'a4', color: '#818cf8', text: <><strong>BL_MSKU1234567.pdf</strong> documento enviado</>,         time: 'há 3 horas' },
-  { id: 'a5', color: '#f472b6', text: <><strong>Maria S.</strong> adicionada ao workspace</>,             time: 'ontem, 17:42' },
-  { id: 'a6', color: '#34d399', text: <><strong>IMP-2026/0148</strong> concluído — Entrega realizada</>,  time: 'ontem, 14:10' },
+const getMockActivity = (t: (key: string, fallback?: string) => string) => [
+  { id: 'a1', color: '#818cf8', text: <><strong>IMP-2026/0150</strong> {t('hub.mock_avancou_embarque', 'avançou para Embarque')}</>,          time: t('hub.mock_ha_23_min', 'há 23 min') },
+  { id: 'a2', color: '#34d399', text: <><strong>EST-0412</strong> {t('hub.mock_estimativa_sucesso', 'estimativa calculada com sucesso')}</>,    time: t('hub.mock_ha_1_hora', 'há 1 hora') },
+  { id: 'a3', color: '#fbbf24', text: <><strong>NF 000.234</strong> {t('hub.mock_aguarda_sefaz', 'aguarda aprovação SEFAZ')}</>,           time: t('hub.mock_ha_2_horas', 'há 2 horas') },
+  { id: 'a4', color: '#818cf8', text: <><strong>BL_MSKU1234567.pdf</strong> {t('hub.mock_documento_enviado', 'documento enviado')}</>,         time: t('hub.mock_ha_3_horas', 'há 3 horas') },
+  { id: 'a5', color: '#f472b6', text: <><strong>Maria S.</strong> {t('hub.mock_adicionada_workspace', 'adicionada ao workspace')}</>,             time: t('hub.mock_ontem_1742', 'ontem, 17:42') },
+  { id: 'a6', color: '#34d399', text: <><strong>IMP-2026/0148</strong> {t('hub.mock_concluido_entrega', 'concluído — Entrega realizada')}</>,  time: t('hub.mock_ontem_1410', 'ontem, 14:10') },
 ]
 
-const MOCK_PROCESSES = [
-  { id: 'p1', num: 'IMP-2026/0150', name: 'Acme Importações · Shanghai Electronics', sub: 'US$ 108.050 · 18.771 kg · CIF · Marítima', badge: 'Embarque',    badgeCls: 'hb-proc-badge--em-andamento', etapas: [1,1,1,2,0,0] },
-  { id: 'p2', num: 'IMP-2026/0149', name: 'Acme Importações · Korea Tech Ltd.',       sub: 'US$ 54.200 · 8.400 kg · FOB · Aérea',     badge: 'Desembaraço', badgeCls: 'hb-proc-badge--desembaraco',  etapas: [1,1,1,1,2,0] },
-  { id: 'p3', num: 'IMP-2026/0148', name: 'Acme Importações · Vietnam Goods SA',      sub: 'US$ 32.900 · 5.100 kg · EXW · Marítima',  badge: 'Entregue ✓',  badgeCls: 'hb-proc-badge--concluido',   etapas: [1,1,1,1,1,1] },
+const getMockProcesses = (t: (key: string, fallback?: string) => string) => [
+  { id: 'p1', num: 'IMP-2026/0150', name: 'Acme Importações · Shanghai Electronics', sub: 'US$ 108.050 · 18.771 kg · CIF · Marítima', badge: t('hub.mock_badge_embarque', 'Embarque'),       badgeCls: 'hb-proc-badge--em-andamento', etapas: [1,1,1,2,0,0] },
+  { id: 'p2', num: 'IMP-2026/0149', name: 'Acme Importações · Korea Tech Ltd.',       sub: 'US$ 54.200 · 8.400 kg · FOB · Aérea',     badge: t('hub.mock_badge_desembaraco', 'Desembaraço'), badgeCls: 'hb-proc-badge--desembaraco',  etapas: [1,1,1,1,2,0] },
+  { id: 'p3', num: 'IMP-2026/0148', name: 'Acme Importações · Vietnam Goods SA',      sub: 'US$ 32.900 · 5.100 kg · EXW · Marítima',  badge: t('hub.mock_badge_entregue', 'Entregue ✓'),    badgeCls: 'hb-proc-badge--concluido',   etapas: [1,1,1,1,1,1] },
 ]
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-function getGreeting(name: string): string {
+function getGreeting(name: string, t: (key: string) => string): string {
   const h = new Date().getHours()
-  const saudacao = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'
+  const saudacao = h < 12 ? t('hub.bom_dia') : h < 18 ? t('hub.boa_tarde') : t('hub.boa_noite')
   return `${saudacao}, ${name}`
 }
 
@@ -135,6 +135,8 @@ function formatDate(): string {
 // ── Componente ─────────────────────────────────────────────────────────────
 export function Hub() {
   const { t } = useTranslation()
+  const prodVisual = getProdVisual(t)
+  const defaultVisual = getDefaultVisual(t)
   const addNotification = useShellStore((s) => s.addNotification)
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
   const allowedProducts = useShellStore((s) => s.allowedProducts) ?? []
@@ -159,13 +161,13 @@ export function Hub() {
   const userInitials  = userName.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
   const isLight       = currentTheme === 'light'
   const ROLE_LABELS: Record<string, string> = {
-    SUPER_ADMIN: 'Super Admin',
-    ADMIN:       'Admin',
-    MASTER:      'Master',
-    STANDARD:    'Standard',
-    SUPPLIER:    'Fornecedor',
+    SUPER_ADMIN: t('hub.role_super_admin', 'Super Admin'),
+    ADMIN:       t('hub.role_admin', 'Admin'),
+    MASTER:      t('hub.role_master', 'Master'),
+    STANDARD:    t('hub.role_standard', 'Standard'),
+    SUPPLIER:    t('hub.role_fornecedor', 'Fornecedor'),
   }
-  const userRole = ROLE_LABELS[dbRole ?? ''] ?? 'Standard'
+  const userRole = ROLE_LABELS[dbRole ?? ''] ?? t('hub.role_standard', 'Standard')
 
   // Carrega produtos ativos do workspace
   useEffect(() => {
@@ -230,7 +232,7 @@ export function Hub() {
   const { history, addEntry } = useLocalizadorHistory('hub')
 
   const produtoNodes: EcosystemNode[] = products.map(p => {
-    const v = PROD_VISUAL[p.product_key] ?? DEFAULT_VISUAL
+    const v = prodVisual[p.product_key] ?? defaultVisual
     return {
       id:       p.product_key,
       label:    p.catalog?.name ?? p.product_key,
@@ -265,7 +267,7 @@ export function Hub() {
           <button
             className="hb-topbar-navlink"
             type="button"
-            title="Hub — Selecionar Workspace"
+            title={t('hub.titulo_selecionar_workspace', 'Hub — Selecionar Workspace')}
             onClick={() => navigate('/hub')}
           >
             <LogoHub size={13} color="#818cf8" />
@@ -354,7 +356,7 @@ export function Hub() {
         {/* Hero */}
         <div className="hb-hero hb-d1">
           <div>
-            <h1>{getGreeting(userName).split(',')[0]}, <span>{userName}</span> 👋</h1>
+            <h1>{getGreeting(userName, t).split(',')[0]}, <span>{userName}</span> 👋</h1>
             <p className="hb-hero-sub">
               {companyName}&nbsp;·&nbsp;{t('hub.workspace_principal')}&nbsp;·&nbsp;{activeCount} {t('hub.modulos_ativos')}
             </p>
@@ -373,7 +375,7 @@ export function Hub() {
           <div className="hb-kpi" style={{ '--hb-kpi-color': '#818cf8', '--hb-kpi-dim': 'rgba(129,140,248,0.12)' } as React.CSSProperties}>
             <div className="hb-kpi-top">
               <div className="hb-kpi-icon"><Package weight="duotone" size={18} /></div>
-              <span className="hb-kpi-delta hb-kpi-delta--up">▲ 2 hoje</span>
+              <span className="hb-kpi-delta hb-kpi-delta--up">▲ {t('hub.kpi_delta_2_hoje', '2 hoje')}</span>
             </div>
             <div>
               <div className="hb-kpi-value">7</div>
@@ -384,7 +386,7 @@ export function Hub() {
           <div className="hb-kpi" style={{ '--hb-kpi-color': '#14b8a6', '--hb-kpi-dim': 'rgba(20,184,166,0.12)' } as React.CSSProperties}>
             <div className="hb-kpi-top">
               <div className="hb-kpi-icon"><Calculator weight="duotone" size={18} /></div>
-              <span className="hb-kpi-delta hb-kpi-delta--up">▲ 12 este mês</span>
+              <span className="hb-kpi-delta hb-kpi-delta--up">▲ {t('hub.kpi_delta_12_mes', '12 este mês')}</span>
             </div>
             <div>
               <div className="hb-kpi-value">34</div>
@@ -395,7 +397,7 @@ export function Hub() {
           <div className="hb-kpi" style={{ '--hb-kpi-color': '#f59e0b', '--hb-kpi-dim': 'rgba(245,158,11,0.12)' } as React.CSSProperties}>
             <div className="hb-kpi-top">
               <div className="hb-kpi-icon"><FileText weight="duotone" size={18} /></div>
-              <span className="hb-kpi-delta hb-kpi-delta--warn">⚠ 3 pendentes</span>
+              <span className="hb-kpi-delta hb-kpi-delta--warn">⚠ {t('hub.kpi_delta_3_pendentes', '3 pendentes')}</span>
             </div>
             <div>
               <div className="hb-kpi-value">12</div>
@@ -406,7 +408,7 @@ export function Hub() {
           <div className="hb-kpi" style={{ '--hb-kpi-color': '#ec4899', '--hb-kpi-dim': 'rgba(236,72,153,0.12)' } as React.CSSProperties}>
             <div className="hb-kpi-top">
               <div className="hb-kpi-icon"><Sparkle weight="duotone" size={18} /></div>
-              <span className="hb-kpi-delta hb-kpi-delta--up">▲ ativo</span>
+              <span className="hb-kpi-delta hb-kpi-delta--up">▲ {t('hub.kpi_delta_ativo', 'ativo')}</span>
             </div>
             <div>
               <div className="hb-kpi-value">91%</div>
@@ -446,7 +448,7 @@ export function Hub() {
               <div className="hb-products-grid">
                 {products.map((p) => {
                   const slug = p.catalog?.slug ?? p.product_key
-                  const v = PROD_VISUAL[slug] ?? DEFAULT_VISUAL
+                  const v = prodVisual[slug] ?? defaultVisual
                   return (
                     <div
                       key={p.product_key}
@@ -483,7 +485,7 @@ export function Hub() {
                 <span className="hb-activity-title">{t('hub.ultimas_atualizacoes', 'Últimas atualizações')}</span>
                 <button className="hb-section-link" type="button">{t('hub.ver_tudo', 'ver tudo')} →</button>
               </div>
-              {MOCK_ACTIVITY.map(a => (
+              {getMockActivity(t).map(a => (
                 <div key={a.id} className="hb-activity-item">
                   <div className="hb-act-dot" style={{ background: a.color }} />
                   <div>
@@ -507,7 +509,7 @@ export function Hub() {
             </button>
           </div>
           <div className="hb-proc-list">
-            {MOCK_PROCESSES.map(p => (
+            {getMockProcesses(t).map(p => (
               <div key={p.id} className="hb-proc-item" onClick={() => navigate('/produto/processo')}>
                 <div className="hb-proc-num">{p.num}</div>
                 <div className="hb-proc-info">

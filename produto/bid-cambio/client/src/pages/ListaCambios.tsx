@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FileText,
   Search,
@@ -83,19 +84,19 @@ interface ColumnDef {
   render: (item: CotacaoCambio) => React.ReactNode
 }
 
-function buildColumns(): ColumnDef[] {
+function buildColumns(t: (key: string) => string): ColumnDef[] {
   return [
-    { key: 'numero', label: 'DATI', visible: true, width: 120,
+    { key: 'numero', label: t('bidcambio.coluna.dati'), visible: true, width: 120,
       render: (c) => (
         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8125rem', color: 'var(--accent, #6366f1)', cursor: 'pointer', textDecoration: 'underline' }}>
           {c.numero}
         </span>
       ),
     },
-    { key: 'referencia_interna', label: 'Referencia', visible: true, width: 120,
+    { key: 'referencia_interna', label: t('bidcambio.coluna.referencia'), visible: true, width: 120,
       render: (c) => <span>{c.referencia_interna ?? '—'}</span>,
     },
-    { key: 'moeda', label: 'Moeda', visible: true, width: 80,
+    { key: 'moeda', label: t('bidcambio.coluna.moeda'), visible: true, width: 80,
       render: (c) => (
         <span style={{
           fontSize: '0.6875rem', fontWeight: 700,
@@ -107,22 +108,22 @@ function buildColumns(): ColumnDef[] {
         </span>
       ),
     },
-    { key: 'valor_moeda_estrangeira', label: 'Valor ME', visible: true, width: 130,
+    { key: 'valor_moeda_estrangeira', label: t('bidcambio.coluna.valor_me'), visible: true, width: 130,
       render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block' }}>{fmtMoney(c.valor_moeda_estrangeira)}</span>,
     },
-    { key: 'valor_brl_estimado', label: 'Valor BRL (est.)', visible: true, width: 140,
+    { key: 'valor_brl_estimado', label: t('bidcambio.coluna.valor_brl_est'), visible: true, width: 140,
       render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block' }}>{fmtMoney(c.valor_brl_estimado)}</span>,
     },
-    { key: 'valor_aprovado_brl', label: 'Valor Aprovado BRL', visible: true, width: 150,
+    { key: 'valor_aprovado_brl', label: t('bidcambio.coluna.valor_aprovado_brl'), visible: true, width: 150,
       render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", textAlign: 'right', display: 'block', color: c.valor_aprovado_brl ? 'var(--success, #22c55e)' : undefined }}>{fmtMoney(c.valor_aprovado_brl)}</span>,
     },
-    { key: 'taxa_cambio_referencia', label: 'PTAX Ref.', visible: true, width: 110,
+    { key: 'taxa_cambio_referencia', label: t('bidcambio.coluna.ptax_ref'), visible: true, width: 110,
       render: (c) => <span style={{ fontFamily: "'DM Mono', monospace" }}>{fmtRate(c.taxa_cambio_referencia)}</span>,
     },
-    { key: 'taxa_aprovada', label: 'Taxa Aprovada', visible: true, width: 120,
+    { key: 'taxa_aprovada', label: t('bidcambio.coluna.taxa_aprovada'), visible: true, width: 120,
       render: (c) => <span style={{ fontFamily: "'DM Mono', monospace" }}>{fmtRate(c.taxa_aprovada)}</span>,
     },
-    { key: 'status', label: 'Status', visible: true, width: 160,
+    { key: 'status', label: t('bidcambio.coluna.status'), visible: true, width: 160,
       render: (c) => {
         const badge = STATUS_COTACAO_BADGE[c.status] ?? 'default'
         const cores = BADGE_COLORS[badge]
@@ -138,55 +139,55 @@ function buildColumns(): ColumnDef[] {
         )
       },
     },
-    { key: 'tipo_operacao', label: 'Tipo Operacao', visible: true, width: 120,
+    { key: 'tipo_operacao', label: t('bidcambio.coluna.tipo_operacao'), visible: true, width: 120,
       render: (c) => <span>{OPERACAO_CAMBIO_LABELS[c.tipo_operacao]}</span>,
     },
-    { key: 'modalidade', label: 'Modalidade', visible: true, width: 100,
+    { key: 'modalidade', label: t('bidcambio.coluna.modalidade'), visible: true, width: 100,
       render: (c) => <span>{MODALIDADE_CAMBIO_LABELS[c.modalidade]}</span>,
     },
-    { key: 'liquidacao', label: 'Liquidacao', visible: true, width: 90,
+    { key: 'liquidacao', label: t('bidcambio.coluna.liquidacao'), visible: true, width: 90,
       render: (c) => <span>{LIQUIDACAO_LABELS[c.liquidacao]}</span>,
     },
-    { key: 'total_parcelas', label: 'Parcelas', visible: true, width: 80,
+    { key: 'total_parcelas', label: t('bidcambio.coluna.parcelas'), visible: true, width: 80,
       render: (c) => {
         const pagas = c.parcelas?.filter(p => p.status === 'PAGA').length ?? 0
         return <span>{pagas}/{c.total_parcelas}</span>
       },
     },
-    { key: 'saving_valor', label: 'Saving (R$)', visible: true, width: 120,
+    { key: 'saving_valor', label: t('bidcambio.coluna.saving_valor'), visible: true, width: 120,
       render: (c) => <span style={{ fontFamily: "'DM Mono', monospace", color: c.saving_valor && c.saving_valor > 0 ? 'var(--success, #22c55e)' : undefined }}>{fmtMoney(c.saving_valor)}</span>,
     },
-    { key: 'saving_percentual', label: 'Saving (%)', visible: true, width: 100,
+    { key: 'saving_percentual', label: t('bidcambio.coluna.saving_pct'), visible: true, width: 100,
       render: (c) => <span style={{ color: c.saving_percentual && c.saving_percentual > 0 ? 'var(--success, #22c55e)' : undefined }}>{c.saving_percentual != null ? c.saving_percentual.toFixed(1) + '%' : '—'}</span>,
     },
-    { key: 'processo_id', label: 'Processo', visible: false, width: 120,
+    { key: 'processo_id', label: t('bidcambio.coluna.processo'), visible: false, width: 120,
       render: (c) => <span>{c.processo_id ?? '—'}</span>,
     },
-    { key: 'invoice_numero', label: 'Invoice', visible: false, width: 120,
+    { key: 'invoice_numero', label: t('bidcambio.coluna.invoice'), visible: false, width: 120,
       render: (c) => <span>{c.invoice_numero ?? '—'}</span>,
     },
-    { key: 'descricao', label: 'Descricao', visible: false, width: 200,
+    { key: 'descricao', label: t('bidcambio.coluna.descricao'), visible: false, width: 200,
       render: (c) => <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200, display: 'block' }}>{c.descricao ?? '—'}</span>,
     },
-    { key: 'data_liquidacao', label: 'Data Liquidacao', visible: true, width: 120,
+    { key: 'data_liquidacao', label: t('bidcambio.coluna.data_liquidacao'), visible: true, width: 120,
       render: (c) => <span>{dataBR(c.data_liquidacao)}</span>,
     },
-    { key: 'prazo_resposta', label: 'Prazo Resposta', visible: false, width: 120,
+    { key: 'prazo_resposta', label: t('bidcambio.coluna.prazo_resposta'), visible: false, width: 120,
       render: (c) => <span>{dataBR(c.prazo_resposta)}</span>,
     },
-    { key: 'created_at', label: 'Criado em', visible: true, width: 110,
+    { key: 'created_at', label: t('bidcambio.coluna.criado_em'), visible: true, width: 110,
       render: (c) => <span>{dataBR(c.created_at)}</span>,
     },
-    { key: 'updated_at', label: 'Atualizado em', visible: false, width: 110,
+    { key: 'updated_at', label: t('bidcambio.coluna.atualizado_em'), visible: false, width: 110,
       render: (c) => <span>{dataBR(c.updated_at)}</span>,
     },
-    { key: 'user_id', label: 'Criado por', visible: false, width: 120,
+    { key: 'user_id', label: t('bidcambio.coluna.criado_por'), visible: false, width: 120,
       render: (c) => <span>{c.user_id ?? '—'}</span>,
     },
-    { key: 'bid_requests_count', label: 'Corretoras Contatadas', visible: false, width: 150,
+    { key: 'bid_requests_count', label: t('bidcambio.coluna.corretoras_contatadas'), visible: false, width: 150,
       render: (c) => <span>{c.bid_requests?.length ?? 0}</span>,
     },
-    { key: 'bid_responses_count', label: 'Respostas', visible: false, width: 100,
+    { key: 'bid_responses_count', label: t('bidcambio.coluna.respostas'), visible: false, width: 100,
       render: (c) => <span>{c.bid_responses?.length ?? 0}</span>,
     },
   ]
@@ -196,16 +197,17 @@ function buildColumns(): ColumnDef[] {
 
 type FilterTab = 'PENDENTES' | 'AGENDADOS' | 'PAGOS' | 'TODAS'
 
-const TABS: { key: FilterTab; label: string }[] = [
-  { key: 'PENDENTES', label: 'Pendentes' },
-  { key: 'AGENDADOS', label: 'Agendados' },
-  { key: 'PAGOS', label: 'Pagos' },
-  { key: 'TODAS', label: 'Todas Fases' },
+const TABS: { key: FilterTab; labelKey: string }[] = [
+  { key: 'PENDENTES', labelKey: 'bidcambio.tab.pendentes' },
+  { key: 'AGENDADOS', labelKey: 'bidcambio.tab.agendados' },
+  { key: 'PAGOS',     labelKey: 'bidcambio.tab.pagos'     },
+  { key: 'TODAS',     labelKey: 'bidcambio.tab.todas'     },
 ]
 
 // ─── Componente Principal ──────────────────────────────────────────────────
 
 export default function ListaCambios() {
+  const { t } = useTranslation()
   const [cambios, setCambios] = useState<CotacaoCambio[]>([])
   const [totais, setTotais] = useState<TotaisCambio | null>(null)
   const [loading, setLoading] = useState(true)
@@ -213,7 +215,7 @@ export default function ListaCambios() {
   const [busca, setBusca] = useState('')
   const [activeTab, setActiveTab] = useState<FilterTab>('TODAS')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [columns, setColumns] = useState<ColumnDef[]>(buildColumns)
+  const [columns, setColumns] = useState<ColumnDef[]>(() => buildColumns(t))
   const [showColumnModal, setShowColumnModal] = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
   const [page, setPage] = useState(1)
@@ -492,7 +494,7 @@ export default function ListaCambios() {
         <div style={{ display: 'flex', gap: '0.25rem' }}>
           {TABS.map((tab) => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={tabStyle(activeTab === tab.key)}>
-              {tab.label}
+              {t(tab.labelKey)}
             </button>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import {
   User, Robot, Globe, Cpu, Gear, Hash,
   ArrowsClockwise, DownloadSimple, FilePdf,
@@ -33,20 +34,36 @@ type AuditLog = {
 
 // ── Helpers ───────────────────────────────────────────────────────
 
-const ATOR_PT: Record<ActorType, string> = {
-  USER: 'Usuário', API: 'API', AI: 'IA', JOB: 'Job', INTEGRATION: 'Integração',
+const ATOR_KEY: Record<ActorType, string> = {
+  USER: 'admin.history.ator.usuario',
+  API: 'admin.history.ator.api',
+  AI: 'admin.history.ator.ia',
+  JOB: 'admin.history.ator.job',
+  INTEGRATION: 'admin.history.ator.integracao',
 }
 
-const STATUS_PT: Record<EventStatus, string> = {
-  SUCCESS: 'Sucesso', FAILURE: 'Falha', PARTIAL: 'Parcial',
+const STATUS_KEY: Record<EventStatus, string> = {
+  SUCCESS: 'admin.history.status.sucesso',
+  FAILURE: 'admin.history.status.falha',
+  PARTIAL: 'admin.history.status.parcial',
 }
 
-const ACAO_PT: Record<string, string> = {
-  CREATE: 'Criação', UPDATE: 'Alteração', DELETE: 'Exclusão',
-  LOGIN: 'Login', LOGOUT: 'Logout', SESSION_REVOKED: 'Sessão Revogada',
-  AUTH_FAILURE: 'Acesso Negado', EXPORT: 'Exportação', IMPORT: 'Importação',
-  SYNC: 'Sincronização', CONSULTA: 'Consulta', ENVIO: 'Envio',
-  RECEBIMENTO: 'Recebimento', BACKUP: 'Backup', ANONIMIZACAO_LGPD: 'LGPD Art.18',
+const ACAO_KEY: Record<string, string> = {
+  CREATE: 'admin.history.acao.create',
+  UPDATE: 'admin.history.acao.update',
+  DELETE: 'admin.history.acao.delete',
+  LOGIN: 'admin.history.acao.login',
+  LOGOUT: 'admin.history.acao.logout',
+  SESSION_REVOKED: 'admin.history.acao.session_revoked',
+  AUTH_FAILURE: 'admin.history.acao.auth_failure',
+  EXPORT: 'admin.history.acao.export',
+  IMPORT: 'admin.history.acao.import',
+  SYNC: 'admin.history.acao.sync',
+  CONSULTA: 'admin.history.acao.consulta',
+  ENVIO: 'admin.history.acao.envio',
+  RECEBIMENTO: 'admin.history.acao.recebimento',
+  BACKUP: 'admin.history.acao.backup',
+  ANONIMIZACAO_LGPD: 'admin.history.acao.anonimizacao_lgpd',
 }
 
 const COR_ATOR: Record<ActorType, { cor: string; bg: string }> = {
@@ -72,7 +89,7 @@ function IconeAtor({ tipo }: { tipo: ActorType }) {
   return <User {...props} />
 }
 
-function BadgeAtorType({ tipo }: { tipo: ActorType }) {
+function BadgeAtorType({ tipo, t }: { tipo: ActorType; t: TFunction }) {
   const { cor, bg } = COR_ATOR[tipo] ?? COR_ATOR.USER
   return (
     <span style={{
@@ -81,19 +98,19 @@ function BadgeAtorType({ tipo }: { tipo: ActorType }) {
       fontWeight: 700, background: bg, color: cor, border: `1px solid ${cor}33`,
     }}>
       <IconeAtor tipo={tipo} />
-      {ATOR_PT[tipo]}
+      {t(ATOR_KEY[tipo])}
     </span>
   )
 }
 
-function BadgeStatus({ status }: { status: EventStatus }) {
+function BadgeStatus({ status, t }: { status: EventStatus; t: TFunction }) {
   const { cor, bg } = COR_STATUS[status]
   return (
     <span style={{
       display: 'inline-flex', padding: '2px 8px', borderRadius: '9999px',
       fontSize: '0.65rem', fontWeight: 700, background: bg, color: cor,
     }}>
-      {STATUS_PT[status]}
+      {t(STATUS_KEY[status])}
     </span>
   )
 }
@@ -107,8 +124,17 @@ function formatDate(iso: unknown) {
 
 // ── Export ────────────────────────────────────────────────────────
 
-async function exportarLogsExcel(dados: AuditLog[]) {
-  const headers = ['Quando', 'Quem', 'Tipo', 'Ação', 'Detalhe', 'Módulo', 'Recurso', 'Status']
+async function exportarLogsExcel(dados: AuditLog[], t: TFunction) {
+  const headers = [
+    t('admin.history.export.headers.quando'),
+    t('admin.history.export.headers.quem'),
+    t('admin.history.export.headers.tipo'),
+    t('admin.history.export.headers.acao'),
+    t('admin.history.export.headers.detalhe'),
+    t('admin.history.export.headers.modulo'),
+    t('admin.history.export.headers.recurso'),
+    t('admin.history.export.headers.status'),
+  ]
   const rows = dados.map(l => [
     formatDate(l.created_at), l.actor_name, l.actor_type,
     l.action, l.action_detail, l.module, l.resource_type, l.status,
@@ -116,7 +142,7 @@ async function exportarLogsExcel(dados: AuditLog[]) {
   const ExcelJS = (await import('exceljs')).default
   const wb = new ExcelJS.Workbook()
   wb.creator = 'Gravity Platform'; wb.created = new Date()
-  const ws = wb.addWorksheet('Histórico', { views: [{ showGridLines: true }] })
+  const ws = wb.addWorksheet(t('admin.history.titulo'), { views: [{ showGridLines: true }] })
   ws.columns = headers.map((h, i) => {
     const maxData = rows.length > 0 ? Math.max(...rows.map(r => String(r[i] ?? '').length)) : 0
     return { key: String(i), width: Math.min(Math.max(h.length, maxData) + 4, 50) }
@@ -150,8 +176,17 @@ async function exportarLogsExcel(dados: AuditLog[]) {
   setTimeout(() => URL.revokeObjectURL(url), 5000)
 }
 
-async function exportarLogsPDF(dados: AuditLog[]) {
-  const headers = ['Quando', 'Quem', 'Tipo', 'Ação', 'Detalhe', 'Módulo', 'Recurso', 'Status']
+async function exportarLogsPDF(dados: AuditLog[], t: TFunction) {
+  const headers = [
+    t('admin.history.export.headers.quando'),
+    t('admin.history.export.headers.quem'),
+    t('admin.history.export.headers.tipo'),
+    t('admin.history.export.headers.acao'),
+    t('admin.history.export.headers.detalhe'),
+    t('admin.history.export.headers.modulo'),
+    t('admin.history.export.headers.recurso'),
+    t('admin.history.export.headers.status'),
+  ]
   const rows = dados.map(l => [
     formatDate(l.created_at), l.actor_name, l.actor_type,
     l.action, l.action_detail, l.module, l.resource_type, l.status,
@@ -162,9 +197,9 @@ async function exportarLogsPDF(dados: AuditLog[]) {
   ])
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
   doc.setFontSize(16); doc.setTextColor(30, 41, 59)
-  doc.text('Histórico de Atividades', 14, 16)
+  doc.text(t('admin.history.pdf.titulo'), 14, 16)
   doc.setFontSize(8); doc.setTextColor(100, 116, 139)
-  doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 22)
+  doc.text(`${t('admin.history.pdf.gerado_em')} ${new Date().toLocaleString('pt-BR')}`, 14, 22)
   autoTable(doc, {
     startY: 28,
     head: [headers],
@@ -179,13 +214,22 @@ async function exportarLogsPDF(dados: AuditLog[]) {
   for (let i = 1; i <= totalPag; i++) {
     doc.setPage(i)
     doc.setFontSize(7); doc.setTextColor(148, 163, 184)
-    doc.text(`Página ${i} de ${totalPag}`, doc.internal.pageSize.width - 14, doc.internal.pageSize.height - 8, { align: 'right' })
+    doc.text(t('admin.history.pdf.pagina', { atual: i, total: totalPag }), doc.internal.pageSize.width - 14, doc.internal.pageSize.height - 8, { align: 'right' })
   }
   doc.save('historico.pdf')
 }
 
-function exportarLogs(dados: AuditLog[], formato: 'csv' | 'excel' | 'txt' | 'json' | 'xml') {
-  const headers = ['Quando', 'Quem', 'Tipo', 'Ação', 'Detalhe', 'Módulo', 'Recurso', 'Status']
+function exportarLogs(dados: AuditLog[], formato: 'csv' | 'excel' | 'txt' | 'json' | 'xml', t: TFunction) {
+  const headers = [
+    t('admin.history.export.headers.quando'),
+    t('admin.history.export.headers.quem'),
+    t('admin.history.export.headers.tipo'),
+    t('admin.history.export.headers.acao'),
+    t('admin.history.export.headers.detalhe'),
+    t('admin.history.export.headers.modulo'),
+    t('admin.history.export.headers.recurso'),
+    t('admin.history.export.headers.status'),
+  ]
   const rows = dados.map(l => [
     formatDate(l.created_at),
     l.actor_name,
@@ -251,9 +295,9 @@ function exportarLogs(dados: AuditLog[], formato: 'csv' | 'excel' | 'txt' | 'jso
 
 // ── Diff antes/depois ─────────────────────────────────────────────
 
-function DiffVisual({ before, after }: { before?: unknown; after?: unknown }) {
+function DiffVisual({ before, after, t }: { before?: unknown; after?: unknown; t: TFunction }) {
   if (!before && !after) {
-    return <p style={{ color: '#64748b', fontSize: '0.8125rem', padding: '0.5rem 0' }}>Sem dados de antes/depois registrados.</p>
+    return <p style={{ color: '#64748b', fontSize: '0.8125rem', padding: '0.5rem 0' }}>{t('admin.history.diff.sem_dados')}</p>
   }
 
   const computedDiff = (() => {
@@ -272,38 +316,42 @@ function DiffVisual({ before, after }: { before?: unknown; after?: unknown }) {
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f87171', display: 'inline-block' }} />
-          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#f87171', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Antes</span>
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#f87171', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('admin.history.diff.antes')}</span>
         </div>
         <pre style={{
           background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.15)',
           borderRadius: '6px', padding: '12px', fontSize: '0.75rem', color: '#e2e8f0',
           overflow: 'auto', maxHeight: '180px', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
         }}>
-          {before ? JSON.stringify(before, null, 2) : '(novo registro)'}
+          {before ? JSON.stringify(before, null, 2) : t('admin.history.diff.novo_registro')}
         </pre>
       </div>
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
-          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Depois</span>
+          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#34d399', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('admin.history.diff.depois')}</span>
         </div>
         <pre style={{
           background: 'rgba(52,211,153,0.05)', border: '1px solid rgba(52,211,153,0.15)',
           borderRadius: '6px', padding: '12px', fontSize: '0.75rem', color: '#e2e8f0',
           overflow: 'auto', maxHeight: '180px', margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all',
         }}>
-          {after ? JSON.stringify(after, null, 2) : '(registro excluído)'}
+          {after ? JSON.stringify(after, null, 2) : t('admin.history.diff.registro_excluido')}
         </pre>
       </div>
       {computedDiff && computedDiff.length > 0 && (
         <div style={{ gridColumn: '1 / -1' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
-            Campos alterados ({computedDiff.length})
+            {t('admin.history.diff.campos_alterados')} ({computedDiff.length})
           </p>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
             <thead>
               <tr>
-                {['Campo', 'Antes', 'Depois'].map((h) => (
+                {[
+                  t('admin.history.diff.campo'),
+                  t('admin.history.diff.antes'),
+                  t('admin.history.diff.depois'),
+                ].map((h) => (
                   <th key={h} style={{ textAlign: 'left', padding: '6px 8px', color: '#64748b', fontWeight: 600, borderBottom: '1px solid rgba(255,255,255,0.06)', fontSize: '0.7rem', textTransform: 'uppercase' }}>{h}</th>
                 ))}
               </tr>
@@ -326,7 +374,7 @@ function DiffVisual({ before, after }: { before?: unknown; after?: unknown }) {
 
 // ── Detalhe expandido ─────────────────────────────────────────────
 
-function DetalheLog({ log }: { log: AuditLog }) {
+function DetalheLog({ log, t }: { log: AuditLog; t: TFunction }) {
   const [aba, setAba] = useState<'diff' | 'meta'>('diff')
 
   return (
@@ -339,20 +387,20 @@ function DetalheLog({ log }: { log: AuditLog }) {
             background: aba === a ? 'rgba(99,102,241,0.2)' : 'transparent',
             color: aba === a ? '#818cf8' : '#64748b',
           }}>
-            {a === 'diff' ? 'Antes / Depois' : 'Detalhes'}
+            {a === 'diff' ? t('admin.history.detalhe.aba_diff') : t('admin.history.detalhe.aba_meta')}
           </button>
         ))}
       </div>
-      {aba === 'diff' && <DiffVisual before={log.before} after={log.after} />}
+      {aba === 'diff' && <DiffVisual before={log.before} after={log.after} t={t} />}
       {aba === 'meta' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', fontSize: '0.8rem' }}>
           {[
-            { label: 'Módulo', valor: log.module },
-            { label: 'Tipo de recurso', valor: log.resource_type },
-            { label: 'ID do recurso', valor: log.resource_id ?? '—' },
-            { label: 'IP do ator', valor: log.actor_ip ?? '—' },
-            { label: 'Status', valor: log.status },
-            { label: 'ID do log', valor: log.id },
+            { label: t('admin.history.detalhe.meta.modulo'), valor: log.module },
+            { label: t('admin.history.detalhe.meta.tipo_recurso'), valor: log.resource_type },
+            { label: t('admin.history.detalhe.meta.id_recurso'), valor: log.resource_id ?? '—' },
+            { label: t('admin.history.detalhe.meta.ip_ator'), valor: log.actor_ip ?? '—' },
+            { label: t('admin.history.detalhe.meta.status'), valor: log.status },
+            { label: t('admin.history.detalhe.meta.id_log'), valor: log.id },
           ].map(({ label, valor }) => (
             <div key={label}>
               <p style={{ color: '#64748b', fontSize: '0.7rem', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</p>
@@ -361,13 +409,13 @@ function DetalheLog({ log }: { log: AuditLog }) {
           ))}
           {log.error_message && (
             <div style={{ gridColumn: '1 / -1' }}>
-              <p style={{ color: '#64748b', fontSize: '0.7rem', marginBottom: '4px', textTransform: 'uppercase' }}>Erro</p>
+              <p style={{ color: '#64748b', fontSize: '0.7rem', marginBottom: '4px', textTransform: 'uppercase' }}>{t('admin.history.detalhe.meta.erro')}</p>
               <p style={{ color: '#f87171', fontFamily: 'monospace', fontSize: '0.8rem' }}>{log.error_message}</p>
             </div>
           )}
           <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px', background: 'rgba(255,255,255,0.02)', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.06)' }}>
             <Hash size={12} color="#64748b" />
-            <span style={{ color: '#64748b', fontSize: '0.7rem' }}>Integridade:</span>
+            <span style={{ color: '#64748b', fontSize: '0.7rem' }}>{t('admin.history.detalhe.meta.integridade')}</span>
             <span style={{ color: '#94a3b8', fontFamily: 'monospace', fontSize: '0.7rem', wordBreak: 'break-all' }}>{log.integrity_hash}</span>
           </div>
         </div>
@@ -581,19 +629,19 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
       key: 'created_at',
       label: t('admin.history.tabela.quando'),
       tipo: 'periodo',
-      tooltipTitulo: 'Quando',
-      tooltipDescricao: 'Data e hora em que a ação ocorreu.',
+      tooltipTitulo: t('admin.history.tabela.quando_tooltip'),
+      tooltipDescricao: t('admin.history.tabela.quando_desc'),
       render: (v) => <span style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>{formatDate(v)}</span>,
     },
     {
       key: 'actor_name',
       label: t('admin.history.tabela.quem'),
       tipo: 'texto',
-      tooltipTitulo: 'Ator',
-      tooltipDescricao: 'Usuário, sistema ou integração que executou a ação.',
+      tooltipTitulo: t('admin.history.tabela.quem_tooltip'),
+      tooltipDescricao: t('admin.history.tabela.quem_desc'),
       render: (v, item) => (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <BadgeAtorType tipo={item.actor_type} />
+          <BadgeAtorType tipo={item.actor_type} t={t} />
           <span style={{ fontWeight: 600, color: '#f1f5f9', fontSize: '0.8rem' }}>{String(v)}</span>
         </div>
       ),
@@ -602,34 +650,34 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
       key: 'action',
       label: t('admin.history.tabela.acao'),
       tipo: 'texto',
-      tooltipTitulo: 'Ação',
-      tooltipDescricao: 'Tipo de operação executada (CREATE, UPDATE, DELETE, etc.).',
+      tooltipTitulo: t('admin.history.tabela.acao_tooltip'),
+      tooltipDescricao: t('admin.history.tabela.acao_desc'),
       render: (v) => (
         <span style={{
           display: 'inline-flex', padding: '2px 8px', borderRadius: '9999px',
           fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.03em',
           background: 'rgba(129,140,248,0.1)', color: '#818cf8', border: '1px solid rgba(129,140,248,0.2)',
         }}>
-          {ACAO_PT[String(v)] ?? String(v)}
+          {ACAO_KEY[String(v)] ? t(ACAO_KEY[String(v)]) : String(v)}
         </span>
       ),
-      renderFiltroLabel: (v) => ACAO_PT[v] ?? v,
+      renderFiltroLabel: (v) => ACAO_KEY[v] ? t(ACAO_KEY[v]) : v,
       renderFiltroItem: (v) => (
         <span style={{
           display: 'inline-flex', padding: '2px 8px', borderRadius: '9999px',
           fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.03em',
           background: 'rgba(129,140,248,0.1)', color: '#818cf8', border: '1px solid rgba(129,140,248,0.2)',
         }}>
-          {ACAO_PT[v] ?? v}
+          {ACAO_KEY[v] ? t(ACAO_KEY[v]) : v}
         </span>
       ),
     },
     {
       key: 'before',
-      label: 'De',
+      label: t('admin.history.tabela.de'),
       tipo: 'texto',
-      tooltipTitulo: 'De',
-      tooltipDescricao: 'Estado do registro antes da ação.',
+      tooltipTitulo: t('admin.history.tabela.de_tooltip'),
+      tooltipDescricao: t('admin.history.tabela.de_desc'),
       render: (v, item) => {
         const before = v as Record<string, unknown> | undefined
         const after  = item.after as Record<string, unknown> | undefined
@@ -654,10 +702,10 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
     },
     {
       key: 'after',
-      label: 'Para',
+      label: t('admin.history.tabela.para'),
       tipo: 'texto',
-      tooltipTitulo: 'Para',
-      tooltipDescricao: 'Estado do registro após a ação.',
+      tooltipTitulo: t('admin.history.tabela.para_tooltip'),
+      tooltipDescricao: t('admin.history.tabela.para_desc'),
       render: (v, item) => {
         const after  = v as Record<string, unknown> | undefined
         const before = item.before as Record<string, unknown> | undefined
@@ -682,10 +730,10 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
     },
     {
       key: 'module',
-      label: 'Módulo',
+      label: t('admin.history.tabela.modulo'),
       tipo: 'texto',
-      tooltipTitulo: 'Módulo / Recurso',
-      tooltipDescricao: 'Módulo e tipo de recurso afetado pela ação.',
+      tooltipTitulo: t('admin.history.tabela.modulo_tooltip'),
+      tooltipDescricao: t('admin.history.tabela.modulo_desc'),
       render: (v, item) => {
         const mod = String(v)
         const sameAsModule = item.resource_type.toLowerCase() === mod.toLowerCase()
@@ -709,26 +757,26 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('admin.history.tabela.status'),
       tipo: 'texto',
-      tooltipTitulo: 'Status',
-      tooltipDescricao: 'Resultado da operação: Sucesso, Falha ou Parcial.',
-      render: (v) => <BadgeStatus status={v as EventStatus} />,
-      renderFiltroLabel: (v) => STATUS_PT[v as EventStatus] ?? v,
-      renderFiltroItem: (v) => <BadgeStatus status={v as EventStatus} />,
+      tooltipTitulo: t('admin.history.tabela.status_tooltip'),
+      tooltipDescricao: t('admin.history.tabela.status_desc'),
+      render: (v) => <BadgeStatus status={v as EventStatus} t={t} />,
+      renderFiltroLabel: (v) => STATUS_KEY[v as EventStatus] ? t(STATUS_KEY[v as EventStatus]) : v,
+      renderFiltroItem: (v) => <BadgeStatus status={v as EventStatus} t={t} />,
     },
   ], [t])
 
   // ── Exportação ─────────────────────────────────────────────────
 
   const ACOES_EXPORT: TabelaExportAcao<AuditLog>[] = useMemo(() => [
-    { label: 'Excel (.xlsx)', icone: <DownloadSimple size={14} />, onClick: (d) => void exportarLogsExcel(d)       },
-    { label: 'CSV',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'csv')         },
-    { label: 'TXT',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'txt')         },
-    { label: 'XML',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'xml')         },
-    { label: 'JSON',          icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'json')        },
-    { label: 'PDF',           icone: <FilePdf size={14} />,        onClick: (d) => void exportarLogsPDF(d)        },
-  ], [])
+    { label: 'Excel (.xlsx)', icone: <DownloadSimple size={14} />, onClick: (d) => void exportarLogsExcel(d, t)       },
+    { label: 'CSV',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'csv', t)         },
+    { label: 'TXT',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'txt', t)         },
+    { label: 'XML',           icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'xml', t)         },
+    { label: 'JSON',          icone: <DownloadSimple size={14} />, onClick: (d) => exportarLogs(d, 'json', t)        },
+    { label: 'PDF',           icone: <FilePdf size={14} />,        onClick: (d) => void exportarLogsPDF(d, t)        },
+  ], [t])
 
   // ── Render ─────────────────────────────────────────────────────
 
@@ -746,7 +794,7 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
           }}
         >
           <ArrowsClockwise size={13} />
-          Atualizar
+          {t('admin.history.btn_atualizar')}
         </button>
       </div>
 
@@ -756,11 +804,11 @@ export function Historico({ productId, apiBaseUrl, useMock = false, tenantId }: 
         acoesExportacao={ACOES_EXPORT}
         idKey="id"
         itensPorPagina={20}
-        mensagemSemFiltro="Nenhuma atividade registrada ainda."
-        mensagemVazio="Nenhuma atividade corresponde aos filtros aplicados."
-        renderExpandido={(item) => <DetalheLog log={item} />}
-        tooltipExpandir="Ver antes/depois e detalhes"
-        tooltipRecolher="Recolher detalhes"
+        mensagemSemFiltro={t('admin.history.tabela_vazio')}
+        mensagemVazio={t('admin.history.tabela_sem_filtro')}
+        renderExpandido={(item) => <DetalheLog log={item} t={t} />}
+        tooltipExpandir={t('admin.history.tooltip_expandir')}
+        tooltipRecolher={t('admin.history.tooltip_recolher')}
       />
     </div>
   )

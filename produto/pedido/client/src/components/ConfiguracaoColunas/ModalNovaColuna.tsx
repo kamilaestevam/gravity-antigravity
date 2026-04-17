@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { X, Plus, Warning, Info } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import type {
@@ -25,27 +26,27 @@ import './ModalNovaColuna.css'
 
 // ── Opções de enum ────────────────────────────────────────────────────────────
 
-const TIPO_OPCOES: { valor: TipoColunaUsuario; label: string }[] = [
-  { valor: 'texto',          label: 'Texto'              },
-  { valor: 'numero',         label: 'Número'             },
-  { valor: 'data',           label: 'Data'               },
-  { valor: 'select',         label: 'Select (lista)'     },
-  { valor: 'checkbox',       label: 'Checkbox'           },
-  { valor: 'percentual',     label: 'Percentual (%)'     },
-  { valor: 'tipo_documento', label: 'Tipo de Documento'  },
-  { valor: 'formula',        label: 'Fórmula'            },
+const TIPO_OPCOES: { valor: TipoColunaUsuario; labelKey: string }[] = [
+  { valor: 'texto',          labelKey: 'pedido.coluna_tipo.texto'          },
+  { valor: 'numero',         labelKey: 'pedido.coluna_tipo.numero'         },
+  { valor: 'data',           labelKey: 'pedido.coluna_tipo.data'           },
+  { valor: 'select',         labelKey: 'pedido.coluna_tipo.select'         },
+  { valor: 'checkbox',       labelKey: 'pedido.coluna_tipo.checkbox'       },
+  { valor: 'percentual',     labelKey: 'pedido.coluna_tipo.percentual'     },
+  { valor: 'tipo_documento', labelKey: 'pedido.coluna_tipo.tipo_documento' },
+  { valor: 'formula',        labelKey: 'pedido.coluna_tipo.formula'        },
 ]
 
-const ESCOPO_OPCOES: { valor: EscopoColunaUsuario; label: string }[] = [
-  { valor: 'pedido', label: 'Pedido'       },
-  { valor: 'item',   label: 'Item'         },
-  { valor: 'ambos',  label: 'Ambos'        },
+const ESCOPO_OPCOES: { valor: EscopoColunaUsuario; labelKey: string }[] = [
+  { valor: 'pedido', labelKey: 'pedido.coluna_escopo.pedido' },
+  { valor: 'item',   labelKey: 'pedido.coluna_escopo.item'   },
+  { valor: 'ambos',  labelKey: 'pedido.coluna_escopo.ambos'  },
 ]
 
-const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; label: string }[] = [
-  { valor: 'todos',   label: 'Todos do tenant' },
-  { valor: 'roles',   label: 'Por perfil/role' },
-  { valor: 'privado', label: 'Só eu'           },
+const VISIBILIDADE_OPCOES: { valor: VisibilidadeColunaUsuario; labelKey: string }[] = [
+  { valor: 'todos',   labelKey: 'pedido.coluna_visibilidade.todos'   },
+  { valor: 'roles',   labelKey: 'pedido.coluna_visibilidade.roles'   },
+  { valor: 'privado', labelKey: 'pedido.coluna_visibilidade.privado' },
 ]
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -70,6 +71,7 @@ export function ModalNovaColuna({
   todasColunas = [],
 }: ModalNovaColunaProps) {
   const isEdicao = Boolean(colunaEdicao)
+  const { t } = useTranslation()
 
   const [nome, setNome]               = useState(colunaEdicao?.nome ?? '')
   const [tipo, setTipo]               = useState<TipoColunaUsuario>(colunaEdicao?.tipo ?? 'texto')
@@ -277,7 +279,7 @@ export function ModalNovaColuna({
                 id="mnc-tipo"
                 className="mnc-input mnc-input--readonly"
                 type="text"
-                value={TIPO_OPCOES.find(o => o.valor === tipo)?.label ?? tipo}
+                value={t(TIPO_OPCOES.find(o => o.valor === tipo)?.labelKey ?? tipo)}
                 readOnly
                 aria-description="O tipo não pode ser alterado após a criação"
               />
@@ -289,7 +291,7 @@ export function ModalNovaColuna({
                 onChange={e => setTipo(e.target.value as TipoColunaUsuario)}
               >
                 {TIPO_OPCOES.map(o => (
-                  <option key={o.valor} value={o.valor}>{o.label}</option>
+                  <option key={o.valor} value={o.valor}>{t(o.labelKey)}</option>
                 ))}
               </select>
             )}
@@ -307,7 +309,7 @@ export function ModalNovaColuna({
               onChange={e => setEscopo(e.target.value as EscopoColunaUsuario)}
             >
               {ESCOPO_OPCOES.map(o => (
-                <option key={o.valor} value={o.valor}>{o.label}</option>
+                <option key={o.valor} value={o.valor}>{t(o.labelKey)}</option>
               ))}
             </select>
           </div>
@@ -324,7 +326,7 @@ export function ModalNovaColuna({
               onChange={e => setVisibilidade(e.target.value as VisibilidadeColunaUsuario)}
             >
               {VISIBILIDADE_OPCOES.map(o => (
-                <option key={o.valor} value={o.valor}>{o.label}</option>
+                <option key={o.valor} value={o.valor}>{t(o.labelKey)}</option>
               ))}
             </select>
           </div>

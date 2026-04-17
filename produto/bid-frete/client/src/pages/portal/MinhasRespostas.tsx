@@ -46,10 +46,10 @@ function getRespostaStatus(r: BidResponse): RespostaStatus {
   return 'pendente'
 }
 
-const STATUS_MAP: Record<RespostaStatus, { label: string; bg: string; color: string }> = {
-  pendente:  { label: 'Pendente',  bg: 'rgba(245,158,11,0.15)', color: 'var(--warning, #f59e0b)' },
-  aprovada:  { label: 'Aprovada',  bg: 'rgba(34,197,94,0.15)',  color: 'var(--success, #22c55e)' },
-  reprovada: { label: 'Reprovada', bg: 'rgba(239,68,68,0.15)',  color: 'var(--danger, #ef4444)' },
+const STATUS_MAP: Record<RespostaStatus, { labelKey: string; bg: string; color: string }> = {
+  pendente:  { labelKey: 'bidfrete.portal.minhas_respostas.status_pendente',  bg: 'rgba(245,158,11,0.15)', color: 'var(--warning, #f59e0b)' },
+  aprovada:  { labelKey: 'bidfrete.portal.minhas_respostas.status_aprovada',  bg: 'rgba(34,197,94,0.15)',  color: 'var(--success, #22c55e)' },
+  reprovada: { labelKey: 'bidfrete.portal.minhas_respostas.status_reprovada', bg: 'rgba(239,68,68,0.15)',  color: 'var(--danger, #ef4444)' },
 }
 
 const MODAL_ICON_MAP: Record<ModalFrete, React.ReactNode> = {
@@ -76,7 +76,7 @@ export default function MinhasRespostas() {
     { key: 'TODAS', label: t('comum.todos') },
     { key: 'PENDENTES', label: t('comum.pendente') },
     { key: 'APROVADAS', label: t('bidfrete.portal.dashboard.aprovadas') },
-    { key: 'REPROVADAS', label: 'Reprovadas' },
+    { key: 'REPROVADAS', label: t('bidfrete.portal.minhas_respostas.tab_reprovadas') },
   ]
 
   const carregar = useCallback(async () => {
@@ -114,7 +114,7 @@ export default function MinhasRespostas() {
   const colunas: TabelaGlobalColuna<RespostaComCotacao>[] = [
     {
       key: 'cotacao',
-      label: 'Cotacao',
+      label: t('bidfrete.portal.minhas_respostas.col_cotacao'),
       tipo: 'texto',
       largura: 140,
       render: (_val: unknown, row: RespostaComCotacao) => (
@@ -125,7 +125,7 @@ export default function MinhasRespostas() {
     },
     {
       key: 'rota',
-      label: 'Rota',
+      label: t('bidfrete.portal.minhas_respostas.col_rota'),
       tipo: 'texto',
       largura: 200,
       render: (_val: unknown, row: RespostaComCotacao) => (
@@ -136,7 +136,7 @@ export default function MinhasRespostas() {
     },
     {
       key: 'modal',
-      label: 'Modal',
+      label: t('bidfrete.portal.minhas_respostas.col_modal'),
       tipo: 'texto',
       largura: 120,
       render: (_val: unknown, row: RespostaComCotacao) => {
@@ -151,7 +151,7 @@ export default function MinhasRespostas() {
     },
     {
       key: 'valor_total',
-      label: 'Valor Total',
+      label: t('bidfrete.portal.minhas_respostas.col_valor_total'),
       tipo: 'numero',
       largura: 140,
       align: 'right',
@@ -163,26 +163,26 @@ export default function MinhasRespostas() {
     },
     {
       key: 'transit_time_dias',
-      label: 'Transit Time',
+      label: t('bidfrete.portal.minhas_respostas.col_transit_time'),
       tipo: 'numero',
       largura: 110,
       align: 'center',
       render: (val: number) => (
         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8125rem' }}>
-          {val} dias
+          {t('bidfrete.portal.minhas_respostas.dias', { val })}
         </span>
       ),
     },
     {
       key: 'validade',
-      label: 'Validade',
+      label: t('bidfrete.portal.minhas_respostas.col_validade'),
       tipo: 'periodo',
       largura: 110,
       render: (val: string) => fmtData(val),
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('bidfrete.portal.minhas_respostas.col_status'),
       tipo: 'texto',
       largura: 120,
       render: (_val: unknown, row: RespostaComCotacao) => {
@@ -203,7 +203,7 @@ export default function MinhasRespostas() {
             {status === 'aprovada' && <CheckCircle weight="fill" size={12} />}
             {status === 'reprovada' && <XCircle weight="fill" size={12} />}
             {status === 'pendente' && <ClockCountdown weight="fill" size={12} />}
-            {cfg.label}
+            {t(cfg.labelKey)}
           </span>
         )
       },
@@ -217,7 +217,7 @@ export default function MinhasRespostas() {
         <CabecalhoGlobal
           icone={<PaperPlaneTilt weight="duotone" size={22} />}
           titulo={t('bidfrete.portal.minhas_respostas.titulo')}
-          subtitulo={`${respostas.length} resposta(s) enviadas`}
+          subtitulo={t('bidfrete.portal.minhas_respostas.subtitulo', { count: respostas.length })}
         />
       }
     >

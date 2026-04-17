@@ -51,6 +51,7 @@ function getSpecialAliases(nucleoRoot: string): Record<string, string> {
     '@nucleo/export-utils': path.resolve(nucleoRoot, 'Utilidades/export-utils/exportUtils.ts'),
     '@nucleo/Utilidades/localization/i18n': path.resolve(nucleoRoot, 'Utilidades/Localization/i18n.ts'),
     '@nucleo/Utilidades/localization/provider': path.resolve(nucleoRoot, 'Utilidades/Localization/provider.tsx'),
+    '@nucleo/Utilidades/localization/useLocale': path.resolve(nucleoRoot, 'Utilidades/Localization/useLocale.ts'),
 
     // Dashboard — aponta para src/ (diretório) para sub-paths funcionarem:
     //   @nucleo/dashboard                        → src/index.ts

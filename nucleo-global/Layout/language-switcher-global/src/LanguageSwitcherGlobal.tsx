@@ -12,6 +12,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { GlobeHemisphereWest } from '@phosphor-icons/react'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { changeLanguageLazy, type SupportedLanguage } from '@nucleo/Utilidades/localization/i18n'
 import './language-switcher-global.css'
 
 interface LanguageOption {
@@ -39,7 +40,7 @@ export function LanguageSwitcherGlobal({ onLanguageChange, iconOnly = false }: L
   const currentLang = LANGUAGES.find(l => l.code === i18n.language) ?? LANGUAGES[0]
 
   const handleSelect = (code: string) => {
-    i18n.changeLanguage(code)
+    changeLanguageLazy(code as SupportedLanguage)
     localStorage.setItem('gravity:language', code)
     document.documentElement.setAttribute('lang', code)
     setOpen(false)
@@ -68,7 +69,7 @@ export function LanguageSwitcherGlobal({ onLanguageChange, iconOnly = false }: L
           aria-haspopup="listbox"
           type="button"
         >
-          <GlobeHemisphereWest size={18} weight="duotone" />
+          <span className="lang-switcher__active-flag" aria-hidden="true">{currentLang.flag}</span>
           {!iconOnly && <span className="lang-switcher__code">{currentLang.code.toUpperCase()}</span>}
         </button>
       </TooltipGlobal>

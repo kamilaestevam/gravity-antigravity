@@ -94,15 +94,17 @@ interface Atalho {
   rota: string
 }
 
-/* ── Tipo de insight GABI ── */
+/* ── Tipo de insight GABI (alinhado com HubInsight do backend) ── */
 interface GabiInsight {
   id: string
   variante: 'default' | 'warn'
   tag: string
-  texto: React.ReactNode
+  texto: string
   stat?: { label: string; valor: string }
-  textoLink: string
-  rota: string
+  textoLink?: string
+  rota?: string
+  score?: number
+  produto?: string
 }
 
 interface CompanyApi {
@@ -122,19 +124,7 @@ const WORKSPACE_GRADIENTS = [
   { from: '#EC4899', to: '#F43F5E' },
 ]
 
-/* ── Mock workspaces (fallback quando API não retorna companies) ── */
-const MOCK_WORKSPACES_RAW = [
-  { id: 'mock-1',  name: 'DMM Importações',     modulos: 3, membros: 12 },
-  { id: 'mock-2',  name: 'TechBrasil Ltda',      modulos: 5, membros: 8  },
-  { id: 'mock-3',  name: 'Exporta Sul',          modulos: 2, membros: 5  },
-  { id: 'mock-4',  name: 'Alpha Logística',      modulos: 7, membros: 20 },
-  { id: 'mock-5',  name: 'Comex Partners',       modulos: 4, membros: 3  },
-  { id: 'mock-6',  name: 'Nexus Trade',          modulos: 6, membros: 15 },
-  { id: 'mock-7',  name: 'Prime Cargo',          modulos: 3, membros: 7  },
-  { id: 'mock-8',  name: 'Global Freight',       modulos: 5, membros: 9  },
-  { id: 'mock-9',  name: 'Summit Distribuidora', modulos: 2, membros: 4  },
-  { id: 'mock-10', name: 'Zenith Operações',     modulos: 4, membros: 6  },
-]
+/* Mock workspaces removido — dados sempre vêm do backend (/api/v1/hub/init) */
 
 /* ── Atalhos (estáticos — navegação interna) ── */
 const ATALHOS: Atalho[] = [
@@ -203,22 +193,8 @@ export function SelecionarWorkspace() {
   }, [isLight])
   const [modalSemProdutos, setModalSemProdutos] = useState(false)
 
-  const [workspaces, setWorkspaces] = useState<Workspace[]>(() =>
-    MOCK_WORKSPACES_RAW.map((c, i) => {
-      const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
-      return {
-        id: c.id,
-        nome: c.name,
-        iniciais: c.name.substring(0, 2).toUpperCase(),
-        role: 'Importador',
-        modulos: c.modulos,
-        membros: c.membros,
-        gradientFrom: grad.from,
-        gradientTo: grad.to,
-      }
-    })
-  )
-  const [selectedId, setSelectedId] = useState<string | null>(MOCK_WORKSPACES_RAW[0].id)
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(true)
   const [entrando, setEntrando] = useState(false)
   const [produtosAtivos, setProdutosAtivos] = useState<ProdutoAtivo[]>([])
@@ -516,20 +492,9 @@ export function SelecionarWorkspace() {
             }
           }
         } else {
-          setWorkspaces(MOCK_WORKSPACES_RAW.map((c, i) => {
-            const grad = WORKSPACE_GRADIENTS[i % WORKSPACE_GRADIENTS.length]
-            return {
-              id: c.id,
-              nome: c.name,
-              iniciais: c.name.substring(0, 2).toUpperCase(),
-              role: data.tenant?.tipo_empresa ?? 'Importador',
-              modulos: c.modulos,
-              membros: c.membros,
-              gradientFrom: grad.from,
-              gradientTo: grad.to,
-            }
-          }))
-          setSelectedId(MOCK_WORKSPACES_RAW[0].id)
+          // Sem companies — mostra estado vazio (dados reais virão após onboarding)
+          setWorkspaces([])
+          setSelectedId(null)
         }
 
       } catch {
@@ -623,7 +588,7 @@ export function SelecionarWorkspace() {
     return () => clearInterval(timer)
   }, [gabiPaused, gabiInsights.length, scrollCarousel])
 
-  /* ── GABI: busca dados reais dos produtos contratados ── */
+  /* ── GABI: busca insights cross-produto do backend (hub/insights) ── */
   React.useEffect(() => {
     let cancelled = false
 
@@ -631,176 +596,53 @@ export function SelecionarWorkspace() {
       try {
         const token = await getToken()
         if (!token) return
-        const headers = { Authorization: `Bearer ${token}` }
-        const activeKeys = new Set(produtosContratados.filter(p => p.is_active).map(p => p.product_key))
-        const insights: GabiInsight[] = []
 
-        const safe = async (fn: () => Promise<void>) => { try { await fn() } catch {} }
+        const res = await fetch('/api/v1/hub/insights', {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: AbortSignal.timeout(8_000),
+        })
 
-        /* BID Câmbio — vencimentos */
-        if (activeKeys.has('bid-cambio')) {
-          await safe(async () => {
-            const r = await fetch('/api/v1/bid-cambio/dashboard/vencimentos?dias=30', { headers })
-            if (!r.ok) return
-            const d = await r.json()
-            const total: number = d.proximos_vencimentos?.total ?? 0
-            if (total > 0)
-              insights.push({
-                id: 'cambio-venc', variante: 'warn',
-                tag: 'Alerta de Prazo · BID Câmbio',
-                texto: <>{total} parcela{total > 1 ? 's' : ''} vence{total === 1 ? '' : 'm'} em menos de <strong>30 dias</strong>. Revise para não perder o prazo.</>,
-                textoLink: 'Ver parcelas', rota: '/produto/bid-cambio',
-              })
-          })
+        if (!res.ok) throw new Error(`status_${res.status}`)
 
-          /* BID Câmbio — economia */
-          await safe(async () => {
-            const r = await fetch('/api/v1/bid-cambio/dashboard', { headers })
-            if (!r.ok) return
-            const d = await r.json()
-            const eco: number = d.financeiro?.economia_acumulada_mes ?? 0
-            if (eco > 0)
-              insights.push({
-                id: 'cambio-eco', variante: 'default',
-                tag: 'Economia · BID Câmbio',
-                texto: <>Você economizou neste mês operando câmbio pelo marketplace Gravity.</>,
-                stat: { label: 'Economia acumulada', valor: `R$ ${eco.toLocaleString('pt-BR')}` },
-                textoLink: 'Ver detalhes', rota: '/produto/bid-cambio',
-              })
-          })
-        }
-
-        /* BID Frete — alertas */
-        if (activeKeys.has('bid-frete')) {
-          await safe(async () => {
-            const r = await fetch('/api/v1/bid-frete/dashboard/calendario', { headers })
-            if (!r.ok) return
-            const d = await r.json()
-            const alertas: Array<{ tipo: string; count: number }> = d.alertas ?? []
-            const fora = alertas.find(a => a.tipo === 'fora_prazo')?.count ?? 0
-            const hoje = alertas.find(a => a.tipo === 'vence_hoje')?.count ?? 0
-            if (fora > 0 || hoje > 0)
-              insights.push({
-                id: 'frete-alert', variante: 'warn',
-                tag: 'Alerta · BID Frete',
-                texto: <>
-                  {fora > 0 && <><strong>{fora} cotação{fora > 1 ? 'ões' : ''}</strong> fora do prazo. </>}
-                  {hoje > 0 && <><strong>{hoje}</strong> vence{hoje === 1 ? '' : 'm'} hoje.</>}
-                </>,
-                textoLink: 'Ver cotações', rota: '/produto/bid-frete',
-              })
-          })
-        }
-
-        /* SimulaCusto — KPIs */
-        if (activeKeys.has('simula-custo')) {
-          await safe(async () => {
-            const r = await fetch('/api/v1/simula-custo/dashboard/kpis', { headers })
-            if (!r.ok) return
-            const d = await r.json()
-            const inviavel: number = d.inviavel ?? 0
-            const atencao: number = d.atencao ?? 0
-            const media: number = d.mediaLandedCostBrl ?? 0
-            if (inviavel > 0 || atencao > 0)
-              insights.push({
-                id: 'simula-kpi', variante: inviavel > 0 ? 'warn' : 'default',
-                tag: 'Simulações · SimulaCusto',
-                texto: <>
-                  {inviavel > 0 && <><strong>{inviavel} simulaç{inviavel > 1 ? 'ões inviáveis' : 'ão inviável'}</strong> detectada{inviavel > 1 ? 's' : ''}. </>}
-                  {atencao > 0 && <><strong>{atencao}</strong> requer{atencao === 1 ? '' : 'em'} atenção.</>}
-                </>,
-                ...(media > 0 && { stat: { label: 'Média landed cost', valor: `R$ ${Math.round(media).toLocaleString('pt-BR')}` } }),
-                textoLink: 'Ver simulações', rota: '/produto/simula-custo',
-              })
-          })
-        }
-
-        /* LPCO — licenças suspensas */
-        if (activeKeys.has('lpco')) {
-          await safe(async () => {
-            const r = await fetch('/api/v1/lpco/stats', { headers })
-            if (!r.ok) return
-            const d = await r.json()
-            const suspensa: number = d.SUSPENSA ?? d.suspensa ?? 0
-            if (suspensa > 0)
-              insights.push({
-                id: 'lpco-alert', variante: 'warn',
-                tag: 'Atenção · LPCO',
-                texto: <><strong>{suspensa} licença{suspensa > 1 ? 's' : ''} suspensa{suspensa > 1 ? 's' : ''}</strong>. Regularize para retomar as operações de importação.</>,
-                textoLink: 'Ver licenças', rota: '/produto/lpco',
-              })
-          })
-        }
-
-        /* Cards extras para demonstração visual do carrossel */
-        insights.push(
-          {
-            id: 'demo-ncm', variante: 'default',
-            tag: 'Redução Tributária · NCM 8471',
-            texto: <>Economize até <strong>12% em ICMS</strong> reclassificando 3 SKUs com enquadramento fiscal mais favorável.</>,
-            stat: { label: 'Economia estimada', valor: 'R$ 23.400/mês' },
-            textoLink: 'Ver análise completa', rota: '/produto/simula-custo',
-          },
-          {
-            id: 'demo-frete', variante: 'default',
-            tag: 'Oportunidade · BID Frete',
-            texto: <>Há <strong>2 fornecedores novos</strong> cadastrados na sua rota SP–Manaus com tarifa até <strong>18% menor</strong>.</>,
-            stat: { label: 'Melhor oferta', valor: 'R$ 4.200 / ton' },
-            textoLink: 'Comparar fretes', rota: '/produto/bid-frete',
-          },
-          {
-            id: 'demo-lpco', variante: 'warn',
-            tag: 'Vencimento · LPCO',
-            texto: <><strong>1 licença de importação</strong> vence em <strong>7 dias</strong>. Inicie a renovação para evitar bloqueio operacional.</>,
-            textoLink: 'Renovar agora', rota: '/produto/lpco',
-          },
-          {
-            id: 'demo-cambio', variante: 'default',
-            tag: 'Câmbio · BID Câmbio',
-            texto: <>Dólar em queda de <strong>1,4%</strong> esta semana. Boa janela para antecipar fechamento de câmbio.</>,
-            stat: { label: 'USD/BRL atual', valor: 'R$ 5,12' },
-            textoLink: 'Ver cotações', rota: '/produto/bid-cambio',
-          },
-          {
-            id: 'demo-di', variante: 'warn',
-            tag: 'Atenção · DI Pendente',
-            texto: <><strong>3 Declarações de Importação</strong> aguardam parametrização há mais de <strong>5 dias</strong>.</>,
-            textoLink: 'Ver DIs', rota: '/produto/lpco',
-          },
-          {
-            id: 'demo-pedido', variante: 'default',
-            tag: 'Pedido · NF Importação',
-            texto: <>Pedido <strong>#PED-2041</strong> teve todas as notas fiscais emitidas. Pronto para faturamento.</>,
-            stat: { label: 'Valor total', valor: 'R$ 187.300' },
-            textoLink: 'Ver pedido', rota: '/produto/nf-importacao',
-          },
-          {
-            id: 'demo-ncm2', variante: 'default',
-            tag: 'Classificação · SimulaCusto',
-            texto: <>GABI identificou <strong>5 NCMs</strong> com alíquota de II reduzida disponível por ex-tarifário.</>,
-            stat: { label: 'Potencial de economia', valor: 'R$ 41.000/ano' },
-            textoLink: 'Ver oportunidades', rota: '/produto/simula-custo',
-          }
+        const data = await res.json()
+        const insights: GabiInsight[] = (data.insights ?? []).map(
+          (ins: GabiInsight) => ({
+            id: ins.id,
+            variante: ins.variante ?? 'default',
+            tag: ins.tag,
+            texto: ins.texto,
+            stat: ins.stat,
+            textoLink: ins.textoLink,
+            rota: ins.rota,
+            score: ins.score ?? 0,
+            produto: ins.produto,
+          }),
         )
 
-        /* Fallback */
-        if (insights.length === 0)
-          insights.push({
-            id: 'fallback', variante: 'default',
-            tag: 'GABI AI · Pronta',
-            texto: <>Sua assistente está pronta. Ative produtos para receber <strong>insights em tempo real</strong> das suas operações COMEX.</>,
-            textoLink: 'Explorar produtos', rota: '/store',
-          })
-
         if (!cancelled) { setGabiInsights(insights); setGabiLoading(false) }
-      } catch {
-        if (!cancelled) setGabiLoading(false)
+      } catch (err) {
+        // Fallback resiliente — mostra card estático se backend falhar
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          if (!cancelled) setGabiLoading(false)
+          return
+        }
+        if (!cancelled) {
+          setGabiInsights([{
+            id: 'fallback',
+            variante: 'default',
+            tag: 'GABI AI · Pronta',
+            texto: 'Sua assistente está pronta. Ative produtos para receber insights em tempo real das suas operações COMEX.',
+            textoLink: 'Explorar produtos',
+            rota: '/store',
+          }])
+          setGabiLoading(false)
+        }
       }
     }
 
     if (!carregando) fetchGabiInsights()
     return () => { cancelled = true }
-  }, [carregando, produtosContratados, getToken])
+  }, [carregando, getToken])
 
   /* ══════════════════════════════════
      RENDER
@@ -1133,13 +975,15 @@ export function SelecionarWorkspace() {
                                     <span className="sw-gabi-insight-stat-value">{ins.stat.valor}</span>
                                   </div>
                                 )}
-                                <button
-                                  className="sw-gabi-insight-link"
-                                  type="button"
-                                  onClick={() => navigate(ins.rota)}
-                                >
-                                  {ins.textoLink} <CaretRight size={11} />
-                                </button>
+                                {ins.textoLink && ins.rota && (
+                                  <button
+                                    className="sw-gabi-insight-link"
+                                    type="button"
+                                    onClick={() => navigate(ins.rota!)}
+                                  >
+                                    {ins.textoLink} <CaretRight size={11} />
+                                  </button>
+                                )}
                               </div>
                             </div>
                           ))}

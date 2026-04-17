@@ -12,8 +12,11 @@
  * A chave da API deve estar em GEMINI_API_KEY no .env.local
  */
 
+import dotenv from 'dotenv'
 import fs from 'node:fs'
 import path from 'node:path'
+
+dotenv.config({ path: path.resolve(import.meta.dirname, '../.env.local') })
 
 // ─── Configuração ────────────────────────────────────────────────────────
 
@@ -99,43 +102,54 @@ function findExtraKeys(source: FlatMap, target: FlatMap): string[] {
 async function translateWithGemini(
   texts: FlatMap,
   targetLang: string,
-  apiKey: string
+  apiKey: string,
+  retries = 4
 ): Promise<FlatMap> {
   const prompt = `Traduza os seguintes textos de português para ${targetLang}. Retorne APENAS um JSON válido com as mesmas chaves. Preserve variáveis como {nome}, {valor}, {{count}}, tags HTML, e letras maiúsculas intencionais. Contexto: são textos de interface de uma plataforma SaaS de logística/comércio exterior.\n\n${JSON.stringify(texts, null, 2)}`
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.1,
-          responseMimeType: 'application/json',
-        },
-      }),
-    }
-  )
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.1,
+            responseMimeType: 'application/json',
+          },
+        }),
+      }
+    )
 
-  if (!response.ok) {
+    if (response.ok) {
+      const data = await response.json()
+      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+      try {
+        return JSON.parse(rawText) as FlatMap
+      } catch {
+        throw new Error(
+          `Gemini retornou JSON inválido. Primeiros 500 chars: ${rawText.slice(0, 500)}`
+        )
+      }
+    }
+
+    // 503 = sobrecarga temporária — retenta com backoff
+    if (response.status === 503 && attempt < retries) {
+      const delay = Math.pow(2, attempt) * 5000 // 5s, 10s, 20s, 40s
+      console.log(`      ⏳ 503 sobrecarga, aguardando ${delay / 1000}s antes de retentar (${attempt + 1}/${retries})...`)
+      await new Promise((r) => setTimeout(r, delay))
+      continue
+    }
+
     const errorText = await response.text()
     throw new Error(
       `Gemini API error (${response.status}): ${errorText.slice(0, 500)}`
     )
   }
 
-  const data = await response.json()
-  const rawText =
-    data?.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
-
-  try {
-    return JSON.parse(rawText) as FlatMap
-  } catch {
-    throw new Error(
-      `Gemini retornou JSON inválido. Primeiros 500 chars: ${rawText.slice(0, 500)}`
-    )
-  }
+  throw new Error('Gemini API: máximo de tentativas atingido')
 }
 
 // ─── Merge seguro (não sobrescreve existentes) ──────────────────────────

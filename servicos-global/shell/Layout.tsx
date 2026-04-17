@@ -6,6 +6,7 @@ import { ContextualSidebar } from './ContextualSidebar'
 import { ProductSidebar } from './ProductSidebar'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { changeLanguageLazy, type SupportedLanguage } from '@nucleo/Utilidades/localization/i18n'
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
 import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
@@ -76,7 +77,7 @@ export function Layout({
     const language = saved ?? detected ?? 'pt'
     document.documentElement.setAttribute('lang', language)
     if (i18n.language !== language) {
-      i18n.changeLanguage(language)
+      changeLanguageLazy(language as SupportedLanguage)
     }
   }, [i18n])
 

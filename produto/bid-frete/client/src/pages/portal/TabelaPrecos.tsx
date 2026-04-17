@@ -153,7 +153,7 @@ export default function TabelaPrecos() {
   const colunas: TabelaGlobalColuna<TabelaPreco>[] = [
     {
       key: 'rota',
-      label: 'Rota',
+      label: t('bidfrete.portal.tabela_precos.col_rota'),
       tipo: 'texto',
       largura: 220,
       render: (_val: unknown, row: TabelaPreco) => (
@@ -164,7 +164,7 @@ export default function TabelaPrecos() {
     },
     {
       key: 'modal',
-      label: 'Modal',
+      label: t('bidfrete.portal.tabela_precos.col_modal'),
       tipo: 'texto',
       largura: 120,
       render: (val: ModalFrete) => (
@@ -176,7 +176,7 @@ export default function TabelaPrecos() {
     },
     {
       key: 'moeda',
-      label: 'Moeda',
+      label: t('bidfrete.portal.tabela_precos.col_moeda'),
       tipo: 'texto',
       largura: 80,
       render: (val: string) => (
@@ -185,7 +185,7 @@ export default function TabelaPrecos() {
     },
     {
       key: 'total',
-      label: 'Total',
+      label: t('bidfrete.portal.tabela_precos.col_total'),
       tipo: 'numero',
       largura: 130,
       align: 'right',
@@ -200,7 +200,7 @@ export default function TabelaPrecos() {
     },
     {
       key: 'transit_time_dias',
-      label: 'Transit',
+      label: t('bidfrete.portal.tabela_precos.col_transit'),
       tipo: 'numero',
       largura: 90,
       align: 'center',
@@ -210,7 +210,7 @@ export default function TabelaPrecos() {
     },
     {
       key: 'validade_fim',
-      label: 'Validade',
+      label: t('bidfrete.portal.tabela_precos.col_validade'),
       tipo: 'periodo',
       largura: 110,
       render: (val: string) => fmtData(val),
@@ -221,13 +221,13 @@ export default function TabelaPrecos() {
     {
       id: 'editar',
       icone: <PencilSimple weight="duotone" size={16} />,
-      tooltip: 'Editar rota',
+      tooltip: t('bidfrete.portal.tabela_precos.tooltip_editar'),
       onClick: (item: TabelaPreco) => abrirEdicao(item),
     },
     {
       id: 'excluir',
       icone: <Trash weight="duotone" size={16} />,
-      tooltip: 'Excluir rota',
+      tooltip: t('bidfrete.portal.tabela_precos.tooltip_excluir'),
       onClick: (item: TabelaPreco) => handleExcluir(item),
     },
   ]
@@ -266,7 +266,7 @@ export default function TabelaPrecos() {
               <input
                 className="tp-input"
                 type="text"
-                placeholder="Ex: Santos (BRSSZ)"
+                placeholder={t('bidfrete.portal.tabela_precos.placeholder_origem')}
                 value={form.origem_nome}
                 onChange={e => handleChange('origem_nome', e.target.value)}
               />
@@ -276,7 +276,7 @@ export default function TabelaPrecos() {
               <input
                 className="tp-input"
                 type="text"
-                placeholder="Ex: Shanghai (CNSHA)"
+                placeholder={t('bidfrete.portal.tabela_precos.placeholder_destino')}
                 value={form.destino_nome}
                 onChange={e => handleChange('destino_nome', e.target.value)}
               />

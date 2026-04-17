@@ -613,14 +613,23 @@ export function AvisoInternoGlobal({
           {/* Barra de ações: Link · Canais · Enviar */}
           <div className="aig-composer-actions">
             {composerLink && (
-              <TooltipGlobal content={composerLink} position="top">
+              <TooltipGlobal
+                content={linkAtivo ? `Clique para remover o link da mensagem\n${composerLink}` : `Clique para incluir o link desta tela na mensagem`}
+                position="top">
                 <button type="button"
                   className={`aig-action-chip${linkAtivo ? ' active' : ''}`}
                   onClick={() => setLinkAtivo(v => !v)}>
                   <LinkSimple size={10} weight={linkAtivo ? 'fill' : 'regular'} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 60 }}>
-                    {(() => { const parts = composerLink.split('/').filter(Boolean); return parts[parts.length - 1] || 'link'; })()}
-                  </span>
+                  {linkAtivo ? (
+                    <>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 56 }}>
+                        {(() => { const parts = composerLink.split('/').filter(Boolean); return parts[parts.length - 1] || 'link'; })()}
+                      </span>
+                      <X size={8} weight="bold" style={{ flexShrink: 0, marginLeft: '1px', opacity: 0.7 }} />
+                    </>
+                  ) : (
+                    <span>Incluir link</span>
+                  )}
                 </button>
               </TooltipGlobal>
             )}

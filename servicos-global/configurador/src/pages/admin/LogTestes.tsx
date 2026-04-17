@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock } from '@phosphor-icons/react'
+import { Bug, Sparkle, XCircle, CheckCircle, Warning, PlayCircle, CalendarBlank, Clock, SpinnerGap } from '@phosphor-icons/react'
+import { BotaoGlobal } from '@nucleo/botao-global'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
@@ -97,6 +98,18 @@ export function LogTestes() {
   }
 
   useEffect(() => { loadLogs() }, [])
+
+  // Carrega status do agendamento na montagem
+  useEffect(() => {
+    adminTestLogsApi.listSchedules()
+      .then(({ schedules }) => {
+        if (schedules.length) {
+          const s = schedules[0] as Record<string, unknown>
+          setAgendamentoAtivo(Boolean(s.is_active))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   // Auto-detecta run em progresso quando a tela monta (resiliente a F5 / navegação)
   useEffect(() => {
@@ -497,7 +510,7 @@ export function LogTestes() {
               100% { transform: translateX(100%); }
             }
           `}</style>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
             <p className="ws-section-title" style={{ margin: 0 }}>
               <Bug weight="duotone" size={14} color="#818cf8" />
               {t('admin.testes-gerais.historico_titulo', { count: dados.length })}
@@ -507,43 +520,41 @@ export function LogTestes() {
                 <button
                   type="button"
                   onClick={() => setModalAgendamentoAberto(true)}
+                  aria-label={t('admin.testes-gerais.btn_agendamento')}
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
                     height: '2.5rem', padding: '0 1rem', borderRadius: '8px',
-                    background: agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)',
-                    border: `1px solid ${agendamentoAtivo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(255,255,255,0.1)'}`,
-                    color: agendamentoAtivo ? '#10b981' : '#e2e8f0',
-                    fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.15s',
+                    background: agendamentoAtivo ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
+                    border: `1px solid ${agendamentoAtivo ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`,
+                    color: agendamentoAtivo ? '#10b981' : '#818cf8',
+                    fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
                     animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.1)'}
-                  onMouseLeave={e => e.currentTarget.style.background = agendamentoAtivo ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.05)'}
                 >
-                  <Clock size={16} weight={agendamentoAtivo ? 'fill' : 'bold'} style={{ color: agendamentoAtivo ? '#10b981' : 'inherit' }} />
+                  <Clock size={15} weight={agendamentoAtivo ? 'fill' : 'regular'} />
                   {t('admin.testes-gerais.btn_agendamento')}
+                  <span style={{
+                    fontSize: '0.6rem', fontWeight: 800, padding: '1px 6px', borderRadius: '4px',
+                    background: agendamentoAtivo ? 'rgba(16,185,129,0.2)' : 'rgba(100,116,139,0.2)',
+                    color: agendamentoAtivo ? '#10b981' : '#64748b',
+                    letterSpacing: '0.05em', textTransform: 'uppercase',
+                  }}>
+                    {agendamentoAtivo ? t('admin.testes-gerais.badge_ativo') : t('admin.testes-gerais.badge_inativo')}
+                  </span>
                 </button>
               </TooltipGlobal>
               <TooltipGlobal descricao={t('admin.testes-gerais.tooltip_rodar')}>
-                <button
-                  type="button"
-                  disabled={rodandoTestes}
+                <BotaoGlobal
+                  variante="primario"
+                  icone={rodandoTestes
+                    ? <SpinnerGap size={16} weight="bold" style={{ animation: 'ws-running-spin 0.9s linear infinite' }} />
+                    : <PlayCircle size={16} weight="bold" />
+                  }
                   onClick={() => setModalExecutarAberto(true)}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                    height: '2.5rem', padding: '0 1rem', borderRadius: '8px',
-                    background: rodandoTestes ? 'rgba(16,185,129,0.5)' : 'var(--cl-primary, #10b981)',
-                    border: 'none', color: '#fff',
-                    fontSize: '0.875rem', fontWeight: 600,
-                    cursor: rodandoTestes ? 'not-allowed' : 'pointer',
-                    transition: 'filter 0.15s',
-                    opacity: rodandoTestes ? 0.7 : 1,
-                  }}
-                  onMouseEnter={e => { if (!rodandoTestes) e.currentTarget.style.filter = 'brightness(1.1)' }}
-                  onMouseLeave={e => { e.currentTarget.style.filter = 'none' }}
+                  disabled={rodandoTestes}
                 >
-                  <PlayCircle size={16} weight="bold" />
                   {rodandoTestes ? 'Rodando...' : t('admin.testes-gerais.btn_rodar')}
-                </button>
+                </BotaoGlobal>
               </TooltipGlobal>
             </div>
           </div>
@@ -688,7 +699,17 @@ export function LogTestes() {
 
         <ModalAgendamentoTestes
           aberto={modalAgendamentoAberto}
-          aoFechar={() => setModalAgendamentoAberto(false)}
+          aoFechar={() => {
+            setModalAgendamentoAberto(false)
+            adminTestLogsApi.listSchedules()
+              .then(({ schedules }) => {
+                if (schedules.length) {
+                  const s = schedules[0] as Record<string, unknown>
+                  setAgendamentoAtivo(Boolean(s.is_active))
+                }
+              })
+              .catch(() => {})
+          }}
           aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
         />
 

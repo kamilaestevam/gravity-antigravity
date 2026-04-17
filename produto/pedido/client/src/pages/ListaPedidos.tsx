@@ -2872,9 +2872,12 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function ListaPedidos() {
-  const { t } = useTranslation()
-  // Colunas pai reativas — rebuild when language changes via useTranslation
-  const colunasPai = useMemo(() => buildColunasPai(t), [t])
+  const { t, i18n } = useTranslation()
+  // Colunas pai reativas — rebuild quando o idioma muda.
+  // IMPORTANTE: a função `t` do react-i18next é referencialmente estável mesmo
+  // após troca de idioma, então depender só de `[t]` NUNCA invalida o memo.
+  // i18n.language muda de string a cada troca ("pt" → "en"), forçando o rebuild.
+  const colunasPai = useMemo(() => buildColunasPai(t), [t, i18n.language])
   const { visiveis: cardsVisiveis } = useCardPreferences()
   const navigate = useNavigate()
   const location = useLocation()
@@ -3092,7 +3095,7 @@ export default function ListaPedidos() {
     })
 
     return [...colunasBase, ...custom]
-  }, [colunasUsuario, statusOpts, saldoFormulaAST, temExpandido])
+  }, [colunasPai, colunasUsuario, statusOpts, saldoFormulaAST, temExpandido])
 
   // Campos editáveis em linhas filho — estáticos + chaves das colunas customizadas editáveis
   const camposEditaveisFilhosComCustom = useMemo(() => {

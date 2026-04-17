@@ -66,6 +66,23 @@ async function request<T>(
   return res.json()
 }
 
+/** fetch autenticado com token Clerk — retorna Response bruta (como fetch nativo) */
+export async function apiFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const { headers: extraHeaders, ...restOptions } = options
+  const authHeaders: Record<string, string> = {}
+  const token = await getAuthToken()
+  if (token) authHeaders['Authorization'] = `Bearer ${token}`
+
+  return fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...authHeaders,
+      ...(extraHeaders as Record<string, string>),
+    },
+    ...restOptions,
+  })
+}
+
 // ─── Tipos de resposta ──────────────────────────────────────────────────────
 
 export interface ProductApi {
@@ -131,7 +148,7 @@ export interface TenantApi {
   _count?: { users: number; companies: number }
   subscriptions?: Array<{ plan: string; status: string }>
   users?: Array<{ id: string; name: string; email: string; role: string; created_at: string }>
-  companies?: Array<{ id: string; name: string; subdomain: string | null; status: string }>
+  companies?: Array<{ id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }>
   product_configs?: Array<{ product_key: string; is_active: boolean; updated_at: string }>
 }
 
@@ -225,11 +242,32 @@ export const adminTenantsApi = {
     return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`)
   },
 
+  async create(data: { name: string; slug: string; plano?: string; cnpj?: string }) {
+    return request<{ tenant: TenantApi }>('/admin/tenants', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+
   async updateStatus(id: string, status: string) {
     return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     })
+  },
+
+  async update(id: string, data: { name?: string; slug?: string; plano?: string }) {
+    return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  },
+
+  async updateWorkspaceStatus(id: string, status: 'ACTIVE' | 'INACTIVE') {
+    return request<{ workspace: { id: string; name: string; status: string; tenant_id: string } }>(
+      `/admin/workspaces/${id}`,
+      { method: 'PATCH', body: JSON.stringify({ status }) }
+    )
   },
 
   async getStats() {

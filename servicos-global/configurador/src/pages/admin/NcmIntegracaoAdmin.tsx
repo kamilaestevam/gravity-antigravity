@@ -308,8 +308,15 @@ export function NcmIntegracaoAdmin() {
       }
       toolbar={
         <>
+          <style>{`
+            @keyframes ws-pulse-active {
+              0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+              70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+              100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+            }
+          `}</style>
           {alertaDesatualizado}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
             <p className="ws-section-title" style={{ margin: 0 }}>
               <Database weight="duotone" size={14} color="#818cf8" />
               {t('admin.ncm.historico_titulo', { count: totalLogs.toLocaleString('pt-BR') })}
@@ -325,6 +332,7 @@ export function NcmIntegracaoAdmin() {
                   border: `1px solid ${agendamentoAtivo ? 'rgba(16,185,129,0.3)' : 'rgba(99,102,241,0.3)'}`,
                   color: agendamentoAtivo ? '#10b981' : '#818cf8',
                   cursor: 'pointer', transition: 'all 0.2s',
+                  animation: agendamentoAtivo ? 'ws-pulse-active 2s infinite' : 'none',
                 }}
               >
                 <Clock size={15} weight={agendamentoAtivo ? 'fill' : 'regular'} />
@@ -355,24 +363,31 @@ export function NcmIntegracaoAdmin() {
         </>
       }
     >
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+          <TabelaGlobal<NcmSyncLogApi>
+            colunas={COLUNAS}
+            dados={logs}
+            carregando={carregando}
+            paginacao={totalPaginas > 1 ? {
+              paginaAtual: pagina,
+              totalPaginas,
+              onPaginaChange: handlePaginaChange,
+            } : undefined}
+          />
+        </div>
 
-      <TabelaGlobal<NcmSyncLogApi>
-        colunas={COLUNAS}
-        dados={logs}
-        carregando={carregando}
-        paginacao={totalPaginas > 1 ? {
-          paginaAtual: pagina,
-          totalPaginas,
-          onPaginaChange: handlePaginaChange,
-        } : undefined}
-      />
-
-      {/* Modal de Agendamento */}
-      <ModalAgendamentoNcmSync
-        aberto={modalAgendamentoAberto}
-        aoFechar={() => setModalAgendamentoAberto(false)}
-        aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
-      />
+        <ModalAgendamentoNcmSync
+          aberto={modalAgendamentoAberto}
+          aoFechar={() => {
+            setModalAgendamentoAberto(false)
+            adminNcmApi.getSchedule()
+              .then(cfg => setAgendamentoAtivo(cfg.ativo))
+              .catch(() => {})
+          }}
+          aoMudarStatus={(ativo) => setAgendamentoAtivo(ativo)}
+        />
+      </div>
     </PaginaGlobal>
   )
 }

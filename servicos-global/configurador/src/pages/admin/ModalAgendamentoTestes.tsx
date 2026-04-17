@@ -30,8 +30,25 @@ interface ColunaAlerta {
   tipo: 'texto' | 'numero' | 'data' | 'select'
 }
 
+function cronParaDados(cron: string): Pick<DadosAgendamento, 'frequencia' | 'hora' | 'minuto'> {
+  const FALLBACK = { frequencia: 'Manual' as const, hora: '00h', minuto: '00min' }
+  const partes = cron.trim().split(/\s+/)
+  if (partes.length < 5) return FALLBACK
+  if (cron === '0 0 31 2 *') return FALLBACK
+  const minNum  = parseInt(partes[0], 10)
+  const horaNum = parseInt(partes[1], 10)
+  if (isNaN(minNum) || isNaN(horaNum) || minNum < 0 || minNum > 59 || horaNum < 0 || horaNum > 23) return FALLBACK
+  const freq: DadosAgendamento['frequencia'] = partes[4] !== '*' ? 'Semanal' : 'Diario'
+  return {
+    frequencia: freq,
+    hora:   `${String(horaNum).padStart(2, '0')}h`,
+    minuto: `${String(minNum).padStart(2, '0')}min`,
+  }
+}
+
 export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: ModalAgendamentoTestesProps) {
   const { t } = useTranslation()
+  const [scheduleId, setScheduleId] = useState<string | null>(null)
   const [dados, setDados] = useState<DadosAgendamento>({
     agendamentoAutomatico: 'Desativado',
     frequencia: 'Manual',
@@ -40,6 +57,34 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
     tipos: { unitarios: true, funcionais: true, e2e: false },
     ambiente: 'Local'
   })
+
+  useEffect(() => {
+    if (!aberto) return
+    adminTestLogsApi.listSchedules().then(({ schedules }) => {
+      if (!schedules.length) return
+      const s = schedules[0] as Record<string, unknown>
+      const config = typeof s.config === 'string'
+        ? (JSON.parse(s.config) as Record<string, unknown>)
+        : (s.config as Record<string, unknown> ?? {})
+      const modulos = (config.modulos as string[] | undefined) ?? []
+      const ambientes = (config.ambientes as string[] | undefined) ?? ['Local']
+      const cronData = cronParaDados(String(s.cron ?? ''))
+      setScheduleId(String(s.id))
+      setDados({
+        agendamentoAutomatico: s.is_active ? 'Ativado' : 'Desativado',
+        frequencia: cronData.frequencia,
+        hora: cronData.hora,
+        minuto: cronData.minuto,
+        tipos: {
+          unitarios: modulos.includes('unitarios'),
+          funcionais: modulos.includes('funcionais'),
+          e2e: modulos.includes('e2e'),
+        },
+        ambiente: (ambientes[0] as DadosAgendamento['ambiente']) ?? 'Local',
+      })
+      setIsDirty(false)
+    }).catch(() => { /* ignora — mantém defaults */ })
+  }, [aberto])
 
   const [alertas, setAlertas] = useState([
     { id: '1', nome: 'Daniel Martins', contato: 'daniel@empresa.com', condicao: 'Apenas Falhas', canal: 'E-mail + Push' },
@@ -63,37 +108,45 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
   const handleSalvar = async () => {
     const ativo = dados.agendamentoAutomatico === 'Ativado'
 
-    // Converte configuração para cron expression
-    const hora = parseInt(dados.hora.replace('h', ''), 10)
-    const minuto = parseInt(dados.minuto.replace('min', ''), 10)
+    const horaNum   = parseInt(dados.hora.replace('h', ''), 10)
+    const minutoNum = parseInt(dados.minuto.replace('min', ''), 10)
+    const horaVal   = isNaN(horaNum)   ? 0 : horaNum
+    const minVal    = isNaN(minutoNum) ? 0 : minutoNum
     const cronMap: Record<string, string> = {
-      Manual: '0 0 31 2 *', // nunca roda
-      Diario: `${minuto} ${hora} * * *`,
-      Semanal: `${minuto} ${hora} * * 1`,
+      Manual:  '0 0 31 2 *',
+      Diario:  `${minVal} ${horaVal} * * *`,
+      Semanal: `${minVal} ${horaVal} * * 1`,
     }
     const cron = cronMap[dados.frequencia] ?? cronMap.Manual
 
+    const payload = {
+      name: `Agendamento ${dados.frequencia} - ${dados.ambiente}`,
+      cron,
+      modulos: [
+        ...(dados.tipos.unitarios ? ['unitarios'] : []),
+        ...(dados.tipos.funcionais ? ['funcionais'] : []),
+        ...(dados.tipos.e2e ? ['e2e'] : []),
+      ],
+      ambientes: [dados.ambiente],
+      ativo,
+      notificar: true,
+    }
+
     try {
-      await adminTestLogsApi.createSchedule({
-        name: `Agendamento ${dados.frequencia} - ${dados.ambiente}`,
-        cron,
-        modulos: [
-          ...(dados.tipos.unitarios ? ['unitarios'] : []),
-          ...(dados.tipos.funcionais ? ['funcionais'] : []),
-          ...(dados.tipos.e2e ? ['e2e'] : []),
-        ],
-        ambientes: [dados.ambiente],
-        ativo,
-        notificar: true,
-      })
+      if (scheduleId) {
+        await adminTestLogsApi.updateSchedule(scheduleId, payload)
+      } else {
+        const res = await adminTestLogsApi.createSchedule(payload)
+        const newId = (res.schedule as Record<string, unknown>)?.id
+        if (newId) setScheduleId(String(newId))
+      }
       addNotification({ type: 'success', message: 'Agendamento salvo com sucesso' })
     } catch (err) {
       addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao salvar agendamento' })
+      return
     }
 
-    if (aoMudarStatus) {
-      aoMudarStatus(ativo)
-    }
+    if (aoMudarStatus) aoMudarStatus(ativo)
     setIsDirty(false)
     aoFechar()
   }
@@ -157,7 +210,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                   <SelectGlobal
                     opcoes={opcoesAtivacao}
                     valor={dados.agendamentoAutomatico}
-                    aoMudarValor={v => updateDados({ agendamentoAutomatico: String(v) })}
+                    aoMudarValor={v => { if (v != null) updateDados({ agendamentoAutomatico: String(v) as DadosAgendamento['agendamentoAutomatico'] }) }}
                   />
                 </div>
                 <span style={{ color: dados.agendamentoAutomatico === 'Ativado' ? '#10b981' : '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>
@@ -173,7 +226,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
               <SelectGlobal
                 opcoes={opcoesFrequencia}
                 valor={dados.frequencia}
-                aoMudarValor={v => updateDados({ frequencia: String(v) })}
+                aoMudarValor={v => { if (v != null) updateDados({ frequencia: String(v) as DadosAgendamento['frequencia'] }) }}
               />
             </GeralCampoGlobal>
             <div style={{ opacity: dados.frequencia === 'Manual' ? 0.4 : 1, pointerEvents: dados.frequencia === 'Manual' ? 'none' : 'auto', transition: 'opacity 0.15s' }}>
@@ -181,7 +234,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                 <SelectGlobal
                   opcoes={opcoesHora}
                   valor={dados.hora}
-                  aoMudarValor={v => updateDados({ hora: String(v) })}
+                  aoMudarValor={v => { if (v != null) updateDados({ hora: String(v) }) }}
                 />
               </GeralCampoGlobal>
             </div>
@@ -190,7 +243,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
                 <SelectGlobal
                   opcoes={opcoesMinuto}
                   valor={dados.minuto}
-                  aoMudarValor={v => updateDados({ minuto: String(v) })}
+                  aoMudarValor={v => { if (v != null) updateDados({ minuto: String(v) }) }}
                 />
               </GeralCampoGlobal>
             </div>
@@ -231,7 +284,7 @@ export function ModalAgendamentoTestes({ aberto, aoFechar, aoMudarStatus }: Moda
               <SelectGlobal
                 opcoes={opcoesAmbiente}
                 valor={dados.ambiente}
-                aoMudarValor={v => updateDados({ ambiente: String(v) })}
+                aoMudarValor={v => { if (v != null) updateDados({ ambiente: String(v) as DadosAgendamento['ambiente'] }) }}
               />
             </GeralCampoGlobal>
           </div>

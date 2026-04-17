@@ -16,14 +16,19 @@ import {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function cronParaHoraMinuto(cron: string): { hora: string; minuto: string; frequencia: string } {
-  // Formato: "minuto hora * * *" ou "minuto hora * * dia-semana"
+  const FALLBACK = { hora: '02h', minuto: '00min', frequencia: 'Diario' }
   const partes = cron.trim().split(/\s+/)
-  if (partes.length < 5) return { hora: '02h', minuto: '00min', frequencia: 'Diario' }
-  const min  = partes[0].padStart(2, '0')
-  const hora = partes[1].padStart(2, '0')
+  if (partes.length < 5) return FALLBACK
+  const minNum  = parseInt(partes[0], 10)
+  const horaNum = parseInt(partes[1], 10)
+  if (isNaN(minNum) || isNaN(horaNum) || minNum < 0 || minNum > 59 || horaNum < 0 || horaNum > 23) return FALLBACK
   const dow  = partes[4]
   const freq = dow !== '*' ? 'Semanal' : 'Diario'
-  return { hora: `${hora}h`, minuto: `${min}min`, frequencia: freq }
+  return {
+    hora:   `${String(horaNum).padStart(2, '0')}h`,
+    minuto: `${String(minNum).padStart(2, '0')}min`,
+    frequencia: freq,
+  }
 }
 
 function horaMinutoCron(frequencia: string, hora: string, minuto: string): string {
@@ -228,9 +233,9 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
             </GeralCampoGlobal>
             <GeralCampoGlobal label={t('admin.ncm_modal.label_hora')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <SelectGlobal opcoes={opcoesHora}   valor={hora}   aoMudarValor={v => updateHora(String(v))} />
+                <SelectGlobal opcoes={opcoesHora}   valor={hora}   aoMudarValor={v => { if (v != null) updateHora(String(v)) }} />
                 <span style={{ color: '#475569', fontWeight: 700 }}>:</span>
-                <SelectGlobal opcoes={opcoesMinuto} valor={minuto} aoMudarValor={v => updateMin(String(v))} />
+                <SelectGlobal opcoes={opcoesMinuto} valor={minuto} aoMudarValor={v => { if (v != null) updateMin(String(v)) }} />
               </div>
             </GeralCampoGlobal>
           </div>

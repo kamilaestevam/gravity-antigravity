@@ -646,18 +646,19 @@ export function AvisoInternoGlobal({
           <div className="aig-composer-actions">
             {composerLink && (
               <div style={{ position: 'relative' }} ref={linkPopoverRef}>
-                <button type="button"
-                  className={`aig-action-chip${linkCanais.size > 0 ? ' active' : ''}`}
-                  onClick={() => setLinkPopoverAberto(v => !v)}
-                  title={composerLink}>
-                  <LinkSimple size={10} weight={linkCanais.size > 0 ? 'fill' : 'regular'} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 60 }}>
-                    {(() => { const parts = composerLink.split('/').filter(Boolean); return parts[parts.length - 1] || 'link'; })()}
-                  </span>
-                  {linkCanais.size > 0 && (
-                    <span style={{ opacity: 0.65, fontSize: '0.5rem' }}>·{linkCanais.size}</span>
-                  )}
-                </button>
+                <TooltipGlobal content={composerLink} position="top">
+                  <button type="button"
+                    className={`aig-action-chip${linkCanais.size > 0 ? ' active' : ''}`}
+                    onClick={() => setLinkPopoverAberto(v => !v)}>
+                    <LinkSimple size={10} weight={linkCanais.size > 0 ? 'fill' : 'regular'} />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 60 }}>
+                      {(() => { const parts = composerLink.split('/').filter(Boolean); return parts[parts.length - 1] || 'link'; })()}
+                    </span>
+                    {linkCanais.size > 0 && (
+                      <span style={{ opacity: 0.65, fontSize: '0.5rem' }}>·{linkCanais.size}</span>
+                    )}
+                  </button>
+                </TooltipGlobal>
 
                 {linkPopoverAberto && (
                   <div className="aig-link-popover">

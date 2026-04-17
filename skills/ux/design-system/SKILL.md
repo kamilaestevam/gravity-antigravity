@@ -259,6 +259,14 @@ import { House, Users, Buildings } from '@phosphor-icons/react'
 - **Ícones de acento** (destaque, header): `color="#6366f1"` ou `#818cf8` (= `--accent`)
 - **Ícones neutros** (nav, botões secundários): herdam `color` do elemento pai via CSS
 
+### Ícones Reservados por Contexto (Regras de Uso)
+
+| Elemento | Ícone obrigatório | Proibido |
+|---|---|---|
+| Botão Hub no header | `Graph` | `ArrowLeft`, `CaretLeft`, `ArrowBack`, qualquer seta |
+
+> **Regra:** o botão "Hub" em qualquer header/topbar usa `<Graph>` — nunca seta. O ícone `Graph` representa "rede/cluster/hub"; setas representam "voltar", o que cria confusão UX. Esta regra foi estabelecida após regressões repetidas em múltiplos layouts (Core, Workspace, Admin). A fonte de verdade é `servicos-global/configurador/src/components/HubButton.tsx`.
+
 ### Espaçamento (gap)
 
 O ícone nunca tem `margin` próprio — o espaçamento é controlado pelo **flex container pai**:

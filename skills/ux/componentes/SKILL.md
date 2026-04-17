@@ -31,6 +31,7 @@ Antes de criar qualquer componente novo, consultar este catálogo. Se a necessid
 | Tooltip ou dica contextual | **DicaGlobal** |
 | Chamada HTTP para API | `apiClient` de **api-global** |
 | Formatar CPF, CNPJ, moeda, data | **utilitarios-global** |
+| Botão de retorno ao Hub no header de qualquer layout | **HubButton** (ver seção abaixo) |
 | Layout, sidebar, navegação entre módulos | **Shell** |
 | Notificações toast (sucesso, erro, aviso) | **Shell** — `addNotification` |
 | Comunicação entre módulos sem acoplamento | **Shell** — event bus |
@@ -350,6 +351,34 @@ import { PaginaDashboardGlobal } from '@nucleo/templates'
 ```
 
 Compõe automaticamente: CabecalhoGlobal + grid de KPIs + conteúdo flexível.
+
+---
+
+## HubButton — Botão de Navegação para o Hub
+
+**Arquivo:** `servicos-global/configurador/src/components/HubButton.tsx`
+
+**Quando usar:** SEMPRE que um layout do configurador (Core, Workspace, Admin ou qualquer nova rota) precisar de um botão que leva o usuário de volta ao Hub.
+
+```typescript
+import { HubButton } from '../../components/HubButton'
+
+// Uso básico
+<HubButton onClick={() => navigate('/hub')} />
+
+// Com escape hatch (Core — força seleção de workspace mesmo com preferido)
+<HubButton onClick={() => navigate('/hub?select=1')} tooltip={t('shell.voltar_hub')} />
+```
+
+### Regra Inviolável — Ícone do Hub
+
+> **O botão Hub SEMPRE usa o ícone `Graph` do `@phosphor-icons/react`.**
+> NUNCA use `ArrowLeft`, `ArrowBack`, `CaretLeft` ou qualquer ícone de seta/voltar neste botão.
+> O ícone representa "rede/cluster/hub", não "navegação de volta".
+
+**Por que:** o ícone `ArrowLeft` causou regressões repetidas (confusão visual entre "voltar" e "ir ao Hub"). O `HubButton` é a única fonte de verdade — qualquer mudança de ícone deve ser feita apenas neste arquivo.
+
+**Para o `shell/Header.tsx`** (pacote separado, não pode importar `HubButton`): usar `<Graph size={16} weight="bold" />` diretamente.
 
 ---
 

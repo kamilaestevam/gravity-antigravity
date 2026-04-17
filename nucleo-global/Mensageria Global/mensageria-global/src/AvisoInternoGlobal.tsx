@@ -11,10 +11,10 @@ import {
   At,
   LinkSimple,
   EnvelopeSimple,
-  Eye,
   WhatsappLogo,
   Warning,
   CalendarBlank,
+  Plus,
 } from '@phosphor-icons/react';
 import { TooltipGlobal } from '@nucleo/tooltip-global';
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global';
@@ -87,6 +87,7 @@ export function AvisoInternoGlobal({
   const [isOpen, setIsOpen] = useState(false);
   const [buscaAberta, setBuscaAberta] = useState(false);
   const [calendarioAberto, setCalendarioAberto] = useState(false);
+  const [composerAberto, setComposerAberto] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const buscaInputRef = useRef<HTMLInputElement>(null);
@@ -197,6 +198,7 @@ export function AvisoInternoGlobal({
     setComposerLink(linkAtual ?? '');
     setPickerOpen(false);
     setPickerBusca('');
+    setComposerAberto(false);
   };
 
   // Inicializa link quando dropdown abre
@@ -299,7 +301,7 @@ export function AvisoInternoGlobal({
         .aig-combo-wrap .sg-campo { padding: 0 0.75rem !important; }
       `}</style>
 
-      {/* HEADER — limpo: título + ler todas */}
+      {/* HEADER — título + ler todas + nova mensagem */}
       <div className="aig-top-header">
         <span className="aig-top-title">
            <Bell size={16} weight="duotone" /> NOTIFICAÇÕES
@@ -312,6 +314,16 @@ export function AvisoInternoGlobal({
               </button>
             </TooltipGlobal>
           )}
+          <TooltipGlobal titulo={composerAberto ? 'Fechar composer' : 'Nova mensagem'} descricao="">
+            <button
+              type="button"
+              className={`aig-top-btn-primary${composerAberto ? ' composer-open' : ''}`}
+              onClick={() => setComposerAberto(v => !v)}
+              aria-expanded={composerAberto}
+            >
+              {composerAberto ? <X size={14} weight="bold" /> : <Plus size={14} weight="bold" />}
+            </button>
+          </TooltipGlobal>
         </div>
       </div>
 
@@ -483,8 +495,8 @@ export function AvisoInternoGlobal({
         )}
       </div>
 
-      {/* ══════ COMPOSER UNIFICADO (fixo na base) ══════ */}
-      <div className="aig-composer" style={{ borderTop: '1px solid var(--aig-border, #334155)' }}>
+      {/* ══════ COMPOSER — abre via botão + no header ══════ */}
+      {composerAberto && <div className="aig-composer" style={{ borderTop: '1px solid var(--aig-border, #334155)' }}>
 
         {/* Linha "Para:" — clicável, expande picker pra cima */}
         {usuariosTenant.length > 0 && (
@@ -706,7 +718,7 @@ export function AvisoInternoGlobal({
             Ctrl+Enter {hasDestinatarios ? 'envia' : 'salva'}
           </span>
         </div>
-      </div>
+      </div>}
 
         </div>
       )}

@@ -352,40 +352,40 @@ function StatusSortavel({
 // ── Sidebar hierárquica ───────────────────────────────────────────────────────
 
 type SidebarItemTipo =
-  | { tipo: 'item';   id: string; label: string; icone: React.ReactNode; ativo: boolean }
-  | { tipo: 'grupo';  label: string }
-  | { tipo: 'parent'; id: string; label: string; icone: React.ReactNode; ativo: boolean; filhos: string[] }
-  | { tipo: 'sub';    id: string; label: string; icone: React.ReactNode; ativo: boolean }
+  | { tipo: 'item';   id: string; label: string; labelKey: string; icone: React.ReactNode; ativo: boolean }
+  | { tipo: 'grupo';  label: string; labelKey: string }
+  | { tipo: 'parent'; id: string; label: string; labelKey: string; icone: React.ReactNode; ativo: boolean; filhos: string[] }
+  | { tipo: 'sub';    id: string; label: string; labelKey: string; icone: React.ReactNode; ativo: boolean }
 
 const KANBAN_FILHOS  = ['kanban-colunas', 'kanban-card', 'kanban-modal']
 const COLUNAS_FILHOS = ['colunas-casas-decimais', 'colunas-formato-data', 'colunas-personalizadas', 'colunas-campos-calculados']
 
 const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   // ── VISUALIZAÇÕES ──────────────────────────────────────────────────────────
-  { tipo: 'grupo',  label: 'VISUALIZAÇÕES' },
-  { tipo: 'item',   id: 'cards',                          label: 'Cards',             icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'tabela',                         label: 'Tabela',            icone: <Table                size={15} weight="duotone" />, ativo: true },
-  { tipo: 'parent', id: 'colunas-casas-decimais',         label: 'Colunas',           icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: COLUNAS_FILHOS },
-  { tipo: 'sub',    id: 'colunas-casas-decimais',         label: 'Casas Decimais',    icone: <Hash                 size={15} weight="duotone" />, ativo: true },
-  { tipo: 'sub',    id: 'colunas-formato-data',           label: 'Formato de Data',   icone: <CalendarBlank        size={15} weight="duotone" />, ativo: true },
-  { tipo: 'sub',    id: 'colunas-personalizadas',         label: 'Personalizadas',    icone: <Columns              size={15} weight="duotone" />, ativo: true },
-  { tipo: 'sub',    id: 'colunas-campos-calculados',      label: 'Campos Calculados', icone: <MathOperations       size={15} weight="duotone" />, ativo: true },
-  { tipo: 'parent', id: 'kanban',                         label: 'Kanban',            icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: KANBAN_FILHOS },
-  { tipo: 'sub',    id: 'kanban-colunas',                 label: 'Colunas',           icone: <Sliders              size={15} weight="duotone" />, ativo: true },
-  { tipo: 'sub',    id: 'kanban-card',                    label: 'Card',              icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
-  { tipo: 'sub',    id: 'kanban-modal',                   label: 'Modal',             icone: <Columns              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'grupo',  label: 'VISUALIZAÇÕES', labelKey: 'pedido.config.sidebar.grupo_visualizacoes' },
+  { tipo: 'item',   id: 'cards',                          label: 'Cards',             labelKey: 'pedido.config.sidebar.cards',             icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'tabela',                         label: 'Tabela',            labelKey: 'pedido.config.sidebar.tabela',            icone: <Table                size={15} weight="duotone" />, ativo: true },
+  { tipo: 'parent', id: 'colunas-casas-decimais',         label: 'Colunas',           labelKey: 'pedido.config.sidebar.colunas',           icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: COLUNAS_FILHOS },
+  { tipo: 'sub',    id: 'colunas-casas-decimais',         label: 'Casas Decimais',    labelKey: 'pedido.config.sidebar.casas_decimais',    icone: <Hash                 size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'colunas-formato-data',           label: 'Formato de Data',   labelKey: 'pedido.config.sidebar.formato_data',      icone: <CalendarBlank        size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'colunas-personalizadas',         label: 'Personalizadas',    labelKey: 'pedido.config.sidebar.personalizadas',    icone: <Columns              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'colunas-campos-calculados',      label: 'Campos Calculados', labelKey: 'pedido.config.sidebar.campos_calculados', icone: <MathOperations       size={15} weight="duotone" />, ativo: true },
+  { tipo: 'parent', id: 'kanban',                         label: 'Kanban',            labelKey: 'pedido.config.sidebar.kanban',            icone: <Columns              size={15} weight="duotone" />, ativo: true, filhos: KANBAN_FILHOS },
+  { tipo: 'sub',    id: 'kanban-colunas',                 label: 'Colunas',           labelKey: 'pedido.config.sidebar.kanban_colunas',    icone: <Sliders              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'kanban-card',                    label: 'Card',              labelKey: 'pedido.config.sidebar.card',              icone: <SquaresFour          size={15} weight="duotone" />, ativo: true },
+  { tipo: 'sub',    id: 'kanban-modal',                   label: 'Modal',             labelKey: 'pedido.config.sidebar.modal',             icone: <Columns              size={15} weight="duotone" />, ativo: true },
   // ── PEDIDO ─────────────────────────────────────────────────────────────────
-  { tipo: 'grupo',  label: 'PEDIDO' },
-  { tipo: 'item',   id: 'status',            label: 'Status',         icone: <Tag                  size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'numeracao',         label: 'Numeração',      icone: <Hash                 size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'templates-pdf',     label: 'Templates PDF',  icone: <FloppyDisk           size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'regras',            label: 'Regras',         icone: <Sliders              size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'categorias-anexos', label: 'Categ. Anexos',  icone: <Folder               size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'taxa-cambio',       label: 'Taxa de Câmbio', icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
+  { tipo: 'grupo',  label: 'PEDIDO', labelKey: 'pedido.config.sidebar.grupo_pedido' },
+  { tipo: 'item',   id: 'status',            label: 'Status',         labelKey: 'pedido.config.sidebar.status',         icone: <Tag                  size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'numeracao',         label: 'Numeração',      labelKey: 'pedido.config.sidebar.numeracao',      icone: <Hash                 size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'templates-pdf',     label: 'Templates PDF',  labelKey: 'pedido.config.sidebar.templates_pdf',  icone: <FloppyDisk           size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'regras',            label: 'Regras',         labelKey: 'pedido.config.sidebar.regras',         icone: <Sliders              size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'categorias-anexos', label: 'Categ. Anexos',  labelKey: 'pedido.config.sidebar.categ_anexos',   icone: <Folder               size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'taxa-cambio',       label: 'Taxa de Câmbio', labelKey: 'pedido.config.sidebar.taxa_cambio',    icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
   // ── SISTEMA ────────────────────────────────────────────────────────────────
-  { tipo: 'grupo',  label: 'SISTEMA' },
-  { tipo: 'item',   id: 'notificacoes',      label: 'Notificações',   icone: <Bell                 size={15} weight="duotone" />, ativo: true },
-  { tipo: 'item',   id: 'exportacao',        label: 'Exportação',     icone: <DownloadSimple       size={15} weight="duotone" />, ativo: true },
+  { tipo: 'grupo',  label: 'SISTEMA', labelKey: 'pedido.config.sidebar.grupo_sistema' },
+  { tipo: 'item',   id: 'notificacoes',      label: 'Notificações',   labelKey: 'pedido.config.sidebar.notificacoes',   icone: <Bell                 size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'exportacao',        label: 'Exportação',     labelKey: 'pedido.config.sidebar.exportacao',     icone: <DownloadSimple       size={15} weight="duotone" />, ativo: true },
 ]
 
 type CategoriaId = string
@@ -2074,7 +2074,7 @@ export default function Configuracoes() {
             if (item.tipo === 'grupo') {
               return (
                 <span key={`grupo-${idx}`} className="cfg-sidebar__titulo cfg-sidebar__titulo--grupo">
-                  {item.label}
+                  {t(item.labelKey)}
                 </span>
               )
             }
@@ -2095,7 +2095,7 @@ export default function Configuracoes() {
                     onClick={() => toggleGroup(groupKey)}
                   >
                     <span className="cfg-sidebar__item-icon">{item.icone}</span>
-                    <span className="cfg-sidebar__item-label">{item.label}</span>
+                    <span className="cfg-sidebar__item-label">{t(item.labelKey)}</span>
                     <CaretDown
                       size={12}
                       weight="bold"
@@ -2119,7 +2119,7 @@ export default function Configuracoes() {
                             ].filter(Boolean).join(' ')}
                             onClick={() => sub.ativo && setCategoria(sub.id as CategoriaId)}
                           >
-                            <span className="cfg-sidebar__item-label">{sub.label}</span>
+                            <span className="cfg-sidebar__item-label">{t(sub.labelKey)}</span>
                             {!sub.ativo && <span className="cfg-badge-breve">Em breve</span>}
                           </button>
                         )
@@ -2146,7 +2146,7 @@ export default function Configuracoes() {
                 onClick={() => item.ativo && setCategoria(item.id as CategoriaId)}
               >
                 <span className="cfg-sidebar__item-icon">{item.icone}</span>
-                <span className="cfg-sidebar__item-label">{item.label}</span>
+                <span className="cfg-sidebar__item-label">{t(item.labelKey)}</span>
                 {!item.ativo && <span className="cfg-badge-breve">Em breve</span>}
               </button>
             )
@@ -2165,21 +2165,21 @@ export default function Configuracoes() {
               {/* ── Header unificado ── */}
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Meus Cards</h2>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.cards.titulo')}</h2>
                   <p className="cfg-secao__desc">
-                    Cards exibidos no topo da tela · arraste para reordenar · olho para ocultar
+                    {t('pedido.config.cards.descricao')}
                   </p>
                 </div>
-                <TooltipGlobal descricao="Restaura os 3 cards padrão do produto">
+                <TooltipGlobal descricao={t('pedido.config.cards.restaurar_padrao_tooltip')}>
                   <button type="button" className="cfg-btn-header--restaurar" onClick={resetar}>
                     <ArrowCounterClockwise size={13} weight="bold" />
-                    Restaurar padrão
+                    {t('pedido.config.cards.restaurar_padrao')}
                   </button>
                 </TooltipGlobal>
               </div>
 
               {/* ── Período de comparação ── */}
-              <CfgSectionLabel label="PERÍODO DE COMPARAÇÃO" />
+              <CfgSectionLabel label={t('pedido.config.cards.label_periodo')} />
               <div className="cfg-periodo-pills" style={{ marginTop: '0.75rem' }}>
                 {PERIODOS.map(p => (
                   <button
@@ -2188,7 +2188,7 @@ export default function Configuracoes() {
                     className={`cfg-periodo-pill${periodoAtivo === p.id ? ' cfg-periodo-pill--ativo' : ''}`}
                     onClick={() => setPeriodoAtivo(p.id)}
                   >
-                    {p.label}
+                    {t(`pedido.config.cards.periodo_${p.id}`)}
                   </button>
                 ))}
               </div>
@@ -2198,7 +2198,7 @@ export default function Configuracoes() {
                 <div className="cfg-cards-preview-wrap">
                   <p className="cfg-cards-preview-label">
                     <SquaresFour size={12} weight="fill" />
-                    Preview — como ficará na tela
+                    {t('pedido.config.cards.preview')}
                   </p>
                   <div className="cfg-cards-preview-grid">
                     {prefs.map((pref, i) => {
@@ -2224,10 +2224,10 @@ export default function Configuracoes() {
               )}
 
               {/* ── Ativos ── */}
-              <CfgSectionLabel label="ATIVOS" count={`${prefs.length} card${prefs.length !== 1 ? 's' : ''}`} />
+              <CfgSectionLabel label={t('pedido.config.cards.ativos')} count={`${prefs.length} card${prefs.length !== 1 ? 's' : ''}`} />
 
               {prefs.length === 0 ? (
-                <p className="cfg-empty">Nenhum card adicionado. Escolha na lista abaixo.</p>
+                <p className="cfg-empty">{t('pedido.config.cards.vazio')}</p>
               ) : (
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                   <SortableContext items={prefs.map(p => p.id)} strategy={verticalListSortingStrategy}>
@@ -2246,7 +2246,7 @@ export default function Configuracoes() {
               )}
 
               {/* ── Disponíveis para adicionar ── */}
-              <CfgSectionLabel label="DISPONÍVEIS PARA ADICIONAR" hint="clique em + para adicionar" style={{ marginTop: '1.5rem' }} />
+              <CfgSectionLabel label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
 
               <div className="cfg-tabela-head">
                 <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>

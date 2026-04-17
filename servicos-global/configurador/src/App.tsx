@@ -1,7 +1,6 @@
 import React from 'react'
 import { Routes, Route, useNavigate, useParams, Navigate, useLocation } from 'react-router-dom'
 import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/clerk-react'
-import { useShellStore, useSyncClerkToShell } from '@gravity/shell'
 import { useLoadSystemRole } from './hooks/useLoadSystemRole'
 import { AuthPage } from './pages/AuthPage'
 
@@ -85,18 +84,7 @@ const PEDIDO_VALID_PATHS = new Set([
 ])
 
 function PedidoRouteGuard() {
-  // Hidrata o store com os dados do Clerk — deve ser o primeiro hook
-  useSyncClerkToShell()
-
   const location = useLocation()
-  const tenantId = useShellStore(
-    s => s.currentUser.tenantId ?? (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) ?? ''
-  )
-
-  // Gatekeeper: bloqueia a montagem do produto até o tenant estar disponível.
-  // Sem isso, setApiContext é chamado com contexto vazio e os useEffects tomam 401.
-  if (!tenantId) return <ProductLoading />
-
   const BASE = '/produto/pedido'
 
   const inner = location.pathname.startsWith(BASE + '/')
@@ -117,7 +105,7 @@ function PedidoRouteGuard() {
     return <Navigate to={`${BASE}/${target}`} replace />
   }
 
-  return <React.Suspense fallback={<ProductLoading />}><PedidoApp key={location.pathname} /></React.Suspense>
+  return <React.Suspense fallback={<ProductLoading />}><PedidoApp /></React.Suspense>
 }
 
 const ProductLoading = () => (

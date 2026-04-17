@@ -3095,7 +3095,18 @@
         "ativos": "ATIVOS",
         "vazio": "Nenhum card adicionado. Escolha na lista abaixo.",
         "disponiveis": "DISPONÍVEIS PARA ADICIONAR",
-        "hint_adicionar": "clique em + para adicionar"
+        "hint_adicionar": "clique em + para adicionar",
+        "col_nome": "Coluna",
+        "col_origem": "Origem",
+        "col_agregacao": "Agregação",
+        "origem_pedido": "Pedido",
+        "origem_item": "Item",
+        "agg_contagem": "Contagem",
+        "agg_soma": "Soma",
+        "agg_media": "Média",
+        "tooltip_ocultar": "Ocultar na lista",
+        "tooltip_exibir": "Exibir na lista",
+        "tooltip_remover": "Remover da lista"
       }
     },
     "campos": {

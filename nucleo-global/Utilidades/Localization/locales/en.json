@@ -3301,7 +3301,18 @@
         "ativos": "ACTIVE",
         "vazio": "No card added. Choose from the list below.",
         "disponiveis": "AVAILABLE TO ADD",
-        "hint_adicionar": "click + to add"
+        "hint_adicionar": "click + to add",
+        "col_nome": "Column",
+        "col_origem": "Origin",
+        "col_agregacao": "Aggregation",
+        "origem_pedido": "Order",
+        "origem_item": "Item",
+        "agg_contagem": "Count",
+        "agg_soma": "Sum",
+        "agg_media": "Average",
+        "tooltip_ocultar": "Hide from list",
+        "tooltip_exibir": "Show in list",
+        "tooltip_remover": "Remove from list"
       }
     },
     "campos": {

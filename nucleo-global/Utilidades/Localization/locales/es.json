@@ -3450,7 +3450,18 @@
         "ativos": "ACTIVOS",
         "vazio": "No se agregó ningún card. Elige de la lista.",
         "disponiveis": "DISPONIBLES PARA AGREGAR",
-        "hint_adicionar": "haz clic en + para agregar"
+        "hint_adicionar": "haz clic en + para agregar",
+        "col_nome": "Columna",
+        "col_origem": "Origen",
+        "col_agregacao": "Agregación",
+        "origem_pedido": "Pedido",
+        "origem_item": "Artículo",
+        "agg_contagem": "Conteo",
+        "agg_soma": "Suma",
+        "agg_media": "Promedio",
+        "tooltip_ocultar": "Ocultar de la lista",
+        "tooltip_exibir": "Mostrar en la lista",
+        "tooltip_remover": "Quitar de la lista"
       }
     },
     "campos": {

@@ -135,14 +135,14 @@ function CardSortavel({
         </div>
       </div>
 
-      <span className="cfg-origem-badge cfg-origem-badge--meus">{def.origem}</span>
+      <span className="cfg-origem-badge cfg-origem-badge--meus">{t(`pedido.config.cards.origem_${def.origem.toLowerCase()}`)}</span>
 
-      <TooltipGlobal descricao={pref.visible ? 'Ocultar na lista' : 'Exibir na lista'}>
+      <TooltipGlobal descricao={pref.visible ? t('pedido.config.cards.tooltip_ocultar') : t('pedido.config.cards.tooltip_exibir')}>
         <button
           type="button"
           className={`cfg-eye-btn${pref.visible ? ' cfg-eye-btn--on' : ''}`}
           onClick={onToggle}
-          aria-label={pref.visible ? 'Ocultar card' : 'Exibir card'}
+          aria-label={pref.visible ? t('pedido.config.cards.tooltip_ocultar') : t('pedido.config.cards.tooltip_exibir')}
         >
           {pref.visible
             ? <Eye      size={15} weight="bold" />
@@ -151,7 +151,7 @@ function CardSortavel({
         </button>
       </TooltipGlobal>
 
-      <TooltipGlobal descricao="Remover da lista">
+      <TooltipGlobal descricao={t('pedido.config.cards.tooltip_remover')}>
         <button
           type="button"
           className="cfg-remove-btn"
@@ -2249,9 +2249,9 @@ export default function Configuracoes() {
               <CfgSectionLabel label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
 
               <div className="cfg-tabela-head">
-                <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">Coluna</span>
-                <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">Origem</span>
-                <span className="cfg-tabela-head__col cfg-tabela-head__col--agg">Agregação</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--nome">{t('pedido.config.cards.col_nome')}</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--origem">{t('pedido.config.cards.col_origem')}</span>
+                <span className="cfg-tabela-head__col cfg-tabela-head__col--agg">{t('pedido.config.cards.col_agregacao')}</span>
                 <span className="cfg-tabela-head__col cfg-tabela-head__col--acao" />
               </div>
 
@@ -2273,9 +2273,9 @@ export default function Configuracoes() {
                         </div>
                       </div>
                       <span className={`cfg-origem-badge ${def.origem === 'Pedido' ? 'cfg-origem-badge--pedido' : 'cfg-origem-badge--item'}`}>
-                        {def.origem}
+                        {t(`pedido.config.cards.origem_${def.origem.toLowerCase()}`)}
                       </span>
-                      <span className="cfg-agg-badge">{def.tipoAgg}</span>
+                      <span className="cfg-agg-badge">{t(`pedido.config.cards.agg_${def.tipoAgg.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`)}</span>
                       <TooltipGlobal descricao="Adicionar aos meus cards">
                         <button
                           type="button"

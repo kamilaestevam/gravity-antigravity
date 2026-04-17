@@ -3269,7 +3269,7 @@ export default function ListaPedidos() {
         page: novaPagina,
         status: novaAba !== 'todos' ? novaAba : undefined,
         busca: novaBusca || undefined,
-      })
+      }, tenantId)
       setPedidos(res.data)
       setTotal(res.total)
       setTotalItensBanco(res.totalItens ?? 0)
@@ -3281,7 +3281,7 @@ export default function ListaPedidos() {
       setCarregando(false)
       carregandoRef.current = false
     }
-  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA])
+  }, [abaAtiva, sortCampo, sortDir, busca, ITENS_POR_PAGINA, tenantId])
 
   const acoesPai = useMemo(() => ([
     {
@@ -3511,12 +3511,12 @@ export default function ListaPedidos() {
 
   useEffect(() => {
     if (!tenantId) return
-    configRegrasApi.obter().then(cfg => { _regrasAlertasRef.current = cfg }).catch(() => { /* silencioso */ })
+    configRegrasApi.obter(tenantId).then(cfg => { _regrasAlertasRef.current = cfg }).catch(() => { /* silencioso */ })
   }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!tenantId) return
-    casasDecimaisApi.obter()
+    casasDecimaisApi.obter(tenantId)
       .then(res => {
         if (res.data.formato_data) setFormatoData(res.data.formato_data as import('../shared/useFormatoData').FormatoData)
       })

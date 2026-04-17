@@ -66,10 +66,8 @@ export function getApiContext(): { tenantId: string; userId: string; userName: s
   }
 }
 
-async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  // setApiContext é chamado sincronamente no render do App antes de qualquer efeito,
-  // garantindo que context.tenantId esteja sempre atualizado no momento da requisição.
-  const tenantId = context.tenantId || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+async function request<T>(endpoint: string, options?: RequestInit, overrideTenantId?: string): Promise<T> {
+  const tenantId = overrideTenantId || context.tenantId || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
 
   const response = await fetch(endpoint, {
     ...options,
@@ -197,7 +195,7 @@ export const pedidoVirtualApi = {
     limit?: number
     status?: string
     busca?: string
-  } = {}) => {
+  } = {}, tenantId?: string) => {
     const q = new URLSearchParams()
     if (params.cursor)         q.set('cursor', params.cursor)
     if (params.page != null)   q.set('page', String(params.page))
@@ -206,7 +204,7 @@ export const pedidoVirtualApi = {
     if (params.limit)            q.set('limit', String(params.limit))
     if (params.status)           q.set('status', params.status)
     if (params.busca)            q.set('busca', params.busca)
-    return request<PedidosListResponse>(`/api/v1/pedidos?${q}`)
+    return request<PedidosListResponse>(`/api/v1/pedidos?${q}`, undefined, tenantId)
   },
 
   /** Contar total de matches find-in-page no banco (pedidos + itens) */
@@ -1207,8 +1205,8 @@ const REGRAS_CONFIG_DEFAULT: RegrasConfigBackend = {
 }
 
 export const configRegrasApi = {
-  obter: (): Promise<RegrasConfigBackend> =>
-    request<RegrasConfigBackend>('/api/v1/pedidos/config/regras').catch(err => {
+  obter: (tenantId?: string): Promise<RegrasConfigBackend> =>
+    request<RegrasConfigBackend>('/api/v1/pedidos/config/regras', undefined, tenantId).catch(err => {
       if (import.meta.env.DEV) return REGRAS_CONFIG_DEFAULT
       throw err
     }),
@@ -1873,8 +1871,8 @@ export interface CasasDecimaisAuditoria {
 }
 
 export const casasDecimaisApi = {
-  obter: (): Promise<{ data: CasasDecimaisConfigPayload }> =>
-    request<{ data: CasasDecimaisConfigPayload }>('/api/v1/pedidos/configuracoes/casas-decimais')
+  obter: (tenantId?: string): Promise<{ data: CasasDecimaisConfigPayload }> =>
+    request<{ data: CasasDecimaisConfigPayload }>('/api/v1/pedidos/configuracoes/casas-decimais', undefined, tenantId)
       .catch(() => ({ data: {
         valor_total_pedido: 2, valor_unitario_item: 2, quantidade_total_inicial_pedido: 2,
         quantidade_pronta_pedido_total: 2, saldo_itens_do_pedido: 2,

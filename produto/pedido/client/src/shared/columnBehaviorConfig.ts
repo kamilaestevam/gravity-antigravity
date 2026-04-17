@@ -14,6 +14,7 @@
  */
 
 import type { Pedido } from './types'
+export { isPropagavel } from '../../../shared/columnPropagationConfig'
 
 // ── Tipos ────────────────────────────────────────────────────────────────────
 

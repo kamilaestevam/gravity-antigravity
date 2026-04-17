@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { useShellStore, ToastContainer } from '@gravity/shell'
+import { useShellStore, ToastContainer, useSyncClerkToShell } from '@gravity/shell'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -41,6 +41,7 @@ function mapNavItem(item: NavigationItem): NavItem {
     return { label: item.label, sectionDivider: true as const }
   }
   return {
+    id:           item.id,
     to:           item.id,
     label:        item.label,
     icon:         iconMap[item.icon ?? ''] ?? <ListBullets weight="duotone" size={20} />,
@@ -84,6 +85,8 @@ function LoadingFallback() {
 }
 
 export function App() {
+  useSyncClerkToShell()
+
   const location = useLocation()
   const navigate = useNavigate()
   const currentUser      = useShellStore(s => s.currentUser)
@@ -104,10 +107,9 @@ export function App() {
   })
   useEffect(() => {
     setApiContext({
-      // DEV: força o tenant do seed; em prod usa o Clerk org real
-      tenantId: import.meta.env.DEV
-        ? (import.meta.env.VITE_DEV_TENANT_ID ?? currentUser.tenantId ?? '')
-        : (currentUser.tenantId ?? ''),
+      // currentUser.tenantId (Clerk publicMetadata) é sempre prioridade;
+      // VITE_DEV_TENANT_ID serve apenas como fallback para sessões sem auth
+      tenantId: currentUser.tenantId ?? import.meta.env.VITE_DEV_TENANT_ID ?? '',
       userId:   currentUser.id       ?? '',
       userName: currentUser.name     ?? '',
     })
@@ -127,7 +129,11 @@ export function App() {
 
   const initials = currentUser.name
     ? currentUser.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-    : '??'
+    : currentUser.email?.[0]?.toUpperCase() ?? '?'
+
+  const isAdmin =
+    currentUser.role === 'Super Admin' || currentUser.role === 'Admin' ||
+    currentUser.role === 'SUPER_ADMIN'  || currentUser.role === 'ADMIN'
 
   const ROUTE_LABELS: Record<string, string> = {
     'pedidos':           'Lista',
@@ -179,6 +185,8 @@ export function App() {
         userEmail:             currentUser.email || '',
         userInitials:          initials,
         userRole:              currentUser.role  ?? 'Membro',
+        isAdmin,
+        onNavigateAdmin:       () => { window.location.href = '/admin' },
         isLight:               currentTheme === 'light',
         onToggleTheme:         toggleTheme,
         onNavigateWorkspace:   () => { window.location.href = '/configurador' },

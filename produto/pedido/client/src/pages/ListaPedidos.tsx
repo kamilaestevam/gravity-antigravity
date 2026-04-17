@@ -10,6 +10,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import i18next from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useShellStore } from '@gravity/shell'
@@ -79,6 +80,7 @@ import {
 } from '../shared/api'
 import type { RegrasConfigBackend } from '../shared/api'
 import { parsearFormula, avaliarFormula } from '../shared/formulaEngine'
+import { isPropagavel } from '../shared/columnBehaviorConfig'
 import { renderAgregado, buildColunasPai } from '../components/lista/colunasPai'
 import { ModalConsolidar } from '../components/ModalConsolidar'
 import '../components/ModalConsolidar.css'
@@ -3566,14 +3568,7 @@ export default function ListaPedidos() {
     }, 350)
   }, [abaAtiva, busca])
 
-  // Campos que existem TANTO em Pedido (pai) quanto em PedidoItem (filho)
-  // Backend propaga via updateMany atômico no PATCH /:id/campo
-  const CAMPOS_PROPAGA_BACKEND = new Set([
-    'nome_exportador', 'nome_importador', 'nome_fabricante',
-    'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
-    'incoterm', 'condicao_pagamento_pedido', 'data_emissao_pedido',
-  ])
-  // Campos "ghost" — existem no item mas NÃO no pai. PATCH direto nos itens.
+  // Campos "ghost" — existem no item mas NÃO como coluna directa no pai. PATCH directo nos itens.
   const CAMPOS_GHOST_ITENS = new Set(['ncm', 'cobertura_cambial'])
 
   // ── Edição inline (pai) ──────────────────────────────────────────────────────
@@ -3602,32 +3597,20 @@ export default function ListaPedidos() {
       setPedidos(prev => prev.map(p => p.id === id ? atualizado : p))
       return atualizado
     }
-    // ── Propagação pai → itens ──────────────────────────────────────────────────
-    // Backend (9 campos): PATCH /:id/campo → updateMany atômico (1 request)
-    // Ghost (2 campos): PATCH direto nos itens (sem coluna no Pedido pai)
-    if (CAMPOS_PROPAGA_BACKEND.has(campo) || CAMPOS_GHOST_ITENS.has(campo)) {
+    // ── Ghost: campos que existem no item mas NÃO como coluna directa no pai ────
+    // PATCH directo nos itens. Lógica de propagação real fica no servidor para
+    // campos normais (isPropagavel) — o frontend é apenas o reflexo visual.
+    if (CAMPOS_GHOST_ITENS.has(campo)) {
       const pedidoAtual = pedidos.find(p => p.id === id)
       if (!pedidoAtual) throw new Error('Pedido não encontrado')
       const valorEnviar = campo === 'data_emissao_pedido' ? normalizarDataISO(valor) : valor
-
-      if (CAMPOS_PROPAGA_BACKEND.has(campo)) {
-        // Backend propaga para itens via updateMany — uma única chamada
-        await pedidoVirtualApi.editarCampo(id, campo, valorEnviar)
-          .catch(err => { if (!import.meta.env.DEV) throw err })
-      } else {
-        // Ghost: PATCH direto nos itens (ncm, cobertura_cambial)
-        const itensGhost = itensCarregadosRef.current.get(id) ?? []
-        await Promise.all(
-          itensGhost.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valorEnviar))
-        )
-      }
-
-      // Atualiza cache local de itens para refletir propagação
-      const itensRef = itensCarregadosRef.current.get(id) ?? []
-      const itensAtualizados = itensRef.map(i => ({ ...i, [campo]: valorEnviar }))
-      itensCarregadosRef.current.set(id, itensAtualizados)
-      const divPropagar = itensRef.length > 0 ? calcularDivergencias(itensAtualizados) : {}
-      const pedidoAtualizado = { ...pedidoAtual, [campo]: valorEnviar, ...divPropagar, itens: itensAtualizados }
+      const itensGhost = itensCarregadosRef.current.get(id) ?? []
+      await Promise.all(
+        itensGhost.map(item => pedidoItemApi.editarCampo(id, item.id, campo, valorEnviar))
+      )
+      // Invalida cache local — itemVersion detectará mudança e refetch acontece automaticamente
+      itensCarregadosRef.current.delete(id)
+      const pedidoAtualizado = { ...pedidoAtual, [campo]: valorEnviar } as Pedido
       setPedidos(prev => prev.map(p => p.id === id ? pedidoAtualizado : p))
       return pedidoAtualizado
     }
@@ -3642,11 +3625,15 @@ export default function ListaPedidos() {
           return CAMPOS_PESO_PAI.has(campo) ? quantity * (FATOR_PARA_KG_PAI[unit] ?? 1) : quantity
         })()
       : valor
-    await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai)
-    // Só atualiza o campo editado — não sobrescreve outros campos locais com dados do servidor
-    const merged = { ...(pedidoAtual ?? {} as Pedido), [campo]: valorEnviarPai } as Pedido
-    setPedidos(prev => prev.map(p => p.id === id ? merged : p))
-    return merged
+    const updatedPedido = await pedidoVirtualApi.editarCampo(id, campo, valorEnviarPai)
+    // Para campos propagáveis: o servidor actualizou os itens filhos.
+    // Invalida o cache local e usa pedido_atualizado_em novo para que itemVersion
+    // dispare o refetch automático das linhas expandidas.
+    if (isPropagavel(campo)) {
+      itensCarregadosRef.current.delete(id)
+    }
+    setPedidos(prev => prev.map(p => p.id === id ? updatedPedido : p))
+    return updatedPedido
   }, [pedidos, colunasUsuario])
 
   // ── Recalcula flags de divergência a partir dos itens carregados ─────────────
@@ -3958,9 +3945,11 @@ export default function ListaPedidos() {
   // ── Carregar filhos (itens do pedido) ────────────────────────────────────────
   const handleCarregarFilhos = useCallback(async (pedido: Pedido): Promise<PedidoItem[]> => {
     const parentColunas = (pedido as Record<string, unknown>)['_colunas_usuario'] as Record<string, string> ?? {}
-    // Lista view retorna itens:[]. Busca os itens reais via API sob demanda.
-    const itens = await pedidoItemApi.listar(pedido.id)
-    const itensEnriquecidos = itens.map(item => ({
+    // Init e paginação já incluem itens no pedido. Só busca via API se não vieram carregados.
+    const rawItens = (pedido.itens?.length ?? 0) > 0
+      ? pedido.itens
+      : await pedidoItemApi.listar(pedido.id)
+    const itensEnriquecidos = rawItens.map(item => ({
       ...item,
       _colunas_usuario: parentColunas,
       _p: {

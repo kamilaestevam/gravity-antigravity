@@ -34,6 +34,7 @@ import {
   buildContextoItem,
   SALDO_FORMULA_PADRAO,
 } from '../services/formulaEngine.js'
+import { isPropagavel } from '../../../../../produto/pedido/shared/columnPropagationConfig.js'
 
 export const pedidosRouter = Router()
 
@@ -784,91 +785,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'quantidade_transferida_total',
 ])
 
-// Campos propagáveis do Pedido (pai) para PedidoItem (filho) via updateMany
-const CAMPOS_PROPAGAVEIS_PARA_ITENS = new Set([
-  'numero_proforma', 'numero_invoice', 'data_consolidacao_pedido',
-  // Datas (43)
-  'data_prevista_pedido_pronto',
-  'data_confirmada_pedido_pronto',
-  'data_meta_pedido_pronto',
-  'data_prevista_inspecao_pedido',
-  'data_confirmada_inspecao_pedido',
-  'data_meta_inspecao_pedido',
-  'data_prevista_coleta_pedido',
-  'data_confirmada_coleta_pedido',
-  'data_meta_coleta_pedido',
-  'data_transferencia_saldo_pedido',
-  'data_prevista_recebimento_draft_pedido',
-  'data_confirmada_recebimento_draft_pedido',
-  'data_meta_recebimento_draft_pedido',
-  'data_prevista_aprovacao_draft_pedido',
-  'data_confirmada_aprovacao_draft_pedido',
-  'data_meta_aprovacao_draft_pedido',
-  'data_documento_pedido',
-  'data_prevista_recebimento_draft_proforma',
-  'data_confirmada_recebimento_draft_proforma',
-  'data_meta_recebimento_draft_proforma',
-  'data_prevista_aprovacao_draft_proforma',
-  'data_confirmada_aprovacao_draft_proforma',
-  'data_meta_aprovacao_draft_proforma',
-  'data_prevista_envio_original_proforma',
-  'data_confirmada_envio_original_proforma',
-  'data_meta_envio_original_proforma',
-  'data_prevista_recebimento_original_proforma',
-  'data_confirmada_recebimento_original_proforma',
-  'data_meta_recebimento_original_proforma',
-  'data_proforma_invoice',
-  'data_prevista_recebimento_draft_invoice',
-  'data_confirmada_recebimento_draft_invoice',
-  'data_meta_recebimento_draft_invoice',
-  'data_prevista_aprovacao_draft_invoice',
-  'data_confirmada_aprovacao_draft_invoice',
-  'data_meta_aprovacao_draft_invoice',
-  'data_prevista_envio_original_invoice',
-  'data_confirmada_envio_original_invoice',
-  'data_meta_envio_original_invoice',
-  'data_prevista_recebimento_original_invoice',
-  'data_confirmada_recebimento_original_invoice',
-  'data_meta_recebimento_original_invoice',
-  'data_invoice',
-  // Partes (27)
-  'pais_exportador',
-  'estado_exportador',
-  'cidade_exportador',
-  'endereco_exportador',
-  'zip_code_exportador',
-  'exportador_ou_fabricante',
-  'relacao_exportador_fabricante',
-  'nome_contato_exportador',
-  'email_contato_exportador',
-  'whatsapp_contato_exportador',
-  'cargo_contato_exportador',
-  'departamento_contato_exportador',
-  'pais_fabricante',
-  'estado_fabricante',
-  'cidade_fabricante',
-  'endereco_fabricante',
-  'zip_code_fabricante',
-  'cnpj_raiz_empresa_responsavel',
-  'codigo_ope',
-  'situacao_ope',
-  'versao_ope',
-  'nome_ope',
-  'pais_ope',
-  'estado_ope',
-  'cidade_ope',
-  'endereco_ope',
-  'zip_code_ope',
-  'tin_ope',
-  'email_ope',
-  // Anexos (3)
-  'anexo_pedido',
-  'anexo_proforma',
-  'anexo_invoice',
-  // Outros (2)
-  'cobertura_cambial_pedido',
-  'quantidade_volumes_pedido',
-])
+// isPropagavel importado de produto/pedido/shared/columnPropagationConfig.ts
 
 // Campos com alerta de divergência entre Pedido e seus Itens (as const para type-safety)
 // Exclui campos com alerta=nao: contatos exportador, tin/email ope, anexos
@@ -1078,6 +995,14 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       data: dadosUpdate,
       include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
+
+    // Propaga o valor actualizado para todos os itens filhos (atómico, mesma transacção implícita)
+    if (isPropagavel(campo)) {
+      await req.prisma.pedidoItem.updateMany({
+        where: { pedido_id: req.params.id, tenant_id, company_id },
+        data: { [campo]: valor === undefined ? null : valor },
+      })
+    }
 
     res.json(mapPedido(updated))
   } catch (err) {

@@ -570,9 +570,9 @@ pedidosConfigRouter.get('/regras', async (req: Request, res: Response, next: Nex
     const tenant_id = getTenantId(req)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const config = await (req as any).prisma.configuracaoPedido.findFirst({
+    const config = await (req as any).prisma.configuracaoPedido?.findFirst({
       where: { tenant_id },
-    }).catch(() => null)
+    }) ?? null
 
     res.json(config ?? REGRAS_DEFAULT)
   } catch (err) {
@@ -592,7 +592,7 @@ pedidosConfigRouter.put('/regras', async (req: Request, res: Response, next: Nex
     const company_id = getCompanyId(req)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const config = await (req as any).prisma.configuracaoPedido.upsert({
+    const config = await (req as any).prisma.configuracaoPedido?.upsert({
       where: { tenant_id },
       update: { ...result.data },
       create: {
@@ -601,7 +601,7 @@ pedidosConfigRouter.put('/regras', async (req: Request, res: Response, next: Nex
         ...REGRAS_DEFAULT,
         ...result.data,
       },
-    })
+    }) ?? { ...REGRAS_DEFAULT, ...result.data }
 
     res.json(config)
   } catch (err) {

@@ -48,6 +48,8 @@ import type {
 } from './types'
 import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 
+import { useShellStore } from '@gravity/shell'
+
 let context = { tenantId: '', userId: '', userName: '' }
 
 export function setApiContext(ctx: { tenantId: string; userId: string; userName?: string }): void {
@@ -55,17 +57,29 @@ export function setApiContext(ctx: { tenantId: string; userId: string; userName?
 }
 
 export function getApiContext(): { tenantId: string; userId: string; userName: string } {
-  return context
+  // Lê sempre do store em tempo real para evitar stale closure na troca de rota
+  const storeUser = useShellStore.getState().currentUser
+  return {
+    tenantId: storeUser.tenantId ?? context.tenantId,
+    userId:   storeUser.id       || context.userId,
+    userName: storeUser.name     || context.userName,
+  }
 }
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  // Leitura dinâmica no momento da requisição — nunca stale
+  const storeUser = useShellStore.getState().currentUser
+  const tenantId  = storeUser.tenantId ?? context.tenantId
+  const userId    = storeUser.id       || context.userId
+  const userName  = storeUser.name     || context.userName
+
   const response = await fetch(endpoint, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'x-tenant-id': context.tenantId,
-      'x-user-id': context.userId,
-      'x-user-name': context.userName,
+      'x-tenant-id': tenantId,
+      'x-user-id':   userId,
+      'x-user-name': userName,
       'x-internal-key': import.meta.env.VITE_INTERNAL_SERVICE_KEY || '',
       ...options?.headers,
     },

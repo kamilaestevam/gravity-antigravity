@@ -42,21 +42,21 @@ export const PRODUCT_CONFIG = {
     {
       id: 'meu-espaco', label: 'Meu Espaço', icon: 'user-circle', source: 'tenant',
       children: [
-        { id: 'atividades', label: 'Minhas Atividades', icon: 'check-circle', source: 'tenant' },
-        { id: 'email',      label: 'Email',             icon: 'envelope',     source: 'tenant' },
-        { id: 'whatsapp',   label: 'WhatsApp',          icon: 'whatsapp-logo', source: 'tenant' },
+        { id: '/core/atividades', label: 'Minhas Atividades', icon: 'check-circle',  source: 'tenant' },
+        { id: '/core/email',      label: 'Email',             icon: 'envelope',      source: 'tenant' },
+        { id: '/core/whatsapp',   label: 'WhatsApp',          icon: 'whatsapp-logo', source: 'tenant' },
       ],
     },
 
     // ── Pedidos ──────────────────────────────────────────────────────────────
-    { id: 'section-pedidos',   label: 'Pedidos',    sectionDivider: true },
-    { id: 'pedidos/dashboard', label: 'Dashboard',  icon: 'chart-pie-slice',         source: 'product' },
-    { id: 'pedidos',           label: 'Lista',       icon: 'list-bullets',            source: 'product' },
-    { id: 'pedidos/kanban',    label: 'Kanban',       icon: 'kanban',                  source: 'product' },
+    { id: 'section-pedidos',                    label: 'Pedidos',    sectionDivider: true },
+    { id: '/produto/pedido/pedidos/dashboard',  label: 'Dashboard',  icon: 'chart-pie-slice',         source: 'product' },
+    { id: '/produto/pedido/pedidos',            label: 'Lista',      icon: 'list-bullets',            source: 'product' },
+    { id: '/produto/pedido/pedidos/kanban',     label: 'Kanban',     icon: 'kanban',                  source: 'product' },
 
     // ── Serviços ──────────────────────────────────────────────────────────────
-    { id: 'historico',     label: 'Histórico',     icon: 'clock-counter-clockwise', source: 'tenant'  },
-    { id: 'configuracoes', label: 'Configurações', icon: 'gear-six',                source: 'product' },
+    { id: '/produto/pedido/historico',     label: 'Histórico',     icon: 'clock-counter-clockwise', source: 'tenant'  },
+    { id: '/produto/pedido/configuracoes', label: 'Configurações', icon: 'gear-six',                source: 'product' },
 
   ] satisfies NavigationItem[],
 

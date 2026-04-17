@@ -166,7 +166,7 @@ export function App() {
       onToggleTooltips={toggleTooltips}
       onNavigateHub={() => { window.location.href = '/hub' }}
       onNavigateCore={() => { window.location.href = '/core' }}
-      onNavigateSettings={() => { navigate('/configuracoes') }}
+      onNavigateSettings={() => { navigate('/produto/pedido/configuracoes') }}
       headerActions={<Notificacoes />}
       localizador={{
         workspaceName:    currentUser.tenantName ?? 'Minha Empresa',
@@ -197,7 +197,7 @@ export function App() {
       <ToastContainer />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
-          <Route path="/"       element={<Navigate to="pedidos" replace />} />
+          <Route path="/"       element={<Navigate to="/produto/pedido/pedidos" replace />} />
           <Route path="pedidos"              element={<ListaPedidos />} />
           <Route path="pedidos/dashboard"    element={<DashboardPedido />} />
           <Route path="pedidos/kanban"       element={<KanbanPedidos />} />
@@ -205,7 +205,7 @@ export function App() {
           <Route path="pedidos/:id/editar"   element={<NovoPedido />} />
           <Route path="historico"            element={<Historico />} />
           <Route path="configuracoes"        element={<Configuracoes />} />
-          <Route path="*"                    element={<Navigate to="pedidos" replace />} />
+          <Route path="*"                    element={<Navigate to="/produto/pedido/pedidos" replace />} />
         </Routes>
       </Suspense>
     </TelaProdutoGlobal>

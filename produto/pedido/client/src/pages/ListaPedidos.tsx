@@ -2886,6 +2886,7 @@ export default function ListaPedidos() {
   const navigate = useNavigate()
   const location = useLocation()
   const addNotification = useShellStore(s => s.addNotification)
+  const tenantId = useShellStore(s => s.currentUser.tenantId ?? (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) ?? '')
 
   // ── GABI quota badge ────────────────────────────────────────────────────────
   const gabiQuotaFetchOptions = useMemo((): RequestInit => {
@@ -3506,7 +3507,7 @@ export default function ListaPedidos() {
     return () => document.removeEventListener('mousedown', handler)
   }, [novoDropdownAberto])
 
-  useEffect(() => { carregarInicial() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!tenantId) return; carregarInicial() }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Carrega config de alertas uma vez (usada pelos renders estáticos via _regrasAlertasRef)
   useEffect(() => {

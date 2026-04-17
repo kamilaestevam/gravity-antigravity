@@ -98,22 +98,19 @@ export function App() {
 
   const { history, visitedIds, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
-  // Sincroniza tenant/user do Shell com o contexto de API
-  // Chamada síncrona garante contexto pronto antes dos efeitos dos filhos
-  setApiContext({
-    tenantId: currentUser.tenantId ?? import.meta.env.VITE_DEV_TENANT_ID ?? '',
-    userId:   currentUser.id       ?? '',
-    userName: currentUser.name     ?? '',
-  })
+  // Subscrições granulares — garantem re-render e re-sync quando o Clerk/Workspace
+  // popula cada valor individualmente (s.currentUser como objeto pode não mudar referência)
+  const tenantIdStore = useShellStore(s => s.currentUser.tenantId ?? (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) ?? '')
+  const userIdStore   = useShellStore(s => s.currentUser.id       ?? '')
+  const userNameStore = useShellStore(s => s.currentUser.name     ?? '')
+
+  // Sincroniza o contexto da API sempre que o Workspace for carregado ou alterado pelo Clerk.
+  // useEffect (e não chamada síncrona no render) garante que a sincronização só ocorre
+  // após o store estar hidratado — nunca com valores ainda indefinidos.
   useEffect(() => {
-    setApiContext({
-      // currentUser.tenantId (Clerk publicMetadata) é sempre prioridade;
-      // VITE_DEV_TENANT_ID serve apenas como fallback para sessões sem auth
-      tenantId: currentUser.tenantId ?? import.meta.env.VITE_DEV_TENANT_ID ?? '',
-      userId:   currentUser.id       ?? '',
-      userName: currentUser.name     ?? '',
-    })
-  }, [currentUser.tenantId, currentUser.id, currentUser.name])
+    if (!tenantIdStore) return
+    setApiContext({ tenantId: tenantIdStore, userId: userIdStore, userName: userNameStore })
+  }, [tenantIdStore, userIdStore, userNameStore])
 
   useEffect(() => {
     const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Pedidos'

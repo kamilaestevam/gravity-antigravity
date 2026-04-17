@@ -48,8 +48,11 @@ export function useSyncClerkToShell() {
     const tenantId = user.publicMetadata?.tenantId as string | undefined
     const role     = resolveRole((user.publicMetadata?.role as string) ?? '')
 
-    // Guard: publicMetadata vazio durante refresh transitório do Clerk não deve derrubar role já definido
+    // Guard: publicMetadata vazio durante refresh transitório do Clerk não deve derrubar
+    // role OU tenantId já definidos. Sem isso, uma navegação SPA que dispara um refresh
+    // transitório do Clerk zera currentUser.tenantId e quebra chamadas de API dos filhos.
     if (!user.publicMetadata?.role && currentUser.role) return
+    if (!user.publicMetadata?.tenantId && currentUser.tenantId) return
 
     // Só atualiza se mudou (evita loop)
     if (

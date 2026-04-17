@@ -12,10 +12,10 @@ import type { NavItem } from '@nucleo/tela-produto-global'
 
 // Injeta o getter uma vez quando o módulo carrega — lê o Zustand sincronamente
 // no exato momento de cada request, sem depender do ciclo de vida do React.
-injectTenantGetter(() =>
-  useShellStore.getState().currentUser?.tenantId ??
-  (import.meta.env.VITE_DEV_TENANT_ID as string | undefined)
-)
+// IMPORTANTE: só retorna o tenantId autoritativo do store. Nunca mistura com env fallback
+// aqui — caso contrário, quando o store pisca (Clerk refresh), o env sobrescreve
+// o cache com um valor que pode não ser o do usuário atual.
+injectTenantGetter(() => useShellStore.getState().currentUser?.tenantId)
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const ListaPedidos     = lazy(() => import('./pages/ListaPedidos'))

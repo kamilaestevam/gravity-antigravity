@@ -3,7 +3,8 @@
  * Drag-and-drop para selecionar arquivo (xlsx/xls/csv/xml/txt/json)
  */
 
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FileArrowUp,
   FileXls,
@@ -32,35 +33,36 @@ const ACCEPT_STR = EXTENSOES_ACEITAS.map(e => `.${e}`).join(',')
 const TAMANHO_MAX_MB = 10
 const TAMANHO_MAX_BYTES = TAMANHO_MAX_MB * 1024 * 1024
 
-const FORMATOS_ICONES: { ext: string; label: string; icone: React.ReactNode; descricao: string }[] = [
-  { ext: 'xlsx', label: 'Excel',  descricao: 'Excel (.xlsx, .xls) — recomendado',                                        icone: <FileXls  size={28} weight="duotone" style={{ color: '#34d399' }} /> },
-  { ext: 'csv',  label: 'CSV',    descricao: 'CSV — separado por vírgula, ponto-e-vírgula ou tab',                       icone: <FileCsv  size={28} weight="duotone" style={{ color: '#60a5fa' }} /> },
-  { ext: 'xml',  label: 'XML',    descricao: 'XML — tags simples, um nível',                                             icone: <FileCode size={28} weight="duotone" style={{ color: '#f59e0b' }} /> },
-  { ext: 'json', label: 'JSON',   descricao: 'JSON — array de objetos',                                                  icone: <FileCode size={28} weight="duotone" style={{ color: '#fb923c' }} /> },
-  { ext: 'pdf',  label: 'PDF',    descricao: 'PDF — somente com texto selecionável. PDFs escaneados não são suportados', icone: <FilePdf  size={28} weight="duotone" style={{ color: '#f87171' }} /> },
-  { ext: 'txt',  label: 'TXT',    descricao: 'TXT — texto tabulado',                                                    icone: <File     size={28} weight="duotone" style={{ color: '#94a3b8' }} /> },
-]
-
-function iconeFormato(nomeArquivo: string): React.ReactNode {
-  const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
-  return FORMATOS_ICONES.find(f => f.ext === ext)?.icone ?? <File size={28} weight="duotone" style={{ color: '#94a3b8' }} />
-}
-
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas, planilhaSelecionada, onPlanilhaSelecionada }: EtapaUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [dragOver, setDragOver] = useState(false)
   const [erroLocal, setErroLocal] = useState<string | null>(null)
+  const { t } = useTranslation()
+
+  const formatosIcones = useMemo(() => [
+    { ext: 'xlsx', label: 'Excel',  descricao: t('pedido.importar.fmt_excel'), icone: <FileXls  size={28} weight="duotone" style={{ color: '#34d399' }} /> },
+    { ext: 'csv',  label: 'CSV',    descricao: t('pedido.importar.fmt_csv'),   icone: <FileCsv  size={28} weight="duotone" style={{ color: '#60a5fa' }} /> },
+    { ext: 'xml',  label: 'XML',    descricao: t('pedido.importar.fmt_xml'),   icone: <FileCode size={28} weight="duotone" style={{ color: '#f59e0b' }} /> },
+    { ext: 'json', label: 'JSON',   descricao: t('pedido.importar.fmt_json'),  icone: <FileCode size={28} weight="duotone" style={{ color: '#fb923c' }} /> },
+    { ext: 'pdf',  label: 'PDF',    descricao: t('pedido.importar.fmt_pdf'),   icone: <FilePdf  size={28} weight="duotone" style={{ color: '#f87171' }} /> },
+    { ext: 'txt',  label: 'TXT',    descricao: t('pedido.importar.fmt_txt'),   icone: <File     size={28} weight="duotone" style={{ color: '#94a3b8' }} /> },
+  ], [t])
+
+  function iconeFormato(nomeArquivo: string): React.ReactNode {
+    const ext = nomeArquivo.split('.').pop()?.toLowerCase() ?? ''
+    return formatosIcones.find(f => f.ext === ext)?.icone ?? <File size={28} weight="duotone" style={{ color: '#94a3b8' }} />
+  }
 
   function validarESelecionar(file: File) {
     const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
     if (!EXTENSOES_ACEITAS.includes(ext)) {
-      setErroLocal(`Formato .${ext} nao suportado. Use: Excel, CSV, XML, TXT, JSON ou PDF.`)
+      setErroLocal(t('pedido.importar.erro_formato_local', { ext }))
       return
     }
     if (file.size > TAMANHO_MAX_BYTES) {
-      setErroLocal(`Arquivo muito grande. Tamanho maximo: ${TAMANHO_MAX_MB}MB.`)
+      setErroLocal(t('pedido.importar.erro_tamanho_local', { mb: TAMANHO_MAX_MB }))
       return
     }
     setErroLocal(null)
@@ -81,7 +83,6 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
   }
 
   const mensagemErro = erroLocal ?? erro
-
   const temMultiplasAbas = planilhas && planilhas.length > 1
 
   return (
@@ -89,7 +90,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
       {temMultiplasAbas && (
         <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '0.5rem' }}>
           <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary, #94a3b8)', marginBottom: '0.5rem', fontWeight: 500 }}>
-            Este arquivo tem {planilhas.length} abas. Selecione qual importar:
+            {t('pedido.importar.multiplas_abas', { count: planilhas.length })}
           </p>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {planilhas.map(nome => (
@@ -109,7 +110,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
 
       {planilhaSelecionada && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
-          <span>Aba selecionada:</span>
+          <span>{t('pedido.importar.aba_selecionada')}</span>
           <span className="smart-import__badge-memoria">{planilhaSelecionada}</span>
         </div>
       )}
@@ -123,7 +124,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
         onClick={() => !carregando && inputRef.current?.click()}
         role="button"
         tabIndex={0}
-        aria-label="Area de upload — clique ou arraste um arquivo"
+        aria-label={t('pedido.importar.aria_upload')}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click() }}
       >
         <FileArrowUp
@@ -134,16 +135,16 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
         />
         <div style={{ textAlign: 'center' }}>
           <p className="smart-import__upload-titulo">
-            {carregando ? 'Analisando arquivo...' : 'Arraste um arquivo ou clique para selecionar'}
+            {carregando ? t('pedido.importar.analisando') : t('pedido.importar.arrastar')}
           </p>
           <p className="smart-import__upload-sub">
-            Tamanho máximo: {TAMANHO_MAX_MB}MB
+            {t('pedido.importar.tamanho_maximo', { mb: TAMANHO_MAX_MB })}
           </p>
         </div>
 
         {/* Icones de formatos aceitos com descrição */}
         <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {FORMATOS_ICONES.map(({ ext, label, icone, descricao }) => (
+          {formatosIcones.map(({ ext, label, icone, descricao }) => (
             <div key={ext} title={descricao} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem', cursor: 'default', opacity: 0.75 }}>
               {icone}
               <span style={{ fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
@@ -155,8 +156,8 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
 
         {/* Aviso PDF */}
         <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted, #64748b)', textAlign: 'center', margin: 0, lineHeight: 1.4 }}>
-          ⚠ PDF: apenas arquivos com texto selecionável. PDFs escaneados (imagem) não são suportados.<br />
-          Arquivos salvos como "página web" (.html) não são aceitos mesmo com extensão .pdf
+          {t('pedido.importar.aviso_pdf')}<br />
+          {t('pedido.importar.aviso_pdf_2')}
         </p>
 
         <input
@@ -172,7 +173,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', marginTop: '1rem' }}>
         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          Não sabe qual formato usar?
+          {t('pedido.importar.nao_sabe_formato')}
         </span>
         <a
           href="/api/v1/pedidos/smart-import/template"
@@ -194,7 +195,7 @@ export function EtapaUpload({ onArquivoSelecionado, carregando, erro, planilhas,
           onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-primary)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--ws-accent, #6366f1)' }}
           onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-secondary, #94a3b8)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border-subtle, #333)' }}
         >
-          ↓ Baixar planilha modelo (.xlsx)
+          {t('pedido.importar.baixar_template')}
         </a>
       </div>
 

@@ -51,7 +51,11 @@ import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 let context = { tenantId: '', userId: '', userName: '' }
 
 export function setApiContext(ctx: { tenantId: string; userId: string; userName?: string }): void {
-  context = { ...context, ...ctx }
+  // Ignora valores inválidos — protege contra o pisco de re-render na troca de rota SPA
+  // onde o store pisca para undefined antes de ser reidratado pelo Clerk
+  if (ctx.tenantId) context.tenantId = ctx.tenantId
+  if (ctx.userId)   context.userId   = ctx.userId
+  if (ctx.userName) context.userName = ctx.userName
 }
 
 export function getApiContext(): { tenantId: string; userId: string; userName: string } {

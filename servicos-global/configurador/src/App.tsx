@@ -107,7 +107,7 @@ function PedidoRouteGuard() {
     return <Navigate to={`${BASE}/${target}`} replace />
   }
 
-  return <React.Suspense fallback={<ProductLoading />}><PedidoApp /></React.Suspense>
+  return <React.Suspense fallback={<ProductLoading />}><PedidoApp key={location.pathname} /></React.Suspense>
 }
 
 const ProductLoading = () => (

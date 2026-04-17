@@ -321,8 +321,8 @@ export function AvisoInternoGlobal({
           {(['todas', 'recebidas', 'enviadas'] as const).map((v) => {
             const isActive = filtroVisao === v;
             const label = v === 'todas' ? 'Todas'
-              : v === 'recebidas' ? `Receb.${countRecebidas > 0 ? ` (${countRecebidas})` : ''}`
-              : `Enviad.${countEnviadas > 0 ? ` (${countEnviadas})` : ''}`;
+              : v === 'recebidas' ? `Recebidas${countRecebidas > 0 ? ` ${countRecebidas}` : ''}`
+              : `Enviadas${countEnviadas > 0 ? ` ${countEnviadas}` : ''}`;
             return (
               <button
                 key={v}
@@ -331,12 +331,12 @@ export function AvisoInternoGlobal({
                 style={{
                   all: 'unset', cursor: 'pointer',
                   padding: '0.15rem 0.45rem', borderRadius: '999px',
-                  fontSize: '0.625rem', fontWeight: 600, lineHeight: 1.2,
-                  whiteSpace: 'nowrap',
+                  fontSize: '0.625rem', fontWeight: isActive ? 700 : 500, lineHeight: 1.2,
+                  whiteSpace: 'nowrap', boxSizing: 'border-box',
                   transition: 'all 0.15s ease',
                   background: isActive ? 'var(--aig-accent, #818cf8)' : 'transparent',
-                  color: isActive ? '#fff' : 'var(--aig-muted, #94a3b8)',
-                  border: isActive ? 'none' : '1px solid var(--aig-border, #334155)',
+                  color: isActive ? '#ffffff' : 'var(--aig-text, #cbd5e1)',
+                  border: isActive ? '1px solid transparent' : '1px solid var(--aig-border, #334155)',
                 }}
               >
                 {label}
@@ -362,16 +362,6 @@ export function AvisoInternoGlobal({
               aria-pressed={calendarioAberto}
             >
               <CalendarBlank size={13} weight={(calendarioAberto || dataFiltro.inicio || dataFiltro.fim) ? 'fill' : 'regular'} />
-            </button>
-          </TooltipGlobal>
-          <TooltipGlobal titulo={mostrarLidas ? 'Ocultar lidas' : 'Mostrar lidas'} descricao="">
-            <button
-              type="button"
-              className={`aig-filter-icon-btn${mostrarLidas ? ' active' : ''}`}
-              onClick={() => setMostrarLidas(v => !v)}
-              aria-pressed={mostrarLidas}
-            >
-              <Eye size={13} weight={mostrarLidas ? 'fill' : 'regular'} />
             </button>
           </TooltipGlobal>
           {(busca || dataFiltro.inicio || dataFiltro.fim || mostrarLidas || filtroVisao !== 'todas') && (

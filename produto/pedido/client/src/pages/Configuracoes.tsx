@@ -2352,17 +2352,17 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Campos do modal</h2>
-                  <p className="cfg-secao__desc">Configure os campos exibidos em cada aba ao abrir um pedido no Kanban</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.kanban.modal_titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.kanban.modal_descricao')}</p>
                 </div>
               </div>
 
-              {kanbanLoading && <p className="cfg-loading-msg">Carregando...</p>}
+              {kanbanLoading && <p className="cfg-loading-msg">{t('pedido.config.kanban.carregando')}</p>}
 
               {!kanbanLoading && (() => {
                 const campos  = kanbanCamposDeAba(abaAtiva)
                 const limite  = KANBAN_LIMITES[abaAtiva] ?? 10
-                const nomeAba = abaAtiva === 'pedido' ? 'Pedido' : abaAtiva === 'quantidades' ? 'Quantidades' : 'Datas'
+                const nomeAba = t(`pedido.config.kanban.aba_${abaAtiva}`)
                 const disponiveis = KANBAN_CAMPOS_DISPONIVEIS.filter(cd => cd.categoria === abaAtiva)
                 return (
                   <>
@@ -2370,19 +2370,16 @@ export default function Configuracoes() {
                     <div className="cfg-cards-preview-wrap">
                       <p className="cfg-cards-preview-label">
                         <SquaresFour size={12} weight="fill" />
-                        Preview — como ficará no modal
+                        {t('pedido.config.kanban.modal_preview')}
                       </p>
                       <div className="cfg-modal-preview">
                         {/* Tab bar */}
                         <div className="cfg-modal-preview__tabs">
-                          {(['pedido', 'quantidades', 'datas', 'lembrete'] as const).map(tab => {
-                            const nome = tab === 'pedido' ? 'Pedido' : tab === 'quantidades' ? 'Quantidades' : tab === 'datas' ? 'Datas' : 'Lembrete'
-                            return (
-                              <span key={tab} className={`cfg-modal-preview__tab${tab === abaAtiva ? ' cfg-modal-preview__tab--ativo' : ''}`}>
-                                {nome}
-                              </span>
-                            )
-                          })}
+                          {(['pedido', 'quantidades', 'datas', 'lembrete'] as const).map(tab => (
+                            <span key={tab} className={`cfg-modal-preview__tab${tab === abaAtiva ? ' cfg-modal-preview__tab--ativo' : ''}`}>
+                              {t(`pedido.config.kanban.aba_${tab}`)}
+                            </span>
+                          ))}
                         </div>
                         {/* Campos da aba ativa */}
                         <div className="cfg-modal-preview__campos">
@@ -2400,7 +2397,7 @@ export default function Configuracoes() {
                           ))}
                           {campos.length === 0 && (
                             <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', padding: '0.5rem 0' }}>
-                              Nenhum campo ativo
+                              {t('pedido.config.kanban.campo_vazio')}
                             </p>
                           )}
                         </div>
@@ -2412,7 +2409,6 @@ export default function Configuracoes() {
                       {(['pedido', 'quantidades', 'datas'] as const).map(aba => {
                         const qtd = kanbanCamposDeAba(aba).length
                         const lim = KANBAN_LIMITES[aba] ?? 10
-                        const nome = aba === 'pedido' ? 'Pedido' : aba === 'quantidades' ? 'Quantidades' : 'Datas'
                         return (
                           <button
                             key={aba}
@@ -2420,7 +2416,7 @@ export default function Configuracoes() {
                             className={`cfg-periodo-pill${abaAtiva === aba ? ' cfg-periodo-pill--ativo' : ''}`}
                             onClick={() => setAbaAtiva(aba)}
                           >
-                            {nome}
+                            {t(`pedido.config.kanban.aba_${aba}`)}
                             <span style={{ marginLeft: '0.375rem', fontSize: '0.6875rem', opacity: 0.7 }}>
                               {qtd}/{lim}
                             </span>
@@ -2431,28 +2427,28 @@ export default function Configuracoes() {
 
                     {/* ── Ativos ── */}
                     <CfgSectionLabel
-                      label="ATIVOS"
-                      count={`${campos.length}/${limite} campos`}
+                      label={t('pedido.config.cards.ativos')}
+                      count={`${campos.length}/${limite} ${t('pedido.config.kanban.campos_label')}`}
                       action={
-                        <TooltipGlobal descricao={`Restaura os campos padrão da aba ${nomeAba}`}>
+                        <TooltipGlobal descricao={t('pedido.config.kanban.restaurar_tooltip', { aba: nomeAba })}>
                           <button type="button" className="cfg-btn-header--restaurar" onClick={kanbanRestaurarPadrao}>
                             <ArrowCounterClockwise size={13} weight="bold" />
-                            Restaurar padrão
+                            {t('pedido.config.acao.restaurar_padrao')}
                           </button>
                         </TooltipGlobal>
                       }
                     />
-                    <p className="cfg-hint">Arraste para reordenar · olho para ocultar · × para remover</p>
+                    <p className="cfg-hint">{t('pedido.config.kanban.modal_hint')}</p>
 
                     <div className="cfg-kanban-campos-lista">
                       {campos.length === 0 && (
                         <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
-                          Nenhum campo ativo — adicione abaixo
+                          {t('pedido.config.kanban.campo_vazio_add')}
                         </p>
                       )}
                       {campos.map(cfg => (
                         <div key={cfg.campo} className={`cfg-kanban-campo-row${!cfg.visivel ? ' cfg-kanban-campo-row--oculto' : ''}`}>
-                          <span className="cfg-drag-handle" aria-label="Arrastar">
+                          <span className="cfg-drag-handle" aria-label={t('pedido.config.kanban.aria_arrastar')}>
                             <DotsSixVertical size={15} weight="bold" />
                           </span>
                           <span className="cfg-kanban-campo-label">{cfg.label}</span>
@@ -2460,7 +2456,7 @@ export default function Configuracoes() {
                             type="button"
                             className={`cfg-eye-btn${cfg.visivel ? ' cfg-eye-btn--on' : ''}`}
                             onClick={() => kanbanToggleVisivel(abaAtiva, cfg.campo)}
-                            aria-label={cfg.visivel ? 'Ocultar campo' : 'Exibir campo'}
+                            aria-label={cfg.visivel ? t('pedido.config.kanban.aria_ocultar_campo') : t('pedido.config.kanban.aria_exibir_campo')}
                           >
                             {cfg.visivel ? <Eye size={14} weight="bold" /> : <EyeSlash size={14} weight="bold" />}
                           </button>
@@ -2468,7 +2464,7 @@ export default function Configuracoes() {
                             type="button"
                             className="cfg-remove-btn"
                             onClick={() => kanbanRemoverCampo(abaAtiva, cfg.campo)}
-                            aria-label="Remover campo"
+                            aria-label={t('pedido.config.kanban.aria_remover_campo')}
                           >
                             <X size={12} weight="bold" />
                           </button>
@@ -2477,20 +2473,20 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Disponíveis para adicionar ── */}
-                    <CfgSectionLabel label="DISPONÍVEIS PARA ADICIONAR" hint="clique em + para adicionar" style={{ marginTop: '1.5rem' }} />
+                    <CfgSectionLabel label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
                     <div className="cfg-kanban-disponivel-lista">
                       {disponiveis.filter(cd => !kanbanCamposEmUso().has(cd.campo)).map(cd => {
                         const cheio = campos.length >= limite
                         return (
                           <div key={cd.campo} className="cfg-kanban-disponivel-row">
                             <span className="cfg-kanban-disponivel-label">{cd.label}</span>
-                            <TooltipGlobal descricao={cheio ? `Limite atingido (${campos.length}/${limite}) — remova um campo` : `Adicionar à aba ${nomeAba}`}>
+                            <TooltipGlobal descricao={cheio ? t('pedido.config.kanban.limite_atingido', { atual: campos.length, max: limite }) : t('pedido.config.kanban.tooltip_adicionar', { aba: nomeAba })}>
                               <button
                                 type="button"
                                 className={`cfg-kanban-add-btn${cheio ? ' cfg-kanban-add-btn--disabled' : ''}`}
                                 onClick={() => { if (!cheio) kanbanAdicionarCampo(abaAtiva, cd) }}
                                 disabled={cheio}
-                                aria-label="Adicionar campo"
+                                aria-label={t('pedido.config.kanban.aria_adicionar_campo')}
                               >
                                 <Plus size={13} weight="bold" />
                               </button>
@@ -2500,7 +2496,7 @@ export default function Configuracoes() {
                       })}
                       {disponiveis.filter(cd => !kanbanCamposEmUso().has(cd.campo)).length === 0 && (
                         <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
-                          Todos os campos disponíveis já foram adicionados
+                          {t('pedido.config.kanban.todos_adicionados')}
                         </p>
                       )}
                     </div>
@@ -2508,10 +2504,10 @@ export default function Configuracoes() {
                     {/* Aba fixa Lembrete — informativa */}
                     <div className="cfg-kanban-aba cfg-kanban-aba--fixa" style={{ marginTop: '1.5rem' }}>
                       <CfgSectionLabel
-                        label="ABA LEMBRETE"
-                        action={<span className="cfg-kanban-aba-fixa-badge">fixa</span>}
+                        label={t('pedido.config.kanban.aba_lembrete_titulo')}
+                        action={<span className="cfg-kanban-aba-fixa-badge">{t('pedido.config.kanban.badge_fixa')}</span>}
                       />
-                      <p className="cfg-hint">Aba fixa — comportamento nativo, não configurável</p>
+                      <p className="cfg-hint">{t('pedido.config.kanban.aba_fixa_hint')}</p>
                     </div>
                   </>
                 )
@@ -2524,8 +2520,8 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Conteúdo do card</h2>
-                  <p className="cfg-secao__desc">Escolha o que aparece em cada card do Kanban</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.kanban.card_titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.kanban.card_descricao')}</p>
                 </div>
               </div>
 
@@ -2541,12 +2537,12 @@ export default function Configuracoes() {
                     <div className="cfg-cards-preview-wrap">
                       <p className="cfg-cards-preview-label">
                         <SquaresFour size={12} weight="fill" />
-                        Preview — como ficará no card
+                        {t('pedido.config.kanban.card_preview')}
                       </p>
                       <div className="cfg-card-preview">
                         <div className="cfg-card-preview__header">
                           <span className="cfg-card-preview__numero">PED-2025-0001</span>
-                          <span className="cfg-card-preview__fixo-badge">fixo</span>
+                          <span className="cfg-card-preview__fixo-badge">{t('pedido.config.kanban.badge_fixo')}</span>
                         </div>
                         <div className="cfg-card-preview__campos">
                           {ativos.map(c => (
@@ -2557,7 +2553,7 @@ export default function Configuracoes() {
                           ))}
                           {ativos.length === 0 && (
                             <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', padding: '0.25rem 0' }}>
-                              Nenhum campo ativo
+                              {t('pedido.config.kanban.campo_vazio')}
                             </p>
                           )}
                         </div>
@@ -2571,17 +2567,17 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Ativos ── */}
-                    <CfgSectionLabel label="ATIVOS" count={`${ativos.length + 1} campo${ativos.length + 1 !== 1 ? 's' : ''}`} />
-                    <p className="cfg-hint">Olho para ocultar · Nº do Pedido é fixo e sempre exibido</p>
+                    <CfgSectionLabel label={t('pedido.config.cards.ativos')} count={`${ativos.length + 1} ${t('pedido.config.kanban.campos_label')}`} />
+                    <p className="cfg-hint">{t('pedido.config.kanban.card_ativos_hint')}</p>
                     <div className="cfg-kanban-campos-lista">
                       {/* Campo fixo sempre no topo */}
                       <div className="cfg-kanban-campo-row cfg-kanban-campo-row--fixo">
-                        <span className="cfg-kanban-campo-label">Nº do Pedido</span>
-                        <span className="cfg-kanban-aba-fixa-badge">fixo</span>
+                        <span className="cfg-kanban-campo-label">{t('pedido.config.kanban.num_pedido')}</span>
+                        <span className="cfg-kanban-aba-fixa-badge">{t('pedido.config.kanban.badge_fixo')}</span>
                       </div>
                       {ativos.length === 0 && (
                         <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
-                          Nenhum campo ativo — adicione abaixo
+                          {t('pedido.config.kanban.campo_vazio_add')}
                         </p>
                       )}
                       {KANBAN_CARD_GRUPOS.map(grupo => {
@@ -2589,7 +2585,7 @@ export default function Configuracoes() {
                         if (cols.length === 0) return null
                         return (
                           <React.Fragment key={grupo.key}>
-                            <div className="cfg-card-grupo-divider">{grupo.label}</div>
+                            <div className="cfg-card-grupo-divider">{t(`pedido.config.kanban.grupo_${grupo.key}`)}</div>
                             {cols.map(cfg => (
                               <div key={cfg.campo} className="cfg-kanban-campo-row">
                                 <span className="cfg-kanban-campo-label">{cfg.label}</span>
@@ -2609,28 +2605,28 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Disponíveis para adicionar ── */}
-                    <CfgSectionLabel label="DISPONÍVEIS PARA ADICIONAR" hint="clique em + para adicionar" style={{ marginTop: '1.5rem' }} />
+                    <CfgSectionLabel label={t('pedido.config.cards.disponiveis')} hint={t('pedido.config.cards.hint_adicionar')} style={{ marginTop: '1.5rem' }} />
                     <div className="cfg-kanban-disponivel-lista">
                       <div className="cfg-kanban-disponivel-header">
-                        <span>Campo</span>
-                        <span>Grupo</span>
+                        <span>{t('pedido.config.kanban.col_campo')}</span>
+                        <span>{t('pedido.config.kanban.col_grupo')}</span>
                         <span></span>
                       </div>
                       {disponiveis.length === 0 && (
                         <p className="cfg-hint" style={{ textAlign: 'center', padding: '1rem 0' }}>
-                          Todos os campos estão ativos
+                          {t('pedido.config.kanban.todos_ativos')}
                         </p>
                       )}
                       {disponiveis.map(cfg => (
                         <div key={cfg.campo} className="cfg-kanban-disponivel-row">
                           <span className="cfg-kanban-disponivel-label">{cfg.label}</span>
-                          <span className="cfg-origem-badge cfg-origem-badge--pedido">{cfg.grupo}</span>
-                          <TooltipGlobal descricao={`Exibir no card`}>
+                          <span className="cfg-origem-badge cfg-origem-badge--pedido">{t(`pedido.config.kanban.grupo_${cfg.grupo}`)}</span>
+                          <TooltipGlobal descricao={t('pedido.config.kanban.tooltip_exibir_card')}>
                             <button
                               type="button"
                               className="cfg-kanban-add-btn"
                               onClick={() => kanbanCardToggle(cfg.campo)}
-                              aria-label="Exibir campo"
+                              aria-label={t('pedido.config.kanban.aria_exibir_campo')}
                             >
                               <Plus size={13} weight="bold" />
                             </button>
@@ -2640,15 +2636,15 @@ export default function Configuracoes() {
                     </div>
 
                     {/* ── Data crítica ── */}
-                    <CfgSectionLabel label="DATA CRÍTICA" style={{ marginTop: '1.5rem' }} />
-                    <p className="cfg-hint">Barra colorida de urgência (ok / alerta / urgente) baseada nesta data</p>
+                    <CfgSectionLabel label={t('pedido.config.kanban.data_critica')} style={{ marginTop: '1.5rem' }} />
+                    <p className="cfg-hint">{t('pedido.config.kanban.data_critica_hint')}</p>
                     <select
                       className="cfg-select"
                       value={dataCritica}
                       onChange={e => kanbanCardSetDataCritica(e.target.value || null)}
                       style={{ marginTop: '0.5rem' }}
                     >
-                      <option value="">— Não exibir —</option>
+                      <option value="">{t('pedido.config.kanban.data_critica_nao_exibir')}</option>
                       {KANBAN_CAMPOS_DISPONIVEIS.filter(c => c.categoria === 'datas').map(c => (
                         <option key={c.campo} value={c.campo}>{c.label}</option>
                       ))}

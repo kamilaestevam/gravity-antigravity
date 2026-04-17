@@ -259,6 +259,7 @@ function StatusSortavel({
     zIndex:  isDragging ? 999 : undefined,
   }
 
+  const { t } = useTranslation()
   const isEditando = editandoId === status.id
 
   return (
@@ -269,7 +270,7 @@ function StatusSortavel({
           className="cfg-drag-handle"
           {...attributes}
           {...listeners}
-          aria-label="Arrastar para reordenar"
+          aria-label={t('pedido.config.acao.arrastar')}
         >
           <DotsSixVertical size={16} weight="bold" />
         </button>
@@ -282,27 +283,27 @@ function StatusSortavel({
         <span className="cfg-status-label">{status.rotulo}</span>
 
         {status.is_sistema && (
-          <span className="cfg-badge-sistema">sistema</span>
+          <span className="cfg-badge-sistema">{t('pedido.config.status.badge_sistema')}</span>
         )}
 
         <div className="cfg-status-acoes">
-          <TooltipGlobal descricao="Editar status">
+          <TooltipGlobal descricao={t('pedido.config.status.editar_tooltip')}>
             <button
               type="button"
               className="cfg-eye-btn"
               onClick={() => onIniciarEdicao(status)}
-              aria-label="Editar status"
+              aria-label={t('pedido.config.status.aria_editar')}
             >
               <PencilSimple size={14} weight="bold" />
             </button>
           </TooltipGlobal>
           {!status.is_sistema && (
-            <TooltipGlobal descricao="Excluir status">
+            <TooltipGlobal descricao={t('pedido.config.status.excluir_tooltip')}>
               <button
                 type="button"
                 className="cfg-remove-btn"
                 onClick={() => onExcluir(status.id)}
-                aria-label="Excluir status"
+                aria-label={t('pedido.config.status.aria_excluir')}
               >
                 <Trash size={14} weight="bold" />
               </button>
@@ -317,14 +318,14 @@ function StatusSortavel({
             <input
               type="text"
               className="cfg-input cfg-input--grow"
-              placeholder="Nome do status"
+              placeholder={t('pedido.config.status.placeholder_nome')}
               value={editLabel}
               onChange={e => onChangeLabel(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') onSalvarEdicao() }}
               autoFocus
             />
             <div className="cfg-status-color-picker">
-              <span className="cfg-status-color-label">Cor</span>
+              <span className="cfg-status-color-label">{t('pedido.config.status.cor')}</span>
               <input
                 type="color"
                 className="cfg-status-color-input"
@@ -337,10 +338,10 @@ function StatusSortavel({
           <div className="cfg-tpl-form__actions">
             <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={onSalvarEdicao}>
               <FloppyDisk size={13} weight="bold" />
-              Salvar
+              {t('pedido.config.acao.salvar')}
             </button>
             <button type="button" className="cfg-btn-secundario cfg-btn-secundario--xs" onClick={onCancelarEdicao}>
-              Cancelar
+              {t('pedido.config.acao.cancelar')}
             </button>
           </div>
         </div>
@@ -2677,9 +2678,9 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Status do Pedido</h2>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.status.titulo')}</h2>
                   <p className="cfg-secao__desc">
-                    Arraste para reordenar · edite o nome e a cor · status de sistema não podem ser excluídos
+                    {t('pedido.config.status.descricao')}
                   </p>
                 </div>
                 {!statusCriando && !statusLoading && (
@@ -2689,13 +2690,13 @@ export default function Configuracoes() {
                     onClick={() => { setStatusCriando(true); setStatusEditandoId(null) }}
                   >
                     <Plus size={13} weight="bold" />
-                    Novo Status
+                    {t('pedido.config.status.novo_status')}
                   </button>
                 )}
               </div>
 
               {statusLoading ? (
-                <p className="cfg-loading-text">Carregando status…</p>
+                <p className="cfg-loading-text">{t('pedido.config.status.carregando')}</p>
               ) : (
               <DndContext
                 sensors={statusSensors}
@@ -2733,14 +2734,14 @@ export default function Configuracoes() {
                     <input
                       type="text"
                       className="cfg-input cfg-input--grow"
-                      placeholder="Nome do novo status (ex.: Aguardando Aprovação)"
+                      placeholder={t('pedido.config.status.placeholder_novo')}
                       value={statusNovoLabel}
                       onChange={e => setStatusNovoLabel(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') adicionarStatus() }}
                       autoFocus
                     />
                     <div className="cfg-status-color-picker">
-                      <span className="cfg-status-color-label">Cor</span>
+                      <span className="cfg-status-color-label">{t('pedido.config.status.cor')}</span>
                       <input
                         type="color"
                         className="cfg-status-color-input"
@@ -2753,14 +2754,14 @@ export default function Configuracoes() {
                   <div className="cfg-tpl-form__actions">
                     <button type="button" className="cfg-btn-primario cfg-btn-primario--xs" onClick={adicionarStatus}>
                       <FloppyDisk size={13} weight="bold" />
-                      Salvar
+                      {t('pedido.config.acao.salvar')}
                     </button>
                     <button
                       type="button"
                       className="cfg-btn-secundario cfg-btn-secundario--xs"
                       onClick={() => { setStatusCriando(false); setStatusNovoLabel(''); setStatusNovoCor('#818cf8') }}
                     >
-                      Cancelar
+                      {t('pedido.config.acao.cancelar')}
                     </button>
                   </div>
                 </div>
@@ -2775,44 +2776,44 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Notificações</h2>
-                  <p className="cfg-secao__desc">Escolha quais eventos geram alertas para você</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.notificacoes.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.notificacoes.descricao')}</p>
                 </div>
               </div>
 
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="nf-atrasado"
-                  label="Pedido atrasado"
-                  desc="Alerta quando um pedido passa da data estimada"
+                  label={t('pedido.config.notificacoes.pedido_atrasado')}
+                  desc={t('pedido.config.notificacoes.pedido_atrasado_desc')}
                   checked={notifConfig.pedidoAtrasado}
                   onChange={v => setNotifConfig(prev => ({ ...prev, pedidoAtrasado: v }))}
                 />
                 <ToggleRow
                   id="nf-novo"
-                  label="Novo pedido criado"
-                  desc="Notificação ao criar ou receber um novo pedido"
+                  label={t('pedido.config.notificacoes.novo_pedido')}
+                  desc={t('pedido.config.notificacoes.novo_pedido_desc')}
                   checked={notifConfig.novoPedido}
                   onChange={v => setNotifConfig(prev => ({ ...prev, novoPedido: v }))}
                 />
                 <ToggleRow
                   id="nf-transferencia"
-                  label="Item transferido"
-                  desc="Quando quantidade de um item é transferida para outro pedido"
+                  label={t('pedido.config.notificacoes.item_transferido')}
+                  desc={t('pedido.config.notificacoes.item_transferido_desc')}
                   checked={notifConfig.itemTransferido}
                   onChange={v => setNotifConfig(prev => ({ ...prev, itemTransferido: v }))}
                 />
                 <ToggleRow
                   id="nf-excluido"
-                  label="Pedido excluído"
-                  desc="Confirmação quando um pedido é removido"
+                  label={t('pedido.config.notificacoes.pedido_excluido')}
+                  desc={t('pedido.config.notificacoes.pedido_excluido_desc')}
                   checked={notifConfig.pedidoExcluido}
                   onChange={v => setNotifConfig(prev => ({ ...prev, pedidoExcluido: v }))}
                 />
                 <ToggleRow
                   id="nf-importacao"
-                  label="Importação concluída"
-                  desc="Aviso ao finalizar importação em lote"
+                  label={t('pedido.config.notificacoes.importacao_concluida')}
+                  desc={t('pedido.config.notificacoes.importacao_concluida_desc')}
                   checked={notifConfig.importacaoConcluida}
                   onChange={v => setNotifConfig(prev => ({ ...prev, importacaoConcluida: v }))}
                 />
@@ -2827,13 +2828,13 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Exportação</h2>
-                  <p className="cfg-secao__desc">Preferências padrão ao exportar pedidos</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.exportacao.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.exportacao.descricao')}</p>
                 </div>
               </div>
 
               <div className="cfg-campo-grupo">
-                <p className="cfg-campo-grupo__label">Formato padrão</p>
+                <p className="cfg-campo-grupo__label">{t('pedido.config.exportacao.formato_padrao')}</p>
                 <div className="cfg-periodo-pills">
                   {(['csv', 'xlsx', 'pdf'] as const).map(fmt => (
                     <button
@@ -2851,49 +2852,45 @@ export default function Configuracoes() {
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="exp-colunas-usuario"
-                  label="Incluir colunas do usuário"
-                  desc="Adiciona colunas customizadas criadas por você"
+                  label={t('pedido.config.exportacao.incluir_colunas')}
+                  desc={t('pedido.config.exportacao.incluir_colunas_desc')}
                   checked={exportConfig.incluirColunasUsuario}
                   onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirColunasUsuario: v }))}
                 />
                 <ToggleRow
                   id="exp-itens"
-                  label="Incluir itens do pedido"
-                  desc="Exporta também as linhas de item de cada pedido"
+                  label={t('pedido.config.exportacao.incluir_itens')}
+                  desc={t('pedido.config.exportacao.incluir_itens_desc')}
                   checked={exportConfig.incluirItens}
                   onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirItens: v }))}
                 />
                 <ToggleRow
                   id="exp-apenas-sel"
-                  label="Incluir apenas pedidos selecionados"
-                  desc="Quando desmarcado, exporta todos os pedidos do filtro atual"
+                  label={t('pedido.config.exportacao.apenas_selecionados')}
+                  desc={t('pedido.config.exportacao.apenas_selecionados_desc')}
                   checked={exportConfig.apenasSelection}
                   onChange={v => atualizarExportConfig(prev => ({ ...prev, apenasSelection: v }))}
                 />
                 <ToggleRow
                   id="exp-cabecalho"
-                  label="Incluir cabeçalho"
-                  desc="Adiciona linha de cabeçalho com os nomes das colunas"
+                  label={t('pedido.config.exportacao.incluir_cabecalho')}
+                  desc={t('pedido.config.exportacao.incluir_cabecalho_desc')}
                   checked={exportConfig.incluirCabecalho}
                   onChange={v => atualizarExportConfig(prev => ({ ...prev, incluirCabecalho: v }))}
                 />
               </div>
 
               <div className="cfg-campo-grupo" style={{ marginTop: '1.25rem' }}>
-                <p className="cfg-campo-grupo__label">Separador CSV</p>
+                <p className="cfg-campo-grupo__label">{t('pedido.config.exportacao.separador_csv')}</p>
                 <div className="cfg-periodo-pills">
-                  {([
-                    { id: 'virgula',       label: 'Vírgula'       },
-                    { id: 'ponto-virgula', label: 'Ponto-e-vírgula' },
-                    { id: 'tab',           label: 'Tab'           },
-                  ] as const).map(sep => (
+                  {(['virgula', 'ponto-virgula', 'tab'] as const).map(sep => (
                     <button
-                      key={sep.id}
+                      key={sep}
                       type="button"
-                      className={`cfg-periodo-pill${exportConfig.separadorCsv === sep.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => atualizarExportConfig(prev => ({ ...prev, separadorCsv: sep.id }))}
+                      className={`cfg-periodo-pill${exportConfig.separadorCsv === sep ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => atualizarExportConfig(prev => ({ ...prev, separadorCsv: sep }))}
                     >
-                      {sep.label}
+                      {t(`pedido.config.exportacao.sep_${sep.replace('-', '_')}`)}
                     </button>
                   ))}
                 </div>
@@ -2908,16 +2905,16 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Numeração automática</h2>
-                  <p className="cfg-secao__desc">Define o formato e as regras do número de pedido gerado automaticamente</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.numeracao.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.numeracao.descricao')}</p>
                 </div>
               </div>
 
               <div className="cfg-campo-grupo">
-                <p className="cfg-campo-grupo__label">Formato do número</p>
+                <p className="cfg-campo-grupo__label">{t('pedido.config.numeracao.formato')}</p>
                 <div className="cfg-num-formato">
                   <div className="cfg-num-campo">
-                    <label className="cfg-num-campo__label" htmlFor="num-prefixo">Prefixo</label>
+                    <label className="cfg-num-campo__label" htmlFor="num-prefixo">{t('pedido.config.numeracao.prefixo')}</label>
                     <input
                       id="num-prefixo"
                       type="text"
@@ -2928,7 +2925,7 @@ export default function Configuracoes() {
                     />
                   </div>
                   <div className="cfg-num-campo">
-                    <label className="cfg-num-campo__label" htmlFor="num-digitos">Dígitos da sequência</label>
+                    <label className="cfg-num-campo__label" htmlFor="num-digitos">{t('pedido.config.numeracao.digitos')}</label>
                     <div className="cfg-periodo-pills">
                       {([3, 4, 5, 6] as const).map(d => (
                         <button
@@ -2943,7 +2940,7 @@ export default function Configuracoes() {
                     </div>
                   </div>
                   <div className="cfg-num-preview">
-                    <span className="cfg-num-preview__label">Preview</span>
+                    <span className="cfg-num-preview__label">{t('pedido.config.numeracao.preview')}</span>
                     <span className="cfg-num-preview__valor">{previewNumeracao}</span>
                   </div>
                 </div>
@@ -2952,7 +2949,7 @@ export default function Configuracoes() {
               <div className="cfg-campo-grupo">
                 <ToggleRow
                   id="num-ano"
-                  label="Incluir ano no número"
+                  label={t('pedido.config.numeracao.incluir_ano')}
                   desc={`Ex.: ${numConfig.prefixo}${new Date().getFullYear()}/0001`}
                   checked={numConfig.incluirAno}
                   onChange={v => setNumConfig(prev => ({ ...prev, incluirAno: v }))}
@@ -2960,20 +2957,16 @@ export default function Configuracoes() {
               </div>
 
               <div className="cfg-campo-grupo">
-                <p className="cfg-campo-grupo__label">Reiniciar numeração</p>
+                <p className="cfg-campo-grupo__label">{t('pedido.config.numeracao.reiniciar')}</p>
                 <div className="cfg-periodo-pills">
-                  {([
-                    { id: 'nunca', label: 'Nunca'     },
-                    { id: 'ano',   label: 'Todo ano'  },
-                    { id: 'mes',   label: 'Todo mês'  },
-                  ] as const).map(op => (
+                  {(['nunca', 'ano', 'mes'] as const).map(op => (
                     <button
-                      key={op.id}
+                      key={op}
                       type="button"
-                      className={`cfg-periodo-pill${numConfig.reiniciar === op.id ? ' cfg-periodo-pill--ativo' : ''}`}
-                      onClick={() => setNumConfig(prev => ({ ...prev, reiniciar: op.id }))}
+                      className={`cfg-periodo-pill${numConfig.reiniciar === op ? ' cfg-periodo-pill--ativo' : ''}`}
+                      onClick={() => setNumConfig(prev => ({ ...prev, reiniciar: op }))}
                     >
-                      {op.label}
+                      {t(`pedido.config.numeracao.reiniciar_${op}`)}
                     </button>
                   ))}
                 </div>
@@ -2982,19 +2975,19 @@ export default function Configuracoes() {
               <div className="cfg-toggles-lista" style={{ marginTop: '0.5rem' }}>
                 <ToggleRow
                   id="num-criar"
-                  label="Número automático ao criar pedido"
+                  label={t('pedido.config.numeracao.auto_criar')}
                   checked={numConfig.automaticoCriar}
                   onChange={v => setNumConfig(prev => ({ ...prev, automaticoCriar: v }))}
                 />
                 <ToggleRow
                   id="num-duplicar"
-                  label="Número automático ao duplicar pedido"
+                  label={t('pedido.config.numeracao.auto_duplicar')}
                   checked={numConfig.automaticoDuplicar}
                   onChange={v => setNumConfig(prev => ({ ...prev, automaticoDuplicar: v }))}
                 />
                 <ToggleRow
                   id="num-consolidar"
-                  label="Número automático ao consolidar pedido"
+                  label={t('pedido.config.numeracao.auto_consolidar')}
                   checked={numConfig.automaticoConsolidar}
                   onChange={v => setNumConfig(prev => ({ ...prev, automaticoConsolidar: v }))}
                 />

@@ -241,15 +241,17 @@ export function Notificacoes() {
           email?: { success: boolean; error?: string; errorMessage?: string } | null
         }
 
-        // Toast de resultado do e-mail
+        // Toast de sucesso do envio interno
         if (viaEmail && data.email !== null && data.email !== undefined) {
           if (data.email.success) {
-            addNotification({ type: 'success', message: 'E-mail enviado com sucesso!' })
+            addNotification({ type: 'success', message: 'Mensagem e e-mail enviados com sucesso!' })
           } else if (data.email.error === 'service_offline') {
-            addNotification({ type: 'error', message: 'Serviço de e-mail indisponível. Tente novamente mais tarde.' })
+            addNotification({ type: 'success', message: 'Mensagem enviada. E-mail indisponível no momento.' })
           } else {
-            addNotification({ type: 'error', message: `Falha ao enviar e-mail: ${data.email.errorMessage ?? 'erro desconhecido'}` })
+            addNotification({ type: 'warning', message: `Mensagem enviada. Falha no e-mail: ${data.email.errorMessage ?? 'erro desconhecido'}` })
           }
+        } else {
+          addNotification({ type: 'success', message: 'Mensagem enviada.' })
         }
 
         // Recarrega para mostrar o registro "enviado" no histórico
@@ -280,10 +282,9 @@ export function Notificacoes() {
         method: 'PUT',
       })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    } catch (err) {
-      // Reverte
+    } catch {
+      // Reverte silenciosamente — a mudança visual já desfaz
       setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: false } : n)))
-      setErro(err instanceof Error ? err.message : 'Falha ao marcar como lida')
     }
   }
 
@@ -294,9 +295,9 @@ export function Notificacoes() {
     try {
       const res = await authedFetch(`${BASE_URL}/read-all`, { method: 'PUT' })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    } catch (err) {
+    } catch {
       setNotifications(previous)
-      setErro(err instanceof Error ? err.message : 'Falha ao marcar todas como lidas')
+      addNotification({ type: 'error', message: 'Não foi possível marcar todas como lidas.' })
     }
   }
 
@@ -328,10 +329,11 @@ export function Notificacoes() {
       setNotifications((prev) =>
         prev.map((n) => (n.id === tempId ? { ...realData, read: false } : n))
       )
+      addNotification({ type: 'success', message: 'Nota salva.' })
     } catch (err) {
       // Reverte
       setNotifications((prev) => prev.filter((n) => n.id !== tempId))
-      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar aviso' })
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao salvar nota.' })
     }
   }
 

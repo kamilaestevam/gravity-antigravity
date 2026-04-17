@@ -470,15 +470,7 @@ const LABELS_FILTRO_INVERSO: Record<string, Record<string, string>> = Object.fro
 
 // ── Status padrão (fallback sem API) ─────────────────────────────────────────
 
-const ABAS_PADRAO: GTAbaTipo[] = [
-  { valor: 'todos',        label: 'Todos'           },
-  { valor: 'aberto',       label: 'Aberto'          },
-  { valor: 'em_andamento', label: 'Em Andamento'    },
-  { valor: 'aprovado',     label: 'Aprovado'        },
-  { valor: 'transferencia',label: 'Transferido'     },
-  { valor: 'consolidado',  label: 'Consolidado'     },
-  { valor: 'cancelado',    label: 'Cancelado'       },
-]
+const ABAS_STATUS_VALORES = ['todos','aberto','em_andamento','aprovado','transferencia','consolidado','cancelado'] as const
 
 /** Lê abas do localStorage (salvo pelo Configuracoes) */
 function lerAbasDoLocalStorage(t: (key: string) => string = i18next.t.bind(i18next)): GTAbaTipo[] | null {
@@ -2589,6 +2581,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
   busca,
   onLimparBusca,
 }: BarraAcoesPedidoProps) {
+  const { t } = useTranslation()
   return (
     <>
       {/* ── Dropdown "Novo" — Pedido · Item · Coluna ── */}
@@ -2599,7 +2592,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
           icone={<Plus size={14} weight="bold" />}
           onClick={() => { setNovoDropdownAberto(prev => !prev); setNovoSubmenu(null) }}
         >
-          Novo <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
+          {t('pedido.barra.novo')} <CaretDown size={12} weight="bold" style={{ marginLeft: 2, transition: 'transform 0.15s', transform: novoDropdownAberto ? 'rotate(180deg)' : 'none' }} />
         </BotaoGlobal>
 
         {novoDropdownAberto && (
@@ -2626,7 +2619,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(129,140,248,0.12)', flexShrink: 0 }}>
                     <Package size={13} weight="duotone" style={{ color: 'var(--ws-accent, #818cf8)' }} />
                   </span>
-                  Novo Pedido
+                  {t('pedido.barra.novo_pedido')}
                 </span>
                 <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
               </button>
@@ -2639,10 +2632,10 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
                 }}>
                   {([
-                    { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai dados do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'pencil' as const, label: 'Manual', desc: 'Preencher formulário', action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'upload' as const, label: t('pedido.barra.importacao'), desc: t('pedido.barra.importacao_desc_pedido'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'api' as const, label: t('pedido.barra.api'), desc: t('pedido.barra.api_desc_pedido'), action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'sparkle' as const, label: t('pedido.barra.smart_read'), desc: t('pedido.barra.smart_read_desc_pedido'), badge: t('pedido.barra.em_breve'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'pencil' as const, label: t('pedido.barra.manual'), desc: t('pedido.barra.manual_desc_pedido'), action: () => { setModalNovoPedidoAberto(true); setNovoDropdownAberto(false) } },
                   ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                     <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
                       <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
@@ -2680,7 +2673,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(52,211,153,0.12)', flexShrink: 0 }}>
                     <Tag size={13} weight="duotone" style={{ color: '#34d399' }} />
                   </span>
-                  Novo Item
+                  {t('pedido.barra.novo_item')}
                 </span>
                 <CaretRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
               </button>
@@ -2693,10 +2686,10 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                   minWidth: '230px', padding: '0.375rem', display: 'flex', flexDirection: 'column',
                 }}>
                   {([
-                    { icon: 'upload' as const, label: 'Importação', desc: 'Excel, CSV ou XML', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'api' as const, label: 'API', desc: 'Cockpit ou integração ERP', action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'sparkle' as const, label: 'Smart Read', desc: 'IA extrai itens do documento', badge: 'Em breve', action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
-                    { icon: 'pencil' as const, label: 'Manual', desc: 'Adicionar item a um pedido', action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'upload' as const, label: t('pedido.barra.importacao'), desc: t('pedido.barra.importacao_desc_item'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'api' as const, label: t('pedido.barra.api'), desc: t('pedido.barra.api_desc_item'), action: () => { setModalCockpitAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'sparkle' as const, label: t('pedido.barra.smart_read'), desc: t('pedido.barra.smart_read_desc_item'), badge: t('pedido.barra.em_breve'), action: () => { setSmartImportAberto(true); setNovoDropdownAberto(false) } },
+                    { icon: 'pencil' as const, label: t('pedido.barra.manual'), desc: t('pedido.barra.manual_desc_item'), action: () => { setModalNovoItemAberto(true); setNovoDropdownAberto(false) } },
                   ] as { icon: 'upload'|'api'|'sparkle'|'pencil', label: string, desc: string, badge?: string, action: () => void }[]).map(item => (
                     <button key={item.label} type="button" className="lp-dropdown-btn" onClick={item.action}>
                       <span style={{ color: item.icon === 'sparkle' ? '#a78bfa' : 'var(--text-secondary)', flexShrink: 0, marginTop: '0.1875rem', width: '1.5rem', display: 'inline-flex', justifyContent: 'flex-start' }}>
@@ -2724,7 +2717,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                 <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '1.5rem', height: '1.5rem', borderRadius: '0.375rem', background: 'rgba(99,102,241,0.12)', flexShrink: 0 }}>
                   <Columns size={13} weight="duotone" style={{ color: '#818cf8' }} />
                 </span>
-                Nova Coluna
+                {t('pedido.barra.nova_coluna')}
               </span>
               <ArrowRight size={11} weight="bold" style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
             </button>
@@ -2739,11 +2732,11 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
         {/* Transferir */}
         <TooltipGlobal
           titulo={
-            pedidosSelecionados.length > 0 ? `Transferir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` :
-            itensSelecionados.length > 0   ? `Transferir · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 's' : ''}` :
-            'Transferir'
+            pedidosSelecionados.length > 0 ? `${t('pedido.barra.transferir')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` :
+            itensSelecionados.length > 0   ? `${t('pedido.barra.transferir')} · ${itensSelecionados.length} item${itensSelecionados.length !== 1 ? 's' : ''}` :
+            t('pedido.barra.transferir')
           }
-          descricao="Transfere saldo dos pedidos selecionados para um processo logístico"
+          descricao={t('pedido.barra.transferir_desc')}
         >
           <BotaoGlobal
             variante="secundario"
@@ -2752,16 +2745,16 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             disabled={pedidosSelecionados.length === 0 && itensSelecionados.length === 0}
             onClick={() => { setModalTransferirAberto(true) }}
           >
-            {pedidosSelecionados.length > 0 ? `Transferir (${pedidosSelecionados.length})` :
-             itensSelecionados.length > 0   ? `Transferir (${itensSelecionados.length})` :
-             'Transferir'}
+            {pedidosSelecionados.length > 0 ? `${t('pedido.barra.transferir')} (${pedidosSelecionados.length})` :
+             itensSelecionados.length > 0   ? `${t('pedido.barra.transferir')} (${itensSelecionados.length})` :
+             t('pedido.barra.transferir')}
           </BotaoGlobal>
         </TooltipGlobal>
 
         {/* Consolidar */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length >= 2 ? `Consolidar · ${pedidosSelecionados.length} pedidos` : 'Consolidar'}
-          descricao={pedidosSelecionados.length < 2 ? 'Selecione ao menos 2 pedidos para consolidar' : 'Agrupa os pedidos selecionados em um único processo logístico'}
+          titulo={pedidosSelecionados.length >= 2 ? `${t('pedido.barra.consolidar')} · ${pedidosSelecionados.length} pedidos` : t('pedido.barra.consolidar')}
+          descricao={pedidosSelecionados.length < 2 ? t('pedido.barra.consolidar_min') : t('pedido.barra.consolidar_desc')}
         >
           <BotaoGlobal
             variante="secundario"
@@ -2774,8 +2767,8 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Editar em Massa */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Editar em Massa · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Editar em Massa'}
-          descricao="Edita campos comuns nos pedidos selecionados"
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.editar_massa')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.editar_massa')}
+          descricao={t('pedido.barra.editar_massa_desc')}
         >
           <BotaoGlobal
             variante="secundario"
@@ -2788,8 +2781,8 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Gerar Documento */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Gerar Documento · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Gerar Documento'}
-          descricao="Gera PDF a partir de um template ou documento padrão"
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.gerar_documento')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.gerar_documento')}
+          descricao={t('pedido.barra.gerar_documento_desc')}
         >
           <BotaoGlobal
             variante="secundario"
@@ -2802,14 +2795,14 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Duplicar */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Duplicar · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Duplicar'}
-          descricao="Cria cópias dos pedidos selecionados"
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.duplicar')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.duplicar')}
+          descricao={t('pedido.barra.duplicar_desc')}
         >
           <BotaoGlobal
             variante="secundario"
             tamanho="pequeno"
             icone={<CopySimple size={14} weight="duotone" />}
-            aria-label="Duplicar"
+            aria-label={t('pedido.barra.duplicar')}
             disabled={pedidosSelecionados.length === 0}
             onClick={() => setModalDuplicarAberto(true)}
           />
@@ -2817,8 +2810,8 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
 
         {/* Excluir */}
         <TooltipGlobal
-          titulo={pedidosSelecionados.length > 0 ? `Excluir · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : 'Excluir'}
-          descricao="Exclui permanentemente os pedidos selecionados"
+          titulo={pedidosSelecionados.length > 0 ? `${t('pedido.barra.excluir')} · ${pedidosSelecionados.length} pedido${pedidosSelecionados.length !== 1 ? 's' : ''}` : t('pedido.barra.excluir')}
+          descricao={t('pedido.barra.excluir_desc')}
         >
           <BotaoGlobal
             variante="perigo"
@@ -2835,17 +2828,17 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
       {(Object.keys(filtrosAtivos).length > 0 || busca) && (
         <div
           role="status"
-          aria-label="Filtros ativos"
+          aria-label={t('pedido.barra.filtros_ativos', { defaultValue: 'Filtros ativos' })}
           style={{ flex: '0 0 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.375rem', paddingTop: '0.375rem' }}
         >
           {busca && (
             <span className="lp-filtro-chip">
-              <span className="lp-filtro-chip-label">Busca:</span>
+              <span className="lp-filtro-chip-label">{t('pedido.barra.chip_busca', { defaultValue: 'Busca' })}:</span>
               <span className="lp-filtro-chip-valor">{busca}</span>
               <button
                 className="lp-filtro-chip-remove"
                 onClick={onLimparBusca}
-                aria-label="Remover busca"
+                aria-label={t('pedido.barra.remover_busca', { defaultValue: 'Remover busca' })}
               >
                 <X size={10} weight="bold" />
               </button>
@@ -2860,7 +2853,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
                 <button
                   className="lp-filtro-chip-remove"
                   onClick={() => handleLimparFiltro(col.key)}
-                  aria-label={`Remover filtro ${col.label}`}
+                  aria-label={t('pedido.barra.remover_filtro', { label: col.label })}
                 >
                   <X size={10} weight="bold" />
                 </button>
@@ -2868,7 +2861,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             )
           })}
           <button className="lp-filtros-limpar-tudo" onClick={handleLimparTodosFiltros}>
-            Limpar tudo
+            {t('pedido.barra.limpar_tudo')}
           </button>
         </div>
       )}
@@ -2946,7 +2939,9 @@ export default function ListaPedidos() {
 
   // ── Estado de UI ─────────────────────────────────────────────────────────────
   const [abaAtiva, setAbaAtiva]             = useState('todos')
-  const [abas, setAbas]                     = useState<GTAbaTipo[]>(ABAS_PADRAO)
+  const [abas, setAbas]                     = useState<GTAbaTipo[]>(() =>
+    ABAS_STATUS_VALORES.map(v => ({ valor: v, label: t(`pedido.status.${v}`) }))
+  )
   const [preferencias, setPreferencias]     = useState<GTPreferencias | undefined>(undefined)
   const [sortCampo, setSortCampo]           = useState('data_emissao_pedido')
   const [sortDir, setSortDir]               = useState<'asc' | 'desc'>('desc')
@@ -4389,7 +4384,7 @@ export default function ListaPedidos() {
           }
           onFindTermoChange={handleFindTermoChange}
           findTotalExterno={findTotalExterno}
-          placeholderBusca="Buscar pedido, exportador, referência..."
+          placeholderBusca={t('pedido.barra.placeholder_busca')}
           placeholderData={getPlaceholderData()}
           onOrdenar={handleOrdenar}
           sortCampo={sortCampo}

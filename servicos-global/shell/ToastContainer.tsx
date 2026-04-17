@@ -10,6 +10,7 @@ import {
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
 import type { NotificationType } from './store'
+import './shell.css'
 
 const ICON_MAP: Record<NotificationType, React.ReactNode> = {
   success: <CheckCircle weight="fill" size={18} />,

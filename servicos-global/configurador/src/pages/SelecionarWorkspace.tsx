@@ -179,6 +179,18 @@ const PRODUCT_NAME_KEYS: Record<string, string> = {
   'smart-read':    'store.prod_smart_read_nome',
 }
 
+/* ── Mapa de slug/product_key → chave de tradução da descrição ── */
+const PRODUCT_DESC_KEYS: Record<string, string> = {
+  'bid-frete':     'store.prod_bid_frete_desc',
+  'bid-cambio':    'store.prod_bid_cambio_desc',
+  'nf-importacao': 'store.prod_nf_importacao_desc',
+  'nf-import':     'store.prod_nf_importacao_desc',
+  'lpco':          'store.prod_lpco_desc',
+  'pedido':        'store.prod_pedido_desc',
+  'simula-custo':  'store.prod_simula_custo_desc',
+  'smart-read':    'store.prod_smart_read_desc',
+}
+
 function getProdutoIcon(slug: string): { icon: React.ReactElement; color: string; bg: string } {
   return PRODUCT_ICON_MAP[slug] ?? { icon: <Star size={18} weight="regular" />, color: 'var(--sw-accent-2)', bg: 'var(--sw-accent-dim)' }
 }
@@ -1040,7 +1052,7 @@ export function SelecionarWorkspace() {
                           </div>
                           <div className="sw-prod-body">
                             <div className="sw-prod-name">{PRODUCT_NAME_KEYS[prod.product_key] ? t(PRODUCT_NAME_KEYS[prod.product_key]) : prod.nome}</div>
-                            <div className="sw-prod-desc">{prod.descricao}</div>
+                            <div className="sw-prod-desc">{PRODUCT_DESC_KEYS[prod.product_key] ? t(PRODUCT_DESC_KEYS[prod.product_key]) : prod.descricao}</div>
                           </div>
                           <div className="sw-prod-right">
                             <span className="sw-badge sw-b-active">{t('sw.ativo')}</span>
@@ -1071,7 +1083,7 @@ export function SelecionarWorkspace() {
                           </div>
                           <div className="sw-prod-body">
                             <div className="sw-prod-name">{PRODUCT_NAME_KEYS[prod.slug] ? t(PRODUCT_NAME_KEYS[prod.slug]) : prod.name}</div>
-                            <div className="sw-prod-desc">{prod.description ?? ''}</div>
+                            <div className="sw-prod-desc">{PRODUCT_DESC_KEYS[prod.slug] ? t(PRODUCT_DESC_KEYS[prod.slug]) : (prod.description ?? '')}</div>
                           </div>
                           <div className="sw-prod-right">
                             {isActive ? (

@@ -321,8 +321,8 @@ export function AvisoInternoGlobal({
           {(['todas', 'recebidas', 'enviadas'] as const).map((v) => {
             const isActive = filtroVisao === v;
             const label = v === 'todas' ? 'Todas'
-              : v === 'recebidas' ? `Recebidas${countRecebidas > 0 ? ` (${countRecebidas})` : ''}`
-              : `Enviadas${countEnviadas > 0 ? ` (${countEnviadas})` : ''}`;
+              : v === 'recebidas' ? `Receb.${countRecebidas > 0 ? ` (${countRecebidas})` : ''}`
+              : `Enviad.${countEnviadas > 0 ? ` (${countEnviadas})` : ''}`;
             return (
               <button
                 key={v}
@@ -330,8 +330,9 @@ export function AvisoInternoGlobal({
                 onClick={() => { setFiltroVisao(v); if (v === 'enviadas') setMostrarLidas(true); }}
                 style={{
                   all: 'unset', cursor: 'pointer',
-                  padding: '0.25rem 0.625rem', borderRadius: '999px',
-                  fontSize: '0.6875rem', fontWeight: 600, lineHeight: 1.2,
+                  padding: '0.15rem 0.45rem', borderRadius: '999px',
+                  fontSize: '0.625rem', fontWeight: 600, lineHeight: 1.2,
+                  whiteSpace: 'nowrap',
                   transition: 'all 0.15s ease',
                   background: isActive ? 'var(--aig-accent, #818cf8)' : 'transparent',
                   color: isActive ? '#fff' : 'var(--aig-muted, #94a3b8)',

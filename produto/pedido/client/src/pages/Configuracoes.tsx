@@ -288,7 +288,7 @@ function StatusSortavel({
           style={{ background: status.cor }}
         />
 
-        <span className="cfg-status-label">{status.rotulo}</span>
+        <span className="cfg-status-label">{t(`pedido.status.${status.nome}`, { defaultValue: status.rotulo })}</span>
 
         {status.is_sistema && (
           <span className="cfg-badge-sistema">{t('pedido.config.status.badge_sistema')}</span>

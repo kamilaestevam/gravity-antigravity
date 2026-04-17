@@ -106,6 +106,7 @@ Antes de qualquer tarefa, o agente DEVE:
 |-------|---------|-----------------|
 | Nova Tela Produto | `skills/produtos/nova-tela-produto/SKILL.md` | **Criar/replicar tela de produto — padrão inviolável** |
 | SimulaCusto | `skills/produtos/simulacusto/SKILL.md` | Produto SimulaCusto, cálculo fiscal, NCM |
+| Dream Team Pedido | `skills/dream-team-pedido/SKILL.md` | **Qualquer trabalho em produto/pedido/*** — auth Clerk+Prisma, API interna, tabela, rotas SPA, armadilhas Prisma |
 
 ### UX
 
@@ -251,6 +252,7 @@ Use `/comando` para ativar papéis e fluxos específicos:
 - `/dream-team-tecnologia` — **Carregar o time de tecnologia (57 skills, 11 papéis)**
 - `/dream-team-produtos` — **Carregar o time de produtos (11 skills, 8 agentes)**
 - `/dream-team-detetive-tela` — **Análise forense completa de uma tela (front + back + banco + segurança + UX)**
+- `/dream-team-pedido` — **Regras de arquitetura e negócio do produto Pedido (auth, API, tabela, Prisma)**
 - `/lider` — Ativar modo Líder (análise + distribuição)
 - `/coordenar` — Ativar modo Coordenador (schema + contratos + ondas)
 - `/qa` — Ativar modo QA (revisão completa pós-entrega)

@@ -28,12 +28,12 @@ import {
   Folders,
   FileText,
   Sparkle,
-  ArrowLeft,
   MagnifyingGlass,
   Info,
 } from '@phosphor-icons/react'
 import { MenuLateralGlobal, type NavItem } from '@nucleo/menu-lateral-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
+import { HubButton } from '../components/HubButton'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
@@ -261,35 +261,8 @@ export function Core() {
       <div className="ws-main">
         {/* ── Header ── */}
         <div className="ws-global-actions">
-          <TooltipGlobal titulo={t('shell.voltar_hub')} descricao={t('shell.voltar_hub')}>
-            <button
-              // ?select=1 é o escape hatch: força mostrar SelecionarWorkspace
-              // mesmo quando o usuário tem workspace preferido configurado.
-              // Sem isso, o skip automático jogaria de volta pro Core em loop.
-              onClick={() => navigate('/hub?select=1')}
-              type="button"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.375rem',
-                padding: '0.375rem 0.875rem',
-                borderRadius: '9999px',
-                border: '1px solid rgba(129,140,248,0.25)',
-                background: 'rgba(129,140,248,0.08)',
-                color: '#818cf8',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.15)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)' }}
-            >
-              <ArrowLeft size={16} weight="bold" />
-              Hub
-            </button>
-          </TooltipGlobal>
+          {/* ?select=1: escape hatch que força SelecionarWorkspace mesmo com workspace preferido */}
+          <HubButton onClick={() => navigate('/hub?select=1')} tooltip={t('shell.voltar_hub')} />
 
           <LocalizarExpandidoCampoGlobal
             onBuscarNavigate={(term) => {

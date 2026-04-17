@@ -199,7 +199,7 @@ function getProdutoIcon(slug: string): { icon: React.ReactElement; color: string
    COMPONENTE PRINCIPAL — SelecionarWorkspace (Dashboard Core)
 ══════════════════════════════════════════════════════ */
 export function SelecionarWorkspace() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { signOut } = useClerk()
   const { user } = useUser()
   const { getToken } = useAuth()
@@ -247,7 +247,7 @@ export function SelecionarWorkspace() {
       id: `aviso-${Date.now()}`,
       conteudo: texto,
       autor: { nome: userName },
-      dataHora: new Date().toLocaleString('pt-BR'),
+      dataHora: new Date().toLocaleString(i18n.language),
       lido: false,
       tipo: 'aviso',
     }

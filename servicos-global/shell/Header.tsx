@@ -7,7 +7,7 @@ import {
   Moon,
   MagnifyingGlass,
   Info,
-  ArrowLeft,
+  Graph,
   Hexagon,
 } from '@phosphor-icons/react'
 import { useShellStore } from './store'
@@ -211,7 +211,7 @@ export function Header({ moduleName, moduleColor }: HeaderProps) {
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.15)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
           onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)' }}
         >
-          <ArrowLeft size={16} weight="bold" />
+          <Graph size={16} weight="bold" />
           Hub
         </button>
 

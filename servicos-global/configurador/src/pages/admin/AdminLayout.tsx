@@ -9,6 +9,7 @@ import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell 
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
+import { HubButton } from '../../components/HubButton'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildAdminProductNodes, type AdminProductItem } from '../../utils/ecosystemNodes'
@@ -28,7 +29,6 @@ import {
   Bug,
   Info,
   ShieldCheck,
-  ArrowLeft,
   ArrowsClockwise,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
@@ -157,32 +157,7 @@ export function AdminLayout() {
       <div className="ws-main">
         {/* ── Global Actions ── */}
         <div className="ws-global-actions">
-          <TooltipGlobal titulo={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} descricao={t('admin.layout.voltar_hub_desc', 'Retornar à tela principal do workspace')}>
-            <button
-              onClick={() => navigate('/hub')}
-              type="button"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.375rem',
-                padding: '0.375rem 0.875rem',
-                borderRadius: '9999px',
-                border: '1px solid rgba(129,140,248,0.25)',
-                background: 'rgba(129,140,248,0.08)',
-                color: '#818cf8',
-                fontSize: '0.8125rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.15)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.4)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(129,140,248,0.08)'; e.currentTarget.style.borderColor = 'rgba(129,140,248,0.25)' }}
-            >
-              <ArrowLeft size={16} weight="bold" />
-              Hub
-            </button>
-          </TooltipGlobal>
+          <HubButton onClick={() => navigate('/hub')} tooltip={t('admin.layout.voltar_hub_titulo', 'Voltar ao Hub')} />
 
           <LocalizarExpandidoCampoGlobal
               onBuscarNavigate={(term) => {

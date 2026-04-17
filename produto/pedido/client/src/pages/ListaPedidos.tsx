@@ -3507,17 +3507,15 @@ export default function ListaPedidos() {
     return () => document.removeEventListener('mousedown', handler)
   }, [novoDropdownAberto])
 
-  useEffect(() => { if (!tenantId) return; carregarInicial() }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { carregarInicial() }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Carrega config de alertas — aguarda tenantId estar disponível
+  // Carrega config de alertas ao montar (tenantId garantido pelo Gatekeeper)
   useEffect(() => {
-    if (!tenantId) return
     configRegrasApi.obter().then(cfg => { _regrasAlertasRef.current = cfg }).catch(() => { /* silencioso */ })
   }, [tenantId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Carrega formato de data do servidor — aguarda tenantId estar disponível
+  // Carrega formato de data do servidor (tenantId garantido pelo Gatekeeper)
   useEffect(() => {
-    if (!tenantId) return
     casasDecimaisApi.obter()
       .then(res => {
         if (res.data.formato_data) setFormatoData(res.data.formato_data as import('../shared/useFormatoData').FormatoData)

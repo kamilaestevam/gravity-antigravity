@@ -609,6 +609,99 @@
   background: var(--aig-accent-dim, rgba(129, 140, 248, 0.1));
 }
 
+/* ── Ícones de filtro rápido (olho + X) ─────────────────────────────────── */
+.aig-filter-icon-btn {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--aig-muted, #64748b);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.aig-filter-icon-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: var(--aig-text, #f1f5f9);
+}
+.aig-filter-icon-btn.active {
+  color: var(--aig-accent, #818cf8);
+}
+.aig-filter-icon-btn.active:hover {
+  background: var(--aig-accent-dim, rgba(129,140,248,0.12));
+}
+
+/* ── Seletor de canal (pills Interno / E-mail / WhatsApp) ─────────────── */
+.aig-canal-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.aig-canal-label {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--aig-muted, #94a3b8);
+  flex-shrink: 0;
+  margin-right: 0.125rem;
+}
+
+.aig-canal-pill {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--aig-border, #334155);
+  color: var(--aig-muted, #94a3b8);
+  background: transparent;
+  transition: all 0.15s;
+  line-height: 1.2;
+}
+.aig-canal-pill:hover {
+  border-color: var(--aig-accent, #818cf8);
+  color: var(--aig-text, #f1f5f9);
+}
+.aig-canal-pill.active {
+  background: var(--aig-accent-dim, rgba(129,140,248,0.15));
+  border-color: var(--aig-accent, #818cf8);
+  color: var(--aig-accent, #818cf8);
+}
+.aig-canal-pill.active.email {
+  background: rgba(16,185,129,0.1);
+  border-color: #10b981;
+  color: #10b981;
+}
+.aig-canal-pill.active.whatsapp {
+  background: rgba(37,211,102,0.1);
+  border-color: #25d166;
+  color: #25d166;
+}
+
+/* ── Aviso LGPD ──────────────────────────────────────────────────────────── */
+.aig-lgpd-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 5px;
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.25);
+  color: #f59e0b;
+  font-size: 0.5625rem;
+  line-height: 1.5;
+}
+
 /* ── Toggle via e-mail ───────────────────────────────────────────────────── */
 .aig-email-toggle {
   all: unset;

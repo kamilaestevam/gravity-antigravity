@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao } from '@nucleo/mensageria-global'
+import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao, type Canal, type CanaisDisponiveis } from '@nucleo/mensageria-global'
 import { useShellStore } from '@gravity/shell'
 
 export interface NotificationItem {
@@ -122,6 +122,7 @@ export function Notificacoes() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState<string | null>(null)
   const [usuariosTenant, setUsuariosTenant] = useState<UsuarioMencao[]>([])
+  const [canaisDisponiveis, setCanaisDisponiveis] = useState<CanaisDisponiveis>({ email: true, whatsapp: false })
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -183,10 +184,31 @@ export function Notificacoes() {
     return () => { cancelled = true }
   }, [])
 
+  // Busca configuração de canais (email/whatsapp habilitados pelo master).
+  useEffect(() => {
+    let cancelled = false
+    async function fetchChannelConfig() {
+      try {
+        const res = await authedFetch(`${BASE_URL}/config`)
+        if (!res.ok || cancelled) return
+        const payload = await res.json() as { status: string; data?: { email_enabled: boolean; whatsapp_enabled: boolean } }
+        if (payload.status === 'success' && payload.data && !cancelled) {
+          setCanaisDisponiveis({ email: payload.data.email_enabled, whatsapp: payload.data.whatsapp_enabled })
+        }
+      } catch {
+        // Silencioso — defaults (email=true, whatsapp=false) permanecem
+      }
+    }
+    fetchChannelConfig()
+    return () => { cancelled = true }
+  }, [])
+
   // Callback do painel "Enviar Para" — cria notificações para os destinatários
   // usando a rota autenticada POST /send (browser-facing, JWT).
   const handleEnviarPara = useCallback(
-    async (destinatarios: string[], mensagem: string, link?: string, viaEmail?: boolean) => {
+    async (destinatarios: string[], mensagem: string, link?: string, canais?: Canal[]) => {
+      const viaEmail = canais?.includes('email') ?? false
+
       try {
         // Resolve nomes e e-mails dos destinatários
         const recipientNames = destinatarios
@@ -205,7 +227,7 @@ export function Notificacoes() {
             sender_name: currentUserName || undefined,
             recipient_names: recipientNames,
             activity_id: link || undefined,
-            via_email: viaEmail === true && recipientEmails.length > 0,
+            via_email: viaEmail && recipientEmails.length > 0,
             recipient_emails: viaEmail ? recipientEmails : undefined,
           }),
         })
@@ -236,7 +258,7 @@ export function Notificacoes() {
         setErro(err instanceof Error ? err.message : 'Falha ao enviar notificação')
       }
     },
-    [currentUserName, usuariosTenant, syncState]
+    [currentUserName, usuariosTenant, syncState, addNotification]
   )
 
   // IDs vindos do shell store começam com "aviso-" (gerados por generateAvisoId()).
@@ -352,6 +374,7 @@ export function Notificacoes() {
       onEnviarPara={handleEnviarPara}
       usuariosTenant={usuariosTenant}
       linkAtual={linkContextual ?? location.pathname}
+      canaisDisponiveis={canaisDisponiveis}
     />
   )
 }

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-16T00:34:27.001Z
+// Gerado em: 2026-04-17T12:37:08.494Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core, ncm-sync, notificacoes
 // Todos os fragments encontrados.
 // ============================================================================
@@ -1771,6 +1771,45 @@ model Notification {
   @@index([tenant_id, user_id])
   @@index([tenant_id, user_id, read])
   @@index([tenant_id, created_at])
+}
+
+// ─── Contatos externos (email / WhatsApp) ─────────────────────────────────
+// Agenda de contatos por tenant. Usada pelo sininho para enviar notificações a
+// pessoas que não são usuários do sistema (e-mail ou WhatsApp).
+// whatsapp_opt_in_at: consentimento explícito exigido pela LGPD (Art. 8).
+model ExternalContact {
+  id                 String    @id @default(cuid())
+  tenant_id          String
+  created_by         String // Clerk user_id
+  name               String    @db.VarChar(200)
+  email              String?   @db.VarChar(255)
+  whatsapp_phone     String?   @db.VarChar(20) // E.164: +5511999999999
+  whatsapp_opt_in_at DateTime? // LGPD Art. 8 — consentimento explícito
+  notes              String?   @db.VarChar(500)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, created_by])
+  @@index([tenant_id, email])
+  @@index([tenant_id, whatsapp_phone])
+}
+
+// ─── Configuração de canais por tenant ────────────────────────────────────
+// Controlado exclusivamente pelo usuário com role MASTER.
+// email_enabled default true (backward compat). whatsapp_enabled default false.
+model TenantChannelConfig {
+  id               String  @id @default(cuid())
+  tenant_id        String  @unique
+  email_enabled    Boolean @default(true)
+  whatsapp_enabled Boolean @default(false)
+  updated_by       String? // Clerk user_id do master que alterou
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
 }
 
 model NotificationPreferences {

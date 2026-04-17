@@ -432,3 +432,159 @@ apiRoutes.delete('/:id', async (req, res, next) => {
     next(err)
   }
 })
+
+// ════════════════════════════════════════════════════════════════════════════
+// CONFIGURAÇÃO DE CANAIS
+// GET  /config — lê config do tenant (autenticado)
+// PATCH /config — atualiza (apenas MASTER)
+// ════════════════════════════════════════════════════════════════════════════
+
+apiRoutes.get('/config', async (req, res, next) => {
+  try {
+    const { tenant_id } = req
+    const config = await prisma.tenantChannelConfig.findUnique({
+      where: { tenant_id },
+    })
+    res.json({
+      status: 'success',
+      data: {
+        email_enabled: config?.email_enabled ?? true,
+        whatsapp_enabled: config?.whatsapp_enabled ?? false,
+      },
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+
+const channelConfigBodySchema = z.object({
+  email_enabled: z.boolean().optional(),
+  whatsapp_enabled: z.boolean().optional(),
+})
+
+apiRoutes.patch('/config', async (req, res, next) => {
+  try {
+    const { tenant_id, user_id } = req
+    if ((req as Request & { auth?: { role?: string } }).auth?.role !== 'MASTER') {
+      throw new AppError('Apenas usuários MASTER podem alterar a configuração de canais', 403)
+    }
+    const body = channelConfigBodySchema.parse(req.body)
+    const updated = await prisma.tenantChannelConfig.upsert({
+      where: { tenant_id },
+      create: {
+        tenant_id,
+        email_enabled: body.email_enabled ?? true,
+        whatsapp_enabled: body.whatsapp_enabled ?? false,
+        updated_by: user_id,
+      },
+      update: {
+        ...(body.email_enabled !== undefined && { email_enabled: body.email_enabled }),
+        ...(body.whatsapp_enabled !== undefined && { whatsapp_enabled: body.whatsapp_enabled }),
+        updated_by: user_id,
+      },
+    })
+    res.json({ status: 'success', data: updated })
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return next(new AppError(`Body inválido: ${err.issues.map(i => i.message).join(', ')}`, 400))
+    }
+    next(err)
+  }
+})
+
+// ════════════════════════════════════════════════════════════════════════════
+// CONTATOS EXTERNOS (agenda de email / WhatsApp)
+// GET    /contacts           — lista contatos do tenant
+// POST   /contacts           — cria contato
+// PATCH  /contacts/:id       — atualiza contato
+// DELETE /contacts/:id       — remove contato
+// ════════════════════════════════════════════════════════════════════════════
+
+const contactBodySchema = z.object({
+  name: z.string().min(1).max(200),
+  email: z.string().email().max(255).optional().or(z.literal('')),
+  whatsapp_phone: z.string().regex(/^\+[1-9]\d{7,14}$/, 'Use formato E.164: +5511999999999').optional().or(z.literal('')),
+  whatsapp_opt_in: z.boolean().optional(),
+  notes: z.string().max(500).optional(),
+})
+
+apiRoutes.get('/contacts', async (req, res, next) => {
+  try {
+    const { tenant_id } = req
+    const contacts = await prisma.externalContact.findMany({
+      where: { tenant_id },
+      orderBy: { name: 'asc' },
+      select: {
+        id: true, name: true, email: true,
+        whatsapp_phone: true, whatsapp_opt_in_at: true,
+        notes: true, created_at: true,
+      },
+    })
+    res.json({ status: 'success', data: contacts })
+  } catch (err) {
+    next(err)
+  }
+})
+
+apiRoutes.post('/contacts', async (req, res, next) => {
+  try {
+    const { tenant_id, user_id } = req
+    const body = contactBodySchema.parse(req.body)
+    const created = await prisma.externalContact.create({
+      data: {
+        tenant_id,
+        created_by: user_id,
+        name: body.name,
+        email: body.email || null,
+        whatsapp_phone: body.whatsapp_phone || null,
+        whatsapp_opt_in_at: body.whatsapp_opt_in ? new Date() : null,
+        notes: body.notes || null,
+      },
+    })
+    res.status(201).json({ status: 'success', data: created })
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return next(new AppError(`Body inválido: ${err.issues.map(i => i.message).join(', ')}`, 400))
+    }
+    next(err)
+  }
+})
+
+apiRoutes.patch('/contacts/:id', async (req, res, next) => {
+  try {
+    const { tenant_id } = req
+    const { id } = idParamSchema.parse(req.params)
+    const body = contactBodySchema.partial().parse(req.body)
+    const existing = await prisma.externalContact.findFirst({ where: { id, tenant_id } })
+    if (!existing) throw new AppError('Contato não encontrado', 404)
+    const updated = await prisma.externalContact.update({
+      where: { id },
+      data: {
+        ...(body.name !== undefined && { name: body.name }),
+        ...(body.email !== undefined && { email: body.email || null }),
+        ...(body.whatsapp_phone !== undefined && { whatsapp_phone: body.whatsapp_phone || null }),
+        ...(body.whatsapp_opt_in === true && { whatsapp_opt_in_at: new Date() }),
+        ...(body.whatsapp_opt_in === false && { whatsapp_opt_in_at: null }),
+        ...(body.notes !== undefined && { notes: body.notes || null }),
+      },
+    })
+    res.json({ status: 'success', data: updated })
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return next(new AppError(`Body inválido: ${err.issues.map(i => i.message).join(', ')}`, 400))
+    }
+    next(err)
+  }
+})
+
+apiRoutes.delete('/contacts/:id', async (req, res, next) => {
+  try {
+    const { tenant_id } = req
+    const { id } = idParamSchema.parse(req.params)
+    const result = await prisma.externalContact.deleteMany({ where: { id, tenant_id } })
+    if (result.count === 0) throw new AppError('Contato não encontrado', 404)
+    res.json({ status: 'success' })
+  } catch (err) {
+    next(err)
+  }
+})

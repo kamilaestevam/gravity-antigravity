@@ -1087,6 +1087,29 @@ exports.Prisma.NotificationScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.ExternalContactScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  created_by: 'created_by',
+  name: 'name',
+  email: 'email',
+  whatsapp_phone: 'whatsapp_phone',
+  whatsapp_opt_in_at: 'whatsapp_opt_in_at',
+  notes: 'notes',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.TenantChannelConfigScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  email_enabled: 'email_enabled',
+  whatsapp_enabled: 'whatsapp_enabled',
+  updated_by: 'updated_by',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.NotificationPreferencesScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
@@ -1273,6 +1296,8 @@ exports.Prisma.ModelName = {
   NcmSyncLog: 'NcmSyncLog',
   NcmScheduleConfig: 'NcmScheduleConfig',
   Notification: 'Notification',
+  ExternalContact: 'ExternalContact',
+  TenantChannelConfig: 'TenantChannelConfig',
   NotificationPreferences: 'NotificationPreferences'
 };
 

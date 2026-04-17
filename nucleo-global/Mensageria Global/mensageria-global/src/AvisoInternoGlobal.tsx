@@ -11,6 +11,9 @@ import {
   At,
   LinkSimple,
   EnvelopeSimple,
+  Eye,
+  WhatsappLogo,
+  Warning,
 } from '@phosphor-icons/react';
 import { TooltipGlobal } from '@nucleo/tooltip-global';
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global';
@@ -34,6 +37,13 @@ export interface UsuarioMencao {
   email?: string;
 }
 
+export type Canal = 'interno' | 'email' | 'whatsapp';
+
+export interface CanaisDisponiveis {
+  email: boolean;
+  whatsapp: boolean;
+}
+
 export interface AvisoInternoGlobalProps {
   avisos: AvisoInterno[];
   onBuscar?: (texto: string) => void;
@@ -42,13 +52,14 @@ export interface AvisoInternoGlobalProps {
   onMarcarTodosLidos?: () => void;
   onCriarAviso?: (texto: string) => void;
   onNavegarHref?: (href: string) => void;
-  onEnviarPara?: (destinatarios: string[], mensagem: string, link?: string, viaEmail?: boolean) => void;
+  onEnviarPara?: (destinatarios: string[], mensagem: string, link?: string, canais?: Canal[]) => void;
   usuariosTenant?: UsuarioMencao[];
   linkAtual?: string;
   carregando?: boolean;
   erro?: string | null;
   className?: string;
   onFechar?: () => void;
+  canaisDisponiveis?: CanaisDisponiveis;
 }
 
 export function AvisoInternoGlobal({
@@ -64,7 +75,8 @@ export function AvisoInternoGlobal({
   carregando = false,
   erro = null,
   onFechar,
-  className = ''
+  className = '',
+  canaisDisponiveis = { email: true, whatsapp: false },
 }: AvisoInternoGlobalProps) {
   const CHAR_LIMIT = 500;
 
@@ -82,7 +94,20 @@ export function AvisoInternoGlobal({
   const [destinatarios, setDestinatarios] = useState<string[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerBusca, setPickerBusca] = useState('');
-  const [viaEmail, setViaEmail] = useState(false);
+  const [canaisSelecionados, setCanaisSelecionados] = useState<Set<Canal>>(new Set(['interno']));
+
+  const toggleCanal = (canal: Canal) => {
+    setCanaisSelecionados(prev => {
+      const next = new Set(prev);
+      if (next.has(canal)) {
+        if (canal === 'interno' && next.size === 1) return prev; // interno não pode ser o único desligado
+        next.delete(canal);
+      } else {
+        next.add(canal);
+      }
+      return next;
+    });
+  };
 
   // ─── @mention state ────────────────────────────────────────────────────────
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
@@ -155,12 +180,10 @@ export function AvisoInternoGlobal({
     if (!composerText.trim()) return;
 
     if (destinatarios.length > 0 && onEnviarPara) {
-      // Enviar para outros (in-app + opcionalmente por e-mail)
-      onEnviarPara(destinatarios, composerText.trim(), composerLink.trim() || undefined, viaEmail);
+      onEnviarPara(destinatarios, composerText.trim(), composerLink.trim() || undefined, Array.from(canaisSelecionados));
       setDestinatarios([]);
-      setViaEmail(false);
+      setCanaisSelecionados(new Set(['interno']));
     } else if (onCriarAviso) {
-      // Nota pessoal
       onCriarAviso(composerText.trim());
     }
     setComposerText('');
@@ -285,9 +308,9 @@ export function AvisoInternoGlobal({
         </div>
       </div>
 
-      {/* FILTRO VISÃO: Todas / Recebidas / Enviadas */}
+      {/* FILTRO VISÃO: Todas / Recebidas / Enviadas + ícones rápidos */}
       <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0', paddingTop: '0.5rem' }}>
-        <div style={{ display: 'flex', gap: '0.25rem' }}>
+        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
           {(['todas', 'recebidas', 'enviadas'] as const).map((v) => {
             const isActive = filtroVisao === v;
             const label = v === 'todas' ? 'Todas'
@@ -312,6 +335,28 @@ export function AvisoInternoGlobal({
               </button>
             );
           })}
+          <div style={{ flex: 1 }} />
+          <TooltipGlobal titulo={mostrarLidas ? 'Ocultar lidas' : 'Mostrar lidas'} descricao="">
+            <button
+              type="button"
+              className={`aig-filter-icon-btn${mostrarLidas ? ' active' : ''}`}
+              onClick={() => setMostrarLidas(v => !v)}
+              aria-pressed={mostrarLidas}
+            >
+              <Eye size={13} weight={mostrarLidas ? 'fill' : 'regular'} />
+            </button>
+          </TooltipGlobal>
+          {(busca || dataFiltro.inicio || dataFiltro.fim || mostrarLidas || filtroVisao !== 'todas') && (
+            <TooltipGlobal titulo="Limpar filtros" descricao="">
+              <button
+                type="button"
+                className="aig-filter-icon-btn active"
+                onClick={() => { setBusca(''); setDataFiltro({ inicio: null, fim: null }); setMostrarLidas(false); setFiltroVisao('todas'); if (onFechar) onFechar(); }}
+              >
+                <X size={13} weight="bold" />
+              </button>
+            </TooltipGlobal>
+          )}
         </div>
       </div>
 
@@ -405,21 +450,6 @@ export function AvisoInternoGlobal({
               )}
             </div>
           ))
-        )}
-      </div>
-
-      {/* FOOTER — filtros */}
-      <div className="aig-footer">
-        <button type="button" className="aig-footer-btn" onClick={() => {
-           setBusca(''); setDataFiltro({ inicio: null, fim: null }); setMostrarLidas(false); setFiltroVisao('todas');
-           if (onFechar) onFechar();
-        }}>
-          <X size={14} weight="bold" /> Limpar filtros
-        </button>
-        {avisos.some(a => a.lido) && (
-          <button type="button" className="aig-footer-btn" onClick={() => setMostrarLidas(v => !v)}>
-            {mostrarLidas ? 'Esconder lidas' : 'Mostrar lidas'}
-          </button>
         )}
       </div>
 
@@ -550,20 +580,54 @@ export function AvisoInternoGlobal({
           )}
         </div>
 
-        {/* Toggle via e-mail — aparece só quando há destinatários */}
+        {/* Seletor de canal — aparece só quando há destinatários */}
         {hasDestinatarios && (
-          <button
-            type="button"
-            className={`aig-email-toggle ${viaEmail ? 'active' : ''}`}
-            onClick={() => setViaEmail(v => !v)}
-            aria-pressed={viaEmail}
-            title="Enviar também por e-mail via Resend"
-          >
-            <EnvelopeSimple size={12} weight={viaEmail ? 'fill' : 'regular'} />
-            <span>Enviar por e-mail</span>
-            {/* indicador visual */}
-            <span className="aig-email-toggle-dot" />
-          </button>
+          <div className="aig-canal-row">
+            <span className="aig-canal-label">Enviar via:</span>
+            <button
+              type="button"
+              className={`aig-canal-pill${canaisSelecionados.has('interno') ? ' active' : ''}`}
+              onClick={() => toggleCanal('interno')}
+              aria-pressed={canaisSelecionados.has('interno')}
+            >
+              <Bell size={11} weight={canaisSelecionados.has('interno') ? 'fill' : 'regular'} />
+              Interno
+            </button>
+            {canaisDisponiveis.email && (
+              <button
+                type="button"
+                className={`aig-canal-pill${canaisSelecionados.has('email') ? ' active email' : ''}`}
+                onClick={() => toggleCanal('email')}
+                aria-pressed={canaisSelecionados.has('email')}
+              >
+                <EnvelopeSimple size={11} weight={canaisSelecionados.has('email') ? 'fill' : 'regular'} />
+                E-mail
+              </button>
+            )}
+            {canaisDisponiveis.whatsapp && (
+              <button
+                type="button"
+                className={`aig-canal-pill${canaisSelecionados.has('whatsapp') ? ' active whatsapp' : ''}`}
+                onClick={() => toggleCanal('whatsapp')}
+                aria-pressed={canaisSelecionados.has('whatsapp')}
+              >
+                <WhatsappLogo size={11} weight={canaisSelecionados.has('whatsapp') ? 'fill' : 'regular'} />
+                WhatsApp
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Aviso LGPD — exibido ao selecionar canal externo */}
+        {hasDestinatarios && (canaisSelecionados.has('email') || canaisSelecionados.has('whatsapp')) && (
+          <div className="aig-lgpd-aviso">
+            <Warning size={11} weight="fill" style={{ flexShrink: 0, marginTop: '1px' }} />
+            <span>
+              {canaisSelecionados.has('whatsapp')
+                ? 'WhatsApp exige consentimento explícito do destinatário (LGPD Art. 8). Certifique-se antes de enviar.'
+                : 'O e-mail será processado pelo Resend (terceiro) para entrega. O destinatário pode solicitar exclusão dos dados.'}
+            </span>
+          </div>
         )}
 
         {/* Link + botão enviar */}

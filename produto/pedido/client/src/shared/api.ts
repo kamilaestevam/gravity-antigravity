@@ -56,7 +56,14 @@ let context = { tenantId: '', userId: '', userName: '' }
 let getDynamicTenantId: () => string | undefined = () => undefined
 
 export const injectTenantGetter = (fn: () => string | undefined): void => {
-  getDynamicTenantId = fn
+  getDynamicTenantId = () => {
+    const live = fn()
+    // Sempre que o store retorna um valor válido, persiste no context como cache.
+    // Quando o Clerk pisca (store vazio durante navegação SPA), o cache retém
+    // o último tenantId conhecido e a request não sai com header vazio.
+    if (live) context.tenantId = live
+    return context.tenantId || undefined
+  }
 }
 
 export function setApiContext(ctx: { tenantId: string; userId: string; userName?: string }): void {

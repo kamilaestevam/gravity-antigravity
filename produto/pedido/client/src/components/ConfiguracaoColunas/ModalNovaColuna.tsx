@@ -108,7 +108,7 @@ export function ModalNovaColuna({
       const chaveProvisoria = colunaEdicao?.chave ?? nome.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '__nova__'
       const temCiclo = detectarCircular(chaveProvisoria, expressao, todasColunas)
       if (temCiclo) {
-        setFormulaErro('Referência circular detectada: a fórmula cria um ciclo de dependências. Remova a referência que aponta de volta para esta coluna.')
+        setFormulaErro(t('pedido.modal_col.erro_circular'))
         setFormulaValida(false)
         return
       }
@@ -116,7 +116,7 @@ export function ModalNovaColuna({
       setFormulaErro(null)
       setFormulaValida(true)
     } catch (err) {
-      setFormulaErro(err instanceof Error ? `Erro de sintaxe: ${err.message}` : 'Fórmula inválida')
+      setFormulaErro(err instanceof Error ? t('pedido.modal_col.erro_sintaxe', { msg: err.message }) : t('pedido.modal_col.erro_formula_invalida_gen'))
       setFormulaValida(false)
     }
   }, [colunaEdicao, nome, todasColunas])
@@ -157,23 +157,23 @@ export function ModalNovaColuna({
   const handleSalvar = useCallback(async () => {
     const nomeTrimmed = nome.trim()
     if (!nomeTrimmed) {
-      setErro('O nome da coluna é obrigatório.')
+      setErro(t('pedido.modal_col.erro_nome_obrigatorio'))
       return
     }
     if (tipoComOpcoes && opcoes.length === 0) {
-      setErro('Adicione ao menos uma opção à lista.')
+      setErro(t('pedido.modal_col.erro_sem_opcoes'))
       return
     }
     if (tipoFormula) {
       if (!formulaExpressao.trim()) {
-        setErro('A expressão da fórmula é obrigatória.')
+        setErro(t('pedido.modal_col.erro_formula_obrigatoria'))
         return
       }
       // Força validação síncrona antes de salvar
       try {
         parsearFormula(formulaExpressao)
       } catch (err) {
-        setErro(err instanceof Error ? `Fórmula inválida: ${err.message}` : 'Fórmula inválida.')
+        setErro(err instanceof Error ? t('pedido.modal_col.erro_formula_invalida', { msg: err.message }) : t('pedido.modal_col.erro_formula_invalida_gen'))
         return
       }
       if (formulaErro) {
@@ -233,13 +233,13 @@ export function ModalNovaColuna({
       className="mnc-overlay"
       role="dialog"
       aria-modal="true"
-      aria-label={isEdicao ? 'Editar coluna' : 'Nova coluna'}
+      aria-label={t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}
       onClick={e => { if (e.target === e.currentTarget) onFechar() }}
     >
       <div className="mnc-modal">
         {/* Cabeçalho */}
         <div className="mnc-header">
-          <h2 className="mnc-titulo">{isEdicao ? 'Editar Coluna' : 'Nova Coluna'}</h2>
+          <h2 className="mnc-titulo">{t(isEdicao ? 'pedido.modal_col.titulo_edicao' : 'pedido.modal_col.titulo_novo')}</h2>
           <button
             type="button"
             className="mnc-fechar"
@@ -255,7 +255,7 @@ export function ModalNovaColuna({
           {/* Nome */}
           <div className="mnc-campo">
             <label className="mnc-label" htmlFor="mnc-nome">
-              Nome <span className="mnc-obrig">*</span>
+              {t('pedido.modal_col.label_nome')} <span className="mnc-obrig">*</span>
             </label>
             <input
               id="mnc-nome"
@@ -264,7 +264,7 @@ export function ModalNovaColuna({
               value={nome}
               onChange={e => setNome(e.target.value)}
               maxLength={60}
-              placeholder="Ex: Margem %, Prioridade"
+              placeholder={t('pedido.modal_col.placeholder_nome')}
               autoFocus
             />
           </div>
@@ -272,7 +272,7 @@ export function ModalNovaColuna({
           {/* Tipo */}
           <div className="mnc-campo">
             <label className="mnc-label" htmlFor="mnc-tipo">
-              Tipo <span className="mnc-obrig">*</span>
+              {t('pedido.modal_col.label_tipo')} <span className="mnc-obrig">*</span>
             </label>
             {isEdicao ? (
               <input
@@ -300,7 +300,7 @@ export function ModalNovaColuna({
           {/* Escopo */}
           <div className="mnc-campo">
             <label className="mnc-label" htmlFor="mnc-escopo">
-              Escopo <span className="mnc-obrig">*</span>
+              {t('pedido.modal_col.label_escopo')} <span className="mnc-obrig">*</span>
             </label>
             <select
               id="mnc-escopo"
@@ -317,7 +317,7 @@ export function ModalNovaColuna({
           {/* Visibilidade */}
           <div className="mnc-campo">
             <label className="mnc-label" htmlFor="mnc-visibilidade">
-              Visibilidade <span className="mnc-obrig">*</span>
+              {t('pedido.modal_col.label_visibilidade')} <span className="mnc-obrig">*</span>
             </label>
             <select
               id="mnc-visibilidade"
@@ -341,33 +341,33 @@ export function ModalNovaColuna({
                 onChange={e => setObrigatorio(e.target.checked)}
                 className="mnc-checkbox"
               />
-              Obrigatório
+              {t('pedido.modal_col.label_obrigatorio')}
             </label>
           </div>
 
           {/* Valor padrão */}
           <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-valor-padrao">Valor padrão</label>
+            <label className="mnc-label" htmlFor="mnc-valor-padrao">{t('pedido.modal_col.label_valor_padrao')}</label>
             <input
               id="mnc-valor-padrao"
               className="mnc-input"
               type="text"
               value={valorPadrao}
               onChange={e => setValorPadrao(e.target.value)}
-              placeholder="Deixe em branco para não definir"
+              placeholder={t('pedido.modal_col.placeholder_valor_padrao')}
             />
           </div>
 
           {/* Descrição */}
           <div className="mnc-campo">
-            <label className="mnc-label" htmlFor="mnc-descricao">Descrição</label>
+            <label className="mnc-label" htmlFor="mnc-descricao">{t('pedido.modal_col.label_descricao')}</label>
             <input
               id="mnc-descricao"
               className="mnc-input"
               type="text"
               value={descricao}
               onChange={e => setDescricao(e.target.value)}
-              placeholder="Descrição auxiliar exibida como tooltip"
+              placeholder={t('pedido.modal_col.placeholder_descricao')}
               maxLength={200}
             />
           </div>
@@ -376,7 +376,7 @@ export function ModalNovaColuna({
           {tipoComOpcoes && (
             <div className="mnc-campo">
               <label className="mnc-label">
-                Opções da lista <span className="mnc-obrig">*</span>
+                {t('pedido.modal_col.label_opcoes')} <span className="mnc-obrig">*</span>
               </label>
               <div className="mnc-opcoes-lista">
                 {opcoes.map(opcao => (
@@ -400,7 +400,7 @@ export function ModalNovaColuna({
                   value={novaOpcao}
                   onChange={e => setNovaOpcao(e.target.value)}
                   onKeyDown={handleOpcaoKeyDown}
-                  placeholder="Digite e pressione Enter ou clique em +"
+                  placeholder={t('pedido.modal_col.placeholder_opcao')}
                   aria-label="Nova opção da lista"
                 />
                 <button
@@ -419,7 +419,7 @@ export function ModalNovaColuna({
           {tipoFormula && (
             <div className="mnc-campo">
               <label className="mnc-label" htmlFor="mnc-formula-expressao">
-                Expressão da fórmula <span className="mnc-obrig">*</span>
+                {t('pedido.modal_col.label_formula')} <span className="mnc-obrig">*</span>
               </label>
               <textarea
                 id="mnc-formula-expressao"
@@ -430,7 +430,7 @@ export function ModalNovaColuna({
                 ].filter(Boolean).join(' ')}
                 value={formulaExpressao}
                 onChange={e => handleFormulaChange(e.target.value)}
-                placeholder="ex: quantidade_inicial_item_pedido - quantidade_transferida_item"
+                placeholder={t('pedido.modal_col.placeholder_formula')}
                 rows={3}
                 spellCheck={false}
                 aria-describedby={formulaErro ? 'mnc-formula-erro' : undefined}
@@ -445,7 +445,7 @@ export function ModalNovaColuna({
               )}
               {formulaValida && formulaExpressao.trim() && (
                 <p className="mnc-formula-ok" aria-live="polite">
-                  Fórmula válida
+                  {t('pedido.modal_col.formula_valida')}
                 </p>
               )}
 
@@ -454,7 +454,7 @@ export function ModalNovaColuna({
                 <div className="mnc-formula-campos">
                   <p className="mnc-formula-campos-titulo">
                     <Info size={13} weight="fill" />
-                    Campos disponíveis
+                    {t('pedido.modal_col.campos_disponiveis')}
                   </p>
                   <div className="mnc-formula-chips">
                     {camposDisponiveis.map(campo => (
@@ -489,8 +489,7 @@ export function ModalNovaColuna({
 
               {/* Dica de sintaxe */}
               <p className="mnc-formula-dica">
-                Suporta <code>+</code> <code>-</code> <code>*</code> <code>/</code> e funções{' '}
-                <code>SE(cond, sim, não)</code> e <code>SOMA_ITENS(campo)</code>.
+                {t('pedido.modal_col.formula_dica')}
               </p>
             </div>
           )}
@@ -504,14 +503,14 @@ export function ModalNovaColuna({
         {/* Rodapé */}
         <div className="mnc-rodape">
           <BotaoGlobal variante="secundario" onClick={onFechar} disabled={salvando}>
-            Cancelar
+            {t('pedido.modal_col.cancelar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="primario"
             onClick={handleSalvar}
             carregando={salvando}
           >
-            Salvar
+            {t('pedido.modal_col.salvar')}
           </BotaoGlobal>
         </div>
       </div>

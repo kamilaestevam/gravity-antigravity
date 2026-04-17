@@ -7,6 +7,7 @@
  */
 
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Copy, Info, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
@@ -25,6 +26,7 @@ interface ModalDuplicarItensProps {
 
 export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplicarItensProps) {
   const { addNotification } = useShellStore()
+  const { t } = useTranslation()
   const [confirmando, setConfirmando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
 
@@ -57,7 +59,7 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
         {/* Header */}
         <div className="modal-duplicar__header">
           <h2 className="modal-duplicar__titulo">
-            Duplicar {itens.length} item{itens.length !== 1 ? 'ns' : ''}
+            {t('pedido.modal_dup_it.titulo', { count: itens.length, ns: itens.length !== 1 ? 'ns' : '' })}
           </h2>
           <button
             className="modal-duplicar__fechar"
@@ -76,7 +78,7 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
           <div className="modal-duplicar__info">
             <Info size={16} weight="duotone" className="modal-duplicar__info-icone" aria-hidden="true" />
             <div className="modal-duplicar__info-texto">
-              <span>Os itens serão duplicados <strong>dentro deste pedido</strong>. Os números sequenciais serão atribuídos automaticamente na continuação da sequência existente.</span>
+              <span>{t('pedido.modal_dup_it.info')}</span>
             </div>
           </div>
 
@@ -84,9 +86,9 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
           <table className="modal-duplicar__tabela" aria-label="Itens a duplicar">
             <thead>
               <tr>
-                <th className="modal-duplicar__th">Part Number</th>
-                <th className="modal-duplicar__th">Descrição</th>
-                <th className="modal-duplicar__th">Qtd. Inicial</th>
+                <th className="modal-duplicar__th">{t('pedido.modal_dup_it.col_part_number')}</th>
+                <th className="modal-duplicar__th">{t('pedido.modal_dup_it.col_descricao')}</th>
+                <th className="modal-duplicar__th">{t('pedido.modal_dup_it.col_qtd')}</th>
               </tr>
             </thead>
             <tbody>
@@ -117,7 +119,7 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
         {/* Footer */}
         <div className="modal-duplicar__footer">
           <BotaoGlobal variante="secundario" onClick={onFechar} disabled={confirmando}>
-            Cancelar
+            {t('pedido.modal_dup_it.cancelar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="primario"
@@ -126,7 +128,9 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
             carregando={confirmando}
           >
             <Copy size={16} aria-hidden="true" />
-            {confirmando ? 'Duplicando...' : `Duplicar ${itens.length} item${itens.length !== 1 ? 'ns' : ''}`}
+            {confirmando
+              ? t('pedido.modal_dup_it.duplicando')
+              : t('pedido.modal_dup_it.duplicar', { count: itens.length, ns: itens.length !== 1 ? 'ns' : '' })}
           </BotaoGlobal>
         </div>
 

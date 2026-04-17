@@ -9,7 +9,8 @@
  * Usa ModalPassoPassoGlobal (nucleo-global) — padrão Gravity.
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Tag, MagnifyingGlass } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
@@ -18,16 +19,7 @@ import { useShellStore } from '@gravity/shell'
 import type { Pedido, PedidoItem } from '../shared/types'
 import { pedidoApi, pedidoItemApi } from '../shared/api'
 
-// ── Passos ─────────────────────────────────────────────────────────────────────
-
-const PASSOS_COMPLETO: PassoConfig[] = [
-  { id: 1, label: 'Selecionar Pedido', icone: <MagnifyingGlass size={14} weight="duotone" /> },
-  { id: 2, label: 'Dados do Item',     icone: <Tag size={14} weight="duotone" /> },
-]
-
-const PASSOS_DIRETO: PassoConfig[] = [
-  { id: 1, label: 'Dados do Item', icone: <Tag size={14} weight="duotone" /> },
-]
+// ── Passos — movidos para dentro do componente (dependem de t()) ───────────────
 
 // ── Tipos ──────────────────────────────────────────────────────────────────────
 
@@ -128,6 +120,17 @@ export function ModalNovoItem({
   onSalvo,
 }: ModalNovoItemProps) {
   const { addNotification } = useShellStore()
+  const { t } = useTranslation()
+
+  const PASSOS_COMPLETO = useMemo<PassoConfig[]>(() => [
+    { id: 1, label: t('pedido.modal_item.passo_selecionar'), icone: <MagnifyingGlass size={14} weight="duotone" /> },
+    { id: 2, label: t('pedido.modal_item.passo_dados'),      icone: <Tag size={14} weight="duotone" /> },
+  ], [t])
+
+  const PASSOS_DIRETO = useMemo<PassoConfig[]>(() => [
+    { id: 1, label: t('pedido.modal_item.passo_dados'), icone: <Tag size={14} weight="duotone" /> },
+  ], [t])
+
   const modoContexto = Boolean(pedidoIdProp)
 
   const [passo, setPasso]                         = useState(modoContexto ? 1 : 1)
@@ -216,10 +219,10 @@ export function ModalNovoItem({
   }
 
   const titulo = modoContexto && numeroPedido
-    ? `Novo Item — ${numeroPedido}`
-    : 'Novo Item'
+    ? t('pedido.modal_item.titulo_com_pedido', { numero: numeroPedido })
+    : t('pedido.modal_item.titulo')
 
-  const labelBotaoFinal = salvando ? 'Adicionando...' : 'Adicionar Item'
+  const labelBotaoFinal = salvando ? t('pedido.modal_item.adicionando') : t('pedido.modal_item.adicionar')
 
   return (
     <ModalPassoPassoGlobal
@@ -238,10 +241,10 @@ export function ModalNovoItem({
       {/* Passo seletor (apenas sem contexto) */}
       {!modoContexto && passo === 1 && (
         <div>
-          <p style={s.secaoTitulo}>Selecione o Pedido</p>
+          <p style={s.secaoTitulo}>{t('pedido.modal_item.secao_selecionar')}</p>
           <SelectGlobal
-            label="Pedido de destino"
-            placeholder="Buscar pedido..."
+            label={t('pedido.modal_item.destino_label')}
+            placeholder={t('pedido.modal_item.destino_placeholder')}
             buscavel
             carregando={carregandoPedidos}
             opcoes={pedidos.map(p => ({
@@ -265,10 +268,10 @@ export function ModalNovoItem({
         <div>
           {numeroPedido && (
             <div style={s.pedidoSelecionado}>
-              Pedido: <strong>{numeroPedido}</strong>
+              {t('pedido.modal_item.pedido_info', { numero: numeroPedido })}
             </div>
           )}
-          <p style={s.secaoTitulo}>Dados do Item</p>
+          <p style={s.secaoTitulo}>{t('pedido.modal_item.secao_dados')}</p>
           <div style={s.grid}>
             <div style={s.campo}>
               <label style={s.label} htmlFor="mni-pn">Part Number</label>

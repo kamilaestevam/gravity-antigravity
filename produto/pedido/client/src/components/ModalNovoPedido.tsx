@@ -8,7 +8,8 @@
  * Edição de pedido existente usa o DrawerPedido (aba Dados / Itens / Transferências).
  */
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Package, Tag, Plus, Trash, Warning } from '@phosphor-icons/react'
 import { ModalPassoPassoGlobal, type PassoConfig } from '@nucleo/modal-passo-passo-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
@@ -17,12 +18,7 @@ import { useShellStore } from '@gravity/shell'
 import type { TipoOperacao, PedidoItem, Pedido } from '../shared/types'
 import { pedidoApi } from '../shared/api'
 
-// ── Passos ─────────────────────────────────────────────────────────────────────
-
-const PASSOS: PassoConfig[] = [
-  { id: 1, label: 'Dados do Pedido', icone: <Package size={14} weight="duotone" /> },
-  { id: 2, label: 'Itens',           icone: <Tag size={14} weight="duotone" /> },
-]
+// ── Passos — movidos para dentro do componente (dependem de t()) ───────────────
 
 // ── Tipos de formulário ────────────────────────────────────────────────────────
 
@@ -74,18 +70,10 @@ const ITEM_VAZIO = (): ItemForm => ({
 
 // ── Opções de select ───────────────────────────────────────────────────────────
 
-const OPCOES_TIPO_OPERACAO = [
-  { valor: 'importacao', rotulo: 'Importação' },
-  { valor: 'exportacao', rotulo: 'Exportação' },
-]
-
 const OPCOES_INCOTERM = ['FOB','CIF','EXW','CFR','DDP','DAP','FCA','CPT','CIP','DPU','FAS']
   .map(v => ({ valor: v, rotulo: v }))
 
-const OPCOES_COBERTURA = [
-  { valor: 'com_cobertura', rotulo: 'Com Cobertura' },
-  { valor: 'sem_cobertura', rotulo: 'Sem Cobertura' },
-]
+// OPCOES_TIPO_OPERACAO e OPCOES_COBERTURA movidos para dentro dos sub-componentes (dependem de t())
 
 // ── Validação frontend ─────────────────────────────────────────────────────────
 
@@ -94,15 +82,17 @@ interface ErrosValidacao {
   numero_pedido?: string
 }
 
-function validarPasso1(form: PedidoForm): ErrosValidacao {
+type TFunc = (key: string, opts?: Record<string, unknown>) => string
+
+function validarPasso1(form: PedidoForm, t: TFunc): ErrosValidacao {
   const erros: ErrosValidacao = {}
   if (!form.numero_pedido.trim()) {
-    erros.numero_pedido = 'Número do pedido é obrigatório'
+    erros.numero_pedido = t('pedido.modal_novo.erro_numero_obrigatorio')
   }
   if (form.data_emissao_pedido) {
     const d = new Date(`${form.data_emissao_pedido}T00:00:00.000Z`)
     if (isNaN(d.getTime())) {
-      erros.geral = 'Data de emissão inválida — use o formato DD/MM/AAAA ou selecione pelo calendário.'
+      erros.geral = t('pedido.modal_novo.erro_data_invalida')
     }
   }
   return erros
@@ -116,40 +106,36 @@ function validarPasso2(_itens: ItemForm[]): ErrosValidacao {
 
 // ── Tradução de erros da API ───────────────────────────────────────────────────
 
-function traduzirErroApi(err: unknown): string {
-  // Erros de rede (sem conexão)
+function traduzirErroApi(err: unknown, t: TFunc): string {
   if (err instanceof TypeError && (err.message.includes('fetch') || err.message.includes('Failed to fetch') || err.message.includes('network'))) {
-    return 'Sem conexão com o servidor. Verifique sua internet e tente novamente.'
+    return t('pedido.modal_novo.erro_sem_conexao')
   }
 
-  if (!(err instanceof Error)) return 'Erro inesperado. Verifique o console e tente novamente.'
+  if (!(err instanceof Error)) return t('pedido.modal_novo.erro_inesperado')
 
   const msg = err.message
 
-  // Mensagem literal do servidor — mostrar diretamente (já é legível)
   if (msg && !msg.startsWith('HTTP ')) {
     if (msg.toLowerCase().includes('dados invalidos') || msg.toLowerCase().includes('dados inválidos')) {
-      return 'Dados inválidos. Verifique o campo obrigatório: Número do Pedido.'
+      return t('pedido.modal_novo.erro_dados_invalidos')
     }
     return msg
   }
 
-  // Códigos HTTP sem mensagem do servidor
-  if (msg === 'HTTP 400') return 'Requisição inválida (400) — verifique os dados e tente novamente.'
-  if (msg === 'HTTP 401') return 'Sessão expirada (401) — recarregue a página e faça login novamente.'
-  if (msg === 'HTTP 403') return 'Sem permissão (403) — você não pode criar pedidos neste workspace.'
-  if (msg === 'HTTP 404') return 'Rota não encontrada (404) — o servidor pode estar desatualizado. Tente reiniciá-lo.'
-  if (msg === 'HTTP 409') return 'Conflito (409) — já existe um pedido com esse número.'
-  if (msg === 'HTTP 422') return 'Dados inválidos (422) — verifique o Número do Pedido e tente novamente.'
-  if (msg === 'HTTP 500') return 'Erro interno do servidor (500) — tente novamente em alguns instantes.'
-  if (msg === 'HTTP 502') return 'Gateway indisponível (502) — o servidor pode estar reiniciando.'
-  if (msg === 'HTTP 503') return 'Serviço indisponível (503) — tente novamente em alguns instantes.'
+  if (msg === 'HTTP 400') return t('pedido.modal_novo.erro_http_400')
+  if (msg === 'HTTP 401') return t('pedido.modal_novo.erro_http_401')
+  if (msg === 'HTTP 403') return t('pedido.modal_novo.erro_http_403')
+  if (msg === 'HTTP 404') return t('pedido.modal_novo.erro_http_404')
+  if (msg === 'HTTP 409') return t('pedido.modal_novo.erro_http_409')
+  if (msg === 'HTTP 422') return t('pedido.modal_novo.erro_http_422')
+  if (msg === 'HTTP 500') return t('pedido.modal_novo.erro_http_500')
+  if (msg === 'HTTP 502') return t('pedido.modal_novo.erro_http_502')
+  if (msg === 'HTTP 503') return t('pedido.modal_novo.erro_http_503')
 
-  // Qualquer outro código HTTP
   const match = msg.match(/^HTTP (\d+)$/)
-  if (match) return `Erro do servidor (${match[1]}) — tente novamente.`
+  if (match) return t('pedido.modal_novo.erro_http_generico', { code: match[1] })
 
-  return `Erro inesperado: ${msg}`
+  return t('pedido.modal_novo.erro_generico', { msg })
 }
 
 // ── Props ──────────────────────────────────────────────────────────────────────
@@ -282,12 +268,18 @@ const s = {
 // ── Componente principal ───────────────────────────────────────────────────────
 
 export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoProps) {
+  const { t } = useTranslation()
   const [passo, setPasso]       = useState(1)
   const [form, setForm]         = useState<PedidoForm>(FORM_VAZIO)
   const [itens, setItens]       = useState<ItemForm[]>([ITEM_VAZIO()])
   const [salvando, setSalvando] = useState(false)
   const [erros, setErros]       = useState<ErrosValidacao>({})
   const { addNotification } = useShellStore()
+
+  const PASSOS = useMemo<PassoConfig[]>(() => [
+    { id: 1, label: t('pedido.modal_novo.passo_dados'), icone: <Package size={14} weight="duotone" /> },
+    { id: 2, label: t('pedido.modal_novo.passo_itens'), icone: <Tag size={14} weight="duotone" /> },
+  ], [t])
 
   // Bloqueia fechar enquanto está salvando (evita pedido duplicado)
   const handleFechar = useCallback(() => {
@@ -329,7 +321,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
   async function handleProximo() {
     if (passo === 1) {
       // Validar passo 1 antes de avançar
-      const errosPasso1 = validarPasso1(form)
+      const errosPasso1 = validarPasso1(form, t)
       if (Object.keys(errosPasso1).length > 0) {
         setErros(errosPasso1)
         return
@@ -387,7 +379,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       handleFechar()
     } catch (err: unknown) {
       console.error('[ModalNovoPedido] erro ao criar pedido:', err)
-      const msg = traduzirErroApi(err)
+      const msg = traduzirErroApi(err, t)
       setErros({ geral: msg })
       addNotification({ type: 'error', message: msg })
     } finally {
@@ -403,7 +395,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
 
   return (
     <ModalPassoPassoGlobal
-      titulo="Novo Pedido"
+      titulo={t('pedido.modal_novo.titulo')}
       aberto={aberto}
       passos={PASSOS}
       passoAtual={passo}
@@ -411,7 +403,7 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
       onVoltar={handleVoltar}
       onFechar={handleFechar}
       podeAvancar={podeAvancar && !salvando}
-      labelBotaoFinal={salvando ? 'Criando...' : 'Criar Pedido'}
+      labelBotaoFinal={salvando ? t('pedido.modal_novo.criando') : t('pedido.modal_novo.criar')}
       tamanho="lg"
       altura="620px"
     >
@@ -442,20 +434,26 @@ function Passo1Dados({
   erros: ErrosValidacao
   onChange: (campo: keyof PedidoForm, valor: string) => void
 }) {
+  const { t } = useTranslation()
+  const opcoesTipoOperacao = useMemo(() => [
+    { valor: 'importacao', rotulo: t('pedido.modal_novo.opt_importacao') },
+    { valor: 'exportacao', rotulo: t('pedido.modal_novo.opt_exportacao') },
+  ], [t])
+
   return (
     <div>
-      <p style={s.secaoTitulo}>Dados do Pedido</p>
+      <p style={s.secaoTitulo}>{t('pedido.modal_novo.passo_dados')}</p>
       <div style={s.grid}>
         <div style={s.campo}>
           <SelectGlobal
-            label="Tipo Operação"
-            opcoes={OPCOES_TIPO_OPERACAO}
+            label={t('pedido.drawer.label_tipo_op')}
+            opcoes={opcoesTipoOperacao}
             valor={form.tipo_operacao}
             aoMudarValor={v => onChange('tipo_operacao', String(v ?? 'importacao'))}
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-numero-pedido">Número Pedido</label>
+          <label style={s.label} htmlFor="mnp-numero-pedido">{t('pedido.drawer.label_numero')}</label>
           <input
             id="mnp-numero-pedido"
             style={{
@@ -477,7 +475,7 @@ function Passo1Dados({
           )}
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-exportador">Exportador / Fornecedor</label>
+          <label style={s.label} htmlFor="mnp-exportador">{t('pedido.drawer.label_exportador')}</label>
           <input
             id="mnp-exportador"
             style={s.input}
@@ -487,7 +485,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-fabricante">Fabricante</label>
+          <label style={s.label} htmlFor="mnp-fabricante">{t('pedido.drawer.label_fabricante')}</label>
           <input
             id="mnp-fabricante"
             style={s.input}
@@ -505,7 +503,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-pagamento">Condição Pagamento</label>
+          <label style={s.label} htmlFor="mnp-pagamento">{t('pedido.drawer.label_cond_pgto')}</label>
           <input
             id="mnp-pagamento"
             style={s.input}
@@ -515,7 +513,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-proforma">Número Proforma</label>
+          <label style={s.label} htmlFor="mnp-proforma">{t('pedido.drawer.label_num_proforma')}</label>
           <input
             id="mnp-proforma"
             style={s.input}
@@ -524,7 +522,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-invoice">Número Invoice</label>
+          <label style={s.label} htmlFor="mnp-invoice">{t('pedido.drawer.label_num_invoice')}</label>
           <input
             id="mnp-invoice"
             style={s.input}
@@ -533,7 +531,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-ref-imp">Ref. Importador</label>
+          <label style={s.label} htmlFor="mnp-ref-imp">{t('pedido.drawer.label_ref_importador')}</label>
           <input
             id="mnp-ref-imp"
             style={s.input}
@@ -542,7 +540,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-ref-exp">Ref. Exportador</label>
+          <label style={s.label} htmlFor="mnp-ref-exp">{t('pedido.drawer.label_ref_exportador')}</label>
           <input
             id="mnp-ref-exp"
             style={s.input}
@@ -551,7 +549,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-ref-fab">Ref. Fabricante</label>
+          <label style={s.label} htmlFor="mnp-ref-fab">{t('pedido.drawer.label_ref_fabricante')}</label>
           <input
             id="mnp-ref-fab"
             style={s.input}
@@ -560,7 +558,7 @@ function Passo1Dados({
           />
         </div>
         <div style={s.campo}>
-          <label style={s.label} htmlFor="mnp-data-emissao">Data Emissão</label>
+          <label style={s.label} htmlFor="mnp-data-emissao">{t('pedido.drawer.label_data_emissao')}</label>
           <input
             id="mnp-data-emissao"
             type="date"
@@ -597,11 +595,13 @@ function Passo2Itens({
   onRemoverItem: (index: number) => void
   onChangeItem: (index: number, campo: keyof ItemForm, valor: string) => void
 }) {
+  const { t } = useTranslation()
+
   return (
     <div>
       <div style={s.itensHeader}>
         <p style={{ ...s.secaoTitulo, marginBottom: 0 }}>
-          Itens do Pedido ({itens.length})
+          {t('pedido.drawer.secao_itens', { count: itens.length })}
         </p>
         <BotaoGlobal
           variante="secundario"
@@ -609,7 +609,7 @@ function Passo2Itens({
           icone={<Plus size={12} weight="bold" />}
           onClick={onAdicionarItem}
         >
-          Adicionar Item
+          {t('pedido.drawer.adicionar_item')}
         </BotaoGlobal>
       </div>
 
@@ -617,7 +617,7 @@ function Passo2Itens({
         <div key={item.key} style={s.itemCard}>
           <div style={s.itemGrid}>
             <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-pn-${index}`}>Part Number</label>
+              <label style={s.labelCompacto} htmlFor={`mnp-pn-${index}`}>{t('pedido.campos.part_number')}</label>
               <input
                 id={`mnp-pn-${index}`}
                 style={s.inputCompacto}
@@ -627,7 +627,7 @@ function Passo2Itens({
               />
             </div>
             <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-ncm-${index}`}>NCM</label>
+              <label style={s.labelCompacto} htmlFor={`mnp-ncm-${index}`}>{t('pedido.campos.ncm')}</label>
               <input
                 id={`mnp-ncm-${index}`}
                 style={{ ...s.inputCompacto, fontFamily: 'monospace' }}
@@ -637,17 +637,17 @@ function Passo2Itens({
               />
             </div>
             <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-desc-${index}`}>Descrição</label>
+              <label style={s.labelCompacto} htmlFor={`mnp-desc-${index}`}>{t('pedido.drawer.label_descricao')}</label>
               <input
                 id={`mnp-desc-${index}`}
                 style={s.inputCompacto}
                 value={item.descricao_item}
                 onChange={e => onChangeItem(index, 'descricao_item', e.target.value)}
-                placeholder="Descrição do item"
+                placeholder={t('pedido.campos.descricao_item')}
               />
             </div>
             <div>
-              <label style={s.labelCompacto} htmlFor={`mnp-qty-${index}`}>Qtd.</label>
+              <label style={s.labelCompacto} htmlFor={`mnp-qty-${index}`}>{t('pedido.drawer.label_qtd')}</label>
               <input
                 id={`mnp-qty-${index}`}
                 type="number"
@@ -663,8 +663,8 @@ function Passo2Itens({
               style={s.btnRemover}
               onClick={() => onRemoverItem(index)}
               disabled={itens.length <= 1}
-              title={itens.length <= 1 ? 'Não é possível remover o único item' : 'Remover item'}
-              aria-label={`Remover item ${index + 1}`}
+              title={itens.length <= 1 ? t('pedido.modal_novo.remover_unico_hint') : t('pedido.modal_novo.remover_item_hint')}
+              aria-label={t('pedido.modal_novo.remover_item_aria', { n: index + 1 })}
               type="button"
             >
               <Trash size={14} weight="duotone" />

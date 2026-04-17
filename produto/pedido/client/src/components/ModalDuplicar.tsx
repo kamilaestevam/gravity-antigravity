@@ -11,6 +11,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Info, CheckCircle, Spinner, X } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
@@ -43,6 +44,7 @@ interface PreviewPedido {
 
 export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarProps) {
   const { addNotification } = useShellStore()
+  const { t } = useTranslation()
   const [config, setConfig] = useState<PreviewConfig | null>(null)
   const [previewPedidos, setPreviewPedidos] = useState<PreviewPedido[]>([])
   const [carregando, setCarregando] = useState(true)
@@ -112,13 +114,13 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
   }, [config, ids, numeros, addNotification])
 
   const labelStatus = (statusInicial: string) => {
-    if (statusInicial === 'copiar') return 'copiado do original'
+    if (statusInicial === 'copiar') return t('pedido.modal_dup.status_copiado')
     const mapa: Record<string, string> = {
-      draft: 'Rascunho',
-      aberto: 'Aberto',
-      transferencia: 'Em Transferência',
-      consolidado: 'Consolidado',
-      cancelado: 'Cancelado',
+      draft: t('pedido.modal_dup.status_rascunho'),
+      aberto: t('pedido.modal_dup.status_aberto'),
+      transferencia: t('pedido.modal_dup.status_transferencia'),
+      consolidado: t('pedido.modal_dup.status_consolidado'),
+      cancelado: t('pedido.modal_dup.status_cancelado'),
     }
     return mapa[statusInicial] ?? statusInicial
   }
@@ -129,7 +131,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
       <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label="Resultado da duplicação">
         <div className="modal-duplicar__container">
           <div className="modal-duplicar__header">
-            <h2 className="modal-duplicar__titulo">Duplicação concluída</h2>
+            <h2 className="modal-duplicar__titulo">{t('pedido.modal_dup.titulo_resultado')}</h2>
             <button
               className="modal-duplicar__fechar"
               onClick={onFechar}
@@ -144,7 +146,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
               <div className="modal-duplicar__resultado-sucesso">
                 <CheckCircle size={20} weight="fill" className="modal-duplicar__icone-sucesso" aria-hidden="true" />
                 <p className="modal-duplicar__resultado-texto">
-                  {resultado.criados.length} pedido{resultado.criados.length !== 1 ? 's' : ''} duplicado{resultado.criados.length !== 1 ? 's' : ''} com sucesso.
+                  {t('pedido.modal_dup.resultado_sucesso', { count: resultado.criados.length, s: resultado.criados.length !== 1 ? 's' : '' })}
                 </p>
               </div>
             )}
@@ -164,7 +166,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
             {resultado.erros.length > 0 && (
               <div className="modal-duplicar__resultado-erros">
                 <p className="modal-duplicar__erros-titulo">
-                  {resultado.erros.length} pedido{resultado.erros.length !== 1 ? 's' : ''} com erro:
+                  {t('pedido.modal_dup.erros_titulo', { count: resultado.erros.length, s: resultado.erros.length !== 1 ? 's' : '' })}
                 </p>
                 <ul className="modal-duplicar__lista-erros">
                   {resultado.erros.map(e => (
@@ -179,7 +181,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
 
           <div className="modal-duplicar__footer">
             <BotaoGlobal variante="primario" onClick={onConcluido}>
-              Concluir
+              {t('pedido.modal_dup.concluir')}
             </BotaoGlobal>
           </div>
         </div>
@@ -193,7 +195,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
       <div className="modal-duplicar__container">
         <div className="modal-duplicar__header">
           <h2 className="modal-duplicar__titulo">
-            Duplicar Pedidos ({pedidos.length} selecionado{pedidos.length !== 1 ? 's' : ''})
+            {t('pedido.modal_dup.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })}
           </h2>
           <button
             className="modal-duplicar__fechar"
@@ -208,7 +210,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
           {carregando && (
             <div className="modal-duplicar__carregando" aria-live="polite">
               <Spinner size={24} className="modal-duplicar__spinner" aria-hidden="true" />
-              <span>Carregando configurações...</span>
+              <span>{t('pedido.modal_dup.carregando')}</span>
             </div>
           )}
 
@@ -225,10 +227,10 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
                 <Info size={16} weight="duotone" className="modal-duplicar__info-icone" aria-hidden="true" />
                 <div className="modal-duplicar__info-texto">
                   <span>
-                    Datas: <strong>{config.copiar_datas ? 'copiadas do original' : 'serão resetadas'}</strong>
+                    {t('pedido.modal_dup.info_datas')} <strong>{config.copiar_datas ? t('pedido.modal_dup.info_datas_copiadas') : t('pedido.modal_dup.info_datas_resetadas')}</strong>
                   </span>
                   <span>
-                    Status: <strong>{labelStatus(config.status_inicial)}</strong>
+                    {t('pedido.modal_dup.info_status')} <strong>{labelStatus(config.status_inicial)}</strong>
                   </span>
                 </div>
               </div>
@@ -237,10 +239,10 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
               <table className="modal-duplicar__tabela" aria-label="Pedidos a duplicar">
                 <thead>
                   <tr>
-                    <th className="modal-duplicar__th">Pedido original</th>
-                    <th className="modal-duplicar__th">Itens</th>
+                    <th className="modal-duplicar__th">{t('pedido.modal_dup.col_original')}</th>
+                    <th className="modal-duplicar__th">{t('pedido.modal_dup.col_itens')}</th>
                     <th className="modal-duplicar__th">
-                      {config.numero_auto ? 'Número gerado' : 'Número da cópia'}
+                      {config.numero_auto ? t('pedido.modal_dup.col_num_gerado') : t('pedido.modal_dup.col_num_copia')}
                     </th>
                   </tr>
                 </thead>
@@ -258,7 +260,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
                           <span className="modal-duplicar__numero-auto">
                             {numeros[p.id] || '(gerado automaticamente)'}
                             {' '}
-                            <span className="modal-duplicar__badge-auto">auto</span>
+                            <span className="modal-duplicar__badge-auto">{t('pedido.modal_dup.num_auto_badge')}</span>
                           </span>
                         ) : (
                           <input
@@ -266,7 +268,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
                             className="modal-duplicar__input"
                             value={numeros[p.id] ?? ''}
                             onChange={e => handleNumeroChange(p.id, e.target.value)}
-                            placeholder="Ex.: PO-2026/099"
+                            placeholder={t('pedido.modal_dup.num_placeholder')}
                             aria-label={`Número da cópia do pedido ${p.numero_pedido}`}
                             maxLength={100}
                           />
@@ -288,7 +290,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
 
         <div className="modal-duplicar__footer">
           <BotaoGlobal variante="secundario" onClick={onFechar} disabled={confirmando}>
-            Cancelar
+            {t('pedido.modal_dup.cancelar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="primario"
@@ -296,7 +298,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
             disabled={!podeDuplicar || confirmando || carregando}
             carregando={confirmando}
           >
-            {confirmando ? 'Duplicando...' : 'Duplicar'}
+            {confirmando ? t('pedido.modal_dup.duplicando') : t('pedido.modal_dup.duplicar')}
           </BotaoGlobal>
         </div>
       </div>

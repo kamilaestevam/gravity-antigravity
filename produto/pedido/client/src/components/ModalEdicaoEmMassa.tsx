@@ -15,6 +15,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef, KeyboardEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Warning, Spinner, Plus, X, CheckCircle, MagnifyingGlass, CaretDown, CaretRight, Clock, Info } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
@@ -215,35 +216,35 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'data_embarque_item',                      rotulo: 'Data Embarque (Item)',                   tipo: 'data',   nivel: 'item', grupo: 'Datas' },
 ]
 
-const OPERACOES_POR_TIPO: Record<TipoCampoEdicao, { valor: OperacaoCampo; rotulo: string }[]> = {
-  texto:   [{ valor: 'substituir', rotulo: 'Substituir' }],
-  select:  [{ valor: 'substituir', rotulo: 'Substituir' }],
-  usuario: [{ valor: 'substituir', rotulo: 'Substituir' }],
-  numero: [
-    { valor: 'substituir', rotulo: 'Substituir' },
-    { valor: 'somar',      rotulo: 'Somar' },
-    { valor: 'subtrair',   rotulo: 'Subtrair' },
-    { valor: 'percentual', rotulo: 'Percentual (%)' },
-  ],
-  data: [
-    { valor: 'substituir',   rotulo: 'Substituir' },
-    { valor: 'avancar_dias', rotulo: 'Avançar dias' },
-    { valor: 'recuar_dias',  rotulo: 'Recuar dias' },
-  ],
+const OPERACOES_POR_TIPO: Record<TipoCampoEdicao, OperacaoCampo[]> = {
+  texto:   ['substituir'],
+  select:  ['substituir'],
+  usuario: ['substituir'],
+  numero:  ['substituir', 'somar', 'subtrair', 'percentual'],
+  data:    ['substituir', 'avancar_dias', 'recuar_dias'],
+}
+
+const OP_NOME_KEYS: Record<OperacaoCampo, string> = {
+  substituir:   'pedido.modal_massa.op_substituir',
+  somar:        'pedido.modal_massa.op_somar',
+  subtrair:     'pedido.modal_massa.op_subtrair',
+  percentual:   'pedido.modal_massa.op_percentual',
+  avancar_dias: 'pedido.modal_massa.op_avancar_dias',
+  recuar_dias:  'pedido.modal_massa.op_recuar_dias',
+}
+
+const OP_LABEL_KEYS: Record<OperacaoCampo, string> = {
+  substituir:   'pedido.modal_massa.op_label_substituir',
+  somar:        'pedido.modal_massa.op_label_somar',
+  subtrair:     'pedido.modal_massa.op_label_subtrair',
+  percentual:   'pedido.modal_massa.op_label_percentual',
+  avancar_dias: 'pedido.modal_massa.op_label_avancar',
+  recuar_dias:  'pedido.modal_massa.op_label_recuar',
 }
 
 // Campos que exigem processamento individual por pedido (merge JSON no backend)
 // Deve espelhar CAMPOS_DETALHES_OPERACIONAIS em edicaoEmMassaService.ts
 const CAMPOS_DETALHES_OPERACIONAIS_LENTO = new Set(['nome_exportador', 'nome_importador', 'nome_fabricante'])
-
-const OPERACAO_LABELS: Record<OperacaoCampo, string> = {
-  substituir:   'Substituir por',
-  somar:        'Somar',
-  subtrair:     'Subtrair',
-  percentual:   'Aplicar %',
-  avancar_dias: 'Avançar dias',
-  recuar_dias:  'Recuar dias',
-}
 
 // ── Estado de um campo em edição ─────────────────────────────────────────────
 
@@ -263,7 +264,7 @@ function criarCampoVazio(def: DefinicaoCampo): CampoEmEdicao {
     campo: def.campo,
     tipo: def.tipo,
     nivel: def.nivel,
-    operacao: operacoes[0].valor,
+    operacao: operacoes[0],
     valor: '',
   }
 }
@@ -279,9 +280,11 @@ function detectarMultiplosValores(pedidos: Pedido[], campo: string): boolean {
   return new Set(valores).size > 1
 }
 
-function inputPlaceholder(campo: CampoEmEdicao, pedidos: Pedido[]): string {
+type TFunc = (key: string, opts?: Record<string, unknown>) => string
+
+function inputPlaceholder(campo: CampoEmEdicao, pedidos: Pedido[], t: TFunc): string {
   if (campo.nivel === 'pedido' && detectarMultiplosValores(pedidos, campo.campo)) {
-    return 'Múltiplos valores'
+    return t('pedido.modal_massa.multiplos_valores')
   }
   return ''
 }
@@ -299,8 +302,8 @@ function estasBloqueado(campo: string, nivel: 'pedido' | 'item'): boolean {
   return CAMPOS_BLOQUEADOS_ITEM.has(campo)
 }
 
-function formatarValorExibicao(valor: string | number | null): string {
-  if (valor === null || valor === undefined || valor === '') return '(vazio)'
+function formatarValorExibicao(valor: string | number | null, t: TFunc): string {
+  if (valor === null || valor === undefined || valor === '') return t('pedido.modal_massa.valor_vazio')
   return String(valor)
 }
 
@@ -314,6 +317,7 @@ interface ComboboxCampoProps {
 }
 
 function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampoProps) {
+  const { t } = useTranslation()
   const [aberto, setAberto] = useState(false)
   const [busca, setBusca] = useState('')
   const [indiceFocado, setIndiceFocado] = useState(0)
@@ -327,7 +331,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
   const filtrados = busca.trim() === ''
     ? disponiveis
     : disponiveis.filter(d =>
-        d.rotulo.toLowerCase().includes(busca.toLowerCase()) ||
+        t(`pedido.massa_campos.${d.campo}`).toLowerCase().includes(busca.toLowerCase()) ||
         d.campo.toLowerCase().includes(busca.toLowerCase()) ||
         (d.grupo ?? '').toLowerCase().includes(busca.toLowerCase())
       )
@@ -432,13 +436,13 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
         <span className="modal-edicao-massa__combobox-valor">
           {defAtual ? (
             <>
-              {defAtual.rotulo}
+              {t(`pedido.massa_campos.${defAtual.campo}`)}
               {defAtual.nivel === 'item' && (
                 <span className="modal-edicao-massa__combobox-badge">(item)</span>
               )}
             </>
           ) : (
-            <span style={{ color: 'var(--color-text-muted, #64748b)' }}>Selecionar campo...</span>
+            <span style={{ color: 'var(--color-text-muted, #64748b)' }}>{t('pedido.modal_massa.campo_placeholder')}</span>
           )}
         </span>
         <CaretDown
@@ -458,11 +462,11 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
               ref={inputRef}
               type="text"
               className="modal-edicao-massa__combobox-busca-input"
-              placeholder="Buscar campo..."
+              placeholder={t('pedido.modal_massa.buscar_campo')}
               value={busca}
               onChange={e => setBusca(e.target.value)}
               onKeyDown={handleKeyDown}
-              aria-label="Buscar campo para editar"
+              aria-label={t('pedido.modal_massa.buscar_campo')}
               aria-autocomplete="list"
               autoComplete="off"
             />
@@ -471,7 +475,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
           {/* Lista */}
           {filtrados.length === 0 ? (
             <div className="modal-edicao-massa__combobox-vazio">
-              Nenhum campo encontrado
+              {t('pedido.modal_massa.nenhum_campo')}
             </div>
           ) : (
             <ul
@@ -510,7 +514,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
                         }}
                         onMouseEnter={() => setIndiceFocado(idx)}
                       >
-                        <span className="modal-edicao-massa__combobox-item-rotulo">{item.rotulo}</span>
+                        <span className="modal-edicao-massa__combobox-item-rotulo">{t(`pedido.massa_campos.${item.campo}`)}</span>
                       </li>
                     )
                   })}
@@ -538,6 +542,7 @@ interface PreviewDeparaProps {
 }
 
 function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
+  const { t } = useTranslation()
   const [campoExpandido, setCampoExpandido] = useState<string | null>(null)
 
   if (!preview.por_pedido || preview.por_pedido.length === 0) return null
@@ -553,10 +558,9 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
 
   return (
     <div className="modal-edicao-massa__depara">
-      <p className="modal-edicao-massa__depara-titulo">Detalhe por pedido</p>
+      <p className="modal-edicao-massa__depara-titulo">{t('pedido.modal_massa.depara_titulo')}</p>
       {camposComAlteracoes.map(campo => {
-        const def = disponiveis.find(d => d.campo === campo)
-        const rotulo = def?.rotulo ?? campo
+        const rotulo = t(`pedido.massa_campos.${campo}`)
         const expandido = campoExpandido === campo
 
         const linhas = preview.por_pedido!.flatMap(pp =>
@@ -586,7 +590,7 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
               <span className="modal-edicao-massa__depara-campo-nome">{rotulo}</span>
               <span className="modal-edicao-massa__depara-campo-stat">
                 {linhas.length - semAlteracao} alteração{linhas.length - semAlteracao !== 1 ? 'ões' : ''}
-                {semAlteracao > 0 && ` · ${semAlteracao} sem alteração`}
+                {semAlteracao > 0 && ` · ${semAlteracao} ${t('pedido.modal_massa.depara_sem_alteracao')}`}
               </span>
             </button>
 
@@ -607,14 +611,14 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
                         {linha.numero_pedido}
                       </span>
                       <span className="modal-edicao-massa__depara-linha-de">
-                        &ldquo;{formatarValorExibicao(linha.valor_atual)}&rdquo;
+                        &ldquo;{formatarValorExibicao(linha.valor_atual, t)}&rdquo;
                       </span>
                       <span className="modal-edicao-massa__depara-linha-seta" aria-hidden="true">→</span>
                       <span className={`modal-edicao-massa__depara-linha-para${semMudanca ? ' modal-edicao-massa__depara-linha-para--igual' : ''}`}>
-                        &ldquo;{formatarValorExibicao(linha.valor_novo)}&rdquo;
+                        &ldquo;{formatarValorExibicao(linha.valor_novo, t)}&rdquo;
                       </span>
                       {semMudanca && (
-                        <span className="modal-edicao-massa__depara-linha-badge">sem alteração</span>
+                        <span className="modal-edicao-massa__depara-linha-badge">{t('pedido.modal_massa.depara_sem_alteracao')}</span>
                       )}
                     </li>
                   )
@@ -631,6 +635,7 @@ function PreviewDepara({ preview, disponiveis }: PreviewDeparaProps) {
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdicaoEmMassaProps) {
+  const { t } = useTranslation()
   const { addNotification } = useShellStore()
   const hasMixedTipos = useHasMixedTipos()
   const [passo, setPasso] = useState<1 | 2>(1)
@@ -690,7 +695,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
         setPreview(result)
         setErroGeral(null)
       } catch (err: unknown) {
-        setErroGeral(err instanceof Error ? err.message : 'Erro ao gerar preview')
+        setErroGeral(err instanceof Error ? err.message : t('pedido.modal_massa.erro_preview'))
       } finally {
         setCarregandoPreview(false)
       }
@@ -725,7 +730,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
     setCampos(prev => prev.map(c => {
       if (c.uid !== uid) return c
       const ops = OPERACOES_POR_TIPO[def.tipo]
-      return { ...c, campo: def.campo, tipo: def.tipo, nivel: def.nivel, operacao: ops[0].valor, valor: '' }
+      return { ...c, campo: def.campo, tipo: def.tipo, nivel: def.nivel, operacao: ops[0], valor: '' }
     }))
   }, [nivel])
 
@@ -742,7 +747,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
   const handleAvancar = useCallback(() => {
     const camposValidos = campos.filter(c => c.valor.trim() !== '')
     if (camposValidos.length === 0) {
-      setErroGeral('Preencha ao menos um campo para continuar')
+      setErroGeral(t('pedido.modal_massa.erro_campo_obrigatorio'))
       return
     }
     setErroGeral(null)
@@ -776,7 +781,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
       addNotification({ type: 'success', message: `${camposNomes} atualizado(s) em ${pedidos.length} PO(s).`, duration: 4000 })
       onConcluido()
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Erro ao aplicar edição em massa'
+      const msg = err instanceof Error ? err.message : t('pedido.modal_massa.erro_aplicar')
       setErroSalvar(msg)
       addNotification({ type: 'error', message: `Falha na edição em massa: ${msg}`, duration: 4000 })
     } finally {
@@ -813,7 +818,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
               onClick={() => setNivel(n)}
               aria-pressed={nivel === n}
             >
-              {n === 'pedido' ? 'Pedido' : n === 'item' ? 'Item' : 'Combinado'}
+              {n === 'pedido' ? t('pedido.modal_massa.nivel_pedido') : n === 'item' ? t('pedido.modal_massa.nivel_item') : t('pedido.modal_massa.nivel_combinado')}
             </button>
           ))}
         </div>
@@ -823,12 +828,12 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
 
       {/* Lista de campos */}
       <div className="modal-edicao-massa__secao">
-        <p className="modal-edicao-massa__secao-titulo">Campos a editar</p>
+        <p className="modal-edicao-massa__secao-titulo">{t('pedido.modal_massa.secao_campos')}</p>
         <div className="modal-edicao-massa__campos-lista">
           {campos.map(campo => {
             const ops = OPERACOES_POR_TIPO[campo.tipo]
             const temMultiplos = campo.nivel === 'pedido' && detectarMultiplosValores(pedidos, campo.campo)
-            const placeholder = inputPlaceholder(campo, pedidos)
+            const placeholder = inputPlaceholder(campo, pedidos, t)
 
             return (
               <div key={campo.uid} className="modal-edicao-massa__campo-linha">
@@ -848,7 +853,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
                   aria-label={`Operação para ${campo.campo}`}
                 >
                   {ops.map(op => (
-                    <option key={op.valor} value={op.valor}>{op.rotulo}</option>
+                    <option key={op} value={op}>{t(OP_NOME_KEYS[op])}</option>
                   ))}
                 </select>
 
@@ -861,13 +866,13 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
                       : 'text'}
                     value={campo.valor}
                     onChange={e => handleMudarValor(campo.uid, e.target.value)}
-                    placeholder={placeholder || 'Novo valor...'}
+                    placeholder={placeholder || t('pedido.modal_massa.valor_placeholder')}
                     aria-label={`Valor para ${campo.campo}`}
                   />
                   {temMultiplos && (
                     <span className="modal-edicao-massa__badge-multiplos">
                       <Warning size={11} weight="fill" aria-hidden="true" />
-                      Múltiplos valores
+                      {t('pedido.modal_massa.multiplos_valores')}
                     </span>
                   )}
                 </div>
@@ -895,7 +900,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
           onClick={handleAdicionarCampo}
         >
           <Plus size={14} />
-          Adicionar campo
+          {t('pedido.modal_massa.adicionar_campo')}
         </button>
       </div>
 
@@ -903,29 +908,29 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
 
       {/* Preview em tempo real */}
       <div className="modal-edicao-massa__preview" aria-live="polite">
-        <p className="modal-edicao-massa__preview-titulo">Preview</p>
+        <p className="modal-edicao-massa__preview-titulo">{t('pedido.modal_massa.preview_titulo')}</p>
 
         {carregandoPreview ? (
           <div className="modal-edicao-massa__preview-loading">
             <Spinner size={14} className="modal-edicao-massa__spinner" aria-hidden="true" />
-            <span>Calculando impacto...</span>
+            <span>{t('pedido.modal_massa.preview_calculando')}</span>
           </div>
         ) : preview ? (
           <>
             <div className="modal-edicao-massa__preview-resumo">
               <div className="modal-edicao-massa__preview-stat">
                 <strong>{preview.pedidos_afetados}</strong>
-                <span>pedidos afetados</span>
+                <span>{t('pedido.modal_massa.preview_pedidos')}</span>
               </div>
               {preview.itens_afetados > 0 && (
                 <div className="modal-edicao-massa__preview-stat">
                   <strong>{preview.itens_afetados}</strong>
-                  <span>itens afetados</span>
+                  <span>{t('pedido.modal_massa.preview_itens')}</span>
                 </div>
               )}
               <div className="modal-edicao-massa__preview-stat">
                 <strong>{preview.campos.length}</strong>
-                <span>campos alterados</span>
+                <span>{t('pedido.modal_massa.preview_campos')}</span>
               </div>
             </div>
 
@@ -935,7 +940,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
                   <div key={i} className="modal-edicao-massa__preview-campo">
                     <span className="modal-edicao-massa__preview-campo-nome">{c.campo}</span>
                     <span className="modal-edicao-massa__preview-campo-op">
-                      {OPERACAO_LABELS[c.operacao]}
+                      {t(OP_LABEL_KEYS[c.operacao])}
                     </span>
                     <span className="modal-edicao-massa__preview-campo-valor">{String(c.valor)}</span>
                     {c.multiplos_valores && (
@@ -961,7 +966,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
           </>
         ) : (
           <span style={{ fontSize: 13, color: 'var(--color-text-muted, #64748b)' }}>
-            Preencha os campos acima para ver o impacto
+            {t('pedido.modal_massa.preview_vazio')}
           </span>
         )}
       </div>
@@ -980,15 +985,15 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
       {/* Resumo */}
       <div className="modal-edicao-massa__confirmacao-resumo" aria-label="Resumo da edição em massa">
         <div className="modal-edicao-massa__confirmacao-stat">
-          <strong>{preview?.pedidos_afetados ?? pedidos.length}</strong> pedidos serão afetados
+          <strong>{preview?.pedidos_afetados ?? pedidos.length}</strong> {t('pedido.modal_massa.confirm_pedidos')}
         </div>
         {(preview?.itens_afetados ?? 0) > 0 && (
           <div className="modal-edicao-massa__confirmacao-stat">
-            <strong>{preview?.itens_afetados}</strong> itens serão afetados
+            <strong>{preview?.itens_afetados}</strong> {t('pedido.modal_massa.confirm_itens')}
           </div>
         )}
         <div className="modal-edicao-massa__confirmacao-stat">
-          <strong>{camposValidos.length}</strong> campos serão alterados
+          <strong>{camposValidos.length}</strong> {t('pedido.modal_massa.confirm_campos')}
         </div>
       </div>
 
@@ -997,10 +1002,10 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
         {camposValidos.map(c => (
           <div key={c.uid} className="modal-edicao-massa__confirmacao-item">
             <span className="modal-edicao-massa__confirmacao-item-campo">
-              {disponiveis.find(d => d.campo === c.campo)?.rotulo ?? c.campo}
+              {t(`pedido.massa_campos.${c.campo}`)}
             </span>
             <span className="modal-edicao-massa__confirmacao-item-op">
-              {OPERACAO_LABELS[c.operacao]}
+              {t(OP_LABEL_KEYS[c.operacao])}
             </span>
             <span className="modal-edicao-massa__confirmacao-item-valor">{c.valor}</span>
             <span className="modal-edicao-massa__confirmacao-item-nivel">
@@ -1026,9 +1031,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
         <div className="modal-edicao-massa__alerta" role="note">
           <Clock size={14} weight="fill" aria-hidden="true" style={{ flexShrink: 0 }} />
           <span>
-            <strong>Operação demorada:</strong> {pedidos.length} pedidos com campos que precisam ser
-            processados individualmente. Estimativa: ~{estimadoSegundos} segundos.{' '}
-            <strong>Não feche a janela durante o processamento.</strong>
+            {t('pedido.modal_massa.aviso_lento', { count: pedidos.length, segundos: estimadoSegundos })}
           </span>
         </div>
       )}
@@ -1056,7 +1059,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
         {/* Header */}
         <div className="modal-edicao-massa__header">
           <h2 id="modal-edicao-massa-titulo" className="modal-edicao-massa__titulo">
-            Editar em Massa ({pedidos.length} pedido{pedidos.length !== 1 ? 's' : ''} selecionado{pedidos.length !== 1 ? 's' : ''})
+            {t('pedido.modal_massa.titulo', { count: pedidos.length, s: pedidos.length !== 1 ? 's' : '' })}
           </h2>
           <button
             className="modal-edicao-massa__fechar"
@@ -1083,10 +1086,10 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
               <Info weight="duotone" size={18} color="var(--accent)" style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
                 <p style={{ color: 'var(--accent)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
-                  Pedidos de tipos diferentes selecionados
+                  {t('pedido.modal_massa.mixed_tipos_titulo')}
                 </p>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
-                  Campos exclusivos de importação ou exportação não serão exibidos.
+                  {t('pedido.modal_massa.mixed_tipos_msg')}
                 </p>
               </div>
             </div>
@@ -1121,7 +1124,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
                 onClick={() => setPasso(1)}
                 disabled={salvando}
               >
-                Voltar
+                {t('pedido.modal_massa.voltar')}
               </BotaoGlobal>
             )}
 
@@ -1131,7 +1134,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
               onClick={onFechar}
               disabled={salvando}
             >
-              Cancelar
+              {t('pedido.modal_massa.cancelar')}
             </BotaoGlobal>
 
             {passo === 1 ? (
@@ -1141,7 +1144,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
                 onClick={handleAvancar}
                 disabled={camposValidos.length === 0 || carregandoPreview}
               >
-                Revisar alterações
+                {t('pedido.modal_massa.revisar')}
               </BotaoGlobal>
             ) : (
               <BotaoGlobal
@@ -1151,7 +1154,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
                 disabled={salvando}
                 aria-busy={salvando}
               >
-                {salvando ? 'Aplicando...' : 'Aplicar em Massa'}
+                {salvando ? t('pedido.modal_massa.aplicando') : t('pedido.modal_massa.aplicar')}
               </BotaoGlobal>
             )}
           </div>

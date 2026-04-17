@@ -13,6 +13,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Warning, CheckCircle, MagnifyingGlass, Spinner, WarningDiamond } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
@@ -39,6 +40,7 @@ interface LinhaCampoDivergenteProps {
 }
 
 function LinhaCampoDivergente({ campo, valorEscolhido, onMudar }: LinhaCampoDivergenteProps) {
+  const { t } = useTranslation()
   const [tooltipVisivel, setTooltipVisivel] = useState(false)
 
   return (
@@ -74,7 +76,7 @@ function LinhaCampoDivergente({ campo, valorEscolhido, onMudar }: LinhaCampoDive
           }}
         >
           <Warning size={14} weight="fill" aria-hidden="true" />
-          {campo.valores.length} origens
+          {t('pedido.modal_cons.badge_divergencia', { count: campo.valores.length })}
           {tooltipVisivel && (
             <span className="modal-consolidar__tooltip" role="tooltip">
               {campo.valores.map(v => (
@@ -94,6 +96,7 @@ function LinhaCampoDivergente({ campo, valorEscolhido, onMudar }: LinhaCampoDive
 
 export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, conflito_tipo_operacao: conflitoProp = false }: ModalConsolidarProps) {
   const { addNotification } = useShellStore()
+  const { t } = useTranslation()
   const [preview, setPreview] = useState<ConsolidacaoPreview | null>(null)
   const [carregandoPreview, setCarregandoPreview] = useState(true)
   const [erroPreview, setErroPreview] = useState<string | null>(null)
@@ -190,7 +193,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
         {/* Header */}
         <div className="modal-consolidar__header">
           <h2 id="modal-consolidar-titulo" className="modal-consolidar__titulo">
-            Consolidar Pedidos ({pedidosSelecionados.length} selecionados)
+            {t('pedido.modal_cons.titulo', { count: pedidosSelecionados.length })}
           </h2>
           <button
             className="modal-consolidar__fechar"
@@ -217,10 +220,10 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
               <WarningDiamond weight="duotone" size={18} color="var(--danger)" style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
                 <p style={{ color: 'var(--danger)', fontWeight: 600, fontSize: '0.875rem', margin: 0 }}>
-                  Operações de tipos diferentes
+                  {t('pedido.modal_cons.conflito_titulo')}
                 </p>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem', margin: '0.25rem 0 0' }}>
-                  Não é possível consolidar pedidos de importação com pedidos de exportação. Selecione apenas pedidos do mesmo tipo de operação.
+                  {t('pedido.modal_cons.conflito_msg')}
                 </p>
               </div>
             </div>
@@ -228,7 +231,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
           {carregandoPreview ? (
             <div className="modal-consolidar__loading" aria-live="polite">
               <Spinner size={24} className="modal-consolidar__spinner" aria-hidden="true" />
-              <span>Analisando pedidos...</span>
+              <span>{t('pedido.modal_cons.carregando')}</span>
             </div>
           ) : erroPreview ? (
             <div className="modal-consolidar__erro" role="alert">
@@ -240,7 +243,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
               {/* Número do pedido consolidado */}
               <div className="modal-consolidar__campo-numero">
                 <label htmlFor="numero-pedido-consolidado" className="modal-consolidar__label">
-                  Número do pedido consolidado
+                  {t('pedido.modal_cons.numero_label')}
                 </label>
                 <input
                   id="numero-pedido-consolidado"
@@ -248,12 +251,12 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
                   className="modal-consolidar__input"
                   value={numeroPedido}
                   onChange={e => setNumeroPedido(e.target.value)}
-                  placeholder="Ex: PO-CONS-2026/001"
+                  placeholder={t('pedido.modal_cons.numero_placeholder')}
                   aria-required="true"
                   aria-describedby="numero-pedido-hint"
                 />
                 <span id="numero-pedido-hint" className="modal-consolidar__hint">
-                  Sugestão gerada automaticamente — você pode editar
+                  {t('pedido.modal_cons.numero_hint')}
                 </span>
               </div>
 
@@ -263,9 +266,9 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
                   <table className="modal-consolidar__tabela" aria-label="Campos do pedido consolidado">
                     <thead>
                       <tr>
-                        <th scope="col">Campo</th>
-                        <th scope="col">Valor consolidado</th>
-                        <th scope="col">Origens</th>
+                        <th scope="col">{t('pedido.modal_cons.col_campo')}</th>
+                        <th scope="col">{t('pedido.modal_cons.col_valor')}</th>
+                        <th scope="col">{t('pedido.modal_cons.col_origens')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -273,11 +276,11 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
                       {preview.campos_iguais.map(campo => {
                         const pedido = pedidosSelecionados[0]
                         const rotulos: Record<string, string> = {
-                          incoterm: 'Incoterm',
-                          moeda_pedido: 'Moeda',
-                          nome_exportador: 'Exportador',
-                          data_emissao_pedido: 'Data Emissão do Pedido',
-                          condicao_pagamento_pedido: 'Condição de Pagamento',
+                          incoterm: t('pedido.modal_cons.campo_incoterm'),
+                          moeda_pedido: t('pedido.modal_cons.campo_moeda'),
+                          nome_exportador: t('pedido.modal_cons.campo_exportador'),
+                          data_emissao_pedido: t('pedido.modal_cons.campo_data_emissao'),
+                          condicao_pagamento_pedido: t('pedido.modal_cons.campo_cond_pagamento'),
                         }
                         const valor = pedido[campo as keyof Pedido]
                         return (
@@ -287,7 +290,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
                             <td>
                               <span className="modal-consolidar__badge-igual" aria-label="Campo igual em todos os pedidos">
                                 <CheckCircle size={14} weight="fill" aria-hidden="true" />
-                                igual
+                                {t('pedido.modal_cons.badge_igual')}
                               </span>
                             </td>
                           </tr>
@@ -306,10 +309,10 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
 
                       {/* Valor total (sempre soma) */}
                       <tr className="modal-consolidar__linha-total">
-                        <td>Valor total</td>
+                        <td>{t('pedido.modal_cons.campo_valor_total')}</td>
                         <td>{fmtMoeda(preview.valor_total_soma, preview.moeda)}</td>
                         <td>
-                          <span className="modal-consolidar__badge-soma">soma</span>
+                          <span className="modal-consolidar__badge-soma">{t('pedido.modal_cons.badge_soma')}</span>
                         </td>
                       </tr>
                     </tbody>
@@ -327,10 +330,10 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
                       onChange={e => setFundirItens(e.target.checked)}
                       aria-describedby="fundir-itens-hint"
                     />
-                    <span>Fundir itens com mesmo part_number</span>
+                    <span>{t('pedido.modal_cons.fundir_label')}</span>
                   </label>
                   <span id="fundir-itens-hint" className="modal-consolidar__hint">
-                    Soma as quantidades de itens com o mesmo part_number entre os pedidos
+                    {t('pedido.modal_cons.fundir_hint')}
                   </span>
                 </div>
               )}
@@ -339,7 +342,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
               {totalDivergencias > 0 && (
                 <div className="modal-consolidar__aviso-divergencias" role="status" aria-live="polite">
                   <Warning size={16} weight="fill" aria-hidden="true" />
-                  {totalDivergencias} divergência{totalDivergencias !== 1 ? 's' : ''} encontrada{totalDivergencias !== 1 ? 's' : ''}
+                  {t('pedido.modal_cons.divergencias', { count: totalDivergencias, s: totalDivergencias !== 1 ? 's' : '' })}
                 </div>
               )}
 
@@ -362,7 +365,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
             onClick={onFechar}
             disabled={salvando}
           >
-            Cancelar
+            {t('pedido.modal_cons.cancelar')}
           </BotaoGlobal>
           <BotaoGlobal
             variante="primario"
@@ -371,7 +374,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
             disabled={conflito_tipo_operacao || carregandoPreview || salvando || !numeroPedido.trim() || !!erroPreview}
             aria-busy={salvando}
           >
-            {salvando ? 'Consolidando...' : 'Consolidar'}
+            {salvando ? t('pedido.modal_cons.consolidando') : t('pedido.modal_cons.consolidar')}
           </BotaoGlobal>
         </div>
       </div>

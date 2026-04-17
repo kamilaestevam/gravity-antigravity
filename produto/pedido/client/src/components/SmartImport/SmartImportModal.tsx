@@ -13,7 +13,8 @@
  *   onConcluido — callback com IDs criados (para recarregar lista)
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { UploadSimple, X, Spinner } from '@phosphor-icons/react'
 import { BotaoGlobal } from '@nucleo/botao-global'
 import { useShellStore } from '@gravity/shell'
@@ -45,52 +46,44 @@ export interface SmartImportModalProps {
 
 type Etapa = 'upload' | 'mapeamento' | 'preview' | 'confirmacao'
 
-// ── Tradução de erros técnicos para PT-BR ─────────────────────────────────────
+type TFunc = (key: string, opts?: Record<string, unknown>) => string
 
-function traduzirErro(err: unknown, contexto: 'upload' | 'confirmar' = 'upload'): string {
+function traduzirErro(err: unknown, contexto: 'upload' | 'confirmar' = 'upload', t: TFunc): string {
   const msg = err instanceof Error ? err.message : String(err ?? '')
 
   if (msg === 'Failed to fetch' || msg.includes('NetworkError') || msg.includes('fetch')) {
-    return 'Não foi possível conectar ao servidor. Verifique se o serviço está rodando.'
+    return t('pedido.smart_import.err_rede')
   }
   if (/^HTTP 5\d\d/.test(msg)) {
     return contexto === 'upload'
-      ? 'Erro interno no servidor ao processar o arquivo. Tente novamente.'
-      : 'Erro interno no servidor ao importar os pedidos. Tente novamente.'
+      ? t('pedido.smart_import.err_servidor_upload')
+      : t('pedido.smart_import.err_servidor_confirmar')
   }
   if (msg === 'HTTP 413') {
-    return 'Arquivo muito grande para o servidor. O limite é 10MB.'
+    return t('pedido.smart_import.err_arquivo_grande')
   }
   if (msg === 'HTTP 403') {
-    return 'Sessão expirada. Feche o modal e tente novamente.'
+    return t('pedido.smart_import.err_sessao')
   }
   if (msg === 'HTTP 408' || msg === 'HTTP 504' || msg === 'HTTP 502') {
-    return 'Tempo limite excedido. O arquivo pode ser grande demais — tente dividir em lotes menores.'
+    return t('pedido.smart_import.err_timeout')
   }
   if (msg === 'HTTP 400') {
     return contexto === 'upload'
-      ? 'Arquivo inválido ou formato não reconhecido.'
-      : 'Dados inválidos. Verifique o mapeamento e tente novamente.'
+      ? t('pedido.smart_import.err_formato')
+      : t('pedido.smart_import.err_dados')
   }
-  // Mensagem já legível vinda do servidor (400 com body, 429, etc.)
   if (msg && msg.length > 0 && !msg.startsWith('HTTP ')) {
     return msg
   }
   return contexto === 'upload'
-    ? 'Erro ao analisar arquivo. Tente novamente.'
-    : 'Erro ao importar pedidos. Tente novamente.'
+    ? t('pedido.smart_import.err_upload_gen')
+    : t('pedido.smart_import.err_confirmar_gen')
 }
 
 const ORDEM_ETAPAS: Etapa[] = ['upload', 'mapeamento', 'preview', 'confirmacao']
 
-// ── Stepper ───────────────────────────────────────────────────────────────────
-
-const PASSOS_IMPORT: PassoConfig[] = [
-  { id: 1, label: 'Upload' },
-  { id: 2, label: 'Mapeamento' },
-  { id: 3, label: 'Preview' },
-  { id: 4, label: 'Resultado' },
-]
+// ── PASSOS_IMPORT — definido dentro do componente via useMemo([t]) ─────────────
 
 function etapaParaId(e: Etapa): number {
   return ORDEM_ETAPAS.indexOf(e) + 1
@@ -99,7 +92,15 @@ function etapaParaId(e: Etapa): number {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportModalProps) {
+  const { t } = useTranslation()
   const { addNotification } = useShellStore()
+
+  const PASSOS_IMPORT = useMemo<PassoConfig[]>(() => [
+    { id: 1, label: t('pedido.smart_import.passo_upload') },
+    { id: 2, label: t('pedido.smart_import.passo_mapeamento') },
+    { id: 3, label: t('pedido.smart_import.passo_preview') },
+    { id: 4, label: t('pedido.smart_import.passo_resultado') },
+  ], [t])
   const [etapa, setEtapa]             = useState<Etapa>('upload')
   const [analisando, setAnalisando]   = useState(false)
   const [confirmando, setConfirmando] = useState(false)
@@ -119,26 +120,25 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
   const [planilhaSelecionada, setPlanilhaSelecionada] = useState<string | undefined>()
   const [arquivoAtual, setArquivoAtual]               = useState<File | null>(null)
 
-  // Progresso textual rotativo durante analise
-  const [msgProgresso, setMsgProgresso] = React.useState('Analisando arquivo...')
+  const [msgProgresso, setMsgProgresso] = React.useState(() => t('pedido.smart_import.analisando'))
 
   React.useEffect(() => {
     if (!analisando) return
     const isPdf = arquivoAtual?.name.toLowerCase().endsWith('.pdf') ?? false
     const msgs = isPdf
       ? [
-          'Enviando PDF para análise com IA...',
-          'Extraindo itens do documento (pode levar até 60s)...',
-          'Identificando campos: número do pedido, exportador, itens...',
-          'Mapeando campos com IA...',
-          'Verificando duplicatas no sistema...',
-          'Preparando preview...',
+          t('pedido.smart_import.prog_pdf_1'),
+          t('pedido.smart_import.prog_pdf_2'),
+          t('pedido.smart_import.prog_pdf_3'),
+          t('pedido.smart_import.prog_pdf_4'),
+          t('pedido.smart_import.prog_pdf_5'),
+          t('pedido.smart_import.prog_pdf_6'),
         ]
       : [
-          'Lendo colunas do arquivo...',
-          'Mapeando campos com IA...',
-          'Verificando duplicatas no sistema...',
-          'Preparando preview...',
+          t('pedido.smart_import.prog_xlsx_1'),
+          t('pedido.smart_import.prog_xlsx_2'),
+          t('pedido.smart_import.prog_xlsx_3'),
+          t('pedido.smart_import.prog_xlsx_4'),
         ]
     let idx = 0
     const interval = setInterval(() => {
@@ -146,7 +146,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
       setMsgProgresso(msgs[idx])
     }, isPdf ? 4000 : 1800)
     return () => clearInterval(interval)
-  }, [analisando, arquivoAtual])
+  }, [analisando, arquivoAtual, t])
 
   // Resetar ao fechar
   useEffect(() => {
@@ -165,7 +165,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
         setPlanilhas([])
         setPlanilhaSelecionada(undefined)
         setArquivoAtual(null)
-        setMsgProgresso('Analisando arquivo...')
+        setMsgProgresso(t('pedido.smart_import.analisando'))
       }, 300)
     }
   }, [aberto])
@@ -239,7 +239,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
 
       setEtapa('mapeamento')
     } catch (err: unknown) {
-      setErro(traduzirErro(err, 'upload'))
+      setErro(traduzirErro(err, 'upload', t))
     } finally {
       setAnalisando(false)
     }
@@ -272,7 +272,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
       setEtapa('confirmacao')
       addNotification({ type: 'success', message: `${dados.ids_criados?.length ?? 0} PO(s) importadas via SmartImport.`, duration: 4000 })
     } catch (err: unknown) {
-      const msg = traduzirErro(err, 'confirmar')
+      const msg = traduzirErro(err, 'confirmar', t)
       setErro(msg)
       addNotification({ type: 'error', message: `Falha na importação: ${msg}`, duration: 4000 })
     } finally {
@@ -310,7 +310,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
         <div className="smart-import__header">
           <h2 id="smart-import-titulo" className="smart-import__titulo">
             <UploadSimple size={18} weight="duotone" aria-hidden="true" />
-            Importar Pedidos
+            {t('pedido.smart_import.titulo')}
           </h2>
           <button
             className="smart-import__fechar"
@@ -333,10 +333,10 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
         {/* Contexto do arquivo — total_pedidos / total_itens / total_linhas */}
         {preview && (etapa === 'mapeamento' || etapa === 'preview') && (
           <div className="smart-import__contexto-arquivo">
-            <span>{preview.total_pedidos} pedido(s) — {preview.total_itens} item(ns) — {preview.total_linhas} linha(s)</span>
+            <span>{t('pedido.smart_import.contexto_arquivo', { pedidos: preview.total_pedidos, itens: preview.total_itens, linhas: preview.total_linhas })}</span>
             {preview.extrator_usado && (
               <span style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginLeft: '0.75rem', opacity: 0.7 }}>
-                {preview.extrator_usado === 'gemini' ? '✦ Extraído com IA (Gemini)' : `parser: ${preview.extrator_usado}`}
+                {preview.extrator_usado === 'gemini' ? t('pedido.smart_import.extrator_gemini') : t('pedido.smart_import.extrator_parser', { nome: preview.extrator_usado })}
               </span>
             )}
           </div>
@@ -345,7 +345,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
         {/* Aviso de confiança global baixa */}
         {preview && etapa === 'mapeamento' && preview.confianca_global < 60 && (
           <div className="smart-import__aviso-confianca">
-            ⚠ Confiança média: {preview.confianca_global}% — revise o mapeamento antes de continuar
+            {t('pedido.smart_import.aviso_confianca', { pct: preview.confianca_global })}
           </div>
         )}
 
@@ -363,7 +363,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
             alignItems: 'center',
             gap: '0.5rem',
           }}>
-            ⚠ Arquivo com {previewExt.total_linhas} linhas — considere dividir em lotes menores de 1.000 linhas para melhor desempenho
+            {t('pedido.smart_import.aviso_limite', { total: previewExt.total_linhas })}
           </div>
         )}
 
@@ -376,8 +376,8 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
               <span>{msgProgresso}</span>
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                 {arquivoAtual?.name.toLowerCase().endsWith('.pdf')
-                  ? 'PDFs com muitas páginas podem levar até 60–90 segundos — aguarde'
-                  : 'Isso pode levar alguns segundos para arquivos grandes'}
+                  ? t('pedido.smart_import.pdf_aguarde')
+                  : t('pedido.smart_import.xlsx_aguarde')}
               </span>
             </div>
           )}
@@ -452,7 +452,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
               onClick={onFechar}
               disabled={analisando || confirmando}
             >
-              Cancelar
+              {t('pedido.smart_import.cancelar')}
             </BotaoGlobal>
             <div className="smart-import__footer-acoes">
               {etapa === 'preview' && (
@@ -461,12 +461,11 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
                   tamanho="medio"
                   onClick={() => {
                     setEtapa('mapeamento')
-                    // Scroll para o topo do corpo
                     document.querySelector('.smart-import__corpo')?.scrollTo({ top: 0, behavior: 'smooth' })
                   }}
                   disabled={confirmando}
                 >
-                  Voltar
+                  {t('pedido.smart_import.voltar')}
                 </BotaoGlobal>
               )}
               {etapa === 'mapeamento' && (
@@ -476,7 +475,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
                   onClick={handleAvancarParaPreview}
                   disabled={analisando}
                 >
-                  Continuar
+                  {t('pedido.smart_import.continuar')}
                 </BotaoGlobal>
               )}
               {etapa === 'preview' && preview && (
@@ -488,16 +487,16 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
                   aria-busy={confirmando}
                 >
                   {confirmando
-                    ? 'Importando...'
+                    ? t('pedido.smart_import.importando')
                     : linhasSelecionadas.size === preview.linhas.length
-                      ? 'Importar Pedido'
-                      : `Importar ${linhasSelecionadas.size} linha(s)`}
+                      ? t('pedido.smart_import.importar_tudo')
+                      : t('pedido.smart_import.importar_n', { count: linhasSelecionadas.size })}
                 </BotaoGlobal>
               )}
             </div>
             {etapa === 'preview' && (
               <p style={{ width: '100%', margin: '0.5rem 0 0 0', fontSize: '0.6875rem', color: 'var(--text-muted)', textAlign: 'center', gridColumn: '1/-1' }}>
-                Pedidos serão criados com status <strong>Rascunho</strong> — revise e altere para Aberto após importar
+                {t('pedido.smart_import.rascunho_hint')}
               </p>
             )}
           </div>

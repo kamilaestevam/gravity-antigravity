@@ -16,6 +16,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Package,
   Plus,
@@ -112,6 +113,7 @@ function formFoiAlterado(form: PedidoForm, itens: ItemForm[]): boolean {
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, focusField }: DrawerPedidoProps) {
+  const { t, i18n } = useTranslation()
   const modoEdicao = Boolean(pedidoId)
 
   const [form, setForm]       = useState<PedidoForm>(FORM_VAZIO)
@@ -161,7 +163,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
         transferCarregado.current = true
       })
       .catch(() => {
-        if (!cancelado) setErroTransfer('Erro ao carregar transferencias. Tente novamente.')
+        if (!cancelado) setErroTransfer(t('pedido.drawer.erro_transfer'))
       })
       .finally(() => {
         if (!cancelado) setCarregandoTransfer(false)
@@ -215,7 +217,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
         }
       })
       .catch(() => {
-        if (!cancelado) setErro('Erro ao carregar pedido. Tente novamente.')
+        if (!cancelado) setErro(t('pedido.drawer.erro_carregar'))
       })
       .finally(() => {
         if (!cancelado) setCarregando(false)
@@ -303,7 +305,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
 
       onSalvo(resultado)
     } catch (err: unknown) {
-      setErro(err instanceof Error ? err.message : 'Erro ao salvar pedido. Tente novamente.')
+      setErro(err instanceof Error ? err.message : t('pedido.drawer.erro_salvar'))
     } finally {
       setSalvando(false)
     }
@@ -324,7 +326,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
         <div className="drawer-pedido__header">
           <h2 id="drawer-pedido-titulo" className="drawer-pedido__titulo">
             <Package size={18} weight="duotone" aria-hidden="true" />
-            {modoEdicao ? 'Editar Pedido' : 'Novo Pedido'}
+            {modoEdicao ? t('pedido.drawer.titulo_edicao') : t('pedido.drawer.titulo_novo')}
           </h2>
           <button
             className="drawer-pedido__fechar"
@@ -346,7 +348,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
             onClick={() => setAbaAtiva('dados')}
             type="button"
           >
-            Dados
+            {t('pedido.drawer.aba_dados')}
           </button>
           <button
             role="tab"
@@ -356,7 +358,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
             onClick={() => setAbaAtiva('itens')}
             type="button"
           >
-            Itens ({itens.length})
+            {t('pedido.drawer.aba_itens', { count: itens.length })}
           </button>
           {modoEdicao && (
             <button
@@ -368,7 +370,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
               type="button"
             >
               <ArrowsLeftRight size={13} weight="bold" aria-hidden="true" />
-              Transferencias {transferCarregado.current ? `(${transferencias.length})` : ''}
+              {t('pedido.drawer.aba_transferencias')}{transferCarregado.current ? ` (${transferencias.length})` : ''}
             </button>
           )}
         </div>
@@ -378,7 +380,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
           {carregando ? (
             <div className="drawer-pedido__loading" aria-live="polite">
               <Spinner size={20} className="drawer-pedido__spinner" aria-hidden="true" />
-              <span>Carregando pedido...</span>
+              <span>{t('pedido.drawer.carregando')}</span>
             </div>
           ) : (
             <>
@@ -391,53 +393,53 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                 className="drawer-pedido__painel"
               >
                 <section>
-                  <p className="drawer-pedido__secao-titulo">Dados do Pedido</p>
+                  <p className="drawer-pedido__secao-titulo">{t('pedido.drawer.secao_dados')}</p>
                   <div className="drawer-pedido__grid">
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-tipo-operacao">Tipo Operacao</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-tipo-operacao">{t('pedido.drawer.label_tipo_op')}</label>
                       <select
                         id="dp-tipo-operacao"
                         className="drawer-pedido__select"
                         value={form.tipo_operacao}
                         onChange={e => handleChange('tipo_operacao', e.target.value)}
                       >
-                        <option value="importacao">Importacao</option>
-                        <option value="exportacao">Exportacao</option>
+                        <option value="importacao">{t('pedido.drawer.opt_importacao')}</option>
+                        <option value="exportacao">{t('pedido.drawer.opt_exportacao')}</option>
                       </select>
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-numero-pedido">Numero Pedido</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-numero-pedido">{t('pedido.drawer.label_numero')}</label>
                       <input
                         id="dp-numero-pedido"
                         className="drawer-pedido__input"
                         value={form.numero_pedido}
                         onChange={e => handleChange('numero_pedido', e.target.value)}
-                        placeholder="Ex: PO-2026/001"
+                        placeholder={t('pedido.drawer.ph_numero')}
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-exportador">Exportador</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-exportador">{t('pedido.drawer.label_exportador')}</label>
                       <input
                         id="dp-exportador"
                         className="drawer-pedido__input"
                         value={form.importacao_exportador_id}
                         onChange={e => handleChange('importacao_exportador_id', e.target.value)}
-                        placeholder="Selecionar exportador"
+                        placeholder={t('pedido.drawer.selecionar_exportador')}
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-fabricante">Fabricante</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-fabricante">{t('pedido.drawer.label_fabricante')}</label>
                       <input
                         id="dp-fabricante"
                         className="drawer-pedido__input"
                         value={form.fabricante_id}
                         onChange={e => handleChange('fabricante_id', e.target.value)}
-                        placeholder="Selecionar fabricante"
+                        placeholder={t('pedido.drawer.selecionar_fabricante')}
                       />
                     </div>
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label" htmlFor="dp-incoterm" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                        Incoterm
+                        {t('pedido.drawer.label_incoterm')}
                         <GabiFieldIcon campo="incoterm" label="Incoterm" gabiEndpoint="/api/v1/pedidos/gabi/field-help" />
                       </label>
                       <select
@@ -452,14 +454,14 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       </select>
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label">Moeda</label>
+                      <label className="drawer-pedido__label">{t('pedido.drawer.label_moeda')}</label>
                       <button
                         type="button"
                         className="drawer-pedido__select"
                         style={{ textAlign: 'left', cursor: 'pointer' }}
                         onClick={() => setModalMoedaAberta(true)}
                       >
-                        {form.moeda_pedido || 'Selecionar moeda'}
+                        {form.moeda_pedido || t('pedido.drawer.selecionar_moeda')}
                       </button>
                       <ModalTabelaMoeda
                         aberto={modalMoedaAberta}
@@ -470,7 +472,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                     </div>
                     <div className="drawer-pedido__campo">
                       <label className="drawer-pedido__label" htmlFor="dp-pagamento" style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                        Condição de Pagamento
+                        {t('pedido.drawer.label_cond_pgto')}
                         <GabiFieldIcon campo="condicao_pagamento_pedido" label="Condição de Pagamento" gabiEndpoint="/api/v1/pedidos/gabi/field-help" />
                       </label>
                       <input
@@ -478,11 +480,11 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                         className="drawer-pedido__input"
                         value={form.condicao_pagamento_pedido}
                         onChange={e => handleChange('condicao_pagamento_pedido', e.target.value)}
-                        placeholder="Ex: 30% Antecipado"
+                        placeholder={t('pedido.drawer.ph_cond_pgto')}
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-proforma">Numero Proforma</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-proforma">{t('pedido.drawer.label_num_proforma')}</label>
                       <input
                         id="dp-proforma"
                         className="drawer-pedido__input"
@@ -491,7 +493,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-invoice">Numero Invoice</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-invoice">{t('pedido.drawer.label_num_invoice')}</label>
                       <input
                         id="dp-invoice"
                         className="drawer-pedido__input"
@@ -500,7 +502,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-ref-imp">Ref. Importador</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-ref-imp">{t('pedido.drawer.label_ref_importador')}</label>
                       <input
                         id="dp-ref-imp"
                         className="drawer-pedido__input"
@@ -509,7 +511,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-ref-exp">Ref. Exportador</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-ref-exp">{t('pedido.drawer.label_ref_exportador')}</label>
                       <input
                         id="dp-ref-exp"
                         className="drawer-pedido__input"
@@ -518,7 +520,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-ref-fab">Ref. Fabricante</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-ref-fab">{t('pedido.drawer.label_ref_fabricante')}</label>
                       <input
                         id="dp-ref-fab"
                         className="drawer-pedido__input"
@@ -527,7 +529,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       />
                     </div>
                     <div className="drawer-pedido__campo">
-                      <label className="drawer-pedido__label" htmlFor="dp-data-emissao">Data Emissao</label>
+                      <label className="drawer-pedido__label" htmlFor="dp-data-emissao">{t('pedido.drawer.label_data_emissao')}</label>
                       <input
                         id="dp-data-emissao"
                         type="date"
@@ -559,7 +561,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                 <section>
                   <div className="drawer-pedido__itens-header">
                     <p className="drawer-pedido__secao-titulo" style={{ margin: 0 }}>
-                      Itens ({itens.length})
+                      {t('pedido.drawer.secao_itens', { count: itens.length })}
                     </p>
                     <BotaoGlobal
                       variante="secundario"
@@ -567,43 +569,43 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                       icone={<Plus size={12} weight="bold" />}
                       onClick={adicionarItem}
                     >
-                      Adicionar Item
+                      {t('pedido.drawer.adicionar_item')}
                     </BotaoGlobal>
                   </div>
 
                   {itens.map((item, index) => (
                     <div key={item.key} className="drawer-pedido__item">
                       <div className="drawer-pedido__campo">
-                        <label className="drawer-pedido__label" htmlFor={`dp-pn-${index}`} style={{ fontSize: '0.625rem' }}>Part Number</label>
+                        <label className="drawer-pedido__label" htmlFor={`dp-pn-${index}`} style={{ fontSize: '0.625rem' }}>{t('pedido.campos.part_number')}</label>
                         <input
                           id={`dp-pn-${index}`}
                           className="drawer-pedido__input"
                           value={item.part_number}
                           onChange={e => handleItemChange(index, 'part_number', e.target.value)}
                           placeholder="SKU"
-                          aria-label="Part Number"
+                          aria-label={t('pedido.campos.part_number')}
                         />
                       </div>
                       <div className="drawer-pedido__campo">
                         <NcmSelectGlobal
-                          label="NCM"
+                          label={t('pedido.campos.ncm')}
                           value={item.ncm}
                           onChange={(codigo) => handleItemChange(index, 'ncm', codigo)}
                         />
                       </div>
                       <div className="drawer-pedido__campo">
-                        <label className="drawer-pedido__label" htmlFor={`dp-desc-${index}`} style={{ fontSize: '0.625rem' }}>Descricao</label>
+                        <label className="drawer-pedido__label" htmlFor={`dp-desc-${index}`} style={{ fontSize: '0.625rem' }}>{t('pedido.drawer.label_descricao')}</label>
                         <input
                           id={`dp-desc-${index}`}
                           className="drawer-pedido__input"
                           value={item.descricao_item}
                           onChange={e => handleItemChange(index, 'descricao_item', e.target.value)}
-                          placeholder="Descricao do item"
-                          aria-label="Descricao"
+                          placeholder={t('pedido.drawer.ph_descricao_item')}
+                          aria-label={t('pedido.drawer.label_descricao')}
                         />
                       </div>
                       <div className="drawer-pedido__campo">
-                        <label className="drawer-pedido__label" htmlFor={`dp-qty-${index}`} style={{ fontSize: '0.625rem' }}>Qtd.</label>
+                        <label className="drawer-pedido__label" htmlFor={`dp-qty-${index}`} style={{ fontSize: '0.625rem' }}>{t('pedido.drawer.label_qtd')}</label>
                         <input
                           id={`dp-qty-${index}`}
                           type="number"
@@ -614,17 +616,17 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                           placeholder="0"
                           min="0"
                           step="0.01"
-                          aria-label="Quantidade"
+                          aria-label={t('pedido.drawer.label_qtd')}
                         />
                       </div>
                       <div className="drawer-pedido__campo">
-                        <label className="drawer-pedido__label" htmlFor={`dp-uom-${index}`} style={{ fontSize: '0.625rem' }}>UoM</label>
+                        <label className="drawer-pedido__label" htmlFor={`dp-uom-${index}`} style={{ fontSize: '0.625rem' }}>{t('pedido.drawer.label_uom')}</label>
                         <select
                           id={`dp-uom-${index}`}
                           className="drawer-pedido__select"
                           value={item.unidade_comercializada_item}
                           onChange={e => handleItemChange(index, 'unidade_comercializada_item', e.target.value)}
-                          aria-label="Unidade"
+                          aria-label={t('pedido.drawer.label_uom')}
                         >
                           {['UN','MT','M2','KG','LT','TON','CM3','PC'].map(u => (
                             <option key={u} value={u}>{u}</option>
@@ -632,7 +634,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                         </select>
                       </div>
                       <div className="drawer-pedido__campo">
-                        <label className="drawer-pedido__label" htmlFor={`dp-vl-${index}`} style={{ fontSize: '0.625rem' }}>Vl. Unit.</label>
+                        <label className="drawer-pedido__label" htmlFor={`dp-vl-${index}`} style={{ fontSize: '0.625rem' }}>{t('pedido.drawer.label_vl_unit')}</label>
                         <input
                           id={`dp-vl-${index}`}
                           type="number"
@@ -643,15 +645,15 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                           placeholder="0,00"
                           min="0"
                           step="0.01"
-                          aria-label="Valor Unitario"
+                          aria-label={t('pedido.drawer.label_vl_unit')}
                         />
                       </div>
                       <button
                         className="drawer-pedido__item-remover"
                         onClick={() => removerItem(index)}
                         disabled={itens.length <= 1}
-                        title="Remover item"
-                        aria-label={`Remover item ${index + 1}`}
+                        title={t('pedido.drawer.remover_item_hint')}
+                        aria-label={t('pedido.drawer.remover_item_aria', { n: index + 1 })}
                         type="button"
                       >
                         <Trash size={14} weight="duotone" />
@@ -673,7 +675,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                   {carregandoTransfer ? (
                     <div className="drawer-pedido__loading" aria-live="polite">
                       <Spinner size={20} className="drawer-pedido__spinner" aria-hidden="true" />
-                      <span>Carregando transferencias...</span>
+                      <span>{t('pedido.drawer.carregando_transfer')}</span>
                     </div>
                   ) : erroTransfer ? (
                     <div className="drawer-pedido__erro" role="alert">
@@ -683,20 +685,20 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                   ) : transferencias.length === 0 ? (
                     <div className="drawer-pedido__transferencias-vazio">
                       <ArrowsLeftRight size={28} weight="duotone" aria-hidden="true" />
-                      <span>Nenhuma transferencia registrada</span>
+                      <span>{t('pedido.drawer.sem_transferencias')}</span>
                     </div>
                   ) : (
-                    <ol className="drawer-pedido__timeline" aria-label="Historico de transferencias">
-                      {transferencias.map(t => (
-                        <li key={t.id} className="drawer-pedido__timeline-item">
+                    <ol className="drawer-pedido__timeline" aria-label={t('pedido.drawer.transfer_historico')}>
+                      {transferencias.map(tr => (
+                        <li key={tr.id} className="drawer-pedido__timeline-item">
                           <div className="drawer-pedido__timeline-dot" aria-hidden="true" />
                           <div className="drawer-pedido__timeline-conteudo">
                             <div className="drawer-pedido__timeline-cabecalho">
                               <time
                                 className="drawer-pedido__timeline-data"
-                                dateTime={t.created_at}
+                                dateTime={tr.created_at}
                               >
-                                {new Date(t.created_at).toLocaleString('pt-BR', {
+                                {new Date(tr.created_at).toLocaleString(i18n.language, {
                                   day: '2-digit',
                                   month: '2-digit',
                                   year: 'numeric',
@@ -704,33 +706,33 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                                   minute: '2-digit',
                                 })}
                               </time>
-                              {t.revertido && (
-                                <span className="drawer-pedido__badge-revertido" aria-label="Transferencia revertida">
-                                  Revertido
+                              {tr.revertido && (
+                                <span className="drawer-pedido__badge-revertido" aria-label={t('pedido.drawer.badge_revertido')}>
+                                  {t('pedido.drawer.badge_revertido')}
                                 </span>
                               )}
                             </div>
                             <p className="drawer-pedido__timeline-usuario">
-                              Por: <strong>{t.created_by}</strong>
+                              {t('pedido.drawer.transfer_por')} <strong>{tr.created_by}</strong>
                             </p>
                             <p className="drawer-pedido__timeline-qtd">
-                              Quantidade: <strong>{t.quantidade_item_transferida}</strong>
+                              {t('pedido.drawer.transfer_qtd')} <strong>{tr.quantidade_item_transferida}</strong>
                             </p>
                             <p className="drawer-pedido__timeline-cenario">
-                              Cenario: <span className="drawer-pedido__timeline-cenario-tag">{t.cenario}</span>
+                              {t('pedido.drawer.transfer_cenario')} <span className="drawer-pedido__timeline-cenario-tag">{tr.cenario}</span>
                             </p>
-                            {t.destinos.length > 0 && (
-                              <ul className="drawer-pedido__timeline-destinos" aria-label="Destinos da transferencia">
-                                {t.destinos.map((d, di) => (
+                            {tr.destinos.length > 0 && (
+                              <ul className="drawer-pedido__timeline-destinos" aria-label={t('pedido.drawer.transfer_historico')}>
+                                {tr.destinos.map((d, di) => (
                                   <li key={di} className="drawer-pedido__timeline-destino">
                                     <span className="drawer-pedido__timeline-destino-tipo">{d.tipo}</span>
                                     {d.pedido_id && (
                                       <span className="drawer-pedido__timeline-destino-id">
-                                        → Pedido {d.pedido_id}
+                                        {t('pedido.drawer.transfer_destino_pedido', { id: d.pedido_id })}
                                       </span>
                                     )}
                                     <span className="drawer-pedido__timeline-destino-qtd">
-                                      {d.quantidade} un.
+                                      {t('pedido.drawer.transfer_destino_qtd', { qtd: d.quantidade })}
                                     </span>
                                   </li>
                                 ))}
@@ -756,7 +758,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
               onClick={tentarFechar}
               disabled={salvando}
             >
-              Cancelar
+              {t('pedido.drawer.cancelar')}
             </BotaoGlobal>
             <BotaoGlobal
               variante="primario"
@@ -766,7 +768,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
               disabled={carregando || salvando}
               aria-busy={salvando}
             >
-              {salvando ? 'Salvando...' : modoEdicao ? 'Salvar Alteracoes' : 'Criar Pedido'}
+              {salvando ? t('pedido.drawer.salvando') : modoEdicao ? t('pedido.drawer.salvar_alteracoes') : t('pedido.drawer.criar_pedido')}
             </BotaoGlobal>
           </div>
         )}
@@ -778,7 +780,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
               onClick={tentarFechar}
               disabled={salvando}
             >
-              Fechar
+              {t('pedido.drawer.fechar')}
             </BotaoGlobal>
           </div>
         )}
@@ -786,15 +788,15 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
       <ModalGlobal
         aberto={confirmarFecharSemSalvar}
         aoFechar={() => setConfirmarFecharSemSalvar(false)}
-        titulo="Fechar sem salvar?"
+        titulo={t('pedido.drawer.confirm_titulo')}
         tamanho="sm"
         botoes={[
-          { rotulo: 'Continuar editando', variante: 'secondary', ao_clicar: () => setConfirmarFecharSemSalvar(false) },
-          { rotulo: 'Fechar assim mesmo', variante: 'danger', ao_clicar: handleFecharConfirmado },
+          { rotulo: t('pedido.drawer.confirm_continuar'), variante: 'secondary', ao_clicar: () => setConfirmarFecharSemSalvar(false) },
+          { rotulo: t('pedido.drawer.confirm_fechar'), variante: 'danger', ao_clicar: handleFecharConfirmado },
         ]}
       >
         <p style={{ margin: 0, color: 'var(--text-secondary, #94a3b8)', fontSize: '0.875rem' }}>
-          Existem dados preenchidos que serão perdidos. Deseja fechar mesmo assim?
+          {t('pedido.drawer.confirm_msg')}
         </p>
       </ModalGlobal>
     </div>

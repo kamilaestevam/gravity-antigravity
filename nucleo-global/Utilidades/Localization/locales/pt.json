@@ -3056,6 +3056,18 @@
       "exportacao": "Exportação"
     },
     "config": {
+      "acao": {
+        "salvar": "Salvar",
+        "restaurar_padrao": "Restaurar padrão",
+        "cancelar": "Cancelar"
+      },
+      "tabela": {
+        "titulo": "Tabela",
+        "descricao": "Preferências de exibição da lista de pedidos",
+        "linhas_por_pagina": "LINHAS POR PÁGINA PADRÃO",
+        "preferencias": "PREFERÊNCIAS DE EXIBIÇÃO",
+        "destacar_atrasados": "Destacar pedidos atrasados em vermelho"
+      },
       "sidebar": {
         "grupo_visualizacoes": "VISUALIZAÇÕES",
         "grupo_pedido": "PEDIDO",

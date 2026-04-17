@@ -3411,6 +3411,18 @@
       "data_meta_recebimento_original_invoice_desc": "Fecha meta para recepción del original de la Invoice"
     },
     "config": {
+      "acao": {
+        "salvar": "Guardar",
+        "restaurar_padrao": "Restaurar predeterminados",
+        "cancelar": "Cancelar"
+      },
+      "tabela": {
+        "titulo": "Tabla",
+        "descricao": "Preferencias de visualización de la lista de pedidos",
+        "linhas_por_pagina": "FILAS POR PÁGINA PREDETERMINADAS",
+        "preferencias": "PREFERENCIAS DE VISUALIZACIÓN",
+        "destacar_atrasados": "Destacar pedidos atrasados en rojo"
+      },
       "sidebar": {
         "grupo_visualizacoes": "VISTAS",
         "grupo_pedido": "PEDIDO",

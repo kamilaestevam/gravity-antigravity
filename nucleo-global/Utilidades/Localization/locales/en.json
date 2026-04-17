@@ -3262,6 +3262,18 @@
       "data_meta_recebimento_original_invoice_desc": "Target date for receipt of the original Invoice"
     },
     "config": {
+      "acao": {
+        "salvar": "Save",
+        "restaurar_padrao": "Restore defaults",
+        "cancelar": "Cancel"
+      },
+      "tabela": {
+        "titulo": "Table",
+        "descricao": "Display preferences for the order list",
+        "linhas_por_pagina": "DEFAULT ROWS PER PAGE",
+        "preferencias": "DISPLAY PREFERENCES",
+        "destacar_atrasados": "Highlight overdue orders in red"
+      },
       "sidebar": {
         "grupo_visualizacoes": "VIEWS",
         "grupo_pedido": "ORDER",

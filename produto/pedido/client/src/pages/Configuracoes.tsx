@@ -2306,12 +2306,12 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Tabela</h2>
-                  <p className="cfg-secao__desc">Preferências de exibição da lista de pedidos</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.tabela.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.tabela.descricao')}</p>
                 </div>
               </div>
 
-              <CfgSectionLabel label="LINHAS POR PÁGINA PADRÃO" />
+              <CfgSectionLabel label={t('pedido.config.tabela.linhas_por_pagina')} />
               <div className="cfg-periodo-pills" style={{ marginBottom: '1.5rem' }}>
                 {([25, 50, 100, 200] as const).map(n => (
                   <button
@@ -2325,19 +2325,19 @@ export default function Configuracoes() {
                 ))}
               </div>
 
-              <CfgSectionLabel label="PREFERÊNCIAS DE EXIBIÇÃO" />
+              <CfgSectionLabel label={t('pedido.config.tabela.preferencias')} />
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="tb-atrasados"
-                  label="Destacar pedidos atrasados em vermelho"
+                  label={t('pedido.config.tabela.destacar_atrasados')}
                   checked={tabelaConfig.destacarAtrasados}
                   onChange={v => setTabelaConfig(prev => ({ ...prev, destacarAtrasados: v }))}
                 />
               </div>
 
               <div className="cfg-secao__footer">
-                <BotaoCancelar dirty={tabelaDirty} rotulo="Restaurar padrão" onClick={restaurarTabelaConfig} />
-                <BotaoSalvar   dirty={tabelaDirty} rotulo="Salvar"           onClick={salvarTabelaConfig} />
+                <BotaoCancelar dirty={tabelaDirty} rotulo={t('pedido.config.acao.restaurar_padrao')} onClick={restaurarTabelaConfig} />
+                <BotaoSalvar   dirty={tabelaDirty} rotulo={t('pedido.config.acao.salvar')}           onClick={salvarTabelaConfig} />
               </div>
             </section>
           </div>

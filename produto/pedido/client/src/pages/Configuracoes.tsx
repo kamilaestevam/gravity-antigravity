@@ -3010,10 +3010,10 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Templates PDF</h2>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.templates_pdf.titulo')}</h2>
                   <p className="cfg-secao__desc">
-                    Gerencie templates Handlebars usados para geração de PDFs.
-                    Variáveis: <code className="cfg-code">{'{{numero_pedido}}'}</code>,{' '}
+                    {t('pedido.config.templates_pdf.desc')}{' '}
+                    <code className="cfg-code">{'{{numero_pedido}}'}</code>,{' '}
                     <code className="cfg-code">{'{{exportador}}'}</code>,{' '}
                     <code className="cfg-code">{'{{itens}}'}</code>
                   </p>
@@ -3021,13 +3021,13 @@ export default function Configuracoes() {
                 {!templateCriandoNovo && !templateEditando && (
                   <button type="button" className="cfg-add-row-btn" onClick={iniciarNovoTemplate}>
                     <Plus size={13} weight="bold" />
-                    Novo Template
+                    {t('pedido.config.templates_pdf.novo_template')}
                   </button>
                 )}
               </div>
 
               {templateLoading && (
-                <p className="cfg-empty">Carregando templates…</p>
+                <p className="cfg-empty">{t('pedido.config.templates_pdf.carregando')}</p>
               )}
 
               {!templateLoading && (
@@ -3037,7 +3037,7 @@ export default function Configuracoes() {
                     <div className="cfg-tpl-form">
                       <div className="cfg-tpl-form__fields">
                         <div className="cfg-tpl-form__field">
-                          <label className="cfg-num-campo__label" htmlFor="tpl-nome">Nome</label>
+                          <label className="cfg-num-campo__label" htmlFor="tpl-nome">{t('pedido.config.templates_pdf.label_nome')}</label>
                           <input
                             id="tpl-nome"
                             type="text"
@@ -3050,17 +3050,17 @@ export default function Configuracoes() {
 
                         {/* ── Variáveis disponíveis ── */}
                         <div className="cfg-tpl-form__field cfg-tpl-form__field--full">
-                          <label className="cfg-num-campo__label">Variáveis disponíveis — clique para inserir no cursor</label>
+                          <label className="cfg-num-campo__label">{t('pedido.config.templates_pdf.label_variaveis')}</label>
                           <div className="cfg-tpl-variaveis">
                             {[
-                              { grupo: 'Pedido',      vars: ['{{numero_pedido}}','{{tipo_operacao}}','{{status}}','{{incoterm}}','{{moeda_pedido}}','{{numero_proforma}}','{{numero_invoice}}','{{referencia_importador}}','{{referencia_exportador}}','{{condicao_pagamento_pedido}}'] },
-                              { grupo: 'Parceiros',   vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
-                              { grupo: 'Financeiro',  vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
-                              { grupo: 'Datas',       vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
-                              { grupo: 'Itens (loop)',vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_unitario_item}}','{{valor_total_itens}}','{{/each}}'] },
-                            ].map(({ grupo, vars }) => (
-                              <div key={grupo} className="cfg-tpl-variaveis__grupo">
-                                <span className="cfg-tpl-variaveis__grupo-label">{grupo}</span>
+                              { grupoKey: 'grupo_pedido',    vars: ['{{numero_pedido}}','{{tipo_operacao}}','{{status}}','{{incoterm}}','{{moeda_pedido}}','{{numero_proforma}}','{{numero_invoice}}','{{referencia_importador}}','{{referencia_exportador}}','{{condicao_pagamento_pedido}}'] },
+                              { grupoKey: 'grupo_parceiros', vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
+                              { grupoKey: 'grupo_financeiro',vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
+                              { grupoKey: 'grupo_datas',     vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
+                              { grupoKey: 'grupo_itens',     vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_unitario_item}}','{{valor_total_itens}}','{{/each}}'] },
+                            ].map(({ grupoKey, vars }) => (
+                              <div key={grupoKey} className="cfg-tpl-variaveis__grupo">
+                                <span className="cfg-tpl-variaveis__grupo-label">{t(`pedido.config.templates_pdf.${grupoKey}`)}</span>
                                 <div className="cfg-tpl-variaveis__chips">
                                   {vars.map(v => (
                                     <button
@@ -3080,7 +3080,7 @@ export default function Configuracoes() {
                         </div>
 
                         <div className="cfg-tpl-form__field cfg-tpl-form__field--full">
-                          <label className="cfg-num-campo__label" htmlFor="tpl-conteudo">Conteúdo HTML / Handlebars</label>
+                          <label className="cfg-num-campo__label" htmlFor="tpl-conteudo">{t('pedido.config.templates_pdf.label_conteudo')}</label>
                           <textarea
                             id="tpl-conteudo"
                             ref={templateTextareaRef}
@@ -3096,10 +3096,10 @@ export default function Configuracoes() {
                       <div className="cfg-tpl-form__actions">
                         <button type="button" className="cfg-btn-primario" onClick={salvarTemplate}>
                           <FloppyDisk size={14} weight="bold" />
-                          Salvar
+                          {t('pedido.config.templates_pdf.salvar')}
                         </button>
                         <button type="button" className="cfg-btn-secundario" onClick={cancelarEdicaoTemplate}>
-                          Cancelar
+                          {t('pedido.config.templates_pdf.cancelar')}
                         </button>
                       </div>
                     </div>
@@ -3107,7 +3107,7 @@ export default function Configuracoes() {
 
                   {/* ── Lista de templates ── */}
                   {templates.length === 0 && !templateCriandoNovo ? (
-                    <p className="cfg-empty">Nenhum template criado. Clique em "Novo Template" para começar.</p>
+                    <p className="cfg-empty">{t('pedido.config.templates_pdf.empty')}</p>
                   ) : (
                     <div className="cfg-lista-simples">
                       {templates.map(tpl => (
@@ -3115,26 +3115,26 @@ export default function Configuracoes() {
                           <div className="cfg-lista-simples__info">
                             <span className="cfg-lista-simples__nome">{tpl.nome}</span>
                             <span className="cfg-lista-simples__meta">
-                              Criado {new Date(tpl.criadoEm).toLocaleDateString('pt-BR')}
+                              {t('pedido.config.templates_pdf.criado_em')} {new Date(tpl.criadoEm).toLocaleDateString('pt-BR')}
                             </span>
                           </div>
                           <div className="cfg-lista-simples__acoes">
-                            <TooltipGlobal descricao="Editar template">
+                            <TooltipGlobal descricao={t('pedido.config.templates_pdf.tooltip_editar')}>
                               <button
                                 type="button"
                                 className="cfg-eye-btn"
                                 onClick={() => iniciarEdicaoTemplate(tpl)}
-                                aria-label="Editar template"
+                                aria-label={t('pedido.config.templates_pdf.aria_editar')}
                               >
                                 <PencilSimple size={14} weight="bold" />
                               </button>
                             </TooltipGlobal>
-                            <TooltipGlobal descricao="Excluir template">
+                            <TooltipGlobal descricao={t('pedido.config.templates_pdf.tooltip_excluir')}>
                               <button
                                 type="button"
                                 className="cfg-remove-btn"
                                 onClick={() => excluirTemplate(tpl.id)}
-                                aria-label="Excluir template"
+                                aria-label={t('pedido.config.templates_pdf.aria_excluir')}
                               >
                                 <Trash size={14} weight="bold" />
                               </button>
@@ -3158,38 +3158,38 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Duplicar pedido</h2>
-                  <p className="cfg-secao__desc">Comportamento ao duplicar um pedido existente</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.duplicar.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.regras.duplicar.desc')}</p>
                 </div>
               </div>
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="dup-datas"
-                  label="Copiar datas do pedido original"
+                  label={t('pedido.config.regras.duplicar.copiar_datas')}
                   checked={regrasConfig.duplicar.copiarDatas}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, copiarDatas: v } }))}
                 />
                 <ToggleRow
                   id="dup-numero"
-                  label="Numeração automática ao duplicar"
+                  label={t('pedido.config.regras.duplicar.numeracao_auto')}
                   checked={regrasConfig.duplicar.numeracaoAutomatica}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, numeracaoAutomatica: v } }))}
                 />
                 <ToggleRow
                   id="dup-itens"
-                  label="Duplicar também os itens"
-                  desc="Copia todos os itens do pedido original para o novo"
+                  label={t('pedido.config.regras.duplicar.duplicar_itens')}
+                  desc={t('pedido.config.regras.duplicar.duplicar_itens_desc')}
                   checked={regrasConfig.duplicar.duplicarItens}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, duplicarItens: v } }))}
                 />
               </div>
               <div className="cfg-campo-grupo" style={{ marginTop: '1rem' }}>
-                <p className="cfg-campo-grupo__label">Status inicial do pedido duplicado</p>
+                <p className="cfg-campo-grupo__label">{t('pedido.config.regras.duplicar.status_inicial_label')}</p>
                 <div className="cfg-periodo-pills">
                   {([
-                    { id: 'rascunho',     label: 'Rascunho'     },
-                    { id: 'aberto',       label: 'Aberto'       },
-                    { id: 'em_andamento', label: 'Em Andamento' },
+                    { id: 'rascunho',     labelKey: 'pedido.config.regras.duplicar.status_rascunho'     },
+                    { id: 'aberto',       labelKey: 'pedido.config.regras.duplicar.status_aberto'       },
+                    { id: 'em_andamento', labelKey: 'pedido.config.regras.duplicar.status_em_andamento' },
                   ] as const).map(s => (
                     <button
                       key={s.id}
@@ -3197,7 +3197,7 @@ export default function Configuracoes() {
                       className={`cfg-periodo-pill${regrasConfig.duplicar.statusInicial === s.id ? ' cfg-periodo-pill--ativo' : ''}`}
                       onClick={() => setRegrasConfig(prev => ({ ...prev, duplicar: { ...prev.duplicar, statusInicial: s.id } }))}
                     >
-                      {s.label}
+                      {t(s.labelKey)}
                     </button>
                   ))}
                 </div>
@@ -3208,27 +3208,27 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Duplicar item</h2>
-                  <p className="cfg-secao__desc">Comportamento ao duplicar um item existente</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.duplicar_item.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.regras.duplicar_item.desc')}</p>
                 </div>
               </div>
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="dup-item-numero"
-                  label="Numeração automática ao duplicar"
+                  label={t('pedido.config.regras.duplicar_item.numeracao_auto')}
                   checked={regrasConfig.duplicarItem.numeracaoAutomatica}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, numeracaoAutomatica: v } }))}
                 />
                 <ToggleRow
                   id="dup-item-datas"
-                  label="Copiar datas do item original"
+                  label={t('pedido.config.regras.duplicar_item.copiar_datas')}
                   checked={regrasConfig.duplicarItem.copiarDatas}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, copiarDatas: v } }))}
                 />
                 <ToggleRow
                   id="dup-item-dados"
-                  label="Copiar dados do item original"
-                  desc="Copia todos os campos preenchidos do item original para o novo"
+                  label={t('pedido.config.regras.duplicar_item.copiar_dados')}
+                  desc={t('pedido.config.regras.duplicar_item.copiar_dados_desc')}
                   checked={regrasConfig.duplicarItem.copiarDados}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, duplicarItem: { ...prev.duplicarItem, copiarDados: v } }))}
                 />
@@ -3239,12 +3239,12 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Excluir pedido</h2>
-                  <p className="cfg-secao__desc">Permissões e comportamentos ao excluir pedidos</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.excluir.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.regras.excluir.desc')}</p>
                 </div>
               </div>
               <div className="cfg-campo-grupo">
-                <p className="cfg-campo-grupo__label">Status que permitem exclusão</p>
+                <p className="cfg-campo-grupo__label">{t('pedido.config.regras.excluir.status_permitidos_label')}</p>
                 <div className="cfg-check-lista">
                   {statusList.map(s => (
                     <label key={s.id} className="cfg-check-item">
@@ -3262,14 +3262,14 @@ export default function Configuracoes() {
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="exc-sem-itens"
-                  label="Pedido pode ficar sem itens"
-                  desc="Se desmarcado, excluir o último item exclui o pedido automaticamente"
+                  label={t('pedido.config.regras.excluir.sem_itens')}
+                  desc={t('pedido.config.regras.excluir.sem_itens_desc')}
                   checked={regrasConfig.excluir.semItensPermitido}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, excluir: { ...prev.excluir, semItensPermitido: v } }))}
                 />
                 <ToggleRow
                   id="exc-preview"
-                  label="Solicitar confirmação com preview antes de excluir"
+                  label={t('pedido.config.regras.excluir.confirmar_preview')}
                   checked={regrasConfig.excluir.confirmarComPreview}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, excluir: { ...prev.excluir, confirmarComPreview: v } }))}
                 />
@@ -3280,33 +3280,33 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Transferir itens</h2>
-                  <p className="cfg-secao__desc">Comportamento ao transferir quantidades entre pedidos</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.transferir.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.regras.transferir.desc')}</p>
                 </div>
               </div>
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="tra-encerrar"
-                  label="Encerrar item de origem quando quantidade chega a zero"
+                  label={t('pedido.config.regras.transferir.encerrar_origem')}
                   checked={regrasConfig.transferir.encerrarOrigemZero}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, encerrarOrigemZero: v } }))}
                 />
                 <ToggleRow
                   id="tra-excluir-item"
-                  label="Excluir item de origem quando quantidade chega a zero"
+                  label={t('pedido.config.regras.transferir.excluir_item_origem')}
                   checked={regrasConfig.transferir.excluirItemOrigemZero}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, excluirItemOrigemZero: v } }))}
                 />
                 <ToggleRow
                   id="tra-excluir-pedido"
-                  label="Excluir pedido de origem quando todos os itens chegam a zero"
+                  label={t('pedido.config.regras.transferir.excluir_pedido_origem')}
                   checked={regrasConfig.transferir.excluirPedidoOrigemZero}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, excluirPedidoOrigemZero: v } }))}
                 />
                 <ToggleRow
                   id="tra-bloquear-acima-inicial"
-                  label="Não permitir transferir quantidade maior que a quantidade inicial"
-                  desc="Quando ativo, bloqueia a transferência se o total transferido ultrapassar a quantidade inicial do pedido. Quando inativo, a coluna 'QTD. Transferida do Pedido' é destacada em vermelho para pedidos que ultrapassaram o limite."
+                  label={t('pedido.config.regras.transferir.bloquear_acima_inicial')}
+                  desc={t('pedido.config.regras.transferir.bloquear_acima_inicial_desc')}
                   checked={regrasConfig.transferir.bloquearTransferenciaAcimaInicial}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, transferir: { ...prev.transferir, bloquearTransferenciaAcimaInicial: v } }))}
                 />
@@ -3317,39 +3317,39 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Consolidar pedidos</h2>
-                  <p className="cfg-secao__desc">Regras para fusão de múltiplos pedidos em um único</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.consolidar.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.regras.consolidar.desc')}</p>
                 </div>
               </div>
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="con-avisos"
-                  label="Avisar sobre campos divergentes antes de consolidar"
+                  label={t('pedido.config.regras.consolidar.avisos_divergentes')}
                   checked={regrasConfig.consolidar.avisosDivergentes}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, avisosDivergentes: v } }))}
                 />
                 <ToggleRow
                   id="con-fundir"
-                  label="Fundir itens com mesmo part_number automaticamente"
-                  desc="Soma quantidades de itens com o mesmo código de produto"
+                  label={t('pedido.config.regras.consolidar.fundir_part_number')}
+                  desc={t('pedido.config.regras.consolidar.fundir_part_number_desc')}
                   checked={regrasConfig.consolidar.fundirPartNumber}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, fundirPartNumber: v } }))}
                 />
                 <ToggleRow
                   id="con-usuario"
-                  label="Usuário escolhe valores divergentes campo a campo"
-                  desc="Exibe seletor para cada campo com valores diferentes entre os pedidos"
+                  label={t('pedido.config.regras.consolidar.usuario_escolhe')}
+                  desc={t('pedido.config.regras.consolidar.usuario_escolhe_desc')}
                   checked={regrasConfig.consolidar.usuarioEscolheDivergentes}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, usuarioEscolheDivergentes: v } }))}
                 />
               </div>
               <div className="cfg-campo-grupo" style={{ marginTop: '1rem' }}>
-                <p className="cfg-campo-grupo__label">Pedido resultante usa número</p>
+                <p className="cfg-campo-grupo__label">{t('pedido.config.regras.consolidar.numero_resultante_label')}</p>
                 <div className="cfg-periodo-pills">
                   {([
-                    { id: 'mais_antigo',  label: 'Do pedido mais antigo'  },
-                    { id: 'automatico',   label: 'Numeração automática'   },
-                    { id: 'mais_recente', label: 'Do pedido mais recente' },
+                    { id: 'mais_antigo',  labelKey: 'pedido.config.regras.consolidar.num_mais_antigo'  },
+                    { id: 'automatico',   labelKey: 'pedido.config.regras.consolidar.num_automatico'   },
+                    { id: 'mais_recente', labelKey: 'pedido.config.regras.consolidar.num_mais_recente' },
                   ] as const).map(op => (
                     <button
                       key={op.id}
@@ -3357,7 +3357,7 @@ export default function Configuracoes() {
                       className={`cfg-periodo-pill${regrasConfig.consolidar.numeroPedidoResultante === op.id ? ' cfg-periodo-pill--ativo' : ''}`}
                       onClick={() => setRegrasConfig(prev => ({ ...prev, consolidar: { ...prev.consolidar, numeroPedidoResultante: op.id } }))}
                     >
-                      {op.label}
+                      {t(op.labelKey)}
                     </button>
                   ))}
                 </div>
@@ -3368,57 +3368,57 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Alertas</h2>
-                  <p className="cfg-secao__desc">Avisos visuais exibidos diretamente na tabela de pedidos</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.regras.alertas.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.regras.alertas.desc')}</p>
                 </div>
               </div>
               <div className="cfg-toggles-lista">
                 <ToggleRow
                   id="alerta-numero-duplicado"
-                  label="Mesmo número de pedido"
-                  desc="Exibe ícone de aviso na célula quando dois ou mais pedidos têm o mesmo número"
+                  label={t('pedido.config.regras.alertas.numero_duplicado')}
+                  desc={t('pedido.config.regras.alertas.numero_duplicado_desc')}
                   checked={regrasConfig.alertas.numeroDuplicado}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, numeroDuplicado: v } }))}
                 />
                 <ToggleRow
                   id="alerta-valor-total-divergente"
-                  label="Valor total divergente dos itens"
-                  desc="Exibe ícone de aviso quando valor_total_pedido difere da soma dos valores dos itens"
+                  label={t('pedido.config.regras.alertas.valor_total_divergente')}
+                  desc={t('pedido.config.regras.alertas.valor_total_divergente_desc')}
                   checked={regrasConfig.alertas.valorTotalDivergente}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, valorTotalDivergente: v } }))}
                 />
                 <ToggleRow
                   id="alerta-quantidade-total-divergente"
-                  label="Quantidade total divergente dos itens"
-                  desc="Exibe ícone de aviso quando a quantidade total do pedido difere da soma das quantidades dos itens"
+                  label={t('pedido.config.regras.alertas.qtd_total_divergente')}
+                  desc={t('pedido.config.regras.alertas.qtd_total_divergente_desc')}
                   checked={regrasConfig.alertas.quantidadeTotalDivergente}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, quantidadeTotalDivergente: v } }))}
                 />
                 <ToggleRow
                   id="alerta-quantidade-pronta-divergente"
-                  label="Quantidade pronta divergente dos itens"
-                  desc="Exibe ícone de aviso quando a quantidade pronta do pedido difere da soma das quantidades prontas dos itens"
+                  label={t('pedido.config.regras.alertas.qtd_pronta_divergente')}
+                  desc={t('pedido.config.regras.alertas.qtd_pronta_divergente_desc')}
                   checked={regrasConfig.alertas.quantidadeProntaDivergente}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, quantidadeProntaDivergente: v } }))}
                 />
                 <ToggleRow
                   id="alerta-peso-liquido-divergente"
-                  label="Peso líquido total divergente dos itens"
-                  desc="Exibe ícone de aviso quando o peso líquido total difere da soma dos pesos líquidos unitários × quantidade dos itens"
+                  label={t('pedido.config.regras.alertas.peso_liq_divergente')}
+                  desc={t('pedido.config.regras.alertas.peso_liq_divergente_desc')}
                   checked={regrasConfig.alertas.pesoLiquidoDivergente}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, pesoLiquidoDivergente: v } }))}
                 />
                 <ToggleRow
                   id="alerta-peso-bruto-divergente"
-                  label="Peso bruto total divergente dos itens"
-                  desc="Exibe ícone de aviso quando o peso bruto total difere da soma dos pesos brutos unitários × quantidade dos itens"
+                  label={t('pedido.config.regras.alertas.peso_bruto_divergente')}
+                  desc={t('pedido.config.regras.alertas.peso_bruto_divergente_desc')}
                   checked={regrasConfig.alertas.pesoBrutoDivergente}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, pesoBrutoDivergente: v } }))}
                 />
                 <ToggleRow
                   id="alerta-cubagem-divergente"
-                  label="Cubagem total divergente dos itens"
-                  desc="Exibe ícone de aviso quando a cubagem total difere da soma das cubagens unitárias × quantidade dos itens"
+                  label={t('pedido.config.regras.alertas.cubagem_divergente')}
+                  desc={t('pedido.config.regras.alertas.cubagem_divergente_desc')}
                   checked={regrasConfig.alertas.cubagemDivergente}
                   onChange={v => setRegrasConfig(prev => ({ ...prev, alertas: { ...prev.alertas, cubagemDivergente: v } }))}
                 />
@@ -3434,7 +3434,7 @@ export default function Configuracoes() {
                 onClick={salvarRegras}
               >
                 <FloppyDisk size={14} weight="bold" />
-                {regrasAlterados ? 'Salvar alterações' : 'Salvo'}
+                {regrasAlterados ? t('pedido.config.regras.btn_salvar_alteracoes') : t('pedido.config.regras.btn_salvo')}
               </button>
             </div>
 
@@ -3447,10 +3447,8 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Categorias de Anexos</h2>
-                  <p className="cfg-secao__desc">
-                    Organize os documentos anexados aos pedidos por categoria
-                  </p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.categ_anexos.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.categ_anexos.desc')}</p>
                 </div>
                 {!categCriando && (
                   <button
@@ -3459,7 +3457,7 @@ export default function Configuracoes() {
                     onClick={() => setCategCriando(true)}
                   >
                     <Plus size={13} weight="bold" />
-                    Nova Categoria
+                    {t('pedido.config.categ_anexos.nova_categoria')}
                   </button>
                 )}
               </div>
@@ -3470,7 +3468,7 @@ export default function Configuracoes() {
                   <input
                     type="text"
                     className="cfg-input cfg-input--grow"
-                    placeholder="Nome da categoria (ex.: Certificado de Origem)"
+                    placeholder={t('pedido.config.categ_anexos.placeholder_nome')}
                     value={categNovaNome}
                     onChange={e => setCategNovaNome(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') adicionarCateg() }}
@@ -3478,16 +3476,16 @@ export default function Configuracoes() {
                   />
                   <button type="button" className="cfg-btn-primario" onClick={adicionarCateg}>
                     <FloppyDisk size={14} weight="bold" />
-                    Salvar
+                    {t('pedido.config.categ_anexos.salvar')}
                   </button>
                   <button type="button" className="cfg-btn-secundario" onClick={() => { setCategCriando(false); setCategNovaNome('') }}>
-                    Cancelar
+                    {t('pedido.config.categ_anexos.cancelar')}
                   </button>
                 </div>
               )}
 
               {categAnexos.length === 0 ? (
-                <p className="cfg-empty">Nenhuma categoria criada.</p>
+                <p className="cfg-empty">{t('pedido.config.categ_anexos.empty')}</p>
               ) : (
                 <div className="cfg-lista-simples">
                   {categAnexos.map(cat => (
@@ -3506,7 +3504,7 @@ export default function Configuracoes() {
                           <span className="cfg-lista-simples__nome">{cat.nome}</span>
                         )}
                         {cat.sistema && (
-                          <span className="cfg-badge-sistema">sistema</span>
+                          <span className="cfg-badge-sistema">{t('pedido.config.categ_anexos.badge_sistema')}</span>
                         )}
                       </div>
                       <div className="cfg-lista-simples__acoes">
@@ -3522,24 +3520,24 @@ export default function Configuracoes() {
                         ) : (
                           <>
                             {!cat.sistema && (
-                              <TooltipGlobal descricao="Renomear categoria">
+                              <TooltipGlobal descricao={t('pedido.config.categ_anexos.tooltip_renomear')}>
                                 <button
                                   type="button"
                                   className="cfg-eye-btn"
                                   onClick={() => iniciarEdicaoCateg(cat)}
-                                  aria-label="Renomear categoria"
+                                  aria-label={t('pedido.config.categ_anexos.aria_renomear')}
                                 >
                                   <PencilSimple size={14} weight="bold" />
                                 </button>
                               </TooltipGlobal>
                             )}
                             {!cat.sistema && (
-                              <TooltipGlobal descricao="Excluir categoria">
+                              <TooltipGlobal descricao={t('pedido.config.categ_anexos.tooltip_excluir')}>
                                 <button
                                   type="button"
                                   className="cfg-remove-btn"
                                   onClick={() => excluirCateg(cat.id)}
-                                  aria-label="Excluir categoria"
+                                  aria-label={t('pedido.config.categ_anexos.aria_excluir')}
                                 >
                                   <Trash size={14} weight="bold" />
                                 </button>
@@ -4318,8 +4316,8 @@ export default function Configuracoes() {
             <section className="cfg-secao">
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Taxa de Câmbio — PTAX</h2>
-                  <p className="cfg-secao__desc">Cotações oficiais do Banco Central do Brasil · usadas para conversão entre moedas nos pedidos</p>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.taxa_cambio.titulo')}</h2>
+                  <p className="cfg-secao__desc">{t('pedido.config.taxa_cambio.desc')}</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   {ultimaSyncTaxa && (
@@ -4335,7 +4333,7 @@ export default function Configuracoes() {
                     style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
                   >
                     <ArrowsClockwise size={13} weight={sincronizandoTaxa ? 'regular' : 'duotone'} />
-                    {sincronizandoTaxa ? 'Sincronizando…' : 'Sincronizar PTAX'}
+                    {sincronizandoTaxa ? t('pedido.config.taxa_cambio.sincronizando') : t('pedido.config.taxa_cambio.sincronizar')}
                   </button>
                 </div>
               </div>
@@ -4350,13 +4348,18 @@ export default function Configuracoes() {
               }}>
                 <Clock size={13} weight="duotone" style={{ flexShrink: 0, color: 'var(--ws-accent)' }} />
                 <span>
-                  Atualização automática em dias úteis:&nbsp;
-                  {(['1º Boletim · 10h03', '2º Boletim · 11h03', '3º Boletim · 12h03', 'Fechamento · 13h03'] as const).map((label, i) => {
+                  {t('pedido.config.taxa_cambio.banner_auto')}&nbsp;
+                  {([
+                    'pedido.config.taxa_cambio.boletim_1',
+                    'pedido.config.taxa_cambio.boletim_2',
+                    'pedido.config.taxa_cambio.boletim_3',
+                    'pedido.config.taxa_cambio.boletim_fechamento',
+                  ] as const).map((key, i) => {
                     const cor = ['#60a5fa', '#a78bfa', '#34d399', '#fbbf24'][i]
                     return (
-                      <span key={label} style={{ marginRight: '1.4rem', marginLeft: i === 0 ? '0.5rem' : 0, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      <span key={key} style={{ marginRight: '1.4rem', marginLeft: i === 0 ? '0.5rem' : 0, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                         <span style={{ display: 'inline-block', width: '7px', height: '7px', borderRadius: '50%', background: cor, flexShrink: 0 }} />
-                        {label}
+                        {t(key)}
                       </span>
                     )
                   })}
@@ -4369,38 +4372,46 @@ export default function Configuracoes() {
 
               {/* Tabela cotações de hoje — todos os boletins */}
               {carregandoTaxa ? (
-                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>Carregando…</p>
+                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{t('pedido.config.taxa_cambio.carregando')}</p>
               ) : taxasHoje.length === 0 ? (
-                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>Nenhuma cotação armazenada. Clique em Sincronizar PTAX.</p>
+                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{t('pedido.config.taxa_cambio.empty_cotacao')}</p>
               ) : (() => {
                 const TAXA_COLS = '15px 4.5rem 10rem 9.5rem 8.5rem 8.5rem 8rem 6rem'
                 return (
                   <div style={{ display: 'grid', gridTemplateColumns: TAXA_COLS, alignItems: 'center', rowGap: '2px', columnGap: '0' }}>
                     {/* Header — célula vazia para a coluna do ícone */}
                     <span />
-                    {['Moeda', 'Nome', 'Boletim', 'Compra (R$)', 'Venda (R$)', 'Data', 'Hora'].map(h => (
-                      <span key={h} style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)', padding: '0.35rem 0.5rem', textAlign: 'center' }}>{h}</span>
+                    {([
+                      'pedido.config.taxa_cambio.col_moeda',
+                      'pedido.config.taxa_cambio.col_nome',
+                      'pedido.config.taxa_cambio.col_boletim',
+                      'pedido.config.taxa_cambio.col_compra',
+                      'pedido.config.taxa_cambio.col_venda',
+                      'pedido.config.taxa_cambio.col_data',
+                      'pedido.config.taxa_cambio.col_hora',
+                    ] as const).map(k => (
+                      <span key={k} style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)', padding: '0.35rem 0.5rem', textAlign: 'center' }}>{t(k)}</span>
                     ))}
                     {/* Rows */}
-                    {taxasHoje.map(t => (
-                      <React.Fragment key={t.id}>
+                    {taxasHoje.map(taxa => (
+                      <React.Fragment key={taxa.id}>
                         <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem 0' }}>
                           <CurrencyCircleDollar size={15} weight="duotone" style={{ color: 'var(--ws-accent)' }} />
                         </span>
-                        <span style={{ fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{t.moeda}</span>
-                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}>{MOEDAS_INFO[t.moeda] ?? t.moeda}</span>
+                        <span style={{ fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{taxa.moeda}</span>
+                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}>{MOEDAS_INFO[taxa.moeda] ?? taxa.moeda}</span>
                         <span style={{ padding: '0.5rem', textAlign: 'center' }}>
                           <span style={{
                             display: 'inline-block', padding: '2px 8px', borderRadius: '10px', fontSize: '0.73rem', fontWeight: 600,
-                            background: (BOLETIM_COR[t.boletim] ?? '#94a3b8') + '22',
-                            color: BOLETIM_COR[t.boletim] ?? '#94a3b8',
-                            border: `1px solid ${(BOLETIM_COR[t.boletim] ?? '#94a3b8')}44`,
-                          }}>{t.boletim}</span>
+                            background: (BOLETIM_COR[taxa.boletim] ?? '#94a3b8') + '22',
+                            color: BOLETIM_COR[taxa.boletim] ?? '#94a3b8',
+                            border: `1px solid ${(BOLETIM_COR[taxa.boletim] ?? '#94a3b8')}44`,
+                          }}>{taxa.boletim}</span>
                         </span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(t.compra)}</span>
-                        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(t.venda)}</span>
-                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}>{fmtData(t.data_cotacao)}</span>
-                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', fontVariantNumeric: 'tabular-nums', textAlign: 'center' }}>{t.hora_cotacao ?? '—'}</span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(taxa.compra)}</span>
+                        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, fontSize: '0.85rem', padding: '0.5rem', textAlign: 'center' }}>{fmtTaxa(taxa.venda)}</span>
+                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', textAlign: 'center' }}>{fmtData(taxa.data_cotacao)}</span>
+                        <span style={{ color: 'var(--ws-muted)', fontSize: '0.8rem', padding: '0.5rem', fontVariantNumeric: 'tabular-nums', textAlign: 'center' }}>{taxa.hora_cotacao ?? '—'}</span>
                       </React.Fragment>
                     ))}
                   </div>
@@ -4412,7 +4423,7 @@ export default function Configuracoes() {
             <section className="cfg-secao" style={{ marginTop: '1.5rem' }}>
               <div className="cfg-secao__header">
                 <div>
-                  <h2 className="cfg-secao__titulo">Histórico — últimos 30 dias</h2>
+                  <h2 className="cfg-secao__titulo">{t('pedido.config.taxa_cambio.historico_titulo')}</h2>
                 </div>
                 <div style={{ display: 'flex', gap: '0.4rem' }}>
                   {(['USD', 'EUR', 'GBP', 'CNY', 'JPY', 'CHF', 'CAD'] as const).map(m => (
@@ -4430,13 +4441,19 @@ export default function Configuracoes() {
               </div>
 
               {historicoTaxas.length === 0 ? (
-                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>Nenhum histórico de {moedaHistoricoTaxa} armazenado.</p>
+                <p style={{ color: 'var(--ws-muted)', fontSize: '0.85rem' }}>{t('pedido.config.taxa_cambio.empty_historico', { moeda: moedaHistoricoTaxa })}</p>
               ) : (() => {
                 const HIST_COLS = '8rem 9.5rem 8.5rem 8.5rem 6rem'
                 return (
                   <div style={{ display: 'grid', gridTemplateColumns: HIST_COLS, alignItems: 'center', rowGap: '2px', columnGap: '0' }}>
-                    {['Data', 'Boletim', 'Compra (R$)', 'Venda (R$)', 'Hora'].map(h => (
-                      <span key={h} style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)', padding: '0.35rem 0.5rem', textAlign: 'center' }}>{h}</span>
+                    {([
+                      'pedido.config.taxa_cambio.hist_col_data',
+                      'pedido.config.taxa_cambio.hist_col_boletim',
+                      'pedido.config.taxa_cambio.hist_col_compra',
+                      'pedido.config.taxa_cambio.hist_col_venda',
+                      'pedido.config.taxa_cambio.hist_col_hora',
+                    ] as const).map(k => (
+                      <span key={k} style={{ fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--ws-muted)', padding: '0.35rem 0.5rem', textAlign: 'center' }}>{t(k)}</span>
                     ))}
                     {historicoTaxas.map(h => (
                       <React.Fragment key={h.id}>

@@ -103,6 +103,10 @@ export function AvisoInternoGlobal({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerBusca, setPickerBusca] = useState('');
   const [canaisSelecionados, setCanaisSelecionados] = useState<Set<Canal>>(new Set(['interno']));
+  const [linkAtivo, setLinkAtivo] = useState(true);
+  const [emailAssunto, setEmailAssunto] = useState('');
+  const [emailDestinatarioExterno, setEmailDestinatarioExterno] = useState('');
+  const [whatsappNumero, setWhatsappNumero] = useState('');
 
   const toggleCanal = (canal: Canal) => {
     setCanaisSelecionados(prev => {
@@ -186,11 +190,10 @@ export function AvisoInternoGlobal({
   // ─── Enviar / Salvar ─────────────────────────────────────────────────────
   const handleComposerSend = () => {
     if (!composerText.trim()) return;
+    const link = linkAtivo ? composerLink.trim() || undefined : undefined;
 
     if (destinatarios.length > 0 && onEnviarPara) {
-      onEnviarPara(destinatarios, composerText.trim(), composerLink.trim() || undefined, Array.from(canaisSelecionados));
-      setDestinatarios([]);
-      setCanaisSelecionados(new Set(['interno']));
+      onEnviarPara(destinatarios, composerText.trim(), link, Array.from(canaisSelecionados));
     } else if (onCriarAviso) {
       onCriarAviso(composerText.trim());
     }
@@ -198,6 +201,11 @@ export function AvisoInternoGlobal({
     setComposerLink(linkAtual ?? '');
     setPickerOpen(false);
     setPickerBusca('');
+    setDestinatarios([]);
+    setCanaisSelecionados(new Set(['interno']));
+    setEmailAssunto('');
+    setEmailDestinatarioExterno('');
+    setWhatsappNumero('');
     setComposerAberto(false);
   };
 
@@ -496,229 +504,185 @@ export function AvisoInternoGlobal({
       </div>
 
       {/* ══════ COMPOSER — abre via botão + no header ══════ */}
-      {composerAberto && <div className="aig-composer" style={{ borderTop: '1px solid var(--aig-border, #334155)' }}>
+      {composerAberto && (
+        <div className="aig-composer" style={{ borderTop: '1px solid var(--aig-border, #334155)' }}>
 
-        {/* Linha "Para:" — clicável, expande picker pra cima */}
-        {usuariosTenant.length > 0 && (
+          {/* Textarea — primeiro e destaque */}
           <div style={{ position: 'relative' }}>
-            <div
-              className="aig-composer-para"
-              onClick={() => setPickerOpen(!pickerOpen)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setPickerOpen(!pickerOpen); }}
-              aria-expanded={pickerOpen}
-              aria-label="Selecionar destinatários"
-            >
-              <span style={{ fontSize: '0.625rem', fontWeight: 700, color: 'var(--aig-muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
-                Para:
-              </span>
-              <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '0.2rem', minHeight: '1.25rem', alignItems: 'center' }}>
-                {destinatarios.length === 0 ? (
-                  <span style={{ fontSize: '0.6875rem', color: 'var(--aig-muted, #64748b)', fontStyle: 'italic' }}>
-                    Ninguém (nota pessoal)
-                  </span>
-                ) : (
-                  destinatarios.map(uid => {
+            <textarea
+              ref={textareaRef}
+              className="aig-composer-textarea aig-composer-textarea--lg"
+              placeholder={usuariosTenant.length > 0 ? 'Escreva sua mensagem... (@ para mencionar)' : 'Escreva sua mensagem...'}
+              value={composerText}
+              onChange={handleTextareaChange}
+              onKeyDown={(e) => {
+                handleMentionKeyDown(e);
+                if (mentionQuery === null && e.key === 'Enter' && e.ctrlKey) {
+                  e.preventDefault();
+                  handleComposerSend();
+                }
+              }}
+              rows={4}
+              aria-label="Mensagem"
+            />
+            {mentionQuery !== null && mentionResults.length > 0 && (
+              <div className="aig-mention-dropdown" style={{ bottom: '100%', top: 'auto' }} role="listbox" aria-label="Mencionar usuário">
+                {mentionResults.map((u, i) => (
+                  <button key={u.id} type="button" role="option" aria-selected={i === mentionIndex}
+                    className={`aig-mention-item ${i === mentionIndex ? 'active' : ''}`}
+                    onMouseDown={(e) => { e.preventDefault(); insertMention(u); }}
+                    onMouseEnter={() => setMentionIndex(i)}>
+                    <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
+                    <span className="aig-mention-name">{u.nome}</span>
+                    {u.email && <span className="aig-mention-email">{u.email}</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Contador + dica */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '-0.125rem', marginBottom: '0.25rem' }}>
+            <span style={{ fontSize: '0.5rem', color: 'var(--aig-muted)' }}>
+              {composerText.length}/{CHAR_LIMIT}
+              {usuariosTenant.length > 0 && <span style={{ marginLeft: '0.25rem' }}><At size={8} style={{ verticalAlign: 'middle' }} /> mencionar</span>}
+            </span>
+            <span style={{ fontSize: '0.5rem', color: 'var(--aig-muted)' }}>Ctrl+Enter</span>
+          </div>
+
+          {/* Para: compacto com picker */}
+          {usuariosTenant.length > 0 && (
+            <div style={{ position: 'relative' }}>
+              <div className="aig-para-compact"
+                onClick={() => setPickerOpen(!pickerOpen)}
+                role="button" tabIndex={0}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setPickerOpen(!pickerOpen); }}
+                aria-expanded={pickerOpen} aria-label="Selecionar destinatários">
+                <span className="aig-para-compact__label">Para</span>
+                <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '0.2rem', alignItems: 'center' }}>
+                  {destinatarios.length === 0 ? (
+                    <span style={{ fontSize: '0.625rem', color: 'var(--aig-muted)', fontStyle: 'italic' }}>só você (nota pessoal)</span>
+                  ) : destinatarios.map(uid => {
                     const u = usuariosTenant.find(x => x.id === uid);
                     return u ? (
                       <span key={uid} className="aig-enviar-pill">
                         {u.nome}
-                        <button type="button" onClick={(e) => { e.stopPropagation(); toggleDestinatario(uid); }} aria-label={`Remover ${u.nome}`}
+                        <button type="button" onClick={(e) => { e.stopPropagation(); toggleDestinatario(uid); }}
+                          aria-label={`Remover ${u.nome}`}
                           style={{ all: 'unset', cursor: 'pointer', display: 'inline-flex', marginLeft: '0.2rem' }}>
-                          <X size={9} weight="bold" />
+                          <X size={8} weight="bold" />
                         </button>
                       </span>
                     ) : null;
-                  })
-                )}
-              </div>
-              {pickerOpen ? <CaretUp size={12} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
-                          : <CaretDown size={12} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />}
-            </div>
-
-            {/* Picker dropdown (abre pra CIMA) */}
-            {pickerOpen && (
-              <div className="aig-picker-up">
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: '0.375rem',
-                  padding: '0.375rem 0.5rem', borderBottom: '1px solid var(--aig-border, #334155)'
-                }}>
-                  <MagnifyingGlass size={12} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
-                  <input
-                    type="text"
-                    value={pickerBusca}
-                    onChange={e => setPickerBusca(e.target.value)}
-                    placeholder="Buscar usuário..."
-                    autoFocus
-                    style={{ all: 'unset', flex: 1, fontSize: '0.6875rem', color: 'var(--aig-text, #f1f5f9)' }}
-                  />
-                </div>
-                <div style={{ maxHeight: '140px', overflowY: 'auto' }} role="listbox">
-                  {pickerUsuariosFiltrados.length === 0 ? (
-                    <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.6875rem', color: 'var(--aig-muted)' }}>
-                      Nenhum usuário.
-                    </div>
-                  ) : pickerUsuariosFiltrados.map(u => {
-                    const sel = destinatarios.includes(u.id);
-                    return (
-                      <button
-                        key={u.id}
-                        type="button"
-                        role="option"
-                        aria-selected={sel}
-                        onClick={() => toggleDestinatario(u.id)}
-                        className={`aig-enviar-user-item ${sel ? 'selected' : ''}`}
-                      >
-                        <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
-                        <span style={{ flex: 1, fontSize: '0.6875rem', fontWeight: 500 }}>{u.nome}</span>
-                        {u.email && <span style={{ fontSize: '0.6rem', color: 'var(--aig-muted)' }}>{u.email}</span>}
-                        {sel && <CheckCircle size={13} weight="fill" style={{ color: 'var(--aig-accent)', flexShrink: 0 }} />}
-                      </button>
-                    );
                   })}
                 </div>
+                {pickerOpen ? <CaretUp size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
+                            : <CaretDown size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Textarea com @mention */}
-        <div style={{ position: 'relative' }}>
-          <textarea
-            ref={textareaRef}
-            className="aig-composer-textarea"
-            placeholder={usuariosTenant.length > 0 ? 'Mensagem... (@ para mencionar)' : 'Escreva sua mensagem...'}
-            value={composerText}
-            onChange={handleTextareaChange}
-            onKeyDown={(e) => {
-              handleMentionKeyDown(e);
-              if (mentionQuery === null && e.key === 'Enter' && e.ctrlKey) {
-                e.preventDefault();
-                handleComposerSend();
-              }
-            }}
-            rows={2}
-          />
-          {/* @mention dropdown (acima do textarea) */}
-          {mentionQuery !== null && mentionResults.length > 0 && (
-            <div className="aig-mention-dropdown" style={{ bottom: '100%', top: 'auto' }} role="listbox" aria-label="Mencionar usuário">
-              {mentionResults.map((u, i) => (
-                <button
-                  key={u.id}
-                  type="button"
-                  role="option"
-                  aria-selected={i === mentionIndex}
-                  className={`aig-mention-item ${i === mentionIndex ? 'active' : ''}`}
-                  onMouseDown={(e) => { e.preventDefault(); insertMention(u); }}
-                  onMouseEnter={() => setMentionIndex(i)}
-                >
-                  <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
-                  <span className="aig-mention-name">{u.nome}</span>
-                  {u.email && <span className="aig-mention-email">{u.email}</span>}
-                </button>
-              ))}
+              {pickerOpen && (
+                <div className="aig-picker-up">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.5rem', borderBottom: '1px solid var(--aig-border)' }}>
+                    <MagnifyingGlass size={12} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
+                    <input type="text" value={pickerBusca} onChange={e => setPickerBusca(e.target.value)}
+                      placeholder="Buscar usuário..." autoFocus
+                      style={{ all: 'unset', flex: 1, fontSize: '0.6875rem', color: 'var(--aig-text)' }} />
+                  </div>
+                  <div style={{ maxHeight: '140px', overflowY: 'auto' }} role="listbox">
+                    {pickerUsuariosFiltrados.length === 0 ? (
+                      <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.6875rem', color: 'var(--aig-muted)' }}>Nenhum usuário.</div>
+                    ) : pickerUsuariosFiltrados.map(u => {
+                      const sel = destinatarios.includes(u.id);
+                      return (
+                        <button key={u.id} type="button" role="option" aria-selected={sel}
+                          onClick={() => toggleDestinatario(u.id)} className={`aig-enviar-user-item ${sel ? 'selected' : ''}`}>
+                          <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
+                          <span style={{ flex: 1, fontSize: '0.6875rem', fontWeight: 500 }}>{u.nome}</span>
+                          {u.email && <span style={{ fontSize: '0.6rem', color: 'var(--aig-muted)' }}>{u.email}</span>}
+                          {sel && <CheckCircle size={13} weight="fill" style={{ color: 'var(--aig-accent)', flexShrink: 0 }} />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
-        </div>
 
-        {/* Seletor de canal — aparece só quando há destinatários */}
-        {hasDestinatarios && (
-          <div className="aig-canal-row">
-            <span className="aig-canal-label">Enviar via:</span>
-            <button
-              type="button"
-              className={`aig-canal-pill${canaisSelecionados.has('interno') ? ' active' : ''}`}
-              onClick={() => toggleCanal('interno')}
-              aria-pressed={canaisSelecionados.has('interno')}
-            >
-              <Bell size={11} weight={canaisSelecionados.has('interno') ? 'fill' : 'regular'} />
-              Interno
-            </button>
+          {/* Barra de ações: Link · Canais · Enviar */}
+          <div className="aig-composer-actions">
+            {composerLink && (
+              <button type="button"
+                className={`aig-action-chip${linkAtivo ? ' active' : ''}`}
+                onClick={() => setLinkAtivo(v => !v)}
+                title={linkAtivo ? 'Clique para remover o link' : 'Clique para incluir o link'}>
+                <LinkSimple size={10} weight={linkAtivo ? 'fill' : 'regular'} />
+                <span>{(() => { const parts = composerLink.split('/').filter(Boolean); return parts[parts.length - 1] || 'link'; })()}</span>
+                {linkAtivo && <X size={8} weight="bold" onClick={(e) => { e.stopPropagation(); setLinkAtivo(false); }} style={{ marginLeft: '1px' }} />}
+              </button>
+            )}
+            <div style={{ flex: 1 }} />
             {canaisDisponiveis.email && (
-              <button
-                type="button"
+              <button type="button"
                 className={`aig-canal-pill${canaisSelecionados.has('email') ? ' active email' : ''}`}
-                onClick={() => toggleCanal('email')}
-                aria-pressed={canaisSelecionados.has('email')}
-              >
+                onClick={() => toggleCanal('email')} aria-pressed={canaisSelecionados.has('email')}>
                 <EnvelopeSimple size={11} weight={canaisSelecionados.has('email') ? 'fill' : 'regular'} />
                 E-mail
               </button>
             )}
             {canaisDisponiveis.whatsapp && (
-              <button
-                type="button"
+              <button type="button"
                 className={`aig-canal-pill${canaisSelecionados.has('whatsapp') ? ' active whatsapp' : ''}`}
-                onClick={() => toggleCanal('whatsapp')}
-                aria-pressed={canaisSelecionados.has('whatsapp')}
-              >
+                onClick={() => toggleCanal('whatsapp')} aria-pressed={canaisSelecionados.has('whatsapp')}>
                 <WhatsappLogo size={11} weight={canaisSelecionados.has('whatsapp') ? 'fill' : 'regular'} />
                 WhatsApp
               </button>
             )}
+            <button type="button" className="aig-btn-primary" onClick={handleComposerSend}
+              disabled={!composerText.trim()}
+              style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.625rem', flexShrink: 0 }}
+              title="Ctrl+Enter">
+              <PaperPlaneTilt size={12} weight="bold" />
+              {hasDestinatarios ? (destinatarios.length > 1 ? `Enviar (${destinatarios.length})` : 'Enviar') : 'Salvar'}
+            </button>
           </div>
-        )}
 
-        {/* Aviso LGPD — exibido ao selecionar canal externo */}
-        {hasDestinatarios && (canaisSelecionados.has('email') || canaisSelecionados.has('whatsapp')) && (
-          <div className="aig-lgpd-aviso">
-            <Warning size={11} weight="fill" style={{ flexShrink: 0, marginTop: '1px' }} />
-            <span>
-              {canaisSelecionados.has('whatsapp')
-                ? 'WhatsApp exige consentimento explícito do destinatário (LGPD Art. 8). Certifique-se antes de enviar.'
-                : 'O e-mail será processado pelo Resend (terceiro) para entrega. O destinatário pode solicitar exclusão dos dados.'}
-            </span>
-          </div>
-        )}
+          {/* Campos extras — E-mail */}
+          {canaisSelecionados.has('email') && (
+            <div className="aig-extra-fields">
+              <div className="aig-extra-field-row">
+                <label>Assunto</label>
+                <input type="text" value={emailAssunto} onChange={e => setEmailAssunto(e.target.value)} placeholder="Assunto do e-mail..." />
+              </div>
+              {destinatarios.length === 0 && (
+                <div className="aig-extra-field-row">
+                  <label>Destinatário</label>
+                  <input type="email" value={emailDestinatarioExterno} onChange={e => setEmailDestinatarioExterno(e.target.value)} placeholder="email@destino.com" />
+                </div>
+              )}
+              <div className="aig-lgpd-aviso" style={{ marginTop: '0.25rem' }}>
+                <Warning size={10} weight="fill" style={{ flexShrink: 0 }} />
+                <span>O e-mail será processado pelo Resend para entrega (LGPD, Art. 7, IX).</span>
+              </div>
+            </div>
+          )}
 
-        {/* Link + botão enviar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-          <div style={{
-            flex: 1, display: 'flex', alignItems: 'center', gap: '0.25rem',
-            background: 'var(--aig-bg-input, #0f172a)', border: '1px solid var(--aig-border)',
-            borderRadius: '5px', padding: '0.25rem 0.4rem',
-          }}>
-            <LinkSimple size={11} weight="bold" style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
-            <input
-              type="text"
-              value={composerLink}
-              onChange={e => setComposerLink(e.target.value)}
-              placeholder="Link da página atual"
-              aria-label="Link para o destinatário"
-              style={{ all: 'unset', flex: 1, fontSize: '0.625rem', color: 'var(--aig-text, #f1f5f9)' }}
-            />
-          </div>
-          <button
-            type="button"
-            className="aig-btn-primary"
-            onClick={handleComposerSend}
-            disabled={!composerText.trim()}
-            style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.625rem', flexShrink: 0 }}
-            title="Ctrl+Enter"
-          >
-            <PaperPlaneTilt size={12} weight="bold" />
-            {hasDestinatarios
-              ? (destinatarios.length > 1 ? `Enviar (${destinatarios.length})` : 'Enviar')
-              : 'Salvar'}
-          </button>
+          {/* Campos extras — WhatsApp */}
+          {canaisSelecionados.has('whatsapp') && (
+            <div className="aig-extra-fields">
+              <div className="aig-extra-field-row">
+                <label>Número</label>
+                <input type="tel" value={whatsappNumero} onChange={e => setWhatsappNumero(e.target.value)} placeholder="+55 11 99999-9999" />
+              </div>
+              <div className="aig-lgpd-aviso" style={{ marginTop: '0.25rem' }}>
+                <Warning size={10} weight="fill" style={{ flexShrink: 0 }} />
+                <span>WhatsApp exige consentimento explícito do destinatário (LGPD Art. 8).</span>
+              </div>
+            </div>
+          )}
+
         </div>
-
-        {/* Dica */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.125rem' }}>
-          <span style={{ fontSize: '0.5625rem', color: 'var(--aig-muted, #64748b)' }}>
-            {composerText.length}/{CHAR_LIMIT}
-            {usuariosTenant.length > 0 && (
-              <span style={{ marginLeft: '0.375rem' }}>
-                <At size={9} weight="bold" style={{ verticalAlign: 'middle' }} /> mencionar
-              </span>
-            )}
-          </span>
-          <span style={{ fontSize: '0.5625rem', color: 'var(--aig-muted, #64748b)' }}>
-            Ctrl+Enter {hasDestinatarios ? 'envia' : 'salva'}
-          </span>
-        </div>
-      </div>}
+      )}
 
         </div>
       )}

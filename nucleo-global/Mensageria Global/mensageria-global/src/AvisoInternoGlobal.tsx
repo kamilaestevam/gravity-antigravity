@@ -55,6 +55,7 @@ export interface AvisoInternoGlobalProps {
   onEnviarPara?: (destinatarios: string[], mensagem: string, link?: string, canais?: Canal[]) => void;
   usuariosTenant?: UsuarioMencao[];
   linkAtual?: string;
+  linkAtualLabel?: string;
   carregando?: boolean;
   erro?: string | null;
   className?: string;
@@ -72,6 +73,7 @@ export function AvisoInternoGlobal({
   onEnviarPara,
   usuariosTenant = [],
   linkAtual,
+  linkAtualLabel,
   carregando = false,
   erro = null,
   onFechar,
@@ -79,6 +81,19 @@ export function AvisoInternoGlobal({
   canaisDisponiveis = { email: true, whatsapp: false },
 }: AvisoInternoGlobalProps) {
   const CHAR_LIMIT = 500;
+
+  // Deriva label legível do link: usa prop explícita, depois tenta extrair do path
+  const derivarLinkLabel = (url: string): string => {
+    const parts = url.split('/').filter(Boolean)
+    if (parts.length === 0) return 'Link'
+    const last = parts[parts.length - 1]
+    const secondLast = parts.length >= 2 ? parts[parts.length - 2] : ''
+    // Padrão de ID de entidade: PED-2024-089, REF-IMP-1408, etc.
+    if (/^[A-Z]{2,}-/.test(last)) return last
+    // Segmento pai + último: "pedidos / PED-123"
+    if (secondLast && last !== secondLast) return `${secondLast} / ${last}`
+    return last
+  }
 
   const [busca, setBusca] = useState('');
   const [dataFiltro, setDataFiltro] = useState<{ inicio: Date | null, fim: Date | null }>({ inicio: null, fim: null });
@@ -614,22 +629,17 @@ export function AvisoInternoGlobal({
           <div className="aig-composer-actions">
             {composerLink && (
               <TooltipGlobal
-                content={linkAtivo ? `Clique para remover o link da mensagem\n${composerLink}` : `Clique para incluir o link desta tela na mensagem`}
+                content={`${linkAtivo ? '✓ Link incluído' : 'Link não incluído'} — ${composerLink}`}
                 position="top">
                 <button type="button"
                   className={`aig-action-chip${linkAtivo ? ' active' : ''}`}
-                  onClick={() => setLinkAtivo(v => !v)}>
-                  <LinkSimple size={10} weight={linkAtivo ? 'fill' : 'regular'} />
-                  {linkAtivo ? (
-                    <>
-                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 56 }}>
-                        {(() => { const parts = composerLink.split('/').filter(Boolean); return parts[parts.length - 1] || 'link'; })()}
-                      </span>
-                      <X size={8} weight="bold" style={{ flexShrink: 0, marginLeft: '1px', opacity: 0.7 }} />
-                    </>
-                  ) : (
-                    <span>Incluir link</span>
-                  )}
+                  onClick={() => setLinkAtivo(v => !v)}
+                  aria-pressed={linkAtivo}>
+                  <LinkSimple size={10} weight={linkAtivo ? 'fill' : 'regular'} style={{ flexShrink: 0 }} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 72 }}>
+                    {linkAtualLabel ?? derivarLinkLabel(composerLink)}
+                  </span>
+                  {linkAtivo && <X size={8} weight="bold" style={{ flexShrink: 0, marginLeft: '1px', opacity: 0.65 }} />}
                 </button>
               </TooltipGlobal>
             )}

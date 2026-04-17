@@ -368,6 +368,23 @@ export function Notificacoes() {
 
   const avisosFinal = [...avisosDoStore, ...avisosDaApi, ...DEV_MOCKS]
 
+  // Deriva label legível para o link sugerido
+  const linkSugerido = linkContextual ?? location.pathname
+  const linkLabel = (() => {
+    const parts = linkSugerido.split('/').filter(Boolean)
+    if (parts.length === 0) return undefined
+    const last = parts[parts.length - 1]
+    // ID de entidade: PED-2024-089, REF-IMP-1408 → mostra direto
+    if (/^[A-Z]{2,}-/.test(last)) return last
+    // Mapa de segmentos de rota para nomes legíveis
+    const nomes: Record<string, string> = {
+      pedidos: 'Pedidos', simulacusto: 'SimulaCusto', dashboard: 'Dashboard',
+      financeiro: 'Financeiro', relatorios: 'Relatórios', configuracoes: 'Configurações',
+      usuarios: 'Usuários', workspace: 'Workspace', admin: 'Admin',
+    }
+    return nomes[last] ?? last
+  })()
+
   return (
     <AvisoInternoGlobal
       avisos={avisosFinal}
@@ -379,7 +396,8 @@ export function Notificacoes() {
       onNavegarHref={(href) => navigate(href)}
       onEnviarPara={handleEnviarPara}
       usuariosTenant={usuariosTenant}
-      linkAtual={linkContextual ?? location.pathname}
+      linkAtual={linkSugerido}
+      linkAtualLabel={linkLabel}
       canaisDisponiveis={canaisDisponiveis}
     />
   )

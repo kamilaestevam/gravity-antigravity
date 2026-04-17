@@ -103,10 +103,41 @@ export function AvisoInternoGlobal({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerBusca, setPickerBusca] = useState('');
   const [canaisSelecionados, setCanaisSelecionados] = useState<Set<Canal>>(new Set(['interno']));
-  const [linkAtivo, setLinkAtivo] = useState(true);
+  const [linkCanais, setLinkCanais] = useState<Set<Canal>>(new Set<Canal>(['interno']));
+  const [linkPopoverAberto, setLinkPopoverAberto] = useState(false);
+  const linkPopoverRef = useRef<HTMLDivElement>(null);
   const [emailAssunto, setEmailAssunto] = useState('');
   const [emailDestinatarioExterno, setEmailDestinatarioExterno] = useState('');
   const [whatsappNumero, setWhatsappNumero] = useState('');
+
+  const toggleLinkCanal = (canal: Canal) => {
+    setLinkCanais(prev => {
+      const next = new Set(prev);
+      if (next.has(canal)) next.delete(canal);
+      else next.add(canal);
+      return next;
+    });
+  };
+
+  // Quando o composer abre, inclui o canal interno no link por padrão
+  useEffect(() => {
+    if (composerAberto) {
+      setLinkCanais(new Set<Canal>(['interno']));
+      setLinkPopoverAberto(false);
+    }
+  }, [composerAberto]);
+
+  // Click-outside para fechar o popover do link
+  useEffect(() => {
+    if (!linkPopoverAberto) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (linkPopoverRef.current && !linkPopoverRef.current.contains(e.target as Node)) {
+        setLinkPopoverAberto(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [linkPopoverAberto]);
 
   const toggleCanal = (canal: Canal) => {
     setCanaisSelecionados(prev => {
@@ -190,7 +221,7 @@ export function AvisoInternoGlobal({
   // ─── Enviar / Salvar ─────────────────────────────────────────────────────
   const handleComposerSend = () => {
     if (!composerText.trim()) return;
-    const link = linkAtivo ? composerLink.trim() || undefined : undefined;
+    const link = linkCanais.size > 0 ? composerLink.trim() || undefined : undefined;
 
     if (destinatarios.length > 0 && onEnviarPara) {
       onEnviarPara(destinatarios, composerText.trim(), link, Array.from(canaisSelecionados));
@@ -206,6 +237,8 @@ export function AvisoInternoGlobal({
     setEmailAssunto('');
     setEmailDestinatarioExterno('');
     setWhatsappNumero('');
+    setLinkCanais(new Set<Canal>(['interno']));
+    setLinkPopoverAberto(false);
     setComposerAberto(false);
   };
 
@@ -612,14 +645,55 @@ export function AvisoInternoGlobal({
           {/* Barra de ações: Link · Canais · Enviar */}
           <div className="aig-composer-actions">
             {composerLink && (
-              <button type="button"
-                className={`aig-action-chip${linkAtivo ? ' active' : ''}`}
-                onClick={() => setLinkAtivo(v => !v)}
-                title={linkAtivo ? 'Clique para remover o link' : 'Clique para incluir o link'}>
-                <LinkSimple size={10} weight={linkAtivo ? 'fill' : 'regular'} />
-                <span>{(() => { const parts = composerLink.split('/').filter(Boolean); return parts[parts.length - 1] || 'link'; })()}</span>
-                {linkAtivo && <X size={8} weight="bold" onClick={(e) => { e.stopPropagation(); setLinkAtivo(false); }} style={{ marginLeft: '1px' }} />}
-              </button>
+              <div style={{ position: 'relative' }} ref={linkPopoverRef}>
+                <button type="button"
+                  className={`aig-action-chip${linkCanais.size > 0 ? ' active' : ''}`}
+                  onClick={() => setLinkPopoverAberto(v => !v)}
+                  title={composerLink}>
+                  <LinkSimple size={10} weight={linkCanais.size > 0 ? 'fill' : 'regular'} />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 60 }}>
+                    {(() => { const parts = composerLink.split('/').filter(Boolean); return parts[parts.length - 1] || 'link'; })()}
+                  </span>
+                  {linkCanais.size > 0 && (
+                    <span style={{ opacity: 0.65, fontSize: '0.5rem' }}>·{linkCanais.size}</span>
+                  )}
+                </button>
+
+                {linkPopoverAberto && (
+                  <div className="aig-link-popover">
+                    <div className="aig-link-popover__url" title={composerLink}>
+                      <LinkSimple size={9} style={{ flexShrink: 0 }} />
+                      <span>{composerLink}</span>
+                    </div>
+                    <div className="aig-link-popover__label">Incluir em:</div>
+                    <button type="button"
+                      className={`aig-link-popover__canal${linkCanais.has('interno') ? ' active' : ''}`}
+                      onClick={() => toggleLinkCanal('interno')}>
+                      <Bell size={10} style={{ flexShrink: 0 }} />
+                      <span>Mensagem interna</span>
+                      {linkCanais.has('interno') && <CheckCircle size={10} weight="fill" style={{ marginLeft: 'auto', color: 'var(--aig-accent)' }} />}
+                    </button>
+                    {canaisDisponiveis.email && canaisSelecionados.has('email') && (
+                      <button type="button"
+                        className={`aig-link-popover__canal${linkCanais.has('email') ? ' active' : ''}`}
+                        onClick={() => toggleLinkCanal('email')}>
+                        <EnvelopeSimple size={10} style={{ flexShrink: 0 }} />
+                        <span>E-mail</span>
+                        {linkCanais.has('email') && <CheckCircle size={10} weight="fill" style={{ marginLeft: 'auto', color: '#10b981' }} />}
+                      </button>
+                    )}
+                    {canaisDisponiveis.whatsapp && canaisSelecionados.has('whatsapp') && (
+                      <button type="button"
+                        className={`aig-link-popover__canal${linkCanais.has('whatsapp') ? ' active' : ''}`}
+                        onClick={() => toggleLinkCanal('whatsapp')}>
+                        <WhatsappLogo size={10} style={{ flexShrink: 0 }} />
+                        <span>WhatsApp</span>
+                        {linkCanais.has('whatsapp') && <CheckCircle size={10} weight="fill" style={{ marginLeft: 'auto', color: '#25d166' }} />}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
             <div style={{ flex: 1 }} />
             {canaisDisponiveis.email && (

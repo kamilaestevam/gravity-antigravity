@@ -255,7 +255,11 @@ export function Notificacoes() {
         // Recarrega para mostrar o registro "enviado" no histórico
         await syncState()
       } catch (err) {
-        setErro(err instanceof Error ? err.message : 'Falha ao enviar notificação')
+        const msg = err instanceof Error ? err.message : 'Falha ao enviar notificação'
+        const friendly = msg.includes('si mesmo')
+          ? 'Selecione ao menos um destinatário diferente de você.'
+          : msg
+        addNotification({ type: 'error', message: friendly })
       }
     },
     [currentUserName, usuariosTenant, syncState, addNotification]
@@ -327,7 +331,7 @@ export function Notificacoes() {
     } catch (err) {
       // Reverte
       setNotifications((prev) => prev.filter((n) => n.id !== tempId))
-      setErro(err instanceof Error ? err.message : 'Falha ao criar aviso')
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao criar aviso' })
     }
   }
 

@@ -1,4 +1,5 @@
-import React, { lazy, Suspense, useEffect } from 'react'
+import React, { lazy, Suspense, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useShellStore, ToastContainer, useSyncClerkToShell } from '@gravity/shell'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
@@ -43,23 +44,22 @@ const iconMap: Record<string, React.ReactNode> = {
   'whatsapp-logo':           <WhatsappLogo          weight="duotone" size={20} />,
 }
 
-function mapNavItem(item: NavigationItem): NavItem {
+function mapNavItem(item: NavigationItem, t: (key: string) => string): NavItem {
+  const label = item.labelKey ? t(item.labelKey) : item.label
   if (item.sectionDivider) {
-    return { label: item.label, sectionDivider: true as const }
+    return { label, sectionDivider: true as const }
   }
   return {
     id:           item.id,
     to:           item.id,
-    label:        item.label,
+    label,
     icon:         iconMap[item.icon ?? ''] ?? <ListBullets weight="duotone" size={20} />,
     disabled:     item.disabled,
     badge:        item.badge,
     badgeVariant: item.badgeVariant as 'accent' | 'muted' | undefined,
-    children:     item.children?.map(mapNavItem),
+    children:     item.children?.map(child => mapNavItem(child, t)),
   }
 }
-
-const navItems = PRODUCT_CONFIG.navigation.map(mapNavItem)
 
 // ── Workspaces demo ───────────────────────────────────────────────────────────
 const DEMO_WORKSPACES = [
@@ -93,6 +93,12 @@ function LoadingFallback() {
 
 export function App() {
   useSyncClerkToShell()
+  const { t } = useTranslation()
+
+  const navItems = useMemo(
+    () => PRODUCT_CONFIG.navigation.map(item => mapNavItem(item, t)),
+    [t]
+  )
 
   const location = useLocation()
   const navigate = useNavigate()

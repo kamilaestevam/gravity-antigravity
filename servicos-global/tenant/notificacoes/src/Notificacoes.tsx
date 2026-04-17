@@ -131,6 +131,7 @@ export function Notificacoes() {
   const marcarAvisoLidoStore = useShellStore((s) => s.marcarAvisoLido)
   const marcarTodosAvisosLidosStore = useShellStore((s) => s.marcarTodosAvisosLidos)
   const currentUserName = useShellStore((s) => s.currentUser.name)
+  const addNotification = useShellStore((s) => s.addNotification)
   const linkContextual = useShellStore((s) => s.linkContextual)
 
   const syncState = useCallback(async () => {
@@ -209,9 +210,26 @@ export function Notificacoes() {
           }),
         })
         if (!res.ok) {
-          const body = await res.json().catch(() => null) as { message?: string } | null
-          throw new Error(body?.message ?? `HTTP ${res.status}`)
+          const body = await res.json().catch(() => null) as { error?: { message?: string } } | null
+          throw new Error(body?.error?.message ?? `HTTP ${res.status}`)
         }
+
+        const data = await res.json() as {
+          status: string
+          email?: { success: boolean; error?: string; errorMessage?: string } | null
+        }
+
+        // Toast de resultado do e-mail
+        if (viaEmail && data.email !== null && data.email !== undefined) {
+          if (data.email.success) {
+            addNotification({ type: 'success', message: 'E-mail enviado com sucesso!' })
+          } else if (data.email.error === 'service_offline') {
+            addNotification({ type: 'error', message: 'Serviço de e-mail indisponível. Tente novamente mais tarde.' })
+          } else {
+            addNotification({ type: 'error', message: `Falha ao enviar e-mail: ${data.email.errorMessage ?? 'erro desconhecido'}` })
+          }
+        }
+
         // Recarrega para mostrar o registro "enviado" no histórico
         await syncState()
       } catch (err) {

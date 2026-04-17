@@ -137,7 +137,7 @@ export function Sidebar({
   // Se o produto proveu navItems customizados, injeta "Produtos Gravity" apos "Meu Espaco"
   let navItems: NavItem[]
   if (customNavItems) {
-    const meuEspacoIdx = customNavItems.findIndex(item => item.label === 'Meu Espaco')
+    const meuEspacoIdx = customNavItems.findIndex(item => item.id === 'meu-espaco')
     const insertAt = meuEspacoIdx >= 0 ? meuEspacoIdx + 1 : 0
     navItems = [
       ...customNavItems.slice(0, insertAt),

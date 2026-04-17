@@ -167,6 +167,18 @@ const PRODUCT_ICON_MAP: Record<string, { icon: React.ReactElement; color: string
   'smart-read':     { icon: <Folders size={18} weight="duotone" />,         color: '#f472b6', bg: 'rgba(244,114,182,0.10)' },
 }
 
+/* ── Mapa de slug/product_key → chave de tradução do nome ── */
+const PRODUCT_NAME_KEYS: Record<string, string> = {
+  'bid-frete':     'store.prod_bid_frete_nome',
+  'bid-cambio':    'store.prod_bid_cambio_nome',
+  'nf-importacao': 'store.prod_nf_importacao_nome',
+  'nf-import':     'store.prod_nf_importacao_nome',
+  'lpco':          'store.prod_lpco_nome',
+  'pedido':        'store.prod_pedido_nome',
+  'simula-custo':  'store.prod_simula_custo_nome',
+  'smart-read':    'store.prod_smart_read_nome',
+}
+
 function getProdutoIcon(slug: string): { icon: React.ReactElement; color: string; bg: string } {
   return PRODUCT_ICON_MAP[slug] ?? { icon: <Star size={18} weight="regular" />, color: 'var(--sw-accent-2)', bg: 'var(--sw-accent-dim)' }
 }
@@ -527,7 +539,7 @@ export function SelecionarWorkspace() {
 
     if (produtosAtivos.length > 0) {
       items.push({
-        label: 'Produtos Gravity',
+        label: t('sw.produtos_gravity'),
         sectionDivider: true,
         icon: <ShoppingBagOpen weight="duotone" size={18} />,
       })
@@ -540,7 +552,7 @@ export function SelecionarWorkspace() {
       })
     } else {
       items.push({
-        label: 'Produtos Gravity',
+        label: t('sw.produtos_gravity'),
         sectionDivider: true,
         icon: <ShoppingBagOpen weight="duotone" size={18} />,
       })
@@ -999,7 +1011,7 @@ export function SelecionarWorkspace() {
                   <div className="sw-prod-panel-head">
                     <span className="sw-prod-panel-title contracted">
                       <Package weight="duotone" size={15} />
-                      Produtos Gravity
+                      {t('sw.produtos_gravity')}
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span className="sw-sec-count">
@@ -1027,7 +1039,7 @@ export function SelecionarWorkspace() {
                             {iconData.icon}
                           </div>
                           <div className="sw-prod-body">
-                            <div className="sw-prod-name">{prod.nome}</div>
+                            <div className="sw-prod-name">{PRODUCT_NAME_KEYS[prod.product_key] ? t(PRODUCT_NAME_KEYS[prod.product_key]) : prod.nome}</div>
                             <div className="sw-prod-desc">{prod.descricao}</div>
                           </div>
                           <div className="sw-prod-right">
@@ -1037,7 +1049,7 @@ export function SelecionarWorkspace() {
                               type="button"
                               onClick={e => { e.stopPropagation(); navigate(rota) }}
                             >
-                              Acessar <ArrowRight size={10} weight="bold" />
+                              {t('sw.acessar')} <ArrowRight size={10} weight="bold" />
                             </button>
                           </div>
                         </div>
@@ -1058,7 +1070,7 @@ export function SelecionarWorkspace() {
                             {iconData.icon}
                           </div>
                           <div className="sw-prod-body">
-                            <div className="sw-prod-name">{prod.name}</div>
+                            <div className="sw-prod-name">{PRODUCT_NAME_KEYS[prod.slug] ? t(PRODUCT_NAME_KEYS[prod.slug]) : prod.name}</div>
                             <div className="sw-prod-desc">{prod.description ?? ''}</div>
                           </div>
                           <div className="sw-prod-right">

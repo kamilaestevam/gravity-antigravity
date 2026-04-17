@@ -66,6 +66,7 @@ const PRODUCT_META: Record<string, {
   icon: React.ReactNode
   categoryKey: string
   categoryFilter: string
+  nameKey?: string
   descKey: string
   tagKeys: string[]
   users: number
@@ -77,6 +78,7 @@ const PRODUCT_META: Record<string, {
     icon: <Truck weight="duotone" size={28} color="#10b981" />,
     categoryKey: 'store.cat_logistica',
     categoryFilter: 'frete',
+    nameKey: 'store.prod_bid_frete_nome',
     descKey: 'store.prod_bid_frete_desc',
     tagKeys: ['store.tag_multi_carrier', 'store.tag_tempo_real', 'store.tag_relatorios', 'store.tag_api_integrada'],
     users: 240,
@@ -88,6 +90,7 @@ const PRODUCT_META: Record<string, {
     icon: <CurrencyDollar weight="duotone" size={28} color="#10b981" />,
     categoryKey: 'store.cat_financeiro',
     categoryFilter: 'cambio',
+    nameKey: 'store.prod_bid_cambio_nome',
     descKey: 'store.prod_bid_cambio_desc',
     tagKeys: ['store.tag_banco_central', 'store.tag_multi_moeda', 'store.tag_historico'],
     users: 185,
@@ -98,6 +101,7 @@ const PRODUCT_META: Record<string, {
     icon: <FileText weight="duotone" size={28} color="#818cf8" />,
     categoryKey: 'store.cat_fiscal_doc',
     categoryFilter: 'importacao',
+    nameKey: 'store.prod_nf_importacao_nome',
     descKey: 'store.prod_nf_importacao_desc',
     tagKeys: ['store.tag_sefaz', 'store.tag_calc_ncm', 'store.tag_xml_pdf'],
     users: 310,
@@ -108,6 +112,7 @@ const PRODUCT_META: Record<string, {
     icon: <Receipt weight="duotone" size={28} color="#818cf8" />,
     categoryKey: 'store.cat_fiscal_lic',
     categoryFilter: 'importacao',
+    nameKey: 'store.prod_lpco_nome',
     descKey: 'store.prod_lpco_desc',
     tagKeys: ['store.tag_siscomex', 'store.tag_saldo_auto', 'store.tag_rastreio'],
     users: 98,
@@ -118,6 +123,7 @@ const PRODUCT_META: Record<string, {
     icon: <ShoppingBag weight="duotone" size={28} color="#f59e0b" />,
     categoryKey: 'store.cat_comercial',
     categoryFilter: 'comercial',
+    nameKey: 'store.prod_pedido_nome',
     descKey: 'store.prod_pedido_desc',
     tagKeys: ['store.tag_aprov', 'store.tag_rastreamento', 'store.tag_integ_erp'],
     users: 92,
@@ -128,6 +134,7 @@ const PRODUCT_META: Record<string, {
     icon: <FileMagnifyingGlass weight="duotone" size={28} color="#818cf8" />,
     categoryKey: 'store.cat_comex',
     categoryFilter: 'importacao',
+    nameKey: 'store.prod_simula_custo_nome',
     descKey: 'store.prod_simula_custo_desc',
     tagKeys: ['store.tag_ncm_auto', 'store.tag_impostos', 'store.tag_comparativo'],
     users: 154,
@@ -138,6 +145,7 @@ const PRODUCT_META: Record<string, {
     icon: <Eye weight="duotone" size={28} color="#a78bfa" />,
     categoryKey: 'store.cat_ia',
     categoryFilter: 'importacao',
+    nameKey: 'store.prod_smart_read_nome',
     descKey: 'store.prod_smart_read_desc',
     tagKeys: ['store.tag_ocr_ia', 'store.tag_invoice', 'store.tag_aduaneiro'],
     users: 0,
@@ -161,7 +169,7 @@ const COMING_SOON_CONFIG = [
   {
     id: 'cs-smart-read',
     slug: 'smart-read',
-    nameKey: 'store.smart_read_nome',
+    nameKey: 'store.prod_smart_read_nome',
     descKey: 'store.smart_read_desc',
     categoryKey: 'store.cat_ia',
     tagKeys: ['store.tag_ocr_ia', 'store.tag_invoice', 'store.tag_aduaneiro'],
@@ -690,7 +698,7 @@ export function Store() {
                         </div>
                       </div>
                       <div className="gs-card__body">
-                        <h3 className="gs-card__name">{p.name}</h3>
+                        <h3 className="gs-card__name">{meta?.nameKey ? t(meta.nameKey) : p.name}</h3>
                         {meta?.categoryKey && (
                           <span className="gs-card__category" style={{ color: meta.iconColor }}>
                             {t(meta.categoryKey)}

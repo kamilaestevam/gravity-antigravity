@@ -12,6 +12,7 @@ export interface WorkspaceItem {
 }
 
 export interface NavItem {
+  id?: string
   to?: string
   label: string
   icon: React.ReactNode

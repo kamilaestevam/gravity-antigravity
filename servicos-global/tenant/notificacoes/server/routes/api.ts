@@ -255,9 +255,15 @@ const sendBodySchema = z.object({
 // ─── URL interna do serviço de e-mail (mesma rede — S2S) ─────────────────────
 const EMAIL_SERVICE_URL = process.env.TENANT_EMAIL_SERVICE_URL ?? 'http://localhost:8008'
 
+interface EmailDispatchResult {
+  success: boolean
+  error?: 'service_offline' | 'rejected' | 'unknown'
+  errorMessage?: string
+}
+
 /**
  * Envia notificação por e-mail via serviço de e-mail (S2S com x-internal-key).
- * Chamada fire-and-forget — não bloqueia a resposta da rota /send.
+ * Retorna resultado para que a rota /send possa informar o cliente.
  */
 async function dispararEmailNotificacao(opts: {
   tenantId: string
@@ -266,7 +272,7 @@ async function dispararEmailNotificacao(opts: {
   recipientEmails: string[]
   message: string
   link?: string
-}): Promise<void> {
+}): Promise<EmailDispatchResult> {
   const { tenantId, userId, senderName, recipientEmails, message, link } = opts
   const internalKey = process.env.INTERNAL_API_KEY ?? ''
 
@@ -291,9 +297,13 @@ async function dispararEmailNotificacao(opts: {
 
   const text = `Nova mensagem de ${senderName}:\n\n${message}${link ? `\n\nVer contexto: ${link}` : ''}`
 
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 8_000)
+
   try {
     const res = await fetch(`${EMAIL_SERVICE_URL}/api/v1/email/enviar`, {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
         'x-internal-key': internalKey,
@@ -307,13 +317,20 @@ async function dispararEmailNotificacao(opts: {
         body: text,
       }),
     })
+    clearTimeout(timeout)
     if (!res.ok) {
       const body = await res.json().catch(() => null)
-      console.error('[NOTIFICACOES] Falha ao disparar e-mail S2S:', body)
+      const msg = body?.error?.message ?? `HTTP ${res.status}`
+      console.error('[NOTIFICACOES] Falha ao disparar e-mail S2S:', msg)
+      return { success: false, error: 'rejected', errorMessage: msg }
     }
+    return { success: true }
   } catch (err) {
-    // Fire-and-forget — não falha a notificação in-app se o e-mail falhar
-    console.error('[NOTIFICACOES] Erro ao chamar email service:', err)
+    clearTimeout(timeout)
+    const isOffline = err instanceof Error && (err.name === 'AbortError' || (err as NodeJS.ErrnoException).code === 'ECONNREFUSED')
+    const msg = isOffline ? 'Serviço de e-mail indisponível' : String(err)
+    console.error('[NOTIFICACOES] Erro ao chamar email service:', msg)
+    return { success: false, error: isOffline ? 'service_offline' : 'unknown', errorMessage: msg }
   }
 }
 
@@ -322,30 +339,36 @@ apiRoutes.post('/send', async (req, res, next) => {
     const { tenant_id, user_id } = req
     const body = sendBodySchema.parse(req.body)
 
-    // Impede enviar para si mesmo (lista final sem o sender)
+    // Remove o próprio remetente da lista de notificações in-app
     const targets = body.user_ids.filter((uid) => uid !== user_id)
-    if (targets.length === 0) {
+
+    // Se não há destinatários in-app mas via_email está ativo, ainda envia o email
+    const hasEmailOnly = targets.length === 0 && body.via_email && body.recipient_emails && body.recipient_emails.length > 0
+    if (targets.length === 0 && !hasEmailOnly) {
       return next(new AppError('Nenhum destinatário válido (não é possível enviar para si mesmo)', 400))
     }
 
     const senderLabel = body.sender_name ?? 'Usuário'
 
-    const created = await prisma.notification.createMany({
-      data: targets.map((uid) => ({
-        tenant_id,
-        user_id: uid,
-        product_id: null,
-        type: 'compartilhamento' as const,
-        title: senderLabel,
-        message: body.message,
-        activity_id: body.activity_id ?? null,
-      })),
-    })
+    let created = { count: 0 }
+    if (targets.length > 0) {
+      created = await prisma.notification.createMany({
+        data: targets.map((uid) => ({
+          tenant_id,
+          user_id: uid,
+          product_id: null,
+          type: 'compartilhamento' as const,
+          title: senderLabel,
+          message: body.message,
+          activity_id: body.activity_id ?? null,
+        })),
+      })
+    }
 
     // Registro de "enviado" para o remetente — aparece no histórico dele
     const recipientLabel = body.recipient_names?.length
       ? body.recipient_names.join(', ')
-      : `${targets.length} usuário(s)`
+      : targets.length > 0 ? `${targets.length} usuário(s)` : 'via e-mail'
     await prisma.notification.create({
       data: {
         tenant_id,
@@ -355,7 +378,7 @@ apiRoutes.post('/send', async (req, res, next) => {
         title: `Enviado para ${recipientLabel}`,
         message: body.message,
         activity_id: body.activity_id ?? null,
-        read: true, // já nasce lida — é registro, não alerta
+        read: true,
       },
     })
 
@@ -364,9 +387,10 @@ apiRoutes.post('/send', async (req, res, next) => {
       emitToUser(uid, 'new_notification', { type: 'compartilhamento' })
     }
 
-    // Disparo de e-mail S2S — fire-and-forget (não bloqueia resposta)
+    // Disparo de e-mail S2S — aguarda resultado para reportar ao cliente
+    let emailResult: EmailDispatchResult | null = null
     if (body.via_email && body.recipient_emails && body.recipient_emails.length > 0) {
-      void dispararEmailNotificacao({
+      emailResult = await dispararEmailNotificacao({
         tenantId: tenant_id,
         userId: user_id,
         senderName: senderLabel,
@@ -376,7 +400,11 @@ apiRoutes.post('/send', async (req, res, next) => {
       })
     }
 
-    res.status(201).json({ status: 'success', count: created.count })
+    res.status(201).json({
+      status: 'success',
+      count: created.count,
+      email: emailResult ?? null,
+    })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return next(new AppError(`Body inválido: ${err.issues.map((i) => i.message).join(', ')}`, 400))

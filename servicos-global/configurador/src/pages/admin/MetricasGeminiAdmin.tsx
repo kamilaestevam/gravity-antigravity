@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Brain, Coin, Clock, ChartBar } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
@@ -17,6 +18,7 @@ interface DailyMetric {
 }
 
 export function MetricasGeminiAdmin() {
+  const { t } = useTranslation()
   const [daily, setDaily] = useState<DailyMetric[]>([])
   const [cache, setCache] = useState<{ cacheSize: number; cacheHits: number; cacheMisses: number; hitRate: number }>({ cacheSize: 0, cacheHits: 0, cacheMisses: 0, hitRate: 0 })
   const [carregando, setCarregando] = useState(true)
@@ -38,20 +40,20 @@ export function MetricasGeminiAdmin() {
     ? Math.round(daily.reduce((acc, d) => acc + d.latenciaMediaMs, 0) / daily.length)
     : 0
 
-  const colunas: TabelaGlobalColuna<DailyMetric>[] = [
-    { key: 'date', label: 'DATA', tipo: 'texto' },
-    { key: 'totalAnalises', label: 'ANÁLISES', tipo: 'numero' },
-    { key: 'totalTokens', label: 'TOKENS', tipo: 'numero',
+  const colunas = useMemo<TabelaGlobalColuna<DailyMetric>[]>(() => [
+    { key: 'date', label: t('admin.gemini.col_data'), tipo: 'texto' },
+    { key: 'totalAnalises', label: t('admin.gemini.col_analises'), tipo: 'numero' },
+    { key: 'totalTokens', label: t('admin.gemini.col_tokens'), tipo: 'numero',
       render: (v: number) => <span style={{ color: '#94a3b8' }}>{v.toLocaleString()}</span>
     },
-    { key: 'custoEstimadoUSD', label: 'CUSTO ($)', tipo: 'numero',
+    { key: 'custoEstimadoUSD', label: t('admin.gemini.col_custo'), tipo: 'numero',
       render: (v: number) => <span style={{ color: v > 0.1 ? '#eab308' : '#10b981', fontWeight: 600 }}>${v.toFixed(4)}</span>
     },
-    { key: 'latenciaMediaMs', label: 'LATÊNCIA (ms)', tipo: 'numero',
+    { key: 'latenciaMediaMs', label: t('admin.gemini.col_latencia'), tipo: 'numero',
       render: (v: number) => <span style={{ color: v > 5000 ? '#ef4444' : '#10b981' }}>{v}ms</span>
     },
-    { key: 'diffsValidados', label: 'DIFFS OK', tipo: 'numero' },
-    { key: 'confianca' as keyof DailyMetric, label: 'CONFIANÇA', tipo: 'texto',
+    { key: 'diffsValidados', label: t('admin.gemini.col_diffs'), tipo: 'numero' },
+    { key: 'confianca' as keyof DailyMetric, label: t('admin.gemini.col_confianca'), tipo: 'texto',
       render: (_v: unknown, item: DailyMetric) => (
         <div style={{ display: 'flex', gap: '0.4rem', fontSize: '0.7rem' }}>
           <span style={{ color: '#10b981' }}>{item.confianca.alta}A</span>
@@ -60,7 +62,7 @@ export function MetricasGeminiAdmin() {
         </div>
       )
     },
-  ]
+  ], [t])
 
   return (
     <PaginaGlobal
@@ -69,32 +71,32 @@ export function MetricasGeminiAdmin() {
       cabecalho={
         <CabecalhoGlobal
           icone={<Brain weight="duotone" size={22} />}
-          titulo="Métricas Gemini"
-          subtitulo="Custo, latência, confiança e cache do analisador de testes"
+          titulo={t('admin.gemini.titulo')}
+          subtitulo={t('admin.gemini.subtitulo')}
         />
       }
       stats={
         <>
           <CardBasicoGlobal
-            titulo="Análises Totais"
+            titulo={t('admin.gemini.card_analises')}
             valor={totalAnalises}
             icone={<ChartBar weight="duotone" size={18} />}
             variante="primario"
           />
           <CardBasicoGlobal
-            titulo="Custo Total"
+            titulo={t('admin.gemini.card_custo')}
             valor={`$${custoTotal.toFixed(4)}`}
             icone={<Coin weight="duotone" size={18} />}
             variante={custoTotal > 5 ? 'perigo' : 'sucesso'}
           />
           <CardBasicoGlobal
-            titulo="Latência Média"
+            titulo={t('admin.gemini.card_latencia')}
             valor={`${latenciaMedia}ms`}
             icone={<Clock weight="duotone" size={18} />}
             variante={latenciaMedia > 5000 ? 'aviso' : 'sucesso'}
           />
           <CardBasicoGlobal
-            titulo="Cache Hit Rate"
+            titulo={t('admin.gemini.card_cache')}
             valor={`${cache.hitRate}%`}
             icone={<Brain weight="duotone" size={18} />}
             variante={cache.hitRate >= 40 ? 'sucesso' : 'aviso'}
@@ -108,7 +110,7 @@ export function MetricasGeminiAdmin() {
           dados={daily}
           colunas={colunas}
           idKey="date"
-          mensagemVazio="Nenhuma métrica disponível. Execute análises Gemini para começar a coletar dados."
+          mensagemVazio={t('admin.gemini.vazio')}
         />
       </div>
     </PaginaGlobal>

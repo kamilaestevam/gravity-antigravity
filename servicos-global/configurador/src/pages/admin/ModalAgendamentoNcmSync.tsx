@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-formulario-abas-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
@@ -50,6 +51,7 @@ export interface ModalAgendamentoNcmSyncProps {
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: ModalAgendamentoNcmSyncProps) {
+  const { t } = useTranslation()
   const addNotification = useShellStore((s) => s.addNotification)
 
   // ── Estado da configuração ────────────────────────────────────────────────
@@ -90,7 +92,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
         setNotificadores(Array.isArray(config.notificadores) ? config.notificadores : [])
         setIsDirty(false)
       })
-      .catch(() => addNotification({ type: 'error', message: 'Falha ao carregar configuração de agendamento.' }))
+      .catch(() => addNotification({ type: 'error', message: t('admin.ncm_modal.notif_falha_carregar') }))
       .finally(() => setCarregando(false))
   }, [aberto, addNotification])
 
@@ -121,12 +123,12 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
     try {
       const cron_expressao = horaMinutoCron(frequencia, hora, minuto)
       await adminNcmApi.saveSchedule({ ativo, cron_expressao, notificadores })
-      addNotification({ type: 'success', message: 'Agendamento NCM salvo com sucesso.' })
+      addNotification({ type: 'success', message: t('admin.ncm_modal.notif_salvo_ok') })
       if (aoMudarStatus) aoMudarStatus(ativo)
       setIsDirty(false)
       aoFechar()
     } catch (err) {
-      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Falha ao salvar agendamento.' })
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : t('admin.ncm_modal.notif_falha_salvar') })
     } finally {
       setSalvando(false)
     }
@@ -142,32 +144,32 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
       setResultadoExecucao(res.resultados)
       addNotification({
         type: res.resultados.every(r => r.sucesso) ? 'success' : 'warning',
-        message: `Execução manual concluída: ${res.tenants_executados} tenant(s) processado(s).`,
+        message: t('admin.ncm_modal.notif_exec_ok', { count: res.tenants_executados }),
       })
     } catch (err) {
-      setErroExecucao(err instanceof Error ? err.message : 'Erro na execução manual.')
-      addNotification({ type: 'error', message: 'Falha na execução manual do NCM.' })
+      setErroExecucao(err instanceof Error ? err.message : t('admin.ncm_modal.notif_exec_erro'))
+      addNotification({ type: 'error', message: t('admin.ncm_modal.notif_exec_falha') })
     } finally {
       setExecutando(false)
     }
   }
 
   // ── Opções ────────────────────────────────────────────────────────────────
-  const opcoesAtivacao  = [{ valor: 'false', rotulo: 'Desativado' }, { valor: 'true', rotulo: 'Ativado' }]
-  const opcoesFrequencia = [{ valor: 'Diario', rotulo: 'Diário' }, { valor: 'Semanal', rotulo: 'Semanal (Segunda)' }]
+  const opcoesAtivacao  = [{ valor: 'false', rotulo: t('admin.ncm_modal.opt_desativado') }, { valor: 'true', rotulo: t('admin.ncm_modal.opt_ativado') }]
+  const opcoesFrequencia = [{ valor: 'Diario', rotulo: t('admin.ncm_modal.opt_diario') }, { valor: 'Semanal', rotulo: t('admin.ncm_modal.opt_semanal') }]
   const opcoesHora   = Array.from({ length: 24 }, (_, i) => ({ valor: `${i.toString().padStart(2,'0')}h`, rotulo: `${i.toString().padStart(2,'0')}h` }))
   const opcoesMinuto = Array.from({ length: 60 }, (_, i) => ({ valor: `${i.toString().padStart(2,'0')}min`, rotulo: `${i.toString().padStart(2,'0')}min` }))
-  const opcoesCondicao = [{ valor: 'Apenas Erros', rotulo: 'Apenas Erros' }, { valor: 'Sempre', rotulo: 'Sempre' }]
-  const opcoesCanal    = [{ valor: 'E-mail', rotulo: 'E-mail' }, { valor: 'WhatsApp', rotulo: 'WhatsApp' }, { valor: 'Ambos', rotulo: 'Ambos' }]
+  const opcoesCondicao = [{ valor: 'Apenas Erros', rotulo: t('admin.ncm_modal.opt_apenas_erros') }, { valor: 'Sempre', rotulo: t('admin.ncm_modal.opt_sempre') }]
+  const opcoesCanal    = [{ valor: 'E-mail', rotulo: t('admin.ncm_modal.opt_email') }, { valor: 'WhatsApp', rotulo: t('admin.ncm_modal.opt_whatsapp') }, { valor: 'Ambos', rotulo: t('admin.ncm_modal.opt_ambos') }]
 
   const cronExpressaoAtual = horaMinutoCron(frequencia, hora, minuto)
 
   // ── Colunas tabela notificadores ──────────────────────────────────────────
   const colunasNotificadores: Array<{ key: string; label: string; tipo: string; render?: (v: unknown, row: NcmNotificador) => React.ReactNode }> = [
-    { key: 'nome',     label: 'NOME',     tipo: 'texto' },
-    { key: 'contato',  label: 'CONTATO',  tipo: 'texto' },
-    { key: 'condicao', label: 'CONDIÇÃO', tipo: 'texto' },
-    { key: 'canal',    label: 'CANAL',    tipo: 'texto' },
+    { key: 'nome',     label: t('admin.ncm_modal.col_nome'),     tipo: 'texto' },
+    { key: 'contato',  label: t('admin.ncm_modal.col_contato'),  tipo: 'texto' },
+    { key: 'condicao', label: t('admin.ncm_modal.col_condicao'), tipo: 'texto' },
+    { key: 'canal',    label: t('admin.ncm_modal.col_canal'),    tipo: 'texto' },
     {
       key: 'id', label: '', tipo: 'texto',
       render: (_v, row) => (
@@ -175,7 +177,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
           onClick={() => handleRemoverNotificador(row.id)}
           style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', padding: '4px 10px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
         >
-          Remover
+          {t('admin.ncm_modal.btn_remover')}
         </button>
       ),
     },
@@ -185,7 +187,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
   const abas: AbaFormulario[] = [
     {
       id: 'config',
-      rotulo: 'Configuração',
+      rotulo: t('admin.ncm_modal.aba_config'),
       conteudo: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
           {/* Banner informativo */}
@@ -198,12 +200,12 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
             <div style={{ background: 'rgba(56,189,248,0.2)', padding: '6px', borderRadius: '8px', display: 'flex' }}>
               <Info size={16} weight="bold" color="#38bdf8" />
             </div>
-            <span>O job sincroniza automaticamente a tabela NCM do Portal Único Siscomex para todos os tenants ativos. A tabela Siscomex é atualizada à meia-noite.</span>
+            <span>{t('admin.ncm_modal.config_info')}</span>
           </div>
 
           {/* Ativação */}
           <div className="em-grid">
-            <GeralCampoGlobal label="Agendamento Automático">
+            <GeralCampoGlobal label={t('admin.ncm_modal.label_ativacao')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ width: '200px' }}>
                   <SelectGlobal
@@ -213,7 +215,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
                   />
                 </div>
                 <span style={{ color: ativo ? '#10b981' : '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>
-                  Status: {ativo ? 'Ativado' : 'Desativado'}
+                  {ativo ? t('admin.ncm_modal.status_ativado') : t('admin.ncm_modal.status_desativado')}
                 </span>
               </div>
             </GeralCampoGlobal>
@@ -221,10 +223,10 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
 
           {/* Frequência & Hora */}
           <div className="em-grid em-grid--2">
-            <GeralCampoGlobal label="Frequência">
+            <GeralCampoGlobal label={t('admin.ncm_modal.label_freq')}>
               <SelectGlobal opcoes={opcoesFrequencia} valor={frequencia} aoMudarValor={v => updateFreq(String(v))} />
             </GeralCampoGlobal>
-            <GeralCampoGlobal label="Hora de execução">
+            <GeralCampoGlobal label={t('admin.ncm_modal.label_hora')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <SelectGlobal opcoes={opcoesHora}   valor={hora}   aoMudarValor={v => updateHora(String(v))} />
                 <span style={{ color: '#475569', fontWeight: 700 }}>:</span>
@@ -235,7 +237,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
 
           {/* Preview da expressão cron */}
           <div style={{ background: 'rgba(15,23,42,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '0.875rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>Expressão Cron:</span>
+            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>{t('admin.ncm_modal.label_cron')}</span>
             <code style={{ color: '#38bdf8', fontSize: '0.9rem', background: 'rgba(56,189,248,0.1)', padding: '3px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>
               {cronExpressaoAtual}
             </code>
@@ -246,12 +248,12 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
     },
     {
       id: 'notificacoes',
-      rotulo: 'Notificadores',
+      rotulo: t('admin.ncm_modal.aba_notif'),
       conteudo: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
             <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#6366f1', letterSpacing: '0.1em' }}>
-              <EnvelopeSimple size={14} weight="fill" /> Destinatários de Alertas
+              <EnvelopeSimple size={14} weight="fill" /> {t('admin.ncm_modal.dest_titulo')}
             </h4>
             <button
               onClick={() => setMostrarFormAlerta(v => !v)}
@@ -262,7 +264,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
                 padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
               }}
             >
-              {mostrarFormAlerta ? 'Cancelar' : '+ Novo Destinatário'}
+              {mostrarFormAlerta ? t('admin.ncm_modal.btn_cancelar') : t('admin.ncm_modal.btn_novo_dest')}
             </button>
           </div>
 
@@ -272,30 +274,30 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
               borderRadius: '12px', padding: '1.25rem', marginBottom: '1rem',
               display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem',
             }}>
-              <GeralCampoGlobal label="Nome">
+              <GeralCampoGlobal label={t('admin.ncm_modal.label_nome')}>
                 <input
-                  placeholder="Nome do destinatário"
+                  placeholder={t('admin.ncm_modal.ph_nome')}
                   value={novoNotificador.nome}
                   onChange={e => setNovoNotificador(p => ({ ...p, nome: e.target.value }))}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.875rem' }}
                 />
               </GeralCampoGlobal>
-              <GeralCampoGlobal label="Contato (e-mail ou telefone)">
+              <GeralCampoGlobal label={t('admin.ncm_modal.label_contato')}>
                 <input
-                  placeholder="email@empresa.com ou +5511..."
+                  placeholder={t('admin.ncm_modal.ph_contato')}
                   value={novoNotificador.contato}
                   onChange={e => setNovoNotificador(p => ({ ...p, contato: e.target.value }))}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: '0.875rem' }}
                 />
               </GeralCampoGlobal>
-              <GeralCampoGlobal label="Condição de envio">
+              <GeralCampoGlobal label={t('admin.ncm_modal.label_condicao')}>
                 <SelectGlobal
                   opcoes={opcoesCondicao}
                   valor={novoNotificador.condicao}
                   aoMudarValor={v => setNovoNotificador(p => ({ ...p, condicao: String(v) as NcmNotificador['condicao'] }))}
                 />
               </GeralCampoGlobal>
-              <GeralCampoGlobal label="Canal">
+              <GeralCampoGlobal label={t('admin.ncm_modal.label_canal')}>
                 <SelectGlobal
                   opcoes={opcoesCanal}
                   valor={novoNotificador.canal}
@@ -307,7 +309,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
                   onClick={handleAdicionarNotificador}
                   style={{ background: '#6366f1', color: '#fff', padding: '8px 24px', borderRadius: '8px', border: 'none', fontWeight: 700, cursor: 'pointer' }}
                 >
-                  Adicionar Destinatário
+                  {t('admin.ncm_modal.btn_adicionar')}
                 </button>
               </div>
             </div>
@@ -318,7 +320,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
               dados={notificadores}
               colunas={colunasNotificadores as Parameters<typeof TabelaGlobal>[0]['colunas']}
               idKey="id"
-              mensagemVazio="Nenhum destinatário configurado. Clique em '+ Novo Destinatário' para adicionar."
+              mensagemVazio={t('admin.ncm_modal.vazio_notif')}
             />
           </div>
         </div>
@@ -326,17 +328,17 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
     },
     {
       id: 'manual',
-      rotulo: 'Execução Manual',
+      rotulo: t('admin.ncm_modal.aba_manual'),
       conteudo: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
           <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#10b981', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
-            <Play size={14} weight="fill" /> Disparo Imediato
+            <Play size={14} weight="fill" /> {t('admin.ncm_modal.exec_titulo')}
           </h4>
 
           <div style={{ background: 'rgba(15,23,42,0.3)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '0.875rem 1.25rem', borderRadius: '10px', background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.15)', color: '#6ee7b7', fontSize: '0.85rem' }}>
               <Info size={16} weight="bold" color="#10b981" style={{ marginTop: '1px', flexShrink: 0 }} />
-              <span>Executa a sincronização NCM imediatamente para <strong>todos os tenants</strong> com dados cadastrados, com a mesma lógica do job automático.</span>
+              <span>{t('admin.ncm_modal.exec_info')}</span>
             </div>
 
             <button
@@ -356,8 +358,8 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
               }}
             >
               {executando
-                ? <><SpinnerGap size={20} weight="bold" style={{ animation: 'spin 1s linear infinite' }} /> Sincronizando…</>
-                : <><Play size={20} weight="fill" /> Sincronizar Agora</>
+                ? <><SpinnerGap size={20} weight="bold" style={{ animation: 'spin 1s linear infinite' }} /> {t('admin.ncm_modal.btn_sincronizando')}</>
+                : <><Play size={20} weight="fill" /> {t('admin.ncm_modal.btn_sincronizar')}</>
               }
             </button>
 
@@ -371,7 +373,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
             {resultadoExecucao && resultadoExecucao.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  Resultado — {resultadoExecucao.length} tenant(s)
+                  {t('admin.ncm_modal.resultado_label', { count: resultadoExecucao.length })}
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', maxHeight: '240px', overflowY: 'auto' }}>
                   {resultadoExecucao.map((r) => (
@@ -411,34 +413,36 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
     },
     {
       id: 'monitoramento',
-      rotulo: 'Monitoramento',
+      rotulo: t('admin.ncm_modal.aba_monitor'),
       conteudo: (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
           <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: '#eab308', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
-            <Clock size={14} weight="duotone" /> Status do Agendamento
+            <Clock size={14} weight="duotone" /> {t('admin.ncm_modal.monitor_titulo')}
           </h4>
 
           <div className="em-grid em-grid--2">
             <div style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '1.25rem' }}>
-              <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Status</span>
+              <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{t('admin.ncm_modal.card_status')}</span>
               <span style={{ color: ativo ? '#10b981' : '#94a3b8', fontSize: '1.1rem', fontWeight: 600 }}>
-                {ativo ? '● Ativo' : '○ Inativo'}
+                {ativo ? t('admin.ncm_modal.ativo') : t('admin.ncm_modal.inativo')}
               </span>
             </div>
             <div style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '1.25rem' }}>
-              <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Expressão Cron</span>
+              <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{t('admin.ncm_modal.card_cron')}</span>
               <code style={{ color: '#38bdf8', fontSize: '1rem', background: 'rgba(56,189,248,0.1)', padding: '4px 8px', borderRadius: '4px' }}>
                 {cronExpressaoAtual}
               </code>
             </div>
             <div style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '1.25rem' }}>
-              <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Frequência</span>
+              <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{t('admin.ncm_modal.card_freq')}</span>
               <span style={{ color: '#f1f5f9', fontSize: '1rem', fontWeight: 300 }}>
-                {frequencia === 'Semanal' ? `Semanal — ${hora}:${minuto.replace('min', '')}` : `Diário — ${hora}:${minuto.replace('min', '')}`}
+                {frequencia === 'Semanal'
+                  ? t('admin.ncm_modal.freq_semanal_fmt', { hora, minuto: minuto.replace('min', '') })
+                  : t('admin.ncm_modal.freq_diario_fmt', { hora, minuto: minuto.replace('min', '') })}
               </span>
             </div>
             <div style={{ background: 'rgba(30,41,59,0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', padding: '1.25rem' }}>
-              <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Última atualização config</span>
+              <span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>{t('admin.ncm_modal.card_ultima_config')}</span>
               <span style={{ color: '#f1f5f9', fontSize: '0.9rem', fontWeight: 300 }}>
                 {formatDatetime(configOriginal?.atualizado_em ?? null)}
               </span>
@@ -448,7 +452,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
           <div style={{ background: 'rgba(15,23,42,0.2)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: '16px', padding: '2rem', textAlign: 'center' }}>
             <div style={{ color: '#475569', marginBottom: '1rem' }}><List size={48} weight="thin" style={{ margin: '0 auto' }} /></div>
             <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
-              Histórico detalhado de execuções disponível na página principal de Sincronização NCM.
+              {t('admin.ncm_modal.historico_hint')}
             </p>
           </div>
         </div>
@@ -464,7 +468,7 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
       icone={<Clock weight="fill" size={24} color="#6366f1" />}
       titulo={
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span>Agendamento NCM</span>
+          <span>{t('admin.ncm_modal.titulo')}</span>
           <span style={{
             fontSize: '0.625rem', fontWeight: 800, textTransform: 'uppercase',
             letterSpacing: '0.05em', padding: '2px 8px', borderRadius: '6px',
@@ -472,11 +476,11 @@ export function ModalAgendamentoNcmSync({ aberto, aoFechar, aoMudarStatus }: Mod
             border: `1px solid ${ativo ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.1)'}`,
             color: ativo ? '#10b981' : '#94a3b8',
           }}>
-            {ativo ? 'ATIVO' : 'INATIVO'}
+            {ativo ? t('admin.ncm_modal.badge_ativo') : t('admin.ncm_modal.badge_inativo')}
           </span>
         </div> as unknown as string
       }
-      subtitulo="Configure o job automático de sincronização da tabela NCM do Portal Único Siscomex"
+      subtitulo={t('admin.ncm_modal.subtitulo')}
       dirty={isDirty}
       podesSalvar={isDirty && !salvando}
       tamanho="lg"

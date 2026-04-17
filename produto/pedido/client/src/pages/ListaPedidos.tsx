@@ -2973,8 +2973,9 @@ export default function ListaPedidos() {
       }
     }
     carregar()
-    window.addEventListener('focus', carregar)
-    return () => { cancelado = true; window.removeEventListener('focus', carregar) }
+    // revalidateOnFocus: false — não refaz esta requisição ao voltar o foco da aba.
+    // Evita concorrência com refresh de token do Clerk após idle timeout.
+    return () => { cancelado = true }
   }, [])
 
   // ── Status customizados (sincroniza com localStorage ao ganhar foco) ─────────
@@ -3271,9 +3272,10 @@ export default function ListaPedidos() {
       setTotal(res.total)
       setTotalItensBanco(res.totalItens ?? 0)
     } catch {
-      setPedidos([])
-      setTotal(0)
-      setTotalItensBanco(0)
+      // keepPreviousData: mantém os pedidos atualmente exibidos caso o fetch falhe
+      // (ex: token Clerk expirando após idle timeout, race condition de refresh).
+      // Sem isso, qualquer falha transitória zera a tela e mostra Empty State
+      // mesmo quando o usuário tem dados válidos carregados.
     } finally {
       setCarregando(false)
       carregandoRef.current = false

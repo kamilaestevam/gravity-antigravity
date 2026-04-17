@@ -7,8 +7,15 @@ import { getProdutoMeta } from '@nucleo/logo-produtos'
 import { ChartPieSlice, ListBullets, Kanban, ClockCounterClockwise, GearSix, UserCircle, CheckCircle, Envelope, WhatsappLogo } from '@phosphor-icons/react'
 import { PRODUCT_CONFIG, type NavigationItem } from './shared/config'
 import { Notificacoes } from '@tenant/notificacoes/src/Notificacoes'
-import { setApiContext } from './shared/api'
+import { setApiContext, injectTenantGetter } from './shared/api'
 import type { NavItem } from '@nucleo/tela-produto-global'
+
+// Injeta o getter uma vez quando o módulo carrega — lê o Zustand sincronamente
+// no exato momento de cada request, sem depender do ciclo de vida do React.
+injectTenantGetter(() =>
+  useShellStore.getState().currentUser?.tenantId ??
+  (import.meta.env.VITE_DEV_TENANT_ID as string | undefined)
+)
 
 // ── Lazy loading das telas ────────────────────────────────────────────────────
 const ListaPedidos     = lazy(() => import('./pages/ListaPedidos'))
@@ -98,19 +105,10 @@ export function App() {
 
   const { history, visitedIds, addEntry } = useLocalizadorHistory(PRODUCT_ID)
 
-  // Subscrições granulares — garantem re-render e re-sync quando o Clerk/Workspace
-  // popula cada valor individualmente (s.currentUser como objeto pode não mudar referência)
-  const tenantIdStore = useShellStore(s => s.currentUser.tenantId ?? (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) ?? '')
-  const userIdStore   = useShellStore(s => s.currentUser.id       ?? '')
-  const userNameStore = useShellStore(s => s.currentUser.name     ?? '')
-
-  // Sincroniza o contexto da API sempre que o Workspace for carregado ou alterado pelo Clerk.
-  // useEffect (e não chamada síncrona no render) garante que a sincronização só ocorre
-  // após o store estar hidratado — nunca com valores ainda indefinidos.
+  // userId/userName não são críticos para auth — atualizados via context quando disponíveis
   useEffect(() => {
-    if (!tenantIdStore) return
-    setApiContext({ tenantId: tenantIdStore, userId: userIdStore, userName: userNameStore })
-  }, [tenantIdStore, userIdStore, userNameStore])
+    if (currentUser.id) setApiContext({ tenantId: '', userId: currentUser.id, userName: currentUser.name ?? '' })
+  }, [currentUser.id, currentUser.name])
 
   useEffect(() => {
     const pageLabel = location.pathname.split('/').filter(Boolean).pop() ?? 'Pedidos'

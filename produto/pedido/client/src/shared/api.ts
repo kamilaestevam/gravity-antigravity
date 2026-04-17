@@ -50,9 +50,16 @@ import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 
 let context = { tenantId: '', userId: '', userName: '' }
 
+// Getter dinâmico injetado pelo App.tsx — lê o Zustand no exato momento do request,
+// eliminando a race condition entre useEffect do filho e useEffect do pai.
+// Nunca importamos o store aqui para evitar circular dependency do Vite.
+let getDynamicTenantId: () => string | undefined = () => undefined
+
+export const injectTenantGetter = (fn: () => string | undefined): void => {
+  getDynamicTenantId = fn
+}
+
 export function setApiContext(ctx: { tenantId: string; userId: string; userName?: string }): void {
-  // Ignora valores inválidos — protege contra o pisco de re-render na troca de rota SPA
-  // onde o store pisca para undefined antes de ser reidratado pelo Clerk
   if (ctx.tenantId) context.tenantId = ctx.tenantId
   if (ctx.userId)   context.userId   = ctx.userId
   if (ctx.userName) context.userName = ctx.userName
@@ -67,9 +74,7 @@ export function getApiContext(): { tenantId: string; userId: string; userName: s
 }
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  // setApiContext é chamado sincronamente no render do App antes de qualquer efeito,
-  // garantindo que context.tenantId esteja sempre atualizado no momento da requisição.
-  const tenantId = context.tenantId || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const tenantId = getDynamicTenantId() || context.tenantId || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
 
   const response = await fetch(endpoint, {
     ...options,

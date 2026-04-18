@@ -7,34 +7,91 @@ description: "Use esta skill para operações de banco de dados — migrations, 
 
 ## Topologia de Bancos
 
-| Banco | Serviço | Dados |
-|:---|:---|:---|
-| configurador-db | Configurador | Tenants, planos, billing, permissões |
-| tenant-db | Tenant Services | Atividades, email, WhatsApp, dashboard, histórico |
-| simula-custo-db | SimulaCusto | Estimativas, cache fiscal |
-| bid-frete-db | Bid Frete | Cotações, bids, fornecedores |
+| Banco Railway | Serviço | Schema | Dados |
+|:---|:---|:---|:---|
+| gravity-configurador-producao | Configurador | `public` (único) | Tenants, planos, billing, permissões |
+| gravity-tenant-producao | Tenant Services | `tenant_<cuid>` por tenant | Email, WhatsApp, dashboard, histórico |
+| gravity-pedido-producao | Pedido | `tenant_<cuid>` por tenant | Pedidos comerciais, itens, lotes |
+| gravity-processo-producao | Processo | `tenant_<cuid>` por tenant | Processos logísticos, DI, DUIMP |
+| gravity-simula-custo-producao | SimulaCusto | `tenant_<cuid>` por tenant | Estimativas, cache fiscal |
 
-> **Regra:** cada produto tem seu próprio banco. Nenhum produto acessa banco de outro.
+Cada banco possui um espelho de testes (`gravity-*-teste`) com estrutura idêntica.
+
+> **Regra absoluta:** cada produto tem seu próprio banco PostgreSQL isolado.
+> Nenhum produto acessa banco de outro produto — comunicação apenas via REST API.
+
+### Estrutura interna de cada banco de produto
+
+```
+gravity-pedido-producao (PostgreSQL)
+  ├── public                         ← 100% VAZIO (nenhuma tabela aqui)
+  ├── tenant_cmo4vtp3i0000m86ft8vt5vnu   ← empresa A
+  │    ├── pedidos_comerciais
+  │    ├── pedido_itens
+  │    └── _prisma_migrations
+  └── tenant_cm...xyz                    ← empresa B
+       ├── pedidos_comerciais
+       ├── pedido_itens
+       └── _prisma_migrations
+```
+
+O Configurador é a única exceção: usa schema `public` como fonte de verdade global de identidade (Tenant, User, Subscription).
 
 ---
 
 ## Migrations
 
-### Fluxo obrigatório
+### Fluxo obrigatório para bancos de produto (Schema-per-Tenant)
 
 ```bash
-# 1. Compor schema (se usa fragments)
-npx ts-node scripts/compose-tenant-schema.ts
-
-# 2. Validar schema
-npx prisma validate
-
-# 3. Gerar migration
+# 1. Gerar a migration localmente (desenvolvimento)
 npx prisma migrate dev --name descricao-clara
+# Revise o SQL gerado ANTES de continuar
 
-# 4. Revisar o SQL gerado
-# 5. Testar em staging
-# 6. Só então aplicar em produção
+# 2. Provisionar schemas nos bancos de produto (se novo banco ou novo tenant)
+CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto_teste> \
+  npx tsx scripts/migration/01-provision-schemas.ts
+
+# 3. Aplicar migrations em TESTE primeiro — obrigatório
+CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto_teste> \
+  npx tsx scripts/migrate-all-tenants.ts --product=<nome>
+
+# 4. Validar resultado no banco de teste
+
+# 5. Só após validação explícita → aplicar em PRODUÇÃO (exige autorização)
+CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto_producao> \
+  npx tsx scripts/migrate-all-tenants.ts --product=<nome>
+```
+
+> **`prisma migrate dev` em banco de produto é proibido** — ele cria tabelas no schema
+> `public`, violando a Regra 3 da `database-governance` (public 100% vazio).
+
+### Regras invioláveis para o SQL das migrations
+
+**1. Sem schema fixo hardcoded:**
+```sql
+-- ❌ PROIBIDO
+ALTER TABLE "pedido"."pedido_itens" ...
+-- ✅ CORRETO (search_path já foi definido pelo orquestrador)
+ALTER TABLE "pedido_itens" ...
+```
+
+**2. RENAME e ALTER TYPE devem ser idempotentes:**
+```sql
+-- ✅ Padrão obrigatório
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'pedido_itens' AND column_name = 'nome_antigo') THEN
+    ALTER TABLE "pedido_itens" RENAME COLUMN "nome_antigo" TO "nome_novo";
+  END IF;
+END $$;
+```
+
+**3. DROP DEFAULT antes de cast de tipo:**
+```sql
+-- ✅ Obrigatório quando a coluna tem DEFAULT
+ALTER TABLE "tabela" ALTER COLUMN "coluna" DROP DEFAULT;
+ALTER TABLE "tabela" ALTER COLUMN "coluna" TYPE JSONB USING to_jsonb("coluna");
 ```
 
 ### Migrations destrutivas — sempre em duas fases
@@ -147,9 +204,16 @@ CREATE TABLE audit_logs_2026_01 PARTITION OF audit_logs
 
 ## Checklist — Operações de Banco
 
-- [ ] Migration testada em staging antes de produção?
-- [ ] Backup manual antes de migration destrutiva?
+**Antes de criar uma migration:**
+- [ ] O SQL referencia schema fixo (`"pedido".`, `"processo".`)? Se sim, remover.
+- [ ] RENAME COLUMN ou ALTER TYPE está envolvido? Se sim, usar `DO $$ IF EXISTS`.
+- [ ] ALTER TYPE com cast envolve coluna com DEFAULT? Se sim, `DROP DEFAULT` primeiro.
 - [ ] Índices obrigatórios presentes (tenant_id, product_id, user_id)?
 - [ ] Unique constraints incluem tenant_id?
+
+**Antes de aplicar em produção:**
+- [ ] Migration validada no banco de **teste** com sucesso?
+- [ ] Autorização explícita do responsável técnico obtida?
+- [ ] Backup manual feito antes de migration destrutiva?
+- [ ] `prisma migrate dev` NÃO foi usado diretamente no banco de produto?
 - [ ] Query time validado para queries novas?
-- [ ] Connection pooling configurado (Fase 3)?

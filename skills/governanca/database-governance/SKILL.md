@@ -242,6 +242,85 @@ valor_total_itens         = valor_unitario_item × saldo_item_pedido
 
 ---
 
+## Regras de Migrations para Bancos de Produto
+
+> **Aprendizado validado em produção — Sprint 2 (2026-04-18).**
+
+### Regra 1 — Schema dinâmico, nunca fixo
+
+Migrations de produto **nunca referenciam um schema fixo pelo nome**. O orquestrador
+`scripts/migrate-all-tenants.ts` já faz `SET search_path TO "tenant_<cuid>"` antes de
+executar cada migration — qualquer prefixo hardcoded é redundante e quebra o isolamento.
+
+```sql
+-- ❌ PROIBIDO — schema fixo herdado da arquitetura antiga
+ALTER TABLE "pedido"."pedido_itens" RENAME COLUMN ...
+CREATE TYPE "pedido"."StatusPedido" AS ENUM (...)
+
+-- ✅ CORRETO — sem prefixo, search_path já foi definido pelo orquestrador
+ALTER TABLE "pedido_itens" RENAME COLUMN ...
+CREATE TYPE "StatusPedido" AS ENUM (...)
+```
+
+**Se um arquivo `.sql` contiver `"<nome_produto>".`, o CI bloqueará o deploy.**
+
+### Regra 2 — Idempotência Obrigatória em Migrations de Rename/Alter
+
+O orquestrador `migrate-all-tenants.ts` pode rodar a mesma migration em N tenants em
+momentos diferentes. Migrations que fazem `RENAME COLUMN` ou `ALTER COLUMN TYPE` devem
+usar `DO $$ IF EXISTS` para não falhar em tenants cujo estado físico já está à frente.
+
+```sql
+-- ❌ PROIBIDO — falha se a coluna já foi renomeada
+ALTER TABLE "pedido_itens" RENAME COLUMN "quantidade_inicial" TO "quantidade_inicial_item_pedido";
+
+-- ✅ OBRIGATÓRIO — idempotente, seguro para qualquer estado do banco
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'pedido_itens' AND column_name = 'quantidade_inicial'
+  ) THEN
+    ALTER TABLE "pedido_itens" RENAME COLUMN "quantidade_inicial" TO "quantidade_inicial_item_pedido";
+  END IF;
+END $$;
+```
+
+**Regra adicional para cast de tipo com DEFAULT:**
+Antes de `ALTER COLUMN TYPE`, sempre `DROP DEFAULT` primeiro:
+
+```sql
+-- ❌ Falha quando a coluna tem DEFAULT incompatível com o novo tipo
+ALTER TABLE "pedidos_comerciais"
+  ALTER COLUMN "pedidos_origem" TYPE JSONB USING to_jsonb("pedidos_origem");
+
+-- ✅ Correto
+ALTER TABLE "pedidos_comerciais" ALTER COLUMN "pedidos_origem" DROP DEFAULT;
+ALTER TABLE "pedidos_comerciais"
+  ALTER COLUMN "pedidos_origem" TYPE JSONB USING to_jsonb("pedidos_origem");
+```
+
+### Regra 3 — Fluxo Obrigatório para Novo Banco de Produto
+
+Ao criar um novo banco de produto no Railway:
+
+```bash
+# Passo 1 — Provisionar schemas físicos (um por tenant ativo)
+CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto> \
+  npx tsx scripts/migration/01-provision-schemas.ts
+
+# Passo 2 — Aplicar migrations em todos os schemas
+CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto> \
+  npx tsx scripts/migrate-all-tenants.ts --product=<nome>
+
+# ❌ NUNCA usar diretamente — cria tabelas no schema public (proibido)
+npx prisma migrate dev
+```
+
+**Ambiente de teste DEVE ser validado antes de executar em produção.**
+O Passo 1 e 2 em produção exigem autorização explícita do responsável técnico.
+
+---
+
 ## Estrutura de `fragment.prisma` por Produto
 
 Cada produto/serviço escreve **apenas seu próprio** `fragment.prisma`. O Coordenador compõe o `schema.prisma` final via `scripts/compose-tenant-schema.ts`.

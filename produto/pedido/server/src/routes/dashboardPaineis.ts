@@ -8,10 +8,10 @@
  * DELETE /api/v1/pedidos/dashboard/paineis/:id         — deleta painel
  */
 
-import { Router, Response, NextFunction } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import { AppError } from '../errors/AppError.js'
-import type { TenantRequest } from '../shared/types.js'
 
 export const dashboardPaineisRouter = Router()
 
@@ -31,39 +31,31 @@ const ReordenarSchema = z.object({
   ids: z.array(z.string().min(1)).min(1, 'Informe ao menos um id'),
 })
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function getTenantId(req: TenantRequest): string {
-  const id = req.headers['x-tenant-id'] as string | undefined
-  if (!id) throw new AppError('Header x-tenant-id obrigatório', 400, 'BAD_REQUEST')
-  return id
-}
-
-function getUserId(req: TenantRequest): string {
-  return (req.headers['x-user-id'] as string | undefined) ?? 'unknown'
-}
-
 // ── GET /paineis ──────────────────────────────────────────────────────────────
 
-dashboardPaineisRouter.get('/paineis', async (req: TenantRequest, res: Response, next: NextFunction) => {
+dashboardPaineisRouter.get('/paineis', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    const user_id   = getUserId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
 
-    let paineis = await req.prisma.dashboardPainel.findMany({
-      where:   { tenant_id, user_id },
-      orderBy: { ordem: 'asc' },
-    })
-
-    // Cria painel padrão se o usuário não tiver nenhum
-    if (paineis.length === 0) {
-      const padrao = await req.prisma.dashboardPainel.create({
-        data: { tenant_id, user_id, nome: 'Principal', ordem: 0 },
+      let paineis = await db.dashboardPainel.findMany({
+        where:   { tenant_id, user_id },
+        orderBy: { ordem: 'asc' },
       })
-      paineis = [padrao]
-    }
 
-    res.json({ data: paineis })
+      if (paineis.length === 0) {
+        const padrao = await db.dashboardPainel.create({
+          data: { tenant_id, user_id, nome: 'Principal', ordem: 0 },
+        })
+        paineis = [padrao]
+      }
+
+      res.json({ data: paineis })
+    })
   } catch (err) {
     next(err)
   }
@@ -71,32 +63,37 @@ dashboardPaineisRouter.get('/paineis', async (req: TenantRequest, res: Response,
 
 // ── POST /paineis ─────────────────────────────────────────────────────────────
 
-dashboardPaineisRouter.post('/paineis', async (req: TenantRequest, res: Response, next: NextFunction) => {
+dashboardPaineisRouter.post('/paineis', async (req: Request, res: Response, next: NextFunction) => {
+  const parsed = CriarPainelSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return next(new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR'))
+  }
+
   try {
-    const tenant_id = getTenantId(req)
-    const user_id   = getUserId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
 
-    const parsed = CriarPainelSchema.safeParse(req.body)
-    if (!parsed.success) {
-      throw new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR')
-    }
+      const ultimo = await db.dashboardPainel.findFirst({
+        where:   { tenant_id, user_id },
+        orderBy: { ordem: 'desc' },
+        select:  { ordem: true },
+      })
 
-    const ultimo = await req.prisma.dashboardPainel.findFirst({
-      where:   { tenant_id, user_id },
-      orderBy: { ordem: 'desc' },
-      select:  { ordem: true },
+      const painel = await db.dashboardPainel.create({
+        data: {
+          tenant_id,
+          user_id,
+          nome:  parsed.data.nome,
+          ordem: (ultimo?.ordem ?? -1) + 1,
+        },
+      })
+
+      res.status(201).json({ data: painel })
     })
-
-    const painel = await req.prisma.dashboardPainel.create({
-      data: {
-        tenant_id,
-        user_id,
-        nome:  parsed.data.nome,
-        ordem: (ultimo?.ordem ?? -1) + 1,
-      },
-    })
-
-    res.status(201).json({ data: painel })
   } catch (err) {
     next(err)
   }
@@ -104,26 +101,31 @@ dashboardPaineisRouter.post('/paineis', async (req: TenantRequest, res: Response
 
 // ── PUT /paineis/reordenar — deve vir antes de /:id ───────────────────────────
 
-dashboardPaineisRouter.put('/paineis/reordenar', async (req: TenantRequest, res: Response, next: NextFunction) => {
+dashboardPaineisRouter.put('/paineis/reordenar', async (req: Request, res: Response, next: NextFunction) => {
+  const parsed = ReordenarSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return next(new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR'))
+  }
+
   try {
-    const tenant_id = getTenantId(req)
-    const user_id   = getUserId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
 
-    const parsed = ReordenarSchema.safeParse(req.body)
-    if (!parsed.success) {
-      throw new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR')
-    }
+      await Promise.all(
+        parsed.data.ids.map((id, index) =>
+          db.dashboardPainel.updateMany({
+            where: { id, tenant_id, user_id },
+            data:  { ordem: index },
+          }),
+        ),
+      )
 
-    await Promise.all(
-      parsed.data.ids.map((id, index) =>
-        req.prisma.dashboardPainel.updateMany({
-          where: { id, tenant_id, user_id },
-          data:  { ordem: index },
-        }),
-      ),
-    )
-
-    res.json({ data: { reordenado: true } })
+      res.json({ data: { reordenado: true } })
+    })
   } catch (err) {
     next(err)
   }
@@ -131,28 +133,33 @@ dashboardPaineisRouter.put('/paineis/reordenar', async (req: TenantRequest, res:
 
 // ── PUT /paineis/:id ──────────────────────────────────────────────────────────
 
-dashboardPaineisRouter.put('/paineis/:id', async (req: TenantRequest, res: Response, next: NextFunction) => {
+dashboardPaineisRouter.put('/paineis/:id', async (req: Request, res: Response, next: NextFunction) => {
+  const parsed = AtualizarPainelSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return next(new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR'))
+  }
+
   try {
-    const tenant_id = getTenantId(req)
-    const user_id   = getUserId(req)
-    const { id }    = req.params
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
+      const { id }   = req.params
 
-    const parsed = AtualizarPainelSchema.safeParse(req.body)
-    if (!parsed.success) {
-      throw new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR')
-    }
+      const painel = await db.dashboardPainel.findFirst({
+        where: { id, tenant_id, user_id },
+      })
+      if (!painel) throw new AppError('Painel não encontrado', 404, 'NOT_FOUND')
 
-    const painel = await req.prisma.dashboardPainel.findFirst({
-      where: { id, tenant_id, user_id },
+      const atualizado = await db.dashboardPainel.update({
+        where: { id },
+        data:  parsed.data,
+      })
+
+      res.json({ data: atualizado })
     })
-    if (!painel) throw new AppError('Painel não encontrado', 404, 'NOT_FOUND')
-
-    const atualizado = await req.prisma.dashboardPainel.update({
-      where: { id },
-      data:  parsed.data,
-    })
-
-    res.json({ data: atualizado })
   } catch (err) {
     next(err)
   }
@@ -160,27 +167,32 @@ dashboardPaineisRouter.put('/paineis/:id', async (req: TenantRequest, res: Respo
 
 // ── DELETE /paineis/:id ───────────────────────────────────────────────────────
 
-dashboardPaineisRouter.delete('/paineis/:id', async (req: TenantRequest, res: Response, next: NextFunction) => {
+dashboardPaineisRouter.delete('/paineis/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    const user_id   = getUserId(req)
-    const { id }    = req.params
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
+      const { id }   = req.params
 
-    const total = await req.prisma.dashboardPainel.count({
-      where: { tenant_id, user_id },
+      const total = await db.dashboardPainel.count({
+        where: { tenant_id, user_id },
+      })
+      if (total <= 1) {
+        throw new AppError('Não é possível deletar o único painel', 400, 'VALIDATION_ERROR')
+      }
+
+      const painel = await db.dashboardPainel.findFirst({
+        where: { id, tenant_id, user_id },
+      })
+      if (!painel) throw new AppError('Painel não encontrado', 404, 'NOT_FOUND')
+
+      await db.dashboardPainel.delete({ where: { id } })
+
+      res.json({ data: { deletado: true } })
     })
-    if (total <= 1) {
-      throw new AppError('Não é possível deletar o único painel', 400, 'VALIDATION_ERROR')
-    }
-
-    const painel = await req.prisma.dashboardPainel.findFirst({
-      where: { id, tenant_id, user_id },
-    })
-    if (!painel) throw new AppError('Painel não encontrado', 404, 'NOT_FOUND')
-
-    await req.prisma.dashboardPainel.delete({ where: { id } })
-
-    res.json({ data: { deletado: true } })
   } catch (err) {
     next(err)
   }

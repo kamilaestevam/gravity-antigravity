@@ -19,6 +19,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import { DuplicarService, ExcluirService, AppError } from '../services/duplicarExcluirService.js'
 
 export const duplicarExcluirRouter = Router()
@@ -65,14 +66,15 @@ duplicarExcluirRouter.post('/duplicar/preview', async (req: Request, res: Respon
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (req as any).prisma
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
-
   try {
-    const resultado = await duplicarService.preview(db, tenantId, parse.data.ids)
-    res.json(resultado)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      const resultado = await duplicarService.preview(db, tenantId, parse.data.ids)
+      res.json(resultado)
+    })
   } catch (err) {
     next(err)
   }
@@ -88,17 +90,19 @@ duplicarExcluirRouter.post('/duplicar/confirmar', async (req: Request, res: Resp
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (req as any).prisma
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
-  const companyId = (req.headers['x-company-id'] as string | undefined) ?? tenantId
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userId = (req as any).userId as string ?? ''
+  const companyId = (req.headers['x-company-id'] as string | undefined)
 
   try {
-    const resultado = await duplicarService.confirmar(db, tenantId, companyId, userId, parse.data)
-    res.status(201).json(resultado)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenantId = ctx.tenantId
+      const userId   = ctx.userId ?? ''
+
+      const resultado = await duplicarService.confirmar(db, tenantId, companyId ?? tenantId, userId, parse.data)
+      res.status(201).json(resultado)
+    })
   } catch (err) {
     next(err)
   }
@@ -114,15 +118,17 @@ duplicarExcluirRouter.post('/duplicar/itens', async (req: Request, res: Response
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (req as any).prisma
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
-  const companyId = (req.headers['x-company-id'] as string | undefined) ?? tenantId
+  const companyId = (req.headers['x-company-id'] as string | undefined)
 
   try {
-    const resultado = await duplicarService.duplicarItens(db, tenantId, companyId, parse.data)
-    res.status(201).json(resultado)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      const resultado = await duplicarService.duplicarItens(db, tenantId, companyId ?? tenantId, parse.data)
+      res.status(201).json(resultado)
+    })
   } catch (err) {
     next(err)
   }
@@ -138,14 +144,15 @@ duplicarExcluirRouter.post('/excluir/preview', async (req: Request, res: Respons
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (req as any).prisma
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
-
   try {
-    const resultado = await excluirService.preview(db, tenantId, parse.data.ids)
-    res.json(resultado)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      const resultado = await excluirService.preview(db, tenantId, parse.data.ids)
+      res.json(resultado)
+    })
   } catch (err) {
     next(err)
   }
@@ -161,16 +168,17 @@ duplicarExcluirRouter.post('/excluir/confirmar', async (req: Request, res: Respo
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (req as any).prisma
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userId = (req as any).userId as string ?? ''
-
   try {
-    const resultado = await excluirService.confirmar(db, tenantId, userId, parse.data.ids)
-    res.json(resultado)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenantId = ctx.tenantId
+      const userId   = ctx.userId ?? ''
+
+      const resultado = await excluirService.confirmar(db, tenantId, userId, parse.data.ids)
+      res.json(resultado)
+    })
   } catch (err) {
     next(err)
   }
@@ -186,22 +194,23 @@ duplicarExcluirRouter.post('/excluir/itens', async (req: Request, res: Response,
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (req as any).prisma
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userId = (req as any).userId as string ?? ''
-
   try {
-    const resultado = await excluirService.excluirItens(
-      db,
-      tenantId,
-      userId,
-      parse.data.pedido_id,
-      parse.data.item_ids,
-    )
-    res.json(resultado)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenantId = ctx.tenantId
+      const userId   = ctx.userId ?? ''
+
+      const resultado = await excluirService.excluirItens(
+        db,
+        tenantId,
+        userId,
+        parse.data.pedido_id,
+        parse.data.item_ids,
+      )
+      res.json(resultado)
+    })
   } catch (err) {
     next(err)
   }

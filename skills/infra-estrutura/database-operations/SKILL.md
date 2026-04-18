@@ -10,7 +10,7 @@ description: "Use esta skill para operações de banco de dados — migrations, 
 | Banco Railway | Serviço | Schema | Dados |
 |:---|:---|:---|:---|
 | gravity-configurador-producao | Configurador | `public` (único) | Tenants, planos, billing, permissões |
-| gravity-tenant-producao | Tenant Services | `tenant_<cuid>` por tenant | Email, WhatsApp, dashboard, histórico |
+| gravity-servicos-producao | Tenant Services | `tenant_<cuid>` por tenant | Email, WhatsApp, dashboard, histórico |
 | gravity-pedido-producao | Pedido | `tenant_<cuid>` por tenant | Pedidos comerciais, itens, lotes |
 | gravity-processo-producao | Processo | `tenant_<cuid>` por tenant | Processos logísticos, DI, DUIMP |
 | gravity-simula-custo-producao | SimulaCusto | `tenant_<cuid>` por tenant | Estimativas, cache fiscal |

@@ -22,12 +22,12 @@ O ecossistema Gravity roda em regime de paridade total entre Staging e Produçã
 
 ### 🧪 Cluster: Staging (T26_STAGING)
 - **Configurador DB:** `gondola.proxy.rlwy.net:57584` (Ambiente: `gravity-configurador-teste`)
-- **Tenant DB:** `monorail.proxy.rlwy.net:45890` (Ambiente: `gravity-tenant-teste`)
+- **Serviços DB:** `monorail.proxy.rlwy.net:45890` (Ambiente: `gravity-servicos-teste`)
 - **Finalidade:** Testes de integração, regressão e validação de massa de dados Alpha/Beta.
 
 ### 💎 Cluster: Produção (P26_PRODUCTION)
 - **Configurador DB:** `gondola.proxy.rlwy.net:59644` (Ambiente: `gravity-configurador-producao`)
-- **Tenant DB:** `monorail.proxy.rlwy.net:16383` (Ambiente: `gravity-tenant-producao`)
+- **Serviços DB:** `monorail.proxy.rlwy.net:16383` (Ambiente: `gravity-servicos-producao`)
 - **Finalidade:** Tráfego real de clientes e processamento oficial.
 
 ---

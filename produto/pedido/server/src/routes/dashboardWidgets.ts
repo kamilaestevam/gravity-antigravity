@@ -14,6 +14,7 @@
 
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 
 export const dashboardWidgetsRouter = Router()
 
@@ -62,26 +63,28 @@ const SaveWidgetsSchema = z.object({
 
 // ── GET — busca configuração persistida ──────────────────────────────────────
 dashboardWidgetsRouter.get('/', async (req: Request, res: Response) => {
-  const tenantId = (req as any).tenantId as string
-  const db = (req as any).prisma
-
   try {
-    const config = await db.dashboardConfig.findFirst({
-      where: { product_id: 'pedido' },
-    })
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
 
-    if (!config) {
-      return res.json({ widgets: [], source: 'default' })
-    }
+      const config = await db.dashboardConfig.findFirst({
+        where: { product_id: 'pedido' },
+      })
 
-    const widgets = config.widgets_json
-      ? (JSON.parse(config.widgets_json as string) as unknown[])
-      : []
+      if (!config) {
+        return res.json({ widgets: [], source: 'default' })
+      }
 
-    res.json({
-      widgets,
-      updated_at: config.updated_at,
-      source: 'persisted',
+      const widgets = config.widgets_json
+        ? (JSON.parse(config.widgets_json as string) as unknown[])
+        : []
+
+      res.json({
+        widgets,
+        updated_at: config.updated_at,
+        source: 'persisted',
+      })
     })
   } catch (err) {
     console.error('[DashboardWidgets/GET]', err)
@@ -96,34 +99,38 @@ dashboardWidgetsRouter.put('/', async (req: Request, res: Response) => {
     return res.status(400).json({ error: parse.error.flatten() })
   }
 
-  const tenantId = (req as any).tenantId as string
-  const db = (req as any).prisma
   const { widgets } = parse.data
 
   try {
-    const existing = await db.dashboardConfig.findFirst({
-      where: { product_id: 'pedido' },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      const existing = await db.dashboardConfig.findFirst({
+        where: { product_id: 'pedido' },
+      })
+
+      if (existing) {
+        await db.dashboardConfig.update({
+          where: { id: existing.id },
+          data: {
+            widgets_json: JSON.stringify(widgets),
+            updated_at: new Date(),
+          },
+        })
+      } else {
+        await db.dashboardConfig.create({
+          data: {
+            tenant_id:    tenantId,
+            product_id:   'pedido',
+            widgets_json: JSON.stringify(widgets),
+          },
+        })
+      }
+
+      res.json({ ok: true, count: widgets.length })
     })
-
-    if (existing) {
-      await db.dashboardConfig.update({
-        where: { id: existing.id },
-        data: {
-          widgets_json: JSON.stringify(widgets),
-          updated_at: new Date(),
-        },
-      })
-    } else {
-      await db.dashboardConfig.create({
-        data: {
-          tenant_id:    tenantId,
-          product_id:   'pedido',
-          widgets_json: JSON.stringify(widgets),
-        },
-      })
-    }
-
-    res.json({ ok: true, count: widgets.length })
   } catch (err) {
     console.error('[DashboardWidgets/PUT]', err)
     res.status(500).json({ error: 'Erro ao salvar configuração' })
@@ -135,26 +142,29 @@ dashboardWidgetsRouter.delete('/:widgetId', async (req: Request, res: Response) 
   const { widgetId } = req.params
   if (!widgetId) return res.status(400).json({ error: 'widgetId obrigatorio' })
 
-  const db = (req as any).prisma
-
   try {
-    const config = await db.dashboardConfig.findFirst({
-      where: { product_id: 'pedido' },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+
+      const config = await db.dashboardConfig.findFirst({
+        where: { product_id: 'pedido' },
+      })
+      if (!config) return res.status(404).json({ error: 'Configuração nao encontrada' })
+
+      const widgets = config.widgets_json
+        ? (JSON.parse(config.widgets_json as string) as Array<{ id: string }>)
+        : []
+
+      const filtered = widgets.filter((w) => w.id !== widgetId)
+
+      await db.dashboardConfig.update({
+        where: { id: config.id },
+        data: { widgets_json: JSON.stringify(filtered), updated_at: new Date() },
+      })
+
+      res.json({ ok: true, removed: widgetId, remaining: filtered.length })
     })
-    if (!config) return res.status(404).json({ error: 'Configuração nao encontrada' })
-
-    const widgets = config.widgets_json
-      ? (JSON.parse(config.widgets_json as string) as Array<{ id: string }>)
-      : []
-
-    const filtered = widgets.filter((w) => w.id !== widgetId)
-
-    await db.dashboardConfig.update({
-      where: { id: config.id },
-      data: { widgets_json: JSON.stringify(filtered), updated_at: new Date() },
-    })
-
-    res.json({ ok: true, removed: widgetId, remaining: filtered.length })
   } catch (err) {
     console.error('[DashboardWidgets/DELETE]', err)
     res.status(500).json({ error: 'Erro ao remover widget' })

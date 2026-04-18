@@ -6,10 +6,10 @@
  * DELETE /api/v1/pedidos/kanban/preferencias  — restaura padrão (remove registro)
  */
 
-import { Router, Response, NextFunction } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import { AppError } from '../errors/AppError.js'
-import type { TenantRequest } from '../shared/types.js'
 
 export const kanbanPreferenciasRouter = Router()
 
@@ -54,30 +54,23 @@ const KanbanPreferenciasSchema = z.object({
   colunas_ocultas: z.array(z.string()).optional(),
 })
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function getTenantId(req: TenantRequest): string {
-  const id = req.headers['x-tenant-id'] as string | undefined
-  if (!id) throw new AppError('Header x-tenant-id obrigatório', 400, 'BAD_REQUEST')
-  return id
-}
-
-function getUserId(req: TenantRequest): string {
-  return (req.headers['x-user-id'] as string | undefined) ?? 'unknown'
-}
-
 // ── GET /kanban/preferencias ─────────────────────────────────────────────────
 
-kanbanPreferenciasRouter.get('/preferencias', async (req: TenantRequest, res: Response, next: NextFunction) => {
+kanbanPreferenciasRouter.get('/preferencias', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    const user_id   = getUserId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
 
-    const registro = await req.prisma.kanbanPreferencias.findFirst({
-      where: { tenant_id, user_id },
+      const registro = await db.kanbanPreferencias.findFirst({
+        where: { tenant_id, user_id },
+      })
+
+      res.json({ data: registro ? registro.preferencias : null })
     })
-
-    res.json({ data: registro ? registro.preferencias : null })
   } catch (err) {
     next(err)
   }
@@ -85,23 +78,28 @@ kanbanPreferenciasRouter.get('/preferencias', async (req: TenantRequest, res: Re
 
 // ── PUT /kanban/preferencias ──────────────────────────────────────────────────
 
-kanbanPreferenciasRouter.put('/preferencias', async (req: TenantRequest, res: Response, next: NextFunction) => {
+kanbanPreferenciasRouter.put('/preferencias', async (req: Request, res: Response, next: NextFunction) => {
+  const parsed = KanbanPreferenciasSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return next(new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR'))
+  }
+
   try {
-    const tenant_id = getTenantId(req)
-    const user_id   = getUserId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
 
-    const parsed = KanbanPreferenciasSchema.safeParse(req.body)
-    if (!parsed.success) {
-      throw new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR')
-    }
+      const registro = await db.kanbanPreferencias.upsert({
+        where:  { tenant_id_user_id: { tenant_id, user_id } },
+        create: { tenant_id, user_id, preferencias: parsed.data },
+        update: { preferencias: parsed.data },
+      })
 
-    const registro = await req.prisma.kanbanPreferencias.upsert({
-      where:  { tenant_id_user_id: { tenant_id, user_id } },
-      create: { tenant_id, user_id, preferencias: parsed.data },
-      update: { preferencias: parsed.data },
+      res.json({ data: registro.preferencias })
     })
-
-    res.json({ data: registro.preferencias })
   } catch (err) {
     next(err)
   }
@@ -109,16 +107,21 @@ kanbanPreferenciasRouter.put('/preferencias', async (req: TenantRequest, res: Re
 
 // ── DELETE /kanban/preferencias ───────────────────────────────────────────────
 
-kanbanPreferenciasRouter.delete('/preferencias', async (req: TenantRequest, res: Response, next: NextFunction) => {
+kanbanPreferenciasRouter.delete('/preferencias', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    const user_id   = getUserId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
 
-    await req.prisma.kanbanPreferencias.deleteMany({
-      where: { tenant_id, user_id },
+      await db.kanbanPreferencias.deleteMany({
+        where: { tenant_id, user_id },
+      })
+
+      res.json({ data: { restaurado: true } })
     })
-
-    res.json({ data: { restaurado: true } })
   } catch (err) {
     next(err)
   }

@@ -10,6 +10,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 
 export const loteRouter = Router()
 
@@ -36,26 +37,28 @@ loteRouter.post('/status/preview', async (req: Request, res: Response, next: Nex
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db       = (req as any).prisma
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
   const { ids, status_novo } = parse.data
 
   try {
-    const pedidos = await db.pedido.findMany({
-      where: { id: { in: ids }, tenant_id: tenantId },
-      select: { id: true, numero_pedido: true, status: true },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      const pedidos = await db.pedido.findMany({
+        where: { id: { in: ids }, tenant_id: tenantId },
+        select: { id: true, numero_pedido: true, status: true },
+      })
+
+      const afetados = pedidos.map((p: { id: string; numero_pedido: string; status: string }) => ({
+        id:            p.id,
+        numero_pedido: p.numero_pedido,
+        status_atual:  p.status,
+        status_novo,
+      }))
+
+      res.json({ total: afetados.length, afetados, bloqueados: [] })
     })
-
-    const afetados = pedidos.map((p: { id: string; numero_pedido: string; status: string }) => ({
-      id:            p.id,
-      numero_pedido: p.numero_pedido,
-      status_atual:  p.status,
-      status_novo,
-    }))
-
-    res.json({ total: afetados.length, afetados, bloqueados: [] })
   } catch (err) {
     next(err)
   }
@@ -71,19 +74,21 @@ loteRouter.post('/status/confirmar', async (req: Request, res: Response, next: N
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db       = (req as any).prisma
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
   const { ids, status_novo } = parse.data
 
   try {
-    const resultado = await db.pedido.updateMany({
-      where: { id: { in: ids }, tenant_id: tenantId },
-      data:  { status: status_novo },
-    })
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    res.json({ sucesso: resultado.count, erros: [] })
+      const resultado = await db.pedido.updateMany({
+        where: { id: { in: ids }, tenant_id: tenantId },
+        data:  { status: status_novo },
+      })
+
+      res.json({ sucesso: resultado.count, erros: [] })
+    })
   } catch (err) {
     next(err)
   }

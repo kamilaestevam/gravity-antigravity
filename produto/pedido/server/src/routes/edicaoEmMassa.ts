@@ -16,6 +16,7 @@
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import { EdicaoEmMassaService, AppError } from '../services/edicaoEmMassaService.js'
 
 export const edicaoEmMassaRouter = Router()
@@ -48,14 +49,15 @@ edicaoEmMassaRouter.post('/preview', async (req: Request, res: Response, next: N
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (req as any).prisma
-
   try {
-    const result = await service.preview(tenantId, db, parse.data)
-    res.json(result)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      const result = await service.preview(tenantId, db, parse.data)
+      res.json(result)
+    })
   } catch (err) {
     next(err)
   }
@@ -71,16 +73,17 @@ edicaoEmMassaRouter.post('/confirmar', async (req: Request, res: Response, next:
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tenantId = (req as any).tenantId as string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userId = (req as any).userId as string | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const db = (req as any).prisma
-
   try {
-    const result = await service.confirmar(tenantId, userId ?? 'system', db, parse.data)
-    res.json(result)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenantId = ctx.tenantId
+      const userId   = ctx.userId
+
+      const result = await service.confirmar(tenantId, userId ?? 'system', db, parse.data)
+      res.json(result)
+    })
   } catch (err) {
     next(err)
   }

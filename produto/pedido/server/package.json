@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@gravity/tenant-resolver": "*",
     "@clerk/backend": "^1.0.0",
     "@google/generative-ai": "^0.21.0",
     "@prisma/client": "^5.13.0",

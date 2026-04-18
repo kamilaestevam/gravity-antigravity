@@ -1,0 +1,498 @@
+// =============================================================================
+// fragment.prisma — Produto: Pedido
+// Fonte de verdade: documentos-tecnicos/campos-back-front-banco/documentacao-tecnica-pedidos.md
+// Arquitetura: Schema-per-Tenant (ADR-001 / ADR-002 / ADR-003)
+//
+// [OVR-1] tenant_id/company_id REMOVIDOS — o schema PostgreSQL `tenant_<uuid>` É o tenant.
+// [OVR-2] Casas decimais e fórmula de saldo ficam exclusivamente em PedidoWorkspaceConfig.
+// [OVR-3] Diretório: produtos/pedido/prisma/fragment.prisma
+//
+// Paridade nominal: nome_banco = nome_back = nome_front = chave_json. Sem @map() de coluna.
+// NÃO editar schema.prisma gerado — só o Coordenador via compose-product-schema.ts.
+// =============================================================================
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum StatusPedido {
+  draft
+  aberto
+  em_andamento
+  aprovado
+  transferencia
+  consolidado
+  cancelado
+}
+
+enum TipoOperacao {
+  importacao
+  exportacao
+}
+
+enum MoedaPedido {
+  USD
+  EUR
+  CNY
+  JPY
+  GBP
+  BRL
+}
+
+enum IncotermPedido {
+  FOB
+  CIF
+  EXW
+  CFR
+  FCA
+  DDP
+  DAP
+  CPT
+  CIP
+  DPU
+  FAS
+}
+
+enum UnidadeComercializada {
+  UNID
+  KG
+  TON
+  M
+  M2
+  M3
+  LT
+  PARES
+  DUZIA
+  JOGO
+}
+
+// =============================================================================
+// MODEL: PedidoWorkspaceConfig
+// Doc: Seção 2 — singleton por schema (1 por tenant)
+// =============================================================================
+
+model PedidoWorkspaceConfig {
+  // Singleton por schema. Sempre usar id = "workspace" no upsert.
+  id String @id @default("workspace")
+
+  casas_decimais_valor      Int  @default(2)
+  casas_decimais_quantidade Int  @default(2)
+  casas_decimais_peso       Int  @default(3)
+  casas_decimais_cubagem    Int  @default(3)
+
+  // Formato de exibição de datas. Valores: "DD/MM/AAAA" | "MM/DD/AAAA" | "AAAA-MM-DD"
+  formato_data String @default("DD/MM/AAAA")
+
+  formula_saldo_pedido String @default("A-B-C")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("pedido_workspace_config")
+}
+
+// =============================================================================
+// MODEL: Pedido
+// Doc: Seção 3
+// =============================================================================
+
+model Pedido {
+  // --- Identidade -------------------------------------------------------------
+  id                          String       @id
+  tipo_operacao               TipoOperacao
+  numero_pedido               String
+  status                      StatusPedido @default(aberto)
+  status_id                   String?
+
+  // --- Partes envolvidas ------------------------------------------------------
+  importacao_exportador_id  String?
+  exportacao_importador_id  String?
+  fabricante_id             String?
+  cnpj_importador           String?
+
+  // --- Condições comerciais ---------------------------------------------------
+  incoterm                      IncotermPedido?
+  moeda_pedido                  MoedaPedido          @default(USD)
+  unidade_comercializada_pedido UnidadeComercializada?
+  cobertura_cambial_pedido      String               @default("com_cobertura")
+  condicao_pagamento_pedido     String?
+
+  // --- Referências documentais ------------------------------------------------
+  numero_proforma       String?
+  numero_invoice        String?
+  referencia_importador String?
+  referencia_exportador String?
+  referencia_fabricante String?
+
+  // --- Câmbio -----------------------------------------------------------------
+  valor_total_cambio_pedido   Decimal? @db.Decimal(18, 6)
+  moeda_cambio_pedido         String?
+  taxa_cambio_estimada_pedido Decimal? @db.Decimal(18, 6)
+  contrato_cambio_id_pedido   String?
+
+  // --- Data -------------------------------------------------------------------
+  data_emissao_pedido DateTime @default(now())
+
+  // --- Totalizadores CALCULADOS (NUNCA receber escrita direta do front) -------
+  valor_total_pedido                  Decimal? @db.Decimal(18, 6)
+  quantidade_total_inicial_pedido     Decimal? @db.Decimal(18, 6)
+  quantidade_pronta_total_pedido      Decimal? @db.Decimal(18, 6)
+  quantidade_transferida_total_pedido Decimal? @db.Decimal(18, 6)
+  quantidade_cancelada_total_pedido   Decimal? @db.Decimal(18, 6)
+  saldo_total_pedido                  Decimal? @db.Decimal(18, 6)
+  peso_liquido_total_pedido           Decimal? @db.Decimal(18, 6)
+  peso_bruto_total_pedido             Decimal? @db.Decimal(18, 6)
+  cubagem_total_pedido                Decimal? @db.Decimal(18, 6)
+
+  // --- Campos virtuais (JSONB) ------------------------------------------------
+  detalhes_operacionais Json?
+  campos_custom         Json?
+  pedidos_origem_id     Json?
+
+  // --- Sistema ----------------------------------------------------------------
+  data_consolidacao_pedido DateTime?
+  deleted_at               DateTime?
+  pedido_criado_em         DateTime  @default(now())
+  pedido_atualizado_em     DateTime  @updatedAt
+
+  // --- Relações ---------------------------------------------------------------
+  itens          PedidoItem[]
+  transferencias TransferHistorico[]
+
+  // --- Constraints e índices --------------------------------------------------
+  @@unique([numero_pedido])
+  @@index([status])
+  @@index([status_id])
+  @@index([tipo_operacao])
+  @@index([data_emissao_pedido])
+  @@index([deleted_at])
+
+  @@map("pedidos_comerciais")
+}
+
+// =============================================================================
+// MODEL: PedidoItem
+// Doc: Seção 4
+// =============================================================================
+
+model PedidoItem {
+  // --- Identidade -------------------------------------------------------------
+  id             String @id
+  pedido_id      String
+  sequencia_item Int?
+
+  // --- Produto ----------------------------------------------------------------
+  part_number                 String
+  ncm                         String
+  descricao_item              String
+  unidade_comercializada_item UnidadeComercializada?
+
+  // --- Quantidades (Lógica A-B-C) ---------------------------------------------
+  quantidade_inicial_item_pedido      Decimal @db.Decimal(18, 6)
+  quantidade_pronta_total_item_pedido Decimal @default(0) @db.Decimal(18, 6)
+  quantidade_transferida_item_pedido  Decimal @default(0) @db.Decimal(18, 6)
+  quantidade_cancelada_item_pedido    Decimal @default(0) @db.Decimal(18, 6)
+  // [CALCULADO] A − B − C. NUNCA receber escrita direta do front.
+  saldo_item_pedido                   Decimal @db.Decimal(18, 6)
+
+  // --- Valores ----------------------------------------------------------------
+  moeda_item          MoedaPedido @default(USD)
+  valor_unitario_item Decimal?    @db.Decimal(18, 6)
+  // [CALCULADO] valor_unitario_item × saldo_item_pedido. NUNCA receber escrita direta.
+  valor_total_item    Decimal?    @db.Decimal(18, 6)
+
+  // --- Peso e volume ----------------------------------------------------------
+  peso_liquido_unitario_item Decimal? @db.Decimal(18, 6)
+  peso_bruto_unitario_item   Decimal? @db.Decimal(18, 6)
+  cubagem_unitaria_item      Decimal? @db.Decimal(18, 6)
+
+  // --- Campos virtuais (JSONB) ------------------------------------------------
+  campos_custom Json?
+
+  // --- Auditoria --------------------------------------------------------------
+  item_criado_em     DateTime @default(now())
+  item_atualizado_em DateTime @updatedAt
+
+  // --- Relações ---------------------------------------------------------------
+  pedido Pedido @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+
+  // --- Índices ----------------------------------------------------------------
+  @@index([pedido_id])
+  @@index([ncm])
+  @@index([part_number])
+
+  @@map("pedido_itens")
+}
+
+// =============================================================================
+// MODEL: PedidoStatus
+// =============================================================================
+
+model PedidoStatus {
+  id         String   @id @default(cuid())
+  nome       String
+  rotulo     String
+  cor        String
+  icone      String?
+  ordem      Int      @default(0)
+  is_padrao  Boolean  @default(false)
+  is_sistema Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([nome])
+
+  @@map("pedido_status")
+}
+
+// =============================================================================
+// MODEL: PedidoColuna
+// =============================================================================
+
+model PedidoColuna {
+  id             String   @id @default(cuid())
+  nome           String
+  rotulo         String
+  tipo           String
+  casas_decimais Int      @default(2)
+  opcoes         Json?
+  ordem          Int      @default(0)
+  filtravel      Boolean  @default(true)
+  exibida_padrao Boolean  @default(false)
+  index_criado   Boolean  @default(false)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@unique([nome])
+
+  @@map("pedido_colunas")
+}
+
+// =============================================================================
+// MODEL: PedidoPreferenciaUsuario
+// =============================================================================
+
+model PedidoPreferenciaUsuario {
+  id               String   @id @default(cuid())
+  user_id          String
+  colunas_visiveis String[]
+  colunas_largura  Json?
+  updated_at       DateTime @updatedAt
+
+  @@unique([user_id])
+  @@index([user_id])
+
+  @@map("pedido_preferencias_usuario")
+}
+
+// =============================================================================
+// MODEL: PedidoPreferenciaPadrao
+// =============================================================================
+
+model PedidoPreferenciaPadrao {
+  id               String   @id @default("padrao")
+  colunas_visiveis String[]
+  colunas_largura  Json?
+  updated_at       DateTime @updatedAt
+
+  @@map("pedido_preferencias_padrao")
+}
+
+// =============================================================================
+// MODEL: PedidoAnexo
+// =============================================================================
+
+model PedidoAnexo {
+  id            String   @id @default(cuid())
+  vinculo       String
+  vinculo_id    String
+  nome_arquivo  String
+  tipo_arquivo  String
+  tamanho_bytes Int
+  descricao     String?
+  categoria     String?
+  // Formato: tenant_<id>/pedido/<vinculo_id>/<nome>
+  storage_key   String
+  uploaded_by   String
+  created_at    DateTime @default(now())
+
+  @@index([vinculo_id])
+
+  @@map("pedido_anexos")
+}
+
+// =============================================================================
+// MODEL: PedidoTemplatePdf
+// =============================================================================
+
+model PedidoTemplatePdf {
+  id            String   @id @default(cuid())
+  nome          String
+  descricao     String?
+  conteudo_html String   @db.Text
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("pedido_templates_pdf")
+}
+
+// =============================================================================
+// MODEL: TransferHistorico
+// =============================================================================
+
+model TransferHistorico {
+  id                          String    @id @default(cuid())
+  pedido_origem_id            String
+  item_origem_id              String
+  cenario                     String
+  quantidade_item_transferida Decimal   @db.Decimal(18, 6)
+  destinos_json               String    @db.Text
+  revertido                   Boolean   @default(false)
+  revertido_em                DateTime?
+  revertido_por               String?
+  created_at                  DateTime  @default(now())
+  created_by                  String
+
+  pedido_origem Pedido @relation(fields: [pedido_origem_id], references: [id])
+
+  @@index([pedido_origem_id])
+  @@index([item_origem_id])
+
+  @@map("transfer_historico")
+}
+
+// =============================================================================
+// MODEL: ColunaUsuarioPedido
+// =============================================================================
+
+model ColunaUsuarioPedido {
+  id               String   @id @default(cuid())
+  nome             String
+  chave            String
+  tipo             String
+  escopo           String
+  visibilidade     String
+  roles_permitidas String[] @default([])
+  obrigatorio      Boolean  @default(false)
+  opcoes           String[] @default([])
+  descricao        String?
+  valor_padrao     String?
+  ordem            Int      @default(0)
+  ativo            Boolean  @default(true)
+  created_by       String
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  valores ValorColunaUsuarioPedido[]
+
+  @@unique([chave])
+  @@index([ativo])
+
+  @@map("colunas_usuario_pedido")
+}
+
+// =============================================================================
+// MODEL: ValorColunaUsuarioPedido
+// =============================================================================
+
+model ValorColunaUsuarioPedido {
+  id         String @id @default(cuid())
+  coluna_id  String
+  vinculo    String
+  vinculo_id String
+  valor      String
+
+  coluna ColunaUsuarioPedido @relation(fields: [coluna_id], references: [id], onDelete: Cascade)
+
+  @@unique([coluna_id, vinculo_id])
+  @@index([vinculo_id])
+
+  @@map("valores_colunas_usuario_pedido")
+}
+
+// =============================================================================
+// MODEL: MapeamentoImport
+// =============================================================================
+
+model MapeamentoImport {
+  id           String   @id @default(cuid())
+  user_id      String?
+  hash_colunas String
+  mapeamento   String   @db.Text
+  uso_count    Int      @default(1)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([hash_colunas])
+  @@index([user_id])
+
+  @@map("mapeamento_import")
+}
+
+// =============================================================================
+// MODEL: UserBehaviorEvent
+// =============================================================================
+
+model UserBehaviorEvent {
+  id         String   @id @default(cuid())
+  user_id    String
+  event      String
+  payload    Json
+  created_at DateTime @default(now())
+
+  @@index([user_id])
+  @@index([user_id, event])
+  @@index([user_id, created_at])
+
+  @@map("user_behavior_events")
+}
+
+// =============================================================================
+// MODEL: KanbanPreferencias
+// =============================================================================
+
+model KanbanPreferencias {
+  id           String   @id @default(cuid())
+  user_id      String
+  preferencias Json
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([user_id])
+  @@index([user_id])
+
+  @@map("kanban_preferencias")
+}
+
+// =============================================================================
+// MODEL: DashboardConfig
+// =============================================================================
+
+model DashboardConfig {
+  id           String   @id @default(cuid())
+  product_id   String   @unique
+  widgets_json String   @default("[]") @db.Text
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@map("dashboard_config")
+}
+
+// =============================================================================
+// MODEL: DashboardPainel
+// =============================================================================
+
+model DashboardPainel {
+  id           String   @id @default(cuid())
+  user_id      String
+  nome         String
+  ordem        Int      @default(0)
+  is_visivel   Boolean  @default(true)
+  widgets_json String   @default("[]") @db.Text
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([user_id])
+
+  @@map("dashboard_paineis")
+}

@@ -29,7 +29,7 @@ import express, { Request, Response, NextFunction } from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
 import { requireInternalKey } from './middleware/requireInternalKey.js'
-import { tenantIsolationMiddleware } from './middleware/tenantIsolation.js'
+import { tenantResolver, AppError } from '@gravity/tenant-resolver'
 import { analyticsRouter } from './routes/analytics.js'
 import { dashboardWidgetsRouter } from './routes/dashboardWidgets.js'
 import { dashboardDataRouter } from './routes/dashboardData.js'
@@ -105,8 +105,12 @@ app.use('/api/v1/analytics/pedido', analyticsRouter)
 // ── 5.1. Taxa de câmbio — proxy público para o Configurador ──────────────────
 app.use('/api/v1/taxa-cambio', taxaCambioRouter)
 
-// ── 6. Tenant isolation (para rotas internas após este ponto) ─────────────────
-app.use(tenantIsolationMiddleware)
+// ── 6. Tenant resolver — Schema-per-Tenant (ADR-001/ADR-002) ─────────────────
+app.use(tenantResolver({
+  productKey:          'pedido',
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
+  internalKey:         process.env.INTERNAL_SERVICE_KEY!,
+}))
 
 // ── 7. Observabilidade — captura métricas de uso por tenant/produto ───────────
 app.use(apiObservability('pedido'))
@@ -116,9 +120,10 @@ app.use(createProductAuditPlugin({
   product_id: 'pedido',
   module: 'pedido',
   getActorFromReq: (req) => {
-    const tenant_id  = req.headers['x-tenant-id']  as string | undefined
-    const actor_id   = req.headers['x-user-id']    as string | undefined
-    const actor_name = req.headers['x-user-name']  as string | undefined
+    const ctx        = (req as { tenant?: { tenantId?: string; userId?: string } }).tenant
+    const tenant_id  = ctx?.tenantId
+    const actor_id   = ctx?.userId
+    const actor_name = req.headers['x-user-name'] as string | undefined
     if (!tenant_id || !actor_id) return null
     return { tenant_id, actor_id, actor_name: actor_name || actor_id, actor_type: 'USER' }
   },

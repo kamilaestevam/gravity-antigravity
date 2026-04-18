@@ -3764,7 +3764,10 @@
       "transfer_historico": "Transfer history",
       "transfer_destino_pedido": "→ Order {{id}}",
       "transfer_destino_qtd": "{{qtd}} units",
-      "erro_salvar": "Error saving order. Please try again."
+      "erro_salvar": "Error saving order. Please try again.",
+      "aria_fechar_drawer": "Close drawer",
+      "aria_secoes_pedido": "Order sections",
+      "ph_sku": "SKU"
     },
     "modal_novo": {
       "titulo": "New Order",
@@ -3794,7 +3797,10 @@
       "erro_generico": "Unexpected error: {{msg}}",
       "remover_unico_hint": "Cannot remove the only item",
       "remover_item_hint": "Remove item",
-      "remover_item_aria": "Remove item {{n}}"
+      "remover_item_aria": "Remove item {{n}}",
+      "ph_exportador": "Exporter name or code",
+      "ph_fabricante": "Manufacturer name or code",
+      "ph_sku": "SKU"
     },
     "modal_item": {
       "titulo": "New Item",
@@ -3807,7 +3813,9 @@
       "secao_dados": "Item Data",
       "pedido_info": "Order: {{numero}}",
       "adicionar": "Add Item",
-      "adicionando": "Adding..."
+      "adicionando": "Adding...",
+      "ph_sku": "SKU",
+      "ph_descricao": "Item description"
     },
     "modal_dup": {
       "titulo": "Duplicate Orders ({{count}} selected{{s}})",
@@ -3834,7 +3842,11 @@
       "duplicar": "Duplicate",
       "duplicando": "Duplicating...",
       "concluir": "Done",
-      "cancelar": "Cancel"
+      "cancelar": "Cancel",
+      "aria_resultado": "Duplication result",
+      "aria_fechar": "Close modal",
+      "aria_duplicar_pedidos": "Duplicate orders",
+      "aria_tabela": "Orders to duplicate"
     },
     "modal_dup_it": {
       "titulo": "Duplicate {{count}} item{{ns}}",
@@ -3844,7 +3856,10 @@
       "col_qtd": "Initial Qty.",
       "duplicar": "Duplicate {{count}} item{{ns}}",
       "duplicando": "Duplicating...",
-      "cancelar": "Cancel"
+      "cancelar": "Cancel",
+      "aria_modal": "Duplicate items",
+      "aria_fechar": "Close modal",
+      "aria_tabela": "Items to duplicate"
     },
     "modal_cons": {
       "titulo": "Consolidate Orders ({{count}} selected)",
@@ -3871,7 +3886,10 @@
       "campo_exportador": "Exporter",
       "campo_data_emissao": "Order Issue Date",
       "campo_cond_pagamento": "Payment Terms",
-      "campo_valor_total": "Total value"
+      "campo_valor_total": "Total value",
+      "aria_fechar": "Close consolidation modal",
+      "aria_tabela": "Consolidated order fields",
+      "aria_badge_igual": "Field equal across all orders"
     },
     "modal_transf": {
       "titulo": "Transfer Order — {{numero}}",
@@ -3932,7 +3950,11 @@
       "revisar_confirmar": "Review and Confirm",
       "confirmar": "Confirm Transfer",
       "transferindo": "Transferring...",
-      "concluir": "Done"
+      "concluir": "Done",
+      "aria_tabela_itens": "Source order items",
+      "aria_qtd_transferir": "Quantity to transfer",
+      "aria_fechar": "Close transfer modal",
+      "aria_progresso": "Transfer assistant progress"
     },
     "modal_massa": {
       "titulo": "Bulk Edit ({{count}} order{{s}} selected)",
@@ -3980,7 +4002,13 @@
       "erro_campo_obrigatorio": "Fill in at least one field to continue",
       "valor_vazio": "(empty)",
       "erro_preview": "Error generating preview",
-      "erro_aplicar": "Error applying bulk edit"
+      "erro_aplicar": "Error applying bulk edit",
+      "aria_selecionar_campo": "Select field to edit",
+      "aria_campos_disponiveis": "Available fields",
+      "aria_nivel_edicao": "Edit level",
+      "aria_resumo": "Bulk edit summary",
+      "aria_fechar": "Close bulk edit modal",
+      "aria_passo_atual": "Current step"
     },
     "massa_campos": {
       "numero_pedido": "Order Number",
@@ -4133,7 +4161,10 @@
       "gerando_singular": "Generating...",
       "gerando_plural": "Generating ({{done}}/{{total}})",
       "erro_templates": "Could not load templates.",
-      "erro_sem_template": "Select a template."
+      "erro_sem_template": "Select a template.",
+      "aria_fechar": "Close modal",
+      "aria_pedidos_selecionados": "Selected orders",
+      "aria_modo_geracao": "Generation mode"
     },
     "modal_col": {
       "titulo_novo": "New Column",
@@ -4163,7 +4194,10 @@
       "erro_circular": "Circular reference detected: the formula creates a dependency cycle. Remove the reference that points back to this column.",
       "erro_sintaxe": "Syntax error: {{msg}}",
       "cancelar": "Cancel",
-      "salvar": "Save"
+      "salvar": "Save",
+      "aria_fechar": "Close modal",
+      "aria_nova_opcao": "New list option",
+      "aria_adicionar_opcao": "Add option"
     },
     "smart_import": {
       "titulo": "Import Orders",
@@ -4205,7 +4239,8 @@
       "prog_xlsx_1": "Reading file columns...",
       "prog_xlsx_2": "Mapping fields with AI...",
       "prog_xlsx_3": "Checking for duplicates in the system...",
-      "prog_xlsx_4": "Preparing preview..."
+      "prog_xlsx_4": "Preparing preview...",
+      "aria_fechar": "Close import modal"
     }
   },
   "processo": {

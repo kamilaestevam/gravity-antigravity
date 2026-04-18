@@ -462,7 +462,7 @@ function Passo1Dados({
             }}
             value={form.numero_pedido}
             onChange={e => onChange('numero_pedido', e.target.value)}
-            placeholder="Ex: PO-2026/001"
+            placeholder={t('pedido.drawer.ph_numero')}
             aria-invalid={Boolean(erros.numero_pedido)}
           />
           {erros.numero_pedido && (
@@ -481,7 +481,7 @@ function Passo1Dados({
             style={s.input}
             value={form.importacao_exportador_id}
             onChange={e => onChange('importacao_exportador_id', e.target.value)}
-            placeholder="Nome ou código do exportador"
+            placeholder={t('pedido.modal_novo.ph_exportador')}
           />
         </div>
         <div style={s.campo}>
@@ -491,7 +491,7 @@ function Passo1Dados({
             style={s.input}
             value={form.fabricante_id}
             onChange={e => onChange('fabricante_id', e.target.value)}
-            placeholder="Nome ou código do fabricante"
+            placeholder={t('pedido.modal_novo.ph_fabricante')}
           />
         </div>
         <div style={s.campo}>
@@ -509,7 +509,7 @@ function Passo1Dados({
             style={s.input}
             value={form.condicao_pagamento_pedido}
             onChange={e => onChange('condicao_pagamento_pedido', e.target.value)}
-            placeholder="Ex: 30% Antecipado"
+            placeholder={t('pedido.drawer.ph_cond_pgto')}
           />
         </div>
         <div style={s.campo}>
@@ -623,7 +623,7 @@ function Passo2Itens({
                 style={s.inputCompacto}
                 value={item.part_number}
                 onChange={e => onChangeItem(index, 'part_number', e.target.value)}
-                placeholder="SKU"
+                placeholder={t('pedido.modal_novo.ph_sku')}
               />
             </div>
             <div>

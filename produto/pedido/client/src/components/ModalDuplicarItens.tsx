@@ -53,7 +53,7 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
   }
 
   return (
-    <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label="Duplicar itens">
+    <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label={t('pedido.modal_dup_it.aria_modal')}>
       <div className="modal-duplicar__container">
 
         {/* Header */}
@@ -64,7 +64,7 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
           <button
             className="modal-duplicar__fechar"
             onClick={onFechar}
-            aria-label="Fechar modal"
+            aria-label={t('pedido.modal_dup_it.aria_fechar')}
             disabled={confirmando}
           >
             <X size={18} aria-hidden="true" />
@@ -83,7 +83,7 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
           </div>
 
           {/* Lista de itens */}
-          <table className="modal-duplicar__tabela" aria-label="Itens a duplicar">
+          <table className="modal-duplicar__tabela" aria-label={t('pedido.modal_dup_it.aria_tabela')}>
             <thead>
               <tr>
                 <th className="modal-duplicar__th">{t('pedido.modal_dup_it.col_part_number')}</th>

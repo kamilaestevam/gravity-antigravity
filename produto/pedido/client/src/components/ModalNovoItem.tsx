@@ -280,7 +280,7 @@ export function ModalNovoItem({
                 style={s.input}
                 value={item.part_number}
                 onChange={e => setItemField('part_number', e.target.value)}
-                placeholder="SKU"
+                placeholder={t('pedido.modal_item.ph_sku')}
               />
             </div>
             <div style={s.campo}>
@@ -297,7 +297,7 @@ export function ModalNovoItem({
                 style={s.input}
                 value={item.descricao_item}
                 onChange={e => setItemField('descricao_item', e.target.value)}
-                placeholder="Descrição do item"
+                placeholder={t('pedido.modal_item.ph_descricao')}
               />
             </div>
             <div style={s.campo}>

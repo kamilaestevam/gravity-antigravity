@@ -244,7 +244,7 @@ export function ModalNovaColuna({
             type="button"
             className="mnc-fechar"
             onClick={onFechar}
-            aria-label="Fechar modal"
+            aria-label={t('pedido.modal_col.aria_fechar')}
           >
             <X size={18} weight="bold" />
           </button>
@@ -401,13 +401,13 @@ export function ModalNovaColuna({
                   onChange={e => setNovaOpcao(e.target.value)}
                   onKeyDown={handleOpcaoKeyDown}
                   placeholder={t('pedido.modal_col.placeholder_opcao')}
-                  aria-label="Nova opção da lista"
+                  aria-label={t('pedido.modal_col.aria_nova_opcao')}
                 />
                 <button
                   type="button"
                   className="mnc-btn-add-opcao"
                   onClick={handleAdicionarOpcao}
-                  aria-label="Adicionar opção"
+                  aria-label={t('pedido.modal_col.aria_adicionar_opcao')}
                 >
                   <Plus size={14} weight="bold" />
                 </button>

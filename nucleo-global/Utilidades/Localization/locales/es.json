@@ -3913,7 +3913,10 @@
       "transfer_historico": "Historial de transferencias",
       "transfer_destino_pedido": "→ Pedido {{id}}",
       "transfer_destino_qtd": "{{qtd}} un.",
-      "erro_salvar": "Error al guardar el pedido. Inténtelo nuevamente."
+      "erro_salvar": "Error al guardar el pedido. Inténtelo nuevamente.",
+      "aria_fechar_drawer": "Cerrar panel",
+      "aria_secoes_pedido": "Secciones del pedido",
+      "ph_sku": "SKU"
     },
     "modal_novo": {
       "titulo": "Nuevo Pedido",
@@ -3943,7 +3946,10 @@
       "erro_generico": "Error inesperado: {{msg}}",
       "remover_unico_hint": "No es posible eliminar el único ítem",
       "remover_item_hint": "Eliminar ítem",
-      "remover_item_aria": "Eliminar ítem {{n}}"
+      "remover_item_aria": "Eliminar ítem {{n}}",
+      "ph_exportador": "Nombre o código del exportador",
+      "ph_fabricante": "Nombre o código del fabricante",
+      "ph_sku": "SKU"
     },
     "modal_item": {
       "titulo": "Nuevo Ítem",
@@ -3956,7 +3962,9 @@
       "secao_dados": "Datos del Ítem",
       "pedido_info": "Pedido: {{numero}}",
       "adicionar": "Agregar Ítem",
-      "adicionando": "Agregando..."
+      "adicionando": "Agregando...",
+      "ph_sku": "SKU",
+      "ph_descricao": "Descripción del ítem"
     },
     "modal_dup": {
       "titulo": "Duplicar Pedidos ({{count}} seleccionado{{s}})",
@@ -3983,7 +3991,11 @@
       "duplicar": "Duplicar",
       "duplicando": "Duplicando...",
       "concluir": "Finalizar",
-      "cancelar": "Cancelar"
+      "cancelar": "Cancelar",
+      "aria_resultado": "Resultado de la duplicación",
+      "aria_fechar": "Cerrar modal",
+      "aria_duplicar_pedidos": "Duplicar pedidos",
+      "aria_tabela": "Pedidos a duplicar"
     },
     "modal_dup_it": {
       "titulo": "Duplicar {{count}} ítem{{ns}}",
@@ -3993,7 +4005,10 @@
       "col_qtd": "Cant. Inicial",
       "duplicar": "Duplicar {{count}} ítem{{ns}}",
       "duplicando": "Duplicando...",
-      "cancelar": "Cancelar"
+      "cancelar": "Cancelar",
+      "aria_modal": "Duplicar ítems",
+      "aria_fechar": "Cerrar modal",
+      "aria_tabela": "Ítems a duplicar"
     },
     "modal_cons": {
       "titulo": "Consolidar Pedidos ({{count}} seleccionados)",
@@ -4020,7 +4035,10 @@
       "campo_exportador": "Exportador",
       "campo_data_emissao": "Fecha de Emisión del Pedido",
       "campo_cond_pagamento": "Condición de Pago",
-      "campo_valor_total": "Valor total"
+      "campo_valor_total": "Valor total",
+      "aria_fechar": "Cerrar modal de consolidación",
+      "aria_tabela": "Campos del pedido consolidado",
+      "aria_badge_igual": "Campo igual en todos los pedidos"
     },
     "modal_transf": {
       "titulo": "Transferir Pedido — {{numero}}",
@@ -4081,7 +4099,11 @@
       "revisar_confirmar": "Revisar y Confirmar",
       "confirmar": "Confirmar Transferencia",
       "transferindo": "Transfiriendo...",
-      "concluir": "Finalizar"
+      "concluir": "Finalizar",
+      "aria_tabela_itens": "Ítems del pedido de origen",
+      "aria_qtd_transferir": "Cantidad a transferir",
+      "aria_fechar": "Cerrar modal de transferencia",
+      "aria_progresso": "Progreso del asistente de transferencia"
     },
     "modal_massa": {
       "titulo": "Edición Masiva ({{count}} pedido{{s}} seleccionado{{s}})",
@@ -4129,7 +4151,13 @@
       "erro_campo_obrigatorio": "Complete al menos un campo para continuar",
       "valor_vazio": "(vacío)",
       "erro_preview": "Error al generar la vista previa",
-      "erro_aplicar": "Error al aplicar la edición masiva"
+      "erro_aplicar": "Error al aplicar la edición masiva",
+      "aria_selecionar_campo": "Seleccionar campo para editar",
+      "aria_campos_disponiveis": "Campos disponibles",
+      "aria_nivel_edicao": "Nivel de edición",
+      "aria_resumo": "Resumen de la edición masiva",
+      "aria_fechar": "Cerrar modal de edición masiva",
+      "aria_passo_atual": "Paso actual"
     },
     "massa_campos": {
       "numero_pedido": "Número de Pedido",
@@ -4282,7 +4310,10 @@
       "gerando_singular": "Generando...",
       "gerando_plural": "Generando ({{done}}/{{total}})",
       "erro_templates": "No fue posible cargar las plantillas.",
-      "erro_sem_template": "Seleccione una plantilla."
+      "erro_sem_template": "Seleccione una plantilla.",
+      "aria_fechar": "Cerrar modal",
+      "aria_pedidos_selecionados": "Pedidos seleccionados",
+      "aria_modo_geracao": "Modo de generación"
     },
     "modal_col": {
       "titulo_novo": "Nueva Columna",
@@ -4312,7 +4343,10 @@
       "erro_circular": "Referencia circular detectada: la fórmula crea un ciclo de dependencias. Elimine la referencia que apunta de vuelta a esta columna.",
       "erro_sintaxe": "Error de sintaxis: {{msg}}",
       "cancelar": "Cancelar",
-      "salvar": "Guardar"
+      "salvar": "Guardar",
+      "aria_fechar": "Cerrar modal",
+      "aria_nova_opcao": "Nueva opción de la lista",
+      "aria_adicionar_opcao": "Agregar opción"
     },
     "smart_import": {
       "titulo": "Importar Pedidos",
@@ -4354,7 +4388,8 @@
       "prog_xlsx_1": "Leyendo columnas del archivo...",
       "prog_xlsx_2": "Mapeando campos con IA...",
       "prog_xlsx_3": "Verificando duplicados en el sistema...",
-      "prog_xlsx_4": "Preparando vista previa..."
+      "prog_xlsx_4": "Preparando vista previa...",
+      "aria_fechar": "Cerrar modal de importación"
     }
   },
   "processo": {

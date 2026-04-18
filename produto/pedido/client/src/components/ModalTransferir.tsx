@@ -196,7 +196,7 @@ function SeletorItemQuantidade({
   const qtyInvalida = quantidadeOrigem > qtyMax || quantidadeOrigem <= 0
 
   return (
-    <table className="modal-transferir__tabela-itens" aria-label="Itens do pedido de origem">
+    <table className="modal-transferir__tabela-itens" aria-label={t('pedido.modal_transf.aria_tabela_itens')}>
       <thead>
         <tr>
           <th scope="col">{t('pedido.modal_transf.col_part_number')}</th>
@@ -245,7 +245,7 @@ function SeletorItemQuantidade({
                       max={qtyMax}
                       step={0.001}
                       onChange={e => onQuantidadeChange(parseFloat(e.target.value) || 0)}
-                      aria-label="Quantidade a transferir"
+                      aria-label={t('pedido.modal_transf.aria_qtd_transferir')}
                       aria-invalid={qtyInvalida}
                     />
                     <div className="modal-transferir__qty-disponivel">
@@ -645,7 +645,7 @@ export function ModalTransferir({ pedidos, itemIdInicial, onFechar, onConcluido 
           <button
             className="modal-transferir__fechar"
             onClick={onFechar}
-            aria-label="Fechar modal de transferência"
+            aria-label={t('pedido.modal_transf.aria_fechar')}
             type="button"
           >
             ×
@@ -654,7 +654,7 @@ export function ModalTransferir({ pedidos, itemIdInicial, onFechar, onConcluido 
 
         {/* Indicador de passos */}
         {!concluido && (
-          <div className="modal-transferir__passos" aria-label="Progresso do assistente de transferência">
+          <div className="modal-transferir__passos" aria-label={t('pedido.modal_transf.aria_progresso')}>
             {([1, 2, 3, 4, 5] as Passo[]).map((p, idx) => (
               <React.Fragment key={p}>
                 {idx > 0 && (

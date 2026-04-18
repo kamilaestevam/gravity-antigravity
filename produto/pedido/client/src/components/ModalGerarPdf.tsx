@@ -181,7 +181,7 @@ export function ModalGerarPdf({ pedidos, onFechar, onConcluido }: ModalGerarPdfP
             type="button"
             className="modal-gerar-pdf__btn-fechar"
             onClick={onFechar}
-            aria-label="Fechar modal"
+            aria-label={t('pedido.modal_pdf.aria_fechar')}
           >
             <X size={16} aria-hidden="true" />
           </button>
@@ -192,7 +192,7 @@ export function ModalGerarPdf({ pedidos, onFechar, onConcluido }: ModalGerarPdfP
 
           {/* Pedidos selecionados (quando múltiplos) */}
           {pedidos.length > 1 && (
-            <section aria-label="Pedidos selecionados">
+            <section aria-label={t('pedido.modal_pdf.aria_pedidos_selecionados')}>
               <p className="modal-gerar-pdf__label">{t('pedido.modal_pdf.pedidos_selecionados')}</p>
               <div className="modal-gerar-pdf__pedidos-chips">
                 {pedidos.map(p => (
@@ -203,7 +203,7 @@ export function ModalGerarPdf({ pedidos, onFechar, onConcluido }: ModalGerarPdfP
           )}
 
           {/* Tabs de modo */}
-          <div className="modal-gerar-pdf__tabs" role="tablist" aria-label="Modo de geração">
+          <div className="modal-gerar-pdf__tabs" role="tablist" aria-label={t('pedido.modal_pdf.aria_modo_geracao')}>
             <button
               role="tab"
               aria-selected={modo === 'padrao'}

@@ -128,14 +128,14 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
   // ── Tela de resultado ────────────────────────────────────────────────────────
   if (resultado) {
     return (
-      <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label="Resultado da duplicação">
+      <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label={t('pedido.modal_dup.aria_resultado')}>
         <div className="modal-duplicar__container">
           <div className="modal-duplicar__header">
             <h2 className="modal-duplicar__titulo">{t('pedido.modal_dup.titulo_resultado')}</h2>
             <button
               className="modal-duplicar__fechar"
               onClick={onFechar}
-              aria-label="Fechar modal"
+              aria-label={t('pedido.modal_dup.aria_fechar')}
             >
               <X size={18} aria-hidden="true" />
             </button>
@@ -191,7 +191,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
 
   // ── Tela principal ───────────────────────────────────────────────────────────
   return (
-    <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label="Duplicar pedidos">
+    <div className="modal-duplicar__overlay" role="dialog" aria-modal="true" aria-label={t('pedido.modal_dup.aria_duplicar_pedidos')}>
       <div className="modal-duplicar__container">
         <div className="modal-duplicar__header">
           <h2 className="modal-duplicar__titulo">
@@ -200,7 +200,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
           <button
             className="modal-duplicar__fechar"
             onClick={onFechar}
-            aria-label="Fechar modal"
+            aria-label={t('pedido.modal_dup.aria_fechar')}
           >
             <X size={18} aria-hidden="true" />
           </button>
@@ -236,7 +236,7 @@ export function ModalDuplicar({ pedidos, onFechar, onConcluido }: ModalDuplicarP
               </div>
 
               {/* Tabela de pedidos */}
-              <table className="modal-duplicar__tabela" aria-label="Pedidos a duplicar">
+              <table className="modal-duplicar__tabela" aria-label={t('pedido.modal_dup.aria_tabela')}>
                 <thead>
                   <tr>
                     <th className="modal-duplicar__th">{t('pedido.modal_dup.col_original')}</th>

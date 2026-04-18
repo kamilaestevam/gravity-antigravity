@@ -315,7 +315,7 @@ export function SmartImportModal({ aberto, onFechar, onConcluido }: SmartImportM
           <button
             className="smart-import__fechar"
             onClick={onFechar}
-            aria-label="Fechar modal de importacao"
+            aria-label={t('pedido.smart_import.aria_fechar')}
             type="button"
           >
             <X size={18} />

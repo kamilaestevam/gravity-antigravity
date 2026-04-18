@@ -331,7 +331,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
           <button
             className="drawer-pedido__fechar"
             onClick={tentarFechar}
-            aria-label="Fechar drawer"
+            aria-label={t('pedido.drawer.aria_fechar_drawer')}
             type="button"
           >
             <X size={18} />
@@ -339,7 +339,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
         </div>
 
         {/* Barra de abas */}
-        <div className="drawer-pedido__tabs" role="tablist" aria-label="Secoes do pedido">
+        <div className="drawer-pedido__tabs" role="tablist" aria-label={t('pedido.drawer.aria_secoes_pedido')}>
           <button
             role="tab"
             aria-selected={abaAtiva === 'dados'}
@@ -582,7 +582,7 @@ export function DrawerPedido({ aberto, pedidoId, onFechar, onSalvo, initialTab, 
                           className="drawer-pedido__input"
                           value={item.part_number}
                           onChange={e => handleItemChange(index, 'part_number', e.target.value)}
-                          placeholder="SKU"
+                          placeholder={t('pedido.drawer.ph_sku')}
                           aria-label={t('pedido.campos.part_number')}
                         />
                       </div>

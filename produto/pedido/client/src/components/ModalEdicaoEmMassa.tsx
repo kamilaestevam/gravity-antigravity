@@ -431,7 +431,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
         type="button"
         className="modal-edicao-massa__combobox-trigger"
         onClick={handleAbrirFechar}
-        aria-label="Selecionar campo para editar"
+        aria-label={t('pedido.modal_massa.aria_selecionar_campo')}
       >
         <span className="modal-edicao-massa__combobox-valor">
           {defAtual ? (
@@ -482,7 +482,7 @@ function ComboboxCampo({ disponiveis, valorAtual, uid, onChange }: ComboboxCampo
               ref={listaRef}
               className="modal-edicao-massa__combobox-lista"
               role="listbox"
-              aria-label="Campos disponíveis"
+              aria-label={t('pedido.modal_massa.aria_campos_disponiveis')}
             >
               {grupos.map(grupo => (
                 <React.Fragment key={grupo.grupo}>
@@ -809,7 +809,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
     <>
       {/* Toggle de nível */}
       <div className="modal-edicao-massa__secao">
-        <div className="modal-edicao-massa__nivel-toggle" role="group" aria-label="Nível de edição">
+        <div className="modal-edicao-massa__nivel-toggle" role="group" aria-label={t('pedido.modal_massa.aria_nivel_edicao')}>
           {(['pedido', 'item', 'combinado'] as NivelEdicao[]).map(n => (
             <button
               key={n}
@@ -983,7 +983,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
   const renderPasso2 = () => (
     <div className="modal-edicao-massa__confirmacao">
       {/* Resumo */}
-      <div className="modal-edicao-massa__confirmacao-resumo" aria-label="Resumo da edição em massa">
+      <div className="modal-edicao-massa__confirmacao-resumo" aria-label={t('pedido.modal_massa.aria_resumo')}>
         <div className="modal-edicao-massa__confirmacao-stat">
           <strong>{preview?.pedidos_afetados ?? pedidos.length}</strong> {t('pedido.modal_massa.confirm_pedidos')}
         </div>
@@ -1064,7 +1064,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
           <button
             className="modal-edicao-massa__fechar"
             onClick={onFechar}
-            aria-label="Fechar modal de edição em massa"
+            aria-label={t('pedido.modal_massa.aria_fechar')}
             type="button"
           >
             ×
@@ -1100,7 +1100,7 @@ export function ModalEdicaoEmMassa({ pedidos, onFechar, onConcluido }: ModalEdic
         {/* Footer */}
         <div className="modal-edicao-massa__footer">
           {/* Indicador de passos */}
-          <div className="modal-edicao-massa__passos" aria-label="Passo atual">
+          <div className="modal-edicao-massa__passos" aria-label={t('pedido.modal_massa.aria_passo_atual')}>
             <span
               className={`modal-edicao-massa__passo${passo === 1 ? ' modal-edicao-massa__passo--ativo' : ' modal-edicao-massa__passo--concluido'}`}
               aria-current={passo === 1 ? 'step' : undefined}

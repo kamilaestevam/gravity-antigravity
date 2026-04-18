@@ -198,7 +198,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
           <button
             className="modal-consolidar__fechar"
             onClick={onFechar}
-            aria-label="Fechar modal de consolidação"
+            aria-label={t('pedido.modal_cons.aria_fechar')}
             type="button"
           >
             ×
@@ -263,7 +263,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
               {/* Tabela de campos */}
               {(preview.campos_divergentes.length > 0 || preview.campos_iguais.length > 0) && (
                 <div className="modal-consolidar__secao">
-                  <table className="modal-consolidar__tabela" aria-label="Campos do pedido consolidado">
+                  <table className="modal-consolidar__tabela" aria-label={t('pedido.modal_cons.aria_tabela')}>
                     <thead>
                       <tr>
                         <th scope="col">{t('pedido.modal_cons.col_campo')}</th>
@@ -288,7 +288,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
                             <td>{rotulos[campo] ?? campo}</td>
                             <td>{String(valor ?? '—')}</td>
                             <td>
-                              <span className="modal-consolidar__badge-igual" aria-label="Campo igual em todos os pedidos">
+                              <span className="modal-consolidar__badge-igual" aria-label={t('pedido.modal_cons.aria_badge_igual')}>
                                 <CheckCircle size={14} weight="fill" aria-hidden="true" />
                                 {t('pedido.modal_cons.badge_igual')}
                               </span>

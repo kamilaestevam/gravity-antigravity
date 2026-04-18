@@ -2817,8 +2817,7 @@ const BarraAcoesPedido = React.memo(function BarraAcoesPedido({
             variante="perigo"
             tamanho="pequeno"
             icone={<Trash size={14} weight="duotone" />}
-            disabled={pedidosSelecionados.length === 0}
-            carregando={excluindoLote}
+            disabled={pedidosSelecionados.length === 0 || excluindoLote}
             onClick={onExcluirLote}
           />
         </TooltipGlobal>

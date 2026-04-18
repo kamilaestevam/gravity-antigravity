@@ -1,5 +1,5 @@
 model Agenda {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   tenant_id   String
   nome        String
   descricao   String?
@@ -14,7 +14,7 @@ model Agenda {
 }
 
 model Slot {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   tenant_id   String
   agenda_id   String
   inicio      DateTime
@@ -31,7 +31,7 @@ model Slot {
 }
 
 model Reserva {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   tenant_id   String
   slot_id     String
   usuario_id  String   // ID do usuário ou contato
@@ -49,7 +49,7 @@ model Reserva {
 }
 
 model DisponibilidadeConfig {
-  id             String   @id @default(uuid())
+  id             String   @id @default(cuid())
   tenant_id      String
   agenda_id      String   @unique
   horarioInicio  String   // Formato "HH:mm" (e.g., "09:00")

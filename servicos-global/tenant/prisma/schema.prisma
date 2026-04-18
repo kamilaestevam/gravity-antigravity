@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-17T12:37:08.494Z
+// Gerado em: 2026-04-17T20:35:02.486Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, processos-core, ncm-sync, notificacoes
 // Todos os fragments encontrados.
 // ============================================================================
@@ -288,7 +288,7 @@ enum FilaEmailPrioridade {
 // ---------------------------------------------------------------------------
 
 model EmailThread {
-  id         String @id @default(uuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
@@ -316,7 +316,7 @@ model EmailThread {
 // ---------------------------------------------------------------------------
 
 model EmailMessage {
-  id         String @id @default(uuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
@@ -747,7 +747,7 @@ model ExportJob {
 
 // --- Fragment: historico-global ---
 model HistoryLog {
-  id             String      @id @default(uuid())
+  id             String      @id @default(cuid())
   tenant_id      String
 
   // Ator
@@ -792,7 +792,7 @@ model HistoryLog {
 }
 
 model AlertRule {
-  id                       String     @id @default(uuid())
+  id                       String     @id @default(cuid())
   tenant_id                String?
 
   name                     String
@@ -828,7 +828,7 @@ model AlertRule {
 }
 
 model AlertEvent {
-  id             String      @id @default(uuid())
+  id             String      @id @default(cuid())
   tenant_id      String
   rule_id        String
   rule           AlertRule   @relation(fields: [rule_id], references: [id])
@@ -856,7 +856,7 @@ model AlertEvent {
 }
 
 model AlertNotificationLog {
-  id             String     @id @default(uuid())
+  id             String     @id @default(cuid())
   alert_event_id String
   alert_event    AlertEvent @relation(fields: [alert_event_id], references: [id])
 
@@ -895,7 +895,7 @@ enum AlertStatus {
 /// Resultado de exportação em background (acima de 10k registros).
 /// Persiste no banco para sobreviver a restarts do Railway (alternativa ao /tmp).
 model ExportResult {
-  id           String   @id @default(uuid())
+  id           String   @id @default(cuid())
   tenant_id    String
   format       String   // 'csv' | 'json'
   content      String   @db.Text
@@ -913,7 +913,7 @@ model ExportResult {
 
 // --- Fragment: agendamento ---
 model Agenda {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   tenant_id   String
   nome        String
   descricao   String?
@@ -928,7 +928,7 @@ model Agenda {
 }
 
 model Slot {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   tenant_id   String
   agenda_id   String
   inicio      DateTime
@@ -945,7 +945,7 @@ model Slot {
 }
 
 model Reserva {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   tenant_id   String
   slot_id     String
   usuario_id  String   // ID do usuário ou contato
@@ -963,7 +963,7 @@ model Reserva {
 }
 
 model DisponibilidadeConfig {
-  id             String   @id @default(uuid())
+  id             String   @id @default(cuid())
   tenant_id      String
   agenda_id      String   @unique
   horarioInicio  String   // Formato "HH:mm" (e.g., "09:00")
@@ -1768,13 +1768,23 @@ model NcmScheduleConfig {
 model Notification {
   id          String   @id @default(cuid())
   tenant_id   String
-  product_id  String?  // nullable — applicable when related to a product
+  product_id  String?
   user_id     String   // Clerk ID or direct email
   type        String   // mentioned | task-assigned | reminder | next-step | etc.
   title       String?
   message     String
   read        Boolean  @default(false)
-  activity_id String?  // for direct navigation
+
+  // ── Context link (Pilar 2) ─────────────────────────────────────────────────
+  // Nunca salvar URL strings. Salvar entidade + ID e construir URL no frontend.
+  target_entity  String?  // "PEDIDO" | "ITEM" | "SIMULACUSTO" | "PROCESSO" | etc.
+  target_id      String?  // ID da entidade no banco
+
+  // ── Delivery tracking (Pilar 3) ────────────────────────────────────────────
+  // delivery_status: ciclo de vida do envio de email/whatsapp
+  // pending → sent → delivered | bounced | failed
+  delivery_status  String   @default("pending")  // pending | sent | delivered | bounced | failed
+  external_id      String?  // ID da mensagem no Resend (para reconciliar webhooks)
 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -1784,6 +1794,8 @@ model Notification {
   @@index([tenant_id, user_id])
   @@index([tenant_id, user_id, read])
   @@index([tenant_id, created_at])
+  @@index([tenant_id, delivery_status])
+  @@index([external_id])
 }
 
 // ─── Contatos externos (email / WhatsApp) ─────────────────────────────────

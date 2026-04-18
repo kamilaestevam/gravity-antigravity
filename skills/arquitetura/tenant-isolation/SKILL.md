@@ -1,222 +1,256 @@
 ---
 name: antigravity-tenant-isolation
-description: "Use esta skill sempre que uma tarefa envolver queries ao banco de dados, criação de models Prisma, configuração de middleware ou qualquer código que acesse dados de tenant. Define a regra mais importante do sistema: nenhuma query sem tenant_id. Todo agente consulta esta skill antes de escrever qualquer acesso ao banco."
+description: "Use esta skill sempre que uma tarefa envolver queries ao banco de dados, criação de models Prisma, configuração de middleware ou qualquer código que acesse dados de tenant em produtos. Define a regra mais importante do sistema após o pivô de 2026-04-17: Schema-per-Tenant + SDK obrigatório @gravity/tenant-resolver. Todo agente consulta esta skill antes de escrever qualquer acesso ao banco de produto."
 ---
 
-# Gravity — Tenant Isolation
+# Gravity — Tenant Isolation (Schema-per-Tenant)
+
+> **Esta skill foi reescrita em 2026-04-17 após o pivô arquitetural Risco Zero.**
+> O modelo anterior (`WHERE tenant_id = ?` + RLS) foi descartado para os bancos de produto. Toda referência ao modelo antigo nesta skill é histórica.
+> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
+
+---
 
 ## A Regra Mais Importante do Sistema
 
-**Nenhuma query, em nenhum serviço, pode ser executada sem filtrar por `tenant_id`.**
+**Em todo banco de produto, cada tenant vive em seu próprio schema PostgreSQL exclusivo. Nenhum acesso ao banco acontece sem passar pelo SDK `@gravity/tenant-resolver`.**
 
-Isso não é uma boa prática — é uma regra absoluta. Um tenant nunca pode ver dados de outro tenant. Não há exceção. Não há caso especial. Não há "só desta vez".
+Não é "boa prática" — é regra absoluta. A garantia de isolamento agora é **do PostgreSQL**, não da aplicação. Não há exceção. Não há "só desta vez".
 
 ---
 
-## As Duas Camadas de Defesa
+## O Modelo: Schema-per-Tenant
 
-O isolamento é garantido por duas camadas independentes. Se uma falhar, a outra bloqueia. As duas devem estar implementadas sempre.
+| Banco | Modelo |
+|---|---|
+| `configurador` | single-schema `public` (fonte de verdade global de identidade) |
+| `pedido`, `processo`, `simula-custo`, `bid-frete`, `bid-cambio`, `nf-importacao`, `financeiro-comex`, `conector-erp` | **schema-per-tenant**: 1 schema por tenant, nomeado `tenant_<cuid>` |
+| `servicos-global/tenant` (email, dashboard, gabi, histórico, notificações, relatórios, whatsapp, cronometro) | **schema-per-tenant** |
 
-### Camada 1 — Prisma Client Extensions (código)
+---
 
-Middleware que injeta `tenant_id` automaticamente em toda query:
+## A Única Forma Permitida de Acessar o Banco
 
 ```typescript
-// servicos-global/tenant/middleware/tenant-isolation.ts
+import { withTenant } from '@gravity/tenant-resolver';
 
-function withTenantIsolation(prisma: PrismaClient, tenantId: string) {
-  return prisma.$extends({
-    query: {
-      $allModels: {
-        async findMany({ args, query }) {
-          args.where = { ...args.where, tenant_id: tenantId }
-          return query(args)
-        },
-        async findFirst({ args, query }) {
-          args.where = { ...args.where, tenant_id: tenantId }
-          return query(args)
-        },
-        async create({ args, query }) {
-          args.data.tenant_id = tenantId
-          return query(args)
-        },
-        async update({ args, query }) {
-          args.where = { ...args.where, tenant_id: tenantId }
-          return query(args)
-        },
-        async delete({ args, query }) {
-          args.where = { ...args.where, tenant_id: tenantId }
-          return query(args)
-        }
-      }
-    }
-  })
-}
+app.get('/pedidos', async (req, res) => {
+  const pedidos = await withTenant(req, async (db) => {
+    // db é o cliente Prisma DENTRO de $transaction com SET LOCAL search_path
+    // Apontando para o schema do tenant. COMMIT/ROLLBACK reseta automaticamente.
+    return db.pedido.findMany();
+  });
+  res.json(pedidos);
+});
 ```
 
-### Camada 2 — PostgreSQL Row-Level Security (banco)
+### Por dentro do `withTenant` (referência)
 
-O banco de dados bloqueia acessos caso o middleware falhe:
-
-```sql
--- Ativar RLS na tabela
-ALTER TABLE "Tabela" ENABLE ROW LEVEL SECURITY;
-
--- Criar política de isolamento
-CREATE POLICY tenant_isolation_policy ON "Tabela"
-USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+```typescript
+return _internalPrisma.$transaction(async (tx) => {
+  await tx.$executeRawUnsafe(
+    `SET LOCAL search_path TO "${ctx.schemaName}", public`
+  );
+  return fn(tx);
+}, { timeout: 10_000, isolationLevel: 'ReadCommitted' });
 ```
 
----
+**Por que `SET LOCAL` dentro de `$transaction`?** Porque o Postgres reseta o `search_path` automaticamente no `COMMIT`/`ROLLBACK`. A garantia de limpeza está **no banco**, não na aplicação. Se o handler crashar, der OOM, der timeout — não importa. Não há pool leak window.
 
-## Regras para Todo Model no DB servicos-tenant
+### Para CRON jobs e workers (sem `req`)
 
-Todo model no banco de tenant obrigatoriamente tem:
+```typescript
+import { withTenantContext } from '@gravity/tenant-resolver';
 
-1. **Campo `tenant_id`** — OBRIGATÓRIO, não nullable
-
-```prisma
-model Exemplo {
-  id        String @id @default(uuid())
-  tenant_id String   // obrigatório, sempre
-  // ...outros campos
-}
+await withTenantContext(tenantId, async (ctx, db) => {
+  return db.pedido.updateMany({ where: { status: 'PENDENTE' }, data: { ... } });
+});
 ```
-
-2. **Índice de busca:** `@@index([tenant_id])`
-3. **Índices compostos:** `@@index([tenant_id, product_id])` e `@@index([tenant_id, user_id])`
-4. **Unique Constraint:** se tiver `@unique`, deve ser `@@unique([campo, tenant_id])`
 
 ---
 
 ## O Que É Proibido
 
-- ❌ Usar o Prisma global diretamente nos serviços de produto
-- ❌ Esquecer de passar o `tenant_id` no header das requisições internas
-- ❌ Criar tabelas no banco de tenant sem o campo `tenant_id`
-- ❌ Desativar RLS em produção
+- ❌ `import { PrismaClient } from '@prisma/client'` em qualquer arquivo de produto (linter CI bloqueia)
+- ❌ `new PrismaClient(...)` em qualquer produto
+- ❌ Acesso ao banco fora de `withTenant(...)` ou `withTenantContext(...)`
+- ❌ `WHERE tenant_id = ?` em queries de produto (modelo antigo morto)
+- ❌ Coluna `tenant_id` em tabelas de produto após migração completa (Fase 4 do ADR-003)
+- ❌ Cache (`redis.set`, in-memory) sem prefixo `tenant:<id>:`
+- ❌ PgBouncer em modo `session` para banco de produto (modo `transaction` é obrigatório)
+- ❌ `SET search_path` (sem `LOCAL`) — vaza no pool
+- ❌ Provisionar schema "on-demand" no primeiro request — corrida garantida
 
 ---
 
 ## O Que É Obrigatório
 
-- ✅ Passar `tenant_id` em toda query via extension do Prisma
-- ✅ Garantir que o `tenant_id` vem do token JWT — nunca da body/payload da requisição
-- ✅ Implementar teste de integração que tenta acessar dados de outro tenant e espera falha
+- ✅ Toda rota de produto chama `withTenant(req, async db => ...)`
+- ✅ Toda tarefa de background chama `withTenantContext(tenantId, async (ctx, db) => ...)`
+- ✅ Schema é provisionado pelo worker do evento `TenantProvisioned` (com DLQ + retry)
+- ✅ Migrations rodam via `scripts/migrate-all-tenants.ts` (orquestrador, ADR-003)
+- ✅ Cliente Prisma é instanciado só em `packages/tenant-resolver/src/internal-prisma.ts` e **não é exportado**
+- ✅ Teste E2E de cross-tenant em todo produto (`tenant-isolation.e2e.test.ts`)
+- ✅ Validação Zod em toda rota antes do `withTenant`
+- ✅ Configurador é a fonte de identidade — frontend lê de `GET /api/me`, nunca do `publicMetadata` do Clerk
 
 ---
 
-## RLS — Tabelas que Precisam de Policy
+## Models Prisma — Padrão Pós-Pivô
 
-| Tabela | Status RLS | Responsável |
-|:---|:---|:---|
-| `User` | ENABLED | Nucleo-Central |
-| `Account` | ENABLED | Nucleo-Central |
-| `Transactions` | ENABLED | Servico-Produto |
-| `Settings` | ENABLED | Servico-Produto |
+Em bancos de produto:
+
+```prisma
+model Pedido {
+  id        String @id @default(cuid())
+  numero    String
+  status    String
+  // SEM campo tenant_id — o schema É o tenant
+  // SEM @@index([tenant_id]) — desnecessário
+  
+  @@index([status])
+  @@index([numero])
+}
+```
+
+> Durante a migração (Fase 2-3 do ADR-003), o `tenant_id` permanece em coluna por causa do dual-write. Após Fase 4, a coluna é removida.
+
+No Configurador (não muda):
+
+```prisma
+model Tenant {
+  id          String @id @default(cuid())
+  nome        String
+  status      TenantStatus
+  // Configurador É a fonte de tenants. Não tem tenant_id.
+}
+```
+
+---
+
+## Provisionamento de Novo Tenant
+
+Disparado pelo evento `TenantProvisioned` emitido pelo Configurador:
+
+1. Worker do produto consome o evento.
+2. `CREATE SCHEMA "tenant_<cuid>"`.
+3. `prisma migrate deploy --schema=tenant_<cuid>`.
+4. Falha → DLQ com retry exponencial (1m, 5m, 15m, 1h).
+5. 3 falhas → alerta crítico no painel + on-call.
+6. Sem fallback síncrono: tentativa de login antes do schema → erro claro.
 
 ---
 
 ## Como Testar o Isolamento
 
-Todo serviço deve ter um arquivo `tenant-isolation.test.ts`:
-
 ```typescript
-it('should block cross-tenant access', async () => {
-  const adminTenantA = createPrismaClient('tenant-a-id')
-  const recordB = await dbDirect.transaction.create({
-    data: { tenant_id: 'tenant-b-id' }
-  })
+// produto/pedido/server/tests/tenant-isolation.e2e.test.ts
+it('cross-tenant access deve falhar — schema do outro tenant não está no search_path', async () => {
+  const tenantA = await createTestTenant();
+  const tenantB = await createTestTenant();
 
-  // Tentar ler registro do Tenant B usando cliente do Tenant A
-  const result = await adminTenantA.transaction.findUnique({
-    where: { id: recordB.id }
-  })
+  const pedidoB = await withTenantContext(tenantB.id, async (_, db) =>
+    db.pedido.create({ data: { numero: 'B-001', status: 'NOVO' } })
+  );
 
-  expect(result).toBeNull() // Camada 1 (Prisma Extension) bloqueia
-})
+  // Request com JWT do tenant A tentando ler pedido do tenant B
+  const result = await withTenantContext(tenantA.id, async (_, db) =>
+    db.pedido.findUnique({ where: { id: pedidoB.id } })
+  );
+
+  expect(result).toBeNull(); // schema do A não enxerga tabela do B
+});
+
+it('crash do handler não polui search_path da próxima request', async () => {
+  const tenantA = await createTestTenant();
+  const tenantB = await createTestTenant();
+
+  await expect(
+    withTenantContext(tenantA.id, async (_, db) => {
+      throw new Error('simulando crash');
+    })
+  ).rejects.toThrow();
+
+  // Próxima request usa pool — search_path tem que estar limpo
+  const result = await withTenantContext(tenantB.id, async (_, db) => {
+    const [{ search_path }] = await db.$queryRaw<{ search_path: string }[]>`
+      SHOW search_path
+    `;
+    return search_path;
+  });
+
+  expect(result).toContain(`tenant_${tenantB.id.replace(/-/g, '')}`);
+  expect(result).not.toContain(`tenant_${tenantA.id.replace(/-/g, '')}`);
+});
 ```
 
 ---
 
 ## Comunicação entre Produto e Configurador
 
-O serviço de produto nunca acessa o banco do configurador. Ele pede permissão via API:
+O serviço de produto nunca acessa o banco do Configurador. Identidade vem via `GET /api/me`:
 
 ```typescript
-// ✅ correto — via API do Nucleo Global
-const response = await fetch('https://api.gravity.com/v1/auth/check-permission', {
-  headers: {
-    Authorization: `Bearer ${req.auth.token}`,
-    'x-internal-key': process.env.INTERNAL_SERVICE_KEY!
-  }
-})
-const { allowed } = await response.json()
-
-if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
+// ✅ correto — via SDK, que cacheia GET /api/me
+// O middleware tenantResolver já fez isso. req.tenant tem o que você precisa.
+app.get('/algo', tenantResolver(config), async (req, res) => {
+  const { roles } = req.tenant;
+  if (!roles.includes('PEDIDO_WRITE')) throw new AppError('Sem permissão', 403);
+  // ...
+});
 
 // ❌ proibido — acessar banco do Configurador diretamente
-import { configuradorPrisma } from '../../configurador/server/prisma'
+import { configuradorPrisma } from '../../configurador/server/prisma';
 ```
 
 ---
 
-## product_id Nullable por Design (Dream Team)
+## Endpoints `/admin/*`
 
-O campo `product_id` é nullable de propósito. Existem atividades, emails e registros que não pertencem a nenhum produto — por exemplo, "Preparar reunião de diretoria". Forçar um `product_id` obrigatório criaria categorias artificiais.
-
-```prisma
-model Activity {
-  product_id  String?  // nullable — atividades gerais não têm produto
-}
-```
-
-**Regra:** nunca forçar `product_id` como obrigatório em tabelas de tenant que podem ter registros genéricos.
+Rotas administrativas em qualquer produto exigem:
+- JWT válido + role `SUPER_ADMIN` (vindo de `req.tenant.roles`)
+- Header `x-target-tenant-id` explícito (não inferido do JWT do admin)
+- Validação dupla pelo SDK: usuário tem permissão **E** tenant alvo existe e está ativo
+- Log especial com `admin_action: true`, ingerido pela aba "Eventos de Segurança"
 
 ---
 
-## Performance de RLS com Volume — 50k req (Dream Team)
+## Métricas de Monitoramento
 
-### Impacto de RLS em performance
+O SDK emite (Prometheus):
 
-RLS adiciona uma condição a cada query. Com 50k requisições simultâneas, isso precisa ser eficiente:
-
-1. **Índice no tenant_id** — obrigatório para evitar full table scan
-2. **Tipo do tenant_id** — usar `UUID` (mais eficiente que `String` para comparação)
-3. **current_setting** — configurar UMA VEZ por conexão, não por query
-
-```sql
--- Configurar tenant_id no início da conexão
-SET app.current_tenant_id = 'uuid-do-tenant';
--- Todas as queries subsequentes usam RLS automaticamente
+```
+tenant_resolver_resolve_duration_ms{quantile="0.95"}     # alvo < 5ms
+tenant_resolver_set_local_duration_ms{quantile="0.95"}   # alvo < 2ms
+tenant_resolver_cache_hit_ratio                           # alvo > 95%
+tenant_resolver_configurador_errors_total                 # alvo 0
+tenant_resolver_active_transactions                       # capacidade
 ```
 
-### Connection Pooling com RLS (PgBouncer — Fase 3)
-
-PgBouncer no modo `transaction` reseta a sessão entre transações. O `SET` precisa ser executado dentro de cada transação:
-
-```typescript
-await prisma.$transaction(async (tx) => {
-  await tx.$executeRaw`SET LOCAL app.current_tenant_id = ${tenantId}`
-  // queries aqui usam RLS com o tenant correto
-  const data = await tx.cotacao.findMany()
-  return data
-})
-```
-
-> `SET LOCAL` (não `SET`) garante que o valor só vale dentro da transação.
+CRON horário audita paridade `Configurador.tenants_ativos == bancos.schemas_existentes`. Divergência → alerta crítico na aba "Alertas (24h)".
 
 ---
 
-## Checklist — Antes de Qualquer Acesso ao Banco
+## Checklist — Antes de Qualquer Acesso ao Banco de Produto
 
-- [ ] Estou usando `req.prisma` (com middleware) e não o `prisma` global?
-- [ ] O middleware `withTenantIsolation` está aplicado no servidor?
-- [ ] O RLS está configurado para esta tabela?
-- [ ] O model tem `tenant_id String` obrigatório (não nullable)?
-- [ ] O model tem os três índices obrigatórios?
-- [ ] O teste de acesso cross-tenant está implementado?
-- [ ] Nenhum endpoint retorna dados sem filtro de tenant?
-- [ ] Criações não aceitam `tenant_id` da payload — vem do token via middleware?
-- [ ] `product_id` é nullable quando apropriado?
-- [ ] Índice no `tenant_id` garante performance com RLS?
+- [ ] Estou usando `withTenant(req, ...)` ou `withTenantContext(tenantId, ...)` — não há outra forma?
+- [ ] O produto tem `@gravity/tenant-resolver` no `package.json` (e **não** `@prisma/client`)?
+- [ ] Estou dentro do callback do SDK ao tocar o banco?
+- [ ] O cache (se houver) está prefixado com `tenant:<id>:`?
+- [ ] O teste de cross-tenant está implementado e passando?
+- [ ] O teste de "crash não polui search_path" está implementado para esse produto?
+- [ ] Schema novo (se aplicável) é criado pelo worker de `TenantProvisioned`?
+- [ ] Migration nova roda via orquestrador `migrate-all-tenants.ts`?
+
+---
+
+## Histórico — Modelo Antigo (apenas referência durante migração)
+
+Antes do pivô de 2026-04-17, o isolamento era feito por:
+- Coluna `tenant_id String` obrigatória em todo model.
+- `WHERE tenant_id = ?` injetado por middleware Prisma (`$extends`).
+- RLS PostgreSQL como segunda camada (`USING (tenant_id = current_setting('app.current_tenant_id')::uuid)`).
+
+Esse modelo foi descartado: superfície de erro humano grande demais. Um único `findMany()` sem o middleware aplicado expunha o banco inteiro. ADR-001 documenta a decisão completa.
+
+Durante a janela de migração (Fase 2-3 do ADR-003), o dual-write mantém os dois modelos vivos. Após Fase 4, o `tenant_id` é removido das tabelas de produto.

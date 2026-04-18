@@ -141,7 +141,7 @@ const isNegative = /ruim|péssimo|horrível|insatisfeito|cancelar|não consigo|r
 
 ```prisma
 model EmailThread {
-  id         String         @id @default(uuid())
+  id         String         @id @default(cuid())
   tenant_id  String
   subject    String
   sentiment  Float          @default(0)  // -1 a 1
@@ -154,7 +154,7 @@ model EmailThread {
 }
 
 model EmailMessage {
-  id               String      @id @default(uuid())
+  id               String      @id @default(cuid())
   thread_id        String
   thread           EmailThread @relation(fields: [thread_id], references: [id])
   resend_id        String?     @unique

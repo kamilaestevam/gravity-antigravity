@@ -39,6 +39,8 @@ Antes de qualquer tarefa, o agente DEVE:
 | Ambiente | `skills/governanca/ambiente/SKILL.md` | Antes de iniciar servidor, definir porta |
 | Code Standards | `skills/governanca/code-standards/SKILL.md` | **SEMPRE — antes de escrever código** |
 | Deploy | `skills/governanca/deploy/SKILL.md` | Migrações, deploy, rollback, Railway |
+| Database Governance | `skills/governanca/database-governance/SKILL.md` | **Criar/alterar models Prisma** — paridade nominal, Database-per-Service, public vazio |
+| Lint Tenant-Safety | `skills/governanca/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia PrismaClient direto, cache sem prefixo, etc. |
 | Monorepo | `skills/governanca/monorepo/SKILL.md` | **Qualquer alteração em package.json, tsconfig, vite.config, dependências** |
 | Visão Geral | `skills/governanca/visao-geral/SKILL.md` | Entender o projeto, stack, estrutura, ondas |
 
@@ -52,6 +54,7 @@ Antes de qualquer tarefa, o agente DEVE:
 | Serviços Tenant | `skills/arquitetura/servicos-tenant/SKILL.md` | Criar/modificar serviços em `servicos-global/tenant/` |
 | State Management | `skills/arquitetura/state-management/SKILL.md` | Gerenciar estado (stores, event bus, queries) |
 | Tenant Isolation | `skills/arquitetura/tenant-isolation/SKILL.md` | **Qualquer acesso a banco de dados** |
+| SDK Tenant-Resolver | `skills/arquitetura/sdk-tenant-resolver/SKILL.md` | **Usar `@gravity/tenant-resolver` — withTenant, withTenantContext, TenantDatabase** |
 | Testes | `skills/arquitetura/testes/SKILL.md` | Criar/modificar testes, validar cobertura |
 | Contract Testing | `skills/arquitetura/contract-testing/SKILL.md` | Zod schemas como contratos, CI bloqueando breaking changes |
 | Caching Strategy | `skills/arquitetura/caching-strategy/SKILL.md` | Redis/in-memory, TTL, invalidação, performance |

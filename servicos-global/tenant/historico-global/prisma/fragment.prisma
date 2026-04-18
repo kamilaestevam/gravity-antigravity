@@ -1,5 +1,5 @@
 model HistoryLog {
-  id             String      @id @default(uuid())
+  id             String      @id @default(cuid())
   tenant_id      String
 
   // Ator
@@ -44,7 +44,7 @@ model HistoryLog {
 }
 
 model AlertRule {
-  id                       String     @id @default(uuid())
+  id                       String     @id @default(cuid())
   tenant_id                String?
 
   name                     String
@@ -80,7 +80,7 @@ model AlertRule {
 }
 
 model AlertEvent {
-  id             String      @id @default(uuid())
+  id             String      @id @default(cuid())
   tenant_id      String
   rule_id        String
   rule           AlertRule   @relation(fields: [rule_id], references: [id])
@@ -108,7 +108,7 @@ model AlertEvent {
 }
 
 model AlertNotificationLog {
-  id             String     @id @default(uuid())
+  id             String     @id @default(cuid())
   alert_event_id String
   alert_event    AlertEvent @relation(fields: [alert_event_id], references: [id])
 
@@ -147,7 +147,7 @@ enum AlertStatus {
 /// Resultado de exportação em background (acima de 10k registros).
 /// Persiste no banco para sobreviver a restarts do Railway (alternativa ao /tmp).
 model ExportResult {
-  id           String   @id @default(uuid())
+  id           String   @id @default(cuid())
   tenant_id    String
   format       String   // 'csv' | 'json'
   content      String   @db.Text

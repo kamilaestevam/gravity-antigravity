@@ -48,7 +48,7 @@ enum FilaEmailPrioridade {
 // ---------------------------------------------------------------------------
 
 model EmailThread {
-  id         String @id @default(uuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
@@ -76,7 +76,7 @@ model EmailThread {
 // ---------------------------------------------------------------------------
 
 model EmailMessage {
-  id         String @id @default(uuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?

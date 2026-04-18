@@ -234,7 +234,7 @@ model PedidoCasasDecimaisConfig {
 // ============================================
 
 model KanbanPreferencias {
-  id           String   @id @default(uuid())
+  id           String   @id @default(cuid())
   tenant_id    String
   user_id      String
   preferencias Json

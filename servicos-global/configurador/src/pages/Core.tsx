@@ -39,7 +39,7 @@ import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
 import { buildTenantProductNodes, type CompanyProductItem } from '../utils/ecosystemNodes'
-import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
 import { invalidateRoleCache, useLoadSystemRole } from '../hooks/useLoadSystemRole'
 import './workspace/workspace.css'
 import './workspace/gabi.css'
@@ -62,7 +62,7 @@ export function Core() {
   const { getToken } = useAuth()
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, addNotification, currentUser } = useShellStore()
 
-  useSyncClerkToShell()
+  useMeSync()
 
   const companyId = sessionStorage.getItem('gravity_company_id')
   const companyName = sessionStorage.getItem('gravity_company_name') || 'Workspace'

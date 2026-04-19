@@ -6,7 +6,7 @@ import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { LanguageSwitcherGlobal } from '@nucleo/language-switcher-global'
 import { LocalizadorGlobal, useLocalizadorHistory, buildEcosystemNodes, type EcosystemNode } from '@nucleo/localizador-global'
-import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { Notificacoes } from '../../../../tenant/notificacoes/src/Notificacoes'
 import {
@@ -58,12 +58,12 @@ export function WorkspaceLayout() {
 
   const navigate = useNavigate()
   const { user } = useUser()
-  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
+  const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips, currentUser } = useShellStore()
 
-  // Sincroniza dados do Clerk → Shell store (currentUser com tenantId)
-  useSyncClerkToShell()
+  // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
+  useMeSync()
   // Sincroniza preferências de UI com o backend (cross-device)
-  useUserPreferences({ userId: user?.id, tenantId: user?.publicMetadata?.tenantId as string | undefined })
+  useUserPreferences({ userId: currentUser.id || user?.id, tenantId: currentUser.tenantId })
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
 

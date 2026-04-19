@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { useShellStore, ToastContainer, useSyncClerkToShell } from '@gravity/shell'
+import { useShellStore, ToastContainer, useMeSync } from '@gravity/shell'
 import { TelaProdutoGlobal } from '@nucleo/tela-produto-global'
 import { useLocalizadorHistory, type EcosystemNode } from '@nucleo/localizador-global'
 import { getProdutoMeta } from '@nucleo/logo-produtos'
@@ -92,7 +92,7 @@ function LoadingFallback() {
 }
 
 export function App() {
-  useSyncClerkToShell()
+  useMeSync()
   const { t } = useTranslation()
 
   const navItems = useMemo(

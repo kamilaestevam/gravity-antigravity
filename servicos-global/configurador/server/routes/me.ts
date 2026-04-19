@@ -1,11 +1,11 @@
 // server/routes/me.ts
 // Rotas do usuário autenticado (self).
 //
-// GET  /api/v1/me                → dados canônicos do usuário (id, tenantId, role)
+// GET  /api/v1/me                → contexto completo: user + tenant + workspaces + produtos
 // GET  /api/v1/me/preferences    → { preferredCompanyId: string | null }
 // PUT  /api/v1/me/preferences    → atualiza workspace preferido (skip pós-login)
 
-import { Router } from 'express'
+import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
 import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
@@ -16,17 +16,80 @@ meRouter.use(requireAuth)
 
 /**
  * GET /api/v1/me
- * Retorna o role canônico do banco — fonte de verdade para autorização no frontend.
- * req.auth já foi populado pelo requireAuth (consulta ao banco com cache).
+ * Fonte de verdade do frontend — substitui publicMetadata do Clerk.
+ * Retorna contexto completo: usuário, organização, workspaces e produtos ativos.
  */
-meRouter.get('/', (req, res) => {
-  res.json({
-    user: {
-      id: req.auth.userId,
-      tenantId: req.auth.tenantId,
-      role: req.auth.role,
-    },
-  })
+meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const usuario = await prisma.usuario.findUnique({
+      where: { id: req.auth.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        tenant_id: true,
+        preferred_company_id: true,
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            status: true,
+          },
+        },
+        memberships: {
+          where: { is_active: true },
+          select: {
+            role: true,
+            company: {
+              select: {
+                id: true,
+                name: true,
+                status: true,
+                company_products: {
+                  where: { is_active: true },
+                  select: { product_key: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    if (!usuario) {
+      throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    }
+
+    res.json({
+      usuario: {
+        id_usuario: usuario.id,
+        nome_usuario: usuario.name,
+        email_usuario: usuario.email,
+        tipo_usuario: usuario.role,
+        id_organizacao_usuario: usuario.tenant_id,
+        preferred_company_id: usuario.preferred_company_id,
+      },
+      organizacao: usuario.tenant
+        ? {
+            id_organizacao: usuario.tenant.id,
+            nome_organizacao: usuario.tenant.name,
+            subdominio_organizacao: usuario.tenant.slug,
+            status_organizacao: usuario.tenant.status,
+          }
+        : null,
+      workspaces: usuario.memberships.map((m) => ({
+        id: m.company.id,
+        nome_workspace: m.company.name,
+        status: m.company.status,
+        tipo_usuario: m.role,
+        produtos: m.company.company_products.map((p) => p.product_key),
+      })),
+    })
+  } catch (err) {
+    next(err)
+  }
 })
 
 // ─────────────────────────────────────────────────────────────────────────────

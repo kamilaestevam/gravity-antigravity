@@ -5,7 +5,7 @@ import { useUser, useClerk, useAuth } from '@clerk/clerk-react'
 import { useLoadSystemRole } from '../../hooks/useLoadSystemRole'
 import { LogoGlobal } from '@nucleo/logo-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
-import { ToastContainer, useShellStore, useUserPreferences, useSyncClerkToShell } from '@gravity/shell'
+import { ToastContainer, useShellStore, useUserPreferences, useMeSync } from '@gravity/shell'
 import { LocalizarExpandidoCampoGlobal } from '@nucleo/campo-localizar-expandido-global'
 import { UsuarioGlobal } from '@nucleo/usuario-global'
 import { MenuLateralGlobal } from '@nucleo/menu-lateral-global'
@@ -64,8 +64,8 @@ export function AdminLayout() {
   ]
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()
 
-  // Sincroniza dados do Clerk → Shell store (currentUser com tenantId)
-  useSyncClerkToShell()
+  // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
+  useMeSync()
   // Sincroniza preferências de UI com o backend (cross-device)
   useUserPreferences({ userId: user?.id, tenantId: 'gravity-hq' })
 

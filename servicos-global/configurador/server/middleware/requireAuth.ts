@@ -75,41 +75,27 @@ export async function requireAuth(
     //      (sem ambiguidade → impossível cruzar tenant boundaries).
     //      Isso resolve o caso bootstrap/pós-migração onde a metadata do Clerk
     //      ficou sem tenantId mas o usuário já existe no DB com role definido.
+    // Fallback: clerk_user_id não encontrado no banco — tenta vincular pelo email.
+    // Seguro: aceita apenas se houver exatamente um usuário com esse email no sistema
+    // (sem ambiguidade → impossível cruzar tenant boundaries).
     if (!user) {
       try {
         const clerkUser = await clerkClient.users.getUser(verified.sub)
-        const tenantIdFromMeta = clerkUser.publicMetadata?.tenantId as string | undefined
         const primaryEmail = clerkUser.emailAddresses.find(e => e.id === clerkUser.primaryEmailAddressId)?.emailAddress
           ?? clerkUser.emailAddresses[0]?.emailAddress
 
         if (primaryEmail) {
-          if (tenantIdFromMeta) {
-            // Caminho 1: metadata tem tenantId → match estrito
-            const byEmail = await prisma.usuario.findFirst({
-              where: { email: primaryEmail, tenant_id: tenantIdFromMeta },
-              select: { id: true, tenant_id: true, role: true },
+          const candidates = await prisma.usuario.findMany({
+            where: { email: primaryEmail },
+            select: { id: true, tenant_id: true, role: true },
+          })
+          if (candidates.length === 1) {
+            const only = candidates[0]
+            await prisma.usuario.update({
+              where: { id: only.id },
+              data: { clerk_user_id: verified.sub },
             })
-            if (byEmail) {
-              await prisma.usuario.update({
-                where: { id: byEmail.id },
-                data: { clerk_user_id: verified.sub },
-              })
-              user = byEmail
-            }
-          } else {
-            // Caminho 2: metadata sem tenantId → aceita só se match único global
-            const candidates = await prisma.usuario.findMany({
-              where: { email: primaryEmail },
-              select: { id: true, tenant_id: true, role: true },
-            })
-            if (candidates.length === 1) {
-              const only = candidates[0]
-              await prisma.usuario.update({
-                where: { id: only.id },
-                data: { clerk_user_id: verified.sub },
-              })
-              user = only
-            }
+            user = only
           }
         }
       } catch {

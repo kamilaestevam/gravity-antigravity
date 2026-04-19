@@ -10,7 +10,7 @@ import { changeLanguageLazy, type SupportedLanguage } from '@nucleo/Utilidades/l
 import { ToastContainer } from './ToastContainer'
 import { useShellStore } from './store'
 import { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
-import { useSyncClerkToShell } from './hooks/useSyncClerkToShell'
+import { useMeSync } from './hooks/useMeSync'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -47,8 +47,8 @@ export function Layout({
   const isProcessoRoute = location.pathname.startsWith('/processo/')
   const isProdutoRoute  = location.pathname.startsWith('/produto/')
 
-  // Sincroniza dados do Clerk (email, role, tenantId) no Shell store
-  useSyncClerkToShell()
+  // Popula ShellStore via GET /api/v1/me (Clerk = porteiro, backend = fonte de verdade)
+  useMeSync()
 
   // Carrega produtos permitidos para o tenant ao montar
   useLoadAllowedProducts()

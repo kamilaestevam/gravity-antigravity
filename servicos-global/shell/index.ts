@@ -26,6 +26,7 @@ export type { KnownEntity } from './entityLinkFactory'
 // Hooks
 export { useUserPreferences } from './hooks/useUserPreferences'
 export { useSyncClerkToShell } from './hooks/useSyncClerkToShell'
+export { useMeSync }           from './hooks/useMeSync'
 export { useLoadAllowedProducts } from './hooks/useLoadAllowedProducts'
 export type {
   ShellState,

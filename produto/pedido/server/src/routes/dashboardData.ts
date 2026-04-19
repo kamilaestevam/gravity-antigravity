@@ -99,7 +99,7 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
 
-      const [pedidos, itens, taxasVenda] = await Promise.all([
+      const [pedidosRaw, itensRaw, taxasVenda] = await Promise.all([
         db.pedido.findMany({
           where: {
             data_emissao_pedido: { gte: from, lte: to },
@@ -143,6 +143,10 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
         }),
         buscarTaxasVenda(),
       ])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pedidos = pedidosRaw as any[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const itens = itensRaw as any[]
 
       // ── Contagens por status ───────────────────────────────────────────────────
       const total_pedidos        = pedidos.length
@@ -355,7 +359,7 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
       const db = rawDb as any
 
       // ── 1. Buscar KPIs do período ──────────────────────────────────────────────
-      const [pedidos, itens] = await Promise.all([
+      const [pedidosRaw2, itensRaw2] = await Promise.all([
         db.pedido.findMany({
           where: { data_emissao_pedido: { gte: from, lte: to }, deleted_at: null },
           select: {
@@ -377,6 +381,10 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
           },
         }),
       ])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pedidos = pedidosRaw2 as any[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const itens = itensRaw2 as any[]
 
       const total_pedidos        = pedidos.length
       const pedidos_abertos      = pedidos.filter((p) => p.status === 'aberto').length

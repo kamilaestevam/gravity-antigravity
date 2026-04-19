@@ -18,6 +18,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import multer from 'multer'
 import { z } from 'zod'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import { AppError } from '../errors/AppError.js'
 import { SmartImportService, criarSmartImportService } from '../services/smartImportService.js'
 import { MapeamentoMemoriaService } from '../services/mapeamentoMemoriaService.js'
@@ -133,7 +134,8 @@ smartImportRouter.get('/template', (_req: Request, res: Response, next: NextFunc
 // ── POST /analisar ─────────────────────────────────────────────────────────────
 
 smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Request, res: Response, next: NextFunction) => {
-  const tenantId = (req as Request & { tenantId: string }).tenantId
+  // Extrair tenantId antes de withTenant — necessário para o rate limit
+  const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
   if (!checkRateLimit(tenantId)) {
     return res.status(429).json({
@@ -172,11 +174,13 @@ smartImportRouter.post('/analisar', upload.single('arquivo'), async (req: Reques
       return res.json({ multiplas_planilhas: true, planilhas, preview: null })
     }
 
-    const db      = (req as Request & { prisma: Record<string, unknown> }).prisma
-    const service = criarSmartImportService(db)
-    const preview = await service.analisar(tenantId, buffer, nomeArquivo, nomePlanilha)
-
-    res.json(preview)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db      = rawDb as any
+      const service = criarSmartImportService(db)
+      const preview = await service.analisar(tenantId, buffer, nomeArquivo, nomePlanilha)
+      res.json(preview)
+    })
   } catch (err) {
     next(err)
   }
@@ -196,23 +200,26 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
     })
   }
 
-  const tenantId  = (req as Request & { tenantId: string }).tenantId
+  // SEC.3 — Validar que o preview_id pertence ao tenant da requisicao
+  const tenantId  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
   const companyId = (req.headers['x-company-id'] as string | undefined) ?? tenantId
 
-  // SEC.3 — Validar que o preview_id pertence ao tenant da requisicao
   if (!parse.data.preview_id.startsWith(tenantId + '-')) {
     return res.status(403).json({
       error: { code: 'UNAUTHORIZED_PREVIEW', message: 'Preview nao pertence a este tenant' },
     })
   }
 
-  const userId = (req as Request & { userId: string }).userId ?? 'system'
-  const db     = (req as Request & { prisma: Record<string, unknown> }).prisma
-
   try {
-    const service   = criarSmartImportService(db)
-    const resultado = await service.confirmar(tenantId, userId, parse.data, companyId)
-    res.json(resultado)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db     = rawDb as any
+      const userId = (req as unknown as { tenant: TenantContext }).tenant.userId ?? 'system'
+
+      const service   = criarSmartImportService(db)
+      const resultado = await service.confirmar(tenantId, userId, parse.data, companyId)
+      res.json(resultado)
+    })
   } catch (err) {
     next(err)
   }
@@ -221,8 +228,7 @@ smartImportRouter.post('/confirmar', async (req: Request, res: Response, next: N
 // ── GET /mapeamento/:hash ──────────────────────────────────────────────────────
 
 smartImportRouter.get('/mapeamento/:hash', async (req: Request, res: Response, next: NextFunction) => {
-  const tenantId = (req as Request & { tenantId: string }).tenantId
-  const hash     = req.params.hash
+  const hash = req.params.hash
 
   if (!hash || hash.length < 4) {
     return res.status(400).json({
@@ -230,12 +236,16 @@ smartImportRouter.get('/mapeamento/:hash', async (req: Request, res: Response, n
     })
   }
 
-  const db = (req as Request & { prisma: Record<string, unknown> }).prisma
-
   try {
-    const service    = new MapeamentoMemoriaService(db)
-    const mapeamento = await service.buscar(tenantId, hash)
-    res.json(mapeamento ?? null)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      const service    = new MapeamentoMemoriaService(db)
+      const mapeamento = await service.buscar(tenantId, hash)
+      res.json(mapeamento ?? null)
+    })
   } catch (err) {
     next(err)
   }
@@ -262,23 +272,26 @@ smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextF
     { valor: 'valor_total_itens',                rotulo: 'Valor Total Item'       },
   ]
 
-  const tenantId = (req as Request & { tenantId: string }).tenantId
-  const db = (req as Request & { prisma: Record<string, unknown> }).prisma
-
   try {
-    // P1.7 — Incluir colunas customizadas do tenant
-    const colunasCustom = await (db as Record<string, any>)['colunaUsuarioPedido'].findMany({
-      where: { tenant_id: tenantId, ativo: true },
-      select: { chave: true, nome: true },
-      orderBy: { ordem: 'asc' },
-    }).catch(() => [] as { chave: string; nome: string }[])
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const camposCustom = (colunasCustom as { chave: string; nome: string }[]).map(c => ({
-      valor: `custom_${c.chave}`,
-      rotulo: `${c.nome} (personalizado)`,
-    }))
+      // P1.7 — Incluir colunas customizadas do tenant
+      const colunasCustom = await db.colunaUsuarioPedido.findMany({
+        where: { tenant_id: tenantId, ativo: true },
+        select: { chave: true, nome: true },
+        orderBy: { ordem: 'asc' },
+      }).catch(() => [] as { chave: string; nome: string }[])
 
-    res.json([...camposPadrao, ...camposCustom])
+      const camposCustom = (colunasCustom as { chave: string; nome: string }[]).map((c: { chave: string; nome: string }) => ({
+        valor: `custom_${c.chave}`,
+        rotulo: `${c.nome} (personalizado)`,
+      }))
+
+      res.json([...camposPadrao, ...camposCustom])
+    })
   } catch (err) {
     next(err)
   }
@@ -298,12 +311,17 @@ smartImportRouter.post('/mapeamento/salvar', async (req: Request, res: Response,
       error: { code: 'VALIDATION_ERROR', message: 'Dados invalidos', details: parse.error.flatten() },
     })
   }
-  const tenantId = (req as Request & { tenantId: string }).tenantId
-  const db       = (req as Request & { prisma: Record<string, unknown> }).prisma
+
   try {
-    const service = new MapeamentoMemoriaService(db)
-    await service.salvar(tenantId, parse.data.hash_colunas, parse.data.mapeamento)
-    res.json({ ok: true })
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      const service = new MapeamentoMemoriaService(db)
+      await service.salvar(tenantId, parse.data.hash_colunas, parse.data.mapeamento)
+      res.json({ ok: true })
+    })
   } catch (err) {
     next(err)
   }
@@ -322,19 +340,24 @@ smartImportRouter.post('/reverter', async (req: Request, res: Response, next: Ne
       error: { code: 'VALIDATION_ERROR', message: 'Dados invalidos', details: parse.error.flatten() },
     })
   }
-  const tenantId = (req as Request & { tenantId: string }).tenantId
-  const db = (req as Request & { prisma: Record<string, unknown> }).prisma
+
   try {
-    // Cancelar pedidos (soft delete via status) garantindo tenant isolation
-    const resultado = await (db as Record<string, any>)['pedido'].updateMany({
-      where: {
-        id: { in: parse.data.ids_criados },
-        tenant_id: tenantId,
-        status: 'draft', // Só reverter rascunhos — pedidos abertos nao podem ser revertidos
-      },
-      data: { status: 'cancelado' },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+      // Cancelar pedidos (soft delete via status) garantindo tenant isolation
+      const resultado = await db.pedido.updateMany({
+        where: {
+          id: { in: parse.data.ids_criados },
+          tenant_id: tenantId,
+          status: 'draft', // Só reverter rascunhos — pedidos abertos nao podem ser revertidos
+        },
+        data: { status: 'cancelado' },
+      })
+      res.json({ revertidos: resultado.count, ids: parse.data.ids_criados })
     })
-    res.json({ revertidos: resultado.count, ids: parse.data.ids_criados })
   } catch (err) {
     next(err)
   }

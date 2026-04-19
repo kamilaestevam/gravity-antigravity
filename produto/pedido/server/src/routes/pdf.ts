@@ -20,6 +20,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import {
   compilarVariaveis,
   renderizarTemplate,
@@ -63,17 +64,18 @@ const GerarDocumentoSchema = z.object({
 
 pdfRouter.get('/templates', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const db = (req as Request & { prisma: unknown }).prisma as {
-      pedidoTemplatePdf: { findMany: (args: unknown) => Promise<unknown[]> }
-    }
-    const tenantId = (req as Request & { tenantId: string }).tenantId
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const templates = await db.pedidoTemplatePdf.findMany({
-      where: { tenant_id: tenantId },
-      orderBy: { nome: 'asc' },
-    } as Parameters<typeof db.pedidoTemplatePdf.findMany>[0])
+      const templates = await db.pedidoTemplatePdf.findMany({
+        where: { tenant_id: tenantId },
+        orderBy: { nome: 'asc' },
+      })
 
-    res.json(templates)
+      res.json(templates)
+    })
   } catch (err) {
     next(err)
   }
@@ -82,127 +84,114 @@ pdfRouter.get('/templates', async (req: Request, res: Response, next: NextFuncti
 // ── POST /pdf/gerar ───────────────────────────────────────────────────────────
 
 pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction) => {
+  const bodyParse = GerarPdfSchema.safeParse(req.body)
+  if (!bodyParse.success) {
+    return next(new AppError('Dados inválidos', 400, 'VALIDATION_ERROR'))
+  }
+
+  const { pedido_id, template_id, salvar_como_anexo } = bodyParse.data
+
   try {
-    const db = (req as Request & { prisma: unknown }).prisma as {
-      pedidoTemplatePdf: { findFirst: (args: unknown) => Promise<unknown> }
-      pedidoAnexo: { create: (args: unknown) => Promise<unknown> }
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenantId = ctx.tenantId
+      const userId   = ctx.userId ?? 'system'
 
-    // Acesso ao Prisma base (sem extensão de tenant) para pedido — usa a extensão já aplicada
-    const prismaRaw = (req as Request & { prismaRaw?: unknown }).prismaRaw ?? db
-
-    const tenantId = (req as Request & { tenantId: string }).tenantId
-    const userId = (req as Request & { userId: string }).userId ?? 'system'
-
-    const bodyParse = GerarPdfSchema.safeParse(req.body)
-    if (!bodyParse.success) {
-      throw new AppError('Dados inválidos', 400, 'VALIDATION_ERROR')
-    }
-
-    const { pedido_id, template_id, salvar_como_anexo } = bodyParse.data
-
-    // 1. Buscar pedido com itens
-    const rawPrisma = prismaRaw as {
-      pedido?: { findFirst: (args: unknown) => Promise<unknown> }
-      pedidoComercial?: { findFirst: (args: unknown) => Promise<unknown> }
-    }
-    const pedidoFinder = rawPrisma.pedidoComercial ?? rawPrisma.pedido ?? null
-
-    let pedido: unknown = null
-    if (pedidoFinder) {
-      pedido = await (pedidoFinder as { findFirst: (args: unknown) => Promise<unknown> }).findFirst({
+      // 1. Buscar pedido com itens
+      const pedido = await db.pedido.findFirst({
         where: { id: pedido_id, tenant_id: tenantId },
         include: { itens: { orderBy: { sequencia_item: 'asc' } } },
       })
-    }
 
-    // Fallback se não encontrou via Prisma extendido (tenant isolation já garante o tenant_id)
-    if (!pedido) {
-      throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
-    }
+      if (!pedido) {
+        throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
+      }
 
-    // 2. Buscar template
-    const template = await db.pedidoTemplatePdf.findFirst({
-      where: { id: template_id, tenant_id: tenantId },
-    } as Parameters<typeof db.pedidoTemplatePdf.findFirst>[0])
+      // 2. Buscar template
+      const template = await db.pedidoTemplatePdf.findFirst({
+        where: { id: template_id, tenant_id: tenantId },
+      })
 
-    if (!template) {
-      throw new AppError('Template não encontrado', 404, 'NOT_FOUND')
-    }
+      if (!template) {
+        throw new AppError('Template não encontrado', 404, 'NOT_FOUND')
+      }
 
-    const typedTemplate = template as {
-      nome: string
-      conteudo_html: string
-    }
+      const typedTemplate = template as {
+        nome: string
+        conteudo_html: string
+      }
 
-    // 3. Compilar variáveis
-    const pedidoTyped = pedido as {
-      numero_pedido: string
-      tipo_operacao: string
-      nome_exportador?: string | null
-      nome_fabricante?: string | null
-      incoterm?: string | null
-      moeda_pedido: string
-      data_emissao_pedido: string
-      valor_total_pedido?: number | null
-      quantidade_total_inicial_pedido?: number | null
-      itens: Array<{
-        part_number: string
-        descricao_item: string
-        ncm: string
-        saldo_item_pedido: number
-        quantidade_inicial_item_pedido: number
-        unidade_comercializada_item?: string | null
-        moeda_item: string
-        valor_unitario_item?: number | null
-        valor_total_itens?: number | null
-      }>
-      [key: string]: unknown
-    }
+      // 3. Compilar variáveis
+      const pedidoTyped = pedido as {
+        numero_pedido: string
+        tipo_operacao: string
+        nome_exportador?: string | null
+        nome_fabricante?: string | null
+        incoterm?: string | null
+        moeda_pedido: string
+        data_emissao_pedido: string
+        valor_total_pedido?: number | null
+        quantidade_total_inicial_pedido?: number | null
+        itens: Array<{
+          part_number: string
+          descricao_item: string
+          ncm: string
+          saldo_item_pedido: number
+          quantidade_inicial_item_pedido: number
+          unidade_comercializada_item?: string | null
+          moeda_item: string
+          valor_unitario_item?: number | null
+          valor_total_itens?: number | null
+        }>
+        [key: string]: unknown
+      }
 
-    // Tenant nome — usar variável de ambiente ou padrão
-    const tenantNome = process.env.TENANT_NOME ?? tenantId
+      // Tenant nome — usar variável de ambiente ou padrão
+      const tenantNome = process.env.TENANT_NOME ?? tenantId
 
-    const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
+      const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
 
-    // 4. Renderizar Handlebars
-    const htmlFinal = renderizarTemplate(typedTemplate.conteudo_html, variaveis)
+      // 4. Renderizar Handlebars
+      const htmlFinal = renderizarTemplate(typedTemplate.conteudo_html, variaveis)
 
-    // 5. Gerar PDF (ou HTML fallback)
-    const { buffer, isPdf } = await gerarPdfBuffer(htmlFinal)
+      // 5. Gerar PDF (ou HTML fallback)
+      const { buffer, isPdf } = await gerarPdfBuffer(htmlFinal)
 
-    // 6. Salvar no storage e criar anexo (conforme spec: salvar_como_anexo sempre true)
-    const nomeArquivo = gerarNomeArquivoPdf(typedTemplate.nome, pedidoTyped.numero_pedido)
-    const uuid: string = randomUUID()
-    const storageKey = resolverStorageKey(tenantId, pedido_id, uuid, nomeArquivo)
-    salvarArquivoLocal(buffer, storageKey)
+      // 6. Salvar no storage e criar anexo (conforme spec: salvar_como_anexo sempre true)
+      const nomeArquivo = gerarNomeArquivoPdf(typedTemplate.nome, pedidoTyped.numero_pedido)
+      const uuid: string = randomUUID()
+      const storageKey = resolverStorageKey(tenantId, pedido_id, uuid, nomeArquivo)
+      salvarArquivoLocal(buffer, storageKey)
 
-    let anexoId: string = uuid
-    if (salvar_como_anexo) {
-      const anexo = await db.pedidoAnexo.create({
-        data: {
-          id: uuid,
-          tenant_id: tenantId,
-          vinculo: 'pedido',
-          vinculo_id: pedido_id,
-          nome_arquivo: nomeArquivo,
-          tipo_arquivo: isPdf ? 'application/pdf' : 'text/html',
-          tamanho_bytes: buffer.length,
-          categoria: 'PDF Gerado',
-          descricao: `Gerado a partir do template: ${typedTemplate.nome}`,
-          storage_key: storageKey,
-          uploaded_by: userId,
-        },
-      } as Parameters<typeof db.pedidoAnexo.create>[0])
+      let anexoId: string = uuid
+      if (salvar_como_anexo) {
+        const anexo = await db.pedidoAnexo.create({
+          data: {
+            id: uuid,
+            tenant_id: tenantId,
+            vinculo: 'pedido',
+            vinculo_id: pedido_id,
+            nome_arquivo: nomeArquivo,
+            tipo_arquivo: isPdf ? 'application/pdf' : 'text/html',
+            tamanho_bytes: buffer.length,
+            categoria: 'PDF Gerado',
+            descricao: `Gerado a partir do template: ${typedTemplate.nome}`,
+            storage_key: storageKey,
+            uploaded_by: userId,
+          },
+        })
 
-      anexoId = (anexo as { id: string }).id
-    }
+        anexoId = (anexo as { id: string }).id
+      }
 
-    // 7. Retornar resultado
-    res.json({
-      url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
-      anexo_id: anexoId,
-      is_pdf: isPdf,
+      // 7. Retornar resultado
+      res.json({
+        url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
+        anexo_id: anexoId,
+        is_pdf: isPdf,
+      })
     })
   } catch (err) {
     next(err)
@@ -213,115 +202,106 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
 // Rota base registrada em /api/v1/pedidos — acesso via /api/v1/pedidos/documentos/gerar
 
 pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: NextFunction) => {
+  const bodyParse = GerarDocumentoSchema.safeParse(req.body)
+  if (!bodyParse.success) {
+    return next(new AppError('Dados inválidos', 400, 'VALIDATION_ERROR'))
+  }
+
+  const { pedido_id, tipo_documento, idioma, salvar_como_anexo } = bodyParse.data
+
   try {
-    const db = (req as Request & { prisma: unknown }).prisma as {
-      pedidoAnexo: { create: (args: unknown) => Promise<unknown> }
-    }
-    const prismaRaw = (req as Request & { prismaRaw?: unknown }).prismaRaw ?? db
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenantId = ctx.tenantId
+      const userId   = ctx.userId ?? 'system'
 
-    const tenantId = (req as Request & { tenantId: string }).tenantId
-    const userId = (req as Request & { userId: string }).userId ?? 'system'
-
-    const bodyParse = GerarDocumentoSchema.safeParse(req.body)
-    if (!bodyParse.success) {
-      throw new AppError('Dados inválidos', 400, 'VALIDATION_ERROR')
-    }
-
-    const { pedido_id, tipo_documento, idioma, salvar_como_anexo } = bodyParse.data
-
-    // 1. Buscar pedido com itens
-    const rawPrisma = prismaRaw as {
-      pedido?: { findFirst: (args: unknown) => Promise<unknown> }
-      pedidoComercial?: { findFirst: (args: unknown) => Promise<unknown> }
-    }
-    const pedidoFinder = rawPrisma.pedidoComercial ?? rawPrisma.pedido ?? null
-
-    let pedido: unknown = null
-    if (pedidoFinder) {
-      pedido = await (pedidoFinder as { findFirst: (args: unknown) => Promise<unknown> }).findFirst({
+      // 1. Buscar pedido com itens
+      const pedido = await db.pedido.findFirst({
         where: { id: pedido_id, tenant_id: tenantId },
         include: { itens: { orderBy: { sequencia_item: 'asc' } } },
       })
-    }
 
-    if (!pedido) {
-      throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
-    }
+      if (!pedido) {
+        throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
+      }
 
-    const pedidoTyped = pedido as {
-      numero_pedido: string
-      tipo_operacao: string
-      nome_exportador?: string | null
-      nome_fabricante?: string | null
-      incoterm?: string | null
-      moeda_pedido: string
-      data_emissao_pedido: string
-      valor_total_pedido?: number | null
-      quantidade_total_inicial_pedido?: number | null
-      itens: Array<{
-        part_number: string
-        descricao_item: string
-        ncm: string
-        saldo_item_pedido: number
-        quantidade_inicial_item_pedido: number
-        unidade_comercializada_item?: string | null
-        moeda_item: string
-        valor_unitario_item?: number | null
-        valor_total_itens?: number | null
-      }>
-    }
+      const pedidoTyped = pedido as {
+        numero_pedido: string
+        tipo_operacao: string
+        nome_exportador?: string | null
+        nome_fabricante?: string | null
+        incoterm?: string | null
+        moeda_pedido: string
+        data_emissao_pedido: string
+        valor_total_pedido?: number | null
+        quantidade_total_inicial_pedido?: number | null
+        itens: Array<{
+          part_number: string
+          descricao_item: string
+          ncm: string
+          saldo_item_pedido: number
+          quantidade_inicial_item_pedido: number
+          unidade_comercializada_item?: string | null
+          moeda_item: string
+          valor_unitario_item?: number | null
+          valor_total_itens?: number | null
+        }>
+      }
 
-    // 2. Selecionar template Handlebars baseado no tipo_documento
-    const templateMap: Record<string, string> = {
-      pedido_de_venda:  'purchase-order',
-      proforma_invoice: 'proforma-invoice',
-      invoice:          'commercial-invoice',
-    }
-    const templateNome = templateMap[tipo_documento]
+      // 2. Selecionar template Handlebars baseado no tipo_documento
+      const templateMap: Record<string, string> = {
+        pedido_de_venda:  'purchase-order',
+        proforma_invoice: 'proforma-invoice',
+        invoice:          'commercial-invoice',
+      }
+      const templateNome = templateMap[tipo_documento]
 
-    // 3. Compilar variáveis passando o idioma ao contexto
-    const tenantNome = process.env.TENANT_NOME ?? tenantId
-    const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
-    const variaveisComIdioma = { ...variaveis as Record<string, unknown>, idioma, tipo_documento }
+      // 3. Compilar variáveis passando o idioma ao contexto
+      const tenantNome = process.env.TENANT_NOME ?? tenantId
+      const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
+      const variaveisComIdioma = { ...variaveis as Record<string, unknown>, idioma, tipo_documento }
 
-    // 4. Renderizar template (fallback: HTML inline mínimo se template não existir)
-    const htmlFallback = `<h1>${templateNome}</h1><p>${pedidoTyped.numero_pedido}</p><p>Lang: ${idioma}</p>`
-    const htmlFinal = renderizarTemplate(htmlFallback, variaveisComIdioma)
+      // 4. Renderizar template (fallback: HTML inline mínimo se template não existir)
+      const htmlFallback = `<h1>${templateNome}</h1><p>${pedidoTyped.numero_pedido}</p><p>Lang: ${idioma}</p>`
+      const htmlFinal = renderizarTemplate(htmlFallback, variaveisComIdioma)
 
-    // 5. Gerar PDF (ou HTML fallback)
-    const { buffer, isPdf } = await gerarPdfBuffer(htmlFinal)
+      // 5. Gerar PDF (ou HTML fallback)
+      const { buffer, isPdf } = await gerarPdfBuffer(htmlFinal)
 
-    // 6. Salvar no storage e criar anexo
-    const nomeArquivo = gerarNomeArquivoPdf(templateNome, pedidoTyped.numero_pedido)
-    const uuid: string = randomUUID()
-    const storageKey = resolverStorageKey(tenantId, pedido_id, uuid, nomeArquivo)
-    salvarArquivoLocal(buffer, storageKey)
+      // 6. Salvar no storage e criar anexo
+      const nomeArquivo = gerarNomeArquivoPdf(templateNome, pedidoTyped.numero_pedido)
+      const uuid: string = randomUUID()
+      const storageKey = resolverStorageKey(tenantId, pedido_id, uuid, nomeArquivo)
+      salvarArquivoLocal(buffer, storageKey)
 
-    let anexoId: string = uuid
-    if (salvar_como_anexo) {
-      const anexo = await db.pedidoAnexo.create({
-        data: {
-          id: uuid,
-          tenant_id: tenantId,
-          vinculo: 'pedido',
-          vinculo_id: pedido_id,
-          nome_arquivo: nomeArquivo,
-          tipo_arquivo: isPdf ? 'application/pdf' : 'text/html',
-          tamanho_bytes: buffer.length,
-          categoria: 'Documento Gerado',
-          descricao: `${templateNome} — idioma: ${idioma}`,
-          storage_key: storageKey,
-          uploaded_by: userId,
-        },
-      } as Parameters<typeof db.pedidoAnexo.create>[0])
+      let anexoId: string = uuid
+      if (salvar_como_anexo) {
+        const anexo = await db.pedidoAnexo.create({
+          data: {
+            id: uuid,
+            tenant_id: tenantId,
+            vinculo: 'pedido',
+            vinculo_id: pedido_id,
+            nome_arquivo: nomeArquivo,
+            tipo_arquivo: isPdf ? 'application/pdf' : 'text/html',
+            tamanho_bytes: buffer.length,
+            categoria: 'Documento Gerado',
+            descricao: `${templateNome} — idioma: ${idioma}`,
+            storage_key: storageKey,
+            uploaded_by: userId,
+          },
+        })
 
-      anexoId = (anexo as { id: string }).id
-    }
+        anexoId = (anexo as { id: string }).id
+      }
 
-    res.json({
-      url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
-      anexo_id: anexoId,
-      is_pdf: isPdf,
+      res.json({
+        url_download: `/api/v1/pedidos/anexos/${anexoId}/download`,
+        anexo_id: anexoId,
+        is_pdf: isPdf,
+      })
     })
   } catch (err) {
     next(err)

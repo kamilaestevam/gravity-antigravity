@@ -139,11 +139,11 @@ O ecossistema Gravity roda em paridade total entre Staging e Produção.
 gravity-pedido-producao (PostgreSQL)
   ├── public                              ← 100% VAZIO (nenhuma tabela aqui)
   ├── tenant_cmo4vtp3i0000m86ft8vt5vnu   ← empresa A
-  │    ├── pedido
+  │    ├── pedido_produto_gravity         ← @@map("pedido_produto_gravity") — DDD 2026-04-19
   │    ├── pedido_item
   │    └── _prisma_migrations
   └── tenant_cm...xyz                     ← empresa B
-       ├── pedido
+       ├── pedido_produto_gravity
        ├── pedido_item
        └── _prisma_migrations
 ```
@@ -162,9 +162,12 @@ O `SET LOCAL search_path TO "tenant_<id>", public` é aplicado **dentro de `$tra
 O Gravity usa **exclusivamente CUID** como padrão de ID em todos os contextos. O uso de UUID está **expressamente proibido**.
 
 ```prisma
-// ✅ CORRETO — todo model usa @default(cuid())
+// ✅ CORRETO — todo model usa @default(cuid()) + @@map com nome DDD
 model Pedido {
   id  String  @id @default(cuid())   // ex: cmo4vtp3i0000m86ft8vt5vnu (25 chars)
+  ...
+
+  @@map("pedido_produto_gravity")    // nome da tabela PostgreSQL — DDD 2026-04-19
 }
 
 // ❌ PROIBIDO — nunca usar UUID
@@ -220,5 +223,5 @@ npx tsx scripts/migration/01-provision-schemas.ts
 
 ---
 
-**Última Atualização:** 18 de Abril de 2026
-**Auditor Responsável:** Antigravity AI — pós-validação Schema-per-Tenant Sprint 1 + mandato CUID
+**Última Atualização:** 19 de Abril de 2026
+**Auditor Responsável:** Antigravity AI — pós-validação Schema-per-Tenant Sprint 1 + mandato CUID + sincronização DDD Fases 1-3

@@ -132,12 +132,12 @@ cast `as unknown as { ... }` é o contorno correto e necessário.
 gravity-pedido-producao (PostgreSQL)
   ├── public                         ← 100% VAZIO (nenhuma tabela aqui)
   ├── tenant_cmo4vtp3i0000m86ft8vt5vnu   ← empresa A
-  │    ├── pedidos_comerciais
-  │    ├── pedido_itens
+  │    ├── pedido_produto_gravity    ← @@map do model Pedido (DDD 2026-04-19)
+  │    ├── pedido_item
   │    └── _prisma_migrations
   └── tenant_cm...xyz                    ← empresa B
-       ├── pedidos_comerciais
-       ├── pedido_itens
+       ├── pedido_produto_gravity
+       ├── pedido_item
        └── _prisma_migrations
 ```
 
@@ -172,6 +172,8 @@ id  String  @id @default(uuid())                            // ❌
 model Pedido {
   id  String  @id @default(cuid())   // CUID: 25 chars, ex: cmo4vtp3i0000m86ft8vt5vnu
   ...
+
+  @@map("pedido_produto_gravity")    // nome da tabela PostgreSQL (DDD 2026-04-19)
 }
 ```
 
@@ -327,9 +329,10 @@ Tabelas de alto volume que crescem indefinidamente:
 
 ```sql
 -- Exemplo: particionar audit_logs por mês
+-- id TEXT (CUID) — nunca UUID; tenant_id TEXT (CUID do tenant)
 CREATE TABLE audit_logs (
-  id UUID PRIMARY KEY,
-  tenant_id UUID NOT NULL,
+  id TEXT PRIMARY KEY,
+  tenant_id TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL,
   ...
 ) PARTITION BY RANGE (created_at);

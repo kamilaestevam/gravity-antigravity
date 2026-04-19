@@ -5,17 +5,123 @@ description: "Use esta skill para operações de banco de dados — migrations, 
 
 # Gravity — Database Operations
 
+---
+
+## ⛔ Padrão de Acesso ao Banco (Obrigatório)
+
+> **Validado em produção — Sprint 1/2026-04-18 (Lotes 1, 2 e 3 — produto/pedido/server).**
+> Qualquer desvio deste padrão **bloqueia o CI** e causa vazamento de dados cross-tenant.
+
+### O que é PROIBIDO (padrão legado)
+
+```typescript
+// ❌ PROIBIDO — linter CI bloqueia; vazamento de schema garantido
+const db = (req as any).prisma
+const tenantId = (req as any).tenantId
+const userId = (req as any).userId
+
+// ❌ PROIBIDO — import direto de PrismaClient fora do SDK
+import { PrismaClient } from '@prisma/client'
+
+// ❌ PROIBIDO — TenantRequest como tipo de handler
+import type { TenantRequest } from '../shared/types.js'
+router.get('/rota', async (req: TenantRequest, res: Response) => { ... })
+
+// ❌ PROIBIDO — leitura de tenant por header
+const tenantId = req.headers['x-tenant-id'] as string
+const userId   = req.headers['x-user-id'] as string
+```
+
+### O que é OBRIGATÓRIO (withTenant)
+
+```typescript
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
+
+// ✅ CORRETO — rota padrão
+router.get('/rota', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any           // cast obrigatório: TenantDatabase não inclui models do produto
+      const ctx       = (req as unknown as { tenant: TenantContext }).tenant  // cast obrigatório: module augmentation não propaga entre node_modules locais
+      const tenantId  = ctx.tenantId
+      const userId    = ctx.userId
+      const userRoles = ctx.roles
+
+      const resultado = await db.meuModel.findMany({
+        where: { tenant_id: tenantId },        // ← durante fase de transição (ADR-003 Fase 4)
+      })
+      res.json({ data: resultado })
+    })
+  } catch (err) {
+    next(err)
+  }
+})
+```
+
+### Padrão para dados que saem do bloco withTenant
+
+```typescript
+// ✅ CORRETO — capturar dados que serão usados fora da transação
+let itens: Array<{ id: string }> = []
+await withTenant(req, async (rawDb) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const db = rawDb as any
+  itens = await db.pedidoItem.findMany({ where: { tenant_id: tenantId } })
+  // res.json() aqui dentro se os dados não saem
+})
+// ⚠️ Se chamar código externo com itens: db JÁ fechou. Não reutilizar rawDb aqui.
+```
+
+### Padrão fire-and-forget (background após transação principal)
+
+```typescript
+// ✅ CORRETO — capturar tenantId ANTES de withTenant; disparar DEPOIS que a transação fecha
+const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+
+await withTenant(req, async (rawDb) => {
+  // ... operação principal, res.json() aqui dentro
+})
+
+// Só depois que withTenant resolve (transação fechada):
+if (deveDisparar) {
+  setImmediate(() => {
+    withTenantContext(tenantId, async (ctx, rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await executarTarefaBackground(rawDb as any, ctx.tenantId)
+    }).catch(console.error)
+  })
+}
+```
+
+### Por que `const db = rawDb as any`?
+
+O SDK exporta `TenantDatabase` (= `Omit<Prisma.TransactionClient, ...>`), mas esse `@prisma/client`
+é **o do pacote SDK**, não do produto. Os models do produto (`pedido`, `pedidoItem`, etc.) só existem
+no `@prisma/client` gerado pelo produto — e TypeScript não consegue unificar os dois. O cast `as any`
+é o padrão adotado no codebase (ver `analytics.ts` como referência). O ESLint disable é obrigatório.
+
+### Por que `(req as unknown as { tenant: TenantContext }).tenant`?
+
+O SDK faz `declare module 'express-serve-static-core'` para adicionar `req.tenant`. Mas o produto
+tem seu **próprio** `express` em `node_modules/` — a augmentation do SDK não se propaga. O duplo
+cast `as unknown as { ... }` é o contorno correto e necessário.
+
+---
+
 ## Topologia de Bancos
 
-| Banco Railway | Serviço | Schema | Dados |
-|:---|:---|:---|:---|
-| gravity-configurador-producao | Configurador | `public` (único) | Tenants, planos, billing, permissões |
-| gravity-servicos-producao | Tenant Services | `tenant_<cuid>` por tenant | Email, WhatsApp, dashboard, histórico |
-| gravity-pedido-producao | Pedido | `tenant_<cuid>` por tenant | Pedidos comerciais, itens, lotes |
-| gravity-processo-producao | Processo | `tenant_<cuid>` por tenant | Processos logísticos, DI, DUIMP |
-| gravity-simula-custo-producao | SimulaCusto | `tenant_<cuid>` por tenant | Estimativas, cache fiscal |
+| Banco Railway (produção) | Banco Railway (teste) | Serviço | Schema | Dados |
+|:---|:---|:---|:---|:---|
+| `gravity-configurador-producao` | `gravity-configurador-teste` | Configurador | `public` (único) | Tenants, planos, billing, permissões |
+| `gravity-servicos-producao` | `gravity-servicos-teste` | Tenant Services | `tenant_<cuid>` por tenant | Email, WhatsApp, dashboard, histórico |
+| `gravity-pedido-producao` | `gravity-pedido-teste` | Pedido | `tenant_<cuid>` por tenant | Pedidos comerciais, itens, lotes |
+| `gravity-processo-producao` | `gravity-processo-teste` | Processo | `tenant_<cuid>` por tenant | Processos logísticos, DI, DUIMP |
+| `gravity-simula-custo-producao` | `gravity-simula-custo-teste` | SimulaCusto | `tenant_<cuid>` por tenant | Estimativas, cache fiscal |
 
-Cada banco possui um espelho de testes (`gravity-*-teste`) com estrutura idêntica.
+> **Nomes oficiais de referência para scripts de manutenção:**
+> staging = `gravity-servicos-teste` | produção = `gravity-servicos-producao`
+> Nunca use variações como `gravity-tenant-teste`, `gravity-serviços-*` ou `gravity-services-*`.
 
 > **Regra absoluta:** cada produto tem seu próprio banco PostgreSQL isolado.
 > Nenhum produto acessa banco de outro produto — comunicação apenas via REST API.
@@ -211,8 +317,18 @@ CREATE TABLE audit_logs_2026_01 PARTITION OF audit_logs
 - [ ] Índices obrigatórios presentes (tenant_id, product_id, user_id)?
 - [ ] Unique constraints incluem tenant_id?
 
+**Antes de escrever código de acesso ao banco:**
+- [ ] Todo acesso ao banco usa `withTenant(req, fn)` ou `withTenantContext(tenantId, fn)`?
+- [ ] Nenhum `(req as any).prisma`, `req.prisma` ou `TenantRequest` no diff?
+- [ ] `TenantContext` extraído via `(req as unknown as { tenant: TenantContext }).tenant`?
+- [ ] `rawDb` castado como `const db = rawDb as any` com eslint-disable?
+- [ ] Dados capturados via `let` antes de `withTenant` se precisam sair do bloco?
+- [ ] Fire-and-forget usa `withTenantContext` APÓS `await withTenant(...)` resolver?
+- [ ] Callbacks de `.filter()`, `.map()`, `.reduce()` NÃO têm `: any` explícito (hook CI bloqueia)?
+- [ ] Ver `skills/arquitetura/sdk-tenant-resolver/SKILL.md` para referência completa.
+
 **Antes de aplicar em produção:**
-- [ ] Migration validada no banco de **teste** com sucesso?
+- [ ] Migration validada no banco de **teste** (`gravity-*-teste`) com sucesso?
 - [ ] Autorização explícita do responsável técnico obtida?
 - [ ] Backup manual feito antes de migration destrutiva?
 - [ ] `prisma migrate dev` NÃO foi usado diretamente no banco de produto?

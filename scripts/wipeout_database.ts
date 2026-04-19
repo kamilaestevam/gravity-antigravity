@@ -10,10 +10,10 @@
  *   npx tsx scripts/wipeout_database.ts --execute   → deleção real (IRREVERSÍVEL)
  *
  * Bases afetadas:
- *   CONFIGURADOR_DATABASE_URL → Tenant, User, Company... (porta 57584)
+ *   CONFIGURADOR_DATABASE_URL → organizacao, usuario, workspace... (porta 57584)
  *   DATABASE_URL              → serviços tenant + produto Pedido (porta 24197)
  *
- * NOTA: Tabelas no banco usam os nomes PRÉ-migração DDD (ex: "Tenant" não "organizacao").
+ * Nomes pós-migração DDD Tolerância Zero (snake_case, sem aspas necessárias).
  */
 
 import { Pool } from 'pg'
@@ -66,109 +66,124 @@ const log = {
 }
 
 // ── Table specs ───────────────────────────────────────────────────────────────
-// NOTA: Tabelas PascalCase precisam de aspas duplas no SQL (nomes pré-migração DDD)
 
 type TableSpec = {
-  table: string    // nome real no PostgreSQL (com aspas se PascalCase)
-  col?: string     // coluna tenant (default: 'tenant_id')
+  table: string       // nome real no PostgreSQL (snake_case pós-DDD)
+  col?: string        // coluna tenant (default: 'tenant_id')
   nullable?: boolean
+  allRows?: boolean   // sem filtro de tenant — para tabelas sem tenant_id que dependem de FK
 }
 
-// Configurador DB — leaf-first; "Tenant" deletado por último (root)
-// col padrão = 'tenant_id' exceto "Tenant" que usa 'id'
+// Configurador DB — leaf-first; organizacao deletada por último (root)
+// col padrão = 'tenant_id' exceto organizacao que usa 'id'
 const CONFIG_TABLES: TableSpec[] = [
-  { table: '"UserMembership"' },
-  { table: '"UserPermission"' },
-  { table: '"Subscription"' },
-  { table: '"ProductConfig"' },
-  { table: '"CompanyProduct"' },
-  { table: '"User"' },
-  { table: '"Company"' },
-  { table: '"SupplierTenantAccess"' },
-  { table: '"SecurityEvent"' },
-  { table: '"RateLimitMetric"', nullable: true },
-  { table: '"role_audit_log"' },
-  { table: '"SpecialNegotiation"' },
-  { table: '"TestLog"' },
-  { table: '"TestPlan"' },
-  { table: '"TestSchedule"' },
-  // Root — delete last; protected by 'id', not 'tenant_id'
-  { table: '"Tenant"', col: 'id' },
+  { table: 'usuario_workspace' },
+  { table: 'usuario_permissao' },
+  { table: 'assinatura_produto_gravity' },
+  { table: 'config_produto_gravity' },
+  { table: 'produto_gravity_workspace' },
+  { table: 'usuario', col: 'id_organizacao_usuario' },
+  { table: 'workspace' },
+  { table: 'fornecedor_organizacao' },
+  { table: 'seguranca' },
+  { table: 'requisicoes', nullable: true },
+  { table: 'metricas_gemini', nullable: true },
+  { table: 'negociacao_especial_produto_gravity' },
+  { table: 'testes' },
+  { table: 'plano_teste' },
+  { table: 'agendamento_teste' },
+  // Root — delete last; protected by 'id_organizacao', not 'tenant_id'
+  { table: 'organizacao', col: 'id_organizacao' },
 ]
 
 // Global Configurador tables — NÃO deletar (sem tenant_id ou são dados globais)
-// "Product", "PriceTier", "DeployLog", "ServiceHealth", "TaxaCambio",
-// "GravityAdminPermission", "StripeEvent"
+// produtos_gravity, faixa_preco_produto_gravity, deploy, servicos, cambio,
+// permissao_admin_gravity, fatura_produtos_gravity
 
 // Shared DB — Tenant services + Produto Pedido (mesma DATABASE_URL)
 // Todas têm coluna 'tenant_id'
 const SHARED_TABLES: TableSpec[] = [
-  // ── Produto Pedido (snake_case — pré-DDD nomes reais) ─────────────────────
+  // ── Produto Pedido ────────────────────────────────────────────────────────
+  { table: 'tracking_items_transferidos' },
+  { table: 'valor_coluna_usuario_pedido' },
+  { table: 'coluna_usuario_pedido' },
   { table: 'pedido_itens' },
   { table: 'pedido_colunas' },
-  { table: 'pedido_status' },
-  { table: 'pedido_preferencias_usuario' },
-  { table: 'pedido_preferencias_padrao' },
-  { table: 'configuracao_pedido' },
-  { table: 'mapeamento_import' },
-  { table: 'processo_containers' },
-  { table: 'processo_faturas' },
-  { table: 'processo_itens' },
-  { table: 'pedidos_comerciais' },
-  { table: 'processos_logisticos' },
-  { table: 'atividade_participantes' },
-  { table: 'atividade_sessoes_timer' },
-  { table: 'atividades' },
-  // ── Tenant Services (PascalCase — precisam de aspas) ────────────────────────
-  { table: '"AlertNotificationLog"' },
-  { table: '"AlertEvent"' },
-  { table: '"AlertRule"' },
-  { table: '"DashboardAlert"' },
-  { table: '"DashboardMetricSnapshot"' },
-  { table: '"DashboardShare"' },
-  { table: '"DashboardWidget"' },
-  { table: '"DashboardConfig"' },
-  { table: '"EmailEnviado"' },
-  { table: '"FilaEmail"' },
-  { table: '"EmailMessage"' },
-  { table: '"EmailThread"' },
-  { table: '"Template"' },
-  { table: '"WhatsAppUsageLog"' },
-  { table: '"WhatsAppMessage"' },
-  { table: '"WhatsAppConversation"' },
-  { table: '"WhatsAppAutomation"' },
-  { table: '"ExportResult"' },
-  { table: '"ExportJob"' },
-  { table: '"ConfigRelatorio"' },
-  { table: '"Relatorio"' },
-  { table: '"RelatorioTempoCache"' },
-  { table: '"HistoryLog"' },
-  { table: '"Reserva"' },
-  { table: '"Slot"' },
-  { table: '"Agenda"' },
-  { table: '"DisponibilidadeConfig"' },
-  { table: '"GabiMessage"' },
-  { table: '"GabiConversation"' },
-  { table: '"GabiTokenLog"' },
-  { table: '"GabiTokenQuota"' },
-  { table: '"GabiUsageLog"' },
-  { table: '"UserPreferences"' },
-  { table: '"NcmScheduleConfig"' },
-  { table: '"NcmSyncLog"' },
-  // "NcmItem": OMITIDO — tabela global de referência NCM
-  { table: '"Notification"' },
-  { table: '"NotificationPreferences"' },
-  { table: '"ExternalContact"' },
-  { table: '"TenantChannelConfig"' },
+  { table: 'status_pedido' },
+  { table: 'preferencia_coluna_pedido' },
+  { table: 'preferencia_padrao_pedido' },
+  { table: 'pedido_casas_decimais' },
+  { table: 'pedido_saldo_formula' },
+  { table: 'aprendizado_importacao_dados' },
+  { table: 'container_processo' },
+  { table: 'fatura_processo' },
+  { table: 'tabela_processos' },
+  { table: 'pedido_produto_gravity' },
+  { table: 'logistica_processo' },
+  { table: 'atividades_participantes', allRows: true }, // sem tenant_id — depende de atividades_dados via FK
+  { table: 'atividades_tempo', allRows: true },         // sem tenant_id — depende de atividades_dados via FK
+  { table: 'atividades_timer' },
+  { table: 'atividades_dados' },
+  { table: 'atividades_cronometro' },
+  { table: 'anexo_pedido' },
+  { table: 'dashboard_painel' },
+  { table: 'dashboard_preferencias' },
+  { table: 'kanban_preferencias' },
+  { table: 'template_pedido_pdf' },
+  // ── Tenant Services ───────────────────────────────────────────────────────
+  { table: 'alerta_registro', allRows: true }, // sem tenant_id — depende de alerta_data via FK
+  { table: 'alerta_data' },
+  { table: 'alerta_regra' },
+  { table: 'dashboard_alertas' },
+  { table: 'dashboard_metricas' },
+  { table: 'dashboard_compartilhar' },
+  { table: 'dashboard_criar' },
+  { table: 'dashboard_configuracao' },
+  { table: 'email_registro_envio' },
+  { table: 'email_fila_envio' },
+  { table: 'email_mensagem' },
+  { table: 'email_assuntos_participantes' },
+  { table: 'template_email' },
+  { table: 'whatsapp_log' },
+  { table: 'whatsapp_mensagem' },
+  { table: 'whatsapp_conversa' },
+  { table: 'whatsapp_regra' },
+  { table: 'exportar_resultado' },
+  { table: 'exportar_job' },
+  { table: 'relatorios_configuracao' },
+  { table: 'relatorios_salvos' },
+  { table: 'tempo_criacao_relatorio' },
+  { table: 'historico_log' },
+  { table: 'reserva_agenda' },
+  { table: 'horario_disponivel' },
+  { table: 'agenda_usuario' },
+  { table: 'config_disponibilidade_agenda' },
+  { table: 'mensagem_individual_gabiai' },
+  { table: 'conversa_completa_gabi' },
+  { table: 'gabiai_token_consumidos' },
+  { table: 'gabiai_token_workspace' },
+  { table: 'gabiai_log_uso' },
+  { table: 'personalizacao_organizacao_gabiai' },
+  { table: 'preferencia_workspace' },
+  { table: 'ncm_agendamento' },
+  { table: 'ncm_log' },
+  // ncm_item: OMITIDO — tabela global de referência NCM
+  { table: 'notificacoes_titulo_corpo' },
+  { table: 'contato_externo' },
+  { table: 'configuracao_canal_tenant' },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 async function countRows(pool: Pool, spec: TableSpec, ids: string[]): Promise<number> {
-  const col = spec.col ?? 'tenant_id'
-  const cond = spec.nullable
-    ? `${col} IS NOT NULL AND NOT (${col} = ANY($1::text[]))`
-    : `NOT (${col} = ANY($1::text[]))`
   try {
+    if (spec.allRows) {
+      const r = await pool.query(`SELECT COUNT(*)::int AS n FROM ${spec.table}`)
+      return (r.rows[0].n as number) ?? 0
+    }
+    const col = spec.col ?? 'tenant_id'
+    const cond = spec.nullable
+      ? `${col} IS NOT NULL AND NOT (${col} = ANY($1::text[]))`
+      : `NOT (${col} = ANY($1::text[]))`
     const r = await pool.query(`SELECT COUNT(*)::int AS n FROM ${spec.table} WHERE ${cond}`, [ids])
     return (r.rows[0].n as number) ?? 0
   } catch {
@@ -177,11 +192,15 @@ async function countRows(pool: Pool, spec: TableSpec, ids: string[]): Promise<nu
 }
 
 async function deleteRows(client: PoolClient, spec: TableSpec, ids: string[]): Promise<number> {
-  const col = spec.col ?? 'tenant_id'
-  const cond = spec.nullable
-    ? `${col} IS NOT NULL AND NOT (${col} = ANY($1::text[]))`
-    : `NOT (${col} = ANY($1::text[]))`
   try {
+    if (spec.allRows) {
+      const r = await client.query(`DELETE FROM ${spec.table}`)
+      return r.rowCount ?? 0
+    }
+    const col = spec.col ?? 'tenant_id'
+    const cond = spec.nullable
+      ? `${col} IS NOT NULL AND NOT (${col} = ANY($1::text[]))`
+      : `NOT (${col} = ANY($1::text[]))`
     const r = await client.query(`DELETE FROM ${spec.table} WHERE ${cond}`, [ids])
     return r.rowCount ?? 0
   } catch (e) {
@@ -214,22 +233,22 @@ async function main() {
     log.section('FASE 1 — USUÁRIO PROTEGIDO')
 
     const userRes = await configPool.query(
-      `SELECT id, email, tenant_id FROM "User" WHERE email = $1 LIMIT 1`,
+      `SELECT id_usuario, email_usuario, id_organizacao_usuario FROM usuario WHERE email_usuario = $1 LIMIT 1`,
       [PROTECTED_EMAIL]
     )
 
     let protectedIds: string[]
 
     if (userRes.rows.length > 0) {
-      const { id, email, tenant_id } = userRes.rows[0] as { id: string; email: string; tenant_id: string }
-      log.ok(`Usuário protegido: ${b(id)} (${email})`)
-      protectedIds = [tenant_id]
+      const { id_usuario, email_usuario, id_organizacao_usuario } = userRes.rows[0] as { id_usuario: string; email_usuario: string; id_organizacao_usuario: string }
+      log.ok(`Usuário protegido: ${b(id_usuario)} (${email_usuario})`)
+      protectedIds = [id_organizacao_usuario]
     } else {
       log.warn(`${b(PROTECTED_EMAIL)} NÃO encontrado no Configurador DB`)
       log.info('Fallback: protegendo TODOS os tenants existentes no Configurador')
 
-      const allTenants = await configPool.query(`SELECT id, name, slug FROM "Tenant"`)
-      protectedIds = allTenants.rows.map(r => r['id'] as string)
+      const allTenants = await configPool.query(`SELECT id_organizacao FROM organizacao`)
+      protectedIds = allTenants.rows.map(r => r['id_organizacao'] as string)
 
       if (protectedIds.length === 0) {
         log.warn('Nenhum tenant no Configurador — banco vazio')
@@ -241,11 +260,11 @@ async function main() {
     log.section('FASE 2 — ENTIDADES PROTEGIDAS')
 
     const tenantRows = await configPool.query(
-      `SELECT id, name, slug FROM "Tenant" WHERE id = ANY($1::text[])`,
+      `SELECT id_organizacao, nome_organizacao, subdominio_organizacao FROM organizacao WHERE id_organizacao = ANY($1::text[])`,
       [protectedIds]
     )
     for (const row of tenantRows.rows) {
-      log.ok(`Tenant protegido: ${b(row.id)} — "${row.name}" (${row.slug})`)
+      log.ok(`Tenant protegido: ${b(row.id_organizacao)} — "${row.nome_organizacao}" (${row.subdominio_organizacao})`)
     }
     if (tenantRows.rows.length === 0) {
       log.info('Nenhum tenant protegido — tudo será deletado')

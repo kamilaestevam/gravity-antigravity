@@ -209,7 +209,7 @@ export async function editarCampoPedido(
   campo: string,
   valor: unknown
 ): Promise<PedidoRico> {
-  const res = await fetch(`${API_BASE}/pedidos/${pedidoId}/campo`, {
+  const res = await fetch(${ API_BASE } / pedidos / ${ pedidoId } / ${ campo }, {
     method: 'PATCH',
     headers: headers(tenantId),
     body: JSON.stringify({ campo, valor }),

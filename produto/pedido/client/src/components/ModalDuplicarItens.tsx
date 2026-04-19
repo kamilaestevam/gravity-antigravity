@@ -101,7 +101,7 @@ export function ModalDuplicarItens({ itens, onFechar, onConcluido }: ModalDuplic
                     {item.descricao_item || '—'}
                   </td>
                   <td className="modal-duplicar__td modal-duplicar__td--itens">
-                    {String(item.quantidade_inicial_item_pedido ?? '—')}
+                    {String(item.quantidade_inicial_pedido ?? '—')}
                   </td>
                 </tr>
               ))}

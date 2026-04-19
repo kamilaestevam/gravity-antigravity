@@ -5,6 +5,8 @@
  * A transação garante atomicidade: ou tudo é gravado, ou nada.
  */
 
+import { PrismaClient, Prisma } from '@prisma/client'
+
 // ── Erro local (padrão project) ───────────────────────────────────────────────
 
 class AppError extends Error {
@@ -60,7 +62,7 @@ export interface TransferPreview {
   origem: {
     pedido_numero: string
     item_part_number: string
-    saldo_item_pedido: number
+    quantidade_atual_pedido: number
     quantidade_apos: number
     encerra: boolean
   }
@@ -92,17 +94,17 @@ const CENARIOS_IRREVERSIVEIS = new Set<CenarioTransfer>([
 export class TransferirService {
   // ── Pré-visualização (sem alterar banco) ─────────────────────────────────────
 
-  async preview(tenantId: string, payload: TransferPayload, db: any): Promise<TransferPreview> {
+  async preview(tenantId: string, payload: TransferPayload, db: PrismaClient): Promise<TransferPreview> {
     const pedido = await db.pedido.findFirst({
       where: { id: payload.pedido_id, tenant_id: tenantId },
       include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
     if (!pedido) throw new AppError('Pedido de origem não encontrado', 404, 'NOT_FOUND')
 
-    const item = pedido.itens.find((i: any) => i.id === payload.item_id)
+    const item = pedido.itens.find((i) => i.id === payload.item_id)
     if (!item) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
-    const saldoAtual = Number(item.saldo_item_pedido)
+    const saldoAtual = Number(item.quantidade_atual_pedido)
     const quantidadeApos = saldoAtual - payload.quantidade_origem
     const alertasGlobais: string[] = []
 
@@ -144,7 +146,7 @@ export class TransferirService {
       origem: {
         pedido_numero: pedido.numero_pedido,
         item_part_number: item.part_number,
-        saldo_item_pedido: saldoAtual,
+        quantidade_atual_pedido: saldoAtual,
         quantidade_apos: Math.max(0, quantidadeApos),
         encerra: quantidadeApos <= 0,
       },
@@ -155,17 +157,17 @@ export class TransferirService {
 
   // ── Confirmação (executa em $transaction) ─────────────────────────────────────
 
-  async confirmar(tenantId: string, userId: string, payload: TransferPayload, db: any): Promise<TransferResultado> {
+  async confirmar(tenantId: string, userId: string, payload: TransferPayload, db: PrismaClient): Promise<TransferResultado> {
     const pedidoOrigem = await db.pedido.findFirst({
       where: { id: payload.pedido_id, tenant_id: tenantId },
       include: { itens: { orderBy: { sequencia_item: 'asc' } } },
     })
     if (!pedidoOrigem) throw new AppError('Pedido de origem não encontrado', 404, 'NOT_FOUND')
 
-    const itemOrigem = pedidoOrigem.itens.find((i: any) => i.id === payload.item_id)
+    const itemOrigem = pedidoOrigem.itens.find((i) => i.id === payload.item_id)
     if (!itemOrigem) throw new AppError('Item não encontrado no pedido', 404, 'NOT_FOUND')
 
-    await this.validarQuantidade(Number(itemOrigem.saldo_item_pedido), payload.quantidade_origem)
+    await this.validarQuantidade(Number(itemOrigem.quantidade_atual_pedido), payload.quantidade_origem)
 
     // Validar número do novo pedido antes de iniciar a transação
     if (payload.numero_pedido_novo) {
@@ -186,7 +188,7 @@ export class TransferirService {
     const itensExcluidos: string[] = []
     const pedidosEncerrados: string[] = []
 
-    await db.$transaction(async (tx: any) => {
+    await db.$transaction(async (tx) => {
       // Processar cada destino
       for (const destino of payload.destinos) {
         if (destino.tipo === 'novo') {
@@ -210,15 +212,15 @@ export class TransferirService {
 
           // Verificar se já existe item com mesmo part_number no destino
           const partTarget = destino.part_number ?? itemOrigem.part_number
-          const itemExistente = pedidoDestino.itens.find((i: any) => i.part_number === partTarget)
+          const itemExistente = pedidoDestino.itens.find((i) => i.part_number === partTarget)
 
           if (itemExistente) {
             await tx.pedidoItem.update({
               where: { id: itemExistente.id },
               data: {
-                saldo_item_pedido: Number(itemExistente.saldo_item_pedido) + destino.quantidade,
-                quantidade_inicial_item_pedido: Number(itemExistente.quantidade_inicial_item_pedido) + destino.quantidade,
-                // quantidade_transferida_item_pedido NÃO se altera: o destino recebe, não transfere para fora
+                quantidade_atual_pedido: Number(itemExistente.quantidade_atual_pedido) + destino.quantidade,
+                quantidade_inicial_pedido: Number(itemExistente.quantidade_inicial_pedido) + destino.quantidade,
+                // quantidade_transferida_pedido NÃO se altera: o destino recebe, não transfere para fora
               },
             })
           } else {
@@ -240,12 +242,12 @@ export class TransferirService {
 
       // Reduzir quantidade do item de origem (para todos os cenários exceto substituicao_pura)
       if (payload.cenario !== 'substituicao_pura') {
-        const novaQty = Number(itemOrigem.saldo_item_pedido) - payload.quantidade_origem
+        const novaQty = Number(itemOrigem.quantidade_atual_pedido) - payload.quantidade_origem
         await tx.pedidoItem.update({
           where: { id: itemOrigem.id },
           data: {
-            saldo_item_pedido: novaQty,
-            quantidade_transferida_item_pedido: Number(itemOrigem.quantidade_transferida_item_pedido) + payload.quantidade_origem,
+            quantidade_atual_pedido: novaQty,
+            quantidade_transferida_pedido: Number(itemOrigem.quantidade_transferida_pedido) + payload.quantidade_origem,
           },
         })
 
@@ -272,7 +274,7 @@ export class TransferirService {
 
   // ── Reversão ──────────────────────────────────────────────────────────────────
 
-  async reverter(tenantId: string, userId: string, transferId: string, db: any): Promise<TransferResultado> {
+  async reverter(tenantId: string, userId: string, transferId: string, db: PrismaClient): Promise<TransferResultado> {
     const historico = await db.transferHistorico.findFirst({
       where: { id: transferId, tenant_id: tenantId },
     })
@@ -288,7 +290,7 @@ export class TransferirService {
     const itensExcluidos: string[] = []
     const pedidosEncerrados: string[] = []
 
-    await db.$transaction(async (tx: any) => {
+    await db.$transaction(async (tx) => {
       // Devolver quantidade ao item de origem
       const itemOrigem = await tx.pedidoItem.findFirst({
         where: { id: historico.item_origem_id, tenant_id: tenantId },
@@ -297,8 +299,8 @@ export class TransferirService {
         await tx.pedidoItem.update({
           where: { id: itemOrigem.id },
           data: {
-            saldo_item_pedido: Number(itemOrigem.saldo_item_pedido) + Number(historico.quantidade_item_transferida),
-            quantidade_transferida_item_pedido: Math.max(0, Number(itemOrigem.quantidade_transferida_item_pedido) - Number(historico.quantidade_item_transferida)),
+            quantidade_atual_pedido: Number(itemOrigem.quantidade_atual_pedido) + Number(historico.quantidade_item_transferida),
+            quantidade_transferida_pedido: Math.max(0, Number(itemOrigem.quantidade_transferida_pedido) - Number(historico.quantidade_item_transferida)),
           },
         })
       }
@@ -311,18 +313,18 @@ export class TransferirService {
             include: { itens: { orderBy: { sequencia_item: 'asc' } } },
           })
           if (pedidoDestino) {
-            const itemDestino = pedidoDestino.itens.find((i: any) =>
+            const itemDestino = pedidoDestino.itens.find((i) =>
               i.part_number === (destino.part_number ?? itemOrigem?.part_number)
             )
             if (itemDestino) {
-              const novaQty = Number(itemDestino.saldo_item_pedido) - destino.quantidade
+              const novaQty = Number(itemDestino.quantidade_atual_pedido) - destino.quantidade
               if (novaQty <= 0) {
                 await tx.pedidoItem.delete({ where: { id: itemDestino.id } })
                 itensExcluidos.push(itemDestino.id)
               } else {
                 await tx.pedidoItem.update({
                   where: { id: itemDestino.id },
-                  data: { saldo_item_pedido: novaQty, quantidade_transferida_item_pedido: Math.max(0, Number(itemDestino.quantidade_transferida_item_pedido) - destino.quantidade) },
+                  data: { quantidade_atual_pedido: novaQty, quantidade_transferida_pedido: Math.max(0, Number(itemDestino.quantidade_transferida_pedido) - destino.quantidade) },
                 })
               }
             }
@@ -366,7 +368,7 @@ export class TransferirService {
 
   // ── Histórico ─────────────────────────────────────────────────────────────────
 
-  async historico(tenantId: string, pedidoId: string, db: any) {
+  async historico(tenantId: string, pedidoId: string, db: PrismaClient) {
     return db.transferHistorico.findMany({
       where: { pedido_origem_id: pedidoId, tenant_id: tenantId },
       orderBy: { created_at: 'desc' },
@@ -386,7 +388,7 @@ export class TransferirService {
     }
   }
 
-  private async criarPedidoDestino(tenantId: string, numero: string, base: any, tx: any) {
+  private async criarPedidoDestino(tenantId: string, numero: string, base: Record<string, unknown>, tx: Prisma.TransactionClient) {
     return tx.pedido.create({
       data: {
         id: this.gerarId('pedi'),
@@ -400,7 +402,7 @@ export class TransferirService {
         casas_decimais_valor_pedido: base.casas_decimais_valor_pedido ?? 2,
         casas_decimais_quantidade_pedido: base.casas_decimais_quantidade_pedido ?? 2,
         unidade_comercializada_pedido: base.unidade_comercializada_pedido ?? null,
-        condicao_pagamento_pedido: base.condicao_pagamento_pedido ?? null,
+        condicao_pagamento: base.condicao_pagamento ?? null,
         data_emissao_pedido: new Date(),
         importacao_exportador_id: base.importacao_exportador_id ?? null,
         exportacao_importador_id: base.exportacao_importador_id ?? null,
@@ -415,7 +417,7 @@ export class TransferirService {
     return `${prefixo}_id_${seq}-${ano}`
   }
 
-  private prepararItemDestino(itemOrigem: any, pedidoId: string, destino: TransferDestino, sequenciaDestino?: number): any {
+  private prepararItemDestino(itemOrigem: Record<string, unknown>, pedidoId: string, destino: TransferDestino, sequenciaDestino?: number): Record<string, unknown> {
     return {
       id: this.gerarId('pite'),
       tenant_id: itemOrigem.tenant_id,
@@ -426,35 +428,35 @@ export class TransferirService {
       ncm: itemOrigem.ncm ?? '',
       descricao_item: itemOrigem.descricao_item ?? '',
       unidade_comercializada_item: itemOrigem.unidade_comercializada_item ?? null,
-      quantidade_inicial_item_pedido: destino.quantidade,
-      saldo_item_pedido: destino.quantidade,
+      quantidade_inicial_pedido: destino.quantidade,
+      quantidade_atual_pedido: destino.quantidade,
       casas_decimais_quantidade_item: itemOrigem.casas_decimais_quantidade_item ?? 2,
       moeda_item: itemOrigem.moeda_item ?? 'USD',
-      valor_unitario_item: itemOrigem.valor_unitario_item != null ? Number(itemOrigem.valor_unitario_item) : null,
-      valor_total_itens: itemOrigem.valor_unitario_item != null ? Number(itemOrigem.valor_unitario_item) * destino.quantidade : null,
+      valor_por_unidade_item: itemOrigem.valor_por_unidade_item != null ? Number(itemOrigem.valor_por_unidade_item) : null,
+      valor_total_item: itemOrigem.valor_por_unidade_item != null ? Number(itemOrigem.valor_por_unidade_item) * destino.quantidade : null,
       casas_decimais_valor_item: itemOrigem.casas_decimais_valor_item ?? 2,
       campos_custom: itemOrigem.campos_custom ?? null,
     }
   }
 
-  private async recalcularAgregados(tenantId: string, pedidoId: string, tx: any): Promise<void> {
+  private async recalcularAgregados(tenantId: string, pedidoId: string, tx: Prisma.TransactionClient): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
       where: { pedido_id: pedidoId, tenant_id: tenantId },
-      select: { saldo_item_pedido: true },
+      select: { quantidade_atual_pedido: true },
     })
 
-    const qtdAtualTotal = itens.reduce((acc: number, i: any) => acc + Number(i.saldo_item_pedido ?? 0), 0)
+    const qtdAtualTotal = itens.reduce((acc: number, i) => acc + Number(i.quantidade_atual_pedido ?? 0), 0)
 
     await tx.pedido.update({
       where: { id: pedidoId },
-      data: { quantidade_total_inicial_pedido: qtdAtualTotal },
+      data: { quantidade_total_pedido: qtdAtualTotal },
     })
   }
 
   private async avaliarEncerramentoPedido(
     tenantId: string,
     pedidoId: string,
-    tx: any,
+    tx: Prisma.TransactionClient,
   ): Promise<{ itensExcluidos: string[]; pedidosEncerrados: string[] }> {
     const itensExcluidos: string[] = []
     const pedidosEncerrados: string[] = []
@@ -465,13 +467,13 @@ export class TransferirService {
 
     // Config: excluir item quando qty = 0 (default: false — só executa se ativo)
     for (const item of itens) {
-      if (Number(item.saldo_item_pedido) <= 0) {
+      if (Number(item.quantidade_atual_pedido) <= 0) {
         await tx.pedidoItem.delete({ where: { id: item.id } })
         itensExcluidos.push(item.id)
       }
     }
 
-    const itensRestantes = itens.filter((i: any) => !itensExcluidos.includes(i.id))
+    const itensRestantes = itens.filter((i) => !itensExcluidos.includes(i.id))
     const todosZero = itens.length > 0 && itensRestantes.length === 0
 
     if (todosZero) {
@@ -491,7 +493,7 @@ export class TransferirService {
     userId: string,
     payload: TransferPayload,
     pedidosDestinoIds: string[],
-    tx: any,
+    tx: Prisma.TransactionClient,
   ): Promise<void> {
     try {
       await tx.transferHistorico.create({

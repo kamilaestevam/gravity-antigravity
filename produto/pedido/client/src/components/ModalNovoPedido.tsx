@@ -28,7 +28,7 @@ interface PedidoForm {
   importacao_exportador_id: string
   fabricante_id: string
   incoterm: string
-  condicao_pagamento_pedido: string
+  condicao_pagamento: string
   numero_proforma: string
   numero_invoice: string
   referencia_importador: string
@@ -42,7 +42,7 @@ interface ItemForm {
   part_number: string
   ncm: string
   descricao_item: string
-  quantidade_inicial_item_pedido: string
+  quantidade_inicial_pedido: string
 }
 
 const FORM_VAZIO: PedidoForm = {
@@ -51,7 +51,7 @@ const FORM_VAZIO: PedidoForm = {
   importacao_exportador_id: '',
   fabricante_id: '',
   incoterm: 'FOB',
-  condicao_pagamento_pedido: '',
+  condicao_pagamento: '',
   numero_proforma: '',
   numero_invoice: '',
   referencia_importador: '',
@@ -65,7 +65,7 @@ const ITEM_VAZIO = (): ItemForm => ({
   part_number: '',
   ncm: '',
   descricao_item: '',
-  quantidade_inicial_item_pedido: '',
+  quantidade_inicial_pedido: '',
 })
 
 // ── Opções de select ───────────────────────────────────────────────────────────
@@ -342,12 +342,12 @@ export function ModalNovoPedido({ aberto, onFechar, onSalvo }: ModalNovoPedidoPr
     setErros({})
     try {
       const itensMapped = itens
-        .filter(it => it.part_number.trim() !== '' || it.descricao_item.trim() !== '' || it.ncm.trim() !== '' || it.quantidade_inicial_item_pedido.trim() !== '')
+        .filter(it => it.part_number.trim() !== '' || it.descricao_item.trim() !== '' || it.ncm.trim() !== '' || it.quantidade_inicial_pedido.trim() !== '')
         .map(it => ({
           part_number: it.part_number,
           ncm: it.ncm,
           descricao_item: it.descricao_item,
-          quantidade_inicial_item_pedido: parseFloat(it.quantidade_inicial_item_pedido) || 0,
+          quantidade_inicial_pedido: parseFloat(it.quantidade_inicial_pedido) || 0,
         }))
 
       // Converter data para ISO 8601 completo (z.string().datetime() no backend)
@@ -507,8 +507,8 @@ function Passo1Dados({
           <input
             id="mnp-pagamento"
             style={s.input}
-            value={form.condicao_pagamento_pedido}
-            onChange={e => onChange('condicao_pagamento_pedido', e.target.value)}
+            value={form.condicao_pagamento}
+            onChange={e => onChange('condicao_pagamento', e.target.value)}
             placeholder={t('pedido.drawer.ph_cond_pgto')}
           />
         </div>
@@ -652,8 +652,8 @@ function Passo2Itens({
                 id={`mnp-qty-${index}`}
                 type="number"
                 style={{ ...s.inputCompacto, textAlign: 'right' }}
-                value={item.quantidade_inicial_item_pedido}
-                onChange={e => onChangeItem(index, 'quantidade_inicial_item_pedido', e.target.value)}
+                value={item.quantidade_inicial_pedido}
+                onChange={e => onChangeItem(index, 'quantidade_inicial_pedido', e.target.value)}
                 placeholder="0"
                 min="0"
                 step="0.01"

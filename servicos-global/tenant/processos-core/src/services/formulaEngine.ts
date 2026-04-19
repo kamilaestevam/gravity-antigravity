@@ -384,11 +384,11 @@ export const SALDO_FORMULA_PADRAO =
 // individual, mapeamos cada token para o campo equivalente do PedidoItem.
 // Tokens que não mapeiam (ex: valor_total) são resolvidos como null → temNulo.
 export const TOKEN_PEDIDO_PARA_ITEM: Record<string, string> = {
-  quantidade_total_inicial_pedido:      'quantidade_inicial_item_pedido',
-  quantidade_pronta_itens_pedido_total: 'quantidade_pronta_total_item_pedido',
-  quantidade_cancelada_total_pedido:    'quantidade_cancelada_item_pedido',
-  quantidade_transferida_total:         'quantidade_transferida_item_pedido',
-  saldo_itens_do_pedido:                'saldo_item_pedido',
+  quantidade_total_inicial_pedido:      'quantidade_inicial_pedido',
+  quantidade_pronta_itens_pedido_total: 'quantidade_pronta_pedido',
+  quantidade_cancelada_total_pedido:    'quantidade_cancelada_pedido',
+  quantidade_transferida_total:         'quantidade_transferida_pedido',
+  saldo_itens_do_pedido:                'quantidade_atual_pedido',
 }
 
 /**

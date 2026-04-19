@@ -21,7 +21,7 @@ export async function auditGabiAction(
   }
 
   // Cria o log com falha intencional se DB expirar, servindo de rollback (Barreira 3)
-  const log = await prisma.gabiUsageLog.create({
+  const log = await prisma.gabiaLogUso.create({
     data: {
       tenant_id: tenantId,
       product_id: productId,

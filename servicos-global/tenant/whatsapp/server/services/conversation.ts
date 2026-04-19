@@ -3,7 +3,7 @@ import { sseStreamHandlers } from './sse'
 import { callGabiForConversation } from './interpreter'
 import { sendTextMessage } from './whatsapp'
 
-export async function processWebhookPayload(value: any) {
+export async function processWebhookPayload(value: Record<string, unknown>) {
   const metadata = value.metadata
   const messages = value.messages
   const contacts = value.contacts || []
@@ -34,11 +34,11 @@ export async function processWebhookPayload(value: any) {
     const contact_nome = contact?.profile?.name || 'Desconhecido'
 
     // Evitar duplicate messages
-    const exists = await prisma.whatsAppMessage.findUnique({ where: { wa_message_id } })
+    const exists = await prisma.whatsappMensagem.findUnique({ where: { wa_message_id } })
     if (exists) continue
 
     // Achar ou Criar Conversa
-    let conversation = await prisma.whatsAppConversation.findFirst({
+    let conversation = await prisma.whatsappConversa.findFirst({
       where: {
         tenant_id,
         wa_phone_number,
@@ -47,7 +47,7 @@ export async function processWebhookPayload(value: any) {
     })
 
     if (!conversation) {
-      conversation = await prisma.whatsAppConversation.create({
+      conversation = await prisma.whatsappConversa.create({
         data: {
           tenant_id,
           wa_phone_number,
@@ -64,7 +64,7 @@ export async function processWebhookPayload(value: any) {
     if (msg.type === 'text') content = msg.text?.body || ''
     else content = `[${msg.type} não suportado para exibição]`
 
-    const savedMessage = await prisma.whatsAppMessage.create({
+    const savedMessage = await prisma.whatsappMensagem.create({
       data: {
         tenant_id,
         conversation_id: conversation.id,
@@ -94,7 +94,7 @@ async function replyWithGabi(conversation_id: string, tenant_id: string, to_phon
 
     const { messageId } = await sendTextMessage(tenant_id, to_phone, replyText)
 
-    const savedReply = await prisma.whatsAppMessage.create({
+    const savedReply = await prisma.whatsappMensagem.create({
       data: {
         tenant_id,
         conversation_id,

@@ -2,7 +2,7 @@
 // POST /api/v1/gabi/field-help — explicação contextual de campo (on-demand, consome tokens)
 // GET  /api/v1/gabi/quota      — status da quota do tenant no mês atual
 
-import { Router } from 'express'
+import { Router, type Request } from 'express'
 import { z } from 'zod'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { AppError } from '../lib/errors.js'
@@ -55,16 +55,16 @@ fieldHelpRouter.get('/api/v1/gabi/admin/products/:productId/tokens/stats', async
     const prismaClient = prismaModule.default
 
     // Agrega por tenant para o mês atual
-    const quotas = await prismaClient.gabiTokenQuota.findMany({
+    const quotas = await prismaClient.gabiaTokenWorkspace.findMany({
       where: { product_id: productId, mes_ref: mesRef },
     })
 
-    const totalConsumido = quotas.reduce((s: number, q: any) => s + q.tokens_usados, 0)
+    const totalConsumido = quotas.reduce((s: number, q) => s + (q.tokens_usados as number), 0)
     const totalTenants = quotas.length
     const mediaPorTenant = totalTenants > 0 ? Math.round(totalConsumido / totalTenants) : 0
     const maiorConsumo = quotas.reduce(
-      (max: any, q: any) => (!max || q.tokens_usados > max.tokens_usados ? q : max),
-      null as any,
+      (max, q) => (!max || (q.tokens_usados as number) > (max.tokens_usados as number) ? q : max),
+      null as typeof quotas[0] | null,
     )
 
     res.json({
@@ -103,7 +103,7 @@ const FieldHelpBodySchema = z.object({
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function getQuotaMensalFromHeaders(req: any): number {
+function getQuotaMensalFromHeaders(req: Request): number {
   const headerVal = req.headers['x-gabi-quota'] as string | undefined
   if (headerVal) {
     const parsed = parseInt(headerVal, 10)

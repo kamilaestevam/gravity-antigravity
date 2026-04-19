@@ -13,7 +13,7 @@ import { ModalFormularioAbasGlobal, type AbaFormulario } from '@nucleo/modal-for
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
 import { Play, CheckSquare, Square, Flask } from '@phosphor-icons/react'
-import { adminTestLogsApi, type TestPlanApi } from '../../services/apiClient'
+import { adminTestesApi, type TestePlanoApi } from '../../services/apiClient'
 
 export interface ModalExecutarTestesProps {
   aberto: boolean
@@ -45,7 +45,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
     ambiente: 'Local',
   })
 
-  const [planosDisponiveis, setPlanosDisponiveis] = useState<TestPlanApi[]>([])
+  const [planosDisponiveis, setPlanosDisponiveis] = useState<TestePlanoApi[]>([])
   const [planosSelecionados, setPlanosSelecionados] = useState<Set<string>>(new Set())
   const [carregandoPlanos, setCarregandoPlanos] = useState(false)
   const [rodando, setRodando] = useState(false)
@@ -54,7 +54,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
   useEffect(() => {
     if (!aberto) return
     setCarregandoPlanos(true)
-    adminTestLogsApi.listPlans(dadosManual.produto)
+    adminTestesApi.listPlans(dadosManual.produto)
       .then(res => {
         setPlanosDisponiveis(res.plans)
         setPlanosSelecionados(new Set(res.plans.map(p => p.id)))
@@ -76,7 +76,7 @@ export function ModalExecutarTestes({ aberto, aoFechar, aoIniciarRun }: ModalExe
     if (planosSelecionados.size === 0) return
     setRodando(true)
     try {
-      await adminTestLogsApi.runTests({ planos: Array.from(planosSelecionados) })
+      await adminTestesApi.runTests({ planos: Array.from(planosSelecionados) })
       if (aoIniciarRun) aoIniciarRun(Array.from(planosSelecionados))
       aoFechar()
     } catch {

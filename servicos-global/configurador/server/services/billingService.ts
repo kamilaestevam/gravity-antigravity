@@ -26,14 +26,14 @@ export const billingService = {
 
         // Atualiza assinatura e status do tenant
         await prisma.$transaction([
-          prisma.subscription.updateMany({
+          prisma.assinaturaProdutoGravity.updateMany({
             where: { tenant_id: tenantId },
             data: {
               status: 'ACTIVE',
               stripe_subscription_id: session.subscription as string,
             },
           }),
-          prisma.tenant.update({
+          prisma.organizacao.update({
             where: { id: tenantId },
             data: { status: 'ACTIVE' },
           }),
@@ -42,13 +42,13 @@ export const billingService = {
       }
 
       case 'customer.subscription.updated': {
-        const sub = event.data.object as Stripe.Subscription
-        const tenantRow = await prisma.tenant.findFirst({
+        const sub = event.data.object as Stripe.AssinaturaProdutoGravity
+        const tenantRow = await prisma.organizacao.findFirst({
           where: { stripe_customer_id: sub.customer as string },
         })
         if (!tenantRow) break
 
-        await prisma.subscription.updateMany({
+        await prisma.assinaturaProdutoGravity.updateMany({
           where: {
             tenant_id: tenantRow.id,
             stripe_subscription_id: sub.id,
@@ -63,18 +63,18 @@ export const billingService = {
       }
 
       case 'customer.subscription.deleted': {
-        const sub = event.data.object as Stripe.Subscription
-        const tenantRow = await prisma.tenant.findFirst({
+        const sub = event.data.object as Stripe.AssinaturaProdutoGravity
+        const tenantRow = await prisma.organizacao.findFirst({
           where: { stripe_customer_id: sub.customer as string },
         })
         if (!tenantRow) break
 
         await prisma.$transaction([
-          prisma.subscription.updateMany({
+          prisma.assinaturaProdutoGravity.updateMany({
             where: { tenant_id: tenantRow.id, stripe_subscription_id: sub.id },
             data: { status: 'CANCELLED', cancelled_at: new Date() },
           }),
-          prisma.tenant.update({
+          prisma.organizacao.update({
             where: { id: tenantRow.id },
             data: { status: 'SUSPENDED' },
           }),
@@ -84,12 +84,12 @@ export const billingService = {
 
       case 'invoice.payment_failed': {
         const inv = event.data.object as Stripe.Invoice
-        const tenantRow = await prisma.tenant.findFirst({
+        const tenantRow = await prisma.organizacao.findFirst({
           where: { stripe_customer_id: inv.customer as string },
         })
         if (!tenantRow) break
 
-        await prisma.subscription.updateMany({
+        await prisma.assinaturaProdutoGravity.updateMany({
           where: { tenant_id: tenantRow.id },
           data: { status: 'PAST_DUE' },
         })
@@ -120,7 +120,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
     return
   }
 
-  const tenant = await prisma.tenant.findFirst({
+  const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
     select: { id: true, name: true, cnpj: true },
   })

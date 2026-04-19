@@ -2,6 +2,7 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../lib/errors'
+import { getBoss } from '../queue/pg-boss'
 
 export const apiRoutes = Router()
 
@@ -105,7 +106,8 @@ const createBodySchema = z.object({
   title: z.string().min(1).max(120).optional(),
   message: z.string().min(1).max(2000),
   product_id: z.string().min(1).optional(),
-  activity_id: z.string().min(1).optional(),
+  target_entity: z.string().min(1).optional(),
+  target_id: z.string().min(1).optional(),
 })
 
 // ─── POST / — cria notificação para o próprio usuário no tenant atual ───────
@@ -118,7 +120,7 @@ apiRoutes.post('/', async (req, res, next) => {
     const { tenant_id, user_id } = req
     const body = createBodySchema.parse(req.body)
 
-    const created = await prisma.notification.create({
+    const created = await prisma.notificacoesTituloCorpo.create({
       data: {
         tenant_id,
         user_id,
@@ -126,7 +128,8 @@ apiRoutes.post('/', async (req, res, next) => {
         type: body.type,
         title: body.title ?? null,
         message: body.message,
-        activity_id: body.activity_id ?? null,
+        target_entity: body.target_entity ?? null,
+        target_id: body.target_id ?? null,
       },
     })
 
@@ -149,12 +152,12 @@ apiRoutes.get('/', async (req, res, next) => {
     const { take = 50 } = listQuerySchema.parse(req.query)
 
     const [notifications, unread_count] = await Promise.all([
-      prisma.notification.findMany({
+      prisma.notificacoesTituloCorpo.findMany({
         where: { tenant_id, user_id },
         orderBy: { created_at: 'desc' },
         take,
       }),
-      prisma.notification.count({
+      prisma.notificacoesTituloCorpo.count({
         where: { tenant_id, user_id, read: false },
       }),
     ])
@@ -211,7 +214,7 @@ apiRoutes.put('/:id/read', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
     const { id } = idParamSchema.parse(req.params)
-    const result = await prisma.notification.updateMany({
+    const result = await prisma.notificacoesTituloCorpo.updateMany({
       where: { id, tenant_id, user_id },
       data: { read: true },
     })
@@ -228,7 +231,7 @@ apiRoutes.put('/:id/read', async (req, res, next) => {
 apiRoutes.put('/read-all', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
-    await prisma.notification.updateMany({
+    await prisma.notificacoesTituloCorpo.updateMany({
       where: { tenant_id, user_id, read: false },
       data: { read: true },
     })
@@ -247,92 +250,11 @@ const sendBodySchema = z.object({
   message: z.string().min(1).max(2000),
   sender_name: z.string().min(1).max(120).optional(),
   recipient_names: z.array(z.string().max(120)).max(20).optional(),
-  activity_id: z.string().min(1).max(2000).optional(),
+  target_entity: z.string().max(50).optional(),   // "PEDIDO" | "ITEM" | etc.
+  target_id: z.string().max(200).optional(),       // ID da entidade
   via_email: z.boolean().optional(),
   recipient_emails: z.array(z.string().email()).max(20).optional(),
 })
-
-// ─── URL interna do serviço de e-mail (mesma rede — S2S) ─────────────────────
-const EMAIL_SERVICE_URL = process.env.TENANT_EMAIL_SERVICE_URL ?? 'http://localhost:8008'
-
-interface EmailDispatchResult {
-  success: boolean
-  error?: 'service_offline' | 'rejected' | 'unknown'
-  errorMessage?: string
-}
-
-/**
- * Envia notificação por e-mail via serviço de e-mail (S2S com x-internal-key).
- * Retorna resultado para que a rota /send possa informar o cliente.
- */
-async function dispararEmailNotificacao(opts: {
-  tenantId: string
-  userId: string
-  senderName: string
-  recipientEmails: string[]
-  message: string
-  link?: string
-}): Promise<EmailDispatchResult> {
-  const { tenantId, userId, senderName, recipientEmails, message, link } = opts
-  const internalKey = process.env.INTERNAL_API_KEY ?? ''
-
-  const linkHtml = link
-    ? `<p style="margin-top:12px"><a href="${link}" style="color:#4f46e5;font-weight:600;">Ver contexto →</a></p>`
-    : ''
-
-  const html = `
-<div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:600px;margin:0 auto;padding:24px;background:#0f172a;color:#f1f5f9;border-radius:8px">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
-    <span style="font-size:20px">🔔</span>
-    <span style="font-size:13px;font-weight:700;color:#818cf8;letter-spacing:.05em;text-transform:uppercase">Nova mensagem via Gravity</span>
-  </div>
-  <div style="background:#1e293b;border-left:3px solid #818cf8;padding:16px;border-radius:4px">
-    <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">De: ${senderName}</p>
-    <p style="margin:0;font-size:14px;line-height:1.6;color:#f1f5f9">${message.replace(/\n/g, '<br/>')}</p>
-    ${linkHtml}
-  </div>
-  <hr style="border:none;border-top:1px solid #334155;margin:20px 0"/>
-  <p style="font-size:11px;color:#475569;margin:0">Enviado pela plataforma Gravity · responda diretamente neste e-mail</p>
-</div>`
-
-  const text = `Nova mensagem de ${senderName}:\n\n${message}${link ? `\n\nVer contexto: ${link}` : ''}`
-
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 8_000)
-
-  try {
-    const res = await fetch(`${EMAIL_SERVICE_URL}/api/v1/email/enviar`, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-internal-key': internalKey,
-        'x-tenant-id': tenantId,
-        'x-user-id': userId,
-      },
-      body: JSON.stringify({
-        to: recipientEmails,
-        subject: `Mensagem de ${senderName} via Gravity`,
-        body_html: html,
-        body: text,
-      }),
-    })
-    clearTimeout(timeout)
-    if (!res.ok) {
-      const body = await res.json().catch(() => null)
-      const msg = body?.error?.message ?? `HTTP ${res.status}`
-      console.error('[NOTIFICACOES] Falha ao disparar e-mail S2S:', msg)
-      return { success: false, error: 'rejected', errorMessage: msg }
-    }
-    return { success: true }
-  } catch (err) {
-    clearTimeout(timeout)
-    const isOffline = err instanceof Error && (err.name === 'AbortError' || (err as NodeJS.ErrnoException).code === 'ECONNREFUSED')
-    const msg = isOffline ? 'Serviço de e-mail indisponível' : String(err)
-    console.error('[NOTIFICACOES] Erro ao chamar email service:', msg)
-    return { success: false, error: isOffline ? 'service_offline' : 'unknown', errorMessage: msg }
-  }
-}
 
 apiRoutes.post('/send', async (req, res, next) => {
   try {
@@ -352,7 +274,7 @@ apiRoutes.post('/send', async (req, res, next) => {
 
     let created = { count: 0 }
     if (targets.length > 0) {
-      created = await prisma.notification.createMany({
+      created = await prisma.notificacoesTituloCorpo.createMany({
         data: targets.map((uid) => ({
           tenant_id,
           user_id: uid,
@@ -360,16 +282,18 @@ apiRoutes.post('/send', async (req, res, next) => {
           type: 'compartilhamento' as const,
           title: senderLabel,
           message: body.message,
-          activity_id: body.activity_id ?? null,
+          target_entity: body.target_entity ?? null,
+          target_id: body.target_id ?? null,
+          delivery_status: 'pending',
         })),
       })
     }
 
-    // Registro de "enviado" para o remetente — aparece no histórico dele
+    // Registro de "enviado" para o remetente
     const recipientLabel = body.recipient_names?.length
       ? body.recipient_names.join(', ')
       : targets.length > 0 ? `${targets.length} usuário(s)` : 'via e-mail'
-    await prisma.notification.create({
+    await prisma.notificacoesTituloCorpo.create({
       data: {
         tenant_id,
         user_id,
@@ -377,7 +301,9 @@ apiRoutes.post('/send', async (req, res, next) => {
         type: 'enviado' as const,
         title: `Enviado para ${recipientLabel}`,
         message: body.message,
-        activity_id: body.activity_id ?? null,
+        target_entity: body.target_entity ?? null,
+        target_id: body.target_id ?? null,
+        delivery_status: 'sent',
         read: true,
       },
     })
@@ -387,23 +313,28 @@ apiRoutes.post('/send', async (req, res, next) => {
       emitToUser(uid, 'new_notification', { type: 'compartilhamento' })
     }
 
-    // Disparo de e-mail S2S — aguarda resultado para reportar ao cliente
-    let emailResult: EmailDispatchResult | null = null
+    // Enfileirar job de email assíncrono via pg-boss
     if (body.via_email && body.recipient_emails && body.recipient_emails.length > 0) {
-      emailResult = await dispararEmailNotificacao({
-        tenantId: tenant_id,
-        userId: user_id,
-        senderName: senderLabel,
-        recipientEmails: body.recipient_emails,
-        message: body.message,
-        link: body.activity_id,
-      })
+      try {
+        const boss = getBoss()
+        await boss.send('send-notification', {
+          tenantId: tenant_id,
+          userId: user_id,
+          senderName: senderLabel,
+          recipientEmails: body.recipient_emails,
+          message: body.message,
+          targetEntity: body.target_entity,
+          targetId: body.target_id,
+        })
+      } catch (queueErr) {
+        // Fila indisponível — não bloqueia resposta, mas loga
+        console.error('[NOTIFICACOES] Falha ao enfileirar job de email:', queueErr)
+      }
     }
 
     res.status(201).json({
-      status: 'success',
+      status: 'queued',
       count: created.count,
-      email: emailResult ?? null,
     })
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -419,7 +350,7 @@ apiRoutes.delete('/:id', async (req, res, next) => {
     const { tenant_id, user_id } = req
     const { id } = idParamSchema.parse(req.params)
 
-    const result = await prisma.notification.deleteMany({
+    const result = await prisma.notificacoesTituloCorpo.deleteMany({
       where: { id, tenant_id, user_id },
     })
 

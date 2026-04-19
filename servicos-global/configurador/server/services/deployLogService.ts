@@ -54,13 +54,13 @@ export const deployLogService = {
     }
 
     const [rows, total] = await Promise.all([
-      prisma.deployLog.findMany({
+      prisma.deploy.findMany({
         where,
         skip,
         take: limit,
         orderBy: { deployed_at: 'desc' },
       }),
-      prisma.deployLog.count({ where }),
+      prisma.deploy.count({ where }),
     ])
 
     return {
@@ -70,11 +70,11 @@ export const deployLogService = {
   },
 
   async getById(id: string) {
-    return prisma.deployLog.findUnique({ where: { id } })
+    return prisma.deploy.findUnique({ where: { id } })
   },
 
   async create(data: CreateDeployLogInput) {
-    return prisma.deployLog.create({
+    return prisma.deploy.create({
       data: {
         area: data.area,
         version: data.version,
@@ -89,6 +89,6 @@ export const deployLogService = {
   },
 
   async delete(id: string) {
-    return prisma.deployLog.delete({ where: { id } })
+    return prisma.deploy.delete({ where: { id } })
   },
 }

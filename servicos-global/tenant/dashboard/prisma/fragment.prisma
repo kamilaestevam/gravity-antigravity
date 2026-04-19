@@ -27,7 +27,7 @@ enum ChartType {
   AREA
 }
 
-model DashboardConfig {
+model DashboardConfiguracao {
   id         String        @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -37,18 +37,19 @@ model DashboardConfig {
   layout     Json          @default("[]")
   filters    Json?
   is_default Boolean       @default(false)
-  widgets    DashboardWidget[]
-  alerts     DashboardAlert[]
-  shares     DashboardShare[]
+  widgets    DashboardCriar[]
+  alerts     DashboardAlertas[]
+  shares     DashboardCompartilhar[]
   created_at DateTime      @default(now())
   updated_at DateTime      @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("dashboard_configuracao")
 }
 
-model DashboardWidget {
+model DashboardCriar {
   id           String          @id @default(cuid())
   tenant_id    String
   product_id   String?
@@ -61,16 +62,17 @@ model DashboardWidget {
   query_spec   Json
   position     Json            @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
   config       Json?
-  dashboard    DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  dashboard    DashboardConfiguracao @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
   created_at   DateTime        @default(now())
   updated_at   DateTime        @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("dashboard_criar")
 }
 
-model DashboardMetricSnapshot {
+model DashboardMetricas {
   id          String   @id @default(cuid())
   tenant_id   String
   product_id  String
@@ -86,9 +88,10 @@ model DashboardMetricSnapshot {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("dashboard_metricas")
 }
 
-model DashboardAlert {
+model DashboardAlertas {
   id             String          @id @default(cuid())
   tenant_id      String
   product_id     String?
@@ -101,16 +104,17 @@ model DashboardAlert {
   channels       String[]        @default([])
   is_active      Boolean         @default(true)
   last_triggered DateTime?
-  dashboard      DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  dashboard      DashboardConfiguracao @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
   created_at     DateTime        @default(now())
   updated_at     DateTime        @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("dashboard_alertas")
 }
 
-model DashboardShare {
+model DashboardCompartilhar {
   id              String          @id @default(cuid())
   tenant_id       String
   product_id      String?
@@ -122,11 +126,12 @@ model DashboardShare {
   recipient_phone String?
   snapshot_data   Json?
   expires_at      DateTime?
-  dashboard       DashboardConfig @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
+  dashboard       DashboardConfiguracao @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
   created_at      DateTime        @default(now())
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([share_token])
   @@index([tenant_id, user_id])
+  @@map("dashboard_compartilhar")
 }

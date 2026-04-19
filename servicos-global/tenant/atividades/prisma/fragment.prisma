@@ -7,10 +7,10 @@
 // O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
-// Atividade — tarefas e interações cross-produto do usuário logado
+// AtividadesDados — tarefas e interações cross-produto do usuário logado
 // ---------------------------------------------------------------------------
 
-model Atividade {
+model AtividadesDados {
   id        String @id @default(cuid())
   tenant_id String
   user_id   String? // criador da atividade
@@ -58,45 +58,45 @@ model Atividade {
   updated_at DateTime @updatedAt
 
   // Relações
-  participantes AtividadeParticipante[]
-  sessoes_timer AtividadeSessaoTimer[]
+  participantes AtividadesParticipantes[]
+  sessoes_timer AtividadesTempo[]
 
   @@index([tenant_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, status])
-  @@map("atividades")
+  @@map("atividades_dados")
 }
 
 // ---------------------------------------------------------------------------
-// AtividadeParticipante — usuários atribuídos à atividade (M2M)
+// AtividadesParticipantes — usuários atribuídos à atividade (M2M)
 // ---------------------------------------------------------------------------
 
-model AtividadeParticipante {
+model AtividadesParticipantes {
   id           String  @id @default(cuid())
   atividade_id String
   user_id      String
   user_nome    String? // cache de nome para exibição sem JOIN extra
 
-  atividade Atividade @relation(fields: [atividade_id], references: [id], onDelete: Cascade)
+  atividade AtividadesDados @relation(fields: [atividade_id], references: [id], onDelete: Cascade)
 
   @@unique([atividade_id, user_id])
   @@index([atividade_id])
-  @@map("atividade_participantes")
+  @@map("atividades_participantes")
 }
 
 // ---------------------------------------------------------------------------
-// AtividadeSessaoTimer — sessões do cronômetro registradas
+// AtividadesTempo — sessões do cronômetro registradas
 // ---------------------------------------------------------------------------
 
-model AtividadeSessaoTimer {
+model AtividadesTempo {
   id           String   @id @default(cuid())
   atividade_id String
   iniciado_em  DateTime
   duracao_min  Int
   assunto      String?
 
-  atividade Atividade @relation(fields: [atividade_id], references: [id], onDelete: Cascade)
+  atividade AtividadesDados @relation(fields: [atividade_id], references: [id], onDelete: Cascade)
 
   @@index([atividade_id])
-  @@map("atividade_sessoes_timer")
+  @@map("atividades_tempo")
 }

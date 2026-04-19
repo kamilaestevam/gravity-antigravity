@@ -13,11 +13,9 @@ import {
   EnvelopeSimple,
   WhatsappLogo,
   Warning,
-  CalendarBlank,
   Plus,
 } from '@phosphor-icons/react';
 import { TooltipGlobal } from '@nucleo/tooltip-global';
-import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global';
 import './aviso-interno.css';
 
 export interface AvisoInterno {
@@ -82,52 +80,57 @@ export function AvisoInternoGlobal({
 }: AvisoInternoGlobalProps) {
   const CHAR_LIMIT = 500;
 
-  // Deriva label legível do link: usa prop explícita, depois tenta extrair do path
   const derivarLinkLabel = (url: string): string => {
     const parts = url.split('/').filter(Boolean)
     if (parts.length === 0) return 'Link'
     const last = parts[parts.length - 1]
     const secondLast = parts.length >= 2 ? parts[parts.length - 2] : ''
-    // Padrão de ID de entidade: PED-2024-089, REF-IMP-1408, etc.
     if (/^[A-Z]{2,}-/.test(last)) return last
-    // Segmento pai + último: "pedidos / PED-123"
     if (secondLast && last !== secondLast) return `${secondLast} / ${last}`
     return last
   }
 
   const [busca, setBusca] = useState('');
-  const [dataFiltro, setDataFiltro] = useState<{ inicio: Date | null, fim: Date | null }>({ inicio: null, fim: null });
+  const [dataFiltro, setDataFiltro] = useState<{ inicio: Date | null; fim: Date | null }>({ inicio: null, fim: null });
   const [mostrarLidas, setMostrarLidas] = useState(false);
   const [filtroVisao, setFiltroVisao] = useState<'todas' | 'recebidas' | 'enviadas'>('todas');
   const [isOpen, setIsOpen] = useState(false);
-  const [buscaAberta, setBuscaAberta] = useState(false);
-  const [calendarioAberto, setCalendarioAberto] = useState(false);
   const [composerAberto, setComposerAberto] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const buscaInputRef = useRef<HTMLInputElement>(null);
+  const pickerContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (buscaAberta) buscaInputRef.current?.focus();
-  }, [buscaAberta]);
-
-  // ─── Composer unificado state ─────────────────────────────────────────────
+  // ─── Composer state ───────────────────────────────────────────────────────
   const [composerText, setComposerText] = useState('');
-  const [composerLink, setComposerLink] = useState('');
   const [destinatarios, setDestinatarios] = useState<string[]>([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerBusca, setPickerBusca] = useState('');
   const [canaisSelecionados, setCanaisSelecionados] = useState<Set<Canal>>(new Set(['interno']));
-  const [linkAtivo, setLinkAtivo] = useState(true);
+  const [linksAtivos, setLinksAtivos] = useState<string[]>([]);
+  const [linkInputAberto, setLinkInputAberto] = useState(false);
+  const [linkInputValue, setLinkInputValue] = useState('');
+  const linkInputAbertoRef = useRef(false);
   const [emailAssunto, setEmailAssunto] = useState('');
   const [emailDestinatarioExterno, setEmailDestinatarioExterno] = useState('');
   const [whatsappNumero, setWhatsappNumero] = useState('');
+
+  useEffect(() => {
+    if (!pickerOpen) return;
+    function handlePickerOutside(e: MouseEvent) {
+      if (pickerContainerRef.current && !pickerContainerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+        setPickerBusca('');
+      }
+    }
+    document.addEventListener('mousedown', handlePickerOutside);
+    return () => document.removeEventListener('mousedown', handlePickerOutside);
+  }, [pickerOpen]);
 
   const toggleCanal = (canal: Canal) => {
     setCanaisSelecionados(prev => {
       const next = new Set(prev);
       if (next.has(canal)) {
-        if (canal === 'interno' && next.size === 1) return prev; // interno não pode ser o único desligado
+        if (canal === 'interno' && next.size === 1) return prev;
         next.delete(canal);
       } else {
         next.add(canal);
@@ -136,7 +139,7 @@ export function AvisoInternoGlobal({
     });
   };
 
-  // ─── @mention state ────────────────────────────────────────────────────────
+  // ─── @mention state ───────────────────────────────────────────────────────
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
   const [mentionIndex, setMentionIndex] = useState(0);
 
@@ -152,7 +155,6 @@ export function AvisoInternoGlobal({
     const val = e.target.value;
     if (val.length > CHAR_LIMIT) return;
     setComposerText(val);
-
     const cursor = e.target.selectionStart ?? val.length;
     const textBefore = val.slice(0, cursor);
     const atMatch = textBefore.match(/@([^\s@]*)$/);
@@ -187,7 +189,7 @@ export function AvisoInternoGlobal({
     }
   }, [mentionQuery, mentionResults, mentionIndex, insertMention]);
 
-  // ─── User picker ──────────────────────────────────────────────────────────
+  // ─── Picker de destinatário (sempre visível com autocomplete) ─────────────
   const pickerUsuariosFiltrados = useMemo(() => {
     if (!pickerBusca.trim()) return usuariosTenant;
     const q = pickerBusca.toLowerCase();
@@ -202,18 +204,16 @@ export function AvisoInternoGlobal({
     );
   };
 
-  // ─── Enviar / Salvar ─────────────────────────────────────────────────────
+  // ─── Enviar ───────────────────────────────────────────────────────────────
   const handleComposerSend = () => {
     if (!composerText.trim()) return;
-    const link = linkAtivo ? composerLink.trim() || undefined : undefined;
-
+    const link = linksAtivos.length > 0 ? linksAtivos[0] : undefined;
     if (destinatarios.length > 0 && onEnviarPara) {
       onEnviarPara(destinatarios, composerText.trim(), link, Array.from(canaisSelecionados));
     } else if (onCriarAviso) {
       onCriarAviso(composerText.trim());
     }
     setComposerText('');
-    setComposerLink(linkAtual ?? '');
     setPickerOpen(false);
     setPickerBusca('');
     setDestinatarios([]);
@@ -221,44 +221,61 @@ export function AvisoInternoGlobal({
     setEmailAssunto('');
     setEmailDestinatarioExterno('');
     setWhatsappNumero('');
-    setLinkAtivo(true);
+    setLinksAtivos(linkAtual ? [linkAtual] : []);
+    setLinkInputAberto(false);
+    setLinkInputValue('');
     setComposerAberto(false);
   };
 
-  // Inicializa link quando dropdown abre
   useEffect(() => {
-    if (isOpen && linkAtual) setComposerLink(linkAtual);
+    if (isOpen && linkAtual) setLinksAtivos([linkAtual]);
+    if (!isOpen) { setLinkInputAberto(false); setLinkInputValue(''); }
   }, [isOpen, linkAtual]);
+
+  useEffect(() => { linkInputAbertoRef.current = linkInputAberto; }, [linkInputAberto]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      if (linkInputAbertoRef.current) return;
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const unreadCount = avisos.filter(a => !a.lido).length;
-  const badgeText = unreadCount > 9 ? '9+' : unreadCount > 0 ? unreadCount : null;
+  // ─── Helpers de data ──────────────────────────────────────────────────────
+  const dateToInputValue = (d: Date | null) => d ? d.toISOString().split('T')[0] : '';
+  const inputToDateInicio = (v: string) => v ? new Date(v + 'T00:00:00') : null;
+  const inputToDateFim    = (v: string) => v ? new Date(v + 'T23:59:59') : null;
 
-  // Contadores por visão
-  const countEnviadas = useMemo(() => avisos.filter(a => a.tipo === 'enviado').length, [avisos]);
+  const hasActiveFilters = !!(busca || dataFiltro.inicio || dataFiltro.fim || mostrarLidas || filtroVisao !== 'todas');
+
+  const limparFiltros = () => {
+    setBusca('');
+    setDataFiltro({ inicio: null, fim: null });
+    setMostrarLidas(false);
+    setFiltroVisao('todas');
+    if (onFechar) onFechar();
+  };
+
+  const unreadCount = avisos.filter(a => !a.lido).length;
+  const badgeText = unreadCount > 9 ? '9+' : unreadCount > 0 ? String(unreadCount) : null;
+
+  const countEnviadas  = useMemo(() => avisos.filter(a => a.tipo === 'enviado').length, [avisos]);
   const countRecebidas = useMemo(() => avisos.filter(a => a.tipo !== 'enviado').length, [avisos]);
 
   const avisosFiltrados = useMemo(() => {
     return avisos.filter(a => {
       if (filtroVisao === 'enviadas' && a.tipo !== 'enviado') return false;
       if (filtroVisao === 'recebidas' && a.tipo === 'enviado') return false;
-
       if (busca) {
         const termo = busca.toLowerCase();
         const textToSearch = [a.conteudo, a.autor?.nome || 'Sistema'].join(' ').toLowerCase();
         if (!textToSearch.includes(termo)) return false;
       }
       if (filtroVisao !== 'enviadas' && a.lido && !mostrarLidas) return false;
-
       if (dataFiltro.inicio || dataFiltro.fim) {
         const rawDate = a.dataHora.split(',')[0].trim();
         const p = rawDate.split('/');
@@ -270,9 +287,9 @@ export function AvisoInternoGlobal({
           avisoDate = new Date(parseInt(dash[0]), parseInt(dash[1]) - 1, parseInt(dash[2]));
         }
         if (avisoDate && !isNaN(avisoDate.getTime())) {
-          avisoDate.setHours(0,0,0,0);
-          if (dataFiltro.inicio) { const ini = new Date(dataFiltro.inicio); ini.setHours(0,0,0,0); if (avisoDate < ini) return false; }
-          if (dataFiltro.fim) { const fim = new Date(dataFiltro.fim); fim.setHours(23,59,59,999); if (avisoDate > fim) return false; }
+          avisoDate.setHours(0, 0, 0, 0);
+          if (dataFiltro.inicio) { const ini = new Date(dataFiltro.inicio); ini.setHours(0, 0, 0, 0); if (avisoDate < ini) return false; }
+          if (dataFiltro.fim)    { const fim = new Date(dataFiltro.fim);    fim.setHours(23, 59, 59, 999); if (avisoDate > fim) return false; }
         }
       }
       return true;
@@ -284,7 +301,9 @@ export function AvisoInternoGlobal({
   return (
     <div style={{ position: 'relative', display: 'flex' }} ref={dropdownRef}>
       <TooltipGlobal titulo="Quadro de Avisos" descricao="Acompanhe lembretes e pendências que exigem sua ação">
+        {/* ── BOTÃO SINO ── */}
         <button
+          data-testid="btn-notificacoes"
           className="ws-global-btn"
           onClick={() => setIsOpen(!isOpen)}
           type="button"
@@ -295,14 +314,18 @@ export function AvisoInternoGlobal({
         >
           <Bell weight="bold" size={18} aria-hidden="true" />
           {badgeText && (
-            <span className="ws-global-badge" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              position: 'absolute', top: '-2px', right: '-2px',
-              fontSize: '11px', fontWeight: 'bold', color: '#ffffff', background: '#3b82f6',
-              lineHeight: 1, padding: '2px', minWidth: '18px', height: '18px', borderRadius: '50%',
-              boxShadow: '0 0 0 2px var(--ws-bg-body, #0f172a)'
-            }}>
-              {unreadCount > 9 ? '' : unreadCount}
+            <span
+              data-testid="contador-nao-lidas"
+              className="ws-global-badge"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                position: 'absolute', top: '-2px', right: '-2px',
+                fontSize: '11px', fontWeight: 'bold', color: '#ffffff', background: '#3b82f6',
+                lineHeight: 1, padding: '2px', minWidth: '18px', height: '18px', borderRadius: '50%',
+                boxShadow: '0 0 0 2px var(--ws-bg-body, #0f172a)',
+              }}
+            >
+              {badgeText}
             </span>
           )}
         </button>
@@ -310,401 +333,532 @@ export function AvisoInternoGlobal({
 
       {isOpen && (
         <div
+          data-testid="modal-notificacoes"
           style={{ position: 'absolute', right: 0, top: '44px', zIndex: 1000 }}
           className={`aig-dropdown ${className}`}
           role="dialog"
           aria-label="Quadro de notificações"
         >
-      <style>{`
-        .aig-combo-wrap .ws-global-search { width: 100% !important; padding: 0 0.75rem !important; }
-        .aig-combo-wrap .ws-global-search__input { display: block !important; width: 100% !important; }
-        .aig-combo-wrap input, .aig-combo-wrap .sg-valor-selecionado { font-size: 11px !important; color: var(--aig-text) !important; }
-        .aig-combo-wrap .sg-placeholder { font-size: 11px !important; color: var(--aig-muted) !important; }
-        .aig-combo-wrap input::placeholder { font-size: 11px !important; color: var(--aig-muted) !important; }
-        .aig-combo-wrap .ws-global-cmd { display: none !important; }
-        .aig-combo-wrap .sg-campo { padding: 0 0.75rem !important; }
-      `}</style>
+          <style>{`
+            .aig-combo-wrap .ws-global-search { width: 100% !important; padding: 0 0.75rem !important; }
+            .aig-combo-wrap .ws-global-search__input { display: block !important; width: 100% !important; }
+            .aig-combo-wrap input, .aig-combo-wrap .sg-valor-selecionado { font-size: 11px !important; color: var(--aig-text) !important; }
+            .aig-combo-wrap .sg-placeholder { font-size: 11px !important; color: var(--aig-muted) !important; }
+            .aig-combo-wrap input::placeholder { font-size: 11px !important; color: var(--aig-muted) !important; }
+            .aig-combo-wrap .ws-global-cmd { display: none !important; }
+            .aig-combo-wrap .sg-campo { padding: 0 0.75rem !important; }
+          `}</style>
 
-      {/* HEADER — título + ler todas + nova mensagem */}
-      <div className="aig-top-header">
-        <span className="aig-top-title">
-           <Bell size={16} weight="duotone" /> NOTIFICAÇÕES
-        </span>
-        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-          {avisos.length > 0 && (
-            <TooltipGlobal titulo="Ler todas" descricao="">
-              <button type="button" className="aig-top-btn-secondary" onClick={onMarcarTodosLidos}>
-                <Checks size={14} weight="bold" />
-              </button>
-            </TooltipGlobal>
-          )}
-          <TooltipGlobal titulo={composerAberto ? 'Fechar composer' : 'Nova mensagem'} descricao="">
-            <button
-              type="button"
-              className={`aig-top-btn-primary${composerAberto ? ' composer-open' : ''}`}
-              onClick={() => setComposerAberto(v => !v)}
-              aria-expanded={composerAberto}
-            >
-              {composerAberto ? <X size={14} weight="bold" /> : <Plus size={14} weight="bold" />}
-            </button>
-          </TooltipGlobal>
-        </div>
-      </div>
-
-      {/* FILTRO VISÃO: Todas / Recebidas / Enviadas + ícones rápidos */}
-      <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0', paddingTop: '0.5rem' }}>
-        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-          {(['todas', 'recebidas', 'enviadas'] as const).map((v) => {
-            const isActive = filtroVisao === v;
-            const label = v === 'todas' ? 'Todas'
-              : v === 'recebidas' ? `Recebidas${countRecebidas > 0 ? ` ${countRecebidas}` : ''}`
-              : `Enviadas${countEnviadas > 0 ? ` ${countEnviadas}` : ''}`;
-            return (
-              <button
-                key={v}
-                type="button"
-                onClick={() => { setFiltroVisao(v); if (v === 'enviadas') setMostrarLidas(true); }}
-                style={{
-                  all: 'unset', cursor: 'pointer',
-                  padding: '0.15rem 0.45rem', borderRadius: '999px',
-                  fontSize: '0.625rem', fontWeight: isActive ? 700 : 500, lineHeight: 1.2,
-                  whiteSpace: 'nowrap', boxSizing: 'border-box',
-                  transition: 'all 0.15s ease',
-                  background: isActive ? 'var(--aig-accent, #818cf8)' : 'transparent',
-                  color: isActive ? '#ffffff' : 'var(--aig-text, #cbd5e1)',
-                  border: isActive ? '1px solid transparent' : '1px solid var(--aig-border, #334155)',
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
-          <div style={{ flex: 1 }} />
-          <TooltipGlobal titulo="Buscar mensagens" descricao="">
-            <button
-              type="button"
-              className={`aig-filter-icon-btn${(buscaAberta || busca) ? ' active' : ''}`}
-              onClick={() => { setBuscaAberta(v => !v); setCalendarioAberto(false); }}
-              aria-pressed={buscaAberta}
-            >
-              <MagnifyingGlass size={13} weight={(buscaAberta || busca) ? 'fill' : 'regular'} />
-            </button>
-          </TooltipGlobal>
-          <TooltipGlobal titulo="Filtrar por data" descricao="">
-            <button
-              type="button"
-              className={`aig-filter-icon-btn${(calendarioAberto || dataFiltro.inicio || dataFiltro.fim) ? ' active' : ''}`}
-              onClick={() => { setCalendarioAberto(v => !v); setBuscaAberta(false); }}
-              aria-pressed={calendarioAberto}
-            >
-              <CalendarBlank size={13} weight={(calendarioAberto || dataFiltro.inicio || dataFiltro.fim) ? 'fill' : 'regular'} />
-            </button>
-          </TooltipGlobal>
-          {(busca || dataFiltro.inicio || dataFiltro.fim || mostrarLidas || filtroVisao !== 'todas') && (
-            <TooltipGlobal titulo="Limpar filtros" descricao="">
-              <button
-                type="button"
-                className="aig-filter-icon-btn active"
-                onClick={() => { setBusca(''); setDataFiltro({ inicio: null, fim: null }); setMostrarLidas(false); setFiltroVisao('todas'); setBuscaAberta(false); setCalendarioAberto(false); if (onFechar) onFechar(); }}
-              >
-                <X size={13} weight="bold" />
-              </button>
-            </TooltipGlobal>
-          )}
-        </div>
-      </div>
-
-      {/* BUSCA EXPANSÍVEL */}
-      {buscaAberta && (
-        <div className="aig-section" style={{ borderBottom: 'none', paddingTop: '0.25rem', paddingBottom: '0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', background: 'var(--aig-bg-input, #0f172a)', border: '1px solid var(--aig-accent, #818cf8)', borderRadius: '5px', padding: '0 0.5rem', height: '28px' }}>
-            <MagnifyingGlass size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
-            <input
-              ref={buscaInputRef}
-              type="text"
-              value={busca}
-              onChange={e => setBusca(e.target.value)}
-              placeholder="Buscar mensagens..."
-              style={{ all: 'unset', flex: 1, fontSize: '0.6875rem', color: 'var(--aig-text, #f1f5f9)' }}
-            />
-            {busca && (
-              <button type="button" onClick={() => setBusca('')} style={{ all: 'unset', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--aig-muted)' }}>
-                <X size={10} weight="bold" />
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* CALENDÁRIO EXPANSÍVEL */}
-      {calendarioAberto && (
-        <div className="aig-section" style={{ borderBottom: 'none', paddingTop: '0.25rem', paddingBottom: '0' }}>
-          <CalendarioCampoGlobal
-            className="aig-calendar-right"
-            valor={dataFiltro}
-            aoMudarValor={(val) => {
-              if (val && typeof val === 'object' && 'inicio' in val && 'fim' in val) {
-                const r = val as { inicio: Date | null; fim: Date | null }
-                setDataFiltro({ inicio: r.inicio, fim: r.fim })
-              }
-            }}
-            placeholder="Selecionar período..."
-          />
-        </div>
-      )}
-
-      {/* LISTA */}
-      <div className="aig-list">
-        {carregando ? (
-          <div className="aig-empty-msg" role="status" aria-live="polite">Carregando notificações…</div>
-        ) : erro ? (
-          <div className="aig-empty-msg" role="alert" style={{ color: 'var(--accent-red, #f87171)' }}>
-            Não foi possível carregar: {erro}
-          </div>
-        ) : avisos.length === 0 ? (
-          <div className="aig-empty-msg">Você não tem notificações.</div>
-        ) : avisosFiltrados.length === 0 ? (
-          <div className="aig-empty-msg">
-            {busca || dataFiltro.inicio || dataFiltro.fim
-              ? 'Nenhuma mensagem para os filtros aplicados.'
-              : filtroVisao === 'enviadas'
-                ? 'Nenhuma mensagem enviada.'
-                : filtroVisao === 'recebidas'
-                  ? (mostrarLidas ? 'Nenhuma mensagem recebida.' : 'Nenhuma mensagem nova. ')
-                  : (mostrarLidas ? 'Nenhuma mensagem.' : 'Nenhuma mensagem nova. ')}
-            {filtroVisao !== 'enviadas' && !busca && !dataFiltro.inicio && !dataFiltro.fim && !mostrarLidas && avisos.some(a => a.lido && a.tipo !== 'enviado') && (
-              <button type="button" className="aig-footer-btn" onClick={() => setMostrarLidas(true)} style={{ marginLeft: 4 }}>
-                Mostrar lidas
-              </button>
-            )}
-          </div>
-        ) : (
-          avisosFiltrados.map((aviso) => (
-            <div
-              key={aviso.id}
-              className={`aig-list-item ${aviso.lido ? 'read' : ''}`}
-              onClick={aviso.href ? () => {
-                onMarcarLido?.(aviso.id);
-                setIsOpen(false);
-                if (onNavegarHref) { onNavegarHref(aviso.href!); } else { window.location.href = aviso.href!; }
-              } : undefined}
-              style={aviso.href ? { cursor: 'pointer' } : undefined}
-            >
-              <div className="aig-list-avatar" style={aviso.tipo === 'enviado' ? { background: 'var(--aig-accent, #818cf8)' } : undefined}>
-                {aviso.tipo === 'enviado'
-                  ? <PaperPlaneTilt size={14} weight="bold" />
-                  : (aviso.autor?.nome.charAt(0).toUpperCase() || 'S')}
-              </div>
-              <div className="aig-list-content">
-                <div className="aig-list-header">
-                  <span className="aig-list-author">{aviso.autor?.nome || 'Sistema'}</span>
-                  <span className="aig-list-time">{aviso.dataHora}</span>
-                </div>
-                <p className="aig-list-text">{aviso.conteudo}</p>
-              </div>
-              {!aviso.lido && (
-                <TooltipGlobal titulo="Marcar como lida" descricao="">
-                  <button type="button" className="aig-list-check" onClick={(e) => { e.stopPropagation(); onMarcarLido?.(aviso.id); }}>
-                    <CheckCircle size={18} weight="duotone" />
+          {/* ── HEADER ── */}
+          <div className="aig-top-header">
+            <span className="aig-top-title">
+              <Bell size={16} weight="duotone" /> NOTIFICAÇÕES
+            </span>
+            <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+              {avisos.length > 0 && (
+                <TooltipGlobal titulo="Ler todas" descricao="">
+                  <button type="button" className="aig-top-btn-secondary" onClick={onMarcarTodosLidos}>
+                    <Checks size={14} weight="bold" />
                   </button>
                 </TooltipGlobal>
               )}
-              {aviso.lido && (
-                <div className="aig-list-check" style={{ cursor: 'default' }}>
-                  <Checks size={18} weight="bold" />
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* ══════ COMPOSER — abre via botão + no header ══════ */}
-      {composerAberto && (
-        <div className="aig-composer" style={{ borderTop: '1px solid var(--aig-border, #334155)' }}>
-
-          {/* Textarea — primeiro e destaque */}
-          <div style={{ position: 'relative' }}>
-            <textarea
-              ref={textareaRef}
-              className="aig-composer-textarea aig-composer-textarea--lg"
-              placeholder={usuariosTenant.length > 0 ? 'Escreva sua mensagem... (@ para mencionar)' : 'Escreva sua mensagem...'}
-              value={composerText}
-              onChange={handleTextareaChange}
-              onKeyDown={(e) => {
-                handleMentionKeyDown(e);
-                if (mentionQuery === null && e.key === 'Enter' && e.ctrlKey) {
-                  e.preventDefault();
-                  handleComposerSend();
-                }
-              }}
-              rows={4}
-              aria-label="Mensagem"
-            />
-            {mentionQuery !== null && mentionResults.length > 0 && (
-              <div className="aig-mention-dropdown" style={{ bottom: '100%', top: 'auto' }} role="listbox" aria-label="Mencionar usuário">
-                {mentionResults.map((u, i) => (
-                  <button key={u.id} type="button" role="option" aria-selected={i === mentionIndex}
-                    className={`aig-mention-item ${i === mentionIndex ? 'active' : ''}`}
-                    onMouseDown={(e) => { e.preventDefault(); insertMention(u); }}
-                    onMouseEnter={() => setMentionIndex(i)}>
-                    <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
-                    <span className="aig-mention-name">{u.nome}</span>
-                    {u.email && <span className="aig-mention-email">{u.email}</span>}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Contador + dica */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '-0.125rem', marginBottom: '0.25rem' }}>
-            <span style={{ fontSize: '0.5rem', color: 'var(--aig-muted)' }}>
-              {composerText.length}/{CHAR_LIMIT}
-              {usuariosTenant.length > 0 && <span style={{ marginLeft: '0.25rem' }}><At size={8} style={{ verticalAlign: 'middle' }} /> mencionar</span>}
-            </span>
-            <span style={{ fontSize: '0.5rem', color: 'var(--aig-muted)' }}>Ctrl+Enter</span>
-          </div>
-
-          {/* Para: compacto com picker */}
-          {usuariosTenant.length > 0 && (
-            <div style={{ position: 'relative' }}>
-              <div className="aig-para-compact"
-                onClick={() => setPickerOpen(!pickerOpen)}
-                role="button" tabIndex={0}
-                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setPickerOpen(!pickerOpen); }}
-                aria-expanded={pickerOpen} aria-label="Selecionar destinatários">
-                <span className="aig-para-compact__label">Para</span>
-                <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '0.2rem', alignItems: 'center' }}>
-                  {destinatarios.length === 0 ? (
-                    <span style={{ fontSize: '0.625rem', color: 'var(--aig-muted)', fontStyle: 'italic' }}>só você (nota pessoal)</span>
-                  ) : destinatarios.map(uid => {
-                    const u = usuariosTenant.find(x => x.id === uid);
-                    return u ? (
-                      <span key={uid} className="aig-enviar-pill">
-                        {u.nome}
-                        <button type="button" onClick={(e) => { e.stopPropagation(); toggleDestinatario(uid); }}
-                          aria-label={`Remover ${u.nome}`}
-                          style={{ all: 'unset', cursor: 'pointer', display: 'inline-flex', marginLeft: '0.2rem' }}>
-                          <X size={8} weight="bold" />
-                        </button>
-                      </span>
-                    ) : null;
-                  })}
-                </div>
-                {pickerOpen ? <CaretUp size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
-                            : <CaretDown size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />}
-              </div>
-
-              {pickerOpen && (
-                <div className="aig-picker-up">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', padding: '0.375rem 0.5rem', borderBottom: '1px solid var(--aig-border)' }}>
-                    <MagnifyingGlass size={12} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
-                    <input type="text" value={pickerBusca} onChange={e => setPickerBusca(e.target.value)}
-                      placeholder="Buscar usuário..." autoFocus
-                      style={{ all: 'unset', flex: 1, fontSize: '0.6875rem', color: 'var(--aig-text)' }} />
-                  </div>
-                  <div style={{ maxHeight: '140px', overflowY: 'auto' }} role="listbox">
-                    {pickerUsuariosFiltrados.length === 0 ? (
-                      <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.6875rem', color: 'var(--aig-muted)' }}>Nenhum usuário.</div>
-                    ) : pickerUsuariosFiltrados.map(u => {
-                      const sel = destinatarios.includes(u.id);
-                      return (
-                        <button key={u.id} type="button" role="option" aria-selected={sel}
-                          onClick={() => toggleDestinatario(u.id)} className={`aig-enviar-user-item ${sel ? 'selected' : ''}`}>
-                          <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
-                          <span style={{ flex: 1, fontSize: '0.6875rem', fontWeight: 500 }}>{u.nome}</span>
-                          {u.email && <span style={{ fontSize: '0.6rem', color: 'var(--aig-muted)' }}>{u.email}</span>}
-                          {sel && <CheckCircle size={13} weight="fill" style={{ color: 'var(--aig-accent)', flexShrink: 0 }} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Barra de ações: Link · Canais · Enviar */}
-          <div className="aig-composer-actions">
-            {composerLink && (
-              <TooltipGlobal
-                content={`${linkAtivo ? '✓ Link incluído' : 'Link não incluído'} — ${composerLink}`}
-                position="top">
-                <button type="button"
-                  className={`aig-action-chip${linkAtivo ? ' active' : ''}`}
-                  onClick={() => setLinkAtivo(v => !v)}
-                  aria-pressed={linkAtivo}>
-                  <LinkSimple size={10} weight={linkAtivo ? 'fill' : 'regular'} style={{ flexShrink: 0 }} />
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 72 }}>
-                    {linkAtualLabel ?? derivarLinkLabel(composerLink)}
-                  </span>
-                  {linkAtivo && <X size={8} weight="bold" style={{ flexShrink: 0, marginLeft: '1px', opacity: 0.65 }} />}
+              <TooltipGlobal titulo={composerAberto ? 'Fechar composer' : 'Nova mensagem'} descricao="">
+                <button
+                  data-testid="btn-nova-mensagem"
+                  type="button"
+                  className={`aig-top-btn-primary${composerAberto ? ' composer-open' : ''}`}
+                  onClick={() => setComposerAberto(v => !v)}
+                  aria-expanded={composerAberto}
+                >
+                  {composerAberto ? <X size={14} weight="bold" /> : <Plus size={14} weight="bold" />}
                 </button>
               </TooltipGlobal>
-            )}
-            <div style={{ flex: 1 }} />
-            {canaisDisponiveis.email && (
-              <button type="button"
-                className={`aig-canal-pill${canaisSelecionados.has('email') ? ' active email' : ''}`}
-                onClick={() => toggleCanal('email')} aria-pressed={canaisSelecionados.has('email')}>
-                <EnvelopeSimple size={11} weight={canaisSelecionados.has('email') ? 'fill' : 'regular'} />
-                E-mail
-              </button>
-            )}
-            {canaisDisponiveis.whatsapp && (
-              <button type="button"
-                className={`aig-canal-pill${canaisSelecionados.has('whatsapp') ? ' active whatsapp' : ''}`}
-                onClick={() => toggleCanal('whatsapp')} aria-pressed={canaisSelecionados.has('whatsapp')}>
-                <WhatsappLogo size={11} weight={canaisSelecionados.has('whatsapp') ? 'fill' : 'regular'} />
-                WhatsApp
-              </button>
-            )}
-            <button type="button" className="aig-btn-primary" onClick={handleComposerSend}
-              disabled={!composerText.trim()}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.625rem', flexShrink: 0 }}
-              title="Ctrl+Enter">
-              <PaperPlaneTilt size={12} weight="bold" />
-              {hasDestinatarios ? (destinatarios.length > 1 ? `Enviar (${destinatarios.length})` : 'Enviar') : 'Salvar'}
-            </button>
+              <TooltipGlobal titulo="Fechar" descricao="">
+                <button
+                  data-testid="btn-fechar-modal"
+                  type="button"
+                  className="aig-top-btn-secondary"
+                  onClick={() => { setIsOpen(false); setComposerAberto(false); setComposerText(''); setDestinatarios([]); setPickerBusca(''); setCanaisSelecionados(new Set(['interno'])); setEmailDestinatarioExterno(''); }}
+                  aria-label="Fechar notificações"
+                >
+                  <X size={14} weight="bold" />
+                </button>
+              </TooltipGlobal>
+            </div>
           </div>
 
-          {/* Campos extras — E-mail */}
-          {canaisSelecionados.has('email') && (
-            <div className="aig-extra-fields">
-              <div className="aig-extra-field-row">
-                <label>Assunto</label>
-                <input type="text" value={emailAssunto} onChange={e => setEmailAssunto(e.target.value)} placeholder="Assunto do e-mail..." />
+          {/* ── FILTRO DE VISÃO: abas + toggle mostrar lidas ── */}
+          <div className="aig-section" style={{ borderBottom: 'none', paddingBottom: '0', paddingTop: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              {(['todas', 'recebidas', 'enviadas'] as const).map((v) => {
+                const isActive = filtroVisao === v;
+                const label = v === 'todas' ? 'Todas'
+                  : v === 'recebidas' ? `Recebidas${countRecebidas > 0 ? ` ${countRecebidas}` : ''}`
+                  : `Enviadas${countEnviadas > 0 ? ` ${countEnviadas}` : ''}`;
+                return (
+                  <button
+                    key={v}
+                    data-testid={v === 'recebidas' ? 'tab-recebidas' : v === 'enviadas' ? 'tab-enviadas' : undefined}
+                    type="button"
+                    onClick={() => { setFiltroVisao(v); if (v === 'enviadas') setMostrarLidas(true); }}
+                    style={{
+                      all: 'unset', cursor: 'pointer',
+                      padding: '0.15rem 0.45rem', borderRadius: '999px',
+                      fontSize: '0.625rem', fontWeight: isActive ? 700 : 500, lineHeight: 1.2,
+                      whiteSpace: 'nowrap', boxSizing: 'border-box',
+                      transition: 'all 0.15s ease',
+                      background: isActive ? 'var(--aig-accent, #818cf8)' : 'transparent',
+                      color: isActive ? '#ffffff' : 'var(--aig-text, #cbd5e1)',
+                      border: isActive ? '1px solid transparent' : '1px solid var(--aig-border, #334155)',
+                    }}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+              <div style={{ flex: 1 }} />
+              {/* Toggle "Mostrar lidas" — sempre visível */}
+              <button
+                data-testid="toggle-mostrar-lidas"
+                type="button"
+                role="switch"
+                aria-checked={mostrarLidas}
+                onClick={() => setMostrarLidas(v => !v)}
+                style={{
+                  all: 'unset', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '0.25rem',
+                  padding: '0.15rem 0.45rem', borderRadius: '999px',
+                  fontSize: '0.6rem', fontWeight: 500, lineHeight: 1.2,
+                  transition: 'all 0.15s ease',
+                  background: mostrarLidas ? 'rgba(129,140,248,0.15)' : 'transparent',
+                  color: mostrarLidas ? 'var(--aig-accent, #818cf8)' : 'var(--aig-muted)',
+                  border: `1px solid ${mostrarLidas ? 'var(--aig-accent, #818cf8)' : 'var(--aig-border, #334155)'}`,
+                }}
+              >
+                {mostrarLidas ? <Checks size={9} weight="bold" /> : <Checks size={9} weight="regular" />}
+                Lidas
+              </button>
+            </div>
+          </div>
+
+          {/* ── FILTROS SEMPRE VISÍVEIS: busca + datas + limpar ── */}
+          <div className="aig-section" style={{ borderBottom: 'none', paddingTop: '0.375rem', paddingBottom: '0.25rem' }}>
+            {/* Linha 1: busca */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', background: 'var(--aig-bg-input, #0f172a)', border: '1px solid var(--aig-border, #334155)', borderRadius: '5px', padding: '0 0.5rem', height: '26px', marginBottom: '0.375rem' }}>
+              <MagnifyingGlass size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
+              <input
+                data-testid="input-busca-notificacoes"
+                type="text"
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+                placeholder="Buscar mensagens..."
+                style={{ all: 'unset', flex: 1, fontSize: '0.6875rem', color: 'var(--aig-text, #f1f5f9)' }}
+              />
+              {busca && (
+                <button type="button" onClick={() => setBusca('')} style={{ all: 'unset', cursor: 'pointer', display: 'flex', alignItems: 'center', color: 'var(--aig-muted)' }}>
+                  <X size={10} weight="bold" />
+                </button>
+              )}
+            </div>
+            {/* Linha 2: datas + limpar filtros */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
+              <input
+                data-testid="filtro-data-inicio"
+                type="date"
+                value={dateToInputValue(dataFiltro.inicio)}
+                onChange={e => setDataFiltro(prev => ({ ...prev, inicio: inputToDateInicio(e.target.value) }))}
+                aria-label="Data início"
+                style={{
+                  flex: 1, fontSize: '0.625rem', background: 'var(--aig-bg-input, #0f172a)',
+                  border: '1px solid var(--aig-border, #334155)', borderRadius: '4px',
+                  padding: '0.15rem 0.375rem', color: 'var(--aig-text, #f1f5f9)',
+                  colorScheme: 'dark',
+                }}
+              />
+              <span style={{ fontSize: '0.6rem', color: 'var(--aig-muted)', flexShrink: 0 }}>até</span>
+              <input
+                data-testid="filtro-data-fim"
+                type="date"
+                value={dateToInputValue(dataFiltro.fim)}
+                onChange={e => setDataFiltro(prev => ({ ...prev, fim: inputToDateFim(e.target.value) }))}
+                aria-label="Data fim"
+                style={{
+                  flex: 1, fontSize: '0.625rem', background: 'var(--aig-bg-input, #0f172a)',
+                  border: '1px solid var(--aig-border, #334155)', borderRadius: '4px',
+                  padding: '0.15rem 0.375rem', color: 'var(--aig-text, #f1f5f9)',
+                  colorScheme: 'dark',
+                }}
+              />
+              <button
+                data-testid="btn-limpar-filtros"
+                type="button"
+                onClick={limparFiltros}
+                disabled={!hasActiveFilters}
+                aria-label="Limpar filtros"
+                style={{
+                  all: 'unset', cursor: hasActiveFilters ? 'pointer' : 'default',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: '22px', height: '22px', borderRadius: '4px', flexShrink: 0,
+                  background: hasActiveFilters ? 'var(--aig-accent, #818cf8)' : 'transparent',
+                  color: hasActiveFilters ? '#fff' : 'var(--aig-muted)',
+                  border: `1px solid ${hasActiveFilters ? 'transparent' : 'var(--aig-border, #334155)'}`,
+                  opacity: hasActiveFilters ? 1 : 0.4,
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <X size={11} weight="bold" />
+              </button>
+            </div>
+          </div>
+
+          {/* ── LISTA ── */}
+          <div data-testid="lista-notificacoes" className="aig-list">
+            {carregando ? (
+              <div data-testid="estado-vazio-notificacoes" className="aig-empty-msg" role="status" aria-live="polite">
+                Carregando notificações…
               </div>
-              {destinatarios.length === 0 && (
-                <div className="aig-extra-field-row">
-                  <label>Destinatário</label>
-                  <input type="email" value={emailDestinatarioExterno} onChange={e => setEmailDestinatarioExterno(e.target.value)} placeholder="email@destino.com" />
+            ) : erro ? (
+              <div data-testid="estado-vazio-notificacoes" className="aig-empty-msg" role="alert" style={{ color: 'var(--accent-red, #f87171)' }}>
+                Não foi possível carregar: {erro}
+              </div>
+            ) : avisos.length === 0 ? (
+              <div data-testid="estado-vazio-notificacoes" className="aig-empty-msg">
+                Você não tem notificações.
+              </div>
+            ) : avisosFiltrados.length === 0 ? (
+              <div data-testid="estado-vazio-notificacoes" className="aig-empty-msg">
+                {busca || dataFiltro.inicio || dataFiltro.fim
+                  ? 'Nenhuma mensagem para os filtros aplicados.'
+                  : filtroVisao === 'enviadas'
+                    ? 'Nenhuma mensagem enviada.'
+                    : filtroVisao === 'recebidas'
+                      ? (mostrarLidas ? 'Nenhuma mensagem recebida.' : 'Nenhuma mensagem nova.')
+                      : (mostrarLidas ? 'Nenhuma mensagem.' : 'Nenhuma mensagem nova.')}
+              </div>
+            ) : (
+              avisosFiltrados.map((aviso) => (
+                <div
+                  key={aviso.id}
+                  data-testid="item-notificacao"
+                  className={`aig-list-item ${aviso.lido ? 'read' : ''}`}
+                  onClick={aviso.href ? () => {
+                    onMarcarLido?.(aviso.id);
+                    setIsOpen(false);
+                    if (onNavegarHref) { onNavegarHref(aviso.href!); } else { window.location.href = aviso.href!; }
+                  } : undefined}
+                  style={aviso.href ? { cursor: 'pointer' } : undefined}
+                >
+                  <div className="aig-list-avatar" style={aviso.tipo === 'enviado' ? { background: 'var(--aig-accent, #818cf8)' } : undefined}>
+                    {aviso.tipo === 'enviado'
+                      ? <PaperPlaneTilt size={14} weight="bold" />
+                      : (aviso.autor?.nome.charAt(0).toUpperCase() || 'S')}
+                  </div>
+                  <div className="aig-list-content">
+                    <div className="aig-list-header">
+                      <span className="aig-list-author">{aviso.autor?.nome || 'Sistema'}</span>
+                      <span className="aig-list-time">{aviso.dataHora}</span>
+                    </div>
+                    <p className="aig-list-text">{aviso.conteudo}</p>
+                  </div>
+                  {!aviso.lido && (
+                    <TooltipGlobal titulo="Marcar como lida" descricao="">
+                      <button type="button" className="aig-list-check" onClick={(e) => { e.stopPropagation(); onMarcarLido?.(aviso.id); }}>
+                        <CheckCircle size={18} weight="duotone" />
+                      </button>
+                    </TooltipGlobal>
+                  )}
+                  {aviso.lido && (
+                    <div className="aig-list-check" style={{ cursor: 'default' }}>
+                      <Checks size={18} weight="bold" />
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* ── COMPOSER ── */}
+          {composerAberto && (
+            <div data-testid="composer-mensagem" className="aig-composer" style={{ borderTop: '1px solid var(--aig-border, #334155)' }}>
+
+              {/* Textarea */}
+              <div style={{ position: 'relative' }}>
+                <textarea
+                  data-testid="textarea-mensagem"
+                  ref={textareaRef}
+                  className="aig-composer-textarea aig-composer-textarea--lg"
+                  placeholder={usuariosTenant.length > 0 ? 'Escreva sua mensagem... (@ para mencionar)' : 'Escreva sua mensagem...'}
+                  value={composerText}
+                  onChange={handleTextareaChange}
+                  onKeyDown={(e) => {
+                    handleMentionKeyDown(e);
+                    if (mentionQuery === null && e.key === 'Enter' && e.ctrlKey) {
+                      e.preventDefault();
+                      handleComposerSend();
+                    }
+                  }}
+                  rows={4}
+                  aria-label="Mensagem"
+                />
+                {mentionQuery !== null && mentionResults.length > 0 && (
+                  <div className="aig-mention-dropdown" style={{ bottom: '100%', top: 'auto' }} role="listbox" aria-label="Mencionar usuário">
+                    {mentionResults.map((u, i) => (
+                      <button key={u.id} type="button" role="option" aria-selected={i === mentionIndex}
+                        className={`aig-mention-item ${i === mentionIndex ? 'active' : ''}`}
+                        onMouseDown={(e) => { e.preventDefault(); insertMention(u); }}
+                        onMouseEnter={() => setMentionIndex(i)}>
+                        <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
+                        <span className="aig-mention-name">{u.nome}</span>
+                        {u.email && <span className="aig-mention-email">{u.email}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Contador */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '-0.125rem', marginBottom: '0.25rem' }}>
+                <span style={{ fontSize: '0.5rem', color: 'var(--aig-muted)' }}>
+                  {composerText.length}/{CHAR_LIMIT}
+                  {usuariosTenant.length > 0 && <span style={{ marginLeft: '0.25rem' }}><At size={8} style={{ verticalAlign: 'middle' }} /> mencionar</span>}
+                </span>
+                <span style={{ fontSize: '0.5rem', color: 'var(--aig-muted)' }}>Ctrl+Enter</span>
+              </div>
+
+              {/* Para: — autocomplete sempre visível ─────────────────────────── */}
+              {usuariosTenant.length > 0 && (
+                <div style={{ position: 'relative' }} ref={pickerContainerRef}>
+                  {/* Linha "Para:" com pills + input inline */}
+                  <div
+                    className="aig-para-compact"
+                    onClick={() => setPickerOpen(true)}
+                    role="group"
+                    aria-label="Destinatários"
+                  >
+                    <span className="aig-para-compact__label">Para</span>
+                    <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '0.2rem', alignItems: 'center' }}>
+                      {destinatarios.map(uid => {
+                        const u = usuariosTenant.find(x => x.id === uid);
+                        return u ? (
+                          <span key={uid} className="aig-enviar-pill">
+                            {u.nome}
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); toggleDestinatario(uid); }}
+                              aria-label={`Remover ${u.nome}`}
+                              style={{ all: 'unset', cursor: 'pointer', display: 'inline-flex', marginLeft: '0.2rem' }}
+                            >
+                              <X size={8} weight="bold" />
+                            </button>
+                          </span>
+                        ) : null;
+                      })}
+                      <input
+                        data-testid="picker-destinatario"
+                        type="text"
+                        value={pickerBusca}
+                        onChange={e => { setPickerBusca(e.target.value); setPickerOpen(true); }}
+                        onFocus={() => setPickerOpen(true)}
+                        placeholder={destinatarios.length === 0 ? 'só você (nota pessoal)' : 'Adicionar...'}
+                        style={{
+                          all: 'unset', fontSize: '0.625rem',
+                          color: destinatarios.length === 0 ? 'var(--aig-muted)' : 'var(--aig-text)',
+                          fontStyle: destinatarios.length === 0 && !pickerBusca ? 'italic' : 'normal',
+                          minWidth: '80px', flex: 1,
+                        }}
+                      />
+                    </div>
+                    {pickerOpen
+                      ? <CaretUp size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />
+                      : <CaretDown size={11} style={{ color: 'var(--aig-muted)', flexShrink: 0 }} />}
+                  </div>
+
+                  {pickerOpen && (
+                    <div className="aig-picker-up">
+                      <div style={{ maxHeight: '140px', overflowY: 'auto' }} role="listbox">
+                        {pickerUsuariosFiltrados.length === 0 ? (
+                          <div style={{ padding: '0.5rem', textAlign: 'center', fontSize: '0.6875rem', color: 'var(--aig-muted)' }}>Nenhum usuário.</div>
+                        ) : pickerUsuariosFiltrados.map(u => {
+                          const sel = destinatarios.includes(u.id);
+                          return (
+                            <button
+                              key={u.id}
+                              data-testid="opcao-destinatario"
+                              type="button"
+                              role="option"
+                              aria-selected={sel}
+                              onClick={() => { toggleDestinatario(u.id); setPickerBusca(''); setPickerOpen(false); }}
+                              className={`aig-enviar-user-item ${sel ? 'selected' : ''}`}
+                            >
+                              <span className="aig-mention-avatar">{u.nome.charAt(0).toUpperCase()}</span>
+                              <span style={{ flex: 1, fontSize: '0.6875rem', fontWeight: 500 }}>{u.nome}</span>
+                              {u.email && <span style={{ fontSize: '0.6rem', color: 'var(--aig-muted)' }}>{u.email}</span>}
+                              {sel && <CheckCircle size={13} weight="fill" style={{ color: 'var(--aig-accent)', flexShrink: 0 }} />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
-              <div className="aig-lgpd-aviso" style={{ marginTop: '0.25rem' }}>
-                <Warning size={10} weight="fill" style={{ flexShrink: 0 }} />
-                <span>O e-mail será processado pelo Resend para entrega (LGPD, Art. 7, IX).</span>
+
+              {/* Seção de links */}
+              <div className="aig-links-section">
+                {linksAtivos.map((url, idx) => {
+                  const label = idx === 0 && !linkInputValue
+                    ? (linkAtualLabel ?? derivarLinkLabel(url))
+                    : derivarLinkLabel(url);
+                  return (
+                    <div key={url} className="aig-link-row active">
+                      <LinkSimple size={12} weight="fill" className="aig-link-row__icon" />
+                      <div className="aig-link-row__info">
+                        <span className="aig-link-row__name">{label}</span>
+                        <span className="aig-link-row__path">{url}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="aig-link-row__toggle active"
+                        onClick={() => setLinksAtivos(prev => prev.filter((_, i) => i !== idx))}
+                        title="Remover este link"
+                      >
+                        <X size={11} weight="bold" />
+                        Remover
+                      </button>
+                    </div>
+                  );
+                })}
+
+                {linkInputAberto ? (
+                  <div className="aig-link-row editing">
+                    <LinkSimple size={12} weight="regular" className="aig-link-row__icon" />
+                    <input
+                      type="url"
+                      className="aig-link-row__input"
+                      value={linkInputValue}
+                      onChange={e => setLinkInputValue(e.target.value)}
+                      autoFocus
+                      placeholder="Cole ou digite uma URL... (Enter para adicionar)"
+                      onBlur={e => {
+                        const focusedOutside = !dropdownRef.current?.contains(e.relatedTarget as Node);
+                        if (focusedOutside) return;
+                        const val = linkInputValue.trim();
+                        if (val) setLinksAtivos(prev => [...prev, val]);
+                        setLinkInputValue('');
+                        setLinkInputAberto(false);
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          const val = linkInputValue.trim();
+                          if (val) setLinksAtivos(prev => [...prev, val]);
+                          setLinkInputValue('');
+                          setLinkInputAberto(false);
+                        }
+                        if (e.key === 'Escape') {
+                          setLinkInputValue('');
+                          setLinkInputAberto(false);
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="aig-link-add-btn"
+                    onClick={() => setLinkInputAberto(true)}
+                  >
+                    <Plus size={10} weight="bold" />
+                    Incluir link
+                  </button>
+                )}
               </div>
+
+              {/* Barra de ações: Canais · Enviar */}
+              <div className="aig-composer-actions">
+                <div style={{ flex: 1 }} />
+                {canaisDisponiveis.email && (
+                  <button
+                    data-testid="toggle-via-email"
+                    type="button"
+                    role="switch"
+                    aria-checked={canaisSelecionados.has('email')}
+                    aria-pressed={canaisSelecionados.has('email')}
+                    className={`aig-canal-pill${canaisSelecionados.has('email') ? ' active email' : ''}`}
+                    onClick={() => toggleCanal('email')}
+                  >
+                    <EnvelopeSimple size={11} weight={canaisSelecionados.has('email') ? 'fill' : 'regular'} />
+                    E-mail
+                  </button>
+                )}
+                {canaisDisponiveis.whatsapp && (
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={canaisSelecionados.has('whatsapp')}
+                    aria-pressed={canaisSelecionados.has('whatsapp')}
+                    className={`aig-canal-pill${canaisSelecionados.has('whatsapp') ? ' active whatsapp' : ''}`}
+                    onClick={() => toggleCanal('whatsapp')}
+                  >
+                    <WhatsappLogo size={11} weight={canaisSelecionados.has('whatsapp') ? 'fill' : 'regular'} />
+                    WhatsApp
+                  </button>
+                )}
+                <button
+                  data-testid="btn-enviar"
+                  type="button"
+                  className="aig-btn-primary"
+                  onClick={handleComposerSend}
+                  disabled={!composerText.trim()}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.625rem', flexShrink: 0 }}
+                  title="Ctrl+Enter"
+                >
+                  <PaperPlaneTilt size={12} weight="bold" />
+                  {hasDestinatarios ? (destinatarios.length > 1 ? `Enviar (${destinatarios.length})` : 'Enviar') : 'Salvar'}
+                </button>
+              </div>
+
+              {/* Campos extras — E-mail */}
+              {canaisSelecionados.has('email') && (
+                <div className="aig-extra-fields">
+                  <div className="aig-extra-field-row">
+                    <label>Assunto</label>
+                    <input type="text" value={emailAssunto} onChange={e => setEmailAssunto(e.target.value)} placeholder="Assunto do e-mail..." />
+                  </div>
+                  {destinatarios.length === 0 && (
+                    <div className="aig-extra-field-row">
+                      <label>Destinatário</label>
+                      <input
+                        data-testid="input-email-externo"
+                        type="email"
+                        value={emailDestinatarioExterno}
+                        onChange={e => setEmailDestinatarioExterno(e.target.value)}
+                        placeholder="email@destino.com"
+                      />
+                    </div>
+                  )}
+                  <div className="aig-lgpd-aviso" style={{ marginTop: '0.25rem' }}>
+                    <Warning size={10} weight="fill" style={{ flexShrink: 0 }} />
+                    <span>O e-mail será processado pelo Resend para entrega (LGPD, Art. 7, IX).</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Campos extras — WhatsApp */}
+              {canaisSelecionados.has('whatsapp') && (
+                <div className="aig-extra-fields">
+                  <div className="aig-extra-field-row">
+                    <label>Número</label>
+                    <input type="tel" value={whatsappNumero} onChange={e => setWhatsappNumero(e.target.value)} placeholder="+55 11 99999-9999" />
+                  </div>
+                  <div className="aig-lgpd-aviso" style={{ marginTop: '0.25rem' }}>
+                    <Warning size={10} weight="fill" style={{ flexShrink: 0 }} />
+                    <span>WhatsApp exige consentimento explícito do destinatário (LGPD Art. 8).</span>
+                  </div>
+                </div>
+              )}
+
             </div>
           )}
-
-          {/* Campos extras — WhatsApp */}
-          {canaisSelecionados.has('whatsapp') && (
-            <div className="aig-extra-fields">
-              <div className="aig-extra-field-row">
-                <label>Número</label>
-                <input type="tel" value={whatsappNumero} onChange={e => setWhatsappNumero(e.target.value)} placeholder="+55 11 99999-9999" />
-              </div>
-              <div className="aig-lgpd-aviso" style={{ marginTop: '0.25rem' }}>
-                <Warning size={10} weight="fill" style={{ flexShrink: 0 }} />
-                <span>WhatsApp exige consentimento explícito do destinatário (LGPD Art. 8).</span>
-              </div>
-            </div>
-          )}
-
-        </div>
-      )}
 
         </div>
       )}

@@ -27,14 +27,14 @@ interface ItemForm {
   part_number: string
   ncm: string
   descricao_item: string
-  quantidade_inicial_item_pedido: string
+  quantidade_inicial_pedido: string
 }
 
 const ITEM_VAZIO: ItemForm = {
   part_number: '',
   ncm: '',
   descricao_item: '',
-  quantidade_inicial_item_pedido: '',
+  quantidade_inicial_pedido: '',
 }
 
 // ── Props ──────────────────────────────────────────────────────────────────────
@@ -198,7 +198,7 @@ export function ModalNovoItem({
         part_number: item.part_number,
         ncm: item.ncm,
         descricao_item: item.descricao_item,
-        quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
+        quantidade_inicial_pedido: parseFloat(item.quantidade_inicial_pedido) || 0,
       } as Partial<PedidoItem>)
       const pn = item.part_number.trim() || item.descricao_item.trim() || 'item'
       addNotification({ type: 'success', message: `Item ${pn} adicionado ao PO.`, duration: 4000 })
@@ -306,8 +306,8 @@ export function ModalNovoItem({
                 id="mni-qty"
                 type="number"
                 style={{ ...s.input, textAlign: 'right' }}
-                value={item.quantidade_inicial_item_pedido}
-                onChange={e => setItemField('quantidade_inicial_item_pedido', e.target.value)}
+                value={item.quantidade_inicial_pedido}
+                onChange={e => setItemField('quantidade_inicial_pedido', e.target.value)}
                 placeholder="0"
                 min="0"
                 step="0.01"

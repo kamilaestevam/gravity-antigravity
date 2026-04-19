@@ -14,6 +14,15 @@ export async function initPgBoss(databaseUrl: string) {
   boss.on('error', (error) => console.error('pg-boss error:', error))
 
   await boss.start()
+
+  // pg-boss v12 exige criação explícita da fila antes de registrar workers
+  await boss.createQueue('send-notification', {
+    retryLimit: 5,
+    retryDelay: 60,
+    retryBackoff: true,
+    expireInHours: 24,
+  })
+
   console.log('pg-boss started successfully in Notificações service')
 
   return boss

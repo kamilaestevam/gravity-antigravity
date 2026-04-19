@@ -104,7 +104,7 @@ const CAMPOS_PEDIDO_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'cobertura_cambial',                       rotulo: 'Cobertura Cambial',                      tipo: 'texto',  nivel: 'item',   grupo: 'Comercial' },
   { campo: 'nome_exportador',                         rotulo: 'Nome do Exportador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
   { campo: 'nome_importador',                         rotulo: 'Nome do Importador (por item)',           tipo: 'texto',  nivel: 'item',   grupo: 'Partes' },
-  { campo: 'condicao_pagamento_pedido',               rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
+  { campo: 'condicao_pagamento',               rotulo: 'Cond. Pagamento',                        tipo: 'texto',  nivel: 'pedido', grupo: 'Comercial' },
 
   // Dados físicos
   { campo: 'peso_liquido_total_pedido',               rotulo: 'Peso Líquido Total',                     tipo: 'numero', nivel: 'pedido', grupo: 'Físico' },
@@ -193,18 +193,18 @@ const CAMPOS_ITEM_EDITAVEIS: DefinicaoCampo[] = [
   { campo: 'atributos_catalogo',                      rotulo: 'Atributos Catálogo',                     tipo: 'texto',  nivel: 'item', grupo: 'Produto' },
 
   // Quantidades
-  { campo: 'quantidade_inicial_item_pedido',           rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_transferida_item_pedido',       rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_inicial_pedido',           rotulo: 'Qtd. Inicial',                           tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_transferida_pedido',       rotulo: 'Qtd. Transferida',                       tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'quantidade_pronta_total_item_pedido',     rotulo: 'Qtd. Pronta',                            tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
-  { campo: 'quantidade_cancelada_item_pedido',        rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
+  { campo: 'quantidade_cancelada_pedido',        rotulo: 'Qtd. Cancelada',                         tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
   { campo: 'casas_decimais_quantidade_item',           rotulo: 'Casas Decimais — Qtd.',                  tipo: 'numero', nivel: 'item', grupo: 'Quantidades' },
 
   // Financeiro
 
   // Pesos e cubagem
-  { campo: 'peso_liquido_unitario_item',               rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
-  { campo: 'peso_bruto_unitario_item',                rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item', grupo: 'Físico' },
-  { campo: 'cubagem_unitaria_item',                   rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'peso_liquido_unitario',               rotulo: 'Peso Líquido Unitário',                  tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'peso_bruto_unitario',                rotulo: 'Peso Bruto Unitário',                    tipo: 'numero', nivel: 'item', grupo: 'Físico' },
+  { campo: 'cubagem_unitaria',                   rotulo: 'Cubagem Unitária',                       tipo: 'numero', nivel: 'item', grupo: 'Físico' },
 
   // Embalagem e documentos
   { campo: 'tipo_embalagem',                          rotulo: 'Tipo Embalagem',                         tipo: 'texto',  nivel: 'item', grupo: 'Documentos' },

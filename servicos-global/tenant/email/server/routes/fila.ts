@@ -40,7 +40,7 @@ filaRouter.get(
     }
 
     const [items, total] = await Promise.all([
-      prisma.filaEmail.findMany({
+      prisma.emailFilaEnvio.findMany({
         where,
         orderBy: [{ prioridade: 'desc' }, { created_at: 'asc' }],
         skip,
@@ -57,14 +57,14 @@ filaRouter.get(
           processado_at: true,
         },
       }),
-      prisma.filaEmail.count({ where }),
+      prisma.emailFilaEnvio.count({ where }),
     ])
 
     // Stats rápidas para o monitor
     const [pendente, processando, falhou] = await Promise.all([
-      prisma.filaEmail.count({ where: { tenant_id: tenantId, status: 'PENDENTE' } }),
-      prisma.filaEmail.count({ where: { tenant_id: tenantId, status: 'PROCESSANDO' } }),
-      prisma.filaEmail.count({ where: { tenant_id: tenantId, status: 'FALHOU' } }),
+      prisma.emailFilaEnvio.count({ where: { tenant_id: tenantId, status: 'PENDENTE' } }),
+      prisma.emailFilaEnvio.count({ where: { tenant_id: tenantId, status: 'PROCESSANDO' } }),
+      prisma.emailFilaEnvio.count({ where: { tenant_id: tenantId, status: 'FALHOU' } }),
     ])
 
     res.json({
@@ -84,7 +84,7 @@ filaRouter.post(
     const { id } = req.params
     const { tenantId } = req.auth
 
-    const item = await prisma.filaEmail.findFirst({
+    const item = await prisma.emailFilaEnvio.findFirst({
       where: { id, tenant_id: tenantId },
     })
 
@@ -96,7 +96,7 @@ filaRouter.post(
       return next(new AppError(`Não é possível cancelar item com status ${item.status}`, 409, 'INVALID_STATUS'))
     }
 
-    const updated = await prisma.filaEmail.update({
+    const updated = await prisma.emailFilaEnvio.update({
       where: { id },
       data: { status: 'CANCELADO' },
     })
@@ -115,7 +115,7 @@ filaRouter.post(
     const { tenantId } = req.auth
     const distantFuture = new Date('2099-12-31T23:59:59Z')
 
-    const result = await prisma.filaEmail.updateMany({
+    const result = await prisma.emailFilaEnvio.updateMany({
       where: { tenant_id: tenantId, status: 'PENDENTE' },
       data: { next_retry_at: distantFuture },
     })
@@ -133,7 +133,7 @@ filaRouter.post(
     const { tenantId } = req.auth
     const distantFuture = new Date('2099-12-31T23:59:59Z')
 
-    const result = await prisma.filaEmail.updateMany({
+    const result = await prisma.emailFilaEnvio.updateMany({
       where: { tenant_id: tenantId, status: 'PENDENTE', next_retry_at: distantFuture },
       data: { next_retry_at: null },
     })

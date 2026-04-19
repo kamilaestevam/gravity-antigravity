@@ -84,12 +84,28 @@ export function reagendarJob(novoCron: string, ativo: boolean): void {
 // ── Inicialização ─────────────────────────────────────────────────────────────
 
 export async function initNcmSync(): Promise<void> {
+  // Recuperar jobs RUNNING órfãos (processo morreu antes de finalizar)
+  try {
+    const resultado = await prisma.ncmSyncLog.updateMany({
+      where: { status: 'RUNNING' },
+      data: {
+        status:       'ERROR',
+        concluido_em: new Date(),
+        erro_msg:     'Processo interrompido — servidor reiniciado antes da conclusão.',
+      },
+    })
+    if (resultado.count > 0) {
+      console.warn(`[ncm-sync] ${resultado.count} job(s) órfão(s) recuperado(s) → ERROR`)
+    }
+  } catch {
+    // Tabela pode não existir ainda em bootstrap inicial — ignorar
+  }
+
   // Carregar configuração salva no banco (se existir)
   let configDb: { ativo: boolean; cron_expressao: string } | null = null
   try {
     configDb = await prisma.ncmScheduleConfig.findUnique({ where: { id: 'default' } })
   } catch {
-    // Tabela pode não existir ainda em bootstrap inicial — ignorar
     configDb = null
   }
 

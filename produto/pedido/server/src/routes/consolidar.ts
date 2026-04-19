@@ -62,7 +62,7 @@ const CAMPOS_COMPARAR: Array<{ campo: string; rotulo: string }> = [
   { campo: 'nome_exportador',    rotulo: 'Exportador'             },
   { campo: 'nome_importador',    rotulo: 'Importador'             },
   { campo: 'data_emissao_pedido',rotulo: 'Data Emissão do Pedido' },
-  { campo: 'condicao_pagamento_pedido', rotulo: 'Condição de Pagamento'  },
+  { campo: 'condicao_pagamento', rotulo: 'Condição de Pagamento'  },
 ]
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -142,7 +142,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       for (const pedido of pedidos) {
         for (const item of pedido.itens) {
           if (itensPorPart[item.part_number]) {
-            itensPorPart[item.part_number].quantidade_total += Number(item.saldo_item_pedido ?? 0)
+            itensPorPart[item.part_number].quantidade_total += Number(item.quantidade_atual_pedido ?? 0)
             itensPorPart[item.part_number].pedidos_origem.push(pedido.numero_pedido)
             itensPorPart[item.part_number].pode_fundir = true
           } else {
@@ -152,8 +152,8 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
               ncm: item.ncm,
               unidade_comercializada_item: item.unidade_comercializada_item,
               moeda_item: item.moeda_item,
-              valor_unitario: item.valor_unitario_item,
-              quantidade_total: Number(item.saldo_item_pedido ?? 0),
+              valor_unitario: item.valor_por_unidade_item,
+              quantidade_total: Number(item.quantidade_atual_pedido ?? 0),
               pedidos_origem: [pedido.numero_pedido],
               pode_fundir: false,
             }
@@ -246,15 +246,15 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
           if (fundir_itens_mesmo_part_number && partNumbersVistos.has(item.part_number)) {
             const existente = itensMerge.find((i) => i['part_number'] === item.part_number) as Record<string, number> | undefined
             if (existente) {
-              existente.quantidade_inicial_item_pedido = (Number(existente.quantidade_inicial_item_pedido) || 0) + (Number(item.quantidade_inicial_item_pedido) || 0)
-              existente.saldo_item_pedido = (Number(existente.saldo_item_pedido) || 0) + (Number(item.saldo_item_pedido) || 0)
-              existente.quantidade_pronta_total_item_pedido = (Number(existente.quantidade_pronta_total_item_pedido) || 0) + (Number(item.quantidade_pronta_total_item_pedido) || 0)
-              existente.valor_total_itens = (Number(existente.valor_total_itens) || 0) + (Number(item.valor_total_itens) || 0)
+              existente.quantidade_inicial_pedido = (Number(existente.quantidade_inicial_pedido) || 0) + (Number(item.quantidade_inicial_pedido) || 0)
+              existente.quantidade_atual_pedido = (Number(existente.quantidade_atual_pedido) || 0) + (Number(item.quantidade_atual_pedido) || 0)
+              existente.quantidade_pronta_pedido = (Number(existente.quantidade_pronta_pedido) || 0) + (Number(item.quantidade_pronta_pedido) || 0)
+              existente.valor_total_item = (Number(existente.valor_total_item) || 0) + (Number(item.valor_total_item) || 0)
             }
           } else {
             partNumbersVistos.add(item.part_number)
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { id: _id, pedido_id: _pedido_id, item_criado_em: _ca, item_atualizado_em: _ua, sequencia_item: _seq, ...itemData } = item
+            const { id: _id, pedido_id: _pedido_id, created_at: _ca, updated_at: _ua, sequencia_item: _seq, ...itemData } = item
             itensMerge.push({ ...itemData, id: gerarId('pite') })
           }
         }
@@ -276,7 +276,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
         casas_decimais_valor_pedido:     primeiro.casas_decimais_valor_pedido,
         casas_decimais_quantidade_pedido: primeiro.casas_decimais_quantidade_pedido,
         unidade_comercializada_pedido:   primeiro.unidade_comercializada_pedido,
-        condicao_pagamento_pedido:       primeiro.condicao_pagamento_pedido,
+        condicao_pagamento:       primeiro.condicao_pagamento,
         data_emissao_pedido:             primeiro.data_emissao_pedido,
         // Preservar nomes dos parceiros de detalhes_operacionais do primeiro pedido
         detalhes_operacionais: (() => {

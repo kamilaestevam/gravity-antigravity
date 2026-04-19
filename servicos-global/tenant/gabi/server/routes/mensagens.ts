@@ -13,12 +13,12 @@ mensagensRouter.get('/api/v1/gabi/conversas/:id/mensagens', async (req, res, nex
     const { id: conversationId } = req.params
     const db = withTenantIsolation(prisma, tenantId)
 
-    const conversa = await db.gabiConversation.findFirst({ where: { id: conversationId } })
+    const conversa = await db.conversaCompletaGabi.findFirst({ where: { id: conversationId } })
     if (!conversa) {
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    const mensagens = await db.gabiMessage.findMany({
+    const mensagens = await db.mensagemIndividualGabiai.findMany({
       where: { conversation_id: conversationId },
       orderBy: { created_at: 'asc' }
     })
@@ -41,12 +41,12 @@ mensagensRouter.post('/api/v1/gabi/conversas/:id/mensagens', async (req, res, ne
     const { role, content } = createMensagemSchema.parse(req.body)
     const db = withTenantIsolation(prisma, tenantId)
 
-    const conversa = await db.gabiConversation.findFirst({ where: { id: conversationId } })
+    const conversa = await db.conversaCompletaGabi.findFirst({ where: { id: conversationId } })
     if (!conversa) {
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    const mensagem = await db.gabiMessage.create({
+    const mensagem = await db.mensagemIndividualGabiai.create({
       data: {
         user_id: userId,
         conversation_id: conversationId,
@@ -56,7 +56,7 @@ mensagensRouter.post('/api/v1/gabi/conversas/:id/mensagens', async (req, res, ne
     })
 
     // Atualiza o updated_at da conversa
-    await db.gabiConversation.update({
+    await db.conversaCompletaGabi.update({
       where: { id: conversationId },
       data: { updated_at: new Date() }
     })

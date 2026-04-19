@@ -122,7 +122,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.AtividadeScalarFieldEnum = {
+exports.Prisma.AtividadesDadosScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   user_id: 'user_id',
@@ -145,14 +145,14 @@ exports.Prisma.AtividadeScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.AtividadeParticipanteScalarFieldEnum = {
+exports.Prisma.AtividadesParticipantesScalarFieldEnum = {
   id: 'id',
   atividade_id: 'atividade_id',
   user_id: 'user_id',
   user_nome: 'user_nome'
 };
 
-exports.Prisma.AtividadeSessaoTimerScalarFieldEnum = {
+exports.Prisma.AtividadesTempoScalarFieldEnum = {
   id: 'id',
   atividade_id: 'atividade_id',
   iniciado_em: 'iniciado_em',
@@ -160,7 +160,7 @@ exports.Prisma.AtividadeSessaoTimerScalarFieldEnum = {
   assunto: 'assunto'
 };
 
-exports.Prisma.TimerSessionScalarFieldEnum = {
+exports.Prisma.AtividadesCronometroScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -178,7 +178,7 @@ exports.Prisma.TimerSessionScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.TimerActiveScalarFieldEnum = {
+exports.Prisma.AtividadesTimerScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   user_id: 'user_id',
@@ -190,7 +190,7 @@ exports.Prisma.TimerActiveScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.RelatorioTempoCacheScalarFieldEnum = {
+exports.Prisma.TempoCriacaoRelatorioScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   user_id: 'user_id',
@@ -203,7 +203,7 @@ exports.Prisma.RelatorioTempoCacheScalarFieldEnum = {
   expires_at: 'expires_at'
 };
 
-exports.Prisma.EmailThreadScalarFieldEnum = {
+exports.Prisma.EmailAssuntosParticipantesScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -219,7 +219,7 @@ exports.Prisma.EmailThreadScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.EmailMessageScalarFieldEnum = {
+exports.Prisma.EmailMensagemScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -242,7 +242,7 @@ exports.Prisma.EmailMessageScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.EmailEnviadoScalarFieldEnum = {
+exports.Prisma.EmailRegistroEnvioScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -264,7 +264,7 @@ exports.Prisma.EmailEnviadoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.TemplateScalarFieldEnum = {
+exports.Prisma.TemplateEmailScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -281,7 +281,7 @@ exports.Prisma.TemplateScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.FilaEmailScalarFieldEnum = {
+exports.Prisma.EmailFilaEnvioScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -300,7 +300,7 @@ exports.Prisma.FilaEmailScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.WhatsAppConversationScalarFieldEnum = {
+exports.Prisma.WhatsappConversaScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -323,7 +323,7 @@ exports.Prisma.WhatsAppConversationScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.WhatsAppMessageScalarFieldEnum = {
+exports.Prisma.WhatsappMensagemScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -340,7 +340,7 @@ exports.Prisma.WhatsAppMessageScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.WhatsAppUsageLogScalarFieldEnum = {
+exports.Prisma.WhatsappLogScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -354,7 +354,7 @@ exports.Prisma.WhatsAppUsageLogScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.WhatsAppAutomationScalarFieldEnum = {
+exports.Prisma.WhatsappRegraScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -369,7 +369,7 @@ exports.Prisma.WhatsAppAutomationScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.DashboardConfigScalarFieldEnum = {
+exports.Prisma.DashboardConfiguracaoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -383,7 +383,7 @@ exports.Prisma.DashboardConfigScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.DashboardWidgetScalarFieldEnum = {
+exports.Prisma.DashboardCriarScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -400,7 +400,7 @@ exports.Prisma.DashboardWidgetScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.DashboardMetricSnapshotScalarFieldEnum = {
+exports.Prisma.DashboardMetricasScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -413,7 +413,7 @@ exports.Prisma.DashboardMetricSnapshotScalarFieldEnum = {
   captured_at: 'captured_at'
 };
 
-exports.Prisma.DashboardAlertScalarFieldEnum = {
+exports.Prisma.DashboardAlertasScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -430,7 +430,7 @@ exports.Prisma.DashboardAlertScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.DashboardShareScalarFieldEnum = {
+exports.Prisma.DashboardCompartilharScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -445,7 +445,7 @@ exports.Prisma.DashboardShareScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.RelatorioScalarFieldEnum = {
+exports.Prisma.RelatoriosSalvosScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -460,7 +460,7 @@ exports.Prisma.RelatorioScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ConfigRelatorioScalarFieldEnum = {
+exports.Prisma.RelatoriosConfiguracaoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -474,7 +474,7 @@ exports.Prisma.ConfigRelatorioScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ExportJobScalarFieldEnum = {
+exports.Prisma.ExportarJobScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -490,7 +490,7 @@ exports.Prisma.ExportJobScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.HistoryLogScalarFieldEnum = {
+exports.Prisma.HistoricoLogScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   actor_type: 'actor_type',
@@ -566,7 +566,7 @@ exports.Prisma.AlertNotificationLogScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.ExportResultScalarFieldEnum = {
+exports.Prisma.ExportarResultadoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   format: 'format',
@@ -625,7 +625,7 @@ exports.Prisma.DisponibilidadeConfigScalarFieldEnum = {
   atualizadoEm: 'atualizadoEm'
 };
 
-exports.Prisma.GabiConversationScalarFieldEnum = {
+exports.Prisma.ConversaCompletaGabiScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -635,7 +635,7 @@ exports.Prisma.GabiConversationScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.GabiMessageScalarFieldEnum = {
+exports.Prisma.MensagemIndividualGabiaiScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -648,7 +648,7 @@ exports.Prisma.GabiMessageScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.GabiUsageLogScalarFieldEnum = {
+exports.Prisma.GabiaLogUsoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -664,7 +664,7 @@ exports.Prisma.GabiUsageLogScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.GabiTokenLogScalarFieldEnum = {
+exports.Prisma.GabiaTokenConsumidosScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -677,13 +677,26 @@ exports.Prisma.GabiTokenLogScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.GabiTokenQuotaScalarFieldEnum = {
+exports.Prisma.GabiaTokenWorkspaceScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
   quota_mensal: 'quota_mensal',
   mes_ref: 'mes_ref',
   tokens_usados: 'tokens_usados',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.PersonalizacaoOrganizacaoGabiaiScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  product_id: 'product_id',
+  system_prompt: 'system_prompt',
+  tom_voz: 'tom_voz',
+  limitacoes: 'limitacoes',
+  instrucoes_extras: 'instrucoes_extras',
+  ativo: 'ativo',
+  created_at: 'created_at',
   updated_at: 'updated_at'
 };
 
@@ -694,335 +707,6 @@ exports.Prisma.UserPreferencesScalarFieldEnum = {
   tooltips_disabled: 'tooltips_disabled',
   theme: 'theme',
   sidebar_open: 'sidebar_open',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.PedidoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  tipo_operacao: 'tipo_operacao',
-  numero_pedido: 'numero_pedido',
-  status: 'status',
-  status_id: 'status_id',
-  importacao_exportador_id: 'importacao_exportador_id',
-  exportacao_importador_id: 'exportacao_importador_id',
-  fabricante_id: 'fabricante_id',
-  incoterm: 'incoterm',
-  moeda_pedido: 'moeda_pedido',
-  valor_total_pedido: 'valor_total_pedido',
-  casas_decimais_valor_pedido: 'casas_decimais_valor_pedido',
-  quantidade_total_inicial_pedido: 'quantidade_total_inicial_pedido',
-  casas_decimais_quantidade_pedido: 'casas_decimais_quantidade_pedido',
-  unidade_comercializada_pedido: 'unidade_comercializada_pedido',
-  peso_liquido_total_pedido: 'peso_liquido_total_pedido',
-  peso_bruto_total_pedido: 'peso_bruto_total_pedido',
-  cubagem_total_pedido: 'cubagem_total_pedido',
-  casas_decimais_peso_pedido: 'casas_decimais_peso_pedido',
-  casas_decimais_cubagem_pedido: 'casas_decimais_cubagem_pedido',
-  condicao_pagamento_pedido: 'condicao_pagamento_pedido',
-  numero_proforma: 'numero_proforma',
-  numero_invoice: 'numero_invoice',
-  referencia_importador: 'referencia_importador',
-  referencia_exportador: 'referencia_exportador',
-  referencia_fabricante: 'referencia_fabricante',
-  valor_total_cambio_pedido: 'valor_total_cambio_pedido',
-  moeda_cambio_pedido: 'moeda_cambio_pedido',
-  taxa_cambio_estimada_pedido: 'taxa_cambio_estimada_pedido',
-  contrato_cambio_id_pedido: 'contrato_cambio_id_pedido',
-  data_emissao_pedido: 'data_emissao_pedido',
-  cnpj_importador: 'cnpj_importador',
-  detalhes_operacionais: 'detalhes_operacionais',
-  campos_custom: 'campos_custom',
-  pedidos_origem_id: 'pedidos_origem_id',
-  data_consolidacao_pedido: 'data_consolidacao_pedido',
-  deleted_at: 'deleted_at',
-  pedido_criado_em: 'pedido_criado_em',
-  pedido_atualizado_em: 'pedido_atualizado_em'
-};
-
-exports.Prisma.PedidoItemScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  pedido_id: 'pedido_id',
-  sequencia_item: 'sequencia_item',
-  part_number: 'part_number',
-  ncm: 'ncm',
-  descricao_item: 'descricao_item',
-  unidade_comercializada_item: 'unidade_comercializada_item',
-  quantidade_inicial_item_pedido: 'quantidade_inicial_item_pedido',
-  saldo_item_pedido: 'saldo_item_pedido',
-  quantidade_pronta_total_item_pedido: 'quantidade_pronta_total_item_pedido',
-  quantidade_transferida_item_pedido: 'quantidade_transferida_item_pedido',
-  quantidade_cancelada_item_pedido: 'quantidade_cancelada_item_pedido',
-  casas_decimais_quantidade_item: 'casas_decimais_quantidade_item',
-  moeda_item: 'moeda_item',
-  valor_total_itens: 'valor_total_itens',
-  valor_unitario_item: 'valor_unitario_item',
-  casas_decimais_valor_item: 'casas_decimais_valor_item',
-  cobertura_cambial: 'cobertura_cambial',
-  peso_liquido_unitario_item: 'peso_liquido_unitario_item',
-  peso_bruto_unitario_item: 'peso_bruto_unitario_item',
-  cubagem_unitaria_item: 'cubagem_unitaria_item',
-  casas_decimais_peso_item: 'casas_decimais_peso_item',
-  casas_decimais_cubagem_item: 'casas_decimais_cubagem_item',
-  descricao_completa_item_pt: 'descricao_completa_item_pt',
-  descricao_completa_item_en: 'descricao_completa_item_en',
-  descricao_completa_item_es: 'descricao_completa_item_es',
-  descricao_completa_item_nf: 'descricao_completa_item_nf',
-  grupo_item: 'grupo_item',
-  subgrupo_item: 'subgrupo_item',
-  campo_especial_item: 'campo_especial_item',
-  campos_custom: 'campos_custom',
-  item_criado_em: 'item_criado_em',
-  item_atualizado_em: 'item_atualizado_em'
-};
-
-exports.Prisma.ProcessoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  estimativa_custo_id: 'estimativa_custo_id',
-  cotacao_frete_id: 'cotacao_frete_id',
-  status_embarque: 'status_embarque',
-  tipo_operacao: 'tipo_operacao',
-  referencia_processo: 'referencia_processo',
-  numero_processo: 'numero_processo',
-  responsavel_processo: 'responsavel_processo',
-  responsavel_rotina: 'responsavel_rotina',
-  setor_responsavel: 'setor_responsavel',
-  vendedor_responsavel: 'vendedor_responsavel',
-  canal_parametrizacao: 'canal_parametrizacao',
-  importacao_exportador_id: 'importacao_exportador_id',
-  exportacao_importador_id: 'exportacao_importador_id',
-  agente_carga_id: 'agente_carga_id',
-  armador_id: 'armador_id',
-  cia_aerea_id: 'cia_aerea_id',
-  transportador_rodo_internacional_id: 'transportador_rodo_internacional_id',
-  transportador_rodo_nacional_id: 'transportador_rodo_nacional_id',
-  transportador_ferroviario_id: 'transportador_ferroviario_id',
-  despachante_id: 'despachante_id',
-  armazem_alfandegado_id: 'armazem_alfandegado_id',
-  securadora_internacional_id: 'securadora_internacional_id',
-  banco_id: 'banco_id',
-  corretora_cambio_id: 'corretora_cambio_id',
-  moeda_pedido: 'moeda_pedido',
-  valor_total_pedido: 'valor_total_pedido',
-  incoterm: 'incoterm',
-  premio_seguro_internacional: 'premio_seguro_internacional',
-  modal_frete_internacional: 'modal_frete_internacional',
-  porto_origem: 'porto_origem',
-  porto_transbordo: 'porto_transbordo',
-  porto_destino: 'porto_destino',
-  aeroporto_origem: 'aeroporto_origem',
-  aeroporto_escala: 'aeroporto_escala',
-  aeroporto_destino: 'aeroporto_destino',
-  transit_time_previsto_frete_internacional: 'transit_time_previsto_frete_internacional',
-  moeda_frete_internacional: 'moeda_frete_internacional',
-  tipo_frete_internacional: 'tipo_frete_internacional',
-  proposta_frete_internacional: 'proposta_frete_internacional',
-  valor_frete_internacional_estimado: 'valor_frete_internacional_estimado',
-  valor_total_frete_internacional: 'valor_total_frete_internacional',
-  valor_total_taxas_origem_frete_internacional: 'valor_total_taxas_origem_frete_internacional',
-  valor_total_taxas_destino_frete_internacional: 'valor_total_taxas_destino_frete_internacional',
-  tipo_volume: 'tipo_volume',
-  quantidade_total_volumes: 'quantidade_total_volumes',
-  peso_bruto_total: 'peso_bruto_total',
-  peso_liquido_total: 'peso_liquido_total',
-  data_pedido: 'data_pedido',
-  data_pedido_aberto: 'data_pedido_aberto',
-  data_previsao_pedido: 'data_previsao_pedido',
-  data_pedido_pronto: 'data_pedido_pronto',
-  data_pedido_consolidado: 'data_pedido_consolidado',
-  data_previsao_coleta_pedido_origem: 'data_previsao_coleta_pedido_origem',
-  data_coleta_pedido_origem: 'data_coleta_pedido_origem',
-  data_previsao_entrega_pedido_origem: 'data_previsao_entrega_pedido_origem',
-  data_entrega_pedido_origem: 'data_entrega_pedido_origem',
-  data_previsao_carregamento_container: 'data_previsao_carregamento_container',
-  data_carregamento_container: 'data_carregamento_container',
-  data_previsao_coleta_embarque_origem: 'data_previsao_coleta_embarque_origem',
-  data_coleta_embarque_origem: 'data_coleta_embarque_origem',
-  data_previsao_entrega_embarque_origem: 'data_previsao_entrega_embarque_origem',
-  data_entrega_embarque_origem: 'data_entrega_embarque_origem',
-  data_previsao_coleta_container_origem: 'data_previsao_coleta_container_origem',
-  data_coleta_container_origem: 'data_coleta_container_origem',
-  data_previsao_entrega_container_origem: 'data_previsao_entrega_container_origem',
-  data_entrega_container_origem: 'data_entrega_container_origem',
-  data_previsao_embarque_origem_etd: 'data_previsao_embarque_origem_etd',
-  data_embarque_origem: 'data_embarque_origem',
-  data_previsao_transbordo_embarque: 'data_previsao_transbordo_embarque',
-  data_transbordo_embarque: 'data_transbordo_embarque',
-  data_previsao_chegada_destino_eta: 'data_previsao_chegada_destino_eta',
-  data_chegada_destino_eta: 'data_chegada_destino_eta',
-  data_previsao_presenca_carga_destino: 'data_previsao_presenca_carga_destino',
-  data_presenca_carga_destino: 'data_presenca_carga_destino',
-  data_previsao_registro_duimp: 'data_previsao_registro_duimp',
-  data_registro_duimp: 'data_registro_duimp',
-  data_previsao_liberacao_duimp: 'data_previsao_liberacao_duimp',
-  data_liberacao_duimp: 'data_liberacao_duimp',
-  data_consulta_liberacao_duimp: 'data_consulta_liberacao_duimp',
-  data_previsao_registro_lpco: 'data_previsao_registro_lpco',
-  data_registro_lpco: 'data_registro_lpco',
-  data_deferimento_lpco: 'data_deferimento_lpco',
-  data_indeferimento_lpco: 'data_indeferimento_lpco',
-  data_pendencia_lpco: 'data_pendencia_lpco',
-  data_consulta_liberacao_lpco: 'data_consulta_liberacao_lpco',
-  numero_certificado_origem: 'numero_certificado_origem',
-  numero_bl: 'numero_bl',
-  numero_mbl: 'numero_mbl',
-  numero_hbl: 'numero_hbl',
-  numero_awb: 'numero_awb',
-  numero_mawb: 'numero_mawb',
-  numero_hawb: 'numero_hawb',
-  numero_crt: 'numero_crt',
-  numero_cim: 'numero_cim',
-  numero_ce_mercante: 'numero_ce_mercante',
-  numero_presenca_carga_destino: 'numero_presenca_carga_destino',
-  numero_duimp: 'numero_duimp',
-  numero_nfe: 'numero_nfe',
-  chave_acesso_nfe: 'chave_acesso_nfe',
-  total_imposto_ii: 'total_imposto_ii',
-  total_imposto_ipi: 'total_imposto_ipi',
-  total_imposto_pis: 'total_imposto_pis',
-  total_imposto_cofins: 'total_imposto_cofins',
-  total_imposto_icms: 'total_imposto_icms',
-  detalhes_fiscais: 'detalhes_fiscais',
-  detalhes_logisticos: 'detalhes_logisticos',
-  detalhes_financeiros: 'detalhes_financeiros',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.ProcessoFaturaScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  processo_id: 'processo_id',
-  tipo_fatura: 'tipo_fatura',
-  numero_fatura: 'numero_fatura',
-  moeda_fatura: 'moeda_fatura',
-  valor_total: 'valor_total',
-  valor_pago: 'valor_pago',
-  data_vencimento: 'data_vencimento',
-  status_pagamento: 'status_pagamento'
-};
-
-exports.Prisma.ProcessoItemScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  processo_id: 'processo_id',
-  pedido_item_id: 'pedido_item_id',
-  sequencia_item: 'sequencia_item',
-  part_number: 'part_number',
-  ncm: 'ncm',
-  descricao_po: 'descricao_po',
-  descricao_en: 'descricao_en',
-  quantidade: 'quantidade',
-  unidade_comercializada_item: 'unidade_comercializada_item',
-  valor_unitario: 'valor_unitario',
-  valor_total: 'valor_total',
-  peso_liquido_unitario: 'peso_liquido_unitario',
-  peso_bruto_unitario: 'peso_bruto_unitario',
-  detalhes_do_produto: 'detalhes_do_produto'
-};
-
-exports.Prisma.ProcessoContainerScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  processo_id: 'processo_id',
-  numero_container: 'numero_container',
-  numero_lacre: 'numero_lacre',
-  tipo_container: 'tipo_container',
-  tara: 'tara',
-  peso_bruto: 'peso_bruto',
-  data_devolucao_prevista: 'data_devolucao_prevista',
-  data_devolucao_real: 'data_devolucao_real',
-  local_devolucao: 'local_devolucao'
-};
-
-exports.Prisma.PedidoStatusScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  nome: 'nome',
-  rotulo: 'rotulo',
-  cor: 'cor',
-  icone: 'icone',
-  ordem: 'ordem',
-  is_padrao: 'is_padrao',
-  is_sistema: 'is_sistema',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.PedidoColunaScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  nome: 'nome',
-  rotulo: 'rotulo',
-  tipo: 'tipo',
-  casas_decimais: 'casas_decimais',
-  opcoes: 'opcoes',
-  ordem: 'ordem',
-  filtravel: 'filtravel',
-  exibida_padrao: 'exibida_padrao',
-  index_criado: 'index_criado',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.PedidoPreferenciaUsuarioScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  user_id: 'user_id',
-  colunas_visiveis: 'colunas_visiveis',
-  colunas_largura: 'colunas_largura',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.PedidoPreferenciaPadraoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  colunas_visiveis: 'colunas_visiveis',
-  colunas_largura: 'colunas_largura',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.ConfiguracaoPedidoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  company_id: 'company_id',
-  duplicar_numero_auto: 'duplicar_numero_auto',
-  duplicar_copiar_datas: 'duplicar_copiar_datas',
-  duplicar_status_inicial: 'duplicar_status_inicial',
-  excluir_status_permitidos: 'excluir_status_permitidos',
-  excluir_pedido_sem_item_permitido: 'excluir_pedido_sem_item_permitido',
-  excluir_confirmar_com_preview: 'excluir_confirmar_com_preview',
-  alerta_numero_duplicado: 'alerta_numero_duplicado',
-  alerta_valor_total_divergente: 'alerta_valor_total_divergente',
-  alerta_quantidade_total_divergente: 'alerta_quantidade_total_divergente',
-  alerta_quantidade_pronta_divergente: 'alerta_quantidade_pronta_divergente',
-  alerta_peso_liquido_divergente: 'alerta_peso_liquido_divergente',
-  alerta_peso_bruto_divergente: 'alerta_peso_bruto_divergente',
-  alerta_cubagem_divergente: 'alerta_cubagem_divergente',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.MapeamentoImportScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  hash_colunas: 'hash_colunas',
-  mapeamento: 'mapeamento',
-  uso_count: 'uso_count',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -1073,7 +757,7 @@ exports.Prisma.NcmScheduleConfigScalarFieldEnum = {
   atualizado_em: 'atualizado_em'
 };
 
-exports.Prisma.NotificationScalarFieldEnum = {
+exports.Prisma.NotificacoesTituloCorpoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_id: 'product_id',
@@ -1082,7 +766,10 @@ exports.Prisma.NotificationScalarFieldEnum = {
   title: 'title',
   message: 'message',
   read: 'read',
-  activity_id: 'activity_id',
+  target_entity: 'target_entity',
+  target_id: 'target_id',
+  delivery_status: 'delivery_status',
+  external_id: 'external_id',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -1106,18 +793,6 @@ exports.Prisma.TenantChannelConfigScalarFieldEnum = {
   email_enabled: 'email_enabled',
   whatsapp_enabled: 'whatsapp_enabled',
   updated_by: 'updated_by',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
-exports.Prisma.NotificationPreferencesScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  email_enabled: 'email_enabled',
-  push_enabled: 'push_enabled',
-  wa_enabled: 'wa_enabled',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };
@@ -1242,63 +917,51 @@ exports.NcmSyncOrigem = exports.$Enums.NcmSyncOrigem = {
 };
 
 exports.Prisma.ModelName = {
-  Atividade: 'Atividade',
-  AtividadeParticipante: 'AtividadeParticipante',
-  AtividadeSessaoTimer: 'AtividadeSessaoTimer',
-  TimerSession: 'TimerSession',
-  TimerActive: 'TimerActive',
-  RelatorioTempoCache: 'RelatorioTempoCache',
-  EmailThread: 'EmailThread',
-  EmailMessage: 'EmailMessage',
-  EmailEnviado: 'EmailEnviado',
-  Template: 'Template',
-  FilaEmail: 'FilaEmail',
-  WhatsAppConversation: 'WhatsAppConversation',
-  WhatsAppMessage: 'WhatsAppMessage',
-  WhatsAppUsageLog: 'WhatsAppUsageLog',
-  WhatsAppAutomation: 'WhatsAppAutomation',
-  DashboardConfig: 'DashboardConfig',
-  DashboardWidget: 'DashboardWidget',
-  DashboardMetricSnapshot: 'DashboardMetricSnapshot',
-  DashboardAlert: 'DashboardAlert',
-  DashboardShare: 'DashboardShare',
-  Relatorio: 'Relatorio',
-  ConfigRelatorio: 'ConfigRelatorio',
-  ExportJob: 'ExportJob',
-  HistoryLog: 'HistoryLog',
+  AtividadesDados: 'AtividadesDados',
+  AtividadesParticipantes: 'AtividadesParticipantes',
+  AtividadesTempo: 'AtividadesTempo',
+  AtividadesCronometro: 'AtividadesCronometro',
+  AtividadesTimer: 'AtividadesTimer',
+  TempoCriacaoRelatorio: 'TempoCriacaoRelatorio',
+  EmailAssuntosParticipantes: 'EmailAssuntosParticipantes',
+  EmailMensagem: 'EmailMensagem',
+  EmailRegistroEnvio: 'EmailRegistroEnvio',
+  TemplateEmail: 'TemplateEmail',
+  EmailFilaEnvio: 'EmailFilaEnvio',
+  WhatsappConversa: 'WhatsappConversa',
+  WhatsappMensagem: 'WhatsappMensagem',
+  WhatsappLog: 'WhatsappLog',
+  WhatsappRegra: 'WhatsappRegra',
+  DashboardConfiguracao: 'DashboardConfiguracao',
+  DashboardCriar: 'DashboardCriar',
+  DashboardMetricas: 'DashboardMetricas',
+  DashboardAlertas: 'DashboardAlertas',
+  DashboardCompartilhar: 'DashboardCompartilhar',
+  RelatoriosSalvos: 'RelatoriosSalvos',
+  RelatoriosConfiguracao: 'RelatoriosConfiguracao',
+  ExportarJob: 'ExportarJob',
+  HistoricoLog: 'HistoricoLog',
   AlertRule: 'AlertRule',
   AlertEvent: 'AlertEvent',
   AlertNotificationLog: 'AlertNotificationLog',
-  ExportResult: 'ExportResult',
+  ExportarResultado: 'ExportarResultado',
   Agenda: 'Agenda',
   Slot: 'Slot',
   Reserva: 'Reserva',
   DisponibilidadeConfig: 'DisponibilidadeConfig',
-  GabiConversation: 'GabiConversation',
-  GabiMessage: 'GabiMessage',
-  GabiUsageLog: 'GabiUsageLog',
-  GabiTokenLog: 'GabiTokenLog',
-  GabiTokenQuota: 'GabiTokenQuota',
+  ConversaCompletaGabi: 'ConversaCompletaGabi',
+  MensagemIndividualGabiai: 'MensagemIndividualGabiai',
+  GabiaLogUso: 'GabiaLogUso',
+  GabiaTokenConsumidos: 'GabiaTokenConsumidos',
+  GabiaTokenWorkspace: 'GabiaTokenWorkspace',
+  PersonalizacaoOrganizacaoGabiai: 'PersonalizacaoOrganizacaoGabiai',
   UserPreferences: 'UserPreferences',
-  Pedido: 'Pedido',
-  PedidoItem: 'PedidoItem',
-  Processo: 'Processo',
-  ProcessoFatura: 'ProcessoFatura',
-  ProcessoItem: 'ProcessoItem',
-  ProcessoContainer: 'ProcessoContainer',
-  PedidoStatus: 'PedidoStatus',
-  PedidoColuna: 'PedidoColuna',
-  PedidoPreferenciaUsuario: 'PedidoPreferenciaUsuario',
-  PedidoPreferenciaPadrao: 'PedidoPreferenciaPadrao',
-  ConfiguracaoPedido: 'ConfiguracaoPedido',
-  MapeamentoImport: 'MapeamentoImport',
   NcmItem: 'NcmItem',
   NcmSyncLog: 'NcmSyncLog',
   NcmScheduleConfig: 'NcmScheduleConfig',
-  Notification: 'Notification',
+  NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
   ExternalContact: 'ExternalContact',
-  TenantChannelConfig: 'TenantChannelConfig',
-  NotificationPreferences: 'NotificationPreferences'
+  TenantChannelConfig: 'TenantChannelConfig'
 };
 
 /**

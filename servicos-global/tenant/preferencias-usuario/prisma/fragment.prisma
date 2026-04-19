@@ -35,4 +35,5 @@ model UserPreferences {
   @@index([user_id])
   @@index([tenant_id])
   @@index([tenant_id, user_id])
+  @@map("preferencia_workspace")
 }

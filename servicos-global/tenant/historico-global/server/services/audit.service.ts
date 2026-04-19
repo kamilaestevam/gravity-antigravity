@@ -131,7 +131,7 @@ export const AuditService = {
     const createdAt = new Date()
     const integrity_hash = computeIntegrityHash(input, createdAt)
 
-    const log = await getPrisma().historyLog.create({
+    const log = await getPrisma().historicoLog.create({
       data: {
         tenant_id: input.tenant_id,
         actor_type: input.actor_type,

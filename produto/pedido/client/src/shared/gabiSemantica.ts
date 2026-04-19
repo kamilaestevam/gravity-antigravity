@@ -27,10 +27,10 @@ export interface MetaCampo {
 }
 
 export const SEMANTICA_CAMPOS: Record<string, MetaCampo> = {
-  quantidade_total_inicial_pedido:      { label: 'Quantidade Inicial',     unidade: 'qtd',  papel: 'total' },
-  quantidade_cancelada_total_pedido:    { label: 'Quantidade Cancelada',   unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
-  quantidade_transferida_total:         { label: 'Quantidade Transferida', unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
-  quantidade_pronta_itens_pedido_total: { label: 'Quantidade Pronta',      unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_inicial_pedido' },
+  quantidade_total_pedido:      { label: 'Quantidade Inicial',     unidade: 'qtd',  papel: 'total' },
+  quantidade_cancelada_total_pedido:    { label: 'Quantidade Cancelada',   unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_pedido' },
+  quantidade_transferida_total:         { label: 'Quantidade Transferida', unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_pedido' },
+  quantidade_pronta_itens_pedido_total: { label: 'Quantidade Pronta',      unidade: 'qtd',  papel: 'parcela', parcelaDe: 'quantidade_total_pedido' },
   saldo_itens_do_pedido:               { label: 'Saldo',                  unidade: 'qtd',  papel: 'calculado' },
   valor_total:                         { label: 'Valor Total',            unidade: 'fin',  papel: 'total' },
   peso_liquido_total_pedido:           { label: 'Peso Líquido',           unidade: 'peso', papel: 'total' },

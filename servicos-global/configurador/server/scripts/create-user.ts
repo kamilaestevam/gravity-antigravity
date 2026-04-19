@@ -20,19 +20,19 @@ async function main() {
     process.exit(1)
   }
 
-  const existing = await prisma.user.findFirst({ where: { email } })
+  const existing = await prisma.usuario.findFirst({ where: { email } })
   if (existing) {
     console.log(`Usuário já existe: ${existing.email} | role: ${existing.role} | tenant: ${existing.tenant_id}`)
     process.exit(0)
   }
 
-  const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } })
+  const tenant = await prisma.organizacao.findUnique({ where: { id: tenantId } })
   if (!tenant) {
-    console.error(`Tenant ${tenantId} não encontrado.`)
+    console.error(`Organizacao ${tenantId} não encontrado.`)
     process.exit(1)
   }
 
-  const user = await prisma.user.create({
+  const user = await prisma.usuario.create({
     data: {
       email,
       name: email.split('@')[0],
@@ -46,7 +46,7 @@ async function main() {
   console.log(`  ID:       ${user.id}`)
   console.log(`  Email:    ${user.email}`)
   console.log(`  Role:     ${user.role}`)
-  console.log(`  Tenant:   ${user.tenant_id}`)
+  console.log(`  Organizacao:   ${user.tenant_id}`)
   console.log(`\nQuando fizer login, o requireAuth vai auto-vincular o clerk_user_id pelo email.`)
 }
 

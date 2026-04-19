@@ -29,20 +29,21 @@ const internalCreateSchema = z.object({
   title: z.string().min(1).max(200),
   message: z.string().min(1).max(2000),
   product_id: z.string().min(1).optional(),
-  activity_id: z.string().min(1).max(2000).optional(),
+  target_entity: z.string().min(1).optional(),
+  target_id: z.string().min(1).optional(),
 })
 
 export type InternalNotificationPayload = z.infer<typeof internalCreateSchema>
 
 // ─── POST /api/v1/notificacoes/internal ──────────────────────────────────────
 // Cria uma notificação para cada user_id no array. Retorna o total criado.
-// O campo activity_id serve como deep link — o frontend navega para essa rota
-// quando o usuário clica na notificação.
+// Salva target_entity + target_id (nunca URLs) — frontend monta o link via
+// buildEntityLink() na renderização.
 internalRoutes.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body = internalCreateSchema.parse(req.body)
 
-    const created = await prisma.notification.createMany({
+    const created = await prisma.notificacoesTituloCorpo.createMany({
       data: body.user_ids.map((uid) => ({
         tenant_id: body.tenant_id,
         user_id: uid,
@@ -50,7 +51,8 @@ internalRoutes.post('/', async (req: Request, res: Response, next: NextFunction)
         type: body.type,
         title: body.title,
         message: body.message,
-        activity_id: body.activity_id ?? null,
+        target_entity: body.target_entity ?? null,
+        target_id: body.target_id ?? null,
       })),
     })
 

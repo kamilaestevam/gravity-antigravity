@@ -24,14 +24,14 @@ async function main() {
   console.log('🧹 Limpando tenants de seed...\n')
 
   for (const slug of SLUGS_TO_DELETE) {
-    const tenant = await prisma.tenant.findUnique({ where: { slug } })
+    const tenant = await prisma.organizacao.findUnique({ where: { slug } })
 
     if (!tenant) {
       console.log(`⚠  ${slug} — não encontrado, pulando`)
       continue
     }
 
-    await prisma.tenant.delete({ where: { id: tenant.id } })
+    await prisma.organizacao.delete({ where: { id: tenant.id } })
     console.log(`✓  ${slug} deletado (${tenant.id})`)
   }
 

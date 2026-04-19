@@ -26,7 +26,7 @@ exportacaoRouter.post('/api/v1/relatorios/:report_id/export', authMiddleware, as
     const { formato, productId } = parse.data;
 
     // Enfileira job
-    const job = await prisma.exportJob.create({
+    const job = await prisma.exportarJob.create({
       data: {
         tenant_id: tenantId,
         user_id: userId || '',
@@ -56,7 +56,7 @@ exportacaoRouter.get('/api/v1/relatorios/export/:jobId', authMiddleware, async (
     const { tenantId, userId } = req.auth;
     const { jobId } = req.params;
 
-    const job = await prisma.exportJob.findFirst({
+    const job = await prisma.exportarJob.findFirst({
       where: {
         id: jobId,
         tenant_id: tenantId,

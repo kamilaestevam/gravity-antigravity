@@ -6,10 +6,10 @@
 // O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
-// GabiConversation — conversa principal da Gabi com o usuário no tenant
+// ConversaCompletaGabi — conversa principal da Gabi com o usuário no tenant
 // ---------------------------------------------------------------------------
 
-model GabiConversation {
+model ConversaCompletaGabi {
   id         String @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -20,25 +20,26 @@ model GabiConversation {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  messages   GabiMessage[]
+  messages   MensagemIndividualGabiai[]
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("conversa_completa_gabi")
 }
 
 // ---------------------------------------------------------------------------
-// GabiMessage — mensagem individual da conversa
+// MensagemIndividualGabiai — mensagem individual da conversa
 // ---------------------------------------------------------------------------
 
-model GabiMessage {
+model MensagemIndividualGabiai {
   id              String @id @default(cuid())
   tenant_id       String
   product_id      String?
   user_id         String?
 
   conversation_id String
-  conversation    GabiConversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  conversation    ConversaCompletaGabi @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
 
   role            String   // 'user' | 'assistant' | 'system'
   content         String   @db.Text
@@ -51,15 +52,16 @@ model GabiMessage {
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@index([conversation_id])
+  @@map("mensagem_individual_gabiai")
 }
 
 // ---------------------------------------------------------------------------
-// GabiUsageLog (SnapshotAuditoria) — auditoria obrigatória de toda execução
+// GabiaLogUso (SnapshotAuditoria) — auditoria obrigatória de toda execução
 // Campos model_used/tokens_input/tokens_output/cost_usd adicionados para
 // compatibilidade com usage.ts
 // ---------------------------------------------------------------------------
 
-model GabiUsageLog {
+model GabiaLogUso {
   id                    String @id @default(cuid())
   tenant_id             String
   product_id            String?
@@ -81,13 +83,14 @@ model GabiUsageLog {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("gabiai_log_uso")
 }
 
 // ---------------------------------------------------------------------------
-// GabiTokenLog — registro de cada chamada field-help (on-demand)
+// GabiaTokenConsumidos — registro de cada chamada field-help (on-demand)
 // ---------------------------------------------------------------------------
 
-model GabiTokenLog {
+model GabiaTokenConsumidos {
   id             String   @id @default(cuid())
   tenant_id      String
   product_id     String
@@ -102,13 +105,14 @@ model GabiTokenLog {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, mes_ref])
+  @@map("gabiai_token_consumidos")
 }
 
 // ---------------------------------------------------------------------------
-// GabiTokenQuota — quota mensal por tenant (verificada em tempo real)
+// GabiaTokenWorkspace — quota mensal por tenant (verificada em tempo real)
 // ---------------------------------------------------------------------------
 
-model GabiTokenQuota {
+model GabiaTokenWorkspace {
   id             String   @id @default(cuid())
   tenant_id      String
   product_id     String
@@ -121,4 +125,25 @@ model GabiTokenQuota {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, mes_ref])
+  @@map("gabiai_token_workspace")
+}
+
+// ---------------------------------------------------------------------------
+// PersonalizacaoOrganizacaoGabiai — persona/comportamento Gabi por tenant
+// ---------------------------------------------------------------------------
+
+model PersonalizacaoOrganizacaoGabiai {
+  id                String   @id @default(cuid())
+  tenant_id         String   @unique
+  product_id        String?
+  system_prompt     String?  @db.Text
+  tom_voz           String?
+  limitacoes        String?  @db.Text
+  instrucoes_extras String?  @db.Text
+  ativo             Boolean  @default(true)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@map("personalizacao_organizacao_gabiai")
 }

@@ -9,49 +9,49 @@ datasource db {
 }
 
 model Pedido {
-  id                               String              @id
+  id                               String                      @id
   tenant_id                        String
   company_id                       String
   tipo_operacao                    String
   numero_pedido                    String
-  status                           String              @default("draft")
+  status                           String                      @default("draft")
   status_id                        String?
   importacao_exportador_id         String?
   exportacao_importador_id         String?
   fabricante_id                    String?
   incoterm                         String?
-  moeda_pedido                     String              @default("USD")
-  valor_total_pedido               Decimal?            @db.Decimal(18, 6)
-  casas_decimais_valor_pedido      Int                 @default(2)
-  quantidade_total_inicial_pedido  Decimal?            @db.Decimal(18, 6)
-  casas_decimais_quantidade_pedido Int                 @default(2)
+  moeda_pedido                     String                      @default("USD")
+  valor_total_pedido               Decimal?                    @db.Decimal(18, 6)
+  casas_decimais_valor_pedido      Int                         @default(2)
+  quantidade_total_pedido          Decimal?                    @db.Decimal(18, 6)
+  casas_decimais_quantidade_pedido Int                         @default(2)
   unidade_comercializada_pedido    String?
-  condicao_pagamento_pedido        String?
+  condicao_pagamento               String?
   numero_proforma                  String?
   numero_invoice                   String?
   referencia_importador            String?
   referencia_exportador            String?
   referencia_fabricante            String?
-  valor_total_cambio_pedido        Decimal?            @db.Decimal(18, 6)
+  valor_total_cambio_pedido        Decimal?                    @db.Decimal(18, 6)
   moeda_cambio_pedido              String?
-  taxa_cambio_estimada_pedido      Decimal?            @db.Decimal(18, 6)
+  taxa_cambio_estimada             Decimal?                    @db.Decimal(18, 6)
   contrato_cambio_id_pedido        String?
-  data_emissao_pedido              DateTime            @default(now())
+  data_emissao_pedido              DateTime                    @default(now())
   detalhes_operacionais            Json?
   campos_custom                    Json?
   pedidos_origem_id                Json?
   cnpj_importador                  String?
   data_consolidacao_pedido         DateTime?
   deleted_at                       DateTime?
-  peso_liquido_total_pedido        Decimal?            @db.Decimal(18, 6)
-  peso_bruto_total_pedido          Decimal?            @db.Decimal(18, 6)
-  cubagem_total_pedido             Decimal?            @db.Decimal(18, 6)
-  casas_decimais_peso_pedido       Int                 @default(3)
-  casas_decimais_cubagem_pedido    Int                 @default(3)
-  pedido_criado_em                 DateTime            @default(now())
-  pedido_atualizado_em             DateTime            @updatedAt
+  peso_liquido_total_pedido        Decimal?                    @db.Decimal(18, 6)
+  peso_bruto_total_pedido          Decimal?                    @db.Decimal(18, 6)
+  cubagem_total_pedido             Decimal?                    @db.Decimal(18, 6)
+  casas_decimais_peso_pedido       Int                         @default(3)
+  casas_decimais_cubagem_pedido    Int                         @default(3)
+  created_at                       DateTime                    @default(now())
+  updated_at                       DateTime                    @updatedAt
   itens                            PedidoItem[]
-  transferencias                   TransferHistorico[]
+  transferencias                   TrackingItemsTransferidos[]
 
   @@unique([tenant_id, numero_pedido])
   @@index([tenant_id])
@@ -61,49 +61,49 @@ model Pedido {
   @@index([tenant_id, tipo_operacao])
   @@index([tenant_id, data_emissao_pedido])
   @@index([tenant_id, deleted_at])
-  @@map("pedidos_comerciais")
+  @@map("pedido_produto_gravity")
 }
 
 model PedidoItem {
-  id                                  String         @id
-  tenant_id                           String
-  company_id                          String
-  pedido_id                           String
-  sequencia_item                      Int?
-  part_number                         String
-  ncm                                 String
-  descricao_item                      String
-  unidade_comercializada_item         String?
-  quantidade_inicial_item_pedido      Decimal        @db.Decimal(18, 6)
-  saldo_item_pedido                   Decimal        @db.Decimal(18, 6)
-  quantidade_pronta_total_item_pedido Decimal        @default(0) @db.Decimal(18, 6)
-  quantidade_transferida_item_pedido  Decimal        @default(0) @db.Decimal(18, 6)
-  quantidade_cancelada_item_pedido    Decimal        @default(0) @db.Decimal(18, 6)
-  casas_decimais_quantidade_item      Int            @default(2)
-  moeda_item                          String         @default("USD")
-  valor_total_itens                   Decimal?       @db.Decimal(18, 6)
-  valor_unitario_item                 Decimal?       @db.Decimal(18, 6)
-  casas_decimais_valor_item           Int            @default(2)
-  cobertura_cambial                   String         @default("com_cobertura")
-  nome_exportador                     String?
-  nome_importador                     String?
-  nome_fabricante                     String?
-  referencia_importador               String?
-  referencia_exportador               String?
-  referencia_fabricante               String?
-  incoterm                            String?
-  condicao_pagamento_pedido           String?
-  data_emissao_pedido                 DateTime?
-  peso_liquido_unitario_item          Decimal?       @db.Decimal(18, 6)
-  peso_bruto_unitario_item            Decimal?       @db.Decimal(18, 6)
-  cubagem_unitaria_item               Decimal?       @db.Decimal(18, 6)
-  casas_decimais_peso_item            Int            @default(3)
-  casas_decimais_cubagem_item         Int            @default(3)
-  campos_custom                       Json?
-  item_criado_em                      DateTime       @default(now())
-  item_atualizado_em                  DateTime       @updatedAt
-  pedido                              Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
-  embarques_efetivos                  ProcessoItem[]
+  id                             String         @id
+  tenant_id                      String
+  company_id                     String
+  pedido_id                      String
+  sequencia_item                 Int?
+  part_number                    String
+  ncm                            String
+  descricao_item                 String
+  unidade_comercializada_item    String?
+  quantidade_inicial_pedido      Decimal        @db.Decimal(18, 6)
+  quantidade_atual_pedido        Decimal        @db.Decimal(18, 6)
+  quantidade_pronta_pedido       Decimal        @default(0) @db.Decimal(18, 6)
+  quantidade_transferida_pedido  Decimal        @default(0) @db.Decimal(18, 6)
+  quantidade_cancelada_pedido    Decimal        @default(0) @db.Decimal(18, 6)
+  casas_decimais_quantidade_item Int            @default(2)
+  moeda_item                     String         @default("USD")
+  valor_total_item               Decimal?       @db.Decimal(18, 6)
+  valor_por_unidade_item         Decimal?       @db.Decimal(18, 6)
+  casas_decimais_valor_item      Int            @default(2)
+  cobertura_cambial              String         @default("com_cobertura")
+  nome_exportador                String?
+  nome_importador                String?
+  nome_fabricante                String?
+  referencia_importador          String?
+  referencia_exportador          String?
+  referencia_fabricante          String?
+  incoterm                       String?
+  condicao_pagamento_pedido      String?
+  data_emissao_pedido            DateTime?
+  peso_liquido_unitario          Decimal?       @db.Decimal(18, 6)
+  peso_bruto_unitario            Decimal?       @db.Decimal(18, 6)
+  cubagem_unitaria               Decimal?       @db.Decimal(18, 6)
+  casas_decimais_peso_item       Int            @default(3)
+  casas_decimais_cubagem_item    Int            @default(3)
+  campos_custom                  Json?
+  created_at                     DateTime       @default(now())
+  updated_at                     DateTime       @updatedAt
+  pedido                         Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  embarques_efetivos             ProcessoItem[]
 
   @@index([tenant_id])
   @@index([tenant_id, company_id])
@@ -120,7 +120,7 @@ model Processo {
   status_embarque                               String              @default("aberto")
   tipo_operacao                                 String
   referencia_processo                           String?
-  numero_processo                               String?
+  id_processo                                   String?
   responsavel_processo                          String?
   responsavel_rotina                            String?
   setor_responsavel                             String?
@@ -231,7 +231,7 @@ model Processo {
   @@index([tenant_id])
   @@index([company_id])
   @@index([tenant_id, company_id])
-  @@map("processos_logisticos")
+  @@map("tabela_processos")
 }
 
 model ProcessoFatura {
@@ -250,7 +250,7 @@ model ProcessoFatura {
 
   @@index([tenant_id, company_id])
   @@index([tenant_id, processo_id])
-  @@map("processo_faturas")
+  @@map("fatura_processo")
 }
 
 model ProcessoItem {
@@ -277,27 +277,29 @@ model ProcessoItem {
   @@index([tenant_id, company_id])
   @@index([processo_id])
   @@index([pedido_item_id])
-  @@map("processo_itens")
+  @@map("logistica_processo")
 }
 
 model ProcessoContainer {
-  id                      String    @id
-  tenant_id               String
-  company_id              String
-  processo_id             String
-  numero_container        String
-  numero_lacre            String?
-  tipo_container          String
-  tara                    Decimal?  @db.Decimal(18, 6)
-  peso_bruto              Decimal?  @db.Decimal(18, 6)
-  data_devolucao_prevista DateTime?
-  data_devolucao_real     DateTime?
-  local_devolucao         String?
-  processo                Processo  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+  id                        String    @id
+  tenant_id                 String
+  company_id                String
+  processo_id               String
+  container_numero          String
+  container_lacre           String?
+  container_tipo            String
+  container_tara            Decimal?  @db.Decimal(18, 6)
+  container_peso_bruto      Decimal?  @db.Decimal(18, 6)
+  container_peso_liquido    Decimal?  @db.Decimal(18, 6)
+  container_metragem_cubica Decimal?  @db.Decimal(18, 6)
+  data_devolucao_prevista   DateTime?
+  data_devolucao_real       DateTime?
+  local_devolucao           String?
+  processo                  Processo  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id, company_id])
   @@index([processo_id])
-  @@map("processo_containers")
+  @@map("container_processo")
 }
 
 model PedidoStatus {
@@ -317,7 +319,7 @@ model PedidoStatus {
   @@unique([tenant_id, nome])
   @@index([tenant_id])
   @@index([tenant_id, company_id])
-  @@map("pedido_status")
+  @@map("status_pedido")
 }
 
 model PedidoColuna {
@@ -354,7 +356,7 @@ model PedidoPreferenciaUsuario {
   @@unique([tenant_id, user_id])
   @@index([tenant_id])
   @@index([tenant_id, user_id])
-  @@map("pedido_preferencias_usuario")
+  @@map("preferencia_coluna_pedido")
 }
 
 model PedidoPreferenciaPadrao {
@@ -366,10 +368,10 @@ model PedidoPreferenciaPadrao {
   updated_at       DateTime @updatedAt
 
   @@index([tenant_id])
-  @@map("pedido_preferencias_padrao")
+  @@map("preferencia_padrao_pedido")
 }
 
-model MapeamentoImport {
+model AprendizadoImportacaoDados {
   id           String   @id @default(cuid())
   tenant_id    String
   product_id   String?
@@ -384,10 +386,10 @@ model MapeamentoImport {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
-  @@map("mapeamento_import")
+  @@map("aprendizado_importacao_dados")
 }
 
-model PedidoAnexo {
+model AnexoPedido {
   id            String   @id @default(cuid())
   tenant_id     String
   product_id    String?
@@ -405,10 +407,10 @@ model PedidoAnexo {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, vinculo_id])
-  @@map("pedido_anexos")
+  @@map("anexo_pedido")
 }
 
-model PedidoTemplatePdf {
+model TemplatePedidoPdf {
   id            String   @id @default(cuid())
   tenant_id     String
   product_id    String?
@@ -420,10 +422,10 @@ model PedidoTemplatePdf {
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
-  @@map("pedido_templates_pdf")
+  @@map("template_pedido_pdf")
 }
 
-model TransferHistorico {
+model TrackingItemsTransferidos {
   id                          String    @id @default(cuid())
   tenant_id                   String
   product_id                  String?
@@ -442,7 +444,7 @@ model TransferHistorico {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, pedido_origem_id])
-  @@map("transfer_historico")
+  @@map("tracking_items_transferidos")
 }
 
 model ColunaUsuarioPedido {
@@ -470,7 +472,7 @@ model ColunaUsuarioPedido {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, ativo])
-  @@map("colunas_usuario_pedido")
+  @@map("coluna_usuario_pedido")
 }
 
 model ValorColunaUsuarioPedido {
@@ -487,12 +489,8 @@ model ValorColunaUsuarioPedido {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, vinculo_id])
-  @@map("valores_colunas_usuario_pedido")
+  @@map("valor_coluna_usuario_pedido")
 }
-
-// ============================================
-// Pedido — Kanban Preferências por usuário
-// ============================================
 
 model KanbanPreferencias {
   id           String   @id @default(cuid())
@@ -509,12 +507,10 @@ model KanbanPreferencias {
 }
 
 /// Configuração de widgets do Dashboard por tenant/produto.
-/// Persiste o layout e configuração de widgets escolhidos pelo usuário.
-model DashboardConfig {
+model DashboardPreferencias {
   id           String   @id @default(cuid())
   tenant_id    String
   product_id   String
-  /// JSON serializado: DashboardWidgetConfig[]
   widgets_json String   @default("[]") @db.Text
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
@@ -522,14 +518,11 @@ model DashboardConfig {
   @@unique([tenant_id, product_id])
   @@index([tenant_id])
   @@index([tenant_id, product_id])
-  @@map("dashboard_config")
+  @@map("dashboard_preferencias")
 }
 
 /// Configuração de casas decimais e formato de data por workspace (tenant).
-/// Um registro por tenant — define quantas casas decimais cada campo numérico do pedido armazena
-/// e o formato de exibição de datas (ex: DD/MM/AAAA, MM/DD/AAAA, AAAA-MM-DD).
-/// Itens herdam automaticamente as casas decimais do pedido pai.
-model PedidoCasasDecimaisConfig {
+model PedidoCasasDecimais {
   id         String  @id @default(cuid())
   tenant_id  String  @unique
   product_id String?
@@ -545,7 +538,6 @@ model PedidoCasasDecimaisConfig {
   peso_bruto_total_pedido           Int @default(3)
   cubagem_total_pedido              Int @default(3)
 
-  /// Formato de exibição de datas. Padrão: DD/MM/AAAA (Brasil/Europa)
   formato_data String @default("DD/MM/AAAA")
 
   created_at DateTime @default(now())
@@ -553,31 +545,15 @@ model PedidoCasasDecimaisConfig {
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
-  @@map("pedido_casas_decimais_config")
+  @@map("pedido_casas_decimais")
 }
 
 /// Configuração da fórmula do Saldo do Pedido por workspace (tenant).
-/// Um registro por tenant — espelha o padrão de PedidoCasasDecimaisConfig.
-///
-/// A fórmula é armazenada em forma de chave (field_name = referência direta ao
-/// campo, não alias legível). Ex.:
-///   "quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido"
-///
-/// Campos disponíveis (tokens aceitos pelo parser):
-///   quantidade_total_inicial_pedido, quantidade_cancelada_total_pedido,
-///   quantidade_transferida_total, quantidade_pronta_itens_pedido_total,
-///   saldo_itens_do_pedido, valor_total, peso_liquido_total_pedido,
-///   peso_bruto_total_pedido, cubagem_total_pedido
-///
-/// A avaliação vive em produto/pedido/server/src/services/formulaEngine.ts
-/// (port do client — MANTER EM SINCRONIA com produto/pedido/client/src/shared/formulaEngine.ts).
-model PedidoSaldoFormulaConfig {
+model PedidoSaldoFormula {
   id         String  @id @default(cuid())
   tenant_id  String  @unique
   product_id String?
 
-  /// Expressão da fórmula em forma de chave (nunca alias legível).
-  /// Default replica o SALDO_FORMULA_PADRAO do client.
   formula_expressao String @default("quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido")
 
   created_at DateTime @default(now())
@@ -585,10 +561,10 @@ model PedidoSaldoFormulaConfig {
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
-  @@map("pedido_saldo_formula_config")
+  @@map("pedido_saldo_formula")
 }
 
-/// Painéis do Dashboard por usuário — cada painel tem seu próprio conjunto de widgets.
+/// Painéis do Dashboard por usuário.
 model DashboardPainel {
   id           String   @id @default(cuid())
   tenant_id    String
@@ -596,22 +572,18 @@ model DashboardPainel {
   nome         String
   ordem        Int      @default(0)
   is_visivel   Boolean  @default(true)
-  /// JSON serializado: DashboardWidgetConfig[]
   widgets_json String   @default("[]") @db.Text
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, user_id])
-  @@map("dashboard_paineis")
+  @@map("dashboard_painel")
 }
 
 // ============================================
 // Enums de proteção estrutural
 // ============================================
-// Declarados neste schema mas ainda NÃO usados pelos campos do model Pedido.
-// Uma segunda migration trocará os tipos String atuais por estes enums
-// depois que dados sujos forem limpos via seed --clean.
 
 enum StatusPedido {
   draft

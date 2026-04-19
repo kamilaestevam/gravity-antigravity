@@ -8,7 +8,7 @@
 // Endpoint URL: https://<seu-dominio>/api/v1/webhooks/clerk
 //
 // Eventos que DEVEM estar habilitados:
-//   Categoria "User":
+//   Categoria "Usuario":
 //     ✅ user.created
 //     ✅ user.updated
 //     ✅ user.deleted
@@ -88,7 +88,7 @@ authRouter.post('/clerk', async (req, res, next) => {
 
     if (type === 'user.created') {
       // Verifica se o usuário já existe (idempotência)
-      const existing = await prisma.user.findFirst({
+      const existing = await prisma.usuario.findFirst({
         where: { clerk_user_id: data.id },
       })
       if (!existing) {
@@ -98,7 +98,7 @@ authRouter.post('/clerk', async (req, res, next) => {
     }
 
     if (type === 'user.updated' && primaryEmail) {
-      await prisma.user.updateMany({
+      await prisma.usuario.updateMany({
         where: { clerk_user_id: data.id },
         data: {
           email: primaryEmail,
@@ -109,7 +109,7 @@ authRouter.post('/clerk', async (req, res, next) => {
     }
 
     if (type === 'user.deleted') {
-      await prisma.user.deleteMany({
+      await prisma.usuario.deleteMany({
         where: { clerk_user_id: data.id },
       })
     }
@@ -118,7 +118,7 @@ authRouter.post('/clerk', async (req, res, next) => {
     if (type === 'session.created' && data.user_id) {
       setImmediate(async () => {
         try {
-          const user = await prisma.user.findFirst({
+          const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
             select: { id: true, tenant_id: true, email: true, name: true },
           })
@@ -144,7 +144,7 @@ authRouter.post('/clerk', async (req, res, next) => {
     if (type === 'session.ended' && data.user_id) {
       setImmediate(async () => {
         try {
-          const user = await prisma.user.findFirst({
+          const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
             select: { id: true, tenant_id: true, email: true, name: true },
           })
@@ -170,7 +170,7 @@ authRouter.post('/clerk', async (req, res, next) => {
     if (type === 'session.revoked' && data.user_id) {
       setImmediate(async () => {
         try {
-          const user = await prisma.user.findFirst({
+          const user = await prisma.usuario.findFirst({
             where: { clerk_user_id: data.user_id },
             select: { id: true, tenant_id: true, email: true, name: true },
           })

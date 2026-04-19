@@ -1,4 +1,4 @@
-model HistoryLog {
+model HistoricoLog {
   id             String      @id @default(cuid())
   tenant_id      String
 
@@ -41,6 +41,7 @@ model HistoryLog {
   @@index([tenant_id, created_at])
   @@index([tenant_id, module, created_at])
   @@index([actor_id, created_at])
+  @@map("historico_log")
 }
 
 model AlertRule {
@@ -77,6 +78,7 @@ model AlertRule {
   alerts                   AlertEvent[]
 
   @@index([tenant_id, enabled])
+  @@map("alerta_regra")
 }
 
 model AlertEvent {
@@ -105,6 +107,7 @@ model AlertEvent {
 
   @@index([tenant_id, status])
   @@index([tenant_id, created_at])
+  @@map("alerta_data")
 }
 
 model AlertNotificationLog {
@@ -122,6 +125,7 @@ model AlertNotificationLog {
   created_at     DateTime   @default(now())
 
   @@index([alert_event_id])
+  @@map("alerta_registro")
 }
 
 enum ActorType {
@@ -146,7 +150,7 @@ enum AlertStatus {
 
 /// Resultado de exportação em background (acima de 10k registros).
 /// Persiste no banco para sobreviver a restarts do Railway (alternativa ao /tmp).
-model ExportResult {
+model ExportarResultado {
   id           String   @id @default(cuid())
   tenant_id    String
   format       String   // 'csv' | 'json'
@@ -160,4 +164,5 @@ model ExportResult {
 
   @@index([tenant_id, status])
   @@index([expires_at])
+  @@map("exportar_resultado")
 }

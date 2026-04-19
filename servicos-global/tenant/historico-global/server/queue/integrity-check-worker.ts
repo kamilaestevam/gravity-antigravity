@@ -116,7 +116,7 @@ export async function startIntegrityCheckWorker(): Promise<void> {
 }
 
 async function checkBatch(opts: { tenant_id?: string; offset: number }): Promise<IntegrityResult> {
-  const logs = await prisma.historyLog.findMany({
+  const logs = await prisma.historicoLog.findMany({
     where: opts.tenant_id ? { tenant_id: opts.tenant_id } : undefined,
     orderBy: { created_at: 'asc' },
     skip: opts.offset,

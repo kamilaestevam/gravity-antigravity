@@ -21,7 +21,7 @@ export const permissionsService = {
     const { tenantId, userId, resource, action, companyId, productId } = input
 
     // Busca usuário e sua role global
-    const user = await prisma.user.findFirst({
+    const user = await prisma.usuario.findFirst({
       where: { id: userId, tenant_id: tenantId },
       select: { role: true },
     })
@@ -40,7 +40,7 @@ export const permissionsService = {
     // O código da permissão é composto por resource:action (ex: email:write)
     const permissionKey = `${resource}:${action.toLowerCase()}`
 
-    const permission = await prisma.userPermission.findFirst({
+    const permission = await prisma.usuarioPermissao.findFirst({
       where: {
         tenant_id: tenantId,
         company_id: companyId,
@@ -57,7 +57,7 @@ export const permissionsService = {
    * Lista todas as permissões de um usuário no tenant/workspace
    */
   async getUserPermissions(tenantId: string, userId: string, companyId?: string) {
-    return prisma.userPermission.findMany({
+    return prisma.usuarioPermissao.findMany({
       where: {
         tenant_id: tenantId,
         user_id: userId,
@@ -85,7 +85,7 @@ export const permissionsService = {
   ) {
     await prisma.$transaction([
       // Limpa permissões antigas do produto neste workspace
-      prisma.userPermission.deleteMany({
+      prisma.usuarioPermissao.deleteMany({
         where: {
           tenant_id: tenantId,
           company_id: companyId,
@@ -95,7 +95,7 @@ export const permissionsService = {
       }),
       // Insere novas
       ...permissions.map((p) =>
-        prisma.userPermission.create({
+        prisma.usuarioPermissao.create({
           data: {
             tenant_id: tenantId,
             company_id: companyId,

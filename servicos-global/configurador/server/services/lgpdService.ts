@@ -122,7 +122,7 @@ export async function deleteUserData(
   }
 
   // Exclusao real — em transacao para atomicidade
-  await prisma.$transaction(async (tx: any) => {
+  await prisma.$transaction(async (tx) => {
     // 1. Permissoes do usuario
     await deleteFrom('userPermission', { tenant_id: tenantId, user_id: userId })
 
@@ -135,7 +135,7 @@ export async function deleteUserData(
       tablesAffected.push('historyLog (anonimizado)')
     } catch { /* tabela pode nao existir */ }
 
-    // 3. User record (por ultimo)
+    // 3. Usuario record (por ultimo)
     await deleteFrom('user', { tenant_id: tenantId, clerk_user_id: userId })
   })
 
@@ -153,14 +153,14 @@ export async function deleteUserData(
  * Usado pelo painel Admin para mostrar o impacto antes da exclusao.
  */
 export const USER_DATA_MAP = {
-  configurador: ['User', 'UserPermission', 'Subscription'],
+  configurador: ['Usuario', 'UsuarioPermissao', 'AssinaturaProdutoGravity'],
   tenant: {
     atividades: ['Atividade', 'Contato'],
     cronometro: ['TimerSession', 'TimerActive', 'RelatorioTempoCache'],
     email: ['EmailThread', 'EmailMessage', 'Template'],
     notificacoes: ['Notification', 'NotificationPreference'],
     relatorios: ['Relatorio', 'ExportJob'],
-    historico: ['HistoryLog (anonimizado, nao deletado)'],
+    historico: ['HistoricoLog (anonimizado, nao deletado)'],
   },
   produtos: {
     'bid-frete': ['Cotacao', 'BidRequest', 'Avaliacao', 'Saving'],

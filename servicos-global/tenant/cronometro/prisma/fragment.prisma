@@ -6,11 +6,11 @@
 // O Coordenador compõe o schema final via scripts/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
-// TimerSession
+// AtividadesCronometro
 // Sessão de tempo registrada (concluída ou manual).
 // ---------------------------------------------------------------------------
 
-model TimerSession {
+model AtividadesCronometro {
   id         String  @id @default(cuid())
 
   // Campos de isolamento — obrigatórios
@@ -45,15 +45,16 @@ model TimerSession {
   @@index([tenant_id, user_id, started_at])
   // Índice extra para queries por atividade
   @@index([tenant_id, activity_id])
+  @@map("atividades_cronometro")
 }
 
 // ---------------------------------------------------------------------------
-// TimerActive
+// AtividadesTimer
 // Estado do timer em execução (um por usuário).
-// Removido quando a sessão é finalizada — o histórico fica em TimerSession.
+// Removido quando a sessão é finalizada — o histórico fica em AtividadesCronometro.
 // ---------------------------------------------------------------------------
 
-model TimerActive {
+model AtividadesTimer {
   id         String  @id @default(cuid())
 
   // Campos de isolamento
@@ -76,14 +77,15 @@ model TimerActive {
   @@index([tenant_id])
   @@index([tenant_id, user_id])
   @@index([user_id])
+  @@map("atividades_timer")
 }
 
 // ---------------------------------------------------------------------------
-// RelatorioTempoCache
+// TempoCriacaoRelatorio
 // Cache de relatórios de tempo pré-computados para performance.
 // ---------------------------------------------------------------------------
 
-model RelatorioTempoCache {
+model TempoCriacaoRelatorio {
   id        String @id @default(cuid())
 
   tenant_id  String
@@ -102,4 +104,5 @@ model RelatorioTempoCache {
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, periodo_inicio, periodo_fim])
+  @@map("tempo_criacao_relatorio")
 }

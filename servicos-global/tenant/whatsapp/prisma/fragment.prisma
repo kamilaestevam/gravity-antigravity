@@ -1,4 +1,4 @@
-model WhatsAppConversation {
+model WhatsappConversa {
   id                      String    @id @default(cuid())
   tenant_id               String
   product_id              String?
@@ -27,9 +27,10 @@ model WhatsAppConversation {
   @@index([tenant_id, user_id])
   @@index([tenant_id, status])
   @@index([tenant_id, wa_phone_number])
+  @@map("whatsapp_conversa")
 }
 
-model WhatsAppMessage {
+model WhatsappMensagem {
   id              String   @id @default(cuid())
   tenant_id       String
   product_id      String?
@@ -52,29 +53,31 @@ model WhatsAppMessage {
   @@index([tenant_id, user_id])
   @@index([tenant_id, conversation_id])
   @@index([wa_message_id])
+  @@map("whatsapp_mensagem")
 }
 
-model WhatsAppUsageLog {
+model WhatsappLog {
   id                    String   @id @default(cuid())
   tenant_id             String
   product_id            String?
   user_id               String?
-  
+
   conversation_id       String?
   company_id            String?
   conversation_category String
   origin                String
   cost_usd              Decimal
-  
+
   created_at            DateTime @default(now())
   updated_at            DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("whatsapp_log")
 }
 
-model WhatsAppAutomation {
+model WhatsappRegra {
   id           String   @id @default(cuid())
   tenant_id    String
   product_id   String?
@@ -94,4 +97,5 @@ model WhatsAppAutomation {
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
   @@index([tenant_id, active])
+  @@map("whatsapp_regra")
 }

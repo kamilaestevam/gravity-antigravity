@@ -97,7 +97,7 @@ describe('getEditavel', () => {
 
 describe('isSomavel', () => {
   it('calculado soma por padrão', () => {
-    expect(isSomavel('quantidade_total_inicial_pedido')).toBe(true)
+    expect(isSomavel('quantidade_total_pedido')).toBe(true)
   })
 
   it('saldo soma por padrão', () => {
@@ -143,7 +143,7 @@ describe('hasAlerta', () => {
   })
 
   it('calculado NÃO tem alerta por padrão', () => {
-    expect(hasAlerta('quantidade_total_inicial_pedido')).toBe(false)
+    expect(hasAlerta('quantidade_total_pedido')).toBe(false)
   })
 
   it('valor_total_pedido tem override alerta=true', () => {
@@ -179,7 +179,7 @@ describe('isPropagavel', () => {
   it('alfanumerico propaga por padrão', () => {
     expect(isPropagavel('ncm')).toBe(true)
     expect(isPropagavel('incoterm')).toBe(true)
-    expect(isPropagavel('condicao_pagamento_pedido')).toBe(true)
+    expect(isPropagavel('condicao_pagamento')).toBe(true)
   })
 
   it('numero_pedido NÃO propaga (override propaga=false)', () => {
@@ -203,7 +203,7 @@ describe('isPropagavel', () => {
 
 describe('isRecalculavel', () => {
   it('calculado recalcula por padrão', () => {
-    expect(isRecalculavel('quantidade_total_inicial_pedido')).toBe(true)
+    expect(isRecalculavel('quantidade_total_pedido')).toBe(true)
   })
 
   it('alfanumerico NÃO recalcula por padrão', () => {

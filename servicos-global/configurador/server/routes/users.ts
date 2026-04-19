@@ -41,7 +41,7 @@ const MembershipSchema = z.object({
  */
 usersRouter.get('/', async (req, res, next) => {
   try {
-    const users = await prisma.user.findMany({
+    const users = await prisma.usuario.findMany({
       where: { tenant_id: req.auth.tenantId },
       select: {
         id: true,
@@ -84,7 +84,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
     const { email, name, role } = parsed.data
 
     // Verifica se usuário já existe no tenant
-    const existing = await prisma.user.findFirst({
+    const existing = await prisma.usuario.findFirst({
       where: { tenant_id: req.auth.tenantId, email },
     })
     if (existing) {
@@ -102,7 +102,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
     })
 
     // Cria registro antecipado no banco (será completado no webhook de user.created)
-    const user = await prisma.user.create({
+    const user = await prisma.usuario.create({
       data: {
         tenant_id: req.auth.tenantId,
         clerk_user_id: `pending_${invitation.id}`,
@@ -140,7 +140,7 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
     const userId = req.params.id
 
     // Garante que o usuário pertence ao mesmo tenant
-    const user = await prisma.user.findFirst({
+    const user = await prisma.usuario.findFirst({
       where: { id: userId, tenant_id: req.auth.tenantId },
     })
     if (!user) {
@@ -148,14 +148,14 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
     }
 
     // Garante que a empresa filha pertence ao mesmo tenant
-    const company = await prisma.company.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: { id: companyId, tenant_id: req.auth.tenantId },
     })
     if (!company) {
       throw new AppError('Empresa filha não encontrada', 404, 'NOT_FOUND')
     }
 
-    const membership = await prisma.userMembership.upsert({
+    const membership = await prisma.usuarioWorkspace.upsert({
       where: {
         tenant_id_user_id_company_id: {
           tenant_id: req.auth.tenantId,
@@ -193,7 +193,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       throw new AppError('Role inválido', 400, 'VALIDATION_ERROR')
     }
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.usuario.findFirst({
       where: { id: req.params.id, tenant_id: req.auth.tenantId },
       select: { id: true, clerk_user_id: true, role: true },
     })
@@ -201,7 +201,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.user.update({
+    const updated = await prisma.usuario.update({
       where: { id: req.params.id, tenant_id: req.auth.tenantId },
       data: { role: parsed.data.role },
       select: { id: true, email: true, role: true },

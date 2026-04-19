@@ -9,11 +9,11 @@ export const productsRouter = Router()
 
 /**
  * GET /api/v1/products
- * Retorna produtos ACTIVE e COMING_SOON — mesma fonte que o Admin (tabela Product)
+ * Retorna produtos ACTIVE e COMING_SOON — mesma fonte que o Admin (tabela ProdutoGravity)
  */
 productsRouter.get('/', async (_req, res) => {
   try {
-    const products = await prisma.product.findMany({
+    const products = await prisma.produtoGravity.findMany({
       where: { status: { in: ['ACTIVE', 'COMING_SOON'] as any[] } },
       select: {
         id: true, name: true, slug: true, description: true, status: true,

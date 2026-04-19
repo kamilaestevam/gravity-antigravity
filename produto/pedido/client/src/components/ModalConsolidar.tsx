@@ -280,7 +280,7 @@ export function ModalConsolidar({ pedidosSelecionados, onFechar, onConcluido, co
                           moeda_pedido: t('pedido.modal_cons.campo_moeda'),
                           nome_exportador: t('pedido.modal_cons.campo_exportador'),
                           data_emissao_pedido: t('pedido.modal_cons.campo_data_emissao'),
-                          condicao_pagamento_pedido: t('pedido.modal_cons.campo_cond_pagamento'),
+                          condicao_pagamento: t('pedido.modal_cons.campo_cond_pagamento'),
                         }
                         const valor = pedido[campo as keyof Pedido]
                         return (

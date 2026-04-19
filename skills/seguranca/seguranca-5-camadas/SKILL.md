@@ -101,21 +101,27 @@ if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
 
 ---
 
-## Camada 4 — Isolamento de Dados
+## Camada 4 — Isolamento de Dados (pós-pivô 2026-04-17)
 
-**Proteção:** Mesmo com auth e permissão, dados de um tenant nunca vazam para outro.
+**Proteção:** Mesmo com auth e permissão, dados de um tenant nunca vazam para outro. Após o pivô Schema-per-Tenant ([ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md)), o isolamento é **físico via PostgreSQL `search_path`** — não mais lógico via `WHERE tenant_id = ?`.
 
 | Mecanismo | Camada | Função |
 |:---|:---|:---|
-| Prisma Client Extensions | Código | Injeta `tenant_id` em toda query automaticamente |
-| PostgreSQL RLS | Banco | Bloqueia acesso mesmo se o código falhar |
+| **Schema-per-Tenant** | Banco | 1 schema PostgreSQL por tenant (`tenant_<uuid>`). Tabelas de produto **não têm `tenant_id`** — o schema **é** o tenant. |
+| **`@gravity/tenant-resolver` SDK** | Código | Único ponto de acesso ao DB. `withTenant(req, async db => ...)` aplica `SET LOCAL search_path` dentro de `$transaction`. |
+| **PgBouncer transaction mode** | Pool | `SET LOCAL` morre no `COMMIT`/`ROLLBACK`. Pool leak é matematicamente impossível. |
+| **ESLint + CI lint** | Build | Bloqueia `import { PrismaClient } from '@prisma/client'` fora do SDK. |
+| **PostgreSQL RLS** | Banco | Mantido **apenas** no Configurador (single-schema). Em bancos de produto, o `search_path` substitui RLS. |
 
-Duas camadas independentes de defesa. Ver skill `antigravity-tenant-isolation` para implementação completa.
+Ver skill `antigravity-tenant-isolation` (reescrita 2026-04-17) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) para implementação completa.
 
-**Regras críticas:**
-- `tenant_id` NUNCA vem do body — sempre do JWT via middleware
-- `product_id` é nullable por design (atividades sem produto são válidas)
-- Unique constraints incluem `tenant_id`: `@@unique([tenant_id, slug])`
+**Regras críticas (pós-pivô):**
+- `tenantId` NUNCA vem do body — sempre de `req.tenant` (vem do `GET /api/me` do Configurador, **nunca** do `publicMetadata` do Clerk)
+- Acesso a banco de produto **exclusivamente** via `withTenant(req, async db => ...)` ou `withTenantContext(tenantId, fn)` para workers
+- `import { PrismaClient }` direto é **proibido** fora do SDK — linter CI bloqueia deploy
+- Tabelas de produto **NÃO** têm coluna `tenant_id` após Fase 4 da migração ([ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
+- Cache prefixado por `tenant:<id>:` ou `tenant:_global:` (com justificativa) — linter CI bloqueia chaves sem prefixo
+- Pre-signed URLs S3: `tenant_<id>/...` no caminho, TTL ≤ 300s
 
 ---
 
@@ -160,11 +166,15 @@ app.use(auditMiddleware({
 - [ ] Roles validadas antes de ações sensíveis?
 - [ ] Nenhum bypass de auth "para facilitar"?
 
-### Camada 4 — Isolamento
-- [ ] `tenant_id` filtrado em toda query?
-- [ ] `tenant_id` vem do JWT, nunca do body?
-- [ ] RLS ativado para tabelas deste serviço?
-- [ ] Teste de cross-tenant implementado?
+### Camada 4 — Isolamento (pós-pivô 2026-04-17)
+- [ ] Acesso ao banco **exclusivamente** via `withTenant(req, ...)` ou `withTenantContext(tenantId, ...)` do `@gravity/tenant-resolver`?
+- [ ] Nenhum `import { PrismaClient } from '@prisma/client'` no código (exceto dentro do SDK)?
+- [ ] Nenhum `new PrismaClient(`?
+- [ ] Nenhum `WHERE tenant_id = ?` em queries de banco de produto (o schema **é** o tenant)?
+- [ ] `tenantId` lido de `req.tenant`, nunca do `publicMetadata` do Clerk?
+- [ ] Toda chave de cache prefixada por `tenant:<id>:` ou `tenant:_global:` (com justificativa)?
+- [ ] Pre-signed URLs S3 com TTL ≤ 300s e `tenant_<id>/...` no caminho?
+- [ ] Teste anti-cross-tenant + teste de pool leak (`SET LOCAL` reset) implementados?
 
 ### Camada 5 — Auditoria
 - [ ] Mutações registradas no histórico?

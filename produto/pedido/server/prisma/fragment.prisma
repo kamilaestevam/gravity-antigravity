@@ -21,7 +21,7 @@ model PedidoAnexo {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, vinculo_id])
-  @@map("pedido_anexos")
+  @@map("anexo_pedido")
 }
 
 // ============================================
@@ -41,7 +41,7 @@ model PedidoTemplatePdf {
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
-  @@map("pedido_templates_pdf")
+  @@map("template_pedido_pdf")
 }
 
 // ============================================
@@ -72,14 +72,13 @@ model TransferHistorico {
   created_at       DateTime  @default(now())
   created_by       String
 
-  // Relação com Pedido (pedidos_comerciais)
   pedido_origem    Pedido @relation(fields: [pedido_origem_id], references: [id])
 
   // Índices obrigatórios (agent-policy)
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, pedido_origem_id])
-  @@map("transfer_historico")
+  @@map("tracking_items_transferidos")
 }
 
 // Adicionar ao model PedidoComercial:
@@ -116,7 +115,7 @@ model ColunaUsuarioPedido {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, ativo])
-  @@map("colunas_usuario_pedido")
+  @@map("coluna_usuario_pedido")
 }
 
 model ValorColunaUsuarioPedido {
@@ -134,7 +133,7 @@ model ValorColunaUsuarioPedido {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, vinculo_id])
-  @@map("valores_colunas_usuario_pedido")
+  @@map("valor_coluna_usuario_pedido")
 }
 
 // ============================================
@@ -167,7 +166,7 @@ model MapeamentoImport {
   @@index([tenant_id, product_id])
   @@index([tenant_id, hash_colunas])
 
-  @@map("mapeamento_import")
+  @@map("aprendizado_importacao_dados")
 }
 
 // ============================================
@@ -225,7 +224,7 @@ model PedidoCasasDecimaisConfig {
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
-  @@map("pedido_casas_decimais_config")
+  @@map("pedido_casas_decimais")
 }
 
 // ============================================
@@ -244,6 +243,7 @@ model KanbanPreferencias {
   @@unique([tenant_id, user_id])
   @@index([tenant_id])
   @@index([tenant_id, user_id])
+  @@map("kanban_preferencias")
 }
 
 // ============================================
@@ -264,5 +264,5 @@ model DashboardPainel {
 
   @@index([tenant_id])
   @@index([tenant_id, user_id])
-  @@map("dashboard_paineis")
+  @@map("dashboard_painel")
 }

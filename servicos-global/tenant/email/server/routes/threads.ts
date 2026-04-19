@@ -39,7 +39,7 @@ threadsRouter.get(
     }
 
     const [threads, total] = await Promise.all([
-      prisma.emailThread.findMany({
+      prisma.emailAssuntosParticipantes.findMany({
         where,
         orderBy: { updated_at: 'desc' },
         skip,
@@ -56,7 +56,7 @@ threadsRouter.get(
           updated_at: true,
         },
       }),
-      prisma.emailThread.count({ where }),
+      prisma.emailAssuntosParticipantes.count({ where }),
     ])
 
     res.json({
@@ -75,7 +75,7 @@ threadsRouter.get(
     const { id } = req.params
     const { tenantId } = req.auth
 
-    const thread = await prisma.emailThread.findFirst({
+    const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: { id, tenant_id: tenantId },
       include: {
         mensagens: {
@@ -123,7 +123,7 @@ threadsRouter.patch(
       return next(new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR'))
     }
 
-    const thread = await prisma.emailThread.findFirst({
+    const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: { id, tenant_id: tenantId },
     })
 
@@ -131,7 +131,7 @@ threadsRouter.patch(
       return next(new AppError('Thread não encontrada', 404, 'THREAD_NOT_FOUND'))
     }
 
-    const updated = await prisma.emailThread.update({
+    const updated = await prisma.emailAssuntosParticipantes.update({
       where: { id },
       data: { status: parse.data.status },
     })

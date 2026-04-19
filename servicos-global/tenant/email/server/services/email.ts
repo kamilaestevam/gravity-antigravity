@@ -1,6 +1,6 @@
 // server/services/email.ts
 // Único ponto de envio de emails — toda chamada ao Resend passa aqui.
-// Implementa retry com backoff exponencial e log completo em EmailEnviado + FilaEmail.
+// Implementa retry com backoff exponencial e log completo em EmailRegistroEnvio + EmailFilaEnvio.
 
 import { randomUUID } from 'crypto'
 import { resend } from '../lib/resend.js'
@@ -20,7 +20,7 @@ export interface SendEmailOptions {
   text?: string
   from?: string
   templateId?: string
-  /** Se true, não grava log em EmailEnviado (usado para auto-replies da Gabi) */
+  /** Se true, não grava log em EmailRegistroEnvio (usado para auto-replies da Gabi) */
   skipLog?: boolean
 }
 
@@ -74,7 +74,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
 
   if (!skipLog) {
     const [log, fila] = await Promise.all([
-      prisma.emailEnviado.create({
+      prisma.emailRegistroEnvio.create({
         data: {
           tenant_id: tenantId,
           product_id: productId,
@@ -88,7 +88,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
           status: 'PENDENTE',
         },
       }),
-      prisma.filaEmail.create({
+      prisma.emailFilaEnvio.create({
         data: {
           tenant_id: tenantId,
           product_id: productId,
@@ -109,13 +109,13 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
     try {
       // Atualizar status para PROCESSANDO
       if (logId) {
-        await prisma.emailEnviado.update({
+        await prisma.emailRegistroEnvio.update({
           where: { id: logId },
           data: { status: 'PROCESSANDO', tentativas: tentativa },
         })
       }
       if (filaId) {
-        await prisma.filaEmail.update({
+        await prisma.emailFilaEnvio.update({
           where: { id: filaId },
           data: { status: 'PROCESSANDO', tentativas: tentativa },
         })
@@ -141,7 +141,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
       // Sucesso — atualizar status
       const now = new Date()
       if (logId) {
-        await prisma.emailEnviado.update({
+        await prisma.emailRegistroEnvio.update({
           where: { id: logId },
           data: {
             status: 'ENVIADO',
@@ -151,7 +151,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
         })
       }
       if (filaId) {
-        await prisma.filaEmail.update({
+        await prisma.emailFilaEnvio.update({
           where: { id: filaId },
           data: {
             status: 'ENVIADO',
@@ -171,7 +171,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
       if (tentativa < MAX_TENTATIVAS) {
         const nextRetryAt = new Date(Date.now() + calcBackoffMs(tentativa))
         if (logId) {
-          await prisma.emailEnviado.update({
+          await prisma.emailRegistroEnvio.update({
             where: { id: logId },
             data: {
               tentativas: tentativa,
@@ -181,7 +181,7 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
           })
         }
         if (filaId) {
-          await prisma.filaEmail.update({
+          await prisma.emailFilaEnvio.update({
             where: { id: filaId },
             data: {
               tentativas: tentativa,
@@ -199,13 +199,13 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
 
   // Esgotou tentativas — marcar como FALHOU
   if (logId) {
-    await prisma.emailEnviado.update({
+    await prisma.emailRegistroEnvio.update({
       where: { id: logId },
       data: { status: 'FALHOU', error_message: lastError },
     })
   }
   if (filaId) {
-    await prisma.filaEmail.update({
+    await prisma.emailFilaEnvio.update({
       where: { id: filaId },
       data: { status: 'FALHOU', erro: lastError },
     })

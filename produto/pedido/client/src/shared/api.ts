@@ -50,6 +50,15 @@ import { MOCK_PEDIDOS_RESPONSE } from './mockData'
 
 let context = { tenantId: '', userId: '', userName: '' }
 
+const LS_TENANT_KEY = 'gravity:tenantId'
+
+function lsGet(): string {
+  try { return localStorage.getItem(LS_TENANT_KEY) || '' } catch { return '' }
+}
+function lsSet(id: string): void {
+  try { localStorage.setItem(LS_TENANT_KEY, id) } catch {}
+}
+
 // Getter dinâmico injetado pelo App.tsx — lê o Zustand no exato momento do request,
 // eliminando a race condition entre useEffect do filho e useEffect do pai.
 // Nunca importamos o store aqui para evitar circular dependency do Vite.
@@ -58,30 +67,36 @@ let getDynamicTenantId: () => string | undefined = () => undefined
 export const injectTenantGetter = (fn: () => string | undefined): void => {
   getDynamicTenantId = () => {
     const live = fn()
-    // Sempre que o store retorna um valor válido, persiste no context como cache.
-    // Quando o Clerk pisca (store vazio durante navegação SPA), o cache retém
-    // o último tenantId conhecido e a request não sai com header vazio.
-    if (live) context.tenantId = live
-    return context.tenantId || undefined
+    // Sempre que o store retorna um valor válido, persiste no context E no localStorage.
+    // localStorage sobrevive a F5 — quando o Clerk ainda está carregando na próxima sessão,
+    // o último tenantId conhecido é recuperado sem race condition.
+    if (live) {
+      context.tenantId = live
+      lsSet(live)
+    }
+    return context.tenantId || lsGet() || undefined
   }
 }
 
 export function setApiContext(ctx: { tenantId: string; userId: string; userName?: string }): void {
-  if (ctx.tenantId) context.tenantId = ctx.tenantId
+  if (ctx.tenantId) {
+    context.tenantId = ctx.tenantId
+    lsSet(ctx.tenantId)
+  }
   if (ctx.userId)   context.userId   = ctx.userId
   if (ctx.userName) context.userName = ctx.userName
 }
 
 export function getApiContext(): { tenantId: string; userId: string; userName: string } {
   return {
-    tenantId: context.tenantId || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || '',
+    tenantId: context.tenantId || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || '',
     userId:   context.userId,
     userName: context.userName,
   }
 }
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const tenantId = getDynamicTenantId() || context.tenantId || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
+  const tenantId = getDynamicTenantId() || context.tenantId || lsGet() || (import.meta.env.VITE_DEV_TENANT_ID as string | undefined) || ''
 
   const response = await fetch(endpoint, {
     ...options,
@@ -421,14 +436,14 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
   if (verificarCampo('moeda_pedido', 'Moeda')) camposIguais.push('moeda_pedido')
   if (verificarCampo('nome_exportador', 'Exportador')) camposIguais.push('nome_exportador')
   if (verificarCampo('data_emissao_pedido', 'Data Emissão do Pedido')) camposIguais.push('data_emissao_pedido')
-  if (verificarCampo('condicao_pagamento_pedido', 'Condição de Pagamento')) camposIguais.push('condicao_pagamento_pedido')
+  if (verificarCampo('condicao_pagamento', 'Condição de Pagamento')) camposIguais.push('condicao_pagamento')
 
   // Mapa de itens por part_number
   const itensPorPart: Record<string, ItemConsolidado> = {}
   for (const pedido of pedidos) {
     for (const item of pedido.itens) {
       if (itensPorPart[item.part_number]) {
-        itensPorPart[item.part_number].quantidade_total += item.saldo_item_pedido
+        itensPorPart[item.part_number].quantidade_total += item.quantidade_atual_pedido
         itensPorPart[item.part_number].pedidos_origem.push(pedido.numero_pedido)
         itensPorPart[item.part_number].pode_fundir = true
       } else {
@@ -438,8 +453,8 @@ function mockConsolidarPreview(ids: string[]): ConsolidacaoPreview {
           ncm: item.ncm,
           unidade_comercializada_item: item.unidade_comercializada_item ?? null,
           moeda_item: item.moeda_item,
-          valor_unitario_item: item.valor_unitario_item ?? null,
-          quantidade_total: item.saldo_item_pedido,
+          valor_por_unidade_item: item.valor_por_unidade_item ?? null,
+          quantidade_total: item.quantidade_atual_pedido,
           pedidos_origem: [pedido.numero_pedido],
           pode_fundir: false,
         }
@@ -477,8 +492,8 @@ function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
       if (payload.fundir_itens_mesmo_part_number && partNumbers.has(item.part_number)) {
         const existente = itensMerge.find(i => i.part_number === item.part_number)
         if (existente) {
-          existente.quantidade_inicial_item_pedido += item.quantidade_inicial_item_pedido
-          existente.saldo_item_pedido += item.saldo_item_pedido
+          existente.quantidade_inicial_pedido += item.quantidade_inicial_pedido
+          existente.quantidade_atual_pedido += item.quantidade_atual_pedido
         }
       } else {
         partNumbers.add(item.part_number)
@@ -495,8 +510,8 @@ function mockConsolidarConfirmar(payload: ConsolidacaoPayload): Pedido {
     pedidos_origem_id: payload.ids,
     valor_total_pedido: pedidos.reduce((acc, p) => acc + (p.valor_total_pedido ?? 0), 0),
     itens: itensMerge,
-    pedido_criado_em: new Date().toISOString(),
-    pedido_atualizado_em: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     ...payload.campos_escolhidos,
   }
 
@@ -543,12 +558,12 @@ function mockTransferirPreview(payload: Omit<TransferPayload, 'numero_pedido_nov
   const pedido = MOCK_PEDIDOS_RESPONSE.data.find(p => p.id === payload.pedido_id)
   const item = pedido?.itens.find(i => i.id === payload.item_id)
 
-  const quantidadeApos = (item?.saldo_item_pedido ?? 0) - payload.quantidade_origem
+  const quantidadeApos = (item?.quantidade_atual_pedido ?? 0) - payload.quantidade_origem
   const encerra = quantidadeApos <= 0
 
   const alertas: string[] = []
   if (encerra) alertas.push('Pedido de origem ficará com quantidade zero após a transferência')
-  if (payload.quantidade_origem > (item?.saldo_item_pedido ?? 0)) {
+  if (payload.quantidade_origem > (item?.quantidade_atual_pedido ?? 0)) {
     alertas.push('Quantidade solicitada excede quantidade disponível no item')
   }
 
@@ -557,7 +572,7 @@ function mockTransferirPreview(payload: Omit<TransferPayload, 'numero_pedido_nov
     origem: {
       pedido_numero: pedido?.numero_pedido ?? payload.pedido_id,
       item_part_number: item?.part_number ?? payload.item_id,
-      saldo_item_pedido: item?.saldo_item_pedido ?? 0,
+      quantidade_atual_pedido: item?.quantidade_atual_pedido ?? 0,
       quantidade_apos: Math.max(0, quantidadeApos),
       encerra,
     },
@@ -816,9 +831,9 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
     { coluna: 'NCM',          campo: 'ncm',                 conf: 95, exemplo: '8471.30.19'          },
     { coluna: 'Part No.',     campo: 'part_number',         conf: 91, exemplo: 'STE-A4-001'          },
     { coluna: 'Description',  campo: 'descricao_item',       conf: 85, exemplo: 'Heat exchanger plate'},
-    { coluna: 'Qty',          campo: 'quantidade_inicial_item_pedido',  conf: 78, exemplo: '100'                 },
+    { coluna: 'Qty',          campo: 'quantidade_inicial_pedido',  conf: 78, exemplo: '100'                 },
     { coluna: 'Unit',         campo: 'unidade',             conf: 72, exemplo: 'UN'                  },
-    { coluna: 'Unit Price',   campo: 'valor_unitario_item',       conf: 83, exemplo: '330,00'              },
+    { coluna: 'Unit Price',   campo: 'valor_por_unidade_item',       conf: 83, exemplo: '330,00'              },
     { coluna: 'Currency',     campo: 'moeda_pedido',        conf: 90, exemplo: 'USD'                 },
     { coluna: 'Incoterms',    campo: 'incoterm',            conf: 94, exemplo: 'FOB'                 },
     { coluna: 'Ship Date',    campo: 'data_embarque',       conf: 67, exemplo: '30/05/2023'          },
@@ -855,9 +870,9 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         data_embarque: '30/05/2023',
         part_number: 'STE-A4-001',
         descricao_item: 'Heat exchanger plate',
-        quantidade_inicial_item_pedido: 100,
+        quantidade_inicial_pedido: 100,
         unidade: 'UN',
-        valor_unitario_item: 330.00,
+        valor_por_unidade_item: 330.00,
         ncm: '8471.30.19',
       },
     },
@@ -873,9 +888,9 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         moeda_pedido: 'USD',
         part_number: 'DGL-7700',
         descricao_item: 'Motor controller board',
-        quantidade_inicial_item_pedido: 50,
+        quantidade_inicial_pedido: 50,
         unidade: 'UN',
-        valor_unitario_item: 85.00,
+        valor_por_unidade_item: 85.00,
         ncm: '8544.42.90',
       },
     },
@@ -891,9 +906,9 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         moeda_pedido: 'EUR',
         part_number: 'BRL-220V',
         descricao_item: 'Power supply unit',
-        quantidade_inicial_item_pedido: 200,
+        quantidade_inicial_pedido: 200,
         unidade: 'UN',
-        valor_unitario_item: 45.00,
+        valor_por_unidade_item: 45.00,
       },
     },
     {
@@ -913,9 +928,9 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
         moeda_pedido: 'USD',
         part_number: 'GZH-CAB-001',
         descricao_item: 'Cable assembly',
-        quantidade_inicial_item_pedido: 500,
+        quantidade_inicial_pedido: 500,
         unidade: 'MT',
-        valor_unitario_item: 3.20,
+        valor_por_unidade_item: 3.20,
         ncm: '8471',
       },
     },
@@ -925,13 +940,13 @@ function mockSmartImportAnalisar(nomeArquivo: string): SmartImportPreview {
       status: 'erro',
       alertas: [
         {
-          campo: 'quantidade_inicial_item_pedido',
+          campo: 'quantidade_inicial_pedido',
           tipo: 'valor_negativo',
           mensagem: 'Quantidade deve ser maior que zero',
           nivel: 'erro',
         },
       ],
-      dados: { quantidade_inicial_item_pedido: -5, exportador: 'Unknown Supplier' },
+      dados: { quantidade_inicial_pedido: -5, exportador: 'Unknown Supplier' },
     },
   ]
 
@@ -983,9 +998,9 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     casas_decimais_valor_pedido: 2,
     casas_decimais_quantidade_pedido: 2,
     unidade_comercializada_pedido: 'UN',
-    quantidade_total_inicial_pedido: 0,
+    quantidade_total_pedido: 0,
     quantidade_transferida_total: 0,
-    condicao_pagamento_pedido: null,
+    condicao_pagamento: null,
     data_emissao_pedido: new Date().toISOString().split('T')[0],
     numero_proforma: null,
     numero_invoice: null,
@@ -993,8 +1008,8 @@ function mockSmartImportConfirmar(payload: SmartImportConfirmar): SmartImportRes
     referencia_exportador: null,
     referencia_fabricante: null,
     itens: [],
-    pedido_criado_em: new Date().toISOString(),
-    pedido_atualizado_em: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   }))
 
   MOCK_PEDIDOS_RESPONSE.data.unshift(...novosPedidos)
@@ -1075,7 +1090,7 @@ function mockDuplicarConfirmar(payload: DuplicarPayload): DuplicarResultado {
     const numeroNovo = payload.numeros?.[id] ?? `PO-COPY-${Date.now()}-${id.slice(-4)}`
     const novoId = `pedi_dup_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
     if (original) {
-      const copia = { ...original, id: novoId, numero_pedido: numeroNovo, pedido_criado_em: new Date().toISOString(), pedido_atualizado_em: new Date().toISOString() }
+      const copia = { ...original, id: novoId, numero_pedido: numeroNovo, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }
       MOCK_PEDIDOS_RESPONSE.data.push(copia)
       MOCK_PEDIDOS_RESPONSE.total = MOCK_PEDIDOS_RESPONSE.data.length
     }
@@ -1865,8 +1880,8 @@ export const kanbanConfigApi = {
 
 export interface CasasDecimaisConfigPayload {
   valor_total_pedido:              number
-  valor_unitario_item:             number
-  quantidade_total_inicial_pedido: number
+  valor_por_unidade_item:             number
+  quantidade_total_pedido: number
   quantidade_pronta_pedido_total:  number
   saldo_itens_do_pedido:           number
   quantidade_transferida_total:    number
@@ -1888,7 +1903,7 @@ export const casasDecimaisApi = {
   obter: (): Promise<{ data: CasasDecimaisConfigPayload }> =>
     request<{ data: CasasDecimaisConfigPayload }>('/api/v1/pedidos/configuracoes/casas-decimais')
       .catch(() => ({ data: {
-        valor_total_pedido: 2, valor_unitario_item: 2, quantidade_total_inicial_pedido: 2,
+        valor_total_pedido: 2, valor_por_unidade_item: 2, quantidade_total_pedido: 2,
         quantidade_pronta_pedido_total: 2, saldo_itens_do_pedido: 2,
         quantidade_transferida_total: 2, quantidade_cancelada_total_pedido: 2,
         peso_liquido_total_pedido: 3, peso_bruto_total_pedido: 3, cubagem_total_pedido: 3,
@@ -1909,7 +1924,7 @@ export interface SaldoFormulaPayload {
 }
 
 const SALDO_FORMULA_DEFAULT: SaldoFormulaPayload = {
-  formula_expressao: 'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido',
+  formula_expressao: 'quantidade_total_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido',
   is_default: true,
 }
 

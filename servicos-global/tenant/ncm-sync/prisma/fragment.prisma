@@ -26,6 +26,7 @@ model NcmItem {
   @@index([tenant_id, user_id])
   @@index([tenant_id, ativo])
   @@index([tenant_id, codigo])
+  @@map("ncm_item")
 }
 
 model NcmSyncLog {
@@ -59,6 +60,7 @@ model NcmSyncLog {
   @@index([tenant_id, user_id])
   @@index([tenant_id, status])
   @@index([tenant_id, iniciado_em])
+  @@map("ncm_log")
 }
 
 enum NcmSyncStatus {
@@ -92,4 +94,5 @@ model NcmScheduleConfig {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("ncm_agendamento")
 }

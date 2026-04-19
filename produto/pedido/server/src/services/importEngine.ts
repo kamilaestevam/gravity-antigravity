@@ -59,7 +59,7 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
     'descr', 'produto', 'product', 'goods description',
     'article', 'item desc', 'zmaktx', 'text', 'goods', 'item name',
   ],
-  quantidade_inicial_item_pedido: [
+  quantidade_inicial_pedido: [
     'qty', 'quantity', 'qtd', 'quantidade', 'ordered qty',
     'order qty', 'qtde',
     'qtd pedida', 'qtd inicial', 'pcs', 'pieces', 'count',
@@ -71,7 +71,7 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
     'moeda pedido', 'moeda da compra', 'coin',
     'ccy', 'zcurr',
   ],
-  valor_unitario_item: [
+  valor_por_unidade_item: [
     'unit price', 'unit value', 'valor unitario', 'preco unitario',
     'price', 'unit cost', 'valor por unidade', 'valor unit',
     'unit amt', 'unit amount', 'preco unit',
@@ -80,7 +80,7 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
     'znetpr', 'netpr',
     'fob usd', 'eur/pc', 'eur/set', 'eur/un', 'eur/pcs', 'usd/pc', 'usd/un',
   ],
-  valor_total_itens: [
+  valor_total_item: [
     'total value', 'total amount', 'valor total', 'total price',
     'amount', 'line total', 'ext price', 'extended price',
     'total item', 'item total', 'valor total item',
@@ -92,7 +92,7 @@ export const ALIASES_CAMPOS: Record<string, string[]> = {
     'unit measure', 'unid', 'unidade comercializada',
     'zmeins', 'packing unit',
   ],
-  peso_liquido_unitario_item: [
+  peso_liquido_unitario: [
     'weight', 'weight kg', 'net weight', 'net weight kg', 'netweightkg',
     'peso', 'peso liquido', 'peso liq', 'peso unitario',
     'znetgw', 'netgw', 'gross weight', 'gw kg',

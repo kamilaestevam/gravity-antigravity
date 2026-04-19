@@ -4,6 +4,11 @@ import { SignedIn, SignedOut, RedirectToSignIn, useAuth, useUser } from '@clerk/
 import { useLoadSystemRole } from './hooks/useLoadSystemRole'
 import { AuthPage } from './pages/AuthPage'
 
+// Harness E2E — dev-only, sem auth (import.meta.env.DEV === false em produção)
+const E2ENotificacoesHarness = import.meta.env.DEV
+  ? React.lazy(() => import('./pages/E2ENotificacoesHarness').then(m => ({ default: m.E2ENotificacoesHarness })))
+  : null
+
 // Lazy-load — Gabi é pesado e não é crítico para o primeiro render
 const GabiOnboardingWidget = React.lazy(() =>
   import('./components/GabiOnboardingWidget').then(m => ({ default: m.GabiOnboardingWidget }))
@@ -318,6 +323,18 @@ export default function App() {
           <Route path="taxa-cambio" element={<React.Suspense fallback={<ProductLoading />}><TaxaCambioPage /></React.Suspense>} />
           <Route path="historico-organizacao" element={<React.Suspense fallback={<ProductLoading />}><HistoricoOrganizacao /></React.Suspense>} />
         </Route>
+
+        {/* Harness E2E — dev-only, sem autenticação */}
+        {E2ENotificacoesHarness && (
+          <Route
+            path="/e2e-notificacoes"
+            element={
+              <React.Suspense fallback={null}>
+                <E2ENotificacoesHarness />
+              </React.Suspense>
+            }
+          />
+        )}
 
         {/* 404 — rota nao encontrada */}
         <Route path="*" element={

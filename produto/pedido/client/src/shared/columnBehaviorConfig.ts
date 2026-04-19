@@ -15,6 +15,7 @@
 
 import type { Pedido } from './types'
 export { isPropagavel } from '../../../shared/columnPropagationConfig'
+export { isAlertavel, getAlertavelKeys } from '../../../shared/columnAlertConfig'
 
 // ── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   data_emissao_pedido:       { tipo: 'alfanumerico' },
   referencia_fabricante:     { tipo: 'alfanumerico' },
   cobertura_cambial:         { tipo: 'alfanumerico' },
-  condicao_pagamento_pedido: { tipo: 'alfanumerico' },
+  condicao_pagamento: { tipo: 'alfanumerico' },
 
   // ── Exceções: editavel depende do tipo de operação ──────────────────────────
   nome_exportador: { tipo: 'alfanumerico', editavelFn: (row) => row.tipo_operacao === 'importacao' },
@@ -61,7 +62,7 @@ const COLUMN_CONFIG: Record<string, ColunaBehavior> = {
   // ── Calculado — soma de itens, não editável ─────────────────────────────────
   valor_total_pedido:                   { tipo: 'calculado' },
   valor_item:                           { tipo: 'calculado' },
-  quantidade_total_inicial_pedido:      { tipo: 'calculado' },
+  quantidade_total_pedido:      { tipo: 'calculado' },
   quantidade_pronta_itens_pedido_total: { tipo: 'calculado' },
   quantidade_transferida_total:         { tipo: 'calculado' },
   quantidade_cancelada_total_pedido:    { tipo: 'calculado' },

@@ -50,11 +50,14 @@ Todo código do projeto Gravity — frontend e backend — segue estes padrões 
 ```typescript
 // ✅ correto
 import { TabelaGlobal } from '@nucleo/tabela-global'
-import { withTenantIsolation } from '@tenant/middleware/tenant-isolation'
+import { withTenant, tenantResolver } from '@gravity/tenant-resolver'
 
 // ❌ proibido
 import { TabelaGlobal } from '../../../nucleo-global/tabela-global'
 const something = require('../utils')
+
+// ❌ PROIBIDO em produto — linter CI bloqueia (ADR-002)
+import { PrismaClient } from '@prisma/client'
 ```
 
 > **Monorepo:** Antes de alterar `package.json`, `tsconfig.json`, `vite.config.ts` ou instalar dependências, consultar `antigravity-monorepo`.
@@ -209,8 +212,9 @@ Para erros de validação Zod, o campo `details` é incluído:
 | Constantes Globais | UPPER_SNAKE_CASE | `API_URL`, `MAX_RETRY_ATTEMPTS` |
 | Interfaces/Types | PascalCase | `Usuario`, `IRelatorioFisico` |
 | Pastas | kebab-case | `nucleo-global`, `servicos-global` |
-| Models Prisma | PascalCase | `Activity`, `TenantUser` |
-| Campos de banco | snake_case | `tenant_id`, `created_at` |
+| Models Prisma | PascalCase | `Activity`, `Pedido` |
+| Campos de banco | snake_case | `created_at`, `numero_pedido` |
+| Schemas de tenant (Postgres) | `tenant_<uuid_sem_hifens>` | `tenant_a1b2c3d4e5f6...` |
 | Arquivos de server | kebab-case | `tenant-isolation.ts` |
 | Aliases de import | camelCase com `@` | `@nucleo`, `@tenant`, `@produto` |
 
@@ -292,46 +296,59 @@ const tenantUrl = 'http://tenant-services.railway.internal:3001'
 
 ---
 
-## Estrutura Obrigatória de um Servidor Express
+## Estrutura Obrigatória de um Servidor Express (pós-pivô — ADR-002)
 
-Todo servidor do projeto segue esta ordem de registro de middlewares:
+Todo servidor de **produto** segue esta ordem (o middleware `tenantResolver` substituiu o antigo `withTenantIsolation`):
 
 ```typescript
 // server/index.ts
 import express from 'express'
-import { correlationMiddleware } from '@tenant/middleware/correlation'
-import { requireInternalKey } from '@tenant/middleware/internal-auth'
-import { withTenantIsolation } from '@tenant/middleware/tenant-isolation'
+import { correlationMiddleware } from '@nucleo/middleware/correlation'
+import { requireInternalKey } from '@nucleo/middleware/internal-auth'
+import { tenantResolver, withTenant } from '@gravity/tenant-resolver'
 
 const app = express()
 
 // 1. Parse de body
 app.use(express.json())
 
-// 2. Correlation ID — deve ser o primeiro middleware de negócio
+// 2. Correlation ID — primeiro middleware de negócio
 app.use(correlationMiddleware)
 
-// 3. Autenticação
+// 3. Autenticação inter-serviço
 app.use(requireInternalKey)
 
-// 4. Health check — sempre disponível, sem autenticação
-app.get('/health', async (req, res) => {
-  try {
-    await prisma.$queryRaw`SELECT 1`
-    res.json({ status: 'ok', service: 'nome-do-servico' })
-  } catch {
-    res.status(503).json({ status: 'down' })
-  }
+// 4. Tenant resolver — JWT + cache + injeção de req.tenant
+app.use(tenantResolver({
+  productKey: 'pedido',
+  configuradorBaseUrl: process.env.CONFIGURATOR_URL!,
+  internalKey: process.env.INTERNAL_SERVICE_KEY!,
+}))
+
+// 5. Health check — sem auth, NÃO usa banco de tenant (sem search_path)
+app.get('/health', async (_req, res) => {
+  res.json({ status: 'ok', service: 'pedido' })
 })
 
-// 5. Rotas de negócio
-app.use('/api/v1/activities', activitiesRoutes)
+// 6. Rotas de negócio — toda query DENTRO de withTenant
+app.get('/api/v1/pedidos', async (req, res, next) => {
+  try {
+    const data = await withTenant(req, async (db) => db.pedido.findMany())
+    res.json(data)
+  } catch (err) { next(err) }
+})
 
-// 6. Error handler — sempre o último
+// 7. Error handler — sempre o último
 app.use(errorHandler)
 
 export { app }
 ```
+
+### Regra inviolável de acesso ao banco
+
+- ❌ Acessar Prisma fora de `withTenant(...)` ou `withTenantContext(...)` (CRON/worker)
+- ❌ Importar `PrismaClient` ou instanciar `new PrismaClient()` em produto — linter CI bloqueia
+- ✅ Toda query roda dentro de `$transaction` com `SET LOCAL search_path` injetado pelo SDK
 
 ---
 

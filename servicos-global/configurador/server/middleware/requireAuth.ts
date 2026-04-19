@@ -62,7 +62,7 @@ export async function requireAuth(
       return
     }
 
-    let user = await prisma.user.findFirst({
+    let user = await prisma.usuario.findFirst({
       where: { clerk_user_id: verified.sub },
       select: { id: true, tenant_id: true, role: true },
     })
@@ -85,12 +85,12 @@ export async function requireAuth(
         if (primaryEmail) {
           if (tenantIdFromMeta) {
             // Caminho 1: metadata tem tenantId → match estrito
-            const byEmail = await prisma.user.findFirst({
+            const byEmail = await prisma.usuario.findFirst({
               where: { email: primaryEmail, tenant_id: tenantIdFromMeta },
               select: { id: true, tenant_id: true, role: true },
             })
             if (byEmail) {
-              await prisma.user.update({
+              await prisma.usuario.update({
                 where: { id: byEmail.id },
                 data: { clerk_user_id: verified.sub },
               })
@@ -98,13 +98,13 @@ export async function requireAuth(
             }
           } else {
             // Caminho 2: metadata sem tenantId → aceita só se match único global
-            const candidates = await prisma.user.findMany({
+            const candidates = await prisma.usuario.findMany({
               where: { email: primaryEmail },
               select: { id: true, tenant_id: true, role: true },
             })
             if (candidates.length === 1) {
               const only = candidates[0]
-              await prisma.user.update({
+              await prisma.usuario.update({
                 where: { id: only.id },
                 data: { clerk_user_id: verified.sub },
               })

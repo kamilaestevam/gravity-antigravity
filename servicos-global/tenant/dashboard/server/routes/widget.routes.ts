@@ -108,7 +108,7 @@ widgetRouter.post('/query', async (req, res, next) => {
   }
 })
 
-// POST / — salva widget no config (adiciona a DashboardWidget)
+// POST / — salva widget no config (adiciona a DashboardCriar)
 widgetRouter.post('/', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth!

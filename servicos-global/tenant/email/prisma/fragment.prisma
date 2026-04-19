@@ -44,10 +44,10 @@ enum FilaEmailPrioridade {
 }
 
 // ---------------------------------------------------------------------------
-// EmailThread — thread de conversa (agrupa mensagens de ida e volta)
+// EmailAssuntosParticipantes — thread de conversa (agrupa mensagens de ida e volta)
 // ---------------------------------------------------------------------------
 
-model EmailThread {
+model EmailAssuntosParticipantes {
   id         String @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -64,25 +64,26 @@ model EmailThread {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  mensagens EmailMessage[]
+  mensagens EmailMensagem[]
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("email_assuntos_participantes")
 }
 
 // ---------------------------------------------------------------------------
-// EmailMessage — mensagem individual (inbound ou outbound)
+// EmailMensagem — mensagem individual (inbound ou outbound)
 // ---------------------------------------------------------------------------
 
-model EmailMessage {
+model EmailMensagem {
   id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
 
   thread_id        String
-  thread           EmailThread  @relation(fields: [thread_id], references: [id])
+  thread           EmailAssuntosParticipantes  @relation(fields: [thread_id], references: [id])
 
   resend_id        String?      @unique                    // ID retornado pelo Resend
   direction        EmailDirection @default(OUTBOUND)
@@ -108,13 +109,14 @@ model EmailMessage {
   @@index([tenant_id, user_id])
   @@index([thread_id])
   @@index([dedup_key])
+  @@map("email_mensagem")
 }
 
 // ---------------------------------------------------------------------------
-// EmailEnviado — log de todos os envios realizados (auditoria completa)
+// EmailRegistroEnvio — log de todos os envios realizados (auditoria completa)
 // ---------------------------------------------------------------------------
 
-model EmailEnviado {
+model EmailRegistroEnvio {
   id         String @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -143,13 +145,14 @@ model EmailEnviado {
   @@index([tenant_id, user_id])
   @@index([status])
   @@index([dedup_key])
+  @@map("email_registro_envio")
 }
 
 // ---------------------------------------------------------------------------
-// Template — templates de email editáveis por tenant
+// TemplateEmail — templates de email editáveis por tenant
 // ---------------------------------------------------------------------------
 
-model Template {
+model TemplateEmail {
   id         String @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -171,13 +174,14 @@ model Template {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("template_email")
 }
 
 // ---------------------------------------------------------------------------
-// FilaEmail — fila de envio com controle de retry e backoff exponencial
+// EmailFilaEnvio — fila de envio com controle de retry e backoff exponencial
 // ---------------------------------------------------------------------------
 
-model FilaEmail {
+model EmailFilaEnvio {
   id         String @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -203,4 +207,5 @@ model FilaEmail {
   @@index([tenant_id, user_id])
   @@index([status, next_retry_at])
   @@index([tenant_id, status])
+  @@map("email_fila_envio")
 }

@@ -115,11 +115,11 @@ export interface ProductApi {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  price_tiers: PriceTierApi[]
+  price_tiers: FaixaPrecoApi[]
   negotiations?: NegotiationApi[]
 }
 
-export interface PriceTierApi {
+export interface FaixaPrecoApi {
   id: string
   product_id: string
   range_from: number
@@ -159,7 +159,7 @@ export interface PaginationApi {
   pages: number
 }
 
-export interface ProductConfigApi {
+export interface ConfigProdutoApi {
   id: string
   tenant_id: string
   product_key: string
@@ -446,7 +446,7 @@ export const adminBillingApi = {
 export type DeployEnvironment = 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION' | 'ALL'
 export type DeployStatus = 'SUCCESS' | 'FAILED' | 'ROLLBACK' | 'IN_PROGRESS'
 
-export interface DeployLogApi {
+export interface DeployApi {
   id: string
   deploy_number: number
   area: string
@@ -461,7 +461,7 @@ export interface DeployLogApi {
 }
 
 export interface ListDeploysResponseApi {
-  deploys: DeployLogApi[]
+  deploys: DeployApi[]
   pagination: PaginationApi
 }
 
@@ -499,7 +499,7 @@ export const adminDeploysApi = {
   },
 
   async create(data: CreateDeployRequest) {
-    return request<{ deploy: DeployLogApi }>('/admin/deploy', {
+    return request<{ deploy: DeployApi }>('/admin/deploy', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -514,7 +514,7 @@ export const adminDeploysApi = {
 
 // ─── Admin: Test Logs ───────────────────────────────────────────────────────
 
-export interface TestLogApi {
+export interface TestesApi {
   id: string
   created_at: string
   type: string
@@ -526,7 +526,7 @@ export interface TestLogApi {
   ai_analysis: Record<string, unknown> | null
 }
 
-export interface TestPlanApi {
+export interface TestePlanoApi {
   id: string
   name: string
   product: string
@@ -536,9 +536,9 @@ export interface TestPlanApi {
   steps: string[]
 }
 
-export const adminTestLogsApi = {
+export const adminTestesApi = {
   async list() {
-    return request<{ logs: TestLogApi[] }>('/admin/testes-gerais/logs')
+    return request<{ logs: TestesApi[] }>('/admin/testes-gerais/logs')
   },
   async runTests(opts?: { planos?: string[]; modulos?: string[] }) {
     return request<{ started: boolean }>('/admin/testes-gerais/run', {
@@ -552,7 +552,7 @@ export const adminTestLogsApi = {
   },
   async listPlans(product?: string) {
     const qs = product ? `?product=${encodeURIComponent(product)}` : ''
-    return request<{ plans: TestPlanApi[] }>(`/admin/testes-gerais/plans${qs}`)
+    return request<{ plans: TestePlanoApi[] }>(`/admin/testes-gerais/plans${qs}`)
   },
   async reanalyze(id: string) {
     return request<{ analysis: Record<string, unknown> }>(`/admin/testes-gerais/logs/${id}/reanalyze`, { method: 'POST' })
@@ -634,13 +634,13 @@ export const adminPlatformApi = {
 
 export const tenantProductsApi = {
   async listProducts(tenantId: string) {
-    return request<{ tenant_id: string; tenant_name: string; products: ProductConfigApi[] }>(
+    return request<{ tenant_id: string; tenant_name: string; products: ConfigProdutoApi[] }>(
       `/admin/tenants/${tenantId}/products`
     )
   },
 
   async activate(tenantId: string, productKey: string, config?: Record<string, unknown>) {
-    return request<{ activated: boolean; config: ProductConfigApi }>(
+    return request<{ activated: boolean; config: ConfigProdutoApi }>(
       `/admin/tenants/${tenantId}/products/${productKey}/activate`,
       { method: 'POST', body: JSON.stringify({ config: config ?? {} }) }
     )

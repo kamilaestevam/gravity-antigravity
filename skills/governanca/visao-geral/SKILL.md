@@ -194,27 +194,30 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 
 ## Bancos de Dados
 
-| Banco | Pertence a | O que armazena |
-|:---|:---|:---|
-| `configurador-db` | Configurador | Tenants, usuários, billing, permissões |
-| `tenant-db` | Serviços de tenant | Atividades, email, WhatsApp, dashboard, etc. |
-| `simulacusto-db` | Produto SimulaCusto | Dados específicos + fragments de produto |
-| `nf-importacao-db` | Produto NF Importação | Dados específicos + fragments de produto |
+| Banco | Pertence a | Modelo | O que armazena |
+|:---|:---|:---|:---|
+| `configurador-db` | Configurador | single-schema `public` | Tenants, usuários, billing, permissões (fonte global) |
+| `tenant-db` | Serviços de tenant | **schema-per-tenant** (`tenant_<uuid>`) | Atividades, email, WhatsApp, dashboard, etc. |
+| `simulacusto-db`, `pedido-db`, `processo-db`, etc. | Cada produto | **schema-per-tenant** | Dados isolados em schema próprio por tenant |
 
-**Regra:** nenhum produto compartilha banco com outro produto.
+**Regras:**
+- Nenhum produto compartilha banco com outro produto.
+- Cada banco de produto contém N schemas (1 por tenant), nomeados `tenant_<uuid_sem_hifens>`.
+- Provisionamento de schema dispara via evento `TenantProvisioned` do Configurador (worker + DLQ — ADR-003).
 
 ---
 
-## Regras Arquiteturais Fundamentais
+## Regras Arquiteturais Fundamentais (pós-pivô 2026-04-17)
 
 > As regras completas estão nas skills específicas. Este é apenas o mapa de entrada.
 
-- **Imports:** serviços de tenant nunca importam código de outros serviços — só comunicam via API REST
-- **Schema:** nenhum agente edita `schema.prisma` diretamente — apenas o Coordenador via script
-- **Isolamento:** todo acesso ao banco de tenant filtra por `tenant_id` obrigatoriamente
+- **Imports:** serviços tenant/produto nunca importam código de outro serviço — só comunicam via API REST
+- **Schema:** **schema-per-tenant** em todos os bancos de produto — 1 schema PostgreSQL por tenant. Configurador permanece single-schema. Ver [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md).
+- **Acesso ao banco de produto:** **exclusivamente via `withTenant(req, db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient }` direto é proibido (linter CI bloqueia). Ver [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
 - **Validação:** nenhuma rota Express sem schema Zod
 - **Erros:** toda rota lança `AppError` — o handler global responde
-- **Auth:** JWT validado em toda rota protegida; `x-internal-key` em toda chamada entre serviços
+- **Auth:** JWT validado em toda rota protegida via `@clerk/backend`; `x-internal-key` em toda chamada entre serviços
+- **Identidade:** vem do `GET /api/me` do Configurador (cacheado pelo SDK), **nunca** do `publicMetadata` do Clerk
 
 ---
 
@@ -228,7 +231,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Padrões de código (TypeScript, Zod, AppError, naming) | `antigravity-code-standards` |
 | Schema Prisma, fragments, composição | `antigravity-schema-composition` |
 | Serviços tenant vs produto, estrutura de pastas | `antigravity-servicos-tenant` |
-| Isolamento de tenant, RLS, middleware | `antigravity-tenant-isolation` |
+| Isolamento de tenant (Schema-per-Tenant + SDK) | `antigravity-tenant-isolation` (reescrita 2026-04-17) |
 | Auth entre serviços (`x-internal-key`, JWT) | `antigravity-autenticacao-s2s` |
 | Ações cross-boundary entre serviços | `antigravity-cross-boundary` |
 | Permissões de usuário (roles, granulares, produtos) | `antigravity-permissoes` |

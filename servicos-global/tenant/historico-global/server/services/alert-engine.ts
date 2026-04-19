@@ -43,7 +43,7 @@ export const AlertEngine = {
         Date.now() - rule.threshold_window_seconds * 1000
       )
 
-      const recentCount = await prisma.historyLog.count({
+      const recentCount = await prisma.historicoLog.count({
         where: {
           tenant_id: log.tenant_id,
           actor_id: log.actor_id,
@@ -57,7 +57,7 @@ export const AlertEngine = {
       if (recentCount < rule.threshold_count) return
 
       // Buscar IDs dos logs recentes para referenciar no alerta
-      const recentLogs = await prisma.historyLog.findMany({
+      const recentLogs = await prisma.historicoLog.findMany({
         where: {
           tenant_id: log.tenant_id,
           actor_id: log.actor_id,

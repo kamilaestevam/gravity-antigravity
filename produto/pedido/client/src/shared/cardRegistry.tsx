@@ -37,9 +37,9 @@ export interface CardComputedStats {
   total: number
   /** Soma de valor_total_pedido */
   valorTotal: number
-  /** Soma de quantidade_total_inicial_pedido */
+  /** Soma de quantidade_total_pedido */
   qtdTotal: number
-  /** Soma de saldo_item_pedido (todos os itens) */
+  /** Soma de quantidade_atual_pedido (todos os itens) */
   qtdAtualTotal: number
   /** Soma de quantidade_pronta_total (todos os itens) */
   itensProntos: number
@@ -53,9 +53,9 @@ export interface CardComputedStats {
   pedidosEmAndamento: number
   /** Soma de quantidade_transferida_item (todos os itens) */
   qtdTransferida: number
-  /** Soma de quantidade_inicial_item_pedido (todos os itens) */
+  /** Soma de quantidade_inicial_pedido (todos os itens) */
   qtdInicial: number
-  /** Soma de valor_total_itens (todos os itens) */
+  /** Soma de valor_total_item (todos os itens) */
   valorItens: number
   /** Número total de itens (todosItens.length) */
   nItens: number
@@ -242,12 +242,12 @@ export function computeCardStats(
   totalItensBanco?: number,
 ): CardComputedStats {
   const valorTotal       = pedidos.reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)
-  const qtdTotal         = pedidos.reduce((acc, p) => acc + (Number(p.quantidade_total_inicial_pedido) || 0), 0)
-  const qtdAtualTotal    = itens.reduce((acc, i)   => acc + (Number(i.saldo_item_pedido) || 0), 0)
+  const qtdTotal         = pedidos.reduce((acc, p) => acc + (Number(p.quantidade_total_pedido) || 0), 0)
+  const qtdAtualTotal    = itens.reduce((acc, i)   => acc + (Number(i.quantidade_atual_pedido) || 0), 0)
   const itensProntos     = itens.reduce((acc, i)   => acc + (Number(i.quantidade_pronta_total_item_pedido) || 0), 0)
-  const qtdTransferida   = itens.reduce((acc, i)   => acc + (Number(i.quantidade_transferida_item_pedido) || 0), 0)
-  const qtdInicial       = itens.reduce((acc, i)   => acc + (Number(i.quantidade_inicial_item_pedido) || 0), 0)
-  const valorItens       = itens.reduce((acc, i)   => acc + (Number(i.valor_total_itens) || 0), 0)
+  const qtdTransferida   = itens.reduce((acc, i)   => acc + (Number(i.quantidade_transferida_pedido) || 0), 0)
+  const qtdInicial       = itens.reduce((acc, i)   => acc + (Number(i.quantidade_inicial_pedido) || 0), 0)
+  const valorItens       = itens.reduce((acc, i)   => acc + (Number(i.valor_total_item) || 0), 0)
   const coberturaPend    = pedidos
     .filter(p => (p.itens ?? []).some(i => i.cobertura_cambial === 'sem_cobertura'))
     .reduce((acc, p) => acc + (Number(p.valor_total_pedido) || 0), 0)

@@ -1,13 +1,23 @@
-model Notification {
+model NotificacoesTituloCorpo {
   id          String   @id @default(cuid())
   tenant_id   String
-  product_id  String?  // nullable — applicable when related to a product
+  product_id  String?
   user_id     String   // Clerk ID or direct email
   type        String   // mentioned | task-assigned | reminder | next-step | etc.
   title       String?
   message     String
   read        Boolean  @default(false)
-  activity_id String?  // for direct navigation
+
+  // ── Context link (Pilar 2) ─────────────────────────────────────────────────
+  // Nunca salvar URL strings. Salvar entidade + ID e construir URL no frontend.
+  target_entity  String?  // "PEDIDO" | "ITEM" | "SIMULACUSTO" | "PROCESSO" | etc.
+  target_id      String?  // ID da entidade no banco
+
+  // ── Delivery tracking (Pilar 3) ────────────────────────────────────────────
+  // delivery_status: ciclo de vida do envio de email/whatsapp
+  // pending → sent → delivered | bounced | failed
+  delivery_status  String   @default("pending")  // pending | sent | delivered | bounced | failed
+  external_id      String?  // ID da mensagem no Resend (para reconciliar webhooks)
 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -17,6 +27,9 @@ model Notification {
   @@index([tenant_id, user_id])
   @@index([tenant_id, user_id, read])
   @@index([tenant_id, created_at])
+  @@index([tenant_id, delivery_status])
+  @@index([external_id])
+  @@map("notificacoes_titulo_corpo")
 }
 
 // ─── Contatos externos (email / WhatsApp) ─────────────────────────────────
@@ -40,6 +53,7 @@ model ExternalContact {
   @@index([tenant_id, created_by])
   @@index([tenant_id, email])
   @@index([tenant_id, whatsapp_phone])
+  @@map("contato_externo")
 }
 
 // ─── Configuração de canais por tenant ────────────────────────────────────
@@ -56,25 +70,5 @@ model TenantChannelConfig {
   updated_at DateTime @updatedAt
 
   @@index([tenant_id])
-}
-
-model NotificationPreferences {
-  id            String  @id @default(cuid())
-  tenant_id     String
-  product_id    String? // nullable — preferências podem ser globais por tenant ou específicas de produto
-  user_id       String  // Clerk ID
-  email_enabled Boolean @default(true)
-  push_enabled  Boolean @default(true)
-  wa_enabled    Boolean @default(true)
-
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-
-  // Uniqueness composta: dois tenants podem ter o mesmo Clerk user_id.
-  // Antes era `user_id @unique` global — colisão entre tenants. Detetive de Tela
-  // identificou na Onda 1 (item A9 / #13).
-  @@unique([tenant_id, user_id, product_id])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@map("configuracao_canal_tenant")
 }

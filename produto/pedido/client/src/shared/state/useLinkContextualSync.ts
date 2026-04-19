@@ -26,23 +26,23 @@ export function useLinkContextualSync(): void {
     // Item selecionado tem prioridade
     if (itens.length === 1) {
       const item = itens[0]
-      setLinkContextual(`/workspace/pedido/${item.pedido_id}/item/${item.id}`)
+      setLinkContextual(`/produto/pedido/pedidos/${item.pedido_id}/editar`)
       return
     }
     if (itens.length > 1) {
-      const ids = itens.map((i) => i.id).join(',')
-      setLinkContextual(`/workspace/pedido/itens?ids=${ids}`)
+      const ids = itens.map((i) => i.pedido_id).join(',')
+      setLinkContextual(`/produto/pedido/pedidos?ids=${ids}`)
       return
     }
 
     // Pedido selecionado
     if (pedidos.length === 1) {
-      setLinkContextual(`/workspace/pedido/${pedidos[0].id}`)
+      setLinkContextual(`/produto/pedido/pedidos/${pedidos[0].id}/editar`)
       return
     }
     if (pedidos.length > 1) {
       const ids = pedidos.map((p) => p.id).join(',')
-      setLinkContextual(`/workspace/pedido?ids=${ids}`)
+      setLinkContextual(`/produto/pedido/pedidos?ids=${ids}`)
       return
     }
 

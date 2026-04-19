@@ -202,9 +202,9 @@ function mapearCampos(item: InvoiceItem): Record<string, string | number | null>
     part_number:            item.code              ?? null,
     descricao_item:         item.description       ?? null,
     unidade_comercializada_item: item.unit          ?? null,
-    quantidade_inicial_item_pedido: item.quantity  ?? null,
-    valor_unitario_item: item.unit_price        ?? null,
-    valor_total_itens:   item.total_amount      ?? null,
+    quantidade_inicial_pedido: item.quantity  ?? null,
+    valor_por_unidade_item: item.unit_price        ?? null,
+    valor_total_item:   item.total_amount      ?? null,
     ncm:                    item.customs_tariff    ?? null,
 
     // Metadados (para exibição na etapa de mapeamento)

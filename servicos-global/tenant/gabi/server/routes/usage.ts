@@ -22,7 +22,7 @@ usageRouter.get('/api/v1/gabi/usage', async (req, res, next) => {
     const startDate = new Date(year, mon - 1, 1)
     const endDate = new Date(year, mon, 1)
 
-    const logs = await prisma.gabiUsageLog.findMany({
+    const logs = await prisma.gabiaLogUso.findMany({
       where: {
         tenant_id: tenantId,
         created_at: { gte: startDate, lt: endDate },
@@ -85,7 +85,7 @@ usageRouter.get('/api/v1/gabi/usage/history', async (req, res, next) => {
     const sixMonthsAgo = new Date()
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 
-    const logs = await prisma.gabiUsageLog.findMany({
+    const logs = await prisma.gabiaLogUso.findMany({
       where: {
         tenant_id: tenantId,
         created_at: { gte: sixMonthsAgo },

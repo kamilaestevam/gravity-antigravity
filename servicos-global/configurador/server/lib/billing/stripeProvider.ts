@@ -54,7 +54,7 @@ async function resolveCustomer(inv: Stripe.Invoice) {
   }
 
   // Tenta casar com tenant do Gravity
-  const tenant = await prisma.tenant.findFirst({
+  const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
     select: { id: true, name: true },
   })
@@ -169,15 +169,15 @@ export class StripeProvider implements BillingProvider {
       // customer_id DEVE ser tenant_id do Gravity — valida existência antes de
       // passar pro Stripe, impedindo enumeration cross-tenant e evitando que
       // IDs Stripe crus sejam injetados via query string.
-      const tenant = await prisma.tenant.findUnique({
+      const tenant = await prisma.organizacao.findUnique({
         where: { id: params.customer_id },
         select: { stripe_customer_id: true },
       })
       if (!tenant) {
-        throw new AppError('Tenant não encontrado', 404, 'TENANT_NOT_FOUND')
+        throw new AppError('Organizacao não encontrado', 404, 'TENANT_NOT_FOUND')
       }
       if (!tenant.stripe_customer_id) {
-        // Tenant existe mas nunca teve fatura — retorna vazio em vez de erro
+        // Organizacao existe mas nunca teve fatura — retorna vazio em vez de erro
         return { invoices: [], has_more: false, next_cursor: null }
       }
       listParams.customer = tenant.stripe_customer_id
@@ -234,13 +234,13 @@ export class StripeProvider implements BillingProvider {
 
   async createInvoice(params: CreateInvoiceParams): Promise<GravityInvoice> {
     // 1. Resolver stripe_customer_id do tenant
-    const tenant = await prisma.tenant.findUnique({
+    const tenant = await prisma.organizacao.findUnique({
       where: { id: params.customer_tenant_id },
       select: { id: true, name: true, stripe_customer_id: true },
     })
 
     if (!tenant) {
-      throw new AppError('Tenant não encontrado', 404, 'TENANT_NOT_FOUND')
+      throw new AppError('Organizacao não encontrado', 404, 'TENANT_NOT_FOUND')
     }
 
     let stripeCustomerId = tenant.stripe_customer_id
@@ -251,7 +251,7 @@ export class StripeProvider implements BillingProvider {
         metadata: { tenant_id: tenant.id },
       })
       stripeCustomerId = created.id
-      await prisma.tenant.update({
+      await prisma.organizacao.update({
         where: { id: tenant.id },
         data: { stripe_customer_id: stripeCustomerId },
       })

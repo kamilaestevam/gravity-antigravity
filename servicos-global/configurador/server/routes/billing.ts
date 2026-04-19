@@ -40,23 +40,7 @@ billingRouter.post('/webhook', async (req, res, next) => {
       throw new AppError('Assinatura Stripe inválida', 400, 'INVALID_SIGNATURE')
     }
 
-    // Verifica idempotência — evita processar o mesmo evento duas vezes
-    // Usa upsert para evitar race condition entre findUnique e create
-    const idempotencyResult = await prisma.stripeEvent.upsert({
-      where: { id: event.id },
-      create: {
-        id: event.id,
-        type: event.type,
-        payload: event.data as object,
-      },
-      update: {}, // noop — já existe
-    })
-
-    // Se o registro já existia (processed_at anterior a esta requisição), é duplicata
-    if (idempotencyResult.processed_at < new Date(Date.now() - 1000)) {
-      res.json({ received: true, cached: true })
-      return
-    }
+    // TODO: idempotência Stripe — StripeEvent removido do DDD; reimplementar via FaturaProdutosGravity ou Redis
 
     // Processa o evento
     await billingService.handleStripeEvent(event)
@@ -73,7 +57,7 @@ billingRouter.post('/webhook', async (req, res, next) => {
  */
 billingRouter.get('/invoices', requireAuth, async (req, res, next) => {
   try {
-    const tenant = await prisma.tenant.findUnique({
+    const tenant = await prisma.organizacao.findUnique({
       where: { id: req.auth.tenantId },
       select: { stripe_customer_id: true },
     })

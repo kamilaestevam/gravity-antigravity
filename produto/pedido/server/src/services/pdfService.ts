@@ -26,7 +26,7 @@ interface PedidoParaTemplate {
   incoterm?: string | null
   data_emissao_pedido: string
   valor_total_pedido?: number | null
-  quantidade_total_inicial_pedido?: number | null
+  quantidade_total_pedido?: number | null
   itens: ItemParaTemplate[]
   [key: string]: unknown
 }
@@ -35,8 +35,8 @@ interface ItemParaTemplate {
   part_number: string
   descricao_item: string
   ncm: string
-  saldo_item_pedido: number
-  quantidade_inicial_item_pedido: number
+  quantidade_atual_pedido: number
+  quantidade_inicial_pedido: number
   [key: string]: unknown
 }
 
@@ -69,7 +69,7 @@ export function compilarVariaveis(
   const itens: Record<string, unknown>[] = (pedido.itens ?? []).map(item => {
     const base: Record<string, unknown> = { ...item }
     // Aliases convenientes para templates — sobrescrevem os campos originais
-    base['quantidade'] = item.saldo_item_pedido
+    base['quantidade'] = item.quantidade_atual_pedido
     return base
   })
 
@@ -83,8 +83,8 @@ export function compilarVariaveis(
     valor_total: pedido.valor_total_pedido != null
       ? pedido.valor_total_pedido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
       : '',
-    quantidade_total: pedido.quantidade_total_inicial_pedido != null
-      ? pedido.quantidade_total_inicial_pedido.toLocaleString('pt-BR')
+    quantidade_total: pedido.quantidade_total_pedido != null
+      ? pedido.quantidade_total_pedido.toLocaleString('pt-BR')
       : '',
     tenant_nome: tenantNome,
     data_geracao: dataGeracao,

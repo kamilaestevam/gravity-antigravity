@@ -11,6 +11,7 @@ model Agenda {
   config      DisponibilidadeConfig?
 
   @@index([tenant_id])
+  @@map("agenda_usuario")
 }
 
 model Slot {
@@ -28,6 +29,7 @@ model Slot {
 
   @@index([tenant_id])
   @@index([agenda_id])
+  @@map("horario_disponivel")
 }
 
 model Reserva {
@@ -46,6 +48,7 @@ model Reserva {
   @@index([tenant_id])
   @@index([slot_id])
   @@index([usuario_id])
+  @@map("reserva_agenda")
 }
 
 model DisponibilidadeConfig {
@@ -63,4 +66,5 @@ model DisponibilidadeConfig {
   agenda         Agenda   @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
+  @@map("config_disponibilidade_agenda")
 }

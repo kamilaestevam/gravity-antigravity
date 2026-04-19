@@ -51,7 +51,7 @@ accessRouter.get('/check-access', async (req, res, next) => {
     const { tenantId, userId, productId, companyId, productKey, resource, action } = parsed.data
 
     // 1. Verifica se o tenant está ativo
-    const tenant = await prisma.tenant.findUnique({
+    const tenant = await prisma.organizacao.findUnique({
       where: { id: tenantId },
       select: { status: true },
     })
@@ -107,7 +107,7 @@ accessRouter.get('/tenant-products', async (req, res, next) => {
     const products = await productConfigService.listActiveProducts(tenantId)
 
     // Retorna também os inativos para que o Shell saiba o que esconder
-    const allConfigs = await prisma.productConfig.findMany({
+    const allConfigs = await prisma.produtoGravityConfig.findMany({
       where: { tenant_id: tenantId },
       select: { product_key: true, is_active: true, config: true, updated_at: true },
     })

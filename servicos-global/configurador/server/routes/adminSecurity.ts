@@ -110,7 +110,7 @@ async function fetchHealthSnapshot(): Promise<HealthCacheEntry['data']> {
   // Persistir snapshot no banco (fire-and-forget — não bloqueia response se upsert falhar)
   Promise.all(
     results.map((result) =>
-      prisma.serviceHealth.upsert({
+      prisma.servicos.upsert({
         where: { service: result.service },
         create: {
           service: result.service,
@@ -129,7 +129,7 @@ async function fetchHealthSnapshot(): Promise<HealthCacheEntry['data']> {
       }),
     ),
   ).catch((err: unknown) => {
-    console.error('[adminSecurity] Falha ao persistir ServiceHealth:', err instanceof Error ? err.message : err)
+    console.error('[adminSecurity] Falha ao persistir Servicos:', err instanceof Error ? err.message : err)
   })
 
   const okCount = results.filter((r) => r.status === 'OK').length
@@ -146,19 +146,19 @@ async function fetchHealthSnapshot(): Promise<HealthCacheEntry['data']> {
   return data
 }
 
-/** Queries agregadas de SecurityEvent (últimas 24h) em 1 round-trip usando groupBy. */
+/** Queries agregadas de Seguranca (últimas 24h) em 1 round-trip usando groupBy. */
 async function fetchStats() {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
   const [totalEvents, bySeverity, blockedCount, recentEvents] = await Promise.all([
-    prisma.securityEvent.count({ where: { created_at: { gte: since } } }),
-    prisma.securityEvent.groupBy({
+    prisma.seguranca.count({ where: { created_at: { gte: since } } }),
+    prisma.seguranca.groupBy({
       by: ['severity'],
       where: { created_at: { gte: since } },
       _count: { _all: true },
     }),
-    prisma.securityEvent.count({ where: { status: 'BLOCKED', created_at: { gte: since } } }),
-    prisma.securityEvent.findMany({
+    prisma.seguranca.count({ where: { status: 'BLOCKED', created_at: { gte: since } } }),
+    prisma.seguranca.findMany({
       where: { created_at: { gte: since } },
       orderBy: { created_at: 'desc' },
       take: 5,
@@ -181,7 +181,7 @@ async function fetchStats() {
 
 async function fetchRateLimitMetrics() {
   const since = new Date(Date.now() - 60 * 60 * 1000) // última hora
-  const metrics = await prisma.rateLimitMetric.findMany({
+  const metrics = await prisma.requisicoes.findMany({
     where: { created_at: { gte: since } },
     orderBy: { created_at: 'desc' },
     take: 100,
@@ -263,13 +263,13 @@ adminSecurityRouter.get('/events', async (req, res, next) => {
     if (query.tenant_id) where.tenant_id = query.tenant_id
 
     const [events, total] = await Promise.all([
-      prisma.securityEvent.findMany({
+      prisma.seguranca.findMany({
         where,
         orderBy: { created_at: 'desc' },
         take: query.limit,
         skip: query.offset,
       }),
-      prisma.securityEvent.count({ where }),
+      prisma.seguranca.count({ where }),
     ])
 
     res.json({
@@ -330,7 +330,7 @@ adminSecurityRouter.get('/secrets', (_req, res) => {
 // POST /events — REMOVIDA do router admin
 //
 // Esta rota era chamada pelo securityAuditLogger do historico-global para
-// persistir eventos na tabela SecurityEvent. Mas o logger usa x-internal-key
+// persistir eventos na tabela Seguranca. Mas o logger usa x-internal-key
 // (não Bearer JWT) e caía em 401 aqui — resultado: a tabela ficava VAZIA e
 // o painel /admin/seguranca mostrava "0 eventos" permanentemente, com
 // compliance LGPD/SOC2 quebrado silenciosamente.
@@ -360,7 +360,7 @@ adminSecurityInternalRouter.post('/events', requireInternalKey, async (req, res,
     const data = CreateEventSchema.parse(req.body)
     // Prisma espera `InputJsonValue` para `metadata`; o Zod gera `Record<string, unknown>`.
     // Cast explícito para satisfazer o tipo do Prisma sem perder validação do schema.
-    const event = await prisma.securityEvent.create({
+    const event = await prisma.seguranca.create({
       data: {
         ...data,
         metadata: data.metadata as Prisma.InputJsonValue | undefined,

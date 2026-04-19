@@ -54,14 +54,14 @@ export const productCatalogService = {
     }
 
     const [products, total] = await Promise.all([
-      prisma.product.findMany({
+      prisma.produtoGravity.findMany({
         where,
         skip,
         take: limit,
         include: ACTIVE_PRODUCT_INCLUDE,
         orderBy: { created_at: 'desc' },
       }),
-      prisma.product.count({ where }),
+      prisma.produtoGravity.count({ where }),
     ])
 
     return {
@@ -75,7 +75,7 @@ export const productCatalogService = {
    * (payload enxuto — apenas duas colunas).
    */
   async listUsedSlugs(): Promise<Set<string>> {
-    const rows = await prisma.product.findMany({
+    const rows = await prisma.produtoGravity.findMany({
       where: { deleted_at: null },
       select: { slug: true, backend_module: true },
     })
@@ -92,7 +92,7 @@ export const productCatalogService = {
    * auditoria histórica — o chamador filtra se não quiser).
    */
   async getById(id: string) {
-    return prisma.product.findUnique({
+    return prisma.produtoGravity.findUnique({
       where: { id },
       include: ACTIVE_PRODUCT_INCLUDE,
     })
@@ -102,7 +102,7 @@ export const productCatalogService = {
    * Busca um produto pelo slug — ignora soft-deletados.
    */
   async getBySlug(slug: string) {
-    return prisma.product.findFirst({
+    return prisma.produtoGravity.findFirst({
       where: { slug, deleted_at: null },
       include: { price_tiers: true },
     })
@@ -114,7 +114,7 @@ export const productCatalogService = {
   async create(data: ProductCreateData) {
     const { price_tiers, ...productData } = data
 
-    return prisma.product.create({
+    return prisma.produtoGravity.create({
       data: {
         ...productData,
         price_tiers: price_tiers?.length
@@ -154,7 +154,7 @@ export const productCatalogService = {
         }
       }
 
-      return tx.product.update({
+      return tx.produtoGravity.update({
         where: { id },
         data: productData,
         include: { price_tiers: true },
@@ -166,11 +166,11 @@ export const productCatalogService = {
    * Alterna status Ativo/Suspenso de um produto.
    */
   async toggleStatus(id: string) {
-    const product = await prisma.product.findUnique({ where: { id } })
+    const product = await prisma.produtoGravity.findUnique({ where: { id } })
     if (!product) return null
 
     const newStatus = product.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE'
-    return prisma.product.update({
+    return prisma.produtoGravity.update({
       where: { id },
       data: { status: newStatus },
     })
@@ -197,7 +197,7 @@ export const productCatalogService = {
    * Soft-delete — marca deleted_at. Preserva PriceTiers e SpecialNegotiations.
    */
   async softDelete(id: string) {
-    return prisma.product.update({
+    return prisma.produtoGravity.update({
       where: { id },
       data: { deleted_at: new Date() },
     })
@@ -208,14 +208,14 @@ export const productCatalogService = {
    * Use com cautela — preferir softDelete.
    */
   async hardDelete(id: string) {
-    return prisma.product.delete({ where: { id } })
+    return prisma.produtoGravity.delete({ where: { id } })
   },
 
   /**
    * Lista produtos ativos para exibição pública (Store/Marketplace).
    */
   async listPublic() {
-    return prisma.product.findMany({
+    return prisma.produtoGravity.findMany({
       where: {
         status: { in: ['ACTIVE', 'COMING_SOON'] },
         deleted_at: null,
@@ -230,18 +230,18 @@ export const productCatalogService = {
    * Invocado apenas por CLI — nunca exposto via HTTP.
    */
   async seedInitialProducts() {
-    const count = await prisma.product.count()
+    const count = await prisma.produtoGravity.count()
     if (count > 0) {
       await this.ensureMissingProducts()
       return { seeded: false, count }
     }
 
     await prisma.$transaction([
-      prisma.product.create({ data: seedProducts[0] }),
-      prisma.product.create({ data: seedProducts[1] }),
-      prisma.product.create({ data: seedProducts[2] }),
-      prisma.product.create({ data: seedProducts[3] }),
-      prisma.product.create({ data: seedProducts[4] }),
+      prisma.produtoGravity.create({ data: seedProducts[0] }),
+      prisma.produtoGravity.create({ data: seedProducts[1] }),
+      prisma.produtoGravity.create({ data: seedProducts[2] }),
+      prisma.produtoGravity.create({ data: seedProducts[3] }),
+      prisma.produtoGravity.create({ data: seedProducts[4] }),
     ])
 
     return { seeded: true, count: seedProducts.length }
@@ -256,22 +256,22 @@ export const productCatalogService = {
     let created = 0
     let updated = 0
     for (const product of seedProducts) {
-      const existing = await prisma.product.findFirst({ where: { slug: product.slug } })
+      const existing = await prisma.produtoGravity.findFirst({ where: { slug: product.slug } })
       if (!existing) {
-        await prisma.product.create({ data: product })
+        await prisma.produtoGravity.create({ data: product })
         created++
       } else if (existing.name !== product.name) {
-        await prisma.product.update({ where: { id: existing.id }, data: { name: product.name } })
+        await prisma.produtoGravity.update({ where: { id: existing.id }, data: { name: product.name } })
         updated++
       }
     }
 
-    const toRemove = await prisma.product.findMany({
+    const toRemove = await prisma.produtoGravity.findMany({
       where: { slug: { notIn: expectedSlugs } },
       select: { id: true },
     })
     for (const p of toRemove) {
-      await prisma.product.delete({ where: { id: p.id } })
+      await prisma.produtoGravity.delete({ where: { id: p.id } })
     }
 
     return { created, updated, removed: toRemove.length }
@@ -284,7 +284,7 @@ export const productCatalogService = {
   async activateProductsForTenant(tenantId: string, productKeys: string[]) {
     const results = await Promise.all(
       productKeys.map(key =>
-        prisma.productConfig.upsert({
+        prisma.produtoGravityConfig.upsert({
           where: { tenant_id_product_key: { tenant_id: tenantId, product_key: key } },
           create: { tenant_id: tenantId, product_key: key, config: {}, is_active: true },
           update: { is_active: true },

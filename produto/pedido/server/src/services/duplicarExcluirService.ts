@@ -8,6 +8,8 @@
  *   - $transaction para atomicidade
  */
 
+import { Prisma } from '@prisma/client'
+
 // ── Erro local (padrão project) ───────────────────────────────────────────────
 
 export class AppError extends Error {
@@ -143,8 +145,7 @@ export class DuplicarService {
         copiar_datas: config.duplicar_copiar_datas,
         status_inicial: config.duplicar_status_inicial,
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      pedidos: pedidos.map((p: any) => ({
+      pedidos: pedidos.map((p) => ({
         id: p.id,
         numero_pedido: p.numero_pedido,
         total_itens: p.itens.length,
@@ -185,7 +186,7 @@ export class DuplicarService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resultado: DuplicarResultado = await (db as any).$transaction(async (tx: any) => {
+    const resultado: DuplicarResultado = await (db as any).$transaction(async (tx: Prisma.TransactionClient) => {
       const criados: DuplicarResultado['criados'] = []
       const erros: DuplicarResultado['erros'] = []
 
@@ -223,8 +224,8 @@ export class DuplicarService {
           // Extrair campos a copiar (sem id, timestamps, pedidos_origem, histórico de transferências)
           const {
             id: _id,
-            pedido_criado_em: _ca,
-            pedido_atualizado_em: _ua,
+            created_at: _ca,
+            updated_at: _ua,
             pedidos_origem_id: _po,
             data_consolidacao_pedido: _dcp,
             data_transferencia_saldo_pedido: _dtsp,
@@ -237,12 +238,12 @@ export class DuplicarService {
             const {
               id: _iid,
               pedido_id: _pid,
-              item_criado_em: _ica,
-              item_atualizado_em: _iua,
-              saldo_item_pedido: _qsp,
-              quantidade_pronta_total_item_pedido: _qpp,
-              quantidade_transferida_item_pedido: _qtp,
-              quantidade_cancelada_item_pedido: _qcp,
+              created_at: _ica,
+              updated_at: _iua,
+              quantidade_atual_pedido: _qsp,
+              quantidade_pronta_pedido: _qpp,
+              quantidade_transferida_pedido: _qtp,
+              quantidade_cancelada_pedido: _qcp,
               ...itemBase
             } = item
             return {
@@ -250,10 +251,10 @@ export class DuplicarService {
               id: gerarId('pite'),
               tenant_id: tenantId,
               company_id: companyId,
-              saldo_item_pedido: item.quantidade_inicial_item_pedido,
-              quantidade_pronta_total_item_pedido: 0,
-              quantidade_transferida_item_pedido: 0,
-              quantidade_cancelada_item_pedido: 0,
+              quantidade_atual_pedido: item.quantidade_inicial_pedido,
+              quantidade_pronta_pedido: 0,
+              quantidade_transferida_pedido: 0,
+              quantidade_cancelada_pedido: 0,
             }
           })
 
@@ -336,25 +337,23 @@ export class DuplicarService {
       where: { pedido_id: payload.pedido_id, tenant_id: tenantId },
       select: { sequencia_item: true },
     })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const maxSequencia = todosItens.reduce((max: number, i: any) => Math.max(max, i.sequencia_item ?? 0), 0)
+    const maxSequencia = todosItens.reduce((max: number, i) => Math.max(max, (i as { sequencia_item?: number }).sequencia_item ?? 0), 0)
     let proximaSequencia = maxSequencia + 1
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const criados: DuplicarResultado['criados'] = await (db as any).$transaction(async (tx: any) => {
+    const criados: DuplicarResultado['criados'] = await (db as any).$transaction(async (tx: Prisma.TransactionClient) => {
       const resultado = []
 
       for (const item of itens) {
         const {
           id: _id,
           pedido_id: _pid,
-          item_criado_em: _ca,
-          item_atualizado_em: _ua,
+          created_at: _ca,
+          updated_at: _ua,
           sequencia_item: _seq,
-          saldo_item_pedido: _qsp,
-          quantidade_pronta_total_item_pedido: _qpp,
-          quantidade_transferida_item_pedido: _qtp,
-          quantidade_cancelada_item_pedido: _qcp,
+          quantidade_atual_pedido: _qsp,
+          quantidade_pronta_pedido: _qpp,
+          quantidade_transferida_pedido: _qtp,
+          quantidade_cancelada_pedido: _qcp,
           ...itemBase
         } = item
 
@@ -366,10 +365,10 @@ export class DuplicarService {
             company_id: companyId,
             pedido_id: payload.pedido_id,
             sequencia_item: proximaSequencia++,
-            saldo_item_pedido: item.quantidade_inicial_item_pedido,
-            quantidade_pronta_total_item_pedido: 0,
-            quantidade_transferida_item_pedido: 0,
-            quantidade_cancelada_item_pedido: 0,
+            quantidade_atual_pedido: item.quantidade_inicial_pedido,
+            quantidade_pronta_pedido: 0,
+            quantidade_transferida_pedido: 0,
+            quantidade_cancelada_pedido: 0,
           },
         })
 
@@ -451,8 +450,7 @@ export class ExcluirService {
 
     // Validar todos os status no backend (nunca confiar no frontend)
     const bloqueados = pedidos.filter(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (p: any) => !config.excluir_status_permitidos.includes(p.status),
+      (p) => !config.excluir_status_permitidos.includes((p as { status: string }).status),
     )
     if (bloqueados.length > 0) {
       const numeros = bloqueados.map((p: Record<string, unknown>) => p.numero_pedido).join(', ')
@@ -463,11 +461,9 @@ export class ExcluirService {
       )
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const totalItens = pedidos.reduce((acc: number, p: any) => acc + p.itens.length, 0)
+    const totalItens = pedidos.reduce((acc: number, p) => acc + ((p as { itens: unknown[] }).itens?.length ?? 0), 0)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db as any).$transaction(async (tx: any) => {
+    await (db as any).$transaction(async (tx: Prisma.TransactionClient) => {
       // AUDIT TRAIL ANTES de excluir (obrigatório — dados serão perdidos)
       for (const pedido of pedidos) {
         await tx.pedidoHistorico?.create?.({
@@ -483,7 +479,7 @@ export class ExcluirService {
               itens: pedido.itens.map((i: Record<string, unknown>) => ({
                 id: i.id,
                 part_number: i.part_number,
-                quantidade_inicial_item_pedido: i.quantidade_inicial_item_pedido,
+                quantidade_inicial_pedido: i.quantidade_inicial_pedido,
               })),
             }),
           },
@@ -546,8 +542,7 @@ export class ExcluirService {
 
     let pedidosExcluidosPorSemItem = 0
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db as any).$transaction(async (tx: any) => {
+    await (db as any).$transaction(async (tx: Prisma.TransactionClient) => {
       // Audit trail ANTES da exclusão
       await tx.pedidoHistorico?.create?.({
         data: {
@@ -560,7 +555,7 @@ export class ExcluirService {
             itens: itens.map((i: Record<string, unknown>) => ({
               id: i.id,
               part_number: i.part_number,
-              quantidade_inicial_item_pedido: i.quantidade_inicial_item_pedido,
+              quantidade_inicial_pedido: i.quantidade_inicial_pedido,
             })),
           }),
         },

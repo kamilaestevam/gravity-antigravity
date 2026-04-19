@@ -19,7 +19,7 @@ import { useHistoricoLogger } from '../../hooks/useHistoricoLogger'
 import {
   adminDeploysApi,
   setAuthTokenProvider,
-  type DeployLogApi,
+  type DeployApi,
   type DeployEnvironment,
   type DeployStatus,
 } from '../../services/apiClient'
@@ -133,7 +133,7 @@ export function DeployAdmin() {
   const addNotification = useShellStore(s => s.addNotification)
   const { logEvent } = useHistoricoLogger()
 
-  const [deploys, setDeploys] = useState<DeployLogApi[]>([])
+  const [deploys, setDeploys] = useState<DeployApi[]>([])
   const [carregando, setCarregando] = useState(true)
 
   // Paginação
@@ -175,7 +175,7 @@ export function DeployAdmin() {
   const [formStatus, setFormStatus] = useState<DeployStatus>('SUCCESS')
   const [salvando, setSalvando] = useState(false)
 
-  const [deployParaExcluir, setDeployParaExcluir] = useState<DeployLogApi | null>(null)
+  const [deployParaExcluir, setDeployParaExcluir] = useState<DeployApi | null>(null)
 
   const resetForm = () => {
     setFormDirty(false)
@@ -224,7 +224,7 @@ export function DeployAdmin() {
       logEvent({
         action: 'CRIAÇÃO',
         module: 'deploy',
-        resource_type: 'DeployLog',
+        resource_type: 'Deploy',
         resource_id: deploy.id,
         action_detail: `Deploy registrado: ${deploy.area} ${deploy.version} em ${deploy.environment}`,
       })
@@ -254,7 +254,7 @@ export function DeployAdmin() {
       logEvent({
         action: 'EXCLUSÃO',
         module: 'deploy',
-        resource_type: 'DeployLog',
+        resource_type: 'Deploy',
         resource_id: id,
         action_detail: `Deploy ${version} (${deployParaExcluir.area}) removido do histórico`,
       })
@@ -269,7 +269,7 @@ export function DeployAdmin() {
 
   // ─── Colunas memoizadas ──────────────────────────────────────────────────
 
-  const COLUNAS = useMemo<TabelaGlobalColuna<DeployLogApi>[]>(() => [
+  const COLUNAS = useMemo<TabelaGlobalColuna<DeployApi>[]>(() => [
     {
       key: 'deploy_number',
       label: '#',
@@ -397,7 +397,7 @@ export function DeployAdmin() {
     },
   ], [t])
 
-  const ACOES: TabelaGlobalAcao<DeployLogApi>[] = [
+  const ACOES: TabelaGlobalAcao<DeployApi>[] = [
     {
       id: 'excluir',
       icone: <Trash size={15} weight="bold" />,
@@ -472,7 +472,7 @@ export function DeployAdmin() {
         </div>
 
         <div className="ws-fade-up" style={{ position: 'relative', zIndex: 10 }}>
-          <TabelaGlobal<DeployLogApi>
+          <TabelaGlobal<DeployApi>
             id="admin-deploys-log"
             dados={deploys}
             colunas={COLUNAS}

@@ -8,12 +8,26 @@ A arquitetura de APIs do Gravity segue o modelo de **Dupla Cadeia** para garanti
 API global e restrita para a gestão da **Plataforma Gravity**.
 
 - **Acesso:** Apenas roles `SUPER_ADMIN` e `ADMIN`.
-- **Escopo:**
-    - Listar todos os Tenants.
-    - Provisionar novos ambientes.
-    - Gestão de Faturamento (Stripe Sync).
-    - Logs de Auditoria Global (Cross-tenant logs).
-- **Service:** Localizado em `servicos-global/configurador` (rotas de admin).
+- **Service:** Localizado em `servicos-global/configurador/server/routes/admin.ts`.
+
+### Rotas de Tenants (Organizações)
+
+| Método | Path | Descrição |
+|--------|------|-----------|
+| `GET` | `/api/admin/tenants` | Lista todos os tenants com paginação, busca e companies aninhadas (inclui `_count.memberships` por company) |
+| `GET` | `/api/admin/tenants/:id` | Detalhe completo de um tenant (users, companies, subscriptions, product_configs) |
+| `POST` | `/api/admin/tenants` | Cria nova organização — campos: `name`, `slug`, `plano?`, `cnpj?` |
+| `PATCH` | `/api/admin/tenants/:id` | Atualiza organização — aceita `status`, `name` e/ou `slug` |
+| `PATCH` | `/api/admin/workspaces/:id` | Atualiza status de um workspace — aceita `status: ACTIVE \| INACTIVE` |
+| `GET` | `/api/admin/stats` | Totais globais: tenants, users (workspaces calculados client-side via `_count.companies`) |
+
+### Demais Escopos
+
+- Gestão de Faturamento (Stripe Sync) — `GET/POST /api/admin/financeiro-admin/invoices`
+- Logs de Auditoria Global (Cross-tenant) — via `AuditService` em todas as rotas de mutação
+- Provisionar novos ambientes — via `POST /api/admin/tenants`
+- Usuários globais — `GET /api/admin/usuarios-globais`
+- Deploys — `GET/POST /api/admin/deploy`
 
 ---
 

@@ -20,7 +20,7 @@ export const pedidoFormSchema = z.object({
   fabricante_id: z.string().default(''),
   incoterm: z.string().default('FOB'),
   moeda_pedido: z.string().default('USD'),
-  condicao_pagamento_pedido: z.string().default(''),
+  condicao_pagamento: z.string().default(''),
   numero_proforma: z.string().default(''),
   numero_invoice: z.string().default(''),
   referencia_importador: z.string().default(''),
@@ -44,9 +44,9 @@ export const itemFormSchema = z.object({
   part_number: z.string().default(''),
   ncm: z.string().default(''),
   descricao_item: z.string().default(''),
-  quantidade_inicial_item_pedido: z.string().default(''),
+  quantidade_inicial_pedido: z.string().default(''),
   unidade_comercializada_item: z.string().default('UN'),
-  valor_unitario_item: z.string().default(''),
+  valor_por_unidade_item: z.string().default(''),
 })
 
 export type ItemForm = z.infer<typeof itemFormSchema>
@@ -60,7 +60,7 @@ export const PEDIDO_FORM_VAZIO: PedidoForm = {
   fabricante_id: '',
   incoterm: 'FOB',
   moeda_pedido: 'USD',
-  condicao_pagamento_pedido: '',
+  condicao_pagamento: '',
   numero_proforma: '',
   numero_invoice: '',
   referencia_importador: '',
@@ -74,9 +74,9 @@ export const ITEM_FORM_VAZIO = (): ItemForm => ({
   part_number: '',
   ncm: '',
   descricao_item: '',
-  quantidade_inicial_item_pedido: '',
+  quantidade_inicial_pedido: '',
   unidade_comercializada_item: 'UN',
-  valor_unitario_item: '',
+  valor_por_unidade_item: '',
 })
 
 // ── Validação de formulário ────────────────────────────────────────────────────

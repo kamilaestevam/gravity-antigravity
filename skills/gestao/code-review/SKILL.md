@@ -25,13 +25,22 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 
 ## Checklist Técnico do Reviewer
 
-### Segurança (bloqueia merge se falhar)
+### Segurança (bloqueia merge se falhar) — pós-pivô 2026-04-17
 
 - [ ] Toda rota tem validação Zod?
-- [ ] `tenant_id` filtrado em toda query?
+- [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, ...)` ou `withTenantContext(tenantId, ...)` do `@gravity/tenant-resolver`?
+- [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK?
+- [ ] **Nenhum** `new PrismaClient(`?
+- [ ] **Nenhum** `WHERE tenant_id = ?` em models de produto (o schema **é** o tenant)?
+- [ ] **Nenhum** `SET search_path` sem `LOCAL` ou fora de `$transaction`?
+- [ ] `tenantId` lido de `req.tenant` (não do `publicMetadata` do Clerk)?
 - [ ] `x-internal-key` em chamadas S2S?
+- [ ] Chaves de cache prefixadas por `tenant:<id>:` ou `tenant:_global:`?
+- [ ] Erros via `AppError` (nunca `res.status().json()` direto)?
 - [ ] Nenhum dado sensível em logs?
 - [ ] Nenhuma variável hardcoded?
+
+> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), `antigravity-tenant-isolation`, `antigravity-tier1-security`.
 
 ### Qualidade de Código
 
@@ -53,7 +62,17 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Escopo respeitado (agente só escreveu na sua pasta)?
 - [ ] Sem import cruzado entre serviços?
 - [ ] Comunicação entre serviços via API (não import)?
-- [ ] Schema de banco segue padrão (3 índices, tenant_id)?
+- [ ] Schema de produto segue padrão Schema-per-Tenant (sem `tenant_id` em models, schemas físicos isolados)?
+- [ ] Migrations de produto rodam via orquestrador `scripts/migrate-all-tenants.ts` (nunca `prisma migrate dev` solto)?
+
+### Documentação e Skills (inviolável — DoD §6)
+
+- [ ] `documentos-tecnicos/` foi atualizado se a entrega muda contrato/regra/arquitetura?
+- [ ] Skill(s) impactada(s) foi(ram) revisada(s) ou refatorada(s)?
+- [ ] Nova skill foi criada se a entrega introduz padrão novo (ex: novo SDK, novo middleware)?
+- [ ] PR contém commits visíveis em `documentos-tecnicos/` e/ou `skills/` quando aplicável?
+
+> Sem update de docs/skills quando a entrega muda padrão = **blocker**. Ver `antigravity-definition-of-done` §6.
 
 ---
 

@@ -44,15 +44,22 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 - [ ] Nenhuma variável de ambiente hardcoded no código
 - [ ] Nenhum `console.log` expondo dados de usuário ou tenant
 
-### 2 — Tenant Isolation
+### 2 — Tenant Isolation (pós-pivô Schema-per-Tenant — 2026-04-17)
 
-> Consultar `antigravity-tenant-routing` como referência base.
+> Consultar `antigravity-tenant-isolation` (reescrita 2026-04-17), `antigravity-tier1-security`, [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
 
-- [ ] Toda query ao DB servicos-tenant filtra por `tenant_id`
-- [ ] Middleware `withTenantIsolation` está aplicado no servidor
-- [ ] RLS policy existe para cada tabela nova criada
-- [ ] Nenhuma query usa `findMany` sem `where: { tenant_id }`
-- [ ] Criações sempre injetam `tenant_id` automaticamente via middleware
+- [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`
+- [ ] `withTenantContext(tenantId, fn)` em CRON jobs e workers (sem `req`)
+- [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK — reprovação imediata
+- [ ] **Nenhum** `new PrismaClient(` no código de aplicação — reprovação imediata
+- [ ] **Nenhum** `WHERE tenant_id = ?` em queries de produto (o schema **é** o tenant)
+- [ ] Models de produto **não têm coluna `tenant_id`** (após Fase 4 da [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
+- [ ] **Nenhum** `SET search_path` sem `LOCAL` dentro de transação
+- [ ] **Nenhum** uso de PgBouncer session mode para banco de produto
+- [ ] `tenantId` lido de `req.tenant` (do `GET /api/me` cacheado pelo SDK), **nunca** do `publicMetadata` do Clerk
+- [ ] Chaves de cache prefixadas por `tenant:<id>:` ou `tenant:_global:` (com justificativa)
+- [ ] Teste anti-cross-tenant em `testes/security/cross-tenant-isolation.test.ts`
+- [ ] Teste de pool leak (crash do handler não polui `search_path` da próxima request)
 - [ ] Nenhum endpoint retorna dados de múltiplos tenants misturados
 
 ### 3 — Padrões de Código
@@ -320,9 +327,11 @@ Após correção, QA deve ser acionado novamente.
 
 | Para validar | Consultar |
 |:---|:---|
-| Tenant isolation | `antigravity-tenant-routing` |
-| Padrões de código | `antigravity-api-design` |
-| Como escrever testes | `antigravity-database` |
+| Tenant isolation (pós-pivô) | `antigravity-tenant-isolation` + `antigravity-tier1-security` |
+| ADRs do pivô Schema-per-Tenant | [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md) |
+| Padrões de código | `antigravity-code-standards` + `antigravity-api-design` |
+| Como escrever testes | `antigravity-testes` |
+| Documentação + skills (DoD) | `antigravity-definition-of-done` (§6 e §7) |
 
 ---
 

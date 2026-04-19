@@ -29,7 +29,7 @@ async function main() {
     process.exit(1)
   }
 
-  const user = await prisma.user.findFirst({
+  const user = await prisma.usuario.findFirst({
     where: { email },
     select: { id: true, email: true, role: true, clerk_user_id: true, tenant_id: true },
   })
@@ -51,7 +51,7 @@ async function main() {
     return
   }
 
-  const updated = await prisma.user.update({
+  const updated = await prisma.usuario.update({
     where: { id: user.id },
     data: { clerk_user_id: newClerkId },
     select: { id: true, email: true, clerk_user_id: true },

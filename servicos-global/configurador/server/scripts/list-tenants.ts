@@ -6,7 +6,7 @@ const prisma = new PrismaClient({
 })
 
 async function main() {
-  const tenants = await prisma.tenant.findMany({
+  const tenants = await prisma.organizacao.findMany({
     select: { id: true, name: true, slug: true, status: true, created_at: true },
     orderBy: { created_at: 'asc' },
   })

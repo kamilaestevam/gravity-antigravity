@@ -15,26 +15,28 @@
 
 // ── Campos calculados — nunca editáveis em massa ──────────────────────────────
 
+import { PrismaClient, Prisma } from '@prisma/client'
+
 const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'valor_total_pedido',
-  'quantidade_total_inicial_pedido',
+  'quantidade_total_pedido',
   'quantidade_transferida_total',
   'id',
   'tenant_id',
   'product_id',
   'deleted_at',
-  'pedido_criado_em',
-  'pedido_atualizado_em',
+  'created_at',
+  'updated_at',
 ])
 
 const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_total_itens',
-  'saldo_item_pedido',
+  'valor_total_item',
+  'quantidade_atual_pedido',
   'id',
   'tenant_id',
   'pedido_id',
-  'item_criado_em',
-  'item_atualizado_em',
+  'created_at',
+  'updated_at',
 ])
 
 // ── Campos armazenados em detalhes_operacionais — requerem merge em JSON ────────
@@ -48,11 +50,11 @@ const CAMPOS_DETALHES_OPERACIONAIS = new Set([
 // ── Campos de quantidade — disparam recálculo de agregados ────────────────────
 
 const CAMPOS_QUANTIDADE_ITEM = new Set([
-  'quantidade_inicial_item_pedido',
-  'quantidade_transferida_item_pedido',
-  'quantidade_pronta_total_item_pedido',
-  'quantidade_cancelada_item_pedido',
-  'saldo_item_pedido',
+  'quantidade_inicial_pedido',
+  'quantidade_transferida_pedido',
+  'quantidade_pronta_pedido',
+  'quantidade_cancelada_pedido',
+  'quantidade_atual_pedido',
 ])
 
 
@@ -134,8 +136,7 @@ export class EdicaoEmMassaService {
   /** Preview — retorna impacto sem alterar o banco */
   async preview(
     tenantId: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    db: any,
+    db: PrismaClient,
     payload: EdicaoMassaPayload,
   ): Promise<EdicaoMassaPreview> {
     this.validarCamposEditaveis(payload.campos)
@@ -199,8 +200,7 @@ export class EdicaoEmMassaService {
   async confirmar(
     tenantId: string,
     userId: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    db: any,
+    db: PrismaClient,
     payload: EdicaoMassaPayload,
   ): Promise<EdicaoMassaResultado> {
     this.validarCamposEditaveis(payload.campos)
@@ -389,33 +389,32 @@ export class EdicaoEmMassaService {
   private async recalcularAgregados(
     tenantId: string,
     pedidoId: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tx: any,
+    tx: Prisma.TransactionClient,
   ): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
       where: { tenant_id: tenantId, pedido_id: pedidoId },
       select: {
-        quantidade_inicial_item_pedido: true,
-        quantidade_transferida_item_pedido: true,
-        valor_unitario_item: true,
-        saldo_item_pedido: true,
+        quantidade_inicial_pedido: true,
+        quantidade_transferida_pedido: true,
+        valor_por_unidade_item: true,
+        quantidade_atual_pedido: true,
       },
     })
 
     const quantidadeInicialTotal = itens.reduce(
-      (acc: number, i: { quantidade_inicial_item_pedido: number }) => acc + Number(i.quantidade_inicial_item_pedido ?? 0),
+      (acc: number, i: { quantidade_inicial_pedido: number }) => acc + Number(i.quantidade_inicial_pedido ?? 0),
       0,
     )
     const valorTotal = itens.reduce(
-      (acc: number, i: { valor_unitario_item: number | null; saldo_item_pedido: number }) =>
-        acc + ((i.valor_unitario_item ?? 0) * Number(i.saldo_item_pedido ?? 0)),
+      (acc: number, i: { valor_por_unidade_item: number | null; quantidade_atual_pedido: number }) =>
+        acc + ((i.valor_por_unidade_item ?? 0) * Number(i.quantidade_atual_pedido ?? 0)),
       0,
     )
 
     await tx.pedido.update({
       where: { id: pedidoId },
       data: {
-        quantidade_total_inicial_pedido: quantidadeInicialTotal,
+        quantidade_total_pedido: quantidadeInicialTotal,
         valor_total_pedido: valorTotal,
       },
     })

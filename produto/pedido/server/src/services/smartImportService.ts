@@ -99,7 +99,7 @@ export function criarSmartImportService(prismaClient: Record<string, unknown>): 
   return new SmartImportService(prismaClient)
 }
 
-// Defaults alinhados com PedidoCasasDecimaisConfig (schema Prisma)
+// Defaults alinhados com PedidoCasasDecimais (schema Prisma)
 const CASAS_DECIMAIS_PADRAO = {
   valor:      2,
   quantidade: 2,
@@ -127,7 +127,7 @@ export class SmartImportService {
       if (!cfg) return CASAS_DECIMAIS_PADRAO
       return {
         valor:      cfg.valor_total_pedido      ?? CASAS_DECIMAIS_PADRAO.valor,
-        quantidade: cfg.quantidade_total_inicial_pedido ?? CASAS_DECIMAIS_PADRAO.quantidade,
+        quantidade: cfg.quantidade_total_pedido ?? CASAS_DECIMAIS_PADRAO.quantidade,
         peso:       cfg.peso_liquido_total_pedido ?? CASAS_DECIMAIS_PADRAO.peso,
         cubagem:    cfg.cubagem_total_pedido     ?? CASAS_DECIMAIS_PADRAO.cubagem,
       }
@@ -306,8 +306,8 @@ export class SmartImportService {
           const dados = { ...linha.dados }
           if (numeroEditado) dados['numero_pedido'] = numeroEditado
 
-          // Validar valor_unitario_item não-negativo
-          const valorUnitRaw = dados['valor_unitario_item']
+          // Validar valor_por_unidade_item não-negativo
+          const valorUnitRaw = dados['valor_por_unidade_item']
           if (valorUnitRaw !== undefined && valorUnitRaw !== null && valorUnitRaw !== '') {
             const valorUnit = Number(valorUnitRaw)
             if (!isNaN(valorUnit) && valorUnit < 0) {
@@ -368,14 +368,14 @@ export class SmartImportService {
                   part_number:         String(dados['part_number'] ?? ''),
                   ncm:                 String(dados['ncm'] ?? ''),
                   descricao_item:      String(dados['descricao_item'] ?? ''),
-                  quantidade_inicial_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                  saldo_item_pedido:             Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                  quantidade_inicial_pedido: Number(dados['quantidade_inicial_pedido'] ?? 0),
+                  quantidade_atual_pedido:             Number(dados['quantidade_inicial_pedido'] ?? 0),
                   casas_decimais_quantidade_item: casasConfig.quantidade,
                   unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
                   moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
-                  valor_unitario_item:        dados['valor_unitario_item'] ? Number(dados['valor_unitario_item']) : null,
-                  valor_total_itens:          dados['valor_total_itens'] ? Number(dados['valor_total_itens']) : null,
-                  peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
+                  valor_por_unidade_item:        dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
+                  valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
+                  peso_liquido_unitario: dados['peso_liquido_unitario'] ? Number(dados['peso_liquido_unitario']) : null,
                   referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
                   casas_decimais_valor_item:  casasConfig.valor,
                   campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
@@ -397,14 +397,14 @@ export class SmartImportService {
                 part_number:         String(dados['part_number'] ?? ''),
                 ncm:                 String(dados['ncm'] ?? ''),
                 descricao_item:      String(dados['descricao_item'] ?? ''),
-                quantidade_inicial_item_pedido: Number(dados['quantidade_inicial_item_pedido'] ?? 0),
-                saldo_item_pedido:             Number(dados['quantidade_inicial_item_pedido'] ?? 0),
+                quantidade_inicial_pedido: Number(dados['quantidade_inicial_pedido'] ?? 0),
+                quantidade_atual_pedido:             Number(dados['quantidade_inicial_pedido'] ?? 0),
                 casas_decimais_quantidade_item: casasConfig.quantidade,
                 unidade_comercializada_item:   dados['unidade_comercializada_item'] ? String(dados['unidade_comercializada_item']) : null,
                 moeda_item:                String(dados['moeda_pedido'] ?? 'USD'),
-                valor_unitario_item:        dados['valor_unitario_item'] ? Number(dados['valor_unitario_item']) : null,
-                valor_total_itens:          dados['valor_total_itens'] ? Number(dados['valor_total_itens']) : null,
-                peso_liquido_unitario_item: dados['peso_liquido_unitario_item'] ? Number(dados['peso_liquido_unitario_item']) : null,
+                valor_por_unidade_item:        dados['valor_por_unidade_item'] ? Number(dados['valor_por_unidade_item']) : null,
+                valor_total_item:          dados['valor_total_item'] ? Number(dados['valor_total_item']) : null,
+                peso_liquido_unitario: dados['peso_liquido_unitario'] ? Number(dados['peso_liquido_unitario']) : null,
                 referencia_exportador:      dados['referencia_exportador'] ? String(dados['referencia_exportador']) : null,
                 casas_decimais_valor_item:  casasConfig.valor,
                 campos_custom:             dados['_campos_extras'] ? dados['_campos_extras'] : null,
@@ -438,12 +438,12 @@ export class SmartImportService {
       for (const pedidoId of criados) {
         const itens = await this.db['pedidoItem'].findMany({
           where: { pedido_id: pedidoId, tenant_id: tenantId },
-          select: { quantidade_inicial_item_pedido: true },
-        }) as { quantidade_inicial_item_pedido: number }[]
-        const qtdTotal = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+          select: { quantidade_inicial_pedido: true },
+        }) as { quantidade_inicial_pedido: number }[]
+        const qtdTotal = itens.reduce((s, i) => s + Number(i.quantidade_inicial_pedido ?? 0), 0)
         await this.db['pedido'].update({
           where: { id: pedidoId },
-          data: { quantidade_total_inicial_pedido: qtdTotal },
+          data: { quantidade_total_pedido: qtdTotal },
         }).catch(() => null) // campo opcional — não bloqueia se falhar
       }
     }
@@ -625,14 +625,14 @@ export class SmartImportService {
       alertas.push({ campo: 'part_number', tipo: 'obrigatorio_ausente', mensagem: 'Part number ausente', nivel: 'aviso' })
     }
 
-    const qty = Number(dados['quantidade_inicial_item_pedido'])
-    if (dados['quantidade_inicial_item_pedido'] !== undefined && (isNaN(qty) || qty <= 0)) {
-      alertas.push({ campo: 'quantidade_inicial_item_pedido', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
+    const qty = Number(dados['quantidade_inicial_pedido'])
+    if (dados['quantidade_inicial_pedido'] !== undefined && (isNaN(qty) || qty <= 0)) {
+      alertas.push({ campo: 'quantidade_inicial_pedido', tipo: 'valor_negativo', mensagem: 'Quantidade deve ser maior que zero', nivel: 'erro' })
     }
 
-    const val = Number(dados['valor_unitario_item'])
-    if (dados['valor_unitario_item'] !== undefined && !isNaN(val) && val < 0) {
-      alertas.push({ campo: 'valor_unitario_item', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
+    const val = Number(dados['valor_por_unidade_item'])
+    if (dados['valor_por_unidade_item'] !== undefined && !isNaN(val) && val < 0) {
+      alertas.push({ campo: 'valor_por_unidade_item', tipo: 'valor_negativo', mensagem: 'Valor unitario nao pode ser negativo', nivel: 'erro' })
     }
 
     const ncm = String(dados['ncm'] ?? '').replace(/[.\s-]/g, '')

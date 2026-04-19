@@ -122,7 +122,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.TenantScalarFieldEnum = {
+exports.Prisma.OrganizacaoScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
@@ -138,7 +138,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.UserScalarFieldEnum = {
+exports.Prisma.UsuarioScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   clerk_user_id: 'clerk_user_id',
@@ -150,7 +150,7 @@ exports.Prisma.UserScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.SubscriptionScalarFieldEnum = {
+exports.Prisma.AssinaturaProdutoGravityScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   status: 'status',
@@ -164,7 +164,7 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.UserPermissionScalarFieldEnum = {
+exports.Prisma.UsuarioPermissaoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   company_id: 'company_id',
@@ -186,7 +186,7 @@ exports.Prisma.GravityAdminPermissionScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.CompanyScalarFieldEnum = {
+exports.Prisma.WorkspaceScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   name: 'name',
@@ -197,7 +197,7 @@ exports.Prisma.CompanyScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.UserMembershipScalarFieldEnum = {
+exports.Prisma.UsuarioWorkspaceScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   user_id: 'user_id',
@@ -218,7 +218,7 @@ exports.Prisma.ProductConfigScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.CompanyProductScalarFieldEnum = {
+exports.Prisma.ProdutoGravityWorkspaceScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   company_id: 'company_id',
@@ -228,7 +228,7 @@ exports.Prisma.CompanyProductScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ProductScalarFieldEnum = {
+exports.Prisma.ProdutoGravityScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
@@ -283,14 +283,7 @@ exports.Prisma.SpecialNegotiationScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.StripeEventScalarFieldEnum = {
-  id: 'id',
-  type: 'type',
-  processed_at: 'processed_at',
-  payload: 'payload'
-};
-
-exports.Prisma.DeployLogScalarFieldEnum = {
+exports.Prisma.DeployScalarFieldEnum = {
   id: 'id',
   deploy_number: 'deploy_number',
   area: 'area',
@@ -304,7 +297,7 @@ exports.Prisma.DeployLogScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.SupplierTenantAccessScalarFieldEnum = {
+exports.Prisma.FornecedorOrganizacaoScalarFieldEnum = {
   id: 'id',
   clerk_user_id: 'clerk_user_id',
   tenant_id: 'tenant_id',
@@ -313,7 +306,7 @@ exports.Prisma.SupplierTenantAccessScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.SecurityEventScalarFieldEnum = {
+exports.Prisma.SegurancaScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   actor_id: 'actor_id',
@@ -331,7 +324,7 @@ exports.Prisma.SecurityEventScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.RateLimitMetricScalarFieldEnum = {
+exports.Prisma.RequisicoesScalarFieldEnum = {
   id: 'id',
   key: 'key',
   tenant_id: 'tenant_id',
@@ -344,7 +337,7 @@ exports.Prisma.RateLimitMetricScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.ServiceHealthScalarFieldEnum = {
+exports.Prisma.ServicosScalarFieldEnum = {
   id: 'id',
   service: 'service',
   url: 'url',
@@ -356,7 +349,7 @@ exports.Prisma.ServiceHealthScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.TaxaCambioScalarFieldEnum = {
+exports.Prisma.CambioScalarFieldEnum = {
   id: 'id',
   moeda: 'moeda',
   compra: 'compra',
@@ -366,6 +359,98 @@ exports.Prisma.TaxaCambioScalarFieldEnum = {
   boletim: 'boletim',
   fonte: 'fonte',
   criado_em: 'criado_em'
+};
+
+exports.Prisma.TestesScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  type: 'type',
+  escopo: 'escopo',
+  sublocal: 'sublocal',
+  module: 'module',
+  test_name: 'test_name',
+  test_id: 'test_id',
+  result: 'result',
+  duration: 'duration',
+  error_log: 'error_log',
+  ai_analysis: 'ai_analysis',
+  screenshot: 'screenshot',
+  ambiente: 'ambiente',
+  run_id: 'run_id',
+  triggered_by: 'triggered_by',
+  created_at: 'created_at'
+};
+
+exports.Prisma.TestScheduleScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  ativo: 'ativo',
+  frequencia: 'frequencia',
+  hora: 'hora',
+  minuto: 'minuto',
+  tipos: 'tipos',
+  escopos: 'escopos',
+  ambiente: 'ambiente',
+  alertas: 'alertas',
+  ultima_exec: 'ultima_exec',
+  proxima_exec: 'proxima_exec',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.TestPlanScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  versao: 'versao',
+  tipo: 'tipo',
+  escopo: 'escopo',
+  sublocal: 'sublocal',
+  tela: 'tela',
+  rota: 'rota',
+  criticidade: 'criticidade',
+  ambientes: 'ambientes',
+  componente_path: 'componente_path',
+  spec_path: 'spec_path',
+  mapeamento_path: 'mapeamento_path',
+  cobertura_pct: 'cobertura_pct',
+  passos_total: 'passos_total',
+  resumo_executivo: 'resumo_executivo',
+  plano_completo: 'plano_completo',
+  status: 'status',
+  ultima_execucao: 'ultima_execucao',
+  ultimo_resultado: 'ultimo_resultado',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.FaturaProdutosGravityScalarFieldEnum = {
+  id: 'id',
+  tenant_id: 'tenant_id',
+  numero_fatura_servicos_gravity: 'numero_fatura_servicos_gravity',
+  status_fatura_servicos_gravity: 'status_fatura_servicos_gravity',
+  organizacao_fatura_servicos_gravity: 'organizacao_fatura_servicos_gravity',
+  email_organizacao_fatura_servicos_gravity: 'email_organizacao_fatura_servicos_gravity',
+  valor_total_fatura_servicos_gravity: 'valor_total_fatura_servicos_gravity',
+  moeda_fatura_servicos_gravity: 'moeda_fatura_servicos_gravity',
+  competencia_fatura_servicos_gravity: 'competencia_fatura_servicos_gravity',
+  data_fatura_servicos_gravity: 'data_fatura_servicos_gravity',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.MetricasGeminiScalarFieldEnum = {
+  id: 'id',
+  nome_llm: 'nome_llm',
+  data_analise_llm: 'data_analise_llm',
+  total_analise_llm: 'total_analise_llm',
+  total_token_llm: 'total_token_llm',
+  custo_llm: 'custo_llm',
+  latencia_llm: 'latencia_llm',
+  confianca_alta_llm: 'confianca_alta_llm',
+  confianca_media_llm: 'confianca_media_llm',
+  confianca_baixa_llm: 'confianca_baixa_llm',
+  quantidade_codigo_validado_llm: 'quantidade_codigo_validado_llm',
+  created_at: 'created_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -470,26 +555,39 @@ exports.DeployStatus = exports.$Enums.DeployStatus = {
   IN_PROGRESS: 'IN_PROGRESS'
 };
 
+exports.FaturaStatus = exports.$Enums.FaturaStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  PAID: 'PAID',
+  VOID: 'VOID',
+  OVERDUE: 'OVERDUE',
+  UNCOLLECTIBLE: 'UNCOLLECTIBLE'
+};
+
 exports.Prisma.ModelName = {
-  Tenant: 'Tenant',
-  User: 'User',
-  Subscription: 'Subscription',
-  UserPermission: 'UserPermission',
+  Organizacao: 'Organizacao',
+  Usuario: 'Usuario',
+  AssinaturaProdutoGravity: 'AssinaturaProdutoGravity',
+  UsuarioPermissao: 'UsuarioPermissao',
   GravityAdminPermission: 'GravityAdminPermission',
-  Company: 'Company',
-  UserMembership: 'UserMembership',
+  Workspace: 'Workspace',
+  UsuarioWorkspace: 'UsuarioWorkspace',
   ProductConfig: 'ProductConfig',
-  CompanyProduct: 'CompanyProduct',
-  Product: 'Product',
+  ProdutoGravityWorkspace: 'ProdutoGravityWorkspace',
+  ProdutoGravity: 'ProdutoGravity',
   PriceTier: 'PriceTier',
   SpecialNegotiation: 'SpecialNegotiation',
-  StripeEvent: 'StripeEvent',
-  DeployLog: 'DeployLog',
-  SupplierTenantAccess: 'SupplierTenantAccess',
-  SecurityEvent: 'SecurityEvent',
-  RateLimitMetric: 'RateLimitMetric',
-  ServiceHealth: 'ServiceHealth',
-  TaxaCambio: 'TaxaCambio'
+  Deploy: 'Deploy',
+  FornecedorOrganizacao: 'FornecedorOrganizacao',
+  Seguranca: 'Seguranca',
+  Requisicoes: 'Requisicoes',
+  Servicos: 'Servicos',
+  Cambio: 'Cambio',
+  Testes: 'Testes',
+  TestSchedule: 'TestSchedule',
+  TestPlan: 'TestPlan',
+  FaturaProdutosGravity: 'FaturaProdutosGravity',
+  MetricasGemini: 'MetricasGemini'
 };
 
 /**

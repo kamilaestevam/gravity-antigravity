@@ -84,7 +84,7 @@ describe('parseArquivo — pdf', () => {
   it('retorna extrator_usado=gemini quando Gemini extrai com sucesso', async () => {
     const { extrairPdfComGemini } = await import('./geminiPdfExtractor.js')
     vi.mocked(extrairPdfComGemini).mockResolvedValueOnce({
-      linhas: [{ part_number: 'P001', descricao_item: 'Widget', quantidade_inicial_item_pedido: '10' }],
+      linhas: [{ part_number: 'P001', descricao_item: 'Widget', quantidade_inicial_pedido: '10' }],
       tokensUsados: 1000,
       custoUsd: 0.001,
     })

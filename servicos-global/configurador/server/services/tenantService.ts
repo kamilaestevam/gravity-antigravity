@@ -30,20 +30,20 @@ export const tenantService = {
     // Wrap all checks + creation in a serializable transaction to prevent race conditions
     const tenant = await prisma.$transaction(async (tx: typeof prisma) => {
       // Verifica se slug já existe
-      const existingSlug = await tx.tenant.findUnique({ where: { slug } })
+      const existingSlug = await tx.organizacao.findUnique({ where: { slug } })
       if (existingSlug) {
         throw new AppError('Este slug já está em uso', 409, 'CONFLICT')
       }
 
       // Verifica se o clerk_user_id já tem tenant
-      const existingUser = await tx.user.findFirst({
+      const existingUser = await tx.usuario.findFirst({
         where: { clerk_user_id: clerkUserId },
       })
       if (existingUser) {
         throw new AppError('Usuário já possui um tenant', 409, 'CONFLICT')
       }
 
-      const newTenant = await tx.tenant.create({
+      const newTenant = await tx.organizacao.create({
         data: {
           name,
           slug,
@@ -51,7 +51,7 @@ export const tenantService = {
         },
       })
 
-      await tx.user.create({
+      await tx.usuario.create({
         data: {
           tenant_id: newTenant.id,
           clerk_user_id: clerkUserId,
@@ -63,7 +63,7 @@ export const tenantService = {
 
       // Cria assinatura em trial
       const TRIAL_DAYS = Number(process.env.TRIAL_DAYS ?? 14)
-      await tx.subscription.create({
+      await tx.assinaturaProdutoGravity.create({
         data: {
           tenant_id: newTenant.id,
           status: 'TRIALING',
@@ -72,7 +72,7 @@ export const tenantService = {
       })
 
       // Cria primeira company automaticamente com o nome da organização
-      await tx.company.create({
+      await tx.workspace.create({
         data: {
           tenant_id: newTenant.id,
           name,
@@ -95,7 +95,7 @@ export const tenantService = {
    * Busca tenant por ID
    */
   async getTenantById(tenantId: string) {
-    return prisma.tenant.findUnique({
+    return prisma.organizacao.findUnique({
       where: { id: tenantId },
       include: {
         subscriptions: {
@@ -119,7 +119,7 @@ export const tenantService = {
     segment?: string
     tipo_empresa?: string
   }) {
-    return prisma.tenant.update({
+    return prisma.organizacao.update({
       where: { id: tenantId },
       data,
     })
@@ -129,7 +129,7 @@ export const tenantService = {
    * Lista empresas filhas do tenant
    */
   async getCompanies(tenantId: string) {
-    return prisma.company.findMany({
+    return prisma.workspace.findMany({
       where: { tenant_id: tenantId },
       select: {
         id: true,
@@ -148,7 +148,7 @@ export const tenantService = {
    * Cria empresa filha no tenant
    */
   async createCompany(tenantId: string, data: CreateCompanyInput) {
-    return prisma.company.create({
+    return prisma.workspace.create({
       data: {
         tenant_id: tenantId,
         name: data.name,
@@ -168,13 +168,13 @@ export const tenantService = {
     cnpj?: string
     status?: 'ACTIVE' | 'INACTIVE'
   }) {
-    const company = await prisma.company.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: { id: companyId, tenant_id: tenantId },
     })
     if (!company) {
       throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
     }
-    return prisma.company.update({
+    return prisma.workspace.update({
       where: { id: companyId },
       data,
     })
@@ -184,12 +184,12 @@ export const tenantService = {
    * Deleta empresa filha (verifica que pertence ao tenant)
    */
   async deleteCompany(tenantId: string, companyId: string) {
-    const company = await prisma.company.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: { id: companyId, tenant_id: tenantId },
     })
     if (!company) {
       throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
     }
-    await prisma.company.delete({ where: { id: companyId } })
+    await prisma.workspace.delete({ where: { id: companyId } })
   },
 }

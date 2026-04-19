@@ -52,11 +52,28 @@ Uma tarefa só está "Done" quando **todos** os critérios abaixo são atendidos
 - [ ] Endpoints com prefixo `/api/v1/`
 - [ ] Schema Zod exportado como contrato de API
 
-### 6. Documentação
+### 6. Documentação e Skills (INVIOLÁVEL)
 
-- [ ] Skill atualizada se comportamento mudou
+A entrega não está Done se a base de conhecimento ficou para trás. Esta categoria é tão obrigatória quanto código e testes.
+
+- [ ] **`documentos-tecnicos/` atualizado** — diagramas, ADRs, contratos de API e README de arquitetura 100% fiéis ao código entregue
+- [ ] **Skills refatoradas** — toda skill em `skills/` que cite o comportamento antigo foi reescrita para refletir o novo padrão (autorização e obrigação permanentes — não exige aprovação caso a caso)
+- [ ] **Skills novas criadas** quando surgir necessidade de papel/regra que ainda não existe (linter, runbook, DR, etc.)
+- [ ] Em PR, listar explicitamente arquivos de `documentos-tecnicos/` e `skills/` tocados — lista vazia exige justificativa explícita
 - [ ] `.env.example` atualizado se variável nova
 - [ ] Commit message descritiva
+
+> **Regra:** o código só está pronto quando o time inteiro (através das docs e skills atualizadas) aprender o novo padrão.
+
+### 7. Tenant Isolation (após pivô Schema-per-Tenant — ADR-001/002)
+
+Para qualquer toque em backend de produto:
+
+- [ ] Acesso ao banco **exclusivamente** via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`
+- [ ] Zero `import { PrismaClient } from '@prisma/client'` fora do SDK (linter CI bloqueia)
+- [ ] Zero `WHERE tenant_id` em queries de produto (modelo antigo morto)
+- [ ] Chaves de cache prefixadas com `tenant:<id>:` ou `tenant:_global:` (com justificativa)
+- [ ] Teste E2E de cross-tenant rodando e passando
 
 ---
 

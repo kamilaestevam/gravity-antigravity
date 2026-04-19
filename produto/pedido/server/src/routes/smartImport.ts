@@ -266,10 +266,10 @@ smartImportRouter.get('/campos', async (req: Request, res: Response, next: NextF
     { valor: 'part_number',                      rotulo: 'Part Number'            },
     { valor: 'ncm',                              rotulo: 'NCM'                    },
     { valor: 'descricao_item',                   rotulo: 'Descricao do Item'      },
-    { valor: 'quantidade_inicial_item_pedido',   rotulo: 'Quantidade'             },
+    { valor: 'quantidade_inicial_pedido',   rotulo: 'Quantidade'             },
     { valor: 'unidade_comercializada_item',      rotulo: 'Unidade'                },
-    { valor: 'valor_unitario_item',              rotulo: 'Valor do Item'          },
-    { valor: 'valor_total_itens',                rotulo: 'Valor Total Item'       },
+    { valor: 'valor_por_unidade_item',              rotulo: 'Valor do Item'          },
+    { valor: 'valor_total_item',                rotulo: 'Valor Total Item'       },
   ]
 
   try {

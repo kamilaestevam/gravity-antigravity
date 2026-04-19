@@ -14,7 +14,7 @@ const DEDUP_WINDOW_MS = 5_000 // 5 segundos
  * Retorna true se for duplicata.
  */
 export async function isDuplicateResendId(resendId: string): Promise<boolean> {
-  const existing = await prisma.emailMessage.findUnique({
+  const existing = await prisma.emailMensagem.findUnique({
     where: { resend_id: resendId },
     select: { id: true },
   })
@@ -34,7 +34,7 @@ export async function isDuplicateContent(
   const windowStart = new Date(Date.now() - DEDUP_WINDOW_MS)
 
   // Camada 2 — mesmo remetente em janela de 5s
-  const recentSameFrom = await prisma.emailMessage.findFirst({
+  const recentSameFrom = await prisma.emailMensagem.findFirst({
     where: {
       tenant_id: tenantId,
       from,

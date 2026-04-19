@@ -20,7 +20,7 @@ mensagensRouter.get(
     const { id } = req.params
     const { tenantId } = req.auth
 
-    const thread = await prisma.emailThread.findFirst({
+    const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: { id, tenant_id: tenantId },
       select: { id: true },
     })
@@ -29,7 +29,7 @@ mensagensRouter.get(
       return next(new AppError('Thread não encontrada', 404, 'THREAD_NOT_FOUND'))
     }
 
-    const mensagens = await prisma.emailMessage.findMany({
+    const mensagens = await prisma.emailMensagem.findMany({
       where: { thread_id: id, tenant_id: tenantId },
       orderBy: { sent_at: 'asc' },
     })
@@ -60,7 +60,7 @@ mensagensRouter.post(
     const { body, body_html } = parse.data
 
     // Buscar thread e última mensagem de inbound para extrair destinatário
-    const thread = await prisma.emailThread.findFirst({
+    const thread = await prisma.emailAssuntosParticipantes.findFirst({
       where: { id, tenant_id: tenantId },
       include: {
         mensagens: {
@@ -94,7 +94,7 @@ mensagensRouter.post(
     }
 
     // Registrar mensagem outbound na thread
-    const message = await prisma.emailMessage.create({
+    const message = await prisma.emailMensagem.create({
       data: {
         tenant_id: tenantId,
         user_id: userId,
@@ -112,7 +112,7 @@ mensagensRouter.post(
     })
 
     // Atualizar contador e ultimo_contato da thread
-    await prisma.emailThread.update({
+    await prisma.emailAssuntosParticipantes.update({
       where: { id },
       data: {
         mensagens_count: { increment: 1 },

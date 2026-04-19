@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { AvisoInternoGlobal, type AvisoInterno, type UsuarioMencao, type Canal, type CanaisDisponiveis } from '@nucleo/mensageria-global'
-import { useShellStore } from '@gravity/shell'
+import { useShellStore, buildEntityLink } from '@gravity/shell'
 
 export interface NotificationItem {
   id: string
@@ -9,7 +9,9 @@ export interface NotificationItem {
   title?: string
   message: string
   read: boolean
-  activity_id?: string
+  target_entity?: string
+  target_id?: string
+  delivery_status?: string
   created_at: string
 }
 
@@ -132,6 +134,7 @@ export function Notificacoes() {
   const marcarAvisoLidoStore = useShellStore((s) => s.marcarAvisoLido)
   const marcarTodosAvisosLidosStore = useShellStore((s) => s.marcarTodosAvisosLidos)
   const currentUserName = useShellStore((s) => s.currentUser.name)
+  const currentUserId = useShellStore((s) => s.currentUser.id)
   const addNotification = useShellStore((s) => s.addNotification)
   const linkContextual = useShellStore((s) => s.linkContextual)
 
@@ -226,7 +229,6 @@ export function Notificacoes() {
             message: mensagem,
             sender_name: currentUserName || undefined,
             recipient_names: recipientNames,
-            activity_id: link || undefined,
             via_email: viaEmail && recipientEmails.length > 0,
             recipient_emails: viaEmail ? recipientEmails : undefined,
           }),
@@ -236,23 +238,13 @@ export function Notificacoes() {
           throw new Error(body?.error?.message ?? `HTTP ${res.status}`)
         }
 
-        const data = await res.json() as {
-          status: string
-          email?: { success: boolean; error?: string; errorMessage?: string } | null
-        }
-
-        // Toast de sucesso do envio interno
-        if (viaEmail && data.email !== null && data.email !== undefined) {
-          if (data.email.success) {
-            addNotification({ type: 'success', message: 'Mensagem e e-mail enviados com sucesso!' })
-          } else if (data.email.error === 'service_offline') {
-            addNotification({ type: 'success', message: 'Mensagem enviada. E-mail indisponível no momento.' })
-          } else {
-            addNotification({ type: 'warning', message: `Mensagem enviada. Falha no e-mail: ${data.email.errorMessage ?? 'erro desconhecido'}` })
-          }
-        } else {
-          addNotification({ type: 'success', message: 'Mensagem enviada.' })
-        }
+        // Envio é assíncrono — o email é despachado em background pelo worker
+        addNotification({
+          type: 'success',
+          message: viaEmail && recipientEmails.length > 0
+            ? 'Mensagem enviada. E-mail sendo despachado em background.'
+            : 'Mensagem enviada.',
+        })
 
         // Recarrega para mostrar o registro "enviado" no histórico
         await syncState()
@@ -350,9 +342,9 @@ export function Notificacoes() {
     tipo: (['aviso', 'mencao', 'sistema', 'tarefa', 'compartilhamento', 'enviado'].includes(n.type)
       ? (n.type === 'compartilhamento' ? 'aviso' : n.type)
       : 'sistema') as AvisoInterno['tipo'],
-    // activity_id serve como deep link — pode ser rota relativa (/produto/pedido/123)
-    // ou ID de entidade. Quando presente, o item fica clicável no sininho.
-    href: n.activity_id || undefined,
+    href: n.target_entity && n.target_id
+      ? buildEntityLink(n.target_entity, n.target_id)
+      : undefined,
   }))
 
   // Avisos do shell store (mais recentes primeiro, para que push síncronos apareçam no topo)
@@ -395,7 +387,7 @@ export function Notificacoes() {
       onCriarAviso={handleCriarAviso}
       onNavegarHref={(href) => navigate(href)}
       onEnviarPara={handleEnviarPara}
-      usuariosTenant={usuariosTenant}
+      usuariosTenant={currentUserId ? usuariosTenant.filter((u) => u.id !== currentUserId) : usuariosTenant}
       linkAtual={linkSugerido}
       linkAtualLabel={linkLabel}
       canaisDisponiveis={canaisDisponiveis}

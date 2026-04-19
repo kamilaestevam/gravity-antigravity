@@ -25,7 +25,7 @@ import { getAcoesExportacaoPadrao } from '../utils/exportHelper'
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-export type EmpresaStatus = 'Ativa' | 'Suspensa'
+export type EmpresaStatus = 'Ativa' | 'Suspensa' | 'Pendente'
 
 // Espelhado com interface Empresa de Workspaces.tsx
 export interface Workspace {
@@ -71,12 +71,21 @@ const API = '/api/admin'
 
 function mapTenantStatus(status: string): EmpresaStatus {
   if (status === 'ACTIVE' || status === 'Ativa') return 'Ativa'
+  if (status === 'PENDING_SETUP') return 'Pendente'
   return 'Suspensa'
 }
 
 function mapStatusToBackend(status: EmpresaStatus): string {
-  return status === 'Ativa' ? 'ACTIVE' : 'SUSPENDED'
+  if (status === 'Ativa') return 'ACTIVE'
+  if (status === 'Pendente') return 'PENDING_SETUP'
+  return 'SUSPENDED'
 }
+
+function mapWorkspaceStatusToBackend(status: EmpresaStatus): 'ACTIVE' | 'INACTIVE' {
+  return status === 'Ativa' ? 'ACTIVE' : 'INACTIVE'
+}
+
+const SHELL_URL = import.meta.env.VITE_SHELL_URL || 'http://localhost:8010'
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
@@ -113,12 +122,12 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
           plan: s.plan,
           status: s.status,
         })),
-        workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string }) => ({
+        workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }) => ({
           id: c.id,
           nome: c.name,
-          subdominio: c.subdomain ?? t.slug,
+          subdominio: c.subdomain ?? '',
           status: mapTenantStatus(c.status),
-          usuarios: 0,
+          usuarios: c._count?.memberships ?? 0,
           plano: (t.subscriptions ?? []).map((s: { plan: string }) => s.plan).join(', ') || 'N/A',
           criadaEm: new Date(t.created_at).toLocaleDateString('pt-BR'),
         })),
@@ -127,7 +136,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       setTenants(mapped)
 
       const s = statsRes.stats
-      const allWorkspaces = mapped.reduce((sum, t) => sum + t.workspaces.length, 0)
+      const allWorkspaces = mapped.reduce((sum, t) => sum + (t._count?.companies ?? 0), 0)
       const activeWs = mapped.reduce((sum, t) => sum + t.workspaces.filter(ws => ws.status === 'Ativa').length, 0)
 
       setStats({
@@ -165,62 +174,84 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
   }
 
   async function updateWorkspaceStatus(id: string, status: EmpresaStatus) {
-    setTenants(prev => prev.map(t => ({
-      ...t,
-      workspaces: t.workspaces.map(ws => ws.id === id ? { ...ws, status } : ws)
-    })))
-    
-    if (status === 'Suspensa') {
-      setStats(prev => prev ? { ...prev, activeWorkspaces: prev.activeWorkspaces - 1, suspendedWorkspaces: prev.suspendedWorkspaces + 1 } : null)
-    } else {
-      setStats(prev => prev ? { ...prev, activeWorkspaces: prev.activeWorkspaces + 1, suspendedWorkspaces: prev.suspendedWorkspaces - 1 } : null)
+    const backendStatus = mapWorkspaceStatusToBackend(status)
+    try {
+      await adminTenantsApi.updateWorkspaceStatus(id, backendStatus)
+      setTenants(prev => prev.map(t => ({
+        ...t,
+        workspaces: t.workspaces.map(ws => ws.id === id ? { ...ws, status } : ws),
+      })))
+      if (status === 'Suspensa') {
+        setStats(prev => prev ? { ...prev, activeWorkspaces: prev.activeWorkspaces - 1, suspendedWorkspaces: prev.suspendedWorkspaces + 1 } : null)
+      } else {
+        setStats(prev => prev ? { ...prev, activeWorkspaces: prev.activeWorkspaces + 1, suspendedWorkspaces: prev.suspendedWorkspaces - 1 } : null)
+      }
+      addNotification({
+        type: status === 'Suspensa' ? 'warning' : 'success',
+        message: `Workspace ${status === 'Suspensa' ? 'suspenso' : 'reativado'} com sucesso.`,
+      })
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao atualizar workspace.' })
     }
-    
-    addNotification({ 
-      type: status === 'Suspensa' ? 'warning' : 'success', 
-      message: `Workspace ${status === 'Suspensa' ? 'suspenso' : 'reativado'} com sucesso.`
-    })
   }
 
-  function handleSalvarOrg(dados: DadosNovaOrg) {
-    const novoID = `t_new_${Date.now()}`
-    const novo: Tenant = {
-      id: novoID,
-      name: dados.nome,
-      slug: dados.subdominio,
-      status: 'Ativa',
-      created_at: new Date().toISOString().split('T')[0],
-      _count: { users: 1, companies: 1 },
-      subscriptions: [{ plan: dados.plano, status: 'ACTIVE' }],
-      workspaces: []
+  async function handleSalvarOrg(dados: DadosNovaOrg) {
+    try {
+      const { tenant } = await adminTenantsApi.create({
+        name: dados.nome,
+        slug: dados.subdominio,
+        plano: dados.plano,
+        cnpj: dados.cnpj || undefined,
+      })
+      const novo: Tenant = {
+        id: tenant.id,
+        name: tenant.name,
+        slug: tenant.slug,
+        status: mapTenantStatus(tenant.status),
+        created_at: tenant.created_at,
+        _count: tenant._count ?? { users: 0, companies: 0 },
+        subscriptions: dados.plano ? [{ plan: dados.plano, status: 'ACTIVE' }] : [],
+        workspaces: [],
+      }
+      setTenants(prev => [novo, ...prev])
+      setStats(prev => prev ? { ...prev, totalTenants: prev.totalTenants + 1, activeTenants: prev.activeTenants + 1 } : null)
+      setShowNovaOrg(false)
+      addNotification({ type: 'success', message: `Organização "${tenant.name}" criada com sucesso!` })
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao criar organização.' })
     }
-    setTenants(prev => [novo, ...prev])
-    setStats(prev => prev ? { ...prev, totalTenants: prev.totalTenants + 1, activeTenants: prev.activeTenants + 1 } : null)
-    setShowNovaOrg(false)
-    addNotification({ type: 'success', message: `Organização "${dados.nome}" criada com sucesso!` })
   }
 
   function handleEditOrg(linha: Tenant) {
     setOrgEditando(linha)
   }
 
-  function handleUpdateOrg(dados: Partial<DadosEditarOrg>) {
+  async function handleUpdateOrg(dados: Partial<DadosEditarOrg>) {
     if (!orgEditando) return
-    setTenants(prev => prev.map(t => {
-      if (t.id === orgEditando.id) {
-        return { 
-          ...t, 
-          name: dados.nome || t.name, 
-          slug: dados.subdominio || t.slug,
-          subscriptions: t.subscriptions.length > 0 && dados.plano 
-            ? [{ plan: dados.plano, status: t.subscriptions[0].status }, ...t.subscriptions.slice(1)]
-            : t.subscriptions
+    try {
+      await adminTenantsApi.update(orgEditando.id, {
+        name: dados.nome,
+        slug: dados.subdominio,
+        plano: dados.plano,
+      })
+      setTenants(prev => prev.map(t => {
+        if (t.id === orgEditando.id) {
+          return {
+            ...t,
+            name: dados.nome || t.name,
+            slug: dados.subdominio || t.slug,
+            subscriptions: t.subscriptions.length > 0 && dados.plano
+              ? [{ plan: dados.plano, status: t.subscriptions[0].status }, ...t.subscriptions.slice(1)]
+              : t.subscriptions,
+          }
         }
-      }
-      return t
-    }))
-    addNotification({ type: 'success', message: 'Organização atualizada com sucesso.' })
-    setOrgEditando(null)
+        return t
+      }))
+      addNotification({ type: 'success', message: 'Organização atualizada com sucesso.' })
+      setOrgEditando(null)
+    } catch (err) {
+      addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao atualizar organização.' })
+    }
   }
 
   function handleEditWorkspace(linha: Workspace) {
@@ -251,9 +282,9 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
             </div>
           </TooltipGlobal>
           <span style={{ fontWeight: 600 }}>{item.name}</span>
-          {item.workspaces.length > 0 && (
+          {(item._count?.companies ?? 0) > 0 && (
              <span className="ws-badge ws-badge-surface" style={{ marginLeft: 8, height: 18, fontSize: '0.65rem', padding: '0 6px' }}>
-                {item.workspaces.length}
+                {item._count?.companies}
              </span>
           )}
         </div>
@@ -265,10 +296,10 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       tooltipDescricao: 'Alias em uso pelo API Gateway Edge para o Tenant Routing.',
       render: (_v: unknown, item: Tenant) => (
         <a 
-          href={`http://localhost:8010/workspace/${item.slug}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }} 
+          href={`${SHELL_URL}/workspace/${item.slug}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}
           onClick={ev => ev.stopPropagation()}
         >
           <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px', transition: 'background 0.15s', cursor: 'pointer' }}
@@ -347,9 +378,9 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       key: 'subdominio', label: 'Subdominio', tipo: 'texto',
       render: (_v: unknown, item: Workspace) => (
         <a 
-          href={`http://localhost:8010/workspace/${item.subdominio}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
+          href={item.subdominio ? `${SHELL_URL}/workspace/${item.subdominio}` : '#'}
+          target={item.subdominio ? '_blank' : undefined}
+          rel="noopener noreferrer"
           style={{ textDecoration: 'none' }}
           onClick={ev => ev.stopPropagation()}
         >

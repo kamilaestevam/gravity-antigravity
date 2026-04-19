@@ -225,7 +225,15 @@ interface Workspace {
 }
 ```
 
-O campo `role` é populado com `data.tenant?.tipo_empresa` vindo do endpoint `GET /api/v1/hub/init`.
+Os campos são populados a partir do endpoint `GET /api/v1/hub/init`:
+
+| Campo | Fonte de dados |
+|---|---|
+| `role` | `data.tenant?.tipo_empresa` |
+| `modulos` | Quantidade de produtos ativos retornados pelo hub/init |
+| `membros` | Quantidade de usuários do workspace retornada pelo hub/init |
+
+> **Nota Admin Panel:** No contexto do painel administrativo (`/admin/tenants`), o campo equivalente a `membros` é obtido via `_count.memberships` na query Prisma de `Company`, não pelo hub/init.
 
 ---
 

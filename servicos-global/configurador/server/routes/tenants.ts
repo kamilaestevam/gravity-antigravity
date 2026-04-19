@@ -84,7 +84,7 @@ tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
   try {
     const tenant = await tenantService.getTenantById(req.auth.tenantId)
     if (!tenant) {
-      throw new AppError('Tenant não encontrado', 404, 'NOT_FOUND')
+      throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
     res.json({ tenant })
   } catch (err) {

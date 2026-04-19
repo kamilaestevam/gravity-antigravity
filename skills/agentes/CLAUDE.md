@@ -38,6 +38,7 @@ Antes de qualquer tarefa, o agente DEVE:
 | Ambiente | `skills/governanca/ambiente/SKILL.md` | Antes de iniciar servidor, definir porta |
 | Code Standards | `skills/governanca/code-standards/SKILL.md` | **SEMPRE — antes de escrever código** |
 | Deploy | `skills/governanca/deploy/SKILL.md` | Migrações, deploy, rollback, Railway |
+| Lint Tenant-Safety | `skills/governanca/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia PrismaClient direto, cache sem prefixo, etc. |
 | Visão Geral | `skills/governanca/visao-geral/SKILL.md` | Entender o projeto, stack, estrutura, ondas |
 
 ### Arquitetura
@@ -50,6 +51,7 @@ Antes de qualquer tarefa, o agente DEVE:
 | Serviços Tenant | `skills/arquitetura/servicos-tenant/SKILL.md` | Criar/modificar serviços em `servicos-global/tenant/` |
 | State Management | `skills/arquitetura/state-management/SKILL.md` | Gerenciar estado (stores, event bus, queries) |
 | Tenant Isolation | `skills/arquitetura/tenant-isolation/SKILL.md` | **Qualquer acesso a banco de dados** |
+| SDK Tenant-Resolver | `skills/arquitetura/sdk-tenant-resolver/SKILL.md` | **Usar `@gravity/tenant-resolver` — withTenant, withTenantContext, TenantDatabase** |
 | Testes | `skills/arquitetura/testes/SKILL.md` | Criar/modificar testes, validar cobertura |
 | Contract Testing | `skills/arquitetura/contract-testing/SKILL.md` | Zod schemas como contratos, CI bloqueando breaking changes |
 | Caching Strategy | `skills/arquitetura/caching-strategy/SKILL.md` | Redis/in-memory, TTL, invalidação, performance |
@@ -162,20 +164,30 @@ Estas regras se aplicam a TODOS os agentes, em TODAS as tarefas:
 - ESModules (`import`/`export`) — nunca `require()`
 - Imports via alias: `@nucleo/`, `@tenant/`, `@produto/`
 
-**Banco de Dados:**
-- Todo model tem `tenant_id String` obrigatório
-- Todo model tem 3 índices: `@@index([tenant_id])`, `@@index([tenant_id, product_id])`, `@@index([tenant_id, user_id])`
-- Nenhuma query sem filtro por `tenant_id`
-- Nenhum agente edita `schema.prisma` — só o Coordenador via script
-- Cada serviço escreve apenas seu `fragment.prisma`
+**Banco de Dados (pós-pivô Schema-per-Tenant — 2026-04-17):**
+- **Schema-per-Tenant** em todos os bancos de produto: 1 schema PostgreSQL por tenant (`tenant_<uuid_sem_hifens>`)
+- Models de produto **NÃO** têm `tenant_id` (o schema **é** o tenant) — após Fase 4 do [ADR-003](../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md)
+- Models de produto **NÃO** têm `@@index([tenant_id, ...])` — o schema isola fisicamente
+- Acesso ao banco **exclusivamente** via `withTenant(req, async db => ...)` ou `withTenantContext(tenantId, fn)` do `@gravity/tenant-resolver`
+- `import { PrismaClient } from '@prisma/client'` é **proibido** fora do SDK — linter CI bloqueia deploy
+- `new PrismaClient(` é **proibido** em código de aplicação
+- Configurador permanece single-schema `public` (fonte de verdade global de identidade)
+- Migrations rodam via orquestrador `scripts/migrate-all-tenants.ts` em N schemas — nunca `prisma migrate dev` solto
+- Provisionamento de schema novo é responsabilidade do worker do evento `TenantProvisioned` (DLQ + retry)
+- Nenhum agente edita `schema.prisma` final — só o Coordenador via script de composição
+- Cada serviço/produto escreve apenas seu `fragment.prisma` ou `schema.base.prisma`
+- Ver [ADR-001](../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), [ADR-003](../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
 
-**Segurança:**
+**Segurança (pós-pivô):**
 - Toda rota tem validação Zod antes do banco
 - JWT validado em rotas protegidas via `@clerk/backend`
 - `x-internal-key` em toda chamada inter-serviço
 - Sem `console.log` expondo dados sensíveis
 - Sem variáveis de ambiente hardcoded
 - Erros via `AppError` — nunca `res.status().json()` direto
+- `tenantId` lido de `req.tenant` (vem do `GET /api/me` do Configurador, cacheado pelo SDK) — **nunca** do `publicMetadata` do Clerk
+- Toda chave de cache prefixada por `tenant:<id>:` ou `tenant:_global:` (com justificativa) — linter CI bloqueia
+- Pre-signed URLs S3 com TTL ≤ 300s e `tenant_<id>/...` no caminho
 
 **Isolamento:**
 - Serviços tenant NUNCA importam código de outro serviço tenant

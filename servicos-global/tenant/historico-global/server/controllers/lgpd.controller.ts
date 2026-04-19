@@ -61,7 +61,7 @@ export async function anonymizeActor(req: Request, res: Response, next: NextFunc
     const tenantFilter = isGravityAdmin ? {} : { tenant_id }
 
     // Conta quantos logs serão afetados
-    const count = await prisma.historyLog.count({
+    const count = await prisma.historicoLog.count({
       where: { actor_id, ...tenantFilter },
     })
 
@@ -72,7 +72,7 @@ export async function anonymizeActor(req: Request, res: Response, next: NextFunc
     const redactedName = `[Anonimizado - LGPD Art.18 - ${new Date().toISOString().slice(0, 10)}]`
 
     // Anonimiza em batch (apenas PII — não altera campos do integrity_hash)
-    await prisma.historyLog.updateMany({
+    await prisma.historicoLog.updateMany({
       where: { actor_id, ...tenantFilter },
       data: {
         actor_name: redactedName,

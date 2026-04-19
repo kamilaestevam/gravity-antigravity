@@ -45,11 +45,11 @@ const criarItemSchema = z.object({
   part_number: z.string().optional().nullable().default(''),
   ncm: z.string().optional().nullable().default(''),
   descricao_item: z.string().optional().nullable().default(''),
-  quantidade_inicial_item_pedido: z.number().min(0).optional().default(0),
+  quantidade_inicial_pedido: z.number().min(0).optional().default(0),
   unidade_comercializada_item: z.string().optional().nullable(),
   moeda_item: z.string().default('USD'),
-  valor_unitario_item: z.number().optional().nullable(),
-  valor_total_itens: z.number().optional().nullable(),
+  valor_por_unidade_item: z.number().optional().nullable(),
+  valor_total_item: z.number().optional().nullable(),
   casas_decimais_quantidade_item: z.number().int().default(2),
   casas_decimais_valor_item: z.number().int().default(2),
   sequencia_item: z.number().int().optional().nullable(),
@@ -73,7 +73,7 @@ const criarPedidoSchema = z.object({
   quantidade_total_inicial_pedido: z.number().optional().nullable(),
   casas_decimais_quantidade_pedido: z.number().int().default(2),
   unidade_comercializada_pedido: z.string().optional().nullable(),
-  condicao_pagamento_pedido: z.string().optional().nullable(),
+  condicao_pagamento: z.string().optional().nullable(),
   data_emissao_pedido: z.string().datetime().optional(),
   detalhes_operacionais: z.any().optional().nullable(),
   itens: z.array(criarItemSchema).optional().default([]),
@@ -87,9 +87,9 @@ const atualizarItemSchema = z.object({
   descricao_item: z.string().min(1).optional(),
   unidade_comercializada_item: z.string().optional().nullable(),
   moeda_item: z.string().optional(),
-  valor_unitario_item: z.number().optional().nullable(),
-  valor_total_itens: z.number().optional().nullable(),
-  quantidade_inicial_item_pedido: z.number().min(0).optional(),
+  valor_por_unidade_item: z.number().optional().nullable(),
+  valor_total_item: z.number().optional().nullable(),
+  quantidade_inicial_pedido: z.number().min(0).optional(),
   cobertura_cambial: z.string().optional(),
   nome_exportador: z.string().optional().nullable(),
   nome_importador: z.string().optional().nullable(),
@@ -98,14 +98,14 @@ const atualizarItemSchema = z.object({
   referencia_exportador: z.string().optional().nullable(),
   referencia_fabricante: z.string().optional().nullable(),
   incoterm: z.string().optional().nullable(),
-  condicao_pagamento_pedido: z.string().optional().nullable(),
+  condicao_pagamento: z.string().optional().nullable(),
   data_emissao_pedido: z.string().optional().nullable(),
   // Dados físicos unitários
-  peso_liquido_unitario_item: z.number().optional().nullable(),
+  peso_liquido_unitario: z.number().optional().nullable(),
   peso_liquido_unidade_item:  z.string().optional().nullable(),
-  peso_bruto_unitario_item:   z.number().optional().nullable(),
+  peso_bruto_unitario:   z.number().optional().nullable(),
   peso_bruto_unidade_item:    z.string().optional().nullable(),
-  cubagem_unitaria_item:      z.number().optional().nullable(),
+  cubagem_unitaria:      z.number().optional().nullable(),
 })
 
 const cancelarQuantidadeSchema = z.object({
@@ -113,7 +113,7 @@ const cancelarQuantidadeSchema = z.object({
 })
 
 const atualizarProntaSchema = z.object({
-  quantidade_pronta_total_item_pedido: z.number().min(0),
+  quantidade_pronta_pedido: z.number().min(0),
 })
 
 const statusTransicaoSchema = z.object({
@@ -139,17 +139,17 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
   return {
     ...item,
     // Campos Decimal do Prisma serializados como string no JSON → converter para number
-    quantidade_inicial_item_pedido:      Number(item.quantidade_inicial_item_pedido ?? 0),
-    saldo_item_pedido:                   Number(item.saldo_item_pedido ?? 0),
-    quantidade_pronta_total_item_pedido: Number(item.quantidade_pronta_total_item_pedido ?? 0),
-    quantidade_transferida_item_pedido:  Number(item.quantidade_transferida_item_pedido ?? 0),
-    quantidade_cancelada_item_pedido:    Number(item.quantidade_cancelada_item_pedido ?? 0),
-    valor_total_itens:                   item.valor_total_itens != null ? Number(item.valor_total_itens) : null,
-    valor_unitario_item:                 item.valor_unitario_item != null ? Number(item.valor_unitario_item) : null,
+    quantidade_inicial_pedido:      Number(item.quantidade_inicial_pedido ?? 0),
+    quantidade_atual_pedido:                   Number(item.quantidade_atual_pedido ?? 0),
+    quantidade_pronta_pedido: Number(item.quantidade_pronta_pedido ?? 0),
+    quantidade_transferida_pedido:  Number(item.quantidade_transferida_pedido ?? 0),
+    quantidade_cancelada_pedido:    Number(item.quantidade_cancelada_pedido ?? 0),
+    valor_total_item:                   item.valor_total_item != null ? Number(item.valor_total_item) : null,
+    valor_por_unidade_item:                 item.valor_por_unidade_item != null ? Number(item.valor_por_unidade_item) : null,
     // Dados físicos unitários (Decimal → number)
-    peso_liquido_unitario_item: item.peso_liquido_unitario_item != null ? Number(item.peso_liquido_unitario_item) : null,
-    peso_bruto_unitario_item:   item.peso_bruto_unitario_item   != null ? Number(item.peso_bruto_unitario_item)   : null,
-    cubagem_unitaria_item:      item.cubagem_unitaria_item       != null ? Number(item.cubagem_unitaria_item)       : null,
+    peso_liquido_unitario: item.peso_liquido_unitario != null ? Number(item.peso_liquido_unitario) : null,
+    peso_bruto_unitario:   item.peso_bruto_unitario   != null ? Number(item.peso_bruto_unitario)   : null,
+    cubagem_unitaria:      item.cubagem_unitaria       != null ? Number(item.cubagem_unitaria)       : null,
   }
 }
 
@@ -166,11 +166,11 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     nome_fabricante: (det.nome_fabricante as string | null | undefined) ?? null,
     // Virtual: somatório de quantidade_pronta dos itens (não persistido no Pedido)
     quantidade_pronta_itens_pedido_total: Array.isArray(itens)
-      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_total_item_pedido ?? 0), 0)
+      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_pronta_pedido ?? 0), 0)
       : (pedido.quantidade_pronta_itens_pedido_total ?? null),
     // Virtual: somatório de quantidade_cancelada dos itens (não persistido no Pedido)
     quantidade_cancelada_total_pedido: Array.isArray(itens)
-      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_cancelada_item_pedido ?? 0), 0)
+      ? itens.reduce((s: number, i: PedidoItemRaw) => s + Number(i.quantidade_cancelada_pedido ?? 0), 0)
       : (pedido.quantidade_cancelada_total_pedido ?? null),
     // Virtual: contagem de NCMs distintos nos itens do pedido
     ncms_distintos_count: Array.isArray(itens)
@@ -205,7 +205,7 @@ async function injetarValoresColunasUsuario<T extends { id: string }>(
 // ── Cursor pagination helpers ─────────────────────────────────────────────────
 
 // Campos suportados como sort key no cursor pagination
-export const CURSOR_SORT_FIELDS = ['data_emissao_pedido', 'numero_pedido', 'valor_total_pedido', 'pedido_criado_em', 'pedido_atualizado_em'] as const
+export const CURSOR_SORT_FIELDS = ['data_emissao_pedido', 'numero_pedido', 'valor_total_pedido', 'created_at', 'updated_at'] as const
 export type CursorSortField = typeof CURSOR_SORT_FIELDS[number]
 
 export interface CursorPayload {
@@ -552,12 +552,12 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
 
       // Calcular totais automaticamente
       const valorTotal = itens.reduce((acc, item) => {
-        const qty = item.quantidade_inicial_item_pedido ?? 0
-        const valorItem = item.valor_total_itens ?? (item.valor_unitario_item ?? 0) * qty
+        const qty = item.quantidade_inicial_pedido ?? 0
+        const valorItem = item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * qty
         return acc + valorItem
       }, 0)
 
-      const qtdTotal = itens.reduce((acc, item) => acc + (item.quantidade_inicial_item_pedido ?? 0), 0)
+      const qtdTotal = itens.reduce((acc, item) => acc + (item.quantidade_inicial_pedido ?? 0), 0)
 
       const novoPedido = await db.pedido.create({
         data: {
@@ -577,13 +577,13 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
               part_number: item.part_number ?? '',
               ncm: item.ncm ?? '',
               descricao_item: item.descricao_item ?? '',
-              quantidade_inicial_item_pedido: item.quantidade_inicial_item_pedido ?? 0,
-              saldo_item_pedido: item.quantidade_inicial_item_pedido ?? 0,
+              quantidade_inicial_pedido: item.quantidade_inicial_pedido ?? 0,
+              quantidade_atual_pedido: item.quantidade_inicial_pedido ?? 0,
               casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
               unidade_comercializada_item: item.unidade_comercializada_item,
               moeda_item: item.moeda_item,
-              valor_unitario_item: item.valor_unitario_item,
-              valor_total_itens: item.valor_total_itens ?? (item.valor_unitario_item ?? 0) * (item.quantidade_inicial_item_pedido ?? 0),
+              valor_por_unidade_item: item.valor_por_unidade_item,
+              valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * (item.quantidade_inicial_pedido ?? 0),
               casas_decimais_valor_item: item.casas_decimais_valor_item,
             })),
           },
@@ -737,7 +737,7 @@ const CAMPOS_EDITAVEIS = new Set([
   'nome_fabricante',
   'incoterm',
   'moeda_pedido',
-  'condicao_pagamento_pedido',
+  'condicao_pagamento',
   'importacao_exportador_id',
   'exportacao_importador_id',
   'data_emissao_pedido',
@@ -904,27 +904,27 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
         const dadosRecalc: Record<string, unknown> = {}
 
         if (campo === 'quantidade_total_inicial_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_item_pedido ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_pedido ?? 0), 0)
           const casas = pedido.casas_decimais_quantidade_pedido ?? 0
           dadosRecalc.quantidade_total_inicial_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'valor_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.valor_total_itens ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.valor_total_item ?? 0), 0)
           const casas = pedido.casas_decimais_valor_pedido ?? 2
           dadosRecalc.valor_total_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'peso_liquido_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario ?? 0), 0)
           const casas = pedido.casas_decimais_peso_pedido ?? 3
           dadosRecalc.peso_liquido_total_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'peso_bruto_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.peso_bruto_unitario_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.peso_bruto_unitario ?? 0), 0)
           const casas = pedido.casas_decimais_peso_pedido ?? 3
           dadosRecalc.peso_bruto_total_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'cubagem_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria ?? 0), 0)
           const casas = pedido.casas_decimais_cubagem_pedido ?? 4
           dadosRecalc.cubagem_total_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'quantidade_transferida_total') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_transferida_item_pedido ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_transferida_pedido ?? 0), 0)
           const casas = pedido.casas_decimais_quantidade_pedido ?? 0
           dadosRecalc.quantidade_transferida_total = parseFloat(soma.toFixed(casas))
         }
@@ -1026,7 +1026,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
           quantidade_total_inicial_pedido: original.quantidade_total_inicial_pedido,
           casas_decimais_quantidade_pedido: original.casas_decimais_quantidade_pedido,
           unidade_comercializada_pedido: original.unidade_comercializada_pedido,
-          condicao_pagamento_pedido: original.condicao_pagamento_pedido,
+          condicao_pagamento: original.condicao_pagamento,
           detalhes_operacionais: original.detalhes_operacionais,
           itens: {
             create: itensOriginais.map((item) => ({
@@ -1037,13 +1037,13 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
               part_number: item.part_number,
               ncm: item.ncm,
               descricao_item: item.descricao_item,
-              quantidade_inicial_item_pedido: item.quantidade_inicial_item_pedido,
-              saldo_item_pedido: item.quantidade_inicial_item_pedido,
+              quantidade_inicial_pedido: item.quantidade_inicial_pedido,
+              quantidade_atual_pedido: item.quantidade_inicial_pedido,
               casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
               unidade_comercializada_item: item.unidade_comercializada_item,
               moeda_item: item.moeda_item,
-              valor_unitario_item: item.valor_unitario_item,
-              valor_total_itens: item.valor_total_itens,
+              valor_por_unidade_item: item.valor_por_unidade_item,
+              valor_total_item: item.valor_total_item,
               casas_decimais_valor_item: item.casas_decimais_valor_item,
               cobertura_cambial: item.cobertura_cambial,
             })),
@@ -1099,11 +1099,11 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
           pedido_id: req.params.id,
           ...result.data,
           sequencia_item: result.data.sequencia_item ?? (itemCount + 1),
-          saldo_item_pedido: result.data.quantidade_inicial_item_pedido,
-          quantidade_pronta_total_item_pedido: 0,
-          quantidade_transferida_item_pedido: 0,
-          quantidade_cancelada_item_pedido: 0,
-          valor_total_itens: result.data.valor_total_itens ?? (result.data.valor_unitario_item ?? 0) * result.data.quantidade_inicial_item_pedido,
+          quantidade_atual_pedido: result.data.quantidade_inicial_pedido,
+          quantidade_pronta_pedido: 0,
+          quantidade_transferida_pedido: 0,
+          quantidade_cancelada_pedido: 0,
+          valor_total_item: result.data.valor_total_item ?? (result.data.valor_por_unidade_item ?? 0) * result.data.quantidade_inicial_pedido,
         },
       })
 
@@ -1140,12 +1140,12 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
       // Os nomes do schema já coincidem com os nomes do frontend — sem tradução de aliases
       const prismaData: Record<string, unknown> = { ...result.data }
 
-      if (result.data.quantidade_inicial_item_pedido !== undefined) {
+      if (result.data.quantidade_inicial_pedido !== undefined) {
         // Recalcular saldo: inicial - transferida - cancelada (nunca negativo)
-        const novoAtual = result.data.quantidade_inicial_item_pedido
-          - Number(item.quantidade_transferida_item_pedido)
-          - Number(item.quantidade_cancelada_item_pedido)
-        prismaData.saldo_item_pedido = Math.max(0, novoAtual)
+        const novoAtual = result.data.quantidade_inicial_pedido
+          - Number(item.quantidade_transferida_pedido)
+          - Number(item.quantidade_cancelada_pedido)
+        prismaData.quantidade_atual_pedido = Math.max(0, novoAtual)
       }
 
       const updated = await db.pedidoItem.update({
@@ -1168,7 +1168,7 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
   'nome_exportador', 'nome_importador', 'nome_fabricante',
   'referencia_importador', 'referencia_exportador', 'referencia_fabricante',
   'cobertura_cambial', 'ncm', 'descricao_item', 'part_number',
-  'incoterm', 'condicao_pagamento_pedido', 'data_emissao_pedido',
+  'incoterm', 'condicao_pagamento', 'data_emissao_pedido',
   'numero_proforma', 'numero_invoice', 'data_consolidacao_pedido',
   // Datas (43)
   'data_prevista_pedido_pronto',
@@ -1254,11 +1254,11 @@ const CAMPOS_EDITAVEIS_ITEM = new Set([
 ])
 
 // Campos numéricos editáveis inline que disparam cascata:
-//   quantidade_inicial_item_pedido  → recalcula saldo_item_pedido (via fórmula do config) + valor_total_itens
-//   valor_unitario_item             → recalcula valor_total_itens (unit × A)
+//   quantidade_inicial_pedido  → recalcula quantidade_atual_pedido (via fórmula do config) + valor_total_item
+//   valor_por_unidade_item             → recalcula valor_total_item (unit × A)
 const CAMPOS_EDITAVEIS_ITEM_NUMERICOS = new Set([
-  'quantidade_inicial_item_pedido',
-  'valor_unitario_item',
+  'quantidade_inicial_pedido',
+  'valor_por_unidade_item',
 ])
 
 pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Response, next: NextFunction) => {
@@ -1304,10 +1304,10 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       // ── Campos numéricos — update + cascata lendo config ──────────────────────
       // Fonte de verdade: tela /configuracoes do produto Pedido.
       //
-      // Passo 1: lê a fórmula do saldo do workspace (PedidoSaldoFormulaConfig).
+      // Passo 1: lê a fórmula do saldo do workspace (PedidoSaldoFormula).
       //          Se ainda não configurado, usa SALDO_FORMULA_PADRAO.
-      // Passo 2: lê as casas decimais do workspace (PedidoCasasDecimaisConfig)
-      //          para arredondar valor_total_itens com a precisão configurada.
+      // Passo 2: lê as casas decimais do workspace (PedidoCasasDecimais)
+      //          para arredondar valor_total_item com a precisão configurada.
       // Passo 3: constrói o contexto do item com os valores pós-edição e
       //          avalia a fórmula via formulaEngine (avaliarFormula).
       // Passo 4: valida invariante (não permitir saldo negativo) e grava.
@@ -1332,14 +1332,14 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
         formulaAST = parsearFormula(SALDO_FORMULA_PADRAO)
       }
 
-      const A_novo = campo === 'quantidade_inicial_item_pedido'
+      const A_novo = campo === 'quantidade_inicial_pedido'
         ? (valorNumerico ?? 0)
-        : Number(item.quantidade_inicial_item_pedido ?? 0)
-      const C = Number(item.quantidade_cancelada_item_pedido ?? 0)
-      const D = Number(item.quantidade_transferida_item_pedido ?? 0)
-      const unit_novo = campo === 'valor_unitario_item'
+        : Number(item.quantidade_inicial_pedido ?? 0)
+      const C = Number(item.quantidade_cancelada_pedido ?? 0)
+      const D = Number(item.quantidade_transferida_pedido ?? 0)
+      const unit_novo = campo === 'valor_por_unidade_item'
         ? (valorNumerico ?? 0)
-        : Number(item.valor_unitario_item ?? 0)
+        : Number(item.valor_por_unidade_item ?? 0)
 
       // Constrói o contexto do item pós-edição para avaliar a fórmula.
       // O contexto usa os tokens pedido-level (quantidade_total_inicial_pedido etc.)
@@ -1356,16 +1356,16 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       // Invariante: editar quantidade inicial não pode deixar o saldo negativo.
       // (pelo menos com a fórmula padrão — se a fórmula custom aceita negativos,
       //  a proteção ainda aplica para manter consistência visual.)
-      if (campo === 'quantidade_inicial_item_pedido' && saldo_avaliado < 0) {
+      if (campo === 'quantidade_inicial_pedido' && saldo_avaliado < 0) {
         throw new AppError(
           400,
-          `quantidade_inicial_item_pedido (${A_novo}) resulta em saldo negativo ` +
+          `quantidade_inicial_pedido (${A_novo}) resulta em saldo negativo ` +
           `(${saldo_avaliado.toFixed(2)}) pela formula configurada. ` +
           `Ja efetivado: cancelada=${C}, transferida=${D}.`,
         )
       }
 
-      // valor_total_itens usa as casas decimais configuradas
+      // valor_total_item usa as casas decimais configuradas
       const fator = Math.pow(10, casasValor)
       const valor_total_novo = Math.round(unit_novo * A_novo * fator) / fator
 
@@ -1373,8 +1373,8 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
         where: { id: req.params.itemId },
         data: {
           [campo]: valorNumerico,
-          saldo_item_pedido: saldo_novo,
-          valor_total_itens: valor_total_novo,
+          quantidade_atual_pedido: saldo_novo,
+          valor_total_item: valor_total_novo,
         },
       })
       return res.json(mapItem(updated))
@@ -1402,7 +1402,7 @@ pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, n
         throw new AppError(404, 'Item do pedido nao encontrado')
       }
 
-      if (item.quantidade_transferida_item_pedido > 0) {
+      if (item.quantidade_transferida_pedido > 0) {
         throw new AppError(400, 'Item com quantidade transferida nao pode ser removido')
       }
 
@@ -1462,7 +1462,7 @@ pedidosRouter.patch('/:id/itens/:itemId/pronta', async (req: Request, res: Respo
 
       const saldo = await saldoEngine.atualizarPronta(db, {
         pedido_item_id: req.params.itemId,
-        quantidade_pronta: result.data.quantidade_pronta_total_item_pedido,
+        quantidade_pronta: result.data.quantidade_pronta_pedido,
         tenant_id,
         company_id,
       })

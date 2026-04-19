@@ -118,10 +118,10 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
       setSubdominio(organizacao.slug || '')
       setErroSub('')
       setPlano(organizacao.subscriptions?.[0]?.plan || PLANOS[0])
-      setCnpj('12.345.678/0001-99')
-      setEstado('SP')
-      setCidade('São Paulo')
-      setSegmento('Logística')
+      setCnpj('')
+      setEstado('')
+      setCidade('')
+      setSegmento('')
       setTipoEmpresa('')
     }
   }, [aberto, organizacao])
@@ -140,10 +140,10 @@ export function ModalEditarOrganizacao({ aberto, organizacao, aoFechar, aoSalvar
     nome !== (organizacao?.name || '') ||
     subdominio !== (organizacao?.slug || '') ||
     plano !== (organizacao?.subscriptions?.[0]?.plan || '') ||
-    cnpj !== '12.345.678/0001-99' ||
-    estado !== 'SP' ||
-    cidade !== 'São Paulo' ||
-    segmento !== 'Logística' ||
+    cnpj !== '' ||
+    estado !== '' ||
+    cidade !== '' ||
+    segmento !== '' ||
     tipoEmpresa !== ''
   )
   const podesSalvar = !!nome.trim() && !!subdominio.trim() && !erroSub

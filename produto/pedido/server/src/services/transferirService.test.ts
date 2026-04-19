@@ -12,6 +12,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { PrismaClient } from '@prisma/client'
 import { TransferirService } from './transferirService.js'
 import type { TransferPayload } from './transferirService.js'
 
@@ -35,20 +36,20 @@ function criarItemPrisma(overrides: Record<string, unknown> = {}) {
     unidade_comercializada_item: 'UN',
     // Decimal do Prisma — serializados como objeto com .toString()
     // Nos testes usamos números simples pois o Number() converte ambos
-    quantidade_inicial_item_pedido: 111,
-    saldo_item_pedido: 111,
-    quantidade_pronta_total_item_pedido: 0,
-    quantidade_transferida_item_pedido: 0,
-    quantidade_cancelada_item_pedido: 0,
+    quantidade_inicial_pedido: 111,
+    quantidade_atual_pedido: 111,
+    quantidade_pronta_pedido: 0,
+    quantidade_transferida_pedido: 0,
+    quantidade_cancelada_pedido: 0,
     casas_decimais_quantidade_item: 2,
     moeda_item: 'USD',
-    valor_unitario_item: 10,
-    valor_total_itens: 1110,
+    valor_por_unidade_item: 10,
+    valor_total_item: 1110,
     casas_decimais_valor_item: 2,
     cobertura_cambial: 'com_cobertura',
     campos_custom: null,
-    item_criado_em: new Date(),
-    item_atualizado_em: new Date(),
+    created_at: new Date(),
+    updated_at: new Date(),
     ...overrides,
   }
 }
@@ -66,12 +67,12 @@ function criarPedidoPrisma(overrides: Record<string, unknown> = {}) {
     casas_decimais_valor_pedido: 2,
     casas_decimais_quantidade_pedido: 2,
     unidade_comercializada_pedido: 'UN',
-    condicao_pagamento_pedido: null,
+    condicao_pagamento: null,
     data_emissao_pedido: new Date(),
     importacao_exportador_id: null,
     exportacao_importador_id: null,
     fabricante_id: null,
-    quantidade_total_inicial_pedido: 111,
+    quantidade_total_pedido: 111,
     valor_total_pedido: 1110,
     itens: [criarItemPrisma()],
     ...overrides,
@@ -122,7 +123,7 @@ function criarMockDb(pedidoBase = criarPedidoPrisma()) {
     $transaction: vi.fn().mockImplementation(async (fn: (tx: typeof txBase) => Promise<unknown>) => fn(txBase)),
   }
 
-  return { db, txBase, mocks: { pedidoCreate, pedidoFindFirst, pedidoUpdate, itemCreate, itemUpdate, itemFindMany, itemDelete, transferHistoricoCreate } }
+  return { db: db as unknown as PrismaClient, txBase, mocks: { pedidoCreate, pedidoFindFirst, pedidoUpdate, itemCreate, itemUpdate, itemFindMany, itemDelete, transferHistoricoCreate } }
 }
 
 // ── Testes: preview ──────────────────────────────────────────────────────────
@@ -135,7 +136,7 @@ describe('TransferirService.preview', () => {
 
     const result = await service.preview(TENANT, payload, db)
 
-    expect(result.origem.saldo_item_pedido).toBe(111)
+    expect(result.origem.quantidade_atual_pedido).toBe(111)
     expect(result.origem.quantidade_apos).toBe(101)
     expect(result.origem.encerra).toBe(false)
   })
@@ -212,7 +213,7 @@ describe('TransferirService.preview', () => {
 // ── Testes: confirmar — reducao_simples ──────────────────────────────────────
 
 describe('TransferirService.confirmar — reducao_simples', () => {
-  it('reduz saldo_item_pedido do item de origem', async () => {
+  it('reduz quantidade_atual_pedido do item de origem', async () => {
     const { db, mocks } = criarMockDb()
     const service = new TransferirService()
     const payload = criarPayload({ cenario: 'reducao_simples', quantidade_origem: 110 })
@@ -223,12 +224,12 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     expect(mocks.itemUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'pite_id_0000001-26' },
-        data: expect.objectContaining({ saldo_item_pedido: 1 }),
+        data: expect.objectContaining({ quantidade_atual_pedido: 1 }),
       }),
     )
   })
 
-  it('incrementa quantidade_transferida_item_pedido', async () => {
+  it('incrementa quantidade_transferida_pedido', async () => {
     const { db, mocks } = criarMockDb()
     const service = new TransferirService()
 
@@ -236,7 +237,7 @@ describe('TransferirService.confirmar — reducao_simples', () => {
 
     expect(mocks.itemUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ quantidade_transferida_item_pedido: 110 }),
+        data: expect.objectContaining({ quantidade_transferida_pedido: 110 }),
       }),
     )
   })
@@ -328,8 +329,8 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
     expect(mocks.itemCreate).toHaveBeenCalledOnce()
     const itemData = mocks.itemCreate.mock.calls[0][0].data
     expect(itemData.id).toMatch(/^pite_id_/)
-    expect(itemData.saldo_item_pedido).toBe(100)
-    expect(itemData.quantidade_inicial_item_pedido).toBe(100)
+    expect(itemData.quantidade_atual_pedido).toBe(100)
+    expect(itemData.quantidade_inicial_pedido).toBe(100)
     expect(itemData.part_number).toBe('PART-001')
   })
 
@@ -374,11 +375,12 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
     await service.confirmar(TENANT, USER, payload, db)
 
     // itemUpdate chamado para a origem (111 - 100 = 11)
-    const updateOrigemCall = mocks.itemUpdate.mock.calls.find(
-      (c: any) => c[0].where.id === 'pite_id_0000001-26',
+    type UpdateArg = { where: { id: string }; data: Record<string, unknown> }
+    const updateOrigemCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
+      c => c[0].where.id === 'pite_id_0000001-26',
     )
     expect(updateOrigemCall).toBeDefined()
-    expect(updateOrigemCall![0].data.saldo_item_pedido).toBe(11)
+    expect(updateOrigemCall![0].data.quantidade_atual_pedido).toBe(11)
   })
 
   it('não copia campos inválidos para o pedido destino', async () => {
@@ -395,7 +397,7 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
     const pedidoData = mocks.pedidoCreate.mock.calls[0][0].data
     expect(pedidoData.nome_exportador).toBeUndefined()
     expect(pedidoData.nome_fabricante).toBeUndefined()
-    expect(pedidoData.quantidade_total_inicial_pedido).toBeUndefined()
+    expect(pedidoData.quantidade_total_pedido).toBeUndefined()
     expect(pedidoData.quantidade_transferida_total).toBeUndefined()
   })
 })
@@ -421,7 +423,7 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
 
     expect(mocks.itemCreate).toHaveBeenCalledOnce()
     const itemData = mocks.itemCreate.mock.calls[0][0].data
-    expect(itemData.saldo_item_pedido).toBe(50)
+    expect(itemData.quantidade_atual_pedido).toBe(50)
     expect(itemData.pedido_id).toBe('pedi_destino') // id do pedido existente passado no payload
   })
 
@@ -431,9 +433,9 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
       id: 'pite_destino',
       pedido_id: 'pedi_destino',
       part_number: 'PART-001',
-      saldo_item_pedido: 200,
-      quantidade_inicial_item_pedido: 200,
-      quantidade_transferida_item_pedido: 0,
+      quantidade_atual_pedido: 200,
+      quantidade_inicial_pedido: 200,
+      quantidade_transferida_pedido: 0,
     })
     txBase.pedido.findFirst
       .mockResolvedValueOnce(criarPedidoPrisma())
@@ -450,11 +452,12 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
 
     // Não deve criar novo item — deve atualizar o existente
     expect(mocks.itemCreate).not.toHaveBeenCalled()
-    const updateDestinoCall = mocks.itemUpdate.mock.calls.find(
-      (c: any) => c[0].where.id === 'pite_destino',
+    type UpdateArg = { where: { id: string }; data: Record<string, unknown> }
+    const updateDestinoCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
+      c => c[0].where.id === 'pite_destino',
     )
     expect(updateDestinoCall).toBeDefined()
-    expect(updateDestinoCall![0].data.saldo_item_pedido).toBe(250) // 200 + 50
+    expect(updateDestinoCall![0].data.quantidade_atual_pedido).toBe(250) // 200 + 50
   })
 
   it('lança erro quando pedido destino não encontrado', async () => {
@@ -488,8 +491,9 @@ describe('TransferirService.confirmar — substituicao_pura', () => {
 
     await service.confirmar(TENANT, USER, payload, db)
 
-    const updateCall = mocks.itemUpdate.mock.calls.find(
-      (c: any) => c[0].data?.part_number === 'PART-002-NOVO',
+    type UpdateArg = { where: { id: string }; data: Record<string, unknown> }
+    const updateCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
+      c => c[0].data?.part_number === 'PART-002-NOVO',
     )
     expect(updateCall).toBeDefined()
   })
@@ -505,9 +509,10 @@ describe('TransferirService.confirmar — substituicao_pura', () => {
 
     await service.confirmar(TENANT, USER, payload, db)
 
-    // O update de qty (com saldo_item_pedido) não deve ter sido chamado
-    const updateQtyCall = mocks.itemUpdate.mock.calls.find(
-      (c: any) => c[0].data?.saldo_item_pedido !== undefined,
+    // O update de qty (com quantidade_atual_pedido) não deve ter sido chamado
+    type UpdateArg = { where: { id: string }; data: Record<string, unknown> }
+    const updateQtyCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
+      c => c[0].data?.quantidade_atual_pedido !== undefined,
     )
     expect(updateQtyCall).toBeUndefined()
   })
@@ -543,21 +548,21 @@ describe('TransferirService — geração de IDs', () => {
 // ── Testes: recalcularAgregados ──────────────────────────────────────────────
 
 describe('TransferirService — recalcularAgregados', () => {
-  it('atualiza quantidade_total_inicial_pedido com soma dos itens', async () => {
+  it('atualiza quantidade_total_pedido com soma dos itens', async () => {
     const { db, txBase, mocks } = criarMockDb()
     // Dois itens com saldos
     txBase.pedidoItem.findMany.mockResolvedValue([
-      { saldo_item_pedido: 100 },
-      { saldo_item_pedido: 50 },
+      { quantidade_atual_pedido: 100 },
+      { quantidade_atual_pedido: 50 },
     ])
     const service = new TransferirService()
 
     await (service as any).recalcularAgregados(TENANT, 'pedi_id_0000001-26', txBase)
 
-    // quantidade_total_inicial_pedido — nome direto no banco (sem @map)
+    // quantidade_total_pedido — nome direto no banco (sem @map)
     expect(mocks.pedidoUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: { quantidade_total_inicial_pedido: 150 },
+        data: { quantidade_total_pedido: 150 },
       }),
     )
   })
@@ -569,8 +574,8 @@ describe('TransferirService — recalcularAgregados', () => {
     await (service as any).recalcularAgregados(TENANT, 'pedi_id_0000001-26', txBase)
 
     const updateData = mocks.pedidoUpdate.mock.calls[0]?.[0]?.data ?? {}
-    // quantidade_total_inicial_pedido deve estar presente (é o campo correto do Prisma)
-    expect(updateData.quantidade_total_inicial_pedido).toBeDefined()
+    // quantidade_total_pedido deve estar presente (é o campo correto do Prisma)
+    expect(updateData.quantidade_total_pedido).toBeDefined()
     // campos que não existem no schema devem estar ausentes
     expect(updateData.quantidade_transferida_total).toBeUndefined()
   })
@@ -609,12 +614,12 @@ describe('TransferirService — prepararItemDestino', () => {
     expect(result.part_number).toBe('ORIGINAL')
   })
 
-  it('define saldo_item_pedido igual à quantidade do destino', () => {
+  it('define quantidade_atual_pedido igual à quantidade do destino', () => {
     const service = new TransferirService()
     const item = criarItemPrisma()
     const result = (service as any).prepararItemDestino(item, 'pedi', { tipo: 'novo', quantidade: 77 })
-    expect(result.saldo_item_pedido).toBe(77)
-    expect(result.quantidade_inicial_item_pedido).toBe(77)
+    expect(result.quantidade_atual_pedido).toBe(77)
+    expect(result.quantidade_inicial_pedido).toBe(77)
   })
 
   it('inclui campos obrigatórios do schema PedidoItem e exclui campos de audit', () => {
@@ -625,8 +630,8 @@ describe('TransferirService — prepararItemDestino', () => {
     expect(result.created_at).toBeUndefined()
     expect(result.updated_at).toBeUndefined()
     // Campos obrigatórios do schema — devem estar presentes com os valores corretos
-    expect(result.saldo_item_pedido).toBe(10)
-    expect(result.quantidade_inicial_item_pedido).toBe(10)
+    expect(result.quantidade_atual_pedido).toBe(10)
+    expect(result.quantidade_inicial_pedido).toBe(10)
   })
 })
 

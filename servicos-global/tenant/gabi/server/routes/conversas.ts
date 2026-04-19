@@ -15,7 +15,7 @@ conversasRouter.post('/api/v1/gabi/conversas', async (req, res, next) => {
     const { tenantId, userId } = req.auth
     const { title } = createConversaSchema.parse(req.body)
 
-    const result = await prisma.gabiConversation.create({
+    const result = await prisma.conversaCompletaGabi.create({
       data: {
         tenant_id: tenantId,
         user_id: userId,
@@ -32,7 +32,7 @@ conversasRouter.post('/api/v1/gabi/conversas', async (req, res, next) => {
 conversasRouter.get('/api/v1/gabi/conversas', async (req, res, next) => {
   try {
     const { tenantId, userId } = req.auth
-    const conversas = await prisma.gabiConversation.findMany({
+    const conversas = await prisma.conversaCompletaGabi.findMany({
       where: {
         tenant_id: tenantId,
         user_id: userId
@@ -50,12 +50,12 @@ conversasRouter.delete('/api/v1/gabi/conversas/:id', async (req, res, next) => {
     const { tenantId } = req.auth
     const { id } = req.params
 
-    const conversa = await prisma.gabiConversation.findUnique({ where: { id } })
+    const conversa = await prisma.conversaCompletaGabi.findUnique({ where: { id } })
     if (!conversa || conversa.tenant_id !== tenantId) {
       throw new AppError('Conversa não encontrada', 404, 'NOT_FOUND')
     }
 
-    await prisma.gabiConversation.delete({ where: { id } })
+    await prisma.conversaCompletaGabi.delete({ where: { id } })
     res.status(204).send()
   } catch (error) {
     next(error)

@@ -2,7 +2,7 @@ import { prisma } from '../prisma'
 
 export async function callGabiForConversation(tenant_id: string, conversation_id: string): Promise<string> {
   // 1. Busca histórico (últimas 10 mensagens)
-  const history = await prisma.whatsAppMessage.findMany({
+  const history = await prisma.whatsappMensagem.findMany({
     where: { tenant_id, conversation_id },
     orderBy: { created_at: 'asc' },
     take: 10
@@ -28,7 +28,7 @@ export async function analyzeConversationTemperature(tenant_id: string, conversa
   // Placeholder para IA Sentiment Analysis
   console.log(`[GABI] Analyzing temperature for conversation ${conversation_id}...`)
   
-  await prisma.whatsAppConversation.update({
+  await prisma.whatsappConversa.update({
     where: { id: conversation_id },
     data: {
       gabi_temperatura: 'Neutro',

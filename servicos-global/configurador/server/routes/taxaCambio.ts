@@ -47,17 +47,17 @@ export async function persistirCotacao(
   boletim: string,
   fonte: string = 'BCB/PTAX',
 ) {
-  const existing = await prisma.taxaCambio.findFirst({
+  const existing = await prisma.cambio.findFirst({
     where: { moeda, data_cotacao: dataCotacao, boletim },
   })
 
   if (existing) {
-    await prisma.taxaCambio.update({
+    await prisma.cambio.update({
       where: { id: existing.id },
       data: { compra, venda, hora_cotacao: horaCotacao, fonte },
     })
   } else {
-    await prisma.taxaCambio.create({
+    await prisma.cambio.create({
       data: { moeda, compra, venda, data_cotacao: dataCotacao, hora_cotacao: horaCotacao, boletim, fonte },
     })
   }
@@ -73,7 +73,7 @@ taxaCambioRouter.get('/', async (_req: Request, res: Response, next: NextFunctio
     const hoje = new Date()
     hoje.setUTCHours(0, 0, 0, 0)
 
-    const taxas = await prisma.taxaCambio.findMany({
+    const taxas = await prisma.cambio.findMany({
       where: { data_cotacao: { gte: hoje } },
       orderBy: [{ moeda: 'asc' }, { criado_em: 'asc' }],
     })
@@ -110,7 +110,7 @@ taxaCambioRouter.get('/historico', async (req: Request, res: Response, next: Nex
   desde.setUTCHours(0, 0, 0, 0)
 
   try {
-    const registros = await prisma.taxaCambio.findMany({
+    const registros = await prisma.cambio.findMany({
       where: { moeda, data_cotacao: { gte: desde } },
       orderBy: [{ data_cotacao: 'desc' }, { boletim: 'asc' }],
       select: { id: true, moeda: true, compra: true, venda: true, data_cotacao: true, hora_cotacao: true, boletim: true, fonte: true, criado_em: true },

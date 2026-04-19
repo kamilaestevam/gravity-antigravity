@@ -341,26 +341,26 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     },
   },
   {
-    key: 'valor_unitario_item',
+    key: 'valor_por_unidade_item',
     label: t('pedido.coluna_pai.valor_unitario_item'),
     tipo: 'moeda',
     filtravel: true,
     align: 'right',
-    casasDecimais: getCasas('valor_unitario_item', 2),
+    casasDecimais: getCasas('valor_por_unidade_item', 2),
     tooltipTitulo: t('pedido.coluna_pai.valor_unitario_item_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.valor_unitario_item_desc'),
     grupo: 'Financeiro',
     render: () => <span style={{ color: 'var(--text-muted)' }}>—</span>,
   },
   {
-    key: 'quantidade_total_inicial_pedido',
+    key: 'quantidade_total_pedido',
     label: t('pedido.coluna_pai.quantidade_total_inicial_pedido'),
     tipo: 'unidade',
     align: 'right',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc'),
     grupo: 'Quantidades',
-    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_item_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc') }),
+    render: (_val: unknown, row: Pedido) => renderQtdPedido(row, 'quantidade_inicial_pedido', 0, { titulo: t('pedido.coluna_pai.quantidade_total_inicial_pedido_titulo'), descricao: t('pedido.coluna_pai.quantidade_total_inicial_pedido_desc') }),
   },
   {
     key: 'quantidade_pronta_itens_pedido_total',
@@ -382,7 +382,7 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     tooltipInterativo: true,
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => {
-      const total = row.quantidade_total_inicial_pedido ?? null
+      const total = row.quantidade_total_pedido ?? null
       const transf = row.quantidade_transferida_total ?? null
       const qtd = row.saldo_itens_do_pedido ?? (total != null && transf != null ? Math.max(0, total - transf) : null)
       return (
@@ -392,7 +392,7 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
           interativo
         >
           <span style={{ fontVariantNumeric: 'tabular-nums', color: qtd != null && qtd > 0 ? '#60a5fa' : undefined }}>
-            {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+            {qtd != null ? fmtQuantidade(qtd, getCasas('quantidade_total_pedido', 0)) : '—'}
           </span>
         </TooltipGlobal>
       )
@@ -405,11 +405,11 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     align: 'right',
     tooltipTitulo: t('pedido.coluna_pai.quantidade_transferida_total_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.quantidade_transferida_total_desc'),
-    tooltipBloqueado: 'Campo calculado — soma de quantidade_transferida_item_pedido de todos os itens. Alterado apenas por operações de transferência.',
+    tooltipBloqueado: 'Campo calculado — soma de quantidade_transferida_pedido de todos os itens. Alterado apenas por operações de transferência.',
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: '#60a5fa' }}>
-        {row.quantidade_transferida_total != null ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+        {row.quantidade_transferida_total != null ? fmtQuantidade(row.quantidade_transferida_total, getCasas('quantidade_total_pedido', 0)) : '—'}
       </span>
     ),
   },
@@ -423,7 +423,7 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
     grupo: 'Quantidades',
     render: (_val: unknown, row: Pedido) => (
       <span style={{ fontVariantNumeric: 'tabular-nums', color: (row.quantidade_cancelada_total_pedido ?? 0) > 0 ? 'var(--color-error, #ef4444)' : undefined }}>
-        {row.quantidade_cancelada_total_pedido != null ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_inicial_pedido', 0)) : '—'}
+        {row.quantidade_cancelada_total_pedido != null ? fmtQuantidade(row.quantidade_cancelada_total_pedido, getCasas('quantidade_total_pedido', 0)) : '—'}
       </span>
     ),
   },
@@ -495,16 +495,16 @@ export function buildColunasPai(t: TFunction): GTColuna<Pedido>[] {
       renderAgregado(row.cobertura_cambial_valor_unico, row.cobertura_cambial_divergente, 'Coberturas cambiais divergentes entre itens'),
   },
   {
-    key: 'condicao_pagamento_pedido',
+    key: 'condicao_pagamento',
     label: t('pedido.coluna_pai.condicao_pagamento_pedido'),
     tipo: 'texto',
     filtravel: true,
-    editavel: getEditavel('condicao_pagamento_pedido'),
+    editavel: getEditavel('condicao_pagamento'),
     tooltipTitulo: t('pedido.coluna_pai.condicao_pagamento_pedido_titulo'),
     tooltipDescricao: t('pedido.coluna_pai.condicao_pagamento_pedido_desc'),
     grupo: 'Financeiro',
     render: (_val: unknown, row: Pedido) =>
-      renderAgregado(row.condicao_pagamento_pedido, row.condicao_pagamento_divergente, 'Condições de pagamento divergentes entre itens'),
+      renderAgregado(row.condicao_pagamento, row.condicao_pagamento_divergente, 'Condições de pagamento divergentes entre itens'),
   },
   // ── Dados físicos ───────────────────────────────────────────────────────────
   {

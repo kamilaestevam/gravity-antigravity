@@ -1,0 +1,22 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:8000",
+      "localStorage": [
+        {
+          "name": "__clerk_db_jwt",
+          "value": "mock-clerk-jwt-user-b"
+        },
+        {
+          "name": "gravity_auth_tenant_id",
+          "value": "tenant-alpha-001"
+        },
+        {
+          "name": "gravity_auth_user_id",
+          "value": "user-beta-001"
+        }
+      ]
+    }
+  ]
+}

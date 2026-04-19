@@ -34,7 +34,7 @@ templatesRouter.get(
   async (req: Request, res: Response, next: NextFunction) => {
     const { tenantId } = req.auth
 
-    const templates = await prisma.template.findMany({
+    const templates = await prisma.templateEmail.findMany({
       where: { tenant_id: tenantId },
       orderBy: { nome: 'asc' },
     })
@@ -57,14 +57,14 @@ templatesRouter.post(
     const { tenantId, userId } = req.auth
 
     // Verificar slug duplicado no tenant
-    const existing = await prisma.template.findFirst({
+    const existing = await prisma.templateEmail.findFirst({
       where: { tenant_id: tenantId, slug: parse.data.slug },
     })
     if (existing) {
       return next(new AppError(`Já existe um template com slug '${parse.data.slug}'`, 409, 'SLUG_CONFLICT'))
     }
 
-    const template = await prisma.template.create({
+    const template = await prisma.templateEmail.create({
       data: {
         tenant_id: tenantId,
         user_id: userId,
@@ -90,7 +90,7 @@ templatesRouter.put(
       return next(new AppError(parse.error.errors[0].message, 422, 'VALIDATION_ERROR'))
     }
 
-    const existing = await prisma.template.findFirst({
+    const existing = await prisma.templateEmail.findFirst({
       where: { id, tenant_id: tenantId },
     })
     if (!existing) {
@@ -99,7 +99,7 @@ templatesRouter.put(
 
     // Verificar conflito de slug se estiver sendo alterado
     if (parse.data.slug && parse.data.slug !== existing.slug) {
-      const slugConflict = await prisma.template.findFirst({
+      const slugConflict = await prisma.templateEmail.findFirst({
         where: { tenant_id: tenantId, slug: parse.data.slug, NOT: { id } },
       })
       if (slugConflict) {
@@ -107,7 +107,7 @@ templatesRouter.put(
       }
     }
 
-    const updated = await prisma.template.update({
+    const updated = await prisma.templateEmail.update({
       where: { id },
       data: parse.data,
     })
@@ -125,14 +125,14 @@ templatesRouter.delete(
     const { id } = req.params
     const { tenantId } = req.auth
 
-    const existing = await prisma.template.findFirst({
+    const existing = await prisma.templateEmail.findFirst({
       where: { id, tenant_id: tenantId },
     })
     if (!existing) {
       return next(new AppError('Template não encontrado', 404, 'TEMPLATE_NOT_FOUND'))
     }
 
-    await prisma.template.delete({ where: { id } })
+    await prisma.templateEmail.delete({ where: { id } })
 
     res.status(204).send()
   }

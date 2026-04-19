@@ -40,7 +40,7 @@ export async function startExportWorker(): Promise<void> {
     async (job) => {
       const { jobId, tenant_id, format, filters } = job.data
 
-      const where: Prisma.HistoryLogWhereInput = {
+      const where: Prisma.HistoricoLogWhereInput = {
         tenant_id,
         ...(filters.actor_type ? { actor_type: filters.actor_type as any } : {}),
         ...(filters.module ? { module: filters.module } : {}),
@@ -56,7 +56,7 @@ export async function startExportWorker(): Promise<void> {
           : {}),
       }
 
-      const logs = await prisma.historyLog.findMany({
+      const logs = await prisma.historicoLog.findMany({
         where,
         orderBy: { created_at: 'desc' },
       })
@@ -79,7 +79,7 @@ export async function startExportWorker(): Promise<void> {
       // Fallback para filesystem se a migração ainda não rodou (ExportResult não existe)
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24h
       try {
-        await (prisma as any).exportResult.upsert({
+        await (prisma as any).exportarResultado.upsert({
           where: { id: jobId },
           create: {
             id: jobId,
@@ -124,7 +124,7 @@ const CLEANUP_INTERVAL_MS = 60 * 60 * 1000
 function startExportCleanupJob(): void {
   const run = async () => {
     try {
-      const deleted = await (prisma as any).exportResult.deleteMany({
+      const deleted = await (prisma as any).exportarResultado.deleteMany({
         where: { expires_at: { lt: new Date() } },
       })
       if (deleted.count > 0) {

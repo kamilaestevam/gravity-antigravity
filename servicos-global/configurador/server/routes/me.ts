@@ -30,7 +30,7 @@ meRouter.get('/', (req, res) => {
 })
 
 // ─────────────────────────────────────────────────────────────────────────────
-// User Preferences — Workspace Preferido
+// Usuario Preferences — Workspace Preferido
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
@@ -48,14 +48,14 @@ export type UpdatePreferencesInput = z.infer<typeof updatePreferencesSchema>
  * Duas rotas de validação, dependendo do role:
  *
  * 1. SUPER_ADMIN / ADMIN (admins Gravity — equipe interna):
- *    Não precisam de UserMembership — eles supervisionam todos os workspaces
+ *    Não precisam de UsuarioWorkspace — eles supervisionam todos os workspaces
  *    do próprio tenant sem habilitação formal. Basta que a company:
  *      - Exista
  *      - Pertença ao mesmo tenant do usuário (tenant isolation)
  *      - Esteja com status ACTIVE
  *
  * 2. MASTER / STANDARD (clientes):
- *    Precisam de UserMembership ATIVA na company — é como o Configurador
+ *    Precisam de UsuarioWorkspace ATIVA na company — é como o Configurador
  *    controla quem acessa o quê dentro de um tenant cliente.
  *
  * SUPPLIER nunca chega aqui — é bloqueado antes no PUT (403).
@@ -70,7 +70,7 @@ async function isPreferredCompanyValid(
 ): Promise<boolean> {
   // Admins Gravity: acesso via tenant, não via membership
   if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
-    const company = await prisma.company.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: {
         id: companyId,
         tenant_id: tenantId,
@@ -82,7 +82,7 @@ async function isPreferredCompanyValid(
   }
 
   // Clientes (MASTER/STANDARD): requer membership ativa
-  const membership = await prisma.userMembership.findFirst({
+  const membership = await prisma.usuarioWorkspace.findFirst({
     where: {
       user_id: userId,
       company_id: companyId,
@@ -113,7 +113,7 @@ meRouter.get('/preferences', async (req, res, next) => {
       return
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.usuario.findUnique({
       where: { id: req.auth.userId },
       select: { preferred_company_id: true },
     })
@@ -134,7 +134,7 @@ meRouter.get('/preferences', async (req, res, next) => {
 
     if (!valid) {
       // Fallback silencioso: limpa o campo e retorna null
-      await prisma.user.update({
+      await prisma.usuario.update({
         where: { id: req.auth.userId },
         data: { preferred_company_id: null },
       })
@@ -159,7 +159,7 @@ meRouter.get('/preferences', async (req, res, next) => {
  * Regras:
  *   - Fornecedor (SUPPLIER) NÃO pode definir preferido — retorna 403.
  *   - Só pode marcar company onde tem membership ATIVA.
- *   - Company deve pertencer ao mesmo tenant (cross-tenant bloqueado).
+ *   - Workspace deve pertencer ao mesmo tenant (cross-tenant bloqueado).
  */
 meRouter.put('/preferences', async (req, res, next) => {
   try {
@@ -186,7 +186,7 @@ meRouter.put('/preferences', async (req, res, next) => {
 
     // Caso 1: desmarcar — sempre permitido
     if (preferredCompanyId === null) {
-      await prisma.user.update({
+      await prisma.usuario.update({
         where: { id: req.auth.userId },
         data: { preferred_company_id: null },
       })
@@ -211,7 +211,7 @@ meRouter.put('/preferences', async (req, res, next) => {
       )
     }
 
-    await prisma.user.update({
+    await prisma.usuario.update({
       where: { id: req.auth.userId },
       data: { preferred_company_id: preferredCompanyId },
     })

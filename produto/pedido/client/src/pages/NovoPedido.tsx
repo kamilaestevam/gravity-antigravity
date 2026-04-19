@@ -35,7 +35,7 @@ interface PedidoForm {
   fabricante_id: string
   incoterm: string
   moeda_pedido: string
-  condicao_pagamento_pedido: string
+  condicao_pagamento: string
   numero_proforma: string
   numero_invoice: string
   referencia_importador: string
@@ -49,9 +49,9 @@ interface ItemForm {
   part_number: string
   ncm: string
   descricao_item: string
-  quantidade_inicial_item_pedido: string
+  quantidade_inicial_pedido: string
   unidade_comercializada_item: string
-  valor_unitario_item: string
+  valor_por_unidade_item: string
 }
 
 const FORM_VAZIO: PedidoForm = {
@@ -61,7 +61,7 @@ const FORM_VAZIO: PedidoForm = {
   fabricante_id: '',
   incoterm: 'FOB',
   moeda_pedido: 'USD',
-  condicao_pagamento_pedido: '',
+  condicao_pagamento: '',
   numero_proforma: '',
   numero_invoice: '',
   referencia_importador: '',
@@ -75,9 +75,9 @@ const ITEM_VAZIO = (): ItemForm => ({
   part_number: '',
   ncm: '',
   descricao_item: '',
-  quantidade_inicial_item_pedido: '',
+  quantidade_inicial_pedido: '',
   unidade_comercializada_item: 'UN',
-  valor_unitario_item: '',
+  valor_por_unidade_item: '',
 })
 
 // ── Estilos ───────────────────────────────────────────────────────────────────
@@ -152,7 +152,7 @@ export default function NovoPedido() {
           fabricante_id: '',
           incoterm: pedido.incoterm ?? 'FOB',
           moeda_pedido: pedido.moeda_pedido,
-          condicao_pagamento_pedido: pedido.condicao_pagamento_pedido ?? '',
+          condicao_pagamento: pedido.condicao_pagamento ?? '',
           numero_proforma: pedido.numero_proforma ?? '',
           numero_invoice: pedido.numero_invoice ?? '',
           referencia_importador: pedido.referencia_importador ?? '',
@@ -166,9 +166,9 @@ export default function NovoPedido() {
             part_number: item.part_number,
             ncm: item.ncm,
             descricao_item: item.descricao_item,
-            quantidade_inicial_item_pedido: String(item.quantidade_inicial_item_pedido),
+            quantidade_inicial_pedido: String(item.quantidade_inicial_pedido),
             unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
-            valor_unitario_item: item.valor_unitario_item != null ? String(item.valor_unitario_item) : '',
+            valor_por_unidade_item: item.valor_por_unidade_item != null ? String(item.valor_por_unidade_item) : '',
           })))
         }
       })
@@ -182,9 +182,9 @@ export default function NovoPedido() {
         part_number: item.part_number,
         ncm: item.ncm,
         descricao_item: item.descricao_item,
-        quantidade_inicial_item_pedido: parseFloat(item.quantidade_inicial_item_pedido) || 0,
+        quantidade_inicial_pedido: parseFloat(item.quantidade_inicial_pedido) || 0,
         unidade_comercializada_item: item.unidade_comercializada_item,
-        valor_unitario_item: item.valor_unitario_item ? parseFloat(item.valor_unitario_item) : undefined,
+        valor_por_unidade_item: item.valor_por_unidade_item ? parseFloat(item.valor_por_unidade_item) : undefined,
       }))
       const payload = {
         ...form,
@@ -328,8 +328,8 @@ export default function NovoPedido() {
             <label style={labelStyle}>Condicao Pagamento</label>
             <input
               style={inputStyle}
-              value={form.condicao_pagamento_pedido}
-              onChange={(e) => handleChange('condicao_pagamento_pedido', e.target.value)}
+              value={form.condicao_pagamento}
+              onChange={(e) => handleChange('condicao_pagamento', e.target.value)}
               placeholder="Ex: 30% Antecipado"
             />
           </div>
@@ -458,8 +458,8 @@ export default function NovoPedido() {
                 <input
                   type="number"
                   style={{ ...inputStyle, textAlign: 'right' }}
-                  value={item.quantidade_inicial_item_pedido}
-                  onChange={(e) => handleItemChange(index, 'quantidade_inicial_item_pedido', e.target.value)}
+                  value={item.quantidade_inicial_pedido}
+                  onChange={(e) => handleItemChange(index, 'quantidade_inicial_pedido', e.target.value)}
                   placeholder="0,00"
                   min="0"
                   step="0.01"
@@ -487,8 +487,8 @@ export default function NovoPedido() {
                 <input
                   type="number"
                   style={{ ...inputStyle, textAlign: 'right' }}
-                  value={item.valor_unitario_item}
-                  onChange={(e) => handleItemChange(index, 'valor_unitario_item', e.target.value)}
+                  value={item.valor_por_unidade_item}
+                  onChange={(e) => handleItemChange(index, 'valor_por_unidade_item', e.target.value)}
                   placeholder="0,00"
                   min="0"
                   step="0.01"

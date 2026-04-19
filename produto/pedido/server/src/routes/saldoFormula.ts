@@ -9,7 +9,7 @@
  *
  * A fórmula é armazenada em forma de "chave" (nomes dos campos do pedido-level,
  * nunca aliases legíveis). Ex.:
- *   "quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido"
+ *   "quantidade_total_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido"
  *
  * O parser aceita aritmética, parênteses, SE() e SOMA_ITENS().
  * Referência: produto/pedido/server/src/services/formulaEngine.ts
@@ -18,6 +18,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import { parsearFormula, SALDO_FORMULA_PADRAO } from '../../../../../servicos-global/tenant/processos-core/src/services/formulaEngine.js'
 
 export const saldoFormulaRouter = Router()
@@ -28,31 +29,23 @@ const SaldoFormulaSchema = z.object({
   formula_expressao: z.string().trim().min(1).max(2000),
 })
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function getTenantId(req: Request): string {
-  const id = req.headers['x-tenant-id'] as string | undefined
-  if (!id) throw new AppError('Header x-tenant-id obrigatorio', 400, 'BAD_REQUEST')
-  return id
-}
-
 // ── GET /configuracoes/saldo-formula ─────────────────────────────────────────
 
 saldoFormulaRouter.get('/saldo-formula', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = (req as any).prisma as Record<string, any>
-
-    const registro = await db.pedidoSaldoFormulaConfig.findUnique({
-      where: { tenant_id },
-    })
-
-    res.json({
-      data: {
-        formula_expressao: registro?.formula_expressao ?? SALDO_FORMULA_PADRAO,
-        is_default: !registro,
-      },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const registro = await db.pedidoSaldoFormulaConfig.findUnique({
+        where: { tenant_id },
+      })
+      res.json({
+        data: {
+          formula_expressao: registro?.formula_expressao ?? SALDO_FORMULA_PADRAO,
+          is_default: !registro,
+        },
+      })
     })
   } catch (err) {
     next(err)
@@ -63,8 +56,6 @@ saldoFormulaRouter.get('/saldo-formula', async (req: Request, res: Response, nex
 
 saldoFormulaRouter.put('/saldo-formula', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-
     const parsed = SaldoFormulaSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Payload invalido', 400, 'VALIDATION_ERROR')
@@ -78,20 +69,21 @@ saldoFormulaRouter.put('/saldo-formula', async (req: Request, res: Response, nex
       throw new AppError(`Formula invalida: ${msg}`, 400, 'VALIDATION_ERROR')
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = (req as any).prisma as Record<string, any>
-
-    const registro = await db.pedidoSaldoFormulaConfig.upsert({
-      where:  { tenant_id },
-      create: { tenant_id, formula_expressao: parsed.data.formula_expressao },
-      update: { formula_expressao: parsed.data.formula_expressao },
-    })
-
-    res.json({
-      data: {
-        formula_expressao: registro.formula_expressao,
-        is_default: false,
-      },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const registro = await db.pedidoSaldoFormulaConfig.upsert({
+        where:  { tenant_id },
+        create: { tenant_id, formula_expressao: parsed.data.formula_expressao },
+        update: { formula_expressao: parsed.data.formula_expressao },
+      })
+      res.json({
+        data: {
+          formula_expressao: registro.formula_expressao,
+          is_default: false,
+        },
+      })
     })
   } catch (err) {
     next(err)
@@ -102,17 +94,17 @@ saldoFormulaRouter.put('/saldo-formula', async (req: Request, res: Response, nex
 
 saldoFormulaRouter.delete('/saldo-formula', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = (req as any).prisma as Record<string, any>
-
-    await db.pedidoSaldoFormulaConfig.deleteMany({ where: { tenant_id } })
-
-    res.json({
-      data: {
-        formula_expressao: SALDO_FORMULA_PADRAO,
-        is_default: true,
-      },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      await db.pedidoSaldoFormulaConfig.deleteMany({ where: { tenant_id } })
+      res.json({
+        data: {
+          formula_expressao: SALDO_FORMULA_PADRAO,
+          is_default: true,
+        },
+      })
     })
   } catch (err) {
     next(err)

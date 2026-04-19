@@ -51,11 +51,11 @@ export interface PedidoItem {
   unidade_comercializada_item?: string | null
 
   // Quantidades
-  quantidade_inicial_item_pedido: number
-  saldo_item_pedido: number
+  quantidade_inicial_pedido: number
+  quantidade_atual_pedido: number
   quantidade_pronta_total_item_pedido: number
-  quantidade_transferida_item_pedido: number
-  quantidade_cancelada_item_pedido: number
+  quantidade_transferida_pedido: number
+  quantidade_cancelada_pedido: number
   casas_decimais_quantidade_item: number
 
   // Datas por item
@@ -63,10 +63,10 @@ export interface PedidoItem {
 
   // Financeiro
   incoterm?: string | null
-  condicao_pagamento_pedido?: string | null
+  condicao_pagamento?: string | null
   moeda_item: string
-  valor_total_itens: number | null
-  valor_unitario_item?: number | null
+  valor_total_item: number | null
+  valor_por_unidade_item?: number | null
   casas_decimais_valor_item: number
   cobertura_cambial?: string
   nome_exportador?: string | null
@@ -77,11 +77,11 @@ export interface PedidoItem {
   referencia_fabricante?: string | null
 
   // Pesos e cubagem
-  peso_liquido_unitario_item?: number | null
+  peso_liquido_unitario?: number | null
   peso_liquido_unidade_item?: string | null
-  peso_bruto_unitario_item?: number | null
+  peso_bruto_unitario?: number | null
   peso_bruto_unidade_item?: string | null
-  cubagem_unitaria_item?: number | null
+  cubagem_unitaria?: number | null
   casas_decimais_peso_item?: number
   casas_decimais_cubagem_item?: number
 
@@ -321,7 +321,7 @@ export interface Pedido {
   moeda_pedido: string
   valor_total_pedido: number | null
   casas_decimais_valor_pedido: number
-  quantidade_total_inicial_pedido: number | null
+  quantidade_total_pedido: number | null
   casas_decimais_quantidade_pedido: number
   unidade_comercializada_pedido?: string | null
   quantidade_volumes_pedido?: number | null
@@ -351,7 +351,7 @@ export interface Pedido {
   data_emissao_pedido_valor_unico?: string | null
 
   // Financeiro
-  condicao_pagamento_pedido: string | null
+  condicao_pagamento: string | null
 
   // Dados físicos
   peso_liquido_total_pedido?: number | null
@@ -433,8 +433,8 @@ export interface Pedido {
   // Rastreabilidade de consolidação
   pedidos_origem_id?: string[] | null
 
-  pedido_criado_em: string
-  pedido_atualizado_em: string
+  created_at: string
+  updated_at: string
 }
 
 // ── Consolidação de Pedidos ───────────────────────────────────────────────────
@@ -452,7 +452,7 @@ export interface ItemConsolidado {
   ncm: string
   unidade_comercializada_item: string | null
   moeda_item: string
-  valor_unitario_item: number | null
+  valor_por_unidade_item: number | null
   quantidade_total: number
   pedidos_origem: string[]
   pode_fundir: boolean
@@ -574,7 +574,7 @@ export interface TransferPreview {
   origem: {
     pedido_numero: string
     item_part_number: string
-    saldo_item_pedido: number
+    quantidade_atual_pedido: number
     quantidade_apos: number
     encerra: boolean
   }
@@ -680,26 +680,26 @@ export interface EdicaoMassaResultado {
 /** Campos calculados do Pedido — nunca editáveis em massa */
 export const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'valor_total_pedido',
-  'quantidade_total_inicial_pedido',
+  'quantidade_total_pedido',
   'quantidade_transferida_total',
   'status',
   'id',
   'tenant_id',
   'product_id',
-  'pedido_criado_em',
-  'pedido_atualizado_em',
+  'created_at',
+  'updated_at',
   'deleted_at',
 ])
 
 /** Campos calculados do PedidoItem — nunca editáveis em massa */
 export const CAMPOS_BLOQUEADOS_ITEM = new Set([
-  'valor_total_itens',
-  'saldo_item_pedido',
+  'valor_total_item',
+  'quantidade_atual_pedido',
   'id',
   'tenant_id',
   'pedido_id',
-  'item_criado_em',
-  'item_atualizado_em',
+  'created_at',
+  'updated_at',
 ])
 
 // ── Smart Import ──────────────────────────────────────────────────────────────
@@ -898,7 +898,7 @@ export interface ColunaUsuario {
   opcoes?: string[]
   descricao?: string
   valor_padrao?: string
-  /** Expressão da fórmula (ex: "quantidade_inicial_item_pedido - quantidade_transferida_item"). Presente quando tipo === 'formula'. */
+  /** Expressão da fórmula (ex: "quantidade_inicial_pedido - quantidade_transferida_item"). Presente quando tipo === 'formula'. */
   formula_expressao?: string
   /** Chaves de colunas das quais esta fórmula depende. Populado pelo engine ao salvar. */
   formula_dependencias?: string[]
@@ -1025,7 +1025,7 @@ export const KANBAN_PADRAO: KanbanPreferencias = {
     {
       aba: 'quantidades',
       campos: [
-        { campo: 'quantidade_total_inicial_pedido',      label: 'Qtd. Inicial',      visivel: true, ordem: 0 },
+        { campo: 'quantidade_total_pedido',      label: 'Qtd. Inicial',      visivel: true, ordem: 0 },
         { campo: 'quantidade_pronta_itens_pedido_total', label: 'Qtd. Pronta',       visivel: true, ordem: 1 },
         { campo: 'quantidade_transferida_total',         label: 'Qtd. Transferida',  visivel: true, ordem: 2 },
         { campo: 'quantidade_cancelada_total_pedido',    label: 'Qtd. Cancelada',    visivel: true, ordem: 3 },
@@ -1060,12 +1060,12 @@ export const KANBAN_CAMPOS_DISPONIVEIS: KanbanCampoDisponivel[] = [
   { campo: 'numero_proforma',         label: 'Nº Proforma',              categoria: 'pedido'      },
   { campo: 'referencia_exportador',   label: 'Ref. Exportador',          categoria: 'pedido'      },
   { campo: 'referencia_importador',   label: 'Ref. Importador',          categoria: 'pedido'      },
-  { campo: 'condicao_pagamento_pedido', label: 'Cond. Pagamento',        categoria: 'pedido'      },
+  { campo: 'condicao_pagamento', label: 'Cond. Pagamento',        categoria: 'pedido'      },
   { campo: 'cobertura_cambial',        label: 'Cobertura Cambial',       categoria: 'pedido'      },
   { campo: 'peso_liquido_total_pedido', label: 'Peso Líquido',           categoria: 'pedido'      },
   { campo: 'peso_bruto_total_pedido', label: 'Peso Bruto',               categoria: 'pedido'      },
   // Aba Quantidades
-  { campo: 'quantidade_total_inicial_pedido',      label: 'Qtd. Inicial',      categoria: 'quantidades' },
+  { campo: 'quantidade_total_pedido',      label: 'Qtd. Inicial',      categoria: 'quantidades' },
   { campo: 'quantidade_pronta_itens_pedido_total', label: 'Qtd. Pronta',       categoria: 'quantidades' },
   { campo: 'quantidade_transferida_total',         label: 'Qtd. Transferida',  categoria: 'quantidades' },
   { campo: 'quantidade_cancelada_total_pedido',    label: 'Qtd. Cancelada',    categoria: 'quantidades' },

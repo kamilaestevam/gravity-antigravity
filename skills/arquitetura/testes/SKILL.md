@@ -58,6 +58,25 @@ Gravity/
 
 **Por que central:** um único lugar para rodar todos os testes, CI/CD aponta para um caminho só, visão consolidada de cobertura total, imports via aliases sem caminhos relativos frágeis.
 
+### Exceção: pacotes publicáveis em `packages/`
+
+Pacotes que vivem em `packages/` (ex: `packages/tenant-resolver`) mantêm seus testes **dentro do próprio pacote**, não na raiz `testes/`. Isso porque:
+- São publicáveis independentemente (npm workspace)
+- Precisam de configs Vitest separadas (unit vs E2E, timeout diferente)
+- O CI do pacote roda isolado do monorepo
+
+```text
+packages/tenant-resolver/
+├── vitest.config.ts           ← unit + integration (sem banco)
+├── vitest.e2e.config.ts       ← E2E (requer DATABASE_URL real)
+└── tests/
+    ├── unit/
+    ├── integration/
+    └── *.e2e.test.ts
+```
+
+**Vitest em `packages/`:** instalar `vitest@2` **localmente** no pacote. O root usa `vitest@4` que requer `vite@6`, mas o monorepo usa `vite@5` — herdar o root quebra (`ERR_PACKAGE_PATH_NOT_EXPORTED`).
+
 ---
 
 ## Testes Unitários — Vitest

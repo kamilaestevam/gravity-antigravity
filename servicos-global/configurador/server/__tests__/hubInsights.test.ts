@@ -151,7 +151,7 @@ describe('GET /api/v1/hub/insights', () => {
     expect(atrasados.produto).toBe('Pedido')
   })
 
-  // ── Tenant isolation ──
+  // ── Organizacao isolation ──
 
   it('filtra productConfig por tenant_id (tenant isolation)', async () => {
     await request.get('/api/v1/hub/insights')

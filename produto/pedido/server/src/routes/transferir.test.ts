@@ -86,7 +86,7 @@ const PREVIEW_RESULT = {
   origem: {
     pedido_numero: 'PO-2026-001',
     item_part_number: 'PART-001',
-    saldo_item_pedido: 111,
+    quantidade_atual_pedido: 111,
     quantidade_apos: 1,
     encerra: false,
   },
@@ -307,15 +307,15 @@ describe('Contrato de resposta — TransferPreview', () => {
     expect(preview).toHaveProperty('origem')
     expect(preview.origem).toHaveProperty('pedido_numero')
     expect(preview.origem).toHaveProperty('item_part_number')
-    expect(preview.origem).toHaveProperty('saldo_item_pedido')
+    expect(preview.origem).toHaveProperty('quantidade_atual_pedido')
     expect(preview.origem).toHaveProperty('quantidade_apos')
     expect(preview.origem).toHaveProperty('encerra')
     expect(preview).toHaveProperty('destinos')
     expect(preview).toHaveProperty('alertas_globais')
   })
 
-  it('saldo_item_pedido é número (não string/Decimal)', () => {
-    expect(typeof PREVIEW_RESULT.origem.saldo_item_pedido).toBe('number')
+  it('quantidade_atual_pedido é número (não string/Decimal)', () => {
+    expect(typeof PREVIEW_RESULT.origem.quantidade_atual_pedido).toBe('number')
     expect(typeof PREVIEW_RESULT.origem.quantidade_apos).toBe('number')
   })
 })
@@ -345,7 +345,7 @@ describe('Fluxo completo de transferência — reducao_simples', () => {
     const { TransferirService } = await import('../services/transferirService.js')
     mockPreview.mockResolvedValue({
       ...PREVIEW_RESULT,
-      origem: { ...PREVIEW_RESULT.origem, saldo_item_pedido: 111, quantidade_apos: 1 },
+      origem: { ...PREVIEW_RESULT.origem, quantidade_atual_pedido: 111, quantidade_apos: 1 },
     })
     const service = new (TransferirService as any)()
 

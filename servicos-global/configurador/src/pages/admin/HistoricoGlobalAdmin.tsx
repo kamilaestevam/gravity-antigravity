@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@clerk/clerk-react'
+import { apiFetch, setAuthTokenProvider } from '../../services/apiClient'
 import {
-  Desktop, User, Robot, Export, DownloadSimple,
+  Desktop, User, Robot, FileCsv, FileCode,
   Info, Funnel, Warning, CheckCircle, ArrowsClockwise,
   Globe, Cpu, Gear, Hash
 } from '@phosphor-icons/react'
 import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
-import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
+import { TabelaGlobal, type TabelaGlobalColuna, type TabelaExportAcao } from '@nucleo/tabela-global'
 import { TooltipGlobal } from '@nucleo/tooltip-global'
 import { SelectGlobal } from '@nucleo/campo-select-global'
 import { CalendarioCampoGlobal } from '@nucleo/campo-calendario-global'
@@ -260,7 +262,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/admin/historico-global/alerts?status=PENDING')
+    apiFetch('/api/admin/historico-global/alerts?status=PENDING')
       .then((r) => r.json())
       .then((d) => setAlertas(d.data ?? []))
       .catch(() => {})
@@ -269,7 +271,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
 
   async function marcarRevisado(id: string) {
     try {
-      await fetch(`/api/admin/historico-global/alerts/${id}`, {
+      await apiFetch(`/api/admin/historico-global/alerts/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'REVIEWED' }),
@@ -349,7 +351,7 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
               </button>
               <button
                 onClick={async () => {
-                  await fetch(`/api/admin/historico-global/alerts/${alerta.id}`, {
+                  await apiFetch(`/api/admin/historico-global/alerts/${alerta.id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: 'ESCALATED' }),
@@ -376,7 +378,10 @@ function PainelAlertas({ onClose }: { onClose: () => void }) {
 
 export function HistoricoGlobalAdmin() {
   const { t } = useTranslation()
+  const { getToken } = useAuth()
   const addNotification = useShellStore((s) => s.addNotification)
+
+  useEffect(() => { setAuthTokenProvider(() => getToken()) }, [getToken])
 
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
@@ -405,7 +410,7 @@ export function HistoricoGlobalAdmin() {
     try {
       setLoading(true)
       setErroCarregar(null)
-      const res = await fetch(`/api/admin/historico-global/logs?${buildQuery()}`, { signal })
+      const res = await apiFetch(`/api/admin/historico-global/logs?${buildQuery()}`, { signal })
       if (!res.ok) {
         const body = await res.text().catch(() => '')
         throw new Error(`${res.status} ${res.statusText}${body ? ` — ${body.slice(0, 200)}` : ''}`)
@@ -434,7 +439,7 @@ export function HistoricoGlobalAdmin() {
   // Polling de alertas pendentes a cada 30s (além do carregamento inicial)
   useEffect(() => {
     const fetchAlertas = () => {
-      fetch('/api/admin/historico-global/alerts?status=PENDING&limit=1')
+      apiFetch('/api/admin/historico-global/alerts?status=PENDING&limit=1')
         .then((r) => r.json())
         .then((d) => setAlertasPendentes(d.data?.length ?? 0))
         .catch(() => { /* silencioso — indicador não-crítico */ })
@@ -448,7 +453,7 @@ export function HistoricoGlobalAdmin() {
     if (!nextCursor) return
     setLoadingMore(true)
     try {
-      const res = await fetch(`/api/admin/historico-global/logs?${buildQuery(nextCursor)}`)
+      const res = await apiFetch(`/api/admin/historico-global/logs?${buildQuery(nextCursor)}`)
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
       const result = await res.json()
       setLogs((prev) => [...prev, ...(result.data ?? [])])
@@ -468,7 +473,7 @@ export function HistoricoGlobalAdmin() {
       if (filtroStatus && filtroStatus !== 'todos') params.set('status', filtroStatus)
       params.set('format', format)
 
-      const res = await fetch(`/api/admin/historico-global/logs/export?${params}`)
+      const res = await apiFetch(`/api/admin/historico-global/logs/export?${params}`)
 
       if (res.status === 202) {
         addNotification({ type: 'info', message: 'Exportação em background iniciada. O download estará disponível em breve.' })
@@ -591,35 +596,6 @@ export function HistoricoGlobalAdmin() {
                   )}
                 </button>
 
-                {/* Exportar */}
-                <button
-                  onClick={() => exportar('csv')}
-                  aria-label="Exportar histórico em CSV"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                    padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
-                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-                    color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600,
-                  }}
-                >
-                  <Export size={15} />
-                  CSV
-                </button>
-
-                <button
-                  onClick={() => exportar('json')}
-                  aria-label="Exportar histórico em JSON"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '6px',
-                    padding: '6px 12px', borderRadius: '8px', cursor: 'pointer',
-                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-                    color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600,
-                  }}
-                >
-                  <DownloadSimple size={15} />
-                  JSON
-                </button>
-
                 <TooltipGlobal titulo="Processamento assíncrono" descricao="Os logs são gravados em fila — pode haver latência de até 1s na exibição.">
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', padding: '6px', borderRadius: '6px', cursor: 'help' }}>
                     <Info size={18} weight="duotone" color="#3b82f6" />
@@ -712,6 +688,10 @@ export function HistoricoGlobalAdmin() {
               tooltipExpandir="Ver antes/depois e detalhes"
               tooltipRecolher="Recolher detalhes"
               renderExpandido={(item) => <DetalheLog log={item} />}
+              acoesExportacao={[
+                { label: 'CSV',  icone: <FileCsv size={14} weight="bold" />,  onClick: () => void exportar('csv') },
+                { label: 'JSON', icone: <FileCode size={14} weight="bold" />, onClick: () => void exportar('json') },
+              ] as TabelaExportAcao<AuditLog>[]}
             />
           )}
 

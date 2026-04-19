@@ -108,7 +108,7 @@ export class SharingEngine {
   /**
    * Cria um compartilhamento de dashboard.
    *
-   * - Sempre gera um registro DashboardShare no banco.
+   * - Sempre gera um registro DashboardCompartilhar no banco.
    * - Para 'email': envia e-mail com o link (fire-and-forget).
    * - Para 'whatsapp': envia mensagem WhatsApp (fire-and-forget).
    * - Para 'link': apenas retorna a URL pública.
@@ -148,7 +148,7 @@ export class SharingEngine {
     const expiresAt = computeExpiresAt(expiresInHours)
     const shareUrl = buildShareUrl(shareToken)
 
-    await prisma.dashboardShare.create({
+    await prisma.dashboardCompartilhar.create({
       data: {
         tenant_id: tenantId,
         user_id: userId,
@@ -187,7 +187,7 @@ export class SharingEngine {
     tenantId: string,
     shareToken: string
   ): Promise<void> {
-    const share = await prisma.dashboardShare.findFirst({
+    const share = await prisma.dashboardCompartilhar.findFirst({
       where: { share_token: shareToken, tenant_id: tenantId },
       select: { id: true },
     })
@@ -196,7 +196,7 @@ export class SharingEngine {
       throw new AppError('Compartilhamento não encontrado', 404, 'NOT_FOUND')
     }
 
-    await prisma.dashboardShare.delete({
+    await prisma.dashboardCompartilhar.delete({
       where: { id: share.id },
     })
   }
@@ -210,7 +210,7 @@ export class SharingEngine {
     prisma: PrismaClient,
     shareToken: string
   ): Promise<{ config: unknown; data: unknown } | null> {
-    const share = await prisma.dashboardShare.findUnique({
+    const share = await prisma.dashboardCompartilhar.findUnique({
       where: { share_token: shareToken },
       include: {
         dashboard: {

@@ -220,6 +220,10 @@ if (process.env.NODE_ENV !== 'test') {
         // Taxa de câmbio — sync automático 4x/dia (10h / 11h / 12h / 13h BRT)
         const { startTaxaCambioSyncWorker } = await import('./queue/taxaCambioSyncWorker.js')
         startTaxaCambioSyncWorker()
+
+        // NCM Siscomex — cron job diário (configura agendamento salvo no banco)
+        const { initNcmSync } = await import('../../tenant/ncm-sync/server/init.js')
+        await initNcmSync()
       } catch (err) {
         console.error('[configurador] Falha ao inicializar pg-boss/audit-worker:', err)
       }

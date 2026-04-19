@@ -100,7 +100,7 @@ timersRouter.get('/stream', (req: Request, res: Response) => {
 
   // Envia estado inicial do timer ativo (se houver)
   const db = withTenantIsolation(prisma, tenantId)
-  db.timerActive
+  db.atividadesTimer
     .findFirst({ where: { user_id: userId } })
     .then((active) => {
       if (active) {
@@ -138,7 +138,7 @@ timersRouter.get('/active', async (req: Request, res: Response, next: NextFuncti
     const { tenantId, userId } = req.auth
     const db = withTenantIsolation(prisma, tenantId)
 
-    const active = await db.timerActive.findFirst({ where: { user_id: userId } })
+    const active = await db.atividadesTimer.findFirst({ where: { user_id: userId } })
 
     if (!active) {
       return res.json({ active: false })
@@ -178,7 +178,7 @@ timersRouter.get('/:activity_id', async (req: Request, res: Response, next: Next
     const { tenantId, userId } = req.auth
     const db = withTenantIsolation(prisma, tenantId)
 
-    const sessions = await db.timerSession.findMany({
+    const sessions = await db.atividadesCronometro.findMany({
       where: {
         activity_id: parsed.data.activity_id,
         user_id: userId,
@@ -215,7 +215,7 @@ timersRouter.post(
       const now = new Date()
 
       // Pausa qualquer timer ativo existente do usuário
-      const existingActive = await db.timerActive.findFirst({
+      const existingActive = await db.atividadesTimer.findFirst({
         where: { user_id: userId },
       })
 
@@ -228,7 +228,7 @@ timersRouter.post(
             })
           }
           // Estava pausado — retoma em vez de iniciar novo
-          const updated = await db.timerActive.update({
+          const updated = await db.atividadesTimer.update({
             where: { id: existingActive.id },
             data: { paused_at: null },
           })
@@ -245,7 +245,7 @@ timersRouter.post(
           existingActive.paused_at,
           existingActive.accumulated_seconds
         )
-        await db.timerActive.update({
+        await db.atividadesTimer.update({
           where: { id: existingActive.id },
           data: {
             paused_at: now,
@@ -263,10 +263,10 @@ timersRouter.post(
       const newActive = await prisma.$transaction(async (tx) => {
         if (existingActive) {
           // Se havia timer ativo em outra atividade, removemos e criamos novo
-          await tx.timerActive.deleteMany({ where: { user_id: userId, tenant_id: tenantId } })
+          await tx.atividadesTimer.deleteMany({ where: { user_id: userId, tenant_id: tenantId } })
         }
 
-        return tx.timerActive.create({
+        return tx.atividadesTimer.create({
           data: {
             tenant_id: tenantId,
             user_id: userId,
@@ -306,7 +306,7 @@ timersRouter.post(
       const db = withTenantIsolation(prisma, tenantId)
       const now = new Date()
 
-      const active = await db.timerActive.findFirst({
+      const active = await db.atividadesTimer.findFirst({
         where: { user_id: userId, activity_id: parsed.data.activity_id },
       })
 
@@ -317,7 +317,7 @@ timersRouter.post(
 
       const elapsed = calcElapsedSeconds(active.started_at, null, active.accumulated_seconds)
 
-      const updated = await db.timerActive.update({
+      const updated = await db.atividadesTimer.update({
         where: { id: active.id },
         data: {
           paused_at: now,
@@ -353,7 +353,7 @@ timersRouter.post(
       const db = withTenantIsolation(prisma, tenantId)
       const now = new Date()
 
-      const active = await db.timerActive.findFirst({
+      const active = await db.atividadesTimer.findFirst({
         where: { user_id: userId, activity_id: parsed.data.activity_id },
       })
 
@@ -366,7 +366,7 @@ timersRouter.post(
       )
 
       // Descarta sessões com menos de 1 minuto (exceto manuais)
-      await db.timerActive.deleteMany({
+      await db.atividadesTimer.deleteMany({
         where: { id: active.id },
       })
 
@@ -386,7 +386,7 @@ timersRouter.post(
       }
 
       // Cria a sessão salva
-      const session = await db.timerSession.create({
+      const session = await db.atividadesCronometro.create({
         data: {
           user_id: userId,
           activity_id: parsed.data.activity_id,
@@ -434,7 +434,7 @@ timersRouter.post(
       const endedDate = new Date(startedDate.getTime() + duration_minutes * 60 * 1000)
 
       const db = withTenantIsolation(prisma, tenantId)
-      const session = await db.timerSession.create({
+      const session = await db.atividadesCronometro.create({
         data: {
           user_id: userId,
           activity_id: paramParsed.data.activity_id,
@@ -475,12 +475,12 @@ timersRouter.patch(
       const { tenantId, userId } = req.auth
       const db = withTenantIsolation(prisma, tenantId)
 
-      const existing = await db.timerSession.findFirst({
+      const existing = await db.atividadesCronometro.findFirst({
         where: { id: paramParsed.data.id, user_id: userId },
       })
       if (!existing) throw AppError.notFound('Sessão')
 
-      const updated = await db.timerSession.update({
+      const updated = await db.atividadesCronometro.update({
         where: { id: paramParsed.data.id },
         data: {
           ...(bodyParsed.data.subject !== undefined && { subject: bodyParsed.data.subject }),
@@ -512,12 +512,12 @@ timersRouter.delete(
       const { tenantId, userId } = req.auth
       const db = withTenantIsolation(prisma, tenantId)
 
-      const existing = await db.timerSession.findFirst({
+      const existing = await db.atividadesCronometro.findFirst({
         where: { id: paramParsed.data.id, user_id: userId },
       })
       if (!existing) throw AppError.notFound('Sessão')
 
-      await db.timerSession.delete({ where: { id: paramParsed.data.id } })
+      await db.atividadesCronometro.delete({ where: { id: paramParsed.data.id } })
 
       return res.status(204).send()
     } catch (err) {
@@ -546,7 +546,7 @@ timersRouter.get('/report', async (req: Request, res: Response, next: NextFuncti
 
     const db = withTenantIsolation(prisma, tenantId)
 
-    const sessions = await db.timerSession.findMany({
+    const sessions = await db.atividadesCronometro.findMany({
       where: {
         user_id: effectiveUserId,
         ...(product_id ? { product_id } : {}),

@@ -27,8 +27,8 @@ function criarLinha(overrides: Partial<SmartImportLinha> = {}): SmartImportLinha
       moeda_pedido: 'USD',
       part_number: 'PART-001',
       descricao_item: 'Test product',
-      quantidade_inicial_item_pedido: 100,
-      valor_unitario_item: 10.50,
+      quantidade_inicial_pedido: 100,
+      valor_por_unidade_item: 10.50,
     },
     ...overrides,
   }
@@ -128,15 +128,15 @@ describe('SmartImportService.confirmar', () => {
     expect(txBase.pedido.update).toHaveBeenCalledOnce()
   })
 
-  it('registra erro para linha com valor_unitario_item negativo', async () => {
+  it('registra erro para linha com valor_por_unidade_item negativo', async () => {
     const { db } = criarMockDb()
     const service = new SmartImportService(db)
     const linhaComValorNegativo = criarLinha({
       dados: {
         numero_pedido: 'PO-TEST-NEG',
         part_number: 'PART-001',
-        quantidade_inicial_item_pedido: 10,
-        valor_unitario_item: -5.00,
+        quantidade_inicial_pedido: 10,
+        valor_por_unidade_item: -5.00,
       },
       numero_pedido: 'PO-TEST-NEG',
     })
@@ -157,8 +157,8 @@ describe('SmartImportService.confirmar', () => {
     const service = new SmartImportService(db)
 
     const linhas = [
-      criarLinha({ linha_arquivo: 2, numero_pedido: 'PO-001', dados: { numero_pedido: 'PO-001', part_number: 'P1', quantidade_inicial_item_pedido: 1 } }),
-      criarLinha({ linha_arquivo: 3, numero_pedido: 'PO-002', dados: { numero_pedido: 'PO-002', part_number: 'P2', quantidade_inicial_item_pedido: 1 } }),
+      criarLinha({ linha_arquivo: 2, numero_pedido: 'PO-001', dados: { numero_pedido: 'PO-001', part_number: 'P1', quantidade_inicial_pedido: 1 } }),
+      criarLinha({ linha_arquivo: 3, numero_pedido: 'PO-002', dados: { numero_pedido: 'PO-002', part_number: 'P2', quantidade_inicial_pedido: 1 } }),
     ]
 
     const payload = criarPayload({

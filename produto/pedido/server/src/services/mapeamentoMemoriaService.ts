@@ -1,7 +1,7 @@
 /**
  * mapeamentoMemoriaService.ts — Persistencia de mapeamentos de importacao por tenant
  *
- * Salva no banco (model MapeamentoImport) os mapeamentos confirmados pelo usuario.
+ * Salva no banco (model AprendizadoImportacaoDados) os mapeamentos confirmados pelo usuario.
  * Recupera por tenant_id + hash_colunas (hash dos cabecalhos ordenados).
  */
 

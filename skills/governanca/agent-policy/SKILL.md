@@ -107,29 +107,33 @@ Se um agente perceber que está tentando usar algo que ainda não foi construíd
 
 ---
 
-## Regras de Schema
+## Regras de Schema (pós-pivô Schema-per-Tenant — ADR-001)
 
-- Todo agente de tenant escreve **apenas** seu `fragment.prisma` na sua própria pasta
-- **Nenhum agente** edita o `schema.prisma` final — isso é exclusivo do Coordenador
-- Todo **model** novo precisa de `tenant_id` obrigatório
-- Todo **model** novo precisa dos três índices: `tenant_id`, `tenant_id + product_id`, `tenant_id + user_id`
+- Cada banco de produto opera em **schema-per-tenant**: 1 schema PostgreSQL por tenant. Models de produto **NÃO** têm coluna `tenant_id` (o schema **é** o tenant).
+- Configurador permanece single-schema `public` (fonte de verdade global de identidade).
+- Todo agente de produto escreve **apenas** o schema do seu produto (sem fragments de tenant).
+- **Nenhum agente** edita o `schema.prisma` manualmente — alterações de schema disparam migration que roda em N schemas via `scripts/migrate-all-tenants.ts`.
+- Provisionamento de schema novo é responsabilidade do worker do evento `TenantProvisioned` — não do agente que escreve a feature.
 
 ---
 
-## Regras de Segurança
+## Regras de Segurança (pós-pivô — ADR-001/002)
 
 Todo agente que escreve código garante:
 
 - Nenhuma rota sem validação Zod
 - Nenhum `console.log` com dados sensíveis
 - Nenhuma variável de ambiente hardcoded
-- JWT validado em toda rota protegida
+- JWT validado em toda rota protegida via `@clerk/backend`
 - `x-internal-key` presente em toda chamada entre serviços
-- `tenant_id` presente em toda query ao DB servicos-tenant
+- **Acesso ao banco de produto exclusivamente via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient } from '@prisma/client'` é proibido fora do SDK (linter CI bloqueia)
+- Toda chave de cache prefixada por `tenant:<id>:` (ou `tenant:_global:` com justificativa)
+- Identidade do tenant lida de `req.tenant` (vem do `GET /api/me` do Configurador) — **nunca** do `publicMetadata` do Clerk
 
-> Consultar `antigravity-tenant-routing` para as regras completas de isolamento.  
-> Consultar `antigravity-code-standards` para os padrões completos de código.  
+> Consultar `antigravity-tenant-isolation` (reescrita 2026-04-17) para as regras completas de isolamento.
+> Consultar `antigravity-code-standards` para os padrões completos de código.
 > Consultar `antigravity-monorepo` antes de alterar package.json, tsconfig.json, vite.config.ts ou instalar dependências.
+> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
 
 ---
 

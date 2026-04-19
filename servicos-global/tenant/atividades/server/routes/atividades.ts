@@ -79,8 +79,7 @@ router.get('/', async (req, res, next) => {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
 
     // Filtro base
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {}
+    const where = {} as Record<string, unknown>
 
     // assignee=me : atividades criadas pelo usuário OU onde é participante
     if (assignee === 'me' && req.auth.userId) {
@@ -122,8 +121,8 @@ router.get('/', async (req, res, next) => {
     }
 
     const [total, atividades] = await Promise.all([
-      db.atividade.count({ where }),
-      db.atividade.findMany({
+      db.atividadesDados.count({ where }),
+      db.atividadesDados.findMany({
         where,
         include: {
           participantes: true,
@@ -151,14 +150,14 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const atividade = await db.atividade.findFirst({
+    const atividade = await db.atividadesDados.findFirst({
       where: { id: req.params.id },
       include: {
         participantes: true,
         sessoes_timer: { orderBy: { iniciado_em: 'desc' } },
       },
     })
-    if (!atividade) throw new AppError('Atividade não encontrada', 404, 'NOT_FOUND')
+    if (!atividade) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
     res.json(atividade)
   } catch (err) {
     next(err)
@@ -181,7 +180,7 @@ router.post('/', async (req, res, next) => {
     const { participantes, ...data } = result.data
     const db = withTenantIsolation(prisma, req.auth.tenantId)
 
-    const atividade = await db.atividade.create({
+    const atividade = await db.atividadesDados.create({
       data: {
         ...data,
         user_id: req.auth.userId,
@@ -216,10 +215,10 @@ router.patch('/:id', async (req, res, next) => {
 
     const { participantes, ...data } = result.data
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.atividade.findFirst({ where: { id: req.params.id } })
-    if (!existing) throw new AppError('Atividade não encontrada', 404, 'NOT_FOUND')
+    const existing = await db.atividadesDados.findFirst({ where: { id: req.params.id } })
+    if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
 
-    const atividade = await db.atividade.update({
+    const atividade = await db.atividadesDados.update({
       where: { id: req.params.id },
       data: {
         ...data,
@@ -250,9 +249,9 @@ router.patch('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
   try {
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.atividade.findFirst({ where: { id: req.params.id } })
-    if (!existing) throw new AppError('Atividade não encontrada', 404, 'NOT_FOUND')
-    await db.atividade.delete({ where: { id: req.params.id } })
+    const existing = await db.atividadesDados.findFirst({ where: { id: req.params.id } })
+    if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
+    await db.atividadesDados.delete({ where: { id: req.params.id } })
     res.status(204).send()
   } catch (err) {
     next(err)
@@ -273,12 +272,12 @@ router.post('/:id/timer', async (req, res, next) => {
     }
 
     const db = withTenantIsolation(prisma, req.auth.tenantId)
-    const existing = await db.atividade.findFirst({ where: { id: req.params.id } })
-    if (!existing) throw new AppError('Atividade não encontrada', 404, 'NOT_FOUND')
+    const existing = await db.atividadesDados.findFirst({ where: { id: req.params.id } })
+    if (!existing) throw new AppError('AtividadesDados não encontrada', 404, 'NOT_FOUND')
 
     // Registra a sessão e incrementa o total acumulado
     const [sessao] = await Promise.all([
-      db.atividadeSessaoTimer.create({
+      db.atividadesTempo.create({
         data: {
           atividade_id: req.params.id,
           iniciado_em:  new Date(result.data.iniciado_em),
@@ -286,7 +285,7 @@ router.post('/:id/timer', async (req, res, next) => {
           assunto:      result.data.assunto,
         },
       }),
-      db.atividade.update({
+      db.atividadesDados.update({
         where: { id: req.params.id },
         data: { tempo_gasto_minutos: { increment: result.data.duracao_min } },
       }),

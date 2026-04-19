@@ -155,12 +155,12 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
       : { tenant_id }
 
     // Construir filtro de data unificado (evita conflito de chave entre cursor e range)
-    const createdAtFilter: Prisma.DateTimeFilter<'HistoryLog'> = {}
+    const createdAtFilter: Prisma.DateTimeFilter<'HistoricoLog'> = {}
     if (q.cursor) createdAtFilter.lt = new Date(q.cursor)
     if (q.startDate) createdAtFilter.gte = new Date(q.startDate)
     if (q.endDate) createdAtFilter.lte = new Date(q.endDate)
 
-    const where: Prisma.HistoryLogWhereInput = {
+    const where: Prisma.HistoricoLogWhereInput = {
       ...visibilityFilter,
       ...(q.actor_type ? { actor_type: q.actor_type } : {}),
       ...(q.actor_id ? { actor_id: q.actor_id } : {}),
@@ -182,7 +182,7 @@ export async function listLogs(req: Request, res: Response, next: NextFunction) 
         : {}),
     }
 
-    const logs = await getPrisma().historyLog.findMany({
+    const logs = await getPrisma().historicoLog.findMany({
       where,
       orderBy: { created_at: 'desc' },
       take: safeLimit + 1, // +1 para saber se há próxima página
@@ -206,14 +206,14 @@ export async function getLogById(req: Request, res: Response, next: NextFunction
     const user = extractAuthUser(req)
     const visibilityFilter = user ? buildVisibilityFilter(user) : { tenant_id }
 
-    const log = await getPrisma().historyLog.findFirst({
+    const log = await getPrisma().historicoLog.findFirst({
       where: { id: req.params.id, ...visibilityFilter },
     })
 
     if (!log) {
       // Ponto Cego 3 — verificar se o log existe mas foi bloqueado por visibilidade (cross-tenant)
       if (user && (user.role === 'STANDARD' || user.role === 'SUPPLIER')) {
-        const exists = await getPrisma().historyLog.count({ where: { id: req.params.id } })
+        const exists = await getPrisma().historicoLog.count({ where: { id: req.params.id } })
         if (exists > 0) {
           setImmediate(() => {
             securityAudit.crossTenantAttempt(user.tenant_id, user.id, {
@@ -265,7 +265,7 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
     const user = extractAuthUser(req)
     const visibilityFilter = user ? buildVisibilityFilter(user) : { tenant_id }
 
-    const where: Prisma.HistoryLogWhereInput = {
+    const where: Prisma.HistoricoLogWhereInput = {
       ...visibilityFilter,
       ...(q.actor_type ? { actor_type: q.actor_type } : {}),
       ...(q.module ? { module: q.module } : {}),
@@ -281,7 +281,7 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
         : {}),
     }
 
-    const count = await getPrisma().historyLog.count({ where })
+    const count = await getPrisma().historicoLog.count({ where })
 
     if (count > 10_000) {
       // Enfileira job de exportação via PG Boss
@@ -310,7 +310,7 @@ export async function exportLogs(req: Request, res: Response, next: NextFunction
       })
     }
 
-    const logs = await getPrisma().historyLog.findMany({
+    const logs = await getPrisma().historicoLog.findMany({
       where,
       orderBy: { created_at: 'desc' },
     })
@@ -358,9 +358,9 @@ export async function exportJobStatus(req: Request, res: Response, next: NextFun
       // o catch serve de fallback pra filesystem. O cast via PrismaClient genérico
       // permite build mesmo quando o modelo não está gerado.
       const prismaAny = getPrisma() as unknown as {
-        exportResult: { findUnique: (args: { where: { id: string } }) => Promise<{ tenant_id: string; status: string } | null> }
+        exportarResultado: { findUnique: (args: { where: { id: string } }) => Promise<{ tenant_id: string; status: string } | null> }
       }
-      const result = await prismaAny.exportResult.findUnique({ where: { id: jobId } })
+      const result = await prismaAny.exportarResultado.findUnique({ where: { id: jobId } })
       if (result) {
         if (result.tenant_id !== tenant_id) throw AppError.forbidden('Acesso negado')
         ready = result.status === 'ready'
@@ -401,13 +401,13 @@ export async function exportJobDownload(req: Request, res: Response, next: NextF
     // Ponto Cego 6 — ler do banco (persistente), fallback para filesystem (dev)
     try {
       const prismaAny = getPrisma() as unknown as {
-        exportResult: {
+        exportarResultado: {
           findUnique: (args: { where: { id: string } }) => Promise<
             { tenant_id: string; status: string; format: 'csv' | 'json'; content: string } | null
           >
         }
       }
-      const result = await prismaAny.exportResult.findUnique({ where: { id: jobId } })
+      const result = await prismaAny.exportarResultado.findUnique({ where: { id: jobId } })
       if (result) {
         if (result.tenant_id !== tenant_id) throw AppError.forbidden('Acesso negado')
         if (result.status !== 'ready') {

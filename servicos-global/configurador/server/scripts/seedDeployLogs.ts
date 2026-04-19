@@ -1,6 +1,6 @@
 /**
  * server/scripts/seedDeployLogs.ts
- * Popula alguns deploys de exemplo no DeployLog para smoke test visual.
+ * Popula alguns deploys de exemplo no Deploy para smoke test visual.
  * Uso: npx tsx server/scripts/seedDeployLogs.ts
  * Deletar ou limpar depois via tela admin.
  */
@@ -48,7 +48,7 @@ const SAMPLES = [
   {
     area: 'devops',
     version: 'migration-20260414',
-    description: 'Migration Prisma: add gabi_quota_mensal + deleted_at soft-delete no Product',
+    description: 'Migration Prisma: add gabi_quota_mensal + deleted_at soft-delete no ProdutoGravity',
     environment: 'PRODUCTION' as const,
     status: 'SUCCESS' as const,
     deployed_by: 'Daniel Martins Mendes',

@@ -5,7 +5,7 @@ import { PaginaGlobal } from '@nucleo/pagina-global'
 import { CabecalhoGlobal } from '@nucleo/cabecalho-global'
 import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
 import { CardBasicoGlobal } from '@nucleo/card-global'
-import { adminTestLogsApi } from '../../services/apiClient'
+import { adminTestesApi } from '../../services/apiClient'
 import { useShellStore } from '@gravity/shell'
 
 interface PlanoResumo {
@@ -29,7 +29,7 @@ export function PlanosTesteAdmin() {
   async function loadPlanos() {
     try {
       setCarregando(true)
-      const res = await adminTestLogsApi.listPlans()
+      const res = await adminTestesApi.listPlans()
       setPlanos((res.plans as unknown as PlanoResumo[]) ?? [])
     } catch {
       // Registry vazio

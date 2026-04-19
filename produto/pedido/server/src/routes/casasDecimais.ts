@@ -17,6 +17,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { AppError } from '../errors/AppError.js'
+import { withTenant, withTenantContext, type TenantContext, type TenantDatabase } from '@gravity/tenant-resolver'
 
 export const casasDecimaisRouter = Router()
 
@@ -28,8 +29,8 @@ export type FormatoData = typeof FORMATOS_DATA_VALIDOS[number]
 
 const CasasDecimaisSchema = z.object({
   valor_total_pedido:              z.number().int().min(0).max(6),
-  valor_unitario_item:             z.number().int().min(0).max(6),
-  quantidade_total_inicial_pedido: z.number().int().min(0).max(6),
+  valor_por_unidade_item:             z.number().int().min(0).max(6),
+  quantidade_total_pedido: z.number().int().min(0).max(6),
   quantidade_pronta_pedido_total:  z.number().int().min(0).max(6),
   saldo_itens_do_pedido:           z.number().int().min(0).max(6),
   quantidade_transferida_total:    z.number().int().min(0).max(6),
@@ -47,8 +48,8 @@ export type CasasDecimaisConfig = Omit<z.infer<typeof CasasDecimaisSchema>, 'con
 // Defaults alinhados com os defaults do schema Prisma
 const DEFAULTS: CasasDecimaisConfig = {
   valor_total_pedido:              2,
-  valor_unitario_item:             2,
-  quantidade_total_inicial_pedido: 2,
+  valor_por_unidade_item:             2,
+  quantidade_total_pedido: 2,
   quantidade_pronta_pedido_total:  2,
   saldo_itens_do_pedido:           2,
   quantidade_transferida_total:    2,
@@ -59,21 +60,13 @@ const DEFAULTS: CasasDecimaisConfig = {
   formato_data:                    'DD/MM/AAAA',
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function getTenantId(req: Request): string {
-  const id = req.headers['x-tenant-id'] as string | undefined
-  if (!id) throw new AppError('Header x-tenant-id obrigatório', 400, 'BAD_REQUEST')
-  return id
-}
-
 // ── Mapeamento campo config → campos no banco ─────────────────────────────────
 // Relaciona cada campo da config com os campos correspondentes em Pedido e PedidoItem
 
 const MAP_CONFIG_PEDIDO: Record<keyof CasasDecimaisConfig, string | null> = {
   valor_total_pedido:              'casas_decimais_valor_pedido',
-  valor_unitario_item:             null,
-  quantidade_total_inicial_pedido: 'casas_decimais_quantidade_pedido',
+  valor_por_unidade_item:             null,
+  quantidade_total_pedido: 'casas_decimais_quantidade_pedido',
   quantidade_pronta_pedido_total:  null, // virtual — calculado em mapPedido
   saldo_itens_do_pedido:           null, // virtual — calculado em mapPedido
   quantidade_transferida_total:    null, // virtual — calculado em mapPedido
@@ -81,12 +74,13 @@ const MAP_CONFIG_PEDIDO: Record<keyof CasasDecimaisConfig, string | null> = {
   peso_liquido_total_pedido:       'casas_decimais_peso_pedido',
   peso_bruto_total_pedido:         'casas_decimais_peso_pedido',
   cubagem_total_pedido:            'casas_decimais_cubagem_pedido',
+  formato_data:                    null, // preferência de exibição — não persiste em coluna numérica
 }
 
 const MAP_CONFIG_ITEM: Record<keyof CasasDecimaisConfig, string | null> = {
   valor_total_pedido:              'casas_decimais_valor_item',
-  valor_unitario_item:             null, // display usa getCasas() direto — sem metadata separado
-  quantidade_total_inicial_pedido: 'casas_decimais_quantidade_item',
+  valor_por_unidade_item:             null, // display usa getCasas() direto — sem metadata separado
+  quantidade_total_pedido: 'casas_decimais_quantidade_item',
   quantidade_pronta_pedido_total:  null,
   saldo_itens_do_pedido:           null,
   quantidade_transferida_total:    null,
@@ -94,6 +88,7 @@ const MAP_CONFIG_ITEM: Record<keyof CasasDecimaisConfig, string | null> = {
   peso_liquido_total_pedido:       'casas_decimais_peso_item',
   peso_bruto_total_pedido:         'casas_decimais_peso_item',
   cubagem_total_pedido:            'casas_decimais_cubagem_item',
+  formato_data:                    null,
 }
 
 // ── Mapeamento campo config → colunas de valor real ──────────────────────────
@@ -102,7 +97,7 @@ const MAP_CONFIG_ITEM: Record<keyof CasasDecimaisConfig, string | null> = {
 
 const ARREDONDAR_PEDIDO: Array<{ config: keyof CasasDecimaisConfig; coluna: string }> = [
   { config: 'valor_total_pedido',              coluna: 'valor_total_pedido' },
-  { config: 'quantidade_total_inicial_pedido', coluna: 'quantidade_total_inicial_pedido' },
+  { config: 'quantidade_total_pedido', coluna: 'quantidade_total_pedido' },
   { config: 'peso_liquido_total_pedido',       coluna: 'peso_liquido_total_pedido' },
   { config: 'peso_bruto_total_pedido',         coluna: 'peso_bruto_total_pedido' },
   { config: 'cubagem_total_pedido',            coluna: 'cubagem_total_pedido' },
@@ -110,31 +105,30 @@ const ARREDONDAR_PEDIDO: Array<{ config: keyof CasasDecimaisConfig; coluna: stri
 ]
 
 const ARREDONDAR_ITEM: Array<{ config: keyof CasasDecimaisConfig; coluna: string }> = [
-  { config: 'valor_total_pedido',                coluna: 'valor_total_itens' },
-  { config: 'valor_unitario_item',               coluna: 'valor_unitario_item' },
-  { config: 'quantidade_total_inicial_pedido',   coluna: 'quantidade_inicial_item_pedido' },
-  { config: 'quantidade_pronta_pedido_total',    coluna: 'quantidade_pronta_total_item_pedido' },
-  { config: 'quantidade_transferida_total',      coluna: 'quantidade_transferida_item_pedido' },
-  { config: 'quantidade_cancelada_total_pedido', coluna: 'quantidade_cancelada_item_pedido' },
-  { config: 'peso_liquido_total_pedido',         coluna: 'peso_liquido_unitario_item' },
-  { config: 'peso_bruto_total_pedido',           coluna: 'peso_bruto_unitario_item' },
-  { config: 'cubagem_total_pedido',              coluna: 'cubagem_unitaria_item' },
+  { config: 'valor_total_pedido',                coluna: 'valor_total_item' },
+  { config: 'valor_por_unidade_item',               coluna: 'valor_por_unidade_item' },
+  { config: 'quantidade_total_pedido',   coluna: 'quantidade_inicial_pedido' },
+  { config: 'quantidade_pronta_pedido_total',    coluna: 'quantidade_pronta_pedido' },
+  { config: 'quantidade_transferida_total',      coluna: 'quantidade_transferida_pedido' },
+  { config: 'quantidade_cancelada_total_pedido', coluna: 'quantidade_cancelada_pedido' },
+  { config: 'peso_liquido_total_pedido',         coluna: 'peso_liquido_unitario' },
+  { config: 'peso_bruto_total_pedido',           coluna: 'peso_bruto_unitario' },
+  { config: 'cubagem_total_pedido',              coluna: 'cubagem_unitaria' },
 ]
 
 // ── Job de migração em background ─────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function executarMigracaoCasasDecimais(db: Record<string, any>, tenant_id: string, config: CasasDecimaisConfig): Promise<void> {
+async function executarMigracaoCasasDecimais(db: TenantDatabase, tenant_id: string, config: CasasDecimaisConfig): Promise<void> {
   console.log(`[CasasDecimais] Iniciando migração para tenant ${tenant_id}`)
 
   // 1. Atualizar metadados casas_decimais_* nos pedidos e itens
   const updatePedidoMeta: Record<string, number> = {}
   for (const [cfgKey, dbField] of Object.entries(MAP_CONFIG_PEDIDO)) {
-    if (dbField) updatePedidoMeta[dbField] = config[cfgKey as keyof CasasDecimaisConfig]
+    if (dbField) updatePedidoMeta[dbField] = config[cfgKey as keyof CasasDecimaisConfig] as number
   }
   const updateItemMeta: Record<string, number> = {}
   for (const [cfgKey, dbField] of Object.entries(MAP_CONFIG_ITEM)) {
-    if (dbField) updateItemMeta[dbField] = config[cfgKey as keyof CasasDecimaisConfig]
+    if (dbField) updateItemMeta[dbField] = config[cfgKey as keyof CasasDecimaisConfig] as number
   }
 
   await Promise.all([
@@ -174,15 +168,15 @@ async function executarMigracaoCasasDecimais(db: Record<string, any>, tenant_id:
 
 casasDecimaisRouter.get('/casas-decimais', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = (req as any).prisma as Record<string, any>
-
-    const registro = await db.pedidoCasasDecimaisConfig.findUnique({
-      where: { tenant_id },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const registro = await db.pedidoCasasDecimaisConfig.findUnique({
+        where: { tenant_id },
+      })
+      res.json({ data: registro ?? { ...DEFAULTS } })
     })
-
-    res.json({ data: registro ?? { ...DEFAULTS } })
   } catch (err) {
     next(err)
   }
@@ -192,47 +186,49 @@ casasDecimaisRouter.get('/casas-decimais', async (req: Request, res: Response, n
 
 casasDecimaisRouter.put('/casas-decimais', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-
     const parsed = CasasDecimaisSchema.safeParse(req.body)
     if (!parsed.success) {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Payload inválido', 400, 'VALIDATION_ERROR')
     }
-
     const { confirmar, ...configData } = parsed.data
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const db = (req as any).prisma as Record<string, any>
+    const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    // Salva (ou cria) a configuração do tenant
-    const registro = await db.pedidoCasasDecimaisConfig.upsert({
-      where:  { tenant_id },
-      create: { tenant_id, ...configData },
-      update: { ...configData },
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      const tenant_id = tenantId
+
+      const registro = await db.pedidoCasasDecimaisConfig.upsert({
+        where:  { tenant_id },
+        create: { tenant_id, ...configData },
+        update: { ...configData },
+      })
+
+      const [totalPedidos, totalItens] = await Promise.all([
+        db.pedido.count({ where: { tenant_id, deleted_at: null } }),
+        db.pedidoItem.count({ where: { tenant_id } }),
+      ])
+
+      res.json({
+        data: registro,
+        auditoria: {
+          total_pedidos: totalPedidos,
+          total_itens:   totalItens,
+          migracao_iniciada: confirmar === true,
+        },
+      })
     })
 
-    // Auditoria: conta pedidos e itens que serão afetados
-    const [totalPedidos, totalItens] = await Promise.all([
-      db.pedido.count({ where: { tenant_id, deleted_at: null } }),
-      db.pedidoItem.count({ where: { tenant_id } }),
-    ])
-
-    // Se confirmar === true, dispara migração sem bloquear a resposta
+    // Dispara migração APÓS a transação principal commitar
     if (confirmar === true) {
       setImmediate(() => {
-        executarMigracaoCasasDecimais(db, tenant_id, configData).catch(err => {
-          console.error(`[CasasDecimais] Erro na migração tenant=${tenant_id}:`, err)
+        withTenantContext(tenantId, async (ctx, rawDb) => {
+          await executarMigracaoCasasDecimais(rawDb, ctx.tenantId, configData)
+        }).catch(err => {
+          console.error(`[CasasDecimais] Erro na migração tenant=${tenantId}:`, err)
         })
       })
     }
-
-    res.json({
-      data: registro,
-      auditoria: {
-        total_pedidos: totalPedidos,
-        total_itens:   totalItens,
-        migracao_iniciada: confirmar === true,
-      },
-    })
   } catch (err) {
     next(err)
   }

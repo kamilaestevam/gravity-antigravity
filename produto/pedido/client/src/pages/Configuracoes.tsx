@@ -498,8 +498,8 @@ interface NovaColuna {
 // Spec: mapas_pedido.pdf — apenas grupo PEDIDO; itens herdam automaticamente
 const COLUNAS_NUMERICAS = [
   { campo: 'valor_total_pedido',                    label: 'Valor Total do Pedido',          categoria: 'Pedido', padrao: 2, itemHint: 'Itens: Valor Total do Item terá as mesmas casas' },
-  { campo: 'valor_unitario_item',                   label: 'Valor do Item',                  categoria: 'Pedido', padrao: 2, itemHint: null },
-  { campo: 'quantidade_total_inicial_pedido',       label: 'Qtd. Inicial do Pedido',         categoria: 'Pedido', padrao: 2, itemHint: 'Itens: Qtd. Inicial, Transferida e Cancelada do item terão as mesmas casas' },
+  { campo: 'valor_por_unidade_item',                   label: 'Valor do Item',                  categoria: 'Pedido', padrao: 2, itemHint: null },
+  { campo: 'quantidade_total_pedido',       label: 'Qtd. Inicial do Pedido',         categoria: 'Pedido', padrao: 2, itemHint: 'Itens: Qtd. Inicial, Transferida e Cancelada do item terão as mesmas casas' },
   { campo: 'quantidade_pronta_pedido_total',        label: 'Qtd. Pronta do Pedido',          categoria: 'Pedido', padrao: 2, itemHint: null },
   { campo: 'saldo_itens_do_pedido',                 label: 'Saldo do Pedido',                categoria: 'Pedido', padrao: 2, itemHint: null },
   { campo: 'quantidade_transferida_total',          label: 'Qtd. Transferida do Pedido',     categoria: 'Pedido', padrao: 2, itemHint: null },
@@ -586,7 +586,7 @@ const NOVA_COLUNA_PADRAO: NovaColuna = {
 // Aliases são os identificadores que o usuário vê/digita; chaves são os nomes internos.
 // Sorted longest-chave-first to avoid partial replacements on chave→alias.
 const FORMULA_ALIAS_MAP = [
-  { chave: 'quantidade_total_inicial_pedido',      alias: 'quantidade_inicial',     label: 'Quantidade Inicial' },
+  { chave: 'quantidade_total_pedido',      alias: 'quantidade_inicial',     label: 'Quantidade Inicial' },
   { chave: 'quantidade_cancelada_total_pedido',    alias: 'quantidade_cancelada',   label: 'Quantidade Cancelada' },
   { chave: 'quantidade_transferida_total',         alias: 'quantidade_transferida', label: 'Quantidade Transferida' },
   { chave: 'quantidade_pronta_itens_pedido_total', alias: 'quantidade_pronta',      label: 'Quantidade Pronta' },
@@ -651,7 +651,7 @@ function carregarSaldoTokensDefault(): SaldoToken[] {
 // e é acessada via saldoFormulaApi. Aqui mantemos apenas o default local para
 // renderização imediata antes do carregamento assíncrono.
 const SALDO_FORMULA_PADRAO =
-  'quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
+  'quantidade_total_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido'
 
 /** Default síncrono enquanto o fetch assíncrono não retorna. */
 function carregarSaldoFormulaDefault(): string {
@@ -3053,11 +3053,11 @@ export default function Configuracoes() {
                           <label className="cfg-num-campo__label">{t('pedido.config.templates_pdf.label_variaveis')}</label>
                           <div className="cfg-tpl-variaveis">
                             {[
-                              { grupoKey: 'grupo_pedido',    vars: ['{{numero_pedido}}','{{tipo_operacao}}','{{status}}','{{incoterm}}','{{moeda_pedido}}','{{numero_proforma}}','{{numero_invoice}}','{{referencia_importador}}','{{referencia_exportador}}','{{condicao_pagamento_pedido}}'] },
+                              { grupoKey: 'grupo_pedido',    vars: ['{{numero_pedido}}','{{tipo_operacao}}','{{status}}','{{incoterm}}','{{moeda_pedido}}','{{numero_proforma}}','{{numero_invoice}}','{{referencia_importador}}','{{referencia_exportador}}','{{condicao_pagamento}}'] },
                               { grupoKey: 'grupo_parceiros', vars: ['{{exportador}}','{{fabricante}}','{{importador}}'] },
                               { grupoKey: 'grupo_financeiro',vars: ['{{valor_total_pedido}}','{{peso_liquido_total}}','{{peso_bruto_total}}','{{cubagem_total}}'] },
                               { grupoKey: 'grupo_datas',     vars: ['{{data_emissao_pedido}}','{{data_embarque}}','{{data_prevista_pedido_pronto}}'] },
-                              { grupoKey: 'grupo_itens',     vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_item_pedido}}','{{saldo_item_pedido}}','{{unidade}}','{{valor_unitario_item}}','{{valor_total_itens}}','{{/each}}'] },
+                              { grupoKey: 'grupo_itens',     vars: ['{{#each itens}}','{{part_number}}','{{ncm}}','{{descricao_item}}','{{quantidade_inicial_pedido}}','{{quantidade_atual_pedido}}','{{unidade}}','{{valor_por_unidade_item}}','{{valor_total_item}}','{{/each}}'] },
                             ].map(({ grupoKey, vars }) => (
                               <div key={grupoKey} className="cfg-tpl-variaveis__grupo">
                                 <span className="cfg-tpl-variaveis__grupo-label">{t(`pedido.config.templates_pdf.${grupoKey}`)}</span>
@@ -3086,7 +3086,7 @@ export default function Configuracoes() {
                             ref={templateTextareaRef}
                             className="cfg-textarea cfg-textarea--codigo"
                             rows={10}
-                            placeholder={'<h1>{{numero_pedido}}</h1>\n<p>Exportador: {{exportador}}</p>\n{{#each itens}}\n  <p>{{part_number}} — {{quantidade_inicial_item_pedido}} {{unidade}}</p>\n{{/each}}'}
+                            placeholder={'<h1>{{numero_pedido}}</h1>\n<p>Exportador: {{exportador}}</p>\n{{#each itens}}\n  <p>{{part_number}} — {{quantidade_inicial_pedido}} {{unidade}}</p>\n{{/each}}'}
                             value={templateConteudo}
                             onChange={e => setTemplateConteudo(e.target.value)}
                             spellCheck={false}

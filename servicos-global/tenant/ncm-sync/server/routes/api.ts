@@ -166,7 +166,18 @@ apiRoutes.post('/sync', async (req: Request, res: Response, next: NextFunction) 
 
     const userId = req.headers['x-user-id'] as string | undefined
 
-    // Verificar se já há um sync em andamento para este tenant
+    // Recuperar job RUNNING órfão com mais de 2h (processo morreu sem reiniciar)
+    const DOIS_HORAS_ATRAS = new Date(Date.now() - 2 * 60 * 60 * 1000)
+    await prisma.ncmSyncLog.updateMany({
+      where: { tenant_id: tenantId, status: 'RUNNING', iniciado_em: { lt: DOIS_HORAS_ATRAS } },
+      data: {
+        status:       'ERROR',
+        concluido_em: new Date(),
+        erro_msg:     'Tempo limite excedido (2h) — processo presumido morto.',
+      },
+    })
+
+    // Verificar se ainda há um sync recente em andamento para este tenant
     const emAndamento = await prisma.ncmSyncLog.findFirst({
       where:   { tenant_id: tenantId, status: 'RUNNING' },
       orderBy: { iniciado_em: 'desc' },

@@ -5,7 +5,7 @@
 //  1) Valida assinatura HMAC com RESEND_WEBHOOK_SECRET
 //  2) Aplica deduplicação em 3 camadas (Resend ID, timestamp+conteúdo, hash)
 //  3) Extrai thread via Reply-To dinâmico (reply+{dedup_key}@dominio)
-//  4) Persiste EmailMessage com direction: INBOUND
+//  4) Persiste EmailMensagem com direction: INBOUND
 //  5) Emite evento email:received (para integração futura com Gabi)
 
 import { Router, Request, Response, NextFunction } from 'express'
@@ -90,7 +90,7 @@ webhookRouter.post(
     const body    = data.text ?? data.html ?? ''
 
     // Extrair tenant_id a partir do header, ou fallback via dedup_key
-    // Em produção, o Reply-To encode o dedup_key que vincula ao EmailEnviado (e portanto ao tenant)
+    // Em produção, o Reply-To encode o dedup_key que vincula ao EmailRegistroEnvio (e portanto ao tenant)
     let tenantId: string | null = null
     let parentDedupKey: string | null = null
 
@@ -99,12 +99,12 @@ webhookRouter.post(
       const key = extractDedupKeyFromAddress(addr)
       if (key) {
         parentDedupKey = key
-        // Buscar o EmailEnviado para obter o tenant_id.
+        // Buscar o EmailRegistroEnvio para obter o tenant_id.
         // DESIGN NOTE: This is an inbound webhook called by Resend, so the tenant
         // is unknown at request time. We resolve it by looking up the dedup_key
         // from the Reply-To address, which links back to an outbound email we sent.
         // If no match is found, we reject the email (see below).
-        const parents = await prisma.emailEnviado.findMany({
+        const parents = await prisma.emailRegistroEnvio.findMany({
           where: { dedup_key: key },
           select: { tenant_id: true, id: true },
         })
@@ -145,7 +145,7 @@ webhookRouter.post(
 
     if (parentDedupKey) {
       // Tentar encontrar thread via mensagem pai
-      const parentMsg = await prisma.emailMessage.findFirst({
+      const parentMsg = await prisma.emailMensagem.findFirst({
         where: { dedup_key: parentDedupKey, tenant_id: tenantId },
         select: { thread_id: true },
       })
@@ -153,7 +153,7 @@ webhookRouter.post(
         threadId = parentMsg.thread_id
       } else {
         // Criar nova thread
-        const thread = await prisma.emailThread.create({
+        const thread = await prisma.emailAssuntosParticipantes.create({
           data: {
             tenant_id: tenantId,
             subject: data.subject ?? '(sem assunto)',
@@ -163,7 +163,7 @@ webhookRouter.post(
       }
     } else {
       // Criar nova thread
-      const thread = await prisma.emailThread.create({
+      const thread = await prisma.emailAssuntosParticipantes.create({
         data: {
           tenant_id: tenantId,
           subject: data.subject ?? '(sem assunto)',
@@ -173,7 +173,7 @@ webhookRouter.post(
     }
 
     // ---- Persistir mensagem inbound ----------------------------------------
-    const message = await prisma.emailMessage.create({
+    const message = await prisma.emailMensagem.create({
       data: {
         tenant_id: tenantId,
         thread_id: threadId,
@@ -190,7 +190,7 @@ webhookRouter.post(
     })
 
     // ---- Atualizar thread --------------------------------------------------
-    await prisma.emailThread.update({
+    await prisma.emailAssuntosParticipantes.update({
       where: { id: threadId },
       data: {
         mensagens_count: { increment: 1 },

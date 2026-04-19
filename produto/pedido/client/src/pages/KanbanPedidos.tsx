@@ -118,7 +118,7 @@ function CardPedido({ item, cardConfig }: { item: PedidoKanbanItem; cardConfig: 
     : null
 
   const saldoTotal = p.saldo_itens_do_pedido
-  const qtdInicial = p.quantidade_total_inicial_pedido
+  const qtdInicial = p.quantidade_total_pedido
   const saldoPct = (saldoTotal != null && qtdInicial != null && qtdInicial > 0)
     ? Math.max(0, Math.min(100, (saldoTotal / qtdInicial) * 100))
     : null

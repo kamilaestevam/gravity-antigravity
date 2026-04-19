@@ -142,7 +142,7 @@ async function updateLastTriggered(
   alertId: string
 ): Promise<void> {
   try {
-    await prisma.dashboardAlert.update({
+    await prisma.dashboardAlertas.update({
       where: { id: alertId },
       data: { last_triggered: new Date() },
     })
@@ -185,7 +185,7 @@ export class AlertEngine {
     }>
 
     try {
-      alerts = await prisma.dashboardAlert.findMany({
+      alerts = await prisma.dashboardAlertas.findMany({
         where: {
           tenant_id: tenantId,
           is_active: true,

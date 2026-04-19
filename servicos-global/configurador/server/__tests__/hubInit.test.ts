@@ -144,7 +144,7 @@ describe('GET /api/v1/hub/catalog', () => {
     expect(res.status).toBe(200)
   })
 
-  it('chama prisma.product.findMany com select correto', async () => {
+  it('chama prisma.produtoGravity.findMany com select correto', async () => {
     await request.get('/api/v1/hub/catalog')
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
       select: { id: true, name: true, slug: true, description: true, status: true },
@@ -186,7 +186,7 @@ describe('GET /api/v1/hub/init', () => {
     expect(res.body.companies).toHaveLength(2)
   })
 
-  // ── Tenant isolation ──
+  // ── Organizacao isolation ──
 
   it('filtra productConfig por tenant_id (tenant isolation)', async () => {
     await request.get('/api/v1/hub/init')
@@ -271,7 +271,7 @@ describe('GET /api/v1/hub/init', () => {
 
     await request.get('/api/v1/hub/init')
 
-    // Fire-and-forget — prisma.user.update foi chamado
+    // Fire-and-forget — prisma.usuario.update foi chamado
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 'user-001' },
       data: { preferred_company_id: null },
@@ -291,7 +291,7 @@ describe('GET /api/v1/hub/init', () => {
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)
-    // Não deve chamar prisma.user.findUnique para SUPPLIER
+    // Não deve chamar prisma.usuario.findUnique para SUPPLIER
     expect(prismaMock.user.findUnique).not.toHaveBeenCalled()
     expect(res.body.preferredCompanyId).toBeNull()
   })

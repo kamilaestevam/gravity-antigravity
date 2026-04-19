@@ -1,6 +1,6 @@
 // servicos-global/tenant/relatorios/prisma/fragment.prisma
 
-model Relatorio {
+model RelatoriosSalvos {
   id         String   @id @default(cuid())
   tenant_id  String
   product_id String?
@@ -18,9 +18,10 @@ model Relatorio {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("relatorios_salvos")
 }
 
-model ConfigRelatorio {
+model RelatoriosConfiguracao {
   id              String   @id @default(cuid())
   tenant_id       String
   product_id      String?
@@ -37,9 +38,10 @@ model ConfigRelatorio {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("relatorios_configuracao")
 }
 
-model ExportJob {
+model ExportarJob {
   id           String   @id @default(cuid())
   tenant_id    String
   product_id   String?
@@ -58,4 +60,5 @@ model ExportJob {
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, user_id])
+  @@map("exportar_job")
 }

@@ -107,8 +107,9 @@ O ecossistema Gravity roda em paridade total entre Staging e Produção.
 
 ### Nomes Oficiais dos Ambientes Railway
 
-> Use exatamente estes nomes em scripts de manutenção, migrações e documentação.
-> Variações como `gravity-tenant-*`, `gravity-services-*` ou `gravity-serviços-*` são incorretas.
+> Use **exatamente** estes nomes em scripts de manutenção, migrações e documentação.
+> Os dois nomes canônicos de referência de ambiente são `gravity-servicos-teste` (staging) e `gravity-servicos-producao` (produção).
+> Variações como `gravity-tenant-*`, `gravity-services-*` ou `gravity-serviços-*` são incorretas e causam falhas em scripts de automação.
 
 | Produto/Serviço | Staging (`-teste`) | Produção (`-producao`) |
 |:---|:---|:---|
@@ -152,6 +153,41 @@ O `SET LOCAL search_path TO "tenant_<id>", public` é aplicado **dentro de `$tra
 
 ---
 
+## Padrão de Identidade — CUID (UUID Expressamente Proibido)
+
+> **Mandato estabelecido em 2026-04-18. Aplica-se a todas as camadas: schema Prisma, código TypeScript, migrations SQL, URLs de API.**
+
+### Regra
+
+O Gravity usa **exclusivamente CUID** como padrão de ID em todos os contextos. O uso de UUID está **expressamente proibido**.
+
+```prisma
+// ✅ CORRETO — todo model usa @default(cuid())
+model Pedido {
+  id  String  @id @default(cuid())   // ex: cmo4vtp3i0000m86ft8vt5vnu (25 chars)
+}
+
+// ❌ PROIBIDO — nunca usar UUID
+id  String  @id @default(uuid())
+id  String  @id @default(dbgenerated("gen_random_uuid()"))
+```
+
+```typescript
+// ❌ PROIBIDO — nunca gerar UUID em TypeScript
+import { randomUUID } from 'crypto'
+const id = randomUUID()   // ❌
+const id = uuidv4()       // ❌
+```
+
+### Motivação
+
+1. **Consistência** — `@default(cuid())` no schema Prisma é a única fonte geradora de IDs. SDK, Backend e Frontend referem sempre o mesmo formato.
+2. **Nomes de schema PostgreSQL** — o identificador `tenant_<cuid>` não contém hífens, sendo compatível com identificadores PostgreSQL nativos. UUID com hífens quebra `SET search_path TO tenant_<uuid>`.
+3. **Legibilidade** — CUIDs são compactos (25 chars) e monotonicamente ordenáveis pelo prefixo temporal, facilitando debug e logs.
+4. **Colisões** — CUID incorpora fingerprint de máquina, reduzindo probabilidade de colisão em cenários distribuídos.
+
+---
+
 ## Status dos GAPs de Infraestrutura (Hardening)
 
 | GAP | Descrição | Status | Resolução |
@@ -185,4 +221,4 @@ npx tsx scripts/migration/01-provision-schemas.ts
 ---
 
 **Última Atualização:** 18 de Abril de 2026
-**Auditor Responsável:** Antigravity AI — pós-validação Schema-per-Tenant Sprint 1
+**Auditor Responsável:** Antigravity AI — pós-validação Schema-per-Tenant Sprint 1 + mandato CUID

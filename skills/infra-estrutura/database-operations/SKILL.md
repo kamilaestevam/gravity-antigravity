@@ -119,7 +119,7 @@ cast `as unknown as { ... }` é o contorno correto e necessário.
 | `gravity-processo-producao` | `gravity-processo-teste` | Processo | `tenant_<cuid>` por tenant | Processos logísticos, DI, DUIMP |
 | `gravity-simula-custo-producao` | `gravity-simula-custo-teste` | SimulaCusto | `tenant_<cuid>` por tenant | Estimativas, cache fiscal |
 
-> **Nomes oficiais de referência para scripts de manutenção:**
+> **Nomes oficiais e únicos de referência para scripts de manutenção, migrations e documentação:**
 > staging = `gravity-servicos-teste` | produção = `gravity-servicos-producao`
 > Nunca use variações como `gravity-tenant-teste`, `gravity-serviços-*` ou `gravity-services-*`.
 
@@ -142,6 +142,61 @@ gravity-pedido-producao (PostgreSQL)
 ```
 
 O Configurador é a única exceção: usa schema `public` como fonte de verdade global de identidade (Tenant, User, Subscription).
+
+---
+
+## Padrão de Identidade — CUID (UUID Expressamente Proibido)
+
+> **Mandato estabelecido em 2026-04-18. Inviolável em todas as camadas.**
+
+O Gravity usa **exclusivamente CUID** como padrão de ID. UUID está **expressamente proibido** em todos os contextos — schema Prisma, código TypeScript, migrations SQL.
+
+### ⛔ UUID está PROIBIDO
+
+```typescript
+// ❌ PROIBIDO — nunca usar UUID em nenhuma forma
+import { randomUUID } from 'crypto'
+const id = randomUUID()                            // ❌
+const id = crypto.randomUUID()                    // ❌
+const id = uuidv4()                                // ❌
+
+// ❌ PROIBIDO — UUID no schema Prisma
+id  String  @id @default(dbgenerated("gen_random_uuid()"))  // ❌
+id  String  @id @default(uuid())                            // ❌
+```
+
+### ✅ Padrão Obrigatório — CUID gerado pelo Prisma
+
+```prisma
+// ✅ CORRETO — em todo fragment.prisma ou schema.base.prisma
+model Pedido {
+  id  String  @id @default(cuid())   // CUID: 25 chars, ex: cmo4vtp3i0000m86ft8vt5vnu
+  ...
+}
+```
+
+```typescript
+// ✅ Em código TypeScript — se precisar de ID antecipado antes do create:
+function gerarId(prefixo: string): string {
+  const seq = String(Math.floor(Math.random() * 9999999)).padStart(7, '0')
+  const ano = String(new Date().getFullYear()).slice(-2)
+  return `${prefixo}_id_${seq}-${ano}`
+}
+// Uso: gerarId('pedi') → 'pedi_id_0038421-26'
+```
+
+### Por que CUID e não UUID?
+
+| Critério | UUID v4 | CUID |
+|:---|:---|:---|
+| Ordenação temporal | ❌ Completamente aleatório | ✅ Prefixo monotônico |
+| Legibilidade nos logs | ❌ `550e8400-e29b-41d4-a716-446655440000` | ✅ `cmo4vtp3i0000m86ft8vt5vnu` |
+| Nome de schema PostgreSQL | ❌ Hífens quebram identificadores sem aspas | ✅ Sem hífens — `tenant_cmo4vtp3i...` |
+| Consistência cross-camada | ❌ Depende da biblioteca (uuid, nanoid, etc.) | ✅ Fonte única: Prisma `@default(cuid())` |
+| Fingerprint de máquina | ❌ Pura aleatoriedade | ✅ Inclui fingerprint — colisões improváveis |
+
+> O nome do schema PostgreSQL é `tenant_<cuid>` — sem hífens, compatível com identificadores nativos do PostgreSQL.
+> A consistência entre SDK (`tenant_<cuid>` no `search_path`), Backend (ID de pedido/item) e Frontend (URLs, params) exige um único padrão de ID em toda a plataforma.
 
 ---
 
@@ -326,6 +381,13 @@ CREATE TABLE audit_logs_2026_01 PARTITION OF audit_logs
 - [ ] Fire-and-forget usa `withTenantContext` APÓS `await withTenant(...)` resolver?
 - [ ] Callbacks de `.filter()`, `.map()`, `.reduce()` NÃO têm `: any` explícito (hook CI bloqueia)?
 - [ ] Ver `skills/arquitetura/sdk-tenant-resolver/SKILL.md` para referência completa.
+
+**Nova Rota — Checklist do Desenvolvedor (regras invioláveis):**
+- [ ] **withTenant obrigatório** — toda leitura/escrita de banco passa por `withTenant(req, ...)` ou `withTenantContext(tenantId, ...)`. Nunca `req.prisma`, nunca `new PrismaClient()`.
+- [ ] **CUID obrigatório para novos registros** — IDs usam `@default(cuid())` no schema Prisma ou o helper `gerarId(prefixo)` em código TypeScript. UUID (`randomUUID`, `uuidv4`, `@default(uuid())`) está proibido.
+- [ ] **`as any` restrito ao cast do `db`** — `const db = rawDb as any` é o único `as any` autorizado na rota. Tipos de negócio (`Pedido`, `PedidoItem`, `Tenant`, etc.) nunca recebem `as any`. Resultados de `findMany` usam `as any[]` (não `as any`) para permitir callbacks sem `: any` explícito.
+- [ ] **Zod antes do banco** — toda rota valida entrada com `z.safeParse()` antes de qualquer operação com `db`.
+- [ ] **Erros via `AppError`** — nunca `res.status(400).json()` direto no handler sem `next(err)`.
 
 **Antes de aplicar em produção:**
 - [ ] Migration validada no banco de **teste** (`gravity-*-teste`) com sucesso?

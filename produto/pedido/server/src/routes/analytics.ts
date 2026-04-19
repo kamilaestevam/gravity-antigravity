@@ -20,7 +20,7 @@
 import { Router, Request, Response } from 'express'
 import { z } from 'zod'
 import { analyticsAuth } from '../middleware/analyticsAuth.js'
-import { withTenantIsolation, prisma as basePrisma } from '../middleware/tenantIsolation.js'
+import { withTenant } from '@gravity/tenant-resolver'
 
 export const analyticsRouter = Router()
 
@@ -28,11 +28,6 @@ export const analyticsRouter = Router()
 analyticsRouter.use(analyticsAuth)
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function tenantPrisma(req: Request) {
-  const tenantId = (req as any).tenantId as string
-  return withTenantIsolation(basePrisma, tenantId)
-}
 
 function periodToDateRange(period: string): { from: Date; to: Date } {
   const to = new Date()
@@ -102,81 +97,89 @@ analyticsRouter.get('/kpis', async (req: Request, res: Response) => {
 
   const { period } = parse.data
   const { from, to } = periodToDateRange(period)
-  const db = tenantPrisma(req)
 
   try {
-    const [pedidos, itensPedido] = await Promise.all([
-      (db as any).pedido.findMany({
-        where: { criado_em: { gte: from, lte: to } },
-        select: {
-          id: true,
-          status: true,
-          valor_total: true,
-          cobertura_pendente: true,
-          qtd_total: true,
-          prazo: true,
-          criado_em: true,
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+
+      const [pedidosRaw, itensPedidoRaw] = await Promise.all([
+        db.pedido.findMany({
+          where: { criado_em: { gte: from, lte: to } },
+          select: {
+            id: true,
+            status: true,
+            valor_total: true,
+            cobertura_pendente: true,
+            qtd_total: true,
+            prazo: true,
+            criado_em: true,
+          },
+        }),
+        db.itemPedido.findMany({
+          where: { pedido: { criado_em: { gte: from, lte: to } } },
+          select: {
+            qtd_inicial: true,
+            qtd_atual: true,
+            qtd_transferida: true,
+            valor_unitario_item: true,
+            qtd_inicial_val: true,
+            pronto: true,
+          },
+        }),
+      ])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pedidos = pedidosRaw as any[]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const itensPedido = itensPedidoRaw as any[]
+
+      const now = new Date()
+      const total_pedidos        = pedidos.length
+      const pedidos_abertos      = pedidos.filter((p) => p.status === 'ABERTO').length
+      const pedidos_em_andamento = pedidos.filter((p) => p.status === 'EM_ANDAMENTO').length
+      const pedidos_atrasados    = pedidos.filter((p) =>
+        p.prazo && new Date(p.prazo) < now && !['CONCLUIDO', 'CANCELADO'].includes(p.status),
+      ).length
+
+      const valor_total        = pedidos.reduce((s: number, p) => s + Number(p.valor_total ?? 0), 0)
+      const cobertura_pendente = pedidos.reduce((s: number, p) => s + Number(p.cobertura_pendente ?? 0), 0)
+      const qtd_total          = pedidos.reduce((s: number, p) => s + Number(p.qtd_total ?? 0), 0)
+
+      const itens_prontos          = itensPedido.filter((i) => i.pronto).length
+      const qtd_inicial_total      = itensPedido.reduce((s: number, i) => s + Number(i.qtd_inicial ?? 0), 0)
+      const qtd_atual_total        = itensPedido.reduce((s: number, i) => s + Number(i.qtd_atual ?? 0), 0)
+      const qtd_transferida_total  = itensPedido.reduce((s: number, i) => s + Number(i.qtd_transferida ?? 0), 0)
+      const valor_itens_total      = itensPedido.reduce(
+        (s: number, i) => s + Number(i.valor_unitario_item ?? 0) * Number(i.qtd_inicial ?? 0), 0,
+      )
+
+      res.json({
+        '@odata.context': '/api/v1/analytics/pedido/$metadata#KPIs',
+        period,
+        date_range: { from: from.toISOString(), to: to.toISOString() },
+        value: {
+          // Pedido
+          total_pedidos,
+          pedidos_abertos,
+          pedidos_em_andamento,
+          pedidos_atrasados,
+          valor_total,
+          cobertura_pendente,
+          qtd_total,
+          // Item
+          itens_prontos,
+          qtd_inicial_total,
+          qtd_atual_total,
+          qtd_transferida_total,
+          valor_itens_total,
+          // Derivadas
+          taxa_atraso:           total_pedidos > 0 ? (pedidos_atrasados / total_pedidos) * 100 : null,
+          ticket_medio:          total_pedidos > 0 ? valor_total / total_pedidos : null,
+          taxa_conclusao_itens:  qtd_inicial_total > 0 ? (itens_prontos / qtd_inicial_total) * 100 : null,
+          exposicao_financeira:  valor_total > 0 ? (cobertura_pendente / valor_total) * 100 : null,
+          taxa_transferencia:    qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : null,
         },
-      }),
-      (db as any).itemPedido.findMany({
-        where: { pedido: { criado_em: { gte: from, lte: to } } },
-        select: {
-          qtd_inicial: true,
-          qtd_atual: true,
-          qtd_transferida: true,
-          valor_unitario_item: true,
-          qtd_inicial_val: true,
-          pronto: true,
-        },
-      }),
-    ])
-
-    const now = new Date()
-    const total_pedidos        = pedidos.length
-    const pedidos_abertos      = pedidos.filter((p: any) => p.status === 'ABERTO').length
-    const pedidos_em_andamento = pedidos.filter((p: any) => p.status === 'EM_ANDAMENTO').length
-    const pedidos_atrasados    = pedidos.filter((p: any) =>
-      p.prazo && new Date(p.prazo) < now && !['CONCLUIDO', 'CANCELADO'].includes(p.status),
-    ).length
-
-    const valor_total        = pedidos.reduce((s: number, p: any) => s + Number(p.valor_total ?? 0), 0)
-    const cobertura_pendente = pedidos.reduce((s: number, p: any) => s + Number(p.cobertura_pendente ?? 0), 0)
-    const qtd_total          = pedidos.reduce((s: number, p: any) => s + Number(p.qtd_total ?? 0), 0)
-
-    const itens_prontos          = itensPedido.filter((i: any) => i.pronto).length
-    const qtd_inicial_total      = itensPedido.reduce((s: number, i: any) => s + Number(i.qtd_inicial ?? 0), 0)
-    const qtd_atual_total        = itensPedido.reduce((s: number, i: any) => s + Number(i.qtd_atual ?? 0), 0)
-    const qtd_transferida_total  = itensPedido.reduce((s: number, i: any) => s + Number(i.qtd_transferida ?? 0), 0)
-    const valor_itens_total      = itensPedido.reduce(
-      (s: number, i: any) => s + Number(i.valor_unitario_item ?? 0) * Number(i.qtd_inicial ?? 0), 0,
-    )
-
-    res.json({
-      '@odata.context': '/api/v1/analytics/pedido/$metadata#KPIs',
-      period,
-      date_range: { from: from.toISOString(), to: to.toISOString() },
-      value: {
-        // Pedido
-        total_pedidos,
-        pedidos_abertos,
-        pedidos_em_andamento,
-        pedidos_atrasados,
-        valor_total,
-        cobertura_pendente,
-        qtd_total,
-        // Item
-        itens_prontos,
-        qtd_inicial_total,
-        qtd_atual_total,
-        qtd_transferida_total,
-        valor_itens_total,
-        // Derivadas
-        taxa_atraso:           total_pedidos > 0 ? (pedidos_atrasados / total_pedidos) * 100 : null,
-        ticket_medio:          total_pedidos > 0 ? valor_total / total_pedidos : null,
-        taxa_conclusao_itens:  qtd_inicial_total > 0 ? (itens_prontos / qtd_inicial_total) * 100 : null,
-        exposicao_financeira:  valor_total > 0 ? (cobertura_pendente / valor_total) * 100 : null,
-        taxa_transferencia:    qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : null,
-      },
+      })
     })
   } catch (err) {
     console.error('[Analytics/kpis]', err)
@@ -197,53 +200,59 @@ analyticsRouter.get('/trend', async (req: Request, res: Response) => {
 
   const { period, granularity } = parse.data
   const { from, to } = periodToDateRange(period)
-  const db = tenantPrisma(req)
 
   try {
-    const pedidos = await (db as any).pedido.findMany({
-      where: { criado_em: { gte: from, lte: to } },
-      select: {
-        criado_em: true,
-        valor_total: true,
-        cobertura_pendente: true,
-        status: true,
-      },
-      orderBy: { criado_em: 'asc' },
-    })
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
 
-    // Agrupa por período
-    const buckets: Record<string, { label: string; date: string; valor_total: number; cobertura_pendente: number; count: number }> = {}
+      const pedidosRaw = await db.pedido.findMany({
+        where: { criado_em: { gte: from, lte: to } },
+        select: {
+          criado_em: true,
+          valor_total: true,
+          cobertura_pendente: true,
+          status: true,
+        },
+        orderBy: { criado_em: 'asc' },
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pedidos = pedidosRaw as any[]
 
-    for (const p of pedidos as any[]) {
-      const d = new Date(p.criado_em)
-      let key: string
-      let label: string
+      // Agrupa por período
+      const buckets: Record<string, { label: string; date: string; valor_total: number; cobertura_pendente: number; count: number }> = {}
 
-      if (granularity === 'month') {
-        key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-        label = d.toLocaleString('pt-BR', { month: 'short', year: '2-digit' })
-      } else if (granularity === 'week') {
-        const startOfWeek = new Date(d)
-        startOfWeek.setDate(d.getDate() - d.getDay())
-        key = startOfWeek.toISOString().slice(0, 10)
-        label = `Sem ${key}`
-      } else {
-        key = d.toISOString().slice(0, 10)
-        label = key
+      for (const p of pedidos) {
+        const d = new Date(p.criado_em)
+        let key: string
+        let label: string
+
+        if (granularity === 'month') {
+          key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+          label = d.toLocaleString('pt-BR', { month: 'short', year: '2-digit' })
+        } else if (granularity === 'week') {
+          const startOfWeek = new Date(d)
+          startOfWeek.setDate(d.getDate() - d.getDay())
+          key = startOfWeek.toISOString().slice(0, 10)
+          label = `Sem ${key}`
+        } else {
+          key = d.toISOString().slice(0, 10)
+          label = key
+        }
+
+        if (!buckets[key]) buckets[key] = { label, date: key, valor_total: 0, cobertura_pendente: 0, count: 0 }
+        buckets[key].valor_total       += Number(p.valor_total ?? 0)
+        buckets[key].cobertura_pendente += Number(p.cobertura_pendente ?? 0)
+        buckets[key].count++
       }
 
-      if (!buckets[key]) buckets[key] = { label, date: key, valor_total: 0, cobertura_pendente: 0, count: 0 }
-      buckets[key].valor_total       += Number(p.valor_total ?? 0)
-      buckets[key].cobertura_pendente += Number(p.cobertura_pendente ?? 0)
-      buckets[key].count++
-    }
-
-    res.json({
-      '@odata.context': '/api/v1/analytics/pedido/$metadata#Trend',
-      period,
-      granularity,
-      'value@odata.count': Object.keys(buckets).length,
-      value: Object.values(buckets),
+      res.json({
+        '@odata.context': '/api/v1/analytics/pedido/$metadata#Trend',
+        period,
+        granularity,
+        'value@odata.count': Object.keys(buckets).length,
+        value: Object.values(buckets),
+      })
     })
   } catch (err) {
     console.error('[Analytics/trend]', err)
@@ -263,26 +272,32 @@ analyticsRouter.get('/distribution', async (req: Request, res: Response) => {
 
   const { period } = parse.data
   const { from, to } = periodToDateRange(period)
-  const db = tenantPrisma(req)
 
   try {
-    const pedidos = await (db as any).pedido.findMany({
-      where: { criado_em: { gte: from, lte: to } },
-      select: { status: true, valor_total: true },
-    })
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
 
-    const groups: Record<string, { status: string; count: number; valor_total: number }> = {}
-    for (const p of pedidos as any[]) {
-      if (!groups[p.status]) groups[p.status] = { status: p.status, count: 0, valor_total: 0 }
-      groups[p.status].count++
-      groups[p.status].valor_total += Number(p.valor_total ?? 0)
-    }
+      const pedidosRaw = await db.pedido.findMany({
+        where: { criado_em: { gte: from, lte: to } },
+        select: { status: true, valor_total: true },
+      })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pedidos = pedidosRaw as any[]
 
-    res.json({
-      '@odata.context': '/api/v1/analytics/pedido/$metadata#Distribution',
-      period,
-      'value@odata.count': Object.keys(groups).length,
-      value: Object.values(groups),
+      const groups: Record<string, { status: string; count: number; valor_total: number }> = {}
+      for (const p of pedidos) {
+        if (!groups[p.status]) groups[p.status] = { status: p.status, count: 0, valor_total: 0 }
+        groups[p.status].count++
+        groups[p.status].valor_total += Number(p.valor_total ?? 0)
+      }
+
+      res.json({
+        '@odata.context': '/api/v1/analytics/pedido/$metadata#Distribution',
+        period,
+        'value@odata.count': Object.keys(groups).length,
+        value: Object.values(groups),
+      })
     })
   } catch (err) {
     console.error('[Analytics/distribution]', err)
@@ -294,29 +309,33 @@ analyticsRouter.get('/distribution', async (req: Request, res: Response) => {
 analyticsRouter.get('/items', async (req: Request, res: Response) => {
   const period = (req.query.period as string) ?? '30d'
   const { from, to } = periodToDateRange(period)
-  const db = tenantPrisma(req)
 
   try {
-    const itens = await (db as any).itemPedido.findMany({
-      where: { pedido: { criado_em: { gte: from, lte: to } } },
-      select: {
-        id: true,
-        pedido_id: true,
-        descricao_item: true,
-        qtd_inicial: true,
-        qtd_atual: true,
-        qtd_transferida: true,
-        valor_unitario_item: true,
-        pronto: true,
-      },
-      orderBy: { pedido_id: 'asc' },
-    })
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
 
-    res.json({
-      '@odata.context': '/api/v1/analytics/pedido/$metadata#ItensPedido',
-      period,
-      'value@odata.count': itens.length,
-      value: itens,
+      const itens = await db.itemPedido.findMany({
+        where: { pedido: { criado_em: { gte: from, lte: to } } },
+        select: {
+          id: true,
+          pedido_id: true,
+          descricao_item: true,
+          qtd_inicial: true,
+          qtd_atual: true,
+          qtd_transferida: true,
+          valor_unitario_item: true,
+          pronto: true,
+        },
+        orderBy: { pedido_id: 'asc' },
+      })
+
+      res.json({
+        '@odata.context': '/api/v1/analytics/pedido/$metadata#ItensPedido',
+        period,
+        'value@odata.count': itens.length,
+        value: itens,
+      })
     })
   } catch (err) {
     console.error('[Analytics/items]', err)
@@ -337,50 +356,54 @@ analyticsRouter.get('/raw', async (req: Request, res: Response) => {
 
   const { period, page, pageSize } = parse.data
   const { from, to } = periodToDateRange(period)
-  const db = tenantPrisma(req)
 
   try {
-    const [total, pedidos] = await Promise.all([
-      (db as any).pedido.count({ where: { criado_em: { gte: from, lte: to } } }),
-      (db as any).pedido.findMany({
-        where: { criado_em: { gte: from, lte: to } },
-        select: {
-          id: true,
-          numero: true,
-          status: true,
-          valor_total: true,
-          cobertura_pendente: true,
-          qtd_total: true,
-          criado_em: true,
-          prazo: true,
-          itens: {
-            select: {
-              id: true,
-              descricao_item: true,
-              qtd_inicial: true,
-              qtd_atual: true,
-              qtd_transferida: true,
-              valor_unitario_item: true,
-              pronto: true,
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+
+      const [total, pedidos] = await Promise.all([
+        db.pedido.count({ where: { criado_em: { gte: from, lte: to } } }),
+        db.pedido.findMany({
+          where: { criado_em: { gte: from, lte: to } },
+          select: {
+            id: true,
+            numero: true,
+            status: true,
+            valor_total: true,
+            cobertura_pendente: true,
+            qtd_total: true,
+            criado_em: true,
+            prazo: true,
+            itens: {
+              select: {
+                id: true,
+                descricao_item: true,
+                qtd_inicial: true,
+                qtd_atual: true,
+                qtd_transferida: true,
+                valor_unitario_item: true,
+                pronto: true,
+              },
             },
           },
-        },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        orderBy: { criado_em: 'desc' },
-      }),
-    ])
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+          orderBy: { criado_em: 'desc' },
+        }),
+      ])
 
-    const totalPages = Math.ceil(total / pageSize)
-    const nextLink = page < totalPages
-      ? `/api/v1/analytics/pedido/raw?period=${period}&page=${page + 1}&pageSize=${pageSize}`
-      : undefined
+      const totalPages = Math.ceil(total / pageSize)
+      const nextLink = page < totalPages
+        ? `/api/v1/analytics/pedido/raw?period=${period}&page=${page + 1}&pageSize=${pageSize}`
+        : undefined
 
-    res.json({
-      '@odata.context':  '/api/v1/analytics/pedido/$metadata#Pedidos',
-      '@odata.count':    total,
-      '@odata.nextLink': nextLink,
-      value: pedidos,
+      res.json({
+        '@odata.context':  '/api/v1/analytics/pedido/$metadata#Pedidos',
+        '@odata.count':    total,
+        '@odata.nextLink': nextLink,
+        value: pedidos,
+      })
     })
   } catch (err) {
     console.error('[Analytics/raw]', err)

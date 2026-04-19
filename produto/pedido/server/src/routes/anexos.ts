@@ -21,6 +21,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import multer from 'multer'
 import { z } from 'zod'
 import { randomUUID } from 'crypto'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import {
   validarExtensao,
   LIMITE_BYTES_ARQUIVO,
@@ -84,71 +85,70 @@ anexosRouter.post(
   '/',
   upload.single('arquivo'),
   async (req: Request, res: Response, next: NextFunction) => {
+    if (!req.file) {
+      return next(new AppError('Nenhum arquivo enviado', 400, 'ARQUIVO_AUSENTE'))
+    }
+
+    const bodyParse = UploadBodySchema.safeParse(req.body)
+    if (!bodyParse.success) {
+      return next(new AppError('Dados inválidos', 400, 'VALIDATION_ERROR'))
+    }
+
     try {
-      const db = (req as Request & { prisma: unknown }).prisma as {
-        pedidoAnexo: {
-          aggregate: (args: unknown) => Promise<{ _sum: { tamanho_bytes: number | null }; _count: { _all: number } }>
-          create: (args: unknown) => Promise<unknown>
+      await withTenant(req, async (rawDb) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const db       = rawDb as any
+        const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+        const tenantId = ctx.tenantId
+        const userId   = ctx.userId ?? 'system'
+
+        const { vinculo, vinculo_id, descricao, categoria } = bodyParse.data
+
+        // Verificar limites do pedido (vinculo_id usado como referência de pedido)
+        const pedidoId = vinculo === 'pedido' ? vinculo_id : vinculo_id
+        const agregado = await db.pedidoAnexo.aggregate({
+          where: { tenant_id: tenantId, vinculo_id: pedidoId },
+          _sum: { tamanho_bytes: true },
+          _count: { _all: true },
+        })
+
+        const totalBytes   = (agregado._sum.tamanho_bytes ?? 0) + req.file!.size
+        const totalArquivos = agregado._count._all + 1
+
+        if (totalBytes > LIMITE_BYTES_TOTAL_PEDIDO) {
+          throw new AppError('Limite de 200MB por pedido atingido', 400, 'LIMITE_TOTAL_EXCEDIDO')
         }
-      }
-      const tenantId = (req as Request & { tenantId: string }).tenantId
-      const userId = (req as Request & { userId: string }).userId ?? 'system'
+        if (totalArquivos > LIMITE_ARQUIVOS_PEDIDO) {
+          throw new AppError('Limite de 50 arquivos por pedido atingido', 400, 'LIMITE_ARQUIVOS_EXCEDIDO')
+        }
 
-      if (!req.file) {
-        throw new AppError('Nenhum arquivo enviado', 400, 'ARQUIVO_AUSENTE')
-      }
+        const uuid: string    = randomUUID()
+        const storageKey      = resolverStorageKey(tenantId, vinculo_id, uuid, req.file!.originalname)
 
-      const bodyParse = UploadBodySchema.safeParse(req.body)
-      if (!bodyParse.success) {
-        throw new AppError('Dados inválidos', 400, 'VALIDATION_ERROR')
-      }
+        salvarArquivoLocal(req.file!.buffer, storageKey)
 
-      const { vinculo, vinculo_id, descricao, categoria } = bodyParse.data
+        const anexo = await db.pedidoAnexo.create({
+          data: {
+            id: uuid,
+            tenant_id: tenantId,
+            vinculo,
+            vinculo_id,
+            nome_arquivo: req.file!.originalname,
+            tipo_arquivo: req.file!.mimetype || 'application/octet-stream',
+            tamanho_bytes: req.file!.size,
+            descricao,
+            categoria,
+            storage_key: storageKey,
+            uploaded_by: userId,
+          },
+        })
 
-      // Verificar limites do pedido (vinculo_id usado como referência de pedido)
-      const pedidoId = vinculo === 'pedido' ? vinculo_id : vinculo_id
-      const agregado = await db.pedidoAnexo.aggregate({
-        where: { tenant_id: tenantId, vinculo_id: pedidoId },
-        _sum: { tamanho_bytes: true },
-        _count: { _all: true },
-      } as unknown as Parameters<typeof db.pedidoAnexo.aggregate>[0])
-
-      const totalBytes = (agregado._sum.tamanho_bytes ?? 0) + req.file.size
-      const totalArquivos = agregado._count._all + 1
-
-      if (totalBytes > LIMITE_BYTES_TOTAL_PEDIDO) {
-        throw new AppError('Limite de 200MB por pedido atingido', 400, 'LIMITE_TOTAL_EXCEDIDO')
-      }
-      if (totalArquivos > LIMITE_ARQUIVOS_PEDIDO) {
-        throw new AppError('Limite de 50 arquivos por pedido atingido', 400, 'LIMITE_ARQUIVOS_EXCEDIDO')
-      }
-
-      const uuid: string = randomUUID()
-      const storageKey = resolverStorageKey(tenantId, vinculo_id, uuid, req.file.originalname)
-
-      salvarArquivoLocal(req.file.buffer, storageKey)
-
-      const anexo = await db.pedidoAnexo.create({
-        data: {
-          id: uuid,
-          tenant_id: tenantId,
-          vinculo,
-          vinculo_id,
-          nome_arquivo: req.file.originalname,
-          tipo_arquivo: req.file.mimetype || 'application/octet-stream',
-          tamanho_bytes: req.file.size,
-          descricao,
-          categoria,
-          storage_key: storageKey,
-          uploaded_by: userId,
-        },
-      } as Parameters<typeof db.pedidoAnexo.create>[0])
-
-      res.status(201).json({
-        id: (anexo as { id: string }).id,
-        nome_arquivo: req.file.originalname,
-        tamanho_bytes: req.file.size,
-        url_download: `/api/v1/pedidos/anexos/${uuid}/download`,
+        res.status(201).json({
+          id: (anexo as { id: string }).id,
+          nome_arquivo: req.file!.originalname,
+          tamanho_bytes: req.file!.size,
+          url_download: `/api/v1/pedidos/anexos/${uuid}/download`,
+        })
       })
     } catch (err) {
       next(err)
@@ -159,53 +159,54 @@ anexosRouter.post(
 // ── GET /anexos — Listar ──────────────────────────────────────────────────────
 
 anexosRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
+  const queryParse = ListarQuerySchema.safeParse(req.query)
+  if (!queryParse.success) {
+    return next(new AppError('Parâmetros inválidos: vinculo e vinculo_id são obrigatórios', 400, 'VALIDATION_ERROR'))
+  }
+
   try {
-    const db = (req as Request & { prisma: unknown }).prisma as {
-      pedidoAnexo: { findMany: (args: unknown) => Promise<unknown[]> }
-    }
-    const tenantId = (req as Request & { tenantId: string }).tenantId
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const queryParse = ListarQuerySchema.safeParse(req.query)
-    if (!queryParse.success) {
-      throw new AppError('Parâmetros inválidos: vinculo e vinculo_id são obrigatórios', 400, 'VALIDATION_ERROR')
-    }
+      const { vinculo, vinculo_id } = queryParse.data
 
-    const { vinculo, vinculo_id } = queryParse.data
+      const anexos = await db.pedidoAnexo.findMany({
+        where: { tenant_id: tenantId, vinculo, vinculo_id },
+        orderBy: { created_at: 'desc' },
+      })
 
-    const anexos = await db.pedidoAnexo.findMany({
-      where: { tenant_id: tenantId, vinculo, vinculo_id },
-      orderBy: { created_at: 'desc' },
-    } as Parameters<typeof db.pedidoAnexo.findMany>[0])
-
-    res.json(
-      (anexos as Array<{
-        id: string
-        tenant_id: string
-        vinculo: string
-        vinculo_id: string
-        nome_arquivo: string
-        tipo_arquivo: string
-        tamanho_bytes: number
-        descricao: string | null
-        categoria: string | null
-        storage_key: string
-        uploaded_by: string
-        created_at: Date
-      }>).map(a => ({
-        id: a.id,
-        tenant_id: a.tenant_id,
-        vinculo: a.vinculo,
-        vinculo_id: a.vinculo_id,
-        nome_arquivo: a.nome_arquivo,
-        tipo_arquivo: a.tipo_arquivo,
-        tamanho_bytes: a.tamanho_bytes,
-        descricao: a.descricao ?? undefined,
-        categoria: a.categoria ?? undefined,
-        storage_key: a.storage_key,
-        uploaded_by: a.uploaded_by,
-        uploaded_at: a.created_at.toISOString(),
-      }))
-    )
+      res.json(
+        (anexos as Array<{
+          id: string
+          tenant_id: string
+          vinculo: string
+          vinculo_id: string
+          nome_arquivo: string
+          tipo_arquivo: string
+          tamanho_bytes: number
+          descricao: string | null
+          categoria: string | null
+          storage_key: string
+          uploaded_by: string
+          created_at: Date
+        }>).map(a => ({
+          id: a.id,
+          tenant_id: a.tenant_id,
+          vinculo: a.vinculo,
+          vinculo_id: a.vinculo_id,
+          nome_arquivo: a.nome_arquivo,
+          tipo_arquivo: a.tipo_arquivo,
+          tamanho_bytes: a.tamanho_bytes,
+          descricao: a.descricao ?? undefined,
+          categoria: a.categoria ?? undefined,
+          storage_key: a.storage_key,
+          uploaded_by: a.uploaded_by,
+          uploaded_at: a.created_at.toISOString(),
+        }))
+      )
+    })
   } catch (err) {
     next(err)
   }
@@ -214,39 +215,40 @@ anexosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =>
 // ── GET /anexos/:id/download — Download ──────────────────────────────────────
 
 anexosRouter.get('/:id/download', async (req: Request, res: Response, next: NextFunction) => {
+  const paramParse = IdParamSchema.safeParse(req.params)
+  if (!paramParse.success) {
+    return next(new AppError('ID inválido', 400, 'VALIDATION_ERROR'))
+  }
+
   try {
-    const db = (req as Request & { prisma: unknown }).prisma as {
-      pedidoAnexo: { findFirst: (args: unknown) => Promise<unknown> }
-    }
-    const tenantId = (req as Request & { tenantId: string }).tenantId
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const paramParse = IdParamSchema.safeParse(req.params)
-    if (!paramParse.success) {
-      throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
-    }
+      const { id } = paramParse.data
 
-    const { id } = paramParse.data
+      const anexo = await db.pedidoAnexo.findFirst({
+        where: { id, tenant_id: tenantId },
+      })
 
-    const anexo = await db.pedidoAnexo.findFirst({
-      where: { id, tenant_id: tenantId },
-    } as Parameters<typeof db.pedidoAnexo.findFirst>[0])
+      if (!anexo) {
+        throw new AppError('Anexo não encontrado', 404, 'NOT_FOUND')
+      }
 
-    if (!anexo) {
-      throw new AppError('Anexo não encontrado', 404, 'NOT_FOUND')
-    }
+      const typedAnexo = anexo as { storage_key: string; nome_arquivo: string; tipo_arquivo: string }
 
-    const typedAnexo = anexo as { storage_key: string; nome_arquivo: string; tipo_arquivo: string }
+      if (!arquivoExiste(typedAnexo.storage_key)) {
+        throw new AppError('Arquivo não encontrado no storage', 404, 'FILE_NOT_FOUND')
+      }
 
-    if (!arquivoExiste(typedAnexo.storage_key)) {
-      throw new AppError('Arquivo não encontrado no storage', 404, 'FILE_NOT_FOUND')
-    }
+      const buffer = lerArquivoLocal(typedAnexo.storage_key)
 
-    const buffer = lerArquivoLocal(typedAnexo.storage_key)
-
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(typedAnexo.nome_arquivo)}"`)
-    res.setHeader('Content-Type', typedAnexo.tipo_arquivo)
-    res.setHeader('Content-Length', buffer.length)
-    res.send(buffer)
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(typedAnexo.nome_arquivo)}"`)
+      res.setHeader('Content-Type', typedAnexo.tipo_arquivo)
+      res.setHeader('Content-Length', buffer.length)
+      res.send(buffer)
+    })
   } catch (err) {
     next(err)
   }
@@ -255,48 +257,47 @@ anexosRouter.get('/:id/download', async (req: Request, res: Response, next: Next
 // ── DELETE /anexos/:id — Excluir ──────────────────────────────────────────────
 
 anexosRouter.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  const paramParse = IdParamSchema.safeParse(req.params)
+  if (!paramParse.success) {
+    return next(new AppError('ID inválido', 400, 'VALIDATION_ERROR'))
+  }
+
   try {
-    const db = (req as Request & { prisma: unknown }).prisma as {
-      pedidoAnexo: {
-        findFirst: (args: unknown) => Promise<unknown>
-        delete: (args: unknown) => Promise<void>
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db       = rawDb as any
+      const ctx      = (req as unknown as { tenant: TenantContext }).tenant
+      const tenantId = ctx.tenantId
+      const userId   = ctx.userId ?? ''
+      const userRoles = ctx.roles ?? []
+
+      const { id } = paramParse.data
+
+      const anexo = await db.pedidoAnexo.findFirst({
+        where: { id, tenant_id: tenantId },
+      })
+
+      if (!anexo) {
+        throw new AppError('Anexo não encontrado', 404, 'NOT_FOUND')
       }
-    }
-    const tenantId = (req as Request & { tenantId: string }).tenantId
-    const userId = (req as Request & { userId: string }).userId ?? ''
-    const userRole = (req as Request & { userRole?: string }).userRole ?? ''
 
-    const paramParse = IdParamSchema.safeParse(req.params)
-    if (!paramParse.success) {
-      throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
-    }
+      const typedAnexo = anexo as { storage_key: string; uploaded_by: string }
 
-    const { id } = paramParse.data
+      const isAdmin = userRoles.includes('admin') || userRoles.includes('ADMIN')
+      const isOwner = typedAnexo.uploaded_by === userId
 
-    const anexo = await db.pedidoAnexo.findFirst({
-      where: { id, tenant_id: tenantId },
-    } as Parameters<typeof db.pedidoAnexo.findFirst>[0])
+      if (!isOwner && !isAdmin) {
+        throw new AppError('Sem permissão para excluir este anexo', 403, 'FORBIDDEN')
+      }
 
-    if (!anexo) {
-      throw new AppError('Anexo não encontrado', 404, 'NOT_FOUND')
-    }
+      removerArquivoLocal(typedAnexo.storage_key)
 
-    const typedAnexo = anexo as { storage_key: string; uploaded_by: string }
+      await db.pedidoAnexo.delete({
+        where: { id },
+      })
 
-    const isAdmin = userRole === 'admin' || userRole === 'ADMIN'
-    const isOwner = typedAnexo.uploaded_by === userId
-
-    if (!isOwner && !isAdmin) {
-      throw new AppError('Sem permissão para excluir este anexo', 403, 'FORBIDDEN')
-    }
-
-    removerArquivoLocal(typedAnexo.storage_key)
-
-    await db.pedidoAnexo.delete({
-      where: { id },
-    } as Parameters<typeof db.pedidoAnexo.delete>[0])
-
-    res.status(204).send()
+      res.status(204).send()
+    })
   } catch (err) {
     next(err)
   }

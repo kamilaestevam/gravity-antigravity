@@ -25,6 +25,7 @@
 import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { withTenant, type TenantContext } from '@gravity/tenant-resolver'
 import { AppError } from '../services/saldoEngine.js'
 
 export const pedidosConfigRouter = Router()
@@ -74,18 +75,6 @@ const preferenciasPadraoSchema = z.object({
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function getTenantId(req: Request): string {
-  const tenant_id = req.headers['x-tenant-id'] as string | undefined
-  if (!tenant_id) throw new AppError(400, 'Header x-tenant-id obrigatorio')
-  return tenant_id
-}
-
-function getUserId(req: Request): string {
-  const user_id = req.headers['x-user-id'] as string | undefined
-  if (!user_id) throw new AppError(400, 'Header x-user-id obrigatorio')
-  return user_id
-}
-
 function getCompanyId(req: Request): string | undefined {
   return req.headers['x-company-id'] as string | undefined
 }
@@ -106,34 +95,38 @@ const STATUS_PADRAO = [
 // GET /status
 pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    const company_id = getCompanyId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db         = rawDb as any
+      const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const company_id = getCompanyId(req)
 
-    const where: Record<string, unknown> = { tenant_id }
-    if (company_id) where.company_id = company_id
+      const where: Record<string, unknown> = { tenant_id }
+      if (company_id) where.company_id = company_id
 
-    const status = await req.prisma.pedidoStatus.findMany({
-      where,
-      orderBy: { ordem: 'asc' },
-    })
-
-    // Auto-seed: se o tenant não tem nenhum status configurado, criar os padrões
-    if (status.length === 0) {
-      await req.prisma.$transaction(
-        STATUS_PADRAO.map(s =>
-          req.prisma.pedidoStatus.create({
-            data: { tenant_id, company_id: company_id ?? null, ...s },
-          })
-        )
-      )
-      const seeded = await req.prisma.pedidoStatus.findMany({
+      const status = await db.pedidoStatus.findMany({
         where,
         orderBy: { ordem: 'asc' },
       })
-      return res.json({ data: seeded })
-    }
 
-    res.json({ data: status })
+      // Auto-seed: se o tenant não tem nenhum status configurado, criar os padrões
+      if (status.length === 0) {
+        await Promise.all(
+          STATUS_PADRAO.map(s =>
+            db.pedidoStatus.create({
+              data: { tenant_id, company_id: company_id ?? null, ...s },
+            })
+          )
+        )
+        const seeded = await db.pedidoStatus.findMany({
+          where,
+          orderBy: { ordem: 'asc' },
+        })
+        return res.json({ data: seeded })
+      }
+
+      res.json({ data: status })
+    })
   } catch (err) {
     next(err)
   }
@@ -141,33 +134,37 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
 
 // POST /status
 pedidosConfigRouter.post('/status', async (req: Request, res: Response, next: NextFunction) => {
+  const result = criarStatusSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = criarStatusSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db         = rawDb as any
+      const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const company_id = getCompanyId(req)
 
-    const tenant_id = getTenantId(req)
-    const company_id = getCompanyId(req)
+      const where: Record<string, unknown> = { tenant_id }
+      if (company_id) where.company_id = company_id
 
-    const where: Record<string, unknown> = { tenant_id }
-    if (company_id) where.company_id = company_id
+      const count = await db.pedidoStatus.count({ where })
+      if (count >= 20) {
+        throw new AppError(400, 'Limite de 20 status por tenant atingido')
+      }
 
-    const count = await req.prisma.pedidoStatus.count({ where })
-    if (count >= 20) {
-      throw new AppError(400, 'Limite de 20 status por tenant atingido')
-    }
+      const novoStatus = await db.pedidoStatus.create({
+        data: {
+          tenant_id,
+          company_id: company_id ?? null,
+          ...result.data,
+          is_sistema: false,
+        },
+      })
 
-    const novoStatus = await req.prisma.pedidoStatus.create({
-      data: {
-        tenant_id,
-        company_id: company_id ?? null,
-        ...result.data,
-        is_sistema: false,
-      },
+      res.status(201).json(novoStatus)
     })
-
-    res.status(201).json(novoStatus)
   } catch (err) {
     next(err)
   }
@@ -189,58 +186,62 @@ const syncStatusSchema = z.object({
 })
 
 pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next: NextFunction) => {
+  const result = syncStatusSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = syncStatusSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db         = rawDb as any
+      const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const company_id = getCompanyId(req)
+      const where: Record<string, unknown> = { tenant_id }
+      if (company_id) where.company_id = company_id
 
-    const tenant_id = getTenantId(req)
-    const company_id = getCompanyId(req)
-    const where: Record<string, unknown> = { tenant_id }
-    if (company_id) where.company_id = company_id
+      const nomesNovos = new Set(result.data.status.map(s => s.nome))
 
-    const nomesNovos = new Set(result.data.status.map(s => s.nome))
+      // Buscar todos os status atuais do tenant para saber quais deletar
+      const atuais = await db.pedidoStatus.findMany({ where, select: { id: true, nome: true, is_sistema: true } })
 
-    // Buscar todos os status atuais do tenant para saber quais deletar
-    const atuais = await req.prisma.pedidoStatus.findMany({ where, select: { id: true, nome: true, is_sistema: true } })
+      // Upserts por nome (chave única tenant_id + nome)
+      const ops = result.data.status.map(s =>
+        db.pedidoStatus.upsert({
+          where: { tenant_id_nome: { tenant_id, nome: s.nome } },
+          update: {
+            rotulo:    s.rotulo,
+            cor:       s.cor,
+            ordem:     s.ordem,
+            is_padrao: s.is_padrao ?? false,
+          },
+          create: {
+            tenant_id,
+            company_id:  company_id ?? null,
+            nome:        s.nome,
+            rotulo:      s.rotulo,
+            cor:         s.cor,
+            ordem:       s.ordem,
+            is_padrao:   s.is_padrao ?? false,
+            is_sistema:  s.is_sistema ?? false,
+          },
+        })
+      )
 
-    // Upserts por nome (chave única tenant_id + nome)
-    const ops = result.data.status.map(s =>
-      req.prisma.pedidoStatus.upsert({
-        where: { tenant_id_nome: { tenant_id, nome: s.nome } },
-        update: {
-          rotulo:    s.rotulo,
-          cor:       s.cor,
-          ordem:     s.ordem,
-          is_padrao: s.is_padrao ?? false,
-        },
-        create: {
-          tenant_id,
-          company_id:  company_id ?? null,
-          nome:        s.nome,
-          rotulo:      s.rotulo,
-          cor:         s.cor,
-          ordem:       s.ordem,
-          is_padrao:   s.is_padrao ?? false,
-          is_sistema:  s.is_sistema ?? false,
-        },
-      })
-    )
+      // Deletar os que não estão na nova lista (apenas não-sistema)
+      const idsParaDeletar = (atuais as Array<{ id: string; nome: string; is_sistema: boolean }>)
+        .filter(a => !nomesNovos.has(a.nome) && !a.is_sistema)
+        .map(a => a.id)
 
-    // Deletar os que não estão na nova lista (apenas não-sistema)
-    const idsParaDeletar = atuais
-      .filter(a => !nomesNovos.has(a.nome) && !a.is_sistema)
-      .map(a => a.id)
+      const deleteOp = idsParaDeletar.length > 0
+        ? [db.pedidoStatus.deleteMany({ where: { id: { in: idsParaDeletar }, tenant_id } })]
+        : []
 
-    const deleteOp = idsParaDeletar.length > 0
-      ? [req.prisma.pedidoStatus.deleteMany({ where: { id: { in: idsParaDeletar }, tenant_id } })]
-      : []
+      await Promise.all([...ops, ...deleteOp])
 
-    await req.prisma.$transaction([...ops, ...deleteOp])
-
-    const synced = await req.prisma.pedidoStatus.findMany({ where, orderBy: { ordem: 'asc' } })
-    res.json({ data: synced })
+      const synced = await db.pedidoStatus.findMany({ where, orderBy: { ordem: 'asc' } })
+      res.json({ data: synced })
+    })
   } catch (err) {
     next(err)
   }
@@ -248,29 +249,33 @@ pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next
 
 // PUT /status/:id
 pedidosConfigRouter.put('/status/:id', async (req: Request, res: Response, next: NextFunction) => {
+  const result = atualizarStatusSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = atualizarStatusSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const tenant_id = getTenantId(req)
+      const existente = await db.pedidoStatus.findFirst({
+        where: { id: req.params.id, tenant_id },
+      })
 
-    const existente = await req.prisma.pedidoStatus.findFirst({
-      where: { id: req.params.id, tenant_id },
+      if (!existente) {
+        throw new AppError(404, 'Status nao encontrado')
+      }
+
+      // Inclui tenant_id no where para garantir isolamento atômico
+      const updated = await db.pedidoStatus.update({
+        where: { id: req.params.id, tenant_id },
+        data: result.data,
+      })
+
+      res.json(updated)
     })
-
-    if (!existente) {
-      throw new AppError(404, 'Status nao encontrado')
-    }
-
-    // Inclui tenant_id no where para garantir isolamento atômico
-    const updated = await req.prisma.pedidoStatus.update({
-      where: { id: req.params.id, tenant_id },
-      data: result.data,
-    })
-
-    res.json(updated)
   } catch (err) {
     next(err)
   }
@@ -279,23 +284,27 @@ pedidosConfigRouter.put('/status/:id', async (req: Request, res: Response, next:
 // DELETE /status/:id
 pedidosConfigRouter.delete('/status/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const existente = await req.prisma.pedidoStatus.findFirst({
-      where: { id: req.params.id, tenant_id },
+      const existente = await db.pedidoStatus.findFirst({
+        where: { id: req.params.id, tenant_id },
+      })
+
+      if (!existente) {
+        throw new AppError(404, 'Status nao encontrado')
+      }
+
+      if (existente.is_sistema) {
+        throw new AppError(400, 'Status do sistema nao pode ser deletado')
+      }
+
+      // Inclui tenant_id no where para garantir isolamento atômico
+      await db.pedidoStatus.delete({ where: { id: req.params.id, tenant_id } })
+      res.status(204).send()
     })
-
-    if (!existente) {
-      throw new AppError(404, 'Status nao encontrado')
-    }
-
-    if (existente.is_sistema) {
-      throw new AppError(400, 'Status do sistema nao pode ser deletado')
-    }
-
-    // Inclui tenant_id no where para garantir isolamento atômico
-    await req.prisma.pedidoStatus.delete({ where: { id: req.params.id, tenant_id } })
-    res.status(204).send()
   } catch (err) {
     next(err)
   }
@@ -303,37 +312,41 @@ pedidosConfigRouter.delete('/status/:id', async (req: Request, res: Response, ne
 
 // PATCH /status/reordenar
 pedidosConfigRouter.patch('/status/reordenar', async (req: Request, res: Response, next: NextFunction) => {
+  const result = reordenarStatusSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = reordenarStatusSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const tenant_id = getTenantId(req)
+      // Verificar que todos os IDs pertencem ao tenant
+      const existentes = await db.pedidoStatus.findMany({
+        where: { id: { in: result.data.ids }, tenant_id },
+        select: { id: true },
+      })
 
-    // Verificar que todos os IDs pertencem ao tenant
-    const existentes = await req.prisma.pedidoStatus.findMany({
-      where: { id: { in: result.data.ids }, tenant_id },
-      select: { id: true },
-    })
+      const idsEncontrados = new Set((existentes as Array<{ id: string }>).map(s => s.id))
+      const idsInvalidos = result.data.ids.filter(id => !idsEncontrados.has(id))
+      if (idsInvalidos.length > 0) {
+        throw new AppError(400, `IDs nao encontrados ou nao pertencem ao tenant: ${idsInvalidos.join(', ')}`)
+      }
 
-    const idsEncontrados = new Set(existentes.map((s) => s.id))
-    const idsInvalidos = result.data.ids.filter((id) => !idsEncontrados.has(id))
-    if (idsInvalidos.length > 0) {
-      throw new AppError(400, `IDs nao encontrados ou nao pertencem ao tenant: ${idsInvalidos.join(', ')}`)
-    }
-
-    // Atualizar ordem em transação
-    await req.prisma.$transaction(
-      result.data.ids.map((id, index) =>
-        req.prisma.pedidoStatus.update({
-          where: { id },
-          data: { ordem: index },
-        })
+      // Atualizar ordem em paralelo (withTenant já garante atomicidade)
+      await Promise.all(
+        result.data.ids.map((id, index) =>
+          db.pedidoStatus.update({
+            where: { id },
+            data: { ordem: index },
+          })
+        )
       )
-    )
 
-    res.json({ sucesso: true })
+      res.json({ sucesso: true })
+    })
   } catch (err) {
     next(err)
   }
@@ -344,18 +357,22 @@ pedidosConfigRouter.patch('/status/reordenar', async (req: Request, res: Respons
 // GET /colunas
 pedidosConfigRouter.get('/colunas', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    const company_id = getCompanyId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db         = rawDb as any
+      const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const company_id = getCompanyId(req)
 
-    const where: Record<string, unknown> = { tenant_id }
-    if (company_id) where.company_id = company_id
+      const where: Record<string, unknown> = { tenant_id }
+      if (company_id) where.company_id = company_id
 
-    const colunas = await req.prisma.pedidoColuna.findMany({
-      where,
-      orderBy: { ordem: 'asc' },
+      const colunas = await db.pedidoColuna.findMany({
+        where,
+        orderBy: { ordem: 'asc' },
+      })
+
+      res.json({ data: colunas })
     })
-
-    res.json({ data: colunas })
   } catch (err) {
     next(err)
   }
@@ -363,39 +380,43 @@ pedidosConfigRouter.get('/colunas', async (req: Request, res: Response, next: Ne
 
 // POST /colunas
 pedidosConfigRouter.post('/colunas', async (req: Request, res: Response, next: NextFunction) => {
+  const result = criarColunaSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = criarColunaSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db         = rawDb as any
+      const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const company_id = getCompanyId(req)
 
-    const tenant_id = getTenantId(req)
-    const company_id = getCompanyId(req)
+      const where: Record<string, unknown> = { tenant_id }
+      if (company_id) where.company_id = company_id
 
-    const where: Record<string, unknown> = { tenant_id }
-    if (company_id) where.company_id = company_id
+      const count = await db.pedidoColuna.count({ where })
+      if (count >= 30) {
+        throw new AppError(400, 'Limite de 30 colunas customizadas por tenant atingido')
+      }
 
-    const count = await req.prisma.pedidoColuna.count({ where })
-    if (count >= 30) {
-      throw new AppError(400, 'Limite de 30 colunas customizadas por tenant atingido')
-    }
+      // Validar opcoes para tipo select
+      if (result.data.tipo === 'select' && (!result.data.opcoes || result.data.opcoes.length === 0)) {
+        throw new AppError(400, 'Colunas do tipo "select" devem ter ao menos uma opcao')
+      }
 
-    // Validar opcoes para tipo select
-    if (result.data.tipo === 'select' && (!result.data.opcoes || result.data.opcoes.length === 0)) {
-      throw new AppError(400, 'Colunas do tipo "select" devem ter ao menos uma opcao')
-    }
+      const novaColuna = await db.pedidoColuna.create({
+        data: {
+          tenant_id,
+          company_id: company_id ?? null,
+          ...result.data,
+          opcoes: result.data.opcoes ?? null,
+          index_criado: false,
+        },
+      })
 
-    const novaColuna = await req.prisma.pedidoColuna.create({
-      data: {
-        tenant_id,
-        company_id: company_id ?? null,
-        ...result.data,
-        opcoes: result.data.opcoes ?? null,
-        index_criado: false,
-      },
+      res.status(201).json(novaColuna)
     })
-
-    res.status(201).json(novaColuna)
   } catch (err) {
     next(err)
   }
@@ -403,39 +424,43 @@ pedidosConfigRouter.post('/colunas', async (req: Request, res: Response, next: N
 
 // PUT /colunas/:id
 pedidosConfigRouter.put('/colunas/:id', async (req: Request, res: Response, next: NextFunction) => {
+  const result = atualizarColunaSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = atualizarColunaSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const tenant_id = getTenantId(req)
+      const existente = await db.pedidoColuna.findFirst({
+        where: { id: req.params.id, tenant_id },
+      })
 
-    const existente = await req.prisma.pedidoColuna.findFirst({
-      where: { id: req.params.id, tenant_id },
+      if (!existente) {
+        throw new AppError(404, 'Coluna nao encontrada')
+      }
+
+      // Se mudando tipo para select, validar opcoes
+      const tipoFinal  = result.data.tipo ?? existente.tipo
+      const opcoesFinal = result.data.opcoes !== undefined ? result.data.opcoes : existente.opcoes
+      if (tipoFinal === 'select' && (!opcoesFinal || (Array.isArray(opcoesFinal) && opcoesFinal.length === 0))) {
+        throw new AppError(400, 'Colunas do tipo "select" devem ter ao menos uma opcao')
+      }
+
+      // Inclui tenant_id no where para garantir isolamento atômico
+      const updated = await db.pedidoColuna.update({
+        where: { id: req.params.id, tenant_id },
+        data: {
+          ...result.data,
+          opcoes: result.data.opcoes !== undefined ? (result.data.opcoes ?? null) : undefined,
+        },
+      })
+
+      res.json(updated)
     })
-
-    if (!existente) {
-      throw new AppError(404, 'Coluna nao encontrada')
-    }
-
-    // Se mudando tipo para select, validar opcoes
-    const tipoFinal = result.data.tipo ?? existente.tipo
-    const opcoesFinal = result.data.opcoes !== undefined ? result.data.opcoes : existente.opcoes
-    if (tipoFinal === 'select' && (!opcoesFinal || (Array.isArray(opcoesFinal) && opcoesFinal.length === 0))) {
-      throw new AppError(400, 'Colunas do tipo "select" devem ter ao menos uma opcao')
-    }
-
-    // Inclui tenant_id no where para garantir isolamento atômico
-    const updated = await req.prisma.pedidoColuna.update({
-      where: { id: req.params.id, tenant_id },
-      data: {
-        ...result.data,
-        opcoes: result.data.opcoes !== undefined ? (result.data.opcoes ?? null) : undefined,
-      },
-    })
-
-    res.json(updated)
   } catch (err) {
     next(err)
   }
@@ -444,19 +469,23 @@ pedidosConfigRouter.put('/colunas/:id', async (req: Request, res: Response, next
 // DELETE /colunas/:id
 pedidosConfigRouter.delete('/colunas/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const existente = await req.prisma.pedidoColuna.findFirst({
-      where: { id: req.params.id, tenant_id },
+      const existente = await db.pedidoColuna.findFirst({
+        where: { id: req.params.id, tenant_id },
+      })
+
+      if (!existente) {
+        throw new AppError(404, 'Coluna nao encontrada')
+      }
+
+      // Inclui tenant_id no where para garantir isolamento atômico
+      await db.pedidoColuna.delete({ where: { id: req.params.id, tenant_id } })
+      res.status(204).send()
     })
-
-    if (!existente) {
-      throw new AppError(404, 'Coluna nao encontrada')
-    }
-
-    // Inclui tenant_id no where para garantir isolamento atômico
-    await req.prisma.pedidoColuna.delete({ where: { id: req.params.id, tenant_id } })
-    res.status(204).send()
   } catch (err) {
     next(err)
   }
@@ -467,16 +496,22 @@ pedidosConfigRouter.delete('/colunas/:id', async (req: Request, res: Response, n
 // GET /preferencias/usuario
 pedidosConfigRouter.get('/preferencias/usuario', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
-    const user_id = getUserId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const ctx       = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id = ctx.tenantId
+      const user_id   = ctx.userId
+      if (!user_id) throw new AppError(400, 'User ID obrigatorio')
 
-    // Busca preferências do usuário e do workspace em paralelo (evita 2 queries sequenciais)
-    const [preferencia, padrao] = await Promise.all([
-      req.prisma.pedidoPreferenciaUsuario.findFirst({ where: { tenant_id, user_id } }),
-      req.prisma.pedidoPreferenciaPadrao.findFirst({ where: { tenant_id } }),
-    ])
+      // Busca preferências do usuário e do workspace em paralelo (evita 2 queries sequenciais)
+      const [preferencia, padrao] = await Promise.all([
+        db.pedidoPreferenciaUsuario.findFirst({ where: { tenant_id, user_id } }),
+        db.pedidoPreferenciaPadrao.findFirst({ where: { tenant_id } }),
+      ])
 
-    res.json(preferencia ?? padrao ?? null)
+      res.json(preferencia ?? padrao ?? null)
+    })
   } catch (err) {
     next(err)
   }
@@ -484,32 +519,38 @@ pedidosConfigRouter.get('/preferencias/usuario', async (req: Request, res: Respo
 
 // PUT /preferencias/usuario
 pedidosConfigRouter.put('/preferencias/usuario', async (req: Request, res: Response, next: NextFunction) => {
+  const result = preferenciasUsuarioSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = preferenciasUsuarioSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db         = rawDb as any
+      const ctx        = (req as unknown as { tenant: TenantContext }).tenant
+      const tenant_id  = ctx.tenantId
+      const user_id    = ctx.userId
+      if (!user_id) throw new AppError(400, 'User ID obrigatorio')
+      const company_id = getCompanyId(req)
 
-    const tenant_id = getTenantId(req)
-    const user_id = getUserId(req)
-    const company_id = getCompanyId(req)
+      const preferencia = await db.pedidoPreferenciaUsuario.upsert({
+        where: { tenant_id_user_id: { tenant_id, user_id } },
+        update: {
+          colunas_visiveis: result.data.colunas_visiveis,
+          colunas_largura: result.data.colunas_largura ?? undefined,
+        },
+        create: {
+          tenant_id,
+          user_id,
+          company_id: company_id ?? null,
+          colunas_visiveis: result.data.colunas_visiveis,
+          colunas_largura: result.data.colunas_largura ?? undefined,
+        },
+      })
 
-    const preferencia = await req.prisma.pedidoPreferenciaUsuario.upsert({
-      where: { tenant_id_user_id: { tenant_id, user_id } },
-      update: {
-        colunas_visiveis: result.data.colunas_visiveis,
-        colunas_largura: result.data.colunas_largura ?? undefined,
-      },
-      create: {
-        tenant_id,
-        user_id,
-        company_id: company_id ?? null,
-        colunas_visiveis: result.data.colunas_visiveis,
-        colunas_largura: result.data.colunas_largura ?? undefined,
-      },
+      res.json(preferencia)
     })
-
-    res.json(preferencia)
   } catch (err) {
     next(err)
   }
@@ -518,13 +559,17 @@ pedidosConfigRouter.put('/preferencias/usuario', async (req: Request, res: Respo
 // GET /preferencias/padrao
 pedidosConfigRouter.get('/preferencias/padrao', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    const padrao = await req.prisma.pedidoPreferenciaPadrao.findFirst({
-      where: { tenant_id },
+      const padrao = await db.pedidoPreferenciaPadrao.findFirst({
+        where: { tenant_id },
+      })
+
+      res.json({ data: padrao ?? null })
     })
-
-    res.json({ data: padrao ?? null })
   } catch (err) {
     next(err)
   }
@@ -567,14 +612,17 @@ const REGRAS_DEFAULT = {
 // GET /regras
 pedidosConfigRouter.get('/regras', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenant_id = getTenantId(req)
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db        = rawDb as any
+      const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const config = await (req as any).prisma.configuracaoPedido?.findFirst({
-      where: { tenant_id },
-    }) ?? null
+      const config = await db.configuracaoPedido?.findFirst({
+        where: { tenant_id },
+      }) ?? null
 
-    res.json(config ?? REGRAS_DEFAULT)
+      res.json(config ?? REGRAS_DEFAULT)
+    })
   } catch (err) {
     next(err)
   }
@@ -582,28 +630,31 @@ pedidosConfigRouter.get('/regras', async (req: Request, res: Response, next: Nex
 
 // PUT /regras
 pedidosConfigRouter.put('/regras', async (req: Request, res: Response, next: NextFunction) => {
+  const result = regrasConfigSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = regrasConfigSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db         = rawDb as any
+      const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const company_id = getCompanyId(req)
 
-    const tenant_id = getTenantId(req)
-    const company_id = getCompanyId(req)
+      const config = await db.configuracaoPedido?.upsert({
+        where: { tenant_id },
+        update: { ...result.data },
+        create: {
+          tenant_id,
+          company_id: company_id ?? null,
+          ...REGRAS_DEFAULT,
+          ...result.data,
+        },
+      }) ?? { ...REGRAS_DEFAULT, ...result.data }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const config = await (req as any).prisma.configuracaoPedido?.upsert({
-      where: { tenant_id },
-      update: { ...result.data },
-      create: {
-        tenant_id,
-        company_id: company_id ?? null,
-        ...REGRAS_DEFAULT,
-        ...result.data,
-      },
-    }) ?? { ...REGRAS_DEFAULT, ...result.data }
-
-    res.json(config)
+      res.json(config)
+    })
   } catch (err) {
     next(err)
   }
@@ -611,30 +662,34 @@ pedidosConfigRouter.put('/regras', async (req: Request, res: Response, next: Nex
 
 // PUT /preferencias/padrao
 pedidosConfigRouter.put('/preferencias/padrao', async (req: Request, res: Response, next: NextFunction) => {
+  const result = preferenciasPadraoSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
+  }
+
   try {
-    const result = preferenciasPadraoSchema.safeParse(req.body)
-    if (!result.success) {
-      return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
-    }
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db         = rawDb as any
+      const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+      const company_id = getCompanyId(req)
 
-    const tenant_id = getTenantId(req)
-    const company_id = getCompanyId(req)
+      const padrao = await db.pedidoPreferenciaPadrao.upsert({
+        where: { tenant_id },
+        update: {
+          colunas_visiveis: result.data.colunas_visiveis,
+          colunas_largura: result.data.colunas_largura ?? undefined,
+        },
+        create: {
+          tenant_id,
+          company_id: company_id ?? null,
+          colunas_visiveis: result.data.colunas_visiveis,
+          colunas_largura: result.data.colunas_largura ?? undefined,
+        },
+      })
 
-    const padrao = await req.prisma.pedidoPreferenciaPadrao.upsert({
-      where: { tenant_id },
-      update: {
-        colunas_visiveis: result.data.colunas_visiveis,
-        colunas_largura: result.data.colunas_largura ?? undefined,
-      },
-      create: {
-        tenant_id,
-        company_id: company_id ?? null,
-        colunas_visiveis: result.data.colunas_visiveis,
-        colunas_largura: result.data.colunas_largura ?? undefined,
-      },
+      res.json(padrao)
     })
-
-    res.json(padrao)
   } catch (err) {
     next(err)
   }

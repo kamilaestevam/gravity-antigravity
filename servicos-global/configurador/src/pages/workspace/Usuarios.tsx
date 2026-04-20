@@ -30,7 +30,7 @@ export interface TenantUser {
   status: UserStatus
 }
 
-type EspacoTrabalho = {
+export type EspacoTrabalho = {
   id: string
   nome: string
   usuarios: { userId: string; role: string; habilitado: boolean }[]
@@ -797,11 +797,38 @@ export function Usuarios() {
       <ModalEditarUsuario
         usuario={usuarioEditando}
         abaInicial={abaEditando}
+        espacos={espacos}
+        workspacesSalvos={usuarioEditando ? (membershipsMap[usuarioEditando.id] ?? []) : []}
+        carregandoEspacos={carregando}
         aoFechar={() => setUsuarioEditando(null)}
-        aoSalvar={(uEditado, permissoes) => {
+        aoSalvar={async (uEditado, _permissoes, workspaceIds) => {
           setUsers(prev => prev.map(u => u.id === uEditado.id ? uEditado : u))
-          setUsuarioEditando(null)
-          // Aqui faria algo com `permissoes` para persistir os acessos
+
+          if (uEditado.tipo !== 'Master' && workspaceIds.length > 0) {
+            try {
+              const headers = await getAuthHeaders()
+              const res = await fetch(`/api/v1/usuarios/${uEditado.id}/workspaces`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify({ workspaces: workspaceIds }),
+              })
+              if (res.ok) {
+                setMembershipsMap(prev => ({ ...prev, [uEditado.id]: workspaceIds }))
+                addNotification({ type: 'success', message: `Workspaces de "${uEditado.nome}" atualizados.` })
+                setUsuarioEditando(null)
+              } else {
+                const body = await res.json().catch(() => ({}))
+                addNotification({ type: 'error', message: body?.error?.message ?? 'Falha ao salvar workspaces.' })
+                // modal permanece aberto para o usuário corrigir e tentar de novo
+              }
+            } catch (err) {
+              addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao salvar workspaces.') })
+              // modal permanece aberto para o usuário corrigir e tentar de novo
+            }
+          } else {
+            addNotification({ type: 'success', message: `Usuário "${uEditado.nome}" atualizado.` })
+            setUsuarioEditando(null)
+          }
         }}
       />
     </PaginaGlobal>

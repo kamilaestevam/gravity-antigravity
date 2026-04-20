@@ -2,17 +2,18 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ModalFormularioAbasGlobal } from '@nucleo/modal-formulario-abas-global'
 import { GeralCampoGlobal } from '@nucleo/campo-geral-global'
-import { StatusBadgeGlobal } from '@nucleo/status-badge-global'
 import { User, EnvelopeSimple, Buildings, CheckSquare, Square, ShieldCheck } from '@phosphor-icons/react'
-import { TabelaGlobal, type TabelaGlobalColuna } from '@nucleo/tabela-global'
-import type { TenantUser } from './Usuarios'
+import type { TenantUser, EspacoTrabalho } from './Usuarios'
 import type { NivelAcesso } from '../../types/niveis-acesso'
 
 interface ModalEditarUsuarioProps {
   usuario: TenantUser | null
   abaInicial?: string
+  espacos: EspacoTrabalho[]
+  workspacesSalvos: string[]
+  carregandoEspacos?: boolean
   aoFechar: () => void
-  aoSalvar: (dados: TenantUser, permissoes: string[]) => void
+  aoSalvar: (dados: TenantUser, permissoes: string[], workspaceIds: string[]) => void
 }
 
 const CATEGORIAS_PERMISSAO = [
@@ -161,132 +162,116 @@ function AbaDados({ nome, email, tipo, onValoresChange }: AbaDadosProps) {
   )
 }
 
-interface WorkspaceMock {
-  id: string
-  nome: string
-  subdominio: string
-  status: string
-  plano: string
-  perfil: string
-}
-
-interface TenantMock {
-  id: string
-  name: string
-  subdominio: string
-  status: string
-  plano: string
-  workspaces: WorkspaceMock[]
-}
-
-function AbaEspacos() {
-  const { t } = useTranslation()
-  // TODO(Detetive 2026-04-15): mockTenants é dado de exemplo.
-  // Para virar produção, `ModalEditarUsuario` precisa receber uma prop
-  // `tenantsDoUsuario` montada a partir das memberships reais do usuário,
-  // ou buscar via GET /api/admin/users/:id/tenants. Enquanto isso, o banner
-  // abaixo deixa claro pro admin que os dados são exemplo.
-  const mockTenants: TenantMock[] = [
-    {
-      id: 'org_1', name: 'Acme Logística', subdominio: 'acme', status: 'Ativa', plano: 'Enterprise',
-      workspaces: [
-        { id: 'ws_1', nome: 'Acme SP', subdominio: 'acme-sp', status: 'Ativa', plano: 'Enterprise', perfil: 'Master' },
-        { id: 'ws_2', nome: 'Acme RJ', subdominio: 'acme-rj', status: 'Ativa', plano: 'Enterprise', perfil: 'Standard' }
-      ]
-    },
-    {
-      id: 'org_2', name: 'Global Commerce', subdominio: 'global', status: 'Ativa', plano: 'Pro',
-      workspaces: [
-        { id: 'ws_3', nome: 'Global Sul', subdominio: 'global-sul', status: 'Ativa', plano: 'Pro', perfil: 'Fornecedor' }
-      ]
-    }
-  ]
-
-  const COLUNAS_PAI: TabelaGlobalColuna<TenantMock>[] = [
-    {
-      key: 'name', label: t('comum.organizacao'), tipo: 'texto',
-      render: (_v, item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-          <div style={{ width: 30, height: 30, minWidth: 30, borderRadius: '8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6875rem', fontWeight: 700, color: '#6366f1' }}>
-            {item.name.charAt(0)}
-          </div>
-          <span style={{ fontWeight: 600 }}>{item.name}</span>
-        </div>
-      )
-    },
-    {
-      key: 'subdominio', label: t('workspace.workspaces.tabela.subdominio'), tipo: 'texto',
-      render: (_v, item) => (
-        <code style={{ fontSize: '0.8125rem', color: '#c7d2fe', background: 'rgba(199,210,254,0.1)', padding: '0.125rem 0.4rem', borderRadius: '4px' }}>
-          {item.subdominio}.gravity.com.br
-        </code>
-      )
-    },
-    {
-      key: 'status', label: t('comum.status'), tipo: 'texto',
-      render: (v) => <StatusBadgeGlobal valor={v as string} genero="masculino" />
-    },
-    {
-      key: 'plano', label: t('workspace.users.plano'), tipo: 'texto',
-      render: (v) => <span style={{ color: 'var(--ws-muted)' }}>{v as string}</span>
-    }
-  ]
-
-  const COLUNAS_FILHAS: TabelaGlobalColuna<WorkspaceMock>[] = [
-    {
-      key: 'nome', label: t('workspace.workspaces.titulo'), tipo: 'texto',
-      render: (_v, item) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ width: 24, height: 24, minWidth: 24, borderRadius: '6px', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.5625rem', fontWeight: 700, color: '#34d399' }}>
-            {item.nome.charAt(0)}
-          </div>
-          <span style={{ fontWeight: 500 }}>{item.nome}</span>
-        </div>
-      )
-    },
-    {
-      key: 'subdominio', label: t('workspace.workspaces.tabela.subdominio'), tipo: 'texto',
-      render: (_v, item) => (
-        <code style={{ fontSize: '0.8rem', color: '#a5b4fc', background: 'rgba(165,180,252,0.08)', padding: '0.1rem 0.35rem', borderRadius: '4px' }}>
-          {item.subdominio}.gravity.com.br
-        </code>
-      )
-    },
-    {
-      key: 'status', label: t('comum.status'), tipo: 'texto',
-      render: (v) => <StatusBadgeGlobal valor={v as string} genero="masculino" />
-    },
-    {
-      key: 'perfil', label: t('workspace.users.perfil_workspace'), tipo: 'texto',
-      render: (v) => (
-        <span style={{ color: '#818cf8', fontWeight: 600, fontSize: '0.8125rem' }}>{v as string}</span>
-      )
-    }
-  ]
-
+function AbaEspacosVazio() {
   return (
-    <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: '400px' }}>
-      <div
-        role="note"
-        style={{
-          padding: '0.75rem 1rem', borderRadius: '8px',
-          background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.25)',
-          fontSize: '0.75rem', color: '#fbbf24', fontWeight: 600,
-        }}
-      >
-        Dados de exemplo — integração com dados reais em desenvolvimento
-      </div>
-      <TabelaGlobal
-        dados={mockTenants}
-        colunas={COLUNAS_PAI}
-        colunasFilhas={COLUNAS_FILHAS}
-        filhos={item => item.workspaces}
-        idKey="id"
-        expandidosPadrao={['org_1', 'org_2']}
-        itensPorPagina={10}
-      />
+    <div style={{
+      padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem',
+      background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)',
+    }}>
+      Nenhum workspace ativo encontrado nesta organização.
     </div>
   )
+}
+
+function AbaEspacosMaster({ espacos }: { espacos: EspacoTrabalho[] }) {
+  return (
+    <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <div
+        role="note"
+        aria-label="Informação sobre acesso Master"
+        style={{
+          padding: '0.875rem 1rem', borderRadius: '8px',
+          background: 'rgba(129,140,248,0.06)', border: '1px solid rgba(129,140,248,0.25)',
+          fontSize: '0.8125rem', color: '#c7d2fe', fontWeight: 500,
+          display: 'flex', alignItems: 'center', gap: '0.625rem',
+        }}
+      >
+        <ShieldCheck size={16} weight="fill" style={{ color: '#818cf8', flexShrink: 0 }} />
+        Usuários Master têm acesso a todos os workspaces automaticamente. Para alterar, mude o tipo para Standard.
+      </div>
+      {espacos.length === 0 ? (
+        <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.8125rem' }}>
+          Nenhum workspace encontrado.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+          {espacos.map(e => (
+            <div key={e.id} style={{
+              padding: '0.5rem 0.75rem', borderRadius: '8px',
+              background: 'rgba(129,140,248,0.04)', border: '1px solid rgba(129,140,248,0.12)',
+              display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: 0.7,
+            }}>
+              <Buildings size={14} style={{ color: '#818cf8', flexShrink: 0 }} />
+              <span style={{ fontSize: '0.8125rem', color: '#c7d2fe' }}>{e.nome}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface AbaEspacosChecklistProps {
+  espacos: EspacoTrabalho[]
+  workspacesAtivos: string[]
+  onToggle: (id: string, checked: boolean) => void
+}
+
+function AbaEspacosChecklist({ espacos, workspacesAtivos, onToggle }: AbaEspacosChecklistProps) {
+  return (
+    <div style={{ padding: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+      {espacos.map(e => {
+        const ativo = workspacesAtivos.includes(e.id)
+        return (
+          <label
+            key={e.id}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.625rem',
+              padding: '0.5rem 0.75rem', borderRadius: '8px', cursor: 'pointer',
+              background: ativo ? 'rgba(129,140,248,0.08)' : 'rgba(255,255,255,0.02)',
+              border: `1px solid ${ativo ? 'rgba(129,140,248,0.25)' : 'rgba(255,255,255,0.06)'}`,
+              transition: 'all 0.15s', userSelect: 'none',
+            }}
+          >
+            <div style={{
+              width: 18, height: 18, borderRadius: '4px', flexShrink: 0,
+              background: ativo ? 'rgba(129,140,248,0.2)' : 'transparent',
+              border: `2px solid ${ativo ? '#818cf8' : 'rgba(255,255,255,0.2)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s',
+            }}>
+              {ativo && <span style={{ color: '#818cf8', fontSize: '11px', lineHeight: 1, fontWeight: 700 }}>✓</span>}
+            </div>
+            <input type="checkbox" checked={ativo} onChange={ev => onToggle(e.id, ev.target.checked)} style={{ display: 'none' }} />
+            <Buildings size={14} style={{ color: ativo ? '#818cf8' : 'var(--ws-muted)', flexShrink: 0 }} />
+            <span style={{ fontSize: '0.8125rem', color: ativo ? 'var(--ws-text)' : 'var(--ws-muted)', fontWeight: ativo ? 600 : 400 }}>
+              {e.nome}
+            </span>
+          </label>
+        )
+      })}
+    </div>
+  )
+}
+
+interface AbaEspacosProps {
+  isMaster: boolean
+  espacos: EspacoTrabalho[]
+  workspacesAtivos: string[]
+  carregando: boolean
+  onToggle: (id: string, checked: boolean) => void
+}
+
+function AbaEspacos({ isMaster, espacos, workspacesAtivos, carregando, onToggle }: AbaEspacosProps) {
+  if (carregando) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--ws-muted)', fontSize: '0.875rem' }}>
+        Carregando workspaces...
+      </div>
+    )
+  }
+  if (isMaster) return <AbaEspacosMaster espacos={espacos} />
+  if (espacos.length === 0) return <AbaEspacosVazio />
+  return <AbaEspacosChecklist espacos={espacos} workspacesAtivos={workspacesAtivos} onToggle={onToggle} />
 }
 
 interface AbaPermissoesProps {
@@ -357,26 +342,27 @@ function AbaPermissoes({ master, valores, onToggle, onSelecionarTudo }: AbaPermi
   )
 }
 
-export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
+export function ModalEditarUsuario({ usuario, abaInicial = 'dados', espacos, workspacesSalvos, carregandoEspacos = false, aoFechar, aoSalvar }: ModalEditarUsuarioProps) {
   const { t } = useTranslation()
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [tipo, setTipo] = useState<NivelAcesso>('Standard')
   const [permissoesAtivas, setPermissoesAtivas] = useState<string[]>([])
+  const [workspacesAtivos, setWorkspacesAtivos] = useState<string[]>([])
 
   useEffect(() => {
     if (usuario) {
       setNome(usuario.nome)
       setEmail(usuario.email)
       setTipo(usuario.tipo)
-      // mocks:
+      setWorkspacesAtivos(workspacesSalvos)
       if (usuario.tipo === 'Master') {
          setPermissoesAtivas(CATEGORIAS_PERMISSAO.flatMap(c => c.itens.map(i => i.id)))
       } else {
          setPermissoesAtivas(['nav_dash', 'vis_basico'])
       }
     }
-  }, [usuario])
+  }, [usuario, workspacesSalvos])
 
   const handleValoresChange = (campo: 'nome' | 'email' | 'tipo', valor: string) => {
     if (campo === 'nome') setNome(valor)
@@ -394,6 +380,10 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
     } else {
       setPermissoesAtivas([])
     }
+  }
+
+  const handleToggleWorkspace = (id: string, checked: boolean) => {
+    setWorkspacesAtivos(prev => checked ? [...prev, id] : prev.filter(w => w !== id))
   }
 
   const countPermissoes = tipo === 'Master' ? TOTAL_PERMISSOES_DISPONIVEIS : permissoesAtivas.length
@@ -415,9 +405,17 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
       id: 'espacos',
       rotulo: t('workspace.users.aba_espacos'),
       icone: 'buildings',
-      conteudo: <AbaEspacos />
+      conteudo: (
+        <AbaEspacos
+          isMaster={tipo === 'Master'}
+          espacos={espacos}
+          workspacesAtivos={workspacesAtivos}
+          carregando={carregandoEspacos}
+          onToggle={handleToggleWorkspace}
+        />
+      ),
     }
-  ], [nome, email, tipo, permissoesAtivas, countPermissoes])
+  ], [nome, email, tipo, permissoesAtivas, countPermissoes, workspacesAtivos, espacos, carregandoEspacos])
 
   const originalPerms = useMemo(() => {
     if (!usuario) return []
@@ -432,13 +430,16 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
     email !== usuario.email ||
     tipo !== usuario.tipo ||
     permissoesAtivas.length !== originalPerms.length ||
-    permissoesAtivas.some(p => !originalPerms.includes(p))
+    permissoesAtivas.some(p => !originalPerms.includes(p)) ||
+    (tipo !== 'Master' && (
+      workspacesAtivos.length !== workspacesSalvos.length ||
+      workspacesAtivos.some(id => !workspacesSalvos.includes(id))
+    ))
   )
-
 
   const handleSalvar = () => {
     if (!usuario) return
-    aoSalvar({ ...usuario, nome, email, tipo }, permissoesAtivas)
+    aoSalvar({ ...usuario, nome, email, tipo }, permissoesAtivas, workspacesAtivos)
   }
 
   return (
@@ -455,7 +456,7 @@ export function ModalEditarUsuario({ usuario, abaInicial = 'dados', aoFechar, ao
       abaAtivaInicial={abaInicial}
       abas={abas}
       dirty={!!dirty}
-      podesSalvar={!!nome && !!email}
+      podesSalvar={!!nome && !!email && (tipo === 'Master' || workspacesAtivos.length > 0)}
     />
   )
 }

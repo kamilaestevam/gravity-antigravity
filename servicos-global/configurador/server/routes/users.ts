@@ -37,6 +37,15 @@ const MembershipSchema = z.object({
   role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']).default('STANDARD'),
 })
 
+export const UpdateWorkspacesSchema = z.object({
+  workspaces: z
+    .array(z.string().cuid())
+    .min(1, 'Selecione pelo menos um workspace')
+    .refine((ids) => new Set(ids).size === ids.length, {
+      message: 'Workspaces duplicados não são permitidos',
+    }),
+})
+
 // ─── Rotas ──────────────────────────────────────────────────────────────────
 
 /**
@@ -223,6 +232,93 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
     })
 
     res.status(201).json({ membership })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// ─── Helpers privados para PUT /:id/workspaces ──────────────────────────────
+
+async function validarWorkspacesDoTenant(
+  tenantId: string,
+  workspaceIds: string[],
+): Promise<void> {
+  const empresas = await prisma.empresa.findMany({
+    where: { id: { in: workspaceIds }, tenant_id: tenantId, status: 'ACTIVE' },
+    select: { id: true },
+  })
+  if (empresas.length !== workspaceIds.length) {
+    throw new AppError(
+      'Um ou mais workspaces não pertencem a esta organização',
+      403,
+      'FORBIDDEN',
+    )
+  }
+}
+
+async function substituirWorkspacesAtomicamente(
+  tenantId: string,
+  userId: string,
+  workspaceIds: string[],
+  role: string,
+): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    await tx.usuarioWorkspace.deleteMany({ where: { tenant_id: tenantId, user_id: userId } })
+    await tx.usuarioWorkspace.createMany({
+      data: workspaceIds.map((companyId) => ({
+        tenant_id: tenantId,
+        user_id: userId,
+        company_id: companyId,
+        role,
+        is_active: true,
+      })),
+      skipDuplicates: true,
+    })
+  })
+}
+
+/**
+ * PUT /api/v1/usuarios/:id/workspaces
+ * Substitui atomicamente os workspaces vinculados a um usuário STANDARD/SUPPLIER
+ */
+usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => {
+  try {
+    const parsed = UpdateWorkspacesSchema.safeParse(req.body)
+    if (!parsed.success) {
+      throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
+    }
+
+    const { workspaces: workspaceIds } = parsed.data
+    const userId = req.params.id
+
+    const user = await prisma.usuario.findFirst({
+      where: { id: userId, tenant_id: req.auth.tenantId },
+      select: { id: true, role: true },
+    })
+    if (!user) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
+    if (user.role === 'MASTER') {
+      throw new AppError('Usuário Master tem acesso a todos os workspaces automaticamente', 400, 'INVALID_OPERATION')
+    }
+
+    await validarWorkspacesDoTenant(req.auth.tenantId, workspaceIds)
+
+    const antesIds = await prisma.usuarioWorkspace
+      .findMany({ where: { tenant_id: req.auth.tenantId, user_id: userId }, select: { company_id: true } })
+      .then((ws) => ws.map((w) => w.company_id))
+
+    await substituirWorkspacesAtomicamente(req.auth.tenantId, userId, workspaceIds, user.role)
+
+    const adicionados = workspaceIds.filter((id) => !antesIds.includes(id))
+    const removidos = antesIds.filter((id) => !workspaceIds.includes(id))
+    if (adicionados.length > 0 || removidos.length > 0) {
+      securityAudit.permissionChanged(req.auth.tenantId, req.auth.userId, {
+        targetUserId: userId,
+        permission: 'workspace_access',
+        action: adicionados.length > 0 ? 'GRANTED' : 'REVOKED',
+      }).catch(() => {})
+    }
+
+    res.json({ workspaces: workspaceIds })
   } catch (err) {
     next(err)
   }

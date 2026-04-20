@@ -3,7 +3,6 @@
 
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
-import { clerkClient } from '../lib/clerk.js'
 
 
 interface CreateTenantInput {
@@ -72,17 +71,12 @@ export const tenantService = {
       })
 
       // Cria primeira company automaticamente com o nome da organização
-      await tx.workspace.create({
+      await tx.empresa.create({
         data: {
           tenant_id: newTenant.id,
           name,
           status: 'ACTIVE',
         },
-      })
-
-      // Sincroniza role no Clerk para o frontend ler corretamente
-      await clerkClient.users.updateUserMetadata(clerkUserId, {
-        publicMetadata: { role: 'MASTER', tenantId: newTenant.id },
       })
 
       return newTenant
@@ -129,7 +123,7 @@ export const tenantService = {
    * Lista empresas filhas do tenant
    */
   async getCompanies(tenantId: string) {
-    return prisma.workspace.findMany({
+    return prisma.empresa.findMany({
       where: { tenant_id: tenantId },
       select: {
         id: true,
@@ -148,7 +142,7 @@ export const tenantService = {
    * Cria empresa filha no tenant
    */
   async createCompany(tenantId: string, data: CreateCompanyInput) {
-    return prisma.workspace.create({
+    return prisma.empresa.create({
       data: {
         tenant_id: tenantId,
         name: data.name,
@@ -168,13 +162,13 @@ export const tenantService = {
     cnpj?: string
     status?: 'ACTIVE' | 'INACTIVE'
   }) {
-    const company = await prisma.workspace.findFirst({
+    const company = await prisma.empresa.findFirst({
       where: { id: companyId, tenant_id: tenantId },
     })
     if (!company) {
       throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
     }
-    return prisma.workspace.update({
+    return prisma.empresa.update({
       where: { id: companyId },
       data,
     })
@@ -184,12 +178,12 @@ export const tenantService = {
    * Deleta empresa filha (verifica que pertence ao tenant)
    */
   async deleteCompany(tenantId: string, companyId: string) {
-    const company = await prisma.workspace.findFirst({
+    const company = await prisma.empresa.findFirst({
       where: { id: companyId, tenant_id: tenantId },
     })
     if (!company) {
       throw new AppError('Empresa não encontrada', 404, 'NOT_FOUND')
     }
-    await prisma.workspace.delete({ where: { id: companyId } })
+    await prisma.empresa.delete({ where: { id: companyId } })
   },
 }

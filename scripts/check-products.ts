@@ -12,7 +12,7 @@ async function main() {
     console.log(`  ${p.name} | slug=${p.slug} | status=${p.status} | module=${p.backend_module}`)
   }
 
-  const configs = await prisma.productConfig.findMany({
+  const configs = await prisma.configuracaoProduto.findMany({
     select: { tenant_id: true, product_key: true, is_active: true },
   })
   console.log(`\n[check] ProductConfigs: ${configs.length}`)

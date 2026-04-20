@@ -88,8 +88,8 @@ model Organizacao {
   users                   Usuario[]
   subscriptions           AssinaturaProdutoGravity[]
   user_permissions        UsuarioPermissao[]
-  companies               Workspace[]
-  product_configs         ProductConfig[]
+  companies               Empresa[]
+  product_configs         ConfiguracaoProduto[]
   ProdutoGravityWorkspace ProdutoGravityWorkspace[]
 
   @@index([status])
@@ -121,7 +121,7 @@ model Usuario {
 
   // Relações
   tenant            Organizacao        @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  preferred_company Workspace?         @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id], onDelete: SetNull)
+  preferred_company Empresa?           @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id], onDelete: SetNull)
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
 
@@ -207,7 +207,7 @@ model UsuarioPermissao {
 // Super Admin não usa esta tabela — tem acesso irrestrito.
 // ---------------------------------------------------------------------------
 
-model GravityAdminPermission {
+model PermissaoAdminGravity {
   id         String @id @default(cuid())
   admin_id   String // clerk_id do Admin Gravity
   resource   String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
@@ -232,7 +232,7 @@ model GravityAdminPermission {
 // Um tenant pode ter até 50 empresas filhas.
 // ---------------------------------------------------------------------------
 
-model Workspace {
+model Empresa {
   id        String        @id @default(cuid())
   tenant_id String
   name      String
@@ -277,7 +277,7 @@ model UsuarioWorkspace {
 
   // Relações
   user    Usuario   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  company Workspace @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  company Empresa @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   // Usuário não pode ter duplicata de habilitação na mesma empresa
   @@unique([tenant_id, user_id, company_id])
@@ -294,7 +294,7 @@ model UsuarioWorkspace {
 // product_key identifica o produto (ex: "simulacusto", "nf-importacao")
 // ---------------------------------------------------------------------------
 
-model ProductConfig {
+model ConfiguracaoProduto {
   id          String  @id @default(cuid())
   tenant_id   String
   product_key String
@@ -335,7 +335,7 @@ model ProdutoGravityWorkspace {
 
   // Relações
   tenant  Organizacao @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  company Workspace   @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  company Empresa     @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   // Apenas uma ativação por produto por workspace
   @@unique([company_id, product_key])
@@ -424,8 +424,8 @@ model ProdutoGravity {
   deleted_at DateTime? // soft-delete — preserva negociações especiais
 
   // Relations
-  price_tiers  PriceTier[]
-  negotiations SpecialNegotiation[]
+  price_tiers  FaixaPreco[]
+  negotiations NegociacaoEspecial[]
 
   @@index([status])
   @@index([slug])
@@ -438,7 +438,7 @@ model ProdutoGravity {
 // Precificação escalonada — preço varia conforme quantidade.
 // ---------------------------------------------------------------------------
 
-model PriceTier {
+model FaixaPreco {
   id         String  @id @default(cuid())
   product_id String
   range_from Int
@@ -462,7 +462,7 @@ model PriceTier {
 // Condições comerciais personalizadas para tenants específicos.
 // ---------------------------------------------------------------------------
 
-model SpecialNegotiation {
+model NegociacaoEspecial {
   id           String    @id @default(cuid())
   product_id   String
   tenant_id    String
@@ -689,7 +689,7 @@ model Testes {
   @@map("testes")
 }
 
-model TestSchedule {
+model AgendamentoTeste {
   id           String    @id @default(cuid())
   tenant_id    String    @default("platform")
   ativo        Boolean   @default(false)
@@ -711,7 +711,7 @@ model TestSchedule {
   @@map("agendamento_teste")
 }
 
-model TestPlan {
+model PlanoTeste {
   id               String    @id // TST-E2E-CONFIG-000001
   tenant_id        String    @default("platform")
   versao           String    @default("1.0")

@@ -148,7 +148,7 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
     }
 
     // Garante que a empresa filha pertence ao mesmo tenant
-    const company = await prisma.workspace.findFirst({
+    const company = await prisma.empresa.findFirst({
       where: { id: companyId, tenant_id: req.auth.tenantId },
     })
     if (!company) {

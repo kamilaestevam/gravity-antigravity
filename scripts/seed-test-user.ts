@@ -129,7 +129,7 @@ async function main() {
   console.log('Produto SimulaCusto:', simulaCusto.id)
 
   // 6. Cria ProductConfig (tenant contrata o produto)
-  const productConfig = await prisma.productConfig.upsert({
+  const productConfig = await prisma.configuracaoProduto.upsert({
     where: {
       tenant_id_product_key: {
         tenant_id: tenant.id,

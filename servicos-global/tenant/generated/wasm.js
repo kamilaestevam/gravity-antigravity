@@ -513,7 +513,7 @@ exports.Prisma.HistoricoLogScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.AlertRuleScalarFieldEnum = {
+exports.Prisma.RegraAlertaScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   name: 'name',
@@ -535,7 +535,7 @@ exports.Prisma.AlertRuleScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.AlertEventScalarFieldEnum = {
+exports.Prisma.EventoAlertaScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   rule_id: 'rule_id',
@@ -554,7 +554,7 @@ exports.Prisma.AlertEventScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.AlertNotificationLogScalarFieldEnum = {
+exports.Prisma.RegistroNotificacaoAlertaScalarFieldEnum = {
   id: 'id',
   alert_event_id: 'alert_event_id',
   channel: 'channel',
@@ -700,7 +700,7 @@ exports.Prisma.PersonalizacaoOrganizacaoGabiaiScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.UserPreferencesScalarFieldEnum = {
+exports.Prisma.PreferenciasUsuarioScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
   tenant_id: 'tenant_id',
@@ -774,7 +774,7 @@ exports.Prisma.NotificacoesTituloCorpoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ExternalContactScalarFieldEnum = {
+exports.Prisma.ContatoExternoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   created_by: 'created_by',
@@ -787,7 +787,7 @@ exports.Prisma.ExternalContactScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.TenantChannelConfigScalarFieldEnum = {
+exports.Prisma.ConfiguracaoCanalTenantScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   email_enabled: 'email_enabled',
@@ -941,9 +941,9 @@ exports.Prisma.ModelName = {
   RelatoriosConfiguracao: 'RelatoriosConfiguracao',
   ExportarJob: 'ExportarJob',
   HistoricoLog: 'HistoricoLog',
-  AlertRule: 'AlertRule',
-  AlertEvent: 'AlertEvent',
-  AlertNotificationLog: 'AlertNotificationLog',
+  RegraAlerta: 'RegraAlerta',
+  EventoAlerta: 'EventoAlerta',
+  RegistroNotificacaoAlerta: 'RegistroNotificacaoAlerta',
   ExportarResultado: 'ExportarResultado',
   Agenda: 'Agenda',
   Slot: 'Slot',
@@ -955,13 +955,13 @@ exports.Prisma.ModelName = {
   GabiaTokenConsumidos: 'GabiaTokenConsumidos',
   GabiaTokenWorkspace: 'GabiaTokenWorkspace',
   PersonalizacaoOrganizacaoGabiai: 'PersonalizacaoOrganizacaoGabiai',
-  UserPreferences: 'UserPreferences',
+  PreferenciasUsuario: 'PreferenciasUsuario',
   NcmItem: 'NcmItem',
   NcmSyncLog: 'NcmSyncLog',
   NcmScheduleConfig: 'NcmScheduleConfig',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
-  ExternalContact: 'ExternalContact',
-  TenantChannelConfig: 'TenantChannelConfig'
+  ContatoExterno: 'ContatoExterno',
+  ConfiguracaoCanalTenant: 'ConfiguracaoCanalTenant'
 };
 
 /**

@@ -34,25 +34,25 @@ export type AssinaturaProdutoGravity = $Result.DefaultSelection<Prisma.$Assinatu
  */
 export type UsuarioPermissao = $Result.DefaultSelection<Prisma.$UsuarioPermissaoPayload>
 /**
- * Model GravityAdminPermission
+ * Model PermissaoAdminGravity
  * 
  */
-export type GravityAdminPermission = $Result.DefaultSelection<Prisma.$GravityAdminPermissionPayload>
+export type PermissaoAdminGravity = $Result.DefaultSelection<Prisma.$PermissaoAdminGravityPayload>
 /**
- * Model Workspace
+ * Model Empresa
  * 
  */
-export type Workspace = $Result.DefaultSelection<Prisma.$WorkspacePayload>
+export type Empresa = $Result.DefaultSelection<Prisma.$EmpresaPayload>
 /**
  * Model UsuarioWorkspace
  * 
  */
 export type UsuarioWorkspace = $Result.DefaultSelection<Prisma.$UsuarioWorkspacePayload>
 /**
- * Model ProductConfig
+ * Model ConfiguracaoProduto
  * 
  */
-export type ProductConfig = $Result.DefaultSelection<Prisma.$ProductConfigPayload>
+export type ConfiguracaoProduto = $Result.DefaultSelection<Prisma.$ConfiguracaoProdutoPayload>
 /**
  * Model ProdutoGravityWorkspace
  * 
@@ -64,15 +64,15 @@ export type ProdutoGravityWorkspace = $Result.DefaultSelection<Prisma.$ProdutoGr
  */
 export type ProdutoGravity = $Result.DefaultSelection<Prisma.$ProdutoGravityPayload>
 /**
- * Model PriceTier
+ * Model FaixaPreco
  * 
  */
-export type PriceTier = $Result.DefaultSelection<Prisma.$PriceTierPayload>
+export type FaixaPreco = $Result.DefaultSelection<Prisma.$FaixaPrecoPayload>
 /**
- * Model SpecialNegotiation
+ * Model NegociacaoEspecial
  * 
  */
-export type SpecialNegotiation = $Result.DefaultSelection<Prisma.$SpecialNegotiationPayload>
+export type NegociacaoEspecial = $Result.DefaultSelection<Prisma.$NegociacaoEspecialPayload>
 /**
  * Model Deploy
  * 
@@ -109,15 +109,15 @@ export type Cambio = $Result.DefaultSelection<Prisma.$CambioPayload>
  */
 export type Testes = $Result.DefaultSelection<Prisma.$TestesPayload>
 /**
- * Model TestSchedule
+ * Model AgendamentoTeste
  * 
  */
-export type TestSchedule = $Result.DefaultSelection<Prisma.$TestSchedulePayload>
+export type AgendamentoTeste = $Result.DefaultSelection<Prisma.$AgendamentoTestePayload>
 /**
- * Model TestPlan
+ * Model PlanoTeste
  * 
  */
-export type TestPlan = $Result.DefaultSelection<Prisma.$TestPlanPayload>
+export type PlanoTeste = $Result.DefaultSelection<Prisma.$PlanoTestePayload>
 /**
  * Model FaturaProdutosGravity
  * 
@@ -457,24 +457,24 @@ export class PrismaClient<
   get usuarioPermissao(): Prisma.UsuarioPermissaoDelegate<ExtArgs>;
 
   /**
-   * `prisma.gravityAdminPermission`: Exposes CRUD operations for the **GravityAdminPermission** model.
+   * `prisma.permissaoAdminGravity`: Exposes CRUD operations for the **PermissaoAdminGravity** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more GravityAdminPermissions
-    * const gravityAdminPermissions = await prisma.gravityAdminPermission.findMany()
+    * // Fetch zero or more PermissaoAdminGravities
+    * const permissaoAdminGravities = await prisma.permissaoAdminGravity.findMany()
     * ```
     */
-  get gravityAdminPermission(): Prisma.GravityAdminPermissionDelegate<ExtArgs>;
+  get permissaoAdminGravity(): Prisma.PermissaoAdminGravityDelegate<ExtArgs>;
 
   /**
-   * `prisma.workspace`: Exposes CRUD operations for the **Workspace** model.
+   * `prisma.empresa`: Exposes CRUD operations for the **Empresa** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Workspaces
-    * const workspaces = await prisma.workspace.findMany()
+    * // Fetch zero or more Empresas
+    * const empresas = await prisma.empresa.findMany()
     * ```
     */
-  get workspace(): Prisma.WorkspaceDelegate<ExtArgs>;
+  get empresa(): Prisma.EmpresaDelegate<ExtArgs>;
 
   /**
    * `prisma.usuarioWorkspace`: Exposes CRUD operations for the **UsuarioWorkspace** model.
@@ -487,14 +487,14 @@ export class PrismaClient<
   get usuarioWorkspace(): Prisma.UsuarioWorkspaceDelegate<ExtArgs>;
 
   /**
-   * `prisma.productConfig`: Exposes CRUD operations for the **ProductConfig** model.
+   * `prisma.configuracaoProduto`: Exposes CRUD operations for the **ConfiguracaoProduto** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ProductConfigs
-    * const productConfigs = await prisma.productConfig.findMany()
+    * // Fetch zero or more ConfiguracaoProdutos
+    * const configuracaoProdutos = await prisma.configuracaoProduto.findMany()
     * ```
     */
-  get productConfig(): Prisma.ProductConfigDelegate<ExtArgs>;
+  get configuracaoProduto(): Prisma.ConfiguracaoProdutoDelegate<ExtArgs>;
 
   /**
    * `prisma.produtoGravityWorkspace`: Exposes CRUD operations for the **ProdutoGravityWorkspace** model.
@@ -517,24 +517,24 @@ export class PrismaClient<
   get produtoGravity(): Prisma.ProdutoGravityDelegate<ExtArgs>;
 
   /**
-   * `prisma.priceTier`: Exposes CRUD operations for the **PriceTier** model.
+   * `prisma.faixaPreco`: Exposes CRUD operations for the **FaixaPreco** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more PriceTiers
-    * const priceTiers = await prisma.priceTier.findMany()
+    * // Fetch zero or more FaixaPrecos
+    * const faixaPrecos = await prisma.faixaPreco.findMany()
     * ```
     */
-  get priceTier(): Prisma.PriceTierDelegate<ExtArgs>;
+  get faixaPreco(): Prisma.FaixaPrecoDelegate<ExtArgs>;
 
   /**
-   * `prisma.specialNegotiation`: Exposes CRUD operations for the **SpecialNegotiation** model.
+   * `prisma.negociacaoEspecial`: Exposes CRUD operations for the **NegociacaoEspecial** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more SpecialNegotiations
-    * const specialNegotiations = await prisma.specialNegotiation.findMany()
+    * // Fetch zero or more NegociacaoEspecials
+    * const negociacaoEspecials = await prisma.negociacaoEspecial.findMany()
     * ```
     */
-  get specialNegotiation(): Prisma.SpecialNegotiationDelegate<ExtArgs>;
+  get negociacaoEspecial(): Prisma.NegociacaoEspecialDelegate<ExtArgs>;
 
   /**
    * `prisma.deploy`: Exposes CRUD operations for the **Deploy** model.
@@ -607,24 +607,24 @@ export class PrismaClient<
   get testes(): Prisma.TestesDelegate<ExtArgs>;
 
   /**
-   * `prisma.testSchedule`: Exposes CRUD operations for the **TestSchedule** model.
+   * `prisma.agendamentoTeste`: Exposes CRUD operations for the **AgendamentoTeste** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more TestSchedules
-    * const testSchedules = await prisma.testSchedule.findMany()
+    * // Fetch zero or more AgendamentoTestes
+    * const agendamentoTestes = await prisma.agendamentoTeste.findMany()
     * ```
     */
-  get testSchedule(): Prisma.TestScheduleDelegate<ExtArgs>;
+  get agendamentoTeste(): Prisma.AgendamentoTesteDelegate<ExtArgs>;
 
   /**
-   * `prisma.testPlan`: Exposes CRUD operations for the **TestPlan** model.
+   * `prisma.planoTeste`: Exposes CRUD operations for the **PlanoTeste** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more TestPlans
-    * const testPlans = await prisma.testPlan.findMany()
+    * // Fetch zero or more PlanoTestes
+    * const planoTestes = await prisma.planoTeste.findMany()
     * ```
     */
-  get testPlan(): Prisma.TestPlanDelegate<ExtArgs>;
+  get planoTeste(): Prisma.PlanoTesteDelegate<ExtArgs>;
 
   /**
    * `prisma.faturaProdutosGravity`: Exposes CRUD operations for the **FaturaProdutosGravity** model.
@@ -1090,14 +1090,14 @@ export namespace Prisma {
     Usuario: 'Usuario',
     AssinaturaProdutoGravity: 'AssinaturaProdutoGravity',
     UsuarioPermissao: 'UsuarioPermissao',
-    GravityAdminPermission: 'GravityAdminPermission',
-    Workspace: 'Workspace',
+    PermissaoAdminGravity: 'PermissaoAdminGravity',
+    Empresa: 'Empresa',
     UsuarioWorkspace: 'UsuarioWorkspace',
-    ProductConfig: 'ProductConfig',
+    ConfiguracaoProduto: 'ConfiguracaoProduto',
     ProdutoGravityWorkspace: 'ProdutoGravityWorkspace',
     ProdutoGravity: 'ProdutoGravity',
-    PriceTier: 'PriceTier',
-    SpecialNegotiation: 'SpecialNegotiation',
+    FaixaPreco: 'FaixaPreco',
+    NegociacaoEspecial: 'NegociacaoEspecial',
     Deploy: 'Deploy',
     FornecedorOrganizacao: 'FornecedorOrganizacao',
     Seguranca: 'Seguranca',
@@ -1105,8 +1105,8 @@ export namespace Prisma {
     Servicos: 'Servicos',
     Cambio: 'Cambio',
     Testes: 'Testes',
-    TestSchedule: 'TestSchedule',
-    TestPlan: 'TestPlan',
+    AgendamentoTeste: 'AgendamentoTeste',
+    PlanoTeste: 'PlanoTeste',
     FaturaProdutosGravity: 'FaturaProdutosGravity',
     MetricasGemini: 'MetricasGemini'
   };
@@ -1124,7 +1124,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "organizacao" | "usuario" | "assinaturaProdutoGravity" | "usuarioPermissao" | "gravityAdminPermission" | "workspace" | "usuarioWorkspace" | "productConfig" | "produtoGravityWorkspace" | "produtoGravity" | "priceTier" | "specialNegotiation" | "deploy" | "fornecedorOrganizacao" | "seguranca" | "requisicoes" | "servicos" | "cambio" | "testes" | "testSchedule" | "testPlan" | "faturaProdutosGravity" | "metricasGemini"
+      modelProps: "organizacao" | "usuario" | "assinaturaProdutoGravity" | "usuarioPermissao" | "permissaoAdminGravity" | "empresa" | "usuarioWorkspace" | "configuracaoProduto" | "produtoGravityWorkspace" | "produtoGravity" | "faixaPreco" | "negociacaoEspecial" | "deploy" | "fornecedorOrganizacao" | "seguranca" | "requisicoes" | "servicos" | "cambio" | "testes" | "agendamentoTeste" | "planoTeste" | "faturaProdutosGravity" | "metricasGemini"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1408,143 +1408,143 @@ export namespace Prisma {
           }
         }
       }
-      GravityAdminPermission: {
-        payload: Prisma.$GravityAdminPermissionPayload<ExtArgs>
-        fields: Prisma.GravityAdminPermissionFieldRefs
+      PermissaoAdminGravity: {
+        payload: Prisma.$PermissaoAdminGravityPayload<ExtArgs>
+        fields: Prisma.PermissaoAdminGravityFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.GravityAdminPermissionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload> | null
+            args: Prisma.PermissaoAdminGravityFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.GravityAdminPermissionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload>
+            args: Prisma.PermissaoAdminGravityFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
           }
           findFirst: {
-            args: Prisma.GravityAdminPermissionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload> | null
+            args: Prisma.PermissaoAdminGravityFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.GravityAdminPermissionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload>
+            args: Prisma.PermissaoAdminGravityFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
           }
           findMany: {
-            args: Prisma.GravityAdminPermissionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload>[]
+            args: Prisma.PermissaoAdminGravityFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>[]
           }
           create: {
-            args: Prisma.GravityAdminPermissionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload>
+            args: Prisma.PermissaoAdminGravityCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
           }
           createMany: {
-            args: Prisma.GravityAdminPermissionCreateManyArgs<ExtArgs>
+            args: Prisma.PermissaoAdminGravityCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.GravityAdminPermissionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload>[]
+            args: Prisma.PermissaoAdminGravityCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>[]
           }
           delete: {
-            args: Prisma.GravityAdminPermissionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload>
+            args: Prisma.PermissaoAdminGravityDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
           }
           update: {
-            args: Prisma.GravityAdminPermissionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload>
+            args: Prisma.PermissaoAdminGravityUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
           }
           deleteMany: {
-            args: Prisma.GravityAdminPermissionDeleteManyArgs<ExtArgs>
+            args: Prisma.PermissaoAdminGravityDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.GravityAdminPermissionUpdateManyArgs<ExtArgs>
+            args: Prisma.PermissaoAdminGravityUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.GravityAdminPermissionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$GravityAdminPermissionPayload>
+            args: Prisma.PermissaoAdminGravityUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PermissaoAdminGravityPayload>
           }
           aggregate: {
-            args: Prisma.GravityAdminPermissionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateGravityAdminPermission>
+            args: Prisma.PermissaoAdminGravityAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePermissaoAdminGravity>
           }
           groupBy: {
-            args: Prisma.GravityAdminPermissionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<GravityAdminPermissionGroupByOutputType>[]
+            args: Prisma.PermissaoAdminGravityGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PermissaoAdminGravityGroupByOutputType>[]
           }
           count: {
-            args: Prisma.GravityAdminPermissionCountArgs<ExtArgs>
-            result: $Utils.Optional<GravityAdminPermissionCountAggregateOutputType> | number
+            args: Prisma.PermissaoAdminGravityCountArgs<ExtArgs>
+            result: $Utils.Optional<PermissaoAdminGravityCountAggregateOutputType> | number
           }
         }
       }
-      Workspace: {
-        payload: Prisma.$WorkspacePayload<ExtArgs>
-        fields: Prisma.WorkspaceFieldRefs
+      Empresa: {
+        payload: Prisma.$EmpresaPayload<ExtArgs>
+        fields: Prisma.EmpresaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.WorkspaceFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload> | null
+            args: Prisma.EmpresaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.WorkspaceFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
+            args: Prisma.EmpresaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
           }
           findFirst: {
-            args: Prisma.WorkspaceFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload> | null
+            args: Prisma.EmpresaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.WorkspaceFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
+            args: Prisma.EmpresaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
           }
           findMany: {
-            args: Prisma.WorkspaceFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>[]
+            args: Prisma.EmpresaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
           }
           create: {
-            args: Prisma.WorkspaceCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
+            args: Prisma.EmpresaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
           }
           createMany: {
-            args: Prisma.WorkspaceCreateManyArgs<ExtArgs>
+            args: Prisma.EmpresaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.WorkspaceCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>[]
+            args: Prisma.EmpresaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>[]
           }
           delete: {
-            args: Prisma.WorkspaceDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
+            args: Prisma.EmpresaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
           }
           update: {
-            args: Prisma.WorkspaceUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
+            args: Prisma.EmpresaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
           }
           deleteMany: {
-            args: Prisma.WorkspaceDeleteManyArgs<ExtArgs>
+            args: Prisma.EmpresaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.WorkspaceUpdateManyArgs<ExtArgs>
+            args: Prisma.EmpresaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.WorkspaceUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$WorkspacePayload>
+            args: Prisma.EmpresaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmpresaPayload>
           }
           aggregate: {
-            args: Prisma.WorkspaceAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateWorkspace>
+            args: Prisma.EmpresaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmpresa>
           }
           groupBy: {
-            args: Prisma.WorkspaceGroupByArgs<ExtArgs>
-            result: $Utils.Optional<WorkspaceGroupByOutputType>[]
+            args: Prisma.EmpresaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmpresaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.WorkspaceCountArgs<ExtArgs>
-            result: $Utils.Optional<WorkspaceCountAggregateOutputType> | number
+            args: Prisma.EmpresaCountArgs<ExtArgs>
+            result: $Utils.Optional<EmpresaCountAggregateOutputType> | number
           }
         }
       }
@@ -1618,73 +1618,73 @@ export namespace Prisma {
           }
         }
       }
-      ProductConfig: {
-        payload: Prisma.$ProductConfigPayload<ExtArgs>
-        fields: Prisma.ProductConfigFieldRefs
+      ConfiguracaoProduto: {
+        payload: Prisma.$ConfiguracaoProdutoPayload<ExtArgs>
+        fields: Prisma.ConfiguracaoProdutoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ProductConfigFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload> | null
+            args: Prisma.ConfiguracaoProdutoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ProductConfigFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload>
+            args: Prisma.ConfiguracaoProdutoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
           }
           findFirst: {
-            args: Prisma.ProductConfigFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload> | null
+            args: Prisma.ConfiguracaoProdutoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ProductConfigFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload>
+            args: Prisma.ConfiguracaoProdutoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
           }
           findMany: {
-            args: Prisma.ProductConfigFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload>[]
+            args: Prisma.ConfiguracaoProdutoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>[]
           }
           create: {
-            args: Prisma.ProductConfigCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload>
+            args: Prisma.ConfiguracaoProdutoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
           }
           createMany: {
-            args: Prisma.ProductConfigCreateManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoProdutoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ProductConfigCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload>[]
+            args: Prisma.ConfiguracaoProdutoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>[]
           }
           delete: {
-            args: Prisma.ProductConfigDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload>
+            args: Prisma.ConfiguracaoProdutoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
           }
           update: {
-            args: Prisma.ProductConfigUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload>
+            args: Prisma.ConfiguracaoProdutoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
           }
           deleteMany: {
-            args: Prisma.ProductConfigDeleteManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoProdutoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ProductConfigUpdateManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoProdutoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ProductConfigUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ProductConfigPayload>
+            args: Prisma.ConfiguracaoProdutoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoProdutoPayload>
           }
           aggregate: {
-            args: Prisma.ProductConfigAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateProductConfig>
+            args: Prisma.ConfiguracaoProdutoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConfiguracaoProduto>
           }
           groupBy: {
-            args: Prisma.ProductConfigGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ProductConfigGroupByOutputType>[]
+            args: Prisma.ConfiguracaoProdutoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConfiguracaoProdutoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ProductConfigCountArgs<ExtArgs>
-            result: $Utils.Optional<ProductConfigCountAggregateOutputType> | number
+            args: Prisma.ConfiguracaoProdutoCountArgs<ExtArgs>
+            result: $Utils.Optional<ConfiguracaoProdutoCountAggregateOutputType> | number
           }
         }
       }
@@ -1828,143 +1828,143 @@ export namespace Prisma {
           }
         }
       }
-      PriceTier: {
-        payload: Prisma.$PriceTierPayload<ExtArgs>
-        fields: Prisma.PriceTierFieldRefs
+      FaixaPreco: {
+        payload: Prisma.$FaixaPrecoPayload<ExtArgs>
+        fields: Prisma.FaixaPrecoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.PriceTierFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload> | null
+            args: Prisma.FaixaPrecoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.PriceTierFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+            args: Prisma.FaixaPrecoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
           }
           findFirst: {
-            args: Prisma.PriceTierFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload> | null
+            args: Prisma.FaixaPrecoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.PriceTierFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+            args: Prisma.FaixaPrecoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
           }
           findMany: {
-            args: Prisma.PriceTierFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>[]
+            args: Prisma.FaixaPrecoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>[]
           }
           create: {
-            args: Prisma.PriceTierCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+            args: Prisma.FaixaPrecoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
           }
           createMany: {
-            args: Prisma.PriceTierCreateManyArgs<ExtArgs>
+            args: Prisma.FaixaPrecoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.PriceTierCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>[]
+            args: Prisma.FaixaPrecoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>[]
           }
           delete: {
-            args: Prisma.PriceTierDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+            args: Prisma.FaixaPrecoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
           }
           update: {
-            args: Prisma.PriceTierUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+            args: Prisma.FaixaPrecoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
           }
           deleteMany: {
-            args: Prisma.PriceTierDeleteManyArgs<ExtArgs>
+            args: Prisma.FaixaPrecoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.PriceTierUpdateManyArgs<ExtArgs>
+            args: Prisma.FaixaPrecoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.PriceTierUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$PriceTierPayload>
+            args: Prisma.FaixaPrecoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FaixaPrecoPayload>
           }
           aggregate: {
-            args: Prisma.PriceTierAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregatePriceTier>
+            args: Prisma.FaixaPrecoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFaixaPreco>
           }
           groupBy: {
-            args: Prisma.PriceTierGroupByArgs<ExtArgs>
-            result: $Utils.Optional<PriceTierGroupByOutputType>[]
+            args: Prisma.FaixaPrecoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FaixaPrecoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.PriceTierCountArgs<ExtArgs>
-            result: $Utils.Optional<PriceTierCountAggregateOutputType> | number
+            args: Prisma.FaixaPrecoCountArgs<ExtArgs>
+            result: $Utils.Optional<FaixaPrecoCountAggregateOutputType> | number
           }
         }
       }
-      SpecialNegotiation: {
-        payload: Prisma.$SpecialNegotiationPayload<ExtArgs>
-        fields: Prisma.SpecialNegotiationFieldRefs
+      NegociacaoEspecial: {
+        payload: Prisma.$NegociacaoEspecialPayload<ExtArgs>
+        fields: Prisma.NegociacaoEspecialFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.SpecialNegotiationFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload> | null
+            args: Prisma.NegociacaoEspecialFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.SpecialNegotiationFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+            args: Prisma.NegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
           }
           findFirst: {
-            args: Prisma.SpecialNegotiationFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload> | null
+            args: Prisma.NegociacaoEspecialFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.SpecialNegotiationFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+            args: Prisma.NegociacaoEspecialFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
           }
           findMany: {
-            args: Prisma.SpecialNegotiationFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>[]
+            args: Prisma.NegociacaoEspecialFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>[]
           }
           create: {
-            args: Prisma.SpecialNegotiationCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+            args: Prisma.NegociacaoEspecialCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
           }
           createMany: {
-            args: Prisma.SpecialNegotiationCreateManyArgs<ExtArgs>
+            args: Prisma.NegociacaoEspecialCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.SpecialNegotiationCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>[]
+            args: Prisma.NegociacaoEspecialCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>[]
           }
           delete: {
-            args: Prisma.SpecialNegotiationDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+            args: Prisma.NegociacaoEspecialDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
           }
           update: {
-            args: Prisma.SpecialNegotiationUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+            args: Prisma.NegociacaoEspecialUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
           }
           deleteMany: {
-            args: Prisma.SpecialNegotiationDeleteManyArgs<ExtArgs>
+            args: Prisma.NegociacaoEspecialDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.SpecialNegotiationUpdateManyArgs<ExtArgs>
+            args: Prisma.NegociacaoEspecialUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.SpecialNegotiationUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SpecialNegotiationPayload>
+            args: Prisma.NegociacaoEspecialUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NegociacaoEspecialPayload>
           }
           aggregate: {
-            args: Prisma.SpecialNegotiationAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateSpecialNegotiation>
+            args: Prisma.NegociacaoEspecialAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNegociacaoEspecial>
           }
           groupBy: {
-            args: Prisma.SpecialNegotiationGroupByArgs<ExtArgs>
-            result: $Utils.Optional<SpecialNegotiationGroupByOutputType>[]
+            args: Prisma.NegociacaoEspecialGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NegociacaoEspecialGroupByOutputType>[]
           }
           count: {
-            args: Prisma.SpecialNegotiationCountArgs<ExtArgs>
-            result: $Utils.Optional<SpecialNegotiationCountAggregateOutputType> | number
+            args: Prisma.NegociacaoEspecialCountArgs<ExtArgs>
+            result: $Utils.Optional<NegociacaoEspecialCountAggregateOutputType> | number
           }
         }
       }
@@ -2458,143 +2458,143 @@ export namespace Prisma {
           }
         }
       }
-      TestSchedule: {
-        payload: Prisma.$TestSchedulePayload<ExtArgs>
-        fields: Prisma.TestScheduleFieldRefs
+      AgendamentoTeste: {
+        payload: Prisma.$AgendamentoTestePayload<ExtArgs>
+        fields: Prisma.AgendamentoTesteFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.TestScheduleFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload> | null
+            args: Prisma.AgendamentoTesteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.TestScheduleFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload>
+            args: Prisma.AgendamentoTesteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
           }
           findFirst: {
-            args: Prisma.TestScheduleFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload> | null
+            args: Prisma.AgendamentoTesteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.TestScheduleFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload>
+            args: Prisma.AgendamentoTesteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
           }
           findMany: {
-            args: Prisma.TestScheduleFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload>[]
+            args: Prisma.AgendamentoTesteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>[]
           }
           create: {
-            args: Prisma.TestScheduleCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload>
+            args: Prisma.AgendamentoTesteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
           }
           createMany: {
-            args: Prisma.TestScheduleCreateManyArgs<ExtArgs>
+            args: Prisma.AgendamentoTesteCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.TestScheduleCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload>[]
+            args: Prisma.AgendamentoTesteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>[]
           }
           delete: {
-            args: Prisma.TestScheduleDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload>
+            args: Prisma.AgendamentoTesteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
           }
           update: {
-            args: Prisma.TestScheduleUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload>
+            args: Prisma.AgendamentoTesteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
           }
           deleteMany: {
-            args: Prisma.TestScheduleDeleteManyArgs<ExtArgs>
+            args: Prisma.AgendamentoTesteDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.TestScheduleUpdateManyArgs<ExtArgs>
+            args: Prisma.AgendamentoTesteUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.TestScheduleUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestSchedulePayload>
+            args: Prisma.AgendamentoTesteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AgendamentoTestePayload>
           }
           aggregate: {
-            args: Prisma.TestScheduleAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTestSchedule>
+            args: Prisma.AgendamentoTesteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAgendamentoTeste>
           }
           groupBy: {
-            args: Prisma.TestScheduleGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TestScheduleGroupByOutputType>[]
+            args: Prisma.AgendamentoTesteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AgendamentoTesteGroupByOutputType>[]
           }
           count: {
-            args: Prisma.TestScheduleCountArgs<ExtArgs>
-            result: $Utils.Optional<TestScheduleCountAggregateOutputType> | number
+            args: Prisma.AgendamentoTesteCountArgs<ExtArgs>
+            result: $Utils.Optional<AgendamentoTesteCountAggregateOutputType> | number
           }
         }
       }
-      TestPlan: {
-        payload: Prisma.$TestPlanPayload<ExtArgs>
-        fields: Prisma.TestPlanFieldRefs
+      PlanoTeste: {
+        payload: Prisma.$PlanoTestePayload<ExtArgs>
+        fields: Prisma.PlanoTesteFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.TestPlanFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload> | null
+            args: Prisma.PlanoTesteFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.TestPlanFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload>
+            args: Prisma.PlanoTesteFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
           }
           findFirst: {
-            args: Prisma.TestPlanFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload> | null
+            args: Prisma.PlanoTesteFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.TestPlanFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload>
+            args: Prisma.PlanoTesteFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
           }
           findMany: {
-            args: Prisma.TestPlanFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload>[]
+            args: Prisma.PlanoTesteFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>[]
           }
           create: {
-            args: Prisma.TestPlanCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload>
+            args: Prisma.PlanoTesteCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
           }
           createMany: {
-            args: Prisma.TestPlanCreateManyArgs<ExtArgs>
+            args: Prisma.PlanoTesteCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.TestPlanCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload>[]
+            args: Prisma.PlanoTesteCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>[]
           }
           delete: {
-            args: Prisma.TestPlanDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload>
+            args: Prisma.PlanoTesteDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
           }
           update: {
-            args: Prisma.TestPlanUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload>
+            args: Prisma.PlanoTesteUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
           }
           deleteMany: {
-            args: Prisma.TestPlanDeleteManyArgs<ExtArgs>
+            args: Prisma.PlanoTesteDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.TestPlanUpdateManyArgs<ExtArgs>
+            args: Prisma.PlanoTesteUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.TestPlanUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPlanPayload>
+            args: Prisma.PlanoTesteUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PlanoTestePayload>
           }
           aggregate: {
-            args: Prisma.TestPlanAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTestPlan>
+            args: Prisma.PlanoTesteAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePlanoTeste>
           }
           groupBy: {
-            args: Prisma.TestPlanGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TestPlanGroupByOutputType>[]
+            args: Prisma.PlanoTesteGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PlanoTesteGroupByOutputType>[]
           }
           count: {
-            args: Prisma.TestPlanCountArgs<ExtArgs>
-            result: $Utils.Optional<TestPlanCountAggregateOutputType> | number
+            args: Prisma.PlanoTesteCountArgs<ExtArgs>
+            result: $Utils.Optional<PlanoTesteCountAggregateOutputType> | number
           }
         }
       }
@@ -2952,14 +2952,14 @@ export namespace Prisma {
    * OrganizacaoCountOutputType without action
    */
   export type OrganizacaoCountOutputTypeCountCompaniesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WorkspaceWhereInput
+    where?: EmpresaWhereInput
   }
 
   /**
    * OrganizacaoCountOutputType without action
    */
   export type OrganizacaoCountOutputTypeCountProduct_configsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ProductConfigWhereInput
+    where?: ConfiguracaoProdutoWhereInput
   }
 
   /**
@@ -3011,50 +3011,50 @@ export namespace Prisma {
 
 
   /**
-   * Count Type WorkspaceCountOutputType
+   * Count Type EmpresaCountOutputType
    */
 
-  export type WorkspaceCountOutputType = {
+  export type EmpresaCountOutputType = {
     memberships: number
     company_products: number
     preferred_by_users: number
   }
 
-  export type WorkspaceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    memberships?: boolean | WorkspaceCountOutputTypeCountMembershipsArgs
-    company_products?: boolean | WorkspaceCountOutputTypeCountCompany_productsArgs
-    preferred_by_users?: boolean | WorkspaceCountOutputTypeCountPreferred_by_usersArgs
+  export type EmpresaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    memberships?: boolean | EmpresaCountOutputTypeCountMembershipsArgs
+    company_products?: boolean | EmpresaCountOutputTypeCountCompany_productsArgs
+    preferred_by_users?: boolean | EmpresaCountOutputTypeCountPreferred_by_usersArgs
   }
 
   // Custom InputTypes
   /**
-   * WorkspaceCountOutputType without action
+   * EmpresaCountOutputType without action
    */
-  export type WorkspaceCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the WorkspaceCountOutputType
+     * Select specific fields to fetch from the EmpresaCountOutputType
      */
-    select?: WorkspaceCountOutputTypeSelect<ExtArgs> | null
+    select?: EmpresaCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * WorkspaceCountOutputType without action
+   * EmpresaCountOutputType without action
    */
-  export type WorkspaceCountOutputTypeCountMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaCountOutputTypeCountMembershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuarioWorkspaceWhereInput
   }
 
   /**
-   * WorkspaceCountOutputType without action
+   * EmpresaCountOutputType without action
    */
-  export type WorkspaceCountOutputTypeCountCompany_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaCountOutputTypeCountCompany_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProdutoGravityWorkspaceWhereInput
   }
 
   /**
-   * WorkspaceCountOutputType without action
+   * EmpresaCountOutputType without action
    */
-  export type WorkspaceCountOutputTypeCountPreferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaCountOutputTypeCountPreferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuarioWhereInput
   }
 
@@ -3088,14 +3088,14 @@ export namespace Prisma {
    * ProdutoGravityCountOutputType without action
    */
   export type ProdutoGravityCountOutputTypeCountPrice_tiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PriceTierWhereInput
+    where?: FaixaPrecoWhereInput
   }
 
   /**
    * ProdutoGravityCountOutputType without action
    */
   export type ProdutoGravityCountOutputTypeCountNegotiationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SpecialNegotiationWhereInput
+    where?: NegociacaoEspecialWhereInput
   }
 
 
@@ -3389,8 +3389,8 @@ export namespace Prisma {
       users: Prisma.$UsuarioPayload<ExtArgs>[]
       subscriptions: Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>[]
       user_permissions: Prisma.$UsuarioPermissaoPayload<ExtArgs>[]
-      companies: Prisma.$WorkspacePayload<ExtArgs>[]
-      product_configs: Prisma.$ProductConfigPayload<ExtArgs>[]
+      companies: Prisma.$EmpresaPayload<ExtArgs>[]
+      product_configs: Prisma.$ConfiguracaoProdutoPayload<ExtArgs>[]
       ProdutoGravityWorkspace: Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -3774,8 +3774,8 @@ export namespace Prisma {
     users<T extends Organizacao$usersArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany"> | Null>
     subscriptions<T extends Organizacao$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findMany"> | Null>
     user_permissions<T extends Organizacao$user_permissionsArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$user_permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPermissaoPayload<ExtArgs>, T, "findMany"> | Null>
-    companies<T extends Organizacao$companiesArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$companiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany"> | Null>
-    product_configs<T extends Organizacao$product_configsArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$product_configsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "findMany"> | Null>
+    companies<T extends Organizacao$companiesArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$companiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany"> | Null>
+    product_configs<T extends Organizacao$product_configsArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$product_configsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findMany"> | Null>
     ProdutoGravityWorkspace<T extends Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4197,19 +4197,19 @@ export namespace Prisma {
    */
   export type Organizacao$companiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
-    where?: WorkspaceWhereInput
-    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
-    cursor?: WorkspaceWhereUniqueInput
+    include?: EmpresaInclude<ExtArgs> | null
+    where?: EmpresaWhereInput
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
+    cursor?: EmpresaWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: WorkspaceScalarFieldEnum | WorkspaceScalarFieldEnum[]
+    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
   }
 
   /**
@@ -4217,19 +4217,19 @@ export namespace Prisma {
    */
   export type Organizacao$product_configsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
-    where?: ProductConfigWhereInput
-    orderBy?: ProductConfigOrderByWithRelationInput | ProductConfigOrderByWithRelationInput[]
-    cursor?: ProductConfigWhereUniqueInput
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
+    where?: ConfiguracaoProdutoWhereInput
+    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
+    cursor?: ConfiguracaoProdutoWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: ProductConfigScalarFieldEnum | ProductConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoProdutoScalarFieldEnum | ConfiguracaoProdutoScalarFieldEnum[]
   }
 
   /**
@@ -4512,7 +4512,7 @@ export namespace Prisma {
     name: "Usuario"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
-      preferred_company: Prisma.$WorkspacePayload<ExtArgs> | null
+      preferred_company: Prisma.$EmpresaPayload<ExtArgs> | null
       user_permissions: Prisma.$UsuarioPermissaoPayload<ExtArgs>[]
       memberships: Prisma.$UsuarioWorkspacePayload<ExtArgs>[]
     }
@@ -4891,7 +4891,7 @@ export namespace Prisma {
   export interface Prisma__UsuarioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    preferred_company<T extends Usuario$preferred_companyArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$preferred_companyArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    preferred_company<T extends Usuario$preferred_companyArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$preferred_companyArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     user_permissions<T extends Usuario$user_permissionsArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$user_permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPermissaoPayload<ExtArgs>, T, "findMany"> | Null>
     memberships<T extends Usuario$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
     /**
@@ -5254,14 +5254,14 @@ export namespace Prisma {
    */
   export type Usuario$preferred_companyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
-    where?: WorkspaceWhereInput
+    include?: EmpresaInclude<ExtArgs> | null
+    where?: EmpresaWhereInput
   }
 
   /**
@@ -7312,16 +7312,16 @@ export namespace Prisma {
 
 
   /**
-   * Model GravityAdminPermission
+   * Model PermissaoAdminGravity
    */
 
-  export type AggregateGravityAdminPermission = {
-    _count: GravityAdminPermissionCountAggregateOutputType | null
-    _min: GravityAdminPermissionMinAggregateOutputType | null
-    _max: GravityAdminPermissionMaxAggregateOutputType | null
+  export type AggregatePermissaoAdminGravity = {
+    _count: PermissaoAdminGravityCountAggregateOutputType | null
+    _min: PermissaoAdminGravityMinAggregateOutputType | null
+    _max: PermissaoAdminGravityMaxAggregateOutputType | null
   }
 
-  export type GravityAdminPermissionMinAggregateOutputType = {
+  export type PermissaoAdminGravityMinAggregateOutputType = {
     id: string | null
     admin_id: string | null
     resource: string | null
@@ -7331,7 +7331,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type GravityAdminPermissionMaxAggregateOutputType = {
+  export type PermissaoAdminGravityMaxAggregateOutputType = {
     id: string | null
     admin_id: string | null
     resource: string | null
@@ -7341,7 +7341,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type GravityAdminPermissionCountAggregateOutputType = {
+  export type PermissaoAdminGravityCountAggregateOutputType = {
     id: number
     admin_id: number
     resource: number
@@ -7353,7 +7353,7 @@ export namespace Prisma {
   }
 
 
-  export type GravityAdminPermissionMinAggregateInputType = {
+  export type PermissaoAdminGravityMinAggregateInputType = {
     id?: true
     admin_id?: true
     resource?: true
@@ -7363,7 +7363,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type GravityAdminPermissionMaxAggregateInputType = {
+  export type PermissaoAdminGravityMaxAggregateInputType = {
     id?: true
     admin_id?: true
     resource?: true
@@ -7373,7 +7373,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type GravityAdminPermissionCountAggregateInputType = {
+  export type PermissaoAdminGravityCountAggregateInputType = {
     id?: true
     admin_id?: true
     resource?: true
@@ -7384,79 +7384,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type GravityAdminPermissionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which GravityAdminPermission to aggregate.
+     * Filter which PermissaoAdminGravity to aggregate.
      */
-    where?: GravityAdminPermissionWhereInput
+    where?: PermissaoAdminGravityWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GravityAdminPermissions to fetch.
+     * Determine the order of PermissaoAdminGravities to fetch.
      */
-    orderBy?: GravityAdminPermissionOrderByWithRelationInput | GravityAdminPermissionOrderByWithRelationInput[]
+    orderBy?: PermissaoAdminGravityOrderByWithRelationInput | PermissaoAdminGravityOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: GravityAdminPermissionWhereUniqueInput
+    cursor?: PermissaoAdminGravityWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GravityAdminPermissions from the position of the cursor.
+     * Take `±n` PermissaoAdminGravities from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GravityAdminPermissions.
+     * Skip the first `n` PermissaoAdminGravities.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned GravityAdminPermissions
+     * Count returned PermissaoAdminGravities
     **/
-    _count?: true | GravityAdminPermissionCountAggregateInputType
+    _count?: true | PermissaoAdminGravityCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: GravityAdminPermissionMinAggregateInputType
+    _min?: PermissaoAdminGravityMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: GravityAdminPermissionMaxAggregateInputType
+    _max?: PermissaoAdminGravityMaxAggregateInputType
   }
 
-  export type GetGravityAdminPermissionAggregateType<T extends GravityAdminPermissionAggregateArgs> = {
-        [P in keyof T & keyof AggregateGravityAdminPermission]: P extends '_count' | 'count'
+  export type GetPermissaoAdminGravityAggregateType<T extends PermissaoAdminGravityAggregateArgs> = {
+        [P in keyof T & keyof AggregatePermissaoAdminGravity]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateGravityAdminPermission[P]>
-      : GetScalarType<T[P], AggregateGravityAdminPermission[P]>
+        : GetScalarType<T[P], AggregatePermissaoAdminGravity[P]>
+      : GetScalarType<T[P], AggregatePermissaoAdminGravity[P]>
   }
 
 
 
 
-  export type GravityAdminPermissionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: GravityAdminPermissionWhereInput
-    orderBy?: GravityAdminPermissionOrderByWithAggregationInput | GravityAdminPermissionOrderByWithAggregationInput[]
-    by: GravityAdminPermissionScalarFieldEnum[] | GravityAdminPermissionScalarFieldEnum
-    having?: GravityAdminPermissionScalarWhereWithAggregatesInput
+  export type PermissaoAdminGravityGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PermissaoAdminGravityWhereInput
+    orderBy?: PermissaoAdminGravityOrderByWithAggregationInput | PermissaoAdminGravityOrderByWithAggregationInput[]
+    by: PermissaoAdminGravityScalarFieldEnum[] | PermissaoAdminGravityScalarFieldEnum
+    having?: PermissaoAdminGravityScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: GravityAdminPermissionCountAggregateInputType | true
-    _min?: GravityAdminPermissionMinAggregateInputType
-    _max?: GravityAdminPermissionMaxAggregateInputType
+    _count?: PermissaoAdminGravityCountAggregateInputType | true
+    _min?: PermissaoAdminGravityMinAggregateInputType
+    _max?: PermissaoAdminGravityMaxAggregateInputType
   }
 
-  export type GravityAdminPermissionGroupByOutputType = {
+  export type PermissaoAdminGravityGroupByOutputType = {
     id: string
     admin_id: string
     resource: string
@@ -7464,26 +7464,26 @@ export namespace Prisma {
     granted_by: string
     created_at: Date
     updated_at: Date
-    _count: GravityAdminPermissionCountAggregateOutputType | null
-    _min: GravityAdminPermissionMinAggregateOutputType | null
-    _max: GravityAdminPermissionMaxAggregateOutputType | null
+    _count: PermissaoAdminGravityCountAggregateOutputType | null
+    _min: PermissaoAdminGravityMinAggregateOutputType | null
+    _max: PermissaoAdminGravityMaxAggregateOutputType | null
   }
 
-  type GetGravityAdminPermissionGroupByPayload<T extends GravityAdminPermissionGroupByArgs> = Prisma.PrismaPromise<
+  type GetPermissaoAdminGravityGroupByPayload<T extends PermissaoAdminGravityGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<GravityAdminPermissionGroupByOutputType, T['by']> &
+      PickEnumerable<PermissaoAdminGravityGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof GravityAdminPermissionGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof PermissaoAdminGravityGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], GravityAdminPermissionGroupByOutputType[P]>
-            : GetScalarType<T[P], GravityAdminPermissionGroupByOutputType[P]>
+              : GetScalarType<T[P], PermissaoAdminGravityGroupByOutputType[P]>
+            : GetScalarType<T[P], PermissaoAdminGravityGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type GravityAdminPermissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type PermissaoAdminGravitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     admin_id?: boolean
     resource?: boolean
@@ -7491,9 +7491,9 @@ export namespace Prisma {
     granted_by?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["gravityAdminPermission"]>
+  }, ExtArgs["result"]["permissaoAdminGravity"]>
 
-  export type GravityAdminPermissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type PermissaoAdminGravitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     admin_id?: boolean
     resource?: boolean
@@ -7501,9 +7501,9 @@ export namespace Prisma {
     granted_by?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["gravityAdminPermission"]>
+  }, ExtArgs["result"]["permissaoAdminGravity"]>
 
-  export type GravityAdminPermissionSelectScalar = {
+  export type PermissaoAdminGravitySelectScalar = {
     id?: boolean
     admin_id?: boolean
     resource?: boolean
@@ -7514,8 +7514,8 @@ export namespace Prisma {
   }
 
 
-  export type $GravityAdminPermissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "GravityAdminPermission"
+  export type $PermissaoAdminGravityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PermissaoAdminGravity"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -7525,136 +7525,136 @@ export namespace Prisma {
       granted_by: string
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["gravityAdminPermission"]>
+    }, ExtArgs["result"]["permissaoAdminGravity"]>
     composites: {}
   }
 
-  type GravityAdminPermissionGetPayload<S extends boolean | null | undefined | GravityAdminPermissionDefaultArgs> = $Result.GetResult<Prisma.$GravityAdminPermissionPayload, S>
+  type PermissaoAdminGravityGetPayload<S extends boolean | null | undefined | PermissaoAdminGravityDefaultArgs> = $Result.GetResult<Prisma.$PermissaoAdminGravityPayload, S>
 
-  type GravityAdminPermissionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<GravityAdminPermissionFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: GravityAdminPermissionCountAggregateInputType | true
+  type PermissaoAdminGravityCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PermissaoAdminGravityFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PermissaoAdminGravityCountAggregateInputType | true
     }
 
-  export interface GravityAdminPermissionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GravityAdminPermission'], meta: { name: 'GravityAdminPermission' } }
+  export interface PermissaoAdminGravityDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PermissaoAdminGravity'], meta: { name: 'PermissaoAdminGravity' } }
     /**
-     * Find zero or one GravityAdminPermission that matches the filter.
-     * @param {GravityAdminPermissionFindUniqueArgs} args - Arguments to find a GravityAdminPermission
+     * Find zero or one PermissaoAdminGravity that matches the filter.
+     * @param {PermissaoAdminGravityFindUniqueArgs} args - Arguments to find a PermissaoAdminGravity
      * @example
-     * // Get one GravityAdminPermission
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.findUnique({
+     * // Get one PermissaoAdminGravity
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends GravityAdminPermissionFindUniqueArgs>(args: SelectSubset<T, GravityAdminPermissionFindUniqueArgs<ExtArgs>>): Prisma__GravityAdminPermissionClient<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends PermissaoAdminGravityFindUniqueArgs>(args: SelectSubset<T, PermissaoAdminGravityFindUniqueArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one GravityAdminPermission that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one PermissaoAdminGravity that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {GravityAdminPermissionFindUniqueOrThrowArgs} args - Arguments to find a GravityAdminPermission
+     * @param {PermissaoAdminGravityFindUniqueOrThrowArgs} args - Arguments to find a PermissaoAdminGravity
      * @example
-     * // Get one GravityAdminPermission
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.findUniqueOrThrow({
+     * // Get one PermissaoAdminGravity
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends GravityAdminPermissionFindUniqueOrThrowArgs>(args: SelectSubset<T, GravityAdminPermissionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GravityAdminPermissionClient<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends PermissaoAdminGravityFindUniqueOrThrowArgs>(args: SelectSubset<T, PermissaoAdminGravityFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first GravityAdminPermission that matches the filter.
+     * Find the first PermissaoAdminGravity that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GravityAdminPermissionFindFirstArgs} args - Arguments to find a GravityAdminPermission
+     * @param {PermissaoAdminGravityFindFirstArgs} args - Arguments to find a PermissaoAdminGravity
      * @example
-     * // Get one GravityAdminPermission
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.findFirst({
+     * // Get one PermissaoAdminGravity
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends GravityAdminPermissionFindFirstArgs>(args?: SelectSubset<T, GravityAdminPermissionFindFirstArgs<ExtArgs>>): Prisma__GravityAdminPermissionClient<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends PermissaoAdminGravityFindFirstArgs>(args?: SelectSubset<T, PermissaoAdminGravityFindFirstArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first GravityAdminPermission that matches the filter or
+     * Find the first PermissaoAdminGravity that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GravityAdminPermissionFindFirstOrThrowArgs} args - Arguments to find a GravityAdminPermission
+     * @param {PermissaoAdminGravityFindFirstOrThrowArgs} args - Arguments to find a PermissaoAdminGravity
      * @example
-     * // Get one GravityAdminPermission
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.findFirstOrThrow({
+     * // Get one PermissaoAdminGravity
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends GravityAdminPermissionFindFirstOrThrowArgs>(args?: SelectSubset<T, GravityAdminPermissionFindFirstOrThrowArgs<ExtArgs>>): Prisma__GravityAdminPermissionClient<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends PermissaoAdminGravityFindFirstOrThrowArgs>(args?: SelectSubset<T, PermissaoAdminGravityFindFirstOrThrowArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more GravityAdminPermissions that matches the filter.
+     * Find zero or more PermissaoAdminGravities that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GravityAdminPermissionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {PermissaoAdminGravityFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all GravityAdminPermissions
-     * const gravityAdminPermissions = await prisma.gravityAdminPermission.findMany()
+     * // Get all PermissaoAdminGravities
+     * const permissaoAdminGravities = await prisma.permissaoAdminGravity.findMany()
      * 
-     * // Get first 10 GravityAdminPermissions
-     * const gravityAdminPermissions = await prisma.gravityAdminPermission.findMany({ take: 10 })
+     * // Get first 10 PermissaoAdminGravities
+     * const permissaoAdminGravities = await prisma.permissaoAdminGravity.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const gravityAdminPermissionWithIdOnly = await prisma.gravityAdminPermission.findMany({ select: { id: true } })
+     * const permissaoAdminGravityWithIdOnly = await prisma.permissaoAdminGravity.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends GravityAdminPermissionFindManyArgs>(args?: SelectSubset<T, GravityAdminPermissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends PermissaoAdminGravityFindManyArgs>(args?: SelectSubset<T, PermissaoAdminGravityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a GravityAdminPermission.
-     * @param {GravityAdminPermissionCreateArgs} args - Arguments to create a GravityAdminPermission.
+     * Create a PermissaoAdminGravity.
+     * @param {PermissaoAdminGravityCreateArgs} args - Arguments to create a PermissaoAdminGravity.
      * @example
-     * // Create one GravityAdminPermission
-     * const GravityAdminPermission = await prisma.gravityAdminPermission.create({
+     * // Create one PermissaoAdminGravity
+     * const PermissaoAdminGravity = await prisma.permissaoAdminGravity.create({
      *   data: {
-     *     // ... data to create a GravityAdminPermission
+     *     // ... data to create a PermissaoAdminGravity
      *   }
      * })
      * 
      */
-    create<T extends GravityAdminPermissionCreateArgs>(args: SelectSubset<T, GravityAdminPermissionCreateArgs<ExtArgs>>): Prisma__GravityAdminPermissionClient<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends PermissaoAdminGravityCreateArgs>(args: SelectSubset<T, PermissaoAdminGravityCreateArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many GravityAdminPermissions.
-     * @param {GravityAdminPermissionCreateManyArgs} args - Arguments to create many GravityAdminPermissions.
+     * Create many PermissaoAdminGravities.
+     * @param {PermissaoAdminGravityCreateManyArgs} args - Arguments to create many PermissaoAdminGravities.
      * @example
-     * // Create many GravityAdminPermissions
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.createMany({
+     * // Create many PermissaoAdminGravities
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends GravityAdminPermissionCreateManyArgs>(args?: SelectSubset<T, GravityAdminPermissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends PermissaoAdminGravityCreateManyArgs>(args?: SelectSubset<T, PermissaoAdminGravityCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many GravityAdminPermissions and returns the data saved in the database.
-     * @param {GravityAdminPermissionCreateManyAndReturnArgs} args - Arguments to create many GravityAdminPermissions.
+     * Create many PermissaoAdminGravities and returns the data saved in the database.
+     * @param {PermissaoAdminGravityCreateManyAndReturnArgs} args - Arguments to create many PermissaoAdminGravities.
      * @example
-     * // Create many GravityAdminPermissions
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.createManyAndReturn({
+     * // Create many PermissaoAdminGravities
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many GravityAdminPermissions and only return the `id`
-     * const gravityAdminPermissionWithIdOnly = await prisma.gravityAdminPermission.createManyAndReturn({ 
+     * // Create many PermissaoAdminGravities and only return the `id`
+     * const permissaoAdminGravityWithIdOnly = await prisma.permissaoAdminGravity.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -7664,28 +7664,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends GravityAdminPermissionCreateManyAndReturnArgs>(args?: SelectSubset<T, GravityAdminPermissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends PermissaoAdminGravityCreateManyAndReturnArgs>(args?: SelectSubset<T, PermissaoAdminGravityCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a GravityAdminPermission.
-     * @param {GravityAdminPermissionDeleteArgs} args - Arguments to delete one GravityAdminPermission.
+     * Delete a PermissaoAdminGravity.
+     * @param {PermissaoAdminGravityDeleteArgs} args - Arguments to delete one PermissaoAdminGravity.
      * @example
-     * // Delete one GravityAdminPermission
-     * const GravityAdminPermission = await prisma.gravityAdminPermission.delete({
+     * // Delete one PermissaoAdminGravity
+     * const PermissaoAdminGravity = await prisma.permissaoAdminGravity.delete({
      *   where: {
-     *     // ... filter to delete one GravityAdminPermission
+     *     // ... filter to delete one PermissaoAdminGravity
      *   }
      * })
      * 
      */
-    delete<T extends GravityAdminPermissionDeleteArgs>(args: SelectSubset<T, GravityAdminPermissionDeleteArgs<ExtArgs>>): Prisma__GravityAdminPermissionClient<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends PermissaoAdminGravityDeleteArgs>(args: SelectSubset<T, PermissaoAdminGravityDeleteArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one GravityAdminPermission.
-     * @param {GravityAdminPermissionUpdateArgs} args - Arguments to update one GravityAdminPermission.
+     * Update one PermissaoAdminGravity.
+     * @param {PermissaoAdminGravityUpdateArgs} args - Arguments to update one PermissaoAdminGravity.
      * @example
-     * // Update one GravityAdminPermission
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.update({
+     * // Update one PermissaoAdminGravity
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -7695,30 +7695,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends GravityAdminPermissionUpdateArgs>(args: SelectSubset<T, GravityAdminPermissionUpdateArgs<ExtArgs>>): Prisma__GravityAdminPermissionClient<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends PermissaoAdminGravityUpdateArgs>(args: SelectSubset<T, PermissaoAdminGravityUpdateArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more GravityAdminPermissions.
-     * @param {GravityAdminPermissionDeleteManyArgs} args - Arguments to filter GravityAdminPermissions to delete.
+     * Delete zero or more PermissaoAdminGravities.
+     * @param {PermissaoAdminGravityDeleteManyArgs} args - Arguments to filter PermissaoAdminGravities to delete.
      * @example
-     * // Delete a few GravityAdminPermissions
-     * const { count } = await prisma.gravityAdminPermission.deleteMany({
+     * // Delete a few PermissaoAdminGravities
+     * const { count } = await prisma.permissaoAdminGravity.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends GravityAdminPermissionDeleteManyArgs>(args?: SelectSubset<T, GravityAdminPermissionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends PermissaoAdminGravityDeleteManyArgs>(args?: SelectSubset<T, PermissaoAdminGravityDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more GravityAdminPermissions.
+     * Update zero or more PermissaoAdminGravities.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GravityAdminPermissionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {PermissaoAdminGravityUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many GravityAdminPermissions
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.updateMany({
+     * // Update many PermissaoAdminGravities
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -7728,56 +7728,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends GravityAdminPermissionUpdateManyArgs>(args: SelectSubset<T, GravityAdminPermissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends PermissaoAdminGravityUpdateManyArgs>(args: SelectSubset<T, PermissaoAdminGravityUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one GravityAdminPermission.
-     * @param {GravityAdminPermissionUpsertArgs} args - Arguments to update or create a GravityAdminPermission.
+     * Create or update one PermissaoAdminGravity.
+     * @param {PermissaoAdminGravityUpsertArgs} args - Arguments to update or create a PermissaoAdminGravity.
      * @example
-     * // Update or create a GravityAdminPermission
-     * const gravityAdminPermission = await prisma.gravityAdminPermission.upsert({
+     * // Update or create a PermissaoAdminGravity
+     * const permissaoAdminGravity = await prisma.permissaoAdminGravity.upsert({
      *   create: {
-     *     // ... data to create a GravityAdminPermission
+     *     // ... data to create a PermissaoAdminGravity
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the GravityAdminPermission we want to update
+     *     // ... the filter for the PermissaoAdminGravity we want to update
      *   }
      * })
      */
-    upsert<T extends GravityAdminPermissionUpsertArgs>(args: SelectSubset<T, GravityAdminPermissionUpsertArgs<ExtArgs>>): Prisma__GravityAdminPermissionClient<$Result.GetResult<Prisma.$GravityAdminPermissionPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends PermissaoAdminGravityUpsertArgs>(args: SelectSubset<T, PermissaoAdminGravityUpsertArgs<ExtArgs>>): Prisma__PermissaoAdminGravityClient<$Result.GetResult<Prisma.$PermissaoAdminGravityPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of GravityAdminPermissions.
+     * Count the number of PermissaoAdminGravities.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GravityAdminPermissionCountArgs} args - Arguments to filter GravityAdminPermissions to count.
+     * @param {PermissaoAdminGravityCountArgs} args - Arguments to filter PermissaoAdminGravities to count.
      * @example
-     * // Count the number of GravityAdminPermissions
-     * const count = await prisma.gravityAdminPermission.count({
+     * // Count the number of PermissaoAdminGravities
+     * const count = await prisma.permissaoAdminGravity.count({
      *   where: {
-     *     // ... the filter for the GravityAdminPermissions we want to count
+     *     // ... the filter for the PermissaoAdminGravities we want to count
      *   }
      * })
     **/
-    count<T extends GravityAdminPermissionCountArgs>(
-      args?: Subset<T, GravityAdminPermissionCountArgs>,
+    count<T extends PermissaoAdminGravityCountArgs>(
+      args?: Subset<T, PermissaoAdminGravityCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], GravityAdminPermissionCountAggregateOutputType>
+          : GetScalarType<T['select'], PermissaoAdminGravityCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a GravityAdminPermission.
+     * Allows you to perform aggregations operations on a PermissaoAdminGravity.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GravityAdminPermissionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {PermissaoAdminGravityAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -7797,13 +7797,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends GravityAdminPermissionAggregateArgs>(args: Subset<T, GravityAdminPermissionAggregateArgs>): Prisma.PrismaPromise<GetGravityAdminPermissionAggregateType<T>>
+    aggregate<T extends PermissaoAdminGravityAggregateArgs>(args: Subset<T, PermissaoAdminGravityAggregateArgs>): Prisma.PrismaPromise<GetPermissaoAdminGravityAggregateType<T>>
 
     /**
-     * Group by GravityAdminPermission.
+     * Group by PermissaoAdminGravity.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {GravityAdminPermissionGroupByArgs} args - Group by arguments.
+     * @param {PermissaoAdminGravityGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -7818,14 +7818,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends GravityAdminPermissionGroupByArgs,
+      T extends PermissaoAdminGravityGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: GravityAdminPermissionGroupByArgs['orderBy'] }
-        : { orderBy?: GravityAdminPermissionGroupByArgs['orderBy'] },
+        ? { orderBy: PermissaoAdminGravityGroupByArgs['orderBy'] }
+        : { orderBy?: PermissaoAdminGravityGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -7874,20 +7874,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, GravityAdminPermissionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGravityAdminPermissionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, PermissaoAdminGravityGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPermissaoAdminGravityGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the GravityAdminPermission model
+   * Fields of the PermissaoAdminGravity model
    */
-  readonly fields: GravityAdminPermissionFieldRefs;
+  readonly fields: PermissaoAdminGravityFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for GravityAdminPermission.
+   * The delegate class that acts as a "Promise-like" for PermissaoAdminGravity.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__GravityAdminPermissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__PermissaoAdminGravityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -7915,315 +7915,315 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the GravityAdminPermission model
+   * Fields of the PermissaoAdminGravity model
    */ 
-  interface GravityAdminPermissionFieldRefs {
-    readonly id: FieldRef<"GravityAdminPermission", 'String'>
-    readonly admin_id: FieldRef<"GravityAdminPermission", 'String'>
-    readonly resource: FieldRef<"GravityAdminPermission", 'String'>
-    readonly action: FieldRef<"GravityAdminPermission", 'String'>
-    readonly granted_by: FieldRef<"GravityAdminPermission", 'String'>
-    readonly created_at: FieldRef<"GravityAdminPermission", 'DateTime'>
-    readonly updated_at: FieldRef<"GravityAdminPermission", 'DateTime'>
+  interface PermissaoAdminGravityFieldRefs {
+    readonly id: FieldRef<"PermissaoAdminGravity", 'String'>
+    readonly admin_id: FieldRef<"PermissaoAdminGravity", 'String'>
+    readonly resource: FieldRef<"PermissaoAdminGravity", 'String'>
+    readonly action: FieldRef<"PermissaoAdminGravity", 'String'>
+    readonly granted_by: FieldRef<"PermissaoAdminGravity", 'String'>
+    readonly created_at: FieldRef<"PermissaoAdminGravity", 'DateTime'>
+    readonly updated_at: FieldRef<"PermissaoAdminGravity", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * GravityAdminPermission findUnique
+   * PermissaoAdminGravity findUnique
    */
-  export type GravityAdminPermissionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * Filter, which GravityAdminPermission to fetch.
+     * Filter, which PermissaoAdminGravity to fetch.
      */
-    where: GravityAdminPermissionWhereUniqueInput
+    where: PermissaoAdminGravityWhereUniqueInput
   }
 
   /**
-   * GravityAdminPermission findUniqueOrThrow
+   * PermissaoAdminGravity findUniqueOrThrow
    */
-  export type GravityAdminPermissionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * Filter, which GravityAdminPermission to fetch.
+     * Filter, which PermissaoAdminGravity to fetch.
      */
-    where: GravityAdminPermissionWhereUniqueInput
+    where: PermissaoAdminGravityWhereUniqueInput
   }
 
   /**
-   * GravityAdminPermission findFirst
+   * PermissaoAdminGravity findFirst
    */
-  export type GravityAdminPermissionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * Filter, which GravityAdminPermission to fetch.
+     * Filter, which PermissaoAdminGravity to fetch.
      */
-    where?: GravityAdminPermissionWhereInput
+    where?: PermissaoAdminGravityWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GravityAdminPermissions to fetch.
+     * Determine the order of PermissaoAdminGravities to fetch.
      */
-    orderBy?: GravityAdminPermissionOrderByWithRelationInput | GravityAdminPermissionOrderByWithRelationInput[]
+    orderBy?: PermissaoAdminGravityOrderByWithRelationInput | PermissaoAdminGravityOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for GravityAdminPermissions.
+     * Sets the position for searching for PermissaoAdminGravities.
      */
-    cursor?: GravityAdminPermissionWhereUniqueInput
+    cursor?: PermissaoAdminGravityWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GravityAdminPermissions from the position of the cursor.
+     * Take `±n` PermissaoAdminGravities from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GravityAdminPermissions.
+     * Skip the first `n` PermissaoAdminGravities.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of GravityAdminPermissions.
+     * Filter by unique combinations of PermissaoAdminGravities.
      */
-    distinct?: GravityAdminPermissionScalarFieldEnum | GravityAdminPermissionScalarFieldEnum[]
+    distinct?: PermissaoAdminGravityScalarFieldEnum | PermissaoAdminGravityScalarFieldEnum[]
   }
 
   /**
-   * GravityAdminPermission findFirstOrThrow
+   * PermissaoAdminGravity findFirstOrThrow
    */
-  export type GravityAdminPermissionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * Filter, which GravityAdminPermission to fetch.
+     * Filter, which PermissaoAdminGravity to fetch.
      */
-    where?: GravityAdminPermissionWhereInput
+    where?: PermissaoAdminGravityWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GravityAdminPermissions to fetch.
+     * Determine the order of PermissaoAdminGravities to fetch.
      */
-    orderBy?: GravityAdminPermissionOrderByWithRelationInput | GravityAdminPermissionOrderByWithRelationInput[]
+    orderBy?: PermissaoAdminGravityOrderByWithRelationInput | PermissaoAdminGravityOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for GravityAdminPermissions.
+     * Sets the position for searching for PermissaoAdminGravities.
      */
-    cursor?: GravityAdminPermissionWhereUniqueInput
+    cursor?: PermissaoAdminGravityWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GravityAdminPermissions from the position of the cursor.
+     * Take `±n` PermissaoAdminGravities from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GravityAdminPermissions.
+     * Skip the first `n` PermissaoAdminGravities.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of GravityAdminPermissions.
+     * Filter by unique combinations of PermissaoAdminGravities.
      */
-    distinct?: GravityAdminPermissionScalarFieldEnum | GravityAdminPermissionScalarFieldEnum[]
+    distinct?: PermissaoAdminGravityScalarFieldEnum | PermissaoAdminGravityScalarFieldEnum[]
   }
 
   /**
-   * GravityAdminPermission findMany
+   * PermissaoAdminGravity findMany
    */
-  export type GravityAdminPermissionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * Filter, which GravityAdminPermissions to fetch.
+     * Filter, which PermissaoAdminGravities to fetch.
      */
-    where?: GravityAdminPermissionWhereInput
+    where?: PermissaoAdminGravityWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of GravityAdminPermissions to fetch.
+     * Determine the order of PermissaoAdminGravities to fetch.
      */
-    orderBy?: GravityAdminPermissionOrderByWithRelationInput | GravityAdminPermissionOrderByWithRelationInput[]
+    orderBy?: PermissaoAdminGravityOrderByWithRelationInput | PermissaoAdminGravityOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing GravityAdminPermissions.
+     * Sets the position for listing PermissaoAdminGravities.
      */
-    cursor?: GravityAdminPermissionWhereUniqueInput
+    cursor?: PermissaoAdminGravityWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` GravityAdminPermissions from the position of the cursor.
+     * Take `±n` PermissaoAdminGravities from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` GravityAdminPermissions.
+     * Skip the first `n` PermissaoAdminGravities.
      */
     skip?: number
-    distinct?: GravityAdminPermissionScalarFieldEnum | GravityAdminPermissionScalarFieldEnum[]
+    distinct?: PermissaoAdminGravityScalarFieldEnum | PermissaoAdminGravityScalarFieldEnum[]
   }
 
   /**
-   * GravityAdminPermission create
+   * PermissaoAdminGravity create
    */
-  export type GravityAdminPermissionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * The data needed to create a GravityAdminPermission.
+     * The data needed to create a PermissaoAdminGravity.
      */
-    data: XOR<GravityAdminPermissionCreateInput, GravityAdminPermissionUncheckedCreateInput>
+    data: XOR<PermissaoAdminGravityCreateInput, PermissaoAdminGravityUncheckedCreateInput>
   }
 
   /**
-   * GravityAdminPermission createMany
+   * PermissaoAdminGravity createMany
    */
-  export type GravityAdminPermissionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many GravityAdminPermissions.
+     * The data used to create many PermissaoAdminGravities.
      */
-    data: GravityAdminPermissionCreateManyInput | GravityAdminPermissionCreateManyInput[]
+    data: PermissaoAdminGravityCreateManyInput | PermissaoAdminGravityCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * GravityAdminPermission createManyAndReturn
+   * PermissaoAdminGravity createManyAndReturn
    */
-  export type GravityAdminPermissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelectCreateManyAndReturn<ExtArgs> | null
+    select?: PermissaoAdminGravitySelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many GravityAdminPermissions.
+     * The data used to create many PermissaoAdminGravities.
      */
-    data: GravityAdminPermissionCreateManyInput | GravityAdminPermissionCreateManyInput[]
+    data: PermissaoAdminGravityCreateManyInput | PermissaoAdminGravityCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * GravityAdminPermission update
+   * PermissaoAdminGravity update
    */
-  export type GravityAdminPermissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * The data needed to update a GravityAdminPermission.
+     * The data needed to update a PermissaoAdminGravity.
      */
-    data: XOR<GravityAdminPermissionUpdateInput, GravityAdminPermissionUncheckedUpdateInput>
+    data: XOR<PermissaoAdminGravityUpdateInput, PermissaoAdminGravityUncheckedUpdateInput>
     /**
-     * Choose, which GravityAdminPermission to update.
+     * Choose, which PermissaoAdminGravity to update.
      */
-    where: GravityAdminPermissionWhereUniqueInput
+    where: PermissaoAdminGravityWhereUniqueInput
   }
 
   /**
-   * GravityAdminPermission updateMany
+   * PermissaoAdminGravity updateMany
    */
-  export type GravityAdminPermissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update GravityAdminPermissions.
+     * The data used to update PermissaoAdminGravities.
      */
-    data: XOR<GravityAdminPermissionUpdateManyMutationInput, GravityAdminPermissionUncheckedUpdateManyInput>
+    data: XOR<PermissaoAdminGravityUpdateManyMutationInput, PermissaoAdminGravityUncheckedUpdateManyInput>
     /**
-     * Filter which GravityAdminPermissions to update
+     * Filter which PermissaoAdminGravities to update
      */
-    where?: GravityAdminPermissionWhereInput
+    where?: PermissaoAdminGravityWhereInput
   }
 
   /**
-   * GravityAdminPermission upsert
+   * PermissaoAdminGravity upsert
    */
-  export type GravityAdminPermissionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * The filter to search for the GravityAdminPermission to update in case it exists.
+     * The filter to search for the PermissaoAdminGravity to update in case it exists.
      */
-    where: GravityAdminPermissionWhereUniqueInput
+    where: PermissaoAdminGravityWhereUniqueInput
     /**
-     * In case the GravityAdminPermission found by the `where` argument doesn't exist, create a new GravityAdminPermission with this data.
+     * In case the PermissaoAdminGravity found by the `where` argument doesn't exist, create a new PermissaoAdminGravity with this data.
      */
-    create: XOR<GravityAdminPermissionCreateInput, GravityAdminPermissionUncheckedCreateInput>
+    create: XOR<PermissaoAdminGravityCreateInput, PermissaoAdminGravityUncheckedCreateInput>
     /**
-     * In case the GravityAdminPermission was found with the provided `where` argument, update it with this data.
+     * In case the PermissaoAdminGravity was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<GravityAdminPermissionUpdateInput, GravityAdminPermissionUncheckedUpdateInput>
+    update: XOR<PermissaoAdminGravityUpdateInput, PermissaoAdminGravityUncheckedUpdateInput>
   }
 
   /**
-   * GravityAdminPermission delete
+   * PermissaoAdminGravity delete
    */
-  export type GravityAdminPermissionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
     /**
-     * Filter which GravityAdminPermission to delete.
+     * Filter which PermissaoAdminGravity to delete.
      */
-    where: GravityAdminPermissionWhereUniqueInput
+    where: PermissaoAdminGravityWhereUniqueInput
   }
 
   /**
-   * GravityAdminPermission deleteMany
+   * PermissaoAdminGravity deleteMany
    */
-  export type GravityAdminPermissionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which GravityAdminPermissions to delete
+     * Filter which PermissaoAdminGravities to delete
      */
-    where?: GravityAdminPermissionWhereInput
+    where?: PermissaoAdminGravityWhereInput
   }
 
   /**
-   * GravityAdminPermission without action
+   * PermissaoAdminGravity without action
    */
-  export type GravityAdminPermissionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PermissaoAdminGravityDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the GravityAdminPermission
+     * Select specific fields to fetch from the PermissaoAdminGravity
      */
-    select?: GravityAdminPermissionSelect<ExtArgs> | null
+    select?: PermissaoAdminGravitySelect<ExtArgs> | null
   }
 
 
   /**
-   * Model Workspace
+   * Model Empresa
    */
 
-  export type AggregateWorkspace = {
-    _count: WorkspaceCountAggregateOutputType | null
-    _min: WorkspaceMinAggregateOutputType | null
-    _max: WorkspaceMaxAggregateOutputType | null
+  export type AggregateEmpresa = {
+    _count: EmpresaCountAggregateOutputType | null
+    _min: EmpresaMinAggregateOutputType | null
+    _max: EmpresaMaxAggregateOutputType | null
   }
 
-  export type WorkspaceMinAggregateOutputType = {
+  export type EmpresaMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     name: string | null
@@ -8234,7 +8234,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type WorkspaceMaxAggregateOutputType = {
+  export type EmpresaMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     name: string | null
@@ -8245,7 +8245,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type WorkspaceCountAggregateOutputType = {
+  export type EmpresaCountAggregateOutputType = {
     id: number
     tenant_id: number
     name: number
@@ -8258,7 +8258,7 @@ export namespace Prisma {
   }
 
 
-  export type WorkspaceMinAggregateInputType = {
+  export type EmpresaMinAggregateInputType = {
     id?: true
     tenant_id?: true
     name?: true
@@ -8269,7 +8269,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type WorkspaceMaxAggregateInputType = {
+  export type EmpresaMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     name?: true
@@ -8280,7 +8280,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type WorkspaceCountAggregateInputType = {
+  export type EmpresaCountAggregateInputType = {
     id?: true
     tenant_id?: true
     name?: true
@@ -8292,79 +8292,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type WorkspaceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Workspace to aggregate.
+     * Filter which Empresa to aggregate.
      */
-    where?: WorkspaceWhereInput
+    where?: EmpresaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Workspaces to fetch.
+     * Determine the order of Empresas to fetch.
      */
-    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: WorkspaceWhereUniqueInput
+    cursor?: EmpresaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Workspaces from the position of the cursor.
+     * Take `±n` Empresas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Workspaces.
+     * Skip the first `n` Empresas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Workspaces
+     * Count returned Empresas
     **/
-    _count?: true | WorkspaceCountAggregateInputType
+    _count?: true | EmpresaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: WorkspaceMinAggregateInputType
+    _min?: EmpresaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: WorkspaceMaxAggregateInputType
+    _max?: EmpresaMaxAggregateInputType
   }
 
-  export type GetWorkspaceAggregateType<T extends WorkspaceAggregateArgs> = {
-        [P in keyof T & keyof AggregateWorkspace]: P extends '_count' | 'count'
+  export type GetEmpresaAggregateType<T extends EmpresaAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmpresa]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateWorkspace[P]>
-      : GetScalarType<T[P], AggregateWorkspace[P]>
+        : GetScalarType<T[P], AggregateEmpresa[P]>
+      : GetScalarType<T[P], AggregateEmpresa[P]>
   }
 
 
 
 
-  export type WorkspaceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: WorkspaceWhereInput
-    orderBy?: WorkspaceOrderByWithAggregationInput | WorkspaceOrderByWithAggregationInput[]
-    by: WorkspaceScalarFieldEnum[] | WorkspaceScalarFieldEnum
-    having?: WorkspaceScalarWhereWithAggregatesInput
+  export type EmpresaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmpresaWhereInput
+    orderBy?: EmpresaOrderByWithAggregationInput | EmpresaOrderByWithAggregationInput[]
+    by: EmpresaScalarFieldEnum[] | EmpresaScalarFieldEnum
+    having?: EmpresaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: WorkspaceCountAggregateInputType | true
-    _min?: WorkspaceMinAggregateInputType
-    _max?: WorkspaceMaxAggregateInputType
+    _count?: EmpresaCountAggregateInputType | true
+    _min?: EmpresaMinAggregateInputType
+    _max?: EmpresaMaxAggregateInputType
   }
 
-  export type WorkspaceGroupByOutputType = {
+  export type EmpresaGroupByOutputType = {
     id: string
     tenant_id: string
     name: string
@@ -8373,26 +8373,26 @@ export namespace Prisma {
     status: $Enums.CompanyStatus
     created_at: Date
     updated_at: Date
-    _count: WorkspaceCountAggregateOutputType | null
-    _min: WorkspaceMinAggregateOutputType | null
-    _max: WorkspaceMaxAggregateOutputType | null
+    _count: EmpresaCountAggregateOutputType | null
+    _min: EmpresaMinAggregateOutputType | null
+    _max: EmpresaMaxAggregateOutputType | null
   }
 
-  type GetWorkspaceGroupByPayload<T extends WorkspaceGroupByArgs> = Prisma.PrismaPromise<
+  type GetEmpresaGroupByPayload<T extends EmpresaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<WorkspaceGroupByOutputType, T['by']> &
+      PickEnumerable<EmpresaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof WorkspaceGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof EmpresaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], WorkspaceGroupByOutputType[P]>
-            : GetScalarType<T[P], WorkspaceGroupByOutputType[P]>
+              : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
+            : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type WorkspaceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type EmpresaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     name?: boolean
@@ -8402,13 +8402,13 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    memberships?: boolean | Workspace$membershipsArgs<ExtArgs>
-    company_products?: boolean | Workspace$company_productsArgs<ExtArgs>
-    preferred_by_users?: boolean | Workspace$preferred_by_usersArgs<ExtArgs>
-    _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["workspace"]>
+    memberships?: boolean | Empresa$membershipsArgs<ExtArgs>
+    company_products?: boolean | Empresa$company_productsArgs<ExtArgs>
+    preferred_by_users?: boolean | Empresa$preferred_by_usersArgs<ExtArgs>
+    _count?: boolean | EmpresaCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["empresa"]>
 
-  export type WorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type EmpresaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     name?: boolean
@@ -8418,9 +8418,9 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["workspace"]>
+  }, ExtArgs["result"]["empresa"]>
 
-  export type WorkspaceSelectScalar = {
+  export type EmpresaSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     name?: boolean
@@ -8431,19 +8431,19 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type WorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    memberships?: boolean | Workspace$membershipsArgs<ExtArgs>
-    company_products?: boolean | Workspace$company_productsArgs<ExtArgs>
-    preferred_by_users?: boolean | Workspace$preferred_by_usersArgs<ExtArgs>
-    _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
+    memberships?: boolean | Empresa$membershipsArgs<ExtArgs>
+    company_products?: boolean | Empresa$company_productsArgs<ExtArgs>
+    preferred_by_users?: boolean | Empresa$preferred_by_usersArgs<ExtArgs>
+    _count?: boolean | EmpresaCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }
 
-  export type $WorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Workspace"
+  export type $EmpresaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Empresa"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
       memberships: Prisma.$UsuarioWorkspacePayload<ExtArgs>[]
@@ -8459,136 +8459,136 @@ export namespace Prisma {
       status: $Enums.CompanyStatus
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["workspace"]>
+    }, ExtArgs["result"]["empresa"]>
     composites: {}
   }
 
-  type WorkspaceGetPayload<S extends boolean | null | undefined | WorkspaceDefaultArgs> = $Result.GetResult<Prisma.$WorkspacePayload, S>
+  type EmpresaGetPayload<S extends boolean | null | undefined | EmpresaDefaultArgs> = $Result.GetResult<Prisma.$EmpresaPayload, S>
 
-  type WorkspaceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<WorkspaceFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: WorkspaceCountAggregateInputType | true
+  type EmpresaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<EmpresaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: EmpresaCountAggregateInputType | true
     }
 
-  export interface WorkspaceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Workspace'], meta: { name: 'Workspace' } }
+  export interface EmpresaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Empresa'], meta: { name: 'Empresa' } }
     /**
-     * Find zero or one Workspace that matches the filter.
-     * @param {WorkspaceFindUniqueArgs} args - Arguments to find a Workspace
+     * Find zero or one Empresa that matches the filter.
+     * @param {EmpresaFindUniqueArgs} args - Arguments to find a Empresa
      * @example
-     * // Get one Workspace
-     * const workspace = await prisma.workspace.findUnique({
+     * // Get one Empresa
+     * const empresa = await prisma.empresa.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends WorkspaceFindUniqueArgs>(args: SelectSubset<T, WorkspaceFindUniqueArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends EmpresaFindUniqueArgs>(args: SelectSubset<T, EmpresaFindUniqueArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one Workspace that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Empresa that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {WorkspaceFindUniqueOrThrowArgs} args - Arguments to find a Workspace
+     * @param {EmpresaFindUniqueOrThrowArgs} args - Arguments to find a Empresa
      * @example
-     * // Get one Workspace
-     * const workspace = await prisma.workspace.findUniqueOrThrow({
+     * // Get one Empresa
+     * const empresa = await prisma.empresa.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends WorkspaceFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkspaceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends EmpresaFindUniqueOrThrowArgs>(args: SelectSubset<T, EmpresaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first Workspace that matches the filter.
+     * Find the first Empresa that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceFindFirstArgs} args - Arguments to find a Workspace
+     * @param {EmpresaFindFirstArgs} args - Arguments to find a Empresa
      * @example
-     * // Get one Workspace
-     * const workspace = await prisma.workspace.findFirst({
+     * // Get one Empresa
+     * const empresa = await prisma.empresa.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends WorkspaceFindFirstArgs>(args?: SelectSubset<T, WorkspaceFindFirstArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends EmpresaFindFirstArgs>(args?: SelectSubset<T, EmpresaFindFirstArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first Workspace that matches the filter or
+     * Find the first Empresa that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceFindFirstOrThrowArgs} args - Arguments to find a Workspace
+     * @param {EmpresaFindFirstOrThrowArgs} args - Arguments to find a Empresa
      * @example
-     * // Get one Workspace
-     * const workspace = await prisma.workspace.findFirstOrThrow({
+     * // Get one Empresa
+     * const empresa = await prisma.empresa.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends WorkspaceFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkspaceFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends EmpresaFindFirstOrThrowArgs>(args?: SelectSubset<T, EmpresaFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more Workspaces that matches the filter.
+     * Find zero or more Empresas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {EmpresaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Workspaces
-     * const workspaces = await prisma.workspace.findMany()
+     * // Get all Empresas
+     * const empresas = await prisma.empresa.findMany()
      * 
-     * // Get first 10 Workspaces
-     * const workspaces = await prisma.workspace.findMany({ take: 10 })
+     * // Get first 10 Empresas
+     * const empresas = await prisma.empresa.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const workspaceWithIdOnly = await prisma.workspace.findMany({ select: { id: true } })
+     * const empresaWithIdOnly = await prisma.empresa.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends WorkspaceFindManyArgs>(args?: SelectSubset<T, WorkspaceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends EmpresaFindManyArgs>(args?: SelectSubset<T, EmpresaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a Workspace.
-     * @param {WorkspaceCreateArgs} args - Arguments to create a Workspace.
+     * Create a Empresa.
+     * @param {EmpresaCreateArgs} args - Arguments to create a Empresa.
      * @example
-     * // Create one Workspace
-     * const Workspace = await prisma.workspace.create({
+     * // Create one Empresa
+     * const Empresa = await prisma.empresa.create({
      *   data: {
-     *     // ... data to create a Workspace
+     *     // ... data to create a Empresa
      *   }
      * })
      * 
      */
-    create<T extends WorkspaceCreateArgs>(args: SelectSubset<T, WorkspaceCreateArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends EmpresaCreateArgs>(args: SelectSubset<T, EmpresaCreateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many Workspaces.
-     * @param {WorkspaceCreateManyArgs} args - Arguments to create many Workspaces.
+     * Create many Empresas.
+     * @param {EmpresaCreateManyArgs} args - Arguments to create many Empresas.
      * @example
-     * // Create many Workspaces
-     * const workspace = await prisma.workspace.createMany({
+     * // Create many Empresas
+     * const empresa = await prisma.empresa.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends WorkspaceCreateManyArgs>(args?: SelectSubset<T, WorkspaceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends EmpresaCreateManyArgs>(args?: SelectSubset<T, EmpresaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Workspaces and returns the data saved in the database.
-     * @param {WorkspaceCreateManyAndReturnArgs} args - Arguments to create many Workspaces.
+     * Create many Empresas and returns the data saved in the database.
+     * @param {EmpresaCreateManyAndReturnArgs} args - Arguments to create many Empresas.
      * @example
-     * // Create many Workspaces
-     * const workspace = await prisma.workspace.createManyAndReturn({
+     * // Create many Empresas
+     * const empresa = await prisma.empresa.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Workspaces and only return the `id`
-     * const workspaceWithIdOnly = await prisma.workspace.createManyAndReturn({ 
+     * // Create many Empresas and only return the `id`
+     * const empresaWithIdOnly = await prisma.empresa.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -8598,28 +8598,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends WorkspaceCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkspaceCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends EmpresaCreateManyAndReturnArgs>(args?: SelectSubset<T, EmpresaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a Workspace.
-     * @param {WorkspaceDeleteArgs} args - Arguments to delete one Workspace.
+     * Delete a Empresa.
+     * @param {EmpresaDeleteArgs} args - Arguments to delete one Empresa.
      * @example
-     * // Delete one Workspace
-     * const Workspace = await prisma.workspace.delete({
+     * // Delete one Empresa
+     * const Empresa = await prisma.empresa.delete({
      *   where: {
-     *     // ... filter to delete one Workspace
+     *     // ... filter to delete one Empresa
      *   }
      * })
      * 
      */
-    delete<T extends WorkspaceDeleteArgs>(args: SelectSubset<T, WorkspaceDeleteArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends EmpresaDeleteArgs>(args: SelectSubset<T, EmpresaDeleteArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one Workspace.
-     * @param {WorkspaceUpdateArgs} args - Arguments to update one Workspace.
+     * Update one Empresa.
+     * @param {EmpresaUpdateArgs} args - Arguments to update one Empresa.
      * @example
-     * // Update one Workspace
-     * const workspace = await prisma.workspace.update({
+     * // Update one Empresa
+     * const empresa = await prisma.empresa.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -8629,30 +8629,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends WorkspaceUpdateArgs>(args: SelectSubset<T, WorkspaceUpdateArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends EmpresaUpdateArgs>(args: SelectSubset<T, EmpresaUpdateArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more Workspaces.
-     * @param {WorkspaceDeleteManyArgs} args - Arguments to filter Workspaces to delete.
+     * Delete zero or more Empresas.
+     * @param {EmpresaDeleteManyArgs} args - Arguments to filter Empresas to delete.
      * @example
-     * // Delete a few Workspaces
-     * const { count } = await prisma.workspace.deleteMany({
+     * // Delete a few Empresas
+     * const { count } = await prisma.empresa.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends WorkspaceDeleteManyArgs>(args?: SelectSubset<T, WorkspaceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends EmpresaDeleteManyArgs>(args?: SelectSubset<T, EmpresaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Workspaces.
+     * Update zero or more Empresas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {EmpresaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Workspaces
-     * const workspace = await prisma.workspace.updateMany({
+     * // Update many Empresas
+     * const empresa = await prisma.empresa.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -8662,56 +8662,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends WorkspaceUpdateManyArgs>(args: SelectSubset<T, WorkspaceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends EmpresaUpdateManyArgs>(args: SelectSubset<T, EmpresaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Workspace.
-     * @param {WorkspaceUpsertArgs} args - Arguments to update or create a Workspace.
+     * Create or update one Empresa.
+     * @param {EmpresaUpsertArgs} args - Arguments to update or create a Empresa.
      * @example
-     * // Update or create a Workspace
-     * const workspace = await prisma.workspace.upsert({
+     * // Update or create a Empresa
+     * const empresa = await prisma.empresa.upsert({
      *   create: {
-     *     // ... data to create a Workspace
+     *     // ... data to create a Empresa
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Workspace we want to update
+     *     // ... the filter for the Empresa we want to update
      *   }
      * })
      */
-    upsert<T extends WorkspaceUpsertArgs>(args: SelectSubset<T, WorkspaceUpsertArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends EmpresaUpsertArgs>(args: SelectSubset<T, EmpresaUpsertArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of Workspaces.
+     * Count the number of Empresas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceCountArgs} args - Arguments to filter Workspaces to count.
+     * @param {EmpresaCountArgs} args - Arguments to filter Empresas to count.
      * @example
-     * // Count the number of Workspaces
-     * const count = await prisma.workspace.count({
+     * // Count the number of Empresas
+     * const count = await prisma.empresa.count({
      *   where: {
-     *     // ... the filter for the Workspaces we want to count
+     *     // ... the filter for the Empresas we want to count
      *   }
      * })
     **/
-    count<T extends WorkspaceCountArgs>(
-      args?: Subset<T, WorkspaceCountArgs>,
+    count<T extends EmpresaCountArgs>(
+      args?: Subset<T, EmpresaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], WorkspaceCountAggregateOutputType>
+          : GetScalarType<T['select'], EmpresaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Workspace.
+     * Allows you to perform aggregations operations on a Empresa.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {EmpresaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -8731,13 +8731,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends WorkspaceAggregateArgs>(args: Subset<T, WorkspaceAggregateArgs>): Prisma.PrismaPromise<GetWorkspaceAggregateType<T>>
+    aggregate<T extends EmpresaAggregateArgs>(args: Subset<T, EmpresaAggregateArgs>): Prisma.PrismaPromise<GetEmpresaAggregateType<T>>
 
     /**
-     * Group by Workspace.
+     * Group by Empresa.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {WorkspaceGroupByArgs} args - Group by arguments.
+     * @param {EmpresaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -8752,14 +8752,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends WorkspaceGroupByArgs,
+      T extends EmpresaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: WorkspaceGroupByArgs['orderBy'] }
-        : { orderBy?: WorkspaceGroupByArgs['orderBy'] },
+        ? { orderBy: EmpresaGroupByArgs['orderBy'] }
+        : { orderBy?: EmpresaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -8808,25 +8808,25 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, WorkspaceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkspaceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, EmpresaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmpresaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Workspace model
+   * Fields of the Empresa model
    */
-  readonly fields: WorkspaceFieldRefs;
+  readonly fields: EmpresaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Workspace.
+   * The delegate class that acts as a "Promise-like" for Empresa.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__EmpresaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    memberships<T extends Workspace$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
-    company_products<T extends Workspace$company_productsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$company_productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
-    preferred_by_users<T extends Workspace$preferred_by_usersArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$preferred_by_usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany"> | Null>
+    memberships<T extends Empresa$membershipsArgs<ExtArgs> = {}>(args?: Subset<T, Empresa$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
+    company_products<T extends Empresa$company_productsArgs<ExtArgs> = {}>(args?: Subset<T, Empresa$company_productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
+    preferred_by_users<T extends Empresa$preferred_by_usersArgs<ExtArgs> = {}>(args?: Subset<T, Empresa$preferred_by_usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8853,338 +8853,338 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Workspace model
+   * Fields of the Empresa model
    */ 
-  interface WorkspaceFieldRefs {
-    readonly id: FieldRef<"Workspace", 'String'>
-    readonly tenant_id: FieldRef<"Workspace", 'String'>
-    readonly name: FieldRef<"Workspace", 'String'>
-    readonly subdomain: FieldRef<"Workspace", 'String'>
-    readonly cnpj: FieldRef<"Workspace", 'String'>
-    readonly status: FieldRef<"Workspace", 'CompanyStatus'>
-    readonly created_at: FieldRef<"Workspace", 'DateTime'>
-    readonly updated_at: FieldRef<"Workspace", 'DateTime'>
+  interface EmpresaFieldRefs {
+    readonly id: FieldRef<"Empresa", 'String'>
+    readonly tenant_id: FieldRef<"Empresa", 'String'>
+    readonly name: FieldRef<"Empresa", 'String'>
+    readonly subdomain: FieldRef<"Empresa", 'String'>
+    readonly cnpj: FieldRef<"Empresa", 'String'>
+    readonly status: FieldRef<"Empresa", 'CompanyStatus'>
+    readonly created_at: FieldRef<"Empresa", 'DateTime'>
+    readonly updated_at: FieldRef<"Empresa", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * Workspace findUnique
+   * Empresa findUnique
    */
-  export type WorkspaceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * Filter, which Workspace to fetch.
+     * Filter, which Empresa to fetch.
      */
-    where: WorkspaceWhereUniqueInput
+    where: EmpresaWhereUniqueInput
   }
 
   /**
-   * Workspace findUniqueOrThrow
+   * Empresa findUniqueOrThrow
    */
-  export type WorkspaceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * Filter, which Workspace to fetch.
+     * Filter, which Empresa to fetch.
      */
-    where: WorkspaceWhereUniqueInput
+    where: EmpresaWhereUniqueInput
   }
 
   /**
-   * Workspace findFirst
+   * Empresa findFirst
    */
-  export type WorkspaceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * Filter, which Workspace to fetch.
+     * Filter, which Empresa to fetch.
      */
-    where?: WorkspaceWhereInput
+    where?: EmpresaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Workspaces to fetch.
+     * Determine the order of Empresas to fetch.
      */
-    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Workspaces.
+     * Sets the position for searching for Empresas.
      */
-    cursor?: WorkspaceWhereUniqueInput
+    cursor?: EmpresaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Workspaces from the position of the cursor.
+     * Take `±n` Empresas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Workspaces.
+     * Skip the first `n` Empresas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Workspaces.
+     * Filter by unique combinations of Empresas.
      */
-    distinct?: WorkspaceScalarFieldEnum | WorkspaceScalarFieldEnum[]
+    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
   }
 
   /**
-   * Workspace findFirstOrThrow
+   * Empresa findFirstOrThrow
    */
-  export type WorkspaceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * Filter, which Workspace to fetch.
+     * Filter, which Empresa to fetch.
      */
-    where?: WorkspaceWhereInput
+    where?: EmpresaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Workspaces to fetch.
+     * Determine the order of Empresas to fetch.
      */
-    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Workspaces.
+     * Sets the position for searching for Empresas.
      */
-    cursor?: WorkspaceWhereUniqueInput
+    cursor?: EmpresaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Workspaces from the position of the cursor.
+     * Take `±n` Empresas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Workspaces.
+     * Skip the first `n` Empresas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Workspaces.
+     * Filter by unique combinations of Empresas.
      */
-    distinct?: WorkspaceScalarFieldEnum | WorkspaceScalarFieldEnum[]
+    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
   }
 
   /**
-   * Workspace findMany
+   * Empresa findMany
    */
-  export type WorkspaceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * Filter, which Workspaces to fetch.
+     * Filter, which Empresas to fetch.
      */
-    where?: WorkspaceWhereInput
+    where?: EmpresaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Workspaces to fetch.
+     * Determine the order of Empresas to fetch.
      */
-    orderBy?: WorkspaceOrderByWithRelationInput | WorkspaceOrderByWithRelationInput[]
+    orderBy?: EmpresaOrderByWithRelationInput | EmpresaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Workspaces.
+     * Sets the position for listing Empresas.
      */
-    cursor?: WorkspaceWhereUniqueInput
+    cursor?: EmpresaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Workspaces from the position of the cursor.
+     * Take `±n` Empresas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Workspaces.
+     * Skip the first `n` Empresas.
      */
     skip?: number
-    distinct?: WorkspaceScalarFieldEnum | WorkspaceScalarFieldEnum[]
+    distinct?: EmpresaScalarFieldEnum | EmpresaScalarFieldEnum[]
   }
 
   /**
-   * Workspace create
+   * Empresa create
    */
-  export type WorkspaceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * The data needed to create a Workspace.
+     * The data needed to create a Empresa.
      */
-    data: XOR<WorkspaceCreateInput, WorkspaceUncheckedCreateInput>
+    data: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
   }
 
   /**
-   * Workspace createMany
+   * Empresa createMany
    */
-  export type WorkspaceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Workspaces.
+     * The data used to create many Empresas.
      */
-    data: WorkspaceCreateManyInput | WorkspaceCreateManyInput[]
+    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Workspace createManyAndReturn
+   * Empresa createManyAndReturn
    */
-  export type WorkspaceCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelectCreateManyAndReturn<ExtArgs> | null
+    select?: EmpresaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many Workspaces.
+     * The data used to create many Empresas.
      */
-    data: WorkspaceCreateManyInput | WorkspaceCreateManyInput[]
+    data: EmpresaCreateManyInput | EmpresaCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: EmpresaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * Workspace update
+   * Empresa update
    */
-  export type WorkspaceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * The data needed to update a Workspace.
+     * The data needed to update a Empresa.
      */
-    data: XOR<WorkspaceUpdateInput, WorkspaceUncheckedUpdateInput>
+    data: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
     /**
-     * Choose, which Workspace to update.
+     * Choose, which Empresa to update.
      */
-    where: WorkspaceWhereUniqueInput
+    where: EmpresaWhereUniqueInput
   }
 
   /**
-   * Workspace updateMany
+   * Empresa updateMany
    */
-  export type WorkspaceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Workspaces.
+     * The data used to update Empresas.
      */
-    data: XOR<WorkspaceUpdateManyMutationInput, WorkspaceUncheckedUpdateManyInput>
+    data: XOR<EmpresaUpdateManyMutationInput, EmpresaUncheckedUpdateManyInput>
     /**
-     * Filter which Workspaces to update
+     * Filter which Empresas to update
      */
-    where?: WorkspaceWhereInput
+    where?: EmpresaWhereInput
   }
 
   /**
-   * Workspace upsert
+   * Empresa upsert
    */
-  export type WorkspaceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * The filter to search for the Workspace to update in case it exists.
+     * The filter to search for the Empresa to update in case it exists.
      */
-    where: WorkspaceWhereUniqueInput
+    where: EmpresaWhereUniqueInput
     /**
-     * In case the Workspace found by the `where` argument doesn't exist, create a new Workspace with this data.
+     * In case the Empresa found by the `where` argument doesn't exist, create a new Empresa with this data.
      */
-    create: XOR<WorkspaceCreateInput, WorkspaceUncheckedCreateInput>
+    create: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
     /**
-     * In case the Workspace was found with the provided `where` argument, update it with this data.
+     * In case the Empresa was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<WorkspaceUpdateInput, WorkspaceUncheckedUpdateInput>
+    update: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
   }
 
   /**
-   * Workspace delete
+   * Empresa delete
    */
-  export type WorkspaceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
     /**
-     * Filter which Workspace to delete.
+     * Filter which Empresa to delete.
      */
-    where: WorkspaceWhereUniqueInput
+    where: EmpresaWhereUniqueInput
   }
 
   /**
-   * Workspace deleteMany
+   * Empresa deleteMany
    */
-  export type WorkspaceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Workspaces to delete
+     * Filter which Empresas to delete
      */
-    where?: WorkspaceWhereInput
+    where?: EmpresaWhereInput
   }
 
   /**
-   * Workspace.memberships
+   * Empresa.memberships
    */
-  export type Workspace$membershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Empresa$membershipsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the UsuarioWorkspace
      */
@@ -9202,9 +9202,9 @@ export namespace Prisma {
   }
 
   /**
-   * Workspace.company_products
+   * Empresa.company_products
    */
-  export type Workspace$company_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Empresa$company_productsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the ProdutoGravityWorkspace
      */
@@ -9222,9 +9222,9 @@ export namespace Prisma {
   }
 
   /**
-   * Workspace.preferred_by_users
+   * Empresa.preferred_by_users
    */
-  export type Workspace$preferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Empresa$preferred_by_usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Usuario
      */
@@ -9242,17 +9242,17 @@ export namespace Prisma {
   }
 
   /**
-   * Workspace without action
+   * Empresa without action
    */
-  export type WorkspaceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EmpresaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Workspace
+     * Select specific fields to fetch from the Empresa
      */
-    select?: WorkspaceSelect<ExtArgs> | null
+    select?: EmpresaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: WorkspaceInclude<ExtArgs> | null
+    include?: EmpresaInclude<ExtArgs> | null
   }
 
 
@@ -9445,7 +9445,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
-    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    company?: boolean | EmpresaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuarioWorkspace"]>
 
   export type UsuarioWorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -9458,7 +9458,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
-    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    company?: boolean | EmpresaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["usuarioWorkspace"]>
 
   export type UsuarioWorkspaceSelectScalar = {
@@ -9474,18 +9474,18 @@ export namespace Prisma {
 
   export type UsuarioWorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
-    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    company?: boolean | EmpresaDefaultArgs<ExtArgs>
   }
   export type UsuarioWorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UsuarioDefaultArgs<ExtArgs>
-    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    company?: boolean | EmpresaDefaultArgs<ExtArgs>
   }
 
   export type $UsuarioWorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "UsuarioWorkspace"
     objects: {
       user: Prisma.$UsuarioPayload<ExtArgs>
-      company: Prisma.$WorkspacePayload<ExtArgs>
+      company: Prisma.$EmpresaPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -9861,7 +9861,7 @@ export namespace Prisma {
   export interface Prisma__UsuarioWorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UsuarioDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UsuarioDefaultArgs<ExtArgs>>): Prisma__UsuarioClient<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    company<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    company<T extends EmpresaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmpresaDefaultArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10232,16 +10232,16 @@ export namespace Prisma {
 
 
   /**
-   * Model ProductConfig
+   * Model ConfiguracaoProduto
    */
 
-  export type AggregateProductConfig = {
-    _count: ProductConfigCountAggregateOutputType | null
-    _min: ProductConfigMinAggregateOutputType | null
-    _max: ProductConfigMaxAggregateOutputType | null
+  export type AggregateConfiguracaoProduto = {
+    _count: ConfiguracaoProdutoCountAggregateOutputType | null
+    _min: ConfiguracaoProdutoMinAggregateOutputType | null
+    _max: ConfiguracaoProdutoMaxAggregateOutputType | null
   }
 
-  export type ProductConfigMinAggregateOutputType = {
+  export type ConfiguracaoProdutoMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     product_key: string | null
@@ -10250,7 +10250,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type ProductConfigMaxAggregateOutputType = {
+  export type ConfiguracaoProdutoMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     product_key: string | null
@@ -10259,7 +10259,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type ProductConfigCountAggregateOutputType = {
+  export type ConfiguracaoProdutoCountAggregateOutputType = {
     id: number
     tenant_id: number
     product_key: number
@@ -10271,7 +10271,7 @@ export namespace Prisma {
   }
 
 
-  export type ProductConfigMinAggregateInputType = {
+  export type ConfiguracaoProdutoMinAggregateInputType = {
     id?: true
     tenant_id?: true
     product_key?: true
@@ -10280,7 +10280,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type ProductConfigMaxAggregateInputType = {
+  export type ConfiguracaoProdutoMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     product_key?: true
@@ -10289,7 +10289,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type ProductConfigCountAggregateInputType = {
+  export type ConfiguracaoProdutoCountAggregateInputType = {
     id?: true
     tenant_id?: true
     product_key?: true
@@ -10300,79 +10300,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type ProductConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ProductConfig to aggregate.
+     * Filter which ConfiguracaoProduto to aggregate.
      */
-    where?: ProductConfigWhereInput
+    where?: ConfiguracaoProdutoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ProductConfigs to fetch.
+     * Determine the order of ConfiguracaoProdutos to fetch.
      */
-    orderBy?: ProductConfigOrderByWithRelationInput | ProductConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ProductConfigWhereUniqueInput
+    cursor?: ConfiguracaoProdutoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ProductConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoProdutos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ProductConfigs.
+     * Skip the first `n` ConfiguracaoProdutos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ProductConfigs
+     * Count returned ConfiguracaoProdutos
     **/
-    _count?: true | ProductConfigCountAggregateInputType
+    _count?: true | ConfiguracaoProdutoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ProductConfigMinAggregateInputType
+    _min?: ConfiguracaoProdutoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ProductConfigMaxAggregateInputType
+    _max?: ConfiguracaoProdutoMaxAggregateInputType
   }
 
-  export type GetProductConfigAggregateType<T extends ProductConfigAggregateArgs> = {
-        [P in keyof T & keyof AggregateProductConfig]: P extends '_count' | 'count'
+  export type GetConfiguracaoProdutoAggregateType<T extends ConfiguracaoProdutoAggregateArgs> = {
+        [P in keyof T & keyof AggregateConfiguracaoProduto]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateProductConfig[P]>
-      : GetScalarType<T[P], AggregateProductConfig[P]>
+        : GetScalarType<T[P], AggregateConfiguracaoProduto[P]>
+      : GetScalarType<T[P], AggregateConfiguracaoProduto[P]>
   }
 
 
 
 
-  export type ProductConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ProductConfigWhereInput
-    orderBy?: ProductConfigOrderByWithAggregationInput | ProductConfigOrderByWithAggregationInput[]
-    by: ProductConfigScalarFieldEnum[] | ProductConfigScalarFieldEnum
-    having?: ProductConfigScalarWhereWithAggregatesInput
+  export type ConfiguracaoProdutoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConfiguracaoProdutoWhereInput
+    orderBy?: ConfiguracaoProdutoOrderByWithAggregationInput | ConfiguracaoProdutoOrderByWithAggregationInput[]
+    by: ConfiguracaoProdutoScalarFieldEnum[] | ConfiguracaoProdutoScalarFieldEnum
+    having?: ConfiguracaoProdutoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ProductConfigCountAggregateInputType | true
-    _min?: ProductConfigMinAggregateInputType
-    _max?: ProductConfigMaxAggregateInputType
+    _count?: ConfiguracaoProdutoCountAggregateInputType | true
+    _min?: ConfiguracaoProdutoMinAggregateInputType
+    _max?: ConfiguracaoProdutoMaxAggregateInputType
   }
 
-  export type ProductConfigGroupByOutputType = {
+  export type ConfiguracaoProdutoGroupByOutputType = {
     id: string
     tenant_id: string
     product_key: string
@@ -10380,26 +10380,26 @@ export namespace Prisma {
     is_active: boolean
     created_at: Date
     updated_at: Date
-    _count: ProductConfigCountAggregateOutputType | null
-    _min: ProductConfigMinAggregateOutputType | null
-    _max: ProductConfigMaxAggregateOutputType | null
+    _count: ConfiguracaoProdutoCountAggregateOutputType | null
+    _min: ConfiguracaoProdutoMinAggregateOutputType | null
+    _max: ConfiguracaoProdutoMaxAggregateOutputType | null
   }
 
-  type GetProductConfigGroupByPayload<T extends ProductConfigGroupByArgs> = Prisma.PrismaPromise<
+  type GetConfiguracaoProdutoGroupByPayload<T extends ConfiguracaoProdutoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ProductConfigGroupByOutputType, T['by']> &
+      PickEnumerable<ConfiguracaoProdutoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ProductConfigGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ConfiguracaoProdutoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ProductConfigGroupByOutputType[P]>
-            : GetScalarType<T[P], ProductConfigGroupByOutputType[P]>
+              : GetScalarType<T[P], ConfiguracaoProdutoGroupByOutputType[P]>
+            : GetScalarType<T[P], ConfiguracaoProdutoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ProductConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ConfiguracaoProdutoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     product_key?: boolean
@@ -10408,9 +10408,9 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["productConfig"]>
+  }, ExtArgs["result"]["configuracaoProduto"]>
 
-  export type ProductConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ConfiguracaoProdutoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     product_key?: boolean
@@ -10419,9 +10419,9 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["productConfig"]>
+  }, ExtArgs["result"]["configuracaoProduto"]>
 
-  export type ProductConfigSelectScalar = {
+  export type ConfiguracaoProdutoSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     product_key?: boolean
@@ -10431,15 +10431,15 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type ProductConfigInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }
-  export type ProductConfigIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }
 
-  export type $ProductConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ProductConfig"
+  export type $ConfiguracaoProdutoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConfiguracaoProduto"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
     }
@@ -10451,136 +10451,136 @@ export namespace Prisma {
       is_active: boolean
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["productConfig"]>
+    }, ExtArgs["result"]["configuracaoProduto"]>
     composites: {}
   }
 
-  type ProductConfigGetPayload<S extends boolean | null | undefined | ProductConfigDefaultArgs> = $Result.GetResult<Prisma.$ProductConfigPayload, S>
+  type ConfiguracaoProdutoGetPayload<S extends boolean | null | undefined | ConfiguracaoProdutoDefaultArgs> = $Result.GetResult<Prisma.$ConfiguracaoProdutoPayload, S>
 
-  type ProductConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ProductConfigFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ProductConfigCountAggregateInputType | true
+  type ConfiguracaoProdutoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ConfiguracaoProdutoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ConfiguracaoProdutoCountAggregateInputType | true
     }
 
-  export interface ProductConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProductConfig'], meta: { name: 'ProductConfig' } }
+  export interface ConfiguracaoProdutoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConfiguracaoProduto'], meta: { name: 'ConfiguracaoProduto' } }
     /**
-     * Find zero or one ProductConfig that matches the filter.
-     * @param {ProductConfigFindUniqueArgs} args - Arguments to find a ProductConfig
+     * Find zero or one ConfiguracaoProduto that matches the filter.
+     * @param {ConfiguracaoProdutoFindUniqueArgs} args - Arguments to find a ConfiguracaoProduto
      * @example
-     * // Get one ProductConfig
-     * const productConfig = await prisma.productConfig.findUnique({
+     * // Get one ConfiguracaoProduto
+     * const configuracaoProduto = await prisma.configuracaoProduto.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ProductConfigFindUniqueArgs>(args: SelectSubset<T, ProductConfigFindUniqueArgs<ExtArgs>>): Prisma__ProductConfigClient<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ConfiguracaoProdutoFindUniqueArgs>(args: SelectSubset<T, ConfiguracaoProdutoFindUniqueArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ProductConfig that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ConfiguracaoProduto that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ProductConfigFindUniqueOrThrowArgs} args - Arguments to find a ProductConfig
+     * @param {ConfiguracaoProdutoFindUniqueOrThrowArgs} args - Arguments to find a ConfiguracaoProduto
      * @example
-     * // Get one ProductConfig
-     * const productConfig = await prisma.productConfig.findUniqueOrThrow({
+     * // Get one ConfiguracaoProduto
+     * const configuracaoProduto = await prisma.configuracaoProduto.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ProductConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, ProductConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProductConfigClient<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ConfiguracaoProdutoFindUniqueOrThrowArgs>(args: SelectSubset<T, ConfiguracaoProdutoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first ProductConfig that matches the filter.
+     * Find the first ConfiguracaoProduto that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductConfigFindFirstArgs} args - Arguments to find a ProductConfig
+     * @param {ConfiguracaoProdutoFindFirstArgs} args - Arguments to find a ConfiguracaoProduto
      * @example
-     * // Get one ProductConfig
-     * const productConfig = await prisma.productConfig.findFirst({
+     * // Get one ConfiguracaoProduto
+     * const configuracaoProduto = await prisma.configuracaoProduto.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ProductConfigFindFirstArgs>(args?: SelectSubset<T, ProductConfigFindFirstArgs<ExtArgs>>): Prisma__ProductConfigClient<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ConfiguracaoProdutoFindFirstArgs>(args?: SelectSubset<T, ConfiguracaoProdutoFindFirstArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first ProductConfig that matches the filter or
+     * Find the first ConfiguracaoProduto that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductConfigFindFirstOrThrowArgs} args - Arguments to find a ProductConfig
+     * @param {ConfiguracaoProdutoFindFirstOrThrowArgs} args - Arguments to find a ConfiguracaoProduto
      * @example
-     * // Get one ProductConfig
-     * const productConfig = await prisma.productConfig.findFirstOrThrow({
+     * // Get one ConfiguracaoProduto
+     * const configuracaoProduto = await prisma.configuracaoProduto.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ProductConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, ProductConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProductConfigClient<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ConfiguracaoProdutoFindFirstOrThrowArgs>(args?: SelectSubset<T, ConfiguracaoProdutoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more ProductConfigs that matches the filter.
+     * Find zero or more ConfiguracaoProdutos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ConfiguracaoProdutoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ProductConfigs
-     * const productConfigs = await prisma.productConfig.findMany()
+     * // Get all ConfiguracaoProdutos
+     * const configuracaoProdutos = await prisma.configuracaoProduto.findMany()
      * 
-     * // Get first 10 ProductConfigs
-     * const productConfigs = await prisma.productConfig.findMany({ take: 10 })
+     * // Get first 10 ConfiguracaoProdutos
+     * const configuracaoProdutos = await prisma.configuracaoProduto.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const productConfigWithIdOnly = await prisma.productConfig.findMany({ select: { id: true } })
+     * const configuracaoProdutoWithIdOnly = await prisma.configuracaoProduto.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ProductConfigFindManyArgs>(args?: SelectSubset<T, ProductConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ConfiguracaoProdutoFindManyArgs>(args?: SelectSubset<T, ConfiguracaoProdutoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a ProductConfig.
-     * @param {ProductConfigCreateArgs} args - Arguments to create a ProductConfig.
+     * Create a ConfiguracaoProduto.
+     * @param {ConfiguracaoProdutoCreateArgs} args - Arguments to create a ConfiguracaoProduto.
      * @example
-     * // Create one ProductConfig
-     * const ProductConfig = await prisma.productConfig.create({
+     * // Create one ConfiguracaoProduto
+     * const ConfiguracaoProduto = await prisma.configuracaoProduto.create({
      *   data: {
-     *     // ... data to create a ProductConfig
+     *     // ... data to create a ConfiguracaoProduto
      *   }
      * })
      * 
      */
-    create<T extends ProductConfigCreateArgs>(args: SelectSubset<T, ProductConfigCreateArgs<ExtArgs>>): Prisma__ProductConfigClient<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ConfiguracaoProdutoCreateArgs>(args: SelectSubset<T, ConfiguracaoProdutoCreateArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many ProductConfigs.
-     * @param {ProductConfigCreateManyArgs} args - Arguments to create many ProductConfigs.
+     * Create many ConfiguracaoProdutos.
+     * @param {ConfiguracaoProdutoCreateManyArgs} args - Arguments to create many ConfiguracaoProdutos.
      * @example
-     * // Create many ProductConfigs
-     * const productConfig = await prisma.productConfig.createMany({
+     * // Create many ConfiguracaoProdutos
+     * const configuracaoProduto = await prisma.configuracaoProduto.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ProductConfigCreateManyArgs>(args?: SelectSubset<T, ProductConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ConfiguracaoProdutoCreateManyArgs>(args?: SelectSubset<T, ConfiguracaoProdutoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ProductConfigs and returns the data saved in the database.
-     * @param {ProductConfigCreateManyAndReturnArgs} args - Arguments to create many ProductConfigs.
+     * Create many ConfiguracaoProdutos and returns the data saved in the database.
+     * @param {ConfiguracaoProdutoCreateManyAndReturnArgs} args - Arguments to create many ConfiguracaoProdutos.
      * @example
-     * // Create many ProductConfigs
-     * const productConfig = await prisma.productConfig.createManyAndReturn({
+     * // Create many ConfiguracaoProdutos
+     * const configuracaoProduto = await prisma.configuracaoProduto.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ProductConfigs and only return the `id`
-     * const productConfigWithIdOnly = await prisma.productConfig.createManyAndReturn({ 
+     * // Create many ConfiguracaoProdutos and only return the `id`
+     * const configuracaoProdutoWithIdOnly = await prisma.configuracaoProduto.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -10590,28 +10590,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ProductConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, ProductConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ConfiguracaoProdutoCreateManyAndReturnArgs>(args?: SelectSubset<T, ConfiguracaoProdutoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a ProductConfig.
-     * @param {ProductConfigDeleteArgs} args - Arguments to delete one ProductConfig.
+     * Delete a ConfiguracaoProduto.
+     * @param {ConfiguracaoProdutoDeleteArgs} args - Arguments to delete one ConfiguracaoProduto.
      * @example
-     * // Delete one ProductConfig
-     * const ProductConfig = await prisma.productConfig.delete({
+     * // Delete one ConfiguracaoProduto
+     * const ConfiguracaoProduto = await prisma.configuracaoProduto.delete({
      *   where: {
-     *     // ... filter to delete one ProductConfig
+     *     // ... filter to delete one ConfiguracaoProduto
      *   }
      * })
      * 
      */
-    delete<T extends ProductConfigDeleteArgs>(args: SelectSubset<T, ProductConfigDeleteArgs<ExtArgs>>): Prisma__ProductConfigClient<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ConfiguracaoProdutoDeleteArgs>(args: SelectSubset<T, ConfiguracaoProdutoDeleteArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one ProductConfig.
-     * @param {ProductConfigUpdateArgs} args - Arguments to update one ProductConfig.
+     * Update one ConfiguracaoProduto.
+     * @param {ConfiguracaoProdutoUpdateArgs} args - Arguments to update one ConfiguracaoProduto.
      * @example
-     * // Update one ProductConfig
-     * const productConfig = await prisma.productConfig.update({
+     * // Update one ConfiguracaoProduto
+     * const configuracaoProduto = await prisma.configuracaoProduto.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -10621,30 +10621,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ProductConfigUpdateArgs>(args: SelectSubset<T, ProductConfigUpdateArgs<ExtArgs>>): Prisma__ProductConfigClient<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ConfiguracaoProdutoUpdateArgs>(args: SelectSubset<T, ConfiguracaoProdutoUpdateArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more ProductConfigs.
-     * @param {ProductConfigDeleteManyArgs} args - Arguments to filter ProductConfigs to delete.
+     * Delete zero or more ConfiguracaoProdutos.
+     * @param {ConfiguracaoProdutoDeleteManyArgs} args - Arguments to filter ConfiguracaoProdutos to delete.
      * @example
-     * // Delete a few ProductConfigs
-     * const { count } = await prisma.productConfig.deleteMany({
+     * // Delete a few ConfiguracaoProdutos
+     * const { count } = await prisma.configuracaoProduto.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ProductConfigDeleteManyArgs>(args?: SelectSubset<T, ProductConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ConfiguracaoProdutoDeleteManyArgs>(args?: SelectSubset<T, ConfiguracaoProdutoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ProductConfigs.
+     * Update zero or more ConfiguracaoProdutos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ConfiguracaoProdutoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ProductConfigs
-     * const productConfig = await prisma.productConfig.updateMany({
+     * // Update many ConfiguracaoProdutos
+     * const configuracaoProduto = await prisma.configuracaoProduto.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -10654,56 +10654,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ProductConfigUpdateManyArgs>(args: SelectSubset<T, ProductConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ConfiguracaoProdutoUpdateManyArgs>(args: SelectSubset<T, ConfiguracaoProdutoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one ProductConfig.
-     * @param {ProductConfigUpsertArgs} args - Arguments to update or create a ProductConfig.
+     * Create or update one ConfiguracaoProduto.
+     * @param {ConfiguracaoProdutoUpsertArgs} args - Arguments to update or create a ConfiguracaoProduto.
      * @example
-     * // Update or create a ProductConfig
-     * const productConfig = await prisma.productConfig.upsert({
+     * // Update or create a ConfiguracaoProduto
+     * const configuracaoProduto = await prisma.configuracaoProduto.upsert({
      *   create: {
-     *     // ... data to create a ProductConfig
+     *     // ... data to create a ConfiguracaoProduto
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ProductConfig we want to update
+     *     // ... the filter for the ConfiguracaoProduto we want to update
      *   }
      * })
      */
-    upsert<T extends ProductConfigUpsertArgs>(args: SelectSubset<T, ProductConfigUpsertArgs<ExtArgs>>): Prisma__ProductConfigClient<$Result.GetResult<Prisma.$ProductConfigPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ConfiguracaoProdutoUpsertArgs>(args: SelectSubset<T, ConfiguracaoProdutoUpsertArgs<ExtArgs>>): Prisma__ConfiguracaoProdutoClient<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of ProductConfigs.
+     * Count the number of ConfiguracaoProdutos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductConfigCountArgs} args - Arguments to filter ProductConfigs to count.
+     * @param {ConfiguracaoProdutoCountArgs} args - Arguments to filter ConfiguracaoProdutos to count.
      * @example
-     * // Count the number of ProductConfigs
-     * const count = await prisma.productConfig.count({
+     * // Count the number of ConfiguracaoProdutos
+     * const count = await prisma.configuracaoProduto.count({
      *   where: {
-     *     // ... the filter for the ProductConfigs we want to count
+     *     // ... the filter for the ConfiguracaoProdutos we want to count
      *   }
      * })
     **/
-    count<T extends ProductConfigCountArgs>(
-      args?: Subset<T, ProductConfigCountArgs>,
+    count<T extends ConfiguracaoProdutoCountArgs>(
+      args?: Subset<T, ConfiguracaoProdutoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ProductConfigCountAggregateOutputType>
+          : GetScalarType<T['select'], ConfiguracaoProdutoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ProductConfig.
+     * Allows you to perform aggregations operations on a ConfiguracaoProduto.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ConfiguracaoProdutoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -10723,13 +10723,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ProductConfigAggregateArgs>(args: Subset<T, ProductConfigAggregateArgs>): Prisma.PrismaPromise<GetProductConfigAggregateType<T>>
+    aggregate<T extends ConfiguracaoProdutoAggregateArgs>(args: Subset<T, ConfiguracaoProdutoAggregateArgs>): Prisma.PrismaPromise<GetConfiguracaoProdutoAggregateType<T>>
 
     /**
-     * Group by ProductConfig.
+     * Group by ConfiguracaoProduto.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ProductConfigGroupByArgs} args - Group by arguments.
+     * @param {ConfiguracaoProdutoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -10744,14 +10744,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ProductConfigGroupByArgs,
+      T extends ConfiguracaoProdutoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ProductConfigGroupByArgs['orderBy'] }
-        : { orderBy?: ProductConfigGroupByArgs['orderBy'] },
+        ? { orderBy: ConfiguracaoProdutoGroupByArgs['orderBy'] }
+        : { orderBy?: ConfiguracaoProdutoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -10800,20 +10800,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ProductConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProductConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ConfiguracaoProdutoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConfiguracaoProdutoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ProductConfig model
+   * Fields of the ConfiguracaoProduto model
    */
-  readonly fields: ProductConfigFieldRefs;
+  readonly fields: ConfiguracaoProdutoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ProductConfig.
+   * The delegate class that acts as a "Promise-like" for ConfiguracaoProduto.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ProductConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ConfiguracaoProdutoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
@@ -10842,345 +10842,345 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ProductConfig model
+   * Fields of the ConfiguracaoProduto model
    */ 
-  interface ProductConfigFieldRefs {
-    readonly id: FieldRef<"ProductConfig", 'String'>
-    readonly tenant_id: FieldRef<"ProductConfig", 'String'>
-    readonly product_key: FieldRef<"ProductConfig", 'String'>
-    readonly config: FieldRef<"ProductConfig", 'Json'>
-    readonly is_active: FieldRef<"ProductConfig", 'Boolean'>
-    readonly created_at: FieldRef<"ProductConfig", 'DateTime'>
-    readonly updated_at: FieldRef<"ProductConfig", 'DateTime'>
+  interface ConfiguracaoProdutoFieldRefs {
+    readonly id: FieldRef<"ConfiguracaoProduto", 'String'>
+    readonly tenant_id: FieldRef<"ConfiguracaoProduto", 'String'>
+    readonly product_key: FieldRef<"ConfiguracaoProduto", 'String'>
+    readonly config: FieldRef<"ConfiguracaoProduto", 'Json'>
+    readonly is_active: FieldRef<"ConfiguracaoProduto", 'Boolean'>
+    readonly created_at: FieldRef<"ConfiguracaoProduto", 'DateTime'>
+    readonly updated_at: FieldRef<"ConfiguracaoProduto", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ProductConfig findUnique
+   * ConfiguracaoProduto findUnique
    */
-  export type ProductConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * Filter, which ProductConfig to fetch.
+     * Filter, which ConfiguracaoProduto to fetch.
      */
-    where: ProductConfigWhereUniqueInput
+    where: ConfiguracaoProdutoWhereUniqueInput
   }
 
   /**
-   * ProductConfig findUniqueOrThrow
+   * ConfiguracaoProduto findUniqueOrThrow
    */
-  export type ProductConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * Filter, which ProductConfig to fetch.
+     * Filter, which ConfiguracaoProduto to fetch.
      */
-    where: ProductConfigWhereUniqueInput
+    where: ConfiguracaoProdutoWhereUniqueInput
   }
 
   /**
-   * ProductConfig findFirst
+   * ConfiguracaoProduto findFirst
    */
-  export type ProductConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * Filter, which ProductConfig to fetch.
+     * Filter, which ConfiguracaoProduto to fetch.
      */
-    where?: ProductConfigWhereInput
+    where?: ConfiguracaoProdutoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ProductConfigs to fetch.
+     * Determine the order of ConfiguracaoProdutos to fetch.
      */
-    orderBy?: ProductConfigOrderByWithRelationInput | ProductConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ProductConfigs.
+     * Sets the position for searching for ConfiguracaoProdutos.
      */
-    cursor?: ProductConfigWhereUniqueInput
+    cursor?: ConfiguracaoProdutoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ProductConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoProdutos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ProductConfigs.
+     * Skip the first `n` ConfiguracaoProdutos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ProductConfigs.
+     * Filter by unique combinations of ConfiguracaoProdutos.
      */
-    distinct?: ProductConfigScalarFieldEnum | ProductConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoProdutoScalarFieldEnum | ConfiguracaoProdutoScalarFieldEnum[]
   }
 
   /**
-   * ProductConfig findFirstOrThrow
+   * ConfiguracaoProduto findFirstOrThrow
    */
-  export type ProductConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * Filter, which ProductConfig to fetch.
+     * Filter, which ConfiguracaoProduto to fetch.
      */
-    where?: ProductConfigWhereInput
+    where?: ConfiguracaoProdutoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ProductConfigs to fetch.
+     * Determine the order of ConfiguracaoProdutos to fetch.
      */
-    orderBy?: ProductConfigOrderByWithRelationInput | ProductConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ProductConfigs.
+     * Sets the position for searching for ConfiguracaoProdutos.
      */
-    cursor?: ProductConfigWhereUniqueInput
+    cursor?: ConfiguracaoProdutoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ProductConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoProdutos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ProductConfigs.
+     * Skip the first `n` ConfiguracaoProdutos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ProductConfigs.
+     * Filter by unique combinations of ConfiguracaoProdutos.
      */
-    distinct?: ProductConfigScalarFieldEnum | ProductConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoProdutoScalarFieldEnum | ConfiguracaoProdutoScalarFieldEnum[]
   }
 
   /**
-   * ProductConfig findMany
+   * ConfiguracaoProduto findMany
    */
-  export type ProductConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * Filter, which ProductConfigs to fetch.
+     * Filter, which ConfiguracaoProdutos to fetch.
      */
-    where?: ProductConfigWhereInput
+    where?: ConfiguracaoProdutoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ProductConfigs to fetch.
+     * Determine the order of ConfiguracaoProdutos to fetch.
      */
-    orderBy?: ProductConfigOrderByWithRelationInput | ProductConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoProdutoOrderByWithRelationInput | ConfiguracaoProdutoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ProductConfigs.
+     * Sets the position for listing ConfiguracaoProdutos.
      */
-    cursor?: ProductConfigWhereUniqueInput
+    cursor?: ConfiguracaoProdutoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ProductConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoProdutos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ProductConfigs.
+     * Skip the first `n` ConfiguracaoProdutos.
      */
     skip?: number
-    distinct?: ProductConfigScalarFieldEnum | ProductConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoProdutoScalarFieldEnum | ConfiguracaoProdutoScalarFieldEnum[]
   }
 
   /**
-   * ProductConfig create
+   * ConfiguracaoProduto create
    */
-  export type ProductConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * The data needed to create a ProductConfig.
+     * The data needed to create a ConfiguracaoProduto.
      */
-    data: XOR<ProductConfigCreateInput, ProductConfigUncheckedCreateInput>
+    data: XOR<ConfiguracaoProdutoCreateInput, ConfiguracaoProdutoUncheckedCreateInput>
   }
 
   /**
-   * ProductConfig createMany
+   * ConfiguracaoProduto createMany
    */
-  export type ProductConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ProductConfigs.
+     * The data used to create many ConfiguracaoProdutos.
      */
-    data: ProductConfigCreateManyInput | ProductConfigCreateManyInput[]
+    data: ConfiguracaoProdutoCreateManyInput | ConfiguracaoProdutoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ProductConfig createManyAndReturn
+   * ConfiguracaoProduto createManyAndReturn
    */
-  export type ProductConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many ProductConfigs.
+     * The data used to create many ConfiguracaoProdutos.
      */
-    data: ProductConfigCreateManyInput | ProductConfigCreateManyInput[]
+    data: ConfiguracaoProdutoCreateManyInput | ConfiguracaoProdutoCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: ConfiguracaoProdutoIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * ProductConfig update
+   * ConfiguracaoProduto update
    */
-  export type ProductConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * The data needed to update a ProductConfig.
+     * The data needed to update a ConfiguracaoProduto.
      */
-    data: XOR<ProductConfigUpdateInput, ProductConfigUncheckedUpdateInput>
+    data: XOR<ConfiguracaoProdutoUpdateInput, ConfiguracaoProdutoUncheckedUpdateInput>
     /**
-     * Choose, which ProductConfig to update.
+     * Choose, which ConfiguracaoProduto to update.
      */
-    where: ProductConfigWhereUniqueInput
+    where: ConfiguracaoProdutoWhereUniqueInput
   }
 
   /**
-   * ProductConfig updateMany
+   * ConfiguracaoProduto updateMany
    */
-  export type ProductConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ProductConfigs.
+     * The data used to update ConfiguracaoProdutos.
      */
-    data: XOR<ProductConfigUpdateManyMutationInput, ProductConfigUncheckedUpdateManyInput>
+    data: XOR<ConfiguracaoProdutoUpdateManyMutationInput, ConfiguracaoProdutoUncheckedUpdateManyInput>
     /**
-     * Filter which ProductConfigs to update
+     * Filter which ConfiguracaoProdutos to update
      */
-    where?: ProductConfigWhereInput
+    where?: ConfiguracaoProdutoWhereInput
   }
 
   /**
-   * ProductConfig upsert
+   * ConfiguracaoProduto upsert
    */
-  export type ProductConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * The filter to search for the ProductConfig to update in case it exists.
+     * The filter to search for the ConfiguracaoProduto to update in case it exists.
      */
-    where: ProductConfigWhereUniqueInput
+    where: ConfiguracaoProdutoWhereUniqueInput
     /**
-     * In case the ProductConfig found by the `where` argument doesn't exist, create a new ProductConfig with this data.
+     * In case the ConfiguracaoProduto found by the `where` argument doesn't exist, create a new ConfiguracaoProduto with this data.
      */
-    create: XOR<ProductConfigCreateInput, ProductConfigUncheckedCreateInput>
+    create: XOR<ConfiguracaoProdutoCreateInput, ConfiguracaoProdutoUncheckedCreateInput>
     /**
-     * In case the ProductConfig was found with the provided `where` argument, update it with this data.
+     * In case the ConfiguracaoProduto was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ProductConfigUpdateInput, ProductConfigUncheckedUpdateInput>
+    update: XOR<ConfiguracaoProdutoUpdateInput, ConfiguracaoProdutoUncheckedUpdateInput>
   }
 
   /**
-   * ProductConfig delete
+   * ConfiguracaoProduto delete
    */
-  export type ProductConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
     /**
-     * Filter which ProductConfig to delete.
+     * Filter which ConfiguracaoProduto to delete.
      */
-    where: ProductConfigWhereUniqueInput
+    where: ConfiguracaoProdutoWhereUniqueInput
   }
 
   /**
-   * ProductConfig deleteMany
+   * ConfiguracaoProduto deleteMany
    */
-  export type ProductConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ProductConfigs to delete
+     * Filter which ConfiguracaoProdutos to delete
      */
-    where?: ProductConfigWhereInput
+    where?: ConfiguracaoProdutoWhereInput
   }
 
   /**
-   * ProductConfig without action
+   * ConfiguracaoProduto without action
    */
-  export type ProductConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoProdutoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ProductConfig
+     * Select specific fields to fetch from the ConfiguracaoProduto
      */
-    select?: ProductConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoProdutoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: ProductConfigInclude<ExtArgs> | null
+    include?: ConfiguracaoProdutoInclude<ExtArgs> | null
   }
 
 
@@ -11365,7 +11365,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    company?: boolean | EmpresaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityWorkspace"]>
 
   export type ProdutoGravityWorkspaceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -11377,7 +11377,7 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    company?: boolean | EmpresaDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["produtoGravityWorkspace"]>
 
   export type ProdutoGravityWorkspaceSelectScalar = {
@@ -11392,18 +11392,18 @@ export namespace Prisma {
 
   export type ProdutoGravityWorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    company?: boolean | EmpresaDefaultArgs<ExtArgs>
   }
   export type ProdutoGravityWorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
-    company?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    company?: boolean | EmpresaDefaultArgs<ExtArgs>
   }
 
   export type $ProdutoGravityWorkspacePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ProdutoGravityWorkspace"
     objects: {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
-      company: Prisma.$WorkspacePayload<ExtArgs>
+      company: Prisma.$EmpresaPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -11778,7 +11778,7 @@ export namespace Prisma {
   export interface Prisma__ProdutoGravityWorkspaceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     tenant<T extends OrganizacaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, OrganizacaoDefaultArgs<ExtArgs>>): Prisma__OrganizacaoClient<$Result.GetResult<Prisma.$OrganizacaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    company<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    company<T extends EmpresaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmpresaDefaultArgs<ExtArgs>>): Prisma__EmpresaClient<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12648,8 +12648,8 @@ export namespace Prisma {
   export type $ProdutoGravityPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "ProdutoGravity"
     objects: {
-      price_tiers: Prisma.$PriceTierPayload<ExtArgs>[]
-      negotiations: Prisma.$SpecialNegotiationPayload<ExtArgs>[]
+      price_tiers: Prisma.$FaixaPrecoPayload<ExtArgs>[]
+      negotiations: Prisma.$NegociacaoEspecialPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -13045,8 +13045,8 @@ export namespace Prisma {
    */
   export interface Prisma__ProdutoGravityClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    price_tiers<T extends ProdutoGravity$price_tiersArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$price_tiersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findMany"> | Null>
-    negotiations<T extends ProdutoGravity$negotiationsArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$negotiationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findMany"> | Null>
+    price_tiers<T extends ProdutoGravity$price_tiersArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$price_tiersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findMany"> | Null>
+    negotiations<T extends ProdutoGravity$negotiationsArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravity$negotiationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13423,19 +13423,19 @@ export namespace Prisma {
    */
   export type ProdutoGravity$price_tiersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
-    where?: PriceTierWhereInput
-    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
-    cursor?: PriceTierWhereUniqueInput
+    include?: FaixaPrecoInclude<ExtArgs> | null
+    where?: FaixaPrecoWhereInput
+    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
+    cursor?: FaixaPrecoWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: PriceTierScalarFieldEnum | PriceTierScalarFieldEnum[]
+    distinct?: FaixaPrecoScalarFieldEnum | FaixaPrecoScalarFieldEnum[]
   }
 
   /**
@@ -13443,19 +13443,19 @@ export namespace Prisma {
    */
   export type ProdutoGravity$negotiationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
-    where?: SpecialNegotiationWhereInput
-    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
-    cursor?: SpecialNegotiationWhereUniqueInput
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
+    where?: NegociacaoEspecialWhereInput
+    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
+    cursor?: NegociacaoEspecialWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: SpecialNegotiationScalarFieldEnum | SpecialNegotiationScalarFieldEnum[]
+    distinct?: NegociacaoEspecialScalarFieldEnum | NegociacaoEspecialScalarFieldEnum[]
   }
 
   /**
@@ -13474,30 +13474,30 @@ export namespace Prisma {
 
 
   /**
-   * Model PriceTier
+   * Model FaixaPreco
    */
 
-  export type AggregatePriceTier = {
-    _count: PriceTierCountAggregateOutputType | null
-    _avg: PriceTierAvgAggregateOutputType | null
-    _sum: PriceTierSumAggregateOutputType | null
-    _min: PriceTierMinAggregateOutputType | null
-    _max: PriceTierMaxAggregateOutputType | null
+  export type AggregateFaixaPreco = {
+    _count: FaixaPrecoCountAggregateOutputType | null
+    _avg: FaixaPrecoAvgAggregateOutputType | null
+    _sum: FaixaPrecoSumAggregateOutputType | null
+    _min: FaixaPrecoMinAggregateOutputType | null
+    _max: FaixaPrecoMaxAggregateOutputType | null
   }
 
-  export type PriceTierAvgAggregateOutputType = {
+  export type FaixaPrecoAvgAggregateOutputType = {
     range_from: number | null
     range_to: number | null
     price: Decimal | null
   }
 
-  export type PriceTierSumAggregateOutputType = {
+  export type FaixaPrecoSumAggregateOutputType = {
     range_from: number | null
     range_to: number | null
     price: Decimal | null
   }
 
-  export type PriceTierMinAggregateOutputType = {
+  export type FaixaPrecoMinAggregateOutputType = {
     id: string | null
     product_id: string | null
     range_from: number | null
@@ -13507,7 +13507,7 @@ export namespace Prisma {
     created_at: Date | null
   }
 
-  export type PriceTierMaxAggregateOutputType = {
+  export type FaixaPrecoMaxAggregateOutputType = {
     id: string | null
     product_id: string | null
     range_from: number | null
@@ -13517,7 +13517,7 @@ export namespace Prisma {
     created_at: Date | null
   }
 
-  export type PriceTierCountAggregateOutputType = {
+  export type FaixaPrecoCountAggregateOutputType = {
     id: number
     product_id: number
     range_from: number
@@ -13529,19 +13529,19 @@ export namespace Prisma {
   }
 
 
-  export type PriceTierAvgAggregateInputType = {
+  export type FaixaPrecoAvgAggregateInputType = {
     range_from?: true
     range_to?: true
     price?: true
   }
 
-  export type PriceTierSumAggregateInputType = {
+  export type FaixaPrecoSumAggregateInputType = {
     range_from?: true
     range_to?: true
     price?: true
   }
 
-  export type PriceTierMinAggregateInputType = {
+  export type FaixaPrecoMinAggregateInputType = {
     id?: true
     product_id?: true
     range_from?: true
@@ -13551,7 +13551,7 @@ export namespace Prisma {
     created_at?: true
   }
 
-  export type PriceTierMaxAggregateInputType = {
+  export type FaixaPrecoMaxAggregateInputType = {
     id?: true
     product_id?: true
     range_from?: true
@@ -13561,7 +13561,7 @@ export namespace Prisma {
     created_at?: true
   }
 
-  export type PriceTierCountAggregateInputType = {
+  export type FaixaPrecoCountAggregateInputType = {
     id?: true
     product_id?: true
     range_from?: true
@@ -13572,93 +13572,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type PriceTierAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PriceTier to aggregate.
+     * Filter which FaixaPreco to aggregate.
      */
-    where?: PriceTierWhereInput
+    where?: FaixaPrecoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PriceTiers to fetch.
+     * Determine the order of FaixaPrecos to fetch.
      */
-    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: PriceTierWhereUniqueInput
+    cursor?: FaixaPrecoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PriceTiers from the position of the cursor.
+     * Take `±n` FaixaPrecos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PriceTiers.
+     * Skip the first `n` FaixaPrecos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned PriceTiers
+     * Count returned FaixaPrecos
     **/
-    _count?: true | PriceTierCountAggregateInputType
+    _count?: true | FaixaPrecoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: PriceTierAvgAggregateInputType
+    _avg?: FaixaPrecoAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: PriceTierSumAggregateInputType
+    _sum?: FaixaPrecoSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: PriceTierMinAggregateInputType
+    _min?: FaixaPrecoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: PriceTierMaxAggregateInputType
+    _max?: FaixaPrecoMaxAggregateInputType
   }
 
-  export type GetPriceTierAggregateType<T extends PriceTierAggregateArgs> = {
-        [P in keyof T & keyof AggregatePriceTier]: P extends '_count' | 'count'
+  export type GetFaixaPrecoAggregateType<T extends FaixaPrecoAggregateArgs> = {
+        [P in keyof T & keyof AggregateFaixaPreco]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregatePriceTier[P]>
-      : GetScalarType<T[P], AggregatePriceTier[P]>
+        : GetScalarType<T[P], AggregateFaixaPreco[P]>
+      : GetScalarType<T[P], AggregateFaixaPreco[P]>
   }
 
 
 
 
-  export type PriceTierGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PriceTierWhereInput
-    orderBy?: PriceTierOrderByWithAggregationInput | PriceTierOrderByWithAggregationInput[]
-    by: PriceTierScalarFieldEnum[] | PriceTierScalarFieldEnum
-    having?: PriceTierScalarWhereWithAggregatesInput
+  export type FaixaPrecoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FaixaPrecoWhereInput
+    orderBy?: FaixaPrecoOrderByWithAggregationInput | FaixaPrecoOrderByWithAggregationInput[]
+    by: FaixaPrecoScalarFieldEnum[] | FaixaPrecoScalarFieldEnum
+    having?: FaixaPrecoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: PriceTierCountAggregateInputType | true
-    _avg?: PriceTierAvgAggregateInputType
-    _sum?: PriceTierSumAggregateInputType
-    _min?: PriceTierMinAggregateInputType
-    _max?: PriceTierMaxAggregateInputType
+    _count?: FaixaPrecoCountAggregateInputType | true
+    _avg?: FaixaPrecoAvgAggregateInputType
+    _sum?: FaixaPrecoSumAggregateInputType
+    _min?: FaixaPrecoMinAggregateInputType
+    _max?: FaixaPrecoMaxAggregateInputType
   }
 
-  export type PriceTierGroupByOutputType = {
+  export type FaixaPrecoGroupByOutputType = {
     id: string
     product_id: string
     range_from: number
@@ -13666,28 +13666,28 @@ export namespace Prisma {
     price: Decimal
     currency: string
     created_at: Date
-    _count: PriceTierCountAggregateOutputType | null
-    _avg: PriceTierAvgAggregateOutputType | null
-    _sum: PriceTierSumAggregateOutputType | null
-    _min: PriceTierMinAggregateOutputType | null
-    _max: PriceTierMaxAggregateOutputType | null
+    _count: FaixaPrecoCountAggregateOutputType | null
+    _avg: FaixaPrecoAvgAggregateOutputType | null
+    _sum: FaixaPrecoSumAggregateOutputType | null
+    _min: FaixaPrecoMinAggregateOutputType | null
+    _max: FaixaPrecoMaxAggregateOutputType | null
   }
 
-  type GetPriceTierGroupByPayload<T extends PriceTierGroupByArgs> = Prisma.PrismaPromise<
+  type GetFaixaPrecoGroupByPayload<T extends FaixaPrecoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<PriceTierGroupByOutputType, T['by']> &
+      PickEnumerable<FaixaPrecoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof PriceTierGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof FaixaPrecoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], PriceTierGroupByOutputType[P]>
-            : GetScalarType<T[P], PriceTierGroupByOutputType[P]>
+              : GetScalarType<T[P], FaixaPrecoGroupByOutputType[P]>
+            : GetScalarType<T[P], FaixaPrecoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type PriceTierSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type FaixaPrecoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     product_id?: boolean
     range_from?: boolean
@@ -13696,9 +13696,9 @@ export namespace Prisma {
     currency?: boolean
     created_at?: boolean
     product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["priceTier"]>
+  }, ExtArgs["result"]["faixaPreco"]>
 
-  export type PriceTierSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type FaixaPrecoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     product_id?: boolean
     range_from?: boolean
@@ -13707,9 +13707,9 @@ export namespace Prisma {
     currency?: boolean
     created_at?: boolean
     product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["priceTier"]>
+  }, ExtArgs["result"]["faixaPreco"]>
 
-  export type PriceTierSelectScalar = {
+  export type FaixaPrecoSelectScalar = {
     id?: boolean
     product_id?: boolean
     range_from?: boolean
@@ -13719,15 +13719,15 @@ export namespace Prisma {
     created_at?: boolean
   }
 
-  export type PriceTierInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
-  export type PriceTierIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
 
-  export type $PriceTierPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "PriceTier"
+  export type $FaixaPrecoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FaixaPreco"
     objects: {
       product: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
@@ -13739,136 +13739,136 @@ export namespace Prisma {
       price: Prisma.Decimal
       currency: string
       created_at: Date
-    }, ExtArgs["result"]["priceTier"]>
+    }, ExtArgs["result"]["faixaPreco"]>
     composites: {}
   }
 
-  type PriceTierGetPayload<S extends boolean | null | undefined | PriceTierDefaultArgs> = $Result.GetResult<Prisma.$PriceTierPayload, S>
+  type FaixaPrecoGetPayload<S extends boolean | null | undefined | FaixaPrecoDefaultArgs> = $Result.GetResult<Prisma.$FaixaPrecoPayload, S>
 
-  type PriceTierCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<PriceTierFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: PriceTierCountAggregateInputType | true
+  type FaixaPrecoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<FaixaPrecoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: FaixaPrecoCountAggregateInputType | true
     }
 
-  export interface PriceTierDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PriceTier'], meta: { name: 'PriceTier' } }
+  export interface FaixaPrecoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FaixaPreco'], meta: { name: 'FaixaPreco' } }
     /**
-     * Find zero or one PriceTier that matches the filter.
-     * @param {PriceTierFindUniqueArgs} args - Arguments to find a PriceTier
+     * Find zero or one FaixaPreco that matches the filter.
+     * @param {FaixaPrecoFindUniqueArgs} args - Arguments to find a FaixaPreco
      * @example
-     * // Get one PriceTier
-     * const priceTier = await prisma.priceTier.findUnique({
+     * // Get one FaixaPreco
+     * const faixaPreco = await prisma.faixaPreco.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends PriceTierFindUniqueArgs>(args: SelectSubset<T, PriceTierFindUniqueArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends FaixaPrecoFindUniqueArgs>(args: SelectSubset<T, FaixaPrecoFindUniqueArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one PriceTier that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one FaixaPreco that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {PriceTierFindUniqueOrThrowArgs} args - Arguments to find a PriceTier
+     * @param {FaixaPrecoFindUniqueOrThrowArgs} args - Arguments to find a FaixaPreco
      * @example
-     * // Get one PriceTier
-     * const priceTier = await prisma.priceTier.findUniqueOrThrow({
+     * // Get one FaixaPreco
+     * const faixaPreco = await prisma.faixaPreco.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends PriceTierFindUniqueOrThrowArgs>(args: SelectSubset<T, PriceTierFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends FaixaPrecoFindUniqueOrThrowArgs>(args: SelectSubset<T, FaixaPrecoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first PriceTier that matches the filter.
+     * Find the first FaixaPreco that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PriceTierFindFirstArgs} args - Arguments to find a PriceTier
+     * @param {FaixaPrecoFindFirstArgs} args - Arguments to find a FaixaPreco
      * @example
-     * // Get one PriceTier
-     * const priceTier = await prisma.priceTier.findFirst({
+     * // Get one FaixaPreco
+     * const faixaPreco = await prisma.faixaPreco.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends PriceTierFindFirstArgs>(args?: SelectSubset<T, PriceTierFindFirstArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends FaixaPrecoFindFirstArgs>(args?: SelectSubset<T, FaixaPrecoFindFirstArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first PriceTier that matches the filter or
+     * Find the first FaixaPreco that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PriceTierFindFirstOrThrowArgs} args - Arguments to find a PriceTier
+     * @param {FaixaPrecoFindFirstOrThrowArgs} args - Arguments to find a FaixaPreco
      * @example
-     * // Get one PriceTier
-     * const priceTier = await prisma.priceTier.findFirstOrThrow({
+     * // Get one FaixaPreco
+     * const faixaPreco = await prisma.faixaPreco.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends PriceTierFindFirstOrThrowArgs>(args?: SelectSubset<T, PriceTierFindFirstOrThrowArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends FaixaPrecoFindFirstOrThrowArgs>(args?: SelectSubset<T, FaixaPrecoFindFirstOrThrowArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more PriceTiers that matches the filter.
+     * Find zero or more FaixaPrecos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PriceTierFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {FaixaPrecoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all PriceTiers
-     * const priceTiers = await prisma.priceTier.findMany()
+     * // Get all FaixaPrecos
+     * const faixaPrecos = await prisma.faixaPreco.findMany()
      * 
-     * // Get first 10 PriceTiers
-     * const priceTiers = await prisma.priceTier.findMany({ take: 10 })
+     * // Get first 10 FaixaPrecos
+     * const faixaPrecos = await prisma.faixaPreco.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const priceTierWithIdOnly = await prisma.priceTier.findMany({ select: { id: true } })
+     * const faixaPrecoWithIdOnly = await prisma.faixaPreco.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends PriceTierFindManyArgs>(args?: SelectSubset<T, PriceTierFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends FaixaPrecoFindManyArgs>(args?: SelectSubset<T, FaixaPrecoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a PriceTier.
-     * @param {PriceTierCreateArgs} args - Arguments to create a PriceTier.
+     * Create a FaixaPreco.
+     * @param {FaixaPrecoCreateArgs} args - Arguments to create a FaixaPreco.
      * @example
-     * // Create one PriceTier
-     * const PriceTier = await prisma.priceTier.create({
+     * // Create one FaixaPreco
+     * const FaixaPreco = await prisma.faixaPreco.create({
      *   data: {
-     *     // ... data to create a PriceTier
+     *     // ... data to create a FaixaPreco
      *   }
      * })
      * 
      */
-    create<T extends PriceTierCreateArgs>(args: SelectSubset<T, PriceTierCreateArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends FaixaPrecoCreateArgs>(args: SelectSubset<T, FaixaPrecoCreateArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many PriceTiers.
-     * @param {PriceTierCreateManyArgs} args - Arguments to create many PriceTiers.
+     * Create many FaixaPrecos.
+     * @param {FaixaPrecoCreateManyArgs} args - Arguments to create many FaixaPrecos.
      * @example
-     * // Create many PriceTiers
-     * const priceTier = await prisma.priceTier.createMany({
+     * // Create many FaixaPrecos
+     * const faixaPreco = await prisma.faixaPreco.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends PriceTierCreateManyArgs>(args?: SelectSubset<T, PriceTierCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends FaixaPrecoCreateManyArgs>(args?: SelectSubset<T, FaixaPrecoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many PriceTiers and returns the data saved in the database.
-     * @param {PriceTierCreateManyAndReturnArgs} args - Arguments to create many PriceTiers.
+     * Create many FaixaPrecos and returns the data saved in the database.
+     * @param {FaixaPrecoCreateManyAndReturnArgs} args - Arguments to create many FaixaPrecos.
      * @example
-     * // Create many PriceTiers
-     * const priceTier = await prisma.priceTier.createManyAndReturn({
+     * // Create many FaixaPrecos
+     * const faixaPreco = await prisma.faixaPreco.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many PriceTiers and only return the `id`
-     * const priceTierWithIdOnly = await prisma.priceTier.createManyAndReturn({ 
+     * // Create many FaixaPrecos and only return the `id`
+     * const faixaPrecoWithIdOnly = await prisma.faixaPreco.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -13878,28 +13878,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends PriceTierCreateManyAndReturnArgs>(args?: SelectSubset<T, PriceTierCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends FaixaPrecoCreateManyAndReturnArgs>(args?: SelectSubset<T, FaixaPrecoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a PriceTier.
-     * @param {PriceTierDeleteArgs} args - Arguments to delete one PriceTier.
+     * Delete a FaixaPreco.
+     * @param {FaixaPrecoDeleteArgs} args - Arguments to delete one FaixaPreco.
      * @example
-     * // Delete one PriceTier
-     * const PriceTier = await prisma.priceTier.delete({
+     * // Delete one FaixaPreco
+     * const FaixaPreco = await prisma.faixaPreco.delete({
      *   where: {
-     *     // ... filter to delete one PriceTier
+     *     // ... filter to delete one FaixaPreco
      *   }
      * })
      * 
      */
-    delete<T extends PriceTierDeleteArgs>(args: SelectSubset<T, PriceTierDeleteArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends FaixaPrecoDeleteArgs>(args: SelectSubset<T, FaixaPrecoDeleteArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one PriceTier.
-     * @param {PriceTierUpdateArgs} args - Arguments to update one PriceTier.
+     * Update one FaixaPreco.
+     * @param {FaixaPrecoUpdateArgs} args - Arguments to update one FaixaPreco.
      * @example
-     * // Update one PriceTier
-     * const priceTier = await prisma.priceTier.update({
+     * // Update one FaixaPreco
+     * const faixaPreco = await prisma.faixaPreco.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -13909,30 +13909,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends PriceTierUpdateArgs>(args: SelectSubset<T, PriceTierUpdateArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends FaixaPrecoUpdateArgs>(args: SelectSubset<T, FaixaPrecoUpdateArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more PriceTiers.
-     * @param {PriceTierDeleteManyArgs} args - Arguments to filter PriceTiers to delete.
+     * Delete zero or more FaixaPrecos.
+     * @param {FaixaPrecoDeleteManyArgs} args - Arguments to filter FaixaPrecos to delete.
      * @example
-     * // Delete a few PriceTiers
-     * const { count } = await prisma.priceTier.deleteMany({
+     * // Delete a few FaixaPrecos
+     * const { count } = await prisma.faixaPreco.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends PriceTierDeleteManyArgs>(args?: SelectSubset<T, PriceTierDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends FaixaPrecoDeleteManyArgs>(args?: SelectSubset<T, FaixaPrecoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more PriceTiers.
+     * Update zero or more FaixaPrecos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PriceTierUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {FaixaPrecoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many PriceTiers
-     * const priceTier = await prisma.priceTier.updateMany({
+     * // Update many FaixaPrecos
+     * const faixaPreco = await prisma.faixaPreco.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -13942,56 +13942,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends PriceTierUpdateManyArgs>(args: SelectSubset<T, PriceTierUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends FaixaPrecoUpdateManyArgs>(args: SelectSubset<T, FaixaPrecoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one PriceTier.
-     * @param {PriceTierUpsertArgs} args - Arguments to update or create a PriceTier.
+     * Create or update one FaixaPreco.
+     * @param {FaixaPrecoUpsertArgs} args - Arguments to update or create a FaixaPreco.
      * @example
-     * // Update or create a PriceTier
-     * const priceTier = await prisma.priceTier.upsert({
+     * // Update or create a FaixaPreco
+     * const faixaPreco = await prisma.faixaPreco.upsert({
      *   create: {
-     *     // ... data to create a PriceTier
+     *     // ... data to create a FaixaPreco
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the PriceTier we want to update
+     *     // ... the filter for the FaixaPreco we want to update
      *   }
      * })
      */
-    upsert<T extends PriceTierUpsertArgs>(args: SelectSubset<T, PriceTierUpsertArgs<ExtArgs>>): Prisma__PriceTierClient<$Result.GetResult<Prisma.$PriceTierPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends FaixaPrecoUpsertArgs>(args: SelectSubset<T, FaixaPrecoUpsertArgs<ExtArgs>>): Prisma__FaixaPrecoClient<$Result.GetResult<Prisma.$FaixaPrecoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of PriceTiers.
+     * Count the number of FaixaPrecos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PriceTierCountArgs} args - Arguments to filter PriceTiers to count.
+     * @param {FaixaPrecoCountArgs} args - Arguments to filter FaixaPrecos to count.
      * @example
-     * // Count the number of PriceTiers
-     * const count = await prisma.priceTier.count({
+     * // Count the number of FaixaPrecos
+     * const count = await prisma.faixaPreco.count({
      *   where: {
-     *     // ... the filter for the PriceTiers we want to count
+     *     // ... the filter for the FaixaPrecos we want to count
      *   }
      * })
     **/
-    count<T extends PriceTierCountArgs>(
-      args?: Subset<T, PriceTierCountArgs>,
+    count<T extends FaixaPrecoCountArgs>(
+      args?: Subset<T, FaixaPrecoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], PriceTierCountAggregateOutputType>
+          : GetScalarType<T['select'], FaixaPrecoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a PriceTier.
+     * Allows you to perform aggregations operations on a FaixaPreco.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PriceTierAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {FaixaPrecoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -14011,13 +14011,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends PriceTierAggregateArgs>(args: Subset<T, PriceTierAggregateArgs>): Prisma.PrismaPromise<GetPriceTierAggregateType<T>>
+    aggregate<T extends FaixaPrecoAggregateArgs>(args: Subset<T, FaixaPrecoAggregateArgs>): Prisma.PrismaPromise<GetFaixaPrecoAggregateType<T>>
 
     /**
-     * Group by PriceTier.
+     * Group by FaixaPreco.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {PriceTierGroupByArgs} args - Group by arguments.
+     * @param {FaixaPrecoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -14032,14 +14032,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends PriceTierGroupByArgs,
+      T extends FaixaPrecoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: PriceTierGroupByArgs['orderBy'] }
-        : { orderBy?: PriceTierGroupByArgs['orderBy'] },
+        ? { orderBy: FaixaPrecoGroupByArgs['orderBy'] }
+        : { orderBy?: FaixaPrecoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -14088,20 +14088,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, PriceTierGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPriceTierGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, FaixaPrecoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFaixaPrecoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the PriceTier model
+   * Fields of the FaixaPreco model
    */
-  readonly fields: PriceTierFieldRefs;
+  readonly fields: FaixaPrecoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for PriceTier.
+   * The delegate class that acts as a "Promise-like" for FaixaPreco.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__PriceTierClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__FaixaPrecoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     product<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
@@ -14130,359 +14130,359 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the PriceTier model
+   * Fields of the FaixaPreco model
    */ 
-  interface PriceTierFieldRefs {
-    readonly id: FieldRef<"PriceTier", 'String'>
-    readonly product_id: FieldRef<"PriceTier", 'String'>
-    readonly range_from: FieldRef<"PriceTier", 'Int'>
-    readonly range_to: FieldRef<"PriceTier", 'Int'>
-    readonly price: FieldRef<"PriceTier", 'Decimal'>
-    readonly currency: FieldRef<"PriceTier", 'String'>
-    readonly created_at: FieldRef<"PriceTier", 'DateTime'>
+  interface FaixaPrecoFieldRefs {
+    readonly id: FieldRef<"FaixaPreco", 'String'>
+    readonly product_id: FieldRef<"FaixaPreco", 'String'>
+    readonly range_from: FieldRef<"FaixaPreco", 'Int'>
+    readonly range_to: FieldRef<"FaixaPreco", 'Int'>
+    readonly price: FieldRef<"FaixaPreco", 'Decimal'>
+    readonly currency: FieldRef<"FaixaPreco", 'String'>
+    readonly created_at: FieldRef<"FaixaPreco", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * PriceTier findUnique
+   * FaixaPreco findUnique
    */
-  export type PriceTierFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which PriceTier to fetch.
+     * Filter, which FaixaPreco to fetch.
      */
-    where: PriceTierWhereUniqueInput
+    where: FaixaPrecoWhereUniqueInput
   }
 
   /**
-   * PriceTier findUniqueOrThrow
+   * FaixaPreco findUniqueOrThrow
    */
-  export type PriceTierFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which PriceTier to fetch.
+     * Filter, which FaixaPreco to fetch.
      */
-    where: PriceTierWhereUniqueInput
+    where: FaixaPrecoWhereUniqueInput
   }
 
   /**
-   * PriceTier findFirst
+   * FaixaPreco findFirst
    */
-  export type PriceTierFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which PriceTier to fetch.
+     * Filter, which FaixaPreco to fetch.
      */
-    where?: PriceTierWhereInput
+    where?: FaixaPrecoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PriceTiers to fetch.
+     * Determine the order of FaixaPrecos to fetch.
      */
-    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PriceTiers.
+     * Sets the position for searching for FaixaPrecos.
      */
-    cursor?: PriceTierWhereUniqueInput
+    cursor?: FaixaPrecoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PriceTiers from the position of the cursor.
+     * Take `±n` FaixaPrecos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PriceTiers.
+     * Skip the first `n` FaixaPrecos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PriceTiers.
+     * Filter by unique combinations of FaixaPrecos.
      */
-    distinct?: PriceTierScalarFieldEnum | PriceTierScalarFieldEnum[]
+    distinct?: FaixaPrecoScalarFieldEnum | FaixaPrecoScalarFieldEnum[]
   }
 
   /**
-   * PriceTier findFirstOrThrow
+   * FaixaPreco findFirstOrThrow
    */
-  export type PriceTierFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which PriceTier to fetch.
+     * Filter, which FaixaPreco to fetch.
      */
-    where?: PriceTierWhereInput
+    where?: FaixaPrecoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PriceTiers to fetch.
+     * Determine the order of FaixaPrecos to fetch.
      */
-    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for PriceTiers.
+     * Sets the position for searching for FaixaPrecos.
      */
-    cursor?: PriceTierWhereUniqueInput
+    cursor?: FaixaPrecoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PriceTiers from the position of the cursor.
+     * Take `±n` FaixaPrecos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PriceTiers.
+     * Skip the first `n` FaixaPrecos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of PriceTiers.
+     * Filter by unique combinations of FaixaPrecos.
      */
-    distinct?: PriceTierScalarFieldEnum | PriceTierScalarFieldEnum[]
+    distinct?: FaixaPrecoScalarFieldEnum | FaixaPrecoScalarFieldEnum[]
   }
 
   /**
-   * PriceTier findMany
+   * FaixaPreco findMany
    */
-  export type PriceTierFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter, which PriceTiers to fetch.
+     * Filter, which FaixaPrecos to fetch.
      */
-    where?: PriceTierWhereInput
+    where?: FaixaPrecoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of PriceTiers to fetch.
+     * Determine the order of FaixaPrecos to fetch.
      */
-    orderBy?: PriceTierOrderByWithRelationInput | PriceTierOrderByWithRelationInput[]
+    orderBy?: FaixaPrecoOrderByWithRelationInput | FaixaPrecoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing PriceTiers.
+     * Sets the position for listing FaixaPrecos.
      */
-    cursor?: PriceTierWhereUniqueInput
+    cursor?: FaixaPrecoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` PriceTiers from the position of the cursor.
+     * Take `±n` FaixaPrecos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` PriceTiers.
+     * Skip the first `n` FaixaPrecos.
      */
     skip?: number
-    distinct?: PriceTierScalarFieldEnum | PriceTierScalarFieldEnum[]
+    distinct?: FaixaPrecoScalarFieldEnum | FaixaPrecoScalarFieldEnum[]
   }
 
   /**
-   * PriceTier create
+   * FaixaPreco create
    */
-  export type PriceTierCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * The data needed to create a PriceTier.
+     * The data needed to create a FaixaPreco.
      */
-    data: XOR<PriceTierCreateInput, PriceTierUncheckedCreateInput>
+    data: XOR<FaixaPrecoCreateInput, FaixaPrecoUncheckedCreateInput>
   }
 
   /**
-   * PriceTier createMany
+   * FaixaPreco createMany
    */
-  export type PriceTierCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many PriceTiers.
+     * The data used to create many FaixaPrecos.
      */
-    data: PriceTierCreateManyInput | PriceTierCreateManyInput[]
+    data: FaixaPrecoCreateManyInput | FaixaPrecoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * PriceTier createManyAndReturn
+   * FaixaPreco createManyAndReturn
    */
-  export type PriceTierCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelectCreateManyAndReturn<ExtArgs> | null
+    select?: FaixaPrecoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many PriceTiers.
+     * The data used to create many FaixaPrecos.
      */
-    data: PriceTierCreateManyInput | PriceTierCreateManyInput[]
+    data: FaixaPrecoCreateManyInput | FaixaPrecoCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: FaixaPrecoIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * PriceTier update
+   * FaixaPreco update
    */
-  export type PriceTierUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * The data needed to update a PriceTier.
+     * The data needed to update a FaixaPreco.
      */
-    data: XOR<PriceTierUpdateInput, PriceTierUncheckedUpdateInput>
+    data: XOR<FaixaPrecoUpdateInput, FaixaPrecoUncheckedUpdateInput>
     /**
-     * Choose, which PriceTier to update.
+     * Choose, which FaixaPreco to update.
      */
-    where: PriceTierWhereUniqueInput
+    where: FaixaPrecoWhereUniqueInput
   }
 
   /**
-   * PriceTier updateMany
+   * FaixaPreco updateMany
    */
-  export type PriceTierUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update PriceTiers.
+     * The data used to update FaixaPrecos.
      */
-    data: XOR<PriceTierUpdateManyMutationInput, PriceTierUncheckedUpdateManyInput>
+    data: XOR<FaixaPrecoUpdateManyMutationInput, FaixaPrecoUncheckedUpdateManyInput>
     /**
-     * Filter which PriceTiers to update
+     * Filter which FaixaPrecos to update
      */
-    where?: PriceTierWhereInput
+    where?: FaixaPrecoWhereInput
   }
 
   /**
-   * PriceTier upsert
+   * FaixaPreco upsert
    */
-  export type PriceTierUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * The filter to search for the PriceTier to update in case it exists.
+     * The filter to search for the FaixaPreco to update in case it exists.
      */
-    where: PriceTierWhereUniqueInput
+    where: FaixaPrecoWhereUniqueInput
     /**
-     * In case the PriceTier found by the `where` argument doesn't exist, create a new PriceTier with this data.
+     * In case the FaixaPreco found by the `where` argument doesn't exist, create a new FaixaPreco with this data.
      */
-    create: XOR<PriceTierCreateInput, PriceTierUncheckedCreateInput>
+    create: XOR<FaixaPrecoCreateInput, FaixaPrecoUncheckedCreateInput>
     /**
-     * In case the PriceTier was found with the provided `where` argument, update it with this data.
+     * In case the FaixaPreco was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<PriceTierUpdateInput, PriceTierUncheckedUpdateInput>
+    update: XOR<FaixaPrecoUpdateInput, FaixaPrecoUncheckedUpdateInput>
   }
 
   /**
-   * PriceTier delete
+   * FaixaPreco delete
    */
-  export type PriceTierDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
     /**
-     * Filter which PriceTier to delete.
+     * Filter which FaixaPreco to delete.
      */
-    where: PriceTierWhereUniqueInput
+    where: FaixaPrecoWhereUniqueInput
   }
 
   /**
-   * PriceTier deleteMany
+   * FaixaPreco deleteMany
    */
-  export type PriceTierDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which PriceTiers to delete
+     * Filter which FaixaPrecos to delete
      */
-    where?: PriceTierWhereInput
+    where?: FaixaPrecoWhereInput
   }
 
   /**
-   * PriceTier without action
+   * FaixaPreco without action
    */
-  export type PriceTierDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type FaixaPrecoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the PriceTier
+     * Select specific fields to fetch from the FaixaPreco
      */
-    select?: PriceTierSelect<ExtArgs> | null
+    select?: FaixaPrecoSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: PriceTierInclude<ExtArgs> | null
+    include?: FaixaPrecoInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model SpecialNegotiation
+   * Model NegociacaoEspecial
    */
 
-  export type AggregateSpecialNegotiation = {
-    _count: SpecialNegotiationCountAggregateOutputType | null
-    _min: SpecialNegotiationMinAggregateOutputType | null
-    _max: SpecialNegotiationMaxAggregateOutputType | null
+  export type AggregateNegociacaoEspecial = {
+    _count: NegociacaoEspecialCountAggregateOutputType | null
+    _min: NegociacaoEspecialMinAggregateOutputType | null
+    _max: NegociacaoEspecialMaxAggregateOutputType | null
   }
 
-  export type SpecialNegotiationMinAggregateOutputType = {
+  export type NegociacaoEspecialMinAggregateOutputType = {
     id: string | null
     product_id: string | null
     tenant_id: string | null
@@ -14495,7 +14495,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type SpecialNegotiationMaxAggregateOutputType = {
+  export type NegociacaoEspecialMaxAggregateOutputType = {
     id: string | null
     product_id: string | null
     tenant_id: string | null
@@ -14508,7 +14508,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type SpecialNegotiationCountAggregateOutputType = {
+  export type NegociacaoEspecialCountAggregateOutputType = {
     id: number
     product_id: number
     tenant_id: number
@@ -14523,7 +14523,7 @@ export namespace Prisma {
   }
 
 
-  export type SpecialNegotiationMinAggregateInputType = {
+  export type NegociacaoEspecialMinAggregateInputType = {
     id?: true
     product_id?: true
     tenant_id?: true
@@ -14536,7 +14536,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type SpecialNegotiationMaxAggregateInputType = {
+  export type NegociacaoEspecialMaxAggregateInputType = {
     id?: true
     product_id?: true
     tenant_id?: true
@@ -14549,7 +14549,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type SpecialNegotiationCountAggregateInputType = {
+  export type NegociacaoEspecialCountAggregateInputType = {
     id?: true
     product_id?: true
     tenant_id?: true
@@ -14563,79 +14563,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type SpecialNegotiationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which SpecialNegotiation to aggregate.
+     * Filter which NegociacaoEspecial to aggregate.
      */
-    where?: SpecialNegotiationWhereInput
+    where?: NegociacaoEspecialWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of SpecialNegotiations to fetch.
+     * Determine the order of NegociacaoEspecials to fetch.
      */
-    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: SpecialNegotiationWhereUniqueInput
+    cursor?: NegociacaoEspecialWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` SpecialNegotiations from the position of the cursor.
+     * Take `±n` NegociacaoEspecials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` SpecialNegotiations.
+     * Skip the first `n` NegociacaoEspecials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned SpecialNegotiations
+     * Count returned NegociacaoEspecials
     **/
-    _count?: true | SpecialNegotiationCountAggregateInputType
+    _count?: true | NegociacaoEspecialCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: SpecialNegotiationMinAggregateInputType
+    _min?: NegociacaoEspecialMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: SpecialNegotiationMaxAggregateInputType
+    _max?: NegociacaoEspecialMaxAggregateInputType
   }
 
-  export type GetSpecialNegotiationAggregateType<T extends SpecialNegotiationAggregateArgs> = {
-        [P in keyof T & keyof AggregateSpecialNegotiation]: P extends '_count' | 'count'
+  export type GetNegociacaoEspecialAggregateType<T extends NegociacaoEspecialAggregateArgs> = {
+        [P in keyof T & keyof AggregateNegociacaoEspecial]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateSpecialNegotiation[P]>
-      : GetScalarType<T[P], AggregateSpecialNegotiation[P]>
+        : GetScalarType<T[P], AggregateNegociacaoEspecial[P]>
+      : GetScalarType<T[P], AggregateNegociacaoEspecial[P]>
   }
 
 
 
 
-  export type SpecialNegotiationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: SpecialNegotiationWhereInput
-    orderBy?: SpecialNegotiationOrderByWithAggregationInput | SpecialNegotiationOrderByWithAggregationInput[]
-    by: SpecialNegotiationScalarFieldEnum[] | SpecialNegotiationScalarFieldEnum
-    having?: SpecialNegotiationScalarWhereWithAggregatesInput
+  export type NegociacaoEspecialGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NegociacaoEspecialWhereInput
+    orderBy?: NegociacaoEspecialOrderByWithAggregationInput | NegociacaoEspecialOrderByWithAggregationInput[]
+    by: NegociacaoEspecialScalarFieldEnum[] | NegociacaoEspecialScalarFieldEnum
+    having?: NegociacaoEspecialScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: SpecialNegotiationCountAggregateInputType | true
-    _min?: SpecialNegotiationMinAggregateInputType
-    _max?: SpecialNegotiationMaxAggregateInputType
+    _count?: NegociacaoEspecialCountAggregateInputType | true
+    _min?: NegociacaoEspecialMinAggregateInputType
+    _max?: NegociacaoEspecialMaxAggregateInputType
   }
 
-  export type SpecialNegotiationGroupByOutputType = {
+  export type NegociacaoEspecialGroupByOutputType = {
     id: string
     product_id: string
     tenant_id: string
@@ -14646,26 +14646,26 @@ export namespace Prisma {
     is_unlimited: boolean
     created_at: Date
     updated_at: Date
-    _count: SpecialNegotiationCountAggregateOutputType | null
-    _min: SpecialNegotiationMinAggregateOutputType | null
-    _max: SpecialNegotiationMaxAggregateOutputType | null
+    _count: NegociacaoEspecialCountAggregateOutputType | null
+    _min: NegociacaoEspecialMinAggregateOutputType | null
+    _max: NegociacaoEspecialMaxAggregateOutputType | null
   }
 
-  type GetSpecialNegotiationGroupByPayload<T extends SpecialNegotiationGroupByArgs> = Prisma.PrismaPromise<
+  type GetNegociacaoEspecialGroupByPayload<T extends NegociacaoEspecialGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<SpecialNegotiationGroupByOutputType, T['by']> &
+      PickEnumerable<NegociacaoEspecialGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof SpecialNegotiationGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof NegociacaoEspecialGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], SpecialNegotiationGroupByOutputType[P]>
-            : GetScalarType<T[P], SpecialNegotiationGroupByOutputType[P]>
+              : GetScalarType<T[P], NegociacaoEspecialGroupByOutputType[P]>
+            : GetScalarType<T[P], NegociacaoEspecialGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type SpecialNegotiationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type NegociacaoEspecialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     product_id?: boolean
     tenant_id?: boolean
@@ -14677,9 +14677,9 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["specialNegotiation"]>
+  }, ExtArgs["result"]["negociacaoEspecial"]>
 
-  export type SpecialNegotiationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type NegociacaoEspecialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     product_id?: boolean
     tenant_id?: boolean
@@ -14691,9 +14691,9 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["specialNegotiation"]>
+  }, ExtArgs["result"]["negociacaoEspecial"]>
 
-  export type SpecialNegotiationSelectScalar = {
+  export type NegociacaoEspecialSelectScalar = {
     id?: boolean
     product_id?: boolean
     tenant_id?: boolean
@@ -14706,15 +14706,15 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type SpecialNegotiationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
-  export type SpecialNegotiationIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     product?: boolean | ProdutoGravityDefaultArgs<ExtArgs>
   }
 
-  export type $SpecialNegotiationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "SpecialNegotiation"
+  export type $NegociacaoEspecialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NegociacaoEspecial"
     objects: {
       product: Prisma.$ProdutoGravityPayload<ExtArgs>
     }
@@ -14729,136 +14729,136 @@ export namespace Prisma {
       is_unlimited: boolean
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["specialNegotiation"]>
+    }, ExtArgs["result"]["negociacaoEspecial"]>
     composites: {}
   }
 
-  type SpecialNegotiationGetPayload<S extends boolean | null | undefined | SpecialNegotiationDefaultArgs> = $Result.GetResult<Prisma.$SpecialNegotiationPayload, S>
+  type NegociacaoEspecialGetPayload<S extends boolean | null | undefined | NegociacaoEspecialDefaultArgs> = $Result.GetResult<Prisma.$NegociacaoEspecialPayload, S>
 
-  type SpecialNegotiationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<SpecialNegotiationFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: SpecialNegotiationCountAggregateInputType | true
+  type NegociacaoEspecialCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NegociacaoEspecialFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NegociacaoEspecialCountAggregateInputType | true
     }
 
-  export interface SpecialNegotiationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SpecialNegotiation'], meta: { name: 'SpecialNegotiation' } }
+  export interface NegociacaoEspecialDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NegociacaoEspecial'], meta: { name: 'NegociacaoEspecial' } }
     /**
-     * Find zero or one SpecialNegotiation that matches the filter.
-     * @param {SpecialNegotiationFindUniqueArgs} args - Arguments to find a SpecialNegotiation
+     * Find zero or one NegociacaoEspecial that matches the filter.
+     * @param {NegociacaoEspecialFindUniqueArgs} args - Arguments to find a NegociacaoEspecial
      * @example
-     * // Get one SpecialNegotiation
-     * const specialNegotiation = await prisma.specialNegotiation.findUnique({
+     * // Get one NegociacaoEspecial
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends SpecialNegotiationFindUniqueArgs>(args: SelectSubset<T, SpecialNegotiationFindUniqueArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends NegociacaoEspecialFindUniqueArgs>(args: SelectSubset<T, NegociacaoEspecialFindUniqueArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one SpecialNegotiation that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one NegociacaoEspecial that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {SpecialNegotiationFindUniqueOrThrowArgs} args - Arguments to find a SpecialNegotiation
+     * @param {NegociacaoEspecialFindUniqueOrThrowArgs} args - Arguments to find a NegociacaoEspecial
      * @example
-     * // Get one SpecialNegotiation
-     * const specialNegotiation = await prisma.specialNegotiation.findUniqueOrThrow({
+     * // Get one NegociacaoEspecial
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends SpecialNegotiationFindUniqueOrThrowArgs>(args: SelectSubset<T, SpecialNegotiationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends NegociacaoEspecialFindUniqueOrThrowArgs>(args: SelectSubset<T, NegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first SpecialNegotiation that matches the filter.
+     * Find the first NegociacaoEspecial that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SpecialNegotiationFindFirstArgs} args - Arguments to find a SpecialNegotiation
+     * @param {NegociacaoEspecialFindFirstArgs} args - Arguments to find a NegociacaoEspecial
      * @example
-     * // Get one SpecialNegotiation
-     * const specialNegotiation = await prisma.specialNegotiation.findFirst({
+     * // Get one NegociacaoEspecial
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends SpecialNegotiationFindFirstArgs>(args?: SelectSubset<T, SpecialNegotiationFindFirstArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends NegociacaoEspecialFindFirstArgs>(args?: SelectSubset<T, NegociacaoEspecialFindFirstArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first SpecialNegotiation that matches the filter or
+     * Find the first NegociacaoEspecial that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SpecialNegotiationFindFirstOrThrowArgs} args - Arguments to find a SpecialNegotiation
+     * @param {NegociacaoEspecialFindFirstOrThrowArgs} args - Arguments to find a NegociacaoEspecial
      * @example
-     * // Get one SpecialNegotiation
-     * const specialNegotiation = await prisma.specialNegotiation.findFirstOrThrow({
+     * // Get one NegociacaoEspecial
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends SpecialNegotiationFindFirstOrThrowArgs>(args?: SelectSubset<T, SpecialNegotiationFindFirstOrThrowArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends NegociacaoEspecialFindFirstOrThrowArgs>(args?: SelectSubset<T, NegociacaoEspecialFindFirstOrThrowArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more SpecialNegotiations that matches the filter.
+     * Find zero or more NegociacaoEspecials that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SpecialNegotiationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {NegociacaoEspecialFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all SpecialNegotiations
-     * const specialNegotiations = await prisma.specialNegotiation.findMany()
+     * // Get all NegociacaoEspecials
+     * const negociacaoEspecials = await prisma.negociacaoEspecial.findMany()
      * 
-     * // Get first 10 SpecialNegotiations
-     * const specialNegotiations = await prisma.specialNegotiation.findMany({ take: 10 })
+     * // Get first 10 NegociacaoEspecials
+     * const negociacaoEspecials = await prisma.negociacaoEspecial.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const specialNegotiationWithIdOnly = await prisma.specialNegotiation.findMany({ select: { id: true } })
+     * const negociacaoEspecialWithIdOnly = await prisma.negociacaoEspecial.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends SpecialNegotiationFindManyArgs>(args?: SelectSubset<T, SpecialNegotiationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends NegociacaoEspecialFindManyArgs>(args?: SelectSubset<T, NegociacaoEspecialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a SpecialNegotiation.
-     * @param {SpecialNegotiationCreateArgs} args - Arguments to create a SpecialNegotiation.
+     * Create a NegociacaoEspecial.
+     * @param {NegociacaoEspecialCreateArgs} args - Arguments to create a NegociacaoEspecial.
      * @example
-     * // Create one SpecialNegotiation
-     * const SpecialNegotiation = await prisma.specialNegotiation.create({
+     * // Create one NegociacaoEspecial
+     * const NegociacaoEspecial = await prisma.negociacaoEspecial.create({
      *   data: {
-     *     // ... data to create a SpecialNegotiation
+     *     // ... data to create a NegociacaoEspecial
      *   }
      * })
      * 
      */
-    create<T extends SpecialNegotiationCreateArgs>(args: SelectSubset<T, SpecialNegotiationCreateArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends NegociacaoEspecialCreateArgs>(args: SelectSubset<T, NegociacaoEspecialCreateArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many SpecialNegotiations.
-     * @param {SpecialNegotiationCreateManyArgs} args - Arguments to create many SpecialNegotiations.
+     * Create many NegociacaoEspecials.
+     * @param {NegociacaoEspecialCreateManyArgs} args - Arguments to create many NegociacaoEspecials.
      * @example
-     * // Create many SpecialNegotiations
-     * const specialNegotiation = await prisma.specialNegotiation.createMany({
+     * // Create many NegociacaoEspecials
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends SpecialNegotiationCreateManyArgs>(args?: SelectSubset<T, SpecialNegotiationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends NegociacaoEspecialCreateManyArgs>(args?: SelectSubset<T, NegociacaoEspecialCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many SpecialNegotiations and returns the data saved in the database.
-     * @param {SpecialNegotiationCreateManyAndReturnArgs} args - Arguments to create many SpecialNegotiations.
+     * Create many NegociacaoEspecials and returns the data saved in the database.
+     * @param {NegociacaoEspecialCreateManyAndReturnArgs} args - Arguments to create many NegociacaoEspecials.
      * @example
-     * // Create many SpecialNegotiations
-     * const specialNegotiation = await prisma.specialNegotiation.createManyAndReturn({
+     * // Create many NegociacaoEspecials
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many SpecialNegotiations and only return the `id`
-     * const specialNegotiationWithIdOnly = await prisma.specialNegotiation.createManyAndReturn({ 
+     * // Create many NegociacaoEspecials and only return the `id`
+     * const negociacaoEspecialWithIdOnly = await prisma.negociacaoEspecial.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -14868,28 +14868,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends SpecialNegotiationCreateManyAndReturnArgs>(args?: SelectSubset<T, SpecialNegotiationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends NegociacaoEspecialCreateManyAndReturnArgs>(args?: SelectSubset<T, NegociacaoEspecialCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a SpecialNegotiation.
-     * @param {SpecialNegotiationDeleteArgs} args - Arguments to delete one SpecialNegotiation.
+     * Delete a NegociacaoEspecial.
+     * @param {NegociacaoEspecialDeleteArgs} args - Arguments to delete one NegociacaoEspecial.
      * @example
-     * // Delete one SpecialNegotiation
-     * const SpecialNegotiation = await prisma.specialNegotiation.delete({
+     * // Delete one NegociacaoEspecial
+     * const NegociacaoEspecial = await prisma.negociacaoEspecial.delete({
      *   where: {
-     *     // ... filter to delete one SpecialNegotiation
+     *     // ... filter to delete one NegociacaoEspecial
      *   }
      * })
      * 
      */
-    delete<T extends SpecialNegotiationDeleteArgs>(args: SelectSubset<T, SpecialNegotiationDeleteArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends NegociacaoEspecialDeleteArgs>(args: SelectSubset<T, NegociacaoEspecialDeleteArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one SpecialNegotiation.
-     * @param {SpecialNegotiationUpdateArgs} args - Arguments to update one SpecialNegotiation.
+     * Update one NegociacaoEspecial.
+     * @param {NegociacaoEspecialUpdateArgs} args - Arguments to update one NegociacaoEspecial.
      * @example
-     * // Update one SpecialNegotiation
-     * const specialNegotiation = await prisma.specialNegotiation.update({
+     * // Update one NegociacaoEspecial
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14899,30 +14899,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends SpecialNegotiationUpdateArgs>(args: SelectSubset<T, SpecialNegotiationUpdateArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends NegociacaoEspecialUpdateArgs>(args: SelectSubset<T, NegociacaoEspecialUpdateArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more SpecialNegotiations.
-     * @param {SpecialNegotiationDeleteManyArgs} args - Arguments to filter SpecialNegotiations to delete.
+     * Delete zero or more NegociacaoEspecials.
+     * @param {NegociacaoEspecialDeleteManyArgs} args - Arguments to filter NegociacaoEspecials to delete.
      * @example
-     * // Delete a few SpecialNegotiations
-     * const { count } = await prisma.specialNegotiation.deleteMany({
+     * // Delete a few NegociacaoEspecials
+     * const { count } = await prisma.negociacaoEspecial.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends SpecialNegotiationDeleteManyArgs>(args?: SelectSubset<T, SpecialNegotiationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends NegociacaoEspecialDeleteManyArgs>(args?: SelectSubset<T, NegociacaoEspecialDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more SpecialNegotiations.
+     * Update zero or more NegociacaoEspecials.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SpecialNegotiationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {NegociacaoEspecialUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many SpecialNegotiations
-     * const specialNegotiation = await prisma.specialNegotiation.updateMany({
+     * // Update many NegociacaoEspecials
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -14932,56 +14932,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends SpecialNegotiationUpdateManyArgs>(args: SelectSubset<T, SpecialNegotiationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends NegociacaoEspecialUpdateManyArgs>(args: SelectSubset<T, NegociacaoEspecialUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one SpecialNegotiation.
-     * @param {SpecialNegotiationUpsertArgs} args - Arguments to update or create a SpecialNegotiation.
+     * Create or update one NegociacaoEspecial.
+     * @param {NegociacaoEspecialUpsertArgs} args - Arguments to update or create a NegociacaoEspecial.
      * @example
-     * // Update or create a SpecialNegotiation
-     * const specialNegotiation = await prisma.specialNegotiation.upsert({
+     * // Update or create a NegociacaoEspecial
+     * const negociacaoEspecial = await prisma.negociacaoEspecial.upsert({
      *   create: {
-     *     // ... data to create a SpecialNegotiation
+     *     // ... data to create a NegociacaoEspecial
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the SpecialNegotiation we want to update
+     *     // ... the filter for the NegociacaoEspecial we want to update
      *   }
      * })
      */
-    upsert<T extends SpecialNegotiationUpsertArgs>(args: SelectSubset<T, SpecialNegotiationUpsertArgs<ExtArgs>>): Prisma__SpecialNegotiationClient<$Result.GetResult<Prisma.$SpecialNegotiationPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends NegociacaoEspecialUpsertArgs>(args: SelectSubset<T, NegociacaoEspecialUpsertArgs<ExtArgs>>): Prisma__NegociacaoEspecialClient<$Result.GetResult<Prisma.$NegociacaoEspecialPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of SpecialNegotiations.
+     * Count the number of NegociacaoEspecials.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SpecialNegotiationCountArgs} args - Arguments to filter SpecialNegotiations to count.
+     * @param {NegociacaoEspecialCountArgs} args - Arguments to filter NegociacaoEspecials to count.
      * @example
-     * // Count the number of SpecialNegotiations
-     * const count = await prisma.specialNegotiation.count({
+     * // Count the number of NegociacaoEspecials
+     * const count = await prisma.negociacaoEspecial.count({
      *   where: {
-     *     // ... the filter for the SpecialNegotiations we want to count
+     *     // ... the filter for the NegociacaoEspecials we want to count
      *   }
      * })
     **/
-    count<T extends SpecialNegotiationCountArgs>(
-      args?: Subset<T, SpecialNegotiationCountArgs>,
+    count<T extends NegociacaoEspecialCountArgs>(
+      args?: Subset<T, NegociacaoEspecialCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], SpecialNegotiationCountAggregateOutputType>
+          : GetScalarType<T['select'], NegociacaoEspecialCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a SpecialNegotiation.
+     * Allows you to perform aggregations operations on a NegociacaoEspecial.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SpecialNegotiationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {NegociacaoEspecialAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -15001,13 +15001,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends SpecialNegotiationAggregateArgs>(args: Subset<T, SpecialNegotiationAggregateArgs>): Prisma.PrismaPromise<GetSpecialNegotiationAggregateType<T>>
+    aggregate<T extends NegociacaoEspecialAggregateArgs>(args: Subset<T, NegociacaoEspecialAggregateArgs>): Prisma.PrismaPromise<GetNegociacaoEspecialAggregateType<T>>
 
     /**
-     * Group by SpecialNegotiation.
+     * Group by NegociacaoEspecial.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {SpecialNegotiationGroupByArgs} args - Group by arguments.
+     * @param {NegociacaoEspecialGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -15022,14 +15022,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends SpecialNegotiationGroupByArgs,
+      T extends NegociacaoEspecialGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: SpecialNegotiationGroupByArgs['orderBy'] }
-        : { orderBy?: SpecialNegotiationGroupByArgs['orderBy'] },
+        ? { orderBy: NegociacaoEspecialGroupByArgs['orderBy'] }
+        : { orderBy?: NegociacaoEspecialGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -15078,20 +15078,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, SpecialNegotiationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSpecialNegotiationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, NegociacaoEspecialGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNegociacaoEspecialGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the SpecialNegotiation model
+   * Fields of the NegociacaoEspecial model
    */
-  readonly fields: SpecialNegotiationFieldRefs;
+  readonly fields: NegociacaoEspecialFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for SpecialNegotiation.
+   * The delegate class that acts as a "Promise-like" for NegociacaoEspecial.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__SpecialNegotiationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NegociacaoEspecialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     product<T extends ProdutoGravityDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ProdutoGravityDefaultArgs<ExtArgs>>): Prisma__ProdutoGravityClient<$Result.GetResult<Prisma.$ProdutoGravityPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
@@ -15120,348 +15120,348 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the SpecialNegotiation model
+   * Fields of the NegociacaoEspecial model
    */ 
-  interface SpecialNegotiationFieldRefs {
-    readonly id: FieldRef<"SpecialNegotiation", 'String'>
-    readonly product_id: FieldRef<"SpecialNegotiation", 'String'>
-    readonly tenant_id: FieldRef<"SpecialNegotiation", 'String'>
-    readonly tenant_name: FieldRef<"SpecialNegotiation", 'String'>
-    readonly agreement: FieldRef<"SpecialNegotiation", 'String'>
-    readonly starts_at: FieldRef<"SpecialNegotiation", 'DateTime'>
-    readonly ends_at: FieldRef<"SpecialNegotiation", 'DateTime'>
-    readonly is_unlimited: FieldRef<"SpecialNegotiation", 'Boolean'>
-    readonly created_at: FieldRef<"SpecialNegotiation", 'DateTime'>
-    readonly updated_at: FieldRef<"SpecialNegotiation", 'DateTime'>
+  interface NegociacaoEspecialFieldRefs {
+    readonly id: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly product_id: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly tenant_id: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly tenant_name: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly agreement: FieldRef<"NegociacaoEspecial", 'String'>
+    readonly starts_at: FieldRef<"NegociacaoEspecial", 'DateTime'>
+    readonly ends_at: FieldRef<"NegociacaoEspecial", 'DateTime'>
+    readonly is_unlimited: FieldRef<"NegociacaoEspecial", 'Boolean'>
+    readonly created_at: FieldRef<"NegociacaoEspecial", 'DateTime'>
+    readonly updated_at: FieldRef<"NegociacaoEspecial", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * SpecialNegotiation findUnique
+   * NegociacaoEspecial findUnique
    */
-  export type SpecialNegotiationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which SpecialNegotiation to fetch.
+     * Filter, which NegociacaoEspecial to fetch.
      */
-    where: SpecialNegotiationWhereUniqueInput
+    where: NegociacaoEspecialWhereUniqueInput
   }
 
   /**
-   * SpecialNegotiation findUniqueOrThrow
+   * NegociacaoEspecial findUniqueOrThrow
    */
-  export type SpecialNegotiationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which SpecialNegotiation to fetch.
+     * Filter, which NegociacaoEspecial to fetch.
      */
-    where: SpecialNegotiationWhereUniqueInput
+    where: NegociacaoEspecialWhereUniqueInput
   }
 
   /**
-   * SpecialNegotiation findFirst
+   * NegociacaoEspecial findFirst
    */
-  export type SpecialNegotiationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which SpecialNegotiation to fetch.
+     * Filter, which NegociacaoEspecial to fetch.
      */
-    where?: SpecialNegotiationWhereInput
+    where?: NegociacaoEspecialWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of SpecialNegotiations to fetch.
+     * Determine the order of NegociacaoEspecials to fetch.
      */
-    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for SpecialNegotiations.
+     * Sets the position for searching for NegociacaoEspecials.
      */
-    cursor?: SpecialNegotiationWhereUniqueInput
+    cursor?: NegociacaoEspecialWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` SpecialNegotiations from the position of the cursor.
+     * Take `±n` NegociacaoEspecials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` SpecialNegotiations.
+     * Skip the first `n` NegociacaoEspecials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of SpecialNegotiations.
+     * Filter by unique combinations of NegociacaoEspecials.
      */
-    distinct?: SpecialNegotiationScalarFieldEnum | SpecialNegotiationScalarFieldEnum[]
+    distinct?: NegociacaoEspecialScalarFieldEnum | NegociacaoEspecialScalarFieldEnum[]
   }
 
   /**
-   * SpecialNegotiation findFirstOrThrow
+   * NegociacaoEspecial findFirstOrThrow
    */
-  export type SpecialNegotiationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which SpecialNegotiation to fetch.
+     * Filter, which NegociacaoEspecial to fetch.
      */
-    where?: SpecialNegotiationWhereInput
+    where?: NegociacaoEspecialWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of SpecialNegotiations to fetch.
+     * Determine the order of NegociacaoEspecials to fetch.
      */
-    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for SpecialNegotiations.
+     * Sets the position for searching for NegociacaoEspecials.
      */
-    cursor?: SpecialNegotiationWhereUniqueInput
+    cursor?: NegociacaoEspecialWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` SpecialNegotiations from the position of the cursor.
+     * Take `±n` NegociacaoEspecials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` SpecialNegotiations.
+     * Skip the first `n` NegociacaoEspecials.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of SpecialNegotiations.
+     * Filter by unique combinations of NegociacaoEspecials.
      */
-    distinct?: SpecialNegotiationScalarFieldEnum | SpecialNegotiationScalarFieldEnum[]
+    distinct?: NegociacaoEspecialScalarFieldEnum | NegociacaoEspecialScalarFieldEnum[]
   }
 
   /**
-   * SpecialNegotiation findMany
+   * NegociacaoEspecial findMany
    */
-  export type SpecialNegotiationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter, which SpecialNegotiations to fetch.
+     * Filter, which NegociacaoEspecials to fetch.
      */
-    where?: SpecialNegotiationWhereInput
+    where?: NegociacaoEspecialWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of SpecialNegotiations to fetch.
+     * Determine the order of NegociacaoEspecials to fetch.
      */
-    orderBy?: SpecialNegotiationOrderByWithRelationInput | SpecialNegotiationOrderByWithRelationInput[]
+    orderBy?: NegociacaoEspecialOrderByWithRelationInput | NegociacaoEspecialOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing SpecialNegotiations.
+     * Sets the position for listing NegociacaoEspecials.
      */
-    cursor?: SpecialNegotiationWhereUniqueInput
+    cursor?: NegociacaoEspecialWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` SpecialNegotiations from the position of the cursor.
+     * Take `±n` NegociacaoEspecials from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` SpecialNegotiations.
+     * Skip the first `n` NegociacaoEspecials.
      */
     skip?: number
-    distinct?: SpecialNegotiationScalarFieldEnum | SpecialNegotiationScalarFieldEnum[]
+    distinct?: NegociacaoEspecialScalarFieldEnum | NegociacaoEspecialScalarFieldEnum[]
   }
 
   /**
-   * SpecialNegotiation create
+   * NegociacaoEspecial create
    */
-  export type SpecialNegotiationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * The data needed to create a SpecialNegotiation.
+     * The data needed to create a NegociacaoEspecial.
      */
-    data: XOR<SpecialNegotiationCreateInput, SpecialNegotiationUncheckedCreateInput>
+    data: XOR<NegociacaoEspecialCreateInput, NegociacaoEspecialUncheckedCreateInput>
   }
 
   /**
-   * SpecialNegotiation createMany
+   * NegociacaoEspecial createMany
    */
-  export type SpecialNegotiationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many SpecialNegotiations.
+     * The data used to create many NegociacaoEspecials.
      */
-    data: SpecialNegotiationCreateManyInput | SpecialNegotiationCreateManyInput[]
+    data: NegociacaoEspecialCreateManyInput | NegociacaoEspecialCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * SpecialNegotiation createManyAndReturn
+   * NegociacaoEspecial createManyAndReturn
    */
-  export type SpecialNegotiationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelectCreateManyAndReturn<ExtArgs> | null
+    select?: NegociacaoEspecialSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many SpecialNegotiations.
+     * The data used to create many NegociacaoEspecials.
      */
-    data: SpecialNegotiationCreateManyInput | SpecialNegotiationCreateManyInput[]
+    data: NegociacaoEspecialCreateManyInput | NegociacaoEspecialCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: NegociacaoEspecialIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * SpecialNegotiation update
+   * NegociacaoEspecial update
    */
-  export type SpecialNegotiationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * The data needed to update a SpecialNegotiation.
+     * The data needed to update a NegociacaoEspecial.
      */
-    data: XOR<SpecialNegotiationUpdateInput, SpecialNegotiationUncheckedUpdateInput>
+    data: XOR<NegociacaoEspecialUpdateInput, NegociacaoEspecialUncheckedUpdateInput>
     /**
-     * Choose, which SpecialNegotiation to update.
+     * Choose, which NegociacaoEspecial to update.
      */
-    where: SpecialNegotiationWhereUniqueInput
+    where: NegociacaoEspecialWhereUniqueInput
   }
 
   /**
-   * SpecialNegotiation updateMany
+   * NegociacaoEspecial updateMany
    */
-  export type SpecialNegotiationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update SpecialNegotiations.
+     * The data used to update NegociacaoEspecials.
      */
-    data: XOR<SpecialNegotiationUpdateManyMutationInput, SpecialNegotiationUncheckedUpdateManyInput>
+    data: XOR<NegociacaoEspecialUpdateManyMutationInput, NegociacaoEspecialUncheckedUpdateManyInput>
     /**
-     * Filter which SpecialNegotiations to update
+     * Filter which NegociacaoEspecials to update
      */
-    where?: SpecialNegotiationWhereInput
+    where?: NegociacaoEspecialWhereInput
   }
 
   /**
-   * SpecialNegotiation upsert
+   * NegociacaoEspecial upsert
    */
-  export type SpecialNegotiationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * The filter to search for the SpecialNegotiation to update in case it exists.
+     * The filter to search for the NegociacaoEspecial to update in case it exists.
      */
-    where: SpecialNegotiationWhereUniqueInput
+    where: NegociacaoEspecialWhereUniqueInput
     /**
-     * In case the SpecialNegotiation found by the `where` argument doesn't exist, create a new SpecialNegotiation with this data.
+     * In case the NegociacaoEspecial found by the `where` argument doesn't exist, create a new NegociacaoEspecial with this data.
      */
-    create: XOR<SpecialNegotiationCreateInput, SpecialNegotiationUncheckedCreateInput>
+    create: XOR<NegociacaoEspecialCreateInput, NegociacaoEspecialUncheckedCreateInput>
     /**
-     * In case the SpecialNegotiation was found with the provided `where` argument, update it with this data.
+     * In case the NegociacaoEspecial was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<SpecialNegotiationUpdateInput, SpecialNegotiationUncheckedUpdateInput>
+    update: XOR<NegociacaoEspecialUpdateInput, NegociacaoEspecialUncheckedUpdateInput>
   }
 
   /**
-   * SpecialNegotiation delete
+   * NegociacaoEspecial delete
    */
-  export type SpecialNegotiationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
     /**
-     * Filter which SpecialNegotiation to delete.
+     * Filter which NegociacaoEspecial to delete.
      */
-    where: SpecialNegotiationWhereUniqueInput
+    where: NegociacaoEspecialWhereUniqueInput
   }
 
   /**
-   * SpecialNegotiation deleteMany
+   * NegociacaoEspecial deleteMany
    */
-  export type SpecialNegotiationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which SpecialNegotiations to delete
+     * Filter which NegociacaoEspecials to delete
      */
-    where?: SpecialNegotiationWhereInput
+    where?: NegociacaoEspecialWhereInput
   }
 
   /**
-   * SpecialNegotiation without action
+   * NegociacaoEspecial without action
    */
-  export type SpecialNegotiationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NegociacaoEspecialDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the SpecialNegotiation
+     * Select specific fields to fetch from the NegociacaoEspecial
      */
-    select?: SpecialNegotiationSelect<ExtArgs> | null
+    select?: NegociacaoEspecialSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: SpecialNegotiationInclude<ExtArgs> | null
+    include?: NegociacaoEspecialInclude<ExtArgs> | null
   }
 
 
@@ -22252,28 +22252,28 @@ export namespace Prisma {
 
 
   /**
-   * Model TestSchedule
+   * Model AgendamentoTeste
    */
 
-  export type AggregateTestSchedule = {
-    _count: TestScheduleCountAggregateOutputType | null
-    _avg: TestScheduleAvgAggregateOutputType | null
-    _sum: TestScheduleSumAggregateOutputType | null
-    _min: TestScheduleMinAggregateOutputType | null
-    _max: TestScheduleMaxAggregateOutputType | null
+  export type AggregateAgendamentoTeste = {
+    _count: AgendamentoTesteCountAggregateOutputType | null
+    _avg: AgendamentoTesteAvgAggregateOutputType | null
+    _sum: AgendamentoTesteSumAggregateOutputType | null
+    _min: AgendamentoTesteMinAggregateOutputType | null
+    _max: AgendamentoTesteMaxAggregateOutputType | null
   }
 
-  export type TestScheduleAvgAggregateOutputType = {
+  export type AgendamentoTesteAvgAggregateOutputType = {
     hora: number | null
     minuto: number | null
   }
 
-  export type TestScheduleSumAggregateOutputType = {
+  export type AgendamentoTesteSumAggregateOutputType = {
     hora: number | null
     minuto: number | null
   }
 
-  export type TestScheduleMinAggregateOutputType = {
+  export type AgendamentoTesteMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     ativo: boolean | null
@@ -22287,7 +22287,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type TestScheduleMaxAggregateOutputType = {
+  export type AgendamentoTesteMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     ativo: boolean | null
@@ -22301,7 +22301,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type TestScheduleCountAggregateOutputType = {
+  export type AgendamentoTesteCountAggregateOutputType = {
     id: number
     tenant_id: number
     ativo: number
@@ -22320,17 +22320,17 @@ export namespace Prisma {
   }
 
 
-  export type TestScheduleAvgAggregateInputType = {
+  export type AgendamentoTesteAvgAggregateInputType = {
     hora?: true
     minuto?: true
   }
 
-  export type TestScheduleSumAggregateInputType = {
+  export type AgendamentoTesteSumAggregateInputType = {
     hora?: true
     minuto?: true
   }
 
-  export type TestScheduleMinAggregateInputType = {
+  export type AgendamentoTesteMinAggregateInputType = {
     id?: true
     tenant_id?: true
     ativo?: true
@@ -22344,7 +22344,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type TestScheduleMaxAggregateInputType = {
+  export type AgendamentoTesteMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     ativo?: true
@@ -22358,7 +22358,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type TestScheduleCountAggregateInputType = {
+  export type AgendamentoTesteCountAggregateInputType = {
     id?: true
     tenant_id?: true
     ativo?: true
@@ -22376,93 +22376,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type TestScheduleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TestSchedule to aggregate.
+     * Filter which AgendamentoTeste to aggregate.
      */
-    where?: TestScheduleWhereInput
+    where?: AgendamentoTesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TestSchedules to fetch.
+     * Determine the order of AgendamentoTestes to fetch.
      */
-    orderBy?: TestScheduleOrderByWithRelationInput | TestScheduleOrderByWithRelationInput[]
+    orderBy?: AgendamentoTesteOrderByWithRelationInput | AgendamentoTesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: TestScheduleWhereUniqueInput
+    cursor?: AgendamentoTesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TestSchedules from the position of the cursor.
+     * Take `±n` AgendamentoTestes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TestSchedules.
+     * Skip the first `n` AgendamentoTestes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned TestSchedules
+     * Count returned AgendamentoTestes
     **/
-    _count?: true | TestScheduleCountAggregateInputType
+    _count?: true | AgendamentoTesteCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: TestScheduleAvgAggregateInputType
+    _avg?: AgendamentoTesteAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: TestScheduleSumAggregateInputType
+    _sum?: AgendamentoTesteSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: TestScheduleMinAggregateInputType
+    _min?: AgendamentoTesteMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: TestScheduleMaxAggregateInputType
+    _max?: AgendamentoTesteMaxAggregateInputType
   }
 
-  export type GetTestScheduleAggregateType<T extends TestScheduleAggregateArgs> = {
-        [P in keyof T & keyof AggregateTestSchedule]: P extends '_count' | 'count'
+  export type GetAgendamentoTesteAggregateType<T extends AgendamentoTesteAggregateArgs> = {
+        [P in keyof T & keyof AggregateAgendamentoTeste]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateTestSchedule[P]>
-      : GetScalarType<T[P], AggregateTestSchedule[P]>
+        : GetScalarType<T[P], AggregateAgendamentoTeste[P]>
+      : GetScalarType<T[P], AggregateAgendamentoTeste[P]>
   }
 
 
 
 
-  export type TestScheduleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TestScheduleWhereInput
-    orderBy?: TestScheduleOrderByWithAggregationInput | TestScheduleOrderByWithAggregationInput[]
-    by: TestScheduleScalarFieldEnum[] | TestScheduleScalarFieldEnum
-    having?: TestScheduleScalarWhereWithAggregatesInput
+  export type AgendamentoTesteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AgendamentoTesteWhereInput
+    orderBy?: AgendamentoTesteOrderByWithAggregationInput | AgendamentoTesteOrderByWithAggregationInput[]
+    by: AgendamentoTesteScalarFieldEnum[] | AgendamentoTesteScalarFieldEnum
+    having?: AgendamentoTesteScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: TestScheduleCountAggregateInputType | true
-    _avg?: TestScheduleAvgAggregateInputType
-    _sum?: TestScheduleSumAggregateInputType
-    _min?: TestScheduleMinAggregateInputType
-    _max?: TestScheduleMaxAggregateInputType
+    _count?: AgendamentoTesteCountAggregateInputType | true
+    _avg?: AgendamentoTesteAvgAggregateInputType
+    _sum?: AgendamentoTesteSumAggregateInputType
+    _min?: AgendamentoTesteMinAggregateInputType
+    _max?: AgendamentoTesteMaxAggregateInputType
   }
 
-  export type TestScheduleGroupByOutputType = {
+  export type AgendamentoTesteGroupByOutputType = {
     id: string
     tenant_id: string
     ativo: boolean
@@ -22477,28 +22477,28 @@ export namespace Prisma {
     proxima_exec: Date | null
     created_at: Date
     updated_at: Date
-    _count: TestScheduleCountAggregateOutputType | null
-    _avg: TestScheduleAvgAggregateOutputType | null
-    _sum: TestScheduleSumAggregateOutputType | null
-    _min: TestScheduleMinAggregateOutputType | null
-    _max: TestScheduleMaxAggregateOutputType | null
+    _count: AgendamentoTesteCountAggregateOutputType | null
+    _avg: AgendamentoTesteAvgAggregateOutputType | null
+    _sum: AgendamentoTesteSumAggregateOutputType | null
+    _min: AgendamentoTesteMinAggregateOutputType | null
+    _max: AgendamentoTesteMaxAggregateOutputType | null
   }
 
-  type GetTestScheduleGroupByPayload<T extends TestScheduleGroupByArgs> = Prisma.PrismaPromise<
+  type GetAgendamentoTesteGroupByPayload<T extends AgendamentoTesteGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<TestScheduleGroupByOutputType, T['by']> &
+      PickEnumerable<AgendamentoTesteGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof TestScheduleGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof AgendamentoTesteGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], TestScheduleGroupByOutputType[P]>
-            : GetScalarType<T[P], TestScheduleGroupByOutputType[P]>
+              : GetScalarType<T[P], AgendamentoTesteGroupByOutputType[P]>
+            : GetScalarType<T[P], AgendamentoTesteGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type TestScheduleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AgendamentoTesteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     ativo?: boolean
@@ -22513,9 +22513,9 @@ export namespace Prisma {
     proxima_exec?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["testSchedule"]>
+  }, ExtArgs["result"]["agendamentoTeste"]>
 
-  export type TestScheduleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AgendamentoTesteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     ativo?: boolean
@@ -22530,9 +22530,9 @@ export namespace Prisma {
     proxima_exec?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["testSchedule"]>
+  }, ExtArgs["result"]["agendamentoTeste"]>
 
-  export type TestScheduleSelectScalar = {
+  export type AgendamentoTesteSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     ativo?: boolean
@@ -22550,8 +22550,8 @@ export namespace Prisma {
   }
 
 
-  export type $TestSchedulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TestSchedule"
+  export type $AgendamentoTestePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AgendamentoTeste"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -22568,136 +22568,136 @@ export namespace Prisma {
       proxima_exec: Date | null
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["testSchedule"]>
+    }, ExtArgs["result"]["agendamentoTeste"]>
     composites: {}
   }
 
-  type TestScheduleGetPayload<S extends boolean | null | undefined | TestScheduleDefaultArgs> = $Result.GetResult<Prisma.$TestSchedulePayload, S>
+  type AgendamentoTesteGetPayload<S extends boolean | null | undefined | AgendamentoTesteDefaultArgs> = $Result.GetResult<Prisma.$AgendamentoTestePayload, S>
 
-  type TestScheduleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<TestScheduleFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: TestScheduleCountAggregateInputType | true
+  type AgendamentoTesteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<AgendamentoTesteFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: AgendamentoTesteCountAggregateInputType | true
     }
 
-  export interface TestScheduleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TestSchedule'], meta: { name: 'TestSchedule' } }
+  export interface AgendamentoTesteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AgendamentoTeste'], meta: { name: 'AgendamentoTeste' } }
     /**
-     * Find zero or one TestSchedule that matches the filter.
-     * @param {TestScheduleFindUniqueArgs} args - Arguments to find a TestSchedule
+     * Find zero or one AgendamentoTeste that matches the filter.
+     * @param {AgendamentoTesteFindUniqueArgs} args - Arguments to find a AgendamentoTeste
      * @example
-     * // Get one TestSchedule
-     * const testSchedule = await prisma.testSchedule.findUnique({
+     * // Get one AgendamentoTeste
+     * const agendamentoTeste = await prisma.agendamentoTeste.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends TestScheduleFindUniqueArgs>(args: SelectSubset<T, TestScheduleFindUniqueArgs<ExtArgs>>): Prisma__TestScheduleClient<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends AgendamentoTesteFindUniqueArgs>(args: SelectSubset<T, AgendamentoTesteFindUniqueArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one TestSchedule that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one AgendamentoTeste that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {TestScheduleFindUniqueOrThrowArgs} args - Arguments to find a TestSchedule
+     * @param {AgendamentoTesteFindUniqueOrThrowArgs} args - Arguments to find a AgendamentoTeste
      * @example
-     * // Get one TestSchedule
-     * const testSchedule = await prisma.testSchedule.findUniqueOrThrow({
+     * // Get one AgendamentoTeste
+     * const agendamentoTeste = await prisma.agendamentoTeste.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TestScheduleFindUniqueOrThrowArgs>(args: SelectSubset<T, TestScheduleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TestScheduleClient<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends AgendamentoTesteFindUniqueOrThrowArgs>(args: SelectSubset<T, AgendamentoTesteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first TestSchedule that matches the filter.
+     * Find the first AgendamentoTeste that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestScheduleFindFirstArgs} args - Arguments to find a TestSchedule
+     * @param {AgendamentoTesteFindFirstArgs} args - Arguments to find a AgendamentoTeste
      * @example
-     * // Get one TestSchedule
-     * const testSchedule = await prisma.testSchedule.findFirst({
+     * // Get one AgendamentoTeste
+     * const agendamentoTeste = await prisma.agendamentoTeste.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends TestScheduleFindFirstArgs>(args?: SelectSubset<T, TestScheduleFindFirstArgs<ExtArgs>>): Prisma__TestScheduleClient<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends AgendamentoTesteFindFirstArgs>(args?: SelectSubset<T, AgendamentoTesteFindFirstArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first TestSchedule that matches the filter or
+     * Find the first AgendamentoTeste that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestScheduleFindFirstOrThrowArgs} args - Arguments to find a TestSchedule
+     * @param {AgendamentoTesteFindFirstOrThrowArgs} args - Arguments to find a AgendamentoTeste
      * @example
-     * // Get one TestSchedule
-     * const testSchedule = await prisma.testSchedule.findFirstOrThrow({
+     * // Get one AgendamentoTeste
+     * const agendamentoTeste = await prisma.agendamentoTeste.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends TestScheduleFindFirstOrThrowArgs>(args?: SelectSubset<T, TestScheduleFindFirstOrThrowArgs<ExtArgs>>): Prisma__TestScheduleClient<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends AgendamentoTesteFindFirstOrThrowArgs>(args?: SelectSubset<T, AgendamentoTesteFindFirstOrThrowArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more TestSchedules that matches the filter.
+     * Find zero or more AgendamentoTestes that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestScheduleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {AgendamentoTesteFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all TestSchedules
-     * const testSchedules = await prisma.testSchedule.findMany()
+     * // Get all AgendamentoTestes
+     * const agendamentoTestes = await prisma.agendamentoTeste.findMany()
      * 
-     * // Get first 10 TestSchedules
-     * const testSchedules = await prisma.testSchedule.findMany({ take: 10 })
+     * // Get first 10 AgendamentoTestes
+     * const agendamentoTestes = await prisma.agendamentoTeste.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const testScheduleWithIdOnly = await prisma.testSchedule.findMany({ select: { id: true } })
+     * const agendamentoTesteWithIdOnly = await prisma.agendamentoTeste.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends TestScheduleFindManyArgs>(args?: SelectSubset<T, TestScheduleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends AgendamentoTesteFindManyArgs>(args?: SelectSubset<T, AgendamentoTesteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a TestSchedule.
-     * @param {TestScheduleCreateArgs} args - Arguments to create a TestSchedule.
+     * Create a AgendamentoTeste.
+     * @param {AgendamentoTesteCreateArgs} args - Arguments to create a AgendamentoTeste.
      * @example
-     * // Create one TestSchedule
-     * const TestSchedule = await prisma.testSchedule.create({
+     * // Create one AgendamentoTeste
+     * const AgendamentoTeste = await prisma.agendamentoTeste.create({
      *   data: {
-     *     // ... data to create a TestSchedule
+     *     // ... data to create a AgendamentoTeste
      *   }
      * })
      * 
      */
-    create<T extends TestScheduleCreateArgs>(args: SelectSubset<T, TestScheduleCreateArgs<ExtArgs>>): Prisma__TestScheduleClient<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends AgendamentoTesteCreateArgs>(args: SelectSubset<T, AgendamentoTesteCreateArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many TestSchedules.
-     * @param {TestScheduleCreateManyArgs} args - Arguments to create many TestSchedules.
+     * Create many AgendamentoTestes.
+     * @param {AgendamentoTesteCreateManyArgs} args - Arguments to create many AgendamentoTestes.
      * @example
-     * // Create many TestSchedules
-     * const testSchedule = await prisma.testSchedule.createMany({
+     * // Create many AgendamentoTestes
+     * const agendamentoTeste = await prisma.agendamentoTeste.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends TestScheduleCreateManyArgs>(args?: SelectSubset<T, TestScheduleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends AgendamentoTesteCreateManyArgs>(args?: SelectSubset<T, AgendamentoTesteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many TestSchedules and returns the data saved in the database.
-     * @param {TestScheduleCreateManyAndReturnArgs} args - Arguments to create many TestSchedules.
+     * Create many AgendamentoTestes and returns the data saved in the database.
+     * @param {AgendamentoTesteCreateManyAndReturnArgs} args - Arguments to create many AgendamentoTestes.
      * @example
-     * // Create many TestSchedules
-     * const testSchedule = await prisma.testSchedule.createManyAndReturn({
+     * // Create many AgendamentoTestes
+     * const agendamentoTeste = await prisma.agendamentoTeste.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many TestSchedules and only return the `id`
-     * const testScheduleWithIdOnly = await prisma.testSchedule.createManyAndReturn({ 
+     * // Create many AgendamentoTestes and only return the `id`
+     * const agendamentoTesteWithIdOnly = await prisma.agendamentoTeste.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -22707,28 +22707,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends TestScheduleCreateManyAndReturnArgs>(args?: SelectSubset<T, TestScheduleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends AgendamentoTesteCreateManyAndReturnArgs>(args?: SelectSubset<T, AgendamentoTesteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a TestSchedule.
-     * @param {TestScheduleDeleteArgs} args - Arguments to delete one TestSchedule.
+     * Delete a AgendamentoTeste.
+     * @param {AgendamentoTesteDeleteArgs} args - Arguments to delete one AgendamentoTeste.
      * @example
-     * // Delete one TestSchedule
-     * const TestSchedule = await prisma.testSchedule.delete({
+     * // Delete one AgendamentoTeste
+     * const AgendamentoTeste = await prisma.agendamentoTeste.delete({
      *   where: {
-     *     // ... filter to delete one TestSchedule
+     *     // ... filter to delete one AgendamentoTeste
      *   }
      * })
      * 
      */
-    delete<T extends TestScheduleDeleteArgs>(args: SelectSubset<T, TestScheduleDeleteArgs<ExtArgs>>): Prisma__TestScheduleClient<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends AgendamentoTesteDeleteArgs>(args: SelectSubset<T, AgendamentoTesteDeleteArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one TestSchedule.
-     * @param {TestScheduleUpdateArgs} args - Arguments to update one TestSchedule.
+     * Update one AgendamentoTeste.
+     * @param {AgendamentoTesteUpdateArgs} args - Arguments to update one AgendamentoTeste.
      * @example
-     * // Update one TestSchedule
-     * const testSchedule = await prisma.testSchedule.update({
+     * // Update one AgendamentoTeste
+     * const agendamentoTeste = await prisma.agendamentoTeste.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -22738,30 +22738,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TestScheduleUpdateArgs>(args: SelectSubset<T, TestScheduleUpdateArgs<ExtArgs>>): Prisma__TestScheduleClient<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends AgendamentoTesteUpdateArgs>(args: SelectSubset<T, AgendamentoTesteUpdateArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more TestSchedules.
-     * @param {TestScheduleDeleteManyArgs} args - Arguments to filter TestSchedules to delete.
+     * Delete zero or more AgendamentoTestes.
+     * @param {AgendamentoTesteDeleteManyArgs} args - Arguments to filter AgendamentoTestes to delete.
      * @example
-     * // Delete a few TestSchedules
-     * const { count } = await prisma.testSchedule.deleteMany({
+     * // Delete a few AgendamentoTestes
+     * const { count } = await prisma.agendamentoTeste.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends TestScheduleDeleteManyArgs>(args?: SelectSubset<T, TestScheduleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends AgendamentoTesteDeleteManyArgs>(args?: SelectSubset<T, AgendamentoTesteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more TestSchedules.
+     * Update zero or more AgendamentoTestes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestScheduleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {AgendamentoTesteUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many TestSchedules
-     * const testSchedule = await prisma.testSchedule.updateMany({
+     * // Update many AgendamentoTestes
+     * const agendamentoTeste = await prisma.agendamentoTeste.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -22771,56 +22771,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends TestScheduleUpdateManyArgs>(args: SelectSubset<T, TestScheduleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends AgendamentoTesteUpdateManyArgs>(args: SelectSubset<T, AgendamentoTesteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one TestSchedule.
-     * @param {TestScheduleUpsertArgs} args - Arguments to update or create a TestSchedule.
+     * Create or update one AgendamentoTeste.
+     * @param {AgendamentoTesteUpsertArgs} args - Arguments to update or create a AgendamentoTeste.
      * @example
-     * // Update or create a TestSchedule
-     * const testSchedule = await prisma.testSchedule.upsert({
+     * // Update or create a AgendamentoTeste
+     * const agendamentoTeste = await prisma.agendamentoTeste.upsert({
      *   create: {
-     *     // ... data to create a TestSchedule
+     *     // ... data to create a AgendamentoTeste
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the TestSchedule we want to update
+     *     // ... the filter for the AgendamentoTeste we want to update
      *   }
      * })
      */
-    upsert<T extends TestScheduleUpsertArgs>(args: SelectSubset<T, TestScheduleUpsertArgs<ExtArgs>>): Prisma__TestScheduleClient<$Result.GetResult<Prisma.$TestSchedulePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends AgendamentoTesteUpsertArgs>(args: SelectSubset<T, AgendamentoTesteUpsertArgs<ExtArgs>>): Prisma__AgendamentoTesteClient<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of TestSchedules.
+     * Count the number of AgendamentoTestes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestScheduleCountArgs} args - Arguments to filter TestSchedules to count.
+     * @param {AgendamentoTesteCountArgs} args - Arguments to filter AgendamentoTestes to count.
      * @example
-     * // Count the number of TestSchedules
-     * const count = await prisma.testSchedule.count({
+     * // Count the number of AgendamentoTestes
+     * const count = await prisma.agendamentoTeste.count({
      *   where: {
-     *     // ... the filter for the TestSchedules we want to count
+     *     // ... the filter for the AgendamentoTestes we want to count
      *   }
      * })
     **/
-    count<T extends TestScheduleCountArgs>(
-      args?: Subset<T, TestScheduleCountArgs>,
+    count<T extends AgendamentoTesteCountArgs>(
+      args?: Subset<T, AgendamentoTesteCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], TestScheduleCountAggregateOutputType>
+          : GetScalarType<T['select'], AgendamentoTesteCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a TestSchedule.
+     * Allows you to perform aggregations operations on a AgendamentoTeste.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestScheduleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {AgendamentoTesteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -22840,13 +22840,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends TestScheduleAggregateArgs>(args: Subset<T, TestScheduleAggregateArgs>): Prisma.PrismaPromise<GetTestScheduleAggregateType<T>>
+    aggregate<T extends AgendamentoTesteAggregateArgs>(args: Subset<T, AgendamentoTesteAggregateArgs>): Prisma.PrismaPromise<GetAgendamentoTesteAggregateType<T>>
 
     /**
-     * Group by TestSchedule.
+     * Group by AgendamentoTeste.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestScheduleGroupByArgs} args - Group by arguments.
+     * @param {AgendamentoTesteGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -22861,14 +22861,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends TestScheduleGroupByArgs,
+      T extends AgendamentoTesteGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TestScheduleGroupByArgs['orderBy'] }
-        : { orderBy?: TestScheduleGroupByArgs['orderBy'] },
+        ? { orderBy: AgendamentoTesteGroupByArgs['orderBy'] }
+        : { orderBy?: AgendamentoTesteGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -22917,20 +22917,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, TestScheduleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTestScheduleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, AgendamentoTesteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAgendamentoTesteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the TestSchedule model
+   * Fields of the AgendamentoTeste model
    */
-  readonly fields: TestScheduleFieldRefs;
+  readonly fields: AgendamentoTesteFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for TestSchedule.
+   * The delegate class that acts as a "Promise-like" for AgendamentoTeste.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TestScheduleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__AgendamentoTesteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -22958,334 +22958,334 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the TestSchedule model
+   * Fields of the AgendamentoTeste model
    */ 
-  interface TestScheduleFieldRefs {
-    readonly id: FieldRef<"TestSchedule", 'String'>
-    readonly tenant_id: FieldRef<"TestSchedule", 'String'>
-    readonly ativo: FieldRef<"TestSchedule", 'Boolean'>
-    readonly frequencia: FieldRef<"TestSchedule", 'String'>
-    readonly hora: FieldRef<"TestSchedule", 'Int'>
-    readonly minuto: FieldRef<"TestSchedule", 'Int'>
-    readonly tipos: FieldRef<"TestSchedule", 'Json'>
-    readonly escopos: FieldRef<"TestSchedule", 'String[]'>
-    readonly ambiente: FieldRef<"TestSchedule", 'String'>
-    readonly alertas: FieldRef<"TestSchedule", 'Json'>
-    readonly ultima_exec: FieldRef<"TestSchedule", 'DateTime'>
-    readonly proxima_exec: FieldRef<"TestSchedule", 'DateTime'>
-    readonly created_at: FieldRef<"TestSchedule", 'DateTime'>
-    readonly updated_at: FieldRef<"TestSchedule", 'DateTime'>
+  interface AgendamentoTesteFieldRefs {
+    readonly id: FieldRef<"AgendamentoTeste", 'String'>
+    readonly tenant_id: FieldRef<"AgendamentoTeste", 'String'>
+    readonly ativo: FieldRef<"AgendamentoTeste", 'Boolean'>
+    readonly frequencia: FieldRef<"AgendamentoTeste", 'String'>
+    readonly hora: FieldRef<"AgendamentoTeste", 'Int'>
+    readonly minuto: FieldRef<"AgendamentoTeste", 'Int'>
+    readonly tipos: FieldRef<"AgendamentoTeste", 'Json'>
+    readonly escopos: FieldRef<"AgendamentoTeste", 'String[]'>
+    readonly ambiente: FieldRef<"AgendamentoTeste", 'String'>
+    readonly alertas: FieldRef<"AgendamentoTeste", 'Json'>
+    readonly ultima_exec: FieldRef<"AgendamentoTeste", 'DateTime'>
+    readonly proxima_exec: FieldRef<"AgendamentoTeste", 'DateTime'>
+    readonly created_at: FieldRef<"AgendamentoTeste", 'DateTime'>
+    readonly updated_at: FieldRef<"AgendamentoTeste", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * TestSchedule findUnique
+   * AgendamentoTeste findUnique
    */
-  export type TestScheduleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestSchedule to fetch.
+     * Filter, which AgendamentoTeste to fetch.
      */
-    where: TestScheduleWhereUniqueInput
+    where: AgendamentoTesteWhereUniqueInput
   }
 
   /**
-   * TestSchedule findUniqueOrThrow
+   * AgendamentoTeste findUniqueOrThrow
    */
-  export type TestScheduleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestSchedule to fetch.
+     * Filter, which AgendamentoTeste to fetch.
      */
-    where: TestScheduleWhereUniqueInput
+    where: AgendamentoTesteWhereUniqueInput
   }
 
   /**
-   * TestSchedule findFirst
+   * AgendamentoTeste findFirst
    */
-  export type TestScheduleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestSchedule to fetch.
+     * Filter, which AgendamentoTeste to fetch.
      */
-    where?: TestScheduleWhereInput
+    where?: AgendamentoTesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TestSchedules to fetch.
+     * Determine the order of AgendamentoTestes to fetch.
      */
-    orderBy?: TestScheduleOrderByWithRelationInput | TestScheduleOrderByWithRelationInput[]
+    orderBy?: AgendamentoTesteOrderByWithRelationInput | AgendamentoTesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TestSchedules.
+     * Sets the position for searching for AgendamentoTestes.
      */
-    cursor?: TestScheduleWhereUniqueInput
+    cursor?: AgendamentoTesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TestSchedules from the position of the cursor.
+     * Take `±n` AgendamentoTestes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TestSchedules.
+     * Skip the first `n` AgendamentoTestes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TestSchedules.
+     * Filter by unique combinations of AgendamentoTestes.
      */
-    distinct?: TestScheduleScalarFieldEnum | TestScheduleScalarFieldEnum[]
+    distinct?: AgendamentoTesteScalarFieldEnum | AgendamentoTesteScalarFieldEnum[]
   }
 
   /**
-   * TestSchedule findFirstOrThrow
+   * AgendamentoTeste findFirstOrThrow
    */
-  export type TestScheduleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestSchedule to fetch.
+     * Filter, which AgendamentoTeste to fetch.
      */
-    where?: TestScheduleWhereInput
+    where?: AgendamentoTesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TestSchedules to fetch.
+     * Determine the order of AgendamentoTestes to fetch.
      */
-    orderBy?: TestScheduleOrderByWithRelationInput | TestScheduleOrderByWithRelationInput[]
+    orderBy?: AgendamentoTesteOrderByWithRelationInput | AgendamentoTesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TestSchedules.
+     * Sets the position for searching for AgendamentoTestes.
      */
-    cursor?: TestScheduleWhereUniqueInput
+    cursor?: AgendamentoTesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TestSchedules from the position of the cursor.
+     * Take `±n` AgendamentoTestes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TestSchedules.
+     * Skip the first `n` AgendamentoTestes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TestSchedules.
+     * Filter by unique combinations of AgendamentoTestes.
      */
-    distinct?: TestScheduleScalarFieldEnum | TestScheduleScalarFieldEnum[]
+    distinct?: AgendamentoTesteScalarFieldEnum | AgendamentoTesteScalarFieldEnum[]
   }
 
   /**
-   * TestSchedule findMany
+   * AgendamentoTeste findMany
    */
-  export type TestScheduleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestSchedules to fetch.
+     * Filter, which AgendamentoTestes to fetch.
      */
-    where?: TestScheduleWhereInput
+    where?: AgendamentoTesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TestSchedules to fetch.
+     * Determine the order of AgendamentoTestes to fetch.
      */
-    orderBy?: TestScheduleOrderByWithRelationInput | TestScheduleOrderByWithRelationInput[]
+    orderBy?: AgendamentoTesteOrderByWithRelationInput | AgendamentoTesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing TestSchedules.
+     * Sets the position for listing AgendamentoTestes.
      */
-    cursor?: TestScheduleWhereUniqueInput
+    cursor?: AgendamentoTesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TestSchedules from the position of the cursor.
+     * Take `±n` AgendamentoTestes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TestSchedules.
+     * Skip the first `n` AgendamentoTestes.
      */
     skip?: number
-    distinct?: TestScheduleScalarFieldEnum | TestScheduleScalarFieldEnum[]
+    distinct?: AgendamentoTesteScalarFieldEnum | AgendamentoTesteScalarFieldEnum[]
   }
 
   /**
-   * TestSchedule create
+   * AgendamentoTeste create
    */
-  export type TestScheduleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * The data needed to create a TestSchedule.
+     * The data needed to create a AgendamentoTeste.
      */
-    data: XOR<TestScheduleCreateInput, TestScheduleUncheckedCreateInput>
+    data: XOR<AgendamentoTesteCreateInput, AgendamentoTesteUncheckedCreateInput>
   }
 
   /**
-   * TestSchedule createMany
+   * AgendamentoTeste createMany
    */
-  export type TestScheduleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many TestSchedules.
+     * The data used to create many AgendamentoTestes.
      */
-    data: TestScheduleCreateManyInput | TestScheduleCreateManyInput[]
+    data: AgendamentoTesteCreateManyInput | AgendamentoTesteCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TestSchedule createManyAndReturn
+   * AgendamentoTeste createManyAndReturn
    */
-  export type TestScheduleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelectCreateManyAndReturn<ExtArgs> | null
+    select?: AgendamentoTesteSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many TestSchedules.
+     * The data used to create many AgendamentoTestes.
      */
-    data: TestScheduleCreateManyInput | TestScheduleCreateManyInput[]
+    data: AgendamentoTesteCreateManyInput | AgendamentoTesteCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TestSchedule update
+   * AgendamentoTeste update
    */
-  export type TestScheduleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * The data needed to update a TestSchedule.
+     * The data needed to update a AgendamentoTeste.
      */
-    data: XOR<TestScheduleUpdateInput, TestScheduleUncheckedUpdateInput>
+    data: XOR<AgendamentoTesteUpdateInput, AgendamentoTesteUncheckedUpdateInput>
     /**
-     * Choose, which TestSchedule to update.
+     * Choose, which AgendamentoTeste to update.
      */
-    where: TestScheduleWhereUniqueInput
+    where: AgendamentoTesteWhereUniqueInput
   }
 
   /**
-   * TestSchedule updateMany
+   * AgendamentoTeste updateMany
    */
-  export type TestScheduleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update TestSchedules.
+     * The data used to update AgendamentoTestes.
      */
-    data: XOR<TestScheduleUpdateManyMutationInput, TestScheduleUncheckedUpdateManyInput>
+    data: XOR<AgendamentoTesteUpdateManyMutationInput, AgendamentoTesteUncheckedUpdateManyInput>
     /**
-     * Filter which TestSchedules to update
+     * Filter which AgendamentoTestes to update
      */
-    where?: TestScheduleWhereInput
+    where?: AgendamentoTesteWhereInput
   }
 
   /**
-   * TestSchedule upsert
+   * AgendamentoTeste upsert
    */
-  export type TestScheduleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * The filter to search for the TestSchedule to update in case it exists.
+     * The filter to search for the AgendamentoTeste to update in case it exists.
      */
-    where: TestScheduleWhereUniqueInput
+    where: AgendamentoTesteWhereUniqueInput
     /**
-     * In case the TestSchedule found by the `where` argument doesn't exist, create a new TestSchedule with this data.
+     * In case the AgendamentoTeste found by the `where` argument doesn't exist, create a new AgendamentoTeste with this data.
      */
-    create: XOR<TestScheduleCreateInput, TestScheduleUncheckedCreateInput>
+    create: XOR<AgendamentoTesteCreateInput, AgendamentoTesteUncheckedCreateInput>
     /**
-     * In case the TestSchedule was found with the provided `where` argument, update it with this data.
+     * In case the AgendamentoTeste was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<TestScheduleUpdateInput, TestScheduleUncheckedUpdateInput>
+    update: XOR<AgendamentoTesteUpdateInput, AgendamentoTesteUncheckedUpdateInput>
   }
 
   /**
-   * TestSchedule delete
+   * AgendamentoTeste delete
    */
-  export type TestScheduleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
     /**
-     * Filter which TestSchedule to delete.
+     * Filter which AgendamentoTeste to delete.
      */
-    where: TestScheduleWhereUniqueInput
+    where: AgendamentoTesteWhereUniqueInput
   }
 
   /**
-   * TestSchedule deleteMany
+   * AgendamentoTeste deleteMany
    */
-  export type TestScheduleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TestSchedules to delete
+     * Filter which AgendamentoTestes to delete
      */
-    where?: TestScheduleWhereInput
+    where?: AgendamentoTesteWhereInput
   }
 
   /**
-   * TestSchedule without action
+   * AgendamentoTeste without action
    */
-  export type TestScheduleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type AgendamentoTesteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestSchedule
+     * Select specific fields to fetch from the AgendamentoTeste
      */
-    select?: TestScheduleSelect<ExtArgs> | null
+    select?: AgendamentoTesteSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model TestPlan
+   * Model PlanoTeste
    */
 
-  export type AggregateTestPlan = {
-    _count: TestPlanCountAggregateOutputType | null
-    _avg: TestPlanAvgAggregateOutputType | null
-    _sum: TestPlanSumAggregateOutputType | null
-    _min: TestPlanMinAggregateOutputType | null
-    _max: TestPlanMaxAggregateOutputType | null
+  export type AggregatePlanoTeste = {
+    _count: PlanoTesteCountAggregateOutputType | null
+    _avg: PlanoTesteAvgAggregateOutputType | null
+    _sum: PlanoTesteSumAggregateOutputType | null
+    _min: PlanoTesteMinAggregateOutputType | null
+    _max: PlanoTesteMaxAggregateOutputType | null
   }
 
-  export type TestPlanAvgAggregateOutputType = {
+  export type PlanoTesteAvgAggregateOutputType = {
     cobertura_pct: number | null
     passos_total: number | null
   }
 
-  export type TestPlanSumAggregateOutputType = {
+  export type PlanoTesteSumAggregateOutputType = {
     cobertura_pct: number | null
     passos_total: number | null
   }
 
-  export type TestPlanMinAggregateOutputType = {
+  export type PlanoTesteMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     versao: string | null
@@ -23308,7 +23308,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type TestPlanMaxAggregateOutputType = {
+  export type PlanoTesteMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     versao: string | null
@@ -23331,7 +23331,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type TestPlanCountAggregateOutputType = {
+  export type PlanoTesteCountAggregateOutputType = {
     id: number
     tenant_id: number
     versao: number
@@ -23358,17 +23358,17 @@ export namespace Prisma {
   }
 
 
-  export type TestPlanAvgAggregateInputType = {
+  export type PlanoTesteAvgAggregateInputType = {
     cobertura_pct?: true
     passos_total?: true
   }
 
-  export type TestPlanSumAggregateInputType = {
+  export type PlanoTesteSumAggregateInputType = {
     cobertura_pct?: true
     passos_total?: true
   }
 
-  export type TestPlanMinAggregateInputType = {
+  export type PlanoTesteMinAggregateInputType = {
     id?: true
     tenant_id?: true
     versao?: true
@@ -23391,7 +23391,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type TestPlanMaxAggregateInputType = {
+  export type PlanoTesteMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     versao?: true
@@ -23414,7 +23414,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type TestPlanCountAggregateInputType = {
+  export type PlanoTesteCountAggregateInputType = {
     id?: true
     tenant_id?: true
     versao?: true
@@ -23440,93 +23440,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type TestPlanAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TestPlan to aggregate.
+     * Filter which PlanoTeste to aggregate.
      */
-    where?: TestPlanWhereInput
+    where?: PlanoTesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TestPlans to fetch.
+     * Determine the order of PlanoTestes to fetch.
      */
-    orderBy?: TestPlanOrderByWithRelationInput | TestPlanOrderByWithRelationInput[]
+    orderBy?: PlanoTesteOrderByWithRelationInput | PlanoTesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: TestPlanWhereUniqueInput
+    cursor?: PlanoTesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TestPlans from the position of the cursor.
+     * Take `±n` PlanoTestes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TestPlans.
+     * Skip the first `n` PlanoTestes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned TestPlans
+     * Count returned PlanoTestes
     **/
-    _count?: true | TestPlanCountAggregateInputType
+    _count?: true | PlanoTesteCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: TestPlanAvgAggregateInputType
+    _avg?: PlanoTesteAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: TestPlanSumAggregateInputType
+    _sum?: PlanoTesteSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: TestPlanMinAggregateInputType
+    _min?: PlanoTesteMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: TestPlanMaxAggregateInputType
+    _max?: PlanoTesteMaxAggregateInputType
   }
 
-  export type GetTestPlanAggregateType<T extends TestPlanAggregateArgs> = {
-        [P in keyof T & keyof AggregateTestPlan]: P extends '_count' | 'count'
+  export type GetPlanoTesteAggregateType<T extends PlanoTesteAggregateArgs> = {
+        [P in keyof T & keyof AggregatePlanoTeste]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateTestPlan[P]>
-      : GetScalarType<T[P], AggregateTestPlan[P]>
+        : GetScalarType<T[P], AggregatePlanoTeste[P]>
+      : GetScalarType<T[P], AggregatePlanoTeste[P]>
   }
 
 
 
 
-  export type TestPlanGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TestPlanWhereInput
-    orderBy?: TestPlanOrderByWithAggregationInput | TestPlanOrderByWithAggregationInput[]
-    by: TestPlanScalarFieldEnum[] | TestPlanScalarFieldEnum
-    having?: TestPlanScalarWhereWithAggregatesInput
+  export type PlanoTesteGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PlanoTesteWhereInput
+    orderBy?: PlanoTesteOrderByWithAggregationInput | PlanoTesteOrderByWithAggregationInput[]
+    by: PlanoTesteScalarFieldEnum[] | PlanoTesteScalarFieldEnum
+    having?: PlanoTesteScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: TestPlanCountAggregateInputType | true
-    _avg?: TestPlanAvgAggregateInputType
-    _sum?: TestPlanSumAggregateInputType
-    _min?: TestPlanMinAggregateInputType
-    _max?: TestPlanMaxAggregateInputType
+    _count?: PlanoTesteCountAggregateInputType | true
+    _avg?: PlanoTesteAvgAggregateInputType
+    _sum?: PlanoTesteSumAggregateInputType
+    _min?: PlanoTesteMinAggregateInputType
+    _max?: PlanoTesteMaxAggregateInputType
   }
 
-  export type TestPlanGroupByOutputType = {
+  export type PlanoTesteGroupByOutputType = {
     id: string
     tenant_id: string
     versao: string
@@ -23549,28 +23549,28 @@ export namespace Prisma {
     ultimo_resultado: string | null
     created_at: Date
     updated_at: Date
-    _count: TestPlanCountAggregateOutputType | null
-    _avg: TestPlanAvgAggregateOutputType | null
-    _sum: TestPlanSumAggregateOutputType | null
-    _min: TestPlanMinAggregateOutputType | null
-    _max: TestPlanMaxAggregateOutputType | null
+    _count: PlanoTesteCountAggregateOutputType | null
+    _avg: PlanoTesteAvgAggregateOutputType | null
+    _sum: PlanoTesteSumAggregateOutputType | null
+    _min: PlanoTesteMinAggregateOutputType | null
+    _max: PlanoTesteMaxAggregateOutputType | null
   }
 
-  type GetTestPlanGroupByPayload<T extends TestPlanGroupByArgs> = Prisma.PrismaPromise<
+  type GetPlanoTesteGroupByPayload<T extends PlanoTesteGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<TestPlanGroupByOutputType, T['by']> &
+      PickEnumerable<PlanoTesteGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof TestPlanGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof PlanoTesteGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], TestPlanGroupByOutputType[P]>
-            : GetScalarType<T[P], TestPlanGroupByOutputType[P]>
+              : GetScalarType<T[P], PlanoTesteGroupByOutputType[P]>
+            : GetScalarType<T[P], PlanoTesteGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type TestPlanSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type PlanoTesteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     versao?: boolean
@@ -23593,9 +23593,9 @@ export namespace Prisma {
     ultimo_resultado?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["testPlan"]>
+  }, ExtArgs["result"]["planoTeste"]>
 
-  export type TestPlanSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type PlanoTesteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     versao?: boolean
@@ -23618,9 +23618,9 @@ export namespace Prisma {
     ultimo_resultado?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["testPlan"]>
+  }, ExtArgs["result"]["planoTeste"]>
 
-  export type TestPlanSelectScalar = {
+  export type PlanoTesteSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     versao?: boolean
@@ -23646,8 +23646,8 @@ export namespace Prisma {
   }
 
 
-  export type $TestPlanPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TestPlan"
+  export type $PlanoTestePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PlanoTeste"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -23672,136 +23672,136 @@ export namespace Prisma {
       ultimo_resultado: string | null
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["testPlan"]>
+    }, ExtArgs["result"]["planoTeste"]>
     composites: {}
   }
 
-  type TestPlanGetPayload<S extends boolean | null | undefined | TestPlanDefaultArgs> = $Result.GetResult<Prisma.$TestPlanPayload, S>
+  type PlanoTesteGetPayload<S extends boolean | null | undefined | PlanoTesteDefaultArgs> = $Result.GetResult<Prisma.$PlanoTestePayload, S>
 
-  type TestPlanCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<TestPlanFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: TestPlanCountAggregateInputType | true
+  type PlanoTesteCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PlanoTesteFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PlanoTesteCountAggregateInputType | true
     }
 
-  export interface TestPlanDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TestPlan'], meta: { name: 'TestPlan' } }
+  export interface PlanoTesteDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PlanoTeste'], meta: { name: 'PlanoTeste' } }
     /**
-     * Find zero or one TestPlan that matches the filter.
-     * @param {TestPlanFindUniqueArgs} args - Arguments to find a TestPlan
+     * Find zero or one PlanoTeste that matches the filter.
+     * @param {PlanoTesteFindUniqueArgs} args - Arguments to find a PlanoTeste
      * @example
-     * // Get one TestPlan
-     * const testPlan = await prisma.testPlan.findUnique({
+     * // Get one PlanoTeste
+     * const planoTeste = await prisma.planoTeste.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends TestPlanFindUniqueArgs>(args: SelectSubset<T, TestPlanFindUniqueArgs<ExtArgs>>): Prisma__TestPlanClient<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends PlanoTesteFindUniqueArgs>(args: SelectSubset<T, PlanoTesteFindUniqueArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one TestPlan that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one PlanoTeste that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {TestPlanFindUniqueOrThrowArgs} args - Arguments to find a TestPlan
+     * @param {PlanoTesteFindUniqueOrThrowArgs} args - Arguments to find a PlanoTeste
      * @example
-     * // Get one TestPlan
-     * const testPlan = await prisma.testPlan.findUniqueOrThrow({
+     * // Get one PlanoTeste
+     * const planoTeste = await prisma.planoTeste.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TestPlanFindUniqueOrThrowArgs>(args: SelectSubset<T, TestPlanFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TestPlanClient<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends PlanoTesteFindUniqueOrThrowArgs>(args: SelectSubset<T, PlanoTesteFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first TestPlan that matches the filter.
+     * Find the first PlanoTeste that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestPlanFindFirstArgs} args - Arguments to find a TestPlan
+     * @param {PlanoTesteFindFirstArgs} args - Arguments to find a PlanoTeste
      * @example
-     * // Get one TestPlan
-     * const testPlan = await prisma.testPlan.findFirst({
+     * // Get one PlanoTeste
+     * const planoTeste = await prisma.planoTeste.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends TestPlanFindFirstArgs>(args?: SelectSubset<T, TestPlanFindFirstArgs<ExtArgs>>): Prisma__TestPlanClient<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends PlanoTesteFindFirstArgs>(args?: SelectSubset<T, PlanoTesteFindFirstArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first TestPlan that matches the filter or
+     * Find the first PlanoTeste that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestPlanFindFirstOrThrowArgs} args - Arguments to find a TestPlan
+     * @param {PlanoTesteFindFirstOrThrowArgs} args - Arguments to find a PlanoTeste
      * @example
-     * // Get one TestPlan
-     * const testPlan = await prisma.testPlan.findFirstOrThrow({
+     * // Get one PlanoTeste
+     * const planoTeste = await prisma.planoTeste.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends TestPlanFindFirstOrThrowArgs>(args?: SelectSubset<T, TestPlanFindFirstOrThrowArgs<ExtArgs>>): Prisma__TestPlanClient<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends PlanoTesteFindFirstOrThrowArgs>(args?: SelectSubset<T, PlanoTesteFindFirstOrThrowArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more TestPlans that matches the filter.
+     * Find zero or more PlanoTestes that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestPlanFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {PlanoTesteFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all TestPlans
-     * const testPlans = await prisma.testPlan.findMany()
+     * // Get all PlanoTestes
+     * const planoTestes = await prisma.planoTeste.findMany()
      * 
-     * // Get first 10 TestPlans
-     * const testPlans = await prisma.testPlan.findMany({ take: 10 })
+     * // Get first 10 PlanoTestes
+     * const planoTestes = await prisma.planoTeste.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const testPlanWithIdOnly = await prisma.testPlan.findMany({ select: { id: true } })
+     * const planoTesteWithIdOnly = await prisma.planoTeste.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends TestPlanFindManyArgs>(args?: SelectSubset<T, TestPlanFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends PlanoTesteFindManyArgs>(args?: SelectSubset<T, PlanoTesteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a TestPlan.
-     * @param {TestPlanCreateArgs} args - Arguments to create a TestPlan.
+     * Create a PlanoTeste.
+     * @param {PlanoTesteCreateArgs} args - Arguments to create a PlanoTeste.
      * @example
-     * // Create one TestPlan
-     * const TestPlan = await prisma.testPlan.create({
+     * // Create one PlanoTeste
+     * const PlanoTeste = await prisma.planoTeste.create({
      *   data: {
-     *     // ... data to create a TestPlan
+     *     // ... data to create a PlanoTeste
      *   }
      * })
      * 
      */
-    create<T extends TestPlanCreateArgs>(args: SelectSubset<T, TestPlanCreateArgs<ExtArgs>>): Prisma__TestPlanClient<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends PlanoTesteCreateArgs>(args: SelectSubset<T, PlanoTesteCreateArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many TestPlans.
-     * @param {TestPlanCreateManyArgs} args - Arguments to create many TestPlans.
+     * Create many PlanoTestes.
+     * @param {PlanoTesteCreateManyArgs} args - Arguments to create many PlanoTestes.
      * @example
-     * // Create many TestPlans
-     * const testPlan = await prisma.testPlan.createMany({
+     * // Create many PlanoTestes
+     * const planoTeste = await prisma.planoTeste.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends TestPlanCreateManyArgs>(args?: SelectSubset<T, TestPlanCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends PlanoTesteCreateManyArgs>(args?: SelectSubset<T, PlanoTesteCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many TestPlans and returns the data saved in the database.
-     * @param {TestPlanCreateManyAndReturnArgs} args - Arguments to create many TestPlans.
+     * Create many PlanoTestes and returns the data saved in the database.
+     * @param {PlanoTesteCreateManyAndReturnArgs} args - Arguments to create many PlanoTestes.
      * @example
-     * // Create many TestPlans
-     * const testPlan = await prisma.testPlan.createManyAndReturn({
+     * // Create many PlanoTestes
+     * const planoTeste = await prisma.planoTeste.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many TestPlans and only return the `id`
-     * const testPlanWithIdOnly = await prisma.testPlan.createManyAndReturn({ 
+     * // Create many PlanoTestes and only return the `id`
+     * const planoTesteWithIdOnly = await prisma.planoTeste.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -23811,28 +23811,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends TestPlanCreateManyAndReturnArgs>(args?: SelectSubset<T, TestPlanCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends PlanoTesteCreateManyAndReturnArgs>(args?: SelectSubset<T, PlanoTesteCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a TestPlan.
-     * @param {TestPlanDeleteArgs} args - Arguments to delete one TestPlan.
+     * Delete a PlanoTeste.
+     * @param {PlanoTesteDeleteArgs} args - Arguments to delete one PlanoTeste.
      * @example
-     * // Delete one TestPlan
-     * const TestPlan = await prisma.testPlan.delete({
+     * // Delete one PlanoTeste
+     * const PlanoTeste = await prisma.planoTeste.delete({
      *   where: {
-     *     // ... filter to delete one TestPlan
+     *     // ... filter to delete one PlanoTeste
      *   }
      * })
      * 
      */
-    delete<T extends TestPlanDeleteArgs>(args: SelectSubset<T, TestPlanDeleteArgs<ExtArgs>>): Prisma__TestPlanClient<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends PlanoTesteDeleteArgs>(args: SelectSubset<T, PlanoTesteDeleteArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one TestPlan.
-     * @param {TestPlanUpdateArgs} args - Arguments to update one TestPlan.
+     * Update one PlanoTeste.
+     * @param {PlanoTesteUpdateArgs} args - Arguments to update one PlanoTeste.
      * @example
-     * // Update one TestPlan
-     * const testPlan = await prisma.testPlan.update({
+     * // Update one PlanoTeste
+     * const planoTeste = await prisma.planoTeste.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -23842,30 +23842,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TestPlanUpdateArgs>(args: SelectSubset<T, TestPlanUpdateArgs<ExtArgs>>): Prisma__TestPlanClient<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends PlanoTesteUpdateArgs>(args: SelectSubset<T, PlanoTesteUpdateArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more TestPlans.
-     * @param {TestPlanDeleteManyArgs} args - Arguments to filter TestPlans to delete.
+     * Delete zero or more PlanoTestes.
+     * @param {PlanoTesteDeleteManyArgs} args - Arguments to filter PlanoTestes to delete.
      * @example
-     * // Delete a few TestPlans
-     * const { count } = await prisma.testPlan.deleteMany({
+     * // Delete a few PlanoTestes
+     * const { count } = await prisma.planoTeste.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends TestPlanDeleteManyArgs>(args?: SelectSubset<T, TestPlanDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends PlanoTesteDeleteManyArgs>(args?: SelectSubset<T, PlanoTesteDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more TestPlans.
+     * Update zero or more PlanoTestes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestPlanUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {PlanoTesteUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many TestPlans
-     * const testPlan = await prisma.testPlan.updateMany({
+     * // Update many PlanoTestes
+     * const planoTeste = await prisma.planoTeste.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -23875,56 +23875,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends TestPlanUpdateManyArgs>(args: SelectSubset<T, TestPlanUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends PlanoTesteUpdateManyArgs>(args: SelectSubset<T, PlanoTesteUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one TestPlan.
-     * @param {TestPlanUpsertArgs} args - Arguments to update or create a TestPlan.
+     * Create or update one PlanoTeste.
+     * @param {PlanoTesteUpsertArgs} args - Arguments to update or create a PlanoTeste.
      * @example
-     * // Update or create a TestPlan
-     * const testPlan = await prisma.testPlan.upsert({
+     * // Update or create a PlanoTeste
+     * const planoTeste = await prisma.planoTeste.upsert({
      *   create: {
-     *     // ... data to create a TestPlan
+     *     // ... data to create a PlanoTeste
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the TestPlan we want to update
+     *     // ... the filter for the PlanoTeste we want to update
      *   }
      * })
      */
-    upsert<T extends TestPlanUpsertArgs>(args: SelectSubset<T, TestPlanUpsertArgs<ExtArgs>>): Prisma__TestPlanClient<$Result.GetResult<Prisma.$TestPlanPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends PlanoTesteUpsertArgs>(args: SelectSubset<T, PlanoTesteUpsertArgs<ExtArgs>>): Prisma__PlanoTesteClient<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of TestPlans.
+     * Count the number of PlanoTestes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestPlanCountArgs} args - Arguments to filter TestPlans to count.
+     * @param {PlanoTesteCountArgs} args - Arguments to filter PlanoTestes to count.
      * @example
-     * // Count the number of TestPlans
-     * const count = await prisma.testPlan.count({
+     * // Count the number of PlanoTestes
+     * const count = await prisma.planoTeste.count({
      *   where: {
-     *     // ... the filter for the TestPlans we want to count
+     *     // ... the filter for the PlanoTestes we want to count
      *   }
      * })
     **/
-    count<T extends TestPlanCountArgs>(
-      args?: Subset<T, TestPlanCountArgs>,
+    count<T extends PlanoTesteCountArgs>(
+      args?: Subset<T, PlanoTesteCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], TestPlanCountAggregateOutputType>
+          : GetScalarType<T['select'], PlanoTesteCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a TestPlan.
+     * Allows you to perform aggregations operations on a PlanoTeste.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestPlanAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {PlanoTesteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -23944,13 +23944,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends TestPlanAggregateArgs>(args: Subset<T, TestPlanAggregateArgs>): Prisma.PrismaPromise<GetTestPlanAggregateType<T>>
+    aggregate<T extends PlanoTesteAggregateArgs>(args: Subset<T, PlanoTesteAggregateArgs>): Prisma.PrismaPromise<GetPlanoTesteAggregateType<T>>
 
     /**
-     * Group by TestPlan.
+     * Group by PlanoTeste.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TestPlanGroupByArgs} args - Group by arguments.
+     * @param {PlanoTesteGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -23965,14 +23965,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends TestPlanGroupByArgs,
+      T extends PlanoTesteGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TestPlanGroupByArgs['orderBy'] }
-        : { orderBy?: TestPlanGroupByArgs['orderBy'] },
+        ? { orderBy: PlanoTesteGroupByArgs['orderBy'] }
+        : { orderBy?: PlanoTesteGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -24021,20 +24021,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, TestPlanGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTestPlanGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, PlanoTesteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPlanoTesteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the TestPlan model
+   * Fields of the PlanoTeste model
    */
-  readonly fields: TestPlanFieldRefs;
+  readonly fields: PlanoTesteFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for TestPlan.
+   * The delegate class that acts as a "Promise-like" for PlanoTeste.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TestPlanClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__PlanoTesteClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -24062,316 +24062,316 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the TestPlan model
+   * Fields of the PlanoTeste model
    */ 
-  interface TestPlanFieldRefs {
-    readonly id: FieldRef<"TestPlan", 'String'>
-    readonly tenant_id: FieldRef<"TestPlan", 'String'>
-    readonly versao: FieldRef<"TestPlan", 'String'>
-    readonly tipo: FieldRef<"TestPlan", 'String'>
-    readonly escopo: FieldRef<"TestPlan", 'String'>
-    readonly sublocal: FieldRef<"TestPlan", 'String'>
-    readonly tela: FieldRef<"TestPlan", 'String'>
-    readonly rota: FieldRef<"TestPlan", 'String'>
-    readonly criticidade: FieldRef<"TestPlan", 'String'>
-    readonly ambientes: FieldRef<"TestPlan", 'String[]'>
-    readonly componente_path: FieldRef<"TestPlan", 'String'>
-    readonly spec_path: FieldRef<"TestPlan", 'String'>
-    readonly mapeamento_path: FieldRef<"TestPlan", 'String'>
-    readonly cobertura_pct: FieldRef<"TestPlan", 'Int'>
-    readonly passos_total: FieldRef<"TestPlan", 'Int'>
-    readonly resumo_executivo: FieldRef<"TestPlan", 'String'>
-    readonly plano_completo: FieldRef<"TestPlan", 'Json'>
-    readonly status: FieldRef<"TestPlan", 'String'>
-    readonly ultima_execucao: FieldRef<"TestPlan", 'DateTime'>
-    readonly ultimo_resultado: FieldRef<"TestPlan", 'String'>
-    readonly created_at: FieldRef<"TestPlan", 'DateTime'>
-    readonly updated_at: FieldRef<"TestPlan", 'DateTime'>
+  interface PlanoTesteFieldRefs {
+    readonly id: FieldRef<"PlanoTeste", 'String'>
+    readonly tenant_id: FieldRef<"PlanoTeste", 'String'>
+    readonly versao: FieldRef<"PlanoTeste", 'String'>
+    readonly tipo: FieldRef<"PlanoTeste", 'String'>
+    readonly escopo: FieldRef<"PlanoTeste", 'String'>
+    readonly sublocal: FieldRef<"PlanoTeste", 'String'>
+    readonly tela: FieldRef<"PlanoTeste", 'String'>
+    readonly rota: FieldRef<"PlanoTeste", 'String'>
+    readonly criticidade: FieldRef<"PlanoTeste", 'String'>
+    readonly ambientes: FieldRef<"PlanoTeste", 'String[]'>
+    readonly componente_path: FieldRef<"PlanoTeste", 'String'>
+    readonly spec_path: FieldRef<"PlanoTeste", 'String'>
+    readonly mapeamento_path: FieldRef<"PlanoTeste", 'String'>
+    readonly cobertura_pct: FieldRef<"PlanoTeste", 'Int'>
+    readonly passos_total: FieldRef<"PlanoTeste", 'Int'>
+    readonly resumo_executivo: FieldRef<"PlanoTeste", 'String'>
+    readonly plano_completo: FieldRef<"PlanoTeste", 'Json'>
+    readonly status: FieldRef<"PlanoTeste", 'String'>
+    readonly ultima_execucao: FieldRef<"PlanoTeste", 'DateTime'>
+    readonly ultimo_resultado: FieldRef<"PlanoTeste", 'String'>
+    readonly created_at: FieldRef<"PlanoTeste", 'DateTime'>
+    readonly updated_at: FieldRef<"PlanoTeste", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * TestPlan findUnique
+   * PlanoTeste findUnique
    */
-  export type TestPlanFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestPlan to fetch.
+     * Filter, which PlanoTeste to fetch.
      */
-    where: TestPlanWhereUniqueInput
+    where: PlanoTesteWhereUniqueInput
   }
 
   /**
-   * TestPlan findUniqueOrThrow
+   * PlanoTeste findUniqueOrThrow
    */
-  export type TestPlanFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestPlan to fetch.
+     * Filter, which PlanoTeste to fetch.
      */
-    where: TestPlanWhereUniqueInput
+    where: PlanoTesteWhereUniqueInput
   }
 
   /**
-   * TestPlan findFirst
+   * PlanoTeste findFirst
    */
-  export type TestPlanFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestPlan to fetch.
+     * Filter, which PlanoTeste to fetch.
      */
-    where?: TestPlanWhereInput
+    where?: PlanoTesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TestPlans to fetch.
+     * Determine the order of PlanoTestes to fetch.
      */
-    orderBy?: TestPlanOrderByWithRelationInput | TestPlanOrderByWithRelationInput[]
+    orderBy?: PlanoTesteOrderByWithRelationInput | PlanoTesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TestPlans.
+     * Sets the position for searching for PlanoTestes.
      */
-    cursor?: TestPlanWhereUniqueInput
+    cursor?: PlanoTesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TestPlans from the position of the cursor.
+     * Take `±n` PlanoTestes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TestPlans.
+     * Skip the first `n` PlanoTestes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TestPlans.
+     * Filter by unique combinations of PlanoTestes.
      */
-    distinct?: TestPlanScalarFieldEnum | TestPlanScalarFieldEnum[]
+    distinct?: PlanoTesteScalarFieldEnum | PlanoTesteScalarFieldEnum[]
   }
 
   /**
-   * TestPlan findFirstOrThrow
+   * PlanoTeste findFirstOrThrow
    */
-  export type TestPlanFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestPlan to fetch.
+     * Filter, which PlanoTeste to fetch.
      */
-    where?: TestPlanWhereInput
+    where?: PlanoTesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TestPlans to fetch.
+     * Determine the order of PlanoTestes to fetch.
      */
-    orderBy?: TestPlanOrderByWithRelationInput | TestPlanOrderByWithRelationInput[]
+    orderBy?: PlanoTesteOrderByWithRelationInput | PlanoTesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TestPlans.
+     * Sets the position for searching for PlanoTestes.
      */
-    cursor?: TestPlanWhereUniqueInput
+    cursor?: PlanoTesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TestPlans from the position of the cursor.
+     * Take `±n` PlanoTestes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TestPlans.
+     * Skip the first `n` PlanoTestes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TestPlans.
+     * Filter by unique combinations of PlanoTestes.
      */
-    distinct?: TestPlanScalarFieldEnum | TestPlanScalarFieldEnum[]
+    distinct?: PlanoTesteScalarFieldEnum | PlanoTesteScalarFieldEnum[]
   }
 
   /**
-   * TestPlan findMany
+   * PlanoTeste findMany
    */
-  export type TestPlanFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * Filter, which TestPlans to fetch.
+     * Filter, which PlanoTestes to fetch.
      */
-    where?: TestPlanWhereInput
+    where?: PlanoTesteWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TestPlans to fetch.
+     * Determine the order of PlanoTestes to fetch.
      */
-    orderBy?: TestPlanOrderByWithRelationInput | TestPlanOrderByWithRelationInput[]
+    orderBy?: PlanoTesteOrderByWithRelationInput | PlanoTesteOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing TestPlans.
+     * Sets the position for listing PlanoTestes.
      */
-    cursor?: TestPlanWhereUniqueInput
+    cursor?: PlanoTesteWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TestPlans from the position of the cursor.
+     * Take `±n` PlanoTestes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TestPlans.
+     * Skip the first `n` PlanoTestes.
      */
     skip?: number
-    distinct?: TestPlanScalarFieldEnum | TestPlanScalarFieldEnum[]
+    distinct?: PlanoTesteScalarFieldEnum | PlanoTesteScalarFieldEnum[]
   }
 
   /**
-   * TestPlan create
+   * PlanoTeste create
    */
-  export type TestPlanCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * The data needed to create a TestPlan.
+     * The data needed to create a PlanoTeste.
      */
-    data: XOR<TestPlanCreateInput, TestPlanUncheckedCreateInput>
+    data: XOR<PlanoTesteCreateInput, PlanoTesteUncheckedCreateInput>
   }
 
   /**
-   * TestPlan createMany
+   * PlanoTeste createMany
    */
-  export type TestPlanCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many TestPlans.
+     * The data used to create many PlanoTestes.
      */
-    data: TestPlanCreateManyInput | TestPlanCreateManyInput[]
+    data: PlanoTesteCreateManyInput | PlanoTesteCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TestPlan createManyAndReturn
+   * PlanoTeste createManyAndReturn
    */
-  export type TestPlanCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelectCreateManyAndReturn<ExtArgs> | null
+    select?: PlanoTesteSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many TestPlans.
+     * The data used to create many PlanoTestes.
      */
-    data: TestPlanCreateManyInput | TestPlanCreateManyInput[]
+    data: PlanoTesteCreateManyInput | PlanoTesteCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TestPlan update
+   * PlanoTeste update
    */
-  export type TestPlanUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * The data needed to update a TestPlan.
+     * The data needed to update a PlanoTeste.
      */
-    data: XOR<TestPlanUpdateInput, TestPlanUncheckedUpdateInput>
+    data: XOR<PlanoTesteUpdateInput, PlanoTesteUncheckedUpdateInput>
     /**
-     * Choose, which TestPlan to update.
+     * Choose, which PlanoTeste to update.
      */
-    where: TestPlanWhereUniqueInput
+    where: PlanoTesteWhereUniqueInput
   }
 
   /**
-   * TestPlan updateMany
+   * PlanoTeste updateMany
    */
-  export type TestPlanUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update TestPlans.
+     * The data used to update PlanoTestes.
      */
-    data: XOR<TestPlanUpdateManyMutationInput, TestPlanUncheckedUpdateManyInput>
+    data: XOR<PlanoTesteUpdateManyMutationInput, PlanoTesteUncheckedUpdateManyInput>
     /**
-     * Filter which TestPlans to update
+     * Filter which PlanoTestes to update
      */
-    where?: TestPlanWhereInput
+    where?: PlanoTesteWhereInput
   }
 
   /**
-   * TestPlan upsert
+   * PlanoTeste upsert
    */
-  export type TestPlanUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * The filter to search for the TestPlan to update in case it exists.
+     * The filter to search for the PlanoTeste to update in case it exists.
      */
-    where: TestPlanWhereUniqueInput
+    where: PlanoTesteWhereUniqueInput
     /**
-     * In case the TestPlan found by the `where` argument doesn't exist, create a new TestPlan with this data.
+     * In case the PlanoTeste found by the `where` argument doesn't exist, create a new PlanoTeste with this data.
      */
-    create: XOR<TestPlanCreateInput, TestPlanUncheckedCreateInput>
+    create: XOR<PlanoTesteCreateInput, PlanoTesteUncheckedCreateInput>
     /**
-     * In case the TestPlan was found with the provided `where` argument, update it with this data.
+     * In case the PlanoTeste was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<TestPlanUpdateInput, TestPlanUncheckedUpdateInput>
+    update: XOR<PlanoTesteUpdateInput, PlanoTesteUncheckedUpdateInput>
   }
 
   /**
-   * TestPlan delete
+   * PlanoTeste delete
    */
-  export type TestPlanDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
     /**
-     * Filter which TestPlan to delete.
+     * Filter which PlanoTeste to delete.
      */
-    where: TestPlanWhereUniqueInput
+    where: PlanoTesteWhereUniqueInput
   }
 
   /**
-   * TestPlan deleteMany
+   * PlanoTeste deleteMany
    */
-  export type TestPlanDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TestPlans to delete
+     * Filter which PlanoTestes to delete
      */
-    where?: TestPlanWhereInput
+    where?: PlanoTesteWhereInput
   }
 
   /**
-   * TestPlan without action
+   * PlanoTeste without action
    */
-  export type TestPlanDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PlanoTesteDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TestPlan
+     * Select specific fields to fetch from the PlanoTeste
      */
-    select?: TestPlanSelect<ExtArgs> | null
+    select?: PlanoTesteSelect<ExtArgs> | null
   }
 
 
@@ -26471,7 +26471,7 @@ export namespace Prisma {
   export type UsuarioPermissaoScalarFieldEnum = (typeof UsuarioPermissaoScalarFieldEnum)[keyof typeof UsuarioPermissaoScalarFieldEnum]
 
 
-  export const GravityAdminPermissionScalarFieldEnum: {
+  export const PermissaoAdminGravityScalarFieldEnum: {
     id: 'id',
     admin_id: 'admin_id',
     resource: 'resource',
@@ -26481,10 +26481,10 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type GravityAdminPermissionScalarFieldEnum = (typeof GravityAdminPermissionScalarFieldEnum)[keyof typeof GravityAdminPermissionScalarFieldEnum]
+  export type PermissaoAdminGravityScalarFieldEnum = (typeof PermissaoAdminGravityScalarFieldEnum)[keyof typeof PermissaoAdminGravityScalarFieldEnum]
 
 
-  export const WorkspaceScalarFieldEnum: {
+  export const EmpresaScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     name: 'name',
@@ -26495,7 +26495,7 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type WorkspaceScalarFieldEnum = (typeof WorkspaceScalarFieldEnum)[keyof typeof WorkspaceScalarFieldEnum]
+  export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
 
 
   export const UsuarioWorkspaceScalarFieldEnum: {
@@ -26512,7 +26512,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceScalarFieldEnum = (typeof UsuarioWorkspaceScalarFieldEnum)[keyof typeof UsuarioWorkspaceScalarFieldEnum]
 
 
-  export const ProductConfigScalarFieldEnum: {
+  export const ConfiguracaoProdutoScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     product_key: 'product_key',
@@ -26522,7 +26522,7 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type ProductConfigScalarFieldEnum = (typeof ProductConfigScalarFieldEnum)[keyof typeof ProductConfigScalarFieldEnum]
+  export type ConfiguracaoProdutoScalarFieldEnum = (typeof ConfiguracaoProdutoScalarFieldEnum)[keyof typeof ConfiguracaoProdutoScalarFieldEnum]
 
 
   export const ProdutoGravityWorkspaceScalarFieldEnum: {
@@ -26573,7 +26573,7 @@ export namespace Prisma {
   export type ProdutoGravityScalarFieldEnum = (typeof ProdutoGravityScalarFieldEnum)[keyof typeof ProdutoGravityScalarFieldEnum]
 
 
-  export const PriceTierScalarFieldEnum: {
+  export const FaixaPrecoScalarFieldEnum: {
     id: 'id',
     product_id: 'product_id',
     range_from: 'range_from',
@@ -26583,10 +26583,10 @@ export namespace Prisma {
     created_at: 'created_at'
   };
 
-  export type PriceTierScalarFieldEnum = (typeof PriceTierScalarFieldEnum)[keyof typeof PriceTierScalarFieldEnum]
+  export type FaixaPrecoScalarFieldEnum = (typeof FaixaPrecoScalarFieldEnum)[keyof typeof FaixaPrecoScalarFieldEnum]
 
 
-  export const SpecialNegotiationScalarFieldEnum: {
+  export const NegociacaoEspecialScalarFieldEnum: {
     id: 'id',
     product_id: 'product_id',
     tenant_id: 'tenant_id',
@@ -26599,7 +26599,7 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type SpecialNegotiationScalarFieldEnum = (typeof SpecialNegotiationScalarFieldEnum)[keyof typeof SpecialNegotiationScalarFieldEnum]
+  export type NegociacaoEspecialScalarFieldEnum = (typeof NegociacaoEspecialScalarFieldEnum)[keyof typeof NegociacaoEspecialScalarFieldEnum]
 
 
   export const DeployScalarFieldEnum: {
@@ -26721,7 +26721,7 @@ export namespace Prisma {
   export type TestesScalarFieldEnum = (typeof TestesScalarFieldEnum)[keyof typeof TestesScalarFieldEnum]
 
 
-  export const TestScheduleScalarFieldEnum: {
+  export const AgendamentoTesteScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     ativo: 'ativo',
@@ -26738,10 +26738,10 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type TestScheduleScalarFieldEnum = (typeof TestScheduleScalarFieldEnum)[keyof typeof TestScheduleScalarFieldEnum]
+  export type AgendamentoTesteScalarFieldEnum = (typeof AgendamentoTesteScalarFieldEnum)[keyof typeof AgendamentoTesteScalarFieldEnum]
 
 
-  export const TestPlanScalarFieldEnum: {
+  export const PlanoTesteScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     versao: 'versao',
@@ -26766,7 +26766,7 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type TestPlanScalarFieldEnum = (typeof TestPlanScalarFieldEnum)[keyof typeof TestPlanScalarFieldEnum]
+  export type PlanoTesteScalarFieldEnum = (typeof PlanoTesteScalarFieldEnum)[keyof typeof PlanoTesteScalarFieldEnum]
 
 
   export const FaturaProdutosGravityScalarFieldEnum: {
@@ -27119,8 +27119,8 @@ export namespace Prisma {
     users?: UsuarioListRelationFilter
     subscriptions?: AssinaturaProdutoGravityListRelationFilter
     user_permissions?: UsuarioPermissaoListRelationFilter
-    companies?: WorkspaceListRelationFilter
-    product_configs?: ProductConfigListRelationFilter
+    companies?: EmpresaListRelationFilter
+    product_configs?: ConfiguracaoProdutoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
   }
 
@@ -27141,8 +27141,8 @@ export namespace Prisma {
     users?: UsuarioOrderByRelationAggregateInput
     subscriptions?: AssinaturaProdutoGravityOrderByRelationAggregateInput
     user_permissions?: UsuarioPermissaoOrderByRelationAggregateInput
-    companies?: WorkspaceOrderByRelationAggregateInput
-    product_configs?: ProductConfigOrderByRelationAggregateInput
+    companies?: EmpresaOrderByRelationAggregateInput
+    product_configs?: ConfiguracaoProdutoOrderByRelationAggregateInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceOrderByRelationAggregateInput
   }
 
@@ -27166,8 +27166,8 @@ export namespace Prisma {
     users?: UsuarioListRelationFilter
     subscriptions?: AssinaturaProdutoGravityListRelationFilter
     user_permissions?: UsuarioPermissaoListRelationFilter
-    companies?: WorkspaceListRelationFilter
-    product_configs?: ProductConfigListRelationFilter
+    companies?: EmpresaListRelationFilter
+    product_configs?: ConfiguracaoProdutoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
   }, "id" | "slug" | "clerk_org_id" | "stripe_customer_id">
 
@@ -27223,7 +27223,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-    preferred_company?: XOR<WorkspaceNullableRelationFilter, WorkspaceWhereInput> | null
+    preferred_company?: XOR<EmpresaNullableRelationFilter, EmpresaWhereInput> | null
     user_permissions?: UsuarioPermissaoListRelationFilter
     memberships?: UsuarioWorkspaceListRelationFilter
   }
@@ -27239,7 +27239,7 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
-    preferred_company?: WorkspaceOrderByWithRelationInput
+    preferred_company?: EmpresaOrderByWithRelationInput
     user_permissions?: UsuarioPermissaoOrderByRelationAggregateInput
     memberships?: UsuarioWorkspaceOrderByRelationAggregateInput
   }
@@ -27259,7 +27259,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-    preferred_company?: XOR<WorkspaceNullableRelationFilter, WorkspaceWhereInput> | null
+    preferred_company?: XOR<EmpresaNullableRelationFilter, EmpresaWhereInput> | null
     user_permissions?: UsuarioPermissaoListRelationFilter
     memberships?: UsuarioWorkspaceListRelationFilter
   }, "id" | "clerk_user_id" | "tenant_id_email">
@@ -27458,20 +27458,20 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"UsuarioPermissao"> | Date | string
   }
 
-  export type GravityAdminPermissionWhereInput = {
-    AND?: GravityAdminPermissionWhereInput | GravityAdminPermissionWhereInput[]
-    OR?: GravityAdminPermissionWhereInput[]
-    NOT?: GravityAdminPermissionWhereInput | GravityAdminPermissionWhereInput[]
-    id?: StringFilter<"GravityAdminPermission"> | string
-    admin_id?: StringFilter<"GravityAdminPermission"> | string
-    resource?: StringFilter<"GravityAdminPermission"> | string
-    action?: StringFilter<"GravityAdminPermission"> | string
-    granted_by?: StringFilter<"GravityAdminPermission"> | string
-    created_at?: DateTimeFilter<"GravityAdminPermission"> | Date | string
-    updated_at?: DateTimeFilter<"GravityAdminPermission"> | Date | string
+  export type PermissaoAdminGravityWhereInput = {
+    AND?: PermissaoAdminGravityWhereInput | PermissaoAdminGravityWhereInput[]
+    OR?: PermissaoAdminGravityWhereInput[]
+    NOT?: PermissaoAdminGravityWhereInput | PermissaoAdminGravityWhereInput[]
+    id?: StringFilter<"PermissaoAdminGravity"> | string
+    admin_id?: StringFilter<"PermissaoAdminGravity"> | string
+    resource?: StringFilter<"PermissaoAdminGravity"> | string
+    action?: StringFilter<"PermissaoAdminGravity"> | string
+    granted_by?: StringFilter<"PermissaoAdminGravity"> | string
+    created_at?: DateTimeFilter<"PermissaoAdminGravity"> | Date | string
+    updated_at?: DateTimeFilter<"PermissaoAdminGravity"> | Date | string
   }
 
-  export type GravityAdminPermissionOrderByWithRelationInput = {
+  export type PermissaoAdminGravityOrderByWithRelationInput = {
     id?: SortOrder
     admin_id?: SortOrder
     resource?: SortOrder
@@ -27481,21 +27481,21 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type GravityAdminPermissionWhereUniqueInput = Prisma.AtLeast<{
+  export type PermissaoAdminGravityWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    admin_id_resource_action?: GravityAdminPermissionAdmin_idResourceActionCompoundUniqueInput
-    AND?: GravityAdminPermissionWhereInput | GravityAdminPermissionWhereInput[]
-    OR?: GravityAdminPermissionWhereInput[]
-    NOT?: GravityAdminPermissionWhereInput | GravityAdminPermissionWhereInput[]
-    admin_id?: StringFilter<"GravityAdminPermission"> | string
-    resource?: StringFilter<"GravityAdminPermission"> | string
-    action?: StringFilter<"GravityAdminPermission"> | string
-    granted_by?: StringFilter<"GravityAdminPermission"> | string
-    created_at?: DateTimeFilter<"GravityAdminPermission"> | Date | string
-    updated_at?: DateTimeFilter<"GravityAdminPermission"> | Date | string
+    admin_id_resource_action?: PermissaoAdminGravityAdmin_idResourceActionCompoundUniqueInput
+    AND?: PermissaoAdminGravityWhereInput | PermissaoAdminGravityWhereInput[]
+    OR?: PermissaoAdminGravityWhereInput[]
+    NOT?: PermissaoAdminGravityWhereInput | PermissaoAdminGravityWhereInput[]
+    admin_id?: StringFilter<"PermissaoAdminGravity"> | string
+    resource?: StringFilter<"PermissaoAdminGravity"> | string
+    action?: StringFilter<"PermissaoAdminGravity"> | string
+    granted_by?: StringFilter<"PermissaoAdminGravity"> | string
+    created_at?: DateTimeFilter<"PermissaoAdminGravity"> | Date | string
+    updated_at?: DateTimeFilter<"PermissaoAdminGravity"> | Date | string
   }, "id" | "admin_id_resource_action">
 
-  export type GravityAdminPermissionOrderByWithAggregationInput = {
+  export type PermissaoAdminGravityOrderByWithAggregationInput = {
     id?: SortOrder
     admin_id?: SortOrder
     resource?: SortOrder
@@ -27503,43 +27503,43 @@ export namespace Prisma {
     granted_by?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: GravityAdminPermissionCountOrderByAggregateInput
-    _max?: GravityAdminPermissionMaxOrderByAggregateInput
-    _min?: GravityAdminPermissionMinOrderByAggregateInput
+    _count?: PermissaoAdminGravityCountOrderByAggregateInput
+    _max?: PermissaoAdminGravityMaxOrderByAggregateInput
+    _min?: PermissaoAdminGravityMinOrderByAggregateInput
   }
 
-  export type GravityAdminPermissionScalarWhereWithAggregatesInput = {
-    AND?: GravityAdminPermissionScalarWhereWithAggregatesInput | GravityAdminPermissionScalarWhereWithAggregatesInput[]
-    OR?: GravityAdminPermissionScalarWhereWithAggregatesInput[]
-    NOT?: GravityAdminPermissionScalarWhereWithAggregatesInput | GravityAdminPermissionScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"GravityAdminPermission"> | string
-    admin_id?: StringWithAggregatesFilter<"GravityAdminPermission"> | string
-    resource?: StringWithAggregatesFilter<"GravityAdminPermission"> | string
-    action?: StringWithAggregatesFilter<"GravityAdminPermission"> | string
-    granted_by?: StringWithAggregatesFilter<"GravityAdminPermission"> | string
-    created_at?: DateTimeWithAggregatesFilter<"GravityAdminPermission"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"GravityAdminPermission"> | Date | string
+  export type PermissaoAdminGravityScalarWhereWithAggregatesInput = {
+    AND?: PermissaoAdminGravityScalarWhereWithAggregatesInput | PermissaoAdminGravityScalarWhereWithAggregatesInput[]
+    OR?: PermissaoAdminGravityScalarWhereWithAggregatesInput[]
+    NOT?: PermissaoAdminGravityScalarWhereWithAggregatesInput | PermissaoAdminGravityScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
+    admin_id?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
+    resource?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
+    action?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
+    granted_by?: StringWithAggregatesFilter<"PermissaoAdminGravity"> | string
+    created_at?: DateTimeWithAggregatesFilter<"PermissaoAdminGravity"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"PermissaoAdminGravity"> | Date | string
   }
 
-  export type WorkspaceWhereInput = {
-    AND?: WorkspaceWhereInput | WorkspaceWhereInput[]
-    OR?: WorkspaceWhereInput[]
-    NOT?: WorkspaceWhereInput | WorkspaceWhereInput[]
-    id?: StringFilter<"Workspace"> | string
-    tenant_id?: StringFilter<"Workspace"> | string
-    name?: StringFilter<"Workspace"> | string
-    subdomain?: StringNullableFilter<"Workspace"> | string | null
-    cnpj?: StringNullableFilter<"Workspace"> | string | null
-    status?: EnumCompanyStatusFilter<"Workspace"> | $Enums.CompanyStatus
-    created_at?: DateTimeFilter<"Workspace"> | Date | string
-    updated_at?: DateTimeFilter<"Workspace"> | Date | string
+  export type EmpresaWhereInput = {
+    AND?: EmpresaWhereInput | EmpresaWhereInput[]
+    OR?: EmpresaWhereInput[]
+    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
+    id?: StringFilter<"Empresa"> | string
+    tenant_id?: StringFilter<"Empresa"> | string
+    name?: StringFilter<"Empresa"> | string
+    subdomain?: StringNullableFilter<"Empresa"> | string | null
+    cnpj?: StringNullableFilter<"Empresa"> | string | null
+    status?: EnumCompanyStatusFilter<"Empresa"> | $Enums.CompanyStatus
+    created_at?: DateTimeFilter<"Empresa"> | Date | string
+    updated_at?: DateTimeFilter<"Empresa"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     memberships?: UsuarioWorkspaceListRelationFilter
     company_products?: ProdutoGravityWorkspaceListRelationFilter
     preferred_by_users?: UsuarioListRelationFilter
   }
 
-  export type WorkspaceOrderByWithRelationInput = {
+  export type EmpresaOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     name?: SortOrder
@@ -27554,25 +27554,25 @@ export namespace Prisma {
     preferred_by_users?: UsuarioOrderByRelationAggregateInput
   }
 
-  export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
+  export type EmpresaWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     subdomain?: string
-    AND?: WorkspaceWhereInput | WorkspaceWhereInput[]
-    OR?: WorkspaceWhereInput[]
-    NOT?: WorkspaceWhereInput | WorkspaceWhereInput[]
-    tenant_id?: StringFilter<"Workspace"> | string
-    name?: StringFilter<"Workspace"> | string
-    cnpj?: StringNullableFilter<"Workspace"> | string | null
-    status?: EnumCompanyStatusFilter<"Workspace"> | $Enums.CompanyStatus
-    created_at?: DateTimeFilter<"Workspace"> | Date | string
-    updated_at?: DateTimeFilter<"Workspace"> | Date | string
+    AND?: EmpresaWhereInput | EmpresaWhereInput[]
+    OR?: EmpresaWhereInput[]
+    NOT?: EmpresaWhereInput | EmpresaWhereInput[]
+    tenant_id?: StringFilter<"Empresa"> | string
+    name?: StringFilter<"Empresa"> | string
+    cnpj?: StringNullableFilter<"Empresa"> | string | null
+    status?: EnumCompanyStatusFilter<"Empresa"> | $Enums.CompanyStatus
+    created_at?: DateTimeFilter<"Empresa"> | Date | string
+    updated_at?: DateTimeFilter<"Empresa"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
     memberships?: UsuarioWorkspaceListRelationFilter
     company_products?: ProdutoGravityWorkspaceListRelationFilter
     preferred_by_users?: UsuarioListRelationFilter
   }, "id" | "subdomain">
 
-  export type WorkspaceOrderByWithAggregationInput = {
+  export type EmpresaOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     name?: SortOrder
@@ -27581,23 +27581,23 @@ export namespace Prisma {
     status?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: WorkspaceCountOrderByAggregateInput
-    _max?: WorkspaceMaxOrderByAggregateInput
-    _min?: WorkspaceMinOrderByAggregateInput
+    _count?: EmpresaCountOrderByAggregateInput
+    _max?: EmpresaMaxOrderByAggregateInput
+    _min?: EmpresaMinOrderByAggregateInput
   }
 
-  export type WorkspaceScalarWhereWithAggregatesInput = {
-    AND?: WorkspaceScalarWhereWithAggregatesInput | WorkspaceScalarWhereWithAggregatesInput[]
-    OR?: WorkspaceScalarWhereWithAggregatesInput[]
-    NOT?: WorkspaceScalarWhereWithAggregatesInput | WorkspaceScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Workspace"> | string
-    tenant_id?: StringWithAggregatesFilter<"Workspace"> | string
-    name?: StringWithAggregatesFilter<"Workspace"> | string
-    subdomain?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
-    cnpj?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
-    status?: EnumCompanyStatusWithAggregatesFilter<"Workspace"> | $Enums.CompanyStatus
-    created_at?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
+  export type EmpresaScalarWhereWithAggregatesInput = {
+    AND?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
+    OR?: EmpresaScalarWhereWithAggregatesInput[]
+    NOT?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Empresa"> | string
+    tenant_id?: StringWithAggregatesFilter<"Empresa"> | string
+    name?: StringWithAggregatesFilter<"Empresa"> | string
+    subdomain?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    cnpj?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    status?: EnumCompanyStatusWithAggregatesFilter<"Empresa"> | $Enums.CompanyStatus
+    created_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
   }
 
   export type UsuarioWorkspaceWhereInput = {
@@ -27613,7 +27613,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     updated_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     user?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
-    company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
+    company?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
   }
 
   export type UsuarioWorkspaceOrderByWithRelationInput = {
@@ -27626,7 +27626,7 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     user?: UsuarioOrderByWithRelationInput
-    company?: WorkspaceOrderByWithRelationInput
+    company?: EmpresaOrderByWithRelationInput
   }
 
   export type UsuarioWorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -27643,7 +27643,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     updated_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     user?: XOR<UsuarioRelationFilter, UsuarioWhereInput>
-    company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
+    company?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
   }, "id" | "tenant_id_user_id_company_id">
 
   export type UsuarioWorkspaceOrderByWithAggregationInput = {
@@ -27674,21 +27674,21 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"UsuarioWorkspace"> | Date | string
   }
 
-  export type ProductConfigWhereInput = {
-    AND?: ProductConfigWhereInput | ProductConfigWhereInput[]
-    OR?: ProductConfigWhereInput[]
-    NOT?: ProductConfigWhereInput | ProductConfigWhereInput[]
-    id?: StringFilter<"ProductConfig"> | string
-    tenant_id?: StringFilter<"ProductConfig"> | string
-    product_key?: StringFilter<"ProductConfig"> | string
-    config?: JsonFilter<"ProductConfig">
-    is_active?: BoolFilter<"ProductConfig"> | boolean
-    created_at?: DateTimeFilter<"ProductConfig"> | Date | string
-    updated_at?: DateTimeFilter<"ProductConfig"> | Date | string
+  export type ConfiguracaoProdutoWhereInput = {
+    AND?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
+    OR?: ConfiguracaoProdutoWhereInput[]
+    NOT?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
+    id?: StringFilter<"ConfiguracaoProduto"> | string
+    tenant_id?: StringFilter<"ConfiguracaoProduto"> | string
+    product_key?: StringFilter<"ConfiguracaoProduto"> | string
+    config?: JsonFilter<"ConfiguracaoProduto">
+    is_active?: BoolFilter<"ConfiguracaoProduto"> | boolean
+    created_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    updated_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }
 
-  export type ProductConfigOrderByWithRelationInput = {
+  export type ConfiguracaoProdutoOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_key?: SortOrder
@@ -27699,22 +27699,22 @@ export namespace Prisma {
     tenant?: OrganizacaoOrderByWithRelationInput
   }
 
-  export type ProductConfigWhereUniqueInput = Prisma.AtLeast<{
+  export type ConfiguracaoProdutoWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    tenant_id_product_key?: ProductConfigTenant_idProduct_keyCompoundUniqueInput
-    AND?: ProductConfigWhereInput | ProductConfigWhereInput[]
-    OR?: ProductConfigWhereInput[]
-    NOT?: ProductConfigWhereInput | ProductConfigWhereInput[]
-    tenant_id?: StringFilter<"ProductConfig"> | string
-    product_key?: StringFilter<"ProductConfig"> | string
-    config?: JsonFilter<"ProductConfig">
-    is_active?: BoolFilter<"ProductConfig"> | boolean
-    created_at?: DateTimeFilter<"ProductConfig"> | Date | string
-    updated_at?: DateTimeFilter<"ProductConfig"> | Date | string
+    tenant_id_product_key?: ConfiguracaoProdutoTenant_idProduct_keyCompoundUniqueInput
+    AND?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
+    OR?: ConfiguracaoProdutoWhereInput[]
+    NOT?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
+    tenant_id?: StringFilter<"ConfiguracaoProduto"> | string
+    product_key?: StringFilter<"ConfiguracaoProduto"> | string
+    config?: JsonFilter<"ConfiguracaoProduto">
+    is_active?: BoolFilter<"ConfiguracaoProduto"> | boolean
+    created_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    updated_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }, "id" | "tenant_id_product_key">
 
-  export type ProductConfigOrderByWithAggregationInput = {
+  export type ConfiguracaoProdutoOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_key?: SortOrder
@@ -27722,22 +27722,22 @@ export namespace Prisma {
     is_active?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: ProductConfigCountOrderByAggregateInput
-    _max?: ProductConfigMaxOrderByAggregateInput
-    _min?: ProductConfigMinOrderByAggregateInput
+    _count?: ConfiguracaoProdutoCountOrderByAggregateInput
+    _max?: ConfiguracaoProdutoMaxOrderByAggregateInput
+    _min?: ConfiguracaoProdutoMinOrderByAggregateInput
   }
 
-  export type ProductConfigScalarWhereWithAggregatesInput = {
-    AND?: ProductConfigScalarWhereWithAggregatesInput | ProductConfigScalarWhereWithAggregatesInput[]
-    OR?: ProductConfigScalarWhereWithAggregatesInput[]
-    NOT?: ProductConfigScalarWhereWithAggregatesInput | ProductConfigScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ProductConfig"> | string
-    tenant_id?: StringWithAggregatesFilter<"ProductConfig"> | string
-    product_key?: StringWithAggregatesFilter<"ProductConfig"> | string
-    config?: JsonWithAggregatesFilter<"ProductConfig">
-    is_active?: BoolWithAggregatesFilter<"ProductConfig"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"ProductConfig"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"ProductConfig"> | Date | string
+  export type ConfiguracaoProdutoScalarWhereWithAggregatesInput = {
+    AND?: ConfiguracaoProdutoScalarWhereWithAggregatesInput | ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
+    OR?: ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
+    NOT?: ConfiguracaoProdutoScalarWhereWithAggregatesInput | ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
+    tenant_id?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
+    product_key?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
+    config?: JsonWithAggregatesFilter<"ConfiguracaoProduto">
+    is_active?: BoolWithAggregatesFilter<"ConfiguracaoProduto"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"ConfiguracaoProduto"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"ConfiguracaoProduto"> | Date | string
   }
 
   export type ProdutoGravityWorkspaceWhereInput = {
@@ -27752,7 +27752,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     updated_at?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-    company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
+    company?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
   }
 
   export type ProdutoGravityWorkspaceOrderByWithRelationInput = {
@@ -27764,7 +27764,7 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
-    company?: WorkspaceOrderByWithRelationInput
+    company?: EmpresaOrderByWithRelationInput
   }
 
   export type ProdutoGravityWorkspaceWhereUniqueInput = Prisma.AtLeast<{
@@ -27780,7 +27780,7 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     updated_at?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-    company?: XOR<WorkspaceRelationFilter, WorkspaceWhereInput>
+    company?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
   }, "id" | "company_id_product_key">
 
   export type ProdutoGravityWorkspaceOrderByWithAggregationInput = {
@@ -27842,8 +27842,8 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"ProdutoGravity"> | Date | string
     updated_at?: DateTimeFilter<"ProdutoGravity"> | Date | string
     deleted_at?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
-    price_tiers?: PriceTierListRelationFilter
-    negotiations?: SpecialNegotiationListRelationFilter
+    price_tiers?: FaixaPrecoListRelationFilter
+    negotiations?: NegociacaoEspecialListRelationFilter
   }
 
   export type ProdutoGravityOrderByWithRelationInput = {
@@ -27876,8 +27876,8 @@ export namespace Prisma {
     created_at?: SortOrder
     updated_at?: SortOrder
     deleted_at?: SortOrderInput | SortOrder
-    price_tiers?: PriceTierOrderByRelationAggregateInput
-    negotiations?: SpecialNegotiationOrderByRelationAggregateInput
+    price_tiers?: FaixaPrecoOrderByRelationAggregateInput
+    negotiations?: NegociacaoEspecialOrderByRelationAggregateInput
   }
 
   export type ProdutoGravityWhereUniqueInput = Prisma.AtLeast<{
@@ -27913,8 +27913,8 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"ProdutoGravity"> | Date | string
     updated_at?: DateTimeFilter<"ProdutoGravity"> | Date | string
     deleted_at?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
-    price_tiers?: PriceTierListRelationFilter
-    negotiations?: SpecialNegotiationListRelationFilter
+    price_tiers?: FaixaPrecoListRelationFilter
+    negotiations?: NegociacaoEspecialListRelationFilter
   }, "id" | "slug">
 
   export type ProdutoGravityOrderByWithAggregationInput = {
@@ -27989,21 +27989,21 @@ export namespace Prisma {
     deleted_at?: DateTimeNullableWithAggregatesFilter<"ProdutoGravity"> | Date | string | null
   }
 
-  export type PriceTierWhereInput = {
-    AND?: PriceTierWhereInput | PriceTierWhereInput[]
-    OR?: PriceTierWhereInput[]
-    NOT?: PriceTierWhereInput | PriceTierWhereInput[]
-    id?: StringFilter<"PriceTier"> | string
-    product_id?: StringFilter<"PriceTier"> | string
-    range_from?: IntFilter<"PriceTier"> | number
-    range_to?: IntNullableFilter<"PriceTier"> | number | null
-    price?: DecimalFilter<"PriceTier"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"PriceTier"> | string
-    created_at?: DateTimeFilter<"PriceTier"> | Date | string
+  export type FaixaPrecoWhereInput = {
+    AND?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
+    OR?: FaixaPrecoWhereInput[]
+    NOT?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
+    id?: StringFilter<"FaixaPreco"> | string
+    product_id?: StringFilter<"FaixaPreco"> | string
+    range_from?: IntFilter<"FaixaPreco"> | number
+    range_to?: IntNullableFilter<"FaixaPreco"> | number | null
+    price?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"FaixaPreco"> | string
+    created_at?: DateTimeFilter<"FaixaPreco"> | Date | string
     product?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
-  export type PriceTierOrderByWithRelationInput = {
+  export type FaixaPrecoOrderByWithRelationInput = {
     id?: SortOrder
     product_id?: SortOrder
     range_from?: SortOrder
@@ -28014,21 +28014,21 @@ export namespace Prisma {
     product?: ProdutoGravityOrderByWithRelationInput
   }
 
-  export type PriceTierWhereUniqueInput = Prisma.AtLeast<{
+  export type FaixaPrecoWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: PriceTierWhereInput | PriceTierWhereInput[]
-    OR?: PriceTierWhereInput[]
-    NOT?: PriceTierWhereInput | PriceTierWhereInput[]
-    product_id?: StringFilter<"PriceTier"> | string
-    range_from?: IntFilter<"PriceTier"> | number
-    range_to?: IntNullableFilter<"PriceTier"> | number | null
-    price?: DecimalFilter<"PriceTier"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"PriceTier"> | string
-    created_at?: DateTimeFilter<"PriceTier"> | Date | string
+    AND?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
+    OR?: FaixaPrecoWhereInput[]
+    NOT?: FaixaPrecoWhereInput | FaixaPrecoWhereInput[]
+    product_id?: StringFilter<"FaixaPreco"> | string
+    range_from?: IntFilter<"FaixaPreco"> | number
+    range_to?: IntNullableFilter<"FaixaPreco"> | number | null
+    price?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"FaixaPreco"> | string
+    created_at?: DateTimeFilter<"FaixaPreco"> | Date | string
     product?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }, "id">
 
-  export type PriceTierOrderByWithAggregationInput = {
+  export type FaixaPrecoOrderByWithAggregationInput = {
     id?: SortOrder
     product_id?: SortOrder
     range_from?: SortOrder
@@ -28036,44 +28036,44 @@ export namespace Prisma {
     price?: SortOrder
     currency?: SortOrder
     created_at?: SortOrder
-    _count?: PriceTierCountOrderByAggregateInput
-    _avg?: PriceTierAvgOrderByAggregateInput
-    _max?: PriceTierMaxOrderByAggregateInput
-    _min?: PriceTierMinOrderByAggregateInput
-    _sum?: PriceTierSumOrderByAggregateInput
+    _count?: FaixaPrecoCountOrderByAggregateInput
+    _avg?: FaixaPrecoAvgOrderByAggregateInput
+    _max?: FaixaPrecoMaxOrderByAggregateInput
+    _min?: FaixaPrecoMinOrderByAggregateInput
+    _sum?: FaixaPrecoSumOrderByAggregateInput
   }
 
-  export type PriceTierScalarWhereWithAggregatesInput = {
-    AND?: PriceTierScalarWhereWithAggregatesInput | PriceTierScalarWhereWithAggregatesInput[]
-    OR?: PriceTierScalarWhereWithAggregatesInput[]
-    NOT?: PriceTierScalarWhereWithAggregatesInput | PriceTierScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"PriceTier"> | string
-    product_id?: StringWithAggregatesFilter<"PriceTier"> | string
-    range_from?: IntWithAggregatesFilter<"PriceTier"> | number
-    range_to?: IntNullableWithAggregatesFilter<"PriceTier"> | number | null
-    price?: DecimalWithAggregatesFilter<"PriceTier"> | Decimal | DecimalJsLike | number | string
-    currency?: StringWithAggregatesFilter<"PriceTier"> | string
-    created_at?: DateTimeWithAggregatesFilter<"PriceTier"> | Date | string
+  export type FaixaPrecoScalarWhereWithAggregatesInput = {
+    AND?: FaixaPrecoScalarWhereWithAggregatesInput | FaixaPrecoScalarWhereWithAggregatesInput[]
+    OR?: FaixaPrecoScalarWhereWithAggregatesInput[]
+    NOT?: FaixaPrecoScalarWhereWithAggregatesInput | FaixaPrecoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"FaixaPreco"> | string
+    product_id?: StringWithAggregatesFilter<"FaixaPreco"> | string
+    range_from?: IntWithAggregatesFilter<"FaixaPreco"> | number
+    range_to?: IntNullableWithAggregatesFilter<"FaixaPreco"> | number | null
+    price?: DecimalWithAggregatesFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
+    currency?: StringWithAggregatesFilter<"FaixaPreco"> | string
+    created_at?: DateTimeWithAggregatesFilter<"FaixaPreco"> | Date | string
   }
 
-  export type SpecialNegotiationWhereInput = {
-    AND?: SpecialNegotiationWhereInput | SpecialNegotiationWhereInput[]
-    OR?: SpecialNegotiationWhereInput[]
-    NOT?: SpecialNegotiationWhereInput | SpecialNegotiationWhereInput[]
-    id?: StringFilter<"SpecialNegotiation"> | string
-    product_id?: StringFilter<"SpecialNegotiation"> | string
-    tenant_id?: StringFilter<"SpecialNegotiation"> | string
-    tenant_name?: StringFilter<"SpecialNegotiation"> | string
-    agreement?: StringFilter<"SpecialNegotiation"> | string
-    starts_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
-    ends_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
-    is_unlimited?: BoolFilter<"SpecialNegotiation"> | boolean
-    created_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
-    updated_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+  export type NegociacaoEspecialWhereInput = {
+    AND?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
+    OR?: NegociacaoEspecialWhereInput[]
+    NOT?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
+    id?: StringFilter<"NegociacaoEspecial"> | string
+    product_id?: StringFilter<"NegociacaoEspecial"> | string
+    tenant_id?: StringFilter<"NegociacaoEspecial"> | string
+    tenant_name?: StringFilter<"NegociacaoEspecial"> | string
+    agreement?: StringFilter<"NegociacaoEspecial"> | string
+    starts_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    ends_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    is_unlimited?: BoolFilter<"NegociacaoEspecial"> | boolean
+    created_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    updated_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
     product?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }
 
-  export type SpecialNegotiationOrderByWithRelationInput = {
+  export type NegociacaoEspecialOrderByWithRelationInput = {
     id?: SortOrder
     product_id?: SortOrder
     tenant_id?: SortOrder
@@ -28087,24 +28087,24 @@ export namespace Prisma {
     product?: ProdutoGravityOrderByWithRelationInput
   }
 
-  export type SpecialNegotiationWhereUniqueInput = Prisma.AtLeast<{
+  export type NegociacaoEspecialWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: SpecialNegotiationWhereInput | SpecialNegotiationWhereInput[]
-    OR?: SpecialNegotiationWhereInput[]
-    NOT?: SpecialNegotiationWhereInput | SpecialNegotiationWhereInput[]
-    product_id?: StringFilter<"SpecialNegotiation"> | string
-    tenant_id?: StringFilter<"SpecialNegotiation"> | string
-    tenant_name?: StringFilter<"SpecialNegotiation"> | string
-    agreement?: StringFilter<"SpecialNegotiation"> | string
-    starts_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
-    ends_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
-    is_unlimited?: BoolFilter<"SpecialNegotiation"> | boolean
-    created_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
-    updated_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+    AND?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
+    OR?: NegociacaoEspecialWhereInput[]
+    NOT?: NegociacaoEspecialWhereInput | NegociacaoEspecialWhereInput[]
+    product_id?: StringFilter<"NegociacaoEspecial"> | string
+    tenant_id?: StringFilter<"NegociacaoEspecial"> | string
+    tenant_name?: StringFilter<"NegociacaoEspecial"> | string
+    agreement?: StringFilter<"NegociacaoEspecial"> | string
+    starts_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    ends_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    is_unlimited?: BoolFilter<"NegociacaoEspecial"> | boolean
+    created_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    updated_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
     product?: XOR<ProdutoGravityRelationFilter, ProdutoGravityWhereInput>
   }, "id">
 
-  export type SpecialNegotiationOrderByWithAggregationInput = {
+  export type NegociacaoEspecialOrderByWithAggregationInput = {
     id?: SortOrder
     product_id?: SortOrder
     tenant_id?: SortOrder
@@ -28115,25 +28115,25 @@ export namespace Prisma {
     is_unlimited?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: SpecialNegotiationCountOrderByAggregateInput
-    _max?: SpecialNegotiationMaxOrderByAggregateInput
-    _min?: SpecialNegotiationMinOrderByAggregateInput
+    _count?: NegociacaoEspecialCountOrderByAggregateInput
+    _max?: NegociacaoEspecialMaxOrderByAggregateInput
+    _min?: NegociacaoEspecialMinOrderByAggregateInput
   }
 
-  export type SpecialNegotiationScalarWhereWithAggregatesInput = {
-    AND?: SpecialNegotiationScalarWhereWithAggregatesInput | SpecialNegotiationScalarWhereWithAggregatesInput[]
-    OR?: SpecialNegotiationScalarWhereWithAggregatesInput[]
-    NOT?: SpecialNegotiationScalarWhereWithAggregatesInput | SpecialNegotiationScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
-    product_id?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
-    tenant_id?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
-    tenant_name?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
-    agreement?: StringWithAggregatesFilter<"SpecialNegotiation"> | string
-    starts_at?: DateTimeNullableWithAggregatesFilter<"SpecialNegotiation"> | Date | string | null
-    ends_at?: DateTimeNullableWithAggregatesFilter<"SpecialNegotiation"> | Date | string | null
-    is_unlimited?: BoolWithAggregatesFilter<"SpecialNegotiation"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"SpecialNegotiation"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"SpecialNegotiation"> | Date | string
+  export type NegociacaoEspecialScalarWhereWithAggregatesInput = {
+    AND?: NegociacaoEspecialScalarWhereWithAggregatesInput | NegociacaoEspecialScalarWhereWithAggregatesInput[]
+    OR?: NegociacaoEspecialScalarWhereWithAggregatesInput[]
+    NOT?: NegociacaoEspecialScalarWhereWithAggregatesInput | NegociacaoEspecialScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    product_id?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    tenant_id?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    tenant_name?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    agreement?: StringWithAggregatesFilter<"NegociacaoEspecial"> | string
+    starts_at?: DateTimeNullableWithAggregatesFilter<"NegociacaoEspecial"> | Date | string | null
+    ends_at?: DateTimeNullableWithAggregatesFilter<"NegociacaoEspecial"> | Date | string | null
+    is_unlimited?: BoolWithAggregatesFilter<"NegociacaoEspecial"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"NegociacaoEspecial"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"NegociacaoEspecial"> | Date | string
   }
 
   export type DeployWhereInput = {
@@ -28720,27 +28720,27 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"Testes"> | Date | string
   }
 
-  export type TestScheduleWhereInput = {
-    AND?: TestScheduleWhereInput | TestScheduleWhereInput[]
-    OR?: TestScheduleWhereInput[]
-    NOT?: TestScheduleWhereInput | TestScheduleWhereInput[]
-    id?: StringFilter<"TestSchedule"> | string
-    tenant_id?: StringFilter<"TestSchedule"> | string
-    ativo?: BoolFilter<"TestSchedule"> | boolean
-    frequencia?: StringFilter<"TestSchedule"> | string
-    hora?: IntFilter<"TestSchedule"> | number
-    minuto?: IntFilter<"TestSchedule"> | number
-    tipos?: JsonFilter<"TestSchedule">
-    escopos?: StringNullableListFilter<"TestSchedule">
-    ambiente?: StringFilter<"TestSchedule"> | string
-    alertas?: JsonFilter<"TestSchedule">
-    ultima_exec?: DateTimeNullableFilter<"TestSchedule"> | Date | string | null
-    proxima_exec?: DateTimeNullableFilter<"TestSchedule"> | Date | string | null
-    created_at?: DateTimeFilter<"TestSchedule"> | Date | string
-    updated_at?: DateTimeFilter<"TestSchedule"> | Date | string
+  export type AgendamentoTesteWhereInput = {
+    AND?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
+    OR?: AgendamentoTesteWhereInput[]
+    NOT?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
+    id?: StringFilter<"AgendamentoTeste"> | string
+    tenant_id?: StringFilter<"AgendamentoTeste"> | string
+    ativo?: BoolFilter<"AgendamentoTeste"> | boolean
+    frequencia?: StringFilter<"AgendamentoTeste"> | string
+    hora?: IntFilter<"AgendamentoTeste"> | number
+    minuto?: IntFilter<"AgendamentoTeste"> | number
+    tipos?: JsonFilter<"AgendamentoTeste">
+    escopos?: StringNullableListFilter<"AgendamentoTeste">
+    ambiente?: StringFilter<"AgendamentoTeste"> | string
+    alertas?: JsonFilter<"AgendamentoTeste">
+    ultima_exec?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
+    proxima_exec?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
+    created_at?: DateTimeFilter<"AgendamentoTeste"> | Date | string
+    updated_at?: DateTimeFilter<"AgendamentoTeste"> | Date | string
   }
 
-  export type TestScheduleOrderByWithRelationInput = {
+  export type AgendamentoTesteOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     ativo?: SortOrder
@@ -28757,27 +28757,27 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TestScheduleWhereUniqueInput = Prisma.AtLeast<{
+  export type AgendamentoTesteWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: TestScheduleWhereInput | TestScheduleWhereInput[]
-    OR?: TestScheduleWhereInput[]
-    NOT?: TestScheduleWhereInput | TestScheduleWhereInput[]
-    tenant_id?: StringFilter<"TestSchedule"> | string
-    ativo?: BoolFilter<"TestSchedule"> | boolean
-    frequencia?: StringFilter<"TestSchedule"> | string
-    hora?: IntFilter<"TestSchedule"> | number
-    minuto?: IntFilter<"TestSchedule"> | number
-    tipos?: JsonFilter<"TestSchedule">
-    escopos?: StringNullableListFilter<"TestSchedule">
-    ambiente?: StringFilter<"TestSchedule"> | string
-    alertas?: JsonFilter<"TestSchedule">
-    ultima_exec?: DateTimeNullableFilter<"TestSchedule"> | Date | string | null
-    proxima_exec?: DateTimeNullableFilter<"TestSchedule"> | Date | string | null
-    created_at?: DateTimeFilter<"TestSchedule"> | Date | string
-    updated_at?: DateTimeFilter<"TestSchedule"> | Date | string
+    AND?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
+    OR?: AgendamentoTesteWhereInput[]
+    NOT?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
+    tenant_id?: StringFilter<"AgendamentoTeste"> | string
+    ativo?: BoolFilter<"AgendamentoTeste"> | boolean
+    frequencia?: StringFilter<"AgendamentoTeste"> | string
+    hora?: IntFilter<"AgendamentoTeste"> | number
+    minuto?: IntFilter<"AgendamentoTeste"> | number
+    tipos?: JsonFilter<"AgendamentoTeste">
+    escopos?: StringNullableListFilter<"AgendamentoTeste">
+    ambiente?: StringFilter<"AgendamentoTeste"> | string
+    alertas?: JsonFilter<"AgendamentoTeste">
+    ultima_exec?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
+    proxima_exec?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
+    created_at?: DateTimeFilter<"AgendamentoTeste"> | Date | string
+    updated_at?: DateTimeFilter<"AgendamentoTeste"> | Date | string
   }, "id">
 
-  export type TestScheduleOrderByWithAggregationInput = {
+  export type AgendamentoTesteOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     ativo?: SortOrder
@@ -28792,62 +28792,62 @@ export namespace Prisma {
     proxima_exec?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: TestScheduleCountOrderByAggregateInput
-    _avg?: TestScheduleAvgOrderByAggregateInput
-    _max?: TestScheduleMaxOrderByAggregateInput
-    _min?: TestScheduleMinOrderByAggregateInput
-    _sum?: TestScheduleSumOrderByAggregateInput
+    _count?: AgendamentoTesteCountOrderByAggregateInput
+    _avg?: AgendamentoTesteAvgOrderByAggregateInput
+    _max?: AgendamentoTesteMaxOrderByAggregateInput
+    _min?: AgendamentoTesteMinOrderByAggregateInput
+    _sum?: AgendamentoTesteSumOrderByAggregateInput
   }
 
-  export type TestScheduleScalarWhereWithAggregatesInput = {
-    AND?: TestScheduleScalarWhereWithAggregatesInput | TestScheduleScalarWhereWithAggregatesInput[]
-    OR?: TestScheduleScalarWhereWithAggregatesInput[]
-    NOT?: TestScheduleScalarWhereWithAggregatesInput | TestScheduleScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"TestSchedule"> | string
-    tenant_id?: StringWithAggregatesFilter<"TestSchedule"> | string
-    ativo?: BoolWithAggregatesFilter<"TestSchedule"> | boolean
-    frequencia?: StringWithAggregatesFilter<"TestSchedule"> | string
-    hora?: IntWithAggregatesFilter<"TestSchedule"> | number
-    minuto?: IntWithAggregatesFilter<"TestSchedule"> | number
-    tipos?: JsonWithAggregatesFilter<"TestSchedule">
-    escopos?: StringNullableListFilter<"TestSchedule">
-    ambiente?: StringWithAggregatesFilter<"TestSchedule"> | string
-    alertas?: JsonWithAggregatesFilter<"TestSchedule">
-    ultima_exec?: DateTimeNullableWithAggregatesFilter<"TestSchedule"> | Date | string | null
-    proxima_exec?: DateTimeNullableWithAggregatesFilter<"TestSchedule"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"TestSchedule"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"TestSchedule"> | Date | string
+  export type AgendamentoTesteScalarWhereWithAggregatesInput = {
+    AND?: AgendamentoTesteScalarWhereWithAggregatesInput | AgendamentoTesteScalarWhereWithAggregatesInput[]
+    OR?: AgendamentoTesteScalarWhereWithAggregatesInput[]
+    NOT?: AgendamentoTesteScalarWhereWithAggregatesInput | AgendamentoTesteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
+    tenant_id?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
+    ativo?: BoolWithAggregatesFilter<"AgendamentoTeste"> | boolean
+    frequencia?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
+    hora?: IntWithAggregatesFilter<"AgendamentoTeste"> | number
+    minuto?: IntWithAggregatesFilter<"AgendamentoTeste"> | number
+    tipos?: JsonWithAggregatesFilter<"AgendamentoTeste">
+    escopos?: StringNullableListFilter<"AgendamentoTeste">
+    ambiente?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
+    alertas?: JsonWithAggregatesFilter<"AgendamentoTeste">
+    ultima_exec?: DateTimeNullableWithAggregatesFilter<"AgendamentoTeste"> | Date | string | null
+    proxima_exec?: DateTimeNullableWithAggregatesFilter<"AgendamentoTeste"> | Date | string | null
+    created_at?: DateTimeWithAggregatesFilter<"AgendamentoTeste"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"AgendamentoTeste"> | Date | string
   }
 
-  export type TestPlanWhereInput = {
-    AND?: TestPlanWhereInput | TestPlanWhereInput[]
-    OR?: TestPlanWhereInput[]
-    NOT?: TestPlanWhereInput | TestPlanWhereInput[]
-    id?: StringFilter<"TestPlan"> | string
-    tenant_id?: StringFilter<"TestPlan"> | string
-    versao?: StringFilter<"TestPlan"> | string
-    tipo?: StringFilter<"TestPlan"> | string
-    escopo?: StringFilter<"TestPlan"> | string
-    sublocal?: StringFilter<"TestPlan"> | string
-    tela?: StringFilter<"TestPlan"> | string
-    rota?: StringFilter<"TestPlan"> | string
-    criticidade?: StringFilter<"TestPlan"> | string
-    ambientes?: StringNullableListFilter<"TestPlan">
-    componente_path?: StringFilter<"TestPlan"> | string
-    spec_path?: StringNullableFilter<"TestPlan"> | string | null
-    mapeamento_path?: StringFilter<"TestPlan"> | string
-    cobertura_pct?: IntFilter<"TestPlan"> | number
-    passos_total?: IntFilter<"TestPlan"> | number
-    resumo_executivo?: StringFilter<"TestPlan"> | string
-    plano_completo?: JsonFilter<"TestPlan">
-    status?: StringFilter<"TestPlan"> | string
-    ultima_execucao?: DateTimeNullableFilter<"TestPlan"> | Date | string | null
-    ultimo_resultado?: StringNullableFilter<"TestPlan"> | string | null
-    created_at?: DateTimeFilter<"TestPlan"> | Date | string
-    updated_at?: DateTimeFilter<"TestPlan"> | Date | string
+  export type PlanoTesteWhereInput = {
+    AND?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
+    OR?: PlanoTesteWhereInput[]
+    NOT?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
+    id?: StringFilter<"PlanoTeste"> | string
+    tenant_id?: StringFilter<"PlanoTeste"> | string
+    versao?: StringFilter<"PlanoTeste"> | string
+    tipo?: StringFilter<"PlanoTeste"> | string
+    escopo?: StringFilter<"PlanoTeste"> | string
+    sublocal?: StringFilter<"PlanoTeste"> | string
+    tela?: StringFilter<"PlanoTeste"> | string
+    rota?: StringFilter<"PlanoTeste"> | string
+    criticidade?: StringFilter<"PlanoTeste"> | string
+    ambientes?: StringNullableListFilter<"PlanoTeste">
+    componente_path?: StringFilter<"PlanoTeste"> | string
+    spec_path?: StringNullableFilter<"PlanoTeste"> | string | null
+    mapeamento_path?: StringFilter<"PlanoTeste"> | string
+    cobertura_pct?: IntFilter<"PlanoTeste"> | number
+    passos_total?: IntFilter<"PlanoTeste"> | number
+    resumo_executivo?: StringFilter<"PlanoTeste"> | string
+    plano_completo?: JsonFilter<"PlanoTeste">
+    status?: StringFilter<"PlanoTeste"> | string
+    ultima_execucao?: DateTimeNullableFilter<"PlanoTeste"> | Date | string | null
+    ultimo_resultado?: StringNullableFilter<"PlanoTeste"> | string | null
+    created_at?: DateTimeFilter<"PlanoTeste"> | Date | string
+    updated_at?: DateTimeFilter<"PlanoTeste"> | Date | string
   }
 
-  export type TestPlanOrderByWithRelationInput = {
+  export type PlanoTesteOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     versao?: SortOrder
@@ -28872,35 +28872,35 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TestPlanWhereUniqueInput = Prisma.AtLeast<{
+  export type PlanoTesteWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: TestPlanWhereInput | TestPlanWhereInput[]
-    OR?: TestPlanWhereInput[]
-    NOT?: TestPlanWhereInput | TestPlanWhereInput[]
-    tenant_id?: StringFilter<"TestPlan"> | string
-    versao?: StringFilter<"TestPlan"> | string
-    tipo?: StringFilter<"TestPlan"> | string
-    escopo?: StringFilter<"TestPlan"> | string
-    sublocal?: StringFilter<"TestPlan"> | string
-    tela?: StringFilter<"TestPlan"> | string
-    rota?: StringFilter<"TestPlan"> | string
-    criticidade?: StringFilter<"TestPlan"> | string
-    ambientes?: StringNullableListFilter<"TestPlan">
-    componente_path?: StringFilter<"TestPlan"> | string
-    spec_path?: StringNullableFilter<"TestPlan"> | string | null
-    mapeamento_path?: StringFilter<"TestPlan"> | string
-    cobertura_pct?: IntFilter<"TestPlan"> | number
-    passos_total?: IntFilter<"TestPlan"> | number
-    resumo_executivo?: StringFilter<"TestPlan"> | string
-    plano_completo?: JsonFilter<"TestPlan">
-    status?: StringFilter<"TestPlan"> | string
-    ultima_execucao?: DateTimeNullableFilter<"TestPlan"> | Date | string | null
-    ultimo_resultado?: StringNullableFilter<"TestPlan"> | string | null
-    created_at?: DateTimeFilter<"TestPlan"> | Date | string
-    updated_at?: DateTimeFilter<"TestPlan"> | Date | string
+    AND?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
+    OR?: PlanoTesteWhereInput[]
+    NOT?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
+    tenant_id?: StringFilter<"PlanoTeste"> | string
+    versao?: StringFilter<"PlanoTeste"> | string
+    tipo?: StringFilter<"PlanoTeste"> | string
+    escopo?: StringFilter<"PlanoTeste"> | string
+    sublocal?: StringFilter<"PlanoTeste"> | string
+    tela?: StringFilter<"PlanoTeste"> | string
+    rota?: StringFilter<"PlanoTeste"> | string
+    criticidade?: StringFilter<"PlanoTeste"> | string
+    ambientes?: StringNullableListFilter<"PlanoTeste">
+    componente_path?: StringFilter<"PlanoTeste"> | string
+    spec_path?: StringNullableFilter<"PlanoTeste"> | string | null
+    mapeamento_path?: StringFilter<"PlanoTeste"> | string
+    cobertura_pct?: IntFilter<"PlanoTeste"> | number
+    passos_total?: IntFilter<"PlanoTeste"> | number
+    resumo_executivo?: StringFilter<"PlanoTeste"> | string
+    plano_completo?: JsonFilter<"PlanoTeste">
+    status?: StringFilter<"PlanoTeste"> | string
+    ultima_execucao?: DateTimeNullableFilter<"PlanoTeste"> | Date | string | null
+    ultimo_resultado?: StringNullableFilter<"PlanoTeste"> | string | null
+    created_at?: DateTimeFilter<"PlanoTeste"> | Date | string
+    updated_at?: DateTimeFilter<"PlanoTeste"> | Date | string
   }, "id">
 
-  export type TestPlanOrderByWithAggregationInput = {
+  export type PlanoTesteOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     versao?: SortOrder
@@ -28923,39 +28923,39 @@ export namespace Prisma {
     ultimo_resultado?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: TestPlanCountOrderByAggregateInput
-    _avg?: TestPlanAvgOrderByAggregateInput
-    _max?: TestPlanMaxOrderByAggregateInput
-    _min?: TestPlanMinOrderByAggregateInput
-    _sum?: TestPlanSumOrderByAggregateInput
+    _count?: PlanoTesteCountOrderByAggregateInput
+    _avg?: PlanoTesteAvgOrderByAggregateInput
+    _max?: PlanoTesteMaxOrderByAggregateInput
+    _min?: PlanoTesteMinOrderByAggregateInput
+    _sum?: PlanoTesteSumOrderByAggregateInput
   }
 
-  export type TestPlanScalarWhereWithAggregatesInput = {
-    AND?: TestPlanScalarWhereWithAggregatesInput | TestPlanScalarWhereWithAggregatesInput[]
-    OR?: TestPlanScalarWhereWithAggregatesInput[]
-    NOT?: TestPlanScalarWhereWithAggregatesInput | TestPlanScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"TestPlan"> | string
-    tenant_id?: StringWithAggregatesFilter<"TestPlan"> | string
-    versao?: StringWithAggregatesFilter<"TestPlan"> | string
-    tipo?: StringWithAggregatesFilter<"TestPlan"> | string
-    escopo?: StringWithAggregatesFilter<"TestPlan"> | string
-    sublocal?: StringWithAggregatesFilter<"TestPlan"> | string
-    tela?: StringWithAggregatesFilter<"TestPlan"> | string
-    rota?: StringWithAggregatesFilter<"TestPlan"> | string
-    criticidade?: StringWithAggregatesFilter<"TestPlan"> | string
-    ambientes?: StringNullableListFilter<"TestPlan">
-    componente_path?: StringWithAggregatesFilter<"TestPlan"> | string
-    spec_path?: StringNullableWithAggregatesFilter<"TestPlan"> | string | null
-    mapeamento_path?: StringWithAggregatesFilter<"TestPlan"> | string
-    cobertura_pct?: IntWithAggregatesFilter<"TestPlan"> | number
-    passos_total?: IntWithAggregatesFilter<"TestPlan"> | number
-    resumo_executivo?: StringWithAggregatesFilter<"TestPlan"> | string
-    plano_completo?: JsonWithAggregatesFilter<"TestPlan">
-    status?: StringWithAggregatesFilter<"TestPlan"> | string
-    ultima_execucao?: DateTimeNullableWithAggregatesFilter<"TestPlan"> | Date | string | null
-    ultimo_resultado?: StringNullableWithAggregatesFilter<"TestPlan"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"TestPlan"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"TestPlan"> | Date | string
+  export type PlanoTesteScalarWhereWithAggregatesInput = {
+    AND?: PlanoTesteScalarWhereWithAggregatesInput | PlanoTesteScalarWhereWithAggregatesInput[]
+    OR?: PlanoTesteScalarWhereWithAggregatesInput[]
+    NOT?: PlanoTesteScalarWhereWithAggregatesInput | PlanoTesteScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    tenant_id?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    versao?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    tipo?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    escopo?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    sublocal?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    tela?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    rota?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    criticidade?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    ambientes?: StringNullableListFilter<"PlanoTeste">
+    componente_path?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    spec_path?: StringNullableWithAggregatesFilter<"PlanoTeste"> | string | null
+    mapeamento_path?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    cobertura_pct?: IntWithAggregatesFilter<"PlanoTeste"> | number
+    passos_total?: IntWithAggregatesFilter<"PlanoTeste"> | number
+    resumo_executivo?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    plano_completo?: JsonWithAggregatesFilter<"PlanoTeste">
+    status?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    ultima_execucao?: DateTimeNullableWithAggregatesFilter<"PlanoTeste"> | Date | string | null
+    ultimo_resultado?: StringNullableWithAggregatesFilter<"PlanoTeste"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"PlanoTeste"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"PlanoTeste"> | Date | string
   }
 
   export type FaturaProdutosGravityWhereInput = {
@@ -29153,8 +29153,8 @@ export namespace Prisma {
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    companies?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -29175,8 +29175,8 @@ export namespace Prisma {
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -29197,8 +29197,8 @@ export namespace Prisma {
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -29219,8 +29219,8 @@ export namespace Prisma {
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -29281,7 +29281,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsersInput
-    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
+    preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
   }
@@ -29309,7 +29309,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
-    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
+    preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
   }
@@ -29541,7 +29541,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GravityAdminPermissionCreateInput = {
+  export type PermissaoAdminGravityCreateInput = {
     id?: string
     admin_id: string
     resource: string
@@ -29551,7 +29551,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type GravityAdminPermissionUncheckedCreateInput = {
+  export type PermissaoAdminGravityUncheckedCreateInput = {
     id?: string
     admin_id: string
     resource: string
@@ -29561,7 +29561,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type GravityAdminPermissionUpdateInput = {
+  export type PermissaoAdminGravityUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     resource?: StringFieldUpdateOperationsInput | string
@@ -29571,7 +29571,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GravityAdminPermissionUncheckedUpdateInput = {
+  export type PermissaoAdminGravityUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     resource?: StringFieldUpdateOperationsInput | string
@@ -29581,7 +29581,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GravityAdminPermissionCreateManyInput = {
+  export type PermissaoAdminGravityCreateManyInput = {
     id?: string
     admin_id: string
     resource: string
@@ -29591,7 +29591,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type GravityAdminPermissionUpdateManyMutationInput = {
+  export type PermissaoAdminGravityUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     resource?: StringFieldUpdateOperationsInput | string
@@ -29601,7 +29601,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type GravityAdminPermissionUncheckedUpdateManyInput = {
+  export type PermissaoAdminGravityUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     resource?: StringFieldUpdateOperationsInput | string
@@ -29611,7 +29611,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type WorkspaceCreateInput = {
+  export type EmpresaCreateInput = {
     id?: string
     name: string
     subdomain?: string | null
@@ -29625,7 +29625,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type WorkspaceUncheckedCreateInput = {
+  export type EmpresaUncheckedCreateInput = {
     id?: string
     tenant_id: string
     name: string
@@ -29639,7 +29639,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type WorkspaceUpdateInput = {
+  export type EmpresaUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29653,7 +29653,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type WorkspaceUncheckedUpdateInput = {
+  export type EmpresaUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -29667,7 +29667,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type WorkspaceCreateManyInput = {
+  export type EmpresaCreateManyInput = {
     id?: string
     tenant_id: string
     name: string
@@ -29678,7 +29678,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type WorkspaceUpdateManyMutationInput = {
+  export type EmpresaUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29688,7 +29688,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type WorkspaceUncheckedUpdateManyInput = {
+  export type EmpresaUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -29707,7 +29707,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     user: UsuarioCreateNestedOneWithoutMembershipsInput
-    company: WorkspaceCreateNestedOneWithoutMembershipsInput
+    company: EmpresaCreateNestedOneWithoutMembershipsInput
   }
 
   export type UsuarioWorkspaceUncheckedCreateInput = {
@@ -29729,7 +29729,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UsuarioUpdateOneRequiredWithoutMembershipsNestedInput
-    company?: WorkspaceUpdateOneRequiredWithoutMembershipsNestedInput
+    company?: EmpresaUpdateOneRequiredWithoutMembershipsNestedInput
   }
 
   export type UsuarioWorkspaceUncheckedUpdateInput = {
@@ -29774,7 +29774,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductConfigCreateInput = {
+  export type ConfiguracaoProdutoCreateInput = {
     id?: string
     product_key: string
     config?: JsonNullValueInput | InputJsonValue
@@ -29784,7 +29784,7 @@ export namespace Prisma {
     tenant: OrganizacaoCreateNestedOneWithoutProduct_configsInput
   }
 
-  export type ProductConfigUncheckedCreateInput = {
+  export type ConfiguracaoProdutoUncheckedCreateInput = {
     id?: string
     tenant_id: string
     product_key: string
@@ -29794,7 +29794,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ProductConfigUpdateInput = {
+  export type ConfiguracaoProdutoUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
     config?: JsonNullValueInput | InputJsonValue
@@ -29804,7 +29804,7 @@ export namespace Prisma {
     tenant?: OrganizacaoUpdateOneRequiredWithoutProduct_configsNestedInput
   }
 
-  export type ProductConfigUncheckedUpdateInput = {
+  export type ConfiguracaoProdutoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
@@ -29814,7 +29814,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductConfigCreateManyInput = {
+  export type ConfiguracaoProdutoCreateManyInput = {
     id?: string
     tenant_id: string
     product_key: string
@@ -29824,7 +29824,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ProductConfigUpdateManyMutationInput = {
+  export type ConfiguracaoProdutoUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
     config?: JsonNullValueInput | InputJsonValue
@@ -29833,7 +29833,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductConfigUncheckedUpdateManyInput = {
+  export type ConfiguracaoProdutoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
@@ -29850,7 +29850,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutProdutoGravityWorkspaceInput
-    company: WorkspaceCreateNestedOneWithoutCompany_productsInput
+    company: EmpresaCreateNestedOneWithoutCompany_productsInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateInput = {
@@ -29870,7 +29870,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutProdutoGravityWorkspaceNestedInput
-    company?: WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput
+    company?: EmpresaUpdateOneRequiredWithoutCompany_productsNestedInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateInput = {
@@ -29941,8 +29941,8 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     deleted_at?: Date | string | null
-    price_tiers?: PriceTierCreateNestedManyWithoutProductInput
-    negotiations?: SpecialNegotiationCreateNestedManyWithoutProductInput
+    price_tiers?: FaixaPrecoCreateNestedManyWithoutProductInput
+    negotiations?: NegociacaoEspecialCreateNestedManyWithoutProductInput
   }
 
   export type ProdutoGravityUncheckedCreateInput = {
@@ -29975,8 +29975,8 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     deleted_at?: Date | string | null
-    price_tiers?: PriceTierUncheckedCreateNestedManyWithoutProductInput
-    negotiations?: SpecialNegotiationUncheckedCreateNestedManyWithoutProductInput
+    price_tiers?: FaixaPrecoUncheckedCreateNestedManyWithoutProductInput
+    negotiations?: NegociacaoEspecialUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProdutoGravityUpdateInput = {
@@ -30009,8 +30009,8 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    price_tiers?: PriceTierUpdateManyWithoutProductNestedInput
-    negotiations?: SpecialNegotiationUpdateManyWithoutProductNestedInput
+    price_tiers?: FaixaPrecoUpdateManyWithoutProductNestedInput
+    negotiations?: NegociacaoEspecialUpdateManyWithoutProductNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateInput = {
@@ -30043,8 +30043,8 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    price_tiers?: PriceTierUncheckedUpdateManyWithoutProductNestedInput
-    negotiations?: SpecialNegotiationUncheckedUpdateManyWithoutProductNestedInput
+    price_tiers?: FaixaPrecoUncheckedUpdateManyWithoutProductNestedInput
+    negotiations?: NegociacaoEspecialUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProdutoGravityCreateManyInput = {
@@ -30143,7 +30143,7 @@ export namespace Prisma {
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
-  export type PriceTierCreateInput = {
+  export type FaixaPrecoCreateInput = {
     id?: string
     range_from: number
     range_to?: number | null
@@ -30153,7 +30153,7 @@ export namespace Prisma {
     product: ProdutoGravityCreateNestedOneWithoutPrice_tiersInput
   }
 
-  export type PriceTierUncheckedCreateInput = {
+  export type FaixaPrecoUncheckedCreateInput = {
     id?: string
     product_id: string
     range_from: number
@@ -30163,7 +30163,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type PriceTierUpdateInput = {
+  export type FaixaPrecoUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     range_from?: IntFieldUpdateOperationsInput | number
     range_to?: NullableIntFieldUpdateOperationsInput | number | null
@@ -30173,7 +30173,7 @@ export namespace Prisma {
     product?: ProdutoGravityUpdateOneRequiredWithoutPrice_tiersNestedInput
   }
 
-  export type PriceTierUncheckedUpdateInput = {
+  export type FaixaPrecoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_id?: StringFieldUpdateOperationsInput | string
     range_from?: IntFieldUpdateOperationsInput | number
@@ -30183,7 +30183,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PriceTierCreateManyInput = {
+  export type FaixaPrecoCreateManyInput = {
     id?: string
     product_id: string
     range_from: number
@@ -30193,7 +30193,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type PriceTierUpdateManyMutationInput = {
+  export type FaixaPrecoUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     range_from?: IntFieldUpdateOperationsInput | number
     range_to?: NullableIntFieldUpdateOperationsInput | number | null
@@ -30202,7 +30202,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PriceTierUncheckedUpdateManyInput = {
+  export type FaixaPrecoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_id?: StringFieldUpdateOperationsInput | string
     range_from?: IntFieldUpdateOperationsInput | number
@@ -30212,7 +30212,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SpecialNegotiationCreateInput = {
+  export type NegociacaoEspecialCreateInput = {
     id?: string
     tenant_id: string
     tenant_name: string
@@ -30225,7 +30225,7 @@ export namespace Prisma {
     product: ProdutoGravityCreateNestedOneWithoutNegotiationsInput
   }
 
-  export type SpecialNegotiationUncheckedCreateInput = {
+  export type NegociacaoEspecialUncheckedCreateInput = {
     id?: string
     product_id: string
     tenant_id: string
@@ -30238,7 +30238,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type SpecialNegotiationUpdateInput = {
+  export type NegociacaoEspecialUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     tenant_name?: StringFieldUpdateOperationsInput | string
@@ -30251,7 +30251,7 @@ export namespace Prisma {
     product?: ProdutoGravityUpdateOneRequiredWithoutNegotiationsNestedInput
   }
 
-  export type SpecialNegotiationUncheckedUpdateInput = {
+  export type NegociacaoEspecialUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
@@ -30264,7 +30264,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SpecialNegotiationCreateManyInput = {
+  export type NegociacaoEspecialCreateManyInput = {
     id?: string
     product_id: string
     tenant_id: string
@@ -30277,7 +30277,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type SpecialNegotiationUpdateManyMutationInput = {
+  export type NegociacaoEspecialUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     tenant_name?: StringFieldUpdateOperationsInput | string
@@ -30289,7 +30289,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SpecialNegotiationUncheckedUpdateManyInput = {
+  export type NegociacaoEspecialUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
@@ -30988,7 +30988,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestScheduleCreateInput = {
+  export type AgendamentoTesteCreateInput = {
     id?: string
     tenant_id?: string
     ativo?: boolean
@@ -30996,7 +30996,7 @@ export namespace Prisma {
     hora?: number
     minuto?: number
     tipos: JsonNullValueInput | InputJsonValue
-    escopos?: TestScheduleCreateescoposInput | string[]
+    escopos?: AgendamentoTesteCreateescoposInput | string[]
     ambiente?: string
     alertas?: JsonNullValueInput | InputJsonValue
     ultima_exec?: Date | string | null
@@ -31005,7 +31005,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TestScheduleUncheckedCreateInput = {
+  export type AgendamentoTesteUncheckedCreateInput = {
     id?: string
     tenant_id?: string
     ativo?: boolean
@@ -31013,7 +31013,7 @@ export namespace Prisma {
     hora?: number
     minuto?: number
     tipos: JsonNullValueInput | InputJsonValue
-    escopos?: TestScheduleCreateescoposInput | string[]
+    escopos?: AgendamentoTesteCreateescoposInput | string[]
     ambiente?: string
     alertas?: JsonNullValueInput | InputJsonValue
     ultima_exec?: Date | string | null
@@ -31022,7 +31022,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TestScheduleUpdateInput = {
+  export type AgendamentoTesteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     ativo?: BoolFieldUpdateOperationsInput | boolean
@@ -31030,7 +31030,7 @@ export namespace Prisma {
     hora?: IntFieldUpdateOperationsInput | number
     minuto?: IntFieldUpdateOperationsInput | number
     tipos?: JsonNullValueInput | InputJsonValue
-    escopos?: TestScheduleUpdateescoposInput | string[]
+    escopos?: AgendamentoTesteUpdateescoposInput | string[]
     ambiente?: StringFieldUpdateOperationsInput | string
     alertas?: JsonNullValueInput | InputJsonValue
     ultima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31039,7 +31039,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestScheduleUncheckedUpdateInput = {
+  export type AgendamentoTesteUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     ativo?: BoolFieldUpdateOperationsInput | boolean
@@ -31047,7 +31047,7 @@ export namespace Prisma {
     hora?: IntFieldUpdateOperationsInput | number
     minuto?: IntFieldUpdateOperationsInput | number
     tipos?: JsonNullValueInput | InputJsonValue
-    escopos?: TestScheduleUpdateescoposInput | string[]
+    escopos?: AgendamentoTesteUpdateescoposInput | string[]
     ambiente?: StringFieldUpdateOperationsInput | string
     alertas?: JsonNullValueInput | InputJsonValue
     ultima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31056,7 +31056,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestScheduleCreateManyInput = {
+  export type AgendamentoTesteCreateManyInput = {
     id?: string
     tenant_id?: string
     ativo?: boolean
@@ -31064,7 +31064,7 @@ export namespace Prisma {
     hora?: number
     minuto?: number
     tipos: JsonNullValueInput | InputJsonValue
-    escopos?: TestScheduleCreateescoposInput | string[]
+    escopos?: AgendamentoTesteCreateescoposInput | string[]
     ambiente?: string
     alertas?: JsonNullValueInput | InputJsonValue
     ultima_exec?: Date | string | null
@@ -31073,7 +31073,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TestScheduleUpdateManyMutationInput = {
+  export type AgendamentoTesteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     ativo?: BoolFieldUpdateOperationsInput | boolean
@@ -31081,7 +31081,7 @@ export namespace Prisma {
     hora?: IntFieldUpdateOperationsInput | number
     minuto?: IntFieldUpdateOperationsInput | number
     tipos?: JsonNullValueInput | InputJsonValue
-    escopos?: TestScheduleUpdateescoposInput | string[]
+    escopos?: AgendamentoTesteUpdateescoposInput | string[]
     ambiente?: StringFieldUpdateOperationsInput | string
     alertas?: JsonNullValueInput | InputJsonValue
     ultima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31090,7 +31090,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestScheduleUncheckedUpdateManyInput = {
+  export type AgendamentoTesteUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     ativo?: BoolFieldUpdateOperationsInput | boolean
@@ -31098,7 +31098,7 @@ export namespace Prisma {
     hora?: IntFieldUpdateOperationsInput | number
     minuto?: IntFieldUpdateOperationsInput | number
     tipos?: JsonNullValueInput | InputJsonValue
-    escopos?: TestScheduleUpdateescoposInput | string[]
+    escopos?: AgendamentoTesteUpdateescoposInput | string[]
     ambiente?: StringFieldUpdateOperationsInput | string
     alertas?: JsonNullValueInput | InputJsonValue
     ultima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31107,7 +31107,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestPlanCreateInput = {
+  export type PlanoTesteCreateInput = {
     id: string
     tenant_id?: string
     versao?: string
@@ -31117,7 +31117,7 @@ export namespace Prisma {
     tela: string
     rota: string
     criticidade?: string
-    ambientes?: TestPlanCreateambientesInput | string[]
+    ambientes?: PlanoTesteCreateambientesInput | string[]
     componente_path: string
     spec_path?: string | null
     mapeamento_path: string
@@ -31132,7 +31132,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TestPlanUncheckedCreateInput = {
+  export type PlanoTesteUncheckedCreateInput = {
     id: string
     tenant_id?: string
     versao?: string
@@ -31142,7 +31142,7 @@ export namespace Prisma {
     tela: string
     rota: string
     criticidade?: string
-    ambientes?: TestPlanCreateambientesInput | string[]
+    ambientes?: PlanoTesteCreateambientesInput | string[]
     componente_path: string
     spec_path?: string | null
     mapeamento_path: string
@@ -31157,7 +31157,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TestPlanUpdateInput = {
+  export type PlanoTesteUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     versao?: StringFieldUpdateOperationsInput | string
@@ -31167,7 +31167,7 @@ export namespace Prisma {
     tela?: StringFieldUpdateOperationsInput | string
     rota?: StringFieldUpdateOperationsInput | string
     criticidade?: StringFieldUpdateOperationsInput | string
-    ambientes?: TestPlanUpdateambientesInput | string[]
+    ambientes?: PlanoTesteUpdateambientesInput | string[]
     componente_path?: StringFieldUpdateOperationsInput | string
     spec_path?: NullableStringFieldUpdateOperationsInput | string | null
     mapeamento_path?: StringFieldUpdateOperationsInput | string
@@ -31182,7 +31182,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestPlanUncheckedUpdateInput = {
+  export type PlanoTesteUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     versao?: StringFieldUpdateOperationsInput | string
@@ -31192,7 +31192,7 @@ export namespace Prisma {
     tela?: StringFieldUpdateOperationsInput | string
     rota?: StringFieldUpdateOperationsInput | string
     criticidade?: StringFieldUpdateOperationsInput | string
-    ambientes?: TestPlanUpdateambientesInput | string[]
+    ambientes?: PlanoTesteUpdateambientesInput | string[]
     componente_path?: StringFieldUpdateOperationsInput | string
     spec_path?: NullableStringFieldUpdateOperationsInput | string | null
     mapeamento_path?: StringFieldUpdateOperationsInput | string
@@ -31207,7 +31207,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestPlanCreateManyInput = {
+  export type PlanoTesteCreateManyInput = {
     id: string
     tenant_id?: string
     versao?: string
@@ -31217,7 +31217,7 @@ export namespace Prisma {
     tela: string
     rota: string
     criticidade?: string
-    ambientes?: TestPlanCreateambientesInput | string[]
+    ambientes?: PlanoTesteCreateambientesInput | string[]
     componente_path: string
     spec_path?: string | null
     mapeamento_path: string
@@ -31232,7 +31232,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TestPlanUpdateManyMutationInput = {
+  export type PlanoTesteUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     versao?: StringFieldUpdateOperationsInput | string
@@ -31242,7 +31242,7 @@ export namespace Prisma {
     tela?: StringFieldUpdateOperationsInput | string
     rota?: StringFieldUpdateOperationsInput | string
     criticidade?: StringFieldUpdateOperationsInput | string
-    ambientes?: TestPlanUpdateambientesInput | string[]
+    ambientes?: PlanoTesteUpdateambientesInput | string[]
     componente_path?: StringFieldUpdateOperationsInput | string
     spec_path?: NullableStringFieldUpdateOperationsInput | string | null
     mapeamento_path?: StringFieldUpdateOperationsInput | string
@@ -31257,7 +31257,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TestPlanUncheckedUpdateManyInput = {
+  export type PlanoTesteUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     versao?: StringFieldUpdateOperationsInput | string
@@ -31267,7 +31267,7 @@ export namespace Prisma {
     tela?: StringFieldUpdateOperationsInput | string
     rota?: StringFieldUpdateOperationsInput | string
     criticidade?: StringFieldUpdateOperationsInput | string
-    ambientes?: TestPlanUpdateambientesInput | string[]
+    ambientes?: PlanoTesteUpdateambientesInput | string[]
     componente_path?: StringFieldUpdateOperationsInput | string
     spec_path?: NullableStringFieldUpdateOperationsInput | string | null
     mapeamento_path?: StringFieldUpdateOperationsInput | string
@@ -31558,16 +31558,16 @@ export namespace Prisma {
     none?: UsuarioPermissaoWhereInput
   }
 
-  export type WorkspaceListRelationFilter = {
-    every?: WorkspaceWhereInput
-    some?: WorkspaceWhereInput
-    none?: WorkspaceWhereInput
+  export type EmpresaListRelationFilter = {
+    every?: EmpresaWhereInput
+    some?: EmpresaWhereInput
+    none?: EmpresaWhereInput
   }
 
-  export type ProductConfigListRelationFilter = {
-    every?: ProductConfigWhereInput
-    some?: ProductConfigWhereInput
-    none?: ProductConfigWhereInput
+  export type ConfiguracaoProdutoListRelationFilter = {
+    every?: ConfiguracaoProdutoWhereInput
+    some?: ConfiguracaoProdutoWhereInput
+    none?: ConfiguracaoProdutoWhereInput
   }
 
   export type ProdutoGravityWorkspaceListRelationFilter = {
@@ -31593,11 +31593,11 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type WorkspaceOrderByRelationAggregateInput = {
+  export type EmpresaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type ProductConfigOrderByRelationAggregateInput = {
+  export type ConfiguracaoProdutoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -31725,9 +31725,9 @@ export namespace Prisma {
     isNot?: OrganizacaoWhereInput
   }
 
-  export type WorkspaceNullableRelationFilter = {
-    is?: WorkspaceWhereInput | null
-    isNot?: WorkspaceWhereInput | null
+  export type EmpresaNullableRelationFilter = {
+    is?: EmpresaWhereInput | null
+    isNot?: EmpresaWhereInput | null
   }
 
   export type UsuarioWorkspaceListRelationFilter = {
@@ -31924,13 +31924,13 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type GravityAdminPermissionAdmin_idResourceActionCompoundUniqueInput = {
+  export type PermissaoAdminGravityAdmin_idResourceActionCompoundUniqueInput = {
     admin_id: string
     resource: string
     action: string
   }
 
-  export type GravityAdminPermissionCountOrderByAggregateInput = {
+  export type PermissaoAdminGravityCountOrderByAggregateInput = {
     id?: SortOrder
     admin_id?: SortOrder
     resource?: SortOrder
@@ -31940,7 +31940,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type GravityAdminPermissionMaxOrderByAggregateInput = {
+  export type PermissaoAdminGravityMaxOrderByAggregateInput = {
     id?: SortOrder
     admin_id?: SortOrder
     resource?: SortOrder
@@ -31950,7 +31950,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type GravityAdminPermissionMinOrderByAggregateInput = {
+  export type PermissaoAdminGravityMinOrderByAggregateInput = {
     id?: SortOrder
     admin_id?: SortOrder
     resource?: SortOrder
@@ -31967,7 +31967,7 @@ export namespace Prisma {
     not?: NestedEnumCompanyStatusFilter<$PrismaModel> | $Enums.CompanyStatus
   }
 
-  export type WorkspaceCountOrderByAggregateInput = {
+  export type EmpresaCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     name?: SortOrder
@@ -31978,7 +31978,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type WorkspaceMaxOrderByAggregateInput = {
+  export type EmpresaMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     name?: SortOrder
@@ -31989,7 +31989,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type WorkspaceMinOrderByAggregateInput = {
+  export type EmpresaMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     name?: SortOrder
@@ -32022,9 +32022,9 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type WorkspaceRelationFilter = {
-    is?: WorkspaceWhereInput
-    isNot?: WorkspaceWhereInput
+  export type EmpresaRelationFilter = {
+    is?: EmpresaWhereInput
+    isNot?: EmpresaWhereInput
   }
 
   export type UsuarioWorkspaceTenant_idUser_idCompany_idCompoundUniqueInput = {
@@ -32106,12 +32106,12 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type ProductConfigTenant_idProduct_keyCompoundUniqueInput = {
+  export type ConfiguracaoProdutoTenant_idProduct_keyCompoundUniqueInput = {
     tenant_id: string
     product_key: string
   }
 
-  export type ProductConfigCountOrderByAggregateInput = {
+  export type ConfiguracaoProdutoCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_key?: SortOrder
@@ -32121,7 +32121,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type ProductConfigMaxOrderByAggregateInput = {
+  export type ConfiguracaoProdutoMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_key?: SortOrder
@@ -32130,7 +32130,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type ProductConfigMinOrderByAggregateInput = {
+  export type ConfiguracaoProdutoMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     product_key?: SortOrder
@@ -32264,23 +32264,23 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type PriceTierListRelationFilter = {
-    every?: PriceTierWhereInput
-    some?: PriceTierWhereInput
-    none?: PriceTierWhereInput
+  export type FaixaPrecoListRelationFilter = {
+    every?: FaixaPrecoWhereInput
+    some?: FaixaPrecoWhereInput
+    none?: FaixaPrecoWhereInput
   }
 
-  export type SpecialNegotiationListRelationFilter = {
-    every?: SpecialNegotiationWhereInput
-    some?: SpecialNegotiationWhereInput
-    none?: SpecialNegotiationWhereInput
+  export type NegociacaoEspecialListRelationFilter = {
+    every?: NegociacaoEspecialWhereInput
+    some?: NegociacaoEspecialWhereInput
+    none?: NegociacaoEspecialWhereInput
   }
 
-  export type PriceTierOrderByRelationAggregateInput = {
+  export type FaixaPrecoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type SpecialNegotiationOrderByRelationAggregateInput = {
+  export type NegociacaoEspecialOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -32503,7 +32503,7 @@ export namespace Prisma {
     isNot?: ProdutoGravityWhereInput
   }
 
-  export type PriceTierCountOrderByAggregateInput = {
+  export type FaixaPrecoCountOrderByAggregateInput = {
     id?: SortOrder
     product_id?: SortOrder
     range_from?: SortOrder
@@ -32513,13 +32513,13 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type PriceTierAvgOrderByAggregateInput = {
+  export type FaixaPrecoAvgOrderByAggregateInput = {
     range_from?: SortOrder
     range_to?: SortOrder
     price?: SortOrder
   }
 
-  export type PriceTierMaxOrderByAggregateInput = {
+  export type FaixaPrecoMaxOrderByAggregateInput = {
     id?: SortOrder
     product_id?: SortOrder
     range_from?: SortOrder
@@ -32529,7 +32529,7 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type PriceTierMinOrderByAggregateInput = {
+  export type FaixaPrecoMinOrderByAggregateInput = {
     id?: SortOrder
     product_id?: SortOrder
     range_from?: SortOrder
@@ -32539,13 +32539,13 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type PriceTierSumOrderByAggregateInput = {
+  export type FaixaPrecoSumOrderByAggregateInput = {
     range_from?: SortOrder
     range_to?: SortOrder
     price?: SortOrder
   }
 
-  export type SpecialNegotiationCountOrderByAggregateInput = {
+  export type NegociacaoEspecialCountOrderByAggregateInput = {
     id?: SortOrder
     product_id?: SortOrder
     tenant_id?: SortOrder
@@ -32558,7 +32558,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type SpecialNegotiationMaxOrderByAggregateInput = {
+  export type NegociacaoEspecialMaxOrderByAggregateInput = {
     id?: SortOrder
     product_id?: SortOrder
     tenant_id?: SortOrder
@@ -32571,7 +32571,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type SpecialNegotiationMinOrderByAggregateInput = {
+  export type NegociacaoEspecialMinOrderByAggregateInput = {
     id?: SortOrder
     product_id?: SortOrder
     tenant_id?: SortOrder
@@ -33010,7 +33010,7 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
-  export type TestScheduleCountOrderByAggregateInput = {
+  export type AgendamentoTesteCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     ativo?: SortOrder
@@ -33027,12 +33027,12 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TestScheduleAvgOrderByAggregateInput = {
+  export type AgendamentoTesteAvgOrderByAggregateInput = {
     hora?: SortOrder
     minuto?: SortOrder
   }
 
-  export type TestScheduleMaxOrderByAggregateInput = {
+  export type AgendamentoTesteMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     ativo?: SortOrder
@@ -33046,7 +33046,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TestScheduleMinOrderByAggregateInput = {
+  export type AgendamentoTesteMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     ativo?: SortOrder
@@ -33060,12 +33060,12 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TestScheduleSumOrderByAggregateInput = {
+  export type AgendamentoTesteSumOrderByAggregateInput = {
     hora?: SortOrder
     minuto?: SortOrder
   }
 
-  export type TestPlanCountOrderByAggregateInput = {
+  export type PlanoTesteCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     versao?: SortOrder
@@ -33090,12 +33090,12 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TestPlanAvgOrderByAggregateInput = {
+  export type PlanoTesteAvgOrderByAggregateInput = {
     cobertura_pct?: SortOrder
     passos_total?: SortOrder
   }
 
-  export type TestPlanMaxOrderByAggregateInput = {
+  export type PlanoTesteMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     versao?: SortOrder
@@ -33118,7 +33118,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TestPlanMinOrderByAggregateInput = {
+  export type PlanoTesteMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     versao?: SortOrder
@@ -33141,7 +33141,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TestPlanSumOrderByAggregateInput = {
+  export type PlanoTesteSumOrderByAggregateInput = {
     cobertura_pct?: SortOrder
     passos_total?: SortOrder
   }
@@ -33302,18 +33302,18 @@ export namespace Prisma {
     connect?: UsuarioPermissaoWhereUniqueInput | UsuarioPermissaoWhereUniqueInput[]
   }
 
-  export type WorkspaceCreateNestedManyWithoutTenantInput = {
-    create?: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput> | WorkspaceCreateWithoutTenantInput[] | WorkspaceUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutTenantInput | WorkspaceCreateOrConnectWithoutTenantInput[]
-    createMany?: WorkspaceCreateManyTenantInputEnvelope
-    connect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+  export type EmpresaCreateNestedManyWithoutTenantInput = {
+    create?: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput> | EmpresaCreateWithoutTenantInput[] | EmpresaUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: EmpresaCreateOrConnectWithoutTenantInput | EmpresaCreateOrConnectWithoutTenantInput[]
+    createMany?: EmpresaCreateManyTenantInputEnvelope
+    connect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
   }
 
-  export type ProductConfigCreateNestedManyWithoutTenantInput = {
-    create?: XOR<ProductConfigCreateWithoutTenantInput, ProductConfigUncheckedCreateWithoutTenantInput> | ProductConfigCreateWithoutTenantInput[] | ProductConfigUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: ProductConfigCreateOrConnectWithoutTenantInput | ProductConfigCreateOrConnectWithoutTenantInput[]
-    createMany?: ProductConfigCreateManyTenantInputEnvelope
-    connect?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
+  export type ConfiguracaoProdutoCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput> | ConfiguracaoProdutoCreateWithoutTenantInput[] | ConfiguracaoProdutoUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConfiguracaoProdutoCreateOrConnectWithoutTenantInput | ConfiguracaoProdutoCreateOrConnectWithoutTenantInput[]
+    createMany?: ConfiguracaoProdutoCreateManyTenantInputEnvelope
+    connect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
   }
 
   export type ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput = {
@@ -33344,18 +33344,18 @@ export namespace Prisma {
     connect?: UsuarioPermissaoWhereUniqueInput | UsuarioPermissaoWhereUniqueInput[]
   }
 
-  export type WorkspaceUncheckedCreateNestedManyWithoutTenantInput = {
-    create?: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput> | WorkspaceCreateWithoutTenantInput[] | WorkspaceUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutTenantInput | WorkspaceCreateOrConnectWithoutTenantInput[]
-    createMany?: WorkspaceCreateManyTenantInputEnvelope
-    connect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
+  export type EmpresaUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput> | EmpresaCreateWithoutTenantInput[] | EmpresaUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: EmpresaCreateOrConnectWithoutTenantInput | EmpresaCreateOrConnectWithoutTenantInput[]
+    createMany?: EmpresaCreateManyTenantInputEnvelope
+    connect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
   }
 
-  export type ProductConfigUncheckedCreateNestedManyWithoutTenantInput = {
-    create?: XOR<ProductConfigCreateWithoutTenantInput, ProductConfigUncheckedCreateWithoutTenantInput> | ProductConfigCreateWithoutTenantInput[] | ProductConfigUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: ProductConfigCreateOrConnectWithoutTenantInput | ProductConfigCreateOrConnectWithoutTenantInput[]
-    createMany?: ProductConfigCreateManyTenantInputEnvelope
-    connect?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
+  export type ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput> | ConfiguracaoProdutoCreateWithoutTenantInput[] | ConfiguracaoProdutoUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConfiguracaoProdutoCreateOrConnectWithoutTenantInput | ConfiguracaoProdutoCreateOrConnectWithoutTenantInput[]
+    createMany?: ConfiguracaoProdutoCreateManyTenantInputEnvelope
+    connect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput = {
@@ -33423,32 +33423,32 @@ export namespace Prisma {
     deleteMany?: UsuarioPermissaoScalarWhereInput | UsuarioPermissaoScalarWhereInput[]
   }
 
-  export type WorkspaceUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput> | WorkspaceCreateWithoutTenantInput[] | WorkspaceUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutTenantInput | WorkspaceCreateOrConnectWithoutTenantInput[]
-    upsert?: WorkspaceUpsertWithWhereUniqueWithoutTenantInput | WorkspaceUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: WorkspaceCreateManyTenantInputEnvelope
-    set?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
-    disconnect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
-    delete?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
-    connect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
-    update?: WorkspaceUpdateWithWhereUniqueWithoutTenantInput | WorkspaceUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: WorkspaceUpdateManyWithWhereWithoutTenantInput | WorkspaceUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
+  export type EmpresaUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput> | EmpresaCreateWithoutTenantInput[] | EmpresaUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: EmpresaCreateOrConnectWithoutTenantInput | EmpresaCreateOrConnectWithoutTenantInput[]
+    upsert?: EmpresaUpsertWithWhereUniqueWithoutTenantInput | EmpresaUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: EmpresaCreateManyTenantInputEnvelope
+    set?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+    disconnect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+    delete?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+    connect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+    update?: EmpresaUpdateWithWhereUniqueWithoutTenantInput | EmpresaUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: EmpresaUpdateManyWithWhereWithoutTenantInput | EmpresaUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
   }
 
-  export type ProductConfigUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<ProductConfigCreateWithoutTenantInput, ProductConfigUncheckedCreateWithoutTenantInput> | ProductConfigCreateWithoutTenantInput[] | ProductConfigUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: ProductConfigCreateOrConnectWithoutTenantInput | ProductConfigCreateOrConnectWithoutTenantInput[]
-    upsert?: ProductConfigUpsertWithWhereUniqueWithoutTenantInput | ProductConfigUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: ProductConfigCreateManyTenantInputEnvelope
-    set?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
-    disconnect?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
-    delete?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
-    connect?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
-    update?: ProductConfigUpdateWithWhereUniqueWithoutTenantInput | ProductConfigUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: ProductConfigUpdateManyWithWhereWithoutTenantInput | ProductConfigUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: ProductConfigScalarWhereInput | ProductConfigScalarWhereInput[]
+  export type ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput> | ConfiguracaoProdutoCreateWithoutTenantInput[] | ConfiguracaoProdutoUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConfiguracaoProdutoCreateOrConnectWithoutTenantInput | ConfiguracaoProdutoCreateOrConnectWithoutTenantInput[]
+    upsert?: ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput | ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ConfiguracaoProdutoCreateManyTenantInputEnvelope
+    set?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+    disconnect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+    delete?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+    connect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+    update?: ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput | ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput | ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
   }
 
   export type ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput = {
@@ -33507,32 +33507,32 @@ export namespace Prisma {
     deleteMany?: UsuarioPermissaoScalarWhereInput | UsuarioPermissaoScalarWhereInput[]
   }
 
-  export type WorkspaceUncheckedUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput> | WorkspaceCreateWithoutTenantInput[] | WorkspaceUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutTenantInput | WorkspaceCreateOrConnectWithoutTenantInput[]
-    upsert?: WorkspaceUpsertWithWhereUniqueWithoutTenantInput | WorkspaceUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: WorkspaceCreateManyTenantInputEnvelope
-    set?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
-    disconnect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
-    delete?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
-    connect?: WorkspaceWhereUniqueInput | WorkspaceWhereUniqueInput[]
-    update?: WorkspaceUpdateWithWhereUniqueWithoutTenantInput | WorkspaceUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: WorkspaceUpdateManyWithWhereWithoutTenantInput | WorkspaceUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
+  export type EmpresaUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput> | EmpresaCreateWithoutTenantInput[] | EmpresaUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: EmpresaCreateOrConnectWithoutTenantInput | EmpresaCreateOrConnectWithoutTenantInput[]
+    upsert?: EmpresaUpsertWithWhereUniqueWithoutTenantInput | EmpresaUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: EmpresaCreateManyTenantInputEnvelope
+    set?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+    disconnect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+    delete?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+    connect?: EmpresaWhereUniqueInput | EmpresaWhereUniqueInput[]
+    update?: EmpresaUpdateWithWhereUniqueWithoutTenantInput | EmpresaUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: EmpresaUpdateManyWithWhereWithoutTenantInput | EmpresaUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
   }
 
-  export type ProductConfigUncheckedUpdateManyWithoutTenantNestedInput = {
-    create?: XOR<ProductConfigCreateWithoutTenantInput, ProductConfigUncheckedCreateWithoutTenantInput> | ProductConfigCreateWithoutTenantInput[] | ProductConfigUncheckedCreateWithoutTenantInput[]
-    connectOrCreate?: ProductConfigCreateOrConnectWithoutTenantInput | ProductConfigCreateOrConnectWithoutTenantInput[]
-    upsert?: ProductConfigUpsertWithWhereUniqueWithoutTenantInput | ProductConfigUpsertWithWhereUniqueWithoutTenantInput[]
-    createMany?: ProductConfigCreateManyTenantInputEnvelope
-    set?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
-    disconnect?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
-    delete?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
-    connect?: ProductConfigWhereUniqueInput | ProductConfigWhereUniqueInput[]
-    update?: ProductConfigUpdateWithWhereUniqueWithoutTenantInput | ProductConfigUpdateWithWhereUniqueWithoutTenantInput[]
-    updateMany?: ProductConfigUpdateManyWithWhereWithoutTenantInput | ProductConfigUpdateManyWithWhereWithoutTenantInput[]
-    deleteMany?: ProductConfigScalarWhereInput | ProductConfigScalarWhereInput[]
+  export type ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput> | ConfiguracaoProdutoCreateWithoutTenantInput[] | ConfiguracaoProdutoUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: ConfiguracaoProdutoCreateOrConnectWithoutTenantInput | ConfiguracaoProdutoCreateOrConnectWithoutTenantInput[]
+    upsert?: ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput | ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: ConfiguracaoProdutoCreateManyTenantInputEnvelope
+    set?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+    disconnect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+    delete?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+    connect?: ConfiguracaoProdutoWhereUniqueInput | ConfiguracaoProdutoWhereUniqueInput[]
+    update?: ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput | ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput | ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput = {
@@ -33555,10 +33555,10 @@ export namespace Prisma {
     connect?: OrganizacaoWhereUniqueInput
   }
 
-  export type WorkspaceCreateNestedOneWithoutPreferred_by_usersInput = {
-    create?: XOR<WorkspaceCreateWithoutPreferred_by_usersInput, WorkspaceUncheckedCreateWithoutPreferred_by_usersInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutPreferred_by_usersInput
-    connect?: WorkspaceWhereUniqueInput
+  export type EmpresaCreateNestedOneWithoutPreferred_by_usersInput = {
+    create?: XOR<EmpresaCreateWithoutPreferred_by_usersInput, EmpresaUncheckedCreateWithoutPreferred_by_usersInput>
+    connectOrCreate?: EmpresaCreateOrConnectWithoutPreferred_by_usersInput
+    connect?: EmpresaWhereUniqueInput
   }
 
   export type UsuarioPermissaoCreateNestedManyWithoutUserInput = {
@@ -33601,14 +33601,14 @@ export namespace Prisma {
     update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutUsersInput, OrganizacaoUpdateWithoutUsersInput>, OrganizacaoUncheckedUpdateWithoutUsersInput>
   }
 
-  export type WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput = {
-    create?: XOR<WorkspaceCreateWithoutPreferred_by_usersInput, WorkspaceUncheckedCreateWithoutPreferred_by_usersInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutPreferred_by_usersInput
-    upsert?: WorkspaceUpsertWithoutPreferred_by_usersInput
-    disconnect?: WorkspaceWhereInput | boolean
-    delete?: WorkspaceWhereInput | boolean
-    connect?: WorkspaceWhereUniqueInput
-    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutPreferred_by_usersInput, WorkspaceUpdateWithoutPreferred_by_usersInput>, WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput>
+  export type EmpresaUpdateOneWithoutPreferred_by_usersNestedInput = {
+    create?: XOR<EmpresaCreateWithoutPreferred_by_usersInput, EmpresaUncheckedCreateWithoutPreferred_by_usersInput>
+    connectOrCreate?: EmpresaCreateOrConnectWithoutPreferred_by_usersInput
+    upsert?: EmpresaUpsertWithoutPreferred_by_usersInput
+    disconnect?: EmpresaWhereInput | boolean
+    delete?: EmpresaWhereInput | boolean
+    connect?: EmpresaWhereUniqueInput
+    update?: XOR<XOR<EmpresaUpdateToOneWithWhereWithoutPreferred_by_usersInput, EmpresaUpdateWithoutPreferred_by_usersInput>, EmpresaUncheckedUpdateWithoutPreferred_by_usersInput>
   }
 
   export type UsuarioPermissaoUpdateManyWithoutUserNestedInput = {
@@ -33867,10 +33867,10 @@ export namespace Prisma {
     connect?: UsuarioWhereUniqueInput
   }
 
-  export type WorkspaceCreateNestedOneWithoutMembershipsInput = {
-    create?: XOR<WorkspaceCreateWithoutMembershipsInput, WorkspaceUncheckedCreateWithoutMembershipsInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutMembershipsInput
-    connect?: WorkspaceWhereUniqueInput
+  export type EmpresaCreateNestedOneWithoutMembershipsInput = {
+    create?: XOR<EmpresaCreateWithoutMembershipsInput, EmpresaUncheckedCreateWithoutMembershipsInput>
+    connectOrCreate?: EmpresaCreateOrConnectWithoutMembershipsInput
+    connect?: EmpresaWhereUniqueInput
   }
 
   export type EnumUserMembershipRoleFieldUpdateOperationsInput = {
@@ -33889,12 +33889,12 @@ export namespace Prisma {
     update?: XOR<XOR<UsuarioUpdateToOneWithWhereWithoutMembershipsInput, UsuarioUpdateWithoutMembershipsInput>, UsuarioUncheckedUpdateWithoutMembershipsInput>
   }
 
-  export type WorkspaceUpdateOneRequiredWithoutMembershipsNestedInput = {
-    create?: XOR<WorkspaceCreateWithoutMembershipsInput, WorkspaceUncheckedCreateWithoutMembershipsInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutMembershipsInput
-    upsert?: WorkspaceUpsertWithoutMembershipsInput
-    connect?: WorkspaceWhereUniqueInput
-    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutMembershipsInput, WorkspaceUpdateWithoutMembershipsInput>, WorkspaceUncheckedUpdateWithoutMembershipsInput>
+  export type EmpresaUpdateOneRequiredWithoutMembershipsNestedInput = {
+    create?: XOR<EmpresaCreateWithoutMembershipsInput, EmpresaUncheckedCreateWithoutMembershipsInput>
+    connectOrCreate?: EmpresaCreateOrConnectWithoutMembershipsInput
+    upsert?: EmpresaUpsertWithoutMembershipsInput
+    connect?: EmpresaWhereUniqueInput
+    update?: XOR<XOR<EmpresaUpdateToOneWithWhereWithoutMembershipsInput, EmpresaUpdateWithoutMembershipsInput>, EmpresaUncheckedUpdateWithoutMembershipsInput>
   }
 
   export type OrganizacaoCreateNestedOneWithoutProduct_configsInput = {
@@ -33917,10 +33917,10 @@ export namespace Prisma {
     connect?: OrganizacaoWhereUniqueInput
   }
 
-  export type WorkspaceCreateNestedOneWithoutCompany_productsInput = {
-    create?: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutCompany_productsInput
-    connect?: WorkspaceWhereUniqueInput
+  export type EmpresaCreateNestedOneWithoutCompany_productsInput = {
+    create?: XOR<EmpresaCreateWithoutCompany_productsInput, EmpresaUncheckedCreateWithoutCompany_productsInput>
+    connectOrCreate?: EmpresaCreateOrConnectWithoutCompany_productsInput
+    connect?: EmpresaWhereUniqueInput
   }
 
   export type OrganizacaoUpdateOneRequiredWithoutProdutoGravityWorkspaceNestedInput = {
@@ -33931,40 +33931,40 @@ export namespace Prisma {
     update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutProdutoGravityWorkspaceInput, OrganizacaoUpdateWithoutProdutoGravityWorkspaceInput>, OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput>
   }
 
-  export type WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput = {
-    create?: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
-    connectOrCreate?: WorkspaceCreateOrConnectWithoutCompany_productsInput
-    upsert?: WorkspaceUpsertWithoutCompany_productsInput
-    connect?: WorkspaceWhereUniqueInput
-    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutCompany_productsInput, WorkspaceUpdateWithoutCompany_productsInput>, WorkspaceUncheckedUpdateWithoutCompany_productsInput>
+  export type EmpresaUpdateOneRequiredWithoutCompany_productsNestedInput = {
+    create?: XOR<EmpresaCreateWithoutCompany_productsInput, EmpresaUncheckedCreateWithoutCompany_productsInput>
+    connectOrCreate?: EmpresaCreateOrConnectWithoutCompany_productsInput
+    upsert?: EmpresaUpsertWithoutCompany_productsInput
+    connect?: EmpresaWhereUniqueInput
+    update?: XOR<XOR<EmpresaUpdateToOneWithWhereWithoutCompany_productsInput, EmpresaUpdateWithoutCompany_productsInput>, EmpresaUncheckedUpdateWithoutCompany_productsInput>
   }
 
-  export type PriceTierCreateNestedManyWithoutProductInput = {
-    create?: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput> | PriceTierCreateWithoutProductInput[] | PriceTierUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PriceTierCreateOrConnectWithoutProductInput | PriceTierCreateOrConnectWithoutProductInput[]
-    createMany?: PriceTierCreateManyProductInputEnvelope
-    connect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+  export type FaixaPrecoCreateNestedManyWithoutProductInput = {
+    create?: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput> | FaixaPrecoCreateWithoutProductInput[] | FaixaPrecoUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProductInput | FaixaPrecoCreateOrConnectWithoutProductInput[]
+    createMany?: FaixaPrecoCreateManyProductInputEnvelope
+    connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
   }
 
-  export type SpecialNegotiationCreateNestedManyWithoutProductInput = {
-    create?: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput> | SpecialNegotiationCreateWithoutProductInput[] | SpecialNegotiationUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: SpecialNegotiationCreateOrConnectWithoutProductInput | SpecialNegotiationCreateOrConnectWithoutProductInput[]
-    createMany?: SpecialNegotiationCreateManyProductInputEnvelope
-    connect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+  export type NegociacaoEspecialCreateNestedManyWithoutProductInput = {
+    create?: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput> | NegociacaoEspecialCreateWithoutProductInput[] | NegociacaoEspecialUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProductInput | NegociacaoEspecialCreateOrConnectWithoutProductInput[]
+    createMany?: NegociacaoEspecialCreateManyProductInputEnvelope
+    connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
   }
 
-  export type PriceTierUncheckedCreateNestedManyWithoutProductInput = {
-    create?: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput> | PriceTierCreateWithoutProductInput[] | PriceTierUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PriceTierCreateOrConnectWithoutProductInput | PriceTierCreateOrConnectWithoutProductInput[]
-    createMany?: PriceTierCreateManyProductInputEnvelope
-    connect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
+  export type FaixaPrecoUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput> | FaixaPrecoCreateWithoutProductInput[] | FaixaPrecoUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProductInput | FaixaPrecoCreateOrConnectWithoutProductInput[]
+    createMany?: FaixaPrecoCreateManyProductInputEnvelope
+    connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
   }
 
-  export type SpecialNegotiationUncheckedCreateNestedManyWithoutProductInput = {
-    create?: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput> | SpecialNegotiationCreateWithoutProductInput[] | SpecialNegotiationUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: SpecialNegotiationCreateOrConnectWithoutProductInput | SpecialNegotiationCreateOrConnectWithoutProductInput[]
-    createMany?: SpecialNegotiationCreateManyProductInputEnvelope
-    connect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
+  export type NegociacaoEspecialUncheckedCreateNestedManyWithoutProductInput = {
+    create?: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput> | NegociacaoEspecialCreateWithoutProductInput[] | NegociacaoEspecialUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProductInput | NegociacaoEspecialCreateOrConnectWithoutProductInput[]
+    createMany?: NegociacaoEspecialCreateManyProductInputEnvelope
+    connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
   }
 
   export type EnumProductStatusFieldUpdateOperationsInput = {
@@ -34011,60 +34011,60 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type PriceTierUpdateManyWithoutProductNestedInput = {
-    create?: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput> | PriceTierCreateWithoutProductInput[] | PriceTierUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PriceTierCreateOrConnectWithoutProductInput | PriceTierCreateOrConnectWithoutProductInput[]
-    upsert?: PriceTierUpsertWithWhereUniqueWithoutProductInput | PriceTierUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: PriceTierCreateManyProductInputEnvelope
-    set?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
-    disconnect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
-    delete?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
-    connect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
-    update?: PriceTierUpdateWithWhereUniqueWithoutProductInput | PriceTierUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: PriceTierUpdateManyWithWhereWithoutProductInput | PriceTierUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: PriceTierScalarWhereInput | PriceTierScalarWhereInput[]
+  export type FaixaPrecoUpdateManyWithoutProductNestedInput = {
+    create?: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput> | FaixaPrecoCreateWithoutProductInput[] | FaixaPrecoUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProductInput | FaixaPrecoCreateOrConnectWithoutProductInput[]
+    upsert?: FaixaPrecoUpsertWithWhereUniqueWithoutProductInput | FaixaPrecoUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: FaixaPrecoCreateManyProductInputEnvelope
+    set?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+    disconnect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+    delete?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+    connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+    update?: FaixaPrecoUpdateWithWhereUniqueWithoutProductInput | FaixaPrecoUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: FaixaPrecoUpdateManyWithWhereWithoutProductInput | FaixaPrecoUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
   }
 
-  export type SpecialNegotiationUpdateManyWithoutProductNestedInput = {
-    create?: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput> | SpecialNegotiationCreateWithoutProductInput[] | SpecialNegotiationUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: SpecialNegotiationCreateOrConnectWithoutProductInput | SpecialNegotiationCreateOrConnectWithoutProductInput[]
-    upsert?: SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput | SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: SpecialNegotiationCreateManyProductInputEnvelope
-    set?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
-    disconnect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
-    delete?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
-    connect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
-    update?: SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput | SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: SpecialNegotiationUpdateManyWithWhereWithoutProductInput | SpecialNegotiationUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: SpecialNegotiationScalarWhereInput | SpecialNegotiationScalarWhereInput[]
+  export type NegociacaoEspecialUpdateManyWithoutProductNestedInput = {
+    create?: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput> | NegociacaoEspecialCreateWithoutProductInput[] | NegociacaoEspecialUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProductInput | NegociacaoEspecialCreateOrConnectWithoutProductInput[]
+    upsert?: NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput | NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: NegociacaoEspecialCreateManyProductInputEnvelope
+    set?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+    disconnect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+    delete?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+    connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+    update?: NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput | NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: NegociacaoEspecialUpdateManyWithWhereWithoutProductInput | NegociacaoEspecialUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
   }
 
-  export type PriceTierUncheckedUpdateManyWithoutProductNestedInput = {
-    create?: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput> | PriceTierCreateWithoutProductInput[] | PriceTierUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: PriceTierCreateOrConnectWithoutProductInput | PriceTierCreateOrConnectWithoutProductInput[]
-    upsert?: PriceTierUpsertWithWhereUniqueWithoutProductInput | PriceTierUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: PriceTierCreateManyProductInputEnvelope
-    set?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
-    disconnect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
-    delete?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
-    connect?: PriceTierWhereUniqueInput | PriceTierWhereUniqueInput[]
-    update?: PriceTierUpdateWithWhereUniqueWithoutProductInput | PriceTierUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: PriceTierUpdateManyWithWhereWithoutProductInput | PriceTierUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: PriceTierScalarWhereInput | PriceTierScalarWhereInput[]
+  export type FaixaPrecoUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput> | FaixaPrecoCreateWithoutProductInput[] | FaixaPrecoUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: FaixaPrecoCreateOrConnectWithoutProductInput | FaixaPrecoCreateOrConnectWithoutProductInput[]
+    upsert?: FaixaPrecoUpsertWithWhereUniqueWithoutProductInput | FaixaPrecoUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: FaixaPrecoCreateManyProductInputEnvelope
+    set?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+    disconnect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+    delete?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+    connect?: FaixaPrecoWhereUniqueInput | FaixaPrecoWhereUniqueInput[]
+    update?: FaixaPrecoUpdateWithWhereUniqueWithoutProductInput | FaixaPrecoUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: FaixaPrecoUpdateManyWithWhereWithoutProductInput | FaixaPrecoUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
   }
 
-  export type SpecialNegotiationUncheckedUpdateManyWithoutProductNestedInput = {
-    create?: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput> | SpecialNegotiationCreateWithoutProductInput[] | SpecialNegotiationUncheckedCreateWithoutProductInput[]
-    connectOrCreate?: SpecialNegotiationCreateOrConnectWithoutProductInput | SpecialNegotiationCreateOrConnectWithoutProductInput[]
-    upsert?: SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput | SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput[]
-    createMany?: SpecialNegotiationCreateManyProductInputEnvelope
-    set?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
-    disconnect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
-    delete?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
-    connect?: SpecialNegotiationWhereUniqueInput | SpecialNegotiationWhereUniqueInput[]
-    update?: SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput | SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput[]
-    updateMany?: SpecialNegotiationUpdateManyWithWhereWithoutProductInput | SpecialNegotiationUpdateManyWithWhereWithoutProductInput[]
-    deleteMany?: SpecialNegotiationScalarWhereInput | SpecialNegotiationScalarWhereInput[]
+  export type NegociacaoEspecialUncheckedUpdateManyWithoutProductNestedInput = {
+    create?: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput> | NegociacaoEspecialCreateWithoutProductInput[] | NegociacaoEspecialUncheckedCreateWithoutProductInput[]
+    connectOrCreate?: NegociacaoEspecialCreateOrConnectWithoutProductInput | NegociacaoEspecialCreateOrConnectWithoutProductInput[]
+    upsert?: NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput | NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput[]
+    createMany?: NegociacaoEspecialCreateManyProductInputEnvelope
+    set?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+    disconnect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+    delete?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+    connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
+    update?: NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput | NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput[]
+    updateMany?: NegociacaoEspecialUpdateManyWithWhereWithoutProductInput | NegociacaoEspecialUpdateManyWithWhereWithoutProductInput[]
+    deleteMany?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
   }
 
   export type ProdutoGravityCreateNestedOneWithoutPrice_tiersInput = {
@@ -34103,20 +34103,20 @@ export namespace Prisma {
     set?: $Enums.DeployStatus
   }
 
-  export type TestScheduleCreateescoposInput = {
+  export type AgendamentoTesteCreateescoposInput = {
     set: string[]
   }
 
-  export type TestScheduleUpdateescoposInput = {
+  export type AgendamentoTesteUpdateescoposInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type TestPlanCreateambientesInput = {
+  export type PlanoTesteCreateambientesInput = {
     set: string[]
   }
 
-  export type TestPlanUpdateambientesInput = {
+  export type PlanoTesteUpdateambientesInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -34628,7 +34628,7 @@ export namespace Prisma {
     role?: $Enums.UserRole
     created_at?: Date | string
     updated_at?: Date | string
-    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
+    preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
   }
@@ -34724,7 +34724,7 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type WorkspaceCreateWithoutTenantInput = {
+  export type EmpresaCreateWithoutTenantInput = {
     id?: string
     name: string
     subdomain?: string | null
@@ -34737,7 +34737,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type WorkspaceUncheckedCreateWithoutTenantInput = {
+  export type EmpresaUncheckedCreateWithoutTenantInput = {
     id?: string
     name: string
     subdomain?: string | null
@@ -34750,17 +34750,17 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type WorkspaceCreateOrConnectWithoutTenantInput = {
-    where: WorkspaceWhereUniqueInput
-    create: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput>
+  export type EmpresaCreateOrConnectWithoutTenantInput = {
+    where: EmpresaWhereUniqueInput
+    create: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput>
   }
 
-  export type WorkspaceCreateManyTenantInputEnvelope = {
-    data: WorkspaceCreateManyTenantInput | WorkspaceCreateManyTenantInput[]
+  export type EmpresaCreateManyTenantInputEnvelope = {
+    data: EmpresaCreateManyTenantInput | EmpresaCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
-  export type ProductConfigCreateWithoutTenantInput = {
+  export type ConfiguracaoProdutoCreateWithoutTenantInput = {
     id?: string
     product_key: string
     config?: JsonNullValueInput | InputJsonValue
@@ -34769,7 +34769,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ProductConfigUncheckedCreateWithoutTenantInput = {
+  export type ConfiguracaoProdutoUncheckedCreateWithoutTenantInput = {
     id?: string
     product_key: string
     config?: JsonNullValueInput | InputJsonValue
@@ -34778,13 +34778,13 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ProductConfigCreateOrConnectWithoutTenantInput = {
-    where: ProductConfigWhereUniqueInput
-    create: XOR<ProductConfigCreateWithoutTenantInput, ProductConfigUncheckedCreateWithoutTenantInput>
+  export type ConfiguracaoProdutoCreateOrConnectWithoutTenantInput = {
+    where: ConfiguracaoProdutoWhereUniqueInput
+    create: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput>
   }
 
-  export type ProductConfigCreateManyTenantInputEnvelope = {
-    data: ProductConfigCreateManyTenantInput | ProductConfigCreateManyTenantInput[]
+  export type ConfiguracaoProdutoCreateManyTenantInputEnvelope = {
+    data: ConfiguracaoProdutoCreateManyTenantInput | ConfiguracaoProdutoCreateManyTenantInput[]
     skipDuplicates?: boolean
   }
 
@@ -34794,7 +34794,7 @@ export namespace Prisma {
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
-    company: WorkspaceCreateNestedOneWithoutCompany_productsInput
+    company: EmpresaCreateNestedOneWithoutCompany_productsInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedCreateWithoutTenantInput = {
@@ -34911,63 +34911,63 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"UsuarioPermissao"> | Date | string
   }
 
-  export type WorkspaceUpsertWithWhereUniqueWithoutTenantInput = {
-    where: WorkspaceWhereUniqueInput
-    update: XOR<WorkspaceUpdateWithoutTenantInput, WorkspaceUncheckedUpdateWithoutTenantInput>
-    create: XOR<WorkspaceCreateWithoutTenantInput, WorkspaceUncheckedCreateWithoutTenantInput>
+  export type EmpresaUpsertWithWhereUniqueWithoutTenantInput = {
+    where: EmpresaWhereUniqueInput
+    update: XOR<EmpresaUpdateWithoutTenantInput, EmpresaUncheckedUpdateWithoutTenantInput>
+    create: XOR<EmpresaCreateWithoutTenantInput, EmpresaUncheckedCreateWithoutTenantInput>
   }
 
-  export type WorkspaceUpdateWithWhereUniqueWithoutTenantInput = {
-    where: WorkspaceWhereUniqueInput
-    data: XOR<WorkspaceUpdateWithoutTenantInput, WorkspaceUncheckedUpdateWithoutTenantInput>
+  export type EmpresaUpdateWithWhereUniqueWithoutTenantInput = {
+    where: EmpresaWhereUniqueInput
+    data: XOR<EmpresaUpdateWithoutTenantInput, EmpresaUncheckedUpdateWithoutTenantInput>
   }
 
-  export type WorkspaceUpdateManyWithWhereWithoutTenantInput = {
-    where: WorkspaceScalarWhereInput
-    data: XOR<WorkspaceUpdateManyMutationInput, WorkspaceUncheckedUpdateManyWithoutTenantInput>
+  export type EmpresaUpdateManyWithWhereWithoutTenantInput = {
+    where: EmpresaScalarWhereInput
+    data: XOR<EmpresaUpdateManyMutationInput, EmpresaUncheckedUpdateManyWithoutTenantInput>
   }
 
-  export type WorkspaceScalarWhereInput = {
-    AND?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
-    OR?: WorkspaceScalarWhereInput[]
-    NOT?: WorkspaceScalarWhereInput | WorkspaceScalarWhereInput[]
-    id?: StringFilter<"Workspace"> | string
-    tenant_id?: StringFilter<"Workspace"> | string
-    name?: StringFilter<"Workspace"> | string
-    subdomain?: StringNullableFilter<"Workspace"> | string | null
-    cnpj?: StringNullableFilter<"Workspace"> | string | null
-    status?: EnumCompanyStatusFilter<"Workspace"> | $Enums.CompanyStatus
-    created_at?: DateTimeFilter<"Workspace"> | Date | string
-    updated_at?: DateTimeFilter<"Workspace"> | Date | string
+  export type EmpresaScalarWhereInput = {
+    AND?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
+    OR?: EmpresaScalarWhereInput[]
+    NOT?: EmpresaScalarWhereInput | EmpresaScalarWhereInput[]
+    id?: StringFilter<"Empresa"> | string
+    tenant_id?: StringFilter<"Empresa"> | string
+    name?: StringFilter<"Empresa"> | string
+    subdomain?: StringNullableFilter<"Empresa"> | string | null
+    cnpj?: StringNullableFilter<"Empresa"> | string | null
+    status?: EnumCompanyStatusFilter<"Empresa"> | $Enums.CompanyStatus
+    created_at?: DateTimeFilter<"Empresa"> | Date | string
+    updated_at?: DateTimeFilter<"Empresa"> | Date | string
   }
 
-  export type ProductConfigUpsertWithWhereUniqueWithoutTenantInput = {
-    where: ProductConfigWhereUniqueInput
-    update: XOR<ProductConfigUpdateWithoutTenantInput, ProductConfigUncheckedUpdateWithoutTenantInput>
-    create: XOR<ProductConfigCreateWithoutTenantInput, ProductConfigUncheckedCreateWithoutTenantInput>
+  export type ConfiguracaoProdutoUpsertWithWhereUniqueWithoutTenantInput = {
+    where: ConfiguracaoProdutoWhereUniqueInput
+    update: XOR<ConfiguracaoProdutoUpdateWithoutTenantInput, ConfiguracaoProdutoUncheckedUpdateWithoutTenantInput>
+    create: XOR<ConfiguracaoProdutoCreateWithoutTenantInput, ConfiguracaoProdutoUncheckedCreateWithoutTenantInput>
   }
 
-  export type ProductConfigUpdateWithWhereUniqueWithoutTenantInput = {
-    where: ProductConfigWhereUniqueInput
-    data: XOR<ProductConfigUpdateWithoutTenantInput, ProductConfigUncheckedUpdateWithoutTenantInput>
+  export type ConfiguracaoProdutoUpdateWithWhereUniqueWithoutTenantInput = {
+    where: ConfiguracaoProdutoWhereUniqueInput
+    data: XOR<ConfiguracaoProdutoUpdateWithoutTenantInput, ConfiguracaoProdutoUncheckedUpdateWithoutTenantInput>
   }
 
-  export type ProductConfigUpdateManyWithWhereWithoutTenantInput = {
-    where: ProductConfigScalarWhereInput
-    data: XOR<ProductConfigUpdateManyMutationInput, ProductConfigUncheckedUpdateManyWithoutTenantInput>
+  export type ConfiguracaoProdutoUpdateManyWithWhereWithoutTenantInput = {
+    where: ConfiguracaoProdutoScalarWhereInput
+    data: XOR<ConfiguracaoProdutoUpdateManyMutationInput, ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantInput>
   }
 
-  export type ProductConfigScalarWhereInput = {
-    AND?: ProductConfigScalarWhereInput | ProductConfigScalarWhereInput[]
-    OR?: ProductConfigScalarWhereInput[]
-    NOT?: ProductConfigScalarWhereInput | ProductConfigScalarWhereInput[]
-    id?: StringFilter<"ProductConfig"> | string
-    tenant_id?: StringFilter<"ProductConfig"> | string
-    product_key?: StringFilter<"ProductConfig"> | string
-    config?: JsonFilter<"ProductConfig">
-    is_active?: BoolFilter<"ProductConfig"> | boolean
-    created_at?: DateTimeFilter<"ProductConfig"> | Date | string
-    updated_at?: DateTimeFilter<"ProductConfig"> | Date | string
+  export type ConfiguracaoProdutoScalarWhereInput = {
+    AND?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
+    OR?: ConfiguracaoProdutoScalarWhereInput[]
+    NOT?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
+    id?: StringFilter<"ConfiguracaoProduto"> | string
+    tenant_id?: StringFilter<"ConfiguracaoProduto"> | string
+    product_key?: StringFilter<"ConfiguracaoProduto"> | string
+    config?: JsonFilter<"ConfiguracaoProduto">
+    is_active?: BoolFilter<"ConfiguracaoProduto"> | boolean
+    created_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    updated_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
   }
 
   export type ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutTenantInput = {
@@ -35015,8 +35015,8 @@ export namespace Prisma {
     updated_at?: Date | string
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    companies?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35036,8 +35036,8 @@ export namespace Prisma {
     updated_at?: Date | string
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35046,7 +35046,7 @@ export namespace Prisma {
     create: XOR<OrganizacaoCreateWithoutUsersInput, OrganizacaoUncheckedCreateWithoutUsersInput>
   }
 
-  export type WorkspaceCreateWithoutPreferred_by_usersInput = {
+  export type EmpresaCreateWithoutPreferred_by_usersInput = {
     id?: string
     name: string
     subdomain?: string | null
@@ -35059,7 +35059,7 @@ export namespace Prisma {
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
   }
 
-  export type WorkspaceUncheckedCreateWithoutPreferred_by_usersInput = {
+  export type EmpresaUncheckedCreateWithoutPreferred_by_usersInput = {
     id?: string
     tenant_id: string
     name: string
@@ -35072,9 +35072,9 @@ export namespace Prisma {
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
   }
 
-  export type WorkspaceCreateOrConnectWithoutPreferred_by_usersInput = {
-    where: WorkspaceWhereUniqueInput
-    create: XOR<WorkspaceCreateWithoutPreferred_by_usersInput, WorkspaceUncheckedCreateWithoutPreferred_by_usersInput>
+  export type EmpresaCreateOrConnectWithoutPreferred_by_usersInput = {
+    where: EmpresaWhereUniqueInput
+    create: XOR<EmpresaCreateWithoutPreferred_by_usersInput, EmpresaUncheckedCreateWithoutPreferred_by_usersInput>
   }
 
   export type UsuarioPermissaoCreateWithoutUserInput = {
@@ -35116,7 +35116,7 @@ export namespace Prisma {
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
-    company: WorkspaceCreateNestedOneWithoutMembershipsInput
+    company: EmpresaCreateNestedOneWithoutMembershipsInput
   }
 
   export type UsuarioWorkspaceUncheckedCreateWithoutUserInput = {
@@ -35166,8 +35166,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -35187,23 +35187,23 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
-  export type WorkspaceUpsertWithoutPreferred_by_usersInput = {
-    update: XOR<WorkspaceUpdateWithoutPreferred_by_usersInput, WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput>
-    create: XOR<WorkspaceCreateWithoutPreferred_by_usersInput, WorkspaceUncheckedCreateWithoutPreferred_by_usersInput>
-    where?: WorkspaceWhereInput
+  export type EmpresaUpsertWithoutPreferred_by_usersInput = {
+    update: XOR<EmpresaUpdateWithoutPreferred_by_usersInput, EmpresaUncheckedUpdateWithoutPreferred_by_usersInput>
+    create: XOR<EmpresaCreateWithoutPreferred_by_usersInput, EmpresaUncheckedCreateWithoutPreferred_by_usersInput>
+    where?: EmpresaWhereInput
   }
 
-  export type WorkspaceUpdateToOneWithWhereWithoutPreferred_by_usersInput = {
-    where?: WorkspaceWhereInput
-    data: XOR<WorkspaceUpdateWithoutPreferred_by_usersInput, WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput>
+  export type EmpresaUpdateToOneWithWhereWithoutPreferred_by_usersInput = {
+    where?: EmpresaWhereInput
+    data: XOR<EmpresaUpdateWithoutPreferred_by_usersInput, EmpresaUncheckedUpdateWithoutPreferred_by_usersInput>
   }
 
-  export type WorkspaceUpdateWithoutPreferred_by_usersInput = {
+  export type EmpresaUpdateWithoutPreferred_by_usersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35216,7 +35216,7 @@ export namespace Prisma {
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
   }
 
-  export type WorkspaceUncheckedUpdateWithoutPreferred_by_usersInput = {
+  export type EmpresaUncheckedUpdateWithoutPreferred_by_usersInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -35291,8 +35291,8 @@ export namespace Prisma {
     updated_at?: Date | string
     users?: UsuarioCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    companies?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35312,8 +35312,8 @@ export namespace Prisma {
     updated_at?: Date | string
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35349,8 +35349,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -35370,8 +35370,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35391,8 +35391,8 @@ export namespace Prisma {
     updated_at?: Date | string
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    companies?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35412,8 +35412,8 @@ export namespace Prisma {
     updated_at?: Date | string
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35431,7 +35431,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsersInput
-    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
+    preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
   }
 
@@ -35480,8 +35480,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -35501,8 +35501,8 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35526,7 +35526,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
-    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
+    preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
   }
 
@@ -35560,7 +35560,7 @@ export namespace Prisma {
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35581,7 +35581,7 @@ export namespace Prisma {
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35712,7 +35712,7 @@ export namespace Prisma {
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -35733,7 +35733,7 @@ export namespace Prisma {
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35794,7 +35794,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsersInput
-    preferred_company?: WorkspaceCreateNestedOneWithoutPreferred_by_usersInput
+    preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
   }
 
@@ -35816,7 +35816,7 @@ export namespace Prisma {
     create: XOR<UsuarioCreateWithoutMembershipsInput, UsuarioUncheckedCreateWithoutMembershipsInput>
   }
 
-  export type WorkspaceCreateWithoutMembershipsInput = {
+  export type EmpresaCreateWithoutMembershipsInput = {
     id?: string
     name: string
     subdomain?: string | null
@@ -35829,7 +35829,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type WorkspaceUncheckedCreateWithoutMembershipsInput = {
+  export type EmpresaUncheckedCreateWithoutMembershipsInput = {
     id?: string
     tenant_id: string
     name: string
@@ -35842,9 +35842,9 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type WorkspaceCreateOrConnectWithoutMembershipsInput = {
-    where: WorkspaceWhereUniqueInput
-    create: XOR<WorkspaceCreateWithoutMembershipsInput, WorkspaceUncheckedCreateWithoutMembershipsInput>
+  export type EmpresaCreateOrConnectWithoutMembershipsInput = {
+    where: EmpresaWhereUniqueInput
+    create: XOR<EmpresaCreateWithoutMembershipsInput, EmpresaUncheckedCreateWithoutMembershipsInput>
   }
 
   export type UsuarioUpsertWithoutMembershipsInput = {
@@ -35867,7 +35867,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
-    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
+    preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
   }
 
@@ -35884,18 +35884,18 @@ export namespace Prisma {
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type WorkspaceUpsertWithoutMembershipsInput = {
-    update: XOR<WorkspaceUpdateWithoutMembershipsInput, WorkspaceUncheckedUpdateWithoutMembershipsInput>
-    create: XOR<WorkspaceCreateWithoutMembershipsInput, WorkspaceUncheckedCreateWithoutMembershipsInput>
-    where?: WorkspaceWhereInput
+  export type EmpresaUpsertWithoutMembershipsInput = {
+    update: XOR<EmpresaUpdateWithoutMembershipsInput, EmpresaUncheckedUpdateWithoutMembershipsInput>
+    create: XOR<EmpresaCreateWithoutMembershipsInput, EmpresaUncheckedCreateWithoutMembershipsInput>
+    where?: EmpresaWhereInput
   }
 
-  export type WorkspaceUpdateToOneWithWhereWithoutMembershipsInput = {
-    where?: WorkspaceWhereInput
-    data: XOR<WorkspaceUpdateWithoutMembershipsInput, WorkspaceUncheckedUpdateWithoutMembershipsInput>
+  export type EmpresaUpdateToOneWithWhereWithoutMembershipsInput = {
+    where?: EmpresaWhereInput
+    data: XOR<EmpresaUpdateWithoutMembershipsInput, EmpresaUncheckedUpdateWithoutMembershipsInput>
   }
 
-  export type WorkspaceUpdateWithoutMembershipsInput = {
+  export type EmpresaUpdateWithoutMembershipsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35908,7 +35908,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type WorkspaceUncheckedUpdateWithoutMembershipsInput = {
+  export type EmpresaUncheckedUpdateWithoutMembershipsInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -35938,7 +35938,7 @@ export namespace Prisma {
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceCreateNestedManyWithoutTenantInput
+    companies?: EmpresaCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -35959,7 +35959,7 @@ export namespace Prisma {
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
+    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -35996,7 +35996,7 @@ export namespace Prisma {
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -36017,7 +36017,7 @@ export namespace Prisma {
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -36038,8 +36038,8 @@ export namespace Prisma {
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigCreateNestedManyWithoutTenantInput
+    companies?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput = {
@@ -36059,8 +36059,8 @@ export namespace Prisma {
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: WorkspaceUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ProductConfigUncheckedCreateNestedManyWithoutTenantInput
+    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutProdutoGravityWorkspaceInput = {
@@ -36068,7 +36068,7 @@ export namespace Prisma {
     create: XOR<OrganizacaoCreateWithoutProdutoGravityWorkspaceInput, OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput>
   }
 
-  export type WorkspaceCreateWithoutCompany_productsInput = {
+  export type EmpresaCreateWithoutCompany_productsInput = {
     id?: string
     name: string
     subdomain?: string | null
@@ -36081,7 +36081,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type WorkspaceUncheckedCreateWithoutCompany_productsInput = {
+  export type EmpresaUncheckedCreateWithoutCompany_productsInput = {
     id?: string
     tenant_id: string
     name: string
@@ -36094,9 +36094,9 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedCreateNestedManyWithoutPreferred_companyInput
   }
 
-  export type WorkspaceCreateOrConnectWithoutCompany_productsInput = {
-    where: WorkspaceWhereUniqueInput
-    create: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
+  export type EmpresaCreateOrConnectWithoutCompany_productsInput = {
+    where: EmpresaWhereUniqueInput
+    create: XOR<EmpresaCreateWithoutCompany_productsInput, EmpresaUncheckedCreateWithoutCompany_productsInput>
   }
 
   export type OrganizacaoUpsertWithoutProdutoGravityWorkspaceInput = {
@@ -36127,8 +36127,8 @@ export namespace Prisma {
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput = {
@@ -36148,22 +36148,22 @@ export namespace Prisma {
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: WorkspaceUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ProductConfigUncheckedUpdateManyWithoutTenantNestedInput
+    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
   }
 
-  export type WorkspaceUpsertWithoutCompany_productsInput = {
-    update: XOR<WorkspaceUpdateWithoutCompany_productsInput, WorkspaceUncheckedUpdateWithoutCompany_productsInput>
-    create: XOR<WorkspaceCreateWithoutCompany_productsInput, WorkspaceUncheckedCreateWithoutCompany_productsInput>
-    where?: WorkspaceWhereInput
+  export type EmpresaUpsertWithoutCompany_productsInput = {
+    update: XOR<EmpresaUpdateWithoutCompany_productsInput, EmpresaUncheckedUpdateWithoutCompany_productsInput>
+    create: XOR<EmpresaCreateWithoutCompany_productsInput, EmpresaUncheckedCreateWithoutCompany_productsInput>
+    where?: EmpresaWhereInput
   }
 
-  export type WorkspaceUpdateToOneWithWhereWithoutCompany_productsInput = {
-    where?: WorkspaceWhereInput
-    data: XOR<WorkspaceUpdateWithoutCompany_productsInput, WorkspaceUncheckedUpdateWithoutCompany_productsInput>
+  export type EmpresaUpdateToOneWithWhereWithoutCompany_productsInput = {
+    where?: EmpresaWhereInput
+    data: XOR<EmpresaUpdateWithoutCompany_productsInput, EmpresaUncheckedUpdateWithoutCompany_productsInput>
   }
 
-  export type WorkspaceUpdateWithoutCompany_productsInput = {
+  export type EmpresaUpdateWithoutCompany_productsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36176,7 +36176,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type WorkspaceUncheckedUpdateWithoutCompany_productsInput = {
+  export type EmpresaUncheckedUpdateWithoutCompany_productsInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -36189,7 +36189,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type PriceTierCreateWithoutProductInput = {
+  export type FaixaPrecoCreateWithoutProductInput = {
     id?: string
     range_from: number
     range_to?: number | null
@@ -36198,7 +36198,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type PriceTierUncheckedCreateWithoutProductInput = {
+  export type FaixaPrecoUncheckedCreateWithoutProductInput = {
     id?: string
     range_from: number
     range_to?: number | null
@@ -36207,17 +36207,17 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type PriceTierCreateOrConnectWithoutProductInput = {
-    where: PriceTierWhereUniqueInput
-    create: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput>
+  export type FaixaPrecoCreateOrConnectWithoutProductInput = {
+    where: FaixaPrecoWhereUniqueInput
+    create: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput>
   }
 
-  export type PriceTierCreateManyProductInputEnvelope = {
-    data: PriceTierCreateManyProductInput | PriceTierCreateManyProductInput[]
+  export type FaixaPrecoCreateManyProductInputEnvelope = {
+    data: FaixaPrecoCreateManyProductInput | FaixaPrecoCreateManyProductInput[]
     skipDuplicates?: boolean
   }
 
-  export type SpecialNegotiationCreateWithoutProductInput = {
+  export type NegociacaoEspecialCreateWithoutProductInput = {
     id?: string
     tenant_id: string
     tenant_name: string
@@ -36229,7 +36229,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type SpecialNegotiationUncheckedCreateWithoutProductInput = {
+  export type NegociacaoEspecialUncheckedCreateWithoutProductInput = {
     id?: string
     tenant_id: string
     tenant_name: string
@@ -36241,75 +36241,75 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type SpecialNegotiationCreateOrConnectWithoutProductInput = {
-    where: SpecialNegotiationWhereUniqueInput
-    create: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput>
+  export type NegociacaoEspecialCreateOrConnectWithoutProductInput = {
+    where: NegociacaoEspecialWhereUniqueInput
+    create: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput>
   }
 
-  export type SpecialNegotiationCreateManyProductInputEnvelope = {
-    data: SpecialNegotiationCreateManyProductInput | SpecialNegotiationCreateManyProductInput[]
+  export type NegociacaoEspecialCreateManyProductInputEnvelope = {
+    data: NegociacaoEspecialCreateManyProductInput | NegociacaoEspecialCreateManyProductInput[]
     skipDuplicates?: boolean
   }
 
-  export type PriceTierUpsertWithWhereUniqueWithoutProductInput = {
-    where: PriceTierWhereUniqueInput
-    update: XOR<PriceTierUpdateWithoutProductInput, PriceTierUncheckedUpdateWithoutProductInput>
-    create: XOR<PriceTierCreateWithoutProductInput, PriceTierUncheckedCreateWithoutProductInput>
+  export type FaixaPrecoUpsertWithWhereUniqueWithoutProductInput = {
+    where: FaixaPrecoWhereUniqueInput
+    update: XOR<FaixaPrecoUpdateWithoutProductInput, FaixaPrecoUncheckedUpdateWithoutProductInput>
+    create: XOR<FaixaPrecoCreateWithoutProductInput, FaixaPrecoUncheckedCreateWithoutProductInput>
   }
 
-  export type PriceTierUpdateWithWhereUniqueWithoutProductInput = {
-    where: PriceTierWhereUniqueInput
-    data: XOR<PriceTierUpdateWithoutProductInput, PriceTierUncheckedUpdateWithoutProductInput>
+  export type FaixaPrecoUpdateWithWhereUniqueWithoutProductInput = {
+    where: FaixaPrecoWhereUniqueInput
+    data: XOR<FaixaPrecoUpdateWithoutProductInput, FaixaPrecoUncheckedUpdateWithoutProductInput>
   }
 
-  export type PriceTierUpdateManyWithWhereWithoutProductInput = {
-    where: PriceTierScalarWhereInput
-    data: XOR<PriceTierUpdateManyMutationInput, PriceTierUncheckedUpdateManyWithoutProductInput>
+  export type FaixaPrecoUpdateManyWithWhereWithoutProductInput = {
+    where: FaixaPrecoScalarWhereInput
+    data: XOR<FaixaPrecoUpdateManyMutationInput, FaixaPrecoUncheckedUpdateManyWithoutProductInput>
   }
 
-  export type PriceTierScalarWhereInput = {
-    AND?: PriceTierScalarWhereInput | PriceTierScalarWhereInput[]
-    OR?: PriceTierScalarWhereInput[]
-    NOT?: PriceTierScalarWhereInput | PriceTierScalarWhereInput[]
-    id?: StringFilter<"PriceTier"> | string
-    product_id?: StringFilter<"PriceTier"> | string
-    range_from?: IntFilter<"PriceTier"> | number
-    range_to?: IntNullableFilter<"PriceTier"> | number | null
-    price?: DecimalFilter<"PriceTier"> | Decimal | DecimalJsLike | number | string
-    currency?: StringFilter<"PriceTier"> | string
-    created_at?: DateTimeFilter<"PriceTier"> | Date | string
+  export type FaixaPrecoScalarWhereInput = {
+    AND?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
+    OR?: FaixaPrecoScalarWhereInput[]
+    NOT?: FaixaPrecoScalarWhereInput | FaixaPrecoScalarWhereInput[]
+    id?: StringFilter<"FaixaPreco"> | string
+    product_id?: StringFilter<"FaixaPreco"> | string
+    range_from?: IntFilter<"FaixaPreco"> | number
+    range_to?: IntNullableFilter<"FaixaPreco"> | number | null
+    price?: DecimalFilter<"FaixaPreco"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"FaixaPreco"> | string
+    created_at?: DateTimeFilter<"FaixaPreco"> | Date | string
   }
 
-  export type SpecialNegotiationUpsertWithWhereUniqueWithoutProductInput = {
-    where: SpecialNegotiationWhereUniqueInput
-    update: XOR<SpecialNegotiationUpdateWithoutProductInput, SpecialNegotiationUncheckedUpdateWithoutProductInput>
-    create: XOR<SpecialNegotiationCreateWithoutProductInput, SpecialNegotiationUncheckedCreateWithoutProductInput>
+  export type NegociacaoEspecialUpsertWithWhereUniqueWithoutProductInput = {
+    where: NegociacaoEspecialWhereUniqueInput
+    update: XOR<NegociacaoEspecialUpdateWithoutProductInput, NegociacaoEspecialUncheckedUpdateWithoutProductInput>
+    create: XOR<NegociacaoEspecialCreateWithoutProductInput, NegociacaoEspecialUncheckedCreateWithoutProductInput>
   }
 
-  export type SpecialNegotiationUpdateWithWhereUniqueWithoutProductInput = {
-    where: SpecialNegotiationWhereUniqueInput
-    data: XOR<SpecialNegotiationUpdateWithoutProductInput, SpecialNegotiationUncheckedUpdateWithoutProductInput>
+  export type NegociacaoEspecialUpdateWithWhereUniqueWithoutProductInput = {
+    where: NegociacaoEspecialWhereUniqueInput
+    data: XOR<NegociacaoEspecialUpdateWithoutProductInput, NegociacaoEspecialUncheckedUpdateWithoutProductInput>
   }
 
-  export type SpecialNegotiationUpdateManyWithWhereWithoutProductInput = {
-    where: SpecialNegotiationScalarWhereInput
-    data: XOR<SpecialNegotiationUpdateManyMutationInput, SpecialNegotiationUncheckedUpdateManyWithoutProductInput>
+  export type NegociacaoEspecialUpdateManyWithWhereWithoutProductInput = {
+    where: NegociacaoEspecialScalarWhereInput
+    data: XOR<NegociacaoEspecialUpdateManyMutationInput, NegociacaoEspecialUncheckedUpdateManyWithoutProductInput>
   }
 
-  export type SpecialNegotiationScalarWhereInput = {
-    AND?: SpecialNegotiationScalarWhereInput | SpecialNegotiationScalarWhereInput[]
-    OR?: SpecialNegotiationScalarWhereInput[]
-    NOT?: SpecialNegotiationScalarWhereInput | SpecialNegotiationScalarWhereInput[]
-    id?: StringFilter<"SpecialNegotiation"> | string
-    product_id?: StringFilter<"SpecialNegotiation"> | string
-    tenant_id?: StringFilter<"SpecialNegotiation"> | string
-    tenant_name?: StringFilter<"SpecialNegotiation"> | string
-    agreement?: StringFilter<"SpecialNegotiation"> | string
-    starts_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
-    ends_at?: DateTimeNullableFilter<"SpecialNegotiation"> | Date | string | null
-    is_unlimited?: BoolFilter<"SpecialNegotiation"> | boolean
-    created_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
-    updated_at?: DateTimeFilter<"SpecialNegotiation"> | Date | string
+  export type NegociacaoEspecialScalarWhereInput = {
+    AND?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
+    OR?: NegociacaoEspecialScalarWhereInput[]
+    NOT?: NegociacaoEspecialScalarWhereInput | NegociacaoEspecialScalarWhereInput[]
+    id?: StringFilter<"NegociacaoEspecial"> | string
+    product_id?: StringFilter<"NegociacaoEspecial"> | string
+    tenant_id?: StringFilter<"NegociacaoEspecial"> | string
+    tenant_name?: StringFilter<"NegociacaoEspecial"> | string
+    agreement?: StringFilter<"NegociacaoEspecial"> | string
+    starts_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    ends_at?: DateTimeNullableFilter<"NegociacaoEspecial"> | Date | string | null
+    is_unlimited?: BoolFilter<"NegociacaoEspecial"> | boolean
+    created_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
+    updated_at?: DateTimeFilter<"NegociacaoEspecial"> | Date | string
   }
 
   export type ProdutoGravityCreateWithoutPrice_tiersInput = {
@@ -36342,7 +36342,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     deleted_at?: Date | string | null
-    negotiations?: SpecialNegotiationCreateNestedManyWithoutProductInput
+    negotiations?: NegociacaoEspecialCreateNestedManyWithoutProductInput
   }
 
   export type ProdutoGravityUncheckedCreateWithoutPrice_tiersInput = {
@@ -36375,7 +36375,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     deleted_at?: Date | string | null
-    negotiations?: SpecialNegotiationUncheckedCreateNestedManyWithoutProductInput
+    negotiations?: NegociacaoEspecialUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProdutoGravityCreateOrConnectWithoutPrice_tiersInput = {
@@ -36424,7 +36424,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    negotiations?: SpecialNegotiationUpdateManyWithoutProductNestedInput
+    negotiations?: NegociacaoEspecialUpdateManyWithoutProductNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateWithoutPrice_tiersInput = {
@@ -36457,7 +36457,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    negotiations?: SpecialNegotiationUncheckedUpdateManyWithoutProductNestedInput
+    negotiations?: NegociacaoEspecialUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type ProdutoGravityCreateWithoutNegotiationsInput = {
@@ -36490,7 +36490,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     deleted_at?: Date | string | null
-    price_tiers?: PriceTierCreateNestedManyWithoutProductInput
+    price_tiers?: FaixaPrecoCreateNestedManyWithoutProductInput
   }
 
   export type ProdutoGravityUncheckedCreateWithoutNegotiationsInput = {
@@ -36523,7 +36523,7 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     deleted_at?: Date | string | null
-    price_tiers?: PriceTierUncheckedCreateNestedManyWithoutProductInput
+    price_tiers?: FaixaPrecoUncheckedCreateNestedManyWithoutProductInput
   }
 
   export type ProdutoGravityCreateOrConnectWithoutNegotiationsInput = {
@@ -36572,7 +36572,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    price_tiers?: PriceTierUpdateManyWithoutProductNestedInput
+    price_tiers?: FaixaPrecoUpdateManyWithoutProductNestedInput
   }
 
   export type ProdutoGravityUncheckedUpdateWithoutNegotiationsInput = {
@@ -36605,7 +36605,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     deleted_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    price_tiers?: PriceTierUncheckedUpdateManyWithoutProductNestedInput
+    price_tiers?: FaixaPrecoUncheckedUpdateManyWithoutProductNestedInput
   }
 
   export type UsuarioCreateManyTenantInput = {
@@ -36643,7 +36643,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type WorkspaceCreateManyTenantInput = {
+  export type EmpresaCreateManyTenantInput = {
     id?: string
     name: string
     subdomain?: string | null
@@ -36653,7 +36653,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ProductConfigCreateManyTenantInput = {
+  export type ConfiguracaoProdutoCreateManyTenantInput = {
     id?: string
     product_key: string
     config?: JsonNullValueInput | InputJsonValue
@@ -36679,7 +36679,7 @@ export namespace Prisma {
     role?: EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    preferred_company?: WorkspaceUpdateOneWithoutPreferred_by_usersNestedInput
+    preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
   }
@@ -36780,7 +36780,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type WorkspaceUpdateWithoutTenantInput = {
+  export type EmpresaUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36793,7 +36793,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type WorkspaceUncheckedUpdateWithoutTenantInput = {
+  export type EmpresaUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36806,7 +36806,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type WorkspaceUncheckedUpdateManyWithoutTenantInput = {
+  export type EmpresaUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36816,7 +36816,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductConfigUpdateWithoutTenantInput = {
+  export type ConfiguracaoProdutoUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
     config?: JsonNullValueInput | InputJsonValue
@@ -36825,7 +36825,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductConfigUncheckedUpdateWithoutTenantInput = {
+  export type ConfiguracaoProdutoUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
     config?: JsonNullValueInput | InputJsonValue
@@ -36834,7 +36834,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ProductConfigUncheckedUpdateManyWithoutTenantInput = {
+  export type ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
     product_key?: StringFieldUpdateOperationsInput | string
     config?: JsonNullValueInput | InputJsonValue
@@ -36849,7 +36849,7 @@ export namespace Prisma {
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    company?: WorkspaceUpdateOneRequiredWithoutCompany_productsNestedInput
+    company?: EmpresaUpdateOneRequiredWithoutCompany_productsNestedInput
   }
 
   export type ProdutoGravityWorkspaceUncheckedUpdateWithoutTenantInput = {
@@ -36931,7 +36931,7 @@ export namespace Prisma {
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    company?: WorkspaceUpdateOneRequiredWithoutMembershipsNestedInput
+    company?: EmpresaUpdateOneRequiredWithoutMembershipsNestedInput
   }
 
   export type UsuarioWorkspaceUncheckedUpdateWithoutUserInput = {
@@ -37078,7 +37078,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PriceTierCreateManyProductInput = {
+  export type FaixaPrecoCreateManyProductInput = {
     id?: string
     range_from: number
     range_to?: number | null
@@ -37087,7 +37087,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type SpecialNegotiationCreateManyProductInput = {
+  export type NegociacaoEspecialCreateManyProductInput = {
     id?: string
     tenant_id: string
     tenant_name: string
@@ -37099,7 +37099,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type PriceTierUpdateWithoutProductInput = {
+  export type FaixaPrecoUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     range_from?: IntFieldUpdateOperationsInput | number
     range_to?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37108,7 +37108,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PriceTierUncheckedUpdateWithoutProductInput = {
+  export type FaixaPrecoUncheckedUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     range_from?: IntFieldUpdateOperationsInput | number
     range_to?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37117,7 +37117,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type PriceTierUncheckedUpdateManyWithoutProductInput = {
+  export type FaixaPrecoUncheckedUpdateManyWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     range_from?: IntFieldUpdateOperationsInput | number
     range_to?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37126,7 +37126,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SpecialNegotiationUpdateWithoutProductInput = {
+  export type NegociacaoEspecialUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     tenant_name?: StringFieldUpdateOperationsInput | string
@@ -37138,7 +37138,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SpecialNegotiationUncheckedUpdateWithoutProductInput = {
+  export type NegociacaoEspecialUncheckedUpdateWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     tenant_name?: StringFieldUpdateOperationsInput | string
@@ -37150,7 +37150,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type SpecialNegotiationUncheckedUpdateManyWithoutProductInput = {
+  export type NegociacaoEspecialUncheckedUpdateManyWithoutProductInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     tenant_name?: StringFieldUpdateOperationsInput | string
@@ -37176,9 +37176,9 @@ export namespace Prisma {
      */
     export type UsuarioCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UsuarioCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use WorkspaceCountOutputTypeDefaultArgs instead
+     * @deprecated Use EmpresaCountOutputTypeDefaultArgs instead
      */
-    export type WorkspaceCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
+    export type EmpresaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmpresaCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ProdutoGravityCountOutputTypeDefaultArgs instead
      */
@@ -37200,21 +37200,21 @@ export namespace Prisma {
      */
     export type UsuarioPermissaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UsuarioPermissaoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use GravityAdminPermissionDefaultArgs instead
+     * @deprecated Use PermissaoAdminGravityDefaultArgs instead
      */
-    export type GravityAdminPermissionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = GravityAdminPermissionDefaultArgs<ExtArgs>
+    export type PermissaoAdminGravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PermissaoAdminGravityDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use WorkspaceDefaultArgs instead
+     * @deprecated Use EmpresaDefaultArgs instead
      */
-    export type WorkspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = WorkspaceDefaultArgs<ExtArgs>
+    export type EmpresaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EmpresaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use UsuarioWorkspaceDefaultArgs instead
      */
     export type UsuarioWorkspaceArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UsuarioWorkspaceDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ProductConfigDefaultArgs instead
+     * @deprecated Use ConfiguracaoProdutoDefaultArgs instead
      */
-    export type ProductConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProductConfigDefaultArgs<ExtArgs>
+    export type ConfiguracaoProdutoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfiguracaoProdutoDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ProdutoGravityWorkspaceDefaultArgs instead
      */
@@ -37224,13 +37224,13 @@ export namespace Prisma {
      */
     export type ProdutoGravityArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProdutoGravityDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use PriceTierDefaultArgs instead
+     * @deprecated Use FaixaPrecoDefaultArgs instead
      */
-    export type PriceTierArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PriceTierDefaultArgs<ExtArgs>
+    export type FaixaPrecoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = FaixaPrecoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use SpecialNegotiationDefaultArgs instead
+     * @deprecated Use NegociacaoEspecialDefaultArgs instead
      */
-    export type SpecialNegotiationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SpecialNegotiationDefaultArgs<ExtArgs>
+    export type NegociacaoEspecialArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NegociacaoEspecialDefaultArgs<ExtArgs>
     /**
      * @deprecated Use DeployDefaultArgs instead
      */
@@ -37260,13 +37260,13 @@ export namespace Prisma {
      */
     export type TestesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestesDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use TestScheduleDefaultArgs instead
+     * @deprecated Use AgendamentoTesteDefaultArgs instead
      */
-    export type TestScheduleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestScheduleDefaultArgs<ExtArgs>
+    export type AgendamentoTesteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AgendamentoTesteDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use TestPlanDefaultArgs instead
+     * @deprecated Use PlanoTesteDefaultArgs instead
      */
-    export type TestPlanArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TestPlanDefaultArgs<ExtArgs>
+    export type PlanoTesteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PlanoTesteDefaultArgs<ExtArgs>
     /**
      * @deprecated Use FaturaProdutosGravityDefaultArgs instead
      */

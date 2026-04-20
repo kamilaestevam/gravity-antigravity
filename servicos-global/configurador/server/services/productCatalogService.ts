@@ -140,9 +140,9 @@ export const productCatalogService = {
 
     return prisma.$transaction(async (tx) => {
       if (price_tiers !== undefined) {
-        await tx.priceTier.deleteMany({ where: { product_id: id } })
+        await tx.faixaPreco.deleteMany({ where: { product_id: id } })
         if (price_tiers.length > 0) {
-          await tx.priceTier.createMany({
+          await tx.faixaPreco.createMany({
             data: price_tiers.map(tier => ({
               product_id: id,
               range_from: tier.range_from,
@@ -181,7 +181,7 @@ export const productCatalogService = {
    */
   async countActiveNegotiations(productId: string): Promise<number> {
     const now = new Date()
-    return prisma.specialNegotiation.count({
+    return prisma.negociacaoEspecial.count({
       where: {
         product_id: productId,
         OR: [
@@ -284,7 +284,7 @@ export const productCatalogService = {
   async activateProductsForTenant(tenantId: string, productKeys: string[]) {
     const results = await Promise.all(
       productKeys.map(key =>
-        prisma.produtoGravityConfig.upsert({
+        prisma.configuracaoProduto.upsert({
           where: { tenant_id_product_key: { tenant_id: tenantId, product_key: key } },
           create: { tenant_id: tenantId, product_key: key, config: {}, is_active: true },
           update: { is_active: true },

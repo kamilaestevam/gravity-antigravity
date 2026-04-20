@@ -17,7 +17,7 @@ vi.stubGlobal('fetch', fetchMock)
 // Mock prisma
 const prismaMock = {
   product: { findMany: vi.fn().mockResolvedValue([]) },
-  productConfig: { findMany: vi.fn().mockResolvedValue([]) },
+  configuracaoProduto: { findMany: vi.fn().mockResolvedValue([]) },
   user: { findUnique: vi.fn().mockResolvedValue(null), update: vi.fn().mockResolvedValue(null) },
 }
 
@@ -81,7 +81,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   authOverride = null
   prismaMock.product.findMany.mockResolvedValue([])
-  prismaMock.productConfig.findMany.mockResolvedValue([])
+  prismaMock.configuracaoProduto.findMany.mockResolvedValue([])
   prismaMock.user.findUnique.mockResolvedValue(null)
   prismaMock.user.update.mockResolvedValue(null)
   tenantServiceMock.getTenantById.mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ACTIVE' })
@@ -109,7 +109,7 @@ describe('GET /api/v1/hub/insights', () => {
   })
 
   it('retorna fallback quando nenhum produto está ativo (mínimo 4)', async () => {
-    prismaMock.productConfig.findMany.mockResolvedValue([])
+    prismaMock.configuracaoProduto.findMany.mockResolvedValue([])
     const res = await request.get('/api/v1/hub/insights')
     expect(res.status).toBe(200)
     // Com nenhum produto, deve retornar feature cards + fallbacks (mínimo 4)
@@ -117,7 +117,7 @@ describe('GET /api/v1/hub/insights', () => {
   })
 
   it('busca insights quando há produtos ativos', async () => {
-    prismaMock.productConfig.findMany.mockResolvedValue([
+    prismaMock.configuracaoProduto.findMany.mockResolvedValue([
       { product_key: 'pedido', is_active: true },
     ])
 
@@ -155,7 +155,7 @@ describe('GET /api/v1/hub/insights', () => {
 
   it('filtra productConfig por tenant_id (tenant isolation)', async () => {
     await request.get('/api/v1/hub/insights')
-    expect(prismaMock.productConfig.findMany).toHaveBeenCalledWith(
+    expect(prismaMock.configuracaoProduto.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { tenant_id: 'tenant-001', is_active: true },
       }),
@@ -166,7 +166,7 @@ describe('GET /api/v1/hub/insights', () => {
     authOverride = { userId: 'user-999', clerkUserId: 'clerk_999', tenantId: 'tenant-999', role: 'ADMIN' }
 
     await request.get('/api/v1/hub/insights')
-    expect(prismaMock.productConfig.findMany).toHaveBeenCalledWith(
+    expect(prismaMock.configuracaoProduto.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { tenant_id: 'tenant-999', is_active: true },
       }),
@@ -178,7 +178,7 @@ describe('GET /api/v1/hub/insights', () => {
   it('normaliza role para weights (SUPER_ADMIN → admin)', async () => {
     authOverride = { userId: 'user-001', clerkUserId: 'clerk_001', tenantId: 'tenant-001', role: 'SUPER_ADMIN' }
 
-    prismaMock.productConfig.findMany.mockResolvedValue([
+    prismaMock.configuracaoProduto.findMany.mockResolvedValue([
       { product_key: 'pedido', is_active: true },
     ])
 
@@ -210,7 +210,7 @@ describe('GET /api/v1/hub/insights', () => {
   // ── Resilience ──
 
   it('retorna insights de fallback + context quando todos os produtos falham', async () => {
-    prismaMock.productConfig.findMany.mockResolvedValue([
+    prismaMock.configuracaoProduto.findMany.mockResolvedValue([
       { product_key: 'pedido', is_active: true },
       { product_key: 'bid-cambio', is_active: true },
     ])
@@ -228,7 +228,7 @@ describe('GET /api/v1/hub/insights', () => {
   })
 
   it('retorna insights parciais quando apenas 1 produto falha', async () => {
-    prismaMock.productConfig.findMany.mockResolvedValue([
+    prismaMock.configuracaoProduto.findMany.mockResolvedValue([
       { product_key: 'pedido', is_active: true },
       { product_key: 'bid-cambio', is_active: true },
     ])
@@ -262,7 +262,7 @@ describe('GET /api/v1/hub/insights', () => {
   })
 
   it('retorna fallback resiliente quando productConfig falha', async () => {
-    prismaMock.productConfig.findMany.mockRejectedValue(new Error('DB timeout'))
+    prismaMock.configuracaoProduto.findMany.mockRejectedValue(new Error('DB timeout'))
 
     const res = await request.get('/api/v1/hub/insights')
     expect(res.status).toBe(200)
@@ -274,7 +274,7 @@ describe('GET /api/v1/hub/insights', () => {
   // ── Feature discovery ──
 
   it('inclui feature discovery cards quando há dados suficientes', async () => {
-    prismaMock.productConfig.findMany.mockResolvedValue([
+    prismaMock.configuracaoProduto.findMany.mockResolvedValue([
       { product_key: 'pedido', is_active: true },
     ])
 
@@ -308,7 +308,7 @@ describe('GET /api/v1/hub/insights', () => {
   // ── Sorting ──
 
   it('retorna insights ordenados por score (descendente)', async () => {
-    prismaMock.productConfig.findMany.mockResolvedValue([
+    prismaMock.configuracaoProduto.findMany.mockResolvedValue([
       { product_key: 'pedido', is_active: true },
     ])
 

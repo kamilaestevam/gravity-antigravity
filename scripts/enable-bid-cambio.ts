@@ -7,14 +7,14 @@ async function main() {
   const productKey = 'bid-cambio'
 
   // Verificar se já existe
-  const existing = await prisma.productConfig.findUnique({
+  const existing = await prisma.configuracaoProduto.findUnique({
     where: { tenant_id_product_key: { tenant_id: tenantId, product_key: productKey } },
   })
 
   if (existing) {
     console.log('[enable] BID Câmbio já habilitado para o tenant:', existing.is_active)
     if (!existing.is_active) {
-      await prisma.productConfig.update({
+      await prisma.configuracaoProduto.update({
         where: { id: existing.id },
         data: { is_active: true },
       })
@@ -24,7 +24,7 @@ async function main() {
   }
 
   // Criar ProductConfig
-  const config = await prisma.productConfig.create({
+  const config = await prisma.configuracaoProduto.create({
     data: {
       tenant_id: tenantId,
       product_key: productKey,
@@ -35,7 +35,7 @@ async function main() {
   console.log('[enable] BID Câmbio HABILITADO:', config.id)
 
   // Listar todos os produtos do tenant
-  const allConfigs = await prisma.productConfig.findMany({
+  const allConfigs = await prisma.configuracaoProduto.findMany({
     where: { tenant_id: tenantId },
     select: { product_key: true, is_active: true },
   })

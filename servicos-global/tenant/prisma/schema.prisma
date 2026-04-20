@@ -805,7 +805,7 @@ model HistoricoLog {
   @@map("historico_log")
 }
 
-model AlertRule {
+model RegraAlerta {
   id        String  @id @default(cuid())
   tenant_id String?
 
@@ -836,17 +836,17 @@ model AlertRule {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  alerts AlertEvent[]
+  alerts EventoAlerta[]
 
   @@index([tenant_id, enabled])
   @@map("alerta_regra")
 }
 
-model AlertEvent {
-  id        String    @id @default(cuid())
+model EventoAlerta {
+  id        String      @id @default(cuid())
   tenant_id String
   rule_id   String
-  rule      AlertRule @relation(fields: [rule_id], references: [id])
+  rule      RegraAlerta @relation(fields: [rule_id], references: [id])
 
   actor_type     ActorType
   actor_id       String
@@ -864,17 +864,17 @@ model AlertEvent {
 
   created_at DateTime @default(now())
 
-  notifications AlertNotificationLog[]
+  notifications RegistroNotificacaoAlerta[]
 
   @@index([tenant_id, status])
   @@index([tenant_id, created_at])
   @@map("alerta_data")
 }
 
-model AlertNotificationLog {
-  id             String     @id @default(cuid())
+model RegistroNotificacaoAlerta {
+  id             String       @id @default(cuid())
   alert_event_id String
-  alert_event    AlertEvent @relation(fields: [alert_event_id], references: [id])
+  alert_event    EventoAlerta @relation(fields: [alert_event_id], references: [id])
 
   channel       String
   recipient     String
@@ -1164,7 +1164,7 @@ model PersonalizacaoOrganizacaoGabiai {
 // UserPreferences — preferências de UI persitidas por usuário (cross-device)
 // ---------------------------------------------------------------------------
 
-model UserPreferences {
+model PreferenciasUsuario {
   id String @id @default(cuid())
 
   // Identificação — obrigatórios
@@ -1331,7 +1331,7 @@ model NotificacoesTituloCorpo {
 // Agenda de contatos por tenant. Usada pelo sininho para enviar notificações a
 // pessoas que não são usuários do sistema (e-mail ou WhatsApp).
 // whatsapp_opt_in_at: consentimento explícito exigido pela LGPD (Art. 8).
-model ExternalContact {
+model ContatoExterno {
   id                 String    @id @default(cuid())
   tenant_id          String
   created_by         String // Clerk user_id
@@ -1354,7 +1354,7 @@ model ExternalContact {
 // ─── Configuração de canais por tenant ────────────────────────────────────
 // Controlado exclusivamente pelo usuário com role MASTER.
 // email_enabled default true (backward compat). whatsapp_enabled default false.
-model TenantChannelConfig {
+model ConfiguracaoCanalTenant {
   id               String  @id @default(cuid())
   tenant_id        String  @unique
   email_enabled    Boolean @default(true)

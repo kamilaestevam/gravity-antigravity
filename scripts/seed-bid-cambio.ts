@@ -55,7 +55,7 @@ async function main() {
   console.log('[seed] Buscando tenant para dmmltda@gmail.com...')
 
   // Verificar se existe ProductConfig para este tenant
-  const configs = await prisma.productConfig.findMany({
+  const configs = await prisma.configuracaoProduto.findMany({
     select: { id: true, tenant_id: true, product_key: true, is_active: true },
     take: 20,
   })

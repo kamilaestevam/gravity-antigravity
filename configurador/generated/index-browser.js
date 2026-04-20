@@ -176,7 +176,7 @@ exports.Prisma.UsuarioPermissaoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.GravityAdminPermissionScalarFieldEnum = {
+exports.Prisma.PermissaoAdminGravityScalarFieldEnum = {
   id: 'id',
   admin_id: 'admin_id',
   resource: 'resource',
@@ -186,7 +186,7 @@ exports.Prisma.GravityAdminPermissionScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.WorkspaceScalarFieldEnum = {
+exports.Prisma.EmpresaScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   name: 'name',
@@ -208,7 +208,7 @@ exports.Prisma.UsuarioWorkspaceScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ProductConfigScalarFieldEnum = {
+exports.Prisma.ConfiguracaoProdutoScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   product_key: 'product_key',
@@ -260,7 +260,7 @@ exports.Prisma.ProdutoGravityScalarFieldEnum = {
   deleted_at: 'deleted_at'
 };
 
-exports.Prisma.PriceTierScalarFieldEnum = {
+exports.Prisma.FaixaPrecoScalarFieldEnum = {
   id: 'id',
   product_id: 'product_id',
   range_from: 'range_from',
@@ -270,7 +270,7 @@ exports.Prisma.PriceTierScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.SpecialNegotiationScalarFieldEnum = {
+exports.Prisma.NegociacaoEspecialScalarFieldEnum = {
   id: 'id',
   product_id: 'product_id',
   tenant_id: 'tenant_id',
@@ -381,7 +381,7 @@ exports.Prisma.TestesScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.TestScheduleScalarFieldEnum = {
+exports.Prisma.AgendamentoTesteScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   ativo: 'ativo',
@@ -398,7 +398,7 @@ exports.Prisma.TestScheduleScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.TestPlanScalarFieldEnum = {
+exports.Prisma.PlanoTesteScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   versao: 'versao',
@@ -569,14 +569,14 @@ exports.Prisma.ModelName = {
   Usuario: 'Usuario',
   AssinaturaProdutoGravity: 'AssinaturaProdutoGravity',
   UsuarioPermissao: 'UsuarioPermissao',
-  GravityAdminPermission: 'GravityAdminPermission',
-  Workspace: 'Workspace',
+  PermissaoAdminGravity: 'PermissaoAdminGravity',
+  Empresa: 'Empresa',
   UsuarioWorkspace: 'UsuarioWorkspace',
-  ProductConfig: 'ProductConfig',
+  ConfiguracaoProduto: 'ConfiguracaoProduto',
   ProdutoGravityWorkspace: 'ProdutoGravityWorkspace',
   ProdutoGravity: 'ProdutoGravity',
-  PriceTier: 'PriceTier',
-  SpecialNegotiation: 'SpecialNegotiation',
+  FaixaPreco: 'FaixaPreco',
+  NegociacaoEspecial: 'NegociacaoEspecial',
   Deploy: 'Deploy',
   FornecedorOrganizacao: 'FornecedorOrganizacao',
   Seguranca: 'Seguranca',
@@ -584,8 +584,8 @@ exports.Prisma.ModelName = {
   Servicos: 'Servicos',
   Cambio: 'Cambio',
   Testes: 'Testes',
-  TestSchedule: 'TestSchedule',
-  TestPlan: 'TestPlan',
+  AgendamentoTeste: 'AgendamentoTeste',
+  PlanoTeste: 'PlanoTeste',
   FaturaProdutosGravity: 'FaturaProdutosGravity',
   MetricasGemini: 'MetricasGemini'
 };

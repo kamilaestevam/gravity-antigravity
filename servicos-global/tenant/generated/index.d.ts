@@ -134,20 +134,20 @@ export type ExportarJob = $Result.DefaultSelection<Prisma.$ExportarJobPayload>
  */
 export type HistoricoLog = $Result.DefaultSelection<Prisma.$HistoricoLogPayload>
 /**
- * Model AlertRule
+ * Model RegraAlerta
  * 
  */
-export type AlertRule = $Result.DefaultSelection<Prisma.$AlertRulePayload>
+export type RegraAlerta = $Result.DefaultSelection<Prisma.$RegraAlertaPayload>
 /**
- * Model AlertEvent
+ * Model EventoAlerta
  * 
  */
-export type AlertEvent = $Result.DefaultSelection<Prisma.$AlertEventPayload>
+export type EventoAlerta = $Result.DefaultSelection<Prisma.$EventoAlertaPayload>
 /**
- * Model AlertNotificationLog
+ * Model RegistroNotificacaoAlerta
  * 
  */
-export type AlertNotificationLog = $Result.DefaultSelection<Prisma.$AlertNotificationLogPayload>
+export type RegistroNotificacaoAlerta = $Result.DefaultSelection<Prisma.$RegistroNotificacaoAlertaPayload>
 /**
  * Model ExportarResultado
  * Resultado de exportação em background (acima de 10k registros).
@@ -205,10 +205,10 @@ export type GabiaTokenWorkspace = $Result.DefaultSelection<Prisma.$GabiaTokenWor
  */
 export type PersonalizacaoOrganizacaoGabiai = $Result.DefaultSelection<Prisma.$PersonalizacaoOrganizacaoGabiaiPayload>
 /**
- * Model UserPreferences
+ * Model PreferenciasUsuario
  * 
  */
-export type UserPreferences = $Result.DefaultSelection<Prisma.$UserPreferencesPayload>
+export type PreferenciasUsuario = $Result.DefaultSelection<Prisma.$PreferenciasUsuarioPayload>
 /**
  * Model NcmItem
  * 
@@ -230,15 +230,15 @@ export type NcmScheduleConfig = $Result.DefaultSelection<Prisma.$NcmScheduleConf
  */
 export type NotificacoesTituloCorpo = $Result.DefaultSelection<Prisma.$NotificacoesTituloCorpoPayload>
 /**
- * Model ExternalContact
+ * Model ContatoExterno
  * 
  */
-export type ExternalContact = $Result.DefaultSelection<Prisma.$ExternalContactPayload>
+export type ContatoExterno = $Result.DefaultSelection<Prisma.$ContatoExternoPayload>
 /**
- * Model TenantChannelConfig
+ * Model ConfiguracaoCanalTenant
  * 
  */
-export type TenantChannelConfig = $Result.DefaultSelection<Prisma.$TenantChannelConfigPayload>
+export type ConfiguracaoCanalTenant = $Result.DefaultSelection<Prisma.$ConfiguracaoCanalTenantPayload>
 
 /**
  * Enums
@@ -790,34 +790,34 @@ export class PrismaClient<
   get historicoLog(): Prisma.HistoricoLogDelegate<ExtArgs>;
 
   /**
-   * `prisma.alertRule`: Exposes CRUD operations for the **AlertRule** model.
+   * `prisma.regraAlerta`: Exposes CRUD operations for the **RegraAlerta** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AlertRules
-    * const alertRules = await prisma.alertRule.findMany()
+    * // Fetch zero or more RegraAlertas
+    * const regraAlertas = await prisma.regraAlerta.findMany()
     * ```
     */
-  get alertRule(): Prisma.AlertRuleDelegate<ExtArgs>;
+  get regraAlerta(): Prisma.RegraAlertaDelegate<ExtArgs>;
 
   /**
-   * `prisma.alertEvent`: Exposes CRUD operations for the **AlertEvent** model.
+   * `prisma.eventoAlerta`: Exposes CRUD operations for the **EventoAlerta** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AlertEvents
-    * const alertEvents = await prisma.alertEvent.findMany()
+    * // Fetch zero or more EventoAlertas
+    * const eventoAlertas = await prisma.eventoAlerta.findMany()
     * ```
     */
-  get alertEvent(): Prisma.AlertEventDelegate<ExtArgs>;
+  get eventoAlerta(): Prisma.EventoAlertaDelegate<ExtArgs>;
 
   /**
-   * `prisma.alertNotificationLog`: Exposes CRUD operations for the **AlertNotificationLog** model.
+   * `prisma.registroNotificacaoAlerta`: Exposes CRUD operations for the **RegistroNotificacaoAlerta** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more AlertNotificationLogs
-    * const alertNotificationLogs = await prisma.alertNotificationLog.findMany()
+    * // Fetch zero or more RegistroNotificacaoAlertas
+    * const registroNotificacaoAlertas = await prisma.registroNotificacaoAlerta.findMany()
     * ```
     */
-  get alertNotificationLog(): Prisma.AlertNotificationLogDelegate<ExtArgs>;
+  get registroNotificacaoAlerta(): Prisma.RegistroNotificacaoAlertaDelegate<ExtArgs>;
 
   /**
    * `prisma.exportarResultado`: Exposes CRUD operations for the **ExportarResultado** model.
@@ -930,14 +930,14 @@ export class PrismaClient<
   get personalizacaoOrganizacaoGabiai(): Prisma.PersonalizacaoOrganizacaoGabiaiDelegate<ExtArgs>;
 
   /**
-   * `prisma.userPreferences`: Exposes CRUD operations for the **UserPreferences** model.
+   * `prisma.preferenciasUsuario`: Exposes CRUD operations for the **PreferenciasUsuario** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more UserPreferences
-    * const userPreferences = await prisma.userPreferences.findMany()
+    * // Fetch zero or more PreferenciasUsuarios
+    * const preferenciasUsuarios = await prisma.preferenciasUsuario.findMany()
     * ```
     */
-  get userPreferences(): Prisma.UserPreferencesDelegate<ExtArgs>;
+  get preferenciasUsuario(): Prisma.PreferenciasUsuarioDelegate<ExtArgs>;
 
   /**
    * `prisma.ncmItem`: Exposes CRUD operations for the **NcmItem** model.
@@ -980,24 +980,24 @@ export class PrismaClient<
   get notificacoesTituloCorpo(): Prisma.NotificacoesTituloCorpoDelegate<ExtArgs>;
 
   /**
-   * `prisma.externalContact`: Exposes CRUD operations for the **ExternalContact** model.
+   * `prisma.contatoExterno`: Exposes CRUD operations for the **ContatoExterno** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ExternalContacts
-    * const externalContacts = await prisma.externalContact.findMany()
+    * // Fetch zero or more ContatoExternos
+    * const contatoExternos = await prisma.contatoExterno.findMany()
     * ```
     */
-  get externalContact(): Prisma.ExternalContactDelegate<ExtArgs>;
+  get contatoExterno(): Prisma.ContatoExternoDelegate<ExtArgs>;
 
   /**
-   * `prisma.tenantChannelConfig`: Exposes CRUD operations for the **TenantChannelConfig** model.
+   * `prisma.configuracaoCanalTenant`: Exposes CRUD operations for the **ConfiguracaoCanalTenant** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more TenantChannelConfigs
-    * const tenantChannelConfigs = await prisma.tenantChannelConfig.findMany()
+    * // Fetch zero or more ConfiguracaoCanalTenants
+    * const configuracaoCanalTenants = await prisma.configuracaoCanalTenant.findMany()
     * ```
     */
-  get tenantChannelConfig(): Prisma.TenantChannelConfigDelegate<ExtArgs>;
+  get configuracaoCanalTenant(): Prisma.ConfiguracaoCanalTenantDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1463,9 +1463,9 @@ export namespace Prisma {
     RelatoriosConfiguracao: 'RelatoriosConfiguracao',
     ExportarJob: 'ExportarJob',
     HistoricoLog: 'HistoricoLog',
-    AlertRule: 'AlertRule',
-    AlertEvent: 'AlertEvent',
-    AlertNotificationLog: 'AlertNotificationLog',
+    RegraAlerta: 'RegraAlerta',
+    EventoAlerta: 'EventoAlerta',
+    RegistroNotificacaoAlerta: 'RegistroNotificacaoAlerta',
     ExportarResultado: 'ExportarResultado',
     Agenda: 'Agenda',
     Slot: 'Slot',
@@ -1477,13 +1477,13 @@ export namespace Prisma {
     GabiaTokenConsumidos: 'GabiaTokenConsumidos',
     GabiaTokenWorkspace: 'GabiaTokenWorkspace',
     PersonalizacaoOrganizacaoGabiai: 'PersonalizacaoOrganizacaoGabiai',
-    UserPreferences: 'UserPreferences',
+    PreferenciasUsuario: 'PreferenciasUsuario',
     NcmItem: 'NcmItem',
     NcmSyncLog: 'NcmSyncLog',
     NcmScheduleConfig: 'NcmScheduleConfig',
     NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
-    ExternalContact: 'ExternalContact',
-    TenantChannelConfig: 'TenantChannelConfig'
+    ContatoExterno: 'ContatoExterno',
+    ConfiguracaoCanalTenant: 'ConfiguracaoCanalTenant'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1499,7 +1499,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "alertRule" | "alertEvent" | "alertNotificationLog" | "exportarResultado" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "conversaCompletaGabi" | "mensagemIndividualGabiai" | "gabiaLogUso" | "gabiaTokenConsumidos" | "gabiaTokenWorkspace" | "personalizacaoOrganizacaoGabiai" | "userPreferences" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
+      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "registroNotificacaoAlerta" | "exportarResultado" | "agenda" | "slot" | "reserva" | "disponibilidadeConfig" | "conversaCompletaGabi" | "mensagemIndividualGabiai" | "gabiaLogUso" | "gabiaTokenConsumidos" | "gabiaTokenWorkspace" | "personalizacaoOrganizacaoGabiai" | "preferenciasUsuario" | "ncmItem" | "ncmSyncLog" | "ncmScheduleConfig" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalTenant"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3183,213 +3183,213 @@ export namespace Prisma {
           }
         }
       }
-      AlertRule: {
-        payload: Prisma.$AlertRulePayload<ExtArgs>
-        fields: Prisma.AlertRuleFieldRefs
+      RegraAlerta: {
+        payload: Prisma.$RegraAlertaPayload<ExtArgs>
+        fields: Prisma.RegraAlertaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AlertRuleFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload> | null
+            args: Prisma.RegraAlertaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AlertRuleFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           findFirst: {
-            args: Prisma.AlertRuleFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload> | null
+            args: Prisma.RegraAlertaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AlertRuleFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           findMany: {
-            args: Prisma.AlertRuleFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>[]
+            args: Prisma.RegraAlertaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>[]
           }
           create: {
-            args: Prisma.AlertRuleCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           createMany: {
-            args: Prisma.AlertRuleCreateManyArgs<ExtArgs>
+            args: Prisma.RegraAlertaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AlertRuleCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>[]
+            args: Prisma.RegraAlertaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>[]
           }
           delete: {
-            args: Prisma.AlertRuleDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           update: {
-            args: Prisma.AlertRuleUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           deleteMany: {
-            args: Prisma.AlertRuleDeleteManyArgs<ExtArgs>
+            args: Prisma.RegraAlertaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AlertRuleUpdateManyArgs<ExtArgs>
+            args: Prisma.RegraAlertaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AlertRuleUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertRulePayload>
+            args: Prisma.RegraAlertaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegraAlertaPayload>
           }
           aggregate: {
-            args: Prisma.AlertRuleAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAlertRule>
+            args: Prisma.RegraAlertaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRegraAlerta>
           }
           groupBy: {
-            args: Prisma.AlertRuleGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AlertRuleGroupByOutputType>[]
+            args: Prisma.RegraAlertaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RegraAlertaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AlertRuleCountArgs<ExtArgs>
-            result: $Utils.Optional<AlertRuleCountAggregateOutputType> | number
+            args: Prisma.RegraAlertaCountArgs<ExtArgs>
+            result: $Utils.Optional<RegraAlertaCountAggregateOutputType> | number
           }
         }
       }
-      AlertEvent: {
-        payload: Prisma.$AlertEventPayload<ExtArgs>
-        fields: Prisma.AlertEventFieldRefs
+      EventoAlerta: {
+        payload: Prisma.$EventoAlertaPayload<ExtArgs>
+        fields: Prisma.EventoAlertaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AlertEventFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload> | null
+            args: Prisma.EventoAlertaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AlertEventFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           findFirst: {
-            args: Prisma.AlertEventFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload> | null
+            args: Prisma.EventoAlertaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AlertEventFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           findMany: {
-            args: Prisma.AlertEventFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>[]
+            args: Prisma.EventoAlertaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>[]
           }
           create: {
-            args: Prisma.AlertEventCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           createMany: {
-            args: Prisma.AlertEventCreateManyArgs<ExtArgs>
+            args: Prisma.EventoAlertaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AlertEventCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>[]
+            args: Prisma.EventoAlertaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>[]
           }
           delete: {
-            args: Prisma.AlertEventDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           update: {
-            args: Prisma.AlertEventUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           deleteMany: {
-            args: Prisma.AlertEventDeleteManyArgs<ExtArgs>
+            args: Prisma.EventoAlertaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AlertEventUpdateManyArgs<ExtArgs>
+            args: Prisma.EventoAlertaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AlertEventUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertEventPayload>
+            args: Prisma.EventoAlertaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventoAlertaPayload>
           }
           aggregate: {
-            args: Prisma.AlertEventAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAlertEvent>
+            args: Prisma.EventoAlertaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEventoAlerta>
           }
           groupBy: {
-            args: Prisma.AlertEventGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AlertEventGroupByOutputType>[]
+            args: Prisma.EventoAlertaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EventoAlertaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AlertEventCountArgs<ExtArgs>
-            result: $Utils.Optional<AlertEventCountAggregateOutputType> | number
+            args: Prisma.EventoAlertaCountArgs<ExtArgs>
+            result: $Utils.Optional<EventoAlertaCountAggregateOutputType> | number
           }
         }
       }
-      AlertNotificationLog: {
-        payload: Prisma.$AlertNotificationLogPayload<ExtArgs>
-        fields: Prisma.AlertNotificationLogFieldRefs
+      RegistroNotificacaoAlerta: {
+        payload: Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>
+        fields: Prisma.RegistroNotificacaoAlertaFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.AlertNotificationLogFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload> | null
+            args: Prisma.RegistroNotificacaoAlertaFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AlertNotificationLogFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.RegistroNotificacaoAlertaFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload>
           }
           findFirst: {
-            args: Prisma.AlertNotificationLogFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload> | null
+            args: Prisma.RegistroNotificacaoAlertaFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AlertNotificationLogFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.RegistroNotificacaoAlertaFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload>
           }
           findMany: {
-            args: Prisma.AlertNotificationLogFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>[]
+            args: Prisma.RegistroNotificacaoAlertaFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload>[]
           }
           create: {
-            args: Prisma.AlertNotificationLogCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.RegistroNotificacaoAlertaCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload>
           }
           createMany: {
-            args: Prisma.AlertNotificationLogCreateManyArgs<ExtArgs>
+            args: Prisma.RegistroNotificacaoAlertaCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.AlertNotificationLogCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>[]
+            args: Prisma.RegistroNotificacaoAlertaCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload>[]
           }
           delete: {
-            args: Prisma.AlertNotificationLogDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.RegistroNotificacaoAlertaDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload>
           }
           update: {
-            args: Prisma.AlertNotificationLogUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.RegistroNotificacaoAlertaUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload>
           }
           deleteMany: {
-            args: Prisma.AlertNotificationLogDeleteManyArgs<ExtArgs>
+            args: Prisma.RegistroNotificacaoAlertaDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.AlertNotificationLogUpdateManyArgs<ExtArgs>
+            args: Prisma.RegistroNotificacaoAlertaUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.AlertNotificationLogUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$AlertNotificationLogPayload>
+            args: Prisma.RegistroNotificacaoAlertaUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegistroNotificacaoAlertaPayload>
           }
           aggregate: {
-            args: Prisma.AlertNotificationLogAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateAlertNotificationLog>
+            args: Prisma.RegistroNotificacaoAlertaAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRegistroNotificacaoAlerta>
           }
           groupBy: {
-            args: Prisma.AlertNotificationLogGroupByArgs<ExtArgs>
-            result: $Utils.Optional<AlertNotificationLogGroupByOutputType>[]
+            args: Prisma.RegistroNotificacaoAlertaGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RegistroNotificacaoAlertaGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AlertNotificationLogCountArgs<ExtArgs>
-            result: $Utils.Optional<AlertNotificationLogCountAggregateOutputType> | number
+            args: Prisma.RegistroNotificacaoAlertaCountArgs<ExtArgs>
+            result: $Utils.Optional<RegistroNotificacaoAlertaCountAggregateOutputType> | number
           }
         }
       }
@@ -4163,73 +4163,73 @@ export namespace Prisma {
           }
         }
       }
-      UserPreferences: {
-        payload: Prisma.$UserPreferencesPayload<ExtArgs>
-        fields: Prisma.UserPreferencesFieldRefs
+      PreferenciasUsuario: {
+        payload: Prisma.$PreferenciasUsuarioPayload<ExtArgs>
+        fields: Prisma.PreferenciasUsuarioFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.UserPreferencesFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload> | null
+            args: Prisma.PreferenciasUsuarioFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.UserPreferencesFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciasUsuarioFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload>
           }
           findFirst: {
-            args: Prisma.UserPreferencesFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload> | null
+            args: Prisma.PreferenciasUsuarioFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.UserPreferencesFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciasUsuarioFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload>
           }
           findMany: {
-            args: Prisma.UserPreferencesFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>[]
+            args: Prisma.PreferenciasUsuarioFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload>[]
           }
           create: {
-            args: Prisma.UserPreferencesCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciasUsuarioCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload>
           }
           createMany: {
-            args: Prisma.UserPreferencesCreateManyArgs<ExtArgs>
+            args: Prisma.PreferenciasUsuarioCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.UserPreferencesCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>[]
+            args: Prisma.PreferenciasUsuarioCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload>[]
           }
           delete: {
-            args: Prisma.UserPreferencesDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciasUsuarioDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload>
           }
           update: {
-            args: Prisma.UserPreferencesUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciasUsuarioUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload>
           }
           deleteMany: {
-            args: Prisma.UserPreferencesDeleteManyArgs<ExtArgs>
+            args: Prisma.PreferenciasUsuarioDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.UserPreferencesUpdateManyArgs<ExtArgs>
+            args: Prisma.PreferenciasUsuarioUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.UserPreferencesUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UserPreferencesPayload>
+            args: Prisma.PreferenciasUsuarioUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PreferenciasUsuarioPayload>
           }
           aggregate: {
-            args: Prisma.UserPreferencesAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateUserPreferences>
+            args: Prisma.PreferenciasUsuarioAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePreferenciasUsuario>
           }
           groupBy: {
-            args: Prisma.UserPreferencesGroupByArgs<ExtArgs>
-            result: $Utils.Optional<UserPreferencesGroupByOutputType>[]
+            args: Prisma.PreferenciasUsuarioGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PreferenciasUsuarioGroupByOutputType>[]
           }
           count: {
-            args: Prisma.UserPreferencesCountArgs<ExtArgs>
-            result: $Utils.Optional<UserPreferencesCountAggregateOutputType> | number
+            args: Prisma.PreferenciasUsuarioCountArgs<ExtArgs>
+            result: $Utils.Optional<PreferenciasUsuarioCountAggregateOutputType> | number
           }
         }
       }
@@ -4513,143 +4513,143 @@ export namespace Prisma {
           }
         }
       }
-      ExternalContact: {
-        payload: Prisma.$ExternalContactPayload<ExtArgs>
-        fields: Prisma.ExternalContactFieldRefs
+      ContatoExterno: {
+        payload: Prisma.$ContatoExternoPayload<ExtArgs>
+        fields: Prisma.ContatoExternoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ExternalContactFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload> | null
+            args: Prisma.ContatoExternoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ExternalContactFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           findFirst: {
-            args: Prisma.ExternalContactFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload> | null
+            args: Prisma.ContatoExternoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ExternalContactFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           findMany: {
-            args: Prisma.ExternalContactFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>[]
+            args: Prisma.ContatoExternoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>[]
           }
           create: {
-            args: Prisma.ExternalContactCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           createMany: {
-            args: Prisma.ExternalContactCreateManyArgs<ExtArgs>
+            args: Prisma.ContatoExternoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ExternalContactCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>[]
+            args: Prisma.ContatoExternoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>[]
           }
           delete: {
-            args: Prisma.ExternalContactDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           update: {
-            args: Prisma.ExternalContactUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           deleteMany: {
-            args: Prisma.ExternalContactDeleteManyArgs<ExtArgs>
+            args: Prisma.ContatoExternoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ExternalContactUpdateManyArgs<ExtArgs>
+            args: Prisma.ContatoExternoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ExternalContactUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           aggregate: {
-            args: Prisma.ExternalContactAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateExternalContact>
+            args: Prisma.ContatoExternoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateContatoExterno>
           }
           groupBy: {
-            args: Prisma.ExternalContactGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ExternalContactGroupByOutputType>[]
+            args: Prisma.ContatoExternoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ContatoExternoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ExternalContactCountArgs<ExtArgs>
-            result: $Utils.Optional<ExternalContactCountAggregateOutputType> | number
+            args: Prisma.ContatoExternoCountArgs<ExtArgs>
+            result: $Utils.Optional<ContatoExternoCountAggregateOutputType> | number
           }
         }
       }
-      TenantChannelConfig: {
-        payload: Prisma.$TenantChannelConfigPayload<ExtArgs>
-        fields: Prisma.TenantChannelConfigFieldRefs
+      ConfiguracaoCanalTenant: {
+        payload: Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>
+        fields: Prisma.ConfiguracaoCanalTenantFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.TenantChannelConfigFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload> | null
+            args: Prisma.ConfiguracaoCanalTenantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.TenantChannelConfigFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           findFirst: {
-            args: Prisma.TenantChannelConfigFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload> | null
+            args: Prisma.ConfiguracaoCanalTenantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.TenantChannelConfigFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           findMany: {
-            args: Prisma.TenantChannelConfigFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>[]
+            args: Prisma.ConfiguracaoCanalTenantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>[]
           }
           create: {
-            args: Prisma.TenantChannelConfigCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           createMany: {
-            args: Prisma.TenantChannelConfigCreateManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoCanalTenantCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.TenantChannelConfigCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>[]
+            args: Prisma.ConfiguracaoCanalTenantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>[]
           }
           delete: {
-            args: Prisma.TenantChannelConfigDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           update: {
-            args: Prisma.TenantChannelConfigUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           deleteMany: {
-            args: Prisma.TenantChannelConfigDeleteManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoCanalTenantDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.TenantChannelConfigUpdateManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoCanalTenantUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.TenantChannelConfigUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           aggregate: {
-            args: Prisma.TenantChannelConfigAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTenantChannelConfig>
+            args: Prisma.ConfiguracaoCanalTenantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConfiguracaoCanalTenant>
           }
           groupBy: {
-            args: Prisma.TenantChannelConfigGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TenantChannelConfigGroupByOutputType>[]
+            args: Prisma.ConfiguracaoCanalTenantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConfiguracaoCanalTenantGroupByOutputType>[]
           }
           count: {
-            args: Prisma.TenantChannelConfigCountArgs<ExtArgs>
-            result: $Utils.Optional<TenantChannelConfigCountAggregateOutputType> | number
+            args: Prisma.ConfiguracaoCanalTenantCountArgs<ExtArgs>
+            result: $Utils.Optional<ConfiguracaoCanalTenantCountAggregateOutputType> | number
           }
         }
       }
@@ -4930,64 +4930,64 @@ export namespace Prisma {
 
 
   /**
-   * Count Type AlertRuleCountOutputType
+   * Count Type RegraAlertaCountOutputType
    */
 
-  export type AlertRuleCountOutputType = {
+  export type RegraAlertaCountOutputType = {
     alerts: number
   }
 
-  export type AlertRuleCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    alerts?: boolean | AlertRuleCountOutputTypeCountAlertsArgs
+  export type RegraAlertaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    alerts?: boolean | RegraAlertaCountOutputTypeCountAlertsArgs
   }
 
   // Custom InputTypes
   /**
-   * AlertRuleCountOutputType without action
+   * RegraAlertaCountOutputType without action
    */
-  export type AlertRuleCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRuleCountOutputType
+     * Select specific fields to fetch from the RegraAlertaCountOutputType
      */
-    select?: AlertRuleCountOutputTypeSelect<ExtArgs> | null
+    select?: RegraAlertaCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * AlertRuleCountOutputType without action
+   * RegraAlertaCountOutputType without action
    */
-  export type AlertRuleCountOutputTypeCountAlertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertEventWhereInput
+  export type RegraAlertaCountOutputTypeCountAlertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventoAlertaWhereInput
   }
 
 
   /**
-   * Count Type AlertEventCountOutputType
+   * Count Type EventoAlertaCountOutputType
    */
 
-  export type AlertEventCountOutputType = {
+  export type EventoAlertaCountOutputType = {
     notifications: number
   }
 
-  export type AlertEventCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    notifications?: boolean | AlertEventCountOutputTypeCountNotificationsArgs
+  export type EventoAlertaCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    notifications?: boolean | EventoAlertaCountOutputTypeCountNotificationsArgs
   }
 
   // Custom InputTypes
   /**
-   * AlertEventCountOutputType without action
+   * EventoAlertaCountOutputType without action
    */
-  export type AlertEventCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEventCountOutputType
+     * Select specific fields to fetch from the EventoAlertaCountOutputType
      */
-    select?: AlertEventCountOutputTypeSelect<ExtArgs> | null
+    select?: EventoAlertaCountOutputTypeSelect<ExtArgs> | null
   }
 
   /**
-   * AlertEventCountOutputType without action
+   * EventoAlertaCountOutputType without action
    */
-  export type AlertEventCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertNotificationLogWhereInput
+  export type EventoAlertaCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RegistroNotificacaoAlertaWhereInput
   }
 
 
@@ -29467,28 +29467,28 @@ export namespace Prisma {
 
 
   /**
-   * Model AlertRule
+   * Model RegraAlerta
    */
 
-  export type AggregateAlertRule = {
-    _count: AlertRuleCountAggregateOutputType | null
-    _avg: AlertRuleAvgAggregateOutputType | null
-    _sum: AlertRuleSumAggregateOutputType | null
-    _min: AlertRuleMinAggregateOutputType | null
-    _max: AlertRuleMaxAggregateOutputType | null
+  export type AggregateRegraAlerta = {
+    _count: RegraAlertaCountAggregateOutputType | null
+    _avg: RegraAlertaAvgAggregateOutputType | null
+    _sum: RegraAlertaSumAggregateOutputType | null
+    _min: RegraAlertaMinAggregateOutputType | null
+    _max: RegraAlertaMaxAggregateOutputType | null
   }
 
-  export type AlertRuleAvgAggregateOutputType = {
+  export type RegraAlertaAvgAggregateOutputType = {
     threshold_count: number | null
     threshold_window_seconds: number | null
   }
 
-  export type AlertRuleSumAggregateOutputType = {
+  export type RegraAlertaSumAggregateOutputType = {
     threshold_count: number | null
     threshold_window_seconds: number | null
   }
 
-  export type AlertRuleMinAggregateOutputType = {
+  export type RegraAlertaMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     name: string | null
@@ -29507,7 +29507,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type AlertRuleMaxAggregateOutputType = {
+  export type RegraAlertaMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     name: string | null
@@ -29526,7 +29526,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type AlertRuleCountAggregateOutputType = {
+  export type RegraAlertaCountAggregateOutputType = {
     id: number
     tenant_id: number
     name: number
@@ -29550,17 +29550,17 @@ export namespace Prisma {
   }
 
 
-  export type AlertRuleAvgAggregateInputType = {
+  export type RegraAlertaAvgAggregateInputType = {
     threshold_count?: true
     threshold_window_seconds?: true
   }
 
-  export type AlertRuleSumAggregateInputType = {
+  export type RegraAlertaSumAggregateInputType = {
     threshold_count?: true
     threshold_window_seconds?: true
   }
 
-  export type AlertRuleMinAggregateInputType = {
+  export type RegraAlertaMinAggregateInputType = {
     id?: true
     tenant_id?: true
     name?: true
@@ -29579,7 +29579,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type AlertRuleMaxAggregateInputType = {
+  export type RegraAlertaMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     name?: true
@@ -29598,7 +29598,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type AlertRuleCountAggregateInputType = {
+  export type RegraAlertaCountAggregateInputType = {
     id?: true
     tenant_id?: true
     name?: true
@@ -29621,93 +29621,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type AlertRuleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertRule to aggregate.
+     * Filter which RegraAlerta to aggregate.
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertRules to fetch.
+     * Determine the order of RegraAlertas to fetch.
      */
-    orderBy?: AlertRuleOrderByWithRelationInput | AlertRuleOrderByWithRelationInput[]
+    orderBy?: RegraAlertaOrderByWithRelationInput | RegraAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AlertRuleWhereUniqueInput
+    cursor?: RegraAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertRules from the position of the cursor.
+     * Take `±n` RegraAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertRules.
+     * Skip the first `n` RegraAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AlertRules
+     * Count returned RegraAlertas
     **/
-    _count?: true | AlertRuleCountAggregateInputType
+    _count?: true | RegraAlertaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AlertRuleAvgAggregateInputType
+    _avg?: RegraAlertaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AlertRuleSumAggregateInputType
+    _sum?: RegraAlertaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AlertRuleMinAggregateInputType
+    _min?: RegraAlertaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AlertRuleMaxAggregateInputType
+    _max?: RegraAlertaMaxAggregateInputType
   }
 
-  export type GetAlertRuleAggregateType<T extends AlertRuleAggregateArgs> = {
-        [P in keyof T & keyof AggregateAlertRule]: P extends '_count' | 'count'
+  export type GetRegraAlertaAggregateType<T extends RegraAlertaAggregateArgs> = {
+        [P in keyof T & keyof AggregateRegraAlerta]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAlertRule[P]>
-      : GetScalarType<T[P], AggregateAlertRule[P]>
+        : GetScalarType<T[P], AggregateRegraAlerta[P]>
+      : GetScalarType<T[P], AggregateRegraAlerta[P]>
   }
 
 
 
 
-  export type AlertRuleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertRuleWhereInput
-    orderBy?: AlertRuleOrderByWithAggregationInput | AlertRuleOrderByWithAggregationInput[]
-    by: AlertRuleScalarFieldEnum[] | AlertRuleScalarFieldEnum
-    having?: AlertRuleScalarWhereWithAggregatesInput
+  export type RegraAlertaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RegraAlertaWhereInput
+    orderBy?: RegraAlertaOrderByWithAggregationInput | RegraAlertaOrderByWithAggregationInput[]
+    by: RegraAlertaScalarFieldEnum[] | RegraAlertaScalarFieldEnum
+    having?: RegraAlertaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AlertRuleCountAggregateInputType | true
-    _avg?: AlertRuleAvgAggregateInputType
-    _sum?: AlertRuleSumAggregateInputType
-    _min?: AlertRuleMinAggregateInputType
-    _max?: AlertRuleMaxAggregateInputType
+    _count?: RegraAlertaCountAggregateInputType | true
+    _avg?: RegraAlertaAvgAggregateInputType
+    _sum?: RegraAlertaSumAggregateInputType
+    _min?: RegraAlertaMinAggregateInputType
+    _max?: RegraAlertaMaxAggregateInputType
   }
 
-  export type AlertRuleGroupByOutputType = {
+  export type RegraAlertaGroupByOutputType = {
     id: string
     tenant_id: string | null
     name: string
@@ -29727,28 +29727,28 @@ export namespace Prisma {
     recipients_user_ids: string[]
     created_at: Date
     updated_at: Date
-    _count: AlertRuleCountAggregateOutputType | null
-    _avg: AlertRuleAvgAggregateOutputType | null
-    _sum: AlertRuleSumAggregateOutputType | null
-    _min: AlertRuleMinAggregateOutputType | null
-    _max: AlertRuleMaxAggregateOutputType | null
+    _count: RegraAlertaCountAggregateOutputType | null
+    _avg: RegraAlertaAvgAggregateOutputType | null
+    _sum: RegraAlertaSumAggregateOutputType | null
+    _min: RegraAlertaMinAggregateOutputType | null
+    _max: RegraAlertaMaxAggregateOutputType | null
   }
 
-  type GetAlertRuleGroupByPayload<T extends AlertRuleGroupByArgs> = Prisma.PrismaPromise<
+  type GetRegraAlertaGroupByPayload<T extends RegraAlertaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AlertRuleGroupByOutputType, T['by']> &
+      PickEnumerable<RegraAlertaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AlertRuleGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof RegraAlertaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AlertRuleGroupByOutputType[P]>
-            : GetScalarType<T[P], AlertRuleGroupByOutputType[P]>
+              : GetScalarType<T[P], RegraAlertaGroupByOutputType[P]>
+            : GetScalarType<T[P], RegraAlertaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AlertRuleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RegraAlertaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     name?: boolean
@@ -29768,11 +29768,11 @@ export namespace Prisma {
     recipients_user_ids?: boolean
     created_at?: boolean
     updated_at?: boolean
-    alerts?: boolean | AlertRule$alertsArgs<ExtArgs>
-    _count?: boolean | AlertRuleCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertRule"]>
+    alerts?: boolean | RegraAlerta$alertsArgs<ExtArgs>
+    _count?: boolean | RegraAlertaCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["regraAlerta"]>
 
-  export type AlertRuleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RegraAlertaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     name?: boolean
@@ -29792,9 +29792,9 @@ export namespace Prisma {
     recipients_user_ids?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["alertRule"]>
+  }, ExtArgs["result"]["regraAlerta"]>
 
-  export type AlertRuleSelectScalar = {
+  export type RegraAlertaSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     name?: boolean
@@ -29816,16 +29816,16 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type AlertRuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    alerts?: boolean | AlertRule$alertsArgs<ExtArgs>
-    _count?: boolean | AlertRuleCountOutputTypeDefaultArgs<ExtArgs>
+  export type RegraAlertaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    alerts?: boolean | RegraAlerta$alertsArgs<ExtArgs>
+    _count?: boolean | RegraAlertaCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type AlertRuleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type RegraAlertaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $AlertRulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AlertRule"
+  export type $RegraAlertaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RegraAlerta"
     objects: {
-      alerts: Prisma.$AlertEventPayload<ExtArgs>[]
+      alerts: Prisma.$EventoAlertaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -29847,136 +29847,136 @@ export namespace Prisma {
       recipients_user_ids: string[]
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["alertRule"]>
+    }, ExtArgs["result"]["regraAlerta"]>
     composites: {}
   }
 
-  type AlertRuleGetPayload<S extends boolean | null | undefined | AlertRuleDefaultArgs> = $Result.GetResult<Prisma.$AlertRulePayload, S>
+  type RegraAlertaGetPayload<S extends boolean | null | undefined | RegraAlertaDefaultArgs> = $Result.GetResult<Prisma.$RegraAlertaPayload, S>
 
-  type AlertRuleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AlertRuleFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AlertRuleCountAggregateInputType | true
+  type RegraAlertaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<RegraAlertaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: RegraAlertaCountAggregateInputType | true
     }
 
-  export interface AlertRuleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlertRule'], meta: { name: 'AlertRule' } }
+  export interface RegraAlertaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RegraAlerta'], meta: { name: 'RegraAlerta' } }
     /**
-     * Find zero or one AlertRule that matches the filter.
-     * @param {AlertRuleFindUniqueArgs} args - Arguments to find a AlertRule
+     * Find zero or one RegraAlerta that matches the filter.
+     * @param {RegraAlertaFindUniqueArgs} args - Arguments to find a RegraAlerta
      * @example
-     * // Get one AlertRule
-     * const alertRule = await prisma.alertRule.findUnique({
+     * // Get one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AlertRuleFindUniqueArgs>(args: SelectSubset<T, AlertRuleFindUniqueArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends RegraAlertaFindUniqueArgs>(args: SelectSubset<T, RegraAlertaFindUniqueArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AlertRule that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one RegraAlerta that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AlertRuleFindUniqueOrThrowArgs} args - Arguments to find a AlertRule
+     * @param {RegraAlertaFindUniqueOrThrowArgs} args - Arguments to find a RegraAlerta
      * @example
-     * // Get one AlertRule
-     * const alertRule = await prisma.alertRule.findUniqueOrThrow({
+     * // Get one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AlertRuleFindUniqueOrThrowArgs>(args: SelectSubset<T, AlertRuleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends RegraAlertaFindUniqueOrThrowArgs>(args: SelectSubset<T, RegraAlertaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AlertRule that matches the filter.
+     * Find the first RegraAlerta that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleFindFirstArgs} args - Arguments to find a AlertRule
+     * @param {RegraAlertaFindFirstArgs} args - Arguments to find a RegraAlerta
      * @example
-     * // Get one AlertRule
-     * const alertRule = await prisma.alertRule.findFirst({
+     * // Get one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AlertRuleFindFirstArgs>(args?: SelectSubset<T, AlertRuleFindFirstArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends RegraAlertaFindFirstArgs>(args?: SelectSubset<T, RegraAlertaFindFirstArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AlertRule that matches the filter or
+     * Find the first RegraAlerta that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleFindFirstOrThrowArgs} args - Arguments to find a AlertRule
+     * @param {RegraAlertaFindFirstOrThrowArgs} args - Arguments to find a RegraAlerta
      * @example
-     * // Get one AlertRule
-     * const alertRule = await prisma.alertRule.findFirstOrThrow({
+     * // Get one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AlertRuleFindFirstOrThrowArgs>(args?: SelectSubset<T, AlertRuleFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends RegraAlertaFindFirstOrThrowArgs>(args?: SelectSubset<T, RegraAlertaFindFirstOrThrowArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AlertRules that matches the filter.
+     * Find zero or more RegraAlertas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {RegraAlertaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AlertRules
-     * const alertRules = await prisma.alertRule.findMany()
+     * // Get all RegraAlertas
+     * const regraAlertas = await prisma.regraAlerta.findMany()
      * 
-     * // Get first 10 AlertRules
-     * const alertRules = await prisma.alertRule.findMany({ take: 10 })
+     * // Get first 10 RegraAlertas
+     * const regraAlertas = await prisma.regraAlerta.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const alertRuleWithIdOnly = await prisma.alertRule.findMany({ select: { id: true } })
+     * const regraAlertaWithIdOnly = await prisma.regraAlerta.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends AlertRuleFindManyArgs>(args?: SelectSubset<T, AlertRuleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findMany">>
+    findMany<T extends RegraAlertaFindManyArgs>(args?: SelectSubset<T, RegraAlertaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AlertRule.
-     * @param {AlertRuleCreateArgs} args - Arguments to create a AlertRule.
+     * Create a RegraAlerta.
+     * @param {RegraAlertaCreateArgs} args - Arguments to create a RegraAlerta.
      * @example
-     * // Create one AlertRule
-     * const AlertRule = await prisma.alertRule.create({
+     * // Create one RegraAlerta
+     * const RegraAlerta = await prisma.regraAlerta.create({
      *   data: {
-     *     // ... data to create a AlertRule
+     *     // ... data to create a RegraAlerta
      *   }
      * })
      * 
      */
-    create<T extends AlertRuleCreateArgs>(args: SelectSubset<T, AlertRuleCreateArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends RegraAlertaCreateArgs>(args: SelectSubset<T, RegraAlertaCreateArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AlertRules.
-     * @param {AlertRuleCreateManyArgs} args - Arguments to create many AlertRules.
+     * Create many RegraAlertas.
+     * @param {RegraAlertaCreateManyArgs} args - Arguments to create many RegraAlertas.
      * @example
-     * // Create many AlertRules
-     * const alertRule = await prisma.alertRule.createMany({
+     * // Create many RegraAlertas
+     * const regraAlerta = await prisma.regraAlerta.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AlertRuleCreateManyArgs>(args?: SelectSubset<T, AlertRuleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends RegraAlertaCreateManyArgs>(args?: SelectSubset<T, RegraAlertaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AlertRules and returns the data saved in the database.
-     * @param {AlertRuleCreateManyAndReturnArgs} args - Arguments to create many AlertRules.
+     * Create many RegraAlertas and returns the data saved in the database.
+     * @param {RegraAlertaCreateManyAndReturnArgs} args - Arguments to create many RegraAlertas.
      * @example
-     * // Create many AlertRules
-     * const alertRule = await prisma.alertRule.createManyAndReturn({
+     * // Create many RegraAlertas
+     * const regraAlerta = await prisma.regraAlerta.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AlertRules and only return the `id`
-     * const alertRuleWithIdOnly = await prisma.alertRule.createManyAndReturn({ 
+     * // Create many RegraAlertas and only return the `id`
+     * const regraAlertaWithIdOnly = await prisma.regraAlerta.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -29986,28 +29986,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AlertRuleCreateManyAndReturnArgs>(args?: SelectSubset<T, AlertRuleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends RegraAlertaCreateManyAndReturnArgs>(args?: SelectSubset<T, RegraAlertaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AlertRule.
-     * @param {AlertRuleDeleteArgs} args - Arguments to delete one AlertRule.
+     * Delete a RegraAlerta.
+     * @param {RegraAlertaDeleteArgs} args - Arguments to delete one RegraAlerta.
      * @example
-     * // Delete one AlertRule
-     * const AlertRule = await prisma.alertRule.delete({
+     * // Delete one RegraAlerta
+     * const RegraAlerta = await prisma.regraAlerta.delete({
      *   where: {
-     *     // ... filter to delete one AlertRule
+     *     // ... filter to delete one RegraAlerta
      *   }
      * })
      * 
      */
-    delete<T extends AlertRuleDeleteArgs>(args: SelectSubset<T, AlertRuleDeleteArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends RegraAlertaDeleteArgs>(args: SelectSubset<T, RegraAlertaDeleteArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AlertRule.
-     * @param {AlertRuleUpdateArgs} args - Arguments to update one AlertRule.
+     * Update one RegraAlerta.
+     * @param {RegraAlertaUpdateArgs} args - Arguments to update one RegraAlerta.
      * @example
-     * // Update one AlertRule
-     * const alertRule = await prisma.alertRule.update({
+     * // Update one RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -30017,30 +30017,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AlertRuleUpdateArgs>(args: SelectSubset<T, AlertRuleUpdateArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends RegraAlertaUpdateArgs>(args: SelectSubset<T, RegraAlertaUpdateArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AlertRules.
-     * @param {AlertRuleDeleteManyArgs} args - Arguments to filter AlertRules to delete.
+     * Delete zero or more RegraAlertas.
+     * @param {RegraAlertaDeleteManyArgs} args - Arguments to filter RegraAlertas to delete.
      * @example
-     * // Delete a few AlertRules
-     * const { count } = await prisma.alertRule.deleteMany({
+     * // Delete a few RegraAlertas
+     * const { count } = await prisma.regraAlerta.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AlertRuleDeleteManyArgs>(args?: SelectSubset<T, AlertRuleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends RegraAlertaDeleteManyArgs>(args?: SelectSubset<T, RegraAlertaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AlertRules.
+     * Update zero or more RegraAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {RegraAlertaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AlertRules
-     * const alertRule = await prisma.alertRule.updateMany({
+     * // Update many RegraAlertas
+     * const regraAlerta = await prisma.regraAlerta.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -30050,56 +30050,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AlertRuleUpdateManyArgs>(args: SelectSubset<T, AlertRuleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends RegraAlertaUpdateManyArgs>(args: SelectSubset<T, RegraAlertaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AlertRule.
-     * @param {AlertRuleUpsertArgs} args - Arguments to update or create a AlertRule.
+     * Create or update one RegraAlerta.
+     * @param {RegraAlertaUpsertArgs} args - Arguments to update or create a RegraAlerta.
      * @example
-     * // Update or create a AlertRule
-     * const alertRule = await prisma.alertRule.upsert({
+     * // Update or create a RegraAlerta
+     * const regraAlerta = await prisma.regraAlerta.upsert({
      *   create: {
-     *     // ... data to create a AlertRule
+     *     // ... data to create a RegraAlerta
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AlertRule we want to update
+     *     // ... the filter for the RegraAlerta we want to update
      *   }
      * })
      */
-    upsert<T extends AlertRuleUpsertArgs>(args: SelectSubset<T, AlertRuleUpsertArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends RegraAlertaUpsertArgs>(args: SelectSubset<T, RegraAlertaUpsertArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AlertRules.
+     * Count the number of RegraAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleCountArgs} args - Arguments to filter AlertRules to count.
+     * @param {RegraAlertaCountArgs} args - Arguments to filter RegraAlertas to count.
      * @example
-     * // Count the number of AlertRules
-     * const count = await prisma.alertRule.count({
+     * // Count the number of RegraAlertas
+     * const count = await prisma.regraAlerta.count({
      *   where: {
-     *     // ... the filter for the AlertRules we want to count
+     *     // ... the filter for the RegraAlertas we want to count
      *   }
      * })
     **/
-    count<T extends AlertRuleCountArgs>(
-      args?: Subset<T, AlertRuleCountArgs>,
+    count<T extends RegraAlertaCountArgs>(
+      args?: Subset<T, RegraAlertaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AlertRuleCountAggregateOutputType>
+          : GetScalarType<T['select'], RegraAlertaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AlertRule.
+     * Allows you to perform aggregations operations on a RegraAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {RegraAlertaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -30119,13 +30119,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AlertRuleAggregateArgs>(args: Subset<T, AlertRuleAggregateArgs>): Prisma.PrismaPromise<GetAlertRuleAggregateType<T>>
+    aggregate<T extends RegraAlertaAggregateArgs>(args: Subset<T, RegraAlertaAggregateArgs>): Prisma.PrismaPromise<GetRegraAlertaAggregateType<T>>
 
     /**
-     * Group by AlertRule.
+     * Group by RegraAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertRuleGroupByArgs} args - Group by arguments.
+     * @param {RegraAlertaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -30140,14 +30140,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AlertRuleGroupByArgs,
+      T extends RegraAlertaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AlertRuleGroupByArgs['orderBy'] }
-        : { orderBy?: AlertRuleGroupByArgs['orderBy'] },
+        ? { orderBy: RegraAlertaGroupByArgs['orderBy'] }
+        : { orderBy?: RegraAlertaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -30196,22 +30196,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AlertRuleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertRuleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, RegraAlertaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRegraAlertaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AlertRule model
+   * Fields of the RegraAlerta model
    */
-  readonly fields: AlertRuleFieldRefs;
+  readonly fields: RegraAlertaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AlertRule.
+   * The delegate class that acts as a "Promise-like" for RegraAlerta.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AlertRuleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__RegraAlertaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    alerts<T extends AlertRule$alertsArgs<ExtArgs> = {}>(args?: Subset<T, AlertRule$alertsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findMany"> | Null>
+    alerts<T extends RegraAlerta$alertsArgs<ExtArgs> = {}>(args?: Subset<T, RegraAlerta$alertsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -30238,399 +30238,399 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AlertRule model
+   * Fields of the RegraAlerta model
    */ 
-  interface AlertRuleFieldRefs {
-    readonly id: FieldRef<"AlertRule", 'String'>
-    readonly tenant_id: FieldRef<"AlertRule", 'String'>
-    readonly name: FieldRef<"AlertRule", 'String'>
-    readonly description: FieldRef<"AlertRule", 'String'>
-    readonly enabled: FieldRef<"AlertRule", 'Boolean'>
-    readonly actor_type: FieldRef<"AlertRule", 'ActorType'>
-    readonly action: FieldRef<"AlertRule", 'String'>
-    readonly module: FieldRef<"AlertRule", 'String'>
-    readonly status_filter: FieldRef<"AlertRule", 'EventStatus'>
-    readonly threshold_count: FieldRef<"AlertRule", 'Int'>
-    readonly threshold_window_seconds: FieldRef<"AlertRule", 'Int'>
-    readonly channel_inapp: FieldRef<"AlertRule", 'Boolean'>
-    readonly channel_email: FieldRef<"AlertRule", 'Boolean'>
-    readonly channel_whatsapp: FieldRef<"AlertRule", 'Boolean'>
-    readonly recipients_email: FieldRef<"AlertRule", 'String[]'>
-    readonly recipients_whatsapp: FieldRef<"AlertRule", 'String[]'>
-    readonly recipients_user_ids: FieldRef<"AlertRule", 'String[]'>
-    readonly created_at: FieldRef<"AlertRule", 'DateTime'>
-    readonly updated_at: FieldRef<"AlertRule", 'DateTime'>
+  interface RegraAlertaFieldRefs {
+    readonly id: FieldRef<"RegraAlerta", 'String'>
+    readonly tenant_id: FieldRef<"RegraAlerta", 'String'>
+    readonly name: FieldRef<"RegraAlerta", 'String'>
+    readonly description: FieldRef<"RegraAlerta", 'String'>
+    readonly enabled: FieldRef<"RegraAlerta", 'Boolean'>
+    readonly actor_type: FieldRef<"RegraAlerta", 'ActorType'>
+    readonly action: FieldRef<"RegraAlerta", 'String'>
+    readonly module: FieldRef<"RegraAlerta", 'String'>
+    readonly status_filter: FieldRef<"RegraAlerta", 'EventStatus'>
+    readonly threshold_count: FieldRef<"RegraAlerta", 'Int'>
+    readonly threshold_window_seconds: FieldRef<"RegraAlerta", 'Int'>
+    readonly channel_inapp: FieldRef<"RegraAlerta", 'Boolean'>
+    readonly channel_email: FieldRef<"RegraAlerta", 'Boolean'>
+    readonly channel_whatsapp: FieldRef<"RegraAlerta", 'Boolean'>
+    readonly recipients_email: FieldRef<"RegraAlerta", 'String[]'>
+    readonly recipients_whatsapp: FieldRef<"RegraAlerta", 'String[]'>
+    readonly recipients_user_ids: FieldRef<"RegraAlerta", 'String[]'>
+    readonly created_at: FieldRef<"RegraAlerta", 'DateTime'>
+    readonly updated_at: FieldRef<"RegraAlerta", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AlertRule findUnique
+   * RegraAlerta findUnique
    */
-  export type AlertRuleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRule to fetch.
+     * Filter, which RegraAlerta to fetch.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
   }
 
   /**
-   * AlertRule findUniqueOrThrow
+   * RegraAlerta findUniqueOrThrow
    */
-  export type AlertRuleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRule to fetch.
+     * Filter, which RegraAlerta to fetch.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
   }
 
   /**
-   * AlertRule findFirst
+   * RegraAlerta findFirst
    */
-  export type AlertRuleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRule to fetch.
+     * Filter, which RegraAlerta to fetch.
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertRules to fetch.
+     * Determine the order of RegraAlertas to fetch.
      */
-    orderBy?: AlertRuleOrderByWithRelationInput | AlertRuleOrderByWithRelationInput[]
+    orderBy?: RegraAlertaOrderByWithRelationInput | RegraAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertRules.
+     * Sets the position for searching for RegraAlertas.
      */
-    cursor?: AlertRuleWhereUniqueInput
+    cursor?: RegraAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertRules from the position of the cursor.
+     * Take `±n` RegraAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertRules.
+     * Skip the first `n` RegraAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertRules.
+     * Filter by unique combinations of RegraAlertas.
      */
-    distinct?: AlertRuleScalarFieldEnum | AlertRuleScalarFieldEnum[]
+    distinct?: RegraAlertaScalarFieldEnum | RegraAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertRule findFirstOrThrow
+   * RegraAlerta findFirstOrThrow
    */
-  export type AlertRuleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRule to fetch.
+     * Filter, which RegraAlerta to fetch.
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertRules to fetch.
+     * Determine the order of RegraAlertas to fetch.
      */
-    orderBy?: AlertRuleOrderByWithRelationInput | AlertRuleOrderByWithRelationInput[]
+    orderBy?: RegraAlertaOrderByWithRelationInput | RegraAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertRules.
+     * Sets the position for searching for RegraAlertas.
      */
-    cursor?: AlertRuleWhereUniqueInput
+    cursor?: RegraAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertRules from the position of the cursor.
+     * Take `±n` RegraAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertRules.
+     * Skip the first `n` RegraAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertRules.
+     * Filter by unique combinations of RegraAlertas.
      */
-    distinct?: AlertRuleScalarFieldEnum | AlertRuleScalarFieldEnum[]
+    distinct?: RegraAlertaScalarFieldEnum | RegraAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertRule findMany
+   * RegraAlerta findMany
    */
-  export type AlertRuleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertRules to fetch.
+     * Filter, which RegraAlertas to fetch.
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertRules to fetch.
+     * Determine the order of RegraAlertas to fetch.
      */
-    orderBy?: AlertRuleOrderByWithRelationInput | AlertRuleOrderByWithRelationInput[]
+    orderBy?: RegraAlertaOrderByWithRelationInput | RegraAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AlertRules.
+     * Sets the position for listing RegraAlertas.
      */
-    cursor?: AlertRuleWhereUniqueInput
+    cursor?: RegraAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertRules from the position of the cursor.
+     * Take `±n` RegraAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertRules.
+     * Skip the first `n` RegraAlertas.
      */
     skip?: number
-    distinct?: AlertRuleScalarFieldEnum | AlertRuleScalarFieldEnum[]
+    distinct?: RegraAlertaScalarFieldEnum | RegraAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertRule create
+   * RegraAlerta create
    */
-  export type AlertRuleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to create a AlertRule.
+     * The data needed to create a RegraAlerta.
      */
-    data: XOR<AlertRuleCreateInput, AlertRuleUncheckedCreateInput>
+    data: XOR<RegraAlertaCreateInput, RegraAlertaUncheckedCreateInput>
   }
 
   /**
-   * AlertRule createMany
+   * RegraAlerta createMany
    */
-  export type AlertRuleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AlertRules.
+     * The data used to create many RegraAlertas.
      */
-    data: AlertRuleCreateManyInput | AlertRuleCreateManyInput[]
+    data: RegraAlertaCreateManyInput | RegraAlertaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AlertRule createManyAndReturn
+   * RegraAlerta createManyAndReturn
    */
-  export type AlertRuleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelectCreateManyAndReturn<ExtArgs> | null
+    select?: RegraAlertaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AlertRules.
+     * The data used to create many RegraAlertas.
      */
-    data: AlertRuleCreateManyInput | AlertRuleCreateManyInput[]
+    data: RegraAlertaCreateManyInput | RegraAlertaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AlertRule update
+   * RegraAlerta update
    */
-  export type AlertRuleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to update a AlertRule.
+     * The data needed to update a RegraAlerta.
      */
-    data: XOR<AlertRuleUpdateInput, AlertRuleUncheckedUpdateInput>
+    data: XOR<RegraAlertaUpdateInput, RegraAlertaUncheckedUpdateInput>
     /**
-     * Choose, which AlertRule to update.
+     * Choose, which RegraAlerta to update.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
   }
 
   /**
-   * AlertRule updateMany
+   * RegraAlerta updateMany
    */
-  export type AlertRuleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AlertRules.
+     * The data used to update RegraAlertas.
      */
-    data: XOR<AlertRuleUpdateManyMutationInput, AlertRuleUncheckedUpdateManyInput>
+    data: XOR<RegraAlertaUpdateManyMutationInput, RegraAlertaUncheckedUpdateManyInput>
     /**
-     * Filter which AlertRules to update
+     * Filter which RegraAlertas to update
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
   }
 
   /**
-   * AlertRule upsert
+   * RegraAlerta upsert
    */
-  export type AlertRuleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * The filter to search for the AlertRule to update in case it exists.
+     * The filter to search for the RegraAlerta to update in case it exists.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
     /**
-     * In case the AlertRule found by the `where` argument doesn't exist, create a new AlertRule with this data.
+     * In case the RegraAlerta found by the `where` argument doesn't exist, create a new RegraAlerta with this data.
      */
-    create: XOR<AlertRuleCreateInput, AlertRuleUncheckedCreateInput>
+    create: XOR<RegraAlertaCreateInput, RegraAlertaUncheckedCreateInput>
     /**
-     * In case the AlertRule was found with the provided `where` argument, update it with this data.
+     * In case the RegraAlerta was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AlertRuleUpdateInput, AlertRuleUncheckedUpdateInput>
+    update: XOR<RegraAlertaUpdateInput, RegraAlertaUncheckedUpdateInput>
   }
 
   /**
-   * AlertRule delete
+   * RegraAlerta delete
    */
-  export type AlertRuleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
     /**
-     * Filter which AlertRule to delete.
+     * Filter which RegraAlerta to delete.
      */
-    where: AlertRuleWhereUniqueInput
+    where: RegraAlertaWhereUniqueInput
   }
 
   /**
-   * AlertRule deleteMany
+   * RegraAlerta deleteMany
    */
-  export type AlertRuleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertRules to delete
+     * Filter which RegraAlertas to delete
      */
-    where?: AlertRuleWhereInput
+    where?: RegraAlertaWhereInput
   }
 
   /**
-   * AlertRule.alerts
+   * RegraAlerta.alerts
    */
-  export type AlertRule$alertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlerta$alertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
-    where?: AlertEventWhereInput
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
-    cursor?: AlertEventWhereUniqueInput
+    include?: EventoAlertaInclude<ExtArgs> | null
+    where?: EventoAlertaWhereInput
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
+    cursor?: EventoAlertaWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AlertEventScalarFieldEnum | AlertEventScalarFieldEnum[]
+    distinct?: EventoAlertaScalarFieldEnum | EventoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertRule without action
+   * RegraAlerta without action
    */
-  export type AlertRuleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegraAlertaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertRule
+     * Select specific fields to fetch from the RegraAlerta
      */
-    select?: AlertRuleSelect<ExtArgs> | null
+    select?: RegraAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertRuleInclude<ExtArgs> | null
+    include?: RegraAlertaInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model AlertEvent
+   * Model EventoAlerta
    */
 
-  export type AggregateAlertEvent = {
-    _count: AlertEventCountAggregateOutputType | null
-    _avg: AlertEventAvgAggregateOutputType | null
-    _sum: AlertEventSumAggregateOutputType | null
-    _min: AlertEventMinAggregateOutputType | null
-    _max: AlertEventMaxAggregateOutputType | null
+  export type AggregateEventoAlerta = {
+    _count: EventoAlertaCountAggregateOutputType | null
+    _avg: EventoAlertaAvgAggregateOutputType | null
+    _sum: EventoAlertaSumAggregateOutputType | null
+    _min: EventoAlertaMinAggregateOutputType | null
+    _max: EventoAlertaMaxAggregateOutputType | null
   }
 
-  export type AlertEventAvgAggregateOutputType = {
+  export type EventoAlertaAvgAggregateOutputType = {
     event_count: number | null
     window_seconds: number | null
   }
 
-  export type AlertEventSumAggregateOutputType = {
+  export type EventoAlertaSumAggregateOutputType = {
     event_count: number | null
     window_seconds: number | null
   }
 
-  export type AlertEventMinAggregateOutputType = {
+  export type EventoAlertaMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     rule_id: string | null
@@ -30648,7 +30648,7 @@ export namespace Prisma {
     created_at: Date | null
   }
 
-  export type AlertEventMaxAggregateOutputType = {
+  export type EventoAlertaMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     rule_id: string | null
@@ -30666,7 +30666,7 @@ export namespace Prisma {
     created_at: Date | null
   }
 
-  export type AlertEventCountAggregateOutputType = {
+  export type EventoAlertaCountAggregateOutputType = {
     id: number
     tenant_id: number
     rule_id: number
@@ -30687,17 +30687,17 @@ export namespace Prisma {
   }
 
 
-  export type AlertEventAvgAggregateInputType = {
+  export type EventoAlertaAvgAggregateInputType = {
     event_count?: true
     window_seconds?: true
   }
 
-  export type AlertEventSumAggregateInputType = {
+  export type EventoAlertaSumAggregateInputType = {
     event_count?: true
     window_seconds?: true
   }
 
-  export type AlertEventMinAggregateInputType = {
+  export type EventoAlertaMinAggregateInputType = {
     id?: true
     tenant_id?: true
     rule_id?: true
@@ -30715,7 +30715,7 @@ export namespace Prisma {
     created_at?: true
   }
 
-  export type AlertEventMaxAggregateInputType = {
+  export type EventoAlertaMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     rule_id?: true
@@ -30733,7 +30733,7 @@ export namespace Prisma {
     created_at?: true
   }
 
-  export type AlertEventCountAggregateInputType = {
+  export type EventoAlertaCountAggregateInputType = {
     id?: true
     tenant_id?: true
     rule_id?: true
@@ -30753,93 +30753,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type AlertEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertEvent to aggregate.
+     * Filter which EventoAlerta to aggregate.
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertEvents to fetch.
+     * Determine the order of EventoAlertas to fetch.
      */
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AlertEventWhereUniqueInput
+    cursor?: EventoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertEvents from the position of the cursor.
+     * Take `±n` EventoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertEvents.
+     * Skip the first `n` EventoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AlertEvents
+     * Count returned EventoAlertas
     **/
-    _count?: true | AlertEventCountAggregateInputType
+    _count?: true | EventoAlertaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AlertEventAvgAggregateInputType
+    _avg?: EventoAlertaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AlertEventSumAggregateInputType
+    _sum?: EventoAlertaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AlertEventMinAggregateInputType
+    _min?: EventoAlertaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AlertEventMaxAggregateInputType
+    _max?: EventoAlertaMaxAggregateInputType
   }
 
-  export type GetAlertEventAggregateType<T extends AlertEventAggregateArgs> = {
-        [P in keyof T & keyof AggregateAlertEvent]: P extends '_count' | 'count'
+  export type GetEventoAlertaAggregateType<T extends EventoAlertaAggregateArgs> = {
+        [P in keyof T & keyof AggregateEventoAlerta]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAlertEvent[P]>
-      : GetScalarType<T[P], AggregateAlertEvent[P]>
+        : GetScalarType<T[P], AggregateEventoAlerta[P]>
+      : GetScalarType<T[P], AggregateEventoAlerta[P]>
   }
 
 
 
 
-  export type AlertEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertEventWhereInput
-    orderBy?: AlertEventOrderByWithAggregationInput | AlertEventOrderByWithAggregationInput[]
-    by: AlertEventScalarFieldEnum[] | AlertEventScalarFieldEnum
-    having?: AlertEventScalarWhereWithAggregatesInput
+  export type EventoAlertaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventoAlertaWhereInput
+    orderBy?: EventoAlertaOrderByWithAggregationInput | EventoAlertaOrderByWithAggregationInput[]
+    by: EventoAlertaScalarFieldEnum[] | EventoAlertaScalarFieldEnum
+    having?: EventoAlertaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AlertEventCountAggregateInputType | true
-    _avg?: AlertEventAvgAggregateInputType
-    _sum?: AlertEventSumAggregateInputType
-    _min?: AlertEventMinAggregateInputType
-    _max?: AlertEventMaxAggregateInputType
+    _count?: EventoAlertaCountAggregateInputType | true
+    _avg?: EventoAlertaAvgAggregateInputType
+    _sum?: EventoAlertaSumAggregateInputType
+    _min?: EventoAlertaMinAggregateInputType
+    _max?: EventoAlertaMaxAggregateInputType
   }
 
-  export type AlertEventGroupByOutputType = {
+  export type EventoAlertaGroupByOutputType = {
     id: string
     tenant_id: string
     rule_id: string
@@ -30856,28 +30856,28 @@ export namespace Prisma {
     reviewed_at: Date | null
     notes: string | null
     created_at: Date
-    _count: AlertEventCountAggregateOutputType | null
-    _avg: AlertEventAvgAggregateOutputType | null
-    _sum: AlertEventSumAggregateOutputType | null
-    _min: AlertEventMinAggregateOutputType | null
-    _max: AlertEventMaxAggregateOutputType | null
+    _count: EventoAlertaCountAggregateOutputType | null
+    _avg: EventoAlertaAvgAggregateOutputType | null
+    _sum: EventoAlertaSumAggregateOutputType | null
+    _min: EventoAlertaMinAggregateOutputType | null
+    _max: EventoAlertaMaxAggregateOutputType | null
   }
 
-  type GetAlertEventGroupByPayload<T extends AlertEventGroupByArgs> = Prisma.PrismaPromise<
+  type GetEventoAlertaGroupByPayload<T extends EventoAlertaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AlertEventGroupByOutputType, T['by']> &
+      PickEnumerable<EventoAlertaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AlertEventGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof EventoAlertaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AlertEventGroupByOutputType[P]>
-            : GetScalarType<T[P], AlertEventGroupByOutputType[P]>
+              : GetScalarType<T[P], EventoAlertaGroupByOutputType[P]>
+            : GetScalarType<T[P], EventoAlertaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AlertEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type EventoAlertaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     rule_id?: boolean
@@ -30894,12 +30894,12 @@ export namespace Prisma {
     reviewed_at?: boolean
     notes?: boolean
     created_at?: boolean
-    rule?: boolean | AlertRuleDefaultArgs<ExtArgs>
-    notifications?: boolean | AlertEvent$notificationsArgs<ExtArgs>
-    _count?: boolean | AlertEventCountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertEvent"]>
+    rule?: boolean | RegraAlertaDefaultArgs<ExtArgs>
+    notifications?: boolean | EventoAlerta$notificationsArgs<ExtArgs>
+    _count?: boolean | EventoAlertaCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventoAlerta"]>
 
-  export type AlertEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type EventoAlertaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     rule_id?: boolean
@@ -30916,10 +30916,10 @@ export namespace Prisma {
     reviewed_at?: boolean
     notes?: boolean
     created_at?: boolean
-    rule?: boolean | AlertRuleDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertEvent"]>
+    rule?: boolean | RegraAlertaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["eventoAlerta"]>
 
-  export type AlertEventSelectScalar = {
+  export type EventoAlertaSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     rule_id?: boolean
@@ -30938,20 +30938,20 @@ export namespace Prisma {
     created_at?: boolean
   }
 
-  export type AlertEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    rule?: boolean | AlertRuleDefaultArgs<ExtArgs>
-    notifications?: boolean | AlertEvent$notificationsArgs<ExtArgs>
-    _count?: boolean | AlertEventCountOutputTypeDefaultArgs<ExtArgs>
+  export type EventoAlertaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rule?: boolean | RegraAlertaDefaultArgs<ExtArgs>
+    notifications?: boolean | EventoAlerta$notificationsArgs<ExtArgs>
+    _count?: boolean | EventoAlertaCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type AlertEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    rule?: boolean | AlertRuleDefaultArgs<ExtArgs>
+  export type EventoAlertaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    rule?: boolean | RegraAlertaDefaultArgs<ExtArgs>
   }
 
-  export type $AlertEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AlertEvent"
+  export type $EventoAlertaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EventoAlerta"
     objects: {
-      rule: Prisma.$AlertRulePayload<ExtArgs>
-      notifications: Prisma.$AlertNotificationLogPayload<ExtArgs>[]
+      rule: Prisma.$RegraAlertaPayload<ExtArgs>
+      notifications: Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -30970,136 +30970,136 @@ export namespace Prisma {
       reviewed_at: Date | null
       notes: string | null
       created_at: Date
-    }, ExtArgs["result"]["alertEvent"]>
+    }, ExtArgs["result"]["eventoAlerta"]>
     composites: {}
   }
 
-  type AlertEventGetPayload<S extends boolean | null | undefined | AlertEventDefaultArgs> = $Result.GetResult<Prisma.$AlertEventPayload, S>
+  type EventoAlertaGetPayload<S extends boolean | null | undefined | EventoAlertaDefaultArgs> = $Result.GetResult<Prisma.$EventoAlertaPayload, S>
 
-  type AlertEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AlertEventFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AlertEventCountAggregateInputType | true
+  type EventoAlertaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<EventoAlertaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: EventoAlertaCountAggregateInputType | true
     }
 
-  export interface AlertEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlertEvent'], meta: { name: 'AlertEvent' } }
+  export interface EventoAlertaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EventoAlerta'], meta: { name: 'EventoAlerta' } }
     /**
-     * Find zero or one AlertEvent that matches the filter.
-     * @param {AlertEventFindUniqueArgs} args - Arguments to find a AlertEvent
+     * Find zero or one EventoAlerta that matches the filter.
+     * @param {EventoAlertaFindUniqueArgs} args - Arguments to find a EventoAlerta
      * @example
-     * // Get one AlertEvent
-     * const alertEvent = await prisma.alertEvent.findUnique({
+     * // Get one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AlertEventFindUniqueArgs>(args: SelectSubset<T, AlertEventFindUniqueArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends EventoAlertaFindUniqueArgs>(args: SelectSubset<T, EventoAlertaFindUniqueArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AlertEvent that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one EventoAlerta that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AlertEventFindUniqueOrThrowArgs} args - Arguments to find a AlertEvent
+     * @param {EventoAlertaFindUniqueOrThrowArgs} args - Arguments to find a EventoAlerta
      * @example
-     * // Get one AlertEvent
-     * const alertEvent = await prisma.alertEvent.findUniqueOrThrow({
+     * // Get one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AlertEventFindUniqueOrThrowArgs>(args: SelectSubset<T, AlertEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends EventoAlertaFindUniqueOrThrowArgs>(args: SelectSubset<T, EventoAlertaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AlertEvent that matches the filter.
+     * Find the first EventoAlerta that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventFindFirstArgs} args - Arguments to find a AlertEvent
+     * @param {EventoAlertaFindFirstArgs} args - Arguments to find a EventoAlerta
      * @example
-     * // Get one AlertEvent
-     * const alertEvent = await prisma.alertEvent.findFirst({
+     * // Get one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AlertEventFindFirstArgs>(args?: SelectSubset<T, AlertEventFindFirstArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends EventoAlertaFindFirstArgs>(args?: SelectSubset<T, EventoAlertaFindFirstArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AlertEvent that matches the filter or
+     * Find the first EventoAlerta that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventFindFirstOrThrowArgs} args - Arguments to find a AlertEvent
+     * @param {EventoAlertaFindFirstOrThrowArgs} args - Arguments to find a EventoAlerta
      * @example
-     * // Get one AlertEvent
-     * const alertEvent = await prisma.alertEvent.findFirstOrThrow({
+     * // Get one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AlertEventFindFirstOrThrowArgs>(args?: SelectSubset<T, AlertEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends EventoAlertaFindFirstOrThrowArgs>(args?: SelectSubset<T, EventoAlertaFindFirstOrThrowArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AlertEvents that matches the filter.
+     * Find zero or more EventoAlertas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {EventoAlertaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AlertEvents
-     * const alertEvents = await prisma.alertEvent.findMany()
+     * // Get all EventoAlertas
+     * const eventoAlertas = await prisma.eventoAlerta.findMany()
      * 
-     * // Get first 10 AlertEvents
-     * const alertEvents = await prisma.alertEvent.findMany({ take: 10 })
+     * // Get first 10 EventoAlertas
+     * const eventoAlertas = await prisma.eventoAlerta.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const alertEventWithIdOnly = await prisma.alertEvent.findMany({ select: { id: true } })
+     * const eventoAlertaWithIdOnly = await prisma.eventoAlerta.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends AlertEventFindManyArgs>(args?: SelectSubset<T, AlertEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends EventoAlertaFindManyArgs>(args?: SelectSubset<T, EventoAlertaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AlertEvent.
-     * @param {AlertEventCreateArgs} args - Arguments to create a AlertEvent.
+     * Create a EventoAlerta.
+     * @param {EventoAlertaCreateArgs} args - Arguments to create a EventoAlerta.
      * @example
-     * // Create one AlertEvent
-     * const AlertEvent = await prisma.alertEvent.create({
+     * // Create one EventoAlerta
+     * const EventoAlerta = await prisma.eventoAlerta.create({
      *   data: {
-     *     // ... data to create a AlertEvent
+     *     // ... data to create a EventoAlerta
      *   }
      * })
      * 
      */
-    create<T extends AlertEventCreateArgs>(args: SelectSubset<T, AlertEventCreateArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends EventoAlertaCreateArgs>(args: SelectSubset<T, EventoAlertaCreateArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AlertEvents.
-     * @param {AlertEventCreateManyArgs} args - Arguments to create many AlertEvents.
+     * Create many EventoAlertas.
+     * @param {EventoAlertaCreateManyArgs} args - Arguments to create many EventoAlertas.
      * @example
-     * // Create many AlertEvents
-     * const alertEvent = await prisma.alertEvent.createMany({
+     * // Create many EventoAlertas
+     * const eventoAlerta = await prisma.eventoAlerta.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AlertEventCreateManyArgs>(args?: SelectSubset<T, AlertEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends EventoAlertaCreateManyArgs>(args?: SelectSubset<T, EventoAlertaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AlertEvents and returns the data saved in the database.
-     * @param {AlertEventCreateManyAndReturnArgs} args - Arguments to create many AlertEvents.
+     * Create many EventoAlertas and returns the data saved in the database.
+     * @param {EventoAlertaCreateManyAndReturnArgs} args - Arguments to create many EventoAlertas.
      * @example
-     * // Create many AlertEvents
-     * const alertEvent = await prisma.alertEvent.createManyAndReturn({
+     * // Create many EventoAlertas
+     * const eventoAlerta = await prisma.eventoAlerta.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AlertEvents and only return the `id`
-     * const alertEventWithIdOnly = await prisma.alertEvent.createManyAndReturn({ 
+     * // Create many EventoAlertas and only return the `id`
+     * const eventoAlertaWithIdOnly = await prisma.eventoAlerta.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -31109,28 +31109,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AlertEventCreateManyAndReturnArgs>(args?: SelectSubset<T, AlertEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends EventoAlertaCreateManyAndReturnArgs>(args?: SelectSubset<T, EventoAlertaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AlertEvent.
-     * @param {AlertEventDeleteArgs} args - Arguments to delete one AlertEvent.
+     * Delete a EventoAlerta.
+     * @param {EventoAlertaDeleteArgs} args - Arguments to delete one EventoAlerta.
      * @example
-     * // Delete one AlertEvent
-     * const AlertEvent = await prisma.alertEvent.delete({
+     * // Delete one EventoAlerta
+     * const EventoAlerta = await prisma.eventoAlerta.delete({
      *   where: {
-     *     // ... filter to delete one AlertEvent
+     *     // ... filter to delete one EventoAlerta
      *   }
      * })
      * 
      */
-    delete<T extends AlertEventDeleteArgs>(args: SelectSubset<T, AlertEventDeleteArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends EventoAlertaDeleteArgs>(args: SelectSubset<T, EventoAlertaDeleteArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AlertEvent.
-     * @param {AlertEventUpdateArgs} args - Arguments to update one AlertEvent.
+     * Update one EventoAlerta.
+     * @param {EventoAlertaUpdateArgs} args - Arguments to update one EventoAlerta.
      * @example
-     * // Update one AlertEvent
-     * const alertEvent = await prisma.alertEvent.update({
+     * // Update one EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -31140,30 +31140,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AlertEventUpdateArgs>(args: SelectSubset<T, AlertEventUpdateArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends EventoAlertaUpdateArgs>(args: SelectSubset<T, EventoAlertaUpdateArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AlertEvents.
-     * @param {AlertEventDeleteManyArgs} args - Arguments to filter AlertEvents to delete.
+     * Delete zero or more EventoAlertas.
+     * @param {EventoAlertaDeleteManyArgs} args - Arguments to filter EventoAlertas to delete.
      * @example
-     * // Delete a few AlertEvents
-     * const { count } = await prisma.alertEvent.deleteMany({
+     * // Delete a few EventoAlertas
+     * const { count } = await prisma.eventoAlerta.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AlertEventDeleteManyArgs>(args?: SelectSubset<T, AlertEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends EventoAlertaDeleteManyArgs>(args?: SelectSubset<T, EventoAlertaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AlertEvents.
+     * Update zero or more EventoAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {EventoAlertaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AlertEvents
-     * const alertEvent = await prisma.alertEvent.updateMany({
+     * // Update many EventoAlertas
+     * const eventoAlerta = await prisma.eventoAlerta.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -31173,56 +31173,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AlertEventUpdateManyArgs>(args: SelectSubset<T, AlertEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends EventoAlertaUpdateManyArgs>(args: SelectSubset<T, EventoAlertaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AlertEvent.
-     * @param {AlertEventUpsertArgs} args - Arguments to update or create a AlertEvent.
+     * Create or update one EventoAlerta.
+     * @param {EventoAlertaUpsertArgs} args - Arguments to update or create a EventoAlerta.
      * @example
-     * // Update or create a AlertEvent
-     * const alertEvent = await prisma.alertEvent.upsert({
+     * // Update or create a EventoAlerta
+     * const eventoAlerta = await prisma.eventoAlerta.upsert({
      *   create: {
-     *     // ... data to create a AlertEvent
+     *     // ... data to create a EventoAlerta
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AlertEvent we want to update
+     *     // ... the filter for the EventoAlerta we want to update
      *   }
      * })
      */
-    upsert<T extends AlertEventUpsertArgs>(args: SelectSubset<T, AlertEventUpsertArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends EventoAlertaUpsertArgs>(args: SelectSubset<T, EventoAlertaUpsertArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AlertEvents.
+     * Count the number of EventoAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventCountArgs} args - Arguments to filter AlertEvents to count.
+     * @param {EventoAlertaCountArgs} args - Arguments to filter EventoAlertas to count.
      * @example
-     * // Count the number of AlertEvents
-     * const count = await prisma.alertEvent.count({
+     * // Count the number of EventoAlertas
+     * const count = await prisma.eventoAlerta.count({
      *   where: {
-     *     // ... the filter for the AlertEvents we want to count
+     *     // ... the filter for the EventoAlertas we want to count
      *   }
      * })
     **/
-    count<T extends AlertEventCountArgs>(
-      args?: Subset<T, AlertEventCountArgs>,
+    count<T extends EventoAlertaCountArgs>(
+      args?: Subset<T, EventoAlertaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AlertEventCountAggregateOutputType>
+          : GetScalarType<T['select'], EventoAlertaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AlertEvent.
+     * Allows you to perform aggregations operations on a EventoAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {EventoAlertaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -31242,13 +31242,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AlertEventAggregateArgs>(args: Subset<T, AlertEventAggregateArgs>): Prisma.PrismaPromise<GetAlertEventAggregateType<T>>
+    aggregate<T extends EventoAlertaAggregateArgs>(args: Subset<T, EventoAlertaAggregateArgs>): Prisma.PrismaPromise<GetEventoAlertaAggregateType<T>>
 
     /**
-     * Group by AlertEvent.
+     * Group by EventoAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertEventGroupByArgs} args - Group by arguments.
+     * @param {EventoAlertaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -31263,14 +31263,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AlertEventGroupByArgs,
+      T extends EventoAlertaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AlertEventGroupByArgs['orderBy'] }
-        : { orderBy?: AlertEventGroupByArgs['orderBy'] },
+        ? { orderBy: EventoAlertaGroupByArgs['orderBy'] }
+        : { orderBy?: EventoAlertaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -31319,23 +31319,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AlertEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, EventoAlertaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEventoAlertaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AlertEvent model
+   * Fields of the EventoAlerta model
    */
-  readonly fields: AlertEventFieldRefs;
+  readonly fields: EventoAlertaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AlertEvent.
+   * The delegate class that acts as a "Promise-like" for EventoAlerta.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AlertEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__EventoAlertaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    rule<T extends AlertRuleDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AlertRuleDefaultArgs<ExtArgs>>): Prisma__AlertRuleClient<$Result.GetResult<Prisma.$AlertRulePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
-    notifications<T extends AlertEvent$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, AlertEvent$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findMany"> | Null>
+    rule<T extends RegraAlertaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RegraAlertaDefaultArgs<ExtArgs>>): Prisma__RegraAlertaClient<$Result.GetResult<Prisma.$RegraAlertaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    notifications<T extends EventoAlerta$notificationsArgs<ExtArgs> = {}>(args?: Subset<T, EventoAlerta$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -31362,398 +31362,398 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AlertEvent model
+   * Fields of the EventoAlerta model
    */ 
-  interface AlertEventFieldRefs {
-    readonly id: FieldRef<"AlertEvent", 'String'>
-    readonly tenant_id: FieldRef<"AlertEvent", 'String'>
-    readonly rule_id: FieldRef<"AlertEvent", 'String'>
-    readonly actor_type: FieldRef<"AlertEvent", 'ActorType'>
-    readonly actor_id: FieldRef<"AlertEvent", 'String'>
-    readonly actor_name: FieldRef<"AlertEvent", 'String'>
-    readonly module: FieldRef<"AlertEvent", 'String'>
-    readonly action: FieldRef<"AlertEvent", 'String'>
-    readonly event_count: FieldRef<"AlertEvent", 'Int'>
-    readonly window_seconds: FieldRef<"AlertEvent", 'Int'>
-    readonly audit_log_ids: FieldRef<"AlertEvent", 'String[]'>
-    readonly status: FieldRef<"AlertEvent", 'AlertStatus'>
-    readonly reviewed_by: FieldRef<"AlertEvent", 'String'>
-    readonly reviewed_at: FieldRef<"AlertEvent", 'DateTime'>
-    readonly notes: FieldRef<"AlertEvent", 'String'>
-    readonly created_at: FieldRef<"AlertEvent", 'DateTime'>
+  interface EventoAlertaFieldRefs {
+    readonly id: FieldRef<"EventoAlerta", 'String'>
+    readonly tenant_id: FieldRef<"EventoAlerta", 'String'>
+    readonly rule_id: FieldRef<"EventoAlerta", 'String'>
+    readonly actor_type: FieldRef<"EventoAlerta", 'ActorType'>
+    readonly actor_id: FieldRef<"EventoAlerta", 'String'>
+    readonly actor_name: FieldRef<"EventoAlerta", 'String'>
+    readonly module: FieldRef<"EventoAlerta", 'String'>
+    readonly action: FieldRef<"EventoAlerta", 'String'>
+    readonly event_count: FieldRef<"EventoAlerta", 'Int'>
+    readonly window_seconds: FieldRef<"EventoAlerta", 'Int'>
+    readonly audit_log_ids: FieldRef<"EventoAlerta", 'String[]'>
+    readonly status: FieldRef<"EventoAlerta", 'AlertStatus'>
+    readonly reviewed_by: FieldRef<"EventoAlerta", 'String'>
+    readonly reviewed_at: FieldRef<"EventoAlerta", 'DateTime'>
+    readonly notes: FieldRef<"EventoAlerta", 'String'>
+    readonly created_at: FieldRef<"EventoAlerta", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AlertEvent findUnique
+   * EventoAlerta findUnique
    */
-  export type AlertEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvent to fetch.
+     * Filter, which EventoAlerta to fetch.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertEvent findUniqueOrThrow
+   * EventoAlerta findUniqueOrThrow
    */
-  export type AlertEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvent to fetch.
+     * Filter, which EventoAlerta to fetch.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertEvent findFirst
+   * EventoAlerta findFirst
    */
-  export type AlertEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvent to fetch.
+     * Filter, which EventoAlerta to fetch.
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertEvents to fetch.
+     * Determine the order of EventoAlertas to fetch.
      */
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertEvents.
+     * Sets the position for searching for EventoAlertas.
      */
-    cursor?: AlertEventWhereUniqueInput
+    cursor?: EventoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertEvents from the position of the cursor.
+     * Take `±n` EventoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertEvents.
+     * Skip the first `n` EventoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertEvents.
+     * Filter by unique combinations of EventoAlertas.
      */
-    distinct?: AlertEventScalarFieldEnum | AlertEventScalarFieldEnum[]
+    distinct?: EventoAlertaScalarFieldEnum | EventoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertEvent findFirstOrThrow
+   * EventoAlerta findFirstOrThrow
    */
-  export type AlertEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvent to fetch.
+     * Filter, which EventoAlerta to fetch.
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertEvents to fetch.
+     * Determine the order of EventoAlertas to fetch.
      */
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertEvents.
+     * Sets the position for searching for EventoAlertas.
      */
-    cursor?: AlertEventWhereUniqueInput
+    cursor?: EventoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertEvents from the position of the cursor.
+     * Take `±n` EventoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertEvents.
+     * Skip the first `n` EventoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertEvents.
+     * Filter by unique combinations of EventoAlertas.
      */
-    distinct?: AlertEventScalarFieldEnum | AlertEventScalarFieldEnum[]
+    distinct?: EventoAlertaScalarFieldEnum | EventoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertEvent findMany
+   * EventoAlerta findMany
    */
-  export type AlertEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertEvents to fetch.
+     * Filter, which EventoAlertas to fetch.
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertEvents to fetch.
+     * Determine the order of EventoAlertas to fetch.
      */
-    orderBy?: AlertEventOrderByWithRelationInput | AlertEventOrderByWithRelationInput[]
+    orderBy?: EventoAlertaOrderByWithRelationInput | EventoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AlertEvents.
+     * Sets the position for listing EventoAlertas.
      */
-    cursor?: AlertEventWhereUniqueInput
+    cursor?: EventoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertEvents from the position of the cursor.
+     * Take `±n` EventoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertEvents.
+     * Skip the first `n` EventoAlertas.
      */
     skip?: number
-    distinct?: AlertEventScalarFieldEnum | AlertEventScalarFieldEnum[]
+    distinct?: EventoAlertaScalarFieldEnum | EventoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertEvent create
+   * EventoAlerta create
    */
-  export type AlertEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to create a AlertEvent.
+     * The data needed to create a EventoAlerta.
      */
-    data: XOR<AlertEventCreateInput, AlertEventUncheckedCreateInput>
+    data: XOR<EventoAlertaCreateInput, EventoAlertaUncheckedCreateInput>
   }
 
   /**
-   * AlertEvent createMany
+   * EventoAlerta createMany
    */
-  export type AlertEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AlertEvents.
+     * The data used to create many EventoAlertas.
      */
-    data: AlertEventCreateManyInput | AlertEventCreateManyInput[]
+    data: EventoAlertaCreateManyInput | EventoAlertaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AlertEvent createManyAndReturn
+   * EventoAlerta createManyAndReturn
    */
-  export type AlertEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelectCreateManyAndReturn<ExtArgs> | null
+    select?: EventoAlertaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AlertEvents.
+     * The data used to create many EventoAlertas.
      */
-    data: AlertEventCreateManyInput | AlertEventCreateManyInput[]
+    data: EventoAlertaCreateManyInput | EventoAlertaCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: EventoAlertaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * AlertEvent update
+   * EventoAlerta update
    */
-  export type AlertEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to update a AlertEvent.
+     * The data needed to update a EventoAlerta.
      */
-    data: XOR<AlertEventUpdateInput, AlertEventUncheckedUpdateInput>
+    data: XOR<EventoAlertaUpdateInput, EventoAlertaUncheckedUpdateInput>
     /**
-     * Choose, which AlertEvent to update.
+     * Choose, which EventoAlerta to update.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertEvent updateMany
+   * EventoAlerta updateMany
    */
-  export type AlertEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AlertEvents.
+     * The data used to update EventoAlertas.
      */
-    data: XOR<AlertEventUpdateManyMutationInput, AlertEventUncheckedUpdateManyInput>
+    data: XOR<EventoAlertaUpdateManyMutationInput, EventoAlertaUncheckedUpdateManyInput>
     /**
-     * Filter which AlertEvents to update
+     * Filter which EventoAlertas to update
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
   }
 
   /**
-   * AlertEvent upsert
+   * EventoAlerta upsert
    */
-  export type AlertEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * The filter to search for the AlertEvent to update in case it exists.
+     * The filter to search for the EventoAlerta to update in case it exists.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
     /**
-     * In case the AlertEvent found by the `where` argument doesn't exist, create a new AlertEvent with this data.
+     * In case the EventoAlerta found by the `where` argument doesn't exist, create a new EventoAlerta with this data.
      */
-    create: XOR<AlertEventCreateInput, AlertEventUncheckedCreateInput>
+    create: XOR<EventoAlertaCreateInput, EventoAlertaUncheckedCreateInput>
     /**
-     * In case the AlertEvent was found with the provided `where` argument, update it with this data.
+     * In case the EventoAlerta was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AlertEventUpdateInput, AlertEventUncheckedUpdateInput>
+    update: XOR<EventoAlertaUpdateInput, EventoAlertaUncheckedUpdateInput>
   }
 
   /**
-   * AlertEvent delete
+   * EventoAlerta delete
    */
-  export type AlertEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
     /**
-     * Filter which AlertEvent to delete.
+     * Filter which EventoAlerta to delete.
      */
-    where: AlertEventWhereUniqueInput
+    where: EventoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertEvent deleteMany
+   * EventoAlerta deleteMany
    */
-  export type AlertEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertEvents to delete
+     * Filter which EventoAlertas to delete
      */
-    where?: AlertEventWhereInput
+    where?: EventoAlertaWhereInput
   }
 
   /**
-   * AlertEvent.notifications
+   * EventoAlerta.notifications
    */
-  export type AlertEvent$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlerta$notificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
-    where?: AlertNotificationLogWhereInput
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
-    cursor?: AlertNotificationLogWhereUniqueInput
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
+    where?: RegistroNotificacaoAlertaWhereInput
+    orderBy?: RegistroNotificacaoAlertaOrderByWithRelationInput | RegistroNotificacaoAlertaOrderByWithRelationInput[]
+    cursor?: RegistroNotificacaoAlertaWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: AlertNotificationLogScalarFieldEnum | AlertNotificationLogScalarFieldEnum[]
+    distinct?: RegistroNotificacaoAlertaScalarFieldEnum | RegistroNotificacaoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertEvent without action
+   * EventoAlerta without action
    */
-  export type AlertEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type EventoAlertaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertEvent
+     * Select specific fields to fetch from the EventoAlerta
      */
-    select?: AlertEventSelect<ExtArgs> | null
+    select?: EventoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertEventInclude<ExtArgs> | null
+    include?: EventoAlertaInclude<ExtArgs> | null
   }
 
 
   /**
-   * Model AlertNotificationLog
+   * Model RegistroNotificacaoAlerta
    */
 
-  export type AggregateAlertNotificationLog = {
-    _count: AlertNotificationLogCountAggregateOutputType | null
-    _avg: AlertNotificationLogAvgAggregateOutputType | null
-    _sum: AlertNotificationLogSumAggregateOutputType | null
-    _min: AlertNotificationLogMinAggregateOutputType | null
-    _max: AlertNotificationLogMaxAggregateOutputType | null
+  export type AggregateRegistroNotificacaoAlerta = {
+    _count: RegistroNotificacaoAlertaCountAggregateOutputType | null
+    _avg: RegistroNotificacaoAlertaAvgAggregateOutputType | null
+    _sum: RegistroNotificacaoAlertaSumAggregateOutputType | null
+    _min: RegistroNotificacaoAlertaMinAggregateOutputType | null
+    _max: RegistroNotificacaoAlertaMaxAggregateOutputType | null
   }
 
-  export type AlertNotificationLogAvgAggregateOutputType = {
+  export type RegistroNotificacaoAlertaAvgAggregateOutputType = {
     attempts: number | null
   }
 
-  export type AlertNotificationLogSumAggregateOutputType = {
+  export type RegistroNotificacaoAlertaSumAggregateOutputType = {
     attempts: number | null
   }
 
-  export type AlertNotificationLogMinAggregateOutputType = {
+  export type RegistroNotificacaoAlertaMinAggregateOutputType = {
     id: string | null
     alert_event_id: string | null
     channel: string | null
@@ -31765,7 +31765,7 @@ export namespace Prisma {
     created_at: Date | null
   }
 
-  export type AlertNotificationLogMaxAggregateOutputType = {
+  export type RegistroNotificacaoAlertaMaxAggregateOutputType = {
     id: string | null
     alert_event_id: string | null
     channel: string | null
@@ -31777,7 +31777,7 @@ export namespace Prisma {
     created_at: Date | null
   }
 
-  export type AlertNotificationLogCountAggregateOutputType = {
+  export type RegistroNotificacaoAlertaCountAggregateOutputType = {
     id: number
     alert_event_id: number
     channel: number
@@ -31791,15 +31791,15 @@ export namespace Prisma {
   }
 
 
-  export type AlertNotificationLogAvgAggregateInputType = {
+  export type RegistroNotificacaoAlertaAvgAggregateInputType = {
     attempts?: true
   }
 
-  export type AlertNotificationLogSumAggregateInputType = {
+  export type RegistroNotificacaoAlertaSumAggregateInputType = {
     attempts?: true
   }
 
-  export type AlertNotificationLogMinAggregateInputType = {
+  export type RegistroNotificacaoAlertaMinAggregateInputType = {
     id?: true
     alert_event_id?: true
     channel?: true
@@ -31811,7 +31811,7 @@ export namespace Prisma {
     created_at?: true
   }
 
-  export type AlertNotificationLogMaxAggregateInputType = {
+  export type RegistroNotificacaoAlertaMaxAggregateInputType = {
     id?: true
     alert_event_id?: true
     channel?: true
@@ -31823,7 +31823,7 @@ export namespace Prisma {
     created_at?: true
   }
 
-  export type AlertNotificationLogCountAggregateInputType = {
+  export type RegistroNotificacaoAlertaCountAggregateInputType = {
     id?: true
     alert_event_id?: true
     channel?: true
@@ -31836,93 +31836,93 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type AlertNotificationLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertNotificationLog to aggregate.
+     * Filter which RegistroNotificacaoAlerta to aggregate.
      */
-    where?: AlertNotificationLogWhereInput
+    where?: RegistroNotificacaoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertNotificationLogs to fetch.
+     * Determine the order of RegistroNotificacaoAlertas to fetch.
      */
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
+    orderBy?: RegistroNotificacaoAlertaOrderByWithRelationInput | RegistroNotificacaoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AlertNotificationLogWhereUniqueInput
+    cursor?: RegistroNotificacaoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertNotificationLogs from the position of the cursor.
+     * Take `±n` RegistroNotificacaoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertNotificationLogs.
+     * Skip the first `n` RegistroNotificacaoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned AlertNotificationLogs
+     * Count returned RegistroNotificacaoAlertas
     **/
-    _count?: true | AlertNotificationLogCountAggregateInputType
+    _count?: true | RegistroNotificacaoAlertaCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AlertNotificationLogAvgAggregateInputType
+    _avg?: RegistroNotificacaoAlertaAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AlertNotificationLogSumAggregateInputType
+    _sum?: RegistroNotificacaoAlertaSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AlertNotificationLogMinAggregateInputType
+    _min?: RegistroNotificacaoAlertaMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AlertNotificationLogMaxAggregateInputType
+    _max?: RegistroNotificacaoAlertaMaxAggregateInputType
   }
 
-  export type GetAlertNotificationLogAggregateType<T extends AlertNotificationLogAggregateArgs> = {
-        [P in keyof T & keyof AggregateAlertNotificationLog]: P extends '_count' | 'count'
+  export type GetRegistroNotificacaoAlertaAggregateType<T extends RegistroNotificacaoAlertaAggregateArgs> = {
+        [P in keyof T & keyof AggregateRegistroNotificacaoAlerta]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAlertNotificationLog[P]>
-      : GetScalarType<T[P], AggregateAlertNotificationLog[P]>
+        : GetScalarType<T[P], AggregateRegistroNotificacaoAlerta[P]>
+      : GetScalarType<T[P], AggregateRegistroNotificacaoAlerta[P]>
   }
 
 
 
 
-  export type AlertNotificationLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: AlertNotificationLogWhereInput
-    orderBy?: AlertNotificationLogOrderByWithAggregationInput | AlertNotificationLogOrderByWithAggregationInput[]
-    by: AlertNotificationLogScalarFieldEnum[] | AlertNotificationLogScalarFieldEnum
-    having?: AlertNotificationLogScalarWhereWithAggregatesInput
+  export type RegistroNotificacaoAlertaGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RegistroNotificacaoAlertaWhereInput
+    orderBy?: RegistroNotificacaoAlertaOrderByWithAggregationInput | RegistroNotificacaoAlertaOrderByWithAggregationInput[]
+    by: RegistroNotificacaoAlertaScalarFieldEnum[] | RegistroNotificacaoAlertaScalarFieldEnum
+    having?: RegistroNotificacaoAlertaScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AlertNotificationLogCountAggregateInputType | true
-    _avg?: AlertNotificationLogAvgAggregateInputType
-    _sum?: AlertNotificationLogSumAggregateInputType
-    _min?: AlertNotificationLogMinAggregateInputType
-    _max?: AlertNotificationLogMaxAggregateInputType
+    _count?: RegistroNotificacaoAlertaCountAggregateInputType | true
+    _avg?: RegistroNotificacaoAlertaAvgAggregateInputType
+    _sum?: RegistroNotificacaoAlertaSumAggregateInputType
+    _min?: RegistroNotificacaoAlertaMinAggregateInputType
+    _max?: RegistroNotificacaoAlertaMaxAggregateInputType
   }
 
-  export type AlertNotificationLogGroupByOutputType = {
+  export type RegistroNotificacaoAlertaGroupByOutputType = {
     id: string
     alert_event_id: string
     channel: string
@@ -31932,28 +31932,28 @@ export namespace Prisma {
     error_message: string | null
     sent_at: Date | null
     created_at: Date
-    _count: AlertNotificationLogCountAggregateOutputType | null
-    _avg: AlertNotificationLogAvgAggregateOutputType | null
-    _sum: AlertNotificationLogSumAggregateOutputType | null
-    _min: AlertNotificationLogMinAggregateOutputType | null
-    _max: AlertNotificationLogMaxAggregateOutputType | null
+    _count: RegistroNotificacaoAlertaCountAggregateOutputType | null
+    _avg: RegistroNotificacaoAlertaAvgAggregateOutputType | null
+    _sum: RegistroNotificacaoAlertaSumAggregateOutputType | null
+    _min: RegistroNotificacaoAlertaMinAggregateOutputType | null
+    _max: RegistroNotificacaoAlertaMaxAggregateOutputType | null
   }
 
-  type GetAlertNotificationLogGroupByPayload<T extends AlertNotificationLogGroupByArgs> = Prisma.PrismaPromise<
+  type GetRegistroNotificacaoAlertaGroupByPayload<T extends RegistroNotificacaoAlertaGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<AlertNotificationLogGroupByOutputType, T['by']> &
+      PickEnumerable<RegistroNotificacaoAlertaGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AlertNotificationLogGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof RegistroNotificacaoAlertaGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AlertNotificationLogGroupByOutputType[P]>
-            : GetScalarType<T[P], AlertNotificationLogGroupByOutputType[P]>
+              : GetScalarType<T[P], RegistroNotificacaoAlertaGroupByOutputType[P]>
+            : GetScalarType<T[P], RegistroNotificacaoAlertaGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AlertNotificationLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RegistroNotificacaoAlertaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     alert_event_id?: boolean
     channel?: boolean
@@ -31963,10 +31963,10 @@ export namespace Prisma {
     error_message?: boolean
     sent_at?: boolean
     created_at?: boolean
-    alert_event?: boolean | AlertEventDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertNotificationLog"]>
+    alert_event?: boolean | EventoAlertaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["registroNotificacaoAlerta"]>
 
-  export type AlertNotificationLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RegistroNotificacaoAlertaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     alert_event_id?: boolean
     channel?: boolean
@@ -31976,10 +31976,10 @@ export namespace Prisma {
     error_message?: boolean
     sent_at?: boolean
     created_at?: boolean
-    alert_event?: boolean | AlertEventDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["alertNotificationLog"]>
+    alert_event?: boolean | EventoAlertaDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["registroNotificacaoAlerta"]>
 
-  export type AlertNotificationLogSelectScalar = {
+  export type RegistroNotificacaoAlertaSelectScalar = {
     id?: boolean
     alert_event_id?: boolean
     channel?: boolean
@@ -31991,17 +31991,17 @@ export namespace Prisma {
     created_at?: boolean
   }
 
-  export type AlertNotificationLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    alert_event?: boolean | AlertEventDefaultArgs<ExtArgs>
+  export type RegistroNotificacaoAlertaInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    alert_event?: boolean | EventoAlertaDefaultArgs<ExtArgs>
   }
-  export type AlertNotificationLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    alert_event?: boolean | AlertEventDefaultArgs<ExtArgs>
+  export type RegistroNotificacaoAlertaIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    alert_event?: boolean | EventoAlertaDefaultArgs<ExtArgs>
   }
 
-  export type $AlertNotificationLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "AlertNotificationLog"
+  export type $RegistroNotificacaoAlertaPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RegistroNotificacaoAlerta"
     objects: {
-      alert_event: Prisma.$AlertEventPayload<ExtArgs>
+      alert_event: Prisma.$EventoAlertaPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -32013,136 +32013,136 @@ export namespace Prisma {
       error_message: string | null
       sent_at: Date | null
       created_at: Date
-    }, ExtArgs["result"]["alertNotificationLog"]>
+    }, ExtArgs["result"]["registroNotificacaoAlerta"]>
     composites: {}
   }
 
-  type AlertNotificationLogGetPayload<S extends boolean | null | undefined | AlertNotificationLogDefaultArgs> = $Result.GetResult<Prisma.$AlertNotificationLogPayload, S>
+  type RegistroNotificacaoAlertaGetPayload<S extends boolean | null | undefined | RegistroNotificacaoAlertaDefaultArgs> = $Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload, S>
 
-  type AlertNotificationLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<AlertNotificationLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: AlertNotificationLogCountAggregateInputType | true
+  type RegistroNotificacaoAlertaCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<RegistroNotificacaoAlertaFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: RegistroNotificacaoAlertaCountAggregateInputType | true
     }
 
-  export interface AlertNotificationLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlertNotificationLog'], meta: { name: 'AlertNotificationLog' } }
+  export interface RegistroNotificacaoAlertaDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RegistroNotificacaoAlerta'], meta: { name: 'RegistroNotificacaoAlerta' } }
     /**
-     * Find zero or one AlertNotificationLog that matches the filter.
-     * @param {AlertNotificationLogFindUniqueArgs} args - Arguments to find a AlertNotificationLog
+     * Find zero or one RegistroNotificacaoAlerta that matches the filter.
+     * @param {RegistroNotificacaoAlertaFindUniqueArgs} args - Arguments to find a RegistroNotificacaoAlerta
      * @example
-     * // Get one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.findUnique({
+     * // Get one RegistroNotificacaoAlerta
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends AlertNotificationLogFindUniqueArgs>(args: SelectSubset<T, AlertNotificationLogFindUniqueArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends RegistroNotificacaoAlertaFindUniqueArgs>(args: SelectSubset<T, RegistroNotificacaoAlertaFindUniqueArgs<ExtArgs>>): Prisma__RegistroNotificacaoAlertaClient<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one AlertNotificationLog that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one RegistroNotificacaoAlerta that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {AlertNotificationLogFindUniqueOrThrowArgs} args - Arguments to find a AlertNotificationLog
+     * @param {RegistroNotificacaoAlertaFindUniqueOrThrowArgs} args - Arguments to find a RegistroNotificacaoAlerta
      * @example
-     * // Get one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.findUniqueOrThrow({
+     * // Get one RegistroNotificacaoAlerta
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends AlertNotificationLogFindUniqueOrThrowArgs>(args: SelectSubset<T, AlertNotificationLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends RegistroNotificacaoAlertaFindUniqueOrThrowArgs>(args: SelectSubset<T, RegistroNotificacaoAlertaFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RegistroNotificacaoAlertaClient<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first AlertNotificationLog that matches the filter.
+     * Find the first RegistroNotificacaoAlerta that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogFindFirstArgs} args - Arguments to find a AlertNotificationLog
+     * @param {RegistroNotificacaoAlertaFindFirstArgs} args - Arguments to find a RegistroNotificacaoAlerta
      * @example
-     * // Get one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.findFirst({
+     * // Get one RegistroNotificacaoAlerta
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends AlertNotificationLogFindFirstArgs>(args?: SelectSubset<T, AlertNotificationLogFindFirstArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends RegistroNotificacaoAlertaFindFirstArgs>(args?: SelectSubset<T, RegistroNotificacaoAlertaFindFirstArgs<ExtArgs>>): Prisma__RegistroNotificacaoAlertaClient<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first AlertNotificationLog that matches the filter or
+     * Find the first RegistroNotificacaoAlerta that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogFindFirstOrThrowArgs} args - Arguments to find a AlertNotificationLog
+     * @param {RegistroNotificacaoAlertaFindFirstOrThrowArgs} args - Arguments to find a RegistroNotificacaoAlerta
      * @example
-     * // Get one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.findFirstOrThrow({
+     * // Get one RegistroNotificacaoAlerta
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends AlertNotificationLogFindFirstOrThrowArgs>(args?: SelectSubset<T, AlertNotificationLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends RegistroNotificacaoAlertaFindFirstOrThrowArgs>(args?: SelectSubset<T, RegistroNotificacaoAlertaFindFirstOrThrowArgs<ExtArgs>>): Prisma__RegistroNotificacaoAlertaClient<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more AlertNotificationLogs that matches the filter.
+     * Find zero or more RegistroNotificacaoAlertas that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {RegistroNotificacaoAlertaFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all AlertNotificationLogs
-     * const alertNotificationLogs = await prisma.alertNotificationLog.findMany()
+     * // Get all RegistroNotificacaoAlertas
+     * const registroNotificacaoAlertas = await prisma.registroNotificacaoAlerta.findMany()
      * 
-     * // Get first 10 AlertNotificationLogs
-     * const alertNotificationLogs = await prisma.alertNotificationLog.findMany({ take: 10 })
+     * // Get first 10 RegistroNotificacaoAlertas
+     * const registroNotificacaoAlertas = await prisma.registroNotificacaoAlerta.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const alertNotificationLogWithIdOnly = await prisma.alertNotificationLog.findMany({ select: { id: true } })
+     * const registroNotificacaoAlertaWithIdOnly = await prisma.registroNotificacaoAlerta.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends AlertNotificationLogFindManyArgs>(args?: SelectSubset<T, AlertNotificationLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends RegistroNotificacaoAlertaFindManyArgs>(args?: SelectSubset<T, RegistroNotificacaoAlertaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a AlertNotificationLog.
-     * @param {AlertNotificationLogCreateArgs} args - Arguments to create a AlertNotificationLog.
+     * Create a RegistroNotificacaoAlerta.
+     * @param {RegistroNotificacaoAlertaCreateArgs} args - Arguments to create a RegistroNotificacaoAlerta.
      * @example
-     * // Create one AlertNotificationLog
-     * const AlertNotificationLog = await prisma.alertNotificationLog.create({
+     * // Create one RegistroNotificacaoAlerta
+     * const RegistroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.create({
      *   data: {
-     *     // ... data to create a AlertNotificationLog
+     *     // ... data to create a RegistroNotificacaoAlerta
      *   }
      * })
      * 
      */
-    create<T extends AlertNotificationLogCreateArgs>(args: SelectSubset<T, AlertNotificationLogCreateArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends RegistroNotificacaoAlertaCreateArgs>(args: SelectSubset<T, RegistroNotificacaoAlertaCreateArgs<ExtArgs>>): Prisma__RegistroNotificacaoAlertaClient<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many AlertNotificationLogs.
-     * @param {AlertNotificationLogCreateManyArgs} args - Arguments to create many AlertNotificationLogs.
+     * Create many RegistroNotificacaoAlertas.
+     * @param {RegistroNotificacaoAlertaCreateManyArgs} args - Arguments to create many RegistroNotificacaoAlertas.
      * @example
-     * // Create many AlertNotificationLogs
-     * const alertNotificationLog = await prisma.alertNotificationLog.createMany({
+     * // Create many RegistroNotificacaoAlertas
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends AlertNotificationLogCreateManyArgs>(args?: SelectSubset<T, AlertNotificationLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends RegistroNotificacaoAlertaCreateManyArgs>(args?: SelectSubset<T, RegistroNotificacaoAlertaCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many AlertNotificationLogs and returns the data saved in the database.
-     * @param {AlertNotificationLogCreateManyAndReturnArgs} args - Arguments to create many AlertNotificationLogs.
+     * Create many RegistroNotificacaoAlertas and returns the data saved in the database.
+     * @param {RegistroNotificacaoAlertaCreateManyAndReturnArgs} args - Arguments to create many RegistroNotificacaoAlertas.
      * @example
-     * // Create many AlertNotificationLogs
-     * const alertNotificationLog = await prisma.alertNotificationLog.createManyAndReturn({
+     * // Create many RegistroNotificacaoAlertas
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many AlertNotificationLogs and only return the `id`
-     * const alertNotificationLogWithIdOnly = await prisma.alertNotificationLog.createManyAndReturn({ 
+     * // Create many RegistroNotificacaoAlertas and only return the `id`
+     * const registroNotificacaoAlertaWithIdOnly = await prisma.registroNotificacaoAlerta.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -32152,28 +32152,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends AlertNotificationLogCreateManyAndReturnArgs>(args?: SelectSubset<T, AlertNotificationLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends RegistroNotificacaoAlertaCreateManyAndReturnArgs>(args?: SelectSubset<T, RegistroNotificacaoAlertaCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a AlertNotificationLog.
-     * @param {AlertNotificationLogDeleteArgs} args - Arguments to delete one AlertNotificationLog.
+     * Delete a RegistroNotificacaoAlerta.
+     * @param {RegistroNotificacaoAlertaDeleteArgs} args - Arguments to delete one RegistroNotificacaoAlerta.
      * @example
-     * // Delete one AlertNotificationLog
-     * const AlertNotificationLog = await prisma.alertNotificationLog.delete({
+     * // Delete one RegistroNotificacaoAlerta
+     * const RegistroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.delete({
      *   where: {
-     *     // ... filter to delete one AlertNotificationLog
+     *     // ... filter to delete one RegistroNotificacaoAlerta
      *   }
      * })
      * 
      */
-    delete<T extends AlertNotificationLogDeleteArgs>(args: SelectSubset<T, AlertNotificationLogDeleteArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends RegistroNotificacaoAlertaDeleteArgs>(args: SelectSubset<T, RegistroNotificacaoAlertaDeleteArgs<ExtArgs>>): Prisma__RegistroNotificacaoAlertaClient<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one AlertNotificationLog.
-     * @param {AlertNotificationLogUpdateArgs} args - Arguments to update one AlertNotificationLog.
+     * Update one RegistroNotificacaoAlerta.
+     * @param {RegistroNotificacaoAlertaUpdateArgs} args - Arguments to update one RegistroNotificacaoAlerta.
      * @example
-     * // Update one AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.update({
+     * // Update one RegistroNotificacaoAlerta
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -32183,30 +32183,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends AlertNotificationLogUpdateArgs>(args: SelectSubset<T, AlertNotificationLogUpdateArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends RegistroNotificacaoAlertaUpdateArgs>(args: SelectSubset<T, RegistroNotificacaoAlertaUpdateArgs<ExtArgs>>): Prisma__RegistroNotificacaoAlertaClient<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more AlertNotificationLogs.
-     * @param {AlertNotificationLogDeleteManyArgs} args - Arguments to filter AlertNotificationLogs to delete.
+     * Delete zero or more RegistroNotificacaoAlertas.
+     * @param {RegistroNotificacaoAlertaDeleteManyArgs} args - Arguments to filter RegistroNotificacaoAlertas to delete.
      * @example
-     * // Delete a few AlertNotificationLogs
-     * const { count } = await prisma.alertNotificationLog.deleteMany({
+     * // Delete a few RegistroNotificacaoAlertas
+     * const { count } = await prisma.registroNotificacaoAlerta.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends AlertNotificationLogDeleteManyArgs>(args?: SelectSubset<T, AlertNotificationLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends RegistroNotificacaoAlertaDeleteManyArgs>(args?: SelectSubset<T, RegistroNotificacaoAlertaDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more AlertNotificationLogs.
+     * Update zero or more RegistroNotificacaoAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {RegistroNotificacaoAlertaUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many AlertNotificationLogs
-     * const alertNotificationLog = await prisma.alertNotificationLog.updateMany({
+     * // Update many RegistroNotificacaoAlertas
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -32216,56 +32216,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends AlertNotificationLogUpdateManyArgs>(args: SelectSubset<T, AlertNotificationLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends RegistroNotificacaoAlertaUpdateManyArgs>(args: SelectSubset<T, RegistroNotificacaoAlertaUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one AlertNotificationLog.
-     * @param {AlertNotificationLogUpsertArgs} args - Arguments to update or create a AlertNotificationLog.
+     * Create or update one RegistroNotificacaoAlerta.
+     * @param {RegistroNotificacaoAlertaUpsertArgs} args - Arguments to update or create a RegistroNotificacaoAlerta.
      * @example
-     * // Update or create a AlertNotificationLog
-     * const alertNotificationLog = await prisma.alertNotificationLog.upsert({
+     * // Update or create a RegistroNotificacaoAlerta
+     * const registroNotificacaoAlerta = await prisma.registroNotificacaoAlerta.upsert({
      *   create: {
-     *     // ... data to create a AlertNotificationLog
+     *     // ... data to create a RegistroNotificacaoAlerta
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the AlertNotificationLog we want to update
+     *     // ... the filter for the RegistroNotificacaoAlerta we want to update
      *   }
      * })
      */
-    upsert<T extends AlertNotificationLogUpsertArgs>(args: SelectSubset<T, AlertNotificationLogUpsertArgs<ExtArgs>>): Prisma__AlertNotificationLogClient<$Result.GetResult<Prisma.$AlertNotificationLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends RegistroNotificacaoAlertaUpsertArgs>(args: SelectSubset<T, RegistroNotificacaoAlertaUpsertArgs<ExtArgs>>): Prisma__RegistroNotificacaoAlertaClient<$Result.GetResult<Prisma.$RegistroNotificacaoAlertaPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of AlertNotificationLogs.
+     * Count the number of RegistroNotificacaoAlertas.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogCountArgs} args - Arguments to filter AlertNotificationLogs to count.
+     * @param {RegistroNotificacaoAlertaCountArgs} args - Arguments to filter RegistroNotificacaoAlertas to count.
      * @example
-     * // Count the number of AlertNotificationLogs
-     * const count = await prisma.alertNotificationLog.count({
+     * // Count the number of RegistroNotificacaoAlertas
+     * const count = await prisma.registroNotificacaoAlerta.count({
      *   where: {
-     *     // ... the filter for the AlertNotificationLogs we want to count
+     *     // ... the filter for the RegistroNotificacaoAlertas we want to count
      *   }
      * })
     **/
-    count<T extends AlertNotificationLogCountArgs>(
-      args?: Subset<T, AlertNotificationLogCountArgs>,
+    count<T extends RegistroNotificacaoAlertaCountArgs>(
+      args?: Subset<T, RegistroNotificacaoAlertaCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AlertNotificationLogCountAggregateOutputType>
+          : GetScalarType<T['select'], RegistroNotificacaoAlertaCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a AlertNotificationLog.
+     * Allows you to perform aggregations operations on a RegistroNotificacaoAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {RegistroNotificacaoAlertaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -32285,13 +32285,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AlertNotificationLogAggregateArgs>(args: Subset<T, AlertNotificationLogAggregateArgs>): Prisma.PrismaPromise<GetAlertNotificationLogAggregateType<T>>
+    aggregate<T extends RegistroNotificacaoAlertaAggregateArgs>(args: Subset<T, RegistroNotificacaoAlertaAggregateArgs>): Prisma.PrismaPromise<GetRegistroNotificacaoAlertaAggregateType<T>>
 
     /**
-     * Group by AlertNotificationLog.
+     * Group by RegistroNotificacaoAlerta.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AlertNotificationLogGroupByArgs} args - Group by arguments.
+     * @param {RegistroNotificacaoAlertaGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -32306,14 +32306,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AlertNotificationLogGroupByArgs,
+      T extends RegistroNotificacaoAlertaGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AlertNotificationLogGroupByArgs['orderBy'] }
-        : { orderBy?: AlertNotificationLogGroupByArgs['orderBy'] },
+        ? { orderBy: RegistroNotificacaoAlertaGroupByArgs['orderBy'] }
+        : { orderBy?: RegistroNotificacaoAlertaGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -32362,22 +32362,22 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AlertNotificationLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertNotificationLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, RegistroNotificacaoAlertaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRegistroNotificacaoAlertaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the AlertNotificationLog model
+   * Fields of the RegistroNotificacaoAlerta model
    */
-  readonly fields: AlertNotificationLogFieldRefs;
+  readonly fields: RegistroNotificacaoAlertaFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for AlertNotificationLog.
+   * The delegate class that acts as a "Promise-like" for RegistroNotificacaoAlerta.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__AlertNotificationLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__RegistroNotificacaoAlertaClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    alert_event<T extends AlertEventDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AlertEventDefaultArgs<ExtArgs>>): Prisma__AlertEventClient<$Result.GetResult<Prisma.$AlertEventPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    alert_event<T extends EventoAlertaDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EventoAlertaDefaultArgs<ExtArgs>>): Prisma__EventoAlertaClient<$Result.GetResult<Prisma.$EventoAlertaPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -32404,347 +32404,347 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the AlertNotificationLog model
+   * Fields of the RegistroNotificacaoAlerta model
    */ 
-  interface AlertNotificationLogFieldRefs {
-    readonly id: FieldRef<"AlertNotificationLog", 'String'>
-    readonly alert_event_id: FieldRef<"AlertNotificationLog", 'String'>
-    readonly channel: FieldRef<"AlertNotificationLog", 'String'>
-    readonly recipient: FieldRef<"AlertNotificationLog", 'String'>
-    readonly status: FieldRef<"AlertNotificationLog", 'String'>
-    readonly attempts: FieldRef<"AlertNotificationLog", 'Int'>
-    readonly error_message: FieldRef<"AlertNotificationLog", 'String'>
-    readonly sent_at: FieldRef<"AlertNotificationLog", 'DateTime'>
-    readonly created_at: FieldRef<"AlertNotificationLog", 'DateTime'>
+  interface RegistroNotificacaoAlertaFieldRefs {
+    readonly id: FieldRef<"RegistroNotificacaoAlerta", 'String'>
+    readonly alert_event_id: FieldRef<"RegistroNotificacaoAlerta", 'String'>
+    readonly channel: FieldRef<"RegistroNotificacaoAlerta", 'String'>
+    readonly recipient: FieldRef<"RegistroNotificacaoAlerta", 'String'>
+    readonly status: FieldRef<"RegistroNotificacaoAlerta", 'String'>
+    readonly attempts: FieldRef<"RegistroNotificacaoAlerta", 'Int'>
+    readonly error_message: FieldRef<"RegistroNotificacaoAlerta", 'String'>
+    readonly sent_at: FieldRef<"RegistroNotificacaoAlerta", 'DateTime'>
+    readonly created_at: FieldRef<"RegistroNotificacaoAlerta", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * AlertNotificationLog findUnique
+   * RegistroNotificacaoAlerta findUnique
    */
-  export type AlertNotificationLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLog to fetch.
+     * Filter, which RegistroNotificacaoAlerta to fetch.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: RegistroNotificacaoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertNotificationLog findUniqueOrThrow
+   * RegistroNotificacaoAlerta findUniqueOrThrow
    */
-  export type AlertNotificationLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLog to fetch.
+     * Filter, which RegistroNotificacaoAlerta to fetch.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: RegistroNotificacaoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertNotificationLog findFirst
+   * RegistroNotificacaoAlerta findFirst
    */
-  export type AlertNotificationLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLog to fetch.
+     * Filter, which RegistroNotificacaoAlerta to fetch.
      */
-    where?: AlertNotificationLogWhereInput
+    where?: RegistroNotificacaoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertNotificationLogs to fetch.
+     * Determine the order of RegistroNotificacaoAlertas to fetch.
      */
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
+    orderBy?: RegistroNotificacaoAlertaOrderByWithRelationInput | RegistroNotificacaoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertNotificationLogs.
+     * Sets the position for searching for RegistroNotificacaoAlertas.
      */
-    cursor?: AlertNotificationLogWhereUniqueInput
+    cursor?: RegistroNotificacaoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertNotificationLogs from the position of the cursor.
+     * Take `±n` RegistroNotificacaoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertNotificationLogs.
+     * Skip the first `n` RegistroNotificacaoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertNotificationLogs.
+     * Filter by unique combinations of RegistroNotificacaoAlertas.
      */
-    distinct?: AlertNotificationLogScalarFieldEnum | AlertNotificationLogScalarFieldEnum[]
+    distinct?: RegistroNotificacaoAlertaScalarFieldEnum | RegistroNotificacaoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertNotificationLog findFirstOrThrow
+   * RegistroNotificacaoAlerta findFirstOrThrow
    */
-  export type AlertNotificationLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLog to fetch.
+     * Filter, which RegistroNotificacaoAlerta to fetch.
      */
-    where?: AlertNotificationLogWhereInput
+    where?: RegistroNotificacaoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertNotificationLogs to fetch.
+     * Determine the order of RegistroNotificacaoAlertas to fetch.
      */
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
+    orderBy?: RegistroNotificacaoAlertaOrderByWithRelationInput | RegistroNotificacaoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for AlertNotificationLogs.
+     * Sets the position for searching for RegistroNotificacaoAlertas.
      */
-    cursor?: AlertNotificationLogWhereUniqueInput
+    cursor?: RegistroNotificacaoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertNotificationLogs from the position of the cursor.
+     * Take `±n` RegistroNotificacaoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertNotificationLogs.
+     * Skip the first `n` RegistroNotificacaoAlertas.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of AlertNotificationLogs.
+     * Filter by unique combinations of RegistroNotificacaoAlertas.
      */
-    distinct?: AlertNotificationLogScalarFieldEnum | AlertNotificationLogScalarFieldEnum[]
+    distinct?: RegistroNotificacaoAlertaScalarFieldEnum | RegistroNotificacaoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertNotificationLog findMany
+   * RegistroNotificacaoAlerta findMany
    */
-  export type AlertNotificationLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter, which AlertNotificationLogs to fetch.
+     * Filter, which RegistroNotificacaoAlertas to fetch.
      */
-    where?: AlertNotificationLogWhereInput
+    where?: RegistroNotificacaoAlertaWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of AlertNotificationLogs to fetch.
+     * Determine the order of RegistroNotificacaoAlertas to fetch.
      */
-    orderBy?: AlertNotificationLogOrderByWithRelationInput | AlertNotificationLogOrderByWithRelationInput[]
+    orderBy?: RegistroNotificacaoAlertaOrderByWithRelationInput | RegistroNotificacaoAlertaOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing AlertNotificationLogs.
+     * Sets the position for listing RegistroNotificacaoAlertas.
      */
-    cursor?: AlertNotificationLogWhereUniqueInput
+    cursor?: RegistroNotificacaoAlertaWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` AlertNotificationLogs from the position of the cursor.
+     * Take `±n` RegistroNotificacaoAlertas from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` AlertNotificationLogs.
+     * Skip the first `n` RegistroNotificacaoAlertas.
      */
     skip?: number
-    distinct?: AlertNotificationLogScalarFieldEnum | AlertNotificationLogScalarFieldEnum[]
+    distinct?: RegistroNotificacaoAlertaScalarFieldEnum | RegistroNotificacaoAlertaScalarFieldEnum[]
   }
 
   /**
-   * AlertNotificationLog create
+   * RegistroNotificacaoAlerta create
    */
-  export type AlertNotificationLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to create a AlertNotificationLog.
+     * The data needed to create a RegistroNotificacaoAlerta.
      */
-    data: XOR<AlertNotificationLogCreateInput, AlertNotificationLogUncheckedCreateInput>
+    data: XOR<RegistroNotificacaoAlertaCreateInput, RegistroNotificacaoAlertaUncheckedCreateInput>
   }
 
   /**
-   * AlertNotificationLog createMany
+   * RegistroNotificacaoAlerta createMany
    */
-  export type AlertNotificationLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many AlertNotificationLogs.
+     * The data used to create many RegistroNotificacaoAlertas.
      */
-    data: AlertNotificationLogCreateManyInput | AlertNotificationLogCreateManyInput[]
+    data: RegistroNotificacaoAlertaCreateManyInput | RegistroNotificacaoAlertaCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * AlertNotificationLog createManyAndReturn
+   * RegistroNotificacaoAlerta createManyAndReturn
    */
-  export type AlertNotificationLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelectCreateManyAndReturn<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many AlertNotificationLogs.
+     * The data used to create many RegistroNotificacaoAlertas.
      */
-    data: AlertNotificationLogCreateManyInput | AlertNotificationLogCreateManyInput[]
+    data: RegistroNotificacaoAlertaCreateManyInput | RegistroNotificacaoAlertaCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * AlertNotificationLog update
+   * RegistroNotificacaoAlerta update
    */
-  export type AlertNotificationLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * The data needed to update a AlertNotificationLog.
+     * The data needed to update a RegistroNotificacaoAlerta.
      */
-    data: XOR<AlertNotificationLogUpdateInput, AlertNotificationLogUncheckedUpdateInput>
+    data: XOR<RegistroNotificacaoAlertaUpdateInput, RegistroNotificacaoAlertaUncheckedUpdateInput>
     /**
-     * Choose, which AlertNotificationLog to update.
+     * Choose, which RegistroNotificacaoAlerta to update.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: RegistroNotificacaoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertNotificationLog updateMany
+   * RegistroNotificacaoAlerta updateMany
    */
-  export type AlertNotificationLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update AlertNotificationLogs.
+     * The data used to update RegistroNotificacaoAlertas.
      */
-    data: XOR<AlertNotificationLogUpdateManyMutationInput, AlertNotificationLogUncheckedUpdateManyInput>
+    data: XOR<RegistroNotificacaoAlertaUpdateManyMutationInput, RegistroNotificacaoAlertaUncheckedUpdateManyInput>
     /**
-     * Filter which AlertNotificationLogs to update
+     * Filter which RegistroNotificacaoAlertas to update
      */
-    where?: AlertNotificationLogWhereInput
+    where?: RegistroNotificacaoAlertaWhereInput
   }
 
   /**
-   * AlertNotificationLog upsert
+   * RegistroNotificacaoAlerta upsert
    */
-  export type AlertNotificationLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * The filter to search for the AlertNotificationLog to update in case it exists.
+     * The filter to search for the RegistroNotificacaoAlerta to update in case it exists.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: RegistroNotificacaoAlertaWhereUniqueInput
     /**
-     * In case the AlertNotificationLog found by the `where` argument doesn't exist, create a new AlertNotificationLog with this data.
+     * In case the RegistroNotificacaoAlerta found by the `where` argument doesn't exist, create a new RegistroNotificacaoAlerta with this data.
      */
-    create: XOR<AlertNotificationLogCreateInput, AlertNotificationLogUncheckedCreateInput>
+    create: XOR<RegistroNotificacaoAlertaCreateInput, RegistroNotificacaoAlertaUncheckedCreateInput>
     /**
-     * In case the AlertNotificationLog was found with the provided `where` argument, update it with this data.
+     * In case the RegistroNotificacaoAlerta was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AlertNotificationLogUpdateInput, AlertNotificationLogUncheckedUpdateInput>
+    update: XOR<RegistroNotificacaoAlertaUpdateInput, RegistroNotificacaoAlertaUncheckedUpdateInput>
   }
 
   /**
-   * AlertNotificationLog delete
+   * RegistroNotificacaoAlerta delete
    */
-  export type AlertNotificationLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
     /**
-     * Filter which AlertNotificationLog to delete.
+     * Filter which RegistroNotificacaoAlerta to delete.
      */
-    where: AlertNotificationLogWhereUniqueInput
+    where: RegistroNotificacaoAlertaWhereUniqueInput
   }
 
   /**
-   * AlertNotificationLog deleteMany
+   * RegistroNotificacaoAlerta deleteMany
    */
-  export type AlertNotificationLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which AlertNotificationLogs to delete
+     * Filter which RegistroNotificacaoAlertas to delete
      */
-    where?: AlertNotificationLogWhereInput
+    where?: RegistroNotificacaoAlertaWhereInput
   }
 
   /**
-   * AlertNotificationLog without action
+   * RegistroNotificacaoAlerta without action
    */
-  export type AlertNotificationLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegistroNotificacaoAlertaDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the AlertNotificationLog
+     * Select specific fields to fetch from the RegistroNotificacaoAlerta
      */
-    select?: AlertNotificationLogSelect<ExtArgs> | null
+    select?: RegistroNotificacaoAlertaSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: AlertNotificationLogInclude<ExtArgs> | null
+    include?: RegistroNotificacaoAlertaInclude<ExtArgs> | null
   }
 
 
@@ -43588,16 +43588,16 @@ export namespace Prisma {
 
 
   /**
-   * Model UserPreferences
+   * Model PreferenciasUsuario
    */
 
-  export type AggregateUserPreferences = {
-    _count: UserPreferencesCountAggregateOutputType | null
-    _min: UserPreferencesMinAggregateOutputType | null
-    _max: UserPreferencesMaxAggregateOutputType | null
+  export type AggregatePreferenciasUsuario = {
+    _count: PreferenciasUsuarioCountAggregateOutputType | null
+    _min: PreferenciasUsuarioMinAggregateOutputType | null
+    _max: PreferenciasUsuarioMaxAggregateOutputType | null
   }
 
-  export type UserPreferencesMinAggregateOutputType = {
+  export type PreferenciasUsuarioMinAggregateOutputType = {
     id: string | null
     user_id: string | null
     tenant_id: string | null
@@ -43608,7 +43608,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type UserPreferencesMaxAggregateOutputType = {
+  export type PreferenciasUsuarioMaxAggregateOutputType = {
     id: string | null
     user_id: string | null
     tenant_id: string | null
@@ -43619,7 +43619,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type UserPreferencesCountAggregateOutputType = {
+  export type PreferenciasUsuarioCountAggregateOutputType = {
     id: number
     user_id: number
     tenant_id: number
@@ -43632,7 +43632,7 @@ export namespace Prisma {
   }
 
 
-  export type UserPreferencesMinAggregateInputType = {
+  export type PreferenciasUsuarioMinAggregateInputType = {
     id?: true
     user_id?: true
     tenant_id?: true
@@ -43643,7 +43643,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type UserPreferencesMaxAggregateInputType = {
+  export type PreferenciasUsuarioMaxAggregateInputType = {
     id?: true
     user_id?: true
     tenant_id?: true
@@ -43654,7 +43654,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type UserPreferencesCountAggregateInputType = {
+  export type PreferenciasUsuarioCountAggregateInputType = {
     id?: true
     user_id?: true
     tenant_id?: true
@@ -43666,79 +43666,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type UserPreferencesAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which UserPreferences to aggregate.
+     * Filter which PreferenciasUsuario to aggregate.
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciasUsuarioWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UserPreferences to fetch.
+     * Determine the order of PreferenciasUsuarios to fetch.
      */
-    orderBy?: UserPreferencesOrderByWithRelationInput | UserPreferencesOrderByWithRelationInput[]
+    orderBy?: PreferenciasUsuarioOrderByWithRelationInput | PreferenciasUsuarioOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: UserPreferencesWhereUniqueInput
+    cursor?: PreferenciasUsuarioWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UserPreferences from the position of the cursor.
+     * Take `±n` PreferenciasUsuarios from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UserPreferences.
+     * Skip the first `n` PreferenciasUsuarios.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned UserPreferences
+     * Count returned PreferenciasUsuarios
     **/
-    _count?: true | UserPreferencesCountAggregateInputType
+    _count?: true | PreferenciasUsuarioCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: UserPreferencesMinAggregateInputType
+    _min?: PreferenciasUsuarioMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: UserPreferencesMaxAggregateInputType
+    _max?: PreferenciasUsuarioMaxAggregateInputType
   }
 
-  export type GetUserPreferencesAggregateType<T extends UserPreferencesAggregateArgs> = {
-        [P in keyof T & keyof AggregateUserPreferences]: P extends '_count' | 'count'
+  export type GetPreferenciasUsuarioAggregateType<T extends PreferenciasUsuarioAggregateArgs> = {
+        [P in keyof T & keyof AggregatePreferenciasUsuario]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateUserPreferences[P]>
-      : GetScalarType<T[P], AggregateUserPreferences[P]>
+        : GetScalarType<T[P], AggregatePreferenciasUsuario[P]>
+      : GetScalarType<T[P], AggregatePreferenciasUsuario[P]>
   }
 
 
 
 
-  export type UserPreferencesGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserPreferencesWhereInput
-    orderBy?: UserPreferencesOrderByWithAggregationInput | UserPreferencesOrderByWithAggregationInput[]
-    by: UserPreferencesScalarFieldEnum[] | UserPreferencesScalarFieldEnum
-    having?: UserPreferencesScalarWhereWithAggregatesInput
+  export type PreferenciasUsuarioGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PreferenciasUsuarioWhereInput
+    orderBy?: PreferenciasUsuarioOrderByWithAggregationInput | PreferenciasUsuarioOrderByWithAggregationInput[]
+    by: PreferenciasUsuarioScalarFieldEnum[] | PreferenciasUsuarioScalarFieldEnum
+    having?: PreferenciasUsuarioScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: UserPreferencesCountAggregateInputType | true
-    _min?: UserPreferencesMinAggregateInputType
-    _max?: UserPreferencesMaxAggregateInputType
+    _count?: PreferenciasUsuarioCountAggregateInputType | true
+    _min?: PreferenciasUsuarioMinAggregateInputType
+    _max?: PreferenciasUsuarioMaxAggregateInputType
   }
 
-  export type UserPreferencesGroupByOutputType = {
+  export type PreferenciasUsuarioGroupByOutputType = {
     id: string
     user_id: string
     tenant_id: string
@@ -43747,26 +43747,26 @@ export namespace Prisma {
     sidebar_open: boolean
     created_at: Date
     updated_at: Date
-    _count: UserPreferencesCountAggregateOutputType | null
-    _min: UserPreferencesMinAggregateOutputType | null
-    _max: UserPreferencesMaxAggregateOutputType | null
+    _count: PreferenciasUsuarioCountAggregateOutputType | null
+    _min: PreferenciasUsuarioMinAggregateOutputType | null
+    _max: PreferenciasUsuarioMaxAggregateOutputType | null
   }
 
-  type GetUserPreferencesGroupByPayload<T extends UserPreferencesGroupByArgs> = Prisma.PrismaPromise<
+  type GetPreferenciasUsuarioGroupByPayload<T extends PreferenciasUsuarioGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<UserPreferencesGroupByOutputType, T['by']> &
+      PickEnumerable<PreferenciasUsuarioGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof UserPreferencesGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof PreferenciasUsuarioGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], UserPreferencesGroupByOutputType[P]>
-            : GetScalarType<T[P], UserPreferencesGroupByOutputType[P]>
+              : GetScalarType<T[P], PreferenciasUsuarioGroupByOutputType[P]>
+            : GetScalarType<T[P], PreferenciasUsuarioGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type UserPreferencesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type PreferenciasUsuarioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     user_id?: boolean
     tenant_id?: boolean
@@ -43775,9 +43775,9 @@ export namespace Prisma {
     sidebar_open?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["userPreferences"]>
+  }, ExtArgs["result"]["preferenciasUsuario"]>
 
-  export type UserPreferencesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type PreferenciasUsuarioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     user_id?: boolean
     tenant_id?: boolean
@@ -43786,9 +43786,9 @@ export namespace Prisma {
     sidebar_open?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["userPreferences"]>
+  }, ExtArgs["result"]["preferenciasUsuario"]>
 
-  export type UserPreferencesSelectScalar = {
+  export type PreferenciasUsuarioSelectScalar = {
     id?: boolean
     user_id?: boolean
     tenant_id?: boolean
@@ -43800,8 +43800,8 @@ export namespace Prisma {
   }
 
 
-  export type $UserPreferencesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "UserPreferences"
+  export type $PreferenciasUsuarioPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PreferenciasUsuario"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -43812,136 +43812,136 @@ export namespace Prisma {
       sidebar_open: boolean
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["userPreferences"]>
+    }, ExtArgs["result"]["preferenciasUsuario"]>
     composites: {}
   }
 
-  type UserPreferencesGetPayload<S extends boolean | null | undefined | UserPreferencesDefaultArgs> = $Result.GetResult<Prisma.$UserPreferencesPayload, S>
+  type PreferenciasUsuarioGetPayload<S extends boolean | null | undefined | PreferenciasUsuarioDefaultArgs> = $Result.GetResult<Prisma.$PreferenciasUsuarioPayload, S>
 
-  type UserPreferencesCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<UserPreferencesFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: UserPreferencesCountAggregateInputType | true
+  type PreferenciasUsuarioCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<PreferenciasUsuarioFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: PreferenciasUsuarioCountAggregateInputType | true
     }
 
-  export interface UserPreferencesDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserPreferences'], meta: { name: 'UserPreferences' } }
+  export interface PreferenciasUsuarioDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PreferenciasUsuario'], meta: { name: 'PreferenciasUsuario' } }
     /**
-     * Find zero or one UserPreferences that matches the filter.
-     * @param {UserPreferencesFindUniqueArgs} args - Arguments to find a UserPreferences
+     * Find zero or one PreferenciasUsuario that matches the filter.
+     * @param {PreferenciasUsuarioFindUniqueArgs} args - Arguments to find a PreferenciasUsuario
      * @example
-     * // Get one UserPreferences
-     * const userPreferences = await prisma.userPreferences.findUnique({
+     * // Get one PreferenciasUsuario
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends UserPreferencesFindUniqueArgs>(args: SelectSubset<T, UserPreferencesFindUniqueArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends PreferenciasUsuarioFindUniqueArgs>(args: SelectSubset<T, PreferenciasUsuarioFindUniqueArgs<ExtArgs>>): Prisma__PreferenciasUsuarioClient<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one UserPreferences that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one PreferenciasUsuario that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {UserPreferencesFindUniqueOrThrowArgs} args - Arguments to find a UserPreferences
+     * @param {PreferenciasUsuarioFindUniqueOrThrowArgs} args - Arguments to find a PreferenciasUsuario
      * @example
-     * // Get one UserPreferences
-     * const userPreferences = await prisma.userPreferences.findUniqueOrThrow({
+     * // Get one PreferenciasUsuario
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends UserPreferencesFindUniqueOrThrowArgs>(args: SelectSubset<T, UserPreferencesFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends PreferenciasUsuarioFindUniqueOrThrowArgs>(args: SelectSubset<T, PreferenciasUsuarioFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PreferenciasUsuarioClient<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first UserPreferences that matches the filter.
+     * Find the first PreferenciasUsuario that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesFindFirstArgs} args - Arguments to find a UserPreferences
+     * @param {PreferenciasUsuarioFindFirstArgs} args - Arguments to find a PreferenciasUsuario
      * @example
-     * // Get one UserPreferences
-     * const userPreferences = await prisma.userPreferences.findFirst({
+     * // Get one PreferenciasUsuario
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends UserPreferencesFindFirstArgs>(args?: SelectSubset<T, UserPreferencesFindFirstArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends PreferenciasUsuarioFindFirstArgs>(args?: SelectSubset<T, PreferenciasUsuarioFindFirstArgs<ExtArgs>>): Prisma__PreferenciasUsuarioClient<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first UserPreferences that matches the filter or
+     * Find the first PreferenciasUsuario that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesFindFirstOrThrowArgs} args - Arguments to find a UserPreferences
+     * @param {PreferenciasUsuarioFindFirstOrThrowArgs} args - Arguments to find a PreferenciasUsuario
      * @example
-     * // Get one UserPreferences
-     * const userPreferences = await prisma.userPreferences.findFirstOrThrow({
+     * // Get one PreferenciasUsuario
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends UserPreferencesFindFirstOrThrowArgs>(args?: SelectSubset<T, UserPreferencesFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends PreferenciasUsuarioFindFirstOrThrowArgs>(args?: SelectSubset<T, PreferenciasUsuarioFindFirstOrThrowArgs<ExtArgs>>): Prisma__PreferenciasUsuarioClient<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more UserPreferences that matches the filter.
+     * Find zero or more PreferenciasUsuarios that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {PreferenciasUsuarioFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all UserPreferences
-     * const userPreferences = await prisma.userPreferences.findMany()
+     * // Get all PreferenciasUsuarios
+     * const preferenciasUsuarios = await prisma.preferenciasUsuario.findMany()
      * 
-     * // Get first 10 UserPreferences
-     * const userPreferences = await prisma.userPreferences.findMany({ take: 10 })
+     * // Get first 10 PreferenciasUsuarios
+     * const preferenciasUsuarios = await prisma.preferenciasUsuario.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const userPreferencesWithIdOnly = await prisma.userPreferences.findMany({ select: { id: true } })
+     * const preferenciasUsuarioWithIdOnly = await prisma.preferenciasUsuario.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends UserPreferencesFindManyArgs>(args?: SelectSubset<T, UserPreferencesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends PreferenciasUsuarioFindManyArgs>(args?: SelectSubset<T, PreferenciasUsuarioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a UserPreferences.
-     * @param {UserPreferencesCreateArgs} args - Arguments to create a UserPreferences.
+     * Create a PreferenciasUsuario.
+     * @param {PreferenciasUsuarioCreateArgs} args - Arguments to create a PreferenciasUsuario.
      * @example
-     * // Create one UserPreferences
-     * const UserPreferences = await prisma.userPreferences.create({
+     * // Create one PreferenciasUsuario
+     * const PreferenciasUsuario = await prisma.preferenciasUsuario.create({
      *   data: {
-     *     // ... data to create a UserPreferences
+     *     // ... data to create a PreferenciasUsuario
      *   }
      * })
      * 
      */
-    create<T extends UserPreferencesCreateArgs>(args: SelectSubset<T, UserPreferencesCreateArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends PreferenciasUsuarioCreateArgs>(args: SelectSubset<T, PreferenciasUsuarioCreateArgs<ExtArgs>>): Prisma__PreferenciasUsuarioClient<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many UserPreferences.
-     * @param {UserPreferencesCreateManyArgs} args - Arguments to create many UserPreferences.
+     * Create many PreferenciasUsuarios.
+     * @param {PreferenciasUsuarioCreateManyArgs} args - Arguments to create many PreferenciasUsuarios.
      * @example
-     * // Create many UserPreferences
-     * const userPreferences = await prisma.userPreferences.createMany({
+     * // Create many PreferenciasUsuarios
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends UserPreferencesCreateManyArgs>(args?: SelectSubset<T, UserPreferencesCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends PreferenciasUsuarioCreateManyArgs>(args?: SelectSubset<T, PreferenciasUsuarioCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many UserPreferences and returns the data saved in the database.
-     * @param {UserPreferencesCreateManyAndReturnArgs} args - Arguments to create many UserPreferences.
+     * Create many PreferenciasUsuarios and returns the data saved in the database.
+     * @param {PreferenciasUsuarioCreateManyAndReturnArgs} args - Arguments to create many PreferenciasUsuarios.
      * @example
-     * // Create many UserPreferences
-     * const userPreferences = await prisma.userPreferences.createManyAndReturn({
+     * // Create many PreferenciasUsuarios
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many UserPreferences and only return the `id`
-     * const userPreferencesWithIdOnly = await prisma.userPreferences.createManyAndReturn({ 
+     * // Create many PreferenciasUsuarios and only return the `id`
+     * const preferenciasUsuarioWithIdOnly = await prisma.preferenciasUsuario.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -43951,28 +43951,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends UserPreferencesCreateManyAndReturnArgs>(args?: SelectSubset<T, UserPreferencesCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends PreferenciasUsuarioCreateManyAndReturnArgs>(args?: SelectSubset<T, PreferenciasUsuarioCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a UserPreferences.
-     * @param {UserPreferencesDeleteArgs} args - Arguments to delete one UserPreferences.
+     * Delete a PreferenciasUsuario.
+     * @param {PreferenciasUsuarioDeleteArgs} args - Arguments to delete one PreferenciasUsuario.
      * @example
-     * // Delete one UserPreferences
-     * const UserPreferences = await prisma.userPreferences.delete({
+     * // Delete one PreferenciasUsuario
+     * const PreferenciasUsuario = await prisma.preferenciasUsuario.delete({
      *   where: {
-     *     // ... filter to delete one UserPreferences
+     *     // ... filter to delete one PreferenciasUsuario
      *   }
      * })
      * 
      */
-    delete<T extends UserPreferencesDeleteArgs>(args: SelectSubset<T, UserPreferencesDeleteArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends PreferenciasUsuarioDeleteArgs>(args: SelectSubset<T, PreferenciasUsuarioDeleteArgs<ExtArgs>>): Prisma__PreferenciasUsuarioClient<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one UserPreferences.
-     * @param {UserPreferencesUpdateArgs} args - Arguments to update one UserPreferences.
+     * Update one PreferenciasUsuario.
+     * @param {PreferenciasUsuarioUpdateArgs} args - Arguments to update one PreferenciasUsuario.
      * @example
-     * // Update one UserPreferences
-     * const userPreferences = await prisma.userPreferences.update({
+     * // Update one PreferenciasUsuario
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -43982,30 +43982,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends UserPreferencesUpdateArgs>(args: SelectSubset<T, UserPreferencesUpdateArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends PreferenciasUsuarioUpdateArgs>(args: SelectSubset<T, PreferenciasUsuarioUpdateArgs<ExtArgs>>): Prisma__PreferenciasUsuarioClient<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more UserPreferences.
-     * @param {UserPreferencesDeleteManyArgs} args - Arguments to filter UserPreferences to delete.
+     * Delete zero or more PreferenciasUsuarios.
+     * @param {PreferenciasUsuarioDeleteManyArgs} args - Arguments to filter PreferenciasUsuarios to delete.
      * @example
-     * // Delete a few UserPreferences
-     * const { count } = await prisma.userPreferences.deleteMany({
+     * // Delete a few PreferenciasUsuarios
+     * const { count } = await prisma.preferenciasUsuario.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends UserPreferencesDeleteManyArgs>(args?: SelectSubset<T, UserPreferencesDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends PreferenciasUsuarioDeleteManyArgs>(args?: SelectSubset<T, PreferenciasUsuarioDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more UserPreferences.
+     * Update zero or more PreferenciasUsuarios.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {PreferenciasUsuarioUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many UserPreferences
-     * const userPreferences = await prisma.userPreferences.updateMany({
+     * // Update many PreferenciasUsuarios
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -44015,56 +44015,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends UserPreferencesUpdateManyArgs>(args: SelectSubset<T, UserPreferencesUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends PreferenciasUsuarioUpdateManyArgs>(args: SelectSubset<T, PreferenciasUsuarioUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one UserPreferences.
-     * @param {UserPreferencesUpsertArgs} args - Arguments to update or create a UserPreferences.
+     * Create or update one PreferenciasUsuario.
+     * @param {PreferenciasUsuarioUpsertArgs} args - Arguments to update or create a PreferenciasUsuario.
      * @example
-     * // Update or create a UserPreferences
-     * const userPreferences = await prisma.userPreferences.upsert({
+     * // Update or create a PreferenciasUsuario
+     * const preferenciasUsuario = await prisma.preferenciasUsuario.upsert({
      *   create: {
-     *     // ... data to create a UserPreferences
+     *     // ... data to create a PreferenciasUsuario
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the UserPreferences we want to update
+     *     // ... the filter for the PreferenciasUsuario we want to update
      *   }
      * })
      */
-    upsert<T extends UserPreferencesUpsertArgs>(args: SelectSubset<T, UserPreferencesUpsertArgs<ExtArgs>>): Prisma__UserPreferencesClient<$Result.GetResult<Prisma.$UserPreferencesPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends PreferenciasUsuarioUpsertArgs>(args: SelectSubset<T, PreferenciasUsuarioUpsertArgs<ExtArgs>>): Prisma__PreferenciasUsuarioClient<$Result.GetResult<Prisma.$PreferenciasUsuarioPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of UserPreferences.
+     * Count the number of PreferenciasUsuarios.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesCountArgs} args - Arguments to filter UserPreferences to count.
+     * @param {PreferenciasUsuarioCountArgs} args - Arguments to filter PreferenciasUsuarios to count.
      * @example
-     * // Count the number of UserPreferences
-     * const count = await prisma.userPreferences.count({
+     * // Count the number of PreferenciasUsuarios
+     * const count = await prisma.preferenciasUsuario.count({
      *   where: {
-     *     // ... the filter for the UserPreferences we want to count
+     *     // ... the filter for the PreferenciasUsuarios we want to count
      *   }
      * })
     **/
-    count<T extends UserPreferencesCountArgs>(
-      args?: Subset<T, UserPreferencesCountArgs>,
+    count<T extends PreferenciasUsuarioCountArgs>(
+      args?: Subset<T, PreferenciasUsuarioCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], UserPreferencesCountAggregateOutputType>
+          : GetScalarType<T['select'], PreferenciasUsuarioCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a UserPreferences.
+     * Allows you to perform aggregations operations on a PreferenciasUsuario.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {PreferenciasUsuarioAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -44084,13 +44084,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends UserPreferencesAggregateArgs>(args: Subset<T, UserPreferencesAggregateArgs>): Prisma.PrismaPromise<GetUserPreferencesAggregateType<T>>
+    aggregate<T extends PreferenciasUsuarioAggregateArgs>(args: Subset<T, PreferenciasUsuarioAggregateArgs>): Prisma.PrismaPromise<GetPreferenciasUsuarioAggregateType<T>>
 
     /**
-     * Group by UserPreferences.
+     * Group by PreferenciasUsuario.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferencesGroupByArgs} args - Group by arguments.
+     * @param {PreferenciasUsuarioGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -44105,14 +44105,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends UserPreferencesGroupByArgs,
+      T extends PreferenciasUsuarioGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: UserPreferencesGroupByArgs['orderBy'] }
-        : { orderBy?: UserPreferencesGroupByArgs['orderBy'] },
+        ? { orderBy: PreferenciasUsuarioGroupByArgs['orderBy'] }
+        : { orderBy?: PreferenciasUsuarioGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -44161,20 +44161,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, UserPreferencesGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserPreferencesGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, PreferenciasUsuarioGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPreferenciasUsuarioGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the UserPreferences model
+   * Fields of the PreferenciasUsuario model
    */
-  readonly fields: UserPreferencesFieldRefs;
+  readonly fields: PreferenciasUsuarioFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for UserPreferences.
+   * The delegate class that acts as a "Promise-like" for PreferenciasUsuario.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__UserPreferencesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__PreferenciasUsuarioClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -44202,302 +44202,302 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the UserPreferences model
+   * Fields of the PreferenciasUsuario model
    */ 
-  interface UserPreferencesFieldRefs {
-    readonly id: FieldRef<"UserPreferences", 'String'>
-    readonly user_id: FieldRef<"UserPreferences", 'String'>
-    readonly tenant_id: FieldRef<"UserPreferences", 'String'>
-    readonly tooltips_disabled: FieldRef<"UserPreferences", 'Boolean'>
-    readonly theme: FieldRef<"UserPreferences", 'String'>
-    readonly sidebar_open: FieldRef<"UserPreferences", 'Boolean'>
-    readonly created_at: FieldRef<"UserPreferences", 'DateTime'>
-    readonly updated_at: FieldRef<"UserPreferences", 'DateTime'>
+  interface PreferenciasUsuarioFieldRefs {
+    readonly id: FieldRef<"PreferenciasUsuario", 'String'>
+    readonly user_id: FieldRef<"PreferenciasUsuario", 'String'>
+    readonly tenant_id: FieldRef<"PreferenciasUsuario", 'String'>
+    readonly tooltips_disabled: FieldRef<"PreferenciasUsuario", 'Boolean'>
+    readonly theme: FieldRef<"PreferenciasUsuario", 'String'>
+    readonly sidebar_open: FieldRef<"PreferenciasUsuario", 'Boolean'>
+    readonly created_at: FieldRef<"PreferenciasUsuario", 'DateTime'>
+    readonly updated_at: FieldRef<"PreferenciasUsuario", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * UserPreferences findUnique
+   * PreferenciasUsuario findUnique
    */
-  export type UserPreferencesFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciasUsuario to fetch.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciasUsuarioWhereUniqueInput
   }
 
   /**
-   * UserPreferences findUniqueOrThrow
+   * PreferenciasUsuario findUniqueOrThrow
    */
-  export type UserPreferencesFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciasUsuario to fetch.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciasUsuarioWhereUniqueInput
   }
 
   /**
-   * UserPreferences findFirst
+   * PreferenciasUsuario findFirst
    */
-  export type UserPreferencesFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciasUsuario to fetch.
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciasUsuarioWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UserPreferences to fetch.
+     * Determine the order of PreferenciasUsuarios to fetch.
      */
-    orderBy?: UserPreferencesOrderByWithRelationInput | UserPreferencesOrderByWithRelationInput[]
+    orderBy?: PreferenciasUsuarioOrderByWithRelationInput | PreferenciasUsuarioOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for UserPreferences.
+     * Sets the position for searching for PreferenciasUsuarios.
      */
-    cursor?: UserPreferencesWhereUniqueInput
+    cursor?: PreferenciasUsuarioWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UserPreferences from the position of the cursor.
+     * Take `±n` PreferenciasUsuarios from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UserPreferences.
+     * Skip the first `n` PreferenciasUsuarios.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of UserPreferences.
+     * Filter by unique combinations of PreferenciasUsuarios.
      */
-    distinct?: UserPreferencesScalarFieldEnum | UserPreferencesScalarFieldEnum[]
+    distinct?: PreferenciasUsuarioScalarFieldEnum | PreferenciasUsuarioScalarFieldEnum[]
   }
 
   /**
-   * UserPreferences findFirstOrThrow
+   * PreferenciasUsuario findFirstOrThrow
    */
-  export type UserPreferencesFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciasUsuario to fetch.
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciasUsuarioWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UserPreferences to fetch.
+     * Determine the order of PreferenciasUsuarios to fetch.
      */
-    orderBy?: UserPreferencesOrderByWithRelationInput | UserPreferencesOrderByWithRelationInput[]
+    orderBy?: PreferenciasUsuarioOrderByWithRelationInput | PreferenciasUsuarioOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for UserPreferences.
+     * Sets the position for searching for PreferenciasUsuarios.
      */
-    cursor?: UserPreferencesWhereUniqueInput
+    cursor?: PreferenciasUsuarioWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UserPreferences from the position of the cursor.
+     * Take `±n` PreferenciasUsuarios from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UserPreferences.
+     * Skip the first `n` PreferenciasUsuarios.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of UserPreferences.
+     * Filter by unique combinations of PreferenciasUsuarios.
      */
-    distinct?: UserPreferencesScalarFieldEnum | UserPreferencesScalarFieldEnum[]
+    distinct?: PreferenciasUsuarioScalarFieldEnum | PreferenciasUsuarioScalarFieldEnum[]
   }
 
   /**
-   * UserPreferences findMany
+   * PreferenciasUsuario findMany
    */
-  export type UserPreferencesFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * Filter, which UserPreferences to fetch.
+     * Filter, which PreferenciasUsuarios to fetch.
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciasUsuarioWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UserPreferences to fetch.
+     * Determine the order of PreferenciasUsuarios to fetch.
      */
-    orderBy?: UserPreferencesOrderByWithRelationInput | UserPreferencesOrderByWithRelationInput[]
+    orderBy?: PreferenciasUsuarioOrderByWithRelationInput | PreferenciasUsuarioOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing UserPreferences.
+     * Sets the position for listing PreferenciasUsuarios.
      */
-    cursor?: UserPreferencesWhereUniqueInput
+    cursor?: PreferenciasUsuarioWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UserPreferences from the position of the cursor.
+     * Take `±n` PreferenciasUsuarios from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UserPreferences.
+     * Skip the first `n` PreferenciasUsuarios.
      */
     skip?: number
-    distinct?: UserPreferencesScalarFieldEnum | UserPreferencesScalarFieldEnum[]
+    distinct?: PreferenciasUsuarioScalarFieldEnum | PreferenciasUsuarioScalarFieldEnum[]
   }
 
   /**
-   * UserPreferences create
+   * PreferenciasUsuario create
    */
-  export type UserPreferencesCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * The data needed to create a UserPreferences.
+     * The data needed to create a PreferenciasUsuario.
      */
-    data: XOR<UserPreferencesCreateInput, UserPreferencesUncheckedCreateInput>
+    data: XOR<PreferenciasUsuarioCreateInput, PreferenciasUsuarioUncheckedCreateInput>
   }
 
   /**
-   * UserPreferences createMany
+   * PreferenciasUsuario createMany
    */
-  export type UserPreferencesCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many UserPreferences.
+     * The data used to create many PreferenciasUsuarios.
      */
-    data: UserPreferencesCreateManyInput | UserPreferencesCreateManyInput[]
+    data: PreferenciasUsuarioCreateManyInput | PreferenciasUsuarioCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * UserPreferences createManyAndReturn
+   * PreferenciasUsuario createManyAndReturn
    */
-  export type UserPreferencesCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelectCreateManyAndReturn<ExtArgs> | null
+    select?: PreferenciasUsuarioSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many UserPreferences.
+     * The data used to create many PreferenciasUsuarios.
      */
-    data: UserPreferencesCreateManyInput | UserPreferencesCreateManyInput[]
+    data: PreferenciasUsuarioCreateManyInput | PreferenciasUsuarioCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * UserPreferences update
+   * PreferenciasUsuario update
    */
-  export type UserPreferencesUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * The data needed to update a UserPreferences.
+     * The data needed to update a PreferenciasUsuario.
      */
-    data: XOR<UserPreferencesUpdateInput, UserPreferencesUncheckedUpdateInput>
+    data: XOR<PreferenciasUsuarioUpdateInput, PreferenciasUsuarioUncheckedUpdateInput>
     /**
-     * Choose, which UserPreferences to update.
+     * Choose, which PreferenciasUsuario to update.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciasUsuarioWhereUniqueInput
   }
 
   /**
-   * UserPreferences updateMany
+   * PreferenciasUsuario updateMany
    */
-  export type UserPreferencesUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update UserPreferences.
+     * The data used to update PreferenciasUsuarios.
      */
-    data: XOR<UserPreferencesUpdateManyMutationInput, UserPreferencesUncheckedUpdateManyInput>
+    data: XOR<PreferenciasUsuarioUpdateManyMutationInput, PreferenciasUsuarioUncheckedUpdateManyInput>
     /**
-     * Filter which UserPreferences to update
+     * Filter which PreferenciasUsuarios to update
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciasUsuarioWhereInput
   }
 
   /**
-   * UserPreferences upsert
+   * PreferenciasUsuario upsert
    */
-  export type UserPreferencesUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * The filter to search for the UserPreferences to update in case it exists.
+     * The filter to search for the PreferenciasUsuario to update in case it exists.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciasUsuarioWhereUniqueInput
     /**
-     * In case the UserPreferences found by the `where` argument doesn't exist, create a new UserPreferences with this data.
+     * In case the PreferenciasUsuario found by the `where` argument doesn't exist, create a new PreferenciasUsuario with this data.
      */
-    create: XOR<UserPreferencesCreateInput, UserPreferencesUncheckedCreateInput>
+    create: XOR<PreferenciasUsuarioCreateInput, PreferenciasUsuarioUncheckedCreateInput>
     /**
-     * In case the UserPreferences was found with the provided `where` argument, update it with this data.
+     * In case the PreferenciasUsuario was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<UserPreferencesUpdateInput, UserPreferencesUncheckedUpdateInput>
+    update: XOR<PreferenciasUsuarioUpdateInput, PreferenciasUsuarioUncheckedUpdateInput>
   }
 
   /**
-   * UserPreferences delete
+   * PreferenciasUsuario delete
    */
-  export type UserPreferencesDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
     /**
-     * Filter which UserPreferences to delete.
+     * Filter which PreferenciasUsuario to delete.
      */
-    where: UserPreferencesWhereUniqueInput
+    where: PreferenciasUsuarioWhereUniqueInput
   }
 
   /**
-   * UserPreferences deleteMany
+   * PreferenciasUsuario deleteMany
    */
-  export type UserPreferencesDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which UserPreferences to delete
+     * Filter which PreferenciasUsuarios to delete
      */
-    where?: UserPreferencesWhereInput
+    where?: PreferenciasUsuarioWhereInput
   }
 
   /**
-   * UserPreferences without action
+   * PreferenciasUsuario without action
    */
-  export type UserPreferencesDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type PreferenciasUsuarioDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UserPreferences
+     * Select specific fields to fetch from the PreferenciasUsuario
      */
-    select?: UserPreferencesSelect<ExtArgs> | null
+    select?: PreferenciasUsuarioSelect<ExtArgs> | null
   }
 
 
@@ -48428,16 +48428,16 @@ export namespace Prisma {
 
 
   /**
-   * Model ExternalContact
+   * Model ContatoExterno
    */
 
-  export type AggregateExternalContact = {
-    _count: ExternalContactCountAggregateOutputType | null
-    _min: ExternalContactMinAggregateOutputType | null
-    _max: ExternalContactMaxAggregateOutputType | null
+  export type AggregateContatoExterno = {
+    _count: ContatoExternoCountAggregateOutputType | null
+    _min: ContatoExternoMinAggregateOutputType | null
+    _max: ContatoExternoMaxAggregateOutputType | null
   }
 
-  export type ExternalContactMinAggregateOutputType = {
+  export type ContatoExternoMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     created_by: string | null
@@ -48450,7 +48450,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type ExternalContactMaxAggregateOutputType = {
+  export type ContatoExternoMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     created_by: string | null
@@ -48463,7 +48463,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type ExternalContactCountAggregateOutputType = {
+  export type ContatoExternoCountAggregateOutputType = {
     id: number
     tenant_id: number
     created_by: number
@@ -48478,7 +48478,7 @@ export namespace Prisma {
   }
 
 
-  export type ExternalContactMinAggregateInputType = {
+  export type ContatoExternoMinAggregateInputType = {
     id?: true
     tenant_id?: true
     created_by?: true
@@ -48491,7 +48491,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type ExternalContactMaxAggregateInputType = {
+  export type ContatoExternoMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     created_by?: true
@@ -48504,7 +48504,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type ExternalContactCountAggregateInputType = {
+  export type ContatoExternoCountAggregateInputType = {
     id?: true
     tenant_id?: true
     created_by?: true
@@ -48518,79 +48518,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type ExternalContactAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ExternalContact to aggregate.
+     * Filter which ContatoExterno to aggregate.
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ExternalContacts to fetch.
+     * Determine the order of ContatoExternos to fetch.
      */
-    orderBy?: ExternalContactOrderByWithRelationInput | ExternalContactOrderByWithRelationInput[]
+    orderBy?: ContatoExternoOrderByWithRelationInput | ContatoExternoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ExternalContactWhereUniqueInput
+    cursor?: ContatoExternoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ExternalContacts from the position of the cursor.
+     * Take `±n` ContatoExternos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ExternalContacts.
+     * Skip the first `n` ContatoExternos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ExternalContacts
+     * Count returned ContatoExternos
     **/
-    _count?: true | ExternalContactCountAggregateInputType
+    _count?: true | ContatoExternoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ExternalContactMinAggregateInputType
+    _min?: ContatoExternoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ExternalContactMaxAggregateInputType
+    _max?: ContatoExternoMaxAggregateInputType
   }
 
-  export type GetExternalContactAggregateType<T extends ExternalContactAggregateArgs> = {
-        [P in keyof T & keyof AggregateExternalContact]: P extends '_count' | 'count'
+  export type GetContatoExternoAggregateType<T extends ContatoExternoAggregateArgs> = {
+        [P in keyof T & keyof AggregateContatoExterno]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateExternalContact[P]>
-      : GetScalarType<T[P], AggregateExternalContact[P]>
+        : GetScalarType<T[P], AggregateContatoExterno[P]>
+      : GetScalarType<T[P], AggregateContatoExterno[P]>
   }
 
 
 
 
-  export type ExternalContactGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ExternalContactWhereInput
-    orderBy?: ExternalContactOrderByWithAggregationInput | ExternalContactOrderByWithAggregationInput[]
-    by: ExternalContactScalarFieldEnum[] | ExternalContactScalarFieldEnum
-    having?: ExternalContactScalarWhereWithAggregatesInput
+  export type ContatoExternoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ContatoExternoWhereInput
+    orderBy?: ContatoExternoOrderByWithAggregationInput | ContatoExternoOrderByWithAggregationInput[]
+    by: ContatoExternoScalarFieldEnum[] | ContatoExternoScalarFieldEnum
+    having?: ContatoExternoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ExternalContactCountAggregateInputType | true
-    _min?: ExternalContactMinAggregateInputType
-    _max?: ExternalContactMaxAggregateInputType
+    _count?: ContatoExternoCountAggregateInputType | true
+    _min?: ContatoExternoMinAggregateInputType
+    _max?: ContatoExternoMaxAggregateInputType
   }
 
-  export type ExternalContactGroupByOutputType = {
+  export type ContatoExternoGroupByOutputType = {
     id: string
     tenant_id: string
     created_by: string
@@ -48601,26 +48601,26 @@ export namespace Prisma {
     notes: string | null
     created_at: Date
     updated_at: Date
-    _count: ExternalContactCountAggregateOutputType | null
-    _min: ExternalContactMinAggregateOutputType | null
-    _max: ExternalContactMaxAggregateOutputType | null
+    _count: ContatoExternoCountAggregateOutputType | null
+    _min: ContatoExternoMinAggregateOutputType | null
+    _max: ContatoExternoMaxAggregateOutputType | null
   }
 
-  type GetExternalContactGroupByPayload<T extends ExternalContactGroupByArgs> = Prisma.PrismaPromise<
+  type GetContatoExternoGroupByPayload<T extends ContatoExternoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ExternalContactGroupByOutputType, T['by']> &
+      PickEnumerable<ContatoExternoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ExternalContactGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ContatoExternoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ExternalContactGroupByOutputType[P]>
-            : GetScalarType<T[P], ExternalContactGroupByOutputType[P]>
+              : GetScalarType<T[P], ContatoExternoGroupByOutputType[P]>
+            : GetScalarType<T[P], ContatoExternoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ExternalContactSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ContatoExternoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     created_by?: boolean
@@ -48631,9 +48631,9 @@ export namespace Prisma {
     notes?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["externalContact"]>
+  }, ExtArgs["result"]["contatoExterno"]>
 
-  export type ExternalContactSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ContatoExternoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     created_by?: boolean
@@ -48644,9 +48644,9 @@ export namespace Prisma {
     notes?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["externalContact"]>
+  }, ExtArgs["result"]["contatoExterno"]>
 
-  export type ExternalContactSelectScalar = {
+  export type ContatoExternoSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     created_by?: boolean
@@ -48660,8 +48660,8 @@ export namespace Prisma {
   }
 
 
-  export type $ExternalContactPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ExternalContact"
+  export type $ContatoExternoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ContatoExterno"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -48674,136 +48674,136 @@ export namespace Prisma {
       notes: string | null
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["externalContact"]>
+    }, ExtArgs["result"]["contatoExterno"]>
     composites: {}
   }
 
-  type ExternalContactGetPayload<S extends boolean | null | undefined | ExternalContactDefaultArgs> = $Result.GetResult<Prisma.$ExternalContactPayload, S>
+  type ContatoExternoGetPayload<S extends boolean | null | undefined | ContatoExternoDefaultArgs> = $Result.GetResult<Prisma.$ContatoExternoPayload, S>
 
-  type ExternalContactCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ExternalContactFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ExternalContactCountAggregateInputType | true
+  type ContatoExternoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ContatoExternoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ContatoExternoCountAggregateInputType | true
     }
 
-  export interface ExternalContactDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExternalContact'], meta: { name: 'ExternalContact' } }
+  export interface ContatoExternoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ContatoExterno'], meta: { name: 'ContatoExterno' } }
     /**
-     * Find zero or one ExternalContact that matches the filter.
-     * @param {ExternalContactFindUniqueArgs} args - Arguments to find a ExternalContact
+     * Find zero or one ContatoExterno that matches the filter.
+     * @param {ContatoExternoFindUniqueArgs} args - Arguments to find a ContatoExterno
      * @example
-     * // Get one ExternalContact
-     * const externalContact = await prisma.externalContact.findUnique({
+     * // Get one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ExternalContactFindUniqueArgs>(args: SelectSubset<T, ExternalContactFindUniqueArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ContatoExternoFindUniqueArgs>(args: SelectSubset<T, ContatoExternoFindUniqueArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ExternalContact that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ContatoExterno that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ExternalContactFindUniqueOrThrowArgs} args - Arguments to find a ExternalContact
+     * @param {ContatoExternoFindUniqueOrThrowArgs} args - Arguments to find a ContatoExterno
      * @example
-     * // Get one ExternalContact
-     * const externalContact = await prisma.externalContact.findUniqueOrThrow({
+     * // Get one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ExternalContactFindUniqueOrThrowArgs>(args: SelectSubset<T, ExternalContactFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ContatoExternoFindUniqueOrThrowArgs>(args: SelectSubset<T, ContatoExternoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first ExternalContact that matches the filter.
+     * Find the first ContatoExterno that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactFindFirstArgs} args - Arguments to find a ExternalContact
+     * @param {ContatoExternoFindFirstArgs} args - Arguments to find a ContatoExterno
      * @example
-     * // Get one ExternalContact
-     * const externalContact = await prisma.externalContact.findFirst({
+     * // Get one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ExternalContactFindFirstArgs>(args?: SelectSubset<T, ExternalContactFindFirstArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ContatoExternoFindFirstArgs>(args?: SelectSubset<T, ContatoExternoFindFirstArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first ExternalContact that matches the filter or
+     * Find the first ContatoExterno that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactFindFirstOrThrowArgs} args - Arguments to find a ExternalContact
+     * @param {ContatoExternoFindFirstOrThrowArgs} args - Arguments to find a ContatoExterno
      * @example
-     * // Get one ExternalContact
-     * const externalContact = await prisma.externalContact.findFirstOrThrow({
+     * // Get one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ExternalContactFindFirstOrThrowArgs>(args?: SelectSubset<T, ExternalContactFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ContatoExternoFindFirstOrThrowArgs>(args?: SelectSubset<T, ContatoExternoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more ExternalContacts that matches the filter.
+     * Find zero or more ContatoExternos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ContatoExternoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ExternalContacts
-     * const externalContacts = await prisma.externalContact.findMany()
+     * // Get all ContatoExternos
+     * const contatoExternos = await prisma.contatoExterno.findMany()
      * 
-     * // Get first 10 ExternalContacts
-     * const externalContacts = await prisma.externalContact.findMany({ take: 10 })
+     * // Get first 10 ContatoExternos
+     * const contatoExternos = await prisma.contatoExterno.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const externalContactWithIdOnly = await prisma.externalContact.findMany({ select: { id: true } })
+     * const contatoExternoWithIdOnly = await prisma.contatoExterno.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends ExternalContactFindManyArgs>(args?: SelectSubset<T, ExternalContactFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ContatoExternoFindManyArgs>(args?: SelectSubset<T, ContatoExternoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a ExternalContact.
-     * @param {ExternalContactCreateArgs} args - Arguments to create a ExternalContact.
+     * Create a ContatoExterno.
+     * @param {ContatoExternoCreateArgs} args - Arguments to create a ContatoExterno.
      * @example
-     * // Create one ExternalContact
-     * const ExternalContact = await prisma.externalContact.create({
+     * // Create one ContatoExterno
+     * const ContatoExterno = await prisma.contatoExterno.create({
      *   data: {
-     *     // ... data to create a ExternalContact
+     *     // ... data to create a ContatoExterno
      *   }
      * })
      * 
      */
-    create<T extends ExternalContactCreateArgs>(args: SelectSubset<T, ExternalContactCreateArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ContatoExternoCreateArgs>(args: SelectSubset<T, ContatoExternoCreateArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many ExternalContacts.
-     * @param {ExternalContactCreateManyArgs} args - Arguments to create many ExternalContacts.
+     * Create many ContatoExternos.
+     * @param {ContatoExternoCreateManyArgs} args - Arguments to create many ContatoExternos.
      * @example
-     * // Create many ExternalContacts
-     * const externalContact = await prisma.externalContact.createMany({
+     * // Create many ContatoExternos
+     * const contatoExterno = await prisma.contatoExterno.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ExternalContactCreateManyArgs>(args?: SelectSubset<T, ExternalContactCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ContatoExternoCreateManyArgs>(args?: SelectSubset<T, ContatoExternoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ExternalContacts and returns the data saved in the database.
-     * @param {ExternalContactCreateManyAndReturnArgs} args - Arguments to create many ExternalContacts.
+     * Create many ContatoExternos and returns the data saved in the database.
+     * @param {ContatoExternoCreateManyAndReturnArgs} args - Arguments to create many ContatoExternos.
      * @example
-     * // Create many ExternalContacts
-     * const externalContact = await prisma.externalContact.createManyAndReturn({
+     * // Create many ContatoExternos
+     * const contatoExterno = await prisma.contatoExterno.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ExternalContacts and only return the `id`
-     * const externalContactWithIdOnly = await prisma.externalContact.createManyAndReturn({ 
+     * // Create many ContatoExternos and only return the `id`
+     * const contatoExternoWithIdOnly = await prisma.contatoExterno.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -48813,28 +48813,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ExternalContactCreateManyAndReturnArgs>(args?: SelectSubset<T, ExternalContactCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ContatoExternoCreateManyAndReturnArgs>(args?: SelectSubset<T, ContatoExternoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a ExternalContact.
-     * @param {ExternalContactDeleteArgs} args - Arguments to delete one ExternalContact.
+     * Delete a ContatoExterno.
+     * @param {ContatoExternoDeleteArgs} args - Arguments to delete one ContatoExterno.
      * @example
-     * // Delete one ExternalContact
-     * const ExternalContact = await prisma.externalContact.delete({
+     * // Delete one ContatoExterno
+     * const ContatoExterno = await prisma.contatoExterno.delete({
      *   where: {
-     *     // ... filter to delete one ExternalContact
+     *     // ... filter to delete one ContatoExterno
      *   }
      * })
      * 
      */
-    delete<T extends ExternalContactDeleteArgs>(args: SelectSubset<T, ExternalContactDeleteArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ContatoExternoDeleteArgs>(args: SelectSubset<T, ContatoExternoDeleteArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one ExternalContact.
-     * @param {ExternalContactUpdateArgs} args - Arguments to update one ExternalContact.
+     * Update one ContatoExterno.
+     * @param {ContatoExternoUpdateArgs} args - Arguments to update one ContatoExterno.
      * @example
-     * // Update one ExternalContact
-     * const externalContact = await prisma.externalContact.update({
+     * // Update one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -48844,30 +48844,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ExternalContactUpdateArgs>(args: SelectSubset<T, ExternalContactUpdateArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ContatoExternoUpdateArgs>(args: SelectSubset<T, ContatoExternoUpdateArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more ExternalContacts.
-     * @param {ExternalContactDeleteManyArgs} args - Arguments to filter ExternalContacts to delete.
+     * Delete zero or more ContatoExternos.
+     * @param {ContatoExternoDeleteManyArgs} args - Arguments to filter ContatoExternos to delete.
      * @example
-     * // Delete a few ExternalContacts
-     * const { count } = await prisma.externalContact.deleteMany({
+     * // Delete a few ContatoExternos
+     * const { count } = await prisma.contatoExterno.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ExternalContactDeleteManyArgs>(args?: SelectSubset<T, ExternalContactDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ContatoExternoDeleteManyArgs>(args?: SelectSubset<T, ContatoExternoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ExternalContacts.
+     * Update zero or more ContatoExternos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ContatoExternoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ExternalContacts
-     * const externalContact = await prisma.externalContact.updateMany({
+     * // Update many ContatoExternos
+     * const contatoExterno = await prisma.contatoExterno.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -48877,56 +48877,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ExternalContactUpdateManyArgs>(args: SelectSubset<T, ExternalContactUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ContatoExternoUpdateManyArgs>(args: SelectSubset<T, ContatoExternoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one ExternalContact.
-     * @param {ExternalContactUpsertArgs} args - Arguments to update or create a ExternalContact.
+     * Create or update one ContatoExterno.
+     * @param {ContatoExternoUpsertArgs} args - Arguments to update or create a ContatoExterno.
      * @example
-     * // Update or create a ExternalContact
-     * const externalContact = await prisma.externalContact.upsert({
+     * // Update or create a ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.upsert({
      *   create: {
-     *     // ... data to create a ExternalContact
+     *     // ... data to create a ContatoExterno
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ExternalContact we want to update
+     *     // ... the filter for the ContatoExterno we want to update
      *   }
      * })
      */
-    upsert<T extends ExternalContactUpsertArgs>(args: SelectSubset<T, ExternalContactUpsertArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ContatoExternoUpsertArgs>(args: SelectSubset<T, ContatoExternoUpsertArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of ExternalContacts.
+     * Count the number of ContatoExternos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactCountArgs} args - Arguments to filter ExternalContacts to count.
+     * @param {ContatoExternoCountArgs} args - Arguments to filter ContatoExternos to count.
      * @example
-     * // Count the number of ExternalContacts
-     * const count = await prisma.externalContact.count({
+     * // Count the number of ContatoExternos
+     * const count = await prisma.contatoExterno.count({
      *   where: {
-     *     // ... the filter for the ExternalContacts we want to count
+     *     // ... the filter for the ContatoExternos we want to count
      *   }
      * })
     **/
-    count<T extends ExternalContactCountArgs>(
-      args?: Subset<T, ExternalContactCountArgs>,
+    count<T extends ContatoExternoCountArgs>(
+      args?: Subset<T, ContatoExternoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ExternalContactCountAggregateOutputType>
+          : GetScalarType<T['select'], ContatoExternoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ExternalContact.
+     * Allows you to perform aggregations operations on a ContatoExterno.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ContatoExternoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -48946,13 +48946,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ExternalContactAggregateArgs>(args: Subset<T, ExternalContactAggregateArgs>): Prisma.PrismaPromise<GetExternalContactAggregateType<T>>
+    aggregate<T extends ContatoExternoAggregateArgs>(args: Subset<T, ContatoExternoAggregateArgs>): Prisma.PrismaPromise<GetContatoExternoAggregateType<T>>
 
     /**
-     * Group by ExternalContact.
+     * Group by ContatoExterno.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactGroupByArgs} args - Group by arguments.
+     * @param {ContatoExternoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -48967,14 +48967,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ExternalContactGroupByArgs,
+      T extends ContatoExternoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ExternalContactGroupByArgs['orderBy'] }
-        : { orderBy?: ExternalContactGroupByArgs['orderBy'] },
+        ? { orderBy: ContatoExternoGroupByArgs['orderBy'] }
+        : { orderBy?: ContatoExternoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -49023,20 +49023,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ExternalContactGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExternalContactGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ContatoExternoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetContatoExternoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ExternalContact model
+   * Fields of the ContatoExterno model
    */
-  readonly fields: ExternalContactFieldRefs;
+  readonly fields: ContatoExternoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ExternalContact.
+   * The delegate class that acts as a "Promise-like" for ContatoExterno.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ExternalContactClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ContatoExternoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -49064,318 +49064,318 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ExternalContact model
+   * Fields of the ContatoExterno model
    */ 
-  interface ExternalContactFieldRefs {
-    readonly id: FieldRef<"ExternalContact", 'String'>
-    readonly tenant_id: FieldRef<"ExternalContact", 'String'>
-    readonly created_by: FieldRef<"ExternalContact", 'String'>
-    readonly name: FieldRef<"ExternalContact", 'String'>
-    readonly email: FieldRef<"ExternalContact", 'String'>
-    readonly whatsapp_phone: FieldRef<"ExternalContact", 'String'>
-    readonly whatsapp_opt_in_at: FieldRef<"ExternalContact", 'DateTime'>
-    readonly notes: FieldRef<"ExternalContact", 'String'>
-    readonly created_at: FieldRef<"ExternalContact", 'DateTime'>
-    readonly updated_at: FieldRef<"ExternalContact", 'DateTime'>
+  interface ContatoExternoFieldRefs {
+    readonly id: FieldRef<"ContatoExterno", 'String'>
+    readonly tenant_id: FieldRef<"ContatoExterno", 'String'>
+    readonly created_by: FieldRef<"ContatoExterno", 'String'>
+    readonly name: FieldRef<"ContatoExterno", 'String'>
+    readonly email: FieldRef<"ContatoExterno", 'String'>
+    readonly whatsapp_phone: FieldRef<"ContatoExterno", 'String'>
+    readonly whatsapp_opt_in_at: FieldRef<"ContatoExterno", 'DateTime'>
+    readonly notes: FieldRef<"ContatoExterno", 'String'>
+    readonly created_at: FieldRef<"ContatoExterno", 'DateTime'>
+    readonly updated_at: FieldRef<"ContatoExterno", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ExternalContact findUnique
+   * ContatoExterno findUnique
    */
-  export type ExternalContactFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContact to fetch.
+     * Filter, which ContatoExterno to fetch.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
   }
 
   /**
-   * ExternalContact findUniqueOrThrow
+   * ContatoExterno findUniqueOrThrow
    */
-  export type ExternalContactFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContact to fetch.
+     * Filter, which ContatoExterno to fetch.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
   }
 
   /**
-   * ExternalContact findFirst
+   * ContatoExterno findFirst
    */
-  export type ExternalContactFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContact to fetch.
+     * Filter, which ContatoExterno to fetch.
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ExternalContacts to fetch.
+     * Determine the order of ContatoExternos to fetch.
      */
-    orderBy?: ExternalContactOrderByWithRelationInput | ExternalContactOrderByWithRelationInput[]
+    orderBy?: ContatoExternoOrderByWithRelationInput | ContatoExternoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ExternalContacts.
+     * Sets the position for searching for ContatoExternos.
      */
-    cursor?: ExternalContactWhereUniqueInput
+    cursor?: ContatoExternoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ExternalContacts from the position of the cursor.
+     * Take `±n` ContatoExternos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ExternalContacts.
+     * Skip the first `n` ContatoExternos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ExternalContacts.
+     * Filter by unique combinations of ContatoExternos.
      */
-    distinct?: ExternalContactScalarFieldEnum | ExternalContactScalarFieldEnum[]
+    distinct?: ContatoExternoScalarFieldEnum | ContatoExternoScalarFieldEnum[]
   }
 
   /**
-   * ExternalContact findFirstOrThrow
+   * ContatoExterno findFirstOrThrow
    */
-  export type ExternalContactFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContact to fetch.
+     * Filter, which ContatoExterno to fetch.
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ExternalContacts to fetch.
+     * Determine the order of ContatoExternos to fetch.
      */
-    orderBy?: ExternalContactOrderByWithRelationInput | ExternalContactOrderByWithRelationInput[]
+    orderBy?: ContatoExternoOrderByWithRelationInput | ContatoExternoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ExternalContacts.
+     * Sets the position for searching for ContatoExternos.
      */
-    cursor?: ExternalContactWhereUniqueInput
+    cursor?: ContatoExternoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ExternalContacts from the position of the cursor.
+     * Take `±n` ContatoExternos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ExternalContacts.
+     * Skip the first `n` ContatoExternos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ExternalContacts.
+     * Filter by unique combinations of ContatoExternos.
      */
-    distinct?: ExternalContactScalarFieldEnum | ExternalContactScalarFieldEnum[]
+    distinct?: ContatoExternoScalarFieldEnum | ContatoExternoScalarFieldEnum[]
   }
 
   /**
-   * ExternalContact findMany
+   * ContatoExterno findMany
    */
-  export type ExternalContactFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContacts to fetch.
+     * Filter, which ContatoExternos to fetch.
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ExternalContacts to fetch.
+     * Determine the order of ContatoExternos to fetch.
      */
-    orderBy?: ExternalContactOrderByWithRelationInput | ExternalContactOrderByWithRelationInput[]
+    orderBy?: ContatoExternoOrderByWithRelationInput | ContatoExternoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ExternalContacts.
+     * Sets the position for listing ContatoExternos.
      */
-    cursor?: ExternalContactWhereUniqueInput
+    cursor?: ContatoExternoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ExternalContacts from the position of the cursor.
+     * Take `±n` ContatoExternos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ExternalContacts.
+     * Skip the first `n` ContatoExternos.
      */
     skip?: number
-    distinct?: ExternalContactScalarFieldEnum | ExternalContactScalarFieldEnum[]
+    distinct?: ContatoExternoScalarFieldEnum | ContatoExternoScalarFieldEnum[]
   }
 
   /**
-   * ExternalContact create
+   * ContatoExterno create
    */
-  export type ExternalContactCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * The data needed to create a ExternalContact.
+     * The data needed to create a ContatoExterno.
      */
-    data: XOR<ExternalContactCreateInput, ExternalContactUncheckedCreateInput>
+    data: XOR<ContatoExternoCreateInput, ContatoExternoUncheckedCreateInput>
   }
 
   /**
-   * ExternalContact createMany
+   * ContatoExterno createMany
    */
-  export type ExternalContactCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ExternalContacts.
+     * The data used to create many ContatoExternos.
      */
-    data: ExternalContactCreateManyInput | ExternalContactCreateManyInput[]
+    data: ContatoExternoCreateManyInput | ContatoExternoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ExternalContact createManyAndReturn
+   * ContatoExterno createManyAndReturn
    */
-  export type ExternalContactCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ContatoExternoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many ExternalContacts.
+     * The data used to create many ContatoExternos.
      */
-    data: ExternalContactCreateManyInput | ExternalContactCreateManyInput[]
+    data: ContatoExternoCreateManyInput | ContatoExternoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ExternalContact update
+   * ContatoExterno update
    */
-  export type ExternalContactUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * The data needed to update a ExternalContact.
+     * The data needed to update a ContatoExterno.
      */
-    data: XOR<ExternalContactUpdateInput, ExternalContactUncheckedUpdateInput>
+    data: XOR<ContatoExternoUpdateInput, ContatoExternoUncheckedUpdateInput>
     /**
-     * Choose, which ExternalContact to update.
+     * Choose, which ContatoExterno to update.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
   }
 
   /**
-   * ExternalContact updateMany
+   * ContatoExterno updateMany
    */
-  export type ExternalContactUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ExternalContacts.
+     * The data used to update ContatoExternos.
      */
-    data: XOR<ExternalContactUpdateManyMutationInput, ExternalContactUncheckedUpdateManyInput>
+    data: XOR<ContatoExternoUpdateManyMutationInput, ContatoExternoUncheckedUpdateManyInput>
     /**
-     * Filter which ExternalContacts to update
+     * Filter which ContatoExternos to update
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
   }
 
   /**
-   * ExternalContact upsert
+   * ContatoExterno upsert
    */
-  export type ExternalContactUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * The filter to search for the ExternalContact to update in case it exists.
+     * The filter to search for the ContatoExterno to update in case it exists.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
     /**
-     * In case the ExternalContact found by the `where` argument doesn't exist, create a new ExternalContact with this data.
+     * In case the ContatoExterno found by the `where` argument doesn't exist, create a new ContatoExterno with this data.
      */
-    create: XOR<ExternalContactCreateInput, ExternalContactUncheckedCreateInput>
+    create: XOR<ContatoExternoCreateInput, ContatoExternoUncheckedCreateInput>
     /**
-     * In case the ExternalContact was found with the provided `where` argument, update it with this data.
+     * In case the ContatoExterno was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ExternalContactUpdateInput, ExternalContactUncheckedUpdateInput>
+    update: XOR<ContatoExternoUpdateInput, ContatoExternoUncheckedUpdateInput>
   }
 
   /**
-   * ExternalContact delete
+   * ContatoExterno delete
    */
-  export type ExternalContactDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter which ExternalContact to delete.
+     * Filter which ContatoExterno to delete.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
   }
 
   /**
-   * ExternalContact deleteMany
+   * ContatoExterno deleteMany
    */
-  export type ExternalContactDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ExternalContacts to delete
+     * Filter which ContatoExternos to delete
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
   }
 
   /**
-   * ExternalContact without action
+   * ContatoExterno without action
    */
-  export type ExternalContactDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model TenantChannelConfig
+   * Model ConfiguracaoCanalTenant
    */
 
-  export type AggregateTenantChannelConfig = {
-    _count: TenantChannelConfigCountAggregateOutputType | null
-    _min: TenantChannelConfigMinAggregateOutputType | null
-    _max: TenantChannelConfigMaxAggregateOutputType | null
+  export type AggregateConfiguracaoCanalTenant = {
+    _count: ConfiguracaoCanalTenantCountAggregateOutputType | null
+    _min: ConfiguracaoCanalTenantMinAggregateOutputType | null
+    _max: ConfiguracaoCanalTenantMaxAggregateOutputType | null
   }
 
-  export type TenantChannelConfigMinAggregateOutputType = {
+  export type ConfiguracaoCanalTenantMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     email_enabled: boolean | null
@@ -49385,7 +49385,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type TenantChannelConfigMaxAggregateOutputType = {
+  export type ConfiguracaoCanalTenantMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
     email_enabled: boolean | null
@@ -49395,7 +49395,7 @@ export namespace Prisma {
     updated_at: Date | null
   }
 
-  export type TenantChannelConfigCountAggregateOutputType = {
+  export type ConfiguracaoCanalTenantCountAggregateOutputType = {
     id: number
     tenant_id: number
     email_enabled: number
@@ -49407,7 +49407,7 @@ export namespace Prisma {
   }
 
 
-  export type TenantChannelConfigMinAggregateInputType = {
+  export type ConfiguracaoCanalTenantMinAggregateInputType = {
     id?: true
     tenant_id?: true
     email_enabled?: true
@@ -49417,7 +49417,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type TenantChannelConfigMaxAggregateInputType = {
+  export type ConfiguracaoCanalTenantMaxAggregateInputType = {
     id?: true
     tenant_id?: true
     email_enabled?: true
@@ -49427,7 +49427,7 @@ export namespace Prisma {
     updated_at?: true
   }
 
-  export type TenantChannelConfigCountAggregateInputType = {
+  export type ConfiguracaoCanalTenantCountAggregateInputType = {
     id?: true
     tenant_id?: true
     email_enabled?: true
@@ -49438,79 +49438,79 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type TenantChannelConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TenantChannelConfig to aggregate.
+     * Filter which ConfiguracaoCanalTenant to aggregate.
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TenantChannelConfigs to fetch.
+     * Determine the order of ConfiguracaoCanalTenants to fetch.
      */
-    orderBy?: TenantChannelConfigOrderByWithRelationInput | TenantChannelConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoCanalTenantOrderByWithRelationInput | ConfiguracaoCanalTenantOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: TenantChannelConfigWhereUniqueInput
+    cursor?: ConfiguracaoCanalTenantWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TenantChannelConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoCanalTenants from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TenantChannelConfigs.
+     * Skip the first `n` ConfiguracaoCanalTenants.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned TenantChannelConfigs
+     * Count returned ConfiguracaoCanalTenants
     **/
-    _count?: true | TenantChannelConfigCountAggregateInputType
+    _count?: true | ConfiguracaoCanalTenantCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: TenantChannelConfigMinAggregateInputType
+    _min?: ConfiguracaoCanalTenantMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: TenantChannelConfigMaxAggregateInputType
+    _max?: ConfiguracaoCanalTenantMaxAggregateInputType
   }
 
-  export type GetTenantChannelConfigAggregateType<T extends TenantChannelConfigAggregateArgs> = {
-        [P in keyof T & keyof AggregateTenantChannelConfig]: P extends '_count' | 'count'
+  export type GetConfiguracaoCanalTenantAggregateType<T extends ConfiguracaoCanalTenantAggregateArgs> = {
+        [P in keyof T & keyof AggregateConfiguracaoCanalTenant]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateTenantChannelConfig[P]>
-      : GetScalarType<T[P], AggregateTenantChannelConfig[P]>
+        : GetScalarType<T[P], AggregateConfiguracaoCanalTenant[P]>
+      : GetScalarType<T[P], AggregateConfiguracaoCanalTenant[P]>
   }
 
 
 
 
-  export type TenantChannelConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TenantChannelConfigWhereInput
-    orderBy?: TenantChannelConfigOrderByWithAggregationInput | TenantChannelConfigOrderByWithAggregationInput[]
-    by: TenantChannelConfigScalarFieldEnum[] | TenantChannelConfigScalarFieldEnum
-    having?: TenantChannelConfigScalarWhereWithAggregatesInput
+  export type ConfiguracaoCanalTenantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConfiguracaoCanalTenantWhereInput
+    orderBy?: ConfiguracaoCanalTenantOrderByWithAggregationInput | ConfiguracaoCanalTenantOrderByWithAggregationInput[]
+    by: ConfiguracaoCanalTenantScalarFieldEnum[] | ConfiguracaoCanalTenantScalarFieldEnum
+    having?: ConfiguracaoCanalTenantScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: TenantChannelConfigCountAggregateInputType | true
-    _min?: TenantChannelConfigMinAggregateInputType
-    _max?: TenantChannelConfigMaxAggregateInputType
+    _count?: ConfiguracaoCanalTenantCountAggregateInputType | true
+    _min?: ConfiguracaoCanalTenantMinAggregateInputType
+    _max?: ConfiguracaoCanalTenantMaxAggregateInputType
   }
 
-  export type TenantChannelConfigGroupByOutputType = {
+  export type ConfiguracaoCanalTenantGroupByOutputType = {
     id: string
     tenant_id: string
     email_enabled: boolean
@@ -49518,26 +49518,26 @@ export namespace Prisma {
     updated_by: string | null
     created_at: Date
     updated_at: Date
-    _count: TenantChannelConfigCountAggregateOutputType | null
-    _min: TenantChannelConfigMinAggregateOutputType | null
-    _max: TenantChannelConfigMaxAggregateOutputType | null
+    _count: ConfiguracaoCanalTenantCountAggregateOutputType | null
+    _min: ConfiguracaoCanalTenantMinAggregateOutputType | null
+    _max: ConfiguracaoCanalTenantMaxAggregateOutputType | null
   }
 
-  type GetTenantChannelConfigGroupByPayload<T extends TenantChannelConfigGroupByArgs> = Prisma.PrismaPromise<
+  type GetConfiguracaoCanalTenantGroupByPayload<T extends ConfiguracaoCanalTenantGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<TenantChannelConfigGroupByOutputType, T['by']> &
+      PickEnumerable<ConfiguracaoCanalTenantGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof TenantChannelConfigGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ConfiguracaoCanalTenantGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], TenantChannelConfigGroupByOutputType[P]>
-            : GetScalarType<T[P], TenantChannelConfigGroupByOutputType[P]>
+              : GetScalarType<T[P], ConfiguracaoCanalTenantGroupByOutputType[P]>
+            : GetScalarType<T[P], ConfiguracaoCanalTenantGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type TenantChannelConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ConfiguracaoCanalTenantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     email_enabled?: boolean
@@ -49545,9 +49545,9 @@ export namespace Prisma {
     updated_by?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["tenantChannelConfig"]>
+  }, ExtArgs["result"]["configuracaoCanalTenant"]>
 
-  export type TenantChannelConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type ConfiguracaoCanalTenantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     tenant_id?: boolean
     email_enabled?: boolean
@@ -49555,9 +49555,9 @@ export namespace Prisma {
     updated_by?: boolean
     created_at?: boolean
     updated_at?: boolean
-  }, ExtArgs["result"]["tenantChannelConfig"]>
+  }, ExtArgs["result"]["configuracaoCanalTenant"]>
 
-  export type TenantChannelConfigSelectScalar = {
+  export type ConfiguracaoCanalTenantSelectScalar = {
     id?: boolean
     tenant_id?: boolean
     email_enabled?: boolean
@@ -49568,8 +49568,8 @@ export namespace Prisma {
   }
 
 
-  export type $TenantChannelConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TenantChannelConfig"
+  export type $ConfiguracaoCanalTenantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConfiguracaoCanalTenant"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -49579,136 +49579,136 @@ export namespace Prisma {
       updated_by: string | null
       created_at: Date
       updated_at: Date
-    }, ExtArgs["result"]["tenantChannelConfig"]>
+    }, ExtArgs["result"]["configuracaoCanalTenant"]>
     composites: {}
   }
 
-  type TenantChannelConfigGetPayload<S extends boolean | null | undefined | TenantChannelConfigDefaultArgs> = $Result.GetResult<Prisma.$TenantChannelConfigPayload, S>
+  type ConfiguracaoCanalTenantGetPayload<S extends boolean | null | undefined | ConfiguracaoCanalTenantDefaultArgs> = $Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload, S>
 
-  type TenantChannelConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<TenantChannelConfigFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: TenantChannelConfigCountAggregateInputType | true
+  type ConfiguracaoCanalTenantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ConfiguracaoCanalTenantFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ConfiguracaoCanalTenantCountAggregateInputType | true
     }
 
-  export interface TenantChannelConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TenantChannelConfig'], meta: { name: 'TenantChannelConfig' } }
+  export interface ConfiguracaoCanalTenantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConfiguracaoCanalTenant'], meta: { name: 'ConfiguracaoCanalTenant' } }
     /**
-     * Find zero or one TenantChannelConfig that matches the filter.
-     * @param {TenantChannelConfigFindUniqueArgs} args - Arguments to find a TenantChannelConfig
+     * Find zero or one ConfiguracaoCanalTenant that matches the filter.
+     * @param {ConfiguracaoCanalTenantFindUniqueArgs} args - Arguments to find a ConfiguracaoCanalTenant
      * @example
-     * // Get one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.findUnique({
+     * // Get one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends TenantChannelConfigFindUniqueArgs>(args: SelectSubset<T, TenantChannelConfigFindUniqueArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ConfiguracaoCanalTenantFindUniqueArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantFindUniqueArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one TenantChannelConfig that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ConfiguracaoCanalTenant that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {TenantChannelConfigFindUniqueOrThrowArgs} args - Arguments to find a TenantChannelConfig
+     * @param {ConfiguracaoCanalTenantFindUniqueOrThrowArgs} args - Arguments to find a ConfiguracaoCanalTenant
      * @example
-     * // Get one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.findUniqueOrThrow({
+     * // Get one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TenantChannelConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, TenantChannelConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ConfiguracaoCanalTenantFindUniqueOrThrowArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first TenantChannelConfig that matches the filter.
+     * Find the first ConfiguracaoCanalTenant that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigFindFirstArgs} args - Arguments to find a TenantChannelConfig
+     * @param {ConfiguracaoCanalTenantFindFirstArgs} args - Arguments to find a ConfiguracaoCanalTenant
      * @example
-     * // Get one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.findFirst({
+     * // Get one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends TenantChannelConfigFindFirstArgs>(args?: SelectSubset<T, TenantChannelConfigFindFirstArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ConfiguracaoCanalTenantFindFirstArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantFindFirstArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first TenantChannelConfig that matches the filter or
+     * Find the first ConfiguracaoCanalTenant that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigFindFirstOrThrowArgs} args - Arguments to find a TenantChannelConfig
+     * @param {ConfiguracaoCanalTenantFindFirstOrThrowArgs} args - Arguments to find a ConfiguracaoCanalTenant
      * @example
-     * // Get one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.findFirstOrThrow({
+     * // Get one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends TenantChannelConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, TenantChannelConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ConfiguracaoCanalTenantFindFirstOrThrowArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more TenantChannelConfigs that matches the filter.
+     * Find zero or more ConfiguracaoCanalTenants that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ConfiguracaoCanalTenantFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all TenantChannelConfigs
-     * const tenantChannelConfigs = await prisma.tenantChannelConfig.findMany()
+     * // Get all ConfiguracaoCanalTenants
+     * const configuracaoCanalTenants = await prisma.configuracaoCanalTenant.findMany()
      * 
-     * // Get first 10 TenantChannelConfigs
-     * const tenantChannelConfigs = await prisma.tenantChannelConfig.findMany({ take: 10 })
+     * // Get first 10 ConfiguracaoCanalTenants
+     * const configuracaoCanalTenants = await prisma.configuracaoCanalTenant.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const tenantChannelConfigWithIdOnly = await prisma.tenantChannelConfig.findMany({ select: { id: true } })
+     * const configuracaoCanalTenantWithIdOnly = await prisma.configuracaoCanalTenant.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends TenantChannelConfigFindManyArgs>(args?: SelectSubset<T, TenantChannelConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ConfiguracaoCanalTenantFindManyArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a TenantChannelConfig.
-     * @param {TenantChannelConfigCreateArgs} args - Arguments to create a TenantChannelConfig.
+     * Create a ConfiguracaoCanalTenant.
+     * @param {ConfiguracaoCanalTenantCreateArgs} args - Arguments to create a ConfiguracaoCanalTenant.
      * @example
-     * // Create one TenantChannelConfig
-     * const TenantChannelConfig = await prisma.tenantChannelConfig.create({
+     * // Create one ConfiguracaoCanalTenant
+     * const ConfiguracaoCanalTenant = await prisma.configuracaoCanalTenant.create({
      *   data: {
-     *     // ... data to create a TenantChannelConfig
+     *     // ... data to create a ConfiguracaoCanalTenant
      *   }
      * })
      * 
      */
-    create<T extends TenantChannelConfigCreateArgs>(args: SelectSubset<T, TenantChannelConfigCreateArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ConfiguracaoCanalTenantCreateArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantCreateArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many TenantChannelConfigs.
-     * @param {TenantChannelConfigCreateManyArgs} args - Arguments to create many TenantChannelConfigs.
+     * Create many ConfiguracaoCanalTenants.
+     * @param {ConfiguracaoCanalTenantCreateManyArgs} args - Arguments to create many ConfiguracaoCanalTenants.
      * @example
-     * // Create many TenantChannelConfigs
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.createMany({
+     * // Create many ConfiguracaoCanalTenants
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends TenantChannelConfigCreateManyArgs>(args?: SelectSubset<T, TenantChannelConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ConfiguracaoCanalTenantCreateManyArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many TenantChannelConfigs and returns the data saved in the database.
-     * @param {TenantChannelConfigCreateManyAndReturnArgs} args - Arguments to create many TenantChannelConfigs.
+     * Create many ConfiguracaoCanalTenants and returns the data saved in the database.
+     * @param {ConfiguracaoCanalTenantCreateManyAndReturnArgs} args - Arguments to create many ConfiguracaoCanalTenants.
      * @example
-     * // Create many TenantChannelConfigs
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.createManyAndReturn({
+     * // Create many ConfiguracaoCanalTenants
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many TenantChannelConfigs and only return the `id`
-     * const tenantChannelConfigWithIdOnly = await prisma.tenantChannelConfig.createManyAndReturn({ 
+     * // Create many ConfiguracaoCanalTenants and only return the `id`
+     * const configuracaoCanalTenantWithIdOnly = await prisma.configuracaoCanalTenant.createManyAndReturn({ 
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -49718,28 +49718,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends TenantChannelConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, TenantChannelConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ConfiguracaoCanalTenantCreateManyAndReturnArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a TenantChannelConfig.
-     * @param {TenantChannelConfigDeleteArgs} args - Arguments to delete one TenantChannelConfig.
+     * Delete a ConfiguracaoCanalTenant.
+     * @param {ConfiguracaoCanalTenantDeleteArgs} args - Arguments to delete one ConfiguracaoCanalTenant.
      * @example
-     * // Delete one TenantChannelConfig
-     * const TenantChannelConfig = await prisma.tenantChannelConfig.delete({
+     * // Delete one ConfiguracaoCanalTenant
+     * const ConfiguracaoCanalTenant = await prisma.configuracaoCanalTenant.delete({
      *   where: {
-     *     // ... filter to delete one TenantChannelConfig
+     *     // ... filter to delete one ConfiguracaoCanalTenant
      *   }
      * })
      * 
      */
-    delete<T extends TenantChannelConfigDeleteArgs>(args: SelectSubset<T, TenantChannelConfigDeleteArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ConfiguracaoCanalTenantDeleteArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantDeleteArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one TenantChannelConfig.
-     * @param {TenantChannelConfigUpdateArgs} args - Arguments to update one TenantChannelConfig.
+     * Update one ConfiguracaoCanalTenant.
+     * @param {ConfiguracaoCanalTenantUpdateArgs} args - Arguments to update one ConfiguracaoCanalTenant.
      * @example
-     * // Update one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.update({
+     * // Update one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -49749,30 +49749,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TenantChannelConfigUpdateArgs>(args: SelectSubset<T, TenantChannelConfigUpdateArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ConfiguracaoCanalTenantUpdateArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantUpdateArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more TenantChannelConfigs.
-     * @param {TenantChannelConfigDeleteManyArgs} args - Arguments to filter TenantChannelConfigs to delete.
+     * Delete zero or more ConfiguracaoCanalTenants.
+     * @param {ConfiguracaoCanalTenantDeleteManyArgs} args - Arguments to filter ConfiguracaoCanalTenants to delete.
      * @example
-     * // Delete a few TenantChannelConfigs
-     * const { count } = await prisma.tenantChannelConfig.deleteMany({
+     * // Delete a few ConfiguracaoCanalTenants
+     * const { count } = await prisma.configuracaoCanalTenant.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends TenantChannelConfigDeleteManyArgs>(args?: SelectSubset<T, TenantChannelConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ConfiguracaoCanalTenantDeleteManyArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more TenantChannelConfigs.
+     * Update zero or more ConfiguracaoCanalTenants.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ConfiguracaoCanalTenantUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many TenantChannelConfigs
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.updateMany({
+     * // Update many ConfiguracaoCanalTenants
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -49782,56 +49782,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends TenantChannelConfigUpdateManyArgs>(args: SelectSubset<T, TenantChannelConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ConfiguracaoCanalTenantUpdateManyArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one TenantChannelConfig.
-     * @param {TenantChannelConfigUpsertArgs} args - Arguments to update or create a TenantChannelConfig.
+     * Create or update one ConfiguracaoCanalTenant.
+     * @param {ConfiguracaoCanalTenantUpsertArgs} args - Arguments to update or create a ConfiguracaoCanalTenant.
      * @example
-     * // Update or create a TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.upsert({
+     * // Update or create a ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.upsert({
      *   create: {
-     *     // ... data to create a TenantChannelConfig
+     *     // ... data to create a ConfiguracaoCanalTenant
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the TenantChannelConfig we want to update
+     *     // ... the filter for the ConfiguracaoCanalTenant we want to update
      *   }
      * })
      */
-    upsert<T extends TenantChannelConfigUpsertArgs>(args: SelectSubset<T, TenantChannelConfigUpsertArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ConfiguracaoCanalTenantUpsertArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantUpsertArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of TenantChannelConfigs.
+     * Count the number of ConfiguracaoCanalTenants.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigCountArgs} args - Arguments to filter TenantChannelConfigs to count.
+     * @param {ConfiguracaoCanalTenantCountArgs} args - Arguments to filter ConfiguracaoCanalTenants to count.
      * @example
-     * // Count the number of TenantChannelConfigs
-     * const count = await prisma.tenantChannelConfig.count({
+     * // Count the number of ConfiguracaoCanalTenants
+     * const count = await prisma.configuracaoCanalTenant.count({
      *   where: {
-     *     // ... the filter for the TenantChannelConfigs we want to count
+     *     // ... the filter for the ConfiguracaoCanalTenants we want to count
      *   }
      * })
     **/
-    count<T extends TenantChannelConfigCountArgs>(
-      args?: Subset<T, TenantChannelConfigCountArgs>,
+    count<T extends ConfiguracaoCanalTenantCountArgs>(
+      args?: Subset<T, ConfiguracaoCanalTenantCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], TenantChannelConfigCountAggregateOutputType>
+          : GetScalarType<T['select'], ConfiguracaoCanalTenantCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a TenantChannelConfig.
+     * Allows you to perform aggregations operations on a ConfiguracaoCanalTenant.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ConfiguracaoCanalTenantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -49851,13 +49851,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends TenantChannelConfigAggregateArgs>(args: Subset<T, TenantChannelConfigAggregateArgs>): Prisma.PrismaPromise<GetTenantChannelConfigAggregateType<T>>
+    aggregate<T extends ConfiguracaoCanalTenantAggregateArgs>(args: Subset<T, ConfiguracaoCanalTenantAggregateArgs>): Prisma.PrismaPromise<GetConfiguracaoCanalTenantAggregateType<T>>
 
     /**
-     * Group by TenantChannelConfig.
+     * Group by ConfiguracaoCanalTenant.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigGroupByArgs} args - Group by arguments.
+     * @param {ConfiguracaoCanalTenantGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -49872,14 +49872,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends TenantChannelConfigGroupByArgs,
+      T extends ConfiguracaoCanalTenantGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TenantChannelConfigGroupByArgs['orderBy'] }
-        : { orderBy?: TenantChannelConfigGroupByArgs['orderBy'] },
+        ? { orderBy: ConfiguracaoCanalTenantGroupByArgs['orderBy'] }
+        : { orderBy?: ConfiguracaoCanalTenantGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -49928,20 +49928,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, TenantChannelConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTenantChannelConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ConfiguracaoCanalTenantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConfiguracaoCanalTenantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the TenantChannelConfig model
+   * Fields of the ConfiguracaoCanalTenant model
    */
-  readonly fields: TenantChannelConfigFieldRefs;
+  readonly fields: ConfiguracaoCanalTenantFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for TenantChannelConfig.
+   * The delegate class that acts as a "Promise-like" for ConfiguracaoCanalTenant.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TenantChannelConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ConfiguracaoCanalTenantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -49969,301 +49969,301 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the TenantChannelConfig model
+   * Fields of the ConfiguracaoCanalTenant model
    */ 
-  interface TenantChannelConfigFieldRefs {
-    readonly id: FieldRef<"TenantChannelConfig", 'String'>
-    readonly tenant_id: FieldRef<"TenantChannelConfig", 'String'>
-    readonly email_enabled: FieldRef<"TenantChannelConfig", 'Boolean'>
-    readonly whatsapp_enabled: FieldRef<"TenantChannelConfig", 'Boolean'>
-    readonly updated_by: FieldRef<"TenantChannelConfig", 'String'>
-    readonly created_at: FieldRef<"TenantChannelConfig", 'DateTime'>
-    readonly updated_at: FieldRef<"TenantChannelConfig", 'DateTime'>
+  interface ConfiguracaoCanalTenantFieldRefs {
+    readonly id: FieldRef<"ConfiguracaoCanalTenant", 'String'>
+    readonly tenant_id: FieldRef<"ConfiguracaoCanalTenant", 'String'>
+    readonly email_enabled: FieldRef<"ConfiguracaoCanalTenant", 'Boolean'>
+    readonly whatsapp_enabled: FieldRef<"ConfiguracaoCanalTenant", 'Boolean'>
+    readonly updated_by: FieldRef<"ConfiguracaoCanalTenant", 'String'>
+    readonly created_at: FieldRef<"ConfiguracaoCanalTenant", 'DateTime'>
+    readonly updated_at: FieldRef<"ConfiguracaoCanalTenant", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * TenantChannelConfig findUnique
+   * ConfiguracaoCanalTenant findUnique
    */
-  export type TenantChannelConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfig to fetch.
+     * Filter, which ConfiguracaoCanalTenant to fetch.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
   }
 
   /**
-   * TenantChannelConfig findUniqueOrThrow
+   * ConfiguracaoCanalTenant findUniqueOrThrow
    */
-  export type TenantChannelConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfig to fetch.
+     * Filter, which ConfiguracaoCanalTenant to fetch.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
   }
 
   /**
-   * TenantChannelConfig findFirst
+   * ConfiguracaoCanalTenant findFirst
    */
-  export type TenantChannelConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfig to fetch.
+     * Filter, which ConfiguracaoCanalTenant to fetch.
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TenantChannelConfigs to fetch.
+     * Determine the order of ConfiguracaoCanalTenants to fetch.
      */
-    orderBy?: TenantChannelConfigOrderByWithRelationInput | TenantChannelConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoCanalTenantOrderByWithRelationInput | ConfiguracaoCanalTenantOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TenantChannelConfigs.
+     * Sets the position for searching for ConfiguracaoCanalTenants.
      */
-    cursor?: TenantChannelConfigWhereUniqueInput
+    cursor?: ConfiguracaoCanalTenantWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TenantChannelConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoCanalTenants from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TenantChannelConfigs.
+     * Skip the first `n` ConfiguracaoCanalTenants.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TenantChannelConfigs.
+     * Filter by unique combinations of ConfiguracaoCanalTenants.
      */
-    distinct?: TenantChannelConfigScalarFieldEnum | TenantChannelConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoCanalTenantScalarFieldEnum | ConfiguracaoCanalTenantScalarFieldEnum[]
   }
 
   /**
-   * TenantChannelConfig findFirstOrThrow
+   * ConfiguracaoCanalTenant findFirstOrThrow
    */
-  export type TenantChannelConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfig to fetch.
+     * Filter, which ConfiguracaoCanalTenant to fetch.
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TenantChannelConfigs to fetch.
+     * Determine the order of ConfiguracaoCanalTenants to fetch.
      */
-    orderBy?: TenantChannelConfigOrderByWithRelationInput | TenantChannelConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoCanalTenantOrderByWithRelationInput | ConfiguracaoCanalTenantOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TenantChannelConfigs.
+     * Sets the position for searching for ConfiguracaoCanalTenants.
      */
-    cursor?: TenantChannelConfigWhereUniqueInput
+    cursor?: ConfiguracaoCanalTenantWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TenantChannelConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoCanalTenants from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TenantChannelConfigs.
+     * Skip the first `n` ConfiguracaoCanalTenants.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TenantChannelConfigs.
+     * Filter by unique combinations of ConfiguracaoCanalTenants.
      */
-    distinct?: TenantChannelConfigScalarFieldEnum | TenantChannelConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoCanalTenantScalarFieldEnum | ConfiguracaoCanalTenantScalarFieldEnum[]
   }
 
   /**
-   * TenantChannelConfig findMany
+   * ConfiguracaoCanalTenant findMany
    */
-  export type TenantChannelConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfigs to fetch.
+     * Filter, which ConfiguracaoCanalTenants to fetch.
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TenantChannelConfigs to fetch.
+     * Determine the order of ConfiguracaoCanalTenants to fetch.
      */
-    orderBy?: TenantChannelConfigOrderByWithRelationInput | TenantChannelConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoCanalTenantOrderByWithRelationInput | ConfiguracaoCanalTenantOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing TenantChannelConfigs.
+     * Sets the position for listing ConfiguracaoCanalTenants.
      */
-    cursor?: TenantChannelConfigWhereUniqueInput
+    cursor?: ConfiguracaoCanalTenantWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TenantChannelConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoCanalTenants from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TenantChannelConfigs.
+     * Skip the first `n` ConfiguracaoCanalTenants.
      */
     skip?: number
-    distinct?: TenantChannelConfigScalarFieldEnum | TenantChannelConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoCanalTenantScalarFieldEnum | ConfiguracaoCanalTenantScalarFieldEnum[]
   }
 
   /**
-   * TenantChannelConfig create
+   * ConfiguracaoCanalTenant create
    */
-  export type TenantChannelConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * The data needed to create a TenantChannelConfig.
+     * The data needed to create a ConfiguracaoCanalTenant.
      */
-    data: XOR<TenantChannelConfigCreateInput, TenantChannelConfigUncheckedCreateInput>
+    data: XOR<ConfiguracaoCanalTenantCreateInput, ConfiguracaoCanalTenantUncheckedCreateInput>
   }
 
   /**
-   * TenantChannelConfig createMany
+   * ConfiguracaoCanalTenant createMany
    */
-  export type TenantChannelConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many TenantChannelConfigs.
+     * The data used to create many ConfiguracaoCanalTenants.
      */
-    data: TenantChannelConfigCreateManyInput | TenantChannelConfigCreateManyInput[]
+    data: ConfiguracaoCanalTenantCreateManyInput | ConfiguracaoCanalTenantCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TenantChannelConfig createManyAndReturn
+   * ConfiguracaoCanalTenant createManyAndReturn
    */
-  export type TenantChannelConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many TenantChannelConfigs.
+     * The data used to create many ConfiguracaoCanalTenants.
      */
-    data: TenantChannelConfigCreateManyInput | TenantChannelConfigCreateManyInput[]
+    data: ConfiguracaoCanalTenantCreateManyInput | ConfiguracaoCanalTenantCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TenantChannelConfig update
+   * ConfiguracaoCanalTenant update
    */
-  export type TenantChannelConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * The data needed to update a TenantChannelConfig.
+     * The data needed to update a ConfiguracaoCanalTenant.
      */
-    data: XOR<TenantChannelConfigUpdateInput, TenantChannelConfigUncheckedUpdateInput>
+    data: XOR<ConfiguracaoCanalTenantUpdateInput, ConfiguracaoCanalTenantUncheckedUpdateInput>
     /**
-     * Choose, which TenantChannelConfig to update.
+     * Choose, which ConfiguracaoCanalTenant to update.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
   }
 
   /**
-   * TenantChannelConfig updateMany
+   * ConfiguracaoCanalTenant updateMany
    */
-  export type TenantChannelConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update TenantChannelConfigs.
+     * The data used to update ConfiguracaoCanalTenants.
      */
-    data: XOR<TenantChannelConfigUpdateManyMutationInput, TenantChannelConfigUncheckedUpdateManyInput>
+    data: XOR<ConfiguracaoCanalTenantUpdateManyMutationInput, ConfiguracaoCanalTenantUncheckedUpdateManyInput>
     /**
-     * Filter which TenantChannelConfigs to update
+     * Filter which ConfiguracaoCanalTenants to update
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
   }
 
   /**
-   * TenantChannelConfig upsert
+   * ConfiguracaoCanalTenant upsert
    */
-  export type TenantChannelConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * The filter to search for the TenantChannelConfig to update in case it exists.
+     * The filter to search for the ConfiguracaoCanalTenant to update in case it exists.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
     /**
-     * In case the TenantChannelConfig found by the `where` argument doesn't exist, create a new TenantChannelConfig with this data.
+     * In case the ConfiguracaoCanalTenant found by the `where` argument doesn't exist, create a new ConfiguracaoCanalTenant with this data.
      */
-    create: XOR<TenantChannelConfigCreateInput, TenantChannelConfigUncheckedCreateInput>
+    create: XOR<ConfiguracaoCanalTenantCreateInput, ConfiguracaoCanalTenantUncheckedCreateInput>
     /**
-     * In case the TenantChannelConfig was found with the provided `where` argument, update it with this data.
+     * In case the ConfiguracaoCanalTenant was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<TenantChannelConfigUpdateInput, TenantChannelConfigUncheckedUpdateInput>
+    update: XOR<ConfiguracaoCanalTenantUpdateInput, ConfiguracaoCanalTenantUncheckedUpdateInput>
   }
 
   /**
-   * TenantChannelConfig delete
+   * ConfiguracaoCanalTenant delete
    */
-  export type TenantChannelConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter which TenantChannelConfig to delete.
+     * Filter which ConfiguracaoCanalTenant to delete.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
   }
 
   /**
-   * TenantChannelConfig deleteMany
+   * ConfiguracaoCanalTenant deleteMany
    */
-  export type TenantChannelConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TenantChannelConfigs to delete
+     * Filter which ConfiguracaoCanalTenants to delete
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
   }
 
   /**
-   * TenantChannelConfig without action
+   * ConfiguracaoCanalTenant without action
    */
-  export type TenantChannelConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
   }
 
 
@@ -50744,7 +50744,7 @@ export namespace Prisma {
   export type HistoricoLogScalarFieldEnum = (typeof HistoricoLogScalarFieldEnum)[keyof typeof HistoricoLogScalarFieldEnum]
 
 
-  export const AlertRuleScalarFieldEnum: {
+  export const RegraAlertaScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     name: 'name',
@@ -50766,10 +50766,10 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type AlertRuleScalarFieldEnum = (typeof AlertRuleScalarFieldEnum)[keyof typeof AlertRuleScalarFieldEnum]
+  export type RegraAlertaScalarFieldEnum = (typeof RegraAlertaScalarFieldEnum)[keyof typeof RegraAlertaScalarFieldEnum]
 
 
-  export const AlertEventScalarFieldEnum: {
+  export const EventoAlertaScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     rule_id: 'rule_id',
@@ -50788,10 +50788,10 @@ export namespace Prisma {
     created_at: 'created_at'
   };
 
-  export type AlertEventScalarFieldEnum = (typeof AlertEventScalarFieldEnum)[keyof typeof AlertEventScalarFieldEnum]
+  export type EventoAlertaScalarFieldEnum = (typeof EventoAlertaScalarFieldEnum)[keyof typeof EventoAlertaScalarFieldEnum]
 
 
-  export const AlertNotificationLogScalarFieldEnum: {
+  export const RegistroNotificacaoAlertaScalarFieldEnum: {
     id: 'id',
     alert_event_id: 'alert_event_id',
     channel: 'channel',
@@ -50803,7 +50803,7 @@ export namespace Prisma {
     created_at: 'created_at'
   };
 
-  export type AlertNotificationLogScalarFieldEnum = (typeof AlertNotificationLogScalarFieldEnum)[keyof typeof AlertNotificationLogScalarFieldEnum]
+  export type RegistroNotificacaoAlertaScalarFieldEnum = (typeof RegistroNotificacaoAlertaScalarFieldEnum)[keyof typeof RegistroNotificacaoAlertaScalarFieldEnum]
 
 
   export const ExportarResultadoScalarFieldEnum: {
@@ -50973,7 +50973,7 @@ export namespace Prisma {
   export type PersonalizacaoOrganizacaoGabiaiScalarFieldEnum = (typeof PersonalizacaoOrganizacaoGabiaiScalarFieldEnum)[keyof typeof PersonalizacaoOrganizacaoGabiaiScalarFieldEnum]
 
 
-  export const UserPreferencesScalarFieldEnum: {
+  export const PreferenciasUsuarioScalarFieldEnum: {
     id: 'id',
     user_id: 'user_id',
     tenant_id: 'tenant_id',
@@ -50984,7 +50984,7 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type UserPreferencesScalarFieldEnum = (typeof UserPreferencesScalarFieldEnum)[keyof typeof UserPreferencesScalarFieldEnum]
+  export type PreferenciasUsuarioScalarFieldEnum = (typeof PreferenciasUsuarioScalarFieldEnum)[keyof typeof PreferenciasUsuarioScalarFieldEnum]
 
 
   export const NcmItemScalarFieldEnum: {
@@ -51062,7 +51062,7 @@ export namespace Prisma {
   export type NotificacoesTituloCorpoScalarFieldEnum = (typeof NotificacoesTituloCorpoScalarFieldEnum)[keyof typeof NotificacoesTituloCorpoScalarFieldEnum]
 
 
-  export const ExternalContactScalarFieldEnum: {
+  export const ContatoExternoScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     created_by: 'created_by',
@@ -51075,10 +51075,10 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type ExternalContactScalarFieldEnum = (typeof ExternalContactScalarFieldEnum)[keyof typeof ExternalContactScalarFieldEnum]
+  export type ContatoExternoScalarFieldEnum = (typeof ContatoExternoScalarFieldEnum)[keyof typeof ContatoExternoScalarFieldEnum]
 
 
-  export const TenantChannelConfigScalarFieldEnum: {
+  export const ConfiguracaoCanalTenantScalarFieldEnum: {
     id: 'id',
     tenant_id: 'tenant_id',
     email_enabled: 'email_enabled',
@@ -51088,7 +51088,7 @@ export namespace Prisma {
     updated_at: 'updated_at'
   };
 
-  export type TenantChannelConfigScalarFieldEnum = (typeof TenantChannelConfigScalarFieldEnum)[keyof typeof TenantChannelConfigScalarFieldEnum]
+  export type ConfiguracaoCanalTenantScalarFieldEnum = (typeof ConfiguracaoCanalTenantScalarFieldEnum)[keyof typeof ConfiguracaoCanalTenantScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -53717,33 +53717,33 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"HistoricoLog"> | Date | string
   }
 
-  export type AlertRuleWhereInput = {
-    AND?: AlertRuleWhereInput | AlertRuleWhereInput[]
-    OR?: AlertRuleWhereInput[]
-    NOT?: AlertRuleWhereInput | AlertRuleWhereInput[]
-    id?: StringFilter<"AlertRule"> | string
-    tenant_id?: StringNullableFilter<"AlertRule"> | string | null
-    name?: StringFilter<"AlertRule"> | string
-    description?: StringNullableFilter<"AlertRule"> | string | null
-    enabled?: BoolFilter<"AlertRule"> | boolean
-    actor_type?: EnumActorTypeNullableFilter<"AlertRule"> | $Enums.ActorType | null
-    action?: StringNullableFilter<"AlertRule"> | string | null
-    module?: StringNullableFilter<"AlertRule"> | string | null
-    status_filter?: EnumEventStatusNullableFilter<"AlertRule"> | $Enums.EventStatus | null
-    threshold_count?: IntNullableFilter<"AlertRule"> | number | null
-    threshold_window_seconds?: IntNullableFilter<"AlertRule"> | number | null
-    channel_inapp?: BoolFilter<"AlertRule"> | boolean
-    channel_email?: BoolFilter<"AlertRule"> | boolean
-    channel_whatsapp?: BoolFilter<"AlertRule"> | boolean
-    recipients_email?: StringNullableListFilter<"AlertRule">
-    recipients_whatsapp?: StringNullableListFilter<"AlertRule">
-    recipients_user_ids?: StringNullableListFilter<"AlertRule">
-    created_at?: DateTimeFilter<"AlertRule"> | Date | string
-    updated_at?: DateTimeFilter<"AlertRule"> | Date | string
-    alerts?: AlertEventListRelationFilter
+  export type RegraAlertaWhereInput = {
+    AND?: RegraAlertaWhereInput | RegraAlertaWhereInput[]
+    OR?: RegraAlertaWhereInput[]
+    NOT?: RegraAlertaWhereInput | RegraAlertaWhereInput[]
+    id?: StringFilter<"RegraAlerta"> | string
+    tenant_id?: StringNullableFilter<"RegraAlerta"> | string | null
+    name?: StringFilter<"RegraAlerta"> | string
+    description?: StringNullableFilter<"RegraAlerta"> | string | null
+    enabled?: BoolFilter<"RegraAlerta"> | boolean
+    actor_type?: EnumActorTypeNullableFilter<"RegraAlerta"> | $Enums.ActorType | null
+    action?: StringNullableFilter<"RegraAlerta"> | string | null
+    module?: StringNullableFilter<"RegraAlerta"> | string | null
+    status_filter?: EnumEventStatusNullableFilter<"RegraAlerta"> | $Enums.EventStatus | null
+    threshold_count?: IntNullableFilter<"RegraAlerta"> | number | null
+    threshold_window_seconds?: IntNullableFilter<"RegraAlerta"> | number | null
+    channel_inapp?: BoolFilter<"RegraAlerta"> | boolean
+    channel_email?: BoolFilter<"RegraAlerta"> | boolean
+    channel_whatsapp?: BoolFilter<"RegraAlerta"> | boolean
+    recipients_email?: StringNullableListFilter<"RegraAlerta">
+    recipients_whatsapp?: StringNullableListFilter<"RegraAlerta">
+    recipients_user_ids?: StringNullableListFilter<"RegraAlerta">
+    created_at?: DateTimeFilter<"RegraAlerta"> | Date | string
+    updated_at?: DateTimeFilter<"RegraAlerta"> | Date | string
+    alerts?: EventoAlertaListRelationFilter
   }
 
-  export type AlertRuleOrderByWithRelationInput = {
+  export type RegraAlertaOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrderInput | SortOrder
     name?: SortOrder
@@ -53763,36 +53763,36 @@ export namespace Prisma {
     recipients_user_ids?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    alerts?: AlertEventOrderByRelationAggregateInput
+    alerts?: EventoAlertaOrderByRelationAggregateInput
   }
 
-  export type AlertRuleWhereUniqueInput = Prisma.AtLeast<{
+  export type RegraAlertaWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: AlertRuleWhereInput | AlertRuleWhereInput[]
-    OR?: AlertRuleWhereInput[]
-    NOT?: AlertRuleWhereInput | AlertRuleWhereInput[]
-    tenant_id?: StringNullableFilter<"AlertRule"> | string | null
-    name?: StringFilter<"AlertRule"> | string
-    description?: StringNullableFilter<"AlertRule"> | string | null
-    enabled?: BoolFilter<"AlertRule"> | boolean
-    actor_type?: EnumActorTypeNullableFilter<"AlertRule"> | $Enums.ActorType | null
-    action?: StringNullableFilter<"AlertRule"> | string | null
-    module?: StringNullableFilter<"AlertRule"> | string | null
-    status_filter?: EnumEventStatusNullableFilter<"AlertRule"> | $Enums.EventStatus | null
-    threshold_count?: IntNullableFilter<"AlertRule"> | number | null
-    threshold_window_seconds?: IntNullableFilter<"AlertRule"> | number | null
-    channel_inapp?: BoolFilter<"AlertRule"> | boolean
-    channel_email?: BoolFilter<"AlertRule"> | boolean
-    channel_whatsapp?: BoolFilter<"AlertRule"> | boolean
-    recipients_email?: StringNullableListFilter<"AlertRule">
-    recipients_whatsapp?: StringNullableListFilter<"AlertRule">
-    recipients_user_ids?: StringNullableListFilter<"AlertRule">
-    created_at?: DateTimeFilter<"AlertRule"> | Date | string
-    updated_at?: DateTimeFilter<"AlertRule"> | Date | string
-    alerts?: AlertEventListRelationFilter
+    AND?: RegraAlertaWhereInput | RegraAlertaWhereInput[]
+    OR?: RegraAlertaWhereInput[]
+    NOT?: RegraAlertaWhereInput | RegraAlertaWhereInput[]
+    tenant_id?: StringNullableFilter<"RegraAlerta"> | string | null
+    name?: StringFilter<"RegraAlerta"> | string
+    description?: StringNullableFilter<"RegraAlerta"> | string | null
+    enabled?: BoolFilter<"RegraAlerta"> | boolean
+    actor_type?: EnumActorTypeNullableFilter<"RegraAlerta"> | $Enums.ActorType | null
+    action?: StringNullableFilter<"RegraAlerta"> | string | null
+    module?: StringNullableFilter<"RegraAlerta"> | string | null
+    status_filter?: EnumEventStatusNullableFilter<"RegraAlerta"> | $Enums.EventStatus | null
+    threshold_count?: IntNullableFilter<"RegraAlerta"> | number | null
+    threshold_window_seconds?: IntNullableFilter<"RegraAlerta"> | number | null
+    channel_inapp?: BoolFilter<"RegraAlerta"> | boolean
+    channel_email?: BoolFilter<"RegraAlerta"> | boolean
+    channel_whatsapp?: BoolFilter<"RegraAlerta"> | boolean
+    recipients_email?: StringNullableListFilter<"RegraAlerta">
+    recipients_whatsapp?: StringNullableListFilter<"RegraAlerta">
+    recipients_user_ids?: StringNullableListFilter<"RegraAlerta">
+    created_at?: DateTimeFilter<"RegraAlerta"> | Date | string
+    updated_at?: DateTimeFilter<"RegraAlerta"> | Date | string
+    alerts?: EventoAlertaListRelationFilter
   }, "id">
 
-  export type AlertRuleOrderByWithAggregationInput = {
+  export type RegraAlertaOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrderInput | SortOrder
     name?: SortOrder
@@ -53812,63 +53812,63 @@ export namespace Prisma {
     recipients_user_ids?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: AlertRuleCountOrderByAggregateInput
-    _avg?: AlertRuleAvgOrderByAggregateInput
-    _max?: AlertRuleMaxOrderByAggregateInput
-    _min?: AlertRuleMinOrderByAggregateInput
-    _sum?: AlertRuleSumOrderByAggregateInput
+    _count?: RegraAlertaCountOrderByAggregateInput
+    _avg?: RegraAlertaAvgOrderByAggregateInput
+    _max?: RegraAlertaMaxOrderByAggregateInput
+    _min?: RegraAlertaMinOrderByAggregateInput
+    _sum?: RegraAlertaSumOrderByAggregateInput
   }
 
-  export type AlertRuleScalarWhereWithAggregatesInput = {
-    AND?: AlertRuleScalarWhereWithAggregatesInput | AlertRuleScalarWhereWithAggregatesInput[]
-    OR?: AlertRuleScalarWhereWithAggregatesInput[]
-    NOT?: AlertRuleScalarWhereWithAggregatesInput | AlertRuleScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AlertRule"> | string
-    tenant_id?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    name?: StringWithAggregatesFilter<"AlertRule"> | string
-    description?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    enabled?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    actor_type?: EnumActorTypeNullableWithAggregatesFilter<"AlertRule"> | $Enums.ActorType | null
-    action?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    module?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    status_filter?: EnumEventStatusNullableWithAggregatesFilter<"AlertRule"> | $Enums.EventStatus | null
-    threshold_count?: IntNullableWithAggregatesFilter<"AlertRule"> | number | null
-    threshold_window_seconds?: IntNullableWithAggregatesFilter<"AlertRule"> | number | null
-    channel_inapp?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    channel_email?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    channel_whatsapp?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    recipients_email?: StringNullableListFilter<"AlertRule">
-    recipients_whatsapp?: StringNullableListFilter<"AlertRule">
-    recipients_user_ids?: StringNullableListFilter<"AlertRule">
-    created_at?: DateTimeWithAggregatesFilter<"AlertRule"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"AlertRule"> | Date | string
+  export type RegraAlertaScalarWhereWithAggregatesInput = {
+    AND?: RegraAlertaScalarWhereWithAggregatesInput | RegraAlertaScalarWhereWithAggregatesInput[]
+    OR?: RegraAlertaScalarWhereWithAggregatesInput[]
+    NOT?: RegraAlertaScalarWhereWithAggregatesInput | RegraAlertaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RegraAlerta"> | string
+    tenant_id?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    name?: StringWithAggregatesFilter<"RegraAlerta"> | string
+    description?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    enabled?: BoolWithAggregatesFilter<"RegraAlerta"> | boolean
+    actor_type?: EnumActorTypeNullableWithAggregatesFilter<"RegraAlerta"> | $Enums.ActorType | null
+    action?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    module?: StringNullableWithAggregatesFilter<"RegraAlerta"> | string | null
+    status_filter?: EnumEventStatusNullableWithAggregatesFilter<"RegraAlerta"> | $Enums.EventStatus | null
+    threshold_count?: IntNullableWithAggregatesFilter<"RegraAlerta"> | number | null
+    threshold_window_seconds?: IntNullableWithAggregatesFilter<"RegraAlerta"> | number | null
+    channel_inapp?: BoolWithAggregatesFilter<"RegraAlerta"> | boolean
+    channel_email?: BoolWithAggregatesFilter<"RegraAlerta"> | boolean
+    channel_whatsapp?: BoolWithAggregatesFilter<"RegraAlerta"> | boolean
+    recipients_email?: StringNullableListFilter<"RegraAlerta">
+    recipients_whatsapp?: StringNullableListFilter<"RegraAlerta">
+    recipients_user_ids?: StringNullableListFilter<"RegraAlerta">
+    created_at?: DateTimeWithAggregatesFilter<"RegraAlerta"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"RegraAlerta"> | Date | string
   }
 
-  export type AlertEventWhereInput = {
-    AND?: AlertEventWhereInput | AlertEventWhereInput[]
-    OR?: AlertEventWhereInput[]
-    NOT?: AlertEventWhereInput | AlertEventWhereInput[]
-    id?: StringFilter<"AlertEvent"> | string
-    tenant_id?: StringFilter<"AlertEvent"> | string
-    rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumActorTypeFilter<"AlertEvent"> | $Enums.ActorType
-    actor_id?: StringFilter<"AlertEvent"> | string
-    actor_name?: StringFilter<"AlertEvent"> | string
-    module?: StringFilter<"AlertEvent"> | string
-    action?: StringFilter<"AlertEvent"> | string
-    event_count?: IntFilter<"AlertEvent"> | number
-    window_seconds?: IntFilter<"AlertEvent"> | number
-    audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumAlertStatusFilter<"AlertEvent"> | $Enums.AlertStatus
-    reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
-    reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
-    notes?: StringNullableFilter<"AlertEvent"> | string | null
-    created_at?: DateTimeFilter<"AlertEvent"> | Date | string
-    rule?: XOR<AlertRuleRelationFilter, AlertRuleWhereInput>
-    notifications?: AlertNotificationLogListRelationFilter
+  export type EventoAlertaWhereInput = {
+    AND?: EventoAlertaWhereInput | EventoAlertaWhereInput[]
+    OR?: EventoAlertaWhereInput[]
+    NOT?: EventoAlertaWhereInput | EventoAlertaWhereInput[]
+    id?: StringFilter<"EventoAlerta"> | string
+    tenant_id?: StringFilter<"EventoAlerta"> | string
+    rule_id?: StringFilter<"EventoAlerta"> | string
+    actor_type?: EnumActorTypeFilter<"EventoAlerta"> | $Enums.ActorType
+    actor_id?: StringFilter<"EventoAlerta"> | string
+    actor_name?: StringFilter<"EventoAlerta"> | string
+    module?: StringFilter<"EventoAlerta"> | string
+    action?: StringFilter<"EventoAlerta"> | string
+    event_count?: IntFilter<"EventoAlerta"> | number
+    window_seconds?: IntFilter<"EventoAlerta"> | number
+    audit_log_ids?: StringNullableListFilter<"EventoAlerta">
+    status?: EnumAlertStatusFilter<"EventoAlerta"> | $Enums.AlertStatus
+    reviewed_by?: StringNullableFilter<"EventoAlerta"> | string | null
+    reviewed_at?: DateTimeNullableFilter<"EventoAlerta"> | Date | string | null
+    notes?: StringNullableFilter<"EventoAlerta"> | string | null
+    created_at?: DateTimeFilter<"EventoAlerta"> | Date | string
+    rule?: XOR<RegraAlertaRelationFilter, RegraAlertaWhereInput>
+    notifications?: RegistroNotificacaoAlertaListRelationFilter
   }
 
-  export type AlertEventOrderByWithRelationInput = {
+  export type EventoAlertaOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     rule_id?: SortOrder
@@ -53885,35 +53885,35 @@ export namespace Prisma {
     reviewed_at?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     created_at?: SortOrder
-    rule?: AlertRuleOrderByWithRelationInput
-    notifications?: AlertNotificationLogOrderByRelationAggregateInput
+    rule?: RegraAlertaOrderByWithRelationInput
+    notifications?: RegistroNotificacaoAlertaOrderByRelationAggregateInput
   }
 
-  export type AlertEventWhereUniqueInput = Prisma.AtLeast<{
+  export type EventoAlertaWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: AlertEventWhereInput | AlertEventWhereInput[]
-    OR?: AlertEventWhereInput[]
-    NOT?: AlertEventWhereInput | AlertEventWhereInput[]
-    tenant_id?: StringFilter<"AlertEvent"> | string
-    rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumActorTypeFilter<"AlertEvent"> | $Enums.ActorType
-    actor_id?: StringFilter<"AlertEvent"> | string
-    actor_name?: StringFilter<"AlertEvent"> | string
-    module?: StringFilter<"AlertEvent"> | string
-    action?: StringFilter<"AlertEvent"> | string
-    event_count?: IntFilter<"AlertEvent"> | number
-    window_seconds?: IntFilter<"AlertEvent"> | number
-    audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumAlertStatusFilter<"AlertEvent"> | $Enums.AlertStatus
-    reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
-    reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
-    notes?: StringNullableFilter<"AlertEvent"> | string | null
-    created_at?: DateTimeFilter<"AlertEvent"> | Date | string
-    rule?: XOR<AlertRuleRelationFilter, AlertRuleWhereInput>
-    notifications?: AlertNotificationLogListRelationFilter
+    AND?: EventoAlertaWhereInput | EventoAlertaWhereInput[]
+    OR?: EventoAlertaWhereInput[]
+    NOT?: EventoAlertaWhereInput | EventoAlertaWhereInput[]
+    tenant_id?: StringFilter<"EventoAlerta"> | string
+    rule_id?: StringFilter<"EventoAlerta"> | string
+    actor_type?: EnumActorTypeFilter<"EventoAlerta"> | $Enums.ActorType
+    actor_id?: StringFilter<"EventoAlerta"> | string
+    actor_name?: StringFilter<"EventoAlerta"> | string
+    module?: StringFilter<"EventoAlerta"> | string
+    action?: StringFilter<"EventoAlerta"> | string
+    event_count?: IntFilter<"EventoAlerta"> | number
+    window_seconds?: IntFilter<"EventoAlerta"> | number
+    audit_log_ids?: StringNullableListFilter<"EventoAlerta">
+    status?: EnumAlertStatusFilter<"EventoAlerta"> | $Enums.AlertStatus
+    reviewed_by?: StringNullableFilter<"EventoAlerta"> | string | null
+    reviewed_at?: DateTimeNullableFilter<"EventoAlerta"> | Date | string | null
+    notes?: StringNullableFilter<"EventoAlerta"> | string | null
+    created_at?: DateTimeFilter<"EventoAlerta"> | Date | string
+    rule?: XOR<RegraAlertaRelationFilter, RegraAlertaWhereInput>
+    notifications?: RegistroNotificacaoAlertaListRelationFilter
   }, "id">
 
-  export type AlertEventOrderByWithAggregationInput = {
+  export type EventoAlertaOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     rule_id?: SortOrder
@@ -53930,52 +53930,52 @@ export namespace Prisma {
     reviewed_at?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     created_at?: SortOrder
-    _count?: AlertEventCountOrderByAggregateInput
-    _avg?: AlertEventAvgOrderByAggregateInput
-    _max?: AlertEventMaxOrderByAggregateInput
-    _min?: AlertEventMinOrderByAggregateInput
-    _sum?: AlertEventSumOrderByAggregateInput
+    _count?: EventoAlertaCountOrderByAggregateInput
+    _avg?: EventoAlertaAvgOrderByAggregateInput
+    _max?: EventoAlertaMaxOrderByAggregateInput
+    _min?: EventoAlertaMinOrderByAggregateInput
+    _sum?: EventoAlertaSumOrderByAggregateInput
   }
 
-  export type AlertEventScalarWhereWithAggregatesInput = {
-    AND?: AlertEventScalarWhereWithAggregatesInput | AlertEventScalarWhereWithAggregatesInput[]
-    OR?: AlertEventScalarWhereWithAggregatesInput[]
-    NOT?: AlertEventScalarWhereWithAggregatesInput | AlertEventScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    tenant_id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    rule_id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    actor_type?: EnumActorTypeWithAggregatesFilter<"AlertEvent"> | $Enums.ActorType
-    actor_id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    actor_name?: StringWithAggregatesFilter<"AlertEvent"> | string
-    module?: StringWithAggregatesFilter<"AlertEvent"> | string
-    action?: StringWithAggregatesFilter<"AlertEvent"> | string
-    event_count?: IntWithAggregatesFilter<"AlertEvent"> | number
-    window_seconds?: IntWithAggregatesFilter<"AlertEvent"> | number
-    audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumAlertStatusWithAggregatesFilter<"AlertEvent"> | $Enums.AlertStatus
-    reviewed_by?: StringNullableWithAggregatesFilter<"AlertEvent"> | string | null
-    reviewed_at?: DateTimeNullableWithAggregatesFilter<"AlertEvent"> | Date | string | null
-    notes?: StringNullableWithAggregatesFilter<"AlertEvent"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"AlertEvent"> | Date | string
+  export type EventoAlertaScalarWhereWithAggregatesInput = {
+    AND?: EventoAlertaScalarWhereWithAggregatesInput | EventoAlertaScalarWhereWithAggregatesInput[]
+    OR?: EventoAlertaScalarWhereWithAggregatesInput[]
+    NOT?: EventoAlertaScalarWhereWithAggregatesInput | EventoAlertaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    tenant_id?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    rule_id?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    actor_type?: EnumActorTypeWithAggregatesFilter<"EventoAlerta"> | $Enums.ActorType
+    actor_id?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    actor_name?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    module?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    action?: StringWithAggregatesFilter<"EventoAlerta"> | string
+    event_count?: IntWithAggregatesFilter<"EventoAlerta"> | number
+    window_seconds?: IntWithAggregatesFilter<"EventoAlerta"> | number
+    audit_log_ids?: StringNullableListFilter<"EventoAlerta">
+    status?: EnumAlertStatusWithAggregatesFilter<"EventoAlerta"> | $Enums.AlertStatus
+    reviewed_by?: StringNullableWithAggregatesFilter<"EventoAlerta"> | string | null
+    reviewed_at?: DateTimeNullableWithAggregatesFilter<"EventoAlerta"> | Date | string | null
+    notes?: StringNullableWithAggregatesFilter<"EventoAlerta"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"EventoAlerta"> | Date | string
   }
 
-  export type AlertNotificationLogWhereInput = {
-    AND?: AlertNotificationLogWhereInput | AlertNotificationLogWhereInput[]
-    OR?: AlertNotificationLogWhereInput[]
-    NOT?: AlertNotificationLogWhereInput | AlertNotificationLogWhereInput[]
-    id?: StringFilter<"AlertNotificationLog"> | string
-    alert_event_id?: StringFilter<"AlertNotificationLog"> | string
-    channel?: StringFilter<"AlertNotificationLog"> | string
-    recipient?: StringFilter<"AlertNotificationLog"> | string
-    status?: StringFilter<"AlertNotificationLog"> | string
-    attempts?: IntFilter<"AlertNotificationLog"> | number
-    error_message?: StringNullableFilter<"AlertNotificationLog"> | string | null
-    sent_at?: DateTimeNullableFilter<"AlertNotificationLog"> | Date | string | null
-    created_at?: DateTimeFilter<"AlertNotificationLog"> | Date | string
-    alert_event?: XOR<AlertEventRelationFilter, AlertEventWhereInput>
+  export type RegistroNotificacaoAlertaWhereInput = {
+    AND?: RegistroNotificacaoAlertaWhereInput | RegistroNotificacaoAlertaWhereInput[]
+    OR?: RegistroNotificacaoAlertaWhereInput[]
+    NOT?: RegistroNotificacaoAlertaWhereInput | RegistroNotificacaoAlertaWhereInput[]
+    id?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    alert_event_id?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    channel?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    recipient?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    status?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    attempts?: IntFilter<"RegistroNotificacaoAlerta"> | number
+    error_message?: StringNullableFilter<"RegistroNotificacaoAlerta"> | string | null
+    sent_at?: DateTimeNullableFilter<"RegistroNotificacaoAlerta"> | Date | string | null
+    created_at?: DateTimeFilter<"RegistroNotificacaoAlerta"> | Date | string
+    alert_event?: XOR<EventoAlertaRelationFilter, EventoAlertaWhereInput>
   }
 
-  export type AlertNotificationLogOrderByWithRelationInput = {
+  export type RegistroNotificacaoAlertaOrderByWithRelationInput = {
     id?: SortOrder
     alert_event_id?: SortOrder
     channel?: SortOrder
@@ -53985,26 +53985,26 @@ export namespace Prisma {
     error_message?: SortOrderInput | SortOrder
     sent_at?: SortOrderInput | SortOrder
     created_at?: SortOrder
-    alert_event?: AlertEventOrderByWithRelationInput
+    alert_event?: EventoAlertaOrderByWithRelationInput
   }
 
-  export type AlertNotificationLogWhereUniqueInput = Prisma.AtLeast<{
+  export type RegistroNotificacaoAlertaWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: AlertNotificationLogWhereInput | AlertNotificationLogWhereInput[]
-    OR?: AlertNotificationLogWhereInput[]
-    NOT?: AlertNotificationLogWhereInput | AlertNotificationLogWhereInput[]
-    alert_event_id?: StringFilter<"AlertNotificationLog"> | string
-    channel?: StringFilter<"AlertNotificationLog"> | string
-    recipient?: StringFilter<"AlertNotificationLog"> | string
-    status?: StringFilter<"AlertNotificationLog"> | string
-    attempts?: IntFilter<"AlertNotificationLog"> | number
-    error_message?: StringNullableFilter<"AlertNotificationLog"> | string | null
-    sent_at?: DateTimeNullableFilter<"AlertNotificationLog"> | Date | string | null
-    created_at?: DateTimeFilter<"AlertNotificationLog"> | Date | string
-    alert_event?: XOR<AlertEventRelationFilter, AlertEventWhereInput>
+    AND?: RegistroNotificacaoAlertaWhereInput | RegistroNotificacaoAlertaWhereInput[]
+    OR?: RegistroNotificacaoAlertaWhereInput[]
+    NOT?: RegistroNotificacaoAlertaWhereInput | RegistroNotificacaoAlertaWhereInput[]
+    alert_event_id?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    channel?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    recipient?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    status?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    attempts?: IntFilter<"RegistroNotificacaoAlerta"> | number
+    error_message?: StringNullableFilter<"RegistroNotificacaoAlerta"> | string | null
+    sent_at?: DateTimeNullableFilter<"RegistroNotificacaoAlerta"> | Date | string | null
+    created_at?: DateTimeFilter<"RegistroNotificacaoAlerta"> | Date | string
+    alert_event?: XOR<EventoAlertaRelationFilter, EventoAlertaWhereInput>
   }, "id">
 
-  export type AlertNotificationLogOrderByWithAggregationInput = {
+  export type RegistroNotificacaoAlertaOrderByWithAggregationInput = {
     id?: SortOrder
     alert_event_id?: SortOrder
     channel?: SortOrder
@@ -54014,26 +54014,26 @@ export namespace Prisma {
     error_message?: SortOrderInput | SortOrder
     sent_at?: SortOrderInput | SortOrder
     created_at?: SortOrder
-    _count?: AlertNotificationLogCountOrderByAggregateInput
-    _avg?: AlertNotificationLogAvgOrderByAggregateInput
-    _max?: AlertNotificationLogMaxOrderByAggregateInput
-    _min?: AlertNotificationLogMinOrderByAggregateInput
-    _sum?: AlertNotificationLogSumOrderByAggregateInput
+    _count?: RegistroNotificacaoAlertaCountOrderByAggregateInput
+    _avg?: RegistroNotificacaoAlertaAvgOrderByAggregateInput
+    _max?: RegistroNotificacaoAlertaMaxOrderByAggregateInput
+    _min?: RegistroNotificacaoAlertaMinOrderByAggregateInput
+    _sum?: RegistroNotificacaoAlertaSumOrderByAggregateInput
   }
 
-  export type AlertNotificationLogScalarWhereWithAggregatesInput = {
-    AND?: AlertNotificationLogScalarWhereWithAggregatesInput | AlertNotificationLogScalarWhereWithAggregatesInput[]
-    OR?: AlertNotificationLogScalarWhereWithAggregatesInput[]
-    NOT?: AlertNotificationLogScalarWhereWithAggregatesInput | AlertNotificationLogScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    alert_event_id?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    channel?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    recipient?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    status?: StringWithAggregatesFilter<"AlertNotificationLog"> | string
-    attempts?: IntWithAggregatesFilter<"AlertNotificationLog"> | number
-    error_message?: StringNullableWithAggregatesFilter<"AlertNotificationLog"> | string | null
-    sent_at?: DateTimeNullableWithAggregatesFilter<"AlertNotificationLog"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"AlertNotificationLog"> | Date | string
+  export type RegistroNotificacaoAlertaScalarWhereWithAggregatesInput = {
+    AND?: RegistroNotificacaoAlertaScalarWhereWithAggregatesInput | RegistroNotificacaoAlertaScalarWhereWithAggregatesInput[]
+    OR?: RegistroNotificacaoAlertaScalarWhereWithAggregatesInput[]
+    NOT?: RegistroNotificacaoAlertaScalarWhereWithAggregatesInput | RegistroNotificacaoAlertaScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"RegistroNotificacaoAlerta"> | string
+    alert_event_id?: StringWithAggregatesFilter<"RegistroNotificacaoAlerta"> | string
+    channel?: StringWithAggregatesFilter<"RegistroNotificacaoAlerta"> | string
+    recipient?: StringWithAggregatesFilter<"RegistroNotificacaoAlerta"> | string
+    status?: StringWithAggregatesFilter<"RegistroNotificacaoAlerta"> | string
+    attempts?: IntWithAggregatesFilter<"RegistroNotificacaoAlerta"> | number
+    error_message?: StringNullableWithAggregatesFilter<"RegistroNotificacaoAlerta"> | string | null
+    sent_at?: DateTimeNullableWithAggregatesFilter<"RegistroNotificacaoAlerta"> | Date | string | null
+    created_at?: DateTimeWithAggregatesFilter<"RegistroNotificacaoAlerta"> | Date | string
   }
 
   export type ExportarResultadoWhereInput = {
@@ -54875,21 +54875,21 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"PersonalizacaoOrganizacaoGabiai"> | Date | string
   }
 
-  export type UserPreferencesWhereInput = {
-    AND?: UserPreferencesWhereInput | UserPreferencesWhereInput[]
-    OR?: UserPreferencesWhereInput[]
-    NOT?: UserPreferencesWhereInput | UserPreferencesWhereInput[]
-    id?: StringFilter<"UserPreferences"> | string
-    user_id?: StringFilter<"UserPreferences"> | string
-    tenant_id?: StringFilter<"UserPreferences"> | string
-    tooltips_disabled?: BoolFilter<"UserPreferences"> | boolean
-    theme?: StringFilter<"UserPreferences"> | string
-    sidebar_open?: BoolFilter<"UserPreferences"> | boolean
-    created_at?: DateTimeFilter<"UserPreferences"> | Date | string
-    updated_at?: DateTimeFilter<"UserPreferences"> | Date | string
+  export type PreferenciasUsuarioWhereInput = {
+    AND?: PreferenciasUsuarioWhereInput | PreferenciasUsuarioWhereInput[]
+    OR?: PreferenciasUsuarioWhereInput[]
+    NOT?: PreferenciasUsuarioWhereInput | PreferenciasUsuarioWhereInput[]
+    id?: StringFilter<"PreferenciasUsuario"> | string
+    user_id?: StringFilter<"PreferenciasUsuario"> | string
+    tenant_id?: StringFilter<"PreferenciasUsuario"> | string
+    tooltips_disabled?: BoolFilter<"PreferenciasUsuario"> | boolean
+    theme?: StringFilter<"PreferenciasUsuario"> | string
+    sidebar_open?: BoolFilter<"PreferenciasUsuario"> | boolean
+    created_at?: DateTimeFilter<"PreferenciasUsuario"> | Date | string
+    updated_at?: DateTimeFilter<"PreferenciasUsuario"> | Date | string
   }
 
-  export type UserPreferencesOrderByWithRelationInput = {
+  export type PreferenciasUsuarioOrderByWithRelationInput = {
     id?: SortOrder
     user_id?: SortOrder
     tenant_id?: SortOrder
@@ -54900,21 +54900,21 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type UserPreferencesWhereUniqueInput = Prisma.AtLeast<{
+  export type PreferenciasUsuarioWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     user_id?: string
-    AND?: UserPreferencesWhereInput | UserPreferencesWhereInput[]
-    OR?: UserPreferencesWhereInput[]
-    NOT?: UserPreferencesWhereInput | UserPreferencesWhereInput[]
-    tenant_id?: StringFilter<"UserPreferences"> | string
-    tooltips_disabled?: BoolFilter<"UserPreferences"> | boolean
-    theme?: StringFilter<"UserPreferences"> | string
-    sidebar_open?: BoolFilter<"UserPreferences"> | boolean
-    created_at?: DateTimeFilter<"UserPreferences"> | Date | string
-    updated_at?: DateTimeFilter<"UserPreferences"> | Date | string
+    AND?: PreferenciasUsuarioWhereInput | PreferenciasUsuarioWhereInput[]
+    OR?: PreferenciasUsuarioWhereInput[]
+    NOT?: PreferenciasUsuarioWhereInput | PreferenciasUsuarioWhereInput[]
+    tenant_id?: StringFilter<"PreferenciasUsuario"> | string
+    tooltips_disabled?: BoolFilter<"PreferenciasUsuario"> | boolean
+    theme?: StringFilter<"PreferenciasUsuario"> | string
+    sidebar_open?: BoolFilter<"PreferenciasUsuario"> | boolean
+    created_at?: DateTimeFilter<"PreferenciasUsuario"> | Date | string
+    updated_at?: DateTimeFilter<"PreferenciasUsuario"> | Date | string
   }, "id" | "user_id">
 
-  export type UserPreferencesOrderByWithAggregationInput = {
+  export type PreferenciasUsuarioOrderByWithAggregationInput = {
     id?: SortOrder
     user_id?: SortOrder
     tenant_id?: SortOrder
@@ -54923,23 +54923,23 @@ export namespace Prisma {
     sidebar_open?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: UserPreferencesCountOrderByAggregateInput
-    _max?: UserPreferencesMaxOrderByAggregateInput
-    _min?: UserPreferencesMinOrderByAggregateInput
+    _count?: PreferenciasUsuarioCountOrderByAggregateInput
+    _max?: PreferenciasUsuarioMaxOrderByAggregateInput
+    _min?: PreferenciasUsuarioMinOrderByAggregateInput
   }
 
-  export type UserPreferencesScalarWhereWithAggregatesInput = {
-    AND?: UserPreferencesScalarWhereWithAggregatesInput | UserPreferencesScalarWhereWithAggregatesInput[]
-    OR?: UserPreferencesScalarWhereWithAggregatesInput[]
-    NOT?: UserPreferencesScalarWhereWithAggregatesInput | UserPreferencesScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"UserPreferences"> | string
-    user_id?: StringWithAggregatesFilter<"UserPreferences"> | string
-    tenant_id?: StringWithAggregatesFilter<"UserPreferences"> | string
-    tooltips_disabled?: BoolWithAggregatesFilter<"UserPreferences"> | boolean
-    theme?: StringWithAggregatesFilter<"UserPreferences"> | string
-    sidebar_open?: BoolWithAggregatesFilter<"UserPreferences"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"UserPreferences"> | Date | string
+  export type PreferenciasUsuarioScalarWhereWithAggregatesInput = {
+    AND?: PreferenciasUsuarioScalarWhereWithAggregatesInput | PreferenciasUsuarioScalarWhereWithAggregatesInput[]
+    OR?: PreferenciasUsuarioScalarWhereWithAggregatesInput[]
+    NOT?: PreferenciasUsuarioScalarWhereWithAggregatesInput | PreferenciasUsuarioScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PreferenciasUsuario"> | string
+    user_id?: StringWithAggregatesFilter<"PreferenciasUsuario"> | string
+    tenant_id?: StringWithAggregatesFilter<"PreferenciasUsuario"> | string
+    tooltips_disabled?: BoolWithAggregatesFilter<"PreferenciasUsuario"> | boolean
+    theme?: StringWithAggregatesFilter<"PreferenciasUsuario"> | string
+    sidebar_open?: BoolWithAggregatesFilter<"PreferenciasUsuario"> | boolean
+    created_at?: DateTimeWithAggregatesFilter<"PreferenciasUsuario"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"PreferenciasUsuario"> | Date | string
   }
 
   export type NcmItemWhereInput = {
@@ -55308,23 +55308,23 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"NotificacoesTituloCorpo"> | Date | string
   }
 
-  export type ExternalContactWhereInput = {
-    AND?: ExternalContactWhereInput | ExternalContactWhereInput[]
-    OR?: ExternalContactWhereInput[]
-    NOT?: ExternalContactWhereInput | ExternalContactWhereInput[]
-    id?: StringFilter<"ExternalContact"> | string
-    tenant_id?: StringFilter<"ExternalContact"> | string
-    created_by?: StringFilter<"ExternalContact"> | string
-    name?: StringFilter<"ExternalContact"> | string
-    email?: StringNullableFilter<"ExternalContact"> | string | null
-    whatsapp_phone?: StringNullableFilter<"ExternalContact"> | string | null
-    whatsapp_opt_in_at?: DateTimeNullableFilter<"ExternalContact"> | Date | string | null
-    notes?: StringNullableFilter<"ExternalContact"> | string | null
-    created_at?: DateTimeFilter<"ExternalContact"> | Date | string
-    updated_at?: DateTimeFilter<"ExternalContact"> | Date | string
+  export type ContatoExternoWhereInput = {
+    AND?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
+    OR?: ContatoExternoWhereInput[]
+    NOT?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
+    id?: StringFilter<"ContatoExterno"> | string
+    tenant_id?: StringFilter<"ContatoExterno"> | string
+    created_by?: StringFilter<"ContatoExterno"> | string
+    name?: StringFilter<"ContatoExterno"> | string
+    email?: StringNullableFilter<"ContatoExterno"> | string | null
+    whatsapp_phone?: StringNullableFilter<"ContatoExterno"> | string | null
+    whatsapp_opt_in_at?: DateTimeNullableFilter<"ContatoExterno"> | Date | string | null
+    notes?: StringNullableFilter<"ContatoExterno"> | string | null
+    created_at?: DateTimeFilter<"ContatoExterno"> | Date | string
+    updated_at?: DateTimeFilter<"ContatoExterno"> | Date | string
   }
 
-  export type ExternalContactOrderByWithRelationInput = {
+  export type ContatoExternoOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     created_by?: SortOrder
@@ -55337,23 +55337,23 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type ExternalContactWhereUniqueInput = Prisma.AtLeast<{
+  export type ContatoExternoWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: ExternalContactWhereInput | ExternalContactWhereInput[]
-    OR?: ExternalContactWhereInput[]
-    NOT?: ExternalContactWhereInput | ExternalContactWhereInput[]
-    tenant_id?: StringFilter<"ExternalContact"> | string
-    created_by?: StringFilter<"ExternalContact"> | string
-    name?: StringFilter<"ExternalContact"> | string
-    email?: StringNullableFilter<"ExternalContact"> | string | null
-    whatsapp_phone?: StringNullableFilter<"ExternalContact"> | string | null
-    whatsapp_opt_in_at?: DateTimeNullableFilter<"ExternalContact"> | Date | string | null
-    notes?: StringNullableFilter<"ExternalContact"> | string | null
-    created_at?: DateTimeFilter<"ExternalContact"> | Date | string
-    updated_at?: DateTimeFilter<"ExternalContact"> | Date | string
+    AND?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
+    OR?: ContatoExternoWhereInput[]
+    NOT?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
+    tenant_id?: StringFilter<"ContatoExterno"> | string
+    created_by?: StringFilter<"ContatoExterno"> | string
+    name?: StringFilter<"ContatoExterno"> | string
+    email?: StringNullableFilter<"ContatoExterno"> | string | null
+    whatsapp_phone?: StringNullableFilter<"ContatoExterno"> | string | null
+    whatsapp_opt_in_at?: DateTimeNullableFilter<"ContatoExterno"> | Date | string | null
+    notes?: StringNullableFilter<"ContatoExterno"> | string | null
+    created_at?: DateTimeFilter<"ContatoExterno"> | Date | string
+    updated_at?: DateTimeFilter<"ContatoExterno"> | Date | string
   }, "id">
 
-  export type ExternalContactOrderByWithAggregationInput = {
+  export type ContatoExternoOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     created_by?: SortOrder
@@ -55364,41 +55364,41 @@ export namespace Prisma {
     notes?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: ExternalContactCountOrderByAggregateInput
-    _max?: ExternalContactMaxOrderByAggregateInput
-    _min?: ExternalContactMinOrderByAggregateInput
+    _count?: ContatoExternoCountOrderByAggregateInput
+    _max?: ContatoExternoMaxOrderByAggregateInput
+    _min?: ContatoExternoMinOrderByAggregateInput
   }
 
-  export type ExternalContactScalarWhereWithAggregatesInput = {
-    AND?: ExternalContactScalarWhereWithAggregatesInput | ExternalContactScalarWhereWithAggregatesInput[]
-    OR?: ExternalContactScalarWhereWithAggregatesInput[]
-    NOT?: ExternalContactScalarWhereWithAggregatesInput | ExternalContactScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ExternalContact"> | string
-    tenant_id?: StringWithAggregatesFilter<"ExternalContact"> | string
-    created_by?: StringWithAggregatesFilter<"ExternalContact"> | string
-    name?: StringWithAggregatesFilter<"ExternalContact"> | string
-    email?: StringNullableWithAggregatesFilter<"ExternalContact"> | string | null
-    whatsapp_phone?: StringNullableWithAggregatesFilter<"ExternalContact"> | string | null
-    whatsapp_opt_in_at?: DateTimeNullableWithAggregatesFilter<"ExternalContact"> | Date | string | null
-    notes?: StringNullableWithAggregatesFilter<"ExternalContact"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"ExternalContact"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"ExternalContact"> | Date | string
+  export type ContatoExternoScalarWhereWithAggregatesInput = {
+    AND?: ContatoExternoScalarWhereWithAggregatesInput | ContatoExternoScalarWhereWithAggregatesInput[]
+    OR?: ContatoExternoScalarWhereWithAggregatesInput[]
+    NOT?: ContatoExternoScalarWhereWithAggregatesInput | ContatoExternoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    tenant_id?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    created_by?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    name?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    email?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
+    whatsapp_phone?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
+    whatsapp_opt_in_at?: DateTimeNullableWithAggregatesFilter<"ContatoExterno"> | Date | string | null
+    notes?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"ContatoExterno"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"ContatoExterno"> | Date | string
   }
 
-  export type TenantChannelConfigWhereInput = {
-    AND?: TenantChannelConfigWhereInput | TenantChannelConfigWhereInput[]
-    OR?: TenantChannelConfigWhereInput[]
-    NOT?: TenantChannelConfigWhereInput | TenantChannelConfigWhereInput[]
-    id?: StringFilter<"TenantChannelConfig"> | string
-    tenant_id?: StringFilter<"TenantChannelConfig"> | string
-    email_enabled?: BoolFilter<"TenantChannelConfig"> | boolean
-    whatsapp_enabled?: BoolFilter<"TenantChannelConfig"> | boolean
-    updated_by?: StringNullableFilter<"TenantChannelConfig"> | string | null
-    created_at?: DateTimeFilter<"TenantChannelConfig"> | Date | string
-    updated_at?: DateTimeFilter<"TenantChannelConfig"> | Date | string
+  export type ConfiguracaoCanalTenantWhereInput = {
+    AND?: ConfiguracaoCanalTenantWhereInput | ConfiguracaoCanalTenantWhereInput[]
+    OR?: ConfiguracaoCanalTenantWhereInput[]
+    NOT?: ConfiguracaoCanalTenantWhereInput | ConfiguracaoCanalTenantWhereInput[]
+    id?: StringFilter<"ConfiguracaoCanalTenant"> | string
+    tenant_id?: StringFilter<"ConfiguracaoCanalTenant"> | string
+    email_enabled?: BoolFilter<"ConfiguracaoCanalTenant"> | boolean
+    whatsapp_enabled?: BoolFilter<"ConfiguracaoCanalTenant"> | boolean
+    updated_by?: StringNullableFilter<"ConfiguracaoCanalTenant"> | string | null
+    created_at?: DateTimeFilter<"ConfiguracaoCanalTenant"> | Date | string
+    updated_at?: DateTimeFilter<"ConfiguracaoCanalTenant"> | Date | string
   }
 
-  export type TenantChannelConfigOrderByWithRelationInput = {
+  export type ConfiguracaoCanalTenantOrderByWithRelationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     email_enabled?: SortOrder
@@ -55408,20 +55408,20 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TenantChannelConfigWhereUniqueInput = Prisma.AtLeast<{
+  export type ConfiguracaoCanalTenantWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     tenant_id?: string
-    AND?: TenantChannelConfigWhereInput | TenantChannelConfigWhereInput[]
-    OR?: TenantChannelConfigWhereInput[]
-    NOT?: TenantChannelConfigWhereInput | TenantChannelConfigWhereInput[]
-    email_enabled?: BoolFilter<"TenantChannelConfig"> | boolean
-    whatsapp_enabled?: BoolFilter<"TenantChannelConfig"> | boolean
-    updated_by?: StringNullableFilter<"TenantChannelConfig"> | string | null
-    created_at?: DateTimeFilter<"TenantChannelConfig"> | Date | string
-    updated_at?: DateTimeFilter<"TenantChannelConfig"> | Date | string
+    AND?: ConfiguracaoCanalTenantWhereInput | ConfiguracaoCanalTenantWhereInput[]
+    OR?: ConfiguracaoCanalTenantWhereInput[]
+    NOT?: ConfiguracaoCanalTenantWhereInput | ConfiguracaoCanalTenantWhereInput[]
+    email_enabled?: BoolFilter<"ConfiguracaoCanalTenant"> | boolean
+    whatsapp_enabled?: BoolFilter<"ConfiguracaoCanalTenant"> | boolean
+    updated_by?: StringNullableFilter<"ConfiguracaoCanalTenant"> | string | null
+    created_at?: DateTimeFilter<"ConfiguracaoCanalTenant"> | Date | string
+    updated_at?: DateTimeFilter<"ConfiguracaoCanalTenant"> | Date | string
   }, "id" | "tenant_id">
 
-  export type TenantChannelConfigOrderByWithAggregationInput = {
+  export type ConfiguracaoCanalTenantOrderByWithAggregationInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     email_enabled?: SortOrder
@@ -55429,22 +55429,22 @@ export namespace Prisma {
     updated_by?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
-    _count?: TenantChannelConfigCountOrderByAggregateInput
-    _max?: TenantChannelConfigMaxOrderByAggregateInput
-    _min?: TenantChannelConfigMinOrderByAggregateInput
+    _count?: ConfiguracaoCanalTenantCountOrderByAggregateInput
+    _max?: ConfiguracaoCanalTenantMaxOrderByAggregateInput
+    _min?: ConfiguracaoCanalTenantMinOrderByAggregateInput
   }
 
-  export type TenantChannelConfigScalarWhereWithAggregatesInput = {
-    AND?: TenantChannelConfigScalarWhereWithAggregatesInput | TenantChannelConfigScalarWhereWithAggregatesInput[]
-    OR?: TenantChannelConfigScalarWhereWithAggregatesInput[]
-    NOT?: TenantChannelConfigScalarWhereWithAggregatesInput | TenantChannelConfigScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"TenantChannelConfig"> | string
-    tenant_id?: StringWithAggregatesFilter<"TenantChannelConfig"> | string
-    email_enabled?: BoolWithAggregatesFilter<"TenantChannelConfig"> | boolean
-    whatsapp_enabled?: BoolWithAggregatesFilter<"TenantChannelConfig"> | boolean
-    updated_by?: StringNullableWithAggregatesFilter<"TenantChannelConfig"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"TenantChannelConfig"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"TenantChannelConfig"> | Date | string
+  export type ConfiguracaoCanalTenantScalarWhereWithAggregatesInput = {
+    AND?: ConfiguracaoCanalTenantScalarWhereWithAggregatesInput | ConfiguracaoCanalTenantScalarWhereWithAggregatesInput[]
+    OR?: ConfiguracaoCanalTenantScalarWhereWithAggregatesInput[]
+    NOT?: ConfiguracaoCanalTenantScalarWhereWithAggregatesInput | ConfiguracaoCanalTenantScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ConfiguracaoCanalTenant"> | string
+    tenant_id?: StringWithAggregatesFilter<"ConfiguracaoCanalTenant"> | string
+    email_enabled?: BoolWithAggregatesFilter<"ConfiguracaoCanalTenant"> | boolean
+    whatsapp_enabled?: BoolWithAggregatesFilter<"ConfiguracaoCanalTenant"> | boolean
+    updated_by?: StringNullableWithAggregatesFilter<"ConfiguracaoCanalTenant"> | string | null
+    created_at?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalTenant"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalTenant"> | Date | string
   }
 
   export type AtividadesDadosCreateInput = {
@@ -58202,7 +58202,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertRuleCreateInput = {
+  export type RegraAlertaCreateInput = {
     id?: string
     tenant_id?: string | null
     name: string
@@ -58217,15 +58217,15 @@ export namespace Prisma {
     channel_inapp?: boolean
     channel_email?: boolean
     channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaCreaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaCreaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaCreaterecipients_user_idsInput | string[]
     created_at?: Date | string
     updated_at?: Date | string
-    alerts?: AlertEventCreateNestedManyWithoutRuleInput
+    alerts?: EventoAlertaCreateNestedManyWithoutRuleInput
   }
 
-  export type AlertRuleUncheckedCreateInput = {
+  export type RegraAlertaUncheckedCreateInput = {
     id?: string
     tenant_id?: string | null
     name: string
@@ -58240,15 +58240,15 @@ export namespace Prisma {
     channel_inapp?: boolean
     channel_email?: boolean
     channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaCreaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaCreaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaCreaterecipients_user_idsInput | string[]
     created_at?: Date | string
     updated_at?: Date | string
-    alerts?: AlertEventUncheckedCreateNestedManyWithoutRuleInput
+    alerts?: EventoAlertaUncheckedCreateNestedManyWithoutRuleInput
   }
 
-  export type AlertRuleUpdateInput = {
+  export type RegraAlertaUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
@@ -58263,15 +58263,15 @@ export namespace Prisma {
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
     channel_email?: BoolFieldUpdateOperationsInput | boolean
     channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaUpdaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaUpdaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaUpdaterecipients_user_idsInput | string[]
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    alerts?: AlertEventUpdateManyWithoutRuleNestedInput
+    alerts?: EventoAlertaUpdateManyWithoutRuleNestedInput
   }
 
-  export type AlertRuleUncheckedUpdateInput = {
+  export type RegraAlertaUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
@@ -58286,15 +58286,15 @@ export namespace Prisma {
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
     channel_email?: BoolFieldUpdateOperationsInput | boolean
     channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaUpdaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaUpdaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaUpdaterecipients_user_idsInput | string[]
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    alerts?: AlertEventUncheckedUpdateManyWithoutRuleNestedInput
+    alerts?: EventoAlertaUncheckedUpdateManyWithoutRuleNestedInput
   }
 
-  export type AlertRuleCreateManyInput = {
+  export type RegraAlertaCreateManyInput = {
     id?: string
     tenant_id?: string | null
     name: string
@@ -58309,14 +58309,14 @@ export namespace Prisma {
     channel_inapp?: boolean
     channel_email?: boolean
     channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaCreaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaCreaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaCreaterecipients_user_idsInput | string[]
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type AlertRuleUpdateManyMutationInput = {
+  export type RegraAlertaUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
@@ -58331,14 +58331,14 @@ export namespace Prisma {
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
     channel_email?: BoolFieldUpdateOperationsInput | boolean
     channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaUpdaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaUpdaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaUpdaterecipients_user_idsInput | string[]
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertRuleUncheckedUpdateManyInput = {
+  export type RegraAlertaUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
@@ -58353,14 +58353,14 @@ export namespace Prisma {
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
     channel_email?: BoolFieldUpdateOperationsInput | boolean
     channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaUpdaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaUpdaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaUpdaterecipients_user_idsInput | string[]
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertEventCreateInput = {
+  export type EventoAlertaCreateInput = {
     id?: string
     tenant_id: string
     actor_type: $Enums.ActorType
@@ -58370,77 +58370,17 @@ export namespace Prisma {
     action: string
     event_count: number
     window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaCreateaudit_log_idsInput | string[]
     status?: $Enums.AlertStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
     created_at?: Date | string
-    rule: AlertRuleCreateNestedOneWithoutAlertsInput
-    notifications?: AlertNotificationLogCreateNestedManyWithoutAlert_eventInput
+    rule: RegraAlertaCreateNestedOneWithoutAlertsInput
+    notifications?: RegistroNotificacaoAlertaCreateNestedManyWithoutAlert_eventInput
   }
 
-  export type AlertEventUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    rule_id: string
-    actor_type: $Enums.ActorType
-    actor_id: string
-    actor_name: string
-    module: string
-    action: string
-    event_count: number
-    window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.AlertStatus
-    reviewed_by?: string | null
-    reviewed_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    notifications?: AlertNotificationLogUncheckedCreateNestedManyWithoutAlert_eventInput
-  }
-
-  export type AlertEventUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    rule?: AlertRuleUpdateOneRequiredWithoutAlertsNestedInput
-    notifications?: AlertNotificationLogUpdateManyWithoutAlert_eventNestedInput
-  }
-
-  export type AlertEventUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    rule_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
-    actor_id?: StringFieldUpdateOperationsInput | string
-    actor_name?: StringFieldUpdateOperationsInput | string
-    module?: StringFieldUpdateOperationsInput | string
-    action?: StringFieldUpdateOperationsInput | string
-    event_count?: IntFieldUpdateOperationsInput | number
-    window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
-    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
-    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    notifications?: AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventNestedInput
-  }
-
-  export type AlertEventCreateManyInput = {
+  export type EventoAlertaUncheckedCreateInput = {
     id?: string
     tenant_id: string
     rule_id: string
@@ -58451,15 +58391,16 @@ export namespace Prisma {
     action: string
     event_count: number
     window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaCreateaudit_log_idsInput | string[]
     status?: $Enums.AlertStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
     created_at?: Date | string
+    notifications?: RegistroNotificacaoAlertaUncheckedCreateNestedManyWithoutAlert_eventInput
   }
 
-  export type AlertEventUpdateManyMutationInput = {
+  export type EventoAlertaUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
@@ -58469,15 +58410,17 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
     status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    rule?: RegraAlertaUpdateOneRequiredWithoutAlertsNestedInput
+    notifications?: RegistroNotificacaoAlertaUpdateManyWithoutAlert_eventNestedInput
   }
 
-  export type AlertEventUncheckedUpdateManyInput = {
+  export type EventoAlertaUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     rule_id?: StringFieldUpdateOperationsInput | string
@@ -58488,7 +58431,45 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    notifications?: RegistroNotificacaoAlertaUncheckedUpdateManyWithoutAlert_eventNestedInput
+  }
+
+  export type EventoAlertaCreateManyInput = {
+    id?: string
+    tenant_id: string
+    rule_id: string
+    actor_type: $Enums.ActorType
+    actor_id: string
+    actor_name: string
+    module: string
+    action: string
+    event_count: number
+    window_seconds: number
+    audit_log_ids?: EventoAlertaCreateaudit_log_idsInput | string[]
+    status?: $Enums.AlertStatus
+    reviewed_by?: string | null
+    reviewed_at?: Date | string | null
+    notes?: string | null
+    created_at?: Date | string
+  }
+
+  export type EventoAlertaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
+    actor_id?: StringFieldUpdateOperationsInput | string
+    actor_name?: StringFieldUpdateOperationsInput | string
+    module?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    event_count?: IntFieldUpdateOperationsInput | number
+    window_seconds?: IntFieldUpdateOperationsInput | number
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
     status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -58496,7 +58477,26 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogCreateInput = {
+  export type EventoAlertaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tenant_id?: StringFieldUpdateOperationsInput | string
+    rule_id?: StringFieldUpdateOperationsInput | string
+    actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
+    actor_id?: StringFieldUpdateOperationsInput | string
+    actor_name?: StringFieldUpdateOperationsInput | string
+    module?: StringFieldUpdateOperationsInput | string
+    action?: StringFieldUpdateOperationsInput | string
+    event_count?: IntFieldUpdateOperationsInput | number
+    window_seconds?: IntFieldUpdateOperationsInput | number
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
+    status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
+    reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
+    reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RegistroNotificacaoAlertaCreateInput = {
     id?: string
     channel: string
     recipient: string
@@ -58505,10 +58505,10 @@ export namespace Prisma {
     error_message?: string | null
     sent_at?: Date | string | null
     created_at?: Date | string
-    alert_event: AlertEventCreateNestedOneWithoutNotificationsInput
+    alert_event: EventoAlertaCreateNestedOneWithoutNotificationsInput
   }
 
-  export type AlertNotificationLogUncheckedCreateInput = {
+  export type RegistroNotificacaoAlertaUncheckedCreateInput = {
     id?: string
     alert_event_id: string
     channel: string
@@ -58520,7 +58520,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type AlertNotificationLogUpdateInput = {
+  export type RegistroNotificacaoAlertaUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
     recipient?: StringFieldUpdateOperationsInput | string
@@ -58529,10 +58529,10 @@ export namespace Prisma {
     error_message?: NullableStringFieldUpdateOperationsInput | string | null
     sent_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    alert_event?: AlertEventUpdateOneRequiredWithoutNotificationsNestedInput
+    alert_event?: EventoAlertaUpdateOneRequiredWithoutNotificationsNestedInput
   }
 
-  export type AlertNotificationLogUncheckedUpdateInput = {
+  export type RegistroNotificacaoAlertaUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     alert_event_id?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
@@ -58544,7 +58544,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogCreateManyInput = {
+  export type RegistroNotificacaoAlertaCreateManyInput = {
     id?: string
     alert_event_id: string
     channel: string
@@ -58556,7 +58556,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type AlertNotificationLogUpdateManyMutationInput = {
+  export type RegistroNotificacaoAlertaUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
     recipient?: StringFieldUpdateOperationsInput | string
@@ -58567,7 +58567,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogUncheckedUpdateManyInput = {
+  export type RegistroNotificacaoAlertaUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     alert_event_id?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
@@ -59529,7 +59529,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserPreferencesCreateInput = {
+  export type PreferenciasUsuarioCreateInput = {
     id?: string
     user_id: string
     tenant_id: string
@@ -59540,7 +59540,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type UserPreferencesUncheckedCreateInput = {
+  export type PreferenciasUsuarioUncheckedCreateInput = {
     id?: string
     user_id: string
     tenant_id: string
@@ -59551,7 +59551,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type UserPreferencesUpdateInput = {
+  export type PreferenciasUsuarioUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
@@ -59562,7 +59562,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserPreferencesUncheckedUpdateInput = {
+  export type PreferenciasUsuarioUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
@@ -59573,7 +59573,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserPreferencesCreateManyInput = {
+  export type PreferenciasUsuarioCreateManyInput = {
     id?: string
     user_id: string
     tenant_id: string
@@ -59584,7 +59584,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type UserPreferencesUpdateManyMutationInput = {
+  export type PreferenciasUsuarioUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
@@ -59595,7 +59595,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type UserPreferencesUncheckedUpdateManyInput = {
+  export type PreferenciasUsuarioUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
@@ -60047,7 +60047,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExternalContactCreateInput = {
+  export type ContatoExternoCreateInput = {
     id?: string
     tenant_id: string
     created_by: string
@@ -60060,7 +60060,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ExternalContactUncheckedCreateInput = {
+  export type ContatoExternoUncheckedCreateInput = {
     id?: string
     tenant_id: string
     created_by: string
@@ -60073,7 +60073,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ExternalContactUpdateInput = {
+  export type ContatoExternoUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     created_by?: StringFieldUpdateOperationsInput | string
@@ -60086,7 +60086,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExternalContactUncheckedUpdateInput = {
+  export type ContatoExternoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     created_by?: StringFieldUpdateOperationsInput | string
@@ -60099,7 +60099,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExternalContactCreateManyInput = {
+  export type ContatoExternoCreateManyInput = {
     id?: string
     tenant_id: string
     created_by: string
@@ -60112,7 +60112,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type ExternalContactUpdateManyMutationInput = {
+  export type ContatoExternoUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     created_by?: StringFieldUpdateOperationsInput | string
@@ -60125,7 +60125,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExternalContactUncheckedUpdateManyInput = {
+  export type ContatoExternoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     created_by?: StringFieldUpdateOperationsInput | string
@@ -60138,7 +60138,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TenantChannelConfigCreateInput = {
+  export type ConfiguracaoCanalTenantCreateInput = {
     id?: string
     tenant_id: string
     email_enabled?: boolean
@@ -60148,7 +60148,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TenantChannelConfigUncheckedCreateInput = {
+  export type ConfiguracaoCanalTenantUncheckedCreateInput = {
     id?: string
     tenant_id: string
     email_enabled?: boolean
@@ -60158,7 +60158,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TenantChannelConfigUpdateInput = {
+  export type ConfiguracaoCanalTenantUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     email_enabled?: BoolFieldUpdateOperationsInput | boolean
@@ -60168,7 +60168,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TenantChannelConfigUncheckedUpdateInput = {
+  export type ConfiguracaoCanalTenantUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     email_enabled?: BoolFieldUpdateOperationsInput | boolean
@@ -60178,7 +60178,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TenantChannelConfigCreateManyInput = {
+  export type ConfiguracaoCanalTenantCreateManyInput = {
     id?: string
     tenant_id: string
     email_enabled?: boolean
@@ -60188,7 +60188,7 @@ export namespace Prisma {
     updated_at?: Date | string
   }
 
-  export type TenantChannelConfigUpdateManyMutationInput = {
+  export type ConfiguracaoCanalTenantUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     email_enabled?: BoolFieldUpdateOperationsInput | boolean
@@ -60198,7 +60198,7 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TenantChannelConfigUncheckedUpdateManyInput = {
+  export type ConfiguracaoCanalTenantUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     email_enabled?: BoolFieldUpdateOperationsInput | boolean
@@ -62083,17 +62083,17 @@ export namespace Prisma {
     not?: NestedEnumEventStatusNullableFilter<$PrismaModel> | $Enums.EventStatus | null
   }
 
-  export type AlertEventListRelationFilter = {
-    every?: AlertEventWhereInput
-    some?: AlertEventWhereInput
-    none?: AlertEventWhereInput
+  export type EventoAlertaListRelationFilter = {
+    every?: EventoAlertaWhereInput
+    some?: EventoAlertaWhereInput
+    none?: EventoAlertaWhereInput
   }
 
-  export type AlertEventOrderByRelationAggregateInput = {
+  export type EventoAlertaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type AlertRuleCountOrderByAggregateInput = {
+  export type RegraAlertaCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     name?: SortOrder
@@ -62115,12 +62115,12 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type AlertRuleAvgOrderByAggregateInput = {
+  export type RegraAlertaAvgOrderByAggregateInput = {
     threshold_count?: SortOrder
     threshold_window_seconds?: SortOrder
   }
 
-  export type AlertRuleMaxOrderByAggregateInput = {
+  export type RegraAlertaMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     name?: SortOrder
@@ -62139,7 +62139,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type AlertRuleMinOrderByAggregateInput = {
+  export type RegraAlertaMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     name?: SortOrder
@@ -62158,7 +62158,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type AlertRuleSumOrderByAggregateInput = {
+  export type RegraAlertaSumOrderByAggregateInput = {
     threshold_count?: SortOrder
     threshold_window_seconds?: SortOrder
   }
@@ -62190,22 +62190,22 @@ export namespace Prisma {
     not?: NestedEnumAlertStatusFilter<$PrismaModel> | $Enums.AlertStatus
   }
 
-  export type AlertRuleRelationFilter = {
-    is?: AlertRuleWhereInput
-    isNot?: AlertRuleWhereInput
+  export type RegraAlertaRelationFilter = {
+    is?: RegraAlertaWhereInput
+    isNot?: RegraAlertaWhereInput
   }
 
-  export type AlertNotificationLogListRelationFilter = {
-    every?: AlertNotificationLogWhereInput
-    some?: AlertNotificationLogWhereInput
-    none?: AlertNotificationLogWhereInput
+  export type RegistroNotificacaoAlertaListRelationFilter = {
+    every?: RegistroNotificacaoAlertaWhereInput
+    some?: RegistroNotificacaoAlertaWhereInput
+    none?: RegistroNotificacaoAlertaWhereInput
   }
 
-  export type AlertNotificationLogOrderByRelationAggregateInput = {
+  export type RegistroNotificacaoAlertaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type AlertEventCountOrderByAggregateInput = {
+  export type EventoAlertaCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     rule_id?: SortOrder
@@ -62224,12 +62224,12 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type AlertEventAvgOrderByAggregateInput = {
+  export type EventoAlertaAvgOrderByAggregateInput = {
     event_count?: SortOrder
     window_seconds?: SortOrder
   }
 
-  export type AlertEventMaxOrderByAggregateInput = {
+  export type EventoAlertaMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     rule_id?: SortOrder
@@ -62247,7 +62247,7 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type AlertEventMinOrderByAggregateInput = {
+  export type EventoAlertaMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     rule_id?: SortOrder
@@ -62265,7 +62265,7 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type AlertEventSumOrderByAggregateInput = {
+  export type EventoAlertaSumOrderByAggregateInput = {
     event_count?: SortOrder
     window_seconds?: SortOrder
   }
@@ -62280,12 +62280,12 @@ export namespace Prisma {
     _max?: NestedEnumAlertStatusFilter<$PrismaModel>
   }
 
-  export type AlertEventRelationFilter = {
-    is?: AlertEventWhereInput
-    isNot?: AlertEventWhereInput
+  export type EventoAlertaRelationFilter = {
+    is?: EventoAlertaWhereInput
+    isNot?: EventoAlertaWhereInput
   }
 
-  export type AlertNotificationLogCountOrderByAggregateInput = {
+  export type RegistroNotificacaoAlertaCountOrderByAggregateInput = {
     id?: SortOrder
     alert_event_id?: SortOrder
     channel?: SortOrder
@@ -62297,11 +62297,11 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type AlertNotificationLogAvgOrderByAggregateInput = {
+  export type RegistroNotificacaoAlertaAvgOrderByAggregateInput = {
     attempts?: SortOrder
   }
 
-  export type AlertNotificationLogMaxOrderByAggregateInput = {
+  export type RegistroNotificacaoAlertaMaxOrderByAggregateInput = {
     id?: SortOrder
     alert_event_id?: SortOrder
     channel?: SortOrder
@@ -62313,7 +62313,7 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type AlertNotificationLogMinOrderByAggregateInput = {
+  export type RegistroNotificacaoAlertaMinOrderByAggregateInput = {
     id?: SortOrder
     alert_event_id?: SortOrder
     channel?: SortOrder
@@ -62325,7 +62325,7 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type AlertNotificationLogSumOrderByAggregateInput = {
+  export type RegistroNotificacaoAlertaSumOrderByAggregateInput = {
     attempts?: SortOrder
   }
 
@@ -62853,7 +62853,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type UserPreferencesCountOrderByAggregateInput = {
+  export type PreferenciasUsuarioCountOrderByAggregateInput = {
     id?: SortOrder
     user_id?: SortOrder
     tenant_id?: SortOrder
@@ -62864,7 +62864,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type UserPreferencesMaxOrderByAggregateInput = {
+  export type PreferenciasUsuarioMaxOrderByAggregateInput = {
     id?: SortOrder
     user_id?: SortOrder
     tenant_id?: SortOrder
@@ -62875,7 +62875,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type UserPreferencesMinOrderByAggregateInput = {
+  export type PreferenciasUsuarioMinOrderByAggregateInput = {
     id?: SortOrder
     user_id?: SortOrder
     tenant_id?: SortOrder
@@ -63126,7 +63126,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type ExternalContactCountOrderByAggregateInput = {
+  export type ContatoExternoCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     created_by?: SortOrder
@@ -63139,7 +63139,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type ExternalContactMaxOrderByAggregateInput = {
+  export type ContatoExternoMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     created_by?: SortOrder
@@ -63152,7 +63152,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type ExternalContactMinOrderByAggregateInput = {
+  export type ContatoExternoMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     created_by?: SortOrder
@@ -63165,7 +63165,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TenantChannelConfigCountOrderByAggregateInput = {
+  export type ConfiguracaoCanalTenantCountOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     email_enabled?: SortOrder
@@ -63175,7 +63175,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TenantChannelConfigMaxOrderByAggregateInput = {
+  export type ConfiguracaoCanalTenantMaxOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     email_enabled?: SortOrder
@@ -63185,7 +63185,7 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type TenantChannelConfigMinOrderByAggregateInput = {
+  export type ConfiguracaoCanalTenantMinOrderByAggregateInput = {
     id?: SortOrder
     tenant_id?: SortOrder
     email_enabled?: SortOrder
@@ -63649,30 +63649,30 @@ export namespace Prisma {
     set?: $Enums.EventStatus
   }
 
-  export type AlertRuleCreaterecipients_emailInput = {
+  export type RegraAlertaCreaterecipients_emailInput = {
     set: string[]
   }
 
-  export type AlertRuleCreaterecipients_whatsappInput = {
+  export type RegraAlertaCreaterecipients_whatsappInput = {
     set: string[]
   }
 
-  export type AlertRuleCreaterecipients_user_idsInput = {
+  export type RegraAlertaCreaterecipients_user_idsInput = {
     set: string[]
   }
 
-  export type AlertEventCreateNestedManyWithoutRuleInput = {
-    create?: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput> | AlertEventCreateWithoutRuleInput[] | AlertEventUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: AlertEventCreateOrConnectWithoutRuleInput | AlertEventCreateOrConnectWithoutRuleInput[]
-    createMany?: AlertEventCreateManyRuleInputEnvelope
-    connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
+  export type EventoAlertaCreateNestedManyWithoutRuleInput = {
+    create?: XOR<EventoAlertaCreateWithoutRuleInput, EventoAlertaUncheckedCreateWithoutRuleInput> | EventoAlertaCreateWithoutRuleInput[] | EventoAlertaUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutRuleInput | EventoAlertaCreateOrConnectWithoutRuleInput[]
+    createMany?: EventoAlertaCreateManyRuleInputEnvelope
+    connect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
   }
 
-  export type AlertEventUncheckedCreateNestedManyWithoutRuleInput = {
-    create?: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput> | AlertEventCreateWithoutRuleInput[] | AlertEventUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: AlertEventCreateOrConnectWithoutRuleInput | AlertEventCreateOrConnectWithoutRuleInput[]
-    createMany?: AlertEventCreateManyRuleInputEnvelope
-    connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
+  export type EventoAlertaUncheckedCreateNestedManyWithoutRuleInput = {
+    create?: XOR<EventoAlertaCreateWithoutRuleInput, EventoAlertaUncheckedCreateWithoutRuleInput> | EventoAlertaCreateWithoutRuleInput[] | EventoAlertaUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutRuleInput | EventoAlertaCreateOrConnectWithoutRuleInput[]
+    createMany?: EventoAlertaCreateManyRuleInputEnvelope
+    connect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
   }
 
   export type NullableEnumActorTypeFieldUpdateOperationsInput = {
@@ -63683,74 +63683,74 @@ export namespace Prisma {
     set?: $Enums.EventStatus | null
   }
 
-  export type AlertRuleUpdaterecipients_emailInput = {
+  export type RegraAlertaUpdaterecipients_emailInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type AlertRuleUpdaterecipients_whatsappInput = {
+  export type RegraAlertaUpdaterecipients_whatsappInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type AlertRuleUpdaterecipients_user_idsInput = {
+  export type RegraAlertaUpdaterecipients_user_idsInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type AlertEventUpdateManyWithoutRuleNestedInput = {
-    create?: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput> | AlertEventCreateWithoutRuleInput[] | AlertEventUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: AlertEventCreateOrConnectWithoutRuleInput | AlertEventCreateOrConnectWithoutRuleInput[]
-    upsert?: AlertEventUpsertWithWhereUniqueWithoutRuleInput | AlertEventUpsertWithWhereUniqueWithoutRuleInput[]
-    createMany?: AlertEventCreateManyRuleInputEnvelope
-    set?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    disconnect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    delete?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    update?: AlertEventUpdateWithWhereUniqueWithoutRuleInput | AlertEventUpdateWithWhereUniqueWithoutRuleInput[]
-    updateMany?: AlertEventUpdateManyWithWhereWithoutRuleInput | AlertEventUpdateManyWithWhereWithoutRuleInput[]
-    deleteMany?: AlertEventScalarWhereInput | AlertEventScalarWhereInput[]
+  export type EventoAlertaUpdateManyWithoutRuleNestedInput = {
+    create?: XOR<EventoAlertaCreateWithoutRuleInput, EventoAlertaUncheckedCreateWithoutRuleInput> | EventoAlertaCreateWithoutRuleInput[] | EventoAlertaUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutRuleInput | EventoAlertaCreateOrConnectWithoutRuleInput[]
+    upsert?: EventoAlertaUpsertWithWhereUniqueWithoutRuleInput | EventoAlertaUpsertWithWhereUniqueWithoutRuleInput[]
+    createMany?: EventoAlertaCreateManyRuleInputEnvelope
+    set?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    disconnect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    delete?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    connect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    update?: EventoAlertaUpdateWithWhereUniqueWithoutRuleInput | EventoAlertaUpdateWithWhereUniqueWithoutRuleInput[]
+    updateMany?: EventoAlertaUpdateManyWithWhereWithoutRuleInput | EventoAlertaUpdateManyWithWhereWithoutRuleInput[]
+    deleteMany?: EventoAlertaScalarWhereInput | EventoAlertaScalarWhereInput[]
   }
 
-  export type AlertEventUncheckedUpdateManyWithoutRuleNestedInput = {
-    create?: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput> | AlertEventCreateWithoutRuleInput[] | AlertEventUncheckedCreateWithoutRuleInput[]
-    connectOrCreate?: AlertEventCreateOrConnectWithoutRuleInput | AlertEventCreateOrConnectWithoutRuleInput[]
-    upsert?: AlertEventUpsertWithWhereUniqueWithoutRuleInput | AlertEventUpsertWithWhereUniqueWithoutRuleInput[]
-    createMany?: AlertEventCreateManyRuleInputEnvelope
-    set?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    disconnect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    delete?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
-    update?: AlertEventUpdateWithWhereUniqueWithoutRuleInput | AlertEventUpdateWithWhereUniqueWithoutRuleInput[]
-    updateMany?: AlertEventUpdateManyWithWhereWithoutRuleInput | AlertEventUpdateManyWithWhereWithoutRuleInput[]
-    deleteMany?: AlertEventScalarWhereInput | AlertEventScalarWhereInput[]
+  export type EventoAlertaUncheckedUpdateManyWithoutRuleNestedInput = {
+    create?: XOR<EventoAlertaCreateWithoutRuleInput, EventoAlertaUncheckedCreateWithoutRuleInput> | EventoAlertaCreateWithoutRuleInput[] | EventoAlertaUncheckedCreateWithoutRuleInput[]
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutRuleInput | EventoAlertaCreateOrConnectWithoutRuleInput[]
+    upsert?: EventoAlertaUpsertWithWhereUniqueWithoutRuleInput | EventoAlertaUpsertWithWhereUniqueWithoutRuleInput[]
+    createMany?: EventoAlertaCreateManyRuleInputEnvelope
+    set?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    disconnect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    delete?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    connect?: EventoAlertaWhereUniqueInput | EventoAlertaWhereUniqueInput[]
+    update?: EventoAlertaUpdateWithWhereUniqueWithoutRuleInput | EventoAlertaUpdateWithWhereUniqueWithoutRuleInput[]
+    updateMany?: EventoAlertaUpdateManyWithWhereWithoutRuleInput | EventoAlertaUpdateManyWithWhereWithoutRuleInput[]
+    deleteMany?: EventoAlertaScalarWhereInput | EventoAlertaScalarWhereInput[]
   }
 
-  export type AlertEventCreateaudit_log_idsInput = {
+  export type EventoAlertaCreateaudit_log_idsInput = {
     set: string[]
   }
 
-  export type AlertRuleCreateNestedOneWithoutAlertsInput = {
-    create?: XOR<AlertRuleCreateWithoutAlertsInput, AlertRuleUncheckedCreateWithoutAlertsInput>
-    connectOrCreate?: AlertRuleCreateOrConnectWithoutAlertsInput
-    connect?: AlertRuleWhereUniqueInput
+  export type RegraAlertaCreateNestedOneWithoutAlertsInput = {
+    create?: XOR<RegraAlertaCreateWithoutAlertsInput, RegraAlertaUncheckedCreateWithoutAlertsInput>
+    connectOrCreate?: RegraAlertaCreateOrConnectWithoutAlertsInput
+    connect?: RegraAlertaWhereUniqueInput
   }
 
-  export type AlertNotificationLogCreateNestedManyWithoutAlert_eventInput = {
-    create?: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput> | AlertNotificationLogCreateWithoutAlert_eventInput[] | AlertNotificationLogUncheckedCreateWithoutAlert_eventInput[]
-    connectOrCreate?: AlertNotificationLogCreateOrConnectWithoutAlert_eventInput | AlertNotificationLogCreateOrConnectWithoutAlert_eventInput[]
-    createMany?: AlertNotificationLogCreateManyAlert_eventInputEnvelope
-    connect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
+  export type RegistroNotificacaoAlertaCreateNestedManyWithoutAlert_eventInput = {
+    create?: XOR<RegistroNotificacaoAlertaCreateWithoutAlert_eventInput, RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput> | RegistroNotificacaoAlertaCreateWithoutAlert_eventInput[] | RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput[]
+    connectOrCreate?: RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput | RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput[]
+    createMany?: RegistroNotificacaoAlertaCreateManyAlert_eventInputEnvelope
+    connect?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
   }
 
-  export type AlertNotificationLogUncheckedCreateNestedManyWithoutAlert_eventInput = {
-    create?: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput> | AlertNotificationLogCreateWithoutAlert_eventInput[] | AlertNotificationLogUncheckedCreateWithoutAlert_eventInput[]
-    connectOrCreate?: AlertNotificationLogCreateOrConnectWithoutAlert_eventInput | AlertNotificationLogCreateOrConnectWithoutAlert_eventInput[]
-    createMany?: AlertNotificationLogCreateManyAlert_eventInputEnvelope
-    connect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
+  export type RegistroNotificacaoAlertaUncheckedCreateNestedManyWithoutAlert_eventInput = {
+    create?: XOR<RegistroNotificacaoAlertaCreateWithoutAlert_eventInput, RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput> | RegistroNotificacaoAlertaCreateWithoutAlert_eventInput[] | RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput[]
+    connectOrCreate?: RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput | RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput[]
+    createMany?: RegistroNotificacaoAlertaCreateManyAlert_eventInputEnvelope
+    connect?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
   }
 
-  export type AlertEventUpdateaudit_log_idsInput = {
+  export type EventoAlertaUpdateaudit_log_idsInput = {
     set?: string[]
     push?: string | string[]
   }
@@ -63759,54 +63759,54 @@ export namespace Prisma {
     set?: $Enums.AlertStatus
   }
 
-  export type AlertRuleUpdateOneRequiredWithoutAlertsNestedInput = {
-    create?: XOR<AlertRuleCreateWithoutAlertsInput, AlertRuleUncheckedCreateWithoutAlertsInput>
-    connectOrCreate?: AlertRuleCreateOrConnectWithoutAlertsInput
-    upsert?: AlertRuleUpsertWithoutAlertsInput
-    connect?: AlertRuleWhereUniqueInput
-    update?: XOR<XOR<AlertRuleUpdateToOneWithWhereWithoutAlertsInput, AlertRuleUpdateWithoutAlertsInput>, AlertRuleUncheckedUpdateWithoutAlertsInput>
+  export type RegraAlertaUpdateOneRequiredWithoutAlertsNestedInput = {
+    create?: XOR<RegraAlertaCreateWithoutAlertsInput, RegraAlertaUncheckedCreateWithoutAlertsInput>
+    connectOrCreate?: RegraAlertaCreateOrConnectWithoutAlertsInput
+    upsert?: RegraAlertaUpsertWithoutAlertsInput
+    connect?: RegraAlertaWhereUniqueInput
+    update?: XOR<XOR<RegraAlertaUpdateToOneWithWhereWithoutAlertsInput, RegraAlertaUpdateWithoutAlertsInput>, RegraAlertaUncheckedUpdateWithoutAlertsInput>
   }
 
-  export type AlertNotificationLogUpdateManyWithoutAlert_eventNestedInput = {
-    create?: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput> | AlertNotificationLogCreateWithoutAlert_eventInput[] | AlertNotificationLogUncheckedCreateWithoutAlert_eventInput[]
-    connectOrCreate?: AlertNotificationLogCreateOrConnectWithoutAlert_eventInput | AlertNotificationLogCreateOrConnectWithoutAlert_eventInput[]
-    upsert?: AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput | AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput[]
-    createMany?: AlertNotificationLogCreateManyAlert_eventInputEnvelope
-    set?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    disconnect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    delete?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    connect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    update?: AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput | AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput[]
-    updateMany?: AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput | AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput[]
-    deleteMany?: AlertNotificationLogScalarWhereInput | AlertNotificationLogScalarWhereInput[]
+  export type RegistroNotificacaoAlertaUpdateManyWithoutAlert_eventNestedInput = {
+    create?: XOR<RegistroNotificacaoAlertaCreateWithoutAlert_eventInput, RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput> | RegistroNotificacaoAlertaCreateWithoutAlert_eventInput[] | RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput[]
+    connectOrCreate?: RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput | RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput[]
+    upsert?: RegistroNotificacaoAlertaUpsertWithWhereUniqueWithoutAlert_eventInput | RegistroNotificacaoAlertaUpsertWithWhereUniqueWithoutAlert_eventInput[]
+    createMany?: RegistroNotificacaoAlertaCreateManyAlert_eventInputEnvelope
+    set?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
+    disconnect?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
+    delete?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
+    connect?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
+    update?: RegistroNotificacaoAlertaUpdateWithWhereUniqueWithoutAlert_eventInput | RegistroNotificacaoAlertaUpdateWithWhereUniqueWithoutAlert_eventInput[]
+    updateMany?: RegistroNotificacaoAlertaUpdateManyWithWhereWithoutAlert_eventInput | RegistroNotificacaoAlertaUpdateManyWithWhereWithoutAlert_eventInput[]
+    deleteMany?: RegistroNotificacaoAlertaScalarWhereInput | RegistroNotificacaoAlertaScalarWhereInput[]
   }
 
-  export type AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventNestedInput = {
-    create?: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput> | AlertNotificationLogCreateWithoutAlert_eventInput[] | AlertNotificationLogUncheckedCreateWithoutAlert_eventInput[]
-    connectOrCreate?: AlertNotificationLogCreateOrConnectWithoutAlert_eventInput | AlertNotificationLogCreateOrConnectWithoutAlert_eventInput[]
-    upsert?: AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput | AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput[]
-    createMany?: AlertNotificationLogCreateManyAlert_eventInputEnvelope
-    set?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    disconnect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    delete?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    connect?: AlertNotificationLogWhereUniqueInput | AlertNotificationLogWhereUniqueInput[]
-    update?: AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput | AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput[]
-    updateMany?: AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput | AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput[]
-    deleteMany?: AlertNotificationLogScalarWhereInput | AlertNotificationLogScalarWhereInput[]
+  export type RegistroNotificacaoAlertaUncheckedUpdateManyWithoutAlert_eventNestedInput = {
+    create?: XOR<RegistroNotificacaoAlertaCreateWithoutAlert_eventInput, RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput> | RegistroNotificacaoAlertaCreateWithoutAlert_eventInput[] | RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput[]
+    connectOrCreate?: RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput | RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput[]
+    upsert?: RegistroNotificacaoAlertaUpsertWithWhereUniqueWithoutAlert_eventInput | RegistroNotificacaoAlertaUpsertWithWhereUniqueWithoutAlert_eventInput[]
+    createMany?: RegistroNotificacaoAlertaCreateManyAlert_eventInputEnvelope
+    set?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
+    disconnect?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
+    delete?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
+    connect?: RegistroNotificacaoAlertaWhereUniqueInput | RegistroNotificacaoAlertaWhereUniqueInput[]
+    update?: RegistroNotificacaoAlertaUpdateWithWhereUniqueWithoutAlert_eventInput | RegistroNotificacaoAlertaUpdateWithWhereUniqueWithoutAlert_eventInput[]
+    updateMany?: RegistroNotificacaoAlertaUpdateManyWithWhereWithoutAlert_eventInput | RegistroNotificacaoAlertaUpdateManyWithWhereWithoutAlert_eventInput[]
+    deleteMany?: RegistroNotificacaoAlertaScalarWhereInput | RegistroNotificacaoAlertaScalarWhereInput[]
   }
 
-  export type AlertEventCreateNestedOneWithoutNotificationsInput = {
-    create?: XOR<AlertEventCreateWithoutNotificationsInput, AlertEventUncheckedCreateWithoutNotificationsInput>
-    connectOrCreate?: AlertEventCreateOrConnectWithoutNotificationsInput
-    connect?: AlertEventWhereUniqueInput
+  export type EventoAlertaCreateNestedOneWithoutNotificationsInput = {
+    create?: XOR<EventoAlertaCreateWithoutNotificationsInput, EventoAlertaUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutNotificationsInput
+    connect?: EventoAlertaWhereUniqueInput
   }
 
-  export type AlertEventUpdateOneRequiredWithoutNotificationsNestedInput = {
-    create?: XOR<AlertEventCreateWithoutNotificationsInput, AlertEventUncheckedCreateWithoutNotificationsInput>
-    connectOrCreate?: AlertEventCreateOrConnectWithoutNotificationsInput
-    upsert?: AlertEventUpsertWithoutNotificationsInput
-    connect?: AlertEventWhereUniqueInput
-    update?: XOR<XOR<AlertEventUpdateToOneWithWhereWithoutNotificationsInput, AlertEventUpdateWithoutNotificationsInput>, AlertEventUncheckedUpdateWithoutNotificationsInput>
+  export type EventoAlertaUpdateOneRequiredWithoutNotificationsNestedInput = {
+    create?: XOR<EventoAlertaCreateWithoutNotificationsInput, EventoAlertaUncheckedCreateWithoutNotificationsInput>
+    connectOrCreate?: EventoAlertaCreateOrConnectWithoutNotificationsInput
+    upsert?: EventoAlertaUpsertWithoutNotificationsInput
+    connect?: EventoAlertaWhereUniqueInput
+    update?: XOR<XOR<EventoAlertaUpdateToOneWithWhereWithoutNotificationsInput, EventoAlertaUpdateWithoutNotificationsInput>, EventoAlertaUncheckedUpdateWithoutNotificationsInput>
   }
 
   export type SlotCreateNestedManyWithoutAgendaInput = {
@@ -65566,7 +65566,7 @@ export namespace Prisma {
     alerts?: DashboardAlertasUncheckedUpdateManyWithoutDashboardNestedInput
   }
 
-  export type AlertEventCreateWithoutRuleInput = {
+  export type EventoAlertaCreateWithoutRuleInput = {
     id?: string
     tenant_id: string
     actor_type: $Enums.ActorType
@@ -65576,16 +65576,16 @@ export namespace Prisma {
     action: string
     event_count: number
     window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaCreateaudit_log_idsInput | string[]
     status?: $Enums.AlertStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
     created_at?: Date | string
-    notifications?: AlertNotificationLogCreateNestedManyWithoutAlert_eventInput
+    notifications?: RegistroNotificacaoAlertaCreateNestedManyWithoutAlert_eventInput
   }
 
-  export type AlertEventUncheckedCreateWithoutRuleInput = {
+  export type EventoAlertaUncheckedCreateWithoutRuleInput = {
     id?: string
     tenant_id: string
     actor_type: $Enums.ActorType
@@ -65595,64 +65595,64 @@ export namespace Prisma {
     action: string
     event_count: number
     window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaCreateaudit_log_idsInput | string[]
     status?: $Enums.AlertStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
     created_at?: Date | string
-    notifications?: AlertNotificationLogUncheckedCreateNestedManyWithoutAlert_eventInput
+    notifications?: RegistroNotificacaoAlertaUncheckedCreateNestedManyWithoutAlert_eventInput
   }
 
-  export type AlertEventCreateOrConnectWithoutRuleInput = {
-    where: AlertEventWhereUniqueInput
-    create: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput>
+  export type EventoAlertaCreateOrConnectWithoutRuleInput = {
+    where: EventoAlertaWhereUniqueInput
+    create: XOR<EventoAlertaCreateWithoutRuleInput, EventoAlertaUncheckedCreateWithoutRuleInput>
   }
 
-  export type AlertEventCreateManyRuleInputEnvelope = {
-    data: AlertEventCreateManyRuleInput | AlertEventCreateManyRuleInput[]
+  export type EventoAlertaCreateManyRuleInputEnvelope = {
+    data: EventoAlertaCreateManyRuleInput | EventoAlertaCreateManyRuleInput[]
     skipDuplicates?: boolean
   }
 
-  export type AlertEventUpsertWithWhereUniqueWithoutRuleInput = {
-    where: AlertEventWhereUniqueInput
-    update: XOR<AlertEventUpdateWithoutRuleInput, AlertEventUncheckedUpdateWithoutRuleInput>
-    create: XOR<AlertEventCreateWithoutRuleInput, AlertEventUncheckedCreateWithoutRuleInput>
+  export type EventoAlertaUpsertWithWhereUniqueWithoutRuleInput = {
+    where: EventoAlertaWhereUniqueInput
+    update: XOR<EventoAlertaUpdateWithoutRuleInput, EventoAlertaUncheckedUpdateWithoutRuleInput>
+    create: XOR<EventoAlertaCreateWithoutRuleInput, EventoAlertaUncheckedCreateWithoutRuleInput>
   }
 
-  export type AlertEventUpdateWithWhereUniqueWithoutRuleInput = {
-    where: AlertEventWhereUniqueInput
-    data: XOR<AlertEventUpdateWithoutRuleInput, AlertEventUncheckedUpdateWithoutRuleInput>
+  export type EventoAlertaUpdateWithWhereUniqueWithoutRuleInput = {
+    where: EventoAlertaWhereUniqueInput
+    data: XOR<EventoAlertaUpdateWithoutRuleInput, EventoAlertaUncheckedUpdateWithoutRuleInput>
   }
 
-  export type AlertEventUpdateManyWithWhereWithoutRuleInput = {
-    where: AlertEventScalarWhereInput
-    data: XOR<AlertEventUpdateManyMutationInput, AlertEventUncheckedUpdateManyWithoutRuleInput>
+  export type EventoAlertaUpdateManyWithWhereWithoutRuleInput = {
+    where: EventoAlertaScalarWhereInput
+    data: XOR<EventoAlertaUpdateManyMutationInput, EventoAlertaUncheckedUpdateManyWithoutRuleInput>
   }
 
-  export type AlertEventScalarWhereInput = {
-    AND?: AlertEventScalarWhereInput | AlertEventScalarWhereInput[]
-    OR?: AlertEventScalarWhereInput[]
-    NOT?: AlertEventScalarWhereInput | AlertEventScalarWhereInput[]
-    id?: StringFilter<"AlertEvent"> | string
-    tenant_id?: StringFilter<"AlertEvent"> | string
-    rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumActorTypeFilter<"AlertEvent"> | $Enums.ActorType
-    actor_id?: StringFilter<"AlertEvent"> | string
-    actor_name?: StringFilter<"AlertEvent"> | string
-    module?: StringFilter<"AlertEvent"> | string
-    action?: StringFilter<"AlertEvent"> | string
-    event_count?: IntFilter<"AlertEvent"> | number
-    window_seconds?: IntFilter<"AlertEvent"> | number
-    audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumAlertStatusFilter<"AlertEvent"> | $Enums.AlertStatus
-    reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
-    reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
-    notes?: StringNullableFilter<"AlertEvent"> | string | null
-    created_at?: DateTimeFilter<"AlertEvent"> | Date | string
+  export type EventoAlertaScalarWhereInput = {
+    AND?: EventoAlertaScalarWhereInput | EventoAlertaScalarWhereInput[]
+    OR?: EventoAlertaScalarWhereInput[]
+    NOT?: EventoAlertaScalarWhereInput | EventoAlertaScalarWhereInput[]
+    id?: StringFilter<"EventoAlerta"> | string
+    tenant_id?: StringFilter<"EventoAlerta"> | string
+    rule_id?: StringFilter<"EventoAlerta"> | string
+    actor_type?: EnumActorTypeFilter<"EventoAlerta"> | $Enums.ActorType
+    actor_id?: StringFilter<"EventoAlerta"> | string
+    actor_name?: StringFilter<"EventoAlerta"> | string
+    module?: StringFilter<"EventoAlerta"> | string
+    action?: StringFilter<"EventoAlerta"> | string
+    event_count?: IntFilter<"EventoAlerta"> | number
+    window_seconds?: IntFilter<"EventoAlerta"> | number
+    audit_log_ids?: StringNullableListFilter<"EventoAlerta">
+    status?: EnumAlertStatusFilter<"EventoAlerta"> | $Enums.AlertStatus
+    reviewed_by?: StringNullableFilter<"EventoAlerta"> | string | null
+    reviewed_at?: DateTimeNullableFilter<"EventoAlerta"> | Date | string | null
+    notes?: StringNullableFilter<"EventoAlerta"> | string | null
+    created_at?: DateTimeFilter<"EventoAlerta"> | Date | string
   }
 
-  export type AlertRuleCreateWithoutAlertsInput = {
+  export type RegraAlertaCreateWithoutAlertsInput = {
     id?: string
     tenant_id?: string | null
     name: string
@@ -65667,14 +65667,14 @@ export namespace Prisma {
     channel_inapp?: boolean
     channel_email?: boolean
     channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaCreaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaCreaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaCreaterecipients_user_idsInput | string[]
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type AlertRuleUncheckedCreateWithoutAlertsInput = {
+  export type RegraAlertaUncheckedCreateWithoutAlertsInput = {
     id?: string
     tenant_id?: string | null
     name: string
@@ -65689,19 +65689,19 @@ export namespace Prisma {
     channel_inapp?: boolean
     channel_email?: boolean
     channel_whatsapp?: boolean
-    recipients_email?: AlertRuleCreaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleCreaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleCreaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaCreaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaCreaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaCreaterecipients_user_idsInput | string[]
     created_at?: Date | string
     updated_at?: Date | string
   }
 
-  export type AlertRuleCreateOrConnectWithoutAlertsInput = {
-    where: AlertRuleWhereUniqueInput
-    create: XOR<AlertRuleCreateWithoutAlertsInput, AlertRuleUncheckedCreateWithoutAlertsInput>
+  export type RegraAlertaCreateOrConnectWithoutAlertsInput = {
+    where: RegraAlertaWhereUniqueInput
+    create: XOR<RegraAlertaCreateWithoutAlertsInput, RegraAlertaUncheckedCreateWithoutAlertsInput>
   }
 
-  export type AlertNotificationLogCreateWithoutAlert_eventInput = {
+  export type RegistroNotificacaoAlertaCreateWithoutAlert_eventInput = {
     id?: string
     channel: string
     recipient: string
@@ -65712,7 +65712,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type AlertNotificationLogUncheckedCreateWithoutAlert_eventInput = {
+  export type RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput = {
     id?: string
     channel: string
     recipient: string
@@ -65723,28 +65723,28 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type AlertNotificationLogCreateOrConnectWithoutAlert_eventInput = {
-    where: AlertNotificationLogWhereUniqueInput
-    create: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput>
+  export type RegistroNotificacaoAlertaCreateOrConnectWithoutAlert_eventInput = {
+    where: RegistroNotificacaoAlertaWhereUniqueInput
+    create: XOR<RegistroNotificacaoAlertaCreateWithoutAlert_eventInput, RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput>
   }
 
-  export type AlertNotificationLogCreateManyAlert_eventInputEnvelope = {
-    data: AlertNotificationLogCreateManyAlert_eventInput | AlertNotificationLogCreateManyAlert_eventInput[]
+  export type RegistroNotificacaoAlertaCreateManyAlert_eventInputEnvelope = {
+    data: RegistroNotificacaoAlertaCreateManyAlert_eventInput | RegistroNotificacaoAlertaCreateManyAlert_eventInput[]
     skipDuplicates?: boolean
   }
 
-  export type AlertRuleUpsertWithoutAlertsInput = {
-    update: XOR<AlertRuleUpdateWithoutAlertsInput, AlertRuleUncheckedUpdateWithoutAlertsInput>
-    create: XOR<AlertRuleCreateWithoutAlertsInput, AlertRuleUncheckedCreateWithoutAlertsInput>
-    where?: AlertRuleWhereInput
+  export type RegraAlertaUpsertWithoutAlertsInput = {
+    update: XOR<RegraAlertaUpdateWithoutAlertsInput, RegraAlertaUncheckedUpdateWithoutAlertsInput>
+    create: XOR<RegraAlertaCreateWithoutAlertsInput, RegraAlertaUncheckedCreateWithoutAlertsInput>
+    where?: RegraAlertaWhereInput
   }
 
-  export type AlertRuleUpdateToOneWithWhereWithoutAlertsInput = {
-    where?: AlertRuleWhereInput
-    data: XOR<AlertRuleUpdateWithoutAlertsInput, AlertRuleUncheckedUpdateWithoutAlertsInput>
+  export type RegraAlertaUpdateToOneWithWhereWithoutAlertsInput = {
+    where?: RegraAlertaWhereInput
+    data: XOR<RegraAlertaUpdateWithoutAlertsInput, RegraAlertaUncheckedUpdateWithoutAlertsInput>
   }
 
-  export type AlertRuleUpdateWithoutAlertsInput = {
+  export type RegraAlertaUpdateWithoutAlertsInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
@@ -65759,14 +65759,14 @@ export namespace Prisma {
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
     channel_email?: BoolFieldUpdateOperationsInput | boolean
     channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaUpdaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaUpdaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaUpdaterecipients_user_idsInput | string[]
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertRuleUncheckedUpdateWithoutAlertsInput = {
+  export type RegraAlertaUncheckedUpdateWithoutAlertsInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
     name?: StringFieldUpdateOperationsInput | string
@@ -65781,45 +65781,45 @@ export namespace Prisma {
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
     channel_email?: BoolFieldUpdateOperationsInput | boolean
     channel_whatsapp?: BoolFieldUpdateOperationsInput | boolean
-    recipients_email?: AlertRuleUpdaterecipients_emailInput | string[]
-    recipients_whatsapp?: AlertRuleUpdaterecipients_whatsappInput | string[]
-    recipients_user_ids?: AlertRuleUpdaterecipients_user_idsInput | string[]
+    recipients_email?: RegraAlertaUpdaterecipients_emailInput | string[]
+    recipients_whatsapp?: RegraAlertaUpdaterecipients_whatsappInput | string[]
+    recipients_user_ids?: RegraAlertaUpdaterecipients_user_idsInput | string[]
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogUpsertWithWhereUniqueWithoutAlert_eventInput = {
-    where: AlertNotificationLogWhereUniqueInput
-    update: XOR<AlertNotificationLogUpdateWithoutAlert_eventInput, AlertNotificationLogUncheckedUpdateWithoutAlert_eventInput>
-    create: XOR<AlertNotificationLogCreateWithoutAlert_eventInput, AlertNotificationLogUncheckedCreateWithoutAlert_eventInput>
+  export type RegistroNotificacaoAlertaUpsertWithWhereUniqueWithoutAlert_eventInput = {
+    where: RegistroNotificacaoAlertaWhereUniqueInput
+    update: XOR<RegistroNotificacaoAlertaUpdateWithoutAlert_eventInput, RegistroNotificacaoAlertaUncheckedUpdateWithoutAlert_eventInput>
+    create: XOR<RegistroNotificacaoAlertaCreateWithoutAlert_eventInput, RegistroNotificacaoAlertaUncheckedCreateWithoutAlert_eventInput>
   }
 
-  export type AlertNotificationLogUpdateWithWhereUniqueWithoutAlert_eventInput = {
-    where: AlertNotificationLogWhereUniqueInput
-    data: XOR<AlertNotificationLogUpdateWithoutAlert_eventInput, AlertNotificationLogUncheckedUpdateWithoutAlert_eventInput>
+  export type RegistroNotificacaoAlertaUpdateWithWhereUniqueWithoutAlert_eventInput = {
+    where: RegistroNotificacaoAlertaWhereUniqueInput
+    data: XOR<RegistroNotificacaoAlertaUpdateWithoutAlert_eventInput, RegistroNotificacaoAlertaUncheckedUpdateWithoutAlert_eventInput>
   }
 
-  export type AlertNotificationLogUpdateManyWithWhereWithoutAlert_eventInput = {
-    where: AlertNotificationLogScalarWhereInput
-    data: XOR<AlertNotificationLogUpdateManyMutationInput, AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventInput>
+  export type RegistroNotificacaoAlertaUpdateManyWithWhereWithoutAlert_eventInput = {
+    where: RegistroNotificacaoAlertaScalarWhereInput
+    data: XOR<RegistroNotificacaoAlertaUpdateManyMutationInput, RegistroNotificacaoAlertaUncheckedUpdateManyWithoutAlert_eventInput>
   }
 
-  export type AlertNotificationLogScalarWhereInput = {
-    AND?: AlertNotificationLogScalarWhereInput | AlertNotificationLogScalarWhereInput[]
-    OR?: AlertNotificationLogScalarWhereInput[]
-    NOT?: AlertNotificationLogScalarWhereInput | AlertNotificationLogScalarWhereInput[]
-    id?: StringFilter<"AlertNotificationLog"> | string
-    alert_event_id?: StringFilter<"AlertNotificationLog"> | string
-    channel?: StringFilter<"AlertNotificationLog"> | string
-    recipient?: StringFilter<"AlertNotificationLog"> | string
-    status?: StringFilter<"AlertNotificationLog"> | string
-    attempts?: IntFilter<"AlertNotificationLog"> | number
-    error_message?: StringNullableFilter<"AlertNotificationLog"> | string | null
-    sent_at?: DateTimeNullableFilter<"AlertNotificationLog"> | Date | string | null
-    created_at?: DateTimeFilter<"AlertNotificationLog"> | Date | string
+  export type RegistroNotificacaoAlertaScalarWhereInput = {
+    AND?: RegistroNotificacaoAlertaScalarWhereInput | RegistroNotificacaoAlertaScalarWhereInput[]
+    OR?: RegistroNotificacaoAlertaScalarWhereInput[]
+    NOT?: RegistroNotificacaoAlertaScalarWhereInput | RegistroNotificacaoAlertaScalarWhereInput[]
+    id?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    alert_event_id?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    channel?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    recipient?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    status?: StringFilter<"RegistroNotificacaoAlerta"> | string
+    attempts?: IntFilter<"RegistroNotificacaoAlerta"> | number
+    error_message?: StringNullableFilter<"RegistroNotificacaoAlerta"> | string | null
+    sent_at?: DateTimeNullableFilter<"RegistroNotificacaoAlerta"> | Date | string | null
+    created_at?: DateTimeFilter<"RegistroNotificacaoAlerta"> | Date | string
   }
 
-  export type AlertEventCreateWithoutNotificationsInput = {
+  export type EventoAlertaCreateWithoutNotificationsInput = {
     id?: string
     tenant_id: string
     actor_type: $Enums.ActorType
@@ -65829,16 +65829,16 @@ export namespace Prisma {
     action: string
     event_count: number
     window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaCreateaudit_log_idsInput | string[]
     status?: $Enums.AlertStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
     created_at?: Date | string
-    rule: AlertRuleCreateNestedOneWithoutAlertsInput
+    rule: RegraAlertaCreateNestedOneWithoutAlertsInput
   }
 
-  export type AlertEventUncheckedCreateWithoutNotificationsInput = {
+  export type EventoAlertaUncheckedCreateWithoutNotificationsInput = {
     id?: string
     tenant_id: string
     rule_id: string
@@ -65849,7 +65849,7 @@ export namespace Prisma {
     action: string
     event_count: number
     window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaCreateaudit_log_idsInput | string[]
     status?: $Enums.AlertStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
@@ -65857,23 +65857,23 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type AlertEventCreateOrConnectWithoutNotificationsInput = {
-    where: AlertEventWhereUniqueInput
-    create: XOR<AlertEventCreateWithoutNotificationsInput, AlertEventUncheckedCreateWithoutNotificationsInput>
+  export type EventoAlertaCreateOrConnectWithoutNotificationsInput = {
+    where: EventoAlertaWhereUniqueInput
+    create: XOR<EventoAlertaCreateWithoutNotificationsInput, EventoAlertaUncheckedCreateWithoutNotificationsInput>
   }
 
-  export type AlertEventUpsertWithoutNotificationsInput = {
-    update: XOR<AlertEventUpdateWithoutNotificationsInput, AlertEventUncheckedUpdateWithoutNotificationsInput>
-    create: XOR<AlertEventCreateWithoutNotificationsInput, AlertEventUncheckedCreateWithoutNotificationsInput>
-    where?: AlertEventWhereInput
+  export type EventoAlertaUpsertWithoutNotificationsInput = {
+    update: XOR<EventoAlertaUpdateWithoutNotificationsInput, EventoAlertaUncheckedUpdateWithoutNotificationsInput>
+    create: XOR<EventoAlertaCreateWithoutNotificationsInput, EventoAlertaUncheckedCreateWithoutNotificationsInput>
+    where?: EventoAlertaWhereInput
   }
 
-  export type AlertEventUpdateToOneWithWhereWithoutNotificationsInput = {
-    where?: AlertEventWhereInput
-    data: XOR<AlertEventUpdateWithoutNotificationsInput, AlertEventUncheckedUpdateWithoutNotificationsInput>
+  export type EventoAlertaUpdateToOneWithWhereWithoutNotificationsInput = {
+    where?: EventoAlertaWhereInput
+    data: XOR<EventoAlertaUpdateWithoutNotificationsInput, EventoAlertaUncheckedUpdateWithoutNotificationsInput>
   }
 
-  export type AlertEventUpdateWithoutNotificationsInput = {
+  export type EventoAlertaUpdateWithoutNotificationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
@@ -65883,16 +65883,16 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
     status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    rule?: AlertRuleUpdateOneRequiredWithoutAlertsNestedInput
+    rule?: RegraAlertaUpdateOneRequiredWithoutAlertsNestedInput
   }
 
-  export type AlertEventUncheckedUpdateWithoutNotificationsInput = {
+  export type EventoAlertaUncheckedUpdateWithoutNotificationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     rule_id?: StringFieldUpdateOperationsInput | string
@@ -65903,7 +65903,7 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
     status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -66726,7 +66726,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertEventCreateManyRuleInput = {
+  export type EventoAlertaCreateManyRuleInput = {
     id?: string
     tenant_id: string
     actor_type: $Enums.ActorType
@@ -66736,7 +66736,7 @@ export namespace Prisma {
     action: string
     event_count: number
     window_seconds: number
-    audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaCreateaudit_log_idsInput | string[]
     status?: $Enums.AlertStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
@@ -66744,7 +66744,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type AlertEventUpdateWithoutRuleInput = {
+  export type EventoAlertaUpdateWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
@@ -66754,16 +66754,16 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
     status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    notifications?: AlertNotificationLogUpdateManyWithoutAlert_eventNestedInput
+    notifications?: RegistroNotificacaoAlertaUpdateManyWithoutAlert_eventNestedInput
   }
 
-  export type AlertEventUncheckedUpdateWithoutRuleInput = {
+  export type EventoAlertaUncheckedUpdateWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
@@ -66773,16 +66773,16 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
     status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    notifications?: AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventNestedInput
+    notifications?: RegistroNotificacaoAlertaUncheckedUpdateManyWithoutAlert_eventNestedInput
   }
 
-  export type AlertEventUncheckedUpdateManyWithoutRuleInput = {
+  export type EventoAlertaUncheckedUpdateManyWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     actor_type?: EnumActorTypeFieldUpdateOperationsInput | $Enums.ActorType
@@ -66792,7 +66792,7 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
-    audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
+    audit_log_ids?: EventoAlertaUpdateaudit_log_idsInput | string[]
     status?: EnumAlertStatusFieldUpdateOperationsInput | $Enums.AlertStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -66800,7 +66800,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogCreateManyAlert_eventInput = {
+  export type RegistroNotificacaoAlertaCreateManyAlert_eventInput = {
     id?: string
     channel: string
     recipient: string
@@ -66811,7 +66811,7 @@ export namespace Prisma {
     created_at?: Date | string
   }
 
-  export type AlertNotificationLogUpdateWithoutAlert_eventInput = {
+  export type RegistroNotificacaoAlertaUpdateWithoutAlert_eventInput = {
     id?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
     recipient?: StringFieldUpdateOperationsInput | string
@@ -66822,7 +66822,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogUncheckedUpdateWithoutAlert_eventInput = {
+  export type RegistroNotificacaoAlertaUncheckedUpdateWithoutAlert_eventInput = {
     id?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
     recipient?: StringFieldUpdateOperationsInput | string
@@ -66833,7 +66833,7 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AlertNotificationLogUncheckedUpdateManyWithoutAlert_eventInput = {
+  export type RegistroNotificacaoAlertaUncheckedUpdateManyWithoutAlert_eventInput = {
     id?: StringFieldUpdateOperationsInput | string
     channel?: StringFieldUpdateOperationsInput | string
     recipient?: StringFieldUpdateOperationsInput | string
@@ -66996,13 +66996,13 @@ export namespace Prisma {
      */
     export type DashboardConfiguracaoCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = DashboardConfiguracaoCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertRuleCountOutputTypeDefaultArgs instead
+     * @deprecated Use RegraAlertaCountOutputTypeDefaultArgs instead
      */
-    export type AlertRuleCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertRuleCountOutputTypeDefaultArgs<ExtArgs>
+    export type RegraAlertaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RegraAlertaCountOutputTypeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertEventCountOutputTypeDefaultArgs instead
+     * @deprecated Use EventoAlertaCountOutputTypeDefaultArgs instead
      */
-    export type AlertEventCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertEventCountOutputTypeDefaultArgs<ExtArgs>
+    export type EventoAlertaCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EventoAlertaCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use AgendaCountOutputTypeDefaultArgs instead
      */
@@ -67112,17 +67112,17 @@ export namespace Prisma {
      */
     export type HistoricoLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = HistoricoLogDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertRuleDefaultArgs instead
+     * @deprecated Use RegraAlertaDefaultArgs instead
      */
-    export type AlertRuleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertRuleDefaultArgs<ExtArgs>
+    export type RegraAlertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RegraAlertaDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertEventDefaultArgs instead
+     * @deprecated Use EventoAlertaDefaultArgs instead
      */
-    export type AlertEventArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertEventDefaultArgs<ExtArgs>
+    export type EventoAlertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EventoAlertaDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use AlertNotificationLogDefaultArgs instead
+     * @deprecated Use RegistroNotificacaoAlertaDefaultArgs instead
      */
-    export type AlertNotificationLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = AlertNotificationLogDefaultArgs<ExtArgs>
+    export type RegistroNotificacaoAlertaArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RegistroNotificacaoAlertaDefaultArgs<ExtArgs>
     /**
      * @deprecated Use ExportarResultadoDefaultArgs instead
      */
@@ -67168,9 +67168,9 @@ export namespace Prisma {
      */
     export type PersonalizacaoOrganizacaoGabiaiArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PersonalizacaoOrganizacaoGabiaiDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use UserPreferencesDefaultArgs instead
+     * @deprecated Use PreferenciasUsuarioDefaultArgs instead
      */
-    export type UserPreferencesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UserPreferencesDefaultArgs<ExtArgs>
+    export type PreferenciasUsuarioArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = PreferenciasUsuarioDefaultArgs<ExtArgs>
     /**
      * @deprecated Use NcmItemDefaultArgs instead
      */
@@ -67188,13 +67188,13 @@ export namespace Prisma {
      */
     export type NotificacoesTituloCorpoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificacoesTituloCorpoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ExternalContactDefaultArgs instead
+     * @deprecated Use ContatoExternoDefaultArgs instead
      */
-    export type ExternalContactArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExternalContactDefaultArgs<ExtArgs>
+    export type ContatoExternoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ContatoExternoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use TenantChannelConfigDefaultArgs instead
+     * @deprecated Use ConfiguracaoCanalTenantDefaultArgs instead
      */
-    export type TenantChannelConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TenantChannelConfigDefaultArgs<ExtArgs>
+    export type ConfiguracaoCanalTenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfiguracaoCanalTenantDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

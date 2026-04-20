@@ -4,17 +4,22 @@
 // GET  /api/v1/preferencias  — retorna preferências do usuário (cria default se não existir)
 // PUT  /api/v1/preferencias  — salva todos os campos de preferência do usuário
 
-import { Router } from 'express'
+import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
 import { AppError } from '../lib/errors'
+
+interface AuthRequest extends Request {
+  user_id: string
+  tenant_id: string
+}
 
 export const apiRoutes = Router()
 
 // ---------------------------------------------------------------------------
 // Middleware de auth simples — user_id e tenant_id via headers
 // ---------------------------------------------------------------------------
-const checkAuth = (req: any, res: any, next: any) => {
+const checkAuth = (req: Request, res: Response, next: NextFunction) => {
   const userId = req.headers['x-user-id']
   const tenantId = req.headers['x-tenant-id']
 
@@ -42,11 +47,11 @@ const PreferenciasSchema = z.object({
 // GET /api/v1/preferencias
 // Retorna as preferências do usuário. Se não existir, cria o registro default.
 // ---------------------------------------------------------------------------
-apiRoutes.get('/', async (req: any, res) => {
+apiRoutes.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { user_id, tenant_id } = req
 
-    const prefs = await prisma.userPreferences.upsert({
+    const prefs = await prisma.preferenciasUsuario.upsert({
       where:  { user_id },
       update: {},
       create: {
@@ -60,7 +65,7 @@ apiRoutes.get('/', async (req: any, res) => {
 
     res.json({ status: 'success', data: prefs })
   } catch {
-    // Tabela userPreferences não existe ainda — retorna defaults
+    // Tabela preferenciasUsuario não existe ainda — retorna defaults
     res.json({ status: 'success', data: { tooltips_disabled: false, theme: 'dark', sidebar_open: true } })
   }
 })
@@ -69,7 +74,7 @@ apiRoutes.get('/', async (req: any, res) => {
 // PUT /api/v1/preferencias
 // Atualiza os campos enviados (merge parcial — só os campos presentes no body).
 // ---------------------------------------------------------------------------
-apiRoutes.put('/', async (req: any, res, next) => {
+apiRoutes.put('/', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const { user_id, tenant_id } = req
 
@@ -79,7 +84,7 @@ apiRoutes.put('/', async (req: any, res, next) => {
       throw new AppError('Nenhum campo de preferência foi enviado', 400)
     }
 
-    const updated = await prisma.userPreferences.upsert({
+    const updated = await prisma.preferenciasUsuario.upsert({
       where:  { user_id },
       create: {
         user_id,

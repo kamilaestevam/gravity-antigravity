@@ -373,7 +373,7 @@ apiRoutes.delete('/:id', async (req, res, next) => {
 apiRoutes.get('/config', async (req, res, next) => {
   try {
     const { tenant_id } = req
-    const config = await prisma.tenantChannelConfig.findUnique({
+    const config = await prisma.configuracaoCanalTenant.findUnique({
       where: { tenant_id },
     })
     res.json({
@@ -400,7 +400,7 @@ apiRoutes.patch('/config', async (req, res, next) => {
       throw new AppError('Apenas usuários MASTER podem alterar a configuração de canais', 403)
     }
     const body = channelConfigBodySchema.parse(req.body)
-    const updated = await prisma.tenantChannelConfig.upsert({
+    const updated = await prisma.configuracaoCanalTenant.upsert({
       where: { tenant_id },
       create: {
         tenant_id,
@@ -442,7 +442,7 @@ const contactBodySchema = z.object({
 apiRoutes.get('/contacts', async (req, res, next) => {
   try {
     const { tenant_id } = req
-    const contacts = await prisma.externalContact.findMany({
+    const contacts = await prisma.contatoExterno.findMany({
       where: { tenant_id },
       orderBy: { name: 'asc' },
       select: {
@@ -461,7 +461,7 @@ apiRoutes.post('/contacts', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
     const body = contactBodySchema.parse(req.body)
-    const created = await prisma.externalContact.create({
+    const created = await prisma.contatoExterno.create({
       data: {
         tenant_id,
         created_by: user_id,
@@ -486,9 +486,9 @@ apiRoutes.patch('/contacts/:id', async (req, res, next) => {
     const { tenant_id } = req
     const { id } = idParamSchema.parse(req.params)
     const body = contactBodySchema.partial().parse(req.body)
-    const existing = await prisma.externalContact.findFirst({ where: { id, tenant_id } })
+    const existing = await prisma.contatoExterno.findFirst({ where: { id, tenant_id } })
     if (!existing) throw new AppError('Contato não encontrado', 404)
-    const updated = await prisma.externalContact.update({
+    const updated = await prisma.contatoExterno.update({
       where: { id },
       data: {
         ...(body.name !== undefined && { name: body.name }),
@@ -512,7 +512,7 @@ apiRoutes.delete('/contacts/:id', async (req, res, next) => {
   try {
     const { tenant_id } = req
     const { id } = idParamSchema.parse(req.params)
-    const result = await prisma.externalContact.deleteMany({ where: { id, tenant_id } })
+    const result = await prisma.contatoExterno.deleteMany({ where: { id, tenant_id } })
     if (result.count === 0) throw new AppError('Contato não encontrado', 404)
     res.json({ status: 'success' })
   } catch (err) {

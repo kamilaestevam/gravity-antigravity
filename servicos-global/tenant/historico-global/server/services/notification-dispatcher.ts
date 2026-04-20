@@ -9,8 +9,8 @@ const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || ''
 
 const RETRY_DELAYS_MS = [5_000, 15_000, 45_000]
 
-type AlertRule = Awaited<ReturnType<typeof prisma.alertRule.findFirst>>
-type AlertEvent = Awaited<ReturnType<typeof prisma.alertEvent.findFirst>>
+type AlertRule = Awaited<ReturnType<typeof prisma.regraAlerta.findFirst>>
+type AlertEvent = Awaited<ReturnType<typeof prisma.eventoAlerta.findFirst>>
 
 export const NotificationDispatcher = {
   /**
@@ -46,7 +46,7 @@ export const NotificationDispatcher = {
   async sendInapp(rule: AlertRule, alertEvent: AlertEvent): Promise<void> {
     if (!rule || !alertEvent) return
 
-    const logId = await prisma.alertNotificationLog.create({
+    const logId = await prisma.registroNotificacaoAlerta.create({
       data: {
         alert_event_id: alertEvent.id,
         channel: 'inapp',
@@ -84,7 +84,7 @@ export const NotificationDispatcher = {
     if (!rule || !alertEvent) return
 
     for (const recipient of rule.recipients_email) {
-      const logId = await prisma.alertNotificationLog.create({
+      const logId = await prisma.registroNotificacaoAlerta.create({
         data: {
           alert_event_id: alertEvent.id,
           channel: 'email',
@@ -121,7 +121,7 @@ export const NotificationDispatcher = {
     if (!rule || !alertEvent) return
 
     for (const phone of rule.recipients_whatsapp) {
-      const logId = await prisma.alertNotificationLog.create({
+      const logId = await prisma.registroNotificacaoAlerta.create({
         data: {
           alert_event_id: alertEvent.id,
           channel: 'whatsapp',
@@ -161,7 +161,7 @@ export const NotificationDispatcher = {
   ): Promise<void> {
     try {
       await fn()
-      await prisma.alertNotificationLog.update({
+      await prisma.registroNotificacaoAlerta.update({
         where: { id: notificationLogId },
         data: { status: 'sent', sent_at: new Date(), attempts: attempt + 1 },
       })
@@ -171,7 +171,7 @@ export const NotificationDispatcher = {
         return NotificationDispatcher.withRetry(fn, notificationLogId, recipient, attempt + 1)
       }
 
-      await prisma.alertNotificationLog.update({
+      await prisma.registroNotificacaoAlerta.update({
         where: { id: notificationLogId },
         data: {
           status: 'failed',

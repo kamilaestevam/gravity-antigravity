@@ -31,9 +31,9 @@
 | GET | `/api/v1/products` | [products.ts:14](../../servicos-global/configurador/server/routes/products.ts:14) | 🔴 **Duplicado** + `as any[]` + catch silencioso + **sem `deleted_at` filter** |
 | GET | `/api/v1/catalog/products` | [publicCatalog.ts:15](../../servicos-global/configurador/server/routes/publicCatalog.ts:15) | ✅ Caminho correto via `productCatalogService.listPublic()` |
 | GET | `/api/v1/catalog/products/:slug` | [publicCatalog.ts:28](../../servicos-global/configurador/server/routes/publicCatalog.ts:28) | OK |
-| GET | `/api/v1/tenants/products` | [tenantProducts.ts:31](../../servicos-global/configurador/server/routes/tenantProducts.ts:31) | 🟠 Catch silencioso retorna `[]` |
-| POST | `/api/v1/tenants/products/subscribe` | [tenantProducts.ts:64](../../servicos-global/configurador/server/routes/tenantProducts.ts:64) | 🔴 Sem billing, sem audit, sem rate limit |
-| DELETE | `/api/v1/tenants/products/:key` | [tenantProducts.ts:110](../../servicos-global/configurador/server/routes/tenantProducts.ts:110) | 🟠 Sem audit |
+| GET | `/api/v1/assinaturas` | [tenantProducts.ts:32](../../servicos-global/configurador/server/routes/tenantProducts.ts:32) | 🟠 Catch silencioso retorna `[]` |
+| POST | `/api/v1/assinaturas/subscribe` | [tenantProducts.ts:65](../../servicos-global/configurador/server/routes/tenantProducts.ts:65) | 🟠 Sem billing, sem rate limit *(audit: console.info adicionado)* |
+| DELETE | `/api/v1/assinaturas/:key` | [tenantProducts.ts:111](../../servicos-global/configurador/server/routes/tenantProducts.ts:111) | 🟠 Sem audit |
 
 ---
 

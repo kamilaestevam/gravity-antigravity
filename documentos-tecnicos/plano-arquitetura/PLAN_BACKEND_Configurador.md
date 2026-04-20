@@ -62,7 +62,7 @@ Execute em `servicos-global/configurador/` (e raiz do configurador):
 
 ## 3. ROTAS A ATUALIZAR
 
-### `servicos-global/configurador/routes/`
+### `servicos-global/configurador/server/routes/`
 
 | Arquivo de rota | O que muda |
 |---|---|
@@ -78,7 +78,7 @@ Execute em `servicos-global/configurador/` (e raiz do configurador):
 | `cambio.ts` (ou `taxaCambio.ts`) | Queries `taxaCambio` → `cambio` |
 | `supplier.ts` | Queries `supplierTenantAccess` → `fornecedorOrganizacao` |
 
-### `servicos-global/configurador/routes/admin.ts` (já modificado — conferir)
+### `servicos-global/configurador/server/routes/admin.ts` (já modificado — conferir)
 - Verificar referências a `tenant_id` que podem ter virado `id_organizacao_usuario`
 
 ---

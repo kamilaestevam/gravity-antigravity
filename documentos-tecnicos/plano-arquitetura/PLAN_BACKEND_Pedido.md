@@ -16,6 +16,11 @@
 - 6 field renames em `ProcessoContainer`
 - 2 novos campos em `ProcessoContainer`
 
+### `produto/pedido/server/prisma/fragment.prisma`
+- Contém os models complementares: `PedidoAnexo`, `PedidoTemplatePdf`, `TransferHistorico`, `ColunaUsuarioPedido`, `ValorColunaUsuarioPedido`, `MapeamentoImport`, `UserBehaviorEvent`, `PedidoCasasDecimaisConfig`, `KanbanPreferencias`, `DashboardPainel`
+- Mesmo conjunto de @@map renames aplicável (é a fonte — `schema.prisma` inclui via compose)
+- Verificar quais models do `fragment.prisma` aparecem nas tabelas de rename do PLAN_BANCO_Pedido
+
 ---
 
 ## 2. SUBSTITUIÇÕES GLOBAIS — CAMPO POR CAMPO

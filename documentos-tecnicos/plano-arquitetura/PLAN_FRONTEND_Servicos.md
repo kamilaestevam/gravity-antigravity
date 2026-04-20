@@ -77,6 +77,10 @@ grep -r "NotificationPreferences\|GabiConversation\|WhatsAppConversation" servic
 
 ## 4. MENSAGERIA GLOBAL
 
+> **Nota:** O backend de mensageria (models `ExternalContact`, `TenantChannelConfig`) está em `servicos-global/tenant/mensageria/` (sem subpasta própria visível — integrado ao servidor tenant). Não há pasta `servicos-global/mensageria/` separada.
+
+Componentes frontend afetados (núcleo global):
+
 `nucleo-global/Mensageria Global/mensageria-global/src/AvisoInternoGlobal.tsx` (modificado — git status)
 `nucleo-global/Mensageria Global/mensageria-global/src/aviso-interno.css` (modificado — git status)
 

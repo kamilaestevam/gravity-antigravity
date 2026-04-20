@@ -144,7 +144,7 @@ servicos-global/tenant/[servico]/server/services/
 ## 4. SERVIÇOS A MOVER (agendamento, NCM, preferências)
 
 Para cada serviço a mover para o Configurador:
-1. Copiar routes para `servicos-global/configurador/routes/`
+1. Copiar routes para `servicos-global/configurador/server/routes/`
 2. Atualizar imports de `@gravity/tenant-resolver` → Prisma do Configurador
 3. Testar endpoints no contexto do Configurador
 4. Remover do servidor de tenant
@@ -159,13 +159,31 @@ Remover completamente os seguintes de `servicos-global/tenant/`:
 - O fragment de processos/pedido (se existir em `servicos-global/tenant/`) que duplica dados do banco Pedido
 - Rotas de proxy que repassam chamadas para o banco Pedido via services
 
+### `servicos-global/tenant/processos-core/` — deletar inteiramente
+
+Esta pasta existe no monorepo com 9 arquivos de código mas **sem** `fragment.prisma`. Contém rotas ativas que acessam o banco Pedido diretamente a partir do servidor de tenant — violação de Database-per-Service. Arquivos a deletar:
+
+```
+servicos-global/tenant/processos-core/src/routes/pedidos.ts
+servicos-global/tenant/processos-core/src/routes/pedidos-lote.ts
+servicos-global/tenant/processos-core/src/routes/pedidos-config.ts
+servicos-global/tenant/processos-core/src/routes/importacao.ts
+servicos-global/tenant/processos-core/src/services/auditClient.ts
+servicos-global/tenant/processos-core/src/services/formulaEngine.ts
+servicos-global/tenant/processos-core/src/services/importEngine.ts
+servicos-global/tenant/processos-core/src/services/saldoEngine.ts
+servicos-global/tenant/processos-core/src/constants.ts
+```
+
+Verificar se `formulaEngine.ts` e `saldoEngine.ts` têm lógica reutilizável que deve migrar para `produto/pedido/server/src/services/` antes de deletar.
+
 ---
 
 ## 6. NCM — MOVER PARA CONFIGURADOR
 
 ### `servicos-global/tenant/ncm-sync/server/`
 - Arquivos: `init.ts`, `routes/api.ts` (ambos modificados per git status)
-- Mover lógica para `servicos-global/configurador/routes/ncm.ts`
+- Mover lógica para `servicos-global/configurador/server/routes/ncm.ts`
 - Atualizar DATABASE_URL para usar CONFIGURADOR_DATABASE_URL
 - Remover de `servicos-global/tenant/`
 

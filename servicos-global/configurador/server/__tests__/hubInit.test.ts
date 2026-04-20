@@ -144,7 +144,7 @@ describe('GET /api/v1/hub/catalog', () => {
     expect(res.status).toBe(200)
   })
 
-  it('chama prisma.produtoGravity.findMany com select correto', async () => {
+  it('chama prisma.product.findMany com select correto', async () => {
     await request.get('/api/v1/hub/catalog')
     expect(prismaMock.product.findMany).toHaveBeenCalledWith({
       select: { id: true, name: true, slug: true, description: true, status: true },

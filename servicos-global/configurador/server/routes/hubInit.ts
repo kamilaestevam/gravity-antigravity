@@ -19,7 +19,7 @@ export const hubRouter = Router()
  */
 hubRouter.get('/catalog', async (_req, res, next) => {
   try {
-    const catalog = await prisma.produtoGravity.findMany({
+    const catalog = await prisma.product.findMany({
       select: { id: true, name: true, slug: true, description: true, status: true },
       orderBy: { created_at: 'desc' },
     })
@@ -44,18 +44,18 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     const [tenant, companies, configs, mergedCatalog, userPref] = await Promise.all([
       tenantService.getTenantById(tenantId),
       tenantService.getCompanies(tenantId),
-      prisma.produtoGravityConfig.findMany({
+      prisma.productConfig.findMany({
         where: { tenant_id: tenantId },
         orderBy: { created_at: 'desc' },
       }).catch(() => []),
-      prisma.produtoGravity.findMany({
+      prisma.product.findMany({
         select: { id: true, name: true, slug: true, description: true, status: true },
         orderBy: { created_at: 'desc' },
       }).catch(() => []),
       // Fornecedor nunca tem preferido — evita round-trip desnecessário
       role === 'SUPPLIER'
         ? Promise.resolve(null)
-        : prisma.usuario.findUnique({
+        : prisma.user.findUnique({
             where: { id: userId },
             select: { preferred_company_id: true },
           }).catch(() => null),
@@ -85,7 +85,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         preferredCompanyId = userPref.preferred_company_id
       } else {
         // Fallback silencioso: limpa no banco (fire-and-forget, não bloqueia resposta)
-        prisma.usuario
+        prisma.user
           .update({
             where: { id: userId },
             data: { preferred_company_id: null },
@@ -122,7 +122,7 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
     const role = normalizeHubRole(req.auth.role)
 
     // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
-    const configs = await prisma.produtoGravityConfig.findMany({
+    const configs = await prisma.productConfig.findMany({
       where: { tenant_id: tenantId, is_active: true },
       select: { product_key: true },
     })

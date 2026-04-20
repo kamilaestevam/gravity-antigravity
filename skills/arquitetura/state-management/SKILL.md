@@ -27,27 +27,51 @@ nucleo-global/shell/state        produtos/[produto]/src/shared/state
 O ShellState contém apenas dados que fazem sentido em qualquer produto. É um contrato fechado — ninguém adiciona campos de negócio aqui.
 
 ```typescript
-// nucleo-global/shell/types.ts
+// servicos-global/shell/store/types.ts
+export type MeStatus = 'idle' | 'loading' | 'success' | 'error'
+
 interface ShellState {
   sidebarOpen: boolean
   currentTheme: 'light' | 'dark'
-  currentUser: {
-    id: string
-    name: string
-    email: string
-    avatarUrl?: string
-  }
+  currentUser: { id: string; name: string; email: string; avatarUrl?: string }
+  meStatus: MeStatus   // ciclo de vida do GET /api/v1/me — NUNCA ignorar
 }
 ```
+
+### meStatus — State Machine de Identidade (obrigatório)
+
+`meStatus` rastreia o ciclo de vida da chamada `GET /api/v1/me` feita por `useMeSync`:
+
+| Estado | Quando | Ação do Layout |
+|:---|:---|:---|
+| `'idle'` | Antes de qualquer chamada / após logout | Layout aguarda |
+| `'loading'` | Durante o fetch de `/api/v1/me` | Pode exibir skeleton |
+| `'success'` | Resposta 200 OK, `currentUser` populado | Renderiza normalmente |
+| `'error'` | 401, 500, timeout, token null | **Bloqueia render — exibe erro com botão de retry** |
+
+**Regra:** `Layout.tsx` DEVE verificar `meStatus === 'error'` antes de renderizar o conteúdo principal. Renderizar com dados do Clerk sem confirmação do backend é "fallback cego" e viola o princípio de Prisma como fonte de verdade.
+
+```tsx
+// Layout.tsx — gate obrigatório
+const { meStatus } = useShellStore()
+if (meStatus === 'error') {
+  return <ErrorScreen /> // role="alert", aria-live="assertive"
+}
+```
+
+`clearCurrentUser()` reseta `meStatus` para `'idle'` automaticamente (logout seguro).
 
 **Com Zustand:**
 
 ```typescript
 export const useShellStore = create<ShellState>((set) => ({
   sidebarOpen: true,
-  currentTheme: 'light',
-  currentUser: { id: '0', name: 'User', email: 'user@email.com' },
+  currentTheme: 'dark',
+  currentUser: DEFAULT_USER,
+  meStatus: 'idle',
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+  setMeStatus: (status) => set({ meStatus: status }),
+  clearCurrentUser: () => set({ currentUser: DEFAULT_USER, meStatus: 'idle' }),
 }))
 ```
 

@@ -14,21 +14,22 @@ import { useShellStore } from '../store'
 const CONFIGURADOR_URL = import.meta.env.VITE_CONFIGURADOR_URL ?? ''
 
 const ROLE_LABELS: Record<string, string> = {
-  SUPER_ADMIN: 'Super Admin',
-  ADMIN:       'Admin',
-  MASTER:      'Master',
-  STANDARD:    'Standard',
-  SUPPLIER:    'Fornecedor',
+  gravity_admin: 'Admin Gravity',
+  SUPER_ADMIN:   'Super Admin',
+  ADMIN:         'Admin',
+  MASTER:        'Master',
+  STANDARD:      'Standard',
+  SUPPLIER:      'Fornecedor',
 }
 
-function resolveRole(raw: string): string {
+export function resolveRole(raw: string): string {
   return ROLE_LABELS[raw] ?? (raw || 'Standard')
 }
 
 export function useMeSync() {
   const { isSignedIn, userId, getToken } = useAuth()
   const { user } = useUser()
-  const { setCurrentUser, clearCurrentUser } = useShellStore()
+  const { setCurrentUser, clearCurrentUser, setMeStatus } = useShellStore()
 
   // Rastreia o userId do Clerk para o qual já fizemos a chamada — evita refetch em re-renders
   const fetchedForRef = useRef<string | null>(null)
@@ -38,6 +39,7 @@ export function useMeSync() {
     if (isSignedIn === false) {
       clearCurrentUser()
       fetchedForRef.current = null
+      // clearCurrentUser já reseta meStatus para 'idle'
     }
   }, [isSignedIn, clearCurrentUser])
 
@@ -47,11 +49,16 @@ export function useMeSync() {
     if (fetchedForRef.current === userId) return
 
     fetchedForRef.current = userId
+    setMeStatus('loading')
 
     async function fetchMe() {
       try {
         const token = await getToken()
-        if (!token) return
+        if (!token) {
+          setMeStatus('error')
+          fetchedForRef.current = null
+          return
+        }
 
         const res = await fetch(`${CONFIGURADOR_URL}/api/v1/me`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -59,6 +66,8 @@ export function useMeSync() {
 
         if (!res.ok) {
           console.warn('[useMeSync] /api/v1/me retornou', res.status)
+          setMeStatus('error')
+          fetchedForRef.current = null
           return
         }
 
@@ -74,11 +83,13 @@ export function useMeSync() {
           tenantName: organizacao?.nome_organizacao ?? undefined,
           role:       resolveRole(usuario.tipo_usuario ?? ''),
         })
+        setMeStatus('success')
       } catch {
-        // fire-and-forget — não bloqueia renderização
+        setMeStatus('error')
+        fetchedForRef.current = null
       }
     }
 
     fetchMe()
-  }, [isSignedIn, userId, getToken, user?.imageUrl, setCurrentUser])
+  }, [isSignedIn, userId, getToken, user?.imageUrl, setCurrentUser, setMeStatus])
 }

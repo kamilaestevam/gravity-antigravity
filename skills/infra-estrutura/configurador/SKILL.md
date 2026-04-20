@@ -178,9 +178,44 @@ model UserMembership {
 
 ---
 
+## Identidade — Endpoint Canônico (pós-DDD 2026-04-19)
+
+> O Clerk é apenas o **porteiro JWT**. Toda identidade real vem do Prisma via este endpoint.
+
+**`GET /api/v1/me`** (Authorization: Bearer `<clerk_token>`)
+
+Retorna campos com nomes DDD em Português:
+
+```typescript
+{
+  usuario: {
+    id_usuario:              string,  // CUID do User no Prisma
+    nome_usuario:            string,  // user.name
+    email_usuario:           string,  // user.email
+    tipo_usuario:            string,  // user.role (MASTER, STANDARD, etc.)
+    id_organizacao_usuario:  string,  // user.tenantId
+    preferred_company_id:    string | null,
+  },
+  organizacao: {
+    id_organizacao:       string,
+    nome_organizacao:     string,
+    subdominio_organizacao: string,
+    status_organizacao:   string,
+  },
+  workspaces: Array<{ id, nome_workspace, status, tipo_usuario, produtos }>
+}
+```
+
+**Consumo no frontend:** hook `useMeSync` em `servicos-global/shell/hooks/useMeSync.ts` — busca este endpoint com o Bearer token do Clerk e popula `ShellStore.currentUser` + define `ShellStore.meStatus` (`'idle' → 'loading' → 'success'|'error'`). Se `/me` retornar 401/500 ou lançar exceção, `meStatus` vai para `'error'` e `Layout.tsx` bloqueia o render exibindo tela de erro com retry — **nenhum dado do Clerk é exibido sem confirmação do backend**. Todo produto chama `useMeSync()` no `App.tsx` standalone.
+
+**`injectTenantGetter` / `injectUserNameGetter`:** padrão em produtos (`pedido`, `processo`, etc.) para ler Zustand sincronamente no momento de cada request HTTP — elimina race conditions de Clerk refresh.
+
+---
+
 ## APIs Disponíveis
 
 ### APIs Públicas (Clerk Auth)
+- **`GET /api/v1/me`** — **identidade canônica** — retorna usuario + organizacao + workspaces (DDD)
 - `POST /api/v1/tenant` — criar tenant
 - `GET /api/v1/companies` — listar workspaces
 - `GET /api/v1/users` — listar usuários

@@ -10,7 +10,7 @@ import { auditLog } from '../../../tenant/historico-global/src/audit-client.js'
 
 const USER_CACHE_TTL = 60_000 // 1 minuto
 const USER_CACHE_MAX = 500 // limite máximo de entradas — evita memory leak
-const userCache = new Map<string, { userId: string; tenantId: string; role: string; expiry: number }>()
+const userCache = new Map<string, { userId: string; tenantId: string; role: string; name: string; expiry: number }>()
 
 declare global {
   namespace Express {
@@ -20,6 +20,7 @@ declare global {
         tenantId: string
         clerkUserId: string
         role: string
+        name: string
       }
     }
   }
@@ -57,24 +58,16 @@ export async function requireAuth(
     const cacheKey = `user:${verified.sub}`
     const cached = userCache.get(cacheKey)
     if (cached && cached.expiry > Date.now()) {
-      req.auth = { userId: cached.userId, tenantId: cached.tenantId, clerkUserId: verified.sub, role: cached.role }
+      req.auth = { userId: cached.userId, tenantId: cached.tenantId, clerkUserId: verified.sub, role: cached.role, name: cached.name }
       next()
       return
     }
 
     let user = await prisma.usuario.findFirst({
       where: { clerk_user_id: verified.sub },
-      select: { id: true, tenant_id: true, role: true },
+      select: { id: true, tenant_id: true, role: true, name: true },
     })
 
-    // Fallback: se não encontrou pelo clerk_user_id, tenta por email.
-    // SEGURANÇA:
-    //   1) Preferencial: filtra por tenant_id do publicMetadata do Clerk.
-    //   2) Fallback seguro: se metadata não tiver tenantId, aceita match por email
-    //      somente se houver EXATAMENTE UM usuário com esse email no DB inteiro
-    //      (sem ambiguidade → impossível cruzar tenant boundaries).
-    //      Isso resolve o caso bootstrap/pós-migração onde a metadata do Clerk
-    //      ficou sem tenantId mas o usuário já existe no DB com role definido.
     // Fallback: clerk_user_id não encontrado no banco — tenta vincular pelo email.
     // Seguro: aceita apenas se houver exatamente um usuário com esse email no sistema
     // (sem ambiguidade → impossível cruzar tenant boundaries).
@@ -87,7 +80,7 @@ export async function requireAuth(
         if (primaryEmail) {
           const candidates = await prisma.usuario.findMany({
             where: { email: primaryEmail },
-            select: { id: true, tenant_id: true, role: true },
+            select: { id: true, tenant_id: true, role: true, name: true },
           })
           if (candidates.length === 1) {
             const only = candidates[0]
@@ -125,6 +118,7 @@ export async function requireAuth(
       userId: user.id,
       tenantId: user.tenant_id,
       role: user.role,
+      name: user.name ?? '',
       expiry: Date.now() + USER_CACHE_TTL,
     })
 
@@ -133,6 +127,7 @@ export async function requireAuth(
       tenantId: user.tenant_id,
       clerkUserId: verified.sub,
       role: user.role,
+      name: user.name ?? '',
     }
 
     next()

@@ -40,7 +40,7 @@ export function Layout({
   tenantPlan
 }: LayoutProps) {
   const { t, i18n } = useTranslation()
-  const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser } = useShellStore()
+  const { sidebarOpen, currentTheme, tooltipsDisabled, currentUser, meStatus } = useShellStore()
   const location = useLocation()
   
   // Detecção de contexto de navegação
@@ -80,6 +80,32 @@ export function Layout({
       changeLanguageLazy(language as SupportedLanguage)
     }
   }, [i18n])
+
+  if (meStatus === 'error') {
+    return (
+      <div
+        style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', height: '100vh', gap: '1rem',
+          color: 'var(--text-primary, #e2e8f0)', background: 'var(--bg-primary, #0f172a)',
+        }}
+        role="alert"
+        aria-live="assertive"
+      >
+        <span style={{ fontSize: '1rem' }}>{t('shell.erro_perfil')}</span>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            padding: '0.5rem 1.25rem', borderRadius: '0.375rem',
+            background: 'var(--accent-primary, #3b82f6)', color: '#fff',
+            border: 'none', cursor: 'pointer', fontSize: '0.875rem',
+          }}
+        >
+          {t('shell.tentar_novamente')}
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className={`shell-layout${sidebarOpen ? '' : ' sidebar-collapsed'}`}>

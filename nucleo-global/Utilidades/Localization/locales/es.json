@@ -78,6 +78,8 @@
     "menu_navegacao": "Menú de navegación",
     "conteudo_principal": "Contenido principal",
     "carregando_modulo": "Cargando módulo…",
+    "erro_perfil": "Error al cargar los datos del perfil.",
+    "tentar_novamente": "Intentar de nuevo",
     "pagina_nao_encontrada": "Página no encontrada",
     "fechar_notificacao": "Cerrar notificación",
     "usuario_padrao": "Usuario",

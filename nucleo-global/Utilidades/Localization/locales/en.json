@@ -78,6 +78,8 @@
     "menu_navegacao": "Navigation menu",
     "conteudo_principal": "Main content",
     "carregando_modulo": "Loading module…",
+    "erro_perfil": "Failed to load profile data.",
+    "tentar_novamente": "Try again",
     "pagina_nao_encontrada": "Page not found",
     "fechar_notificacao": "Close notification",
     "usuario_padrao": "User",

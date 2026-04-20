@@ -75,7 +75,7 @@ packages/tenant-resolver/
     └── *.e2e.test.ts
 ```
 
-**Vitest em `packages/`:** instalar `vitest@2` **localmente** no pacote. O root usa `vitest@4` que requer `vite@6`, mas o monorepo usa `vite@5` — herdar o root quebra (`ERR_PACKAGE_PATH_NOT_EXPORTED`).
+**Versão obrigatória do Vitest:** o monorepo usa `vitest@2` no root (compatível com `vite@5`). Nunca atualizar o root para `vitest@3+` sem antes atualizar `vite` para `vite@6` — a incompatibilidade gera `ERR_PACKAGE_PATH_NOT_EXPORTED: Package subpath './module-runner'` e quebra todas as suítes. Para `packages/` publicáveis com setup isolado, instalar `vitest@2` localmente no pacote (mesma versão, mesma razão).
 
 ---
 

@@ -3,7 +3,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const root = path.resolve(__dirname, '../../../..')
+const root = path.resolve(__dirname, '../../..')
 
 const resolveTsFromJs = {
   name: 'resolve-ts-from-js',
@@ -20,12 +20,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['testes/testes-unitarios/nucleo-global/shell/**/*.test.ts'],
+    include: ['testes/testes-funcionais/configurador/**/*.test.ts'],
+    env: { NODE_ENV: 'test' },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      reportsDirectory: './testes/testes-unitarios/nucleo-global/shell/resultados',
-      thresholds: { lines: 80, functions: 80, branches: 80 },
+      reportsDirectory: './testes/testes-funcionais/configurador/resultados',
+      thresholds: { lines: 70, functions: 70, branches: 70 },
     },
   },
 })

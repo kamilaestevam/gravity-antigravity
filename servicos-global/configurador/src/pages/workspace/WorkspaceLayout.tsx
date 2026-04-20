@@ -67,10 +67,10 @@ export function WorkspaceLayout() {
   const isLight = currentTheme === 'light'
   const [isGabiOpen, setIsGabiOpen] = useState(false)
 
-  const tenantName = currentUser?.tenantName || 'Organização'
-  const userName = currentUser.name || user?.fullName || user?.firstName || 'Usuário'
+  const tenantName = currentUser?.tenantName ?? 'Organização'
+  const userName = currentUser.name ?? user?.fullName ?? user?.firstName ?? 'Usuário'
   const userInitials = userName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-  const userEmail = currentUser.email || user?.primaryEmailAddress?.emailAddress || 'usuario@gravity.com.br'
+  const userEmail = currentUser.email ?? user?.primaryEmailAddress?.emailAddress ?? 'usuario@gravity.com.br'
 
   const { role: dbRole, isGravityAdmin } = useLoadSystemRole()
   const ROLE_LABELS: Record<string, string> = {

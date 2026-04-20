@@ -1,7 +1,9 @@
 # Gestao de Administradores — Gravity Platform
 
-> Ultima atualizacao: 2026-03-31
+> Ultima atualizacao: 2026-04-19
 > Audiencia: Super Admin (dmmltda@gmail.com)
+
+> **Nota pos-Refatoracao #002 (2026-04-19):** Este documento trata da promocao de membros da equipe Gravity ao Admin Panel interno (`gravity_admin`). Esse e o UNICO caso onde `publicMetadata` ainda e escrito no Clerk. Para roles de clientes/tenants (MASTER, STANDARD, etc.) o backend nao escreve mais publicMetadata — a identidade vem do Prisma via `GET /api/v1/me`.
 
 ---
 
@@ -85,13 +87,10 @@ Permissoes de edicao concedidas: [listar ou "nenhuma — somente leitura"]
 **3. Editar publicMetadata**
 
 ```json
-{
-  "role": "MASTER"
-}
+{}
 ```
 
-> Se o usuario e um cliente da plataforma, definir `"role": "MASTER"`.  
-> Se nao e cliente, remover a chave `role` completamente (`{}`).
+> Independentemente se o usuario era cliente da plataforma ou nao, remova a chave `role` completamente: `{}`. **Nunca definir role de tenant no `publicMetadata` do Clerk** — roles como `MASTER`, `STANDARD` e `SUPPLIER` sao gerenciados exclusivamente pelo Prisma desde a Refatoracao #002 (2026-04-19). Ver `incidentes-e-auditoria.md` — Refatoracao #002.
 
 **4. Salvar**
 
@@ -101,10 +100,10 @@ O acesso e revogado imediatamente na proxima requisicao do usuario. Sessoes ativ
 
 ## Diferenca entre super_admin e admin no codigo
 
-Tecnicamente, ambos usam `gravity_admin` como valor no Clerk. A distincao entre os dois e gerenciada pela tabela `GravityAdminPermission` no banco:
+Tecnicamente, ambos usam `gravity_admin` como valor no Clerk. A distincao entre os dois e gerenciada pela tabela `PermissaoAdminGravity` no banco:
 
 ```prisma
-model GravityAdminPermission {
+model PermissaoAdminGravity {
   admin_id    String   // clerk_id do Admin Gravity
   resource    String   // ex: 'tenants', 'billing', 'deploy'
   action      String   // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'

@@ -136,7 +136,7 @@ const response = await fetch(`${CONFIGURATOR_URL}/api/internal/users/${userId}`,
 Em todo banco de produto (Pedido, Processo, SimulaCusto, etc.), após a migração Schema-per-Tenant, o schema `public` **deve estar completamente vazio**. Toda tabela de dados vive em `tenant_<id>`.
 
 ```sql
--- ✅ Estado correto após migração completa (ADR-003 Fase 4)
+-- ✅ Estado correto após migração completa (Pivô Arquitetural 2026-04-17)
 SELECT table_name FROM information_schema.tables
 WHERE table_schema = 'public';
 -- → 0 linhas (zero tabelas)
@@ -165,8 +165,51 @@ psql $DATABASE_URL -c "SELECT count(*) FROM information_schema.tables WHERE tabl
 psql $DATABASE_URL -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 
 # NÃO usar prisma migrate dev em banco de produto
-# Migrations rodam via scripts/migrate-all-tenants.ts (ADR-003)
+# Migrations rodam via scripts/migrate-all-tenants.ts (Pivô Arquitetural 2026-04-17)
 ```
+
+---
+
+## Regra de Ouro — FK Nullable Proibida para Acesso Global
+
+> **Decisão arquitetural de 2026-04-20 — inviolável.**
+
+**O acesso de um usuário a "todas as Empresas" NUNCA é representado por `company_id = null` ou FK ausente.**
+
+É SEMPRE feito via **Bulk Insert explícito** na tabela de vínculos (`UsuarioWorkspace`) no ato do convite.
+
+```typescript
+// ❌ PROIBIDO — FK nullable para representar "acesso global"
+model UsuarioWorkspace {
+  company_id String?   // NUNCA — null não significa "todos"
+}
+
+// ❌ PROIBIDO — lógica condicional no backend para "se null, retorna tudo"
+if (!membership.company_id) return allCompanies  // NUNCA
+
+// ✅ OBRIGATÓRIO — Bulk Insert no momento do convite
+async function convidarMaster(tenantId: string, userId: string) {
+  const empresasAtivas = await prisma.empresa.findMany({
+    where: { tenant_id: tenantId, status: 'ATIVA' }
+  })
+  await prisma.usuarioWorkspace.createMany({
+    data: empresasAtivas.map(e => ({
+      tenant_id: tenantId,
+      company_id: e.id,   // sempre explícito — nunca null
+      user_id: userId,
+      role: 'MASTER',
+    }))
+  })
+}
+```
+
+**Por que Bulk Insert e não FK nullable:**
+1. **Consistência:** o banco sempre reflete o estado real — sem lógica condicional de "null = todos"
+2. **Auditoria:** cada vínculo tem timestamp de criação — rastreável
+3. **Novas Empresas:** ao criar uma nova Empresa, o worker cria automaticamente o vínculo para todos os Masters do tenant
+4. **Performance:** `WHERE company_id = ?` usa índice — sem table scan condicional
+
+**Regra adicional:** ao criar uma nova `Empresa` no tenant, disparar um job que cria `UsuarioWorkspace` para todos os usuários com role `MASTER` do tenant.
 
 ---
 
@@ -193,7 +236,7 @@ psql $DATABASE_URL -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 | TypeScript server | `snake_case` no DTO/interface | `quantidade_inicial_item_pedido` |
 | TypeScript client | `snake_case` | `item.quantidade_inicial_item_pedido` |
 | Chave JSON API | `snake_case` | `{ "quantidade_inicial_item_pedido": 10 }` |
-| Schema tenant | `tenant_<32hex>` | `tenant_550e8400e29b41d4a716446655440000` |
+| Schema tenant | `tenant_<cuid>` | `tenant_c` + 24 chars `[a-z0-9]` — regex: `^tenant_c[a-z0-9]{24}$` |
 
 ### Padrão de IDs (Stripe-Like)
 
@@ -339,8 +382,8 @@ servicos-global/tenant/generated/
 
 **Regras do `fragment.prisma`:**
 - Nenhum `@map()` de coluna
-- Nenhum `tenant_id` após ADR-003 Fase 4 (o schema isolado dispensa o campo)
-- Nenhum `@@index([tenant_id, ...])` após ADR-003 Fase 4
+- Nenhum `tenant_id` após migração completa (Pivô 2026-04-17 — o schema isolado dispensa o campo)
+- Nenhum `@@index([tenant_id, ...])` após migração completa (Pivô 2026-04-17)
 - Nenhum agente edita `schema.prisma` final — só o Coordenador
 
 ---

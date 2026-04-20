@@ -6,7 +6,7 @@ description: "Use esta skill para entender, configurar ou estender o linter cust
 # Gravity — Linter Custom de Tenant-Safety
 
 > **Skill nova — Sprint 1 (2026-04-18).**
-> Implementa o gate de [ADR-002 §6](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md). Sem ele, o SDK é apenas convenção. Com ele, é estrutural.
+> Implementa a decisão do Pivô Arquitetural de 2026-04-17 (schema-per-tenant e Configurador como hub central). Sem ele, o SDK é apenas convenção. Com ele, é estrutural.
 
 ---
 
@@ -160,7 +160,7 @@ const tenantId = req.tenant.id
 
 ### Regra 6 — `no-tenant-id-in-product-query`
 
-Em código sob `produtos/*/server/`, bloqueia `WHERE tenant_id = ...` em queries Prisma — o schema **é** o tenant após Fase 4 do ADR-003.
+Em código sob `produtos/*/server/`, bloqueia `WHERE tenant_id = ...` em queries Prisma — o schema **é** o tenant após migração completa (Pivô 2026-04-17).
 
 ```typescript
 // ❌ ERRO em produto (após Fase 4)
@@ -175,7 +175,7 @@ await prisma.tenant.findUnique({ where: { id: tenantId } })
 
 **Implementação:** detecta `Property` com `key.name === 'tenant_id'` dentro de objetos passados para métodos Prisma (`findMany`, `findFirst`, `findUnique`, `create`, `update`, `delete`, `count`, `aggregate`, `groupBy`, `where:`).
 
-> **Janela transitória (Fases 2-3 do ADR-003):** regra desativada via flag `LINT_DUAL_WRITE=true` enquanto dual-write está ativo. Após cutover (Fase 4), flag removida e regra fica permanente.
+> **Janela transitória (dual-write em andamento):** regra desativada via flag `LINT_DUAL_WRITE=true` enquanto dual-write está ativo. Após migração completa (Pivô 2026-04-17), flag removida e regra fica permanente.
 
 ---
 

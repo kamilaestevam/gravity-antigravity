@@ -1,62 +1,125 @@
-# Diagrama e Configurações de Autenticação (Clerk)
+# Diagrama e Configuracoes de Autenticacao (Clerk)
 
-Este documento centraliza as regras, auditorias de segurança e decisões arquiteturais de autenticação adotadas no **Gravity** utilizando o provedor *Clerk*.
+Este documento centraliza as regras, auditorias de seguranca e decisoes arquiteturais de autenticacao adotadas no **Gravity** utilizando o provedor *Clerk*.
 
-O Clerk atua como o motor de resolução de identidade e segurança de senhas do sistema. Ele trabalha em conjunto com o nosso banco de dados (Prisma/PostgreSQL), servindo como o guardião da entrada. 
+O Clerk atua **exclusivamente** como **JWT doorman** — provedor de identidade (IdP) responsavel por autenticar o usuario, gerenciar senha, 2FA e sessao. Ele **nao** conhece tenants, roles de cliente, ou workspaces. Toda resolucao de multi-tenancy, role e acesso a Empresa e responsabilidade exclusiva do banco Prisma, acessada via `GET /api/v1/me`.
 
-Abaixo estão as parametrizações vitais configuradas no ambiente do Clerk para suportar o modelo Multi-Tenant e as políticas de segurança B2B.
-
----
-
-## 1. Gestão de Contas (Personal Accounts vs Organizations)
-**Caminho no Clerk:** *Configure > Organizations > Settings*
-
-O *Gravity* adota um modelo híbrido onde o isolamento de Tenants pode ser estrito no banco, mas fluido na criação.
-- **Membership Optional (Ativado):** O sistema foi parametrizado para permitir "Personal Accounts" (contas individuais) fora do escopo de Organizações engessadas do Clerk. 
-- **Objetivo:** Impedir que o Clerk force a renderização compulsória do componente `<CreateOrganization />` durante o fluxo de "Sign Up", mantendo a UX fluida. Nossa plataforma roteia e assimila o usuário (Tenant) dinamicamente pós-login.
+> **Regra absoluta:** O Clerk autentica *quem* e o usuario. O Prisma define *o que* ele pode fazer e *a qual organizacao* pertence.
 
 ---
 
-## 2. Autenticação e Verificação
+## 1. Posicao do Clerk na Arquitetura (pós-Refatoracao #002)
+
+```
+[Usuario digita senha no Clerk]
+         |
+         v (Clerk emite JWT — Bearer token)
+[Frontend: useMeSync chama GET /api/v1/me com Authorization: Bearer <token>]
+         |
+         v (Configurador valida JWT via @clerk/backend + consulta Prisma)
+[Retorna DDD: { usuario: { tipo_usuario, id_organizacao_usuario, ... },
+               organizacao: { ... },
+               workspaces: [...] }]
+         |
+         v (useMeSync popula ShellStore)
+[ShellStore.currentUser: { role, tenantId, ... }]
+         |
+         v
+[Toda a UI le ShellStore — nunca o Clerk diretamente]
+```
+
+**O que o Clerk sabe:** email, senha, 2FA, sessao, e — exclusivamente para equipe interna — `publicMetadata.role = 'gravity_admin'`.
+
+**O que o Clerk NAO sabe:** tenantId, role de tenant (MASTER, STANDARD, SUPPLIER), vinculos com Empresa, permissoes granulares.
+
+---
+
+## 2. Gestao de Contas — Organizations BANIDO
+
+> **Decisao arquitetural de 2026-04-16 — inviolavel.**
+
+O sistema de Organizations nativo do Clerk (B2B) foi **completamente removido** e esta **proibido para sempre**. As seguintes APIs e componentes **nunca** podem ser reintroduzidos:
+
+- `useOrganization`, `useOrganizationList`, `OrganizationSwitcher`
+- `organizationMemberships`, `orgRole`
+- Qualquer conceito de `org:member`, `basic_member` ou "Membro" vindo do Clerk
+
+**Por que foi removido:** roles e tenancy nao sao responsabilidade do IdP. O acoplamento causava stale data, dupla escrita e race conditions. O Prisma ja e a fonte da verdade — o frontend precisa apenas de um endpoint para le-la.
+
+**O modelo atual:** "Personal Accounts" no Clerk (sem Organizations). O isolamento de tenant e feito 100% no Prisma. O Clerk apenas fornece o Bearer token que autentica o usuario no `GET /api/v1/me`.
+
+---
+
+## 3. Autenticacao e Verificacao
+
 **Caminho no Clerk:** *Configure > User & Authentication > Email, Phone, Username*
 
-- **Sign-up with Email (Ativo):** Permite o cadastro aberto. *(Atenção para auditorias futuras: Caso a governança do processo B2B exija um ecossistema fechado (Invite-Only), esta flag deverá ser desativada)*.
-- **Verify at sign-up (Ativo):** Exige validação mandatória com **código de e-mail (OTP)**.
-- **Objetivo:** Impedir a criação fantasma de massas de dados contendo e-mails forjados (`teste@teste.com`), garantindo rastreabilidade e comunicações transacionais saudáveis.
+- **Sign-up with Email (Ativo):** Permite o cadastro. *(Atencao: se a governanca B2B exigir ecossistema fechado (Invite-Only), desativar esta flag.)*
+- **Verify at sign-up (Ativo):** Exige validacao com **codigo de e-mail (OTP)** — impede e-mails forjados.
 
 ---
 
-## 3. Gestão de Sessões (Segurança e UX)
+## 4. Gestao de Sessoes (Seguranca e UX)
+
 **Caminho no Clerk:** *Configure > Sessions*
 
-A persistência do token JWT baseia-se num equilíbrio entre segurança (proteção de dados de Comex e Custos) e UX (evitando aborrecimentos diários). Entendeu-se o uso de dois cronômetros simultâneos:
+Dois cronometros simultaneos:
 
-1. **Maximum lifetime (Duração Máxima - Ex: 1 ano ou 7 dias):** O "teto" invisível da sessão. Independentemente se o usuário acessou todo dia, a sessão expira compulsoriamente na data limite de Maximum Lifetime desde que o botão "Entrar" foi clicado.
-2. **Inactivity timeout (Timeout de Inatividade - Ex: 1 dia ou 60 minutos):** O "cronômetro de inatividade". Protege contra uso não autorizado em terminais abandonados, exigindo zero movimento interativo no painel antes de revogar o token de acesso.
+1. **Maximum lifetime:** teto da sessao (ex: 7 dias). Independente de atividade, expira na data limite.
+2. **Inactivity timeout:** cronometro de inatividade (ex: 24h). Protege terminais abandonados.
 
-*Configuração Adotada Inicial:* Permissiva à adaptação, priorizando tempo de Inatividade suficiente para uma jornada normal de escritório sem deslogar repentinamente, mas com *timeout* obrigatório de ociosidade contínua (ex: 24h sem ação).
+*Configuracao Adotada:* timeout de inatividade suficiente para jornada de escritorio, com expiracao compulsoria de ociosidade continua.
 
 ---
 
-## 4. Webhooks e Sincronização Server-Side (Vital)
+## 5. Webhooks e Sincronizacao Server-Side
+
 **Caminho no Clerk:** *Configure > Webhooks*
 
-O Clerk é isolado da infraestrutura do PostgreSQL. O sincronismo do ciclo de vida dos usuários dá-se estritamente por Webhooks.
+O Clerk e isolado do PostgreSQL. A sincronizacao e feita via Webhooks.
 
-- **Endpoint URL:** Aponta sempre de modo absoluto (HTTPS) para a infraestrutura real. 
-  * *Para testes locais:* Utilizar *Ngrok* ou ferramenta equivalente para transpor o localhost.
-  * *Para Produção:* Endereçamento da nossa aplicação (`https://api.seu-dominio.../api/v1/webhooks`).
-- **Eventos Monitorados Obrigatórios:**
-  - `user.created`: Intercepta o sinal do Clerk, gerando a Persona/Profile correspondente (e possível Tenant dinâmico) no banco de dados.
-  - `user.updated`: Mantém o metadado relacional em conformidade.
-  - `user.deleted`: **Obrigatório para mitigação/LGPD**. Garante expurgo limpo em cascata ou desativação paralela no BD em caso do usuário solicitar ou sofrer exclusão pelo painel de identidade.
+- **Endpoint URL:** HTTPS absoluto apontando para a infraestrutura real.
+  * *Testes locais:* Ngrok ou equivalente para transpor localhost.
+  * *Producao:* `https://api.seu-dominio.../api/v1/webhooks`.
+
+### Eventos monitorados
+
+| Evento | Comportamento atual (pós-Refatoracao #002) |
+|--------|---------------------------------------------|
+| `user.created` | Localiza o registro com `clerk_user_id: "pending_<invitationId>"` criado no convite e substitui pelo `clerk_user_id` real do usuario recem-criado. **Nao cria tenant. Nao cria memberships.** Essas operacoes ja foram feitas pelo Bulk Insert no momento do convite. |
+| `user.updated` | Atualiza `nome` e `email` no Prisma para manter paridade com o perfil do Clerk. |
+| `user.deleted` | **Obrigatorio para LGPD.** Dispara expurgo em cascata ou desativacao no banco. |
 
 ---
 
-## 5. Modo "Development" vs "Production"
-A plataforma foi inicialmente testada em estado *Development* (tarja laranja).
+## 6. Modo Development vs Production
 
-O processo de Go-Live (`Deploy to production`) requer atenção ao seguinte Checklist de Governança:
-1. Alteração explícita de ambiente (chaves de API novas).
-2. Parametrização dos registros DNS do tipo **CNAME** via provedor do domínio customizado (ex: `auth.gravity.com.br`) para viabilizar os scripts de sessão de primeira parte sem bloqueios do navegador.
-3. Cadastramento compulsório das credenciais próprias de **Client ID e Secret no Google Cloud** (OAuth), visto que chaves de demonstração expiram na transição.
+A plataforma foi inicialmente testada em *Development* (tarja laranja).
+
+Checklist de Go-Live:
+1. Alteracao explicita de ambiente (chaves de API novas).
+2. Configuracao dos registros DNS **CNAME** para dominio customizado (ex: `auth.gravity.com.br`).
+3. Cadastramento das credenciais proprias de **Client ID e Secret no Google Cloud** (OAuth).
+
+---
+
+## 7. Mudancas Arquiteturais — Pivo 2026-04-16/19
+
+### Refatoracao #001 — Remocao do Clerk Organizations (2026-04-16)
+
+- Removido: `useOrganization`, `useOrganizationList`, `OrganizationSwitcher`
+- Removido: fallback `"Membro"` (role nativo do Clerk Organizations)
+- Implementado: `publicMetadata.tenantId` e `publicMetadata.role` como ponte temporaria *(substituida em #002)*
+
+### Refatoracao #002 — Eliminacao do publicMetadata de Tenant (2026-04-19)
+
+- **Removido:** `syncRole.ts` — modulo que escrevia `publicMetadata: { tenantId, role }` no Clerk para usuarios de tenant
+- **Removido:** `publicMetadata.tenantId` e `publicMetadata.role` dos fluxos de convite e promocao de role
+- **Removido:** hook `useSyncClerkToShell.ts`
+- **Implementado:** `GET /api/v1/me` como canal unico Prisma → Frontend (campos DDD em Portugues)
+- **Implementado:** hook `useMeSync.ts` — substitui `useSyncClerkToShell`
+- **Resultado:** O Clerk nao armazena mais nenhum dado de negocio de tenant. Zero stale data, zero dupla escrita, zero race condition de Clerk refresh.
+
+### O que AINDA usa publicMetadata
+
+Unica excecao: `publicMetadata.role = 'gravity_admin'` para acesso ao Admin Panel interno da Gravity. Atribuido manualmente via Clerk Dashboard pelo super_admin. Ver `gestao-de-admins.md`.

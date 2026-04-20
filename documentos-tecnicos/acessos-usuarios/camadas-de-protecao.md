@@ -7,12 +7,13 @@
 
 ## Contexto Arquitetural
 
-Todas as tres camadas verificam `publicMetadata.role` do Clerk. E fundamental entender **de onde esse valor vem**:
+Todas as tres camadas verificam `publicMetadata.role` do Clerk. E fundamental entender **de onde esse valor vem** e **a quem se aplica**:
 
-- O Clerk **nao define** o role de negocio — ele e apenas o repositorio de `publicMetadata`.
-- O **Prisma (banco)** e a fonte da verdade. Apos criar ou atualizar um usuario, o backend chama a API do Clerk com `CLERK_SECRET_KEY` para gravar `publicMetadata.role`.
-- **Nunca** o sistema de Organizations nativo do Clerk e usado — esse sistema foi removido em 2026-04-16.
+- Estas tres camadas protegem exclusivamente o **Admin Panel interno da Gravity** (`/admin/*`). O unico role verificado aqui e `gravity_admin` — exclusivo da equipe interna.
+- **Roles de tenant (`MASTER`, `STANDARD`, `SUPPLIER`) nao sao escritos no `publicMetadata`** desde a Refatoracao #002 (2026-04-19). Esses roles vivem exclusivamente no Prisma e chegam ao frontend via `GET /api/v1/me` → `useMeSync` → `ShellStore`.
+- O `publicMetadata.role = 'gravity_admin'` e atribuido **manualmente via Clerk Dashboard** pelo super_admin — nunca por codigo automatico da aplicacao (ver `gestao-de-admins.md` para o passo a passo).
 - O `publicMetadata` e server-side: o cliente nao consegue alterar esse campo.
+- **Nunca** o sistema de Organizations nativo do Clerk e usado — esse sistema foi removido em 2026-04-16 e esta banido permanentemente.
 
 ---
 

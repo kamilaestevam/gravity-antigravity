@@ -7,7 +7,7 @@ description: "Use esta skill sempre que uma tarefa envolver queries ao banco de 
 
 > **Esta skill foi reescrita em 2026-04-17 após o pivô arquitetural Risco Zero.**
 > O modelo anterior (`WHERE tenant_id = ?` + RLS) foi descartado para os bancos de produto. Toda referência ao modelo antigo nesta skill é histórica.
-> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
+> Decisão registrada no Pivô Arquitetural de 2026-04-17 (schema-per-tenant e Configurador como hub central). Os ADRs que documentavam esse pivô foram consolidados nesta skill e em `documentos-tecnicos/acessos-usuarios/incidentes-e-auditoria.md`.
 
 ---
 
@@ -75,7 +75,7 @@ await withTenantContext(tenantId, async (ctx, db) => {
 - ❌ `new PrismaClient(...)` em qualquer produto
 - ❌ Acesso ao banco fora de `withTenant(...)` ou `withTenantContext(...)`
 - ❌ `WHERE tenant_id = ?` em queries de produto (modelo antigo morto)
-- ❌ Coluna `tenant_id` em tabelas de produto após migração completa (Fase 4 do ADR-003)
+- ❌ Coluna `tenant_id` em tabelas de produto após migração completa (Pivô 2026-04-17)
 - ❌ Cache (`redis.set`, in-memory) sem prefixo `tenant:<id>:`
 - ❌ PgBouncer em modo `session` para banco de produto (modo `transaction` é obrigatório)
 - ❌ `SET search_path` (sem `LOCAL`) — vaza no pool
@@ -88,7 +88,7 @@ await withTenantContext(tenantId, async (ctx, db) => {
 - ✅ Toda rota de produto chama `withTenant(req, async db => ...)`
 - ✅ Toda tarefa de background chama `withTenantContext(tenantId, async (ctx, db) => ...)`
 - ✅ Schema é provisionado pelo worker do evento `TenantProvisioned` (com DLQ + retry)
-- ✅ Migrations rodam via `scripts/migrate-all-tenants.ts` (orquestrador, ADR-003)
+- ✅ Migrations rodam via `scripts/migrate-all-tenants.ts` (orquestrador — Pivô 2026-04-17)
 - ✅ Cliente Prisma é instanciado só em `packages/tenant-resolver/src/internal-prisma.ts` e **não é exportado**
 - ✅ Teste E2E de cross-tenant em todo produto (`tenant-isolation.e2e.test.ts`)
 - ✅ Validação Zod em toda rota antes do `withTenant`
@@ -113,7 +113,7 @@ model Pedido {
 }
 ```
 
-> Durante a migração (Fase 2-3 do ADR-003), o `tenant_id` permanece em coluna por causa do dual-write. Após Fase 4, a coluna é removida.
+> Durante a janela de migração (dual-write), o `tenant_id` permanece em coluna. Após migração completa (Pivô 2026-04-17), a coluna é removida.
 
 No Configurador (não muda):
 
@@ -251,6 +251,6 @@ Antes do pivô de 2026-04-17, o isolamento era feito por:
 - `WHERE tenant_id = ?` injetado por middleware Prisma (`$extends`).
 - RLS PostgreSQL como segunda camada (`USING (tenant_id = current_setting('app.current_tenant_id')::uuid)`).
 
-Esse modelo foi descartado: superfície de erro humano grande demais. Um único `findMany()` sem o middleware aplicado expunha o banco inteiro. ADR-001 documenta a decisão completa.
+Esse modelo foi descartado: superfície de erro humano grande demais. Um único `findMany()` sem o middleware aplicado expunha o banco inteiro. Decisão consolidada no Pivô Arquitetural de 2026-04-17.
 
-Durante a janela de migração (Fase 2-3 do ADR-003), o dual-write mantém os dois modelos vivos. Após Fase 4, o `tenant_id` é removido das tabelas de produto.
+Durante a janela de migração (dual-write), os dois modelos coexistem. Após migração completa, o `tenant_id` é removido das tabelas de produto.

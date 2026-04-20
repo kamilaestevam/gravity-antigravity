@@ -45,7 +45,7 @@ Produto valida token via @clerk/backend
 - **Servidor próprio:** Express + TypeScript na porta 3000
 - **Autenticação:** Clerk vive exclusivamente aqui
 - **Sem acesso ao banco de outros produtos** — produtos chamam `/api/check-access`
-- **Schema Prisma:** `servicos-global/configurador/server/prisma/schema.prisma`
+- **Schema Prisma:** `servicos-global/configurador/prisma/schema.prisma`
 
 ---
 
@@ -69,8 +69,9 @@ servicos-global/configurador/
 ├── server/
 │   ├── index.ts
 │   ├── routes/
-│   │   ├── auth.ts         ← Clerk webhooks e eventos
-│   │   ├── tenants.ts      ← workspace, empresas mãe e filhas
+│   │   ├── auth.ts         ← Clerk webhooks (user.created resolve pending_*, user.updated, user.deleted)
+│   │   ├── tenants.ts      ← Organizacao e Empresas
+│   │   ├── users.ts        ← convite, UsuarioWorkspace, memberships
 │   │   ├── plans.ts        ← planos e assinaturas
 │   │   ├── billing.ts      ← boletos, cartão, NF-e
 │   │   └── access.ts       ← verificação de permissões por produto
@@ -111,10 +112,10 @@ Organização / Tenant (cliente)
 
 ### Habilitação em Workspace
 
-Para um usuário do tenant trabalhar em um workspace, ele precisa de uma **Habilitação** (`UserMembership`).
-- 1 Tenant pode ter múltiplos workspaces (empresas filhas)
-- Um `standard` habilitado no workspace A **não acessa** o workspace B
-- **Master** tem acesso implícito a todos os workspaces da organização
+Para um usuário do tenant trabalhar em uma Empresa, ele precisa de um **Vínculo** (`UsuarioWorkspace`).
+- 1 Tenant pode ter múltiplas Empresas
+- Um `STANDARD` com vínculo na Empresa A **não acessa** a Empresa B
+- **Master** recebe vínculos explícitos em **todas** as Empresas da organização via Bulk Insert no momento do convite (snapshot). Nenhum acesso é implícito — acesso global via FK nullable é proibido.
 
 ### Regra Crítica — Permissões Granulares
 
@@ -154,25 +155,34 @@ model SupplierTenantAccess {
 ## Schema Prisma — Entidades Principais
 
 ```prisma
-model Tenant {
+// Nomes DDD em Português — snake_case obrigatório
+
+model Organizacao {
   id        String    @id @default(cuid())
-  name      String
-  plan      String    @default("trial")
-  companies Company[]
+  nome      String
+  plano     String    @default("trial")
+  empresas  Empresa[]
 }
 
-model Company {
-  id        String  @id @default(cuid())
-  tenantId  String
-  name      String
-  subdomain String? @unique
+model Empresa {
+  id         String  @id @default(cuid())
+  tenant_id  String
+  nome       String
+  subdominio String? @unique
+  status     String  @default("ATIVA")
 }
 
-model UserMembership {
-  id       String @id @default(cuid())
-  clerkId  String
-  tenantId String
-  role     String @default("standard")
+model UsuarioWorkspace {
+  id         String @id @default(cuid())
+  tenant_id  String
+  company_id String   // FK para Empresa — nunca nullable (Regra FK Nullable Proibida)
+  user_id    String   // id Prisma do Usuario
+  role       String @default("STANDARD")
+  is_active  Boolean @default(true)
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, user_id])
 }
 ```
 
@@ -217,8 +227,10 @@ Retorna campos com nomes DDD em Português:
 ### APIs Públicas (Clerk Auth)
 - **`GET /api/v1/me`** — **identidade canônica** — retorna usuario + organizacao + workspaces (DDD)
 - `POST /api/v1/tenant` — criar tenant
-- `GET /api/v1/companies` — listar workspaces
+- `GET /api/v1/companies` — listar Empresas
 - `GET /api/v1/users` — listar usuários
+- `POST /api/v1/usuarios/invite` — convidar usuário (cria pending_* + Bulk Insert de UsuarioWorkspace)
+- `POST /api/v1/usuarios/:id/memberships` — adicionar/remover vínculo de usuário em Empresa
 - `GET /api/v1/plans` — listar planos
 - `GET /api/v1/billing/invoices` — histórico de faturas
 
@@ -307,11 +319,14 @@ vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js'
 
 ## Checklist — Antes de Entregar o Configurador
 
-- [ ] Workspace lista workspaces corretamente?
+- [ ] Empresa lista Empresas corretamente (somente status ATIVA)?
 - [ ] Botão "Acessar" redireciona para a URL do produto com token?
-- [ ] Clerk webhooks sincronizam usuários e organizações?
+- [ ] Webhook user.created resolve pending_* para clerk_user_id real (não cria tenant)?
 - [ ] Convite de usuário dispara e-mail do Clerk?
-- [ ] Usuário Master acessa tudo, Standard segue permissões?
+- [ ] Convite de Master faz Bulk Insert em TODAS as Empresas ativas?
+- [ ] Convite de Standard/Supplier cria UsuarioWorkspace apenas nas Empresas selecionadas?
+- [ ] Usuário Master acessa todas as Empresas (via UsuarioWorkspace), Standard segue permissões granulares?
+- [ ] Frontend: tela de usuários mostra Empresas vinculadas ao expandir linha (renderExpandido)?
 - [ ] Download de Boleto/NF-e disponível no financeiro?
 - [ ] API `/api/check-access` responde corretamente aos produtos?
 - [ ] Fornecedor com múltiplos tenants vê a tela de seleção ao logar?

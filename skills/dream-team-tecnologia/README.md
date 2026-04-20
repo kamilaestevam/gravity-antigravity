@@ -24,7 +24,7 @@ Quando ativado (via comando `/dream-team-tecnologia`), o agente AI assume o conh
 A plataforma Gravity é um ecossistema SaaS complexo com:
 
 - **Monorepo** com nucleo-global, servicos-global, produtos e testes centralizados
-- **Multi-tenant** com isolamento em duas camadas (Prisma + RLS)
+- **Multi-tenant** com isolamento Schema-per-Tenant (PostgreSQL schema por empresa)
 - **Múltiplos bancos** (configurador, tenant, cada produto)
 - **Comunicação inter-serviços** via REST com JWT + x-internal-key
 - **Metas de SLA** agressivas (200ms, 50k req, 99,9% uptime)
@@ -80,7 +80,7 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 | 11 | Schema Composition | `skills/arquitetura/schema-composition/SKILL.md` | Prisma fragments, compose-schema |
 | 12 | Serviços Tenant | `skills/arquitetura/servicos-tenant/SKILL.md` | Servidor tenant, banco compartilhado |
 | 13 | State Management | `skills/arquitetura/state-management/SKILL.md` | Zustand, shell vs produto, Event Bus |
-| 14 | Tenant Isolation | `skills/arquitetura/tenant-isolation/SKILL.md` | Prisma Extensions + RLS, 3 índices, product_id nullable |
+| 14 | Tenant Isolation | `skills/arquitetura/tenant-isolation/SKILL.md` | Schema-per-Tenant, SDK @gravity/tenant-resolver obrigatório, withTenant/withTenantContext |
 | 15 | Testes | `skills/arquitetura/testes/SKILL.md` | Vitest, Playwright, cobertura, contract tests Zod |
 | 16 | Contract Testing | `skills/arquitetura/contract-testing/SKILL.md` | Zod como contrato, CI bloqueando breaking changes |
 | 17 | Caching Strategy | `skills/arquitetura/caching-strategy/SKILL.md` | Redis, in-memory, TTL, invalidação, tenant isolation |
@@ -350,8 +350,9 @@ CLAUDE.md                            ← Mapa completo (carregado automaticament
 ### Regras Invioláveis
 
 - **TypeScript** strict, sem `any`, sem `@ts-ignore`, ESModules only
-- **Banco**: todo model tem `tenant_id` + 3 índices, nenhuma query sem filtro
-- **Segurança**: Zod em toda rota, JWT validado, `x-internal-key` em S2S
+- **Banco (Pivô 2026-04-17)**: bancos de produto usam Schema-per-Tenant (`tenant_<cuid>`); acesso exclusivamente via `withTenant`/`withTenantContext` do `@gravity/tenant-resolver`; `PrismaClient` direto é proibido; Configurador usa single-schema `public`
+- **Acesso global**: nunca FK nullable — Master recebe Bulk Insert em todas as Empresas no convite
+- **Segurança**: Zod em toda rota, JWT validado via `@clerk/backend`, `x-internal-key` em S2S; roles vêm do Prisma via `GET /api/v1/me`, nunca do Clerk publicMetadata (exceto `gravity_admin`)
 - **Isolamento**: serviços nunca importam código de outro serviço
 - **Testes**: todo código entregue com unitários + funcionais, cobertura ≥ 70%
 - **Entrega**: QA revisa com checklist completo → aprovado ou rejeitado

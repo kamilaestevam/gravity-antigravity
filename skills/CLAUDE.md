@@ -167,7 +167,7 @@ Estas regras se aplicam a TODOS os agentes, em TODAS as tarefas:
 
 **Banco de Dados (pós-pivô Schema-per-Tenant — 2026-04-17):**
 - **Schema-per-Tenant** em todos os bancos de produto: 1 schema PostgreSQL por tenant (`tenant_<cuid>`)
-- Models de produto **NÃO** têm `tenant_id` (o schema **é** o tenant) — após Fase 4 do [ADR-003](../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md)
+- Models de produto **NÃO** têm `tenant_id` (o schema **é** o tenant) — após migração completa (Pivô 2026-04-17)
 - Models de produto **NÃO** têm `@@index([tenant_id, ...])` — o schema isola fisicamente
 - Acesso ao banco **exclusivamente** via `withTenant(req, async db => ...)` ou `withTenantContext(tenantId, fn)` do `@gravity/tenant-resolver`
 - `import { PrismaClient } from '@prisma/client'` é **proibido** fora do SDK — linter CI bloqueia deploy
@@ -177,7 +177,7 @@ Estas regras se aplicam a TODOS os agentes, em TODAS as tarefas:
 - Provisionamento de schema novo é responsabilidade do worker do evento `TenantProvisioned` (DLQ + retry)
 - Nenhum agente edita `schema.prisma` final — só o Coordenador via script de composição
 - Cada serviço/produto escreve apenas seu `fragment.prisma` ou `schema.base.prisma`
-- Ver [ADR-001](../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), [ADR-003](../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
+- Decisão: Pivô Arquitetural de 2026-04-17 (schema-per-tenant e Configurador como hub central).
 
 **Segurança (pós-pivô):**
 - Toda rota tem validação Zod antes do banco

@@ -74,8 +74,8 @@ if (user.role === 'admin') {
 
 - **Pertence a:** cliente (organização / tenant)
 - **Acesso:** total dentro da sua organização
-- **Escopo:** Configurador da organização, todos os workspaces da organização, todos os produtos contratados
-- **Pode:** convidar usuários, habilitar usuários em workspaces, definir permissões de Standard e Fornecedor
+- **Escopo:** Configurador da organização, todas as Empresas da organização, todos os produtos contratados
+- **Pode:** convidar usuários, habilitar usuários em Empresas, definir permissões de Standard e Fornecedor
 - **Restrições:** não acessa dados de outras organizações; não acessa o Admin Panel da Gravity
 - **Quem atribui:** sistema (primeiro usuário da organização é sempre Master)
 
@@ -85,7 +85,7 @@ if (user.role === 'admin') {
 
 - **Pertence a:** cliente (organização / tenant)
 - **Acesso:** conforme permissões definidas pelo Master
-- **Escopo:** apenas os workspaces onde foi habilitado, apenas os produtos para os quais tem permissão
+- **Escopo:** apenas as Empresas onde foi habilitado, apenas os produtos para os quais tem permissão
 - **Restrições:** não pode gerir outros usuários (a menos que tenha permissão explícita do Master)
 - **Quem atribui:** Master da organização
 
@@ -101,17 +101,20 @@ if (user.role === 'admin') {
 
 ```prisma
 // Acesso de fornecedor a múltiplos tenants
-model SupplierTenantAccess {
-  id        String @id @default(cuid())
-  clerkId   String
-  tenantId  String
-  companyId String?
-  status    String @default("active")
-  createdAt DateTime @default(now())
+// company_id NÃO é nullable — acesso global nunca é representado por FK null
+// O acesso a todas as Empresas é feito via Bulk Insert explícito no convite
+model AcessoFornecedorTenant {
+  id         String @id @default(cuid())
+  user_id    String   // id Prisma do Usuario (não clerkId)
+  tenant_id  String
+  company_id String   // Empresa específica — obrigatório
+  status     String @default("active")
+  created_at DateTime @default(now())
 
-  @@unique([clerkId, tenantId])
-  @@index([clerkId])
-  @@index([tenantId])
+  @@unique([user_id, tenant_id, company_id])
+  @@index([user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
 }
 ```
 
@@ -125,7 +128,7 @@ model SupplierTenantAccess {
 | Edita Admin Panel | ✅ | ⚠️ perm | ❌ | ❌ | ❌ |
 | Acessa Configurador | ✅ | ✅ | ✅ (próprio) | ❌ | ❌ |
 | Vê todos os tenants | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Gerencia workspaces | ✅ | ⚠️ perm | ✅ (próprios) | ❌ | ❌ |
+| Gerencia Empresas | ✅ | ⚠️ perm | ✅ (próprias) | ❌ | ❌ |
 | Convida usuários | ✅ | ⚠️ perm | ✅ | ❌ | ❌ |
 | Define permissões | ✅ | ⚠️ perm | ✅ | ❌ | ❌ |
 | Acessa produtos contratados | ✅ | ✅ | ✅ | ⚠️ perm | ⚠️ perm |
@@ -221,14 +224,14 @@ export const PRODUCT_PERMISSIONS = [
 ```prisma
 // No schema do Configurador
 
-model UserPermission {
+model UsuarioPermissao {
   id          String   @id @default(cuid())
   tenant_id   String
-  company_id  String   // workspace onde se aplica
-  user_id     String
+  company_id  String   // Empresa onde se aplica (nunca nullable — ver Regra FK Nullable)
+  user_id     String   // id Prisma do Usuario
   product_id  String   // produto ao qual a permissão pertence
   permission  String   // ex: 'email:write', 'simulacusto:read'
-  granted_by  String   // clerk_id do Master que concedeu
+  granted_by  String   // id Prisma do Master que concedeu
   created_at  DateTime @default(now())
 
   @@unique([tenant_id, company_id, user_id, product_id, permission])
@@ -237,12 +240,12 @@ model UserPermission {
   @@index([tenant_id, company_id, user_id])
 }
 
-model GravityAdminPermission {
+model PermissaoAdminGravity {
   id          String   @id @default(cuid())
-  admin_id    String   // clerk_id do Admin Gravity
+  admin_id    String   // clerk_user_id do Admin Gravity
   resource    String   // ex: 'tenants', 'billing', 'deploy'
   action      String   // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
-  granted_by  String   // clerk_id do Super Admin que concedeu
+  granted_by  String   // clerk_user_id do Super Admin que concedeu
   created_at  DateTime @default(now())
 
   @@unique([admin_id, resource, action])
@@ -258,9 +261,10 @@ model GravityAdminPermission {
 
 ```typescript
 // Verificação em toda rota protegida — ordem importa
+// user.id = CUID do Prisma (não o clerkId do Clerk)
 
 async function checkAccess(
-  user: { clerkId: string; role: string },
+  user: { id: string; role: string },
   context: {
     tenantId?: string
     companyId?: string
@@ -271,36 +275,39 @@ async function checkAccess(
 ): Promise<{ allowed: boolean; reason: string }> {
 
   // 1. Super Admin — acesso irrestrito
-  if (user.role === 'super_admin') {
+  if (user.role === 'SUPER_ADMIN') {
     return { allowed: true, reason: 'super_admin' }
   }
 
   // 2. Admin Gravity — leitura total, edição com permissão
-  if (user.role === 'admin') {
+  if (user.role === 'ADMIN') {
     if (context.action === 'READ') {
       return { allowed: true, reason: 'admin_read' }
     }
     const has = await checkGravityAdminPermission(
-      user.clerkId, context.resource, context.action
+      user.id, context.resource, context.action
     )
     return { allowed: has, reason: has ? 'admin_permission' : 'admin_no_write_permission' }
   }
 
   // 3. Master do tenant — acesso total à sua organização
-  if (user.role === 'master') {
-    const isMemberOfTenant = await verifyTenantMembership(user.clerkId, context.tenantId)
-    return { allowed: isMemberOfTenant, reason: 'master' }
+  // Master tem UsuarioWorkspace para cada Empresa (Bulk Insert no convite) — basta verificar tenantId
+  if (user.role === 'MASTER') {
+    const isMemberOfTenant = await prisma.usuario.findFirst({
+      where: { id: user.id, tenant_id: context.tenantId }
+    })
+    return { allowed: !!isMemberOfTenant, reason: 'master' }
   }
 
-  // 4. Standard e Fornecedor — verificação granular
-  if (user.role === 'standard' || user.role === 'fornecedor') {
+  // 4. Standard e Supplier — verificação granular
+  if (user.role === 'STANDARD' || user.role === 'SUPPLIER') {
     if (!context.permission) {
       return { allowed: false, reason: 'missing_permission_key' }
     }
     const has = await checkUserPermission({
       tenantId: context.tenantId,
       companyId: context.companyId,
-      userId: user.clerkId,
+      userId: user.id,
       productId: context.productId,
       permission: context.permission,
     })
@@ -318,14 +325,14 @@ async function checkAccess(
 ```typescript
 // shared/types/roles.ts
 export const GRAVITY_ROLES = {
-  SUPER_ADMIN: 'super_admin',  // Equipe Gravity — acesso total
-  ADMIN:       'admin',        // Equipe Gravity — acesso com permissões
+  SUPER_ADMIN: 'SUPER_ADMIN',  // Equipe Gravity — acesso total
+  ADMIN:       'ADMIN',        // Equipe Gravity — acesso com permissões
 } as const
 
 export const TENANT_ROLES = {
-  MASTER:      'master',       // Cliente — acesso total na organização
-  STANDARD:    'standard',     // Cliente — acesso conforme permissões
-  FORNECEDOR:  'fornecedor',   // Cliente externo — permissões obrigatórias
+  MASTER:      'MASTER',       // Cliente — acesso total na organização
+  STANDARD:    'STANDARD',     // Cliente — acesso conforme permissões
+  SUPPLIER:    'SUPPLIER',     // Cliente externo — permissões obrigatórias (ex-FORNECEDOR)
 } as const
 
 export type GravityRole = typeof GRAVITY_ROLES[keyof typeof GRAVITY_ROLES]
@@ -341,7 +348,7 @@ export type UserRole    = GravityRole | TenantRole
 2. **Fornecedor nunca tem acesso amplo** — sempre requer permissões explícitas
 3. **Admin Gravity pode ver tudo** — `READ` não exige permissão explícita para Admin
 4. **Super Admin é imutável via UI** — criado apenas via seed do sistema
-5. **Permissões são por workspace (company_id)** — um Standard habilitado no workspace A não acessa o workspace B
+5. **Permissões são por Empresa (company_id)** — um Standard habilitado na Empresa A não acessa a Empresa B
 6. **Produto define suas permissões** — o Configurador não conhece as permissões do produto até o produto as registrar
 7. **`permission` vem do token JWT** — nunca do payload da requisição (evitar privilege escalation)
 8. **Impersonação (Admin Gravity assumindo sessão de cliente) é logada obrigatoriamente** — ver skill `antigravity-admin`
@@ -351,20 +358,28 @@ export type UserRole    = GravityRole | TenantRole
 ## Fluxo de Habilitação de Usuário em Workspace
 
 ```
-Master convida Standard para workspace B
+Master convida Standard para Empresa B
   │
-  ├── Sistema cria UserMembership (tenant_id + company_id + user_id + role: 'standard')
+  ├── Sistema cria UsuarioWorkspace (tenant_id + company_id + user_id + role: 'STANDARD')
+  │   para cada Empresa selecionada no convite (Bulk Insert — nunca FK nullable)
   │
   └── Master define permissões granulares por produto
         ├── Produto A: email:read, email:write, relatorios:read
         └── Produto B: atividades:read (sem write)
+
+Master é convidado para a organização
+  │
+  ├── Sistema cria UsuarioWorkspace para CADA Empresa ativa do tenant (Bulk Insert snapshot)
+  │   → Master tem acesso imediato a todas as Empresas sem nenhuma FK nullable
+  │
+  └── Master NÃO passa por verificação granular — tem acesso total à organização
 ```
 
 ---
 
 ## Checklist — Antes de Implementar Qualquer Tela de Permissão
 
-- [ ] A role do usuário vem do JWT (Clerk) — nunca do body da requisição?
+- [ ] A role do usuário vem do Prisma via GET /api/v1/me — nunca do JWT Clerk, nunca do body da requisição?
 - [ ] Master está com bypass das permissões granulares?
 - [ ] Fornecedor tem ao menos uma permissão explícita antes de receber acesso?
 - [ ] Admin Gravity consegue ler sem ter permissão explícita de WRITE?
@@ -372,3 +387,5 @@ Master convida Standard para workspace B
 - [ ] Permissões são indexadas por `[tenant_id, company_id, user_id]`?
 - [ ] O produto registrou suas permissões específicas além dos módulos universais?
 - [ ] Impersonação de Admin Gravity está sendo logada com `actor_type: 'gravity_admin'`?
+- [ ] Master recebe UsuarioWorkspace para TODAS as Empresas via Bulk Insert no convite (sem FK nullable)?
+- [ ] user.id nos checks de permissão é o CUID do Prisma — não o clerkId?

@@ -73,8 +73,8 @@ Cliente (Organizacao / Tenant)
 |----------|-------|
 | Pertence a | Cliente (organizacao / tenant) |
 | Acesso | Total dentro da sua organizacao |
-| Escopo | Configurador da organizacao, todos os workspaces, todos os produtos contratados |
-| Pode | Convidar usuarios, habilitar workspaces, definir permissoes de Standard e Fornecedor |
+| Escopo | Configurador da organizacao, todas as Empresas, todos os produtos contratados |
+| Pode | Convidar usuarios, habilitar Empresas, definir permissoes de Standard e Fornecedor |
 | Restricoes | Nao acessa dados de outras organizacoes; **jamais acessa o Admin Panel da Gravity** |
 | Quem atribui | Sistema — o primeiro usuario de uma organizacao e sempre Master |
 | Armazenado em (banco) | `User.role = 'MASTER'` no Prisma |
@@ -89,7 +89,7 @@ Cliente (Organizacao / Tenant)
 |----------|-------|
 | Pertence a | Cliente (organizacao / tenant) |
 | Acesso | Conforme permissoes definidas pelo Master |
-| Escopo | Apenas os workspaces onde foi habilitado, apenas os produtos com permissao |
+| Escopo | Apenas as Empresas onde foi habilitado, apenas os produtos com permissao |
 | Restricoes | Nao gere outros usuarios (a menos que o Master libere explicitamente) |
 | Quem atribui | Master da organizacao |
 | Armazenado em (banco) | `User.role = 'STANDARD'` no Prisma |
@@ -121,7 +121,7 @@ Cliente (Organizacao / Tenant)
 | Edita Admin Panel | Sim | com permissao | Nao | Nao | Nao |
 | Acessa Configurador | Sim | Sim | Sim (proprio) | Nao | Nao |
 | Ve todos os tenants | Sim | Sim | Nao | Nao | Nao |
-| Gerencia workspaces | Sim | com permissao | Sim (proprios) | Nao | Nao |
+| Gerencia Empresas | Sim | com permissao | Sim (proprias) | Nao | Nao |
 | Convida usuarios | Sim | com permissao | Sim | Nao | Nao |
 | Define permissoes | Sim | com permissao | Sim | Nao | Nao |
 | Acessa produtos contratados | Sim | Sim | Sim | com permissao | com permissao |
@@ -146,13 +146,13 @@ Definem **o que o usuario pode fazer dentro de cada produto**. So se aplicam a `
 ### Como as permissoes sao armazenadas
 
 ```prisma
-model UserPermission {
+model UsuarioPermissao {
   tenant_id   String   // isolamento por organizacao
-  company_id  String   // workspace onde se aplica
+  company_id  String   // Empresa onde se aplica
   user_id     String   // usuario
   product_id  String   // produto ao qual pertence
   permission  String   // ex: 'email:write', 'simulacusto:read'
-  granted_by  String   // clerk_id do Master que concedeu
+  granted_by  String   // id do Master que concedeu (id Prisma, nao clerkId)
 }
 ```
 
@@ -160,9 +160,9 @@ model UserPermission {
 
 ```
 1. super_admin → acesso total, sem mais verificacoes
-2. admin (gravity_admin) → leitura total; escrita verifica GravityAdminPermission
+2. admin (gravity_admin) → leitura total; escrita verifica PermissaoAdminGravity
 3. master → verifica apenas se e membro do tenant
-4. standard / fornecedor → verifica permissao granular na tabela UserPermission
+4. standard / fornecedor → verifica permissao granular na tabela UsuarioPermissao
 ```
 
 ---
@@ -217,5 +217,5 @@ enum TipoUsuario {
 4. `master` **nunca recebe verificacao granular** — implica acesso total na organizacao.
 5. `fornecedor` **nunca tem acesso amplo** — sempre requer permissoes explicitas.
 6. `super_admin` so existe via seed do banco — impossivel criar via UI ou API publica.
-7. Permissoes granulares sao **por workspace (`company_id`)** — acesso no workspace A nao implica acesso no workspace B.
+7. Permissoes granulares sao **por Empresa (`company_id`)** — acesso na Empresa A nao implica acesso na Empresa B.
 8. **Sistema de Organizations do Clerk esta banido** — nenhuma feature, componente ou rota pode depender de `useOrganization`, `useOrganizationList`, `OrganizationSwitcher` ou qualquer API de Organizations do Clerk.

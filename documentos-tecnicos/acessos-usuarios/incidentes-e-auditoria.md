@@ -117,7 +117,7 @@ Reportado manualmente pelo dono da plataforma ao observar que `daniel@dmm-ie.com
 
 2. **DEMO_MODE e codigo perigoso.** Bypasses de autenticacao para desenvolvimento nunca devem existir no codigo de producao. Se necessario para dev local, devem ser features branches ou arquivos `.local.ts` que nunca chegam ao main.
 
-3. **Verificacao de role no frontend deve usar `publicMetadata` do Clerk** — dados server-side que o usuario nao consegue alterar. Nunca confiar em `localStorage`, claims do JWT, ou qualquer dado que venha do cliente.
+3. **Verificacao de role no frontend deve usar `ShellStore.currentUser.role`**, populado por `useMeSync` via `GET /api/v1/me` — dados que vem do Prisma, nao de `publicMetadata`. Nunca confiar em `localStorage`, claims do JWT, ou qualquer dado que venha do cliente.
 
 4. **Defesa em profundidade vale a pena.** A segunda camada no `AdminLayout` tem custo zero e previne que um erro futuro de roteamento abra a vulnerabilidade novamente.
 
@@ -130,6 +130,7 @@ Reportado manualmente pelo dono da plataforma ao observar que `daniel@dmm-ie.com
 | 2026-03-29 | Auditoria de seguranca geral | 26/37 itens OK | Ver `documentos-tecnicos/seguranca/auditoria-seguranca-2026-03-29.md` |
 | 2026-03-31 | Auditoria de acesso admin — incidente #001 | 4 vulnerabilidades encontradas e corrigidas | Claude Code |
 | 2026-04-16 | Refatoracao arquitetural — remocao do Clerk Organizations | Concluida sem incidentes | Claude Code |
+| 2026-04-19 | Refatoracao #002 — eliminacao de publicMetadata de tenant, DDD cleanup | Concluida — 13 bugs auditados e corrigidos | Claude Code |
 
 ---
 
@@ -150,18 +151,51 @@ Reportado manualmente pelo dono da plataforma ao observar que `daniel@dmm-ie.com
 - Fallback de avatar `'??'` no `Header.tsx` (exibia iniciais invalidas quando Clerk Organizations nao resolvia o nome)
 - Qualquer logica de role baseada em `organizationMemberships` ou `orgRole` do Clerk
 
-### O que foi implementado
+### O que foi implementado (Refatoracao #001)
 
-- `publicMetadata.tenantId` e `publicMetadata.role` como unica ponte Prisma → Frontend
-- Hook `useSyncClerkToShell.ts` como sincronizador canonico: le `publicMetadata`, mapeia para labels humanos via `resolveRole()`, popula `ShellStore.currentUser`
+- `publicMetadata.tenantId` e `publicMetadata.role` como unica ponte Prisma → Frontend *(nota: substituido em Refatoracao #002)*
+- Hook `useSyncClerkToShell.ts` como sincronizador canonico *(removido em Refatoracao #002)*
 - Prop `avatarUrl` no componente `UsuarioGlobal` — renderiza `user.imageUrl` do Clerk via ShellStore, com fallback para primeira letra do email
 - Fallback de role na UI: `'Standard'` (consistente com `resolveRole()`) — nunca "Membro"
 
-### Licoes Aprendidas
+### Licoes Aprendidas (Refatoracao #001)
 
 1. **O IdP autentica, o banco autoriza.** O Clerk sabe *quem* e o usuario; o Prisma sabe *o que* ele pode fazer e *a qual empresa* pertence.
-2. **`publicMetadata` e o contrato entre os dois mundos.** Escrito pelo backend, lido pelo frontend — imutavel pelo cliente.
+2. **`publicMetadata` era o contrato entre os dois mundos** — substituido por `GET /api/v1/me` na Refatoracao #002 para eliminar dupla escrita e risk de stale data.
 3. **Fallbacks de UI devem ser semanticamente corretos.** "Membro" e um conceito do Clerk Organizations que nao existe no modelo de negocio do Gravity. O fallback correto e `'Standard'`, que e um role real do sistema.
+
+---
+
+## Refatoracao #002 — Eliminacao do publicMetadata de Tenant (2026-04-19)
+
+| Campo | Detalhe |
+|-------|---------|
+| Data | 2026-04-19 |
+| Tipo | Refatoracao arquitetural de autenticacao — DDD Cleanup |
+| Motivacao | `publicMetadata` como ponte criava stale data, dupla escrita, e race conditions. O banco Prisma ja e a fonte da verdade — o frontend precisava so de um endpoint para le-la. |
+| Impacto | Backend (Configurador), Frontend (Shell/produtos), Audit trail (11 servicos tenant) |
+| Status | Concluido |
+
+### O que foi removido
+
+- `syncRole.ts` — modulo que escrevia `publicMetadata: { tenantId, role }` no Clerk para usuarios de tenant
+- Todas as chamadas a `syncRoleToClerk()` em `admin.ts`, `users.ts`, `tenantService.ts`, `set-super-admin.ts`
+- `publicMetadata.tenantId` e `publicMetadata.role` dos fluxos de convite e promorcao de role
+- Hook `useSyncClerkToShell.ts` — substituido por `useMeSync.ts`
+
+### O que foi implementado
+
+- `GET /api/v1/me` como canal unico Prisma → Frontend, com campos DDD em Portugues
+- Hook `useMeSync.ts`: busca `/api/v1/me` com Bearer token Clerk, mapeia para `ShellStore.currentUser`
+- `injectTenantGetter` + `injectUserNameGetter` em produtos: leem Zustand no momento exato do request (sem stale context)
+- `x-user-name` header propagado em todas as chamadas S2S para audit trail correto
+- `actor_name` nos logs de auditoria agora exibe nome real do usuario, nao CUID
+
+### Licoes Aprendidas
+
+1. **Clerk como JWT doorman puro.** O Clerk autentica (valida senha, 2FA, sessao). Ele nao precisa saber role ou tenantId de usuarios de tenant. O Prisma ja tem tudo isso.
+2. **O endpoint `GET /api/v1/me` elimina todas as sincronizacoes.** Uma unica chamada autenticada retorna identidade completa. Sem dupla escrita, sem cache desatualizado, sem race condition de Clerk refresh.
+3. **Nomes DDD em Portugues evitam confusao de mapeamento.** `tipo_usuario` e `id_organizacao_usuario` sao inequivocos — o agente nunca confunde com campos internos do Clerk.
 
 ---
 

@@ -26,7 +26,11 @@ const InviteUserSchema = z.object({
   email: z.string().email().max(255),
   name: z.string().min(1).max(200),
   role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']).default('STANDARD'),
-})
+  workspaces: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
+}).refine(
+  (data) => data.role === 'MASTER' || data.workspaces !== undefined,
+  { message: 'Selecione os workspaces para este tipo de usuário', path: ['workspaces'] },
+)
 
 const MembershipSchema = z.object({
   companyId: z.string(),
@@ -101,15 +105,60 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
       },
     })
 
-    // Cria registro antecipado no banco (será completado no webhook de user.created)
-    const user = await prisma.usuario.create({
-      data: {
-        tenant_id: req.auth.tenantId,
-        clerk_user_id: `pending_${invitation.id}`,
-        email,
-        name,
-        role,
-      },
+    // Pré-computa empresas fora da transação — evita lock de longa duração em reads
+    const workspacesPayload = parsed.data.workspaces
+    let empresasParaVincular: { id: string }[] = []
+
+    if (role === 'MASTER' || workspacesPayload === 'all') {
+      empresasParaVincular = await prisma.empresa.findMany({
+        where: { tenant_id: req.auth.tenantId, status: 'ACTIVE' },
+        select: { id: true },
+      })
+    } else if (Array.isArray(workspacesPayload) && workspacesPayload.length > 0) {
+      // IDOR prevention: valida que todos os IDs pertencem ao tenant antes do insert
+      empresasParaVincular = await prisma.empresa.findMany({
+        where: {
+          id: { in: workspacesPayload },
+          tenant_id: req.auth.tenantId,
+          status: 'ACTIVE',
+        },
+        select: { id: true },
+      })
+      if (empresasParaVincular.length !== workspacesPayload.length) {
+        throw new AppError(
+          'Um ou mais workspaces não pertencem a esta organização',
+          403,
+          'FORBIDDEN',
+        )
+      }
+    }
+
+    // Cria usuário + vínculos atomicamente — se o createMany falhar, o usuário não é criado
+    const user = await prisma.$transaction(async (tx) => {
+      const created = await tx.usuario.create({
+        data: {
+          tenant_id: req.auth.tenantId,
+          clerk_user_id: `pending_${invitation.id}`,
+          email,
+          name,
+          role,
+        },
+      })
+
+      if (empresasParaVincular.length > 0) {
+        await tx.usuarioWorkspace.createMany({
+          data: empresasParaVincular.map((e) => ({
+            tenant_id: req.auth.tenantId,
+            user_id: created.id,
+            company_id: e.id,
+            role,
+            is_active: true,
+          })),
+          skipDuplicates: true,
+        })
+      }
+
+      return created
     })
 
     res.status(201).json({

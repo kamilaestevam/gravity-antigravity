@@ -207,6 +207,8 @@ export function Usuarios() {
   const [fNome, setFNome]       = useState('')
   const [fEmail, setFEmail]     = useState('')
   const [fTipo, setFTipo]       = useState<NivelAcesso>('Standard')
+  const [fTodosWorkspaces, setFTodosWorkspaces] = useState(true)
+  const [fWorkspacesSelecionados, setFWorkspacesSelecionados] = useState<string[]>([])
 
   const [usuarioEditando, setUsuarioEditando] = useState<TenantUser | null>(null)
   const [abaEditando, setAbaEditando] = useState<string>('dados')
@@ -222,6 +224,9 @@ export function Usuarios() {
         'Standard': 'STANDARD',
         'Fornecedor': 'SUPPLIER',
       }
+      const workspacesPayload = (fTipo === 'Standard' || fTipo === 'Fornecedor')
+        ? (fTodosWorkspaces ? 'all' : fWorkspacesSelecionados)
+        : undefined
       const res = await fetch('/api/v1/usuarios/invite', {
         method: 'POST',
         headers,
@@ -229,6 +234,7 @@ export function Usuarios() {
           email: fEmail.trim(),
           name: fNome.trim(),
           role: roleMap[fTipo] ?? 'STANDARD',
+          workspaces: workspacesPayload,
         }),
       })
       if (res.ok) {
@@ -240,6 +246,10 @@ export function Usuarios() {
           tipo: fTipo,
           status: 'Ativo',
         }
+        if (fTipo === 'Standard' || fTipo === 'Fornecedor') {
+          const ids = fTodosWorkspaces ? espacos.map(e => e.id) : fWorkspacesSelecionados
+          setMembershipsMap(prev => ({ ...prev, [created.id]: ids }))
+        }
         setUsers(prev => [...prev, newUser])
         addNotification({ type: 'success', message: `Usuário "${fNome.trim()}" convidado com sucesso!` })
       } else {
@@ -249,7 +259,7 @@ export function Usuarios() {
     } catch (err) {
       addNotification({ type: 'error', message: extractCatchError(err, 'Falha ao convidar usuário. Tente novamente.') })
     }
-    setFNome(''); setFEmail(''); setFTipo('Standard'); setShowForm(false)
+    setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]); setShowForm(false)
   }
 
   function handleToggleEspacoTrabalhoUser(filialId: string, userId: string) {
@@ -642,15 +652,15 @@ export function Usuarios() {
       {/* Modal Convidar Usuário */}
       <ModalFormularioGlobal
         aberto={showForm}
-        aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard') }}
+        aoFechar={() => { setShowForm(false); setFNome(''); setFEmail(''); setFTipo('Standard'); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]) }}
         aoSalvar={handleInvite}
         icone={<User size={20} weight="duotone" />}
         titulo={t('workspace.users.modal_convidar_titulo')}
         subtitulo={t('workspace.users.modal_convidar_subtitulo')}
         tamanho="md"
-        altura="480px"
+        altura={(fTipo === 'Standard' || fTipo === 'Fornecedor') ? '600px' : '480px'}
         dirty={!!(fNome || fEmail)}
-        podesSalvar={!!(fNome.trim() && fEmail.trim())}
+        podesSalvar={!!(fNome.trim() && fEmail.trim() && ((fTipo !== 'Standard' && fTipo !== 'Fornecedor') || fTodosWorkspaces || fWorkspacesSelecionados.length > 0))}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <GeralCampoGlobal label="NOME COMPLETO" obrigatorio>
@@ -682,7 +692,7 @@ export function Usuarios() {
             <SelectGlobal
               opcoes={OPCOES_TIPO}
               valor={fTipo}
-              aoMudarValor={(v) => setFTipo(v as NivelAcesso)}
+              aoMudarValor={(v) => { setFTipo(v as NivelAcesso); setFTodosWorkspaces(true); setFWorkspacesSelecionados([]) }}
               iconeEsquerda={<ShieldCheck size={18} weight="duotone" />}
               buscavel={false}
               placeholder="Selecione o perfil..."
@@ -703,6 +713,83 @@ export function Usuarios() {
               )}
             />
           </GeralCampoGlobal>
+
+          {(fTipo === 'Standard' || fTipo === 'Fornecedor') && (
+            <GeralCampoGlobal label="WORKSPACES">
+              <div
+                role="checkbox"
+                aria-checked={fTodosWorkspaces}
+                tabIndex={0}
+                onClick={() => { setFTodosWorkspaces(v => !v); setFWorkspacesSelecionados([]) }}
+                onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setFTodosWorkspaces(v => !v); setFWorkspacesSelecionados([]) } }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.625rem',
+                  cursor: 'pointer', padding: '0.5rem 0.75rem', borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+                  userSelect: 'none',
+                }}
+              >
+                <div style={{
+                  width: 18, height: 18, borderRadius: '4px', flexShrink: 0,
+                  background: fTodosWorkspaces ? 'rgba(129,140,248,0.2)' : 'transparent',
+                  border: `2px solid ${fTodosWorkspaces ? '#818cf8' : 'rgba(255,255,255,0.2)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'all 0.15s',
+                }}>
+                  {fTodosWorkspaces && <span style={{ color: '#818cf8', fontSize: '11px', lineHeight: 1, fontWeight: 700 }}>✓</span>}
+                </div>
+                <span style={{ fontSize: '0.875rem', color: fTodosWorkspaces ? 'var(--ws-text)' : 'var(--ws-muted)' }}>
+                  Todos os workspaces (incluindo futuros)
+                </span>
+              </div>
+
+              {!fTodosWorkspaces && (
+                <div style={{
+                  marginTop: '0.5rem', maxHeight: '160px', overflowY: 'auto',
+                  display: 'flex', flexDirection: 'column', gap: '0.25rem',
+                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '0.375rem',
+                }}>
+                  {espacos.length === 0 ? (
+                    <span style={{ padding: '0.75rem', color: 'var(--ws-muted)', fontSize: '0.8125rem', textAlign: 'center' }}>
+                      Nenhum workspace ativo encontrado.
+                    </span>
+                  ) : espacos.map(e => {
+                    const selecionado = fWorkspacesSelecionados.includes(e.id)
+                    return (
+                      <div
+                        key={e.id}
+                        role="checkbox"
+                        aria-checked={selecionado}
+                        tabIndex={0}
+                        onClick={() => setFWorkspacesSelecionados(prev =>
+                          selecionado ? prev.filter(id => id !== e.id) : [...prev, e.id]
+                        )}
+                        onKeyDown={(ev) => { if (ev.key === ' ' || ev.key === 'Enter') { ev.preventDefault(); setFWorkspacesSelecionados(prev => selecionado ? prev.filter(id => id !== e.id) : [...prev, e.id]) } }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '0.625rem',
+                          cursor: 'pointer', padding: '0.375rem 0.5rem', borderRadius: '6px',
+                          background: selecionado ? 'rgba(129,140,248,0.08)' : 'transparent',
+                          border: `1px solid ${selecionado ? 'rgba(129,140,248,0.2)' : 'transparent'}`,
+                          transition: 'all 0.15s', userSelect: 'none',
+                        }}
+                      >
+                        <div style={{
+                          width: 16, height: 16, borderRadius: '3px', flexShrink: 0,
+                          background: selecionado ? 'rgba(129,140,248,0.2)' : 'transparent',
+                          border: `2px solid ${selecionado ? '#818cf8' : 'rgba(255,255,255,0.2)'}`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          transition: 'all 0.15s',
+                        }}>
+                          {selecionado && <span style={{ color: '#818cf8', fontSize: '9px', lineHeight: 1, fontWeight: 700 }}>✓</span>}
+                        </div>
+                        <span style={{ fontSize: '0.8125rem', color: 'var(--ws-text)' }}>{e.nome}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </GeralCampoGlobal>
+          )}
         </div>
       </ModalFormularioGlobal>
 

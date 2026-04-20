@@ -18,6 +18,7 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
+import { syncRoleToClerk } from '../lib/syncRole.js'
 import { AppError } from '../lib/appError.js'
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
@@ -83,7 +84,7 @@ adminRouter.get('/tenants', async (req, res, next) => {
       : {}
 
     const [tenants, total] = await Promise.all([
-      prisma.organization.findMany({
+      prisma.organizacao.findMany({
         where,
         skip,
         take: limit,
@@ -110,7 +111,7 @@ adminRouter.get('/tenants', async (req, res, next) => {
         },
         orderBy: { created_at: 'desc' },
       }),
-      prisma.organization.count({ where }),
+      prisma.organizacao.count({ where }),
     ])
 
     res.json({
@@ -131,7 +132,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
     const idParsed = z.string().min(1).safeParse(req.params.id)
     if (!idParsed.success) throw new AppError('ID inválido', 400, 'VALIDATION_ERROR')
 
-    const tenant = await prisma.organization.findUnique({
+    const tenant = await prisma.organizacao.findUnique({
       where: { id: idParsed.data },
       include: {
         users: {
@@ -185,14 +186,14 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       throw new AppError('Não é possível alterar o status do próprio tenant HQ', 403, 'FORBIDDEN')
     }
 
-    const existing = await prisma.organization.findUnique({
+    const existing = await prisma.organizacao.findUnique({
       where: { id: req.params.id },
     })
     if (!existing) {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    const tenant = await prisma.organization.update({
+    const tenant = await prisma.organizacao.update({
       where: { id: req.params.id },
       data: {
         ...(parsed.data.status && { status: parsed.data.status }),
@@ -235,10 +236,10 @@ adminRouter.post('/tenants', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const existing = await prisma.organization.findUnique({ where: { slug: parsed.data.slug } })
+    const existing = await prisma.organizacao.findUnique({ where: { slug: parsed.data.slug } })
     if (existing) throw new AppError('Subdomínio já está em uso', 409, 'CONFLICT')
 
-    const tenant = await prisma.organization.create({
+    const tenant = await prisma.organizacao.create({
       data: {
         name: parsed.data.name.trim(),
         slug: parsed.data.slug,
@@ -286,10 +287,10 @@ adminRouter.patch('/workspaces/:id', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const existing = await prisma.company.findUnique({ where: { id: idParsed.data } })
+    const existing = await prisma.workspace.findUnique({ where: { id: idParsed.data } })
     if (!existing) throw new AppError('Workspace não encontrado', 404, 'NOT_FOUND')
 
-    const company = await prisma.company.update({
+    const company = await prisma.workspace.update({
       where: { id: idParsed.data },
       data: { status: parsed.data.status },
       select: { id: true, name: true, status: true, tenant_id: true },
@@ -329,10 +330,10 @@ adminRouter.get('/stats', async (_req, res, next) => {
       suspendedTenants,
       totalUsers,
     ] = await Promise.all([
-      prisma.organization.count(),
-      prisma.organization.count({ where: { status: 'ACTIVE' } }),
-      prisma.organization.count({ where: { status: 'SUSPENDED' } }),
-      prisma.user.count(),
+      prisma.organizacao.count(),
+      prisma.organizacao.count({ where: { status: 'ACTIVE' } }),
+      prisma.organizacao.count({ where: { status: 'SUSPENDED' } }),
+      prisma.usuario.count(),
     ])
 
     res.json({
@@ -377,7 +378,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       : {}
 
     const [users, total] = await Promise.all([
-      prisma.user.findMany({
+      prisma.usuario.findMany({
         where,
         skip,
         take: limit,
@@ -408,7 +409,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
         },
         orderBy: { created_at: 'desc' },
       }),
-      prisma.user.count({ where }),
+      prisma.usuario.count({ where }),
     ])
 
     AuditService.log({
@@ -665,7 +666,7 @@ adminRouter.post('/deploy', async (req, res, next) => {
     }
 
     // Resolve nome do admin a partir do banco
-    const user = await prisma.user.findUnique({
+    const user = await prisma.usuario.findUnique({
       where: { id: req.auth.userId },
       select: { id: true, name: true, email: true },
     })
@@ -1114,7 +1115,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     }
 
     // Busca o tenant do usuário admin logado
-    const user = await prisma.user.findFirst({
+    const user = await prisma.usuario.findFirst({
       where: { clerk_user_id: req.auth.clerkUserId },
       select: { tenant_id: true },
     })
@@ -1125,7 +1126,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     }
 
     // Campos core — sempre existem na migration init
-    const tenant = await prisma.organization.findUnique({
+    const tenant = await prisma.organizacao.findUnique({
       where: { id: user.tenant_id },
       select: {
         id: true,
@@ -1146,7 +1147,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
     // Campos opcionais adicionados após init — isolados para não bloquear se migration pendente
     let extras: { segment?: string | null; tipo_empresa?: string | null } = {}
     try {
-      const row = await prisma.organization.findUnique({
+      const row = await prisma.organizacao.findUnique({
         where: { id: tenant.id },
         select: { segment: true, tipo_empresa: true },
       })
@@ -1204,7 +1205,7 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
       throw new AppError('Não é possível alterar o próprio role', 400, 'INVALID_OPERATION')
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.usuario.findUnique({
       where: { id: req.params.userId },
       select: { id: true, email: true, role: true, clerk_user_id: true, tenant_id: true },
     })
@@ -1212,11 +1213,19 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.user.update({
+    const updated = await prisma.usuario.update({
       where: { id: req.params.userId },
       data: { role: parsed.data.role },
       select: { id: true, email: true, role: true },
     })
+
+    // Sincroniza publicMetadata no Clerk (com spread de metadata existente + anti-downgrade de SUPER_ADMIN).
+    // Usuários com clerk_user_id 'pending_...' ainda não aceitaram o convite — não há conta para atualizar.
+    if (!user.clerk_user_id.startsWith('pending_')) {
+      syncRoleToClerk(user.clerk_user_id, user.tenant_id, parsed.data.role).catch((err) => {
+        console.error('[admin.promote] syncRoleToClerk falhou:', err)
+      })
+    }
 
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
       targetUserId: req.params.userId,
@@ -1257,7 +1266,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
     }
 
     // Verifica se já existe usuário com esse e-mail no tenant HQ
-    const existing = await prisma.user.findFirst({ where: { email, tenant_id: req.auth.tenantId } })
+    const existing = await prisma.usuario.findFirst({ where: { email, tenant_id: req.auth.tenantId } })
     if (existing) {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
@@ -1265,10 +1274,11 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
     // Cria convite via Clerk
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
+      publicMetadata: { role, invitedBy: req.auth.clerkUserId, isAdminInvite: true },
     })
 
     // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
-    const user = await prisma.user.create({
+    const user = await prisma.usuario.create({
       data: {
         tenant_id:     req.auth.tenantId,
         clerk_user_id: `pending_${invitation.id}`,
@@ -1295,7 +1305,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email, role: user.role, name: user.name },
+      user: { id: user.id, email: user.email, role: user.role },
     })
   } catch (err) {
     next(err)
@@ -1313,7 +1323,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       )
     }
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.usuario.findFirst({
       where: { clerk_user_id: req.auth.clerkUserId },
       select: { tenant_id: true },
     })
@@ -1322,12 +1332,12 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const before = await prisma.organization.findUnique({
+    const before = await prisma.organizacao.findUnique({
       where: { id: user.tenant_id },
       select: { name: true, cnpj: true, state: true, city: true, segment: true, tipo_empresa: true },
     })
 
-    const tenant = await prisma.organization.update({
+    const tenant = await prisma.organizacao.update({
       where: { id: user.tenant_id },
       data: parsed.data,
       select: {

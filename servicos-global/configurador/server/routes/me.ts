@@ -52,7 +52,7 @@ meRouter.use(requireAuth)
  */
 meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const usuario = await prisma.user.findUnique({
+    const usuario = await prisma.usuario.findUnique({
       where: { id: req.auth.userId },
       select: {
         id: true,
@@ -164,7 +164,7 @@ async function isPreferredCompanyValid(
 ): Promise<boolean> {
   // Admins Gravity: acesso via tenant, não via membership
   if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
-    const company = await prisma.company.findFirst({
+    const company = await prisma.workspace.findFirst({
       where: {
         id: companyId,
         tenant_id: tenantId,
@@ -176,7 +176,7 @@ async function isPreferredCompanyValid(
   }
 
   // Clientes (MASTER/STANDARD): requer membership ativa
-  const membership = await prisma.userMembership.findFirst({
+  const membership = await prisma.usuarioWorkspace.findFirst({
     where: {
       user_id: userId,
       company_id: companyId,
@@ -207,7 +207,7 @@ meRouter.get('/preferences', async (req, res, next) => {
       return
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.usuario.findUnique({
       where: { id: req.auth.userId },
       select: { preferred_company_id: true },
     })
@@ -228,7 +228,7 @@ meRouter.get('/preferences', async (req, res, next) => {
 
     if (!valid) {
       // Fallback silencioso: limpa o campo e retorna null
-      await prisma.user.update({
+      await prisma.usuario.update({
         where: { id: req.auth.userId },
         data: { preferred_company_id: null },
       })
@@ -280,7 +280,7 @@ meRouter.put('/preferences', async (req, res, next) => {
 
     // Caso 1: desmarcar — sempre permitido
     if (preferredCompanyId === null) {
-      await prisma.user.update({
+      await prisma.usuario.update({
         where: { id: req.auth.userId },
         data: { preferred_company_id: null },
       })
@@ -305,7 +305,7 @@ meRouter.put('/preferences', async (req, res, next) => {
       )
     }
 
-    await prisma.user.update({
+    await prisma.usuario.update({
       where: { id: req.auth.userId },
       data: { preferred_company_id: preferredCompanyId },
     })

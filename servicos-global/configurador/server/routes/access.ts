@@ -51,7 +51,7 @@ accessRouter.get('/check-access', async (req, res, next) => {
     const { tenantId, userId, productId, companyId, productKey, resource, action } = parsed.data
 
     // 1. Verifica se o tenant está ativo
-    const tenant = await prisma.organization.findUnique({
+    const tenant = await prisma.organizacao.findUnique({
       where: { id: tenantId },
       select: { status: true },
     })
@@ -107,7 +107,7 @@ accessRouter.get('/tenant-products', async (req, res, next) => {
     const products = await productConfigService.listActiveProducts(tenantId)
 
     // Retorna também os inativos para que o Shell saiba o que esconder
-    const allConfigs = await prisma.productConfig.findMany({
+    const allConfigs = await prisma.produtoGravityConfig.findMany({
       where: { tenant_id: tenantId },
       select: { product_key: true, is_active: true, config: true, updated_at: true },
     })
@@ -175,14 +175,14 @@ accessRouter.patch('/catalog-products/:slug/status', async (req, res, next) => {
       throw new AppError(`Status inválido. Use: ${validStatuses.join(', ')}`, 400, 'VALIDATION_ERROR')
     }
 
-    const product = await prisma.product.findFirst({
+    const product = await prisma.catalogProduct.findFirst({
       where: { slug: req.params.slug },
     })
     if (!product) {
       throw new AppError('Produto não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.product.update({
+    const updated = await prisma.catalogProduct.update({
       where: { id: product.id },
       data: { status },
     })

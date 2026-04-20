@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createNucleoAliases, createServiceAliases } from '../../../nucleo-global/vite-aliases'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '../../..')
@@ -17,6 +18,12 @@ const resolveTsFromJs = {
 export default defineConfig({
   plugins: [resolveTsFromJs],
   root,
+  resolve: {
+    alias: {
+      ...createNucleoAliases(root),
+      ...createServiceAliases(root),
+    },
+  },
   test: {
     globals: true,
     include: ['testes/testes-unitarios/configurador/**/*.test.ts'],

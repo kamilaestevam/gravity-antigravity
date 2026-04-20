@@ -1,0 +1,41 @@
+{
+  "id": "TST-UNIT-TENANT-SAL-001",
+  "versao": "1.0",
+  "geradoEm": "2026-04-20T00:00:00Z",
+  "geradoPor": "agente-plano-teste-unitario",
+  "escopo": "TENANT",
+  "modulo": "securityAudit",
+  "tipoModulo": "servico",
+  "arquivoFilePath": "servicos-global/tenant/historico-global/server/lib/securityAuditLogger.ts",
+  "ambiente": "node",
+  "criticidade": "alta",
+  "coberturaMinima": 70,
+  "exportacoes": [
+    { "nome": "securityAudit.permissionChanged", "tipo": "metodo-async" },
+    { "nome": "securityAudit.roleChanged", "tipo": "metodo-async" },
+    { "nome": "securityAudit.crossTenantAttempt", "tipo": "metodo-async" },
+    { "nome": "securityAudit.authFailure", "tipo": "metodo-async" },
+    { "nome": "securityAudit.rateLimitHit", "tipo": "metodo-async" },
+    { "nome": "securityAudit.credentialOperation", "tipo": "metodo-async" },
+    { "nome": "securityAudit.adminAccess", "tipo": "metodo-async" },
+    { "nome": "securityAudit.webhookSignatureFailure", "tipo": "metodo-async" },
+    { "nome": "securityAudit.dataDeleted", "tipo": "metodo-async" },
+    { "nome": "securityAudit.apiKeyUsed", "tipo": "metodo-async" }
+  ],
+  "mocks": [
+    { "modulo": "../../services/audit.service.js", "razao": "AuditService.log — interceptar chamadas para verificar argumentos sem gravar no banco" },
+    { "global": "fetch", "razao": "fetch — verificar chamada ao Configurador sem HTTP real" },
+    { "modulo": "../../../generated/index.js", "razao": "TipoAtor/StatusEvento — valores controlados para verificar enums pós-Fase 2" }
+  ],
+  "casos": [
+    { "id": "TST-UNIT-TENANT-SAL-001", "metodo": "permissionChanged", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=TipoAtor.USER" },
+    { "id": "TST-UNIT-TENANT-SAL-002", "metodo": "rateLimitHit", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=TipoAtor.INTEGRATION" },
+    { "id": "TST-UNIT-TENANT-SAL-003", "metodo": "apiKeyUsed", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=TipoAtor.API" },
+    { "id": "TST-UNIT-TENANT-SAL-004", "metodo": "webhookSignatureFailure", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=TipoAtor.INTEGRATION" },
+    { "id": "TST-UNIT-TENANT-SAL-005", "metodo": "crossTenantAttempt", "categoria": "edge", "descricao": "metadata.blocked=true → status=StatusEvento.FAILURE" },
+    { "id": "TST-UNIT-TENANT-SAL-006", "metodo": "authFailure", "categoria": "edge", "descricao": "sem blocked → status=StatusEvento.SUCCESS" },
+    { "id": "TST-UNIT-TENANT-SAL-007", "metodo": "dataDeleted", "categoria": "happy", "descricao": "chama AuditService.log com actor_type=TipoAtor.USER e module=admin" },
+    { "id": "TST-UNIT-TENANT-SAL-008", "metodo": "adminAccess", "categoria": "edge", "descricao": "sem CONFIGURADOR_URL → fetch não chamado" }
+  ],
+  "resumoExecutivo": "Cobre as 10 exportações do securityAudit. Foco em: (1) TipoAtor correto por método (USER/INTEGRATION/API), (2) StatusEvento.FAILURE quando metadata.blocked=true vs SUCCESS, (3) fetch não chamado quando CONFIGURADOR_URL vazio. Validação direta dos enums renomeados na Fase 2."
+}

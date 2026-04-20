@@ -71,7 +71,7 @@ documentos-tecnicos/testes/
 
 ---
 
-## Estado atual (2026-04-15)
+## Estado atual (2026-04-19)
 
 | Item | Status |
 |---|---|
@@ -79,6 +79,9 @@ documentos-tecnicos/testes/
 | Documentação técnica | ✅ Esta pasta (parcial — 3 docs criados, 4 a criar nas ondas) |
 | Plano de exemplo | ✅ `testes/_planos/configurador/organizacao.json` (122 passos, 18/20 categorias) |
 | Convenção de IDs | ✅ `regras/01-convencao-ids.md` |
+| **Suites Configurador (17 unit + 14 funcional)** | ✅ `testes/testes-unitarios/configurador/` + `testes/testes-funcionais/configurador/` |
+| **Contract test `/api/v1/me` (DDD)** | ✅ `me-contract.test.ts` — 7 testes, `meResponseSchema` Zod |
+| **Unit test `useLoadSystemRole`** | ✅ 17 testes — cache, erros, anti-regressão DDD, `isGravityAdmin` |
 | Estrutura `testes/` nova | ❌ Pendente — apagar antiga e criar nova |
 | Migrations Prisma (TestLog, TestSchedule, TestPlan) | ❌ Pendente |
 | Backend `/admin/test-plans/generate` | ❌ Pendente |

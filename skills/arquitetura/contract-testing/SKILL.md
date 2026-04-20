@@ -13,9 +13,77 @@ Contract tests resolvem isso: o mesmo schema Zod que valida a rota **é** o cont
 
 ---
 
-## O Contrato — Schema Zod
+## Padrão 1 — Schema exportado do próprio arquivo de rota (Configurador)
 
-Cada serviço exporta seus schemas como contratos:
+Quando o serviço tem apenas uma rota central de identidade (ex: `/api/v1/me`), o schema Zod é exportado diretamente do arquivo de rota, sem um `contracts.ts` separado.
+
+```typescript
+// servicos-global/configurador/server/routes/me.ts
+export const meResponseSchema = z.object({
+  usuario: z.object({
+    id_usuario:             z.string(),
+    nome_usuario:           z.string(),
+    email_usuario:          z.string().email(),
+    tipo_usuario:           z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'STANDARD', 'SUPPLIER']),
+    id_organizacao_usuario: z.string(),
+    preferred_company_id:   z.string().nullable(),
+  }),
+  organizacao: z.object({
+    id_organizacao:         z.string(),
+    nome_organizacao:       z.string(),
+    subdominio_organizacao: z.string(),
+    status_organizacao:     z.string(),
+  }).nullable(),
+  workspaces: z.array(z.object({
+    id:             z.string(),
+    nome_workspace: z.string(),
+    status:         z.string(),
+    tipo_usuario:   z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),
+    produtos:       z.array(z.string()),
+  })),
+})
+export type MeResponse = z.infer<typeof meResponseSchema>
+```
+
+O teste funcional importa `meResponseSchema` e valida o response real do supertest:
+
+```typescript
+// testes/testes-funcionais/configurador/me-contract.test.ts
+import { meResponseSchema } from '../../../servicos-global/configurador/server/routes/me.js'
+
+it('retorna 200 com payload que passa no meResponseSchema', async () => {
+  const res = await request(app).get('/api/v1/me')
+  expect(res.status).toBe(200)
+  const parsed = meResponseSchema.safeParse(res.body)
+  expect(parsed.success,
+    parsed.success ? '' : JSON.stringify((parsed as { error: unknown }).error)
+  ).toBe(true)
+})
+```
+
+### Anti-Regressão DDD — Verificar que campos legados não existem
+
+Após renomear campos (ex: `user.role` → `usuario.tipo_usuario`), adicionar testes explícitos que garantem que a estrutura antiga **nunca** reaparece:
+
+```typescript
+it('usuario.tipo_usuario presente (DDD) e user.role ausente (legado)', async () => {
+  const res = await request(app).get('/api/v1/me')
+  expect(res.body.usuario.tipo_usuario).toBe('MASTER')   // DDD ✓
+  expect(res.body.usuario.role).toBeUndefined()           // legado ✗
+  expect(res.body.user).toBeUndefined()                   // estrutura legada ✗
+})
+
+it('meResponseSchema rejeita payload com estrutura legada', () => {
+  const payloadLegado = { user: { id: 'x', name: 'y', email: 'z@z.com', role: 'MASTER' } }
+  expect(meResponseSchema.safeParse(payloadLegado).success).toBe(false)
+})
+```
+
+---
+
+## Padrão 2 — Schema em arquivo separado (serviços tenant)
+
+Para serviços com múltiplos endpoints, usar arquivo `contracts.ts` dedicado:
 
 ```typescript
 // servicos-global/tenant/atividades/server/contracts.ts

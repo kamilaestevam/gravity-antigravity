@@ -264,6 +264,47 @@ PORT=3000
 
 ---
 
+## Suites de Teste Existentes (2026-04-19)
+
+| Arquivo | Tipo | Testes | Config |
+|---|---|---|---|
+| `testes/testes-unitarios/configurador/useLoadSystemRole.test.ts` | Unitário (jsdom) | 17 | `testes/testes-unitarios/configurador/vitest.config.ts` |
+| `testes/testes-funcionais/configurador/me-contract.test.ts` | Funcional (node) | 7 | `testes/testes-funcionais/configurador/vitest.config.ts` |
+| `testes/testes-funcionais/configurador/requireAuth.test.ts` | Funcional (node) | 7 | mesma config |
+
+**Rodar unitários:**
+```bash
+npx vitest run --config testes/testes-unitarios/configurador/vitest.config.ts
+```
+
+**Rodar funcionais:**
+```bash
+npx vitest run --config testes/testes-funcionais/configurador/vitest.config.ts
+```
+
+**Cobertura obrigatória:** 70% linhas/funções/branches (thresholds em ambas as configs).
+
+### Padrão de mock nos testes funcionais do Configurador
+
+O Prisma é **mockado** nos testes funcionais do Configurador (não há banco de teste). O middleware `requireAuth` também é mockado para injetar `req.auth` diretamente:
+
+```typescript
+const { mockFindUnique } = vi.hoisted(() => ({ mockFindUnique: vi.fn() }))
+
+vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
+  prisma: { usuario: { findUnique: mockFindUnique, update: vi.fn() } },
+}))
+
+vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
+  requireAuth: (req, _res, next) => {
+    req['auth'] = { userId: 'usr_test_01', tenantId: 'ten_test_01', role: 'MASTER' }
+    next()
+  },
+}))
+```
+
+---
+
 ## Checklist — Antes de Entregar o Configurador
 
 - [ ] Workspace lista workspaces corretamente?

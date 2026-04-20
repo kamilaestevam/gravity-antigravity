@@ -159,12 +159,12 @@ const txMock: Record<string, unknown> = {
 ### Configuração padrão
 
 ```typescript
-// vitest.config.ts
+// vitest.config.ts — ambiente node (backend/utils)
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    environment: 'node',   // 'jsdom' para componentes React
+    environment: 'node',   // 'jsdom' para hooks React
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
@@ -178,6 +178,119 @@ export default defineConfig({
   }
 })
 ```
+
+### Configuração com `jsdom` — Hooks React (ex: Configurador)
+
+Quando o teste usa `renderHook` / `waitFor` de `@testing-library/react`, o ambiente deve ser `jsdom`. O plugin `resolveTsFromJs` é obrigatório porque os arquivos são `.ts` mas os imports usam `.js` (ESModules).
+
+```typescript
+// testes/testes-unitarios/configurador/vitest.config.ts
+import { defineConfig } from 'vitest/config'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const root = path.resolve(__dirname, '../../..')  // aponta para a raiz do monorepo
+
+const resolveTsFromJs = {
+  name: 'resolve-ts-from-js',
+  resolveId(source: string, importer: string | undefined) {
+    if (source.endsWith('.js') && importer) {
+      return path.resolve(path.dirname(importer), source.replace(/\.js$/, '.ts'))
+    }
+  },
+}
+
+export default defineConfig({
+  plugins: [resolveTsFromJs],
+  root,
+  test: {
+    globals: true,
+    include: ['testes/testes-unitarios/configurador/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      reportsDirectory: './testes/testes-unitarios/configurador/resultados',
+      thresholds: { lines: 70, functions: 70, branches: 70 },
+    },
+  },
+})
+```
+
+> O `environment` **não é definido** no config — cada arquivo de teste declara `// @vitest-environment jsdom` ou `// @vitest-environment node` no topo, permitindo misturar ambientes na mesma suite.
+
+### Padrão `vi.hoisted()` — Mocks antes de imports
+
+Em Vitest, `vi.mock(...)` é hoisted para o topo do arquivo, mas as variáveis declaradas fora do hoist **não estão disponíveis** lá. Use `vi.hoisted()` para criar mocks que serão usados tanto em `vi.mock()` quanto nos testes:
+
+```typescript
+// ✅ Padrão correto — mock de useAuth do Clerk
+const { mockGetToken, mockUseAuth } = vi.hoisted(() => ({
+  mockGetToken: vi.fn(),
+  mockUseAuth:  vi.fn(),
+}))
+
+vi.mock('@clerk/clerk-react', () => ({
+  useAuth: mockUseAuth,
+}))
+
+// Agora mockUseAuth está disponível nos testes:
+mockUseAuth.mockReturnValue({
+  isLoaded: true, isSignedIn: true, userId: 'user_123', getToken: mockGetToken,
+})
+```
+
+```typescript
+// ✅ Padrão correto — mock de Prisma em teste funcional
+const { mockFindUnique, mockWsFindFirst } = vi.hoisted(() => ({
+  mockFindUnique:  vi.fn(),
+  mockWsFindFirst: vi.fn(),
+}))
+
+vi.mock('../../../servicos-global/configurador/server/lib/prisma.js', () => ({
+  prisma: {
+    usuario:   { findUnique: mockFindUnique, update: vi.fn() },
+    workspace: { findFirst: mockWsFindFirst },
+  },
+}))
+```
+
+### Padrão `renderHook + waitFor` — Hooks React assíncronos
+
+```typescript
+// @vitest-environment jsdom
+import { renderHook, waitFor } from '@testing-library/react'
+import { useLoadSystemRole, invalidateRoleCache } from '../../../servicos-global/configurador/src/hooks/useLoadSystemRole.js'
+
+beforeEach(() => {
+  vi.clearAllMocks()
+  invalidateRoleCache()           // limpa cache entre testes
+  vi.stubGlobal('fetch', vi.fn()) // isola fetch global
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+})
+
+it('retorna role MASTER', async () => {
+  mockUseAuth.mockReturnValue({ isLoaded: true, isSignedIn: true, userId: 'u1', getToken: mockGetToken })
+  mockGetToken.mockResolvedValue('valid-jwt')
+  ;(fetch as ReturnType<typeof vi.fn>).mockResolvedValue(
+    new Response(JSON.stringify({ usuario: { tipo_usuario: 'MASTER' } }), { status: 200 })
+  )
+
+  const { result } = renderHook(() => useLoadSystemRole())
+
+  await waitFor(() => expect(result.current.isReady).toBe(true))
+  expect(result.current.role).toBe('MASTER')
+})
+```
+
+**Regras para hooks assíncronos:**
+- `await waitFor(() => expect(result.current.isReady).toBe(true))` antes de qualquer assert de dados
+- Nunca fazer assert imediato sem `waitFor` — o hook parte em estado `isReady=false`
+- `invalidateRoleCache()` (ou equivalente) no `beforeEach` quando o hook tem cache por módulo
+- Se o hook pode emitir updates após o assert, garantir que o mock está totalmente resolvido antes do fim do teste (evita warning de `act()`)
 
 ### Exemplo
 
@@ -206,7 +319,8 @@ describe('formatarCNPJ', () => {
 ## Testes Funcionais — Vitest
 
 ### O que testar
-- Toda rota da API com banco de teste real — nunca mock de banco
+- Toda rota da API — com Prisma mockado via `vi.hoisted()` ou com banco real, conforme o módulo
+- **Configurador**: Prisma mockado (nenhum banco de teste disponível em CI) — ver padrão abaixo
 - Middleware de tenant isolation — tentativa de acesso cross-tenant obrigatória
 - Fluxos de negócio completos no backend
 - Autenticação e autorização: token válido, inválido, expirado, sem permissão

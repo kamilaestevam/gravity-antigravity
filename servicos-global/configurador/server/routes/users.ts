@@ -13,7 +13,6 @@ import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
-import { syncRoleToClerk } from '../lib/syncRole.js'
 
 export const usersRouter = Router()
 
@@ -41,7 +40,7 @@ const MembershipSchema = z.object({
  */
 usersRouter.get('/', async (req, res, next) => {
   try {
-    const users = await prisma.usuario.findMany({
+    const users = await prisma.user.findMany({
       where: { tenant_id: req.auth.tenantId },
       select: {
         id: true,
@@ -84,7 +83,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
     const { email, name, role } = parsed.data
 
     // Verifica se usuário já existe no tenant
-    const existing = await prisma.usuario.findFirst({
+    const existing = await prisma.user.findFirst({
       where: { tenant_id: req.auth.tenantId, email },
     })
     if (existing) {
@@ -94,15 +93,10 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
     // Cria convite via Clerk
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
-      publicMetadata: {
-        tenantId: req.auth.tenantId,
-        role,
-        invitedBy: req.auth.clerkUserId,
-      },
     })
 
     // Cria registro antecipado no banco (será completado no webhook de user.created)
-    const user = await prisma.usuario.create({
+    const user = await prisma.user.create({
       data: {
         tenant_id: req.auth.tenantId,
         clerk_user_id: `pending_${invitation.id}`,
@@ -114,7 +108,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, role: user.role, name: user.name },
     })
   } catch (err) {
     next(err)
@@ -140,7 +134,7 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
     const userId = req.params.id
 
     // Garante que o usuário pertence ao mesmo tenant
-    const user = await prisma.usuario.findFirst({
+    const user = await prisma.user.findFirst({
       where: { id: userId, tenant_id: req.auth.tenantId },
     })
     if (!user) {
@@ -148,14 +142,14 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
     }
 
     // Garante que a empresa filha pertence ao mesmo tenant
-    const company = await prisma.workspace.findFirst({
+    const company = await prisma.company.findFirst({
       where: { id: companyId, tenant_id: req.auth.tenantId },
     })
     if (!company) {
       throw new AppError('Empresa filha não encontrada', 404, 'NOT_FOUND')
     }
 
-    const membership = await prisma.usuarioWorkspace.upsert({
+    const membership = await prisma.userMembership.upsert({
       where: {
         tenant_id_user_id_company_id: {
           tenant_id: req.auth.tenantId,
@@ -193,7 +187,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       throw new AppError('Role inválido', 400, 'VALIDATION_ERROR')
     }
 
-    const user = await prisma.usuario.findFirst({
+    const user = await prisma.user.findFirst({
       where: { id: req.params.id, tenant_id: req.auth.tenantId },
       select: { id: true, clerk_user_id: true, role: true },
     })
@@ -201,7 +195,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
     }
 
-    const updated = await prisma.usuario.update({
+    const updated = await prisma.user.update({
       where: { id: req.params.id, tenant_id: req.auth.tenantId },
       data: { role: parsed.data.role },
       select: { id: true, email: true, role: true },
@@ -212,13 +206,6 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       oldRole: user.role,
       newRole: parsed.data.role,
     }).catch(() => {})
-
-    // Sincroniza o novo role para o Clerk (badge e useSyncClerkToShell leem daqui)
-    if (user.clerk_user_id && !user.clerk_user_id.startsWith('pending_')) {
-      syncRoleToClerk(user.clerk_user_id, req.auth.tenantId, parsed.data.role).catch((err) => {
-        console.error('[users.patch.role] syncRoleToClerk falhou:', err)
-      })
-    }
 
     res.json({ user: updated })
   } catch (err) {

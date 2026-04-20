@@ -30,14 +30,14 @@ const SubscribeSchema = z.object({
  */
 tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
-    const configs = await prisma.produtoGravityConfig.findMany({
+    const configs = await prisma.productConfig.findMany({
       where: { tenant_id: req.auth.tenantId },
       orderBy: { created_at: 'desc' },
     })
 
     // Enriquece com dados do catálogo
     const slugs = configs.map(c => c.product_key)
-    const catalog = await prisma.produtoGravity.findMany({
+    const catalog = await prisma.product.findMany({
       where: { slug: { in: slugs } },
     })
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
@@ -72,14 +72,14 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 
     // Verifica se o produto existe no catálogo
     const catalogProduct =
-      await prisma.produtoGravity.findFirst({ where: { slug: product_key, status: { in: ['ACTIVE'] as any[] } } }).catch(() => null)
+      await prisma.product.findFirst({ where: { slug: product_key, status: { in: ['ACTIVE'] as any[] } } }).catch(() => null)
 
     if (!catalogProduct) {
       throw new AppError('Produto não encontrado ou inativo', 404, 'NOT_FOUND')
     }
 
     // Cria ou reativa o ProductConfig
-    const config = await prisma.produtoGravityConfig.upsert({
+    const config = await prisma.productConfig.upsert({
       where: {
         tenant_id_product_key: {
           tenant_id: req.auth.tenantId,
@@ -109,7 +109,7 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
  */
 tenantProductsRouter.delete('/:key', requireAuth, async (req, res, next) => {
   try {
-    await prisma.produtoGravityConfig.updateMany({
+    await prisma.productConfig.updateMany({
       where: {
         tenant_id: req.auth.tenantId,
         product_key: req.params.key,
@@ -134,7 +134,7 @@ const ActivateProductSchema = z.object({
  */
 tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin, async (req, res, next) => {
   try {
-    const tenant = await prisma.organizacao.findUnique({
+    const tenant = await prisma.organization.findUnique({
       where: { id: req.params.tenantId },
       select: { id: true, name: true },
     })
@@ -142,7 +142,7 @@ tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    const configs = await prisma.produtoGravityConfig.findMany({
+    const configs = await prisma.productConfig.findMany({
       where: { tenant_id: req.params.tenantId },
       orderBy: { created_at: 'desc' },
     })
@@ -172,7 +172,7 @@ tenantProductsRouter.post(
         )
       }
 
-      const tenant = await prisma.organizacao.findUnique({
+      const tenant = await prisma.organization.findUnique({
         where: { id: req.params.tenantId },
       })
       if (!tenant) {
@@ -207,7 +207,7 @@ tenantProductsRouter.post(
   requireGravityAdmin,
   async (req, res, next) => {
     try {
-      const tenant = await prisma.organizacao.findUnique({
+      const tenant = await prisma.organization.findUnique({
         where: { id: req.params.tenantId },
       })
       if (!tenant) {

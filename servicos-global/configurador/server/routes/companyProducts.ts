@@ -25,7 +25,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     const { companyId } = req.params
 
     // Verifica se o workspace pertence ao tenant
-    const company = await prisma.workspace.findFirst({
+    const company = await prisma.company.findFirst({
       where: { id: companyId, tenant_id: req.auth.tenantId },
     })
     if (!company) {
@@ -33,12 +33,12 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     }
 
     const [companyProducts, tenantConfigs] = await Promise.all([
-      prisma.produtoGravityWorkspace.findMany({
+      prisma.companyProduct.findMany({
         where: { company_id: companyId, tenant_id: req.auth.tenantId },
         orderBy: { created_at: 'desc' },
       }),
       // Fallback: produtos contratados no tenant mas ainda não ativados no workspace
-      prisma.produtoGravityConfig.findMany({
+      prisma.productConfig.findMany({
         where: { tenant_id: req.auth.tenantId, is_active: true },
       }),
     ])
@@ -53,7 +53,7 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
     ]
 
     // Enriquece com dados do catálogo
-    const catalog = await prisma.produtoGravity.findMany({
+    const catalog = await prisma.product.findMany({
       where: { slug: { in: allKeys } },
     })
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
@@ -96,7 +96,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     const { product_key } = parsed.data
 
     // Verifica se o workspace pertence ao tenant
-    const company = await prisma.workspace.findFirst({
+    const company = await prisma.company.findFirst({
       where: { id: companyId, tenant_id: req.auth.tenantId },
     })
     if (!company) {
@@ -104,7 +104,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     }
 
     // Verifica se o tenant contratou o produto
-    const tenantProduct = await prisma.produtoGravityConfig.findUnique({
+    const tenantProduct = await prisma.productConfig.findUnique({
       where: {
         tenant_id_product_key: {
           tenant_id: req.auth.tenantId,
@@ -121,7 +121,7 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     }
 
     // Ativa ou reativa no workspace
-    const companyProduct = await prisma.produtoGravityWorkspace.upsert({
+    const companyProduct = await prisma.companyProduct.upsert({
       where: {
         company_id_product_key: {
           company_id: companyId,
@@ -153,7 +153,7 @@ companyProductsRouter.delete('/:productKey', requireAuth, async (req, res, next)
   try {
     const { companyId, productKey } = req.params
 
-    await prisma.produtoGravityWorkspace.updateMany({
+    await prisma.companyProduct.updateMany({
       where: {
         company_id: companyId,
         product_key: productKey,

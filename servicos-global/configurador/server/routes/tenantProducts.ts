@@ -15,6 +15,7 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { productConfigService } from '../services/productConfigService.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
+import { StatusProduto } from '../../../../configurador/generated/index.js'
 
 export const tenantProductsRouter = Router()
 
@@ -30,7 +31,7 @@ const SubscribeSchema = z.object({
  */
 tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
-    const configs = await prisma.produtoGravityConfig.findMany({
+    const configs = await prisma.configuracaoProduto.findMany({
       where: { tenant_id: req.auth.tenantId },
       orderBy: { created_at: 'desc' },
     })
@@ -52,7 +53,7 @@ tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
 
     res.json({ products })
   } catch {
-    // globalProduct ou productConfig pode não existir — retorna vazio
+    // configuracaoProduto pode não existir — retorna vazio
     res.json({ products: [] })
   }
 })
@@ -72,14 +73,14 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 
     // Verifica se o produto existe no catálogo
     const catalogProduct =
-      await prisma.produtoGravity.findFirst({ where: { slug: product_key, status: { in: ['ACTIVE'] as any[] } } }).catch(() => null)
+      await prisma.produtoGravity.findFirst({ where: { slug: product_key, status: { in: [StatusProduto.ACTIVE] } } }).catch(() => null)
 
     if (!catalogProduct) {
       throw new AppError('Produto não encontrado ou inativo', 404, 'NOT_FOUND')
     }
 
     // Cria ou reativa o ProductConfig
-    const config = await prisma.produtoGravityConfig.upsert({
+    const config = await prisma.configuracaoProduto.upsert({
       where: {
         tenant_id_product_key: {
           tenant_id: req.auth.tenantId,
@@ -109,7 +110,7 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
  */
 tenantProductsRouter.delete('/:key', requireAuth, async (req, res, next) => {
   try {
-    await prisma.produtoGravityConfig.updateMany({
+    await prisma.configuracaoProduto.updateMany({
       where: {
         tenant_id: req.auth.tenantId,
         product_key: req.params.key,
@@ -142,7 +143,7 @@ tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    const configs = await prisma.produtoGravityConfig.findMany({
+    const configs = await prisma.configuracaoProduto.findMany({
       where: { tenant_id: req.params.tenantId },
       orderBy: { created_at: 'desc' },
     })
@@ -186,9 +187,7 @@ tenantProductsRouter.post(
         true
       )
 
-      console.log(
-        `[admin] Produto "${req.params.productKey}" ativado para tenant "${tenant.name}" por ${req.auth.clerkUserId}`
-      )
+      console.info(`[admin] produto ativado tenant_id=${req.params.tenantId} product_key=${req.params.productKey}`)
 
       res.json({ activated: true, config })
     } catch (err) {
@@ -219,9 +218,7 @@ tenantProductsRouter.post(
         req.params.productKey
       )
 
-      console.log(
-        `[admin] Produto "${req.params.productKey}" desativado para tenant "${tenant.name}" por ${req.auth.clerkUserId}`
-      )
+      console.info(`[admin] produto desativado tenant_id=${req.params.tenantId} product_key=${req.params.productKey}`)
 
       res.json({ deactivated: true })
     } catch (err) {

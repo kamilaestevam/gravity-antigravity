@@ -22,7 +22,7 @@ const {
 vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => ({
   prisma: {
     produtoGravity:       { findFirst: mockProdutoFindFirst, findMany: mockProdutoFindMany },
-    produtoGravityConfig: {
+    configuracaoProduto: {
       upsert:      mockConfigUpsert,
       findMany:    mockConfigFindMany,
       updateMany:  mockConfigUpdateMany,
@@ -257,5 +257,37 @@ describe('TST-FUNC-CONF-STORE-001 — GET /api/v1/assinaturas', () => {
 
     expect(res.status).toBe(200)
     expect(res.body.products).toEqual([])
+  })
+})
+
+describe('TST-FUNC-CONF-STORE-001 — DELETE /api/v1/assinaturas/:key', () => {
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('retorna { ok: true } ao cancelar produto do tenant autenticado', async () => {
+    mockConfigUpdateMany.mockResolvedValue({ count: 1 })
+
+    const res = await request(app).delete('/api/v1/assinaturas/pedido')
+
+    expect(res.status).toBe(200)
+    expect(res.body.ok).toBe(true)
+  })
+
+  it('updateMany é chamado apenas com tenant_id do req.auth — isolamento de tenant', async () => {
+    mockConfigUpdateMany.mockResolvedValue({ count: 1 })
+
+    await request(app).delete('/api/v1/assinaturas/pedido')
+
+    expect(mockConfigUpdateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          tenant_id:   'ten_func_01',
+          product_key: 'pedido',
+        },
+        data: { is_active: false },
+      })
+    )
   })
 })

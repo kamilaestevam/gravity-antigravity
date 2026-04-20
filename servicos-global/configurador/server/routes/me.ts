@@ -11,6 +11,37 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { AppError } from '../lib/appError.js'
 import { prisma } from '../lib/prisma.js'
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Schema de resposta — contrato exportável para testes e consumidores
+// Garante que breaking changes no payload sejam detectados pelo CI
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const meResponseSchema = z.object({
+  usuario: z.object({
+    id_usuario:             z.string(),
+    nome_usuario:           z.string(),
+    email_usuario:          z.string().email(),
+    tipo_usuario:           z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'STANDARD', 'SUPPLIER']),
+    id_organizacao_usuario: z.string(),
+    preferred_company_id:   z.string().nullable(),
+  }),
+  organizacao: z.object({
+    id_organizacao:         z.string(),
+    nome_organizacao:       z.string(),
+    subdominio_organizacao: z.string(),
+    status_organizacao:     z.string(),
+  }).nullable(),
+  workspaces: z.array(z.object({
+    id:             z.string(),
+    nome_workspace: z.string(),
+    status:         z.string(),
+    tipo_usuario:   z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),
+    produtos:       z.array(z.string()),
+  })),
+})
+
+export type MeResponse = z.infer<typeof meResponseSchema>
+
 export const meRouter = Router()
 meRouter.use(requireAuth)
 

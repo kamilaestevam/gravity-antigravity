@@ -101,6 +101,64 @@ curl https://[servico].railway.app/health
 
 ---
 
+## Provisionamento de Ambiente Limpo (Bootstrap Obrigatório)
+
+> **Banco vazio = 401. Esse é o comportamento correto e intencional.**
+
+O `requireAuth` do Configurador exige que o usuário exista na tabela `usuario` do banco. Sem esse registro, qualquer requisição autenticada retorna `401 Unauthorized` — mesmo que o usuário esteja válido no Clerk. Não há bypasses. Não há exceções.
+
+### Por que isso ocorre
+
+A autenticação da Gravity opera em duas camadas independentes:
+
+- **Clerk** — prova de identidade (quem você é)
+- **Banco `usuario`** — prova de autorização (você tem acesso a este sistema)
+
+Um usuário pode existir no Clerk e não ter acesso à plataforma. Esse é o modelo correto: usuários só entram no sistema após provisionamento explícito.
+
+### Quando executar o bootstrap
+
+Obrigatório toda vez que um banco do Configurador for criado ou zerado:
+
+- Criação de novo ambiente (staging, produção, dev local)
+- Após `DROP SCHEMA public CASCADE` ou restore de backup zerado
+- Após qualquer operação que apague as tabelas `organizacao` e `usuario`
+
+### Procedimento obrigatório
+
+```bash
+# 1. Aplicar migrations DDD (cria as tabelas em branco)
+cd configurador
+npx prisma migrate deploy
+
+# 2. Seed de infraestrutura: cria a org Gravity + Root Admin
+cd servicos-global/configurador
+npx tsx server/scripts/bootstrap-seed.ts
+
+# 3. Seed de catálogo: popula produtos disponíveis no Hub
+npx tsx server/scripts/seedProducts.ts
+```
+
+O `bootstrap-seed.ts` cria:
+- A organização matriz (`slug: gravity`, `status: ACTIVE`)
+- O usuário Root Admin (`dmmltda@gmail.com`, role `SUPER_ADMIN`)
+- Um `clerk_user_id` placeholder — o `requireAuth` auto-vincula ao ID real do Clerk no primeiro login, via fallback de email (1 candidato único = link seguro)
+
+O script é **idempotente**: pode ser executado múltiplas vezes sem duplicar dados.
+
+### Comportamento esperado antes do bootstrap
+
+| Ação | Resultado esperado |
+|:-----|:-------------------|
+| Login no Clerk | Funciona (Clerk não depende do banco Gravity) |
+| `GET /api/v1/me` | `401 Unauthorized` — correto |
+| `GET /api/v1/hub/init` | `401 Unauthorized` — correto |
+| Qualquer rota protegida | `401 Unauthorized` — correto |
+
+Esse comportamento **não é um bug**. É a garantia de que nenhum usuário acessa o sistema sem provisionamento explícito.
+
+---
+
 ## Protocolo de Migrations
 
 ### Antes de qualquer migration
@@ -362,6 +420,7 @@ Sem backup confirmado → migration **NÃO** pode ser executada.
 - [ ] Auto-scaling configurado para o serviço?
 - [ ] Alertas de custo ativos?
 - [ ] Aprovação manual do Líder Técnico obtida?
+- [ ] **Se banco novo/zerado:** bootstrap-seed executado e validado? (`GET /api/v1/me` retorna 200?)
 
 ### Após deploy em produção
 - [ ] Health check do serviço deployado está ok?

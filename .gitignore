@@ -30,6 +30,7 @@ yarn-error.log*
 # ── Testes (outputs gerados) ─────────────────────────────────
 playwright-report/
 test-results/
+testes/**/resultados/
 
 # ── Turborepo (proibido na Fase 1, mas previne lixo residual) ─
 .turbo/

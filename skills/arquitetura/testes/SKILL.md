@@ -24,6 +24,8 @@ Todos os testes ficam em uma única pasta na raiz do monorepo. Nunca dentro de c
 Gravity/
   └── testes/                       ← raiz do monorepo
       ├── testes-unitarios/          ← ÚNICO lugar de testes unitários
+      │   ├── infra/                 ← scripts de infra/migração (migrate-tenants, bootstrap)
+      │   │   └── migrate-tenants/
       │   ├── nucleo-global/
       │   │   ├── tabela-global/
       │   │   ├── modal-global/
@@ -42,10 +44,14 @@ Gravity/
       │       ├── produtos/
       │       └── simulador-comex/
       ├── testes-funcionais/
+      │   ├── infra/                 ← funções com efeitos externos (pg.Pool, fs) mockados
+      │   │   └── migrate-tenants/
       │   ├── nucleo-global/
       │   ├── servicos-tenant/
       │   └── produtos/
       └── testes-e2e/
+          ├── infra/                 ← integração real com PostgreSQL (requer TEST_DATABASE_URL)
+          │   └── migrate-tenants/
           ├── nucleo-global/
           ├── servicos-tenant/
           ├── produtos/
@@ -76,6 +82,20 @@ packages/tenant-resolver/
 ```
 
 **Versão obrigatória do Vitest:** o monorepo usa `vitest@2` no root (compatível com `vite@5`). Nunca atualizar o root para `vitest@3+` sem antes atualizar `vite` para `vite@6` — a incompatibilidade gera `ERR_PACKAGE_PATH_NOT_EXPORTED: Package subpath './module-runner'` e quebra todas as suítes. Para `packages/` publicáveis com setup isolado, instalar `vitest@2` localmente no pacote (mesma versão, mesma razão).
+
+### `coverage.include` — Obrigatório em toda config de cobertura
+
+Sem `coverage.include`, o v8 escaneia **todo o monorepo** e gera relatório inútil (0.47% real, centenas de arquivos irrelevantes). Sempre escopar para o módulo sendo testado:
+
+```typescript
+coverage: {
+  provider: 'v8',
+  include: ['scripts/migrate-tenants/_shared.ts'],   // ← escopar aqui
+  thresholds: { lines: 70, branches: 70 },
+}
+```
+
+> **Nota sobre thresholds:** quando um arquivo exporta muitos helpers triviais (ex: wrappers ANSI, constantes), o metric `functions` fica distorcido. Use `lines` + `branches` como métricas primárias. Remova `functions` do threshold quando o arquivo tiver funções intencionalmente não testadas (helpers de output, constantes derivadas).
 
 ---
 

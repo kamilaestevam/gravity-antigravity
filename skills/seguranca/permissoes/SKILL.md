@@ -377,6 +377,44 @@ Master é convidado para a organização
 
 ---
 
+## Edição de Workspaces Pós-Convite
+
+Após o convite, um Master pode alterar quais workspaces (Empresas) um Standard ou Supplier acessa via:
+
+**`PUT /api/v1/usuarios/:id/workspaces`** (`requireMasterRole`)
+
+### Regras de Negócio
+
+| Regra | Comportamento |
+|---|---|
+| **Alvo é MASTER** | `400 INVALID_OPERATION` — Master tem acesso implícito via Bulk Insert snapshot; não editar via este endpoint |
+| **Usuário não encontrado no tenant** | `404 NOT_FOUND` — sem vazar existência |
+| **IDs de Empresa de outro tenant (IDOR)** | `403 FORBIDDEN` — `empresa.findMany` filtra por `tenant_id` antes de qualquer escrita |
+| **Atomicidade** | `$transaction(deleteMany + createMany)` — nunca estado parcial |
+| **Audit trail** | `securityAudit.permissionChanged` com `action: 'GRANTED'` se workspaces adicionados, `'REVOKED'` se apenas removidos |
+| **Sem diff** | Se workspaces novos = antigos, `permissionChanged` NÃO é chamado |
+
+### Schema de Validação
+
+```typescript
+// Exportado como UpdateWorkspacesSchema para contract testing
+z.object({
+  workspaces: z.array(z.string().cuid())
+    .min(1, 'É necessário pelo menos um workspace')
+    .refine(ids => new Set(ids).size === ids.length, 'Workspaces duplicados não são permitidos'),
+})
+```
+
+### MASTER: Bulk Insert vs. PUT
+
+| Momento | Operação | Por quê |
+|---|---|---|
+| **Convite (novo usuário Master)** | `Bulk Insert` em todas as Empresas ativas | Snapshot snapshot — Master precisa de acesso imediato e completo |
+| **Edição de Master existente** | **PROIBIDO via PUT** — `400 INVALID_OPERATION` | Master tem acesso global via UsuarioWorkspace; redesenhar via invite se necessário |
+| **Edição de Standard/Supplier** | `PUT /api/v1/usuarios/:id/workspaces` | Substituição atômica dos vínculos |
+
+---
+
 ## Checklist — Antes de Implementar Qualquer Tela de Permissão
 
 - [ ] A role do usuário vem do Prisma via GET /api/v1/me — nunca do JWT Clerk, nunca do body da requisição?
@@ -389,3 +427,6 @@ Master é convidado para a organização
 - [ ] Impersonação de Admin Gravity está sendo logada com `actor_type: 'gravity_admin'`?
 - [ ] Master recebe UsuarioWorkspace para TODAS as Empresas via Bulk Insert no convite (sem FK nullable)?
 - [ ] user.id nos checks de permissão é o CUID do Prisma — não o clerkId?
+- [ ] Edição de workspaces de Standard/Supplier via PUT rejeita alvos Master (400)?
+- [ ] PUT /workspaces valida IDs via `empresa.findMany` com `tenant_id` antes de escrever (prevenção IDOR)?
+- [ ] PUT /workspaces opera via `$transaction` (deleteMany + createMany) — nunca estado parcial?

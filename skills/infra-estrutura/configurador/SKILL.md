@@ -231,6 +231,7 @@ Retorna campos com nomes DDD em Português:
 - `GET /api/v1/users` — listar usuários
 - `POST /api/v1/usuarios/invite` — convidar usuário (cria pending_* + Bulk Insert de UsuarioWorkspace)
 - `POST /api/v1/usuarios/:id/memberships` — adicionar/remover vínculo de usuário em Empresa
+- **`PUT /api/v1/usuarios/:id/workspaces`** — substituir atomicamente os workspaces de um usuário STANDARD/SUPPLIER (requireMasterRole, bloqueia MASTER com 400, IDOR via empresa.findMany com tenant_id, $transaction deleteMany+createMany, audit trail GRANTED/REVOKED)
 - `GET /api/v1/plans` — listar planos
 - `GET /api/v1/billing/invoices` — histórico de faturas
 
@@ -276,13 +277,15 @@ PORT=3000
 
 ---
 
-## Suites de Teste Existentes (2026-04-19)
+## Suites de Teste Existentes (2026-04-20)
 
 | Arquivo | Tipo | Testes | Config |
 |---|---|---|---|
 | `testes/testes-unitarios/configurador/useLoadSystemRole.test.ts` | Unitário (jsdom) | 17 | `testes/testes-unitarios/configurador/vitest.config.ts` |
+| `testes/testes-unitarios/configurador/usuarios/workspaces-put.test.ts` | Unitário (node) | 18 | mesma config |
 | `testes/testes-funcionais/configurador/me-contract.test.ts` | Funcional (node) | 7 | `testes/testes-funcionais/configurador/vitest.config.ts` |
 | `testes/testes-funcionais/configurador/requireAuth.test.ts` | Funcional (node) | 7 | mesma config |
+| `testes/testes-funcionais/configurador/usuarios/workspaces-put.test.ts` | Funcional (node) | 18 | mesma config |
 
 **Rodar unitários:**
 ```bash
@@ -315,6 +318,38 @@ vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js'
 }))
 ```
 
+### Armadilha: Importar Schema Zod de Arquivo de Rota
+
+Ao testar um schema Zod exportado de um arquivo de rota (ex: `UpdateWorkspacesSchema` de `users.ts`), o `import` carrega o **módulo inteiro** — incluindo os imports de nível superior como `clerk.ts`, que lança `Error` se `CLERK_SECRET_KEY` não estiver definida.
+
+**Solução:** mockar todos os módulos com side-effects antes do import, mesmo que o teste não use nenhum deles:
+
+```typescript
+// ✅ CORRETO — todos os side-effects bloqueados antes do import do schema
+vi.mock('../../../../servicos-global/configurador/server/lib/clerk.js', () => ({
+  clerkClient: { invitations: { createInvitation: vi.fn() } },
+}))
+vi.mock('../../../../servicos-global/configurador/server/lib/prisma.js', () => ({
+  prisma: { usuario: {}, empresa: {}, usuarioWorkspace: {}, $transaction: vi.fn() },
+}))
+vi.mock('../../../../servicos-global/configurador/server/lib/syncRole.js', () => ({
+  syncRoleToClerk: vi.fn(),
+}))
+vi.mock('../../../../servicos-global/tenant/historico-global/server/lib/securityAuditLogger.js', () => ({
+  securityAudit: { roleChanged: vi.fn(), permissionChanged: vi.fn() },
+}))
+vi.mock('../../../../servicos-global/configurador/server/middleware/requireAuth.js', () => ({
+  requireAuth: vi.fn(),
+}))
+vi.mock('../../../../servicos-global/configurador/server/middleware/requireMasterRole.js', () => ({
+  requireMasterRole: vi.fn(),
+}))
+
+import { UpdateWorkspacesSchema } from '../../../../servicos-global/configurador/server/routes/users.js'
+```
+
+> **Regra:** ao criar plano de teste unitário para qualquer schema exportado de `routes/*.ts`, mapear todos os imports de nível superior desse arquivo e mocká-los.
+
 ---
 
 ## Checklist — Antes de Entregar o Configurador
@@ -327,6 +362,7 @@ vi.mock('../../../servicos-global/configurador/server/middleware/requireAuth.js'
 - [ ] Convite de Standard/Supplier cria UsuarioWorkspace apenas nas Empresas selecionadas?
 - [ ] Usuário Master acessa todas as Empresas (via UsuarioWorkspace), Standard segue permissões granulares?
 - [ ] Frontend: tela de usuários mostra Empresas vinculadas ao expandir linha (renderExpandido)?
+- [ ] Edição de workspaces de usuário existente: `PUT /api/v1/usuarios/:id/workspaces` bloqueia MASTER (400), valida empresas do tenant (IDOR), opera atomicamente ($transaction)?
 - [ ] Download de Boleto/NF-e disponível no financeiro?
 - [ ] API `/api/check-access` responde corretamente aos produtos?
 - [ ] Fornecedor com múltiplos tenants vê a tela de seleção ao logar?

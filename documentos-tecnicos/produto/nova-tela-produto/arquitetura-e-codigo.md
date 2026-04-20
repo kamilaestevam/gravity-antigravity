@@ -76,13 +76,13 @@ Com esse registro, `TelaProdutoGlobal` aplica automaticamente:
 <TelaProdutoGlobal
   productId="meu-produto"        // ← busca cor + logo automaticamente
   productName="Meu Produto"
-  tenantName={currentUser.tenantName}
+  tenantName={currentUser?.tenantName ?? 'Organização'}
   tenantPlan="Pro"
   navItems={NAV_ITEMS}
   tooltipsDisabled={tooltipsDisabled}
   onToggleTooltips={toggleTooltips}
   localizador={{
-    workspaceName: currentUser.tenantName,
+    workspaceName: currentUser?.tenantName ?? 'Organização',
     currentPageLabel: pageLabel,         // ← "Dashboard" / "Lista" / "Kanban"
     history,
     nodes: ECOSYSTEM_NODES,

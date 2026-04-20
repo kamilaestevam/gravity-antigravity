@@ -38,7 +38,7 @@ model NcmSyncLog {
   iniciado_em  DateTime  @default(now())
   concluido_em DateTime?
 
-  status       NcmSyncStatus @default(RUNNING)
+  status       StatusNcmSync @default(RUNNING)
 
   // Totais do diff
   total        Int @default(0)
@@ -63,7 +63,7 @@ model NcmSyncLog {
   @@map("ncm_log")
 }
 
-enum NcmSyncStatus {
+enum StatusNcmSync {
   RUNNING
   SUCCESS
   ERROR

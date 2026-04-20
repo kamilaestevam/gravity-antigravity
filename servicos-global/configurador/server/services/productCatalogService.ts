@@ -14,15 +14,15 @@ type PriceTierInput = {
   currency?: string
 }
 
-// ProductCreateInput já trata price_tiers como relação aninhada — adicionamos
+// ProdutoGravityCreateInput já trata price_tiers como relação aninhada — adicionamos
 // uma versão "flat" do array para que as rotas aceitem JSON simples.
-type ProductCreateData = Prisma.ProductCreateInput & { price_tiers?: PriceTierInput[] }
-type ProductUpdateData = Prisma.ProductUpdateInput & { price_tiers?: PriceTierInput[] }
+type ProductCreateData = Prisma.ProdutoGravityCreateInput & { price_tiers?: PriceTierInput[] }
+type ProductUpdateData = Prisma.ProdutoGravityUpdateInput & { price_tiers?: PriceTierInput[] }
 
 const ACTIVE_PRODUCT_INCLUDE = {
   price_tiers: true,
   negotiations: true,
-} satisfies Prisma.ProductInclude
+} satisfies Prisma.ProdutoGravityInclude
 
 export const productCatalogService = {
   /**
@@ -39,7 +39,7 @@ export const productCatalogService = {
     const limit = params.limit ?? 50
     const skip = (page - 1) * limit
 
-    const where: Prisma.ProductWhereInput = { deleted_at: null }
+    const where: Prisma.ProdutoGravityWhereInput = { deleted_at: null }
 
     if (params.search) {
       where.OR = [
@@ -50,7 +50,7 @@ export const productCatalogService = {
     }
 
     if (params.status) {
-      where.status = params.status as Prisma.EnumProductStatusFilter
+      where.status = params.status as Prisma.EnumStatusProdutoFilter
     }
 
     const [products, total] = await Promise.all([
@@ -297,7 +297,7 @@ export const productCatalogService = {
 
 // ─── Catálogo canônico ───────────────────────────────────────────────────────
 
-const seedProducts: Prisma.ProductUncheckedCreateInput[] = [
+const seedProducts: Prisma.ProdutoGravityUncheckedCreateInput[] = [
   {
     name: 'Simula Custo',
     slug: 'simula-custo',

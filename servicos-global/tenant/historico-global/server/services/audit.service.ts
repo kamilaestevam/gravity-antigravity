@@ -1,5 +1,5 @@
 import { createHash } from 'crypto'
-import { PrismaClient, ActorType, EventStatus } from '../../../generated/index.js'
+import { PrismaClient, TipoAtor, StatusEvento } from '../../../generated/index.js'
 import { getBoss } from '../queue/pg-boss.js'
 import { captureException, captureMessage } from '../lib/sentry.js'
 
@@ -18,7 +18,7 @@ export const AUDIT_QUEUE = 'audit:log:ingestion'
 export interface AuditLogInput {
   tenant_id: string
 
-  actor_type: ActorType
+  actor_type: TipoAtor
   actor_id: string
   actor_name: string
   actor_ip?: string
@@ -34,7 +34,7 @@ export interface AuditLogInput {
   before?: unknown
   after?: unknown
 
-  status?: EventStatus
+  status?: StatusEvento
   error_message?: string
 
   product_id?: string
@@ -146,7 +146,7 @@ export const AuditService = {
         action_detail: input.action_detail,
         before: (input.before as object) ?? null,
         after: (input.after as object) ?? null,
-        status: input.status ?? EventStatus.SUCCESS,
+        status: input.status ?? StatusEvento.SUCCESS,
         error_message: input.error_message ?? null,
         integrity_hash,
         product_id: input.product_id ?? null,

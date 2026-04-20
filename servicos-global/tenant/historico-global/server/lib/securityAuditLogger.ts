@@ -14,7 +14,7 @@
 
 import { randomUUID } from 'crypto'
 import { AuditService } from '../services/audit.service.js'
-import { ActorType, EventStatus } from '../../../generated/index.js'
+import { TipoAtor, StatusEvento } from '../../../generated/index.js'
 
 const CONFIGURADOR_URL = process.env.CONFIGURADOR_URL || process.env.CONFIGURADOR_SERVICE_URL || ''
 const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || ''
@@ -22,7 +22,7 @@ const INTERNAL_KEY = process.env.INTERNAL_SERVICE_KEY || ''
 interface SecurityEventInput {
   tenant_id: string
   actor_id: string
-  actor_type: ActorType
+  actor_type: TipoAtor
   action: string
   module?: string
   user_id?: string
@@ -46,7 +46,7 @@ async function logSecurityEvent(event: SecurityEventInput): Promise<void> {
     resource_type: 'security_event',
     action: event.action,
     action_detail: `${event.action}: ${JSON.stringify(event.metadata).slice(0, 200)}`,
-    status: event.metadata?.blocked ? EventStatus.FAILURE : EventStatus.SUCCESS,
+    status: event.metadata?.blocked ? StatusEvento.FAILURE : StatusEvento.SUCCESS,
     user_id: event.user_id,
     product_id: event.product_id,
   })
@@ -97,7 +97,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: actorId,
-      actor_type: ActorType.USER,
+      actor_type: TipoAtor.USER,
       action: `PERMISSION_${details.action}`,
       module: 'configuracao',
       user_id: details.targetUserId,
@@ -114,7 +114,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: actorId,
-      actor_type: ActorType.USER,
+      actor_type: TipoAtor.USER,
       action: 'ROLE_CHANGED',
       module: 'configuracao',
       user_id: details.targetUserId,
@@ -131,7 +131,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: actorId,
-      actor_type: ActorType.USER,
+      actor_type: TipoAtor.USER,
       action: 'CROSS_TENANT_ATTEMPT',
       module: 'auth',
       severity: 'CRITICAL',
@@ -147,7 +147,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: 'anonymous',
-      actor_type: ActorType.USER,
+      actor_type: TipoAtor.USER,
       action: 'AUTH_FAILURE',
       module: 'auth',
       actor_ip: details.ip,
@@ -164,7 +164,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: 'system',
-      actor_type: ActorType.INTEGRATION,
+      actor_type: TipoAtor.INTEGRATION,
       action: 'RATE_LIMIT_HIT',
       module: 'auth',
       actor_ip: details.ip,
@@ -181,7 +181,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: actorId,
-      actor_type: ActorType.USER,
+      actor_type: TipoAtor.USER,
       action: `CREDENTIAL_${details.operation}`,
       module: 'configuracao',
       severity: 'WARNING',
@@ -197,7 +197,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: adminId,
-      actor_type: ActorType.USER,
+      actor_type: TipoAtor.USER,
       action: 'ADMIN_ACCESS',
       module: 'admin',
       severity: 'INFO',
@@ -213,7 +213,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: 'webhook',
-      actor_type: ActorType.INTEGRATION,
+      actor_type: TipoAtor.INTEGRATION,
       action: 'WEBHOOK_SIGNATURE_FAILURE',
       module: 'auth',
       actor_ip: details.ip,
@@ -231,7 +231,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: actorId,
-      actor_type: ActorType.USER,
+      actor_type: TipoAtor.USER,
       action: 'DATA_DELETED',
       module: 'admin',
       user_id: details.targetUserId,
@@ -248,7 +248,7 @@ export const securityAudit = {
     return logSecurityEvent({
       tenant_id: tenantId,
       actor_id: apiKeyId,
-      actor_type: ActorType.API,
+      actor_type: TipoAtor.API,
       action: 'API_CALL',
       module: details.module,
       actor_ip: details.ip,

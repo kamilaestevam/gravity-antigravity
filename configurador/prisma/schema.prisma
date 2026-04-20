@@ -18,14 +18,14 @@ datasource db {
 // ENUMS
 // ---------------------------------------------------------------------------
 
-enum TenantStatus {
+enum StatusOrganizacao {
   ACTIVE
   SUSPENDED
   CANCELLED
   PENDING_SETUP
 }
 
-enum SubscriptionStatus {
+enum StatusAssinatura {
   ACTIVE
   PAST_DUE
   CANCELLED
@@ -34,7 +34,7 @@ enum SubscriptionStatus {
 }
 
 // Roles canônicos do sistema — alinhados com skill antigravity-permissoes
-enum UserRole {
+enum TipoUsuario {
   SUPER_ADMIN // Equipe Gravity — acesso total irrestrito
   ADMIN // Equipe Gravity — acesso com permissões explícitas
   MASTER // Cliente — acesso total na organização
@@ -42,18 +42,18 @@ enum UserRole {
   SUPPLIER // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
 }
 
-enum CompanyStatus {
+enum StatusEmpresa {
   ACTIVE
   INACTIVE
 }
 
-enum UserMembershipRole {
+enum TipoMembroEmpresa {
   MASTER // Acesso implícito a todos os workspaces da organização
   STANDARD // Acesso apenas aos workspaces onde foi habilitado
   SUPPLIER // Acesso externo — permissões granulares obrigatórias
 }
 
-enum ServiceTokenScope {
+enum EscopoTokenServico {
   SERVICE
   WEBHOOK
   CRON
@@ -69,7 +69,7 @@ model Organizacao {
   id                 String       @id @default(cuid()) @map("id_organizacao")
   name               String       @map("nome_organizacao")
   slug               String       @unique @map("subdominio_organizacao")
-  status             TenantStatus @default(PENDING_SETUP) @map("status_organizacao")
+  status             StatusOrganizacao @default(PENDING_SETUP) @map("status_organizacao")
   clerk_org_id       String?      @unique
   stripe_customer_id String?      @unique
 
@@ -109,7 +109,7 @@ model Usuario {
   clerk_user_id String   @unique
   email         String   @map("email_usuario")
   name          String   @map("nome_usuario")
-  role          UserRole @default(STANDARD) @map("tipo_usuario")
+  role          TipoUsuario @default(STANDARD) @map("tipo_usuario")
 
   // Workspace preferido — skip pós-login para Master/Standard
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
@@ -144,7 +144,7 @@ model Usuario {
 model AssinaturaProdutoGravity {
   id        String             @id @default(cuid())
   tenant_id String
-  status    SubscriptionStatus @default(TRIALING)
+  status    StatusAssinatura @default(TRIALING)
 
   stripe_subscription_id String? @unique
   stripe_price_id        String?
@@ -238,7 +238,7 @@ model Empresa {
   name      String
   subdomain String?       @unique
   cnpj      String?
-  status    CompanyStatus @default(ACTIVE)
+  status    StatusEmpresa @default(ACTIVE)
 
   // Timestamps
   created_at DateTime @default(now())
@@ -268,7 +268,7 @@ model UsuarioWorkspace {
   tenant_id  String
   user_id    String
   company_id String
-  role       UserMembershipRole @default(STANDARD)
+  role       TipoMembroEmpresa @default(STANDARD)
   is_active  Boolean            @default(true)
 
   // Timestamps
@@ -353,7 +353,7 @@ model ProdutoGravityWorkspace {
 // NÃO confundir com ProductConfig (que é a ativação por tenant).
 // ---------------------------------------------------------------------------
 
-enum ProductStatus {
+enum StatusProduto {
   ACTIVE
   SUSPENDED
   COMING_SOON
@@ -361,7 +361,7 @@ enum ProductStatus {
   INACTIVE
 }
 
-enum BillingType {
+enum TipoCobranca {
   MONTHLY
   PER_PROCESS
   PER_DOCUMENT
@@ -373,7 +373,7 @@ enum BillingType {
   PER_LPCO
 }
 
-enum UserLimitType {
+enum TipoLimiteUsuario {
   UNLIMITED
   LIMITED
 }
@@ -383,7 +383,7 @@ model ProdutoGravity {
   name        String
   slug        String        @unique
   description String
-  status      ProductStatus @default(ACTIVE)
+  status      StatusProduto @default(ACTIVE)
   launch_date DateTime?
 
   // Setup
@@ -392,7 +392,7 @@ model ProdutoGravity {
   setup_currency String   @default("BRL")
 
   // Billing
-  billing_type     BillingType @default(MONTHLY)
+  billing_type     TipoCobranca @default(MONTHLY)
   unit_price       Decimal     @db.Decimal(15, 2)
   unit_currency    String      @default("BRL")
   minimum_price    Decimal     @default(0) @db.Decimal(15, 2)
@@ -401,7 +401,7 @@ model ProdutoGravity {
   total_currency   String      @default("BRL")
 
   // Users
-  user_limit_type     UserLimitType @default(UNLIMITED)
+  user_limit_type     TipoLimiteUsuario @default(UNLIMITED)
   base_users_qty      Int?
   extra_user_price    Decimal?      @db.Decimal(15, 2)
   extra_user_currency String        @default("BRL")
@@ -491,14 +491,14 @@ model NegociacaoEspecial {
 // Global — não é tenant-scoped. Apenas gravity_admin grava/lê.
 // ---------------------------------------------------------------------------
 
-enum DeployEnvironment {
+enum AmbienteDeploy {
   DEVELOPMENT
   STAGING
   PRODUCTION
   ALL
 }
 
-enum DeployStatus {
+enum StatusDeploy {
   SUCCESS
   FAILED
   ROLLBACK
@@ -511,8 +511,8 @@ model Deploy {
   area                String            @map("area_deploy") // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
   version             String            @map("versao_deploy") // semver (v1.2.3) ou git sha (8f3a1c2)
   description         String            @map("descricao_deploy") // resumo das alterações (changelog curto)
-  environment         DeployEnvironment @default(PRODUCTION) @map("ambiente_deploy")
-  status              DeployStatus      @default(SUCCESS) @map("status_deploy")
+  environment         AmbienteDeploy @default(PRODUCTION) @map("ambiente_deploy")
+  status              StatusDeploy      @default(SUCCESS) @map("status_deploy")
   deployed_by         String            @map("quem_deploy") // nome legível do responsável (snapshot no momento do deploy)
   deployed_by_user_id String?           @map("id_usuario_deploy") // FK opcional para Usuario (pode ser null se deploy veio de CI)
   deployed_at         DateTime          @default(now()) @map("data_execucao_deploy")

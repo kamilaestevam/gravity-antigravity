@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-19T20:05:22.398Z
+// Gerado em: 2026-04-20T15:01:54.363Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -23,6 +23,7 @@ datasource db {
   url      = env("TENANT_DATABASE_URL")
 }
 
+
 // --- Fragment: atividades ---
 // servicos-global/tenant/atividades/prisma/fragment.prisma
 // AGENTE ATIVIDADES — Minhas Atividades (Tasks Board)
@@ -37,7 +38,7 @@ datasource db {
 // ---------------------------------------------------------------------------
 
 model AtividadesDados {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   tenant_id String
   user_id   String? // criador da atividade
 
@@ -70,8 +71,8 @@ model AtividadesDados {
 
   // Lembrete
   lembrete_em       DateTime?
-  lembrete_email    Boolean   @default(false)
-  lembrete_whatsapp Boolean   @default(false)
+  lembrete_email    Boolean @default(false)
+  lembrete_whatsapp Boolean @default(false)
 
   // Notificação ao atribuir
   notificar_ao_atribuir Boolean @default(false)
@@ -127,6 +128,7 @@ model AtividadesTempo {
   @@map("atividades_tempo")
 }
 
+
 // --- Fragment: cronometro ---
 // servicos-global/tenant/cronometro/prisma/fragment.prisma
 // AGENTE CRONÔMETRO — ONDA 3 | 2/13
@@ -141,7 +143,7 @@ model AtividadesTempo {
 // ---------------------------------------------------------------------------
 
 model AtividadesCronometro {
-  id String @id @default(cuid())
+  id         String  @id @default(cuid())
 
   // Campos de isolamento — obrigatórios
   tenant_id  String
@@ -154,14 +156,14 @@ model AtividadesCronometro {
   // Dados da sessão
   started_at       DateTime
   ended_at         DateTime?
-  duration_minutes Int? // null = timer ainda ativo (em progresso)
-  is_manual        Boolean   @default(false)
+  duration_minutes Int?         // null = timer ainda ativo (em progresso)
+  is_manual        Boolean  @default(false)
 
   // Assunto e vínculo
-  subject      String? // texto livre do assunto
-  linked_type  String? // nf | meeting | process | custom
-  linked_id    String? // ID do item vinculado
-  linked_label String? // label de exibição do item vinculado
+  subject      String?  // texto livre do assunto
+  linked_type  String?  // nf | meeting | process | custom
+  linked_id    String?  // ID do item vinculado
+  linked_label String?  // label de exibição do item vinculado
 
   // Timestamps
   created_at DateTime @default(now())
@@ -185,11 +187,11 @@ model AtividadesCronometro {
 // ---------------------------------------------------------------------------
 
 model AtividadesTimer {
-  id String @id @default(cuid())
+  id         String  @id @default(cuid())
 
   // Campos de isolamento
-  tenant_id String
-  user_id   String @unique // um timer ativo por usuário
+  tenant_id  String
+  user_id    String  @unique // um timer ativo por usuário
 
   // Relacionamento
   activity_id String
@@ -197,7 +199,7 @@ model AtividadesTimer {
   // Estado do timer
   started_at          DateTime
   paused_at           DateTime?
-  accumulated_seconds Int       @default(0) // segundos acumulados antes de pausas
+  accumulated_seconds Int      @default(0) // segundos acumulados antes de pausas
 
   // Timestamps
   created_at DateTime @default(now())
@@ -216,7 +218,7 @@ model AtividadesTimer {
 // ---------------------------------------------------------------------------
 
 model TempoCriacaoRelatorio {
-  id String @id @default(cuid())
+  id        String @id @default(cuid())
 
   tenant_id  String
   user_id    String?
@@ -225,7 +227,7 @@ model TempoCriacaoRelatorio {
   periodo_inicio DateTime
   periodo_fim    DateTime
   total_minutos  Int
-  payload        String // JSON serializado com breakdown por atividade
+  payload        String  // JSON serializado com breakdown por atividade
 
   computed_at DateTime @default(now())
   expires_at  DateTime
@@ -236,6 +238,7 @@ model TempoCriacaoRelatorio {
   @@index([tenant_id, periodo_inicio, periodo_fim])
   @@map("tempo_criacao_relatorio")
 }
+
 
 // --- Fragment: email ---
 // servicos-global/tenant/email/prisma/fragment.prisma
@@ -249,7 +252,7 @@ model TempoCriacaoRelatorio {
 // Enums
 // ---------------------------------------------------------------------------
 
-enum EmailStatus {
+enum StatusEmail {
   PENDENTE
   PROCESSANDO
   ENVIADO
@@ -257,18 +260,18 @@ enum EmailStatus {
   CANCELADO
 }
 
-enum EmailDirection {
+enum DirecaoEmail {
   INBOUND
   OUTBOUND
 }
 
-enum EmailThreadStatus {
+enum StatusThreadEmail {
   ABERTA
   ARQUIVADA
   RESOLVIDA
 }
 
-enum EmailSentimentLevel {
+enum NivelSentimentoEmail {
   MUITO_POSITIVO
   POSITIVO
   NEUTRO
@@ -288,18 +291,18 @@ enum FilaEmailPrioridade {
 // ---------------------------------------------------------------------------
 
 model EmailAssuntosParticipantes {
-  id         String  @id @default(cuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
 
-  subject         String
-  status          EmailThreadStatus   @default(ABERTA)
-  sentiment       Float               @default(0) // -1 a 1
-  sentiment_label EmailSentimentLevel @default(NEUTRO)
+  subject        String
+  status         StatusThreadEmail   @default(ABERTA)
+  sentiment      Float               @default(0)           // -1 a 1
+  sentiment_label NivelSentimentoEmail @default(NEUTRO)
   mensagens_count Int                 @default(0)
   ultimo_contato  DateTime?
-  deep_link       String? // ex: /email/thread/{id}
+  deep_link       String?                                   // ex: /email/thread/{id}
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -317,32 +320,32 @@ model EmailAssuntosParticipantes {
 // ---------------------------------------------------------------------------
 
 model EmailMensagem {
-  id         String  @id @default(cuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
 
-  thread_id String
-  thread    EmailAssuntosParticipantes @relation(fields: [thread_id], references: [id])
+  thread_id        String
+  thread           EmailAssuntosParticipantes  @relation(fields: [thread_id], references: [id])
 
-  resend_id         String?        @unique // ID retornado pelo Resend
-  direction         EmailDirection @default(OUTBOUND)
-  from              String
-  to                String
-  subject           String?
-  body              String         @db.Text
-  body_html         String?        @db.Text
-  dedup_key         String?        @unique // UUID para Reply-To dinâmico
-  parent_message_id String? // UUID do email pai (threading)
+  resend_id        String?      @unique                    // ID retornado pelo Resend
+  direction        DirecaoEmail @default(OUTBOUND)
+  from             String
+  to               String
+  subject          String?
+  body             String       @db.Text
+  body_html        String?      @db.Text
+  dedup_key        String?      @unique                    // UUID para Reply-To dinâmico
+  parent_message_id String?                                // UUID do email pai (threading)
 
   // Análise Gabi
-  gabi_response   String? @db.Text
-  gabi_confidence Float?
-  gabi_action     String? // auto_replied | escalated_to_human | none
+  gabi_response    String?      @db.Text
+  gabi_confidence  Float?
+  gabi_action      String?                                 // auto_replied | escalated_to_human | none
 
-  sent_at    DateTime @default(now())
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  sent_at          DateTime     @default(now())
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -357,25 +360,25 @@ model EmailMensagem {
 // ---------------------------------------------------------------------------
 
 model EmailRegistroEnvio {
-  id         String  @id @default(cuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
 
-  to          String
-  from        String
-  reply_to    String?
-  subject     String
-  template_id String?
-  status      EmailStatus @default(PENDENTE)
-  resend_id   String?     @unique
-  dedup_key   String      @unique // UUID do Reply-To dinâmico
+  to            String
+  from          String
+  reply_to      String?
+  subject       String
+  template_id   String?
+  status        StatusEmail  @default(PENDENTE)
+  resend_id     String?      @unique
+  dedup_key     String       @unique                       // UUID do Reply-To dinâmico
 
-  tentativas     Int       @default(0)
-  max_tentativas Int       @default(5)
-  next_retry_at  DateTime?
-  error_message  String?   @db.Text
-  enviado_at     DateTime?
+  tentativas    Int          @default(0)
+  max_tentativas Int         @default(5)
+  next_retry_at DateTime?
+  error_message String?      @db.Text
+  enviado_at    DateTime?
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -393,18 +396,18 @@ model EmailRegistroEnvio {
 // ---------------------------------------------------------------------------
 
 model TemplateEmail {
-  id         String  @id @default(cuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
 
   nome        String
-  slug        String // ex: boas-vindas, recuperacao-senha
+  slug        String                                        // ex: boas-vindas, recuperacao-senha
   assunto     String
-  corpo_html  String   @db.Text
-  corpo_texto String?  @db.Text
-  variaveis   String[] // ex: ["nome", "plano", "url"]
-  ativo       Boolean  @default(true)
+  corpo_html  String    @db.Text
+  corpo_texto String?   @db.Text
+  variaveis   String[]                                      // ex: ["nome", "plano", "url"]
+  ativo       Boolean   @default(true)
   descricao   String?
 
   created_at DateTime @default(now())
@@ -422,15 +425,15 @@ model TemplateEmail {
 // ---------------------------------------------------------------------------
 
 model EmailFilaEnvio {
-  id         String  @id @default(cuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
 
-  status           EmailStatus         @default(PENDENTE)
-  prioridade       FilaEmailPrioridade @default(NORMAL)
-  payload          String              @db.Text // JSON: { to, subject, body, ... }
-  template_id      String?
+  status        StatusEmail         @default(PENDENTE)
+  prioridade    FilaEmailPrioridade @default(NORMAL)
+  payload       String              @db.Text                // JSON: { to, subject, body, ... }
+  template_id   String?
   email_enviado_id String?
 
   tentativas     Int       @default(0)
@@ -450,30 +453,31 @@ model EmailFilaEnvio {
   @@map("email_fila_envio")
 }
 
+
 // --- Fragment: whatsapp ---
 model WhatsappConversa {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id                      String    @id @default(cuid())
+  tenant_id               String
+  product_id              String?
+  user_id                 String?
+  
+  wa_phone_number         String
+  status                  String    @default("open")
+  contact_id              String?
+  company_id              String?
+  contact_nome            String?
+  company_nome            String?
+  activity_id             String?
+  ai_enabled              Boolean   @default(false)
+  opened_at               DateTime  @default(now())
+  closed_at               DateTime?
+  gabi_temperatura        String?
+  gabi_temperatura_score  Int?
+  gabi_resumo             String?
+  gabi_acoes_sugeridas    Json?
 
-  wa_phone_number        String
-  status                 String    @default("open")
-  contact_id             String?
-  company_id             String?
-  contact_nome           String?
-  company_nome           String?
-  activity_id            String?
-  ai_enabled             Boolean   @default(false)
-  opened_at              DateTime  @default(now())
-  closed_at              DateTime?
-  gabi_temperatura       String?
-  gabi_temperatura_score Int?
-  gabi_resumo            String?
-  gabi_acoes_sugeridas   Json?
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -484,22 +488,22 @@ model WhatsappConversa {
 }
 
 model WhatsappMensagem {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
-
+  id              String   @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String?
+  
   conversation_id String
-  wa_message_id   String? @unique
+  wa_message_id   String?  @unique
   direction       String
-  content_type    String  @default("text")
+  content_type    String   @default("text")
   content         String
-  origin          String  @default("agent")
+  origin          String   @default("agent")
   sent_by         String?
-  status          String  @default("sent")
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  status          String   @default("sent")
+  
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -510,10 +514,10 @@ model WhatsappMensagem {
 }
 
 model WhatsappLog {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id                    String   @id @default(cuid())
+  tenant_id             String
+  product_id            String?
+  user_id               String?
 
   conversation_id       String?
   company_id            String?
@@ -521,8 +525,8 @@ model WhatsappLog {
   origin                String
   cost_usd              Decimal
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -531,20 +535,20 @@ model WhatsappLog {
 }
 
 model WhatsappRegra {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
-
-  name        String
-  trigger     String
-  conditions  Json?
-  template_id String
-  recipient   String
-  active      Boolean @default(true)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?
+  
+  name         String
+  trigger      String
+  conditions   Json?
+  template_id  String
+  recipient    String
+  active       Boolean  @default(true)
+  
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -553,23 +557,24 @@ model WhatsappRegra {
   @@map("whatsapp_regra")
 }
 
+
 // --- Fragment: dashboard ---
 // fragment.prisma — Dashboard Service
 // NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
 // Coordenador compõe via scripts/compose-tenant-schema.ts
 
-enum DashboardMode {
+enum ModoDashboard {
   PRODUCT
   GENERAL
 }
 
-enum WidgetType {
+enum TipoWidget {
   CATALOG
   CUSTOM
   GABI
 }
 
-enum ChartType {
+enum TipoGrafico {
   KPI_CARD
   LINE
   BAR
@@ -584,20 +589,20 @@ enum ChartType {
 }
 
 model DashboardConfiguracao {
-  id         String                  @id @default(cuid())
+  id         String        @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String
-  name       String                  @default("Meu Dashboard")
-  mode       DashboardMode           @default(PRODUCT)
-  layout     Json                    @default("[]")
+  name       String        @default("Meu Dashboard")
+  mode       ModoDashboard @default(PRODUCT)
+  layout     Json          @default("[]")
   filters    Json?
-  is_default Boolean                 @default(false)
+  is_default Boolean       @default(false)
   widgets    DashboardCriar[]
   alerts     DashboardAlertas[]
   shares     DashboardCompartilhar[]
-  created_at DateTime                @default(now())
-  updated_at DateTime                @updatedAt
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -606,21 +611,21 @@ model DashboardConfiguracao {
 }
 
 model DashboardCriar {
-  id           String                @id @default(cuid())
+  id           String          @id @default(cuid())
   tenant_id    String
   product_id   String?
   user_id      String
   dashboard_id String
   widget_key   String
-  widget_type  WidgetType            @default(CATALOG)
-  chart_type   ChartType             @default(KPI_CARD)
+  widget_type  TipoWidget      @default(CATALOG)
+  chart_type   TipoGrafico       @default(KPI_CARD)
   title        String
   query_spec   Json
-  position     Json                  @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
+  position     Json            @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
   config       Json?
   dashboard    DashboardConfiguracao @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
-  created_at   DateTime              @default(now())
-  updated_at   DateTime              @updatedAt
+  created_at   DateTime        @default(now())
+  updated_at   DateTime        @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -648,7 +653,7 @@ model DashboardMetricas {
 }
 
 model DashboardAlertas {
-  id             String                @id @default(cuid())
+  id             String          @id @default(cuid())
   tenant_id      String
   product_id     String?
   user_id        String
@@ -657,12 +662,12 @@ model DashboardAlertas {
   metric_key     String
   condition      String
   threshold      Json
-  channels       String[]              @default([])
-  is_active      Boolean               @default(true)
+  channels       String[]        @default([])
+  is_active      Boolean         @default(true)
   last_triggered DateTime?
   dashboard      DashboardConfiguracao @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
-  created_at     DateTime              @default(now())
-  updated_at     DateTime              @updatedAt
+  created_at     DateTime        @default(now())
+  updated_at     DateTime        @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -671,19 +676,19 @@ model DashboardAlertas {
 }
 
 model DashboardCompartilhar {
-  id              String                @id @default(cuid())
+  id              String          @id @default(cuid())
   tenant_id       String
   product_id      String?
   user_id         String
   dashboard_id    String
-  share_token     String                @unique @default(cuid())
+  share_token     String          @unique @default(cuid())
   channel         String
   recipient_email String?
   recipient_phone String?
   snapshot_data   Json?
   expires_at      DateTime?
   dashboard       DashboardConfiguracao @relation(fields: [dashboard_id], references: [id], onDelete: Cascade)
-  created_at      DateTime              @default(now())
+  created_at      DateTime        @default(now())
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -692,11 +697,12 @@ model DashboardCompartilhar {
   @@map("dashboard_compartilhar")
 }
 
+
 // --- Fragment: relatorios ---
 // servicos-global/tenant/relatorios/prisma/fragment.prisma
 
 model RelatoriosSalvos {
-  id         String  @id @default(cuid())
+  id         String   @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
@@ -717,18 +723,18 @@ model RelatoriosSalvos {
 }
 
 model RelatoriosConfiguracao {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id              String   @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String?
 
-  relatorio_id String
-  frequencia   String // once | daily | weekly | monthly
-  canais       Json // { email:[], whatsapp:[] }
-  formato      String   @default("csv") // csv | excel | pdf
-  ativo        Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  relatorio_id    String
+  frequencia      String   // once | daily | weekly | monthly
+  canais          Json     // { email:[], whatsapp:[] }
+  formato         String   @default("csv") // csv | excel | pdf
+  ativo           Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -737,20 +743,20 @@ model RelatoriosConfiguracao {
 }
 
 model ExportarJob {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?
 
   relatorio_id String
-  status       String    @default("PENDING") // PENDING, PROCESSING, DONE, FAILED
-  formato      String    @default("csv")
+  status       String   @default("PENDING") // PENDING, PROCESSING, DONE, FAILED
+  formato      String   @default("csv")
   url_arquivo  String?
   erro         String?
   started_at   DateTime?
   completed_at DateTime?
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -758,43 +764,44 @@ model ExportarJob {
   @@map("exportar_job")
 }
 
+
 // --- Fragment: historico-global ---
 model HistoricoLog {
-  id        String @id @default(cuid())
-  tenant_id String
+  id             String      @id @default(cuid())
+  tenant_id      String
 
   // Ator
-  actor_type     ActorType
+  actor_type     TipoAtor
   actor_id       String
   actor_name     String
   actor_ip       String?
   actor_metadata Json?
 
   // Recurso
-  module        String
-  resource_type String
-  resource_id   String?
+  module         String
+  resource_type  String
+  resource_id    String?
 
   // Ação
-  action        String
-  action_detail String
+  action         String
+  action_detail  String
 
   // Estado antes/depois
-  before Json?
-  after  Json?
+  before         Json?
+  after          Json?
 
   // Resultado
-  status        EventStatus @default(SUCCESS)
-  error_message String?
+  status         StatusEvento @default(SUCCESS)
+  error_message  String?
 
   // Integridade
   integrity_hash String
 
   // Referências para queries e visibilidade por role
-  product_id String?
-  user_id    String?
+  product_id     String?
+  user_id        String?
 
-  created_at DateTime @default(now()) @db.Timestamptz
+  created_at     DateTime    @default(now()) @db.Timestamptz
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -805,50 +812,50 @@ model HistoricoLog {
   @@map("historico_log")
 }
 
-model RegraAlerta {
-  id        String  @id @default(cuid())
-  tenant_id String?
+model AlertRule {
+  id                       String     @id @default(cuid())
+  tenant_id                String?
 
-  name        String
-  description String?
-  enabled     Boolean @default(true)
+  name                     String
+  description              String?
+  enabled                  Boolean    @default(true)
 
   // Filtro da regra (null = qualquer valor)
-  actor_type    ActorType?
-  action        String?
-  module        String?
-  status_filter EventStatus?
+  actor_type               TipoAtor?
+  action                   String?
+  module                   String?
+  status_filter            StatusEvento?
 
   // Threshold
   threshold_count          Int?
   threshold_window_seconds Int?
 
   // Canais ativos por regra
-  channel_inapp    Boolean @default(true)
-  channel_email    Boolean @default(false)
-  channel_whatsapp Boolean @default(false)
+  channel_inapp            Boolean    @default(true)
+  channel_email            Boolean    @default(false)
+  channel_whatsapp         Boolean    @default(false)
 
   // Destinatários por canal
-  recipients_email    String[]
-  recipients_whatsapp String[]
-  recipients_user_ids String[]
+  recipients_email         String[]
+  recipients_whatsapp      String[]
+  recipients_user_ids      String[]
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at               DateTime   @default(now())
+  updated_at               DateTime   @updatedAt
 
-  alerts EventoAlerta[]
+  alerts                   AlertEvent[]
 
   @@index([tenant_id, enabled])
   @@map("alerta_regra")
 }
 
-model EventoAlerta {
-  id        String      @id @default(cuid())
-  tenant_id String
-  rule_id   String
-  rule      RegraAlerta @relation(fields: [rule_id], references: [id])
+model AlertEvent {
+  id             String      @id @default(cuid())
+  tenant_id      String
+  rule_id        String
+  rule           AlertRule   @relation(fields: [rule_id], references: [id])
 
-  actor_type     ActorType
+  actor_type     TipoAtor
   actor_id       String
   actor_name     String
   module         String
@@ -857,39 +864,39 @@ model EventoAlerta {
   window_seconds Int
   audit_log_ids  String[]
 
-  status      AlertStatus @default(PENDING)
-  reviewed_by String?
-  reviewed_at DateTime?
-  notes       String?
+  status         StatusAlerta @default(PENDING)
+  reviewed_by    String?
+  reviewed_at    DateTime?
+  notes          String?
 
-  created_at DateTime @default(now())
+  created_at     DateTime    @default(now())
 
-  notifications RegistroNotificacaoAlerta[]
+  notifications  AlertNotificationLog[]
 
   @@index([tenant_id, status])
   @@index([tenant_id, created_at])
   @@map("alerta_data")
 }
 
-model RegistroNotificacaoAlerta {
-  id             String       @id @default(cuid())
+model AlertNotificationLog {
+  id             String     @id @default(cuid())
   alert_event_id String
-  alert_event    EventoAlerta @relation(fields: [alert_event_id], references: [id])
+  alert_event    AlertEvent @relation(fields: [alert_event_id], references: [id])
 
-  channel       String
-  recipient     String
-  status        String    @default("pending")
-  attempts      Int       @default(1)
-  error_message String?
-  sent_at       DateTime?
+  channel        String
+  recipient      String
+  status         String     @default("pending")
+  attempts       Int        @default(1)
+  error_message  String?
+  sent_at        DateTime?
 
-  created_at DateTime @default(now())
+  created_at     DateTime   @default(now())
 
   @@index([alert_event_id])
   @@map("alerta_registro")
 }
 
-enum ActorType {
+enum TipoAtor {
   USER
   API
   AI
@@ -897,13 +904,13 @@ enum ActorType {
   INTEGRATION
 }
 
-enum EventStatus {
+enum StatusEvento {
   SUCCESS
   FAILURE
   PARTIAL
 }
 
-enum AlertStatus {
+enum StatusAlerta {
   PENDING
   REVIEWED
   ESCALATED
@@ -914,7 +921,7 @@ enum AlertStatus {
 model ExportarResultado {
   id           String   @id @default(cuid())
   tenant_id    String
-  format       String // 'csv' | 'json'
+  format       String   // 'csv' | 'json'
   content      String   @db.Text
   status       String   @default("processing") // 'processing' | 'ready' | 'failed'
   record_count Int      @default(0)
@@ -928,35 +935,36 @@ model ExportarResultado {
   @@map("exportar_resultado")
 }
 
+
 // --- Fragment: agendamento ---
 model Agenda {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  nome         String
-  descricao    String?
-  tipo         String // e.g., reuniao, consulta
-  criadoEm     DateTime @default(now())
+  id          String   @id @default(cuid())
+  tenant_id   String
+  nome        String
+  descricao   String?
+  tipo        String   // e.g., reuniao, consulta
+  criadoEm    DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  slots  Slot[]
-  config DisponibilidadeConfig?
+  slots       Slot[]
+  config      DisponibilidadeConfig?
 
   @@index([tenant_id])
   @@map("agenda_usuario")
 }
 
 model Slot {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  agenda_id    String
-  inicio       DateTime
-  fim          DateTime
-  capacidade   Int      @default(1)
-  criadoEm     DateTime @default(now())
+  id          String   @id @default(cuid())
+  tenant_id   String
+  agenda_id   String
+  inicio      DateTime
+  fim         DateTime
+  capacidade  Int      @default(1)
+  criadoEm    DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  agenda   Agenda    @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
-  reservas Reserva[]
+  agenda      Agenda   @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
+  reservas    Reserva[]
 
   @@index([tenant_id])
   @@index([agenda_id])
@@ -964,17 +972,17 @@ model Slot {
 }
 
 model Reserva {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  slot_id      String
-  usuario_id   String // ID do usuário ou contato
-  nome         String? // Nome se não tiver usuário cadastrado no sistema
-  email        String? // Email para notificação
-  status       String   @default("confirmado") // confirmado, cancelado, pendente
-  criadoEm     DateTime @default(now())
+  id          String   @id @default(cuid())
+  tenant_id   String
+  slot_id     String
+  usuario_id  String   // ID do usuário ou contato
+  nome        String?  // Nome se não tiver usuário cadastrado no sistema
+  email       String?  // Email para notificação
+  status      String   @default("confirmado") // confirmado, cancelado, pendente
+  criadoEm    DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  slot Slot @relation(fields: [slot_id], references: [id], onDelete: Cascade)
+  slot        Slot     @relation(fields: [slot_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@index([slot_id])
@@ -983,22 +991,23 @@ model Reserva {
 }
 
 model DisponibilidadeConfig {
-  id            String   @id @default(cuid())
-  tenant_id     String
-  agenda_id     String   @unique
-  horarioInicio String // Formato "HH:mm" (e.g., "09:00")
-  horarioFim    String // Formato "HH:mm" (e.g., "18:00")
-  duracaoSlot   Int // em minutos
-  intervalo     Int      @default(0) // tempo entre slots em minutos
-  diasSemana    Int[] // [1,2,3,4,5] (1=Segunda, 5=Sexta)
-  criadoEm      DateTime @default(now())
-  atualizadoEm  DateTime @updatedAt
+  id             String   @id @default(cuid())
+  tenant_id      String
+  agenda_id      String   @unique
+  horarioInicio  String   // Formato "HH:mm" (e.g., "09:00")
+  horarioFim     String   // Formato "HH:mm" (e.g., "18:00")
+  duracaoSlot    Int      // em minutos
+  intervalo      Int      @default(0) // tempo entre slots em minutos
+  diasSemana     Int[]    // [1,2,3,4,5] (1=Segunda, 5=Sexta)
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
 
-  agenda Agenda @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
+  agenda         Agenda   @relation(fields: [agenda_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id])
   @@map("config_disponibilidade_agenda")
 }
+
 
 // --- Fragment: gabi ---
 // servicos-global/tenant/gabi/prisma/fragment.prisma
@@ -1013,17 +1022,17 @@ model DisponibilidadeConfig {
 // ---------------------------------------------------------------------------
 
 model ConversaCompletaGabi {
-  id         String  @id @default(cuid())
+  id         String @id @default(cuid())
   tenant_id  String
   product_id String?
   user_id    String?
 
-  title String?
-
+  title      String?
+  
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  messages MensagemIndividualGabiai[]
+  messages   MensagemIndividualGabiai[]
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -1036,20 +1045,20 @@ model ConversaCompletaGabi {
 // ---------------------------------------------------------------------------
 
 model MensagemIndividualGabiai {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id              String @id @default(cuid())
+  tenant_id       String
+  product_id      String?
+  user_id         String?
 
   conversation_id String
   conversation    ConversaCompletaGabi @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
 
-  role        String // 'user' | 'assistant' | 'system'
-  content     String  @db.Text
-  attachments String? // JSON encodado com links/detalhes de arquivos
+  role            String   // 'user' | 'assistant' | 'system'
+  content         String   @db.Text
+  attachments     String?  // JSON encodado com links/detalhes de arquivos
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -1065,23 +1074,23 @@ model MensagemIndividualGabiai {
 // ---------------------------------------------------------------------------
 
 model GabiaLogUso {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id                    String @id @default(cuid())
+  tenant_id             String
+  product_id            String?
+  user_id               String?
 
   action_taken          String
-  conversation_snapshot String @db.Text
-  actor_type            String @default("gabi")
+  conversation_snapshot String  @db.Text
+  actor_type            String  @default("gabi")
   triggered_by          String
 
   // Campos de custo (usados por usage.ts)
-  model_used    String?
-  tokens_input  Int     @default(0)
-  tokens_output Int     @default(0)
-  cost_usd      Float   @default(0)
+  model_used            String?
+  tokens_input          Int     @default(0)
+  tokens_output         Int     @default(0)
+  cost_usd              Float   @default(0)
 
-  created_at DateTime @default(now())
+  created_at            DateTime @default(now())
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -1094,16 +1103,16 @@ model GabiaLogUso {
 // ---------------------------------------------------------------------------
 
 model GabiaTokenConsumidos {
-  id            String   @id @default(cuid())
-  tenant_id     String
-  product_id    String
-  user_id       String
-  campo         String
-  tokens_input  Int
-  tokens_output Int
-  tokens_total  Int
-  mes_ref       String // "2026-04" — para agrupamento mensal
-  created_at    DateTime @default(now())
+  id             String   @id @default(cuid())
+  tenant_id      String
+  product_id     String
+  user_id        String
+  campo          String
+  tokens_input   Int
+  tokens_output  Int
+  tokens_total   Int
+  mes_ref        String   // "2026-04" — para agrupamento mensal
+  created_at     DateTime @default(now())
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -1116,13 +1125,13 @@ model GabiaTokenConsumidos {
 // ---------------------------------------------------------------------------
 
 model GabiaTokenWorkspace {
-  id            String   @id @default(cuid())
-  tenant_id     String
-  product_id    String
-  quota_mensal  Int // padrão do produto, sobrescrito por negociação
-  mes_ref       String // "2026-04"
-  tokens_usados Int      @default(0)
-  updated_at    DateTime @updatedAt
+  id             String   @id @default(cuid())
+  tenant_id      String
+  product_id     String
+  quota_mensal   Int      // padrão do produto, sobrescrito por negociação
+  mes_ref        String   // "2026-04"
+  tokens_usados  Int      @default(0)
+  updated_at     DateTime @updatedAt
 
   @@unique([tenant_id, product_id, mes_ref])
   @@index([tenant_id])
@@ -1151,6 +1160,7 @@ model PersonalizacaoOrganizacaoGabiai {
   @@map("personalizacao_organizacao_gabiai")
 }
 
+
 // --- Fragment: preferencias-usuario ---
 // servicos-global/tenant/preferencias-usuario/prisma/fragment.prisma
 // SERVIÇO PREFERÊNCIAS DO USUÁRIO
@@ -1164,23 +1174,23 @@ model PersonalizacaoOrganizacaoGabiai {
 // UserPreferences — preferências de UI persitidas por usuário (cross-device)
 // ---------------------------------------------------------------------------
 
-model PreferenciasUsuario {
-  id String @id @default(cuid())
+model UserPreferences {
+  id         String  @id @default(cuid())
 
   // Identificação — obrigatórios
   // user_id = Clerk user ID (ex: user_2abc...)
-  user_id   String @unique
-  tenant_id String
+  user_id    String  @unique
+  tenant_id  String
 
   // ── Preferências de UI ──────────────────────────────────────────────────
   // Visibilidade global das tooltips/dicas
   tooltips_disabled Boolean @default(false)
 
   // Tema preferido ('dark' | 'light')
-  theme String @default("dark")
+  theme             String  @default("dark")
 
   // Sidebar aberta ou fechada
-  sidebar_open Boolean @default(true)
+  sidebar_open      Boolean @default(true)
 
   // Timestamps
   created_at DateTime @default(now())
@@ -1192,28 +1202,29 @@ model PreferenciasUsuario {
   @@map("preferencia_workspace")
 }
 
+
 // --- Fragment: ncm-sync ---
 // servicos-global/tenant/ncm-sync/prisma/fragment.prisma
 // NcmItem  — tabela NCM cacheada do Portal Único Siscomex (atualizada diariamente)
 // NcmSyncLog — histórico de cada sincronização com o Portal Único
 
 model NcmItem {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id          String   @id @default(cuid())
+  tenant_id   String
+  product_id  String?
+  user_id     String?
 
-  codigo    String // 8 dígitos — ex: "84713019"
-  descricao String
-  ativo     Boolean @default(true)
+  codigo      String   // 8 dígitos — ex: "84713019"
+  descricao   String
+  ativo       Boolean  @default(true)
 
   // Metadados do Portal Único
   data_inicio DateTime?
   data_fim    DateTime?
-  sync_id     String // referência ao NcmSyncLog que inseriu/atualizou
+  sync_id     String   // referência ao NcmSyncLog que inseriu/atualizou
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   @@unique([tenant_id, codigo])
   @@index([tenant_id])
@@ -1225,30 +1236,30 @@ model NcmItem {
 }
 
 model NcmSyncLog {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String?
+  id           String    @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?
 
   iniciado_em  DateTime  @default(now())
   concluido_em DateTime?
 
-  status NcmSyncStatus @default(RUNNING)
+  status       StatusNcmSync @default(RUNNING)
 
   // Totais do diff
-  total       Int @default(0)
-  adicionados Int @default(0)
-  alterados   Int @default(0)
-  removidos   Int @default(0)
+  total        Int @default(0)
+  adicionados  Int @default(0)
+  alterados    Int @default(0)
+  removidos    Int @default(0)
 
   // Origem do trigger
-  origem        NcmSyncOrigem @default(JOB) // 'JOB' | 'MANUAL'
-  disparado_por String? // user_id se MANUAL
+  origem       NcmSyncOrigem @default(JOB)  // 'JOB' | 'MANUAL'
+  disparado_por String?  // user_id se MANUAL
 
-  erro_msg String?
+  erro_msg     String?
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -1258,7 +1269,7 @@ model NcmSyncLog {
   @@map("ncm_log")
 }
 
-enum NcmSyncStatus {
+enum StatusNcmSync {
   RUNNING
   SUCCESS
   ERROR
@@ -1274,17 +1285,17 @@ enum NcmSyncOrigem {
 // tenant_id = '__system__' — satisfaz padrão de índices obrigatórios
 
 model NcmScheduleConfig {
-  id         String  @id @default("default")
-  tenant_id  String  @default("__system__")
-  product_id String?
-  user_id    String?
+  id             String   @id @default("default")
+  tenant_id      String   @default("__system__")
+  product_id     String?
+  user_id        String?
 
-  ativo          Boolean @default(false)
-  cron_expressao String  @default("0 2 * * *") // 2am diário (America/Sao_Paulo)
-  notificadores  Json    @default("[]") // NcmNotificador[]
+  ativo          Boolean  @default(false)
+  cron_expressao String   @default("0 2 * * *")   // 2am diário (America/Sao_Paulo)
+  notificadores  Json     @default("[]")            // NcmNotificador[]
 
-  criado_em     DateTime @default(now())
-  atualizado_em DateTime @updatedAt
+  criado_em      DateTime @default(now())
+  atualizado_em  DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -1292,30 +1303,31 @@ model NcmScheduleConfig {
   @@map("ncm_agendamento")
 }
 
+
 // --- Fragment: notificacoes ---
 model NotificacoesTituloCorpo {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String // Clerk ID or direct email
-  type       String // mentioned | task-assigned | reminder | next-step | etc.
-  title      String?
-  message    String
-  read       Boolean @default(false)
+  id          String   @id @default(cuid())
+  tenant_id   String
+  product_id  String?
+  user_id     String   // Clerk ID or direct email
+  type        String   // mentioned | task-assigned | reminder | next-step | etc.
+  title       String?
+  message     String
+  read        Boolean  @default(false)
 
   // ── Context link (Pilar 2) ─────────────────────────────────────────────────
   // Nunca salvar URL strings. Salvar entidade + ID e construir URL no frontend.
-  target_entity String? // "PEDIDO" | "ITEM" | "SIMULACUSTO" | "PROCESSO" | etc.
-  target_id     String? // ID da entidade no banco
+  target_entity  String?  // "PEDIDO" | "ITEM" | "SIMULACUSTO" | "PROCESSO" | etc.
+  target_id      String?  // ID da entidade no banco
 
   // ── Delivery tracking (Pilar 3) ────────────────────────────────────────────
   // delivery_status: ciclo de vida do envio de email/whatsapp
   // pending → sent → delivered | bounced | failed
-  delivery_status String  @default("pending") // pending | sent | delivered | bounced | failed
-  external_id     String? // ID da mensagem no Resend (para reconciliar webhooks)
+  delivery_status  String   @default("pending")  // pending | sent | delivered | bounced | failed
+  external_id      String?  // ID da mensagem no Resend (para reconciliar webhooks)
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -1331,13 +1343,13 @@ model NotificacoesTituloCorpo {
 // Agenda de contatos por tenant. Usada pelo sininho para enviar notificações a
 // pessoas que não são usuários do sistema (e-mail ou WhatsApp).
 // whatsapp_opt_in_at: consentimento explícito exigido pela LGPD (Art. 8).
-model ContatoExterno {
+model ExternalContact {
   id                 String    @id @default(cuid())
   tenant_id          String
-  created_by         String // Clerk user_id
+  created_by         String    // Clerk user_id
   name               String    @db.VarChar(200)
   email              String?   @db.VarChar(255)
-  whatsapp_phone     String?   @db.VarChar(20) // E.164: +5511999999999
+  whatsapp_phone     String?   @db.VarChar(20)  // E.164: +5511999999999
   whatsapp_opt_in_at DateTime? // LGPD Art. 8 — consentimento explícito
   notes              String?   @db.VarChar(500)
 
@@ -1354,7 +1366,7 @@ model ContatoExterno {
 // ─── Configuração de canais por tenant ────────────────────────────────────
 // Controlado exclusivamente pelo usuário com role MASTER.
 // email_enabled default true (backward compat). whatsapp_enabled default false.
-model ConfiguracaoCanalTenant {
+model TenantChannelConfig {
   id               String  @id @default(cuid())
   tenant_id        String  @unique
   email_enabled    Boolean @default(true)

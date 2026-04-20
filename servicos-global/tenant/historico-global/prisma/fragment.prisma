@@ -3,7 +3,7 @@ model HistoricoLog {
   tenant_id      String
 
   // Ator
-  actor_type     ActorType
+  actor_type     TipoAtor
   actor_id       String
   actor_name     String
   actor_ip       String?
@@ -23,7 +23,7 @@ model HistoricoLog {
   after          Json?
 
   // Resultado
-  status         EventStatus @default(SUCCESS)
+  status         StatusEvento @default(SUCCESS)
   error_message  String?
 
   // Integridade
@@ -53,10 +53,10 @@ model AlertRule {
   enabled                  Boolean    @default(true)
 
   // Filtro da regra (null = qualquer valor)
-  actor_type               ActorType?
+  actor_type               TipoAtor?
   action                   String?
   module                   String?
-  status_filter            EventStatus?
+  status_filter            StatusEvento?
 
   // Threshold
   threshold_count          Int?
@@ -87,7 +87,7 @@ model AlertEvent {
   rule_id        String
   rule           AlertRule   @relation(fields: [rule_id], references: [id])
 
-  actor_type     ActorType
+  actor_type     TipoAtor
   actor_id       String
   actor_name     String
   module         String
@@ -96,7 +96,7 @@ model AlertEvent {
   window_seconds Int
   audit_log_ids  String[]
 
-  status         AlertStatus @default(PENDING)
+  status         StatusAlerta @default(PENDING)
   reviewed_by    String?
   reviewed_at    DateTime?
   notes          String?
@@ -128,7 +128,7 @@ model AlertNotificationLog {
   @@map("alerta_registro")
 }
 
-enum ActorType {
+enum TipoAtor {
   USER
   API
   AI
@@ -136,13 +136,13 @@ enum ActorType {
   INTEGRATION
 }
 
-enum EventStatus {
+enum StatusEvento {
   SUCCESS
   FAILURE
   PARTIAL
 }
 
-enum AlertStatus {
+enum StatusAlerta {
   PENDING
   REVIEWED
   ESCALATED

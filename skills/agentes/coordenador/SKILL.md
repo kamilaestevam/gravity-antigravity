@@ -54,7 +54,7 @@ servicos-global/tenant/
 ### Cada produto (banco próprio)
 
 ```text
-produtos/pedido/server/prisma/
+produto/pedido/server/prisma/
 ├── schema.base.prisma                       ← models do produto + datasource
 └── schema.prisma                            ← composto (base + fragments dos serviços de produto)
 
@@ -67,7 +67,7 @@ servicos-global/produto/helpdesk/prisma/
 ```bash
 # Por produto
 npx tsx scripts/compose-product-schema.ts --product=pedido
-npx prisma validate --schema=produtos/pedido/server/prisma/schema.prisma
+npx prisma validate --schema=produto/pedido/server/prisma/schema.prisma
 
 # Para tenant-shared
 npx tsx scripts/ativamente/compose-tenant-schema.ts
@@ -104,14 +104,14 @@ Esta é uma das maiores responsabilidades técnicas do Coordenador.
 ```bash
 # 1. Compor + validar schema do produto
 npx tsx scripts/compose-product-schema.ts --product=pedido
-npx prisma validate --schema=produtos/pedido/server/prisma/schema.prisma
+npx prisma validate --schema=produto/pedido/server/prisma/schema.prisma
 
 # 2. Criar migration SEM aplicar
 npx prisma migrate dev --create-only --name "add-fatura-status" \
-  --schema=produtos/pedido/server/prisma/schema.prisma
+  --schema=produto/pedido/server/prisma/schema.prisma
 
 # 3. Revisar SQL gerada — checar índices, locks, default values
-cat produtos/pedido/server/prisma/migrations/*/migration.sql
+cat produto/pedido/server/prisma/migrations/*/migration.sql
 
 # 4. Dry-run em staging com >= 2 schemas
 npx tsx scripts/ativamente/migrate-all-tenants.ts \

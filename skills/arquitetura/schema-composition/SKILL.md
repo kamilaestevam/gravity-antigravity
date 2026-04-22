@@ -111,7 +111,7 @@ A "composição de schema unificado de Organização" foi **eliminada**. Cada ba
 ### Para um produto (com fragments de serviços de produto)
 
 ```text
-produtos/pedido/server/prisma/
+produto/pedido/server/prisma/
 ├── schema.base.prisma      ← models do próprio produto + datasource + generator
 └── schema.prisma           ← composto (base + fragments)
 
@@ -142,7 +142,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 interface ComposeArgs {
-  productDir: string                       // ex: 'produtos/pedido/server'
+  productDir: string                       // ex: 'produto/pedido/server'
   serviceFragments: string[]               // ex: ['servicos-global/produto/helpdesk/prisma/fragment.prisma']
 }
 
@@ -242,7 +242,7 @@ async function onTenantProvisioned({ idOrganizacao, products }: TenantProvisione
 Contém apenas datasource e generator. Models vão em fragments ou no próprio produto:
 
 ```prisma
-// produtos/pedido/server/prisma/schema.base.prisma
+// produto/pedido/server/prisma/schema.base.prisma
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.1.x"]
@@ -278,17 +278,17 @@ Após receber fragments e antes de orquestrar migration:
 npx tsx scripts/compose-product-schema.ts --product=pedido
 
 # 2. Validar Prisma
-npx prisma validate --schema=produtos/pedido/server/prisma/schema.prisma
+npx prisma validate --schema=produto/pedido/server/prisma/schema.prisma
 
 # 3. Gerar cliente
-npx prisma generate --schema=produtos/pedido/server/prisma/schema.prisma
+npx prisma generate --schema=produto/pedido/server/prisma/schema.prisma
 
 # 4. Criar migration (ainda NÃO deploy)
 npx prisma migrate dev --create-only --name "add-fatura-status" \
-  --schema=produtos/pedido/server/prisma/schema.prisma
+  --schema=produto/pedido/server/prisma/schema.prisma
 
 # 5. Revisar SQL gerada
-cat produtos/pedido/server/prisma/migrations/*/migration.sql
+cat produto/pedido/server/prisma/migrations/*/migration.sql
 
 # 6. Aplicar em N schemas via orquestrador (staging primeiro)
 npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido --env=staging

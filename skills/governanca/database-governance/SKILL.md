@@ -104,10 +104,10 @@ Banco PostgreSQL (por produto)
 
 | Serviço | Banco | DATABASE_URL |
 |:---|:---|:---|
-| Pedido | `gravity-pedido` | `DATABASE_URL` em `produtos/pedido/server/` |
-| Processo | `gravity-processo` | `DATABASE_URL` em `produtos/processo/server/` |
-| SimulaCusto | `gravity-simula-custo` | `DATABASE_URL` em `produtos/simula-custo/server/` |
-| NF Importação | `gravity-nf-importacao` | `DATABASE_URL` em `produtos/nf-importacao/server/` |
+| Pedido | `gravity-pedido` | `DATABASE_URL` em `produto/pedido/server/` |
+| Processo | `gravity-processo` | `DATABASE_URL` em `produto/processo/server/` |
+| SimulaCusto | `gravity-simula-custo` | `DATABASE_URL` em `produto/simula-custo/server/` |
+| NF Importação | `gravity-nf-importacao` | `DATABASE_URL` em `produto/nf-importacao/server/` |
 | Conector ERP | `gravity-conector-erp` | `DATABASE_URL` em `servicos-global/tenant/conector-erp/` |
 | Serviços por Organização | `gravity-tenant-services` | `DATABASE_URL` em `servicos-global/tenant/server/` |
 | Configurador | `gravity-configurador` | `DATABASE_URL` em `servicos-global/configurador/` |
@@ -118,7 +118,7 @@ Banco PostgreSQL (por produto)
 
 ```typescript
 // ❌ PROIBIDO — produto acessando banco de outro produto
-import { prisma as pedidoPrisma } from '../../../produtos/pedido/server/prisma.js'
+import { prisma as pedidoPrisma } from '../../../produto/pedido/server/prisma.js'
 
 // ❌ PROIBIDO — produto acessando banco do Configurador
 import { prisma as configuradorPrisma } from '../../../servicos-global/configurador/server/prisma.js'
@@ -373,7 +373,7 @@ O Passo 1 e 2 em produção exigem autorização explícita do responsável téc
 Cada produto/serviço escreve **apenas seu próprio** `fragment.prisma`. O Coordenador compõe o `schema.prisma` final via `scripts/ativamente/compose-tenant-schema.ts`.
 
 ```text
-produtos/pedido/prisma/
+produto/pedido/server/prisma/
   └── fragment.prisma           ← define modelos Pedido, PedidoItem, PedidoItemLote
 
 servicos-global/tenant/notificacoes/prisma/

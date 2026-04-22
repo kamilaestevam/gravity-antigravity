@@ -155,7 +155,7 @@ Nome do relatório
 ## Como Produto Registra seu Relatório
 
 ```typescript
-// produtos/nf-importacao/src/shared/config.ts
+// produto/nf-importacao/src/shared/config.ts
 export const PRODUCT_CONFIG = {
   reports: [
     {

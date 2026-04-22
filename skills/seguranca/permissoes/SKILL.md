@@ -197,7 +197,7 @@ Cada produto registra suas próprias permissões ao ser criado. Exemplos:
 Cada produto define suas permissões em um arquivo `permissions.ts` dentro do produto:
 
 ```typescript
-// produtos/simulacusto/server/config/permissions.ts
+// produto/simula-custo/server/config/permissions.ts
 export const PRODUCT_PERMISSIONS = [
   // Módulos universais (copiados para todo produto)
   { key: 'atividades:read',   label: 'Ver Atividades',        group: 'Atividades' },

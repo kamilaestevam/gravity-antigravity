@@ -55,7 +55,7 @@ import {
 Retorna **diretamente** um `RequestHandler` Express. Instanciar **1 vez no boot**.
 
 ```typescript
-// produtos/pedido/server/index.ts
+// produto/pedido/server/index.ts
 import express from 'express'
 import { tenantResolver } from '@gravity/tenant-resolver'
 

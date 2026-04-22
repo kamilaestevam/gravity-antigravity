@@ -90,7 +90,7 @@ Sem `coverage.include`, o v8 escaneia **todo o monorepo** e gera relatório inú
 ```typescript
 coverage: {
   provider: 'v8',
-  include: ['scripts/migrate-tenants/_shared.ts'],   // ← escopar aqui
+  include: ['scripts/ativamente/migrate-tenants/_shared.ts'],   // ← escopar aqui
   thresholds: { lines: 70, branches: 70 },
 }
 ```

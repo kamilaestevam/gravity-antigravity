@@ -1,12 +1,12 @@
 #!/usr/bin/env npx tsx
 /**
- * scripts/seed-demo.ts
+ * scripts/sob-demanda/seed-demo.ts
  * Seed rápido: cria produtos + tenant demo + ativa SimulaCusto.
  * Requer que o servidor Configurador esteja rodando na porta 8005.
  *
  * Uso:
- *   npx tsx scripts/seed-demo.ts
- *   npx tsx scripts/seed-demo.ts --port 3000
+ *   npx tsx scripts/sob-demanda/seed-demo.ts
+ *   npx tsx scripts/sob-demanda/seed-demo.ts --port 3000
  */
 
 const PORT = process.argv.includes('--port')

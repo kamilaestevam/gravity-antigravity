@@ -1,6 +1,6 @@
 ---
 name: antigravity-coordenador
-description: "Use esta skill quando o agente estiver operando no papel de Coordenador do projeto Gravity. O Coordenador é o guardião técnico das ondas: compõe schemas POR PRODUTO (não mais um único schema unificado), orquestra migrations em N schemas via scripts/migrate-all-tenants.ts, mantém contracts.json, resolve conflitos entre agentes paralelos e valida checklists antes de cada onda. Atua sob a regência dos 9 Mandamentos — em especial o Mandamento 02 (schema.prisma INTOCÁVEL)."
+description: "Use esta skill quando o agente estiver operando no papel de Coordenador do projeto Gravity. O Coordenador é o guardião técnico das ondas: compõe schemas POR PRODUTO (não mais um único schema unificado), orquestra migrations em N schemas via scripts/ativamente/migrate-all-tenants.ts, mantém contracts.json, resolve conflitos entre agentes paralelos e valida checklists antes de cada onda. Atua sob a regência dos 9 Mandamentos — em especial o Mandamento 02 (schema.prisma INTOCÁVEL)."
 ---
 
 # Gravity — Coordenador de Agentes
@@ -70,7 +70,7 @@ npx tsx scripts/compose-product-schema.ts --product=pedido
 npx prisma validate --schema=produtos/pedido/server/prisma/schema.prisma
 
 # Para tenant-shared
-npx tsx scripts/compose-tenant-schema.ts
+npx tsx scripts/ativamente/compose-tenant-schema.ts
 npx prisma validate --schema=servicos-global/tenant/prisma/schema.prisma
 ```
 
@@ -114,16 +114,16 @@ npx prisma migrate dev --create-only --name "add-fatura-status" \
 cat produtos/pedido/server/prisma/migrations/*/migration.sql
 
 # 4. Dry-run em staging com >= 2 schemas
-npx tsx scripts/migrate-all-tenants.ts \
+npx tsx scripts/ativamente/migrate-all-tenants.ts \
   --product=pedido --env=staging --dry-run
 
 # 5. Aplicar em staging real
-npx tsx scripts/migrate-all-tenants.ts --product=pedido --env=staging
+npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido --env=staging
 
 # 6. Aprovação manual do Líder antes de produção
 
 # 7. Aplicar em produção (lote por lote, com pausa entre lotes)
-npx tsx scripts/migrate-all-tenants.ts --product=pedido --env=production --batch-size=50
+npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido --env=production --batch-size=50
 ```
 
 ### Regras invioláveis

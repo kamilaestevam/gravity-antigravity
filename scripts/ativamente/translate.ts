@@ -6,8 +6,8 @@
  * chaves faltantes para a API do Gemini para tradução.
  *
  * Uso:
- *   npx tsx scripts/translate.ts            # traduz chaves faltantes
- *   npx tsx scripts/translate.ts --dry-run  # lista sem traduzir
+ *   npx tsx scripts/ativamente/translate.ts            # traduz chaves faltantes
+ *   npx tsx scripts/ativamente/translate.ts --dry-run  # lista sem traduzir
  *
  * A chave da API deve estar em GEMINI_API_KEY no .env.local
  */
@@ -16,13 +16,13 @@ import dotenv from 'dotenv'
 import fs from 'node:fs'
 import path from 'node:path'
 
-dotenv.config({ path: path.resolve(import.meta.dirname, '../.env.local') })
+dotenv.config({ path: path.resolve(import.meta.dirname, '../../.env.local') })
 
 // ─── Configuração ────────────────────────────────────────────────────────
 
 const LOCALES_DIR = path.resolve(
   import.meta.dirname,
-  '../nucleo-global/Utilidades/Localization/locales'
+  '../../nucleo-global/Utilidades/Localization/locales'
 )
 
 const TARGET_LANGUAGES: Record<string, string> = {

@@ -112,7 +112,7 @@ Se um agente perceber que está tentando usar algo que ainda não foi construíd
 - Cada banco de produto opera em **Schema-per-Organização**: 1 schema PostgreSQL por organização. Models de produto **NÃO** têm coluna de identificador de organização (o schema **é** a organização).
 - Configurador permanece single-schema `public` (fonte de verdade global de identidade — Organização, Workspace, Usuário).
 - Todo agente de produto escreve **apenas** o schema do seu produto (sem fragments globais).
-- **Nenhum agente** edita o `schema.prisma` manualmente (Mandamento 02 — schema é INTOCÁVEL). Alterações de schema disparam migration que roda em N schemas via `scripts/migrate-all-tenants.ts`.
+- **Nenhum agente** edita o `schema.prisma` manualmente (Mandamento 02 — schema é INTOCÁVEL). Alterações de schema disparam migration que roda em N schemas via `scripts/ativamente/migrate-all-tenants.ts`.
 - Provisionamento de schema novo é responsabilidade do worker do evento `OrganizacaoProvisionada` — não do agente que escreve a feature.
 
 ---

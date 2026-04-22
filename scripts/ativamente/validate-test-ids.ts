@@ -1,5 +1,5 @@
 /**
- * scripts/validate-test-ids.ts
+ * scripts/ativamente/validate-test-ids.ts
  * ----------------------------
  * Valida a convenção de IDs de testes do Gravity.
  *
@@ -15,7 +15,7 @@
  *   8. IDs deletados não podem ser reusados
  *
  * Uso:
- *   npx tsx scripts/validate-test-ids.ts
+ *   npx tsx scripts/ativamente/validate-test-ids.ts
  *
  * Exit code 0 = ok. Exit code 1 = falhou (CI bloqueia merge).
  */

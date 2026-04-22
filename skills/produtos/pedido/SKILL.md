@@ -66,20 +66,20 @@ O sistema suporta importacao e exportacao na mesma tabela. Para impedir ambiguid
   - `importacao_exportador_id` — se importacao, e o fornecedor no exterior
   - `exportacao_importador_id` — se exportacao, e o cliente no exterior
 
-O Workspace (campo Prisma `company_id` no fragment atual) e sempre a propria empresa. Nao precisa de campo extra.
+O Workspace (campo Prisma DDD `id_workspace`) e sempre a propria empresa. Nao precisa de campo extra.
 
 ---
 
 ## 5. Isolamento Zero-Trust (Organização + Workspace)
 
-**Toda query exige o par de campos Prisma de Organização + Workspace (atualmente `tenant_id` + `company_id` no fragment.prisma de processos-core).**
+**Toda query exige o par de campos Prisma DDD: `id_organizacao` + `id_workspace`.**
 
-> Os nomes dos campos Prisma são preservados conforme o schema real (Mandamento 02 — schema intocável). Em payloads, JSON e variáveis TypeScript fora do contexto Prisma, use a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
+> Em models novos, use `id_organizacao`/`id_workspace` direto. Em models legados que ainda persistem colunas físicas antigas, mantenha `id_organizacao String @map("tenant_id")` e `id_workspace String @map("company_id")` — o `schema.prisma` é INTOCÁVEL (Mandamento 02). Em payloads, JSON e variáveis TypeScript, use sempre a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
 
 ```typescript
-// CORRETO — campos Prisma reais
+// CORRETO — campos Prisma DDD
 prisma.pedido.findMany({
-  where: { tenant_id, company_id, status: 'aberto' }
+  where: { id_organizacao, id_workspace, status: 'aberto' }
 })
 
 // ERRADO — vazamento entre Organizações

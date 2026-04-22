@@ -26,7 +26,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       reportsDirectory: './testes/testes-funcionais/infra/resultados',
-      include: ['scripts/migrate-tenants/_shared.ts'],
+      include: ['scripts/ativamente/migrate-tenants/_shared.ts'],
       // functions: helpers ANSI (b, red, green…) distorcem o metric — lines + branches são suficientes
       thresholds: { lines: 70, branches: 70 },
     },

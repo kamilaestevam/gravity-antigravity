@@ -126,7 +126,7 @@ Chaves que começam com qualquer prefixo desta lista:
 
 Editar `SKIP_NAMESPACES` em 3 arquivos:
 
-1. `scripts/translate.ts` — pipeline de tradução
+1. `scripts/ativamente/translate.ts` — pipeline de tradução
 2. `testes/testes-unitarios/i18n/translate-script.test.ts` — testes do script
 3. `testes/testes-unitarios/i18n/messages-integrity.test.ts` — testes de integridade
 
@@ -146,8 +146,8 @@ Editar `SKIP_NAMESPACES` em 3 arquivos:
 
 | Arquivo | Função |
 |---------|--------|
-| `scripts/translate.ts` | Pipeline principal |
-| `scripts/translate-hook.ts` | Wrapper que chama o pipeline (convenience) |
+| `scripts/ativamente/translate.ts` | Pipeline principal |
+| `scripts/ativamente/translate-hook.ts` | Wrapper que chama o pipeline (convenience) |
 
 ## Custo Estimado
 

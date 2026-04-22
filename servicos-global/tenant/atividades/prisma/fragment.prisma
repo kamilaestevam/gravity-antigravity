@@ -4,7 +4,7 @@
 // Fragment Prisma para o serviço de Atividades — portado do Journey tasks-board.
 // Suporta Kanban (4 colunas), drag-and-drop, timer, participantes e vínculo a processo.
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // AtividadesDados — tarefas e interações cross-produto do usuário logado

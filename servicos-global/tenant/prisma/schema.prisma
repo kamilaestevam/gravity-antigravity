@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-20T15:01:54.363Z
+// Gerado em: 2026-04-22T01:22:46.184Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -9,7 +9,7 @@
 // servicos-global/tenant/prisma/schema.base.prisma
 // ARQUIVO BASE — NÃO MODIFICAR DIRETAMENTE
 // Contém apenas datasource e generator.
-// O Coordenador compõe o schema.prisma final via scripts/compose-tenant-schema.ts
+// O Coordenador compõe o schema.prisma final via scripts/ativamente/compose-tenant-schema.ts
 // adicionando todos os fragment.prisma dos serviços de tenant.
 
 generator client {
@@ -31,7 +31,7 @@ datasource db {
 // Fragment Prisma para o serviço de Atividades — portado do Journey tasks-board.
 // Suporta Kanban (4 colunas), drag-and-drop, timer, participantes e vínculo a processo.
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // AtividadesDados — tarefas e interações cross-produto do usuário logado
@@ -135,7 +135,7 @@ model AtividadesTempo {
 //
 // Fragment Prisma do serviço de Cronômetro.
 // Não editar schema.prisma diretamente — apenas este fragment.
-// O Coordenador compõe o schema final via scripts/compose-tenant-schema.ts
+// O Coordenador compõe o schema final via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
 // AtividadesCronometro
@@ -246,7 +246,7 @@ model TempoCriacaoRelatorio {
 //
 // Fragment Prisma para o serviço de Email (envio Resend, templates, histórico).
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // Enums
@@ -561,7 +561,7 @@ model WhatsappRegra {
 // --- Fragment: dashboard ---
 // fragment.prisma — Dashboard Service
 // NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
-// Coordenador compõe via scripts/compose-tenant-schema.ts
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
 
 enum ModoDashboard {
   PRODUCT
@@ -1015,7 +1015,7 @@ model DisponibilidadeConfig {
 //
 // Fragment Prisma para o serviço da Gabi AI (agente autônomo).
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // ConversaCompletaGabi — conversa principal da Gabi com o usuário no tenant
@@ -1168,7 +1168,7 @@ model PersonalizacaoOrganizacaoGabiai {
 // Fragment Prisma para persistência cross-device de preferências de UI.
 // IDs de usuário vêm do Clerk (user.id).
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // UserPreferences — preferências de UI persitidas por usuário (cross-device)

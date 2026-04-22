@@ -26,7 +26,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       reportsDirectory: './testes/testes-unitarios/infra/resultados',
-      include: ['scripts/migrate-tenants/_shared.ts'],
+      include: ['scripts/ativamente/migrate-tenants/_shared.ts'],
       // functions: unitários cobrem apenas funções puras (_shared.ts tem helpers de ANSI + async cobertas nos funcionais)
       thresholds: { lines: 70, branches: 70 },
     },

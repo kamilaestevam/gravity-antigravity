@@ -85,9 +85,9 @@ server/routes/taxaCambio.ts
 server/routes/tenantProducts.ts
 server/routes/tenants.ts
 server/routes/users.ts
-server/scripts/check-products.ts
-server/scripts/cleanup-seed-tenants.ts
-server/scripts/cleanup-users.ts
+server/scripts/sob-demanda/check-products.ts
+server/scripts/sob-demanda/cleanup-seed-tenants.ts
+server/scripts/sob-demanda/cleanup-users.ts
 (+ 17 outros arquivos)
 ```
 

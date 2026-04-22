@@ -10,7 +10,7 @@
  *   - clerk_user_id usa o formato real do Clerk para testes E2E
  *
  * Uso:
- *   CONFIGURADOR_DATABASE_URL=<url> npx tsx scripts/seed-dev.ts
+ *   CONFIGURADOR_DATABASE_URL=<url> npx tsx scripts/sob-demanda/seed-dev.ts
  *
  * Nota sobre is_active:
  *   O model User não possui campo is_active. A flag fica em UserMembership,

@@ -6,8 +6,8 @@
  *
  * Uso (executar de dentro do configurador para resolver dependências):
  *   cd servicos-global/configurador
- *   npx tsx ../../scripts/cleanup-users.ts --dry-run    # simular primeiro
- *   npx tsx ../../scripts/cleanup-users.ts              # executar de verdade
+ *   npx tsx ../../scripts/sob-demanda/cleanup-users.ts --dry-run    # simular primeiro
+ *   npx tsx ../../scripts/sob-demanda/cleanup-users.ts              # executar de verdade
  */
 
 import 'dotenv/config'

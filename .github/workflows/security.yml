@@ -65,7 +65,7 @@ jobs:
           npx prisma db push --schema=servicos-global/tenant/prisma/schema.prisma --force-reset 2>/dev/null || true
 
           # Aplicar RLS policies
-          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -f scripts/apply-rls.sql
+          PGPASSWORD=gravity_test_password psql -h localhost -U gravity_user -d gravity_test_db -f scripts/ativamente/apply-rls.sql
 
       - name: "Nivel 1 — ID Enumeration Attack"
         run: |

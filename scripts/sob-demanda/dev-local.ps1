@@ -1,7 +1,7 @@
 # dev-local.ps1 — Sobe toda a plataforma Gravity local
-# Uso: powershell -File scripts/dev-local.ps1
+# Uso: powershell -File scripts/sob-demanda/dev-local.ps1
 
-$root = Split-Path -Parent (Split-Path -Parent $PSCommandPath)
+$root = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSCommandPath))
 
 Write-Host ""
 Write-Host "=== GRAVITY DEV LOCAL ===" -ForegroundColor Cyan

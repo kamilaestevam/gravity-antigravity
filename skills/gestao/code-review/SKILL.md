@@ -68,7 +68,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Sem import cruzado entre serviços?
 - [ ] Comunicação entre serviços via API (não import)?
 - [ ] Schema de produto segue padrão Schema-per-Organização (sem filtro por `id_organizacao` em queries — o schema **é** a organização)?
-- [ ] Migrations de produto rodam via orquestrador `scripts/migrate-all-tenants.ts` (nunca `prisma migrate dev` solto)?
+- [ ] Migrations de produto rodam via orquestrador `scripts/ativamente/migrate-all-tenants.ts` (nunca `prisma migrate dev` solto)?
 
 ### Documentação e Skills (inviolável — DoD §6)
 

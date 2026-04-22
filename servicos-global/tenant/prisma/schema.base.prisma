@@ -1,7 +1,7 @@
 // servicos-global/tenant/prisma/schema.base.prisma
 // ARQUIVO BASE — NÃO MODIFICAR DIRETAMENTE
 // Contém apenas datasource e generator.
-// O Coordenador compõe o schema.prisma final via scripts/compose-tenant-schema.ts
+// O Coordenador compõe o schema.prisma final via scripts/ativamente/compose-tenant-schema.ts
 // adicionando todos os fragment.prisma dos serviços de tenant.
 
 generator client {

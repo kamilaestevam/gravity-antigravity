@@ -61,7 +61,7 @@ Duas auditorias independentes foram realizadas e consolidadas:
 - **Camada 1 - Prisma Extension**: `servicos-global/tenant/middleware/withTenantIsolation.ts`
   - Intercepta TODAS as operacoes: findMany, findFirst, findUnique, create, createMany, update, updateMany, delete, deleteMany
   - tenant_id injetado automaticamente, sobrescreve tentativas de forge
-- **Camada 2 - PostgreSQL RLS**: `scripts/apply-rls.sql`
+- **Camada 2 - PostgreSQL RLS**: `scripts/ativamente/apply-rls.sql`
   - Policies em 30+ tabelas
   - `set_config('app.current_tenant_id', ...)` com flag TRUE (destruido ao fim da transacao)
 - **Camada 3 - Multi-banco**: DBs fisicamente separados (Configurador, Tenant, Produtos)
@@ -182,7 +182,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 | Simula-Custo | Estimativa, TaxaEstimativa |
 | Processo | Processo, ProcessoEtapa, Pedido, PedidoItem, FollowUp, Documento, EstimativaCusto, DadosTecnicos |
 
-**Acao**: Criar `rls-policies.sql` para cada banco de produto seguindo o padrao de `scripts/apply-rls.sql`.
+**Acao**: Criar `rls-policies.sql` para cada banco de produto seguindo o padrao de `scripts/ativamente/apply-rls.sql`.
 
 ### 4.2. ALTO — Helmet ausente em 17 de 18 servicos
 
@@ -441,7 +441,7 @@ Content Security Policy configurada nos 4 servicos que servem frontend:
 
 ### 8.2. Script de rotacao INTERNAL_SERVICE_KEY (CONCLUIDO)
 
-- **Arquivo**: `scripts/rotate-internal-key.ts`
+- **Arquivo**: `scripts/ativamente/rotate-internal-key.ts`
 - Gera chave segura: `gv_isk_` + 32 bytes random hex
 - Exibe instrucoes completas de deploy para todos os 17 servicos
 - Calcula proxima data de rotacao (trimestral)
@@ -459,7 +459,7 @@ Content Security Policy configurada nos 4 servicos que servem frontend:
 
 ### 8.4. RLS por user_id (CONCLUIDO)
 
-- **Arquivo**: `scripts/apply-rls-user.sql`
+- **Arquivo**: `scripts/ativamente/apply-rls-user.sql`
 - Policies adicionais em tabelas com dados pessoais: TimerSession, TimerActive, RelatorioTempoCache
 - Bypass para papeis MASTER/ADMIN/SUPER_ADMIN
 - Requer set_config de `app.current_user_id` e `app.current_user_role` no middleware
@@ -561,8 +561,8 @@ Todas as secoes do Capitulo 13 foram verificadas:
 | `produto/bid-frete/server/prisma/rls-policies.sql` | RLS BidFrete (9 tabelas) |
 | `produto/simula-custo/server/prisma/rls-policies.sql` | RLS SimulaCusto (5 tabelas) |
 | `produto/processo/server/prisma/rls-policies.sql` | RLS Processo (8 tabelas) |
-| `scripts/apply-rls-user.sql` | RLS por user_id |
-| `scripts/rotate-internal-key.ts` | Script de rotacao de chaves |
+| `scripts/ativamente/apply-rls-user.sql` | RLS por user_id |
+| `scripts/ativamente/rotate-internal-key.ts` | Script de rotacao de chaves |
 | `.github/workflows/security.yml` | Pipeline testes RLS ofensivos |
 
 ### Arquivos modificados: ~30

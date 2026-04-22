@@ -1,6 +1,6 @@
 // fragment.prisma — Dashboard Service
 // NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
-// Coordenador compõe via scripts/compose-tenant-schema.ts
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
 
 enum ModoDashboard {
   PRODUCT

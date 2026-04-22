@@ -1,7 +1,7 @@
 // fragment.prisma — Conector ERP
 // Agente Conector ERP — Onda 3 | 12/13
 // NÃO editar schema.prisma diretamente — apenas este fragment.
-// Composto pelo Coordenador via scripts/compose-tenant-schema.ts
+// Composto pelo Coordenador via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
 // ConexaoERP — credenciais de acesso ao sistema externo, 1 por tenant+produto

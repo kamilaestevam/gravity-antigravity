@@ -626,7 +626,7 @@ testes/
 ## Passo 19 — Seed de Dados Demo
 
 ```typescript
-// scripts/seed-demo.ts — usar withTenantContext do @gravity/tenant-resolver
+// scripts/sob-demanda/seed-demo.ts — usar withTenantContext do @gravity/tenant-resolver
 import { withTenantContext } from '@gravity/tenant-resolver'
 
 export async function seedDemo(idOrganizacao: string) {

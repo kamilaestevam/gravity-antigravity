@@ -2,7 +2,7 @@
  * _shared.ts — Utilitários compartilhados para os scripts de migração Schema-per-Tenant.
  * ADR-003: https://github.com/gravity/documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md
  *
- * Uso interno — não importar fora de scripts/migrate-tenants/.
+ * Uso interno — não importar fora de scripts/ativamente/migrate-tenants/.
  */
 
 import { readFileSync } from 'fs'

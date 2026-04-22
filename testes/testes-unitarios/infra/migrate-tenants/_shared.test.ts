@@ -10,7 +10,7 @@ vi.mock('fs', () => ({
 }))
 
 import { readFileSync } from 'fs'
-import { buildSchemaName, loadEnv, resolveEnvs } from '../../../../scripts/migrate-tenants/_shared.js'
+import { buildSchemaName, loadEnv, resolveEnvs } from '../../../../scripts/ativamente/migrate-tenants/_shared.js'
 
 const mockRead = vi.mocked(readFileSync)
 

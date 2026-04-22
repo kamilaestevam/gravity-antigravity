@@ -1,4 +1,4 @@
-// scripts/compose-tenant-schema.ts
+// scripts/ativamente/compose-tenant-schema.ts
 // COORDENADOR — Script de composição do schema tenant-db
 // Agente 0B — Banco de Dados (base inicial)
 //
@@ -13,7 +13,7 @@
 // NUNCA editar schema.prisma manualmente — ele é sempre sobrescrito por este script.
 //
 // Uso:
-//   npx ts-node scripts/compose-tenant-schema.ts
+//   npx ts-node scripts/ativamente/compose-tenant-schema.ts
 //   # ou via package.json:
 //   npm run compose:tenant
 
@@ -28,7 +28,7 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const ROOT_DIR = path.resolve(__dirname, '..')
+const ROOT_DIR = path.resolve(__dirname, '../..')
 const TENANT_DIR = path.join(ROOT_DIR, 'servicos-global', 'tenant')
 const OUTPUT_SCHEMA = path.join(TENANT_DIR, 'prisma', 'schema.prisma')
 const BASE_SCHEMA = path.join(TENANT_DIR, 'prisma', 'schema.base.prisma')

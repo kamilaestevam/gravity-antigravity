@@ -1,6 +1,6 @@
 ---
 name: antigravity-qa
-description: "Use esta skill quando o agente estiver operando no papel de QA do projeto Gravity. O QA é acionado após qualquer entrega de código e realiza revisão completa: código, padrões, segurança, tenant isolation e validação dos três tipos de testes (Unitários, Integração e E2E) antes da aprovação final."
+description: "Use esta skill quando o agente estiver operando no papel de QA do projeto Gravity. O QA é acionado após qualquer entrega de código e realiza revisão completa: código, padrões, segurança, Isolamento de Organização e validação dos três tipos de testes (Unitários, Integração e E2E) antes da aprovação final."
 ---
 
 # Gravity — QA
@@ -9,14 +9,14 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 
 - Atuar como o guardião final da qualidade.
 - Revisar cada arquivo alterado na onda.
-- Garantir que as regras de isolamento de tenant nunca sejam violadas.
+- Garantir que as regras de Isolamento de Organização nunca sejam violadas.
 - Validar se o plano de testes E2E cobre todas as categorias obrigatórias.
 
 ---
 
 ## Ordem de Prioridade na Revisão
 
-1. **Segurança e Tenant Isolation** — Crítico. Falha aqui reprova imediatamente.
+1. **Segurança e Isolamento de Organização** — Crítico. Falha aqui reprova imediatamente.
 2. **Padrões de Código e Arquitetura** — Importante. Correções obrigatórias.
 3. **Cobertura de Testes** — Obrigatório. Mínimo 80% em lógica crítica.
 4. **UX/UI e Layout** — Percy deve estar limpo.
@@ -340,7 +340,7 @@ Após correção, QA deve ser acionado novamente.
 | Para validar | Consultar |
 |:---|:---|
 | 9 Mandamentos | `antigravity-9-mandamentos` |
-| Isolamento de Organização | `antigravity-tenant-isolation` + `antigravity-tier1-security` |
+| Isolamento de Organização | `antigravity-tenant-isolation` (nome do arquivo da skill preservado) + `antigravity-tier1-security` |
 | Padrões de código | `antigravity-code-standards` + `antigravity-api-design` |
 | Como escrever testes | `antigravity-testes` |
 | Documentação + skills (DoD) | `antigravity-definition-of-done` (§6 e §7) |
@@ -350,7 +350,7 @@ Após correção, QA deve ser acionado novamente.
 ## Checklist — Antes de Emitir o Veredito Final
 
 - [ ] Todas as 6 categorias do checklist de revisão foram percorridas?
-- [ ] Segurança e tenant isolation: nenhuma falha encontrada?
+- [ ] Segurança e Isolamento de Organização: nenhuma falha encontrada?
 - [ ] Os três tipos de testes estão presentes e passando?
 - [ ] O plano E2E foi aprovado pelo dono antes de rodar?
 - [ ] Todas as 11 categorias do plano E2E estão cobertas ou justificadas?

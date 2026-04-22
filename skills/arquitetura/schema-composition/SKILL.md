@@ -1,12 +1,14 @@
 ---
 name: antigravity-schema-composition
-description: "Use esta skill sempre que uma tarefa envolver schemas Prisma, fragments, scripts de composição ou migrations. Reescrita 2026-04-17 após o pivô Schema-per-Tenant. Define composição por produto (não mais por tenant), models sem tenant_id, multi-schema reality, orquestrador de migrations e o que nunca editar. Todo agente consulta esta skill antes de tocar em qualquer .prisma."
+description: "Use esta skill sempre que uma tarefa envolver schemas Prisma, fragments, scripts de composição ou migrations. Reescrita 2026-04-17 após o pivô Schema-per-Organização. Define composição por produto (não mais por organização), models sem coluna de organização, multi-schema reality, orquestrador de migrations e o que nunca editar. Todo agente consulta esta skill antes de tocar em qualquer .prisma."
 ---
 
 # Gravity — Schema Composition (pós-pivô 2026-04-17)
 
-> **Reescrita 2026-04-17 após o pivô Schema-per-Tenant.**
+> **Reescrita 2026-04-17 após o pivô Schema-per-Organização.**
 > Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
+>
+> **Notas sobre nomes técnicos preservados:** o prefixo de schema PostgreSQL `tenant_<cuid>` é nome físico real; `@map("tenant_id")` é a coluna física antiga durante a janela de migração — o **campo Prisma é sempre `id_organizacao`** (DDD). Os ADRs mantêm os nomes de arquivo originais.
 
 ---
 
@@ -14,11 +16,11 @@ description: "Use esta skill sempre que uma tarefa envolver schemas Prisma, frag
 
 | Antes (pré-pivô) | Depois (pós-pivô 2026-04-17) |
 |:---|:---|
-| 1 banco `tenant-db` compartilhado por todos os serviços de tenant | Cada produto e o serviço-tenant compartilhado têm seu **próprio banco** com **N schemas (1 por tenant)** |
-| Models tinham `tenant_id String` + 3 índices `@@index([tenant_id, ...])` | Models de produto **não têm `tenant_id`**. O **schema é o tenant**. |
-| Coordenador compunha schema unificado de todos os serviços de tenant | Coordenador compõe schema **por produto** (base + fragments dos serviços de produto) — não há mais "schema unificado de tenant" |
+| 1 banco `tenant-db` compartilhado por todos os serviços da Organização | Cada produto e o serviço-de-organização compartilhado têm seu **próprio banco** com **N schemas (1 por Organização)** |
+| Models tinham `id_organizacao String @map("tenant_id")` + 3 índices `@@index([id_organizacao, ...])` | Models de produto **não têm campo de Organização**. O **schema é a Organização**. |
+| Coordenador compunha schema unificado de todos os serviços da Organização | Coordenador compõe schema **por produto** (base + fragments dos serviços de produto) — não há mais "schema unificado de Organização" |
 | RLS PostgreSQL como defesa secundária | RLS apenas no Configurador. Em produtos, isolamento via `SET LOCAL search_path` no `withTenant` |
-| `prisma migrate dev` aplicava em 1 schema | `scripts/migrate-all-tenants.ts` aplica migration em **N schemas** |
+| `prisma migrate dev` aplicava em 1 schema | `scripts/ativamente/migrate-all-tenants.ts` aplica migration em **N schemas** (nome do script preservado por compatibilidade) |
 
 ---
 
@@ -26,28 +28,28 @@ description: "Use esta skill sempre que uma tarefa envolver schemas Prisma, frag
 
 ```text
 DB configurador          ← single-schema "public"
-  └── tenants, users, billing, permissões, plans
+  └── organizacoes, usuarios, billing, permissões, plans
       (fonte de verdade global de identidade)
 
-DB tenant-shared         ← schema-per-tenant
-  ├── schema "tenant_<cuid_A>" → atividades, email, whatsapp, ... do Tenant A
-  ├── schema "tenant_<cuid_B>" → atividades, email, whatsapp, ... do Tenant B
+DB tenant-shared         ← schema-per-Organização (nome do banco mantido por compatibilidade)
+  ├── schema "tenant_<cuid_A>" → atividades, email, whatsapp, ... da Organização A
+  ├── schema "tenant_<cuid_B>" → atividades, email, whatsapp, ... da Organização B
   └── schema "public"          → tabelas globais (ex: ncm_catalog se houver)
 
-DB pedido-db             ← schema-per-tenant (1 banco por produto)
+DB pedido-db             ← schema-per-Organização (1 banco por produto)
   ├── schema "tenant_<cuid_A>"
   └── schema "tenant_<cuid_B>"
 
-DB processo-db           ← schema-per-tenant
-DB simula-custo-db       ← schema-per-tenant
-DB bid-frete-db          ← schema-per-tenant
-DB bid-cambio-db         ← schema-per-tenant
-DB nf-importacao-db      ← schema-per-tenant
-DB financeiro-comex-db   ← schema-per-tenant
-DB conector-erp-db       ← schema-per-tenant
+DB processo-db           ← schema-per-Organização
+DB simula-custo-db       ← schema-per-Organização
+DB bid-frete-db          ← schema-per-Organização
+DB bid-cambio-db         ← schema-per-Organização
+DB nf-importacao-db      ← schema-per-Organização
+DB financeiro-comex-db   ← schema-per-Organização
+DB conector-erp-db       ← schema-per-Organização
 ```
 
-> **Regra:** nenhum produto compartilha banco com outro produto. Provisionamento de schema novo dispara via evento `TenantProvisioned` (worker + DLQ — [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md)).
+> **Regra:** nenhum produto compartilha banco com outro produto. Provisionamento de schema novo dispara via evento `TenantProvisioned` (nome do evento mantido por compatibilidade do SDK; worker + DLQ — [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md)).
 
 ---
 
@@ -60,7 +62,7 @@ model Fatura {
   // 1. ID sempre primeiro
   id          String   @id @default(cuid())
 
-  // 2. Campos do domínio (SEM tenant_id — o schema é o tenant)
+  // 2. Campos do domínio (SEM campo de Organização — o schema É a Organização)
   numero      String
   valor       Decimal  @db.Decimal(15, 2)
   status      FaturaStatus @default(PENDENTE)
@@ -69,7 +71,7 @@ model Fatura {
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 
-  // 4. Índices de domínio (SEM @@index([tenant_id]))
+  // 4. Índices de domínio (SEM @@index([id_organizacao]))
   @@index([numero])
   @@index([status, created_at])
 }
@@ -84,27 +86,27 @@ enum FaturaStatus {
 ### O que NÃO fazer mais
 
 ```prisma
-// ❌ proibido pós-pivô — o schema é o tenant
+// ❌ proibido pós-pivô — o schema é a Organização
 model Fatura {
-  id        String @id
-  tenant_id String          // ← REMOVER
-  numero    String
+  id              String @id
+  id_organizacao  String @map("tenant_id")    // ← REMOVER (campo + coluna física legada)
+  numero          String
 
-  @@index([tenant_id])                       // ← REMOVER
-  @@index([tenant_id, product_id])           // ← REMOVER
-  @@index([tenant_id, user_id])              // ← REMOVER
+  @@index([id_organizacao])                       // ← REMOVER
+  @@index([id_organizacao, id_produto])           // ← REMOVER
+  @@index([id_organizacao, id_usuario])           // ← REMOVER
 }
 ```
 
 ### Janela transitória (Fases 2-3 do ADR-003)
 
-Durante o dual-write, `tenant_id` permanece em coluna por compatibilidade. **Após Fase 4 (Cleanup), é removido via migration**. Não escreva código novo confiando em `tenant_id` — sempre use o schema isolado pelo SDK.
+Durante o dual-write, o campo Prisma `id_organizacao` (com `@map("tenant_id")` apontando para a coluna física antiga) permanece nas tabelas por compatibilidade. **Após Fase 4 (Cleanup), o campo e a coluna são removidos via migration**. Não escreva código novo confiando em `id_organizacao` em produto — sempre use o schema isolado pelo SDK.
 
 ---
 
 ## Composição de Schema — Apenas Por Produto
 
-A "composição de schema unificado de tenant" foi **eliminada**. Cada banco tem seu próprio schema, composto independentemente:
+A "composição de schema unificado de Organização" foi **eliminada**. Cada banco tem seu próprio schema, composto independentemente:
 
 ### Para um produto (com fragments de serviços de produto)
 
@@ -117,7 +119,7 @@ servicos-global/produto/helpdesk/prisma/
 └── fragment.prisma         ← composto no schema do produto que usar helpdesk
 ```
 
-### Para o tenant-shared (compartilhado entre serviços de tenant)
+### Para o tenant-shared (compartilhado entre serviços da Organização)
 
 ```text
 servicos-global/tenant/prisma/
@@ -128,7 +130,7 @@ servicos-global/tenant/prisma/
 └── schema.prisma                         ← composto (base + N fragments)
 ```
 
-> **Regra:** `tenant-shared` continua tendo composição via fragments porque os serviços de tenant são desenvolvidos em paralelo. Mas o resultado é aplicado em **cada schema `tenant_<cuid>`** via orquestrador, não em uma única tabela global.
+> **Regra:** `tenant-shared` (nome do diretório mantido por compatibilidade) continua tendo composição via fragments porque os serviços da Organização são desenvolvidos em paralelo. Mas o resultado é aplicado em **cada schema `tenant_<cuid>`** via orquestrador, não em uma única tabela global.
 
 ---
 
@@ -166,7 +168,7 @@ Executado pelo Coordenador antes de `prisma generate` e antes do orquestrador de
 Migrations aplicam em **N schemas** (1 por tenant ativo):
 
 ```typescript
-// scripts/migrate-all-tenants.ts
+// scripts/ativamente/migrate-all-tenants.ts
 import { execSync } from 'node:child_process'
 import { Client } from 'pg'
 
@@ -212,7 +214,7 @@ async function migrateAllTenants({ databaseUrl, migrationName }: MigrateArgs) {
 
 ## Provisionamento de Schema Novo
 
-Não é responsabilidade do agente que escreve a feature. Quando o Configurador emite `TenantProvisioned`:
+Não é responsabilidade do agente que escreve a feature. Quando o Configurador emite `TenantProvisioned` (nome do evento mantido por compatibilidade do SDK):
 
 ```typescript
 // servicos-global/tenant/provisioner/worker.ts (consome o evento)
@@ -231,7 +233,7 @@ async function onTenantProvisioned({ idOrganizacao, products }: TenantProvisione
 `provisionTenantSchema` faz:
 1. `CREATE SCHEMA IF NOT EXISTS "tenant_xxx"`
 2. Aplica todas as migrations existentes nesse schema
-3. Notifica o Configurador (`TenantProvisionedComplete` no event bus)
+3. Notifica o Configurador (`TenantProvisionedComplete` no event bus — nome mantido por compatibilidade)
 
 ---
 
@@ -289,7 +291,7 @@ npx prisma migrate dev --create-only --name "add-fatura-status" \
 cat produtos/pedido/server/prisma/migrations/*/migration.sql
 
 # 6. Aplicar em N schemas via orquestrador (staging primeiro)
-npx tsx scripts/migrate-all-tenants.ts --product=pedido --env=staging
+npx tsx scripts/ativamente/migrate-all-tenants.ts --product=pedido --env=staging
 ```
 
 Se qualquer etapa falhar → Coordenador notifica o agente responsável com o erro específico. Não avança.
@@ -299,20 +301,20 @@ Se qualquer etapa falhar → Coordenador notifica o agente responsável com o er
 ## Checklist Anti-Conflito (fragments)
 
 - [ ] Meu fragment não define datasources nem generators
-- [ ] Models não têm `tenant_id` (o schema é o tenant)
-- [ ] Models não têm `@@index([tenant_id, ...])` (o schema isola fisicamente)
+- [ ] Models não têm campo `id_organizacao` (o schema É a Organização)
+- [ ] Models não têm `@@index([id_organizacao, ...])` (o schema isola fisicamente)
 - [ ] Nomes de models e enums não colidem com outros fragments
 - [ ] Nenhuma relação com models de outros fragments (use IDs cruzados ou peça ao Coordenador para arbitrar)
-- [ ] Sem `@map` ou `@@map` (mantém naming canônico)
+- [ ] `@map`/`@@map` apenas para colunas físicas legadas durante a janela de migração (ex.: `@map("tenant_id")`); modelos novos usam o naming DDD direto
 
 ---
 
 ## O Que Nunca Fazer
 
 - ❌ Editar `schema.prisma` final manualmente — sobrescrito no próximo `compose`
-- ❌ Adicionar `tenant_id` em models de produto — o schema é o tenant
+- ❌ Adicionar campo `id_organizacao` em models de produto novos — o schema É a Organização
 - ❌ Rodar `prisma migrate dev` direto contra DB de produto — sempre via orquestrador
-- ❌ Provisionar schema novo manualmente — é responsabilidade do worker do `TenantProvisioned`
+- ❌ Provisionar schema novo manualmente — é responsabilidade do worker do `TenantProvisioned` (nome do evento mantido por compatibilidade)
 - ❌ Compartilhar banco entre dois produtos
 - ❌ Confiar em RLS em banco de produto (não existe mais)
 - ❌ Usar `import { PrismaClient } from '@prisma/client'` em código de aplicação — apenas dentro do SDK
@@ -321,8 +323,8 @@ Se qualquer etapa falhar → Coordenador notifica o agente responsável com o er
 
 ## Checklist — Antes de Submeter Schema/Migration
 
-- [ ] Models não têm `tenant_id` (exceto durante janela de migração ADR-003 Fases 2-3)?
-- [ ] Removi os 3 índices de tenant antigos (`@@index([tenant_id])`, etc.)?
+- [ ] Models não têm campo `id_organizacao` (exceto durante janela de migração ADR-003 Fases 2-3, onde fica `id_organizacao String @map("tenant_id")`)?
+- [ ] Removi os 3 índices antigos por Organização (`@@index([id_organizacao])`, `@@index([id_organizacao, id_produto])`, `@@index([id_organizacao, id_usuario])`)?
 - [ ] Rodei `compose-product-schema` localmente?
 - [ ] `prisma validate` passou?
 - [ ] Migration foi criada com `--create-only` e revisei o SQL?

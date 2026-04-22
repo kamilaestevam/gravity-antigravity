@@ -1,5 +1,5 @@
 /**
- * scripts/validate-cobertura.ts
+ * scripts/ativamente/validate-cobertura.ts
  * -----------------------------
  * Valida a cobertura obrigatória dos planos de teste.
  *
@@ -12,7 +12,7 @@
  *   6. Passos com origem "humano-original" não foram removidos em re-geração
  *
  * Uso:
- *   npx tsx scripts/validate-cobertura.ts
+ *   npx tsx scripts/ativamente/validate-cobertura.ts
  */
 
 import { readFileSync, readdirSync, statSync, existsSync } from 'fs'

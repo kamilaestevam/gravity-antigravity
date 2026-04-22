@@ -50,7 +50,7 @@ Todo produto implementa um wizard de 3-5 passos no primeiro acesso:
 Cada produto tem um script de seed com dados demo:
 
 ```typescript
-// scripts/seed-demo.ts — usar withTenantContext do @gravity/tenant-resolver
+// scripts/sob-demanda/seed-demo.ts — usar withTenantContext do @gravity/tenant-resolver
 import { withTenantContext } from '@gravity/tenant-resolver'
 
 export async function seedDemo(idOrganizacao: string) {

@@ -16,8 +16,8 @@
  *   - Com dados no schema tenant_X → queries usam o schema isolado (pós-backfill)
  *
  * Uso:
- *   npx tsx scripts/migrate-tenants/03-cutover.ts           → dry-run (relatório de paridade)
- *   npx tsx scripts/migrate-tenants/03-cutover.ts --execute → marca cutover para tenants com paridade 100%
+ *   npx tsx scripts/ativamente/migrate-tenants/03-cutover.ts           → dry-run (relatório de paridade)
+ *   npx tsx scripts/ativamente/migrate-tenants/03-cutover.ts --execute → marca cutover para tenants com paridade 100%
  */
 
 import {
@@ -111,7 +111,7 @@ async function main(): Promise<void> {
 
       if (tenants.length === 0) {
         log.warn('Nenhum tenant com status BACKFILLED encontrado.')
-        log.info('Execute primeiro: npx tsx scripts/migrate-tenants/02-backfill.ts --execute')
+        log.info('Execute primeiro: npx tsx scripts/ativamente/migrate-tenants/02-backfill.ts --execute')
         return
       }
 
@@ -209,7 +209,7 @@ async function main(): Promise<void> {
 
       if (IS_DRY_RUN) {
         console.log(`\n${yellow('  Dry-run concluído. Para executar o cutover:')}`)
-        console.log(`${cyan('  npx tsx scripts/migrate-tenants/03-cutover.ts --execute')}\n`)
+        console.log(`${cyan('  npx tsx scripts/ativamente/migrate-tenants/03-cutover.ts --execute')}\n`)
       }
     } finally {
       client.release()

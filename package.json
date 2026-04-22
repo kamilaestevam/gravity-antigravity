@@ -49,25 +49,25 @@
   ],
   "scripts": {
     "dev": "concurrently -k -n CFG-BACK,CFG-FRONT,TENANT,SC-BACK,PROC-BACK -c blue,green,cyan,yellow,magenta \"cd servicos-global/configurador && npm run dev\" \"cd servicos-global/configurador && npx vite\" \"cd servicos-global/tenant && npm run dev\" \"cd produto/simula-custo/server && npx tsx watch src/index.ts\" \"cd produto/processo/server && npx tsx watch src/index.ts\"",
-    "db:compose": "npx ts-node scripts/compose-tenant-schema.ts",
+    "db:compose": "npx ts-node scripts/ativamente/compose-tenant-schema.ts",
     "db:migrate:dev": "npm run db:compose && npx prisma migrate dev --schema=configurador/prisma/schema.prisma && npx prisma migrate dev --schema=servicos-global/tenant/prisma/schema.prisma",
     "db:migrate:deploy": "npx prisma migrate deploy --schema=configurador/prisma/schema.prisma && npx prisma migrate deploy --schema=servicos-global/tenant/prisma/schema.prisma",
-    "db:seed:staging": "npx ts-node scripts/seed-staging.ts",
-    "db:apply-rls": "railway run psql $TENANT_DATABASE_URL -f scripts/apply-rls.sql",
-    "translate": "npx tsx scripts/translate.ts",
-    "translate:check": "npx tsx scripts/translate.ts --dry-run",
+    "db:seed:staging": "npx ts-node scripts/ativamente/seed-staging.ts",
+    "db:apply-rls": "railway run psql $TENANT_DATABASE_URL -f scripts/ativamente/apply-rls.sql",
+    "translate": "npx tsx scripts/ativamente/translate.ts",
+    "translate:check": "npx tsx scripts/ativamente/translate.ts --dry-run",
     "test": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts",
     "test:e2e": "playwright test --project=i18n",
     "test:all": "vitest run --config testes/testes-unitarios/i18n/vitest.config.ts && playwright test --project=i18n",
-    "validate:test-ids": "npx tsx scripts/validate-test-ids.ts",
-    "validate:cobertura": "npx tsx scripts/validate-cobertura.ts",
-    "validate:testes": "npx tsx scripts/validate-testes.ts",
-    "check:deps": "npx tsx scripts/check-deps.ts",
+    "validate:test-ids": "npx tsx scripts/ativamente/validate-test-ids.ts",
+    "validate:cobertura": "npx tsx scripts/ativamente/validate-cobertura.ts",
+    "validate:testes": "npx tsx scripts/ativamente/validate-testes.ts",
+    "check:deps": "npx tsx scripts/ativamente/check-deps.ts",
     "prepare": "husky"
   },
   "lint-staged": {
-    "package.json": "npx tsx scripts/check-deps.ts",
-    "*.{ts,tsx}": "npx tsx scripts/check-deps.ts"
+    "package.json": "npx tsx scripts/ativamente/check-deps.ts",
+    "*.{ts,tsx}": "npx tsx scripts/ativamente/check-deps.ts"
   },
   "dependencies": {
     "@clerk/localizations": "^4.2.3",

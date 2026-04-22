@@ -1,11 +1,11 @@
 /**
- * scripts/cleanup-seed-tenants.ts
+ * scripts/sob-demanda/cleanup-seed-tenants.ts
  * Remove tenants de seed/demo do banco do Configurador.
  * Todos os dados relacionados (users, companies, subscriptions, etc.) são
  * deletados em cascata automaticamente.
  *
  * Uso:
- *   npx tsx scripts/cleanup-seed-tenants.ts
+ *   npx tsx scripts/sob-demanda/cleanup-seed-tenants.ts
  */
 
 import { PrismaClient } from '../servicos-global/configurador/node_modules/.prisma/client/index.js'

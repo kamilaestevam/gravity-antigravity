@@ -348,9 +348,9 @@ model SiscomexCredencial {
   created_at            DateTime  @default(now())
   updated_at            DateTime  @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
-  @@unique([tenant_id, company_id, tipo_auth])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_workspace])
+  @@unique([id_organizacao, id_workspace, tipo_auth])
 }
 ```
 
@@ -386,24 +386,24 @@ Ao registrar LPCO no Portal Unico:
 
 ## 9. Isolamento Zero-Trust (Organização + Workspace)
 
-**Toda query exige o par de campos de Organização + Workspace do model Prisma (atualmente `tenant_id` + `company_id` — colunas reais do fragment.prisma do LPCO).**
+**Toda query exige o par de campos Prisma DDD: `id_organizacao` + `id_workspace`.**
 
-> Os nomes dos campos Prisma são preservados conforme o `fragment.prisma` real (Mandamento 02 — schema intocável). Em payloads, JSON e variáveis TypeScript fora do contexto Prisma, use a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
+> Em models novos, use `id_organizacao`/`id_workspace` direto. Em models legados que ainda persistem colunas físicas antigas no banco, mantenha `id_organizacao String @map("tenant_id")` e `id_workspace String @map("company_id")` — o `schema.prisma` é INTOCÁVEL (Mandamento 02). Em payloads, JSON e variáveis TypeScript, use sempre a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
 
 ```typescript
-// CORRETO — campos Prisma reais
+// CORRETO — campos Prisma DDD
 prisma.lpco.findMany({
-  where: { tenant_id, company_id, status: 'deferida' }
+  where: { id_organizacao, id_workspace, status: 'deferida' }
 })
 
-// PROIBIDO — falta tenant_id (Organização)
+// PROIBIDO — falta id_organizacao (Organização)
 prisma.lpco.findMany({
   where: { status: 'deferida' }
 })
 
-// PROIBIDO — falta company_id (Workspace)
+// PROIBIDO — falta id_workspace (Workspace)
 prisma.lpco.findMany({
-  where: { tenant_id, status: 'deferida' }
+  where: { id_organizacao, status: 'deferida' }
 })
 ```
 
@@ -442,7 +442,7 @@ const LpcoItemSchema = z.object({
 ## 11. Anti-Padroes — O Que NUNCA Fazer
 
 - ❌ Mudar status de LPCO sem passar pelo `lpcoStatusEngine`
-- ❌ Query sem filtro de Organização + Workspace (`tenant_id` + `company_id` no fragment.prisma atual)
+- ❌ Query sem filtro de Organização + Workspace (`id_organizacao` + `id_workspace` — campos Prisma DDD)
 - ❌ Usar `cuid()` ou `uuid()` em vez de IDs corporativos
 - ❌ Cancelar LPCO deferida que tem vinculos ativos
 - ❌ Ler `publicMetadata.role` do Clerk para autorização — permissões vêm de `GET /api/v1/me` (Mandamento 01)
@@ -459,8 +459,8 @@ const LpcoItemSchema = z.object({
 
 ## 12. Checklist Pre-Entrega
 
-- [ ] Todo model Prisma do LPCO tem campos de Organização + Workspace obrigatórios (`tenant_id` + `company_id` no fragment.prisma atual)?
-- [ ] 3 índices por model: `[tenant_id]`, `[tenant_id, product_id]`, `[tenant_id, user_id]` (nomes dos campos Prisma reais)?
+- [ ] Todo model Prisma do LPCO tem campos DDD `id_organizacao` + `id_workspace` obrigatórios (com `@map("tenant_id")`/`@map("company_id")` apenas se a coluna física legada ainda existir)?
+- [ ] 3 índices por model: `@@index([id_organizacao])`, `@@index([id_organizacao, id_produto])`, `@@index([id_organizacao, id_usuario])`?
 - [ ] IDs corporativos com prefixo `lpco_id_`, `lpit_id_`, etc.?
 - [ ] Status muda apenas via `lpcoStatusEngine`?
 - [ ] Saldo de LPCO Flex validado antes de criar vinculo?

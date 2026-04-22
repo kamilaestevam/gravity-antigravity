@@ -1,12 +1,12 @@
 /**
- * scripts/seed-staging.ts
+ * scripts/ativamente/seed-staging.ts
  * Seed de dados realistas para o ambiente T26000001 (Staging).
  *
  * Cria 5 tenants fictícios com dados representativos para exercitar
  * todos os índices e detectar problemas de performance antes de produção.
  *
  * Executar após as migrations:
- *   npx ts-node scripts/seed-staging.ts
+ *   npx ts-node scripts/ativamente/seed-staging.ts
  */
 
 import { PrismaClient as ConfiguradorPrisma } from '../configurador/generated'

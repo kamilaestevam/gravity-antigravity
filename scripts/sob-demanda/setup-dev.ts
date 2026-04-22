@@ -1,6 +1,6 @@
 #!/usr/bin/env npx tsx
 /**
- * scripts/setup-dev.ts
+ * scripts/sob-demanda/setup-dev.ts
  * Script de setup completo para desenvolvimento local.
  *
  * Executa:
@@ -11,7 +11,7 @@
  * 5. Ativa SimulaCusto para o tenant demo
  *
  * Uso:
- *   npx tsx scripts/setup-dev.ts
+ *   npx tsx scripts/sob-demanda/setup-dev.ts
  *
  * Pré-requisitos:
  *   - PostgreSQL rodando localmente (porta 5432)
@@ -24,7 +24,7 @@ import { execSync } from 'child_process'
 import { existsSync, writeFileSync, readFileSync } from 'fs'
 import { resolve } from 'path'
 
-const ROOT = resolve(import.meta.dirname, '..')
+const ROOT = resolve(import.meta.dirname, '../..')
 const CONFIGURADOR_PRISMA = resolve(ROOT, 'configurador/prisma')
 const SIMULACUSTO_PRISMA = resolve(ROOT, 'produto/simula-custo/server/prisma')
 const CONFIGURADOR_SERVER = resolve(ROOT, 'servicos-global/configurador')

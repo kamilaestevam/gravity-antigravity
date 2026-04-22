@@ -3,7 +3,7 @@
 //
 // Fragment Prisma do serviço de Cronômetro.
 // Não editar schema.prisma diretamente — apenas este fragment.
-// O Coordenador compõe o schema final via scripts/compose-tenant-schema.ts
+// O Coordenador compõe o schema final via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
 // AtividadesCronometro

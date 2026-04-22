@@ -3,7 +3,7 @@
  * Cria dados de teste para o fluxo completo:
  * Tenant → Company (workspace) → User → ProductConfig → CompanyProduct
  *
- * Uso: npx tsx scripts/seed-test-user.ts
+ * Uso: npx tsx scripts/sob-demanda/seed-test-user.ts
  */
 
 import { PrismaClient } from '../configurador/generated/index.js'

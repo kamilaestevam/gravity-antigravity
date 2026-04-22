@@ -10,7 +10,7 @@ import {
   getTenants,
   type MigrationStatus,
   type TenantRow,
-} from '../../../../scripts/migrate-tenants/_shared.js'
+} from '../../../../scripts/ativamente/migrate-tenants/_shared.js'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

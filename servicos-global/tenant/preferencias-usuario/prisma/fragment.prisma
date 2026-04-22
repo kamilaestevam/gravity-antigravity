@@ -4,7 +4,7 @@
 // Fragment Prisma para persistência cross-device de preferências de UI.
 // IDs de usuário vêm do Clerk (user.id).
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // UserPreferences — preferências de UI persitidas por usuário (cross-device)

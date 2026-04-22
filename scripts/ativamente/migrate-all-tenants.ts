@@ -1,4 +1,4 @@
-// scripts/migrate-all-tenants.ts
+// scripts/ativamente/migrate-all-tenants.ts
 // ADR-003 — Orquestrador de migrations multi-schema (Schema-per-Tenant)
 //
 // O que faz:
@@ -9,7 +9,7 @@
 //
 // Uso:
 //   DATABASE_URL=<url_produto> CONFIGURADOR_DATABASE_URL=<url_cfg> \
-//     npx tsx scripts/migrate-all-tenants.ts \
+//     npx tsx scripts/ativamente/migrate-all-tenants.ts \
 //       --product=pedido \
 //       [--dry-run]                        ← só lista o que seria aplicado
 //       [--single-tenant=<tenant_id>]      ← roda apenas um tenant
@@ -109,7 +109,7 @@ function toSchemaName(tenantId: string): string {
 // Migrations directory por produto
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MONOREPO_ROOT = resolve(import.meta.dirname, '..')
+const MONOREPO_ROOT = resolve(import.meta.dirname, '../..')
 
 const PRODUCT_MIGRATIONS: Record<string, string> = {
   pedido:           'produto/pedido/server/prisma/migrations',

@@ -5,8 +5,8 @@
  * adição de novas chaves em pt.json, e traduz apenas o necessário.
  *
  * Uso:
- *   npx tsx scripts/translate-hook.ts              # traduz faltantes
- *   npx tsx scripts/translate-hook.ts --dry-run    # lista sem traduzir
+ *   npx tsx scripts/ativamente/translate-hook.ts              # traduz faltantes
+ *   npx tsx scripts/ativamente/translate-hook.ts --dry-run    # lista sem traduzir
  *
  * Este script é idêntico ao translate.ts em funcionalidade, mas foi
  * projetado para ser chamado como hook pós-edição. Ele importa e
@@ -27,7 +27,7 @@ console.log('🔍 Verificando chaves faltantes em en.json e es.json...\n')
 try {
   execSync(`npx tsx "${translateScript}" ${args}`, {
     stdio: 'inherit',
-    cwd: path.resolve(scriptDir, '..'),
+    cwd: path.resolve(scriptDir, '../..'),
     env: { ...process.env },
   })
 } catch (err) {

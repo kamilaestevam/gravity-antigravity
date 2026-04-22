@@ -4,7 +4,7 @@
  * Gera nova chave segura e exibe instrucoes para atualizar em todos os servicos.
  * Executar trimestralmente conforme politica de seguranca (Cap. 13.3).
  *
- * Uso: npx tsx scripts/rotate-internal-key.ts
+ * Uso: npx tsx scripts/ativamente/rotate-internal-key.ts
  */
 
 import { randomBytes } from 'crypto'

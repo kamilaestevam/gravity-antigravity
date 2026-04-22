@@ -169,7 +169,7 @@ Esse comportamento **não é um bug**. É a garantia de que nenhum usuário aces
 
 ```bash
 # 1. Compor schema (se tenant-services)
-npx ts-node scripts/compose-tenant-schema.ts
+npx ts-node scripts/ativamente/compose-tenant-schema.ts
 
 # 2. Validar schema
 npx prisma validate

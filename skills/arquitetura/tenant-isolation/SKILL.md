@@ -6,10 +6,10 @@ description: "Use esta skill sempre que uma tarefa envolver queries ao banco de 
 # Gravity — Isolamento de Organização (Schema-per-Organização)
 
 > **Esta skill foi reescrita em 2026-04-17 após o pivô arquitetural Risco Zero.**
-> O modelo anterior (`WHERE tenant_id = ?` + RLS) foi descartado para os bancos de produto. Toda referência ao modelo antigo nesta skill é histórica.
+> O modelo anterior (`WHERE id_organizacao = ?` + RLS) foi descartado para os bancos de produto. Toda referência ao modelo antigo nesta skill é histórica.
 > Decisão registrada no Pivô Arquitetural de 2026-04-17 (schema-per-organização e Configurador como hub central). Os ADRs que documentavam esse pivô foram consolidados nesta skill e em `documentos-tecnicos/acessos-usuarios/incidentes-e-auditoria.md`.
 >
-> **Notas sobre nomes técnicos preservados:** o pacote npm continua sendo `@gravity/tenant-resolver` (identificador real), o prefixo de schema PostgreSQL continua sendo `tenant_<cuid>` (objeto físico do banco) e a API do SDK continua expondo `req.tenant.tenantId`/`withTenantContext(tenantId, ...)` (contrato externo). Em payloads/JSON/variáveis de aplicação use `id_organizacao`/`idOrganizacao` (DDD).
+> **Notas sobre nomes técnicos preservados:** o pacote npm continua sendo `@gravity/tenant-resolver` (identificador real registrado), o prefixo de schema PostgreSQL continua sendo `tenant_<cuid>` (objeto físico do banco) e a API pública atual do SDK ainda expõe `req.tenant.tenantId`/`withTenantContext(tenantId, ...)` (contrato externo legado, em refatoração para `idOrganizacao`). Em payloads/JSON/variáveis de aplicação use **sempre** `id_organizacao`/`idOrganizacao` (DDD — Mandamento 03). Embora a biblioteca tenha nome legado, o parâmetro semântico que trafega é estritamente a Organização (`id_organizacao`).
 
 ---
 
@@ -78,8 +78,8 @@ await withTenantContext(idOrganizacao, async (ctx, db) => {
 - ❌ `import { PrismaClient } from '@prisma/client'` em qualquer arquivo de produto (linter CI bloqueia)
 - ❌ `new PrismaClient(...)` em qualquer produto
 - ❌ Acesso ao banco fora de `withTenant(...)` ou `withTenantContext(...)`
-- ❌ `WHERE tenant_id = ?` em queries de produto (modelo antigo morto)
-- ❌ Coluna `tenant_id` em tabelas de produto após migração completa (Pivô 2026-04-17)
+- ❌ `WHERE id_organizacao = ?` em queries de produto (modelo antigo morto)
+- ❌ Coluna `tenant_id` ou campo Prisma `id_organizacao` em tabelas de produto após migração completa (Pivô 2026-04-17)
 - ❌ Cache (`redis.set`, in-memory) sem prefixo `tenant:<id>:`
 - ❌ PgBouncer em modo `session` para banco de produto (modo `transaction` é obrigatório)
 - ❌ `SET search_path` (sem `LOCAL`) — vaza no pool
@@ -92,7 +92,7 @@ await withTenantContext(idOrganizacao, async (ctx, db) => {
 - ✅ Toda rota de produto chama `withTenant(req, async db => ...)`
 - ✅ Toda tarefa de background chama `withTenantContext(idOrganizacao, async (ctx, db) => ...)` (nome do parâmetro do SDK é `tenantId`; passe `idOrganizacao` da aplicação)
 - ✅ Schema é provisionado pelo worker do evento `TenantProvisioned` (com DLQ + retry)
-- ✅ Migrations rodam via `scripts/migrate-all-tenants.ts` (orquestrador — Pivô 2026-04-17)
+- ✅ Migrations rodam via `scripts/ativamente/migrate-all-tenants.ts` (orquestrador — Pivô 2026-04-17)
 - ✅ Cliente Prisma é instanciado só em `packages/tenant-resolver/src/internal-prisma.ts` e **não é exportado**
 - ✅ Teste E2E de isolamento cross-organização em todo produto (`tenant-isolation.e2e.test.ts`)
 - ✅ Validação Zod em toda rota antes do `withTenant`
@@ -109,26 +109,26 @@ model Pedido {
   id        String @id @default(cuid())
   numero    String
   status    String
-  // SEM campo tenant_id — o schema É o tenant
-  // SEM @@index([tenant_id]) — desnecessário
-  
+  // SEM campo id_organizacao — o schema É a Organização
+  // SEM @@index([id_organizacao]) — desnecessário
+
   @@index([status])
   @@index([numero])
 }
 ```
 
-> Durante a janela de migração (dual-write), o `tenant_id` permanece em coluna. Após migração completa (Pivô 2026-04-17), a coluna é removida.
+> Durante a janela de migração (dual-write), o campo Prisma `id_organizacao String @map("tenant_id")` permanece nas tabelas. Após migração completa (Pivô 2026-04-17), o campo e a coluna física são removidos.
 
 No Configurador (não muda):
 
 ```prisma
-model Tenant {
+model Organizacao {
   id          String @id @default(cuid())
   nome        String
-  status      TenantStatus
-  // Configurador É a fonte de organizações. Não carrega coluna de auto-isolamento.
-  // O nome do model "Tenant" é mantido aqui pois o schema.prisma é INTOCÁVEL (Mandamento 02).
-  // Em payloads/JSON, refira-se ao conceito como "organização" (id_organizacao).
+  status      OrganizacaoStatus
+  // Configurador É a fonte de Organizações. Não carrega coluna de auto-isolamento.
+  // O model físico real do schema.prisma do Configurador é INTOCÁVEL (Mandamento 02).
+  // Em payloads/JSON, refira-se ao conceito como "Organização" (id_organizacao).
 }
 ```
 
@@ -257,10 +257,10 @@ CRON horário audita paridade `Configurador.tenants_ativos == bancos.schemas_exi
 ## Histórico — Modelo Antigo (apenas referência durante migração)
 
 Antes do pivô de 2026-04-17, o isolamento era feito por:
-- Coluna `tenant_id String` obrigatória em todo model.
-- `WHERE tenant_id = ?` injetado por middleware Prisma (`$extends`).
-- RLS PostgreSQL como segunda camada (`USING (tenant_id = current_setting('app.current_tenant_id')::uuid)`).
+- Campo Prisma `id_organizacao String @map("tenant_id")` obrigatório em todo model (coluna física `tenant_id`).
+- `WHERE id_organizacao = ?` injetado por middleware Prisma (`$extends`).
+- RLS PostgreSQL como segunda camada (`USING (tenant_id = current_setting('app.current_tenant_id')::uuid)` — nome da coluna física legada).
 
 Esse modelo foi descartado: superfície de erro humano grande demais. Um único `findMany()` sem o middleware aplicado expunha o banco inteiro. Decisão consolidada no Pivô Arquitetural de 2026-04-17.
 
-Durante a janela de migração (dual-write), os dois modelos coexistem. Após migração completa, o `tenant_id` é removido das tabelas de produto.
+Durante a janela de migração (dual-write), os dois modelos coexistem. Após migração completa, o campo `id_organizacao` (e a coluna física `tenant_id`) são removidos das tabelas de produto.

@@ -9,8 +9,8 @@
  *   3. Registra status PROVISIONED em _schema_migration_status
  *
  * Uso:
- *   npx tsx scripts/migrate-tenants/01-provision-schemas.ts           → dry-run
- *   npx tsx scripts/migrate-tenants/01-provision-schemas.ts --execute → executa
+ *   npx tsx scripts/ativamente/migrate-tenants/01-provision-schemas.ts           → dry-run
+ *   npx tsx scripts/ativamente/migrate-tenants/01-provision-schemas.ts --execute → executa
  */
 
 import {
@@ -185,10 +185,10 @@ async function main(): Promise<void> {
 
       if (IS_DRY_RUN) {
         console.log(`\n${yellow('  Dry-run concluído. Para executar:')}`)
-        console.log(`${cyan('  npx tsx scripts/migrate-tenants/01-provision-schemas.ts --execute')}\n`)
+        console.log(`${cyan('  npx tsx scripts/ativamente/migrate-tenants/01-provision-schemas.ts --execute')}\n`)
       } else {
         log.ok('Fase 1 concluída. Execute a Fase 2 para iniciar o backfill:')
-        console.log(`${cyan('  npx tsx scripts/migrate-tenants/02-backfill.ts --execute')}\n`)
+        console.log(`${cyan('  npx tsx scripts/ativamente/migrate-tenants/02-backfill.ts --execute')}\n`)
       }
     } finally {
       sharedClient.release()

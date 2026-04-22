@@ -165,7 +165,7 @@ psql $DATABASE_URL -c "SELECT count(*) FROM information_schema.tables WHERE tabl
 psql $DATABASE_URL -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
 
 # NÃO usar prisma migrate dev em banco de produto
-# Migrations rodam via scripts/migrate-all-tenants.ts (Pivô Arquitetural 2026-04-17)
+# Migrations rodam via scripts/ativamente/migrate-all-tenants.ts (Pivô Arquitetural 2026-04-17)
 ```
 
 ---
@@ -296,7 +296,7 @@ valor_total_itens         = valor_unitario_item × saldo_item_pedido
 ### Regra 1 — Schema dinâmico, nunca fixo
 
 Migrations de produto **nunca referenciam um schema fixo pelo nome**. O orquestrador
-`scripts/migrate-all-tenants.ts` já faz `SET search_path TO "tenant_<cuid>"` antes de
+`scripts/ativamente/migrate-all-tenants.ts` já faz `SET search_path TO "tenant_<cuid>"` antes de
 executar cada migration — qualquer prefixo hardcoded é redundante e quebra o isolamento.
 
 ```sql
@@ -357,7 +357,7 @@ CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto> \
 
 # Passo 2 — Aplicar migrations em todos os schemas
 CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto> \
-  npx tsx scripts/migrate-all-tenants.ts --product=<nome>
+  npx tsx scripts/ativamente/migrate-all-tenants.ts --product=<nome>
 
 # ❌ NUNCA usar diretamente — cria tabelas no schema public (proibido)
 npx prisma migrate dev
@@ -370,7 +370,7 @@ O Passo 1 e 2 em produção exigem autorização explícita do responsável téc
 
 ## Estrutura de `fragment.prisma` por Produto
 
-Cada produto/serviço escreve **apenas seu próprio** `fragment.prisma`. O Coordenador compõe o `schema.prisma` final via `scripts/compose-tenant-schema.ts`.
+Cada produto/serviço escreve **apenas seu próprio** `fragment.prisma`. O Coordenador compõe o `schema.prisma` final via `scripts/ativamente/compose-tenant-schema.ts`.
 
 ```text
 produtos/pedido/prisma/
@@ -402,4 +402,4 @@ servicos-global/tenant/generated/
 - [ ] Campos calculados não estão marcados como editáveis/obrigatórios no front?
 - [ ] ID segue o padrão `[prefixo]_id_[9 dígitos]/[YY]`?
 - [ ] Só modifiquei o `fragment.prisma` do meu produto (não o `schema.prisma` composto)?
-- [ ] Migration vai rodar via orquestrador `scripts/migrate-all-tenants.ts` (não `prisma migrate dev`)?
+- [ ] Migration vai rodar via orquestrador `scripts/ativamente/migrate-all-tenants.ts` (não `prisma migrate dev`)?

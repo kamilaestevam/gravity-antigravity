@@ -1,11 +1,11 @@
 /**
- * scripts/validate-testes.ts
+ * scripts/ativamente/validate-testes.ts
  * --------------------------
  * Roda todos os validators do sistema de testes em sequência.
  * Falha o CI se qualquer um falhar.
  *
  * Uso:
- *   npx tsx scripts/validate-testes.ts
+ *   npx tsx scripts/ativamente/validate-testes.ts
  */
 
 import { spawnSync } from 'child_process'

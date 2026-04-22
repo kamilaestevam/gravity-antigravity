@@ -1,5 +1,5 @@
 /**
- * scripts/check-deps.ts
+ * scripts/ativamente/check-deps.ts
  *
  * Verifica regras do monorepo em arquivos package.json alterados.
  * Usado pelo lint-staged no pre-commit e pelo CI em PRs.
@@ -13,15 +13,15 @@
  * 6. Nenhum "any" explícito
  *
  * Uso:
- *   npx tsx scripts/check-deps.ts                    # verifica todos os package.json
- *   npx tsx scripts/check-deps.ts path/package.json   # verifica arquivos específicos
+ *   npx tsx scripts/ativamente/check-deps.ts                    # verifica todos os package.json
+ *   npx tsx scripts/ativamente/check-deps.ts path/package.json   # verifica arquivos específicos
  */
 
 import { readFileSync, existsSync } from 'fs'
 import { resolve, relative } from 'path'
 import { execSync } from 'child_process'
 
-const ROOT = resolve(import.meta.dirname, '..')
+const ROOT = resolve(import.meta.dirname, '../..')
 const errors: string[] = []
 
 // Versões travadas (devem bater com overrides do package.json raiz)
@@ -43,7 +43,7 @@ const IGNORE_PATHS = [
   'generated',
   'demo',
   '.claude',
-  'scripts/check-deps.ts', // evita self-check (contém as strings como literais nas regras)
+  'scripts/ativamente/check-deps.ts', // evita self-check (contém as strings como literais nas regras)
 ]
 
 function shouldIgnore(filePath: string): boolean {

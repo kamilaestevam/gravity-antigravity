@@ -10,26 +10,26 @@ description: "Use esta skill para operações de banco de dados — migrations, 
 ## ⛔ Padrão de Acesso ao Banco (Obrigatório)
 
 > **Validado em produção — Sprint 1/2026-04-18 (Lotes 1, 2 e 3 — produto/pedido/server).**
-> Qualquer desvio deste padrão **bloqueia o CI** e causa vazamento de dados cross-tenant.
+> Qualquer desvio deste padrão **bloqueia o CI** e causa vazamento de dados cross-organização.
 
 ### O que é PROIBIDO (padrão legado)
 
 ```typescript
 // ❌ PROIBIDO — linter CI bloqueia; vazamento de schema garantido
 const db = (req as any).prisma
-const tenantId = (req as any).tenantId
-const userId = (req as any).userId
+const idOrganizacao = (req as any).tenantId
+const idUsuario     = (req as any).userId
 
 // ❌ PROIBIDO — import direto de PrismaClient fora do SDK
 import { PrismaClient } from '@prisma/client'
 
-// ❌ PROIBIDO — TenantRequest como tipo de handler
+// ❌ PROIBIDO — TenantRequest como tipo de handler (nome do tipo preservado por compatibilidade do SDK)
 import type { TenantRequest } from '../shared/types.js'
 router.get('/rota', async (req: TenantRequest, res: Response) => { ... })
 
-// ❌ PROIBIDO — leitura de tenant por header
-const tenantId = req.headers['x-tenant-id'] as string
-const userId   = req.headers['x-user-id'] as string
+// ❌ PROIBIDO — leitura de Organização/Usuário por header (use req.tenant do SDK)
+const idOrganizacao = req.headers['x-tenant-id'] as string   // header preservado por compatibilidade de protocolo
+const idUsuario     = req.headers['x-user-id'] as string
 ```
 
 ### O que é OBRIGATÓRIO (withTenant)
@@ -217,13 +217,13 @@ CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto_teste> \
 
 # 3. Aplicar migrations em TESTE primeiro — obrigatório
 CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto_teste> \
-  npx tsx scripts/migrate-all-tenants.ts --product=<nome>
+  npx tsx scripts/ativamente/migrate-all-tenants.ts --product=<nome>
 
 # 4. Validar resultado no banco de teste
 
 # 5. Só após validação explícita → aplicar em PRODUÇÃO (exige autorização)
 CONFIGURADOR_DATABASE_URL=<url_cfg> DATABASE_URL=<url_produto_producao> \
-  npx tsx scripts/migrate-all-tenants.ts --product=<nome>
+  npx tsx scripts/ativamente/migrate-all-tenants.ts --product=<nome>
 ```
 
 > **`prisma migrate dev` em banco de produto é proibido** — ele cria tabelas no schema

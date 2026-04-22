@@ -226,7 +226,7 @@ app.get('/api/dashboard', async (req, res) => {
 
   // 3 chamadas em paralelo, NÃO em série
   const [activities, timers, emails] = await Promise.allSettled([
-    tenantAPI.get(`/activities?id_usuario=${id_usuario}&product_id=bid-frete`),
+    tenantAPI.get(`/activities?id_usuario=${id_usuario}&id_produto=bid-frete`),
     tenantAPI.get(`/timers?id_usuario=${id_usuario}&active=true`),
     tenantAPI.get(`/email?unread=true&limit=5`),
   ])

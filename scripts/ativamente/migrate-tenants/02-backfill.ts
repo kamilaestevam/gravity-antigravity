@@ -12,8 +12,8 @@
  * REGRA CRÍTICA (Risco Zero): os dados originais em public NÃO são deletados.
  *
  * Uso:
- *   npx tsx scripts/migrate-tenants/02-backfill.ts           → dry-run
- *   npx tsx scripts/migrate-tenants/02-backfill.ts --execute → executa
+ *   npx tsx scripts/ativamente/migrate-tenants/02-backfill.ts           → dry-run
+ *   npx tsx scripts/ativamente/migrate-tenants/02-backfill.ts --execute → executa
  */
 
 import {
@@ -132,7 +132,7 @@ async function main(): Promise<void> {
 
       if (tenants.length === 0) {
         log.warn('Nenhum tenant com status PROVISIONED ou BACKFILL_PARTIAL encontrado.')
-        log.info('Execute primeiro: npx tsx scripts/migrate-tenants/01-provision-schemas.ts --execute')
+        log.info('Execute primeiro: npx tsx scripts/ativamente/migrate-tenants/01-provision-schemas.ts --execute')
         return
       }
 
@@ -219,10 +219,10 @@ async function main(): Promise<void> {
 
       if (IS_DRY_RUN) {
         console.log(`\n${yellow('  Dry-run concluído. Para executar:')}`)
-        console.log(`${cyan('  npx tsx scripts/migrate-tenants/02-backfill.ts --execute')}\n`)
+        console.log(`${cyan('  npx tsx scripts/ativamente/migrate-tenants/02-backfill.ts --execute')}\n`)
       } else {
         log.ok('Fase 2 concluída. Execute a Fase 3 para verificar paridade e ativar cutover:')
-        console.log(`${cyan('  npx tsx scripts/migrate-tenants/03-cutover.ts --execute')}\n`)
+        console.log(`${cyan('  npx tsx scripts/ativamente/migrate-tenants/03-cutover.ts --execute')}\n`)
       }
     } finally {
       client.release()

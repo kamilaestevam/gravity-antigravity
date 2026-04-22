@@ -9,7 +9,7 @@
 
 ## Escopo
 
-Scripts CLI em `scripts/migrate-tenants/` e `servicos-global/configurador/server/scripts/bootstrap-seed.ts`.
+Scripts CLI em `scripts/ativamente/migrate-tenants/` e `servicos-global/configurador/server/scripts/bootstrap-seed.ts`.
 
 ---
 

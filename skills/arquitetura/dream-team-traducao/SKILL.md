@@ -17,7 +17,7 @@ Todo texto visível ao usuário DEVE passar por `t('namespace.key')`. Nenhuma st
 |--------|-----------|--------|
 | Core | `i18next` | `^26.0.1` (locked via overrides) |
 | React bindings | `react-i18next` | `^17.0.1` (locked via overrides) |
-| Pipeline tradução | `scripts/translate.ts` | Gemini 2.0 Flash API |
+| Pipeline tradução | `scripts/ativamente/translate.ts` | Gemini 2.0 Flash API |
 | Formatadores | `Intl.*` (nativo) | ES2022+ |
 | Auth UI | `@clerk/localizations` | `^4.2.3` |
 
@@ -155,8 +155,8 @@ function MeuComponente() {
 ### 3. Gerar traduções EN/ES
 
 ```bash
-npx tsx scripts/translate.ts        # traduz chaves faltantes via Gemini
-npx tsx scripts/translate.ts --dry-run  # lista sem traduzir (preview)
+npx tsx scripts/ativamente/translate.ts        # traduz chaves faltantes via Gemini
+npx tsx scripts/ativamente/translate.ts --dry-run  # lista sem traduzir (preview)
 ```
 
 ### 4. Commit os 3 arquivos
@@ -457,8 +457,8 @@ const loadLocale = async (lang: string) => {
 ### Comando
 
 ```bash
-npx tsx scripts/translate.ts            # traduz faltantes
-npx tsx scripts/translate.ts --dry-run  # preview sem chamar API
+npx tsx scripts/ativamente/translate.ts            # traduz faltantes
+npx tsx scripts/ativamente/translate.ts --dry-run  # preview sem chamar API
 ```
 
 ### Como Funciona
@@ -709,8 +709,8 @@ it('label usa t() em vez de string hardcoded', () => {
 | Adicionar texto novo | Key no `pt.json` + `t('ns.key')` + `npm run translate` |
 | Formatar moeda/data | `useLocale().formatarMoeda(v)` |
 | Trocar idioma via UI | LanguageSwitcherGlobal (já integrado no Shell) |
-| Traduzir automaticamente | `npx tsx scripts/translate.ts` |
-| Verificar cobertura | `npx tsx scripts/translate.ts --dry-run` |
+| Traduzir automaticamente | `npx tsx scripts/ativamente/translate.ts` |
+| Verificar cobertura | `npx tsx scripts/ativamente/translate.ts --dry-run` |
 | Constante com labels | Objeto com keys i18n + `t(KEY)` no render |
 | Colunas de tabela | `useMemo(() => [...], [t])` dentro do componente |
 | Tooltip | `<TooltipGlobal descricao={t('ns.tooltip_key')}>` |

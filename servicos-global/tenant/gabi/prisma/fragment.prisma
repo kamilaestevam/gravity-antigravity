@@ -3,7 +3,7 @@
 //
 // Fragment Prisma para o serviço da Gabi AI (agente autônomo).
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // ConversaCompletaGabi — conversa principal da Gabi com o usuário no tenant

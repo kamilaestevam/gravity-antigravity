@@ -49,7 +49,7 @@ O projeto Gravity é 100% **Vite + React Router** (SPA), não Next.js. Por isso:
 └──────────────────────┬──────────────────────────────────────┘
                        │
           ┌────────────┴────────────┐
-          │  scripts/translate.ts   │
+          │  scripts/ativamente/translate.ts   │
           │  (Pipeline Gemini)      │
           └────────────┬────────────┘
                        │
@@ -198,7 +198,7 @@ O namespace `admin.cockpit` contém textos do API Cockpit do painel admin, que �
 
 Edite a constante `SKIP_NAMESPACES` em dois locais:
 
-1. **`scripts/translate.ts`** — para o pipeline de tradução
+1. **`scripts/ativamente/translate.ts`** — para o pipeline de tradução
 2. **`testes/testes-unitarios/i18n/translate-script.test.ts`** — para os testes
 3. **`testes/testes-unitarios/i18n/messages-integrity.test.ts`** — para os testes
 
@@ -604,7 +604,7 @@ t('saudacao', { nome: 'Daniel', count: 5 })
    // ...
    fr: { translation: frTranslations },
    ```
-3. Adicione em `TARGET_LANGUAGES` no `scripts/translate.ts`:
+3. Adicione em `TARGET_LANGUAGES` no `scripts/ativamente/translate.ts`:
    ```typescript
    const TARGET_LANGUAGES = { en: 'inglês', es: 'espanhol', fr: 'francês' }
    const LANGUAGE_NAMES = { en: 'English', es: 'Spanish', fr: 'French' }

@@ -80,17 +80,17 @@ description: "Use esta skill ao desenvolver ou modificar o produto NF Importacao
 ## 4. Isolamento Zero-Trust (Organização + Workspace)
 
 ```typescript
-// TODA query DEVE ter os campos Prisma reais do fragment.prisma:
+// TODA query DEVE ter os campos Prisma DDD do fragment.prisma:
 where: {
-  tenant_id: req.tenant.tenantId,        // Organização (campo Prisma real)
-  company_id: req.tenant.companyId,      // Workspace (campo Prisma real)
+  id_organizacao: req.tenant.tenantId,    // Organização (semântica DDD; req.tenant.tenantId é o nome legado da API atual do SDK)
+  id_workspace:   req.tenant.workspaceId, // Workspace (semântica DDD; req.tenant.workspaceId é o nome legado da API atual do SDK)
   // ... filtros adicionais
 }
 ```
 
-> Os nomes dos campos Prisma `tenant_id` e `company_id` são preservados conforme o `fragment.prisma` real (Mandamento 02 — schema intocável). Em payloads, JSON e variáveis TypeScript fora do contexto Prisma, use a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
+> Em models novos, use `id_organizacao`/`id_workspace` direto. Em models legados que ainda persistem colunas físicas antigas no banco, mantenha `id_organizacao String @map("tenant_id")` e `id_workspace String @map("company_id")` — o `schema.prisma` é INTOCÁVEL (Mandamento 02). Em payloads, JSON e variáveis TypeScript, use sempre a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
 
-- Catalogo, templates, layouts, favoritos = SEMPRE filtrados por Workspace (`company_id`)
+- Catalogo, templates, layouts, favoritos = SEMPRE filtrados por Workspace (`id_workspace`)
 - Acesso entre Organizações distintas retorna **404** (nunca 403)
 - Um despachante com N clientes = N Workspaces = N catalogos separados
 - NF de um Workspace NUNCA visivel para outro Workspace
@@ -123,7 +123,7 @@ rascunho → em_composicao → pronta → exportada
 ## 6. Despesas — Regras
 
 1. **Catalogo e LIVRE** — usuario nomeia como quiser (nao ha lista fixa)
-2. **Nome unico por empresa** — `@@unique([tenant_id, company_id, nome])` (campos Prisma reais que mapeiam Organização + Workspace)
+2. **Nome unico por empresa** — `@@unique([id_organizacao, id_workspace, nome])` (campos Prisma DDD; Organização + Workspace)
 3. **Template auto-popula** — ao criar NF, se empresa tem template padrao, despesas sao adicionadas automaticamente
 4. **Smart Read de recibos** — upload de PDF/imagem → IA extrai tipo + valor → preview amarelo → confirma
 5. **Conta contabil opcional** — para integracao ERP (cada empresa mapeia)

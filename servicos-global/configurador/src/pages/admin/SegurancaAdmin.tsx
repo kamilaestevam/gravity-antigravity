@@ -657,7 +657,7 @@ export function SegurancaAdmin() {
             border: '1px solid var(--ws-border, #334155)',
             fontSize: '0.8rem', color: 'var(--ws-muted, #94a3b8)',
           }}>
-            {t('admin.seguranca-admin.secrets.rotacao_instrucao')} <code style={{ color: '#10b981' }}>npx tsx scripts/rotate-internal-key.ts</code>
+            {t('admin.seguranca-admin.secrets.rotacao_instrucao')} <code style={{ color: '#10b981' }}>npx tsx scripts/ativamente/rotate-internal-key.ts</code>
           </div>
         </div>
       )}

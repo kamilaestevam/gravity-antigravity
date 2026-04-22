@@ -343,7 +343,7 @@ def make_field_row(sch: Schema, bank_label: str, produto: str,
         front_ddd,                      # Nome no front - DDD
         tela_a,                         # Nome em tela - Atual
         tela_d,                         # Nome em tela - DDD
-        '',                             # Local Tela (dono preenche)
+        local_tela_para_tabela(model.name, produto),   # Local Tela
         tipo_dado,                      # Tipo Dado
         produto,                        # Produto Gravity
         natureza,                       # Natureza
@@ -372,17 +372,98 @@ def ddd_back_front_for_relation(prisma_name: str) -> str:
 def make_enum_row(sch: Schema, bank_label: str, produto: str, e: Enum) -> list:
     return [
         bank_label, e.name, e.name,
-        '','','',                                   # banco PG/Prisma/DDD vazios
+        e.name, e.name, e.name,                      # PG/Prisma/DDD = nome do enum (tipo real do PostgreSQL)
         e.name, e.name,                              # back atual/ddd = nome do enum
         e.name, e.name,                              # front atual/ddd
         e.name, e.name,                              # tela
-        '',                                          # Local Tela
+        local_tela_para_tabela(e.name, produto),     # Local Tela
         'Enum', produto, 'sistema', 'Enum',
         '|'.join(e.values),                          # Formato
         'valor deve estar na lista',                 # Validação
         'Sim','Não','','','Definição de enum — usada por campos que referenciam este tipo.',
         '—','Sistema','',
     ]
+
+# Mapeamento tabela -> Local na Tela (breadcrumb hierárquico).
+# Match por prefixo, case-insensitive.
+TABLE_TO_SCREEN = [
+    # --- Configurador ---
+    ('Organizacao',              'Admin / Organizações'),
+    ('Empresa',                  'Admin / Workspaces'),
+    ('UsuarioEmpresa',           'Admin / Workspaces / Membros'),
+    ('UsuarioWorkspace',         'Admin / Workspaces / Membros'),
+    ('UsuarioPermissao',         'Admin / Permissões'),
+    ('Usuario',                  'Admin / Usuários; Hub / Perfil'),
+    ('AssinaturaProdutoGravity', 'Admin / Produtos Gravity / Assinaturas'),
+    ('ConfiguracaoProduto',      'Admin / Produtos Gravity / Configuração'),
+    ('ProdutoGravity',           'Admin / Produtos Gravity'),
+    ('TokenServico',             'Admin / API Cockpit / Tokens'),
+    ('TokenAcesso',              'Admin / API Cockpit / Tokens'),
+    ('Fatura',                   'Admin / Financeiro / Faturas'),
+    ('Cobranca',                 'Admin / Financeiro / Cobranças'),
+    ('Assinatura',               'Admin / Financeiro / Assinaturas'),
+    ('Deploy',                   'Admin / Deploy'),
+    ('AmbienteDeploy',           'Admin / Deploy'),
+    ('MetricasGemini',           'Admin / Segurança / Telemetria'),
+    ('LogGerador',               'Admin / Segurança / Logs'),
+    ('EscopoToken',              'Admin / API Cockpit / Tokens'),
+    ('StatusOrganizacao',        'Admin / Organizações (seletor)'),
+    ('StatusAssinatura',         'Admin / Financeiro (seletor)'),
+    ('StatusEmpresa',            'Admin / Workspaces (seletor)'),
+    ('StatusProduto',            'Admin / Produtos Gravity (seletor)'),
+    ('StatusDeploy',             'Admin / Deploy (seletor)'),
+    ('TipoUsuario',              'Login / Sign-up; Admin / Usuários (seletor)'),
+    ('TipoMembroEmpresa',        'Admin / Workspaces / Membros (seletor)'),
+    ('TipoCobranca',             'Admin / Financeiro (seletor)'),
+    ('TipoLimiteUsuario',        'Admin / Usuários (seletor)'),
+    ('FaturaStatus',             'Admin / Financeiro / Faturas (seletor)'),
+
+    # --- Serviços (Tenant) ---
+    ('Atividades',               'Atividades'),
+    ('Agenda',                   'Agenda'),
+    ('ApiCockpit',               'API Cockpit'),
+    ('ConectorErp',              'Conector ERP'),
+    ('Cronometro',               'Cronômetro'),
+    ('Dashboard',                'Dashboard'),
+    ('Email',                    'Email'),
+    ('Gabi',                     'Gabi'),
+    ('HistoricoGlobal',          'Histórico Global'),
+    ('Historico',                'Histórico'),
+    ('NcmSync',                  'NCM Sync'),
+    ('Ncm',                      'NCM'),
+    ('Notificacao',              'Notificações'),
+    ('PreferenciasUsuario',      'Preferências / Usuário'),
+    ('Preferencia',              'Preferências'),
+    ('Relatorio',                'Relatórios'),
+    ('Whatsapp',                 'WhatsApp'),
+    ('Disponibilidade',          'Agenda / Disponibilidade'),
+    ('Reserva',                  'Agenda / Reservas'),
+    ('Slot',                     'Agenda / Slots'),
+
+    # --- Pedido ---
+    ('PedidoItemLote',           'Pedido / Detalhe / Itens / Lote'),
+    ('PedidoItem',               'Pedido / Detalhe / Itens'),
+    ('PedidoAnexo',              'Pedido / Detalhe / Anexos'),
+    ('PedidoHistorico',          'Pedido / Detalhe / Histórico'),
+    ('Pedido',                   'Pedidos / Lista; Pedidos / Detalhe; Pedidos / Kanban; Pedidos / Dashboard'),
+    ('TrackingItem',             'Pedidos / Histórico / Tracking'),
+    ('StatusPedido',             'Pedidos (seletor)'),
+    ('CampoCustom',              'Pedidos / Configurações / Campos Customizados'),
+    ('Configuracao',             'Pedidos / Configurações'),
+    ('Incoterm',                 'Pedidos (seletor)'),
+    ('Moeda',                    'Pedidos (seletor)'),
+]
+
+def local_tela_para_tabela(table_name: str, produto: str = '') -> str:
+    """Mapeia nome da tabela (modelo/enum) para breadcrumb de tela."""
+    for prefix, screen in TABLE_TO_SCREEN:
+        if table_name.startswith(prefix) or table_name == prefix:
+            return screen
+    # fallbacks por produto
+    if 'Pedido' in produto: return 'Pedidos'
+    if 'Tenant' in produto or 'Serviços' in produto: return '—'
+    if 'Configurador' in produto: return 'Admin'
+    return ''
 
 # ---------------------------------------------------------------------------
 # APIs

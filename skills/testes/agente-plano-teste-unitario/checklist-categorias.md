@@ -136,8 +136,8 @@
 - Primeiro acesso (miss) → fetch chamado 1x
 - Segundo acesso com mesmo input (hit) → fetch NÃO chamado novamente
 - Após `invalidateCache()` → fetch chamado novamente no próximo acesso
-- Cache de tenant A não contamina tenant B
-- Cache prefixado com `tenant:<id>:` (ou justificativa documentada)
+- Cache da Organização A não contamina Organização B
+- Cache prefixado com `tenant:<idOrganizacao>:` (ou justificativa documentada)
 
 ---
 
@@ -202,7 +202,7 @@ EXCEÇÕES:
 - Se tipoModulo = "webhook", força categorias 4, 11 com mínimo "alta"
 - Se tipoModulo = "schema", força categoria 4 com mínimo "alta"
 - Se o módulo lida com autenticação ou permissão → força criticidade mínima "alta"
-- Se o módulo lida com dinheiro (billing, Stripe) → força criticidade mínima "critica"
+- Se o módulo lida com dinheiro (billing, faturamento) → força criticidade mínima "critica"
 ```
 
 ---

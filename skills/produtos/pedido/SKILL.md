@@ -1,6 +1,6 @@
 ---
 name: antigravity-pedido
-description: "Use esta skill ao desenvolver ou modificar o produto Pedido (Gestao de Pedidos COMEX). Define a arquitetura 3-Tier, a matematica de saldo imutavel, o escudo anti-conflito importacao/exportacao, as regras de IDs corporativos e o zero-trust por tenant+company. Todo agente consulta esta skill antes de tocar em Pedido, PedidoItem ou nas rotas de /api/v1/pedidos."
+description: "Use esta skill ao desenvolver ou modificar o produto Pedido (Gestao de Pedidos COMEX). Define a arquitetura 3-Tier, a matematica de saldo imutavel, o escudo anti-conflito importacao/exportacao, as regras de IDs corporativos e o zero-trust por Organização + Workspace. Todo agente consulta esta skill antes de tocar em Pedido, PedidoItem ou nas rotas de /api/v1/pedidos."
 ---
 
 # Gravity — Skill: Pedido (Gestao de Pedidos COMEX)
@@ -66,29 +66,31 @@ O sistema suporta importacao e exportacao na mesma tabela. Para impedir ambiguid
   - `importacao_exportador_id` — se importacao, e o fornecedor no exterior
   - `exportacao_importador_id` — se exportacao, e o cliente no exterior
 
-O `company_id` (workspace) e sempre a propria empresa. Nao precisa de campo.
+O Workspace (campo Prisma `company_id` no fragment atual) e sempre a propria empresa. Nao precisa de campo extra.
 
 ---
 
-## 5. Isolamento Zero-Trust (tenant_id + company_id)
+## 5. Isolamento Zero-Trust (Organização + Workspace)
 
-**Toda query exige o par `tenant_id` + `company_id`.**
+**Toda query exige o par de campos Prisma de Organização + Workspace (atualmente `tenant_id` + `company_id` no fragment.prisma de processos-core).**
+
+> Os nomes dos campos Prisma são preservados conforme o schema real (Mandamento 02 — schema intocável). Em payloads, JSON e variáveis TypeScript fora do contexto Prisma, use a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
 
 ```typescript
-// CORRETO
+// CORRETO — campos Prisma reais
 prisma.pedido.findMany({
   where: { tenant_id, company_id, status: 'aberto' }
 })
 
-// ERRADO — vazamento cross-tenant
+// ERRADO — vazamento entre Organizações
 prisma.pedido.findMany({
   where: { status: 'aberto' }
 })
 ```
 
-- Um usuario de uma filial NUNCA enxerga pedidos de outra
-- Excecao: perfil Master Cross-Company (acesso explicito)
-- Se ID nao pertence ao tenant/company, retornar 404 (masking), NUNCA 403
+- Um usuario de uma filial (Workspace) NUNCA enxerga pedidos de outra
+- Excecao: Master e Super Admin têm acesso global sem `UsuarioWorkspace` (Mandamento 04)
+- Se ID nao pertence à Organização/Workspace ativo, retornar 404 (masking), NUNCA 403
 
 ---
 
@@ -283,7 +285,7 @@ Existem duas classes `AppError` com assinaturas DIFERENTES:
 O endpoint `GET /api/v1/pedidos/init` agrega 4 queries em `Promise.all` para reduzir round-trips:
 
 1. Primeira pagina de pedidos (cursor keyset)
-2. Status configurados pelo tenant
+2. Status configurados pela Organização
 3. Preferencias de colunas do usuario
 4. Colunas customizadas do usuario
 

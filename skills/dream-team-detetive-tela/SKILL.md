@@ -46,7 +46,7 @@ Coletar:
 - Rota(s) de backend (Express router, arquivo de rotas do servidor)
 - Propósito da tela (criar, listar, editar, visualizar, relatório)
 - Produto / serviço ao qual pertence
-- Dependências diretas (outros produtos, serviços tenant, APIs externas)
+- Dependências diretas (outros produtos, serviços de organização, APIs externas)
 
 Artefatos:
 ```
@@ -110,7 +110,7 @@ Artefatos:
 #### 3.1 Rotas Registradas
 - Arquivo de router (ex: `routes/pedidos.ts`)
 - Método HTTP + path + handler para cada rota da tela
-- Middleware aplicado (auth, tenant isolation, rate limit)
+- Middleware aplicado (auth, Isolamento de Organização, rate limit)
 
 #### 3.2 Controllers / Handlers
 - Arquivo e função de cada handler
@@ -123,9 +123,10 @@ Artefatos:
 - Campos sensíveis sanitizados?
 
 #### 3.4 Middleware de Segurança
-- JWT validado via `@clerk/backend`?
+- JWT validado via `@clerk/backend` (autenticação APENAS — Mandamento 01)?
+- Permissões consultadas via `/api/v1/me` (Prisma) — nunca lendo `publicMetadata.role`?
 - `x-internal-key` validado em chamadas inter-serviço?
-- `withTenantIsolation` aplicado?
+- Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver` (PrismaClient direto é PROIBIDO)?
 - Verificar conformidade com `skills/seguranca/seguranca-5-camadas/SKILL.md`
 
 #### 3.5 Tratamento de Erros
@@ -178,19 +179,20 @@ Artefatos:
 
 ### Fase 5 — Análise do Banco de Dados
 
-**Objetivo:** Auditar queries, tenant isolation e performance de banco.
+**Objetivo:** Auditar queries, Isolamento de Organização e performance de banco.
 
 #### 5.1 Models Prisma Utilizados
 - Quais models são consultados por esta tela?
-- Todos têm `tenant_id String`?
+- Todos têm `id_organizacao String @map("tenant_id")` (DDD obrigatório — Mandamento 03)?
 - Todos têm os 3 índices obrigatórios?
-  - `@@index([tenant_id])`
-  - `@@index([tenant_id, product_id])`
-  - `@@index([tenant_id, user_id])`
+  - `@@index([id_organizacao])`
+  - `@@index([id_organizacao, product_id])`
+  - `@@index([id_organizacao, id_usuario])`
 
-#### 5.2 Tenant Isolation
-- Todas as queries filtram por `tenant_id`?
-- Alguma query sem `where: { tenant_id }` (violação crítica)?
+#### 5.2 Isolamento de Organização (Schema-per-Organização)
+- Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver`?
+- Algum uso de `new PrismaClient()` direto (violação crítica)?
+- `id_organizacao` vem do JWT — nunca do body da requisição?
 - Verificar conformidade com `skills/arquitetura/tenant-isolation/SKILL.md`
 
 #### 5.3 Performance de Queries
@@ -206,7 +208,7 @@ Artefatos:
 Artefatos:
 ```
 [ ] Lista de models acessados
-[ ] Checklist de tenant_id (por model)
+[ ] Checklist de id_organizacao + @map("tenant_id") (por model)
 [ ] Checklist de índices (por model)
 [ ] Queries problemáticas identificadas (N+1, campos extras)
 ```
@@ -223,20 +225,24 @@ Seguindo `skills/seguranca/seguranca-5-camadas/SKILL.md`:
 - Rate limiting configurado para as rotas?
 - Headers de segurança presentes (CORS, CSP)?
 
-#### Camada 2 — Autenticação
+#### Camada 2 — Autenticação (Clerk APENAS — Mandamento 01)
 - JWT validado em todas as rotas protegidas?
 - Token expirado tratado corretamente?
 - Clerk configurado corretamente?
+- **PROIBIDO** ler `publicMetadata.role` ou qualquer campo do Clerk para autorização
 
-#### Camada 3 — Autorização
-- Permissões granulares verificadas (não apenas "está logado")?
-- Role checks implementados?
+#### Camada 3 — Autorização (Prisma como fonte da verdade)
+- Permissões consultadas via `/api/v1/me` + `meResponseSchema.parse()` (Mandamentos 01 + 06)?
+- Decisão baseada em `tipo_usuario` ou `is_gravity_admin` (do Prisma)?
+- Master e Super Admin reconhecidos sem `UsuarioWorkspace` (Mandamento 04)?
+- Sem fallback silencioso `(data?.x?.y ?? null) as Role` (Mandamento 08)?
 - Verificar conformidade com `skills/seguranca/permissoes/SKILL.md`
 
-#### Camada 4 — Isolamento
-- Nenhuma query vaza dados de outro tenant?
+#### Camada 4 — Isolamento (Schema-per-Organização)
+- Nenhuma query vaza dados de outra organização?
 - Produtos não acessam banco do Configurador diretamente?
 - Produtos não acessam banco de outros produtos?
+- Acesso ao banco via `@gravity/tenant-resolver`, nunca `PrismaClient` direto?
 
 #### Camada 5 — Auditoria
 - Ações críticas registradas no histórico?
@@ -361,7 +367,7 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 ## 3. Achados por Categoria
 
 ### 🔴 CRÍTICO — Bloqueia entrega
-[Itens com severidade crítica — segurança, tenant isolation, dados expostos]
+[Itens com severidade crítica — segurança, Isolamento de Organização, dados expostos, autorização via publicMetadata]
 
 ### 🟠 ALTO — Corrigir nesta sprint
 [Bugs funcionais, violações de código-standards, missing validations]
@@ -423,7 +429,8 @@ O relatório deve ser entregue ao dream-team-tecnologia no seguinte formato:
 | Situação | Skill a Acionar Após o Relatório |
 |----------|----------------------------------|
 | Achados CRÍTICO de segurança | `skills/seguranca/seguranca-5-camadas/SKILL.md` + notificar Líder |
-| Achados de banco sem tenant_id | `skills/arquitetura/tenant-isolation/SKILL.md` + Coordenador |
+| Achados de banco sem `id_organizacao` ou usando `PrismaClient` direto | `skills/arquitetura/tenant-isolation/SKILL.md` + Coordenador |
+| Achados de autorização via `publicMetadata` (anti-padrão) | `skills/governanca/9-mandamentos/SKILL.md` (Mandamento 01) + Coordenador |
 | Achados de schema/model | `skills/arquitetura/schema-composition/SKILL.md` + Coordenador |
 | Ajustes identificados | `skills/dream-team-ajustes/SKILL.md` (executor dos ajustes) |
 | Validação pós-ajuste | `skills/agentes/qa/SKILL.md` |

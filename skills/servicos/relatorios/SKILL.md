@@ -1,13 +1,13 @@
 ---
 name: antigravity-relatorios
-description: "Use esta skill sempre que uma tarefa envolver o serviço de relatórios da plataforma Gravity. Define o relatório como serviço de tenant com workspace para criar, filtrar, customizar colunas com drag and drop, salvar relatórios nomeados, agendar envio via email/WhatsApp/notificação interna, compartilhar com permissões e exportar em CSV, Excel, JSON, XML e TXT. Cada produto define suas próprias colunas e dados via PRODUCT_CONFIG."
+description: "Use esta skill sempre que uma tarefa envolver o serviço de relatórios da plataforma Gravity. Define o relatório como serviço de organização com workspace para criar, filtrar, customizar colunas com drag and drop, salvar relatórios nomeados, agendar envio via email/WhatsApp/notificação interna, compartilhar com permissões e exportar em CSV, Excel, JSON, XML e TXT. Cada produto define suas próprias colunas e dados via PRODUCT_CONFIG."
 ---
 
 # Gravity — Serviço de Relatórios
 
 ## O Que é Este Serviço
 
-Serviço de tenant — relatórios cruzam dados de todos os produtos que o tenant usa.
+Serviço de organização — relatórios cruzam dados de todos os produtos que a organização usa.
 
 > **Princípio:** "Explore, filtre e exporte os dados do produto." O usuário monta a visão que precisa, salva com um nome e pode compartilhar ou agendar envio automático.
 
@@ -45,8 +45,8 @@ Usuário abre Relatórios no Simulador Comex
   → Monta tabs: Simulações | Cotações | [+ Novo Relatório]
 ```
 
-**Tabs sempre presentes (dados do tenant, independente do produto):**
-- Tab: **Tabela de Empresas** — dados consolidados do tenant
+**Tabs sempre presentes (dados da organização, independente do produto):**
+- Tab: **Tabela de Workspaces** — dados consolidados da organização (workspaces = empresas)
 - Tab: **Aderência Mensal** — engajamento por período
 - Tab: **+ Novo Relatório** — workspace em branco
 
@@ -56,23 +56,23 @@ Usuário abre Relatórios no Simulador Comex
 
 ## Relatório Unificado (Multi-Produto)
 
-Quando o tenant tem 2+ produtos ativos, o usuário pode cruzar dados de múltiplos produtos:
+Quando a organização tem 2+ produtos ativos, o usuário pode cruzar dados de múltiplos produtos:
 
 ```
-Tenant com 3 produtos: NF Importação + Simulador Comex + Bid Frete
+Organização com 3 produtos: NF Importação + Simulador Comex + Bid Frete
 
 1. Usuário abre "+ Novo Relatório"
 2. Seleciona fontes de dados:
    [x] NF Importação → Notas Fiscais
    [x] Simulador Comex → Simulações
    [x] Bid Frete → Cotações de Frete
-   [x] Tenant → Tabela de Empresas
-3. Sistema consolida com JOIN por tenant_id e company_id
+   [x] Organização → Tabela de Workspaces
+3. Sistema consolida com JOIN por id_organizacao e id_workspace
 4. Relatório unificado com colunas de todos os produtos
 ```
 
 **Regras de JOIN:**
-- Campo padrão de cruzamento: `company_id`
+- Campo padrão de cruzamento: `id_workspace`
 - LEFT JOIN por padrão (registros sem correspondência aparecem mesmo assim)
 - Usuário pode restringir apenas com correspondência em todos (INNER JOIN)
 - Relatórios unificados salvos com `product_id: null` e campo `sources`
@@ -123,7 +123,7 @@ Nome do relatório
 **Relatórios salvos:**
 - Listados no painel lateral do workspace
 - Podem ser renomeados, editados ou deletados
-- Compartilháveis com outros usuários do tenant
+- Compartilháveis com outros usuários da organização
 
 ---
 
@@ -203,8 +203,8 @@ PUT    /api/v1/relatorios/saved/:id/schedule ← atualizar
 DELETE /api/v1/relatorios/saved/:id/schedule ← cancelar
 
 # Compartilhamento
-POST   /api/v1/relatorios/saved/:id/share             ← compartilhar
-DELETE /api/v1/relatorios/saved/:id/share/:user_id    ← remover acesso
+POST   /api/v1/relatorios/saved/:id/share                  ← compartilhar
+DELETE /api/v1/relatorios/saved/:id/share/:id_usuario      ← remover acesso
 ```
 
 ---
@@ -215,29 +215,29 @@ DELETE /api/v1/relatorios/saved/:id/share/:user_id    ← remover acesso
 // servicos-global/tenant/relatorios/prisma/fragment.prisma
 
 model SavedReport {
-  id         String  @id @default(cuid())
-  tenant_id  String
-  user_id    String
-  report_id  String           // ID do tipo de relatório base
-  product_id String?          // null = multi-produto (relatório unificado)
-  sources    Json    @default("[]")  // [{ productId, tableId, columns }]
-  name       String           // ex: "Empresas Ativas Sul"
-  filters    Json    @default("{}")  // filtros salvos
-  columns    Json    @default("[]")  // colunas visíveis e ordem
-  join_type  String  @default("left") // left | inner
-  is_shared  Boolean @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id              String  @id @default(cuid())
+  id_organizacao  String  @map("tenant_id")
+  id_usuario      String  @map("user_id")
+  report_id       String           // ID do tipo de relatório base
+  product_id      String?          // null = multi-produto (relatório unificado)
+  sources         Json    @default("[]")  // [{ productId, tableId, columns }]
+  name            String           // ex: "Empresas Ativas Sul"
+  filters         Json    @default("{}")  // filtros salvos
+  columns         Json    @default("[]")  // colunas visíveis e ordem
+  join_type       String  @default("left") // left | inner
+  is_shared       Boolean @default(false)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, report_id])
-  @@index([tenant_id, product_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, report_id])
+  @@index([id_organizacao, product_id])
 }
 
 model ReportSchedule {
   id              String  @id @default(cuid())
-  tenant_id       String
+  id_organizacao  String  @map("tenant_id")
   saved_report_id String
   frequency       String           // once|daily|weekly|monthly|custom
   cron_expression String?
@@ -249,7 +249,7 @@ model ReportSchedule {
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
 
-  @@index([tenant_id])
+  @@index([id_organizacao])
   @@index([active, next_run_at])
 }
 ```

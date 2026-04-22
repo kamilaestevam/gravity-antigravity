@@ -12,10 +12,12 @@ Todo objeto gerado na família SimulaCusto deve ter prefixos únicos. Se mandare
 * `Estimativa`: `esti_id_[SEQUENCIAL NA TELA]/[YY]` (ex: esti_id_000000001/26)
 * `TaxaEstimativa`: `txes_id_[SEQUENCIAL]/[YY]` 
 
-## 2. A Muralha Anti-Vazamento (Zero-Trust/RLS compliance)
-Toda requisição/criação ao Prisma do módulo de Custo deve estar envelopada pelo wrapper `withTenantContext`.
-* Se for fazer um `prisma.estimativa.findMany()`, garanta que haja um `where: { company_id: ctx.companyId }`.
-* **Nuca Crie um model novo de custo sem colocar `tenant_id` E `company_id`.** Eles andam juntos. O RLS do PostrgreSQL bloqueia escritas que não tenham a dupla. Falta de `company_id` deixará a estimativa global, o que é um pesadelo arquitetural de Tier 1.
+## 2. A Muralha Anti-Vazamento (Isolamento de Organização + Workspace)
+Toda requisição/criação ao Prisma do módulo de Custo deve estar envelopada pelo wrapper `withTenantContext` do `@gravity/tenant-resolver`.
+* Se for fazer um `prisma.estimativa.findMany()`, garanta que haja um `where: { company_id: ctx.companyId }` (campo Prisma real do fragment de SimulaCusto, que mapeia o Workspace).
+* **Nunca crie um model novo de custo sem os campos Prisma de Organização E Workspace** (atualmente `tenant_id` E `company_id` no fragment). Eles andam juntos. O Schema-per-Organização + checagem de Workspace bloqueia escritas que não tenham a dupla. Falta de Workspace deixará a estimativa global, o que é um pesadelo arquitetural de Tier 1.
+
+> Os nomes `tenant_id`/`company_id` são preservados conforme o `fragment.prisma` real (Mandamento 02 — schema intocável). Em payloads, JSON e variáveis TypeScript fora do contexto Prisma, use a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
 
 ## 3. Acoplamento de Core Process 
 A Estimativa é uma "fantasia" financeira. Assim que ela é validada pela diretoria, ela se torna real no módulo `CoreProcess` (`Serviços Globais / Núcleos de Importação`).
@@ -23,7 +25,7 @@ A Estimativa é uma "fantasia" financeira. Assim que ela é validada pela direto
 * Após `core_id` estar não-nulo, a `Estimativa` entra no estado `Efetivada` e NENHUM update é permitido nos valores dos impostos dela. Você deve gerar exceção (HTTP 409 Conflict) se o usuário tentar alterar um Landed Cost de um Processo Real ativo.
 
 ## 4. Retornos 404 vs 403 (Masking)
-Se um ID de Estimativa (`esti_id_xyz`) não for do `company_id` ativo da sessão, se estiver fazendo Query Raw, retorne `404 Not Found` (Masking de Enumeração) ao invés de `403 Forbidden`. O invasor não pode saber que aquele ID existe na base de outro cliente. 
+Se um ID de Estimativa (`esti_id_xyz`) não for do Workspace ativo da sessão (`req.tenant.companyId`), se estiver fazendo Query Raw, retorne `404 Not Found` (Masking de Enumeração) ao invés de `403 Forbidden`. O invasor não pode saber que aquele ID existe na base de outro cliente.
 
 **Resumo Sistêmico:** 1) Prefixos ID, 2) Dupla Trava de Keys, 3) Interceptação de Core-id, 4) 404 Masking.
 _Fim do Sistema de Inteligência para SimulaCusto._

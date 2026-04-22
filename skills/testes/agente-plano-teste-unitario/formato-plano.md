@@ -180,13 +180,13 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
   "coberturaMinima": 80,
   "smeRevisadoPor": null,
   "smeRevisadoEm": null,
-  "resumoExecutivo": "Hook React que busca o role do usuário logado via GET /api/v1/me. Risco principal: vazamento de role entre usuários por cache incorreto. Módulo crítico de auth — todos os casos de token nulo, erro de rede e cache são obrigatórios.",
+  "resumoExecutivo": "Hook React que busca o tipo_usuario do usuário logado via GET /api/v1/me (Clerk APENAS para autenticação — Mandamento 01; resposta validada por meResponseSchema.parse — Mandamentos 06, 09). Risco principal: vazamento de tipo_usuario entre usuários por cache incorreto. Módulo crítico de autorização — todos os casos de token nulo, erro de rede e cache são obrigatórios.",
   "mocksDeclarados": [
     {
       "modulo": "@clerk/clerk-react",
       "nomeMock": "mockUseAuth",
       "estrategia": "vi.hoisted",
-      "descricao": "Mock do hook useAuth do Clerk — controla isLoaded, isSignedIn, userId, getToken"
+      "descricao": "Mock do hook useAuth do Clerk (APENAS autenticação — Mandamento 01) — controla isLoaded, isSignedIn, userId, getToken"
     },
     {
       "modulo": "global.fetch",
@@ -199,14 +199,14 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
     {
       "nome": "useLoadSystemRole",
       "tipo": "function",
-      "descricao": "Hook React que retorna { role, isGravityAdmin, isReady }",
+      "descricao": "Hook React que retorna { role, isGravityAdmin, isReady } — campo `role` carrega o `tipo_usuario` lido do banco via /api/v1/me (Mandamento 01)",
       "critica": true,
       "casosMinimos": 5
     },
     {
       "nome": "invalidateRoleCache",
       "tipo": "function",
-      "descricao": "Função que limpa o cache de role por userId",
+      "descricao": "Função que limpa o cache de tipo_usuario por idUsuario (Clerk userId)",
       "critica": false,
       "casosMinimos": 2
     }
@@ -230,7 +230,7 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
     {
       "id": "TST-UNIT-CONFIG-AUTH-000001",
       "numero": 1,
-      "descricao": "retorna role MASTER lido de data.usuario.tipo_usuario",
+      "descricao": "retorna tipo_usuario MASTER lido de data.usuario.tipo_usuario via /api/v1/me (Mandamento 01)",
       "categoria": 1,
       "origem": "existente",
       "exportacaoTestada": "useLoadSystemRole",
@@ -243,7 +243,7 @@ export type PlanoTesteUnitario = z.infer<typeof PlanoTesteUnitarioSchema>
       },
       "acao": "renderHook(() => useLoadSystemRole()) + waitFor(() => result.current.isReady === true)",
       "assercao": { "tipo": "toBe", "valor": "MASTER" },
-      "resultadoEsperado": "result.current.role é 'MASTER' e isGravityAdmin é false",
+      "resultadoEsperado": "result.current.role (tipo_usuario) é 'MASTER' e isGravityAdmin é false",
       "adversarial": false
     }
   ],

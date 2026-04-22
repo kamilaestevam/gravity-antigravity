@@ -5,18 +5,171 @@
 
 ---
 
+## A quem estas regras se aplicam
+
+**TODOS os agentes, em TODAS as conversas, sem exceção.**
+
+Isto inclui:
+
+- O agente padrão do Claude Code (quando o usuário conversa direto, sem invocar `/comando`)
+- Qualquer subagente (`Explore`, `general-purpose`, `Plan`, etc.)
+- Qualquer skill invocada via Skill tool
+- Qualquer papel dos times (`/lider`, `/coordenar`, `/qa`, `/dream-team-*`)
+
+**Não existe "conversa informal" ou "tarefa pequena" isenta dessas regras.** Se você está lendo este arquivo, as 9 Mandamentos abaixo e as regras de governança valem.
+
+---
+
 ## Regra Zero — Ler Skills Antes de Agir
 
 **NUNCA escreva código, sugira mudanças ou tome decisões sem antes ler as skills relevantes.**
 
-Antes de qualquer tarefa, o agente DEVE:
+Antes de qualquer tarefa — **mesmo quando nenhum time ou papel específico foi invocado** — o agente DEVE:
 
-1. Ler `skills/governanca/agent-policy/SKILL.md` (regras universais)
-2. Ler `skills/governanca/code-standards/SKILL.md` (padrões de código)
-3. Ler a(s) skill(s) específica(s) da área sendo trabalhada (ver mapa abaixo)
-4. Confirmar que está dentro do escopo autorizado (ver agent-policy)
+1. Ler `skills/governanca/9-mandamentos/SKILL.md` (**os 9 Mandamentos — não-negociáveis**)
+2. Ler `skills/governanca/agent-policy/SKILL.md` (regras universais)
+3. Ler `skills/governanca/code-standards/SKILL.md` (padrões de código)
+4. Ler a(s) skill(s) específica(s) da área sendo trabalhada (ver mapa abaixo)
+5. Confirmar que está dentro do escopo autorizado (ver agent-policy)
 
 **Se a skill não foi lida, o trabalho não pode começar.**
+
+---
+
+## Os 9 Mandamentos do Gravity (não-negociáveis)
+
+> **Estas regras são absolutas e valem para TODO agente, em TODA conversa, em TODA alteração de código — sem exceção.**
+> Não dependem de invocação de papel, skill ou slash command. Se há código sendo escrito ou sugerido, essas regras aplicam.
+> Cada uma existe porque já causou perda de tempo, retrabalho ou bug em produção.
+> Violação = trabalho rejeitado pelo QA, sem exceção.
+
+---
+
+### REGRA 01 — ISOLAMENTO TOTAL DO CLERK (Autenticação ≠ Autorização)
+
+O Clerk serve **apenas** para autenticação (login, senha, e-mail, `clerk_user_id`) e nada mais.
+
+❌ **EXPRESSAMENTE PROIBIDO** ler ou gravar patentes/permissões no Clerk (ex: NUNCA use `user.publicMetadata.role` no frontend ou backend).
+
+✅ A **Fonte da Verdade** para permissões é o nosso Banco de Dados (Prisma). O Frontend deve ler a patente do usuário a partir do nosso próprio backend (ex: consumindo o JSON da rota `/api/v1/me` através de um estado global).
+
+---
+
+### REGRA 02 — O `schema.prisma` É INTOCÁVEL
+
+Você está PROIBIDO de alterar, adicionar ou remover qualquer linha do arquivo `schema.prisma`.
+
+❌ **Jamais faça:** editar `schema.prisma` diretamente para "resolver" um erro de compilação ou adequar o banco ao código.
+
+✅ **Sempre faça:** adeque o código TypeScript (Controllers, Services, React Components) à estrutura existente no Prisma, e não o contrário. Se a estrutura do banco precisar mudar, **pare** e abra um chamado para o Coordenador — ele é o único autorizado a alterar o schema via script controlado.
+
+**Por quê:** o schema representa decisões de arquitetura revisadas e validadas. Alterá-lo sem controle quebra migrations, gera drift de banco e pode corromper dados em produção.
+
+---
+
+### REGRA 03 — ADESÃO ESTRITA AO NOSSO DDD (Dicionário de Dados)
+
+> **Esta tabela está em construção e será refinada ao longo do projeto.** Os mapeamentos abaixo são os já decididos.
+
+Nós abandonamos nomenclaturas legadas (`Tenant`, `Company`, `Role`). Você DEVE usar EXATAMENTE estes nomes nas propriedades de objetos, payloads JSON e variáveis:
+
+- **Tenant** ➔ Use `id_organizacao`, `nome_organizacao`, `subdominio_organizacao`
+- **Company** ➔ Use `id_workspace`, `nome_workspace`, `subdominio_workspace`
+- **User** ➔ Use `id_usuario`, `nome_usuario`, `email_usuario`
+- **Role** ➔ Use `tipo_usuario` (para patentes gerais) e `tipo_usuario_workspace` (para patentes na filial)
+- **Admin** ➔ Use `is_gravity_admin` (Boolean para controle absoluto)
+
+---
+
+### REGRA 04 — LÓGICA DE VÍNCULO (O LIMBO)
+
+Usuários **Master** (`is_gravity_admin = true`) ou **Super Admins** (`tipo_usuario = 'SUPER_ADMIN'`) **não podem** ficar presos em telas de "Nenhum workspace encontrado". O código deve garantir que o Frontend e o Backend reconheçam o acesso global deles, independentemente de estarem vinculados fisicamente na tabela de `UsuarioWorkspace`.
+
+---
+
+### REGRA 05 — PROIBIDO MOCKS PREGUIÇOSOS E CASTING VAZIO (`{}` ou `""`)
+
+É estritamente proibido contornar erros de TypeScript injetando objetos vazios, strings vazias ou fazendo type assertions falsas.
+
+**No Frontend (React):** NUNCA inicialize estados de entidades com objetos vazios (ex: `useState<Usuario>({} as Usuario)`). Se o dado não existe ou está carregando, o estado DEVE ser `null` ou `undefined`. Trate o carregamento corretamente na UI (ex: `if (!usuario) return <Loading />`).
+
+**No Backend (Prisma):** NUNCA envie strings vazias (`""`) para relações ou IDs só para satisfazer o compilador. Se um campo é opcional e não tem valor, passe `null` ou `undefined`.
+
+Não invente dados falsos no código. Se o dado precisa vir da API ou do Banco, faça o fluxo correto de busca.
+
+---
+
+### REGRA 06 — VALIDAÇÃO DE CONTRATO DE API OBRIGATÓRIA (ZOD)
+
+Nunca deserialize resposta de API sem validação de schema. O `fetch().json()` retorna `any`, cegando o TypeScript.
+
+❌ **Jamais faça:**
+```ts
+const data = await fetch('/api/v1/me').then(r => r.json())
+const role = data?.user?.role
+```
+
+✅ **Sempre faça:**
+```ts
+const raw = await fetch('/api/v1/me').then(r => r.json())
+const data = meResponseSchema.parse(raw)
+const role = data.usuario.tipo_usuario
+```
+
+---
+
+### REGRA 07 — SINCRONIA DE CONTRATOS (FRONT E BACK JUNTOS)
+
+Nunca renomeie um campo de resposta de API sem atualizar TODOS os consumidores na mesma entrega.
+
+Antes de renomear, faça uma busca global (ex: `grep -r "data\.user"`) e corrija todos os arquivos `.ts` e `.tsx` que leem o campo. Modifique back e front juntos para evitar quebras silenciosas.
+
+---
+
+### REGRA 08 — FIM DOS FALLBACKS SILENCIOSOS EM AUTORIZAÇÃO
+
+Dados de autorização devem falhar fazendo barulho. Se o `tipo_usuario` não for encontrado, não mascare o erro com um valor padrão.
+
+❌ **Jamais faça:**
+```ts
+const role = (data?.user?.role ?? null) as SystemRole
+// null → fallback 'Standard' → usuário SUPER_ADMIN aparece como Standard
+// Sem erro. Sem log. Bug invisível.
+```
+
+✅ **Sempre faça:**
+```ts
+// Opção A — falha ruidosa (preferível em autorização)
+const role = meResponseSchema.parse(data).usuario.tipo_usuario
+
+// Opção B — se precisar de fallback, deixe rastro obrigatório
+const role = data?.usuario?.tipo_usuario ?? null
+if (!role) console.warn('[useLoadSystemRole] tipo_usuario ausente na resposta de /me', data)
+```
+
+**Por quê:** nível de acesso errado não quebra a tela — exibe permissão falsa. A aplicação continua rodando e ninguém percebe. Autorização deve falhar alto ou deixar rastro, nunca engolir o problema em silêncio.
+
+---
+
+### REGRA 09 — SCHEMAS ZOD SÃO CONTRATOS BILATERAIS
+
+O schema Zod do frontend deve ser mantido em sincronia com o payload de resposta do backend. Nunca use `z.any()` ou `.passthrough()` para "resolver" divergências entre os dois.
+
+❌ **Jamais faça:**
+```ts
+// Backend mudou o campo mas o schema Zod não foi atualizado
+const meResponseSchema = z.object({
+  user: z.object({ role: z.string() })  // campo renomeado no backend, Zod desatualizado
+})
+// Resultado: parse passa, campo retorna undefined, bug silencioso
+```
+
+✅ **Sempre faça:**
+- Sempre que uma rota mudar seu payload, atualize o schema Zod correspondente **no mesmo commit**
+- Antes de renomear qualquer campo de resposta, busque globalmente pelo schema que o descreve: `grep -r "meResponseSchema\|z.object" --include="*.ts" --include="*.tsx"`
+- O schema Zod é o contrato — se o backend mudou e o Zod não mudou, **o commit está incompleto**
+
+**Por quê:** o Zod só protege se estiver correto. Um schema desatualizado dá falsa sensação de segurança — o parse "passa" mas retorna campos errados ou `undefined`, exatamente o mesmo bug que aconteceria sem validação nenhuma.
 
 ---
 

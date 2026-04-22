@@ -75,7 +75,7 @@ const createActivitySchema = z.object({
   title: z.string().min(1).max(200),
   status: z.enum(['pending', 'in_progress', 'done']),
   due_date: z.string().datetime().optional(),
-  user_id: z.string().cuid(),
+  id_usuario: z.string().cuid(),
 })
 
 app.post('/api/activities', async (req, res, next) => {
@@ -248,7 +248,7 @@ console.error(`[${err.code}] correlation:${req.correlationId}`, err.message)
 
 // ❌ proibido
 console.log('user data:', req.body)
-console.log('tenant:', tenantId, 'token:', token)
+console.log('organizacao:', idOrganizacao, 'token:', token)
 ```
 
 ---
@@ -267,8 +267,7 @@ DATABASE_URL=postgresql://...
 TENANT_DATABASE_URL=postgresql://...
 
 # Provedor + tipo
-CLERK_SECRET_KEY=sk_live_...         # provider: Clerk, tipo: secret key
-STRIPE_SECRET_KEY=sk_live_...        # provider: Stripe, tipo: secret key
+CLERK_SECRET_KEY=sk_live_...         # provider: Clerk, tipo: secret key (APENAS autenticação — Mandamento 01)
 RESEND_API_KEY=re_...                # provider: Resend, tipo: API key
 META_WHATSAPP_TOKEN=...              # provider: Meta, tipo: token
 OPENAI_API_KEY=sk-...                # provider: OpenAI, tipo: API key

@@ -9,7 +9,7 @@ description: "Use esta skill ao implementar o fluxo de primeiro uso de qualquer 
 
 ```
 1. DESCOBERTA    → Marketplace (landing, preços, demos)
-2. AQUISIÇÃO     → Configurador (Clerk: login, empresa, plano, pagamento)
+2. AQUISIÇÃO     → Configurador (Clerk para autenticação; organização, plano, pagamento via Prisma — Mandamento 01)
 3. ONBOARDING    → Wizard de primeiro uso (dados demo, tutorial)
 4. ATIVAÇÃO      → Primeiro valor real (criar cotação, importar dados)
 5. EXPANSÃO      → Adicionar produtos com 1 clique
@@ -50,20 +50,30 @@ Todo produto implementa um wizard de 3-5 passos no primeiro acesso:
 Cada produto tem um script de seed com dados demo:
 
 ```typescript
-// scripts/seed-demo.ts
-export async function seedDemo(tenantId: string) {
-  // Dados marcados como demo para fácil limpeza
-  await prisma.cotacao.createMany({
-    data: [
-      { tenant_id: tenantId, titulo: 'Cotação Exemplo 1', is_demo: true },
-      { tenant_id: tenantId, titulo: 'Cotação Exemplo 2', is_demo: true },
-    ]
+// scripts/seed-demo.ts — usar withTenantContext do @gravity/tenant-resolver
+import { withTenantContext } from '@gravity/tenant-resolver'
+
+export async function seedDemo(idOrganizacao: string) {
+  await withTenantContext(idOrganizacao, async (_ctx, rawDb) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = rawDb as any
+    // Dados marcados como demo para fácil limpeza
+    await db.cotacao.createMany({
+      data: [
+        { id_organizacao: idOrganizacao, titulo: 'Cotação Exemplo 1', is_demo: true },
+        { id_organizacao: idOrganizacao, titulo: 'Cotação Exemplo 2', is_demo: true },
+      ]
+    })
   })
 }
 
-export async function clearDemo(tenantId: string) {
-  await prisma.cotacao.deleteMany({
-    where: { tenant_id: tenantId, is_demo: true }
+export async function clearDemo(idOrganizacao: string) {
+  await withTenantContext(idOrganizacao, async (_ctx, rawDb) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = rawDb as any
+    await db.cotacao.deleteMany({
+      where: { id_organizacao: idOrganizacao, is_demo: true }
+    })
   })
 }
 ```
@@ -90,10 +100,10 @@ export async function clearDemo(tenantId: string) {
 
 Quando o cliente já está na plataforma e adiciona um novo produto:
 
-1. Empresa, usuários e pagamento **já existem** no Configurador
-2. Serviços de tenant (email, atividades, dashboard) **já funcionam**
+1. Organização, usuários e pagamento **já existem** no Configurador
+2. Serviços por organização (email, atividades, dashboard) **já funcionam**
 3. Apenas rodar o wizard de onboarding do novo produto
-4. Dados do tenant (atividades, histórico) automaticamente disponíveis
+4. Dados da organização (atividades, histórico) automaticamente disponíveis
 
 ---
 

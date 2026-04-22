@@ -39,7 +39,7 @@ Substituia `<RAILWAY_DOMAIN>` pelo domínio gerado pelo Railway para cada servi�
 | pedido         | 8030  | `https://pedido.<RAILWAY_DOMAIN>/health`                | `/health`     |
 | marketplace    | 8001  | `https://marketplace.<RAILWAY_DOMAIN>/`                 | `/`           |
 
-> **Nota:** Os 11 serviços tenant (atividades, cronômetro, email, gabi, dashboard, relatórios, histórico, notificações, agendamento, preferências, whatsapp) rodam no **super-servidor** (porta 3001). Um único monitor no `/health` cobre todos — a resposta inclui lista de serviços ativos.
+> **Nota:** Os 11 serviços da organização (atividades, cronômetro, email, gabi, dashboard, relatórios, histórico, notificações, agendamento, preferências, whatsapp) rodam no **super-servidor** (porta 3001) sob o caminho real `servicos-global/tenant/`. Um único monitor no `/health` cobre todos — a resposta inclui lista de serviços ativos.
 
 ### Alertas UptimeRobot
 - Criar **Alert Contact** por e-mail/Slack para o time.

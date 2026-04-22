@@ -25,22 +25,27 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 
 ## Checklist Técnico do Reviewer
 
-### Segurança (bloqueia merge se falhar) — pós-pivô 2026-04-17
+### Segurança (bloqueia merge se falhar) — pós-pivô 2026-04-17 + DDD 2026-04-19
 
-- [ ] Toda rota tem validação Zod?
-- [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, ...)` ou `withTenantContext(tenantId, ...)` do `@gravity/tenant-resolver`?
+- [ ] Toda rota tem validação Zod (Mandamento 06)?
+- [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, ...)` ou `withTenantContext(idOrganizacao, ...)` do `@gravity/tenant-resolver`?
 - [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK?
 - [ ] **Nenhum** `new PrismaClient(`?
-- [ ] **Nenhum** `WHERE tenant_id = ?` em models de produto (o schema **é** o tenant)?
+- [ ] **Nenhum** `WHERE id_organizacao = ?` em models de produto (o schema **é** a organização — Schema-per-Organização)?
 - [ ] **Nenhum** `SET search_path` sem `LOCAL` ou fora de `$transaction`?
-- [ ] `tenantId` lido de `req.tenant` (não do `publicMetadata` do Clerk)?
+- [ ] `idOrganizacao` lido de `req.tenant` (API real do SDK) — **NUNCA** do `publicMetadata` do Clerk (Mandamento 01)?
+- [ ] **Nenhuma autorização** baseada em `currentUser.publicMetadata.role` — sempre via `/api/v1/me` + Prisma (Mandamento 01)?
 - [ ] `x-internal-key` em chamadas S2S?
-- [ ] Chaves de cache prefixadas por `tenant:<id>:` ou `tenant:_global:`?
+- [ ] Chaves de cache prefixadas por `org:<idOrganizacao>:` ou `org:_global:`?
 - [ ] Erros via `AppError` (nunca `res.status().json()` direto)?
 - [ ] Nenhum dado sensível em logs?
 - [ ] Nenhuma variável hardcoded?
+- [ ] **Nenhum** `useState<T>({} as T)` — sempre `useState<T | null>(null)` + tratamento (Mandamento 05)?
+- [ ] **Nenhum** fallback silencioso em autorização tipo `(data?.x?.y ?? null) as Role` (Mandamento 08)?
+- [ ] Schemas Zod do front refletem o payload do back no MESMO commit (Mandamento 07 + 09)?
+- [ ] **Nenhum** `schema.prisma` editado (apenas Coordenador, via script — Mandamento 02)?
 
-> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), `antigravity-tenant-isolation`, `antigravity-tier1-security`.
+> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), `antigravity-tenant-isolation`, `antigravity-tier1-security`, `9-mandamentos`.
 
 ### Qualidade de Código
 
@@ -62,7 +67,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Escopo respeitado (agente só escreveu na sua pasta)?
 - [ ] Sem import cruzado entre serviços?
 - [ ] Comunicação entre serviços via API (não import)?
-- [ ] Schema de produto segue padrão Schema-per-Tenant (sem `tenant_id` em models, schemas físicos isolados)?
+- [ ] Schema de produto segue padrão Schema-per-Organização (sem filtro por `id_organizacao` em queries — o schema **é** a organização)?
 - [ ] Migrations de produto rodam via orquestrador `scripts/migrate-all-tenants.ts` (nunca `prisma migrate dev` solto)?
 
 ### Documentação e Skills (inviolável — DoD §6)

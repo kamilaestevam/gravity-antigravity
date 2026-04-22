@@ -9,8 +9,8 @@ description: "Use esta skill sempre que uma tarefa envolver o painel administrat
 
 Interface exclusiva da equipe Gravity para gerenciar a plataforma como um todo. **Não é o Configurador** (que é para o cliente).
 
-- **Quem acessa:** apenas usuários com role `gravity_admin` — membros internos da equipe Gravity com acesso privilegiado
-- **Princípio:** visibilidade total de todos os tenants, produtos, usuários, consumo, deploys e saúde da plataforma em um único lugar
+- **Quem acessa:** apenas usuários com `tipo_usuario = 'GRAVITY_ADMIN'` (ou `is_gravity_admin = true`) — membros internos da equipe Gravity com acesso privilegiado. Verificação SEMPRE via `/api/v1/me` (Prisma), nunca via `publicMetadata` do Clerk (Mandamento 01).
+- **Princípio:** visibilidade total de todas as organizações, produtos, usuários, consumo, deploys e saúde da plataforma em um único lugar
 
 ---
 
@@ -25,9 +25,9 @@ servicos-global/configurador/
     ├── usuarios/
     ├── permissoes/
     ├── assinaturas/
-    └── admin/              ← área exclusiva gravity_admin
+    └── admin/              ← área exclusiva GRAVITY_ADMIN
         ├── AdminLayout.tsx
-        ├── tenants/
+        ├── organizacoes/
         ├── financeiro/
         ├── deploy/
         ├── gabi/
@@ -37,8 +37,9 @@ servicos-global/configurador/
 
 ```typescript
 // Middleware que protege todas as rotas /admin/*
+// PROIBIDO ler publicMetadata.role do Clerk — sempre Prisma via req.auth populado pelo /api/v1/me
 function requireGravityAdmin(req, res, next) {
-  if (req.auth.role !== 'gravity_admin') {
+  if (req.auth.tipoUsuario !== 'GRAVITY_ADMIN' && !req.auth.isGravityAdmin) {
     return res.status(403).json({ error: 'Acesso restrito à equipe Gravity' })
   }
   next()
@@ -47,14 +48,14 @@ function requireGravityAdmin(req, res, next) {
 
 ---
 
-## Tela 1 — Tenants
+## Tela 1 — Organizações
 
-**Stat cards:** Total de Tenants | Tenants Ativos | Tenants em Trial | Tenants Churn (últimos 30 dias)
+**Stat cards:** Total de Organizações | Organizações Ativas | Organizações em Trial | Organizações Churn (últimos 30 dias)
 
 | Coluna | Descrição |
 |:---|:---|
-| EMPRESA | Nome da organização |
-| CNPJ | CNPJ da empresa |
+| ORGANIZAÇÃO | Nome da organização |
+| CNPJ | CNPJ da organização |
 | STATUS | Ativo / Trial / Suspenso / Churned |
 | PRODUTOS | Badges dos produtos contratados |
 | workspaces | quantidade de workspaces |
@@ -67,9 +68,9 @@ function requireGravityAdmin(req, res, next) {
 
 ## Tela 2 — Produtos Contratados
 
-Visão de quais produtos cada tenant tem ativo.
+Visão de quais produtos cada organização tem ativo.
 
-| Tenant | Produto | Plano | Contratado em | Vencimento | Status |
+| Organização | Produto | Plano | Contratado em | Vencimento | Status |
 |:---|:---|:---|:---|:---|:---|
 | AgroMax | Simulador Comex | Pro | 01/01/2026 | 01/01/2027 | Ativo |
 
@@ -77,7 +78,7 @@ Visão de quais produtos cada tenant tem ativo.
 
 ## Tela 3 — Usuários e Permissões (Global)
 
-Todos os usuários de todos os tenants em uma única visão.
+Todos os usuários de todas as organizações em uma única visão.
 
 **Ações por usuário:**
 - Ver permissões detalhadas
@@ -85,7 +86,7 @@ Todos os usuários de todos os tenants em uma única visão.
 - Resetar senha (força reset no próximo login)
 - **Impersonar usuário** (para suporte) — com **registro obrigatório** no histórico
 
-> ⚠️ **Impersonação:** quando um admin Gravity assume a sessão de um usuário para suporte, isso é registrado no histórico com: `actor_type: 'gravity_admin'`, `triggered_by: adminId`, `impersonating: userId`.
+> ⚠️ **Impersonação:** quando um admin Gravity assume a sessão de um usuário para suporte, isso é registrado no histórico com: `actor_type: 'gravity_admin'`, `triggered_by: idAdmin`, `impersonating: idUsuario`.
 
 ---
 
@@ -97,14 +98,14 @@ Todos os usuários de todos os tenants em uma única visão.
 
 ## Tela 5 — Histórico de Alterações Global
 
-Igual ao histórico de alterações do tenant, mas com visão de todos os tenants.
+Igual ao histórico de alterações da organização, mas com visão de todas as organizações.
 
-**Filtros adicionais:** Por tenant | Por tipo de ator: usuário, Gabi AI, sistema, Gravity Admin
+**Filtros adicionais:** Por organização | Por tipo de ator: usuário, Gabi AI, sistema, Gravity Admin
 
-**Importante:** o Gravity Admin que acessa o histórico de outro tenant gera um log próprio:
+**Importante:** o Gravity Admin que acessa o histórico de outra organização gera um log próprio:
 ```
 action: 'ACESSO_ADMIN', entity: 'historico',
-description: 'Admin Gravity visualizou histórico do tenant X'
+description: 'Admin Gravity visualizou histórico da organização X'
 ```
 
 ---
@@ -123,7 +124,7 @@ Painel de controle de deploys de todos os serviços no Railway.
 
 ## Tela 7 — Gabi AI (Global)
 
-| Tenant | Chamadas | Custo (USD) | % do limite | Status |
+| Organização | Chamadas | Custo (USD) | % do limite | Status |
 |:---|:---|:---|:---|:---|
 | AgroMax | 1.243 | $8.40 | 42% | 🟢 Normal |
 | ConstrutArt | 891 | $15.80 | 79% | 🟡 Alerta |
@@ -134,7 +135,7 @@ Painel de controle de deploys de todos os serviços no Railway.
 
 Monitora dois tipos:
 1. **APIs de clientes** — clientes consumindo os serviços do Gravity via API sem frontend (integração com ERP, WMS, etc.)
-2. **APIs externas** — dependências da plataforma (Resend, Meta, Gemini, Clerk, Stripe, Receita Federal, Railway)
+2. **APIs externas** — dependências da plataforma (Resend, Meta, Gemini, Clerk, Receita Federal, Railway)
 
 **APIs externas:**
 
@@ -144,7 +145,6 @@ Monitora dois tipos:
 | Meta Cloud API | 🟢 Online | 89ms | 99.8% |
 | Google Gemini | 🟡 Degradada | 2.400ms | 99.1% |
 | Clerk | 🟢 Online | 45ms | 100% |
-| Stripe | 🟢 Online | 230ms | 99.9% |
 | Receita Federal | 🟢 Online | 890ms | 97.2% |
 
 **Alertas automáticos:**
@@ -164,17 +164,17 @@ export function apiObservabilityMiddleware(req, res, next) {
     setImmediate(() => {
       prisma.apiRequestLog.create({
         data: {
-          tenant_id:   req.auth.tenantId,
-          endpoint:    req.path,
-          method:      req.method,
-          status_code: res.statusCode,
-          latency_ms:  latency,
-          api_key_id:  req.auth?.apiKeyId,
-          created_at:  new Date()
+          id_organizacao: req.auth.idOrganizacao,
+          endpoint:       req.path,
+          method:         req.method,
+          status_code:    res.statusCode,
+          latency_ms:     latency,
+          api_key_id:     req.auth?.apiKeyId,
+          created_at:     new Date()
         }
       }).catch(console.error)
 
-      checkApiAlerts(req.auth.tenantId, req.path, res.statusCode, latency)
+      checkApiAlerts(req.auth.idOrganizacao, req.path, res.statusCode, latency)
     })
   })
   next()
@@ -186,36 +186,39 @@ export function apiObservabilityMiddleware(req, res, next) {
 ## Schema Prisma
 
 ```prisma
-model ApiKey {
-  id           String    @id @default(cuid())
-  tenant_id    String
-  name         String
-  key_hash     String    @unique  // hash SHA-256 — nunca plain text
-  key_preview  String             // últimos 4 chars para exibição
-  scopes       Json               // endpoints permitidos
-  rate_limit   Int       @default(60)  // req/min
-  expires_at   DateTime?
-  active       Boolean   @default(true)
-  last_used_at DateTime?
-  created_at   DateTime  @default(now())
+// Mandamento 02: schema.prisma é INTOCÁVEL — exemplos abaixo refletem o schema atual
+// (campos em DDD: id_organizacao, tipo_usuario, is_gravity_admin)
 
-  @@index([tenant_id])
+model ApiKey {
+  id              String    @id @default(cuid())
+  id_organizacao  String
+  name            String
+  key_hash        String    @unique  // hash SHA-256 — nunca plain text
+  key_preview     String             // últimos 4 chars para exibição
+  scopes          Json               // endpoints permitidos
+  rate_limit      Int       @default(60)  // req/min
+  expires_at      DateTime?
+  active          Boolean   @default(true)
+  last_used_at    DateTime?
+  created_at      DateTime  @default(now())
+
+  @@index([id_organizacao])
   @@index([key_hash])
 }
 
 model ApiRequestLog {
-  id          String   @id @default(cuid())
-  tenant_id   String
-  api_key_id  String?
-  endpoint    String
-  method      String
-  status_code Int
-  latency_ms  Int
-  created_at  DateTime @default(now())
+  id              String   @id @default(cuid())
+  id_organizacao  String
+  api_key_id      String?
+  endpoint        String
+  method          String
+  status_code     Int
+  latency_ms      Int
+  created_at      DateTime @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, created_at])
-  @@index([tenant_id, status_code])
+  @@index([id_organizacao])
+  @@index([id_organizacao, created_at])
+  @@index([id_organizacao, status_code])
   @@index([api_key_id])
 }
 
@@ -243,13 +246,14 @@ model ApiIncident {
 }
 
 model GravityAdmin {
-  id         String   @id @default(cuid())
-  clerk_id   String   @unique
-  name       String
-  email      String   @unique
-  role       String   @default("gravity_admin")  // gravity_admin | gravity_viewer
-  active     Boolean  @default(true)
-  created_at DateTime @default(now())
+  id                String   @id @default(cuid())
+  clerk_id          String   @unique
+  name              String
+  email             String   @unique
+  tipo_usuario      String   @default("GRAVITY_ADMIN")  // GRAVITY_ADMIN | GRAVITY_VIEWER
+  is_gravity_admin  Boolean  @default(true)
+  active            Boolean  @default(true)
+  created_at        DateTime @default(now())
 }
 ```
 
@@ -257,7 +261,7 @@ model GravityAdmin {
 
 ## Checklist
 
-- [ ] Painel Admin exclusivo para role `gravity_admin`?
+- [ ] Painel Admin exclusivo para `tipo_usuario = 'GRAVITY_ADMIN'` validado via `/api/v1/me` (Mandamento 01)?
 - [ ] Impersonação de usuário com log obrigatório?
 - [ ] Painel de Deploy Railway com logs e métricas em tempo real?
 - [ ] Gestão de API Keys com escopo, rate limit e expiração?

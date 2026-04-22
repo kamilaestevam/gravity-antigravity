@@ -216,12 +216,12 @@ Não é responsabilidade do agente que escreve a feature. Quando o Configurador 
 
 ```typescript
 // servicos-global/tenant/provisioner/worker.ts (consome o evento)
-async function onTenantProvisioned({ tenantId, products }: TenantProvisionedEvent) {
+async function onTenantProvisioned({ idOrganizacao, products }: TenantProvisionedEvent) {
   for (const product of products) {
     const dbUrl = getProductDbUrl(product)
     await provisionTenantSchema({
       databaseUrl: dbUrl,
-      schemaName: `tenant_${tenantId.replace(/-/g, '')}`,
+      schemaName: `tenant_${idOrganizacao.replace(/-/g, '')}`,  // schema prefix real do Postgres
     })
     // Worker tem retry exponencial + DLQ se falhar.
   }

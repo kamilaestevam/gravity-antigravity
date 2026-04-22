@@ -331,7 +331,9 @@ Cada tela do produto tem um checklist detalhado que o QA usa para validar a impl
 - [ ] Leitor de tela: todos os elementos importantes acessíveis
 
 ### Dados e Segurança
-- [ ] Dados filtrados por `tenant_id` (sem dados de outro tenant)
+- [ ] Dados filtrados por `id_organizacao` via SDK `@gravity/tenant-resolver` (sem dados de outra organização)
+- [ ] Toda resposta `fetch().json()` validada via `schema.parse()` (Mandamento 06)
+- [ ] Nenhum acesso a `publicMetadata` para ler papel/permissão (Mandamento 01)
 - [ ] Paginação funcionando (se aplicável)
 - [ ] Busca/filtros funcionando conforme spec
 - [ ] Nenhum dado sensível visível no console/network
@@ -393,15 +395,15 @@ Então o sistema exibe toast de erro "Erro ao [ação]. Tente novamente."
   E os dados do formulário NÃO são perdidos
 ```
 
-### Cenários de Tenant Isolation
+### Cenários de Isolamento de Organização
 
 #### CA-005: [Nome — isolamento de dados]
 ```gherkin
-Dado que existem [recursos] do tenant "Empresa A" e do tenant "Empresa B"
-Quando o usuário do tenant "Empresa A" acessa a lista de [recursos]
-Então apenas [recursos] do tenant "Empresa A" são exibidos
-  E nenhum dado do tenant "Empresa B" é visível
-  E nenhum dado do tenant "Empresa B" é acessível via API
+Dado que existem [recursos] da organização "Empresa A" e da organização "Empresa B"
+Quando o usuário da organização "Empresa A" acessa a lista de [recursos]
+Então apenas [recursos] da organização "Empresa A" são exibidos
+  E nenhum dado da organização "Empresa B" é visível
+  E nenhum dado da organização "Empresa B" é acessível via API
 ```
 
 ### Cenários de Performance

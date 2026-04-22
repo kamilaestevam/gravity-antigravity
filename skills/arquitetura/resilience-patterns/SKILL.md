@@ -13,13 +13,13 @@ Na arquitetura distribuída do Gravity, serviços falham. A rede falha. O banco 
 
 ## Padrão 1 — Degradação Graciosa
 
-Quando um serviço de tenant está fora do ar, o produto continua funcionando para tudo que é local.
+Quando um serviço da organização está fora do ar, o produto continua funcionando para tudo que é local.
 
 ### No Frontend
 
 ```typescript
-// shared/api.ts — wrapper para chamadas a serviços de tenant
-async function fetchTenantService<T>(
+// shared/api.ts — wrapper para chamadas a serviços da organização
+async function fetchOrgService<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T | null> {
@@ -38,14 +38,14 @@ async function fetchTenantService<T>(
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
     return await response.json()
   } catch (err) {
-    console.warn(`Tenant service unavailable: ${endpoint}`, err)
+    console.warn(`Serviço da organização indisponível: ${endpoint}`, err)
     return null // degradação graciosa
   }
 }
 
 // Na UI — mostrar fallback
 function DashboardPage() {
-  const activities = useTenantQuery('/activities')
+  const activities = useOrgQuery('/activities')
 
   if (activities === null) {
     return (
@@ -66,9 +66,9 @@ function DashboardPage() {
 // Endpoint de agregação — Promise.allSettled para não bloquear tudo
 app.get('/api/dashboard', async (req, res) => {
   const [activities, timers, emails] = await Promise.allSettled([
-    tenantAPI.get(`/activities?user_id=${req.auth.user_id}&product_id=bid-frete`),
-    tenantAPI.get(`/timers?user_id=${req.auth.user_id}&active=true`),
-    tenantAPI.get(`/email?unread=true&limit=5`),
+    orgAPI.get(`/activities?id_usuario=${req.auth.id_usuario}&id_produto=bid-frete`),
+    orgAPI.get(`/timers?id_usuario=${req.auth.id_usuario}&active=true`),
+    orgAPI.get(`/email?unread=true&limit=5`),
   ])
 
   res.json({
@@ -112,7 +112,7 @@ async function retryWithBackoff<T>(
 
 ## Padrão 3 — Dead Letter Queue
 
-Quando todos os retries falham, a ação vai para uma tabela de falhas para reprocessamento posterior. Ver skill `antigravity-cross-boundary` para implementação completa com `enqueueTenantAction` e `FailedTenantAction`.
+Quando todos os retries falham, a ação vai para uma tabela de falhas para reprocessamento posterior. Ver skill `antigravity-cross-boundary` para implementação completa com `enqueueOrgAction` e `FailedOrgAction`.
 
 ### Evolução: BullMQ (Fase 3)
 
@@ -120,17 +120,17 @@ Quando todos os retries falham, a ação vai para uma tabela de falhas para repr
 // Quando escalar para fila real
 import { Queue, Worker } from 'bullmq'
 
-const tenantQueue = new Queue('tenant-actions', { connection: redis })
+const orgQueue = new Queue('org-actions', { connection: redis })
 
 // Enfileirar
-await tenantQueue.add('create-activity', payload, {
+await orgQueue.add('create-activity', payload, {
   attempts: 5,
   backoff: { type: 'exponential', delay: 1000 },
 })
 
 // Processar
-new Worker('tenant-actions', async (job) => {
-  await tenantAPI.post(`/api/tenant/${job.name}`, job.data)
+new Worker('org-actions', async (job) => {
+  await orgAPI.post(`/api/org/${job.name}`, job.data)
 }, { connection: redis })
 ```
 
@@ -192,7 +192,7 @@ class CircuitBreaker {
 app.get('/health', async (req, res) => {
   const checks = {
     database: false,
-    tenantServices: false,
+    orgServices: false,
   }
 
   try {
@@ -201,11 +201,11 @@ app.get('/health', async (req, res) => {
   } catch {}
 
   try {
-    const r = await fetch(`${TENANT_URL}/health`, { signal: AbortSignal.timeout(2000) })
-    checks.tenantServices = r.ok
+    const r = await fetch(`${ORG_URL}/health`, { signal: AbortSignal.timeout(2000) })
+    checks.orgServices = r.ok
   } catch {}
 
-  const healthy = checks.database // DB é obrigatório, tenant é nice-to-have
+  const healthy = checks.database // DB é obrigatório, serviços da organização é nice-to-have
   res.status(healthy ? 200 : 503).json({
     status: healthy ? 'ok' : 'degraded',
     service: 'bid-frete',
@@ -221,7 +221,7 @@ app.get('/health', async (req, res) => {
 
 | Chamada | Timeout | Razão |
 |:---|:---|:---|
-| Chamada S2S (tenant) | 5s | Evitar travamento |
+| Chamada S2S (serviço da organização) | 5s | Evitar travamento |
 | Chamada ao Configurador | 3s | Auth deve ser rápida |
 | Query Prisma | 10s | Queries pesadas têm mais margem |
 | Health check dependency | 2s | Rápido — só verificar |

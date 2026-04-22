@@ -54,7 +54,7 @@ export function useLoadSystemRole() {
         })
           .then(r => (r.ok ? r.json() : null))
           .then(data => {
-            const dbRole = (data?.user?.role ?? null) as SystemRole
+            const dbRole = (data?.usuario?.tipo_usuario ?? null) as SystemRole
             roleCache.set(userId, dbRole)
             setRole(dbRole)
             setIsReady(true)

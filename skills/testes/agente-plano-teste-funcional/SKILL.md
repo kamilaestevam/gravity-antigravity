@@ -44,7 +44,7 @@ description: "Use sempre que precisar criar ou expandir um plano de teste funcio
 - Uma rota Express nova foi criada e precisa ter o contrato HTTP validado
 - Um fluxo de negócio multi-step precisa ser testado sem browser
 - Um middleware de auth precisa ser testado em cadeia
-- Isolamento cross-tenant precisa ser verificado na camada de rota
+- Isolamento de Organização (cross-tenant) precisa ser verificado na camada de rota
 - Um contrato de API precisa ser validado contra schema Zod
 - Um webhook precisa ser testado com assinatura e side effects
 
@@ -125,7 +125,7 @@ it('response válido contra meResponseSchema (DDD)', async () => {
 *Arquivo: `requireAuth.ts`, `requireInternalKey.ts`, middleware de tenant*
 
 **O que testa:**
-- Token válido → `req.auth` enriquecido com `{ userId, tenantId, clerkUserId, role }`
+- Token válido → `req.auth` enriquecido com `{ idUsuario, idOrganizacao, clerkUserId, tipoUsuario }` (DDD — Mandamento 03)
 - Token inválido/expirado → `401`
 - Token ausente → `401`
 - Cache hit: token já visto → banco não é consultado novamente
@@ -135,30 +135,32 @@ it('response válido contra meResponseSchema (DDD)', async () => {
 - `x-internal-key` ausente/inválido → `401` (para rotas S2S)
 - `x-internal-key` válido → `req.auth` S2S injetado
 
-### 4. Isolamento Cross-Tenant
-*Arquivo: qualquer rota com `WHERE tenant_id = req.auth.tenantId`*
+### 4. Isolamento de Organização (Cross-Tenant)
+*Arquivo: qualquer rota com `WHERE tenant_id = req.tenant.tenantId` (campo Prisma real do fragment)*
 
 **O que testa:**
-- WHERE da query Prisma **sempre** inclui `tenant_id: req.auth.tenantId`
-- Token de Tenant A não consegue ler dados de Tenant B (mesmo com ID válido)
-- URL `GET /recurso/:id` com ID de outro tenant → `404` (não `403` — não vazar existência)
-- `POST` com `tenant_id` no body diferente de `req.auth.tenantId` → o body é ignorado, `tenant_id` vem de `req.auth`
-- Mock com 2 tenants distintos → verificar que cada query filtra pelo tenant correto
+- WHERE da query Prisma **sempre** inclui o campo Prisma real de Organização (`tenant_id: req.tenant.tenantId`)
+- Token da Organização A não consegue ler dados da Organização B (mesmo com ID válido)
+- URL `GET /recurso/:id` com ID de outra Organização → `404` (não `403` — não vazar existência)
+- `POST` com `idOrganizacao` no body diferente de `req.tenant.tenantId` → o body é ignorado; `idOrganizacao` vem SEMPRE do JWT/middleware (Mandamento 01)
+- Mock com 2 Organizações distintas → verificar que cada query filtra pela Organização correta
+
+> Os nomes de campo Prisma `tenant_id` são preservados (Mandamento 02 — schema intocável). Em payloads/JSON/TS de aplicação, use a nomenclatura DDD (`idOrganizacao`).
 
 **Padrão de mock:**
 ```typescript
-function headersForTenant(tenantId: string, userId: string) {
-  return { 'x-internal-validated': '1', 'x-tenant-id': tenantId, 'x-user-id': userId }
+function headersForOrganizacao(idOrganizacao: string, idUsuario: string) {
+  return { 'x-internal-validated': '1', 'x-tenant-id': idOrganizacao, 'x-user-id': idUsuario }
 }
 
-// Verificar WHERE clause
+// Verificar WHERE clause (campo Prisma real)
 const whereClause = mockFindMany.mock.calls[0][0].where
-expect(whereClause.tenant_id).toBe(TENANT_A)
-expect(whereClause.tenant_id).not.toBe(TENANT_B)
+expect(whereClause.tenant_id).toBe(ORG_A)
+expect(whereClause.tenant_id).not.toBe(ORG_B)
 ```
 
 ### 5. Webhook com Assinatura
-*Arquivo: handler de webhook externo (Stripe, Clerk, Resend, Svix)*
+*Arquivo: handler de webhook externo (Clerk, Resend, Meta WhatsApp Cloud API, Svix)*
 
 **O que testa:**
 - Assinatura válida → handler processa + status 200
@@ -270,15 +272,16 @@ Cada endpoint é testado exaustivamente. Não existe "testar a rota de subscribe
 ### Pattern obrigatório: bypass de auth
 
 ```typescript
-// ✅ CORRETO — mock do middleware que injeta req.auth
+// ✅ CORRETO — mock do middleware que injeta req.auth no padrão DDD (Mandamento 03)
+// tipo_usuario vem do banco (Configurador), nunca do publicMetadata do Clerk (Mandamento 01)
 const { mockRequireAuth } = vi.hoisted(() => ({
   mockRequireAuth: vi.fn((req, _res, next) => {
     req.auth = {
-      userId:      'usr_func_01',
-      tenantId:    'ten_func_01',
-      clerkUserId: 'clerk_func_01',
-      role:        'MASTER',
-      name:        'Func Tester',
+      idUsuario:      'usr_func_01',
+      idOrganizacao:  'org_func_01',
+      clerkUserId:    'clerk_func_01',
+      tipoUsuario:    'MASTER',
+      nomeUsuario:    'Func Tester',
     }
     next()
   }),
@@ -382,8 +385,8 @@ expect(res.body.error.code).toBe('VALIDATION_ERROR')
 expect(res.body.error.stack).toBeUndefined()  // stack trace não vaza
 ```
 
-### 8. Cross-tenant: verificar o WHERE da query, não só o status HTTP
-Verificar `mockFindMany.mock.calls[0][0].where.tenant_id === req.auth.tenantId`. Status 200 pode estar correto e o WHERE errado — isso é o bug mais perigoso.
+### 8. Isolamento de Organização: verificar o WHERE da query, não só o status HTTP
+Verificar `mockFindMany.mock.calls[0][0].where.tenant_id === req.tenant.tenantId` (nome do campo Prisma real). Status 200 pode estar correto e o WHERE errado — isso é o bug mais perigoso.
 
 ### 9. Contrato de API: validar response contra schema Zod
 Para rotas com `tipoModulo: 'contrato_api'`, todo teste de happy path valida `schema.safeParse(res.body).success === true`.
@@ -404,7 +407,7 @@ O agente **não gera** `.test.ts`. Gerador de specs consome este JSON depois.
 Se já existem `.test.ts` para o módulo, o agente lê e marca casos existentes como `origem: 'existente'`. Não duplica.
 
 ### 15. Revisão SME para fluxos de negócio e módulos financeiros
-Fluxos multi-step, billing/Stripe, isolamento crítico: SME revisa antes de aprovar. Registrar `smeRevisadoPor` e `smeRevisadoEm`.
+Fluxos multi-step, módulos de billing, isolamento crítico, integrações com Clerk/Resend/Meta WhatsApp/Gemini: SME revisa antes de aprovar. Registrar `smeRevisadoPor` e `smeRevisadoEm`.
 
 ### 16. Mock de fetch para chamadas cross-service
 Quando a rota chama outro serviço via fetch, o plano declara o mock de fetch e verifica: URL correta, `x-internal-key` presente, corpo correto. Nunca chamar o serviço real em teste funcional.
@@ -505,7 +508,7 @@ testes/
 | `LPCO` | Produto LPCO |
 | `FINCOM` | Financeiro Comex |
 | `NFIMP` | NF Importação |
-| `TENANT` | Serviços Tenant |
+| `TENANT` | Serviços por Organização |
 | `INFRA` | Scripts de infra |
 | `NUCLEO` | nucleo-global |
 

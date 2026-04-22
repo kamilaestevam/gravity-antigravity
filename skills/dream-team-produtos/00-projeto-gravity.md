@@ -1,13 +1,13 @@
 ---
 name: gravity-projeto-regras-gerais
-description: "Regras gerais do ecossistema Gravity que todo agente do Dream Team de Produtos deve conhecer antes de qualquer trabalho. Define design system, nucleo-global, componentes obrigatórios, padrões de código, apiGlobal.ts, autenticação Clerk, isolamento de tenant, dark/light mode, Lucide icons, tipografia Plus Jakarta Sans e arquitetura do monorepo."
+description: "Regras gerais do ecossistema Gravity que todo agente do Dream Team de Produtos deve conhecer antes de qualquer trabalho. Define design system, nucleo-global, componentes obrigatórios, padrões de código, apiGlobal.ts, autenticação Clerk, isolamento de organização, dark/light mode, Lucide icons, tipografia Plus Jakarta Sans e arquitetura do monorepo."
 ---
 
 # Projeto Gravity — Regras Gerais do Ecossistema
 
 ## O Que É o Gravity
 
-Gravity é uma plataforma SaaS multi-tenant que hospeda múltiplos produtos de comércio exterior e gestão empresarial. Cada empresa (tenant) tem seus dados completamente isolados. A plataforma é construída como um monorepo TypeScript com frontend React e backend Express.
+Gravity é uma plataforma SaaS multi-organização que hospeda múltiplos produtos de comércio exterior e gestão empresarial. Cada organização tem seus dados completamente isolados (um schema PostgreSQL dedicado por organização). A plataforma é construída como um monorepo TypeScript com frontend React e backend Express.
 
 ---
 
@@ -17,9 +17,9 @@ Gravity é uma plataforma SaaS multi-tenant que hospeda múltiplos produtos de c
 gravity/
 ├── nucleo-global/           ← Componentes React puros, sem estado/servidor
 ├── servicos-global/
-│   ├── tenant/              ← Serviços 1x por empresa (email, dashboard, etc.)
+│   ├── tenant/              ← Serviços 1x por organização (email, dashboard, etc.)
 │   ├── produto/             ← Templates reutilizáveis
-│   ├── configurador/        ← Auth (Clerk), billing (Stripe), permissões
+│   ├── configurador/        ← Auth (Clerk apenas autenticação), billing (provedor a definir), permissões via Prisma
 │   ├── marketplace/         ← Landing pública (sem auth)
 │   └── devops/              ← CI/CD, scripts, infra
 ├── produto/                 ← Cada produto isolado (client/ + server/)
@@ -120,7 +120,7 @@ O `nucleo-global/` contém componentes React **puros** (sem estado global, sem c
 Todo produto usa um arquivo `api.ts` (ou `apiGlobal.ts`) que centraliza chamadas REST. Este arquivo:
 
 1. Configura a base URL do backend
-2. Injeta headers obrigatórios (Authorization, x-tenant-id, x-correlation-id)
+2. Injeta headers obrigatórios (Authorization, x-correlation-id; o `id_organizacao` é resolvido server-side via SDK `@gravity/tenant-resolver`)
 3. Trata erros de forma padronizada
 4. Nunca expõe tokens ou dados sensíveis em logs
 
@@ -145,22 +145,25 @@ const result = await api.post('/api/v1/estimativas', payload)
 
 ---
 
-## Autenticação — Clerk
+## Autenticação — Clerk (APENAS autenticação)
 
 O Gravity usa **Clerk** como provedor de autenticação. Todo produto integra com Clerk via `@clerk/clerk-react` no frontend e `@clerk/backend` no backend.
+
+> **Mandamento 01 — inviolável:** Clerk responde APENAS por autenticação (login, senha, e-mail, `clerk_user_id`). Autorização (`tipo_usuario`, permissões, `id_organizacao`) é fonte exclusiva do Prisma do Configurador, sempre via `GET /api/v1/me`. **PROIBIDO** ler `publicMetadata.role`, `publicMetadata.tipoUsuario` ou qualquer campo do Clerk para decidir permissão.
 
 ### Frontend
 
 - `ClerkProvider` envolve toda a aplicação
-- `useAuth()` para obter token e dados do usuário
-- `useUser()` para dados do perfil
-- Rotas protegidas usam `SignedIn` / `SignedOut` do Clerk
+- `useAuth()` para obter token de sessão
+- `useUser()` apenas para dados de identidade visual (nome, foto)
+- Rotas protegidas usam `SignedIn` / `SignedOut` do Clerk para autenticação
+- Decisão de papel/permissão SEMPRE via `fetch('/api/v1/me')` + `meResponseSchema.parse()`
 - Token JWT enviado em toda requisição via header `Authorization: Bearer <token>`
 
 ### Backend
 
 - JWT validado em rotas protegidas via `@clerk/backend`
-- Dados do usuário extraídos do token (user_id, org_id)
+- Do token extrai-se apenas `clerk_user_id` — o restante (`id_usuario`, `tipo_usuario`, `id_organizacao`) vem do Prisma
 - Chamadas inter-serviço usam `x-internal-key` (não JWT de usuário)
 
 ### Regras
@@ -169,36 +172,40 @@ O Gravity usa **Clerk** como provedor de autenticação. Todo produto integra co
 - Nunca armazenar passwords — Clerk gerencia
 - Nunca expor Clerk Secret Key no frontend
 - Session tokens têm expiração curta — sempre validar
+- Sem fallback silencioso em autorização — falhou? `AppError` 401/403 explícito
 
 ---
 
-## Isolamento de Tenant
+## Isolamento de Organização (Multi-Organização)
 
-Cada empresa (tenant) tem seus dados **completamente isolados**. Esta é a regra mais crítica de segurança do Gravity.
+Cada organização tem seus dados **completamente isolados** via **Schema-per-Organização** no PostgreSQL (cada organização ganha um schema dedicado, ex.: `tenant_<cuid>`). Esta é a regra mais crítica de segurança do Gravity.
 
 ### Regras Absolutas
 
-1. **Todo model Prisma** tem campo `tenant_id String` obrigatório
-2. **Toda query** ao banco filtra por `tenant_id` — sem exceção
-3. **Row-Level Security (RLS)** ativo no PostgreSQL
-4. **Middleware `tenantIsolationMiddleware`** injeta `tenant_id` em toda requisição
-5. Nenhum endpoint retorna dados de outro tenant — mesmo para admins
+1. **Todo model Prisma** tem campo `id_organizacao String` obrigatório (mapeado no banco; ver convenção abaixo)
+2. **Toda query** ao banco roda dentro de `withTenant`/`withTenantContext` do SDK `@gravity/tenant-resolver`
+3. **Schema-per-Organização** ativo no PostgreSQL — `SET LOCAL search_path` por requisição
+4. **Middleware do SDK** resolve a organização e expõe `req.tenant.tenantId` (API real do SDK — manter o nome)
+5. Nenhum endpoint retorna dados de outra organização — mesmo para Master/Super Admin (que acessam por contexto explícito, sem `UsuarioWorkspace`)
 6. Produtos NUNCA acessam banco de outro produto
 7. Produtos NUNCA acessam banco do Configurador diretamente
-8. Serviços tenant NUNCA importam código de outro serviço tenant
+8. Serviços por organização NUNCA importam código de outro serviço por organização
 9. Comunicação entre serviços APENAS via REST API
 
 ### Índices Obrigatórios por Model
 
+> **Convenção de nomenclatura:** o campo Prisma usa `id_organizacao`; quando o schema atual ainda persistir a coluna `tenant_id` no banco, manter `@map("tenant_id")` para compatibilidade. O `schema.prisma` em si é **intocável** (Mandamento 02) — alterações são feitas pelo Coordenador via fragments.
+
 ```prisma
 model Recurso {
-  id         String   @id @default(cuid())
-  tenant_id  String
+  id              String   @id @default(cuid())
+  id_organizacao  String   @map("tenant_id")
+  id_usuario      String?  @map("user_id")
   // ... campos
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, id_usuario])
 }
 ```
 
@@ -223,7 +230,8 @@ model Recurso {
 | Funções/variáveis | camelCase | `calcularImposto` |
 | Constantes | UPPER_SNAKE_CASE | `API_URL` |
 | Pastas | kebab-case | `nucleo-global` |
-| Campos de banco | snake_case | `tenant_id` |
+| Campos Prisma/payload | snake_case DDD | `id_organizacao`, `id_usuario`, `tipo_usuario` |
+| Colunas físicas (quando aplicável) | snake_case | `tenant_id` (via `@map`) |
 
 ### Segurança
 
@@ -261,7 +269,7 @@ O Dream Team de Produtos (PM, SME, Data Analyst, Pesquisador, UX Researcher, Bus
 ### Restrições para o Dream Team de Produtos
 
 - Nunca propor telas que violem o design system Solid Slate
-- Nunca propor funcionalidades que quebrem o isolamento de tenant
+- Nunca propor funcionalidades que quebrem o isolamento de organização
 - Nunca criar componentes visuais que já existam no nucleo-global
 - Sempre considerar dark/light mode em toda proposta visual
 - Sempre usar Lucide icons — nunca outra biblioteca
@@ -276,7 +284,7 @@ O Dream Team de Produtos (PM, SME, Data Analyst, Pesquisador, UX Researcher, Bus
 - [ ] Sei qual design system usar (Solid Slate)?
 - [ ] Sei que dark mode é o padrão?
 - [ ] Sei que devo usar Lucide icons e Plus Jakarta Sans?
-- [ ] Entendo o isolamento de tenant?
+- [ ] Entendo o isolamento de organização (Schema-per-Organização) e o SDK `@gravity/tenant-resolver`?
 - [ ] Sei que devo reutilizar componentes do nucleo-global?
 - [ ] Entendo a arquitetura de ondas?
 - [ ] Sei onde cada tipo de código/serviço vive no monorepo?

@@ -11,12 +11,12 @@ Antes de qualquer ação:
 4. Leia `skills/arquitetura/testes/SKILL.md`
 
 Execute a revisão completa seguindo as 6 categorias do checklist:
-1. **Segurança** — Zod, JWT, x-internal-key, env vars, logs
-2. **Tenant Isolation** — tenant_id em toda query, RLS, middleware
-3. **Code Standards** — TypeScript strict, ESModules, AppError, naming
+1. **Segurança e 9 Mandamentos** — Zod (M06), JWT/Clerk APENAS auth (M01), x-internal-key, env vars, logs, sem fallback silencioso (M08), DDD (M03)
+2. **Isolamento de Organização** — `withTenant`/`withTenantContext`, sem PrismaClient direto, schema isola
+3. **Code Standards** — TypeScript strict, ESModules, AppError, naming DDD
 4. **Testes** — Unitários + funcionais + E2E, cobertura mínima
-5. **Arquitetura e Escopo** — Pastas autorizadas, imports, fragments
-6. **Qualidade Geral** — Funções <50 linhas, sem dead code, correlation ID
+5. **Arquitetura e Escopo** — Pastas autorizadas, imports, fragments, schema.prisma INTOCÁVEL (M02)
+6. **Qualidade Geral** — Funções <50 linhas, sem dead code, correlation ID, contratos sincronizados (M07/M09)
 
 Nunca corrija código diretamente — identifique e retorne ao agente.
 Gere relatório de APROVAÇÃO ou REJEIÇÃO seguindo o template da skill.

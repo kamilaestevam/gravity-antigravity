@@ -5,11 +5,11 @@ description: "Use esta skill sempre que uma tarefa envolver logs, monitoramento,
 
 # Gravity — Observabilidade
 
-Sem observabilidade, não conseguimos depurar problemas em produção, especialmente em uma arquitetura multi-tenant e distribuída.
+Sem observabilidade, não conseguimos depurar problemas em produção, especialmente em uma arquitetura multi-organização e distribuída.
 
 ## Por Que Observabilidade é Obrigatória desde o Início
 
-1. **Depuração Multi-tenant:** Identificar qual tenant está causando ou sofrendo um erro
+1. **Depuração Multi-organização:** Identificar qual organização está causando ou sofrendo um erro
 2. **Rastreamento de Requests:** Seguir uma request desde o Gateway até o serviço final
 3. **Métricas de Saúde:** Saber se um serviço está "vivo" ou "morto" antes do usuário reclamar
 
@@ -32,9 +32,9 @@ Logs não devem ser texto livre. Devem ser objetos JSON para permitir busca e ag
 
 interface LogContext {
   correlationId: string
-  tenantId?: string
-  userId?: string
-  productId?: string
+  idOrganizacao?: string
+  idUsuario?: string
+  idProduto?: string
   service: string
 }
 
@@ -43,9 +43,9 @@ export function createLogger(context: LogContext) {
     timestamp: new Date().toISOString(),
     service: context.service,
     correlation_id: context.correlationId,
-    tenant_id: context.tenantId,
-    user_id: context.userId,
-    product_id: context.productId,
+    id_organizacao: context.idOrganizacao,
+    id_usuario: context.idUsuario,
+    id_produto: context.idProduto,
   })
 
   return {
@@ -173,10 +173,10 @@ Sentry.init({
 // Antes de todas as rotas
 app.use(Sentry.Handlers.requestHandler())
 
-// Contexto de tenant após ter auth e correlationId
+// Contexto de organização após ter auth e correlationId
 app.use((req, res, next) => {
-  Sentry.setUser({ id: req.auth?.user_id })
-  Sentry.setTag('tenant_id', req.auth?.tenant_id)
+  Sentry.setUser({ id: req.auth?.id_usuario })
+  Sentry.setTag('id_organizacao', req.auth?.id_organizacao)
   Sentry.setTag('correlation_id', req.correlationId)
   Sentry.setTag('service', 'nome-do-servico')
   next()
@@ -221,7 +221,7 @@ app.use(correlationMiddleware)
 // 4. Contexto do Sentry — após ter correlationId
 app.use((req, res, next) => {
   Sentry.setTag('correlation_id', req.correlationId)
-  Sentry.setTag('tenant_id', req.auth?.tenant_id)
+  Sentry.setTag('id_organizacao', req.auth?.id_organizacao)
   next()
 })
 
@@ -324,7 +324,7 @@ app.get('/health', async (req, res) => {
 - [ ] `correlationMiddleware` registrado antes das rotas de negócio?
 - [ ] Correlation ID propagado via `x-correlation-id` em toda chamada para outros serviços?
 - [ ] Endpoint `/health` implementado com verificação do banco?
-- [ ] Sentry inicializado com `dsn`, `environment`, contexto de tenant **e performance**?
+- [ ] Sentry inicializado com `dsn`, `environment`, contexto de organização **e performance**?
 - [ ] `SENTRY_DSN` documentado no `.env.example`?
 - [ ] Logger estruturado usando `createLogger` com todos os campos obrigatórios?
 - [ ] Nenhum `console.log` com dados sensíveis — apenas via logger estruturado?

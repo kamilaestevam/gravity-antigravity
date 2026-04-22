@@ -1,20 +1,20 @@
 ---
 name: antigravity-dashboard
-description: "Use esta skill sempre que uma tarefa envolver o serviço de dashboard da plataforma Gravity. Define a arquitetura de widgets plugáveis, o sistema de Registry central, os três tipos de painel (Global Admin, Tenant Home, Produto Específico), a estratégia de atualização (WebSocket para contadores críticos, polling para gráficos pesados) e como produtos injetam widgets no dashboard global do tenant."
+description: "Use esta skill sempre que uma tarefa envolver o serviço de dashboard da plataforma Gravity. Define a arquitetura de widgets plugáveis, o sistema de Registry central, os três tipos de painel (Global Admin, Home da Organização, Produto Específico), a estratégia de atualização (WebSocket para contadores críticos, polling para gráficos pesados) e como produtos injetam widgets no dashboard global da organização."
 ---
 
 # Gravity — Serviço de Dashboard
 
 ## Propósito
 
-Oferecer uma visão unificada do sistema que se adapta ao contexto do usuário (Administrador Global vs. Operador do Tenant) e ao produto ativo.
+Oferecer uma visão unificada do sistema que se adapta ao contexto do usuário (Administrador Global vs. Operador da Organização) e ao produto ativo.
 
 ---
 
 ## Arquitetura do Dashboard
 
 - **Widgets:** Componentes isolados e plugáveis que consomem dados de serviços específicos
-- **Registry:** Central que mapeia quais widgets cada tenant/produto tem direito de visualizar
+- **Registry:** Central que mapeia quais widgets cada organização/produto tem direito de visualizar
 - **Refresh Strategy:**
   - **WebSockets** → contadores críticos e dados em tempo real
   - **Polling/Cache** → gráficos pesados e dados históricos
@@ -52,8 +52,8 @@ export const registerWidget = (widget: IGravityWidget) => {
 
 | Painel | Descrição | Widgets Principais |
 |:---|:---|:---|
-| **Global Admin** | Visão de todos os tenants ativos | Faturamento Total, Status de Serviços, Novos Tenants |
-| **Tenant Home** | Visão operacional do cliente | Tarefas Pendentes, Uso de Créditos, Notificações |
+| **Global Admin** | Visão de todas as organizações ativas | Status de Serviços, Novas Organizações, Saúde da Plataforma |
+| **Home da Organização** | Visão operacional do cliente | Tarefas Pendentes, Uso de Créditos, Notificações |
 | **Produto Específico** | KPIs do produto (ex: Comex) | Funil de Vendas, NF-e Emitidas, Cronômetro Ativo |
 
 ---
@@ -80,7 +80,7 @@ Gráfico de progresso que monitora:
 
 ## Customização de Painéis por Produto
 
-Cada produto pode **injetar widgets** no Dashboard global do tenant se estiver ativo no `service-registry`:
+Cada produto pode **injetar widgets** no Dashboard global da organização se estiver ativo no `service-registry`:
 
 ```typescript
 // produtos/simulador-comex/src/shared/config.ts

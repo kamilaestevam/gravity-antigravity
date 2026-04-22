@@ -21,14 +21,15 @@ Antes de criar qualquer produto, ler **obrigatoriamente**:
 | `antigravity-code-standards` | Padrões de código |
 | `antigravity-service-registry` | PRODUCT_CONFIG e navegação |
 | `antigravity-ambiente` | Portas e dev servers |
-| `antigravity-tenant-isolation` | RLS e 3 índices |
+| `antigravity-tenant-isolation` | Schema-per-Organização e 3 índices |
 | `antigravity-seguranca-5-camadas` | 5 camadas de segurança |
 | `antigravity-schema-composition` | Prisma fragments |
 | `antigravity-observabilidade` | Logs, health check, Sentry |
 | `antigravity-definition-of-done` | Critérios de entrega |
 | `antigravity-onboarding-produto` | Wizard e dados demo |
-| `antigravity-rate-limiting` | Rate limiting por tenant |
+| `antigravity-rate-limiting` | Rate limiting por organização |
 | `antigravity-autenticacao-s2s` | JWT, x-internal-key, proxy |
+| `9-mandamentos` | Regras absolutas (Clerk isolado, schema intocável, DDD, sem fallback) |
 
 ---
 
@@ -88,8 +89,8 @@ produto/meu-produto/
 │       └── lib/                    ← Motores puros (calculators)
 │   └── prisma/
 │       ├── schema.base.prisma      ← Header (provider/db)
-│       ├── fragment.prisma         ← Models (com tenant_id + 3 índices)
-│       └── schema.prisma           ← GERADO (não editar, .gitignore)
+│       ├── fragment.prisma         ← Models (campos DDD: id_organizacao, id_produto, id_usuario + 3 índices)
+│       └── schema.prisma           ← GERADO (INTOCÁVEL — Mandamento 02; .gitignore)
 │
 └── scripts/
     └── compose-schema.ts           ← Compõe base + fragments
@@ -262,8 +263,8 @@ export function App() {
   const { currentUser } = useShellStore()
 
   useEffect(() => {
-    if (currentUser?.tenantId) {
-      setApiContext({ tenantId: currentUser.tenantId, userId: currentUser.id })
+    if (currentUser?.idOrganizacao) {
+      setApiContext({ idOrganizacao: currentUser.idOrganizacao, idUsuario: currentUser.id_usuario })
     }
   }, [currentUser])
 
@@ -330,19 +331,24 @@ export const PRODUCT_CONFIG = {
 ## Passo 10 — Client: shared/api.ts
 
 ```typescript
-let context = { tenantId: '', userId: '' }
+import { z } from 'zod'
 
-export function setApiContext(ctx: { tenantId: string; userId: string }) {
+// Mandamento 05: nunca {} as T — usar null + tratamento de loading
+let context: { idOrganizacao: string; idUsuario: string } | null = null
+
+export function setApiContext(ctx: { idOrganizacao: string; idUsuario: string }) {
   context = ctx
 }
 
-async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
+// Mandamento 06: toda resposta passa por schema.parse() antes de ser retornada
+async function request<T>(endpoint: string, schema: z.ZodType<T>, options?: RequestInit): Promise<T> {
+  if (!context) throw new Error('API context não inicializado — chame setApiContext primeiro')
+
   const response = await fetch(endpoint, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'x-tenant-id': context.tenantId,
-      'x-user-id': context.userId,
+      // O backend deve preferir extrair id_organizacao do JWT (nunca confiar em headers de cliente)
       'x-internal-key': import.meta.env.VITE_INTERNAL_KEY || '',
       ...options?.headers,
     },
@@ -351,14 +357,18 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const error = await response.json().catch(() => ({ error: { message: 'Erro desconhecido' } }))
     throw new Error(error.error?.message || `HTTP ${response.status}`)
   }
-  return response.json()
+  const json = await response.json()
+  return schema.parse(json)  // Mandamento 06 + 09: contrato bilateral
 }
 
 // Exemplo — adaptar ao domínio do produto
 export const api = {
-  list: () => request<unknown[]>('/api/v1/recursos'),
-  getById: (id: string) => request<unknown>(`/api/v1/recursos/${id}`),
-  create: (data: unknown) => request('/api/v1/recursos', { method: 'POST', body: JSON.stringify(data) }),
+  list:    () => request('/api/v1/recursos', recursoListSchema),
+  getById: (id: string) => request(`/api/v1/recursos/${id}`, recursoSchema),
+  create:  (data: CreateRecursoInput) => request('/api/v1/recursos', recursoSchema, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
 }
 ```
 
@@ -384,11 +394,11 @@ export const STATUS_BADGE: Record<StatusRecurso, string> = {
   ARQUIVADO: 'bg-gray-100 text-gray-800',
 }
 
-// Interface principal do domínio
+// Interface principal do domínio (DDD — Mandamento 03)
 export interface Recurso {
   id: string
-  tenant_id: string
-  user_id: string
+  id_organizacao: string
+  id_usuario: string
   titulo: string
   status: StatusRecurso
   created_at: string
@@ -444,7 +454,8 @@ app.use(correlationMiddleware)
 // 7. S2S Auth (x-internal-key)
 app.use('/api/', requireInternalKey)
 
-// 8. Tenant RLS (injeta req.prisma com filtro tenant_id)
+// 8. Isolamento de Organização — Schema-per-Organização via @gravity/tenant-resolver
+//    (acesso ao banco SEMPRE via withTenant/withTenantContext; PrismaClient direto é PROIBIDO)
 app.use(tenantIsolationMiddleware)
 
 // 9. Product Routes
@@ -465,10 +476,11 @@ app.listen(PORT, () => console.log(`meu-produto server on :${PORT}`))
 
 ## Passo 13 — Server: fragment.prisma
 
-**REGRA:** todo model DEVE ter `tenant_id`, `product_id`, `user_id` e os **3 índices obrigatórios**.
+**REGRA (Mandamento 03):** todo model DEVE ter `id_organizacao`, `id_produto`, `id_usuario` e os **3 índices obrigatórios**. Conforme `database-governance`, em produtos Schema-per-Organização os models não filtram por `id_organizacao` em queries (o schema **é** a organização) — mas mantêm o campo + índices durante a fase de transição (ADR-003 Fase 4).
 
 ```prisma
 // produto/meu-produto/server/prisma/fragment.prisma
+// Mandamento 02: schema.prisma final é INTOCÁVEL. O fragment é o único editável pelo agente do produto.
 
 enum StatusRecurso {
   RASCUNHO
@@ -477,23 +489,23 @@ enum StatusRecurso {
 }
 
 model Recurso {
-  id          String          @id @default(cuid())
-  tenant_id   String
-  product_id  String          @default("meu-produto")
-  user_id     String
+  id              String          @id @default(cuid())
+  id_organizacao  String
+  id_produto      String          @default("meu-produto")
+  id_usuario      String
 
-  titulo      String
-  status      StatusRecurso   @default(RASCUNHO)
+  titulo          String
+  status          StatusRecurso   @default(RASCUNHO)
 
-  is_demo     Boolean         @default(false)  // ← para dados demo (onboarding)
+  is_demo         Boolean         @default(false)  // ← para dados demo (onboarding)
 
-  created_at  DateTime        @default(now())
-  updated_at  DateTime        @updatedAt
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
 
   // 3 índices obrigatórios — NUNCA omitir
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto])
+  @@index([id_organizacao, id_usuario])
 
   @@map("recursos")
 }
@@ -614,19 +626,29 @@ testes/
 ## Passo 19 — Seed de Dados Demo
 
 ```typescript
-// scripts/seed-demo.ts
-export async function seedDemo(tenantId: string) {
-  await prisma.recurso.createMany({
-    data: [
-      { tenant_id: tenantId, user_id: 'demo', titulo: 'Recurso Exemplo 1', is_demo: true },
-      { tenant_id: tenantId, user_id: 'demo', titulo: 'Recurso Exemplo 2', is_demo: true },
-    ]
+// scripts/seed-demo.ts — usar withTenantContext do @gravity/tenant-resolver
+import { withTenantContext } from '@gravity/tenant-resolver'
+
+export async function seedDemo(idOrganizacao: string) {
+  await withTenantContext(idOrganizacao, async (_ctx, rawDb) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = rawDb as any
+    await db.recurso.createMany({
+      data: [
+        { id_organizacao: idOrganizacao, id_usuario: 'demo', titulo: 'Recurso Exemplo 1', is_demo: true },
+        { id_organizacao: idOrganizacao, id_usuario: 'demo', titulo: 'Recurso Exemplo 2', is_demo: true },
+      ]
+    })
   })
 }
 
-export async function clearDemo(tenantId: string) {
-  await prisma.recurso.deleteMany({
-    where: { tenant_id: tenantId, is_demo: true }
+export async function clearDemo(idOrganizacao: string) {
+  await withTenantContext(idOrganizacao, async (_ctx, rawDb) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = rawDb as any
+    await db.recurso.deleteMany({
+      where: { id_organizacao: idOrganizacao, is_demo: true }
+    })
   })
 }
 ```
@@ -642,7 +664,9 @@ import rateLimit from 'express-rate-limit'
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 100,
-  keyGenerator: (req) => req.headers['x-tenant-id'] as string || req.ip,
+  // Chave por organização extraída do JWT (preenchido por requireAuth ANTES deste middleware)
+  // — nunca confiar em headers de cliente para isolamento
+  keyGenerator: (req) => (req as any).auth?.idOrganizacao ?? req.ip,
   message: { error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas requisições' } },
 })
 
@@ -701,12 +725,12 @@ Implementar wizard de 3-5 passos no primeiro acesso. Ver skill `antigravity-onbo
 - [ ] 7. main.tsx com ClerkProvider + BrowserRouter?
 - [ ] 8. App.tsx com Layout do Shell + setApiContext?
 - [ ] 9. PRODUCT_CONFIG com id, port, tenantServices, productServices, navigation?
-- [ ] 10. api.ts com tenant context (x-tenant-id, x-user-id, x-internal-key)?
+- [ ] 10. api.ts com `setApiContext({ idOrganizacao, idUsuario })`, `x-internal-key` e `schema.parse()` em todas as respostas (Mandamento 06)? `id_organizacao` extraído do JWT no backend, nunca confiando em headers de cliente.
 - [ ] 11. types.ts espelhando enums do Prisma com labels e badges?
 
 ### Server
 - [ ] 12. 11 middlewares na ordem correta?
-- [ ] 13. fragment.prisma com tenant_id + product_id + user_id + 3 índices?
+- [ ] 13. fragment.prisma com `id_organizacao` + `id_produto` + `id_usuario` + 3 índices (DDD — Mandamento 03)?
 - [ ] 14. .env.example completo?
 - [ ] 15. Validação Zod em toda rota?
 - [ ] 16. Proxy de tenant configurado?

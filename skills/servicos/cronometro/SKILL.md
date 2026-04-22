@@ -1,15 +1,15 @@
 ---
 name: antigravity-cronometro
-description: "Use esta skill sempre que uma tarefa envolver o serviço de cronômetro da plataforma Gravity. Define o cronômetro como serviço de tenant para registro de tempo por usuário, integrado na aba Tempo de qualquer atividade. Cobre: timer com display HH:MM:SS, lançamento manual em minutos, sessões registradas com assunto editável, vínculo de sessão a ações específicas (NF, reunião, processo ou item personalizado), relatório de tempo consolidado e schema Prisma."
+description: "Use esta skill sempre que uma tarefa envolver o serviço de cronômetro da plataforma Gravity. Define o cronômetro como serviço de organização para registro de tempo por usuário, integrado na aba Tempo de qualquer atividade. Cobre: timer com display HH:MM:SS, lançamento manual em minutos, sessões registradas com assunto editável, vínculo de sessão a ações específicas (NF, reunião, processo ou item personalizado), relatório de tempo consolidado e schema Prisma."
 ---
 
 # Gravity — Serviço de Cronômetro
 
 ## O Que é Este Serviço
 
-Serviço de tenant — o **tempo pertence ao usuário**, independente do produto. Um usuário pode cronometrar tempo em atividades do Simulador Comex, do NF Importação ou atividades próprias — tudo consolidado no mesmo lugar.
+Serviço de organização — o **tempo pertence ao usuário**, independente do produto. Um usuário pode cronometrar tempo em atividades do Simulador Comex, do NF Importação ou atividades próprias — tudo consolidado no mesmo lugar.
 
-> **Princípio:** o tempo do usuário é do tenant, não do produto. Um único histórico de sessões por usuário, visível em todos os produtos.
+> **Princípio:** o tempo do usuário é da organização, não do produto. Um único histórico de sessões por usuário, visível em todos os produtos.
 
 ---
 
@@ -160,10 +160,10 @@ GET    /api/v1/timers/report               ← tempo total por período/usuário
 
 ```typescript
 // Quando um timer é iniciado
-emit('timer:started', { activity_id, user_id, tenantId })
+emit('timer:started', { activity_id, id_usuario, idOrganizacao })
 
 // Quando um timer é pausado
-emit('timer:paused', { activity_id, user_id, duration: seconds })
+emit('timer:paused', { activity_id, id_usuario, duration: seconds })
 
 // Quando uma sessão é salva
 emit('timer:stopped', { activity_id, duration })
@@ -183,8 +183,8 @@ on('timer:stopped', ({ activity_id, duration }) => {
 
 model TimerSession {
   id               String   @id @default(cuid())
-  tenant_id        String
-  user_id          String
+  id_organizacao   String   @map("tenant_id")
+  id_usuario       String   @map("user_id")
   activity_id      String
   product_id       String?
 
@@ -203,23 +203,23 @@ model TimerSession {
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, activity_id])
-  @@index([tenant_id, user_id, started_at])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, activity_id])
+  @@index([id_organizacao, id_usuario, started_at])
 }
 
 model TimerActive {
   id                  String   @id @default(cuid())
-  tenant_id           String
-  user_id             String   @unique   // um timer ativo por usuário
+  id_organizacao      String   @map("tenant_id")
+  id_usuario          String   @map("user_id") @unique   // um timer ativo por usuário
   activity_id         String
   started_at          DateTime
   paused_at           DateTime?
   accumulated_seconds Int      @default(0)  // segundos acumulados antes de pausas
 
-  @@index([tenant_id])
-  @@index([user_id])
+  @@index([id_organizacao])
+  @@index([id_usuario])
 }
 ```
 
@@ -238,10 +238,11 @@ model TimerActive {
 
 ## Regras de Isolamento
 
-- `tenant_id` e `user_id` obrigatórios em toda query
-- Usuário só vê suas próprias sessões — nunca de outro usuário do mesmo tenant
-- Middleware `withTenantIsolation` aplicado em todas as queries
-- Consultar `antigravity-tenant-isolation` para as regras completas
+- Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver` — nunca instanciar `PrismaClient` direto
+- Campos `id_organizacao` e `id_usuario` (mapeados via `@map` para `tenant_id` / `user_id` no banco) presentes em todo model
+- Usuário só vê suas próprias sessões — nunca de outro usuário da mesma organização
+- Schema-per-Organização garante isolamento físico — schema PostgreSQL dedicado por empresa
+- Consultar `skills/arquitetura/tenant-isolation/SKILL.md` para as regras completas
 
 ---
 

@@ -1,12 +1,12 @@
 ---
 name: antigravity-lint-tenant-safety
-description: "Use esta skill para entender, configurar ou estender o linter custom de tenant-safety que roda no CI e bloqueia deploy. Define as regras AST que detectam violações pós-pivô Schema-per-Tenant: PrismaClient direto, SET search_path manual, cache sem prefixo de tenant, identidade vinda do Clerk metadata. Criada na Sprint 1 (2026-04-18)."
+description: "Use esta skill para entender, configurar ou estender o linter custom de isolamento que roda no CI e bloqueia deploy. Define as regras AST que detectam violações de Schema-per-Organização: PrismaClient direto, SET search_path manual, cache sem prefixo de organização, identidade vinda do Clerk metadata (Mandamento 01). Criada na Sprint 1 (2026-04-18)."
 ---
 
-# Gravity — Linter Custom de Tenant-Safety
+# Gravity — Linter Custom de Isolamento de Organização
 
-> **Skill nova — Sprint 1 (2026-04-18).**
-> Implementa a decisão do Pivô Arquitetural de 2026-04-17 (schema-per-tenant e Configurador como hub central). Sem ele, o SDK é apenas convenção. Com ele, é estrutural.
+> Esta skill implementa a estratégia de **Isolamento de Organização** (Schema-per-Organização) e o Mandamento 01 (Clerk APENAS para autenticação). Sem o linter, o SDK é apenas convenção. Com ele, é estrutural.
+> O nome `tenant-safety` é mantido por compatibilidade técnica com o pacote `@gravity/eslint-plugin-tenant-safety` e configurações já mergeadas no CI.
 
 ---
 
@@ -28,7 +28,7 @@ O linter:
 | Localização | Comportamento |
 |:---|:---|
 | `produtos/*/server/**` | **Estrito** — todas as regras ativas, override proibido |
-| `servicos-global/tenant/**/server/**` | **Estrito** — idem |
+| `servicos-global/tenant/**/server/**` | **Estrito** — idem (serviços por organização) |
 | `servicos-global/configurador/**` | **Relaxado** — Configurador pode usar PrismaClient direto (single-schema) |
 | `packages/tenant-resolver/**` | **Desligado** — é o SDK que precisa usar PrismaClient |
 | `scripts/**` | **Avisos** — scripts de operação podem precisar acesso direto, mas alertam |
@@ -117,7 +117,7 @@ await tx.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
 
 ### Regra 4 — `cache-key-must-have-tenant-prefix`
 
-Toda chamada a `redis.set/get/del/expire` deve ter chave prefixada por `tenant:` ou `tenant:_global:`.
+Toda chamada a `redis.set/get/del/expire` deve ter chave prefixada por `tenant:` ou `tenant:_global:`. O prefixo `tenant:` é mantido como identificador técnico real do namespace de cache.
 
 ```typescript
 // ❌ ERRO
@@ -125,7 +125,7 @@ await redis.set(`produtos:${id}`, payload)
 await redis.get('config:dashboard')
 
 // ✅ OK
-await redis.set(`tenant:${tenantId}:produtos:${id}`, payload)
+await redis.set(`tenant:${idOrganizacao}:produtos:${id}`, payload)
 await redis.get(`tenant:_global:ncm:8471.30`)        // global exige justificativa em comment
 
 // ✅ OK — usando o helper do SDK
@@ -139,43 +139,49 @@ await cache.set(`produtos:${id}`, payload)            // helper prefixa automati
 
 ---
 
-### Regra 5 — `no-clerk-metadata-tenant`
+### Regra 5 — `no-clerk-metadata-identity` (Mandamento 01)
 
-Bloqueia ler identidade de tenant a partir do `publicMetadata`/`privateMetadata` do Clerk.
+Bloqueia ler identidade de organização **OU autorização** a partir do `publicMetadata`/`privateMetadata` do Clerk. Clerk APENAS para autenticação.
 
 ```typescript
-// ❌ ERRO — Clerk metadata é gerenciado fora da Gravity
-const tenantId = req.auth.sessionClaims.publicMetadata.tenantId
+// ❌ ERRO — Clerk metadata não é fonte de identidade nem de autorização
+const idOrganizacao = req.auth.sessionClaims.publicMetadata.idOrganizacao
+const tipoUsuario = req.auth.sessionClaims.publicMetadata.tipo_usuario
+const role = (currentUser.publicMetadata?.role ?? null) as Role  // Mandamento 08 também
 
 // ❌ ERRO
-const tenantId = user.publicMetadata.tenantId
+const idOrganizacao = user.publicMetadata.idOrganizacao
 
-// ✅ OK — vem do Configurador via SDK
-const tenantId = req.tenant.id
+// ✅ OK — identidade da organização vem do JWT validado pelo SDK
+const idOrganizacao = req.tenant.tenantId  // API real do SDK — manter
+
+// ✅ OK — autorização vem do Prisma via /api/v1/me
+const me = meResponseSchema.parse(await fetch('/api/v1/me').then(r => r.json()))
+const tipoUsuario = me.usuario.tipo_usuario
 ```
 
-**Implementação:** detecta `MemberExpression` com path `*.publicMetadata.tenant*` ou `*.privateMetadata.tenant*`.
+**Implementação:** detecta `MemberExpression` com path `*.publicMetadata.*` ou `*.privateMetadata.*` em código de aplicação (não no SDK do Clerk).
 
 ---
 
-### Regra 6 — `no-tenant-id-in-product-query`
+### Regra 6 — `no-organizacao-id-in-product-query`
 
-Em código sob `produtos/*/server/`, bloqueia `WHERE tenant_id = ...` em queries Prisma — o schema **é** o tenant após migração completa (Pivô 2026-04-17).
+Em código sob `produtos/*/server/`, bloqueia `WHERE id_organizacao = ...` em queries Prisma — o schema **é** a organização após migração completa.
 
 ```typescript
-// ❌ ERRO em produto (após Fase 4)
-await db.fatura.findMany({ where: { tenant_id: req.tenant.id } })
+// ❌ ERRO em produto (após migração completa)
+await db.fatura.findMany({ where: { id_organizacao: req.tenant.tenantId } })
 
 // ✅ OK em produto — schema isola
 await db.fatura.findMany()
 
-// ✅ OK em Configurador — single-schema, precisa de tenant_id
-await prisma.tenant.findUnique({ where: { id: tenantId } })
+// ✅ OK em Configurador — single-schema, precisa de id_organizacao
+await prisma.organizacao.findUnique({ where: { id: idOrganizacao } })
 ```
 
-**Implementação:** detecta `Property` com `key.name === 'tenant_id'` dentro de objetos passados para métodos Prisma (`findMany`, `findFirst`, `findUnique`, `create`, `update`, `delete`, `count`, `aggregate`, `groupBy`, `where:`).
+**Implementação:** detecta `Property` com `key.name === 'id_organizacao'` dentro de objetos passados para métodos Prisma (`findMany`, `findFirst`, `findUnique`, `create`, `update`, `delete`, `count`, `aggregate`, `groupBy`, `where:`).
 
-> **Janela transitória (dual-write em andamento):** regra desativada via flag `LINT_DUAL_WRITE=true` enquanto dual-write está ativo. Após migração completa (Pivô 2026-04-17), flag removida e regra fica permanente.
+> **Janela transitória (dual-write em andamento):** regra desativada via flag `LINT_DUAL_WRITE=true` enquanto dual-write está ativo. Após migração completa, flag removida e regra fica permanente.
 
 ---
 
@@ -269,7 +275,7 @@ npx lint-staged
 
 ## O Que Fazer Quando o Linter Falha
 
-### Cenário 1 — Você está escrevendo código de produto
+### Cenário 1 — Você está escrevendo código de produto ou serviço
 
 ```
 error  Importar @prisma/client direto é proibido. Use @gravity/tenant-resolver.
@@ -285,7 +291,7 @@ Ex: script de migração one-off que precisa rodar como superuser sem search_pat
 **Ação:**
 1. Abra PR no `packages/eslint-plugin-tenant-safety` propondo nova exceção via configuração
 2. Aprovação requer Coordenador + Líder + revisão de segurança
-3. Nunca: `// eslint-disable-next-line` em código de produto/serviço
+3. Nunca: `// eslint-disable-next-line` em código de produto ou serviço por organização
 
 ### Cenário 3 — Falso positivo
 

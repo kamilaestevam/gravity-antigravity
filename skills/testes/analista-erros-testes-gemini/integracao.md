@@ -263,7 +263,8 @@ E adicionar `GEMINI_API_KEY` na **whitelist** de env vars permitidas no `buildSa
 // POST /admin/test-logs/:id/reanalyze
 adminRouter.post('/test-logs/:id/reanalyze', async (req, res, next) => {
   try {
-    if (req.auth.role !== 'SUPER_ADMIN') {
+    if (req.auth.tipoUsuario !== 'SUPER_ADMIN') {
+      // tipoUsuario lido do banco via /api/v1/me — nunca do publicMetadata (Mandamento 01)
       throw new AppError('Apenas Super Admin', 403, 'FORBIDDEN')
     }
     const entry = await loadEntry(req.params.id)

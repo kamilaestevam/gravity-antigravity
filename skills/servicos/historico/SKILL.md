@@ -7,7 +7,7 @@ description: "Use esta skill sempre que uma tarefa envolver o serviço de histó
 
 ## O Que é Este Serviço
 
-Serviço de tenant — auditoria completa, não fragmentada por produto. Um único registro cronológico de tudo que aconteceu no tenant, de todos os produtos.
+Serviço de organização — auditoria completa, não fragmentada por produto. Um único registro cronológico de tudo que aconteceu na organização, de todos os produtos.
 
 > **Princípio:** "Registro completo de quem fez o quê e quando no sistema."
 
@@ -53,13 +53,13 @@ Nunca inferir o ator pelo contexto da requisição HTTP. O ator deve ser declara
 
 ```typescript
 // ❌ ERRADO — infere o ator do req.auth (pode ser herdado)
-auditMiddleware('ALTERAÇÃO', 'empresa', 'Empresa')
+auditMiddleware('ALTERAÇÃO', 'workspace', 'Workspace')
 
 // ✅ CORRETO — ator declarado explicitamente
-auditMiddleware('ALTERAÇÃO', 'empresa', 'Empresa', {
+auditMiddleware('ALTERAÇÃO', 'workspace', 'Workspace', {
   actorType: 'user',
-  actorId: req.auth.userId,
-  actorName: req.auth.userName
+  actorId: req.auth.idUsuario,    // vem do JWT (Clerk autentica) → resolvido via Prisma
+  actorName: req.auth.nomeUsuario // vem do Prisma — NUNCA do publicMetadata
 })
 
 // ✅ CORRETO — serviço de background declara que é sistema
@@ -83,9 +83,9 @@ auditMiddleware('ENVIO', 'email', 'E-mail', {
 // Contexto HTTP (usuário presente):
 interface UserContext {
   actorType: 'user'
-  actorId:   string    // ID real do usuário autenticado
-  actorName: string    // nome do usuário
-  sessionId: string    // ID da sessão Clerk
+  actorId:   string    // id_usuario do Prisma (após /api/v1/me) — não Clerk publicMetadata
+  actorName: string    // nome do usuário (Prisma)
+  sessionId: string    // ID da sessão Clerk (autenticação)
 }
 
 // Contexto de background (sem usuário):
@@ -140,14 +140,14 @@ import { createHash } from 'crypto'
 
 function computeLogHash(log: AuditLogData): string {
   const payload = JSON.stringify({
-    tenant_id:   log.tenant_id,
-    actor_id:    log.actor_id,
-    actor_type:  log.actor_type,
-    action:      log.action,
-    entity_id:   log.entity_id,
-    description: log.description,
-    diff:        log.diff,
-    created_at:  log.created_at.toISOString()
+    id_organizacao: log.id_organizacao,
+    actor_id:       log.actor_id,
+    actor_type:     log.actor_type,
+    action:         log.action,
+    entity_id:      log.entity_id,
+    description:    log.description,
+    diff:           log.diff,
+    created_at:     log.created_at.toISOString()
   })
   return createHash('sha256').update(payload).digest('hex')
 }
@@ -166,7 +166,7 @@ await logAudit({
   entity:        'receita_federal',
   description:   `Consulta CNPJ ${cnpj} via API Receita Federal`,
   sourceService: 'receita-federal-api',  // campo obrigatório para externos
-  triggeredBy:   req.auth.userId         // quem iniciou o fluxo (não o ator)
+  triggeredBy:   req.auth.idUsuario      // quem iniciou o fluxo (não o ator)
 })
 ```
 
@@ -177,14 +177,16 @@ await logAudit({
 ```typescript
 const ANOMALY_THRESHOLD = { count: 50, windowSeconds: 10 }
 
-async function checkAnomalyAfterLog(tenantId: string, actorId: string) {
-  const recent = await prisma.auditLog.count({
-    where: {
-      tenant_id:  tenantId,
-      actor_id:   actorId,
-      created_at: { gte: new Date(Date.now() - ANOMALY_THRESHOLD.windowSeconds * 1000) }
-    }
-  })
+async function checkAnomalyAfterLog(idOrganizacao: string, actorId: string) {
+  const recent = await withTenant(idOrganizacao, (db) =>
+    db.auditLog.count({
+      where: {
+        id_organizacao: idOrganizacao,
+        actor_id:       actorId,
+        created_at:     { gte: new Date(Date.now() - ANOMALY_THRESHOLD.windowSeconds * 1000) }
+      }
+    })
+  )
   if (recent > ANOMALY_THRESHOLD.count) {
     Sentry.captureMessage(`Anomalia no histórico: ${recent} logs em ${ANOMALY_THRESHOLD.windowSeconds}s para o ator ${actorId}`)
   }
@@ -221,25 +223,28 @@ export function auditMiddleware(
       const after = await captureState(req, body)
 
       // Grava o log de forma assíncrona — não bloqueia a resposta
+      // Acesso via SDK @gravity/tenant-resolver (PrismaClient direto é PROIBIDO)
       setImmediate(() => {
-        prisma.auditLog.create({
-          data: {
-            tenant_id:      req.auth.tenantId,
-            actor_id:       req.auth.userId,
-            actor_type:     req.auth.isGabi ? 'gabi' : 'user',
-            actor_name:     req.auth.isGabi ? 'Gabi AI' : req.auth.userName,
-            action,
-            entity,
-            entity_label:   entityLabel,
-            entity_id:      body?.id || req.params?.id,
-            description:    buildDescription(action, entityLabel, before, after),
-            diff:           buildDiff(before, after),
-            integrity_hash: computeLogHash({/*...*/}),
-            product_id:     req.auth.productId,
-            ip_address:     req.ip,
-            user_agent:     req.headers['user-agent'],
-          }
-        })
+        withTenant(req.tenant.tenantId, (db) =>
+          db.auditLog.create({
+            data: {
+              id_organizacao: req.auth.idOrganizacao,
+              actor_id:       req.auth.idUsuario,
+              actor_type:     req.auth.isGabi ? 'gabi' : 'user',
+              actor_name:     req.auth.isGabi ? 'Gabi AI' : req.auth.nomeUsuario,
+              action,
+              entity,
+              entity_label:   entityLabel,
+              entity_id:      body?.id || req.params?.id,
+              description:    buildDescription(action, entityLabel, before, after),
+              diff:           buildDiff(before, after),
+              integrity_hash: computeLogHash({/*...*/}),
+              product_id:     req.auth.productId,
+              ip_address:     req.ip,
+              user_agent:     req.headers['user-agent'],
+            }
+          })
+        )
       }).catch(console.error)
 
       return originalJson(body)
@@ -250,8 +255,8 @@ export function auditMiddleware(
 }
 
 // Uso nas rotas:
-app.put('/api/v1/empresas/:id',
-  auditMiddleware('ALTERAÇÃO', 'empresa', 'Empresa'),
+app.put('/api/v1/workspaces/:id',
+  auditMiddleware('ALTERAÇÃO', 'workspace', 'Workspace'),
   async (req, res) => { /* ... */ }
 )
 ```
@@ -326,41 +331,41 @@ GET /api/v1/historico/stats ← contagem por tipo de ação e período
 // servicos-global/tenant/historico/prisma/fragment.prisma
 
 model AuditLog {
-  id           String  @id @default(cuid())
-  tenant_id    String
-  product_id   String?           // qual produto gerou a ação
+  id              String  @id @default(cuid())
+  id_organizacao  String  @map("tenant_id")
+  product_id      String?              // qual produto gerou a ação
 
   // Ator
-  actor_id     String?           // null = sistema/cron
-  actor_type   String  @default("user")  // user | gabi | system
-  actor_name   String
+  actor_id        String?              // null = sistema/cron
+  actor_type      String  @default("user")  // user | gabi | system
+  actor_name      String
 
   // Ação
-  action       String            // CRIAÇÃO | ALTERAÇÃO | EXCLUSÃO | ENVIO | etc.
-  entity       String            // chave do módulo
-  entity_label String            // nome legível do módulo
-  entity_id    String?           // ID do registro afetado
-  description  String            // texto legível do que foi feito
+  action          String               // CRIAÇÃO | ALTERAÇÃO | EXCLUSÃO | ENVIO | etc.
+  entity          String               // chave do módulo
+  entity_label    String               // nome legível do módulo
+  entity_id       String?              // ID do registro afetado
+  description     String               // texto legível do que foi feito
 
   // Diff
-  diff         Json?             // [{ field, label, before, after }]
+  diff            Json?                // [{ field, label, before, after }]
 
   // Integridade
-  integrity_hash String?         // SHA256 do log (imutável)
+  integrity_hash  String?              // SHA256 do log (imutável)
 
   // Contexto
-  ip_address   String?
-  user_agent   String?
-  created_at   DateTime @default(now())
+  ip_address      String?
+  user_agent      String?
+  created_at      DateTime @default(now())
 
   // Sem updated_at — logs são IMUTÁVEIS
 
-  @@index([tenant_id])
-  @@index([tenant_id, actor_id])
-  @@index([tenant_id, action])
-  @@index([tenant_id, entity])
-  @@index([tenant_id, created_at])
-  @@index([tenant_id, product_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, actor_id])
+  @@index([id_organizacao, action])
+  @@index([id_organizacao, entity])
+  @@index([id_organizacao, created_at])
+  @@index([id_organizacao, product_id])
 }
 ```
 
@@ -379,8 +384,8 @@ model AuditLog {
 > O histórico é a tabela de **maior volume** do sistema.
 
 - Particionamento mensal obrigatório
-- Cleanup após 12 meses (configurável por tenant)
-- **Regra:** toda query obrigatoriamente filtra por `tenant_id` + range de `created_at`. Nunca fazer full scan.
+- Cleanup após 12 meses (configurável por organização)
+- **Regra:** toda query obrigatoriamente filtra por `id_organizacao` + range de `created_at`. Nunca fazer full scan.
 
 ---
 
@@ -395,4 +400,4 @@ model AuditLog {
 - [ ] Alerta de anomalia configurado (Sentry)?
 - [ ] Interface com diff Campo/Antes/Depois legível?
 - [ ] Módulo identificado com nome e ícone intuitivo?
-- [ ] Particionamento por `tenant_id + created_at` em todas as queries?
+- [ ] Particionamento por `id_organizacao + created_at` em todas as queries?

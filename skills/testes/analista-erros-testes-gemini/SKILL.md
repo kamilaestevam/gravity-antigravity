@@ -1,6 +1,6 @@
 ---
 name: analista-erros-testes-gemini
-description: "Use sempre que um teste falhar (E2E, funcional, unitário, contract, cross-tenant ou pentest) e for necessário diagnosticar causa raiz com sugestão de correção aplicável em 1 clique. Especialista no Gemini 2.0 Flash com prompt engineering otimizado para devolver análise estruturada (resumo, motivo, diff aplicável, classificação, confiança). Substitui a heurística regex em servicos-global/configurador/server/utils/playwright-parser.ts. NUNCA aplica correção sozinha — humano valida e clica Aplicar."
+description: "Use sempre que um teste falhar (E2E, funcional, unitário, contract, isolamento de Organização ou pentest) e for necessário diagnosticar causa raiz com sugestão de correção aplicável em 1 clique. Especialista no Gemini 2.0 Flash com prompt engineering otimizado para devolver análise estruturada (resumo, motivo, diff aplicável, classificação, confiança). Substitui a heurística regex em servicos-global/configurador/server/utils/playwright-parser.ts. NUNCA aplica correção sozinha — humano valida e clica Aplicar."
 ---
 
 # Analista de Erros de Testes — Gemini

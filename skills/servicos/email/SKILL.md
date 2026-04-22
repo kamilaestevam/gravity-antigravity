@@ -7,9 +7,9 @@ description: "Use esta skill sempre que uma tarefa envolver o serviço de email 
 
 ## O Que é Este Serviço
 
-Serviço de tenant — existe **uma vez por empresa**, independente de quantos produtos ela use. Uma inbox por empresa, não por produto.
+Serviço de organização — existe **uma vez por empresa**, independente de quantos produtos ela use. Uma inbox por empresa, não por produto.
 
-> **Princípio:** uma inbox unificada por tenant, com rastreamento completo de cada thread, análise de sentimento pela Gabi e respostas automáticas para intenções simples.
+> **Princípio:** uma inbox unificada por organização, com rastreamento completo de cada thread, análise de sentimento pela Gabi e respostas automáticas para intenções simples.
 
 ---
 
@@ -141,16 +141,16 @@ const isNegative = /ruim|péssimo|horrível|insatisfeito|cancelar|não consigo|r
 
 ```prisma
 model EmailThread {
-  id         String         @id @default(cuid())
-  tenant_id  String
-  subject    String
-  sentiment  Float          @default(0)  // -1 a 1
-  status     String         @default("open")  // open, archived, resolved
-  messages   EmailMessage[]
-  created_at DateTime       @default(now())
-  updated_at DateTime       @updatedAt
+  id              String         @id @default(cuid())
+  id_organizacao  String         @map("tenant_id")
+  subject         String
+  sentiment       Float          @default(0)  // -1 a 1
+  status          String         @default("open")  // open, archived, resolved
+  messages        EmailMessage[]
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
 
-  @@index([tenant_id])
+  @@index([id_organizacao])
 }
 
 model EmailMessage {
@@ -183,11 +183,11 @@ model EmailMessage {
 ## Emissão de Eventos
 
 ```typescript
-emit('email:received', { id, from, subject, tenantId })
-emit('email:failed',   { to, subject, error, tenantId })
+emit('email:received', { id, from, subject, idOrganizacao })
+emit('email:failed',   { to, subject, error, idOrganizacao })
 
 // Gabi escuta e responde
-on('email:received', ({ id, tenantId }) => {
+on('email:received', ({ id, idOrganizacao }) => {
   // Gabi analisa e decide: auto_replied ou escalated_to_human
 })
 ```
@@ -206,9 +206,10 @@ on('email:received', ({ id, tenantId }) => {
 
 ## Regras de Isolamento
 
-- `tenant_id` obrigatório em toda query
-- Middleware `withTenantIsolation` aplicado
-- RLS configurado em `EmailSendLog`, `EmailTemplate`, `EmailDraft`
+- Acesso ao banco via `withTenant` / `withTenantContext` do `@gravity/tenant-resolver` — nunca instanciar `PrismaClient` direto
+- `id_organizacao` (mapeado para coluna `tenant_id` no banco) presente em todo model do fragment
+- Schema-per-Organização garante isolamento físico — cada organização tem schema PostgreSQL dedicado (`tenant_<cuid>`)
+- `id_organizacao` vem do JWT, **nunca** do body da requisição
 
 ---
 

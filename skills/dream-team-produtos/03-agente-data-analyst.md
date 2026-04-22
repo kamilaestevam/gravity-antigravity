@@ -167,7 +167,7 @@ Definir faixas de preço baseadas em dados de mercado, valor percebido e custo.
 | Item | Custo/mês |
 |:---|:---|
 | Infraestrutura (Railway) | R$ [X] |
-| APIs externas (Clerk, Stripe, etc.) | R$ [X] |
+| APIs externas (Clerk de autenticação, provedor de pagamento a definir, etc.) | R$ [X] |
 | Suporte (proporcional) | R$ [X] |
 | **Total** | **R$ [X]** |
 
@@ -227,7 +227,7 @@ Definir quais métricas acompanhar e como instrumentar.
 - ARPU (Average Revenue Per User)
 - LTV (Lifetime Value)
 - LTV/CAC ratio (meta: > 3x)
-- Fonte: Stripe + database
+- Fonte: provedor de pagamento (a definir) + database
 
 ### Referral (Referência)
 - NPS score

@@ -139,7 +139,7 @@ O tipo do módulo define o protocolo obrigatório de cobertura. O agente identif
 - Ambiente: `@vitest-environment node`
 
 ### 9. Factory / Builder
-*Arquivo: exporta função que constrói objetos (ex: `makeUsuario`, `createTenant`)*
+*Arquivo: exporta função que constrói objetos (ex: `makeUsuario`, `criarOrganizacao`)*
 
 - Objeto construído com todos defaults → estrutura completa e correta
 - Objeto construído com overrides parciais → fields sobrescritos, resto default
@@ -162,12 +162,12 @@ O tipo do módulo define o protocolo obrigatório de cobertura. O agente identif
 - Set + Get: valor setado é lido corretamente
 - TTL: valor expirado → `null` no get (se TTL aplicável)
 - Invalidação: invalidar chave → próximo get retorna `null`/busca nova
-- Prefixo obrigatório: chave **sempre** inclui `tenant:<id>:` — caso sem prefixo → erro ou ausência no plano documentada com justificativa
+- Prefixo obrigatório: chave **sempre** inclui `tenant:<idOrganizacao>:` — caso sem prefixo → erro ou ausência no plano documentada com justificativa
 - Duas escritas simultâneas (simuladas) → valor final determinístico
 - Ambiente: `@vitest-environment node`
 
 ### 12. Event Handler / Webhook
-*Arquivo: processa eventos externos (Stripe, Clerk, Resend, webhooks de ERP)*
+*Arquivo: processa eventos externos (Clerk, Resend, Meta WhatsApp Cloud API, Gemini, webhooks de ERP)*
 
 - Ambiente: `@vitest-environment node`
 - Assinatura válida → handler processa e retorna `200`
@@ -184,15 +184,15 @@ O tipo do módulo define o protocolo obrigatório de cobertura. O agente identif
 Cada exportação do módulo é coberta exaustivamente. Não existe "testar a função" como caso único.
 
 > **Regra absoluta:** toda exportação tem mínimo 3 casos — happy, sad e edge.
-> Exportações críticas (auth, permissão, isolamento de tenant, financeiro) têm mínimo 5 casos.
+> Exportações críticas (auth, permissão, Isolamento de Organização, financeiro) têm mínimo 5 casos.
 
 **Nomenclatura obrigatória dos `it()`:**
 
 ```typescript
 // ✅ correto — descreve comportamento, não passo
-it('retorna role MASTER lido de data.usuario.tipo_usuario', ...)
-it('NÃO lê data.user.role (estrutura legada) — role deve ser null', ...)
-it('cache hit: fetch não é chamado novamente para o mesmo userId', ...)
+it('retorna tipo_usuario MASTER lido de data.usuario.tipo_usuario via /api/v1/me (Mandamento 01)', ...)
+it('NÃO lê data.user.role (estrutura legada) — tipo_usuario deve ser null e schema.parse falha alto (Mandamento 08)', ...)
+it('cache hit: fetch não é chamado novamente para o mesmo idUsuario', ...)
 
 // ❌ proibido — descreve passo, não comportamento
 it('testa retorno null', ...)
@@ -206,7 +206,7 @@ it('caso 1', ...)
 
 ### vi.hoisted() obrigatório para imports de terceiros
 
-Qualquer mock de módulo de terceiros (Clerk, Prisma, Stripe, Resend) usa `vi.hoisted()` para garantir que o mock existe antes dos imports do módulo sendo testado:
+Qualquer mock de módulo de terceiros (Clerk, Prisma, Resend, Meta WhatsApp Cloud API, Gemini) usa `vi.hoisted()` para garantir que o mock existe antes dos imports do módulo sendo testado:
 
 ```typescript
 // ✅ CORRETO — mock hoistado antes dos imports do módulo testado
@@ -349,7 +349,7 @@ Detalhes completos no [formato-plano.md](./formato-plano.md).
 Se há plano anterior, o agente **agrega**. Todo caso do plano antigo aparece no novo, marcado como `origem: 'humano-original'`. Casos novos marcados como `origem: 'agente-adicionado'`.
 
 ### 2. Toda exportação tem pelo menos 3 casos
-Happy + sad + edge. Exportações críticas (auth, permissão, isolamento de tenant, financeiro) têm mínimo 5.
+Happy + sad + edge. Exportações críticas (auth, permissão, Isolamento de Organização, financeiro) têm mínimo 5.
 
 ### 3. `it()` descreve comportamento esperado, não passo
 "role é null quando getToken retorna null" ✅ — "testa retorno null" ❌. O leitor entende o contrato sem ver o código.
@@ -358,7 +358,7 @@ Happy + sad + edge. Exportações críticas (auth, permissão, isolamento de ten
 `@vitest-environment jsdom` ou `node` — sem depender do default do config.
 
 ### 5. vi.hoisted() obrigatório para qualquer mock de import de terceiros
-Clerk, fetch global, Prisma, Stripe, Resend — todos via `vi.hoisted()` + `vi.mock()`.
+Clerk, fetch global, Prisma, Resend, Meta WhatsApp Cloud API, Gemini — todos via `vi.hoisted()` + `vi.mock()`.
 
 ### 6. vi.stubGlobal para `fetch` — sempre desfazer em afterEach
 `vi.stubGlobal('fetch', vi.fn())` no `beforeEach`, `vi.unstubAllGlobals()` no `afterEach`.
@@ -388,7 +388,7 @@ O agente **não gera** `.test.ts`. Outro agente (o gerador de specs) consome ess
 Se já existem arquivos `.test.ts` para o módulo, o agente lê e não duplica casos. Os testes existentes recebem `origem: 'existente'` no plano.
 
 ### 15. Revisão SME para módulos críticos antes da aprovação
-Auth, permissão, isolamento de tenant e financeiro: revisão por especialista antes de aprovar. Registrar `smeRevisadoPor` e `smeRevisadoEm`.
+Auth, permissão, Isolamento de Organização e financeiro: revisão por especialista antes de aprovar. Registrar `smeRevisadoPor` e `smeRevisadoEm`.
 
 ### 16. Nenhum teste depende de ordem de execução
 Se o caso B depende de estado criado pelo caso A, ambos devem estar em um único `describe` com `beforeAll` explícito — nunca confiar em execução sequencial entre `it()` independentes.
@@ -484,7 +484,7 @@ testes/
 | `BIDCAM` | BID Câmbio |
 | `BIDFRT` | BID Frete |
 | `SIMCUS` | Simula Custo |
-| `TENANT` | Serviços Tenant |
+| `TENANT` | Serviços por Organização |
 | `INFRA` | Scripts de infra, migrate-tenants |
 | `NUCLEO` | nucleo-global |
 | `PROCSO` | Processo |

@@ -86,9 +86,9 @@ Cada produto tem seu próprio ProductState. Ele pode ler o ShellState por meio d
 interface VendasState {
   idCarrinho: string
   items: SaleItem[]
-  company: {
+  workspace: {
     id: string
-    name: string
+    nome_workspace: string
     plan: string
   }
 }
@@ -171,9 +171,9 @@ function SimulacaoPage() {
 
 ---
 
-## Event Bus — Padrão Obrigatório entre Módulos Tenant (Dream Team)
+## Event Bus — Padrão Obrigatório entre Módulos da Organização (Dream Team)
 
-Quando múltiplos serviços de tenant estão na mesma tela (atividades + email + cronômetro), eles precisam se comunicar **sem importar código um do outro**. O shell fornece um event bus:
+Quando múltiplos serviços da organização estão na mesma tela (atividades + email + cronômetro), eles precisam se comunicar **sem importar código um do outro**. O shell fornece um event bus:
 
 ```typescript
 // servicos-global/shell/events.ts
@@ -197,7 +197,7 @@ export function off(event: string, callback: (detail: unknown) => void) {
 | Evento | Emissor | Dados | Quem escuta |
 |:---|:---|:---|:---|
 | `timer:stopped` | Cronômetro | `{ activity_id, duration }` | Atividades |
-| `activity:created` | Atividades | `{ id, title, product_id }` | Dashboard, Notificações |
+| `activity:created` | Atividades | `{ id, title, id_produto }` | Dashboard, Notificações |
 | `email:received` | Email | `{ id, subject, from }` | Notificações, Dashboard |
 | `notification:new` | Qualquer | `{ type, message }` | Shell (toast) |
 

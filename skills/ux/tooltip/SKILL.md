@@ -63,11 +63,11 @@ O `titulo` pode ser igual ao label do campo. A `descricao` é onde está o valor
 Use linguagem que um gerente administrativo entenderia.
 
 ```
-❌ "Define o slug do tenant no multi-tenant router"
+❌ "Define o slug da organização no multi-organização router"
 ✅ "Endereço exclusivo da sua conta — não pode ser alterado após a criação"
 
 ❌ "Foreign key vinculada ao registro pai"
-✅ "Empresa à qual este usuário está vinculado"
+✅ "Workspace ao qual este usuário está vinculado"
 ```
 
 ---

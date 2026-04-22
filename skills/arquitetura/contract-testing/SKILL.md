@@ -94,18 +94,18 @@ export const createActivityContract = z.object({
   title: z.string().min(1).max(200),
   status: z.enum(['PENDING', 'IN_PROGRESS', 'DONE']),
   due_date: z.string().datetime().optional(),
-  user_id: z.string().cuid(),
-  product_id: z.string().optional(),
+  id_usuario: z.string().cuid(),
+  id_produto: z.string().optional(),
 })
 
 // Contrato de Response
 export const activityResponseContract = z.object({
   id: z.string().cuid(),
-  tenant_id: z.string(),
+  id_organizacao: z.string(),
   title: z.string(),
   status: z.string(),
-  user_id: z.string(),
-  product_id: z.string().nullable(),
+  id_usuario: z.string(),
+  id_produto: z.string().nullable(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
 })
@@ -157,11 +157,11 @@ describe('Provider Contract: Atividades', () => {
   it('service response conforms to published contract', async () => {
     const mockActivity = {
       id: 'clxxx123',
-      tenant_id: 'tenant-1',
+      id_organizacao: 'org-1',
       title: 'Test',
       status: 'PENDING',
-      user_id: 'user-1',
-      product_id: null,
+      id_usuario: 'user-1',
+      id_produto: null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }

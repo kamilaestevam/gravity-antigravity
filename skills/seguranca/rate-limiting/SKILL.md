@@ -1,6 +1,6 @@
 ---
 name: antigravity-rate-limiting
-description: "Use esta skill para implementar rate limiting por tenant e por rota. Define limites, estratégias, headers de resposta e bypass para serviços internos. Consultada pelo Segurança e Backend ao proteger endpoints contra abuso."
+description: "Use esta skill para implementar rate limiting por organização e por rota. Define limites, estratégias, headers de resposta e bypass para serviços internos. Consultada pelo Segurança e Backend ao proteger endpoints contra abuso."
 ---
 
 # Gravity — Rate Limiting
@@ -8,7 +8,7 @@ description: "Use esta skill para implementar rate limiting por tenant e por rot
 ## Por Que Rate Limiting é Essencial
 
 Sem rate limiting:
-- Um tenant pode consumir todos os recursos e derrubar a plataforma
+- Uma organização pode consumir todos os recursos e derrubar a plataforma
 - Ataques de brute force não são bloqueados
 - Custos de infra ficam imprevisíveis
 - Um bug em um cliente pode gerar milhares de requests
@@ -19,13 +19,13 @@ Sem rate limiting:
 
 | Tipo | Limite | Janela | Chave |
 |:---|:---|:---|:---|
-| Rotas autenticadas | 100 req | 1 min | `tenant_id` |
+| Rotas autenticadas | 100 req | 1 min | `id_organizacao` |
 | Rotas públicas (marketplace) | 30 req | 1 min | IP |
 | Login/auth | 10 req | 15 min | IP + email |
-| Webhooks (Clerk, Stripe) | 50 req | 1 min | IP |
+| Webhooks (Clerk) | 50 req | 1 min | IP |
 | Chamadas S2S internas | 500 req | 1 min | `x-internal-key` |
-| Upload de arquivos | 10 req | 1 min | `tenant_id` |
-| Export (CSV/Excel) | 5 req | 1 min | `tenant_id` |
+| Upload de arquivos | 10 req | 1 min | `id_organizacao` |
+| Export (CSV/Excel) | 5 req | 1 min | `id_organizacao` |
 
 ---
 
@@ -35,11 +35,11 @@ Sem rate limiting:
 import rateLimit from 'express-rate-limit'
 import RedisStore from 'rate-limit-redis'
 
-// Rate limiter padrão — por tenant
-export const tenantRateLimit = rateLimit({
+// Rate limiter padrão — por organização
+export const orgRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minuto
   max: 100,
-  keyGenerator: (req) => req.auth?.tenant_id || req.ip,
+  keyGenerator: (req) => req.auth?.id_organizacao || req.ip,
   standardHeaders: true, // RateLimit-* headers
   legacyHeaders: false,
   message: {
@@ -72,7 +72,7 @@ export const internalBypass = (req, res, next) => {
   if (req.headers['x-internal-key'] === process.env.INTERNAL_SERVICE_KEY) {
     return next() // Sem rate limit para chamadas internas
   }
-  tenantRateLimit(req, res, next)
+  orgRateLimit(req, res, next)
 }
 ```
 
@@ -120,9 +120,9 @@ if (response.status === 429) {
 
 ---
 
-## Rate Limiting por Tenant (Fair Usage)
+## Rate Limiting por Organização (Fair Usage)
 
-Para evitar que um tenant grande monopolize recursos:
+Para evitar que uma organização grande monopolize recursos:
 
 | Plano | Requests/min | Concurrent connections |
 |:---|:---|:---|
@@ -131,15 +131,15 @@ Para evitar que um tenant grande monopolize recursos:
 | Professional | 300 | 25 |
 | Enterprise | 1000 | 50 |
 
-> Limites configuráveis no Configurador por tenant.
+> Limites configuráveis no Configurador por organização.
 
 ---
 
 ## Monitoramento
 
-- Log toda vez que rate limit é atingido (com tenant_id)
-- Dashboard com top tenants por volume de requests
-- Alerta se um tenant atinge 80% do limite consistentemente
+- Log toda vez que rate limit é atingido (com `id_organizacao`)
+- Dashboard com top organizações por volume de requests
+- Alerta se uma organização atinge 80% do limite consistentemente
 - Alerta se rate limit global é atingido (possível ataque)
 
 ---

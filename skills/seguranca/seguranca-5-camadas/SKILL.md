@@ -42,8 +42,8 @@ function requireInternalKey(req: Request, res: Response, next: NextFunction) {
 ```
 
 ```typescript
-// Todo produto DEVE enviar o header ao chamar serviços
-tenantAPI.get('/activities', {
+// Todo produto DEVE enviar o header ao chamar serviços de organização
+orgAPI.get('/activities', {
   headers: { 'x-internal-key': process.env.INTERNAL_SERVICE_KEY }
 })
 ```
@@ -52,7 +52,7 @@ tenantAPI.get('/activities', {
 
 ---
 
-## Camada 2 — Autenticação
+## Camada 2 — Autenticação (Clerk APENAS — Mandamento 01)
 
 **Proteção:** Toda request é de um usuário autenticado e verificável.
 
@@ -62,6 +62,7 @@ tenantAPI.get('/activities', {
 | Validação independente | Cada serviço valida o JWT — nunca confia no produto |
 | Expiração curta | JWT expira em 1h (Clerk padrão) |
 | Machine tokens para async | Service tokens para cron/retry (ver autenticacao-s2s) |
+| **PROIBIDO** | Ler `publicMetadata.role` do Clerk para autorização |
 
 ```typescript
 // CADA serviço valida independentemente — nunca confiar no produto
@@ -70,23 +71,23 @@ import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node'
 app.use(ClerkExpressRequireAuth())
 ```
 
-> **Regra inviolável:** o servidor de tenant NUNCA confia no produto cegamente. Ele valida o JWT de forma independente.
+> **Regra inviolável:** o servidor de organização NUNCA confia no produto cegamente. Ele valida o JWT de forma independente. Clerk responde APENAS por autenticação — autorização vem do Prisma (Camada 3).
 
 ---
 
-## Camada 3 — Autorização
+## Camada 3 — Autorização (Banco = fonte única da verdade — Mandamento 01)
 
 **Proteção:** Mesmo autenticado, o usuário só acessa o que tem permissão.
 
 | Verificação | Quem faz |
 |:---|:---|
-| Tenant tem acesso ao produto? | Configurador (via API) |
-| User tem permissão para a ação? | Configurador (roles + permissions) |
-| User pertence a este tenant? | JWT contém tenant_id, verificado localmente |
+| Organização tem acesso ao produto? | Configurador (via API) |
+| User tem permissão (`tipo_usuario`) para a ação? | Configurador (Prisma — `GET /api/v1/me`) |
+| User pertence a esta organização? | JWT contém `id_organizacao`, validado contra Prisma |
 
 ```typescript
 // Produto verifica com o Configurador antes de agir
-const { allowed, role } = await fetch(
+const { allowed, tipo_usuario } = await fetch(
   `${CONFIGURATOR_URL}/api/check-access`,
   {
     headers: {
@@ -101,13 +102,13 @@ if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
 
 ---
 
-## Camada 4 — Isolamento de Dados (pós-pivô 2026-04-17)
+## Camada 4 — Isolamento de Organização (pós-pivô 2026-04-17)
 
-**Proteção:** Mesmo com auth e permissão, dados de um tenant nunca vazam para outro. Após o pivô Schema-per-Tenant ([ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md)), o isolamento é **físico via PostgreSQL `search_path`** — não mais lógico via `WHERE tenant_id = ?`.
+**Proteção:** Mesmo com auth e permissão, dados de uma organização nunca vazam para outra. Após o pivô Schema-per-Organização ([ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md)), o isolamento é **físico via PostgreSQL `search_path`** — não mais lógico via `WHERE id_organizacao = ?`.
 
 | Mecanismo | Camada | Função |
 |:---|:---|:---|
-| **Schema-per-Tenant** | Banco | 1 schema PostgreSQL por tenant (`tenant_<uuid>`). Tabelas de produto **não têm `tenant_id`** — o schema **é** o tenant. |
+| **Schema-per-Organização** | Banco | 1 schema PostgreSQL por organização (`tenant_<cuid>` — prefixo histórico mantido como identificador real). Tabelas de produto **não têm coluna de organização** — o schema **é** a organização. |
 | **`@gravity/tenant-resolver` SDK** | Código | Único ponto de acesso ao DB. `withTenant(req, async db => ...)` aplica `SET LOCAL search_path` dentro de `$transaction`. |
 | **PgBouncer transaction mode** | Pool | `SET LOCAL` morre no `COMMIT`/`ROLLBACK`. Pool leak é matematicamente impossível. |
 | **ESLint + CI lint** | Build | Bloqueia `import { PrismaClient } from '@prisma/client'` fora do SDK. |
@@ -116,12 +117,12 @@ if (!allowed) throw new AppError('Sem permissão', 403, 'FORBIDDEN')
 Ver skill `antigravity-tenant-isolation` (reescrita 2026-04-17) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) para implementação completa.
 
 **Regras críticas (pós-pivô):**
-- `tenantId` NUNCA vem do body — sempre de `req.tenant` (vem do `GET /api/me` do Configurador, **nunca** do `publicMetadata` do Clerk)
-- Acesso a banco de produto **exclusivamente** via `withTenant(req, async db => ...)` ou `withTenantContext(tenantId, fn)` para workers
+- O identificador de organização NUNCA vem do body — sempre de `req.tenant.tenantId` (API real do SDK, vem do `GET /api/v1/me` do Configurador, **nunca** do `publicMetadata` do Clerk — Mandamento 01)
+- Acesso a banco de produto **exclusivamente** via `withTenant(req, async db => ...)` ou `withTenantContext(idOrganizacao, fn)` para workers
 - `import { PrismaClient }` direto é **proibido** fora do SDK — linter CI bloqueia deploy
-- Tabelas de produto **NÃO** têm coluna `tenant_id` após Fase 4 da migração ([ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
-- Cache prefixado por `tenant:<id>:` ou `tenant:_global:` (com justificativa) — linter CI bloqueia chaves sem prefixo
-- Pre-signed URLs S3: `tenant_<id>/...` no caminho, TTL ≤ 300s
+- Tabelas de produto **NÃO** têm coluna de organização após Fase 4 da migração ([ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
+- Cache prefixado por `tenant:<id>:` ou `tenant:_global:` (prefixo real de chave Redis — com justificativa); linter CI bloqueia chaves sem prefixo
+- Pre-signed URLs S3: `tenant_<id>/...` no caminho (prefixo real de path S3), TTL ≤ 300s
 
 ---
 
@@ -131,14 +132,14 @@ Ver skill `antigravity-tenant-isolation` (reescrita 2026-04-17) e [ADR-002](../.
 
 | O que auditar | Dados registrados |
 |:---|:---|
-| Toda criação | who, what, when, tenant_id |
+| Toda criação | who, what, when, `id_organizacao` |
 | Toda alteração | who, what, old_value, new_value, when |
 | Toda deleção | who, what, deleted_data, when |
 | Tentativas de acesso negado | who, what_attempted, when |
 
 ```typescript
 // servicos-global/tenant/historico intercepta automaticamente
-// Middleware registrado no servidor de tenant
+// Middleware registrado no servidor de organização
 app.use(auditMiddleware({
   ignore: ['GET'], // Só audita mutações
   sensitiveFields: ['password', 'token', 'secret'],
@@ -162,19 +163,20 @@ app.use(auditMiddleware({
 - [ ] Token nunca logado ou exposto em response?
 
 ### Camada 3 — Autorização
+- [ ] `tipo_usuario` lido do Prisma via `GET /api/v1/me` — nunca do `publicMetadata` do Clerk (Mandamento 01)?
 - [ ] Verificação de permissão via Configurador?
-- [ ] Roles validadas antes de ações sensíveis?
 - [ ] Nenhum bypass de auth "para facilitar"?
+- [ ] Nenhum fallback silencioso `(data?.x?.y ?? null) as TipoUsuario` (Mandamento 08)?
 
 ### Camada 4 — Isolamento (pós-pivô 2026-04-17)
-- [ ] Acesso ao banco **exclusivamente** via `withTenant(req, ...)` ou `withTenantContext(tenantId, ...)` do `@gravity/tenant-resolver`?
+- [ ] Acesso ao banco **exclusivamente** via `withTenant(req, ...)` ou `withTenantContext(idOrganizacao, ...)` do `@gravity/tenant-resolver`?
 - [ ] Nenhum `import { PrismaClient } from '@prisma/client'` no código (exceto dentro do SDK)?
 - [ ] Nenhum `new PrismaClient(`?
-- [ ] Nenhum `WHERE tenant_id = ?` em queries de banco de produto (o schema **é** o tenant)?
-- [ ] `tenantId` lido de `req.tenant`, nunca do `publicMetadata` do Clerk?
+- [ ] Nenhum `WHERE id_organizacao = ?` em queries de banco de produto (o schema **é** a organização)?
+- [ ] Identificador de organização lido de `req.tenant.tenantId` (API real do SDK), nunca do `publicMetadata` do Clerk?
 - [ ] Toda chave de cache prefixada por `tenant:<id>:` ou `tenant:_global:` (com justificativa)?
 - [ ] Pre-signed URLs S3 com TTL ≤ 300s e `tenant_<id>/...` no caminho?
-- [ ] Teste anti-cross-tenant + teste de pool leak (`SET LOCAL` reset) implementados?
+- [ ] Teste anti-cross-organização + teste de pool leak (`SET LOCAL` reset) implementados?
 
 ### Camada 5 — Auditoria
 - [ ] Mutações registradas no histórico?

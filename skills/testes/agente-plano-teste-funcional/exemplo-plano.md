@@ -24,7 +24,7 @@
 
 ## Endpoints extraídos pelo agente
 
-| Método | Path | Auth | Body | Dados Tenant | Crítico |
+| Método | Path | Auth | Body | Dados de Organização | Crítico |
 |---|---|---|---|---|---|
 | `POST` | `/api/v1/assinaturas/subscribe` | ✅ | ✅ `subscribeSchema` | ✅ | ✅ |
 | `GET` | `/api/v1/assinaturas` | ✅ | ❌ | ✅ | ✅ |
@@ -54,12 +54,13 @@ function buildTestApp() {
 }
 ```
 
-**Setup no beforeEach:**
+**Setup no beforeEach (DDD — Mandamento 03):**
 ```typescript
 beforeEach(() => {
   vi.clearAllMocks()
   mockRequireAuth.mockImplementation((req, _res, next) => {
-    req.auth = { userId: 'usr_func_01', tenantId: 'ten_func_01', role: 'MASTER' }
+    // tipoUsuario vem do banco via /api/v1/me — nunca do publicMetadata (Mandamento 01)
+    req.auth = { idUsuario: 'usr_func_01', idOrganizacao: 'org_func_01', tipoUsuario: 'MASTER' }
     next()
   })
 })
@@ -79,7 +80,7 @@ beforeEach(() => {
 | 6 | Erro de servidor (500) | ✅ coberta | 2 |
 | 7 | Formato de erro canônico | ✅ coberta | aplicado em todos os erros |
 | 8 | Contrato de response (Zod) | ✅ coberta | 2 |
-| 9 | Isolamento cross-tenant (WHERE) | ✅ coberta | 2 |
+| 9 | Isolamento de Organização (WHERE) | ✅ coberta | 2 |
 | 10 | Inputs adversariais | ✅ coberta | 3 |
 | 11 | Idempotência | ✅ coberta | 1 |
 | 12 | Chamada cross-service | 🚫 não aplicável | — |
@@ -93,7 +94,7 @@ beforeEach(() => {
 
 ## Resumo executivo
 
-> **Rota de contratação de produto** para o tenant autenticado. Faz lookup do produto no catálogo (`produtoGravity.findFirst`) e upsert da config (`configuracaoProduto.upsert`). **Risco principal:** `tenant_id` deve vir de `req.auth`, nunca do body — caso de cross-tenant testado explicitamente. **Contrato DDD:** response tem `{ config, catalog }` — validado contra `subscribeResponseSchema`. **Zod real:** schema `subscribeSchema` roda no request sem mock. **Error handler real:** formato `{ error: { code, message } }` verificado em todos os casos de erro.
+> **Rota de contratação de produto** para a Organização autenticada. Faz lookup do produto no catálogo (`produtoGravity.findFirst`) e upsert da config (`configuracaoProduto.upsert`). **Risco principal:** o id da Organização (campo Prisma real `tenant_id`) deve vir de `req.auth.idOrganizacao`, nunca do body — caso de Isolamento de Organização testado explicitamente. **Contrato DDD:** response tem `{ config, catalog }` — validado contra `subscribeResponseSchema`. **Zod real:** schema `subscribeSchema` roda no request sem mock. **Error handler real:** formato `{ error: { code, message } }` verificado em todos os casos de erro.
 
 ---
 
@@ -123,12 +124,12 @@ beforeEach(() => {
     { "tipo": "bodyField", "campo": "config.product_key", "valor": "pedido" },
     { "tipo": "bodyField", "campo": "config.is_active", "valor": true },
     { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": {
-      "where.tenant_id_product_key.tenant_id": "ten_func_01",
+      "where.tenant_id_product_key.tenant_id": "org_func_01",
       "where.tenant_id_product_key.product_key": "pedido",
-      "create.tenant_id": "ten_func_01"
+      "create.tenant_id": "org_func_01"
     }}
   ],
-  "resultadoEsperado": "201 com config.product_key = 'pedido'; upsert chamado com tenant_id = ten_func_01 (de req.auth, não do body)",
+  "resultadoEsperado": "201 com config.product_key = 'pedido'; upsert chamado com campo Prisma tenant_id = org_func_01 (de req.auth.idOrganizacao, não do body)",
   "adversarial": false
 }
 ```
@@ -316,13 +317,13 @@ beforeEach(() => {
 }
 ```
 
-### Describe 6 — Isolamento Cross-Tenant
+### Describe 6 — Isolamento de Organização (Cross-Tenant)
 
 ```json
 {
   "id": "TST-FUN-CONFIG-ASSIN-000009",
   "numero": 9,
-  "descricao": "tenant_id do upsert vem sempre de req.auth — nunca do body",
+  "descricao": "campo Prisma tenant_id do upsert vem sempre de req.auth.idOrganizacao — nunca do body",
   "categoria": 9,
   "origem": "existente",
   "endpointTestado": "POST /api/v1/assinaturas/subscribe",
@@ -333,17 +334,17 @@ beforeEach(() => {
   "request": {
     "metodo": "POST",
     "path": "/api/v1/assinaturas/subscribe",
-    "body": { "product_key": "pedido", "tenant_id": "ten_MALICIOSO" },
-    "authInjetada": { "userId": "usr_func_01", "tenantId": "ten_func_01", "clerkUserId": "clerk_01", "role": "MASTER" }
+    "body": { "product_key": "pedido", "idOrganizacao": "org_MALICIOSA" },
+    "authInjetada": { "idUsuario": "usr_func_01", "idOrganizacao": "org_func_01", "clerkUserId": "clerk_01", "tipoUsuario": "MASTER" }
   },
   "assercoes": [
     { "tipo": "status", "valor": 201 },
-    { "tipo": "whereClause", "nomeMock": "mockConfigUpsert", "campo": "where.tenant_id_product_key.tenant_id", "valor": "ten_func_01" },
-    { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": { "create.tenant_id": "ten_func_01" } }
+    { "tipo": "whereClause", "nomeMock": "mockConfigUpsert", "campo": "where.tenant_id_product_key.tenant_id", "valor": "org_func_01" },
+    { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": { "create.tenant_id": "org_func_01" } }
   ],
-  "resultadoEsperado": "upsert usa ten_func_01 (de req.auth) — tenant_id: 'ten_MALICIOSO' do body é ignorado completamente",
+  "resultadoEsperado": "upsert usa org_func_01 (de req.auth.idOrganizacao) — idOrganizacao: 'org_MALICIOSA' do body é ignorado completamente",
   "adversarial": true,
-  "notas": "Este é o caso de cross-tenant mais crítico — injeção de tenant_id via body. Backend deve ignorar o campo."
+  "notas": "Caso de Isolamento de Organização mais crítico — injeção de idOrganizacao via body. Backend deve sempre usar o id do JWT (Mandamento 01) e gravar no campo Prisma real tenant_id."
 }
 ```
 
@@ -351,23 +352,23 @@ beforeEach(() => {
 {
   "id": "TST-FUN-CONFIG-ASSIN-000010",
   "numero": 10,
-  "descricao": "tenant B não vê assinaturas do tenant A no GET /api/v1/assinaturas",
+  "descricao": "Organização B não vê assinaturas da Organização A no GET /api/v1/assinaturas",
   "categoria": 9,
   "origem": "agente-adicionado",
   "endpointTestado": "GET /api/v1/assinaturas",
   "mockRetornos": [
-    { "nomeMock": "mockConfigFindMany", "retorno": "[{ tenant_id: 'ten_b', product_key: 'pedido' }]", "metodo": "mockResolvedValue" }
+    { "nomeMock": "mockConfigFindMany", "retorno": "[{ tenant_id: 'org_b', product_key: 'pedido' }]", "metodo": "mockResolvedValue" }
   ],
   "request": {
     "metodo": "GET",
     "path": "/api/v1/assinaturas",
-    "authInjetada": { "userId": "usr_b", "tenantId": "ten_b", "clerkUserId": "clerk_b", "role": "MASTER" }
+    "authInjetada": { "idUsuario": "usr_b", "idOrganizacao": "org_b", "clerkUserId": "clerk_b", "tipoUsuario": "MASTER" }
   },
   "assercoes": [
     { "tipo": "status", "valor": 200 },
-    { "tipo": "whereClause", "nomeMock": "mockConfigFindMany", "campo": "where.tenant_id", "valor": "ten_b" }
+    { "tipo": "whereClause", "nomeMock": "mockConfigFindMany", "campo": "where.tenant_id", "valor": "org_b" }
   ],
-  "resultadoEsperado": "findMany chamado com WHERE tenant_id = 'ten_b' — nunca 'ten_a'",
+  "resultadoEsperado": "findMany chamado com WHERE tenant_id = 'org_b' (campo Prisma real) — nunca 'org_a'",
   "adversarial": false
 }
 ```
@@ -511,7 +512,7 @@ beforeEach(() => {
   { "categoria": 6, "nome": "Erro de servidor (500)", "status": "coberta", "casosAssociados": [8] },
   { "categoria": 7, "nome": "Formato de erro canônico", "status": "coberta", "casosAssociados": [3, 6, 7, 8], "notas": "Verificado em todos os casos de erro via noStackTrace + errorCode" },
   { "categoria": 8, "nome": "Contrato de response (Zod)", "status": "coberta", "casosAssociados": [2] },
-  { "categoria": 9, "nome": "Isolamento cross-tenant (WHERE)", "status": "coberta", "casosAssociados": [9, 10] },
+  { "categoria": 9, "nome": "Isolamento de Organização (WHERE)", "status": "coberta", "casosAssociados": [9, 10] },
   { "categoria": 10, "nome": "Inputs adversariais", "status": "coberta", "casosAssociados": [11, 12, 13] },
   { "categoria": 11, "nome": "Idempotência", "status": "coberta", "casosAssociados": [14] },
   { "categoria": 12, "nome": "Chamada cross-service", "status": "nao_aplicavel", "justificativa": "Rota não chama serviços internos" },
@@ -529,7 +530,7 @@ beforeEach(() => {
 ## O que esse exemplo prova
 
 1. **Zod e error handler são reais** — casos 3, 4, 5 provam que a validação Zod está corretamente wired na rota. Mock da validação esconderia um bug de schema.
-2. **Cross-tenant detectado no WHERE, não só no status** — caso 9 verifica o argumento exato passado ao Prisma. Status 200 com WHERE errado é o bug mais silencioso da plataforma.
+2. **Isolamento de Organização detectado no WHERE, não só no status** — caso 9 verifica o argumento exato passado ao Prisma (campo real `tenant_id`). Status 200 com WHERE errado é o bug mais silencioso da plataforma.
 3. **Inputs adversariais são casos, não observações** — casos 11–13 têm request real e asserção de resultado esperado.
 4. **Stack trace nunca vaza** — `noStackTrace` em todo caso de erro, incluindo o 500 do Prisma.
 5. **Isolamento de mocks verificado** — caso 15 valida que `vi.clearAllMocks()` no `beforeEach` funciona corretamente.

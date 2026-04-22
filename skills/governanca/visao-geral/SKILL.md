@@ -7,7 +7,7 @@ description: "Use esta skill quando precisar entender o projeto Gravity como um 
 
 ## O que é o Gravity
 
-Gravity é uma plataforma multi-tenant SaaS B2B modular. Uma empresa assina a plataforma e passa a ter acesso a serviços compartilhados (email, atividades, dashboard, WhatsApp, cronômetro, etc.) e a produtos verticais especializados (como SimulaCusto, NF Importação). Cada produto usa os serviços compartilhados sem duplicar dados. Os dados do tenant existem uma vez — independente de quantos produtos ele contrate.
+Gravity é uma plataforma multi-organização SaaS B2B modular. Uma empresa (organização) assina a plataforma e passa a ter acesso a serviços compartilhados (email, atividades, dashboard, WhatsApp, cronômetro, etc.) e a produtos verticais especializados (como SimulaCusto, NF Importação). Cada produto usa os serviços compartilhados sem duplicar dados. Os dados da organização existem uma vez — independente de quantos produtos ela contrate.
 
 ---
 
@@ -45,12 +45,11 @@ Gravity é uma plataforma multi-tenant SaaS B2B modular. Uma empresa assina a pl
 | PostgreSQL | Banco de dados de todos os serviços |
 | Prisma | ORM — schemas por fragment, compose via script |
 
-### Autenticação e Billing
+### Autenticação
 
 | Tecnologia | Uso |
 |:---|:---|
-| Clerk | Autenticação de usuários e multi-tenant |
-| Stripe | Billing, planos e assinaturas |
+| Clerk | Autenticação APENAS (login, senha, e-mail, `clerk_user_id`) — Mandamento 01. Autorização vem do Prisma via `GET /api/v1/me`. |
 
 ### Integrações Externas
 
@@ -107,7 +106,7 @@ gravity/
 │   ├── produto/                ← templates reutilizáveis — dados ficam no produto
 │   │   └── helpdesk/
 │   │
-│   ├── configurador/           ← Clerk, Stripe, billing, permissões, Admin Panel
+│   ├── configurador/           ← Clerk (autenticação), permissões, Admin Panel
 │   ├── marketplace/            ← landing e catálogo de produtos (frontend puro)
 │   └── devops/                 ← CI/CD, scripts, infraestrutura
 │
@@ -124,7 +123,7 @@ gravity/
 
 ```typescript
 @nucleo/*   → nucleo-global/*
-@tenant/*   → servicos-global/tenant/*
+@tenant/*   → servicos-global/tenant/*       (alias técnico real — manter)
 @produto/*  → servicos-global/produto/*
 ```
 
@@ -139,7 +138,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Agente | O que constrói | Bloqueia |
 |:---|:---|:---|
 | 0A Esqueleto | Pastas, configs, `package.json` de todo o monorepo | Onda 2 inteira |
-| 0B Banco | Schema Prisma base, RLS, `withTenantIsolation` | Onda 2 Configurador + Onda 3 |
+| 0B Banco | Schema Prisma base, isolamento, SDK base | Onda 2 Configurador + Onda 3 |
 | Marketplace | Frontend do marketplace (100% estático) | Ninguém |
 
 ### Onda 2 — Base Reutilizável (3 agentes em paralelo)
@@ -148,11 +147,11 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 |:---|:---|:---|
 | 1A Núcleo UI | `TabelaGlobal`, `ModalGlobal`, `SelectGlobal`, utilitários | Onda 3 (componentes) |
 | 1B Shell | Layout, sidebar, header, `Navigation.tsx`, state global | Onda 3 (frontend dos serviços) |
-| Configurador | Clerk, Stripe, multi-tenant, billing, NF-e, permissões, Admin Panel | Onda 4 (Auth Flow) |
+| Configurador | Clerk (autenticação), multi-organização, NF-e, permissões via `tipo_usuario`, Admin Panel | Onda 4 (Auth Flow) |
 
 ### Onda 3 — Serviços em Paralelo (13 agentes)
 
-**Serviços de tenant (9):**
+**Serviços por organização (9):**
 `atividades` · `cronômetro` · `email` · `whatsapp` · `dashboard` · `relatórios` · `histórico` · `notificações` · `agendamento`
 
 **Serviços de produto (3):**
@@ -165,8 +164,8 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 
 | Agente | O que constrói |
 |:---|:---|
-| Proxy + Agregação | `createTenantProxy`, `enqueueTenantAction`, retry logic |
-| Auth Flow | JWT propagação, `GET /api/check-access` |
+| Proxy + Agregação | `createTenantProxy`, `enqueueOrgAction`, retry logic |
+| Auth Flow | JWT propagação, `GET /api/v1/me`, `GET /api/check-access` |
 | SimulaCusto | Primeiro produto real — consome todos os serviços da Onda 3 |
 | DevOps | Railway CI/CD, Vitest, Playwright, Sentry, UptimeRobot |
 
@@ -174,14 +173,14 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 
 ## As Duas Naturezas de Serviço
 
-### Serviço de Tenant
+### Serviço por Organização
 
-- Existe **uma vez por empresa**, independente de quantos produtos ela use
-- **Todos os 11 serviços rodam em processo único — super-servidor tenant (porta 3001)**
+- Existe **uma vez por empresa (organização)**, independente de quantos produtos ela use
+- **Todos os 11 serviços rodam em processo único — super-servidor por organização (porta 3001)**
 - Banco de dados próprio compartilhado entre os 11 serviços (`tenant-db`)
 - Acessado por todos os produtos via API REST (`/api/v1/[servico]` na porta 3001)
-- Dados filtrados por `tenant_id` e opcionalmente `product_id`
-- Todo model Prisma tem `tenant_id` obrigatório + 3 índices obrigatórios
+- Dados isolados por **Schema-per-Organização** (PostgreSQL `tenant_<cuid>`) e opcionalmente `id_produto`
+- Acesso ao banco exclusivamente via `withTenant`/`withTenantContext` do `@gravity/tenant-resolver`
 
 ### Serviço de Produto
 
@@ -196,28 +195,30 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 
 | Banco | Pertence a | Modelo | O que armazena |
 |:---|:---|:---|:---|
-| `configurador-db` | Configurador | single-schema `public` | Tenants, usuários, billing, permissões (fonte global) |
-| `tenant-db` | Serviços de tenant | **schema-per-tenant** (`tenant_<uuid>`) | Atividades, email, WhatsApp, dashboard, etc. |
-| `simulacusto-db`, `pedido-db`, `processo-db`, etc. | Cada produto | **schema-per-tenant** | Dados isolados em schema próprio por tenant |
+| `configurador-db` | Configurador | single-schema `public` | Organizações, Workspaces, Usuários, permissões (fonte global) |
+| `tenant-db` | Serviços por organização | **Schema-per-Organização** (`tenant_<cuid>`) | Atividades, email, WhatsApp, dashboard, etc. |
+| `simulacusto-db`, `pedido-db`, `processo-db`, etc. | Cada produto | **Schema-per-Organização** | Dados isolados em schema próprio por organização |
 
 **Regras:**
 - Nenhum produto compartilha banco com outro produto.
-- Cada banco de produto contém N schemas (1 por tenant), nomeados `tenant_<uuid_sem_hifens>`.
-- Provisionamento de schema dispara via evento `TenantProvisioned` do Configurador (worker + DLQ — ADR-003).
+- Cada banco de produto contém N schemas (1 por organização), nomeados `tenant_<cuid_sem_hifens>` (prefixo técnico real do PostgreSQL — manter).
+- Provisionamento de schema dispara via evento `OrganizacaoProvisionada` do Configurador (worker + DLQ).
 
 ---
 
-## Regras Arquiteturais Fundamentais (pós-pivô 2026-04-17)
+## Regras Arquiteturais Fundamentais (alinhadas aos 9 Mandamentos)
 
 > As regras completas estão nas skills específicas. Este é apenas o mapa de entrada.
 
-- **Imports:** serviços tenant/produto nunca importam código de outro serviço — só comunicam via API REST
-- **Schema:** **schema-per-tenant** em todos os bancos de produto — 1 schema PostgreSQL por tenant. Configurador permanece single-schema. Ver [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md).
-- **Acesso ao banco de produto:** **exclusivamente via `withTenant(req, db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient }` direto é proibido (linter CI bloqueia). Ver [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
-- **Validação:** nenhuma rota Express sem schema Zod
+- **Imports:** serviços por organização e produtos nunca importam código de outro serviço — só comunicam via API REST
+- **Schema:** **Schema-per-Organização** em todos os bancos de produto — 1 schema PostgreSQL por organização. Configurador permanece single-schema.
+- **Schema Prisma é INTOCÁVEL** (Mandamento 02): nenhum agente edita `schema.prisma` manualmente. Adeque o código ao schema.
+- **Acesso ao banco de produto:** **exclusivamente via `withTenant(req, db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient }` direto é proibido (linter CI bloqueia).
+- **Validação:** nenhuma rota Express sem schema Zod (Mandamento 06)
 - **Erros:** toda rota lança `AppError` — o handler global responde
-- **Auth:** JWT validado em toda rota protegida via `@clerk/backend`; `x-internal-key` em toda chamada entre serviços
-- **Identidade:** vem do `GET /api/me` do Configurador (cacheado pelo SDK), **nunca** do `publicMetadata` do Clerk
+- **Auth:** JWT validado em toda rota protegida via `@clerk/backend`; `x-internal-key` em toda chamada entre serviços. **Clerk APENAS para autenticação** (Mandamento 01).
+- **Autorização:** vem do Prisma via `GET /api/v1/me` (cacheado pelo SDK). PROIBIDO ler `publicMetadata.role` do Clerk para decidir permissões.
+- **DDD obrigatório** (Mandamento 03): payloads, props e variáveis usam `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `is_gravity_admin`.
 
 ---
 
@@ -226,15 +227,16 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Assunto | Skill |
 |:---|:---|
 | Visão geral antes de qualquer ação | `antigravity-visao-geral` ← você está aqui |
+| **9 Mandamentos (regras absolutas)** | `antigravity-9-mandamentos` |
 | Regras gerais de comportamento do agente | `antigravity-agent-policy` |
 | Ambiente de trabalho (porta, navegador) | `antigravity-ambiente` |
 | Padrões de código (TypeScript, Zod, AppError, naming) | `antigravity-code-standards` |
 | Schema Prisma, fragments, composição | `antigravity-schema-composition` |
-| Serviços tenant vs produto, estrutura de pastas | `antigravity-servicos-tenant` |
-| Isolamento de tenant (Schema-per-Tenant + SDK) | `antigravity-tenant-isolation` (reescrita 2026-04-17) |
+| Serviços por organização vs produto, estrutura de pastas | `antigravity-servicos-tenant` |
+| Isolamento de Organização (Schema-per-Organização + SDK) | `antigravity-tenant-isolation` |
 | Auth entre serviços (`x-internal-key`, JWT) | `antigravity-autenticacao-s2s` |
 | Ações cross-boundary entre serviços | `antigravity-cross-boundary` |
-| Permissões de usuário (roles, granulares, produtos) | `antigravity-permissoes` |
+| Permissões de usuário (`tipo_usuario`, granulares, produtos) | `antigravity-permissoes` |
 | Papel do Coordenador, checklists de onda | `antigravity-coordenador` |
 | Papel do Líder, distribuição de tarefas | `antigravity-lider` |
 | Revisão de qualidade pós-entrega | `antigravity-qa` |
@@ -244,7 +246,7 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Componentes globais (Tabela, Modal, Select) | `antigravity-nucleo-global` |
 | State management frontend | `antigravity-state-management` |
 | Marketplace (landing e catálogo) | `antigravity-marketplace` |
-| Configurador (Clerk, Stripe, permissões) | `antigravity-configurador` |
+| Configurador (Clerk autenticação, permissões) | `antigravity-configurador` |
 | Gabi (assistente de IA) | `antigravity-gabi` |
 | SimulaCusto (primeiro produto) | `antigravity-simulacusto` |
 | Testes unitários e funcionais | `antigravity-testes` |

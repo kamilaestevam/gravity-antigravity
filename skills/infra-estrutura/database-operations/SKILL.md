@@ -204,7 +204,7 @@ function gerarId(prefixo: string): string {
 
 ## Migrations
 
-### Fluxo obrigatório para bancos de produto (Schema-per-Tenant)
+### Fluxo obrigatório para bancos de produto (Schema-per-Organização)
 
 ```bash
 # 1. Gerar a migration localmente (desenvolvimento)
@@ -272,26 +272,26 @@ ALTER TABLE "tabela" ALTER COLUMN "coluna" TYPE JSONB USING to_jsonb("coluna");
 
 ## Índices Obrigatórios
 
-Toda tabela no DB tenant e produtos:
+Toda tabela no DB de organização (servicos-global) e produtos — campos Prisma em DDD; `@map` para a coluna física se necessário (ex.: `@map("tenant_id")` enquanto a coluna ainda existir no banco):
 
 ```prisma
-@@index([tenant_id])
-@@index([tenant_id, product_id])
-@@index([tenant_id, user_id])
+@@index([id_organizacao])
+@@index([id_organizacao, id_produto])
+@@index([id_organizacao, id_usuario])
 ```
 
 ### Índices compostos adicionais por padrão de query
 
 ```prisma
 // Se filtra por status frequentemente
-@@index([tenant_id, status])
+@@index([id_organizacao, status])
 
 // Se ordena por data frequentemente
-@@index([tenant_id, created_at])
+@@index([id_organizacao, created_at])
 
-// Unique constraints sempre incluem tenant_id
-@@unique([tenant_id, slug])
-@@unique([tenant_id, reference_number])
+// Unique constraints sempre incluem id_organizacao
+@@unique([id_organizacao, slug])
+@@unique([id_organizacao, reference_number])
 ```
 
 ---
@@ -329,10 +329,10 @@ Tabelas de alto volume que crescem indefinidamente:
 
 ```sql
 -- Exemplo: particionar audit_logs por mês
--- id TEXT (CUID) — nunca UUID; tenant_id TEXT (CUID do tenant)
+-- id TEXT (CUID) — nunca UUID; id_organizacao TEXT (CUID da organização)
 CREATE TABLE audit_logs (
   id TEXT PRIMARY KEY,
-  tenant_id TEXT NOT NULL,
+  id_organizacao TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL,
   ...
 ) PARTITION BY RANGE (created_at);
@@ -372,8 +372,8 @@ CREATE TABLE audit_logs_2026_01 PARTITION OF audit_logs
 - [ ] O SQL referencia schema fixo (`"pedido".`, `"processo".`)? Se sim, remover.
 - [ ] RENAME COLUMN ou ALTER TYPE está envolvido? Se sim, usar `DO $$ IF EXISTS`.
 - [ ] ALTER TYPE com cast envolve coluna com DEFAULT? Se sim, `DROP DEFAULT` primeiro.
-- [ ] Índices obrigatórios presentes (tenant_id, product_id, user_id)?
-- [ ] Unique constraints incluem tenant_id?
+- [ ] Índices obrigatórios presentes (`id_organizacao`, `id_produto`, `id_usuario` — DDD/Mandamento 03)?
+- [ ] Unique constraints incluem `id_organizacao`?
 
 **Antes de escrever código de acesso ao banco:**
 - [ ] Todo acesso ao banco usa `withTenant(req, fn)` ou `withTenantContext(tenantId, fn)`?

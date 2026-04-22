@@ -1,6 +1,6 @@
 ---
 name: antigravity-conector-erp
-description: "Use esta skill sempre que uma tarefa envolver o serviço de conector ERP/SAP da plataforma Gravity. Define o conector como serviço reutilizável em servicos-global/produto/conector-erp/ com três modos de entrada de dados: manual, planilha (CSV/Excel) e ERP via OData ou HANA direto. Cobre configuração de credenciais SAP pelo próprio cliente, isolamento multi-tenant com AES-256, tradução de linguagem natural para OData/SQL pela Gabi, entidades COMEX mapeadas (NCM, DI, LI, II, IPI, SISCOMEX), alertas inteligentes de LI/DI e geração de relatórios para Receita Federal."
+description: "Use esta skill sempre que uma tarefa envolver o serviço de conector ERP/SAP da plataforma Gravity. Define o conector como serviço reutilizável em servicos-global/produto/conector-erp/ com três modos de entrada de dados: manual, planilha (CSV/Excel) e ERP via OData ou HANA direto. Cobre configuração de credenciais SAP pelo próprio cliente, isolamento multi-organização com AES-256, tradução de linguagem natural para OData/SQL pela Gabi, entidades COMEX mapeadas (NCM, DI, LI, II, IPI, SISCOMEX), alertas inteligentes de LI/DI e geração de relatórios para Receita Federal."
 ---
 
 # Gravity — Conector ERP/SAP
@@ -145,8 +145,8 @@ export async function decrypt(encryptedText: string, key: string): Promise<strin
 ### Exemplo de Query OData (Movimentações de Material)
 
 ```typescript
-async function fetchGoodsMovements(tenantId: string, filters: { dateFrom: string; dateTo: string }) {
-  const creds = await getDecryptedCredentials(tenantId)
+async function fetchGoodsMovements(idOrganizacao: string, filters: { dateFrom: string; dateTo: string }) {
+  const creds = await getDecryptedCredentials(idOrganizacao)
 
   const params = new URLSearchParams({
     '$filter': `PostingDate ge '${filters.dateFrom}' and PostingDate le '${filters.dateTo}'`,
@@ -186,7 +186,7 @@ TERMINOLOGIA COMEX:
 - SISCOMEX: Sistema Integrado de Comércio Exterior
 
 REGRAS:
-- Sempre filtre por tenant_id para isolar os dados
+- Sempre filtre por id_organizacao para isolar os dados
 - Gere queries OData eficientes com $select
 - Datas no formato DD/MM/AAAA
 - Moeda em USD com símbolo
@@ -224,13 +224,13 @@ REGRAS:
 ```prisma
 model ErpConnection {
   id                    String    @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String    @map("tenant_id")
   product_id            String
-  system_type           String             // SAP | TOTVS | Oracle | custom
-  protocol              String             // odata | hana | rest | jdbc
+  system_type           String              // SAP | TOTVS | Oracle | custom
+  protocol              String              // odata | hana | rest | jdbc
   base_url              String
   username              String
-  credentials_encrypted String             // AES-256-GCM — nunca plain text
+  credentials_encrypted String              // AES-256-GCM — nunca plain text
   sync_frequency        String    @default("manual")  // manual | hourly | every6h | daily
   last_synced_at        DateTime?
   last_tested_at        DateTime?
@@ -239,12 +239,12 @@ model ErpConnection {
   created_at            DateTime  @default(now())
   updated_at            DateTime  @updatedAt
 
-  @@unique([tenant_id, product_id])
+  @@unique([id_organizacao, product_id])
 }
 
 model ErpSyncLog {
   id              String   @id @default(cuid())
-  tenant_id       String
+  id_organizacao  String   @map("tenant_id")
   product_id      String
   mode            String             // manual | planilha | erp | auto
   rows_processed  Int      @default(0)
@@ -256,43 +256,43 @@ model ErpSyncLog {
   status          String   @default("running")  // running | success | partial | failed
   triggered_by    String
 
-  @@index([tenant_id])
-  @@index([tenant_id, started_at])
+  @@index([id_organizacao])
+  @@index([id_organizacao, started_at])
 }
 
 model ErpQueryLog {
-  id             String   @id @default(cuid())
-  tenant_id      String
-  product_id     String
-  query_type     String             // odata | sql | rest
-  query_text     String
-  rows_returned  Int?
-  latency_ms     Int?
-  status         String             // success | error
-  error_message  String?
-  triggered_by   String             // user_id ou 'gabi'
-  created_at     DateTime @default(now())
+  id              String   @id @default(cuid())
+  id_organizacao  String   @map("tenant_id")
+  product_id      String
+  query_type      String             // odata | sql | rest
+  query_text      String
+  rows_returned   Int?
+  latency_ms      Int?
+  status          String             // success | error
+  error_message   String?
+  triggered_by    String             // id_usuario ou 'gabi'
+  created_at      DateTime @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, created_at])
+  @@index([id_organizacao])
+  @@index([id_organizacao, created_at])
 }
 
 model ErpAlert {
-  id           String    @id @default(cuid())
-  tenant_id    String
-  product_id   String
-  type         String             // li_expiring | di_delayed | etc.
-  title        String
-  description  String
-  severity     String    @default("warning")  // info | warning | critical
-  entity_id    String?
-  dismissed    Boolean   @default(false)
-  dismissed_at DateTime?
-  dismissed_by String?
-  created_at   DateTime  @default(now())
+  id              String    @id @default(cuid())
+  id_organizacao  String    @map("tenant_id")
+  product_id      String
+  type            String             // li_expiring | di_delayed | etc.
+  title           String
+  description     String
+  severity        String    @default("warning")  // info | warning | critical
+  entity_id       String?
+  dismissed       Boolean   @default(false)
+  dismissed_at    DateTime?
+  dismissed_by    String?
+  created_at      DateTime  @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, dismissed])
+  @@index([id_organizacao])
+  @@index([id_organizacao, dismissed])
 }
 ```
 
@@ -306,7 +306,7 @@ model ErpAlert {
 - [ ] OData como protocolo padrão + HANA direto como opção avançada?
 - [ ] Credenciais criptografadas AES-256-GCM — nunca plain text, nunca em logs?
 - [ ] Teste de conexão com feedback imediato (versão SAP + latência)?
-- [ ] Isolamento multi-tenant — cada cliente acessa apenas seu próprio SAP?
+- [ ] Isolamento multi-organização — cada cliente acessa apenas seu próprio SAP?
 - [ ] Gabi traduz linguagem natural para OData com terminologia COMEX?
 - [ ] System prompt com schema das entidades + glossário COMEX?
 - [ ] Entidades COMEX mapeadas: DI, LI, NCM, II, IPI, SISCOMEX?

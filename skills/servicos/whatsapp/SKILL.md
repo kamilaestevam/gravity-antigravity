@@ -7,9 +7,9 @@ description: "Use esta skill sempre que uma tarefa envolver o serviço de WhatsA
 
 ## O Que é Este Serviço
 
-Serviço de tenant — existe **uma vez por empresa**. Uma conversa por contato, não por produto.
+Serviço de organização — existe **uma vez por empresa**. Uma conversa por contato, não por produto.
 
-> **Princípio:** inbox unificada por tenant com rastreamento completo de cada conversa, análise de sentimento (temperatura) e respostas automáticas via Gabi.
+> **Princípio:** inbox unificada por organização com rastreamento completo de cada conversa, análise de sentimento (temperatura) e respostas automáticas via Gabi.
 
 ---
 
@@ -132,7 +132,7 @@ function validateWebhookSignature(rawBody: string, signature: string): boolean {
 
 ```
 Número recebido
-  → busca conversa 'open' do tenant
+  → busca conversa 'open' da organização
   → Achou → retorna conversa existente
   → Não achou → cria nova (temperatura: "neutra")
 ```
@@ -172,13 +172,13 @@ GET /api/v1/whatsapp/stream → text/event-stream
 ```prisma
 model WhatsAppConversation {
   id                      String    @id @default(cuid())
-  tenant_id               String
+  id_organizacao          String    @map("tenant_id")
   wa_phone_number         String
   status                  String    @default("open")
   contact_id              String?
-  company_id              String?
+  id_workspace            String?   @map("company_id")
   contact_nome            String?
-  company_nome            String?
+  workspace_nome          String?   @map("company_nome")
   activity_id             String?
   ai_enabled              Boolean   @default(false)
   opened_at               DateTime  @default(now())
@@ -188,14 +188,14 @@ model WhatsAppConversation {
   gabi_resumo             String?
   gabi_acoes_sugeridas    Json?
 
-  @@index([tenant_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, wa_phone_number])
+  @@index([id_organizacao])
+  @@index([id_organizacao, status])
+  @@index([id_organizacao, wa_phone_number])
 }
 
 model WhatsAppMessage {
   id              String   @id @default(cuid())
-  tenant_id       String
+  id_organizacao  String   @map("tenant_id")
   conversation_id String
   wa_message_id   String?  @unique
   direction       String
@@ -206,38 +206,38 @@ model WhatsAppMessage {
   status          String   @default("sent")
   created_at      DateTime @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, conversation_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, conversation_id])
   @@index([wa_message_id])
 }
 
 model WhatsAppUsageLog {
   id                    String   @id @default(cuid())
-  tenant_id             String
+  id_organizacao        String   @map("tenant_id")
   conversation_id       String?
-  company_id            String?
+  id_workspace          String?  @map("company_id")
   conversation_category String
   origin                String
   cost_usd              Decimal
   created_at            DateTime @default(now())
 
-  @@index([tenant_id])
+  @@index([id_organizacao])
 }
 
 model WhatsAppAutomation {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  name         String
-  trigger      String
-  conditions   Json?
-  template_id  String
-  recipient    String
-  active       Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  id_organizacao  String   @map("tenant_id")
+  name            String
+  trigger         String
+  conditions      Json?
+  template_id     String
+  recipient       String
+  active          Boolean  @default(true)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, active])
+  @@index([id_organizacao])
+  @@index([id_organizacao, active])
 }
 ```
 

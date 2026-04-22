@@ -79,13 +79,13 @@ O Tech Lead mantém conhecimento atualizado de todos os serviços do Gravity.
 
 | Serviço | O que faz | Endpoint | Quando Usar |
 |:---|:---|:---|:---|
-| Check Access | Verifica se tenant tem acesso ao produto | `GET /api/check-access` | Login, acesso a features premium |
-| User Info | Dados do usuário logado (Clerk) | Via JWT token | Header, perfil, permissões |
-| Billing | Status da assinatura (Stripe) | `GET /api/billing/status` | Limites de plano, upgrade prompts |
+| Check Access | Verifica se a organização tem acesso ao produto | `GET /api/check-access` | Login, acesso a features premium |
+| Me (fonte de verdade) | Dados do usuário logado (Prisma) — `id_usuario`, `tipo_usuario`, `id_organizacao`, `id_workspace`, `isGravityAdmin` | `GET /api/v1/me` (resposta validada com `meResponseSchema.parse()`) | Header, perfil, permissões — **NUNCA usar `publicMetadata` do Clerk** |
+| Billing | Status da assinatura (provedor de pagamento a definir) | `GET /api/billing/status` | Limites de plano, upgrade prompts |
 | Permissions | Permissões granulares do usuário | `GET /api/permissions` | Controle de acesso por feature |
-| Workspace | Dados do workspace/tenant | `GET /api/workspace` | Configurações da empresa |
+| Workspace | Dados do workspace da organização | `GET /api/workspace` | Configurações da organização |
 
-#### Serviços Tenant (1x por empresa)
+#### Serviços por Organização (1x por organização)
 
 | Serviço | O que faz | Quando Reutilizar |
 |:---|:---|:---|
@@ -174,7 +174,7 @@ produto/[nome-produto]/
     │   │   └── [recurso2].ts
     │   ├── middleware/
     │   │   ├── requireInternalKey.ts
-    │   │   └── tenantIsolation.ts
+    │   │   └── withTenant.ts          # SDK @gravity/tenant-resolver
     │   ├── services/
     │   │   └── [servicoX].ts
     │   ├── connectors/
@@ -182,35 +182,40 @@ produto/[nome-produto]/
     │   └── lib/
     │       └── [motorCalculo].ts
     ├── prisma/
-    │   ├── schema.base.prisma
-    │   ├── fragment.prisma
-    │   └── schema.prisma          # GERADO
+    │   ├── fragment.prisma          # ÚNICO arquivo editável pelo produto
+    │   └── schema.prisma            # GERADO — INTOCÁVEL (Mandamento 02)
     └── .env.example
 ```
 
+> **Mandamento 02:** `schema.prisma` é INTOCÁVEL pelo produto — apenas o Coordenador o regenera a partir dos `fragment.prisma` via script.
+
 ### Modelos de Dados (fragment.prisma)
+
+> **DDD:** o campo Prisma chama-se `id_organizacao` (e `id_usuario`); quando o schema atual ainda persistir colunas com nomes legados no banco, manter `@map("tenant_id")` / `@map("user_id")` para compatibilidade física.
+
 ```prisma
 model [Recurso1] {
-  id          String   @id @default(cuid())
-  tenant_id   String
+  id              String   @id @default(cuid())
+  id_organizacao  String   @map("tenant_id")
+  id_usuario      String?  @map("user_id")
   // campos do domínio
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, product_id])
+  @@index([id_organizacao, id_usuario])
 }
 ```
 
 ### Endpoints da API
 | Método | Endpoint | Descrição | Auth | Body (Zod) |
 |:---|:---|:---|:---|:---|
-| GET | `/api/v1/[recurso]` | Listar | S2S + tenant | query params |
-| GET | `/api/v1/[recurso]/:id` | Detalhar | S2S + tenant | — |
-| POST | `/api/v1/[recurso]` | Criar | S2S + tenant | [schema] |
-| PUT | `/api/v1/[recurso]/:id` | Atualizar | S2S + tenant | [schema] |
-| DELETE | `/api/v1/[recurso]/:id` | Excluir | S2S + tenant | — |
+| GET | `/api/v1/[recurso]` | Listar | S2S + organização (via SDK) | query params |
+| GET | `/api/v1/[recurso]/:id` | Detalhar | S2S + organização | — |
+| POST | `/api/v1/[recurso]` | Criar | S2S + organização | [schema] |
+| PUT | `/api/v1/[recurso]/:id` | Atualizar | S2S + organização | [schema] |
+| DELETE | `/api/v1/[recurso]/:id` | Excluir | S2S + organização | — |
 
 ### Integrações Externas
 | API | Finalidade | Auth | Rate Limit | Fallback |
@@ -232,7 +237,7 @@ export const PRODUCT_CONFIG = {
   color: '#[hex]',
   basePath: '/[path]',
   serverPort: [XXXX],
-  tenantServices: ['email', 'notifications', 'history'],
+  servicosOrganizacao: ['email', 'notifications', 'history'],
   navigation: [
     { label: '[Item 1]', path: '/[path-1]', icon: '[Icon1]', permission: '[perm]' },
     { label: '[Item 2]', path: '/[path-2]', icon: '[Icon2]', permission: '[perm]' },
@@ -248,8 +253,8 @@ Usuário → Client (React) → Server (Express)
                                 ↓
                      ┌──────────┼──────────┐
                      ↓          ↓          ↓
-              Configurador   Tenant     APIs Externas
-              (check-access) Services   (SISCOMEX, etc.)
+              Configurador   Serviços por      APIs Externas
+              (check-access) Organização       (SISCOMEX, etc.)
 ```
 ```
 
@@ -331,16 +336,20 @@ Todo novo produto DEVE seguir as regras de segurança do Gravity. O Tech Lead va
 
 ### Checklist de Segurança por Produto
 
-- [ ] Todo model Prisma tem `tenant_id` obrigatório?
-- [ ] Todo endpoint tem validação Zod?
-- [ ] `tenantIsolationMiddleware` está no server?
+- [ ] Todo model Prisma tem `id_organizacao` obrigatório (com `@map("tenant_id")` quando aplicável)?
+- [ ] Todo endpoint tem validação Zod (request E response — Mandamento 06)?
+- [ ] Toda query roda dentro de `withTenant` / `withTenantContext` do SDK `@gravity/tenant-resolver`?
 - [ ] `requireInternalKey` protege chamadas S2S?
-- [ ] JWT é validado em rotas protegidas?
-- [ ] Nenhuma query sem filtro por `tenant_id`?
+- [ ] JWT do Clerk é validado em rotas protegidas (apenas autenticação — Mandamento 01)?
+- [ ] Autorização (`tipo_usuario`, `isGravityAdmin`, permissões) vem **somente** do Prisma via `/api/v1/me`?
+- [ ] Nenhum acesso a `publicMetadata` para ler papel/permissão/organização?
+- [ ] Nenhuma query sem contexto de organização?
 - [ ] Health check sem autenticação em `/health`?
 - [ ] Nenhum `console.log` com dados sensíveis?
 - [ ] Variáveis de ambiente via `process.env`, nunca hardcoded?
 - [ ] Erros via `AppError`, nunca `res.status().json()` direto?
+- [ ] Sem fallback silencioso em autorização (Mandamento 08)?
+- [ ] `schema.prisma` permanece intocável (apenas `fragment.prisma` editado — Mandamento 02)?
 
 ---
 

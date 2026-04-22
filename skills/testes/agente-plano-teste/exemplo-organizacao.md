@@ -43,7 +43,7 @@
 | 12 | Filtros / busca | 0 — não aplicável (tela tem 1 registro) | — | 0 (justificado) |
 | 13 | Ordenação | 0 — não aplicável | — | 0 (justificado) |
 | 14 | Permissões / RBAC | 0 | **+6** (USER read-only, ADMIN edita, SUPER deleta tudo) | 6 |
-| 15 | Multi-tenant | 0 | **+4** (tipo CRO — vai pro testes-cross-tenant) | 4 |
+| 15 | Multi-organização | 0 | **+4** (tipo CRO — vai pro testes-cross-tenant) | 4 |
 | 16 | Acessibilidade | 0 | **+6** (Tab nav, focus visível, aria-label, contraste) | 6 |
 | 17 | Responsividade | 0 | **+4** (375, 768, 1280, dark mode) | 4 |
 | 18 | Internacionalização | 0 | **+4** (PT/EN, formatos data/moeda) | 4 |
@@ -60,7 +60,7 @@
 
 ## Resumo executivo gerado pelo agente
 
-> **Tela de edição da organização do tenant.** Permite alterar dados básicos da empresa (nome, CNPJ, estado, cidade, segmento, tipo) e definir o workspace padrão. **Risco principal:** vazamento de CNPJ ou edição não-autorizada entre tenants — por isso a categoria 15 (cross-tenant) tem 4 passos dedicados em `testes-cross-tenant`. **Cobertura: 18/20** — categorias 6 (Create) e 7 (Delete) marcadas como não-aplicáveis porque a organização é única por tenant e seu ciclo de vida é gerenciado pelo onboarding/cancelamento, não por esta tela. **Criticidade: alta** porque é a porta de entrada para configuração de qualquer tenant — quebra aqui bloqueia todo o resto. **Ambientes:** Local, Staging, Produção (3 obrigatórios). Plano preserva os 63 passos do PDF original do dono e adiciona 59 passos cobrindo validações, RBAC, a11y, i18n, performance e estados.
+> **Tela de edição da Organização.** Permite alterar dados básicos da empresa (nome, CNPJ, estado, cidade, segmento, tipo) e definir o Workspace padrão. **Risco principal:** vazamento de CNPJ ou edição não-autorizada entre Organizações — por isso a categoria 15 (Isolamento de Organização) tem 4 passos dedicados em `testes-cross-tenant` (nome de pasta legado preservado). **Cobertura: 18/20** — categorias 6 (Create) e 7 (Delete) marcadas como não-aplicáveis porque a Organização é única e seu ciclo de vida é gerenciado pelo onboarding/cancelamento, não por esta tela. **Criticidade: alta** porque é a porta de entrada para configuração de qualquer Organização — quebra aqui bloqueia todo o resto. **Ambientes:** Local, Staging, Produção (3 obrigatórios). Plano preserva os 63 passos do PDF original do dono e adiciona 59 passos cobrindo validações, permissões via `tipo_usuario`, a11y, i18n, performance e estados.
 
 ---
 
@@ -237,29 +237,29 @@
 ```json
 {
   "numero": 105,
-  "acao": "Logar como USER e tentar editar Nome da Empresa",
+  "acao": "Logar como USUARIO e tentar editar Nome da Empresa",
   "categoria": 14,
   "origem": "agente-adicionado",
-  "preCondicoes": ["Usuário com role USER (não ADMIN)"],
-  "interacao": { "tipo": "setRole", "role": "USER" },
+  "preCondicoes": ["Usuário com tipo_usuario USUARIO (não ADMIN), lido de /api/v1/me"],
+  "interacao": { "tipo": "setTipoUsuario", "tipoUsuario": "USUARIO" },
   "assercao": { "tipo": "disabled", "testid": "input-nome-empresa" },
-  "resultadoEsperado": "Campo Nome aparece como read-only para role USER",
-  "screenshot": "40_user_readonly",
+  "resultadoEsperado": "Campo Nome aparece como read-only para tipo_usuario USUARIO",
+  "screenshot": "40_usuario_readonly",
   "tiposAplicaveis": ["E2E", "FUN"]
 }
 ```
 
-### Categoria 15 — Multi-tenant (vai pro testes-cross-tenant)
+### Categoria 15 — Multi-organização (vai pro testes-cross-tenant)
 
 ```json
 {
   "numero": 111,
-  "acao": "Tenant B tenta GET /api/organizacao com ID do Tenant A",
+  "acao": "Organização B tenta GET /api/organizacao com ID da Organização A",
   "categoria": 15,
   "origem": "agente-adicionado",
-  "preCondicoes": ["2 tenants criados via fixtures de cross-tenant"],
+  "preCondicoes": ["2 Organizações criadas via fixtures de cross-tenant"],
   "interacao": { "tipo": "verificacao" },
-  "assercao": { "tipo": "apiResponse", "rota": "/api/organizacao/{idTenantA}", "status": 404 },
+  "assercao": { "tipo": "apiResponse", "rota": "/api/organizacao/{idOrganizacaoA}", "status": 404 },
   "resultadoEsperado": "404 — finge que não existe (não 403, pra não vazar existência)",
   "screenshot": null,
   "tiposAplicaveis": ["CRO"]
@@ -309,7 +309,7 @@
   { "categoria": 3,  "nome": "Navegação lateral",           "status": "coberta",       "passosAssociados": [7,8,9,10,11,12,65,66] },
   { "categoria": 4,  "nome": "Read / Listagem",             "status": "coberta",       "passosAssociados": [16,22,29,36,43,50,57,67,68,69,70,71] },
   { "categoria": 5,  "nome": "Update / Edição",             "status": "coberta",       "passosAssociados": [16,17,18,19,20,21,/* ... 35 passos ... */,86,87,88] },
-  { "categoria": 6,  "nome": "Create / Criação",            "status": "nao_aplicavel", "justificativa": "Organização é única por tenant — criação acontece via fluxo de onboarding (TST-E2E-CONFIG-000010)" },
+  { "categoria": 6,  "nome": "Create / Criação",            "status": "nao_aplicavel", "justificativa": "Organização é única — criação acontece via fluxo de onboarding (TST-E2E-CONFIG-000010)" },
   { "categoria": 7,  "nome": "Delete / Exclusão",           "status": "nao_aplicavel", "justificativa": "Organização não pode ser deletada via UI — só via cancelamento de assinatura (TST-E2E-CONFIG-000011)" },
   { "categoria": 8,  "nome": "Validações de campo",         "status": "coberta",       "passosAssociados": [89,90,91,92,93,94,95,96,97,98] },
   { "categoria": 9,  "nome": "Estados de erro",             "status": "coberta",       "passosAssociados": [99,100,101,102,103,104] },
@@ -318,7 +318,7 @@
   { "categoria": 12, "nome": "Filtros e busca",             "status": "nao_aplicavel", "justificativa": "Tela mostra 1 registro único — não há listagem para filtrar" },
   { "categoria": 13, "nome": "Ordenação",                   "status": "nao_aplicavel", "justificativa": "Sem listagem para ordenar" },
   { "categoria": 14, "nome": "Permissões / RBAC",           "status": "coberta",       "passosAssociados": [109,110,111,112,113,114] },
-  { "categoria": 15, "nome": "Multi-tenant / isolamento",   "status": "coberta",       "passosAssociados": [115,116,117,118], "notas": "Migra para testes-cross-tenant via tiposAplicaveis: CRO" },
+  { "categoria": 15, "nome": "Multi-organização / isolamento", "status": "coberta",     "passosAssociados": [115,116,117,118], "notas": "Migra para testes-cross-tenant via tiposAplicaveis: CRO" },
   { "categoria": 16, "nome": "Acessibilidade",              "status": "coberta",       "passosAssociados": [119,120,121,122,123,124] },
   { "categoria": 17, "nome": "Responsividade",              "status": "coberta",       "passosAssociados": [125,126,127,128] },
   { "categoria": 18, "nome": "Internacionalização",         "status": "coberta",       "passosAssociados": [129,130,131,132] },

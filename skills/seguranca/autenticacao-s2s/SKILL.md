@@ -1,6 +1,6 @@
 ---
 name: antigravity-autenticacao-s2s
-description: "Use esta skill sempre que uma tarefa envolver comunicação service-to-service (S2S) — produto chamando serviço de tenant, serviço de tenant chamando Configurador, ou qualquer requisição entre serviços. Define os dois fluxos de autenticação (JWT Síncrono e Machine Token Assíncrono), quando usar cada um, como propagar o x-internal-key, validação JWT independente, proxy de tenant, a ordem dos middlewares e idempotência. Todo agente consulta esta skill antes de escrever qualquer chamada entre serviços."
+description: "Use esta skill sempre que uma tarefa envolver comunicação service-to-service (S2S) — produto chamando serviço de organização, serviço de organização chamando Configurador, ou qualquer requisição entre serviços. Define os dois fluxos de autenticação (JWT Síncrono e Machine Token Assíncrono), quando usar cada um, como propagar o x-internal-key, validação JWT independente, proxy de organização, a ordem dos middlewares e idempotência. Todo agente consulta esta skill antes de escrever qualquer chamada entre serviços."
 ---
 
 # Gravity — Autenticação S2S (Service-to-Service)
@@ -56,8 +56,8 @@ Usado para ações assíncronas, cron jobs e retries onde o JWT do usuário pode
 ```typescript
 // Gerando um service token para ação assíncrona
 async function getServiceToken(
-  tenantId: string,
-  userId: string
+  idOrganizacao: string,
+  idUsuario: string
 ): Promise<string> {
   // O Configurador emite tokens de serviço com vida longa
   const response = await fetch(
@@ -68,7 +68,7 @@ async function getServiceToken(
         'x-internal-key': process.env.INTERNAL_SERVICE_KEY!,
         'Content-Type':   'application/json'
       },
-      body: JSON.stringify({ tenantId, userId, scope: 'service' })
+      body: JSON.stringify({ id_organizacao: idOrganizacao, id_usuario: idUsuario, scope: 'service' })
     }
   )
   const { token } = await response.json()
@@ -78,12 +78,12 @@ async function getServiceToken(
 // Usando o service token em chamada assíncrona
 async function callTenantServiceAsync(
   endpoint: string,
-  tenantId: string,
-  userId: string,
+  idOrganizacao: string,
+  idUsuario: string,
   body: unknown,
   idempotencyKey: string
 ) {
-  const serviceToken = await getServiceToken(tenantId, userId)
+  const serviceToken = await getServiceToken(idOrganizacao, idUsuario)
 
   return fetch(`${process.env.TENANT_SERVICES_URL}${endpoint}`, {
     method: 'POST',

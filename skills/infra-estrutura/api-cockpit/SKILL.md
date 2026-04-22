@@ -104,7 +104,7 @@ Eventos:
 
 ## Parte 2 — Central de APIs (Configurador)
 
-No Configurador, o tenant vê todas as APIs de todos os produtos em uma única tela:
+No Configurador, a organização vê todas as APIs de todos os produtos em uma única tela:
 
 | Produto | Base URL | Status |
 |:---|:---|:---|
@@ -129,18 +129,18 @@ Para produtos que precisam se conectar ao sistema do cliente (SAP, ERP, WMS, etc
 
 ```typescript
 // Credenciais NUNCA em plain text no banco — AES-256-GCM
-async function saveCredentials(tenantId: string, creds: ErpCredentials) {
+async function saveCredentials(idOrganizacao: string, creds: ErpCredentials) {
   const encrypted = await encrypt(JSON.stringify(creds), process.env.ENCRYPTION_KEY!)
   await prisma.erpConnection.upsert({
-    where:  { tenant_id: tenantId },
-    create: { tenant_id: tenantId, credentials_encrypted: encrypted },
+    where:  { id_organizacao: idOrganizacao },
+    create: { id_organizacao: idOrganizacao, credentials_encrypted: encrypted },
     update: { credentials_encrypted: encrypted }
   })
 }
 
 // Descriptografado apenas no momento da query — nunca exposto
-async function executeErpQuery(tenantId: string, query: string) {
-  const conn = await prisma.erpConnection.findUnique({ where: { tenant_id: tenantId } })
+async function executeErpQuery(idOrganizacao: string, query: string) {
+  const conn = await prisma.erpConnection.findUnique({ where: { id_organizacao: idOrganizacao } })
   const creds = JSON.parse(await decrypt(conn.credentials_encrypted, process.env.ENCRYPTION_KEY!))
   return await fetchOData(creds.baseUrl, creds.username, creds.password, query)
 }
@@ -169,7 +169,7 @@ GET    /api/v1/cockpit/tokens              ← listar tokens
 POST   /api/v1/cockpit/tokens              ← gerar token
 DELETE /api/v1/cockpit/tokens/:id          ← revogar token
 GET    /api/v1/cockpit/docs                ← OpenAPI JSON
-GET    /api/v1/cockpit/usage               ← consumo do tenant
+GET    /api/v1/cockpit/usage               ← consumo da organização
 GET    /api/v1/cockpit/webhooks            ← listar webhooks
 POST   /api/v1/cockpit/webhooks            ← criar webhook
 PUT    /api/v1/cockpit/webhooks/:id        ← atualizar webhook

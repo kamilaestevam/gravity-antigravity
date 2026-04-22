@@ -233,10 +233,10 @@ Então [apenas dados do tenant A são exibidos/afetados]
 | Serviço | Tipo | Como Usar | Endpoint | O que Retorna |
 |:---|:---|:---|:---|:---|
 | Configurador | Auth | Validar acesso ao produto | `GET /api/check-access` | `{ hasAccess, plan, permissions }` |
-| Email | Tenant | Enviar notificações | `POST /api/v1/email/send` | `{ id, status }` |
-| Dashboard | Tenant | Exibir KPIs | Widget API | `{ widgets, data }` |
-| Notificações | Tenant | Alertas in-app | `POST /api/v1/notifications` | `{ id }` |
-| Histórico | Tenant | Audit trail | `POST /api/v1/history/log` | `{ id }` |
+| Email | Por Organização | Enviar notificações | `POST /api/v1/email/send` | `{ id, status }` |
+| Dashboard | Por Organização | Exibir KPIs | Widget API | `{ widgets, data }` |
+| Notificações | Por Organização | Alertas in-app | `POST /api/v1/notifications` | `{ id }` |
+| Histórico | Por Organização | Audit trail | `POST /api/v1/history/log` | `{ id }` |
 
 ### APIs Externas (Integrar)
 
@@ -269,7 +269,7 @@ Usuário → Client → Server → [DB do Produto]
                        ↓
                  Configurador ← (check-access)
                        ↓
-                 Serviços Tenant ← (email, notificação, histórico)
+                 Serviços por Organização ← (email, notificação, histórico)
                        ↓
                  APIs Externas ← (SISCOMEX, BACEN, etc.)
 ```

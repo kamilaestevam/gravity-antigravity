@@ -139,17 +139,18 @@ app.use((err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
 // ✅ 2. Middleware de contexto de teste — NUNCA (req as any)
 type AppRequest = Request & {
   prisma: unknown
-  tenantId: string
-  companyId: string
-  userId: string
+  idOrganizacao: string
+  idWorkspace: string
+  idUsuario: string
 }
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
   const appReq = req as AppRequest  // assertion para tipo mais específico, não any
   appReq.prisma = prismaMock
-  appReq.tenantId = (req.headers['x-tenant-id'] as string) ?? 'tenant-test'
-  appReq.companyId = (req.headers['x-company-id'] as string) ?? 'company-test'
-  appReq.userId = (req.headers['x-user-id'] as string) ?? 'user-test'
+  // Headers HTTP mantêm nomes históricos por compatibilidade de protocolo
+  appReq.idOrganizacao = (req.headers['x-tenant-id'] as string) ?? 'org-test'
+  appReq.idWorkspace = (req.headers['x-workspace-id'] as string) ?? 'workspace-test'
+  appReq.idUsuario = (req.headers['x-user-id'] as string) ?? 'user-test'
   next()
 })
 
@@ -166,8 +167,8 @@ interface StatusItem { id: string; nome: string; ordem: number }
 const ordens = (res.body.data as StatusItem[]).map(s => s.ordem)
 
 // ✅ 5. Mock com where tipado — NUNCA (args: any)
-findMany: vi.fn().mockImplementation((args: { where?: { tenant_id?: string; id?: string } }) => {
-  return args.where?.tenant_id === 'tenant-001' ? mockData : []
+findMany: vi.fn().mockImplementation((args: { where?: { id_organizacao?: string; id?: string } }) => {
+  return args.where?.id_organizacao === 'org-001' ? mockData : []
 })
 
 // ✅ 6. Record de mock — NUNCA Record<string, any>
@@ -341,13 +342,13 @@ describe('formatarCNPJ', () => {
 ### O que testar
 - Toda rota da API — com Prisma mockado via `vi.hoisted()` ou com banco real, conforme o módulo
 - **Configurador**: Prisma mockado (nenhum banco de teste disponível em CI) — ver padrão abaixo
-- Middleware de tenant isolation — tentativa de acesso cross-tenant obrigatória
+- Middleware de isolamento de organização — tentativa de acesso cross-organização obrigatória
 - Fluxos de negócio completos no backend
 - Autenticação e autorização: token válido, inválido, expirado, sem permissão
 - Composição de schema — fragment compila e gera models corretos
 
 ### Cobertura obrigatória
-- Rotas críticas (auth, financeiro, tenant isolation): **100%**
+- Rotas críticas (auth, financeiro, isolamento de organização): **100%**
 - Demais rotas: mínimo **70%**
 - Nenhuma rota sobe para a onda seguinte sem teste funcional correspondente
 
@@ -538,7 +539,7 @@ test('modal de criação aberto', async ({ page }) => {
 
 ## Contract Tests — Zod
 
-Cada serviço de tenant exporta os schemas Zod dos seus endpoints. O mesmo schema que valida a rota serve como contrato da API. O CI valida que os contratos não foram quebrados antes do merge.
+Cada serviço da organização exporta os schemas Zod dos seus endpoints. O mesmo schema que valida a rota serve como contrato da API. O CI valida que os contratos não foram quebrados antes do merge.
 
 ```typescript
 // servicos-global/tenant/atividades/server/schemas.ts
@@ -548,13 +549,13 @@ export const createActivitySchema = z.object({
   title: z.string().min(1).max(200),
   status: z.enum(['PENDING', 'IN_PROGRESS', 'DONE']),
   due_date: z.string().datetime().optional(),
-  user_id: z.string().cuid(),
-  product_id: z.string().optional(),
+  id_usuario: z.string().cuid(),
+  id_produto: z.string().optional(),
 })
 
 export const activityResponseSchema = z.object({
   id: z.string().cuid(),
-  tenant_id: z.string(),
+  id_organizacao: z.string(),
   title: z.string(),
   status: z.string(),
   created_at: z.string().datetime(),
@@ -590,13 +591,13 @@ Cada serviço exporta schemas Zod que funcionam como **contratos da API**. O CI 
 export const createActivityContract = z.object({
   title: z.string().min(1).max(200),
   status: z.enum(['PENDING', 'IN_PROGRESS', 'DONE']),
-  user_id: z.string().cuid(),
-  product_id: z.string().optional(),
+  id_usuario: z.string().cuid(),
+  id_produto: z.string().optional(),
 })
 
 export const activityResponseContract = z.object({
   id: z.string().cuid(),
-  tenant_id: z.string(),
+  id_organizacao: z.string(),
   title: z.string(),
   status: z.string(),
   created_at: z.string().datetime(),
@@ -631,7 +632,7 @@ contract-check:
 - [ ] Testes unitários cobrem funções puras e componentes?
 - [ ] Cobertura unitária atinge o mínimo (80% nucleo, 70% demais)?
 - [ ] Testes funcionais cobrem todas as rotas?
-- [ ] Teste de cross-tenant implementado para serviços de tenant?
+- [ ] Teste de isolamento cross-organização implementado para serviços da organização?
 - [ ] Banco de teste limpo após cada suite funcional?
 - [ ] Todos os testes passam sem warnings?
 - [ ] Schemas Zod exportados como contratos de API?

@@ -1,6 +1,6 @@
 ---
 name: antigravity-caching-strategy
-description: "Use esta skill para implementar estratégia de cache. Define quando usar cache, TTL por tipo de dado, invalidação, Redis vs in-memory e padrões de implementação. Consultada pelo Backend e Estrutura de Dados ao otimizar performance para atingir 200ms/50k req."
+description: "Use esta skill para implementar estratégia de cache. Define quando usar cache, TTL por tipo de dado, invalidação, Redis vs in-memory, isolamento por organização e padrões de implementação. Consultada pelo Backend e Estrutura de Dados ao otimizar performance para atingir 200ms/50k req."
 ---
 
 # Gravity — Caching Strategy
@@ -16,7 +16,7 @@ Para atingir **200ms com 50k requisições simultâneas**, muitas queries precis
 | Dado | Cachear? | Razão |
 |:---|:---|:---|
 | Lista de produtos do catálogo | Sim | Muda raramente, consultado frequentemente |
-| Permissões do tenant | Sim | Verificado em toda request, muda pouco |
+| Permissões da organização | Sim | Verificado em toda request, muda pouco |
 | Dashboard KPIs | Sim | Cálculo pesado, tolerância de 5min |
 | Alíquotas fiscais (NCM) | Sim | Dados externos, cache com TTL longo |
 | Cotação individual | Não | Muda frequentemente, precisa ser real-time |
@@ -57,7 +57,7 @@ export function memInvalidate(pattern: string): void {
 }
 ```
 
-**Quando usar:** dados globais (não por tenant), instância única, cache < 1000 entries.
+**Quando usar:** dados globais (não por organização), instância única, cache < 1000 entries.
 
 ### Camada 2 — Redis (Fase 3)
 
@@ -84,7 +84,7 @@ export async function redisInvalidate(pattern: string): Promise<void> {
 }
 ```
 
-**Quando usar:** cache por tenant, múltiplas instâncias, cache > 1000 entries.
+**Quando usar:** cache por organização, múltiplas instâncias, cache > 1000 entries.
 
 ---
 
@@ -93,8 +93,9 @@ export async function redisInvalidate(pattern: string): Promise<void> {
 | Dado | TTL | Cache Layer | Invalidação |
 |:---|:---|:---|:---|
 | Catálogo de produtos | 1 hora | Redis | Ao criar/editar produto |
-| Permissões do tenant | 5 min | Redis | Ao alterar permissão |
+| Permissões da organização | 5 min | Redis | Ao alterar permissão |
 | Dashboard KPIs | 5 min | Redis | Ao fechar período |
+
 | Alíquotas fiscais (NCM) | 24 horas | Redis | Ao atualizar base |
 | PTAX (câmbio) | 1 hora | Redis | Ao atualizar cotação |
 | Config do produto | 10 min | Memory | Ao alterar config |
@@ -106,15 +107,15 @@ export async function redisInvalidate(pattern: string): Promise<void> {
 
 ```typescript
 // Padrão obrigatório para todo uso de cache
-async function getDashboardKpis(tenantId: string): Promise<KPIs> {
-  const cacheKey = `dashboard:kpis:${tenantId}`
+async function getDashboardKpis(idOrganizacao: string): Promise<KPIs> {
+  const cacheKey = `dashboard:kpis:${idOrganizacao}`
 
   // 1. Tentar cache primeiro
   const cached = await redisGet<KPIs>(cacheKey)
   if (cached) return cached
 
   // 2. Se miss, buscar no banco
-  const kpis = await calculateKpis(tenantId)
+  const kpis = await calculateKpis(idOrganizacao)
 
   // 3. Salvar no cache
   await redisSet(cacheKey, kpis, 300) // 5 min
@@ -135,8 +136,8 @@ async function createCotacao(data: CotacaoInput) {
   const cotacao = await prisma.cotacao.create({ data })
 
   // Invalidar cache relacionado
-  await redisInvalidate(`dashboard:kpis:${data.tenant_id}`)
-  await redisInvalidate(`cotacoes:count:${data.tenant_id}`)
+  await redisInvalidate(`dashboard:kpis:${data.id_organizacao}`)
+  await redisInvalidate(`cotacoes:count:${data.id_organizacao}`)
 
   return cotacao
 }
@@ -148,19 +149,19 @@ Se a invalidação por evento falhar, o TTL garante que o cache expira naturalme
 
 ---
 
-## Cache e Tenant Isolation
+## Cache e Isolamento de Organização
 
-**REGRA CRÍTICA:** toda chave de cache DEVE incluir `tenant_id`.
+**REGRA CRÍTICA:** toda chave de cache DEVE incluir `id_organizacao`.
 
 ```typescript
-// ✅ correto — cache isolado por tenant
-const key = `dashboard:kpis:${tenantId}`
+// ✅ correto — cache isolado por organização
+const key = `dashboard:kpis:${idOrganizacao}`
 
-// ❌ PROIBIDO — cache compartilhado entre tenants
+// ❌ PROIBIDO — cache compartilhado entre organizações
 const key = `dashboard:kpis`
 ```
 
-> Vazamento de cache entre tenants é uma **vulnerabilidade de segurança**.
+> Vazamento de cache entre organizações é uma **vulnerabilidade de segurança**.
 
 ---
 
@@ -168,7 +169,7 @@ const key = `dashboard:kpis`
 
 - [ ] Dado realmente precisa de cache? (lido muito, escrito pouco?)
 - [ ] TTL definido e adequado?
-- [ ] Chave inclui tenant_id?
+- [ ] Chave inclui `id_organizacao`?
 - [ ] Invalidação por evento implementada?
 - [ ] TTL como fallback de invalidação?
 - [ ] Cache layer correto (memory vs Redis)?

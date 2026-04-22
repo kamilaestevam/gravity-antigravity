@@ -46,7 +46,7 @@ O agente detecta as dependências externas e declara os mocks:
     "modulo": "@clerk/clerk-react",
     "nomeMock": "mockUseAuth + mockGetToken",
     "estrategia": "vi.hoisted",
-    "descricao": "Clerk — controla isLoaded, isSignedIn, userId, getToken"
+    "descricao": "Clerk (APENAS autenticação — Mandamento 01) — controla isLoaded, isSignedIn, userId, getToken"
   },
   {
     "modulo": "global.fetch",
@@ -94,19 +94,19 @@ afterEach(() => {
 
 ## Resumo executivo gerado pelo agente
 
-> **Hook React de autenticação** que busca o role do usuário logado via `GET /api/v1/me` usando o token Clerk. Retorna `{ role, isGravityAdmin, isReady }`. **Risco principal:** role vazando entre usuários por cache sem invalidação correta — por isso há 3 casos dedicados de cache. **Dependências externas:** `@clerk/clerk-react` (useAuth + getToken) e `global.fetch` — ambas mockadas via `vi.hoisted()`. **Módulo crítico de auth** — ausência de testes aqui bloqueia todo fluxo de permissão da plataforma. **Cobertura alvo: 80%** (nucleo-adjacent). Ambiente: `jsdom` (hook React).
+> **Hook React de autorização** que busca o `tipo_usuario` do usuário logado via `GET /api/v1/me` usando o token Clerk (Clerk APENAS para autenticação — Mandamento 01). Retorna `{ role, isGravityAdmin, isReady }` (campo `role` = `tipo_usuario` lido do banco; nome legado mantido na API do hook). **Risco principal:** `tipo_usuario` vazando entre usuários por cache sem invalidação correta — por isso há 3 casos dedicados de cache. **Dependências externas:** `@clerk/clerk-react` (useAuth + getToken) e `global.fetch` — ambas mockadas via `vi.hoisted()`. **Módulo crítico de autorização** — ausência de testes aqui bloqueia todo fluxo de permissão da plataforma. Toda resposta do `/api/v1/me` deve passar por `meResponseSchema.parse()` (Mandamentos 06, 09). **Cobertura alvo: 80%** (nucleo-adjacent). Ambiente: `jsdom` (hook React).
 
 ---
 
 ## Casos de teste — completo
 
-### Describe 1 — extração de role via data.usuario.tipo_usuario
+### Describe 1 — extração de tipo_usuario via data.usuario.tipo_usuario (DDD — Mandamento 03)
 
 ```json
 {
   "id": "TST-UNIT-CONFIG-AUTH-000001",
   "numero": 1,
-  "descricao": "retorna role MASTER lido de data.usuario.tipo_usuario",
+  "descricao": "retorna tipo_usuario MASTER lido de data.usuario.tipo_usuario via /api/v1/me (Mandamento 01)",
   "categoria": 1,
   "origem": "existente",
   "exportacaoTestada": "useLoadSystemRole",
@@ -129,7 +129,7 @@ afterEach(() => {
 {
   "id": "TST-UNIT-CONFIG-AUTH-000002",
   "numero": 2,
-  "descricao": "retorna role SUPER_ADMIN e isGravityAdmin=true",
+  "descricao": "retorna tipo_usuario SUPER_ADMIN e isGravityAdmin=true",
   "categoria": 1,
   "origem": "existente",
   "exportacaoTestada": "useLoadSystemRole",
@@ -143,7 +143,7 @@ afterEach(() => {
 {
   "id": "TST-UNIT-CONFIG-AUTH-000003",
   "numero": 3,
-  "descricao": "retorna role ADMIN e isGravityAdmin=true",
+  "descricao": "retorna tipo_usuario ADMIN e isGravityAdmin=true",
   "categoria": 1,
   "origem": "existente",
   "exportacaoTestada": "useLoadSystemRole",
@@ -157,7 +157,7 @@ afterEach(() => {
 {
   "id": "TST-UNIT-CONFIG-AUTH-000004",
   "numero": 4,
-  "descricao": "NÃO lê data.user.role (estrutura legada) — role deve ser null",
+  "descricao": "NÃO lê data.user.role (estrutura legada) — tipo_usuario deve ser null e meResponseSchema.parse falha alto (Mandamentos 06, 08)",
   "categoria": 2,
   "origem": "existente",
   "exportacaoTestada": "useLoadSystemRole",

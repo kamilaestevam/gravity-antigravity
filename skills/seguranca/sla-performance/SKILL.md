@@ -118,22 +118,26 @@ export default function () {
 
 ### Padrões de Query Otimizada
 
+> **Schema-per-Organização:** acesso ao banco do produto sempre via `withTenant`/`withTenantContext` do `@gravity/tenant-resolver`. O schema **é** a organização — não filtre por `id_organizacao`.
+
 ```typescript
 // ❌ lento — carrega tudo
-const cotacoes = await prisma.cotacao.findMany({
-  where: { tenant_id },
-  include: { bids: true, fornecedor: true },
+await withTenant(req, async (db) => {
+  return db.cotacao.findMany({
+    include: { bids: true, fornecedor: true },
+  })
 })
 
 // ✅ rápido — só campos necessários
-const cotacoes = await prisma.cotacao.findMany({
-  where: { tenant_id },
-  select: {
-    id: true, titulo: true, status: true, created_at: true,
-    _count: { select: { bids: true } },
-  },
-  take: 20,
-  orderBy: { created_at: 'desc' },
+await withTenant(req, async (db) => {
+  return db.cotacao.findMany({
+    select: {
+      id: true, titulo: true, status: true, created_at: true,
+      _count: { select: { bids: true } },
+    },
+    take: 20,
+    orderBy: { created_at: 'desc' },
+  })
 })
 ```
 

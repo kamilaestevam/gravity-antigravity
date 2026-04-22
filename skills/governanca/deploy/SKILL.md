@@ -18,7 +18,7 @@ Nenhuma operação de deploy é feita sem seguir este documento. Nenhuma migrati
 | Serviço | Porta | Banco |
 |:---|:---|:---|
 | `configurador` | 3000 | configurador-db |
-| `tenant-services` | 3001 | tenant-db |
+| `tenant-services` | 3001 | tenant-db (banco compartilhado dos serviços por organização) |
 | `simulador-comex` | 3002 | simulador-comex-db |
 | `nf-importacao` | 3003 | nf-importacao-db |
 | `marketplace` | 3004 | — (estático ou SSR) |
@@ -51,26 +51,25 @@ Padrão de naming: `SERVICO_PROVIDER_TIPO`
 ```bash
 # === configurador ===
 DATABASE_URL=postgresql://...configurador-db...
-CLERK_SECRET_KEY=sk_live_...
-STRIPE_SECRET_KEY=sk_live_...
+CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 
 # === tenant-services ===
 TENANT_DATABASE_URL=postgresql://...tenant-db...
-CLERK_SECRET_KEY=sk_live_...
+CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 RESEND_API_KEY=re_...
 META_WHATSAPP_TOKEN=...
 OPENAI_API_KEY=sk-...
 
 # === simulador-comex (primeiro produto) ===
 DATABASE_URL=postgresql://...simulador-comex-db...
-CLERK_SECRET_KEY=sk_live_...
+CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 TENANT_SERVICES_URL=http://tenant-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 INTERNAL_SERVICE_KEY=...
 
 # === nf-importacao (próximo produto) ===
 DATABASE_URL=postgresql://...nf-importacao-db...
-CLERK_SECRET_KEY=sk_live_...
+CLERK_SECRET_KEY=sk_live_...        # APENAS para autenticação (Mandamento 01)
 TENANT_SERVICES_URL=http://tenant-services.railway.internal:3001
 CONFIGURATOR_URL=http://configurador.railway.internal:3000
 INTERNAL_SERVICE_KEY=...
@@ -109,12 +108,12 @@ O `requireAuth` do Configurador exige que o usuário exista na tabela `usuario` 
 
 ### Por que isso ocorre
 
-A autenticação da Gravity opera em duas camadas independentes:
+A autenticação da Gravity opera em duas camadas independentes (Mandamento 01):
 
-- **Clerk** — prova de identidade (quem você é)
-- **Banco `usuario`** — prova de autorização (você tem acesso a este sistema)
+- **Clerk** — prova de identidade APENAS (quem você é). Login, senha, e-mail, `clerk_user_id`. PROIBIDO usar para autorização.
+- **Banco `Usuario` (Prisma)** — prova de autorização (você tem acesso a este sistema). `tipo_usuario`, `is_gravity_admin` etc. lidos via `GET /api/v1/me`.
 
-Um usuário pode existir no Clerk e não ter acesso à plataforma. Esse é o modelo correto: usuários só entram no sistema após provisionamento explícito.
+Um usuário pode existir no Clerk e não ter acesso à plataforma. Esse é o modelo correto: usuários só entram no sistema após provisionamento explícito no Prisma.
 
 ### Quando executar o bootstrap
 
@@ -122,7 +121,7 @@ Obrigatório toda vez que um banco do Configurador for criado ou zerado:
 
 - Criação de novo ambiente (staging, produção, dev local)
 - Após `DROP SCHEMA public CASCADE` ou restore de backup zerado
-- Após qualquer operação que apague as tabelas `organizacao` e `usuario`
+- Após qualquer operação que apague as tabelas `Organizacao` e `Usuario`
 
 ### Procedimento obrigatório
 
@@ -141,7 +140,7 @@ npx tsx server/scripts/seedProducts.ts
 
 O `bootstrap-seed.ts` cria:
 - A organização matriz (`slug: gravity`, `status: ACTIVE`)
-- O usuário Root Admin (`dmmltda@gmail.com`, role `SUPER_ADMIN`)
+- O usuário Root Admin (`dmmltda@gmail.com`, `tipo_usuario: SUPER_ADMIN`, `is_gravity_admin: true`)
 - Um `clerk_user_id` placeholder — o `requireAuth` auto-vincula ao ID real do Clerk no primeiro login, via fallback de email (1 candidato único = link seguro)
 
 O script é **idempotente**: pode ser executado múltiplas vezes sem duplicar dados.

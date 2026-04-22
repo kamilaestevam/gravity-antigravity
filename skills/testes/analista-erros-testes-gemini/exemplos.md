@@ -58,10 +58,10 @@
 ### Input
 ```json
 {
-  "errorLog": "TypeError: Cannot read properties of null (reading 'workspace_id')\n  at Hub.tsx:34:12\n  at renderWithHooks (react-dom.development.js:14803)",
+  "errorLog": "TypeError: Cannot read properties of null (reading 'idWorkspace')\n  at Hub.tsx:34:12\n  at renderWithHooks (react-dom.development.js:14803)",
   "testName": "01. HUB carrega após login",
   "specFileContent": "await page.goto('/hub')\nawait expect(page.getByTestId('hub-saudacao')).toBeVisible()",
-  "componentFileContent": "const { user } = useUser()\nconst workspaceId = user.workspace_id\nreturn <h1 data-testid='hub-saudacao'>Boa noite, {user.nome}</h1>",
+  "componentFileContent": "const { data: me } = useMe()\nconst idWorkspace = me.usuario.idWorkspace\nreturn <h1 data-testid='hub-saudacao'>Boa noite, {me.usuario.nomeUsuario}</h1>",
   "lastCommitsTouching": []
 }
 ```
@@ -69,16 +69,16 @@
 ### Output
 ```json
 {
-  "erroResumo": "Hub.tsx quebra quando user é null — falta guard para usuário ainda não carregado",
-  "motivo": "O componente acessa user.workspace_id direto, mas useUser() retorna null enquanto o Clerk ainda está autenticando. O teste navega pra /hub e o componente tenta renderizar antes do user existir, gerando TypeError na linha 34. Isso é bug real: o produto quebra para qualquer usuário toda vez que carrega o /hub do zero (cold start). O teste só está revelando.",
-  "sugestaoCorrecao": "Adicionar early return ou Suspense boundary no Hub.tsx antes de acessar user.workspace_id. Padrão do projeto é checar isLoading do useUser ou retornar <SkeletonGlobal /> enquanto user é null.",
+  "erroResumo": "Hub.tsx quebra quando me é null — falta guard para resposta de /api/v1/me ainda não carregada (Mandamento 05)",
+  "motivo": "O componente acessa me.usuario.idWorkspace direto, mas useMe() retorna null enquanto a chamada a GET /api/v1/me ainda não resolveu (Clerk apenas autentica; permissões/Workspace vêm do Prisma — Mandamento 01). O teste navega pra /hub e o componente tenta renderizar antes de me existir, gerando TypeError na linha 34. Isso é bug real: o produto quebra para qualquer usuário toda vez que carrega o /hub do zero (cold start). O teste só está revelando. Mandamento 05 exige tratamento explícito de loading para useState<T | null>(null).",
+  "sugestaoCorrecao": "Adicionar early return ou Suspense boundary no Hub.tsx antes de acessar me.usuario.idWorkspace. Padrão do projeto é checar isLoading do useMe ou retornar <SkeletonGlobal /> enquanto me é null. Resposta deve passar por meResponseSchema.parse (Mandamento 06).",
   "arquivo": "servicos-global/shell/Hub.tsx:34",
   "codigoDiff": {
     "arquivo": "servicos-global/shell/Hub.tsx",
     "linha": 34,
-    "old": "const { user } = useUser()\nconst workspaceId = user.workspace_id\nreturn <h1 data-testid='hub-saudacao'>Boa noite, {user.nome}</h1>",
-    "new": "const { user, isLoaded } = useUser()\nif (!isLoaded || !user) return <SkeletonGlobal />\nconst workspaceId = user.workspace_id\nreturn <h1 data-testid='hub-saudacao'>Boa noite, {user.nome}</h1>",
-    "explicacao": "Aguarda o Clerk terminar o auth antes de acessar campos do user"
+    "old": "const { data: me } = useMe()\nconst idWorkspace = me.usuario.idWorkspace\nreturn <h1 data-testid='hub-saudacao'>Boa noite, {me.usuario.nomeUsuario}</h1>",
+    "new": "const { data: me, isLoading } = useMe()\nif (isLoading || !me) return <SkeletonGlobal />\nconst idWorkspace = me.usuario.idWorkspace\nreturn <h1 data-testid='hub-saudacao'>Boa noite, {me.usuario.nomeUsuario}</h1>",
+    "explicacao": "Aguarda /api/v1/me resolver antes de acessar campos DDD (Mandamentos 01, 05, 06)"
   },
   "categoria": "BUG_REAL",
   "confianca": "alta",
@@ -88,8 +88,9 @@
 
 ### Por que é nota 10
 - Distingue corretamente "bug real" de "teste velho" (este é bug real)
-- Diff respeita o padrão do projeto (SkeletonGlobal, isLoaded do Clerk)
+- Diff respeita o padrão do projeto (SkeletonGlobal, isLoading de `useMe()`) e a separação Clerk-só-para-autenticação (Mandamento 01)
 - Explica que **qualquer cold start quebra**, não só o teste — escala o impacto
+- Reforça Mandamentos 01/05/06 (`/api/v1/me` validado por Zod, sem mocks vazios, loading explícito)
 
 ---
 

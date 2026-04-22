@@ -31,7 +31,7 @@ Ativar SEMPRE que o arquivo a modificar **já existe** e qualquer condição aba
 - A mudança afeta componente React usado em mais de uma tela
 - A mudança afeta CSS (classe ou variável de design token)
 - A mudança afeta query Prisma, campo de banco ou migration
-- A mudança afeta middleware (auth, tenant, correlação)
+- A mudança afeta middleware (auth, organização, correlação)
 - O mesmo sintoma retornou após fix anterior neste arquivo (sinal de ciclo)
 
 **Não se aplica apenas:** arquivo novo criado do zero, sem nenhum consumidor ainda.
@@ -212,7 +212,7 @@ Responsabilidades:
 - Testar **todos** os dependentes mapeados pelo Analista
 - Verificar SLA ≤ 200ms nos endpoints afetados
 - Validar o fluxo de UI que consome o código alterado
-- Testar cenário cross-tenant se aplicável
+- Testar cenário cross-organização se aplicável
 - **Regressão histórica:** testar os cenários que quebraram nos últimos 5 commits
 
 ---
@@ -221,7 +221,7 @@ Responsabilidades:
 **Última barreira antes do handoff para o QA.**
 
 Verificar **todas** as skills lidas na Fase 0.1:
-- [ ] Tenant isolation intacto?
+- [ ] Isolamento de Organização intacto?
 - [ ] Nenhum `any` introduzido?
 - [ ] Nenhum `console.log` esquecido?
 - [ ] TypeScript compila limpo? (`npx tsc --noEmit`)
@@ -308,7 +308,7 @@ Todos os resultados devem ser listados no Relatório de Impacto.
 | **LOW** | ≤ 2 arquivos, sem dependentes externos, zero alteração de contrato | Executar + comunicar depois |
 | **MEDIUM** | 3–6 arquivos, dependentes internos ao módulo, sem mudança de contrato público | Comunicar antes + plano de rollback |
 | **HIGH** | Afeta contratos públicos (tipos, endpoints), múltiplos módulos ou shared | Aprovação do Líder antes + janela de mudança definida |
-| **CRITICAL** | Schema Prisma, middleware de auth, tenant isolation, múltiplos produtos | Aprovação do Líder + staging obrigatório + janela de mudança + rollback testado em staging |
+| **CRITICAL** | Schema Prisma, middleware de auth, Isolamento de Organização, múltiplos produtos | Aprovação do Líder + staging obrigatório + janela de mudança + rollback testado em staging |
 
 **Regra:** em caso de dúvida sobre nível, classificar sempre para cima.
 
@@ -450,7 +450,7 @@ não existe apenas na conversa.
 
 ## GOVERNANÇA — PREENCHIDO PELO GUARDIÃO
 
-- [ ] Tenant isolation intacto
+- [ ] Isolamento de Organização intacto
 - [ ] Zero `any` introduzido
 - [ ] Zero `console.log` esquecido
 - [ ] TypeScript compila limpo
@@ -510,7 +510,7 @@ Skills verificadas: [lista]
 **Camada 3 — Obrigatória para HIGH+:**
 - [ ] Fluxo completo frontend → backend → DB funciona?
 - [ ] UI que consome o código alterado está funcionando?
-- [ ] Fluxo cross-tenant: ação de tenant A não afeta tenant B?
+- [ ] Fluxo cross-organização: ação da organização A não afeta organização B?
 - [ ] Todos os módulos que importam os tipos alterados compilam?
 - [ ] Regressão histórica: cenários dos últimos 5 commits continuam funcionando?
 - [ ] E2E dos fluxos afetados pelo ajuste executado e aprovado?
@@ -592,7 +592,7 @@ Um fluxo é **crítico** se qualquer uma das condições abaixo for verdadeira:
 
 - Envolve criação, edição ou exclusão de dados financeiros ou fiscais
 - Está no caminho crítico da operação principal do produto (ex: criar pedido, emitir nota)
-- Cruza boundary de tenant (lê ou escreve dados de mais de um tenant)
+- Cruza boundary de organização (lê ou escreve dados de mais de uma organização)
 - Envolve autenticação, permissão ou token
 - Uma falha nele impede o usuário de completar sua tarefa principal no produto
 

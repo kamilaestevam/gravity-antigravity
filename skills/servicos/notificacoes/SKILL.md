@@ -1,13 +1,13 @@
 ---
 name: antigravity-notificacoes
-description: "Use esta skill sempre que uma tarefa envolver o serviço de notificações da plataforma Gravity. Define notificações como serviço de tenant multicanal: sininho in-app (SSE com fallback polling 30s), email via Resend e WhatsApp condicional via Meta Cloud API. Cobre fila pg-boss com 20 workers paralelos, cron de varredura a cada 5 minutos, 8 tipos de notificação, deduplicação via singletonKey, badge com cap 9+, lookup flexível de usuário (Clerk ID ou email direto) e schema Prisma."
+description: "Use esta skill sempre que uma tarefa envolver o serviço de notificações da plataforma Gravity. Define notificações como serviço de organização multicanal: sininho in-app (SSE com fallback polling 30s), email via Resend e WhatsApp condicional via Meta Cloud API. Cobre fila pg-boss com 20 workers paralelos, cron de varredura a cada 5 minutos, 8 tipos de notificação, deduplicação via singletonKey, badge com cap 9+, lookup flexível de usuário (Clerk ID ou email direto) e schema Prisma."
 ---
 
 # Gravity — Serviço de Notificações
 
 ## O Que é Este Serviço
 
-Serviço de tenant — um sino por empresa, **cross-produto**. Notificações de qualquer produto chegam no mesmo sino do usuário.
+Serviço de organização — um sino por empresa, **cross-produto**. Notificações de qualquer produto chegam no mesmo sino do usuário.
 
 **Três camadas de entrega:**
 
@@ -40,15 +40,15 @@ servicos-global/tenant/notificacoes/
 ```
 Evento no produto (menção, tarefa, lembrete...)
   ↓
-boss.send('send-notification', { type, activityId, userId })
+boss.send('send-notification', { type, activityId, idUsuario })
   singletonKey impede duplicatas
   ↓
 pg-boss Queue (PostgreSQL)
   20 workers paralelos
   ↓
 processNotificationJob()
-  1. Busca atividade + empresa + responsáveis
-  2. Resolve usuário (Clerk ID ou email direto)
+  1. Busca atividade + workspace + responsáveis
+  2. Resolve usuário (Clerk ID para autenticação, dados do Prisma)
   3. Cria notificação in-app (banco)
   4. sendEmail() → Resend
   5. Se flag WA + phone cadastrado → sendTextMessage() → Meta Cloud API
@@ -74,7 +74,7 @@ await boss.work('send-notification', { teamSize: 20 }, async (job) => {
 
 | Característica | Valor |
 |:---|:---|
-| Motor | PostgreSQL (mesmo DB do tenant) |
+| Motor | PostgreSQL (mesmo DB da organização) |
 | Fila | `send-notification` |
 | Concorrência | 20 workers paralelos |
 | Retry automático | Sim — `throw err` relança |
@@ -85,8 +85,8 @@ await boss.work('send-notification', { teamSize: 20 }, async (job) => {
 ```typescript
 await boss.send(
   'send-notification',
-  { type: 'reminder', activityId: act.id, userId, tenantId },
-  { singletonKey: `reminder-${act.id}-${userId}` }  // sem duplicata
+  { type: 'reminder', activityId: act.id, idUsuario, idOrganizacao },
+  { singletonKey: `reminder-${act.id}-${idUsuario}` }  // sem duplicata
 )
 ```
 
@@ -97,9 +97,9 @@ await boss.send(
 ### SSE como principal + polling como fallback
 
 ```typescript
-function initNotifications(userId: string) {
+function initNotifications(idUsuario: string) {
   // SSE — tempo real
-  const eventSource = new EventSource(`/api/v1/notificacoes/stream?userId=${userId}`)
+  const eventSource = new EventSource(`/api/v1/notificacoes/stream?id_usuario=${idUsuario}`)
 
   eventSource.onmessage = (event) => {
     const data = JSON.parse(event.data)
@@ -212,28 +212,32 @@ Após enfileirar, o campo `*_sent` é marcado `true` para evitar reenvio.
 async function processNotificationJob(data: {
   type: string
   activityId: string | null
-  userId: string    // Clerk ID ou email direto
-  tenantId: string
+  idUsuario: string    // Clerk ID ou email direto
+  idOrganizacao: string
   extra?: Record<string, any>
 }) {
   const activity = data.activityId
-    ? await prisma.activity.findUnique({ where: { id: data.activityId }, include: { company: true } })
+    ? await withTenant(data.idOrganizacao, (db) =>
+        db.activity.findUnique({ where: { id: data.activityId }, include: { workspace: true } })
+      )
     : null
 
-  const user = await resolveUser(data.userId)
+  const user = await resolveUser(data.idUsuario)
 
-  await prisma.notification.create({
-    data: {
-      tenant_id:   data.tenantId,
-      user_id:     data.userId,
-      type:        data.type,
-      title:       buildTitle(data.type, activity),
-      message:     buildMessage(data.type, activity, user),
-      activity_id: data.activityId,
-    }
-  })
+  await withTenant(data.idOrganizacao, (db) =>
+    db.notification.create({
+      data: {
+        id_organizacao: data.idOrganizacao,
+        id_usuario:     data.idUsuario,
+        type:           data.type,
+        title:          buildTitle(data.type, activity),
+        message:        buildMessage(data.type, activity, user),
+        activity_id:    data.activityId,
+      }
+    })
+  )
 
-  emitToUser(data.userId, 'new_notification', { type: data.type })
+  emitToUser(data.idUsuario, 'new_notification', { type: data.type })
 
   await sendEmail({ to: user.email, template: TEMPLATES[data.type], data: { activity, user, ...data.extra } })
 
@@ -246,16 +250,20 @@ async function processNotificationJob(data: {
   }
 }
 
-// Lookup flexível — Clerk ID ou email direto
-async function resolveUser(userId: string) {
-  if (userId.includes('@')) {
-    return { email: userId, name: userId.split('@')[0], phone: null }
+// Lookup flexível — Clerk ID (autenticação) ou email direto.
+// Dados de perfil vêm do Prisma; Clerk só serve para autenticar.
+async function resolveUser(idUsuario: string) {
+  if (idUsuario.includes('@')) {
+    return { email: idUsuario, name: idUsuario.split('@')[0], phone: null }
   }
-  const clerkUser = await clerkClient.users.getUser(userId)
+  // Busca dados de usuário no banco (fonte da verdade — Mandamento 01)
+  const usuario = await withTenant(idOrganizacao, (db) =>
+    db.usuario.findUnique({ where: { id: idUsuario } })
+  )
   return {
-    email: clerkUser.emailAddresses[0].emailAddress,
-    name:  `${clerkUser.firstName} ${clerkUser.lastName}`,
-    phone: clerkUser.phoneNumbers[0]?.phoneNumber || null
+    email: usuario.email,
+    name:  usuario.nome,
+    phone: usuario.telefone ?? null
   }
 }
 ```
@@ -284,22 +292,22 @@ GET    /api/v1/notificacoes/test         ← inserir notificações de teste (de
 // servicos-global/tenant/notificacoes/prisma/fragment.prisma
 
 model Notification {
-  id          String   @id @default(cuid())
-  tenant_id   String
-  user_id     String           // Clerk ID ou email direto
-  product_id  String?          // de qual produto veio
-  type        String           // mentioned | task-assigned | reminder | etc.
-  title       String?
-  message     String
-  read        Boolean  @default(false)
-  activity_id String?          // para navegação direta
+  id              String   @id @default(cuid())
+  id_organizacao  String   @map("tenant_id")
+  id_usuario      String   @map("user_id")          // Clerk ID ou email direto
+  product_id      String?                            // de qual produto veio
+  type            String                             // mentioned | task-assigned | reminder | etc.
+  title           String?
+  message         String
+  read            Boolean  @default(false)
+  activity_id     String?                            // para navegação direta
 
-  created_at  DateTime @default(now())
+  created_at      DateTime @default(now())
 
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, user_id, read])
-  @@index([tenant_id, created_at])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_usuario])
+  @@index([id_organizacao, id_usuario, read])
+  @@index([id_organizacao, created_at])
 }
 ```
 

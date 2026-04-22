@@ -25,7 +25,7 @@ A Gabi é a inteligência central da Gravity — um **agente de execução** que
 - Sugere ações proativas: *"O cliente X não envia emails há 10 dias, quer que eu redija um contato?"*
 
 ### 3 — Treinamento e Onboarding
-- Gera guias passo a passo baseados nos processos do próprio tenant
+- Gera guias passo a passo baseados nos processos da própria organização
 - Cria materiais de treinamento personalizados para novos usuários
 
 ### 4 — Analista de Dados
@@ -51,20 +51,22 @@ A Gabi é a inteligência central da Gravity — um **agente de execução** que
 
 ```typescript
 export async function assertGabiPermission(
-  userId: string,
+  idUsuario: string,
   action: string,
   resource: string
 ) {
-  const hasPermission = await checkUserPermission(userId, action, resource)
+  // Permissões SEMPRE vêm do Prisma (Mandamento 01) — Clerk só autentica
+  const hasPermission = await checkUserPermission(idUsuario, action, resource)
   if (!hasPermission) {
     throw new Error(
-      `Gabi: Usuário ${userId} não tem permissão para ${action} em ${resource}`
+      `Gabi: Usuário ${idUsuario} não tem permissão para ${action} em ${resource}`
     )
   }
 }
 ```
 
 > **Regra:** `assertGabiPermission()` é a **primeira linha** de toda função de ação da Gabi.
+> **Mandamento 01:** a verificação consulta Prisma (`tipo_usuario`, `is_gravity_admin`) — nunca `publicMetadata` do Clerk.
 
 ---
 
@@ -73,18 +75,20 @@ export async function assertGabiPermission(
 Toda ação executada pela Gabi é acompanhada de um snapshot da conversa gravado na tabela `GabiUsageLog`.
 
 ```typescript
-async function executeGabiAction(userId: string, actionPayload: GabiAction) {
+async function executeGabiAction(idUsuario: string, actionPayload: GabiAction) {
   // 1. Verifica permissão
-  await assertGabiPermission(userId, actionPayload.type, actionPayload.resource)
+  await assertGabiPermission(idUsuario, actionPayload.type, actionPayload.resource)
 
-  // 2. Grava log ANTES de executar
-  const log = await prisma.gabiUsageLog.create({
-    data: {
-      userId,
-      actionTaken: actionPayload.type,
-      conversationSnapshot: actionPayload.context  // snapshot obrigatório
-    }
-  })
+  // 2. Grava log ANTES de executar (acesso via @gravity/tenant-resolver)
+  const log = await withTenant(req.tenant.tenantId, (db) =>
+    db.gabiUsageLog.create({
+      data: {
+        id_usuario: idUsuario,
+        actionTaken: actionPayload.type,
+        conversationSnapshot: actionPayload.context  // snapshot obrigatório
+      }
+    })
+  )
 
   // 3. Se o log falhar, cancela a ação (Barreira 3 — rollback)
   if (!log) {
@@ -98,8 +102,8 @@ async function executeGabiAction(userId: string, actionPayload: GabiAction) {
 **Exemplo de snapshot:**
 ```json
 {
-  "last_user_query": "Gabi, por favor exclua todos os serviços do tenant 'Teste'",
-  "gabi_plan": "Vou listar os serviços do tenant 'Teste' (ID: 123) e excluí-los um por um.",
+  "last_user_query": "Gabi, por favor exclua todos os serviços da organização 'Teste'",
+  "gabi_plan": "Vou listar os serviços da organização 'Teste' (id_organizacao: 123) e excluí-los um por um.",
   "reasoning": "Usuário deu comando explícito em linguagem natural."
 }
 ```
@@ -114,7 +118,7 @@ async function executeGabiAction(userId: string, actionPayload: GabiAction) {
 | 2 — Print da conversa | `auditGabiAction()` com `conversation_snapshot` obrigatório | Tabela `GabiUsageLog` |
 | 3 — Rollback se audit falhar | `executeGabiAction()` cancela se o histórico não gravar | Try/Catch com rollback |
 | 4 — Confirmação destrutiva | Delete e exclusão em massa sempre pedem confirmação | Intervenção UI |
-| 5 — Ator identificado | `actor_type: 'gabi' + triggered_by: userId` no audit log | Metadata de transação |
+| 5 — Ator identificado | `actor_type: 'gabi' + triggered_by: idUsuario` no audit log | Metadata de transação |
 | 6 — Transparência | Gabi informa quando verifica permissão e quando executa | UI Feedback |
 
 ---
@@ -132,7 +136,7 @@ Como a Gabi pode executar processos longos, o chat usa **Server-Sent Events (SSE
 
 | Configuração | Valor |
 |:---|:---|
-| **Engine** | Gemini 1.5 Pro ou Flash (configurável por tenant) |
+| **Engine** | Gemini 1.5 Pro ou Flash (configurável por organização) |
 | **Contexto** | Últimas 20 mensagens em memória |
 | **Sumarização** | Automática para conversas mais longas |
 | **Fallback chain** | 5 modelos Gemini |
@@ -149,18 +153,23 @@ A Gabi lê o conteúdo e age sobre ele: *"Importe este Excel de serviços"*
 
 ## Contexto da Conversa — System Prompt
 
-O system prompt é injetado dinamicamente com:
+O system prompt é injetado dinamicamente com dados do `/api/v1/me` (Mandamento 01):
 
 ```typescript
+// Busca usuário do Prisma (via /api/v1/me) — NUNCA do publicMetadata do Clerk
+const meResponse = await fetch('/api/v1/me', { headers: authHeaders })
+const me = meResponseSchema.parse(await meResponse.json())
+
 const systemPrompt = `
 Você é a Gabi, agente de execução da Gravity.
-Você atua com as permissões do usuário: ${user.name} (${user.role}).
+Você atua com as permissões do usuário: ${me.usuario.nome} (${me.usuario.tipo_usuario}).
 
-TENANT: ${tenant.name}
+ORGANIZAÇÃO: ${me.organizacao.nome}
 SERVIÇOS ATIVOS: ${activeServices.join(', ')}
 
 REGRAS ABSOLUTAS:
-- Nunca execute uma ação sem verificar permissão primeiro
+- Nunca execute uma ação sem verificar permissão primeiro (consulta Prisma)
+- Master e Super Admin (is_gravity_admin = true) têm acesso global
 - Toda ação que modifica dados deve ser registrada no histórico
 - Ações destrutivas (delete, exclusão em massa) sempre exigem confirmação do usuário
 `
@@ -180,7 +189,7 @@ REGRAS ABSOLUTAS:
 
 ## Sistema de Alertas de Custo
 
-- Configuração de limite financeiro por tenant
+- Configuração de limite financeiro por organização
 - Seções: Limite & Alertas | Consumo do Mês Atual | Notificações de Alerta
 - Anti-spam: alerta enviado no máximo 1x por mês
 
@@ -190,20 +199,22 @@ REGRAS ABSOLUTAS:
 
 ```prisma
 model GabiConversation {
-  id        String        @id @default(cuid())
-  tenant_id String
-  userId    String
-  title     String?
-  messages  GabiMessage[]
-  updatedAt DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  id_organizacao  String        @map("tenant_id")
+  id_usuario      String        @map("user_id")
+  title           String?
+  messages        GabiMessage[]
+  updatedAt       DateTime      @updatedAt
 
-  @@index([tenant_id])
-  @@index([userId])
+  @@index([id_organizacao])
+  @@index([id_usuario])
 }
 
 model GabiMessage {
   id             String           @id @default(cuid())
   conversationId String
+  // 'role' aqui é o papel da mensagem na conversa (user/assistant/system),
+  // NÃO o tipo_usuario do operador. Convenção do protocolo Gemini/OpenAI.
   role           String           // 'user' | 'assistant' | 'system'
   content        String
   attachments    String?          // JSON com links de arquivos
@@ -212,14 +223,14 @@ model GabiMessage {
 
 model GabiUsageLog {
   id                   String   @id @default(cuid())
-  userId               String
-  tenantId             String
+  id_usuario           String   @map("user_id")
+  id_organizacao       String   @map("tenant_id")
   actionTaken          String
   conversationSnapshot String   // JSON com contexto da conversa
   createdAt            DateTime @default(now())
 
-  @@index([tenantId])
-  @@index([userId])
+  @@index([id_organizacao])
+  @@index([id_usuario])
 }
 ```
 

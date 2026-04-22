@@ -1,6 +1,6 @@
 ---
 name: antigravity-nf-importacao
-description: "Use esta skill ao desenvolver ou modificar o produto NF Importacao (Nota Fiscal de Entrada para importacoes). Contem regras de rateio, despesas, exportacao multi-formato, e isolamento zero-trust."
+description: "Use esta skill ao desenvolver ou modificar o produto NF Importacao (Nota Fiscal de Entrada para importacoes). Contem regras de rateio, despesas, exportacao multi-formato, e isolamento zero-trust por Organização + Workspace."
 ---
 
 # Gravity — Skill: NF Importacao
@@ -70,28 +70,30 @@ description: "Use esta skill ao desenvolver ou modificar o produto NF Importacao
 | Despesa | `nfdp_id_` | `nfdp_id_XXXXXXX/YY` | `nfdp_id_0000015/26` |
 | Rateio | `nfrt_id_` | `nfrt_id_XXXXXXX/YY` | `nfrt_id_0000099/26` |
 
-- XXXXXXX = sequencial por tenant (7 digitos, zero-padded)
+- XXXXXXX = sequencial por Organização (7 digitos, zero-padded)
 - YY = 2 ultimos digitos do ano
 - NUNCA usar `cuid()` ou `uuid()` para entidades de negocio
 - Config entities (catalogo, template, layout, favorito) usam `cuid()` — OK
 
 ---
 
-## 4. Isolamento Zero-Trust
+## 4. Isolamento Zero-Trust (Organização + Workspace)
 
 ```typescript
-// TODA query DEVE ter:
+// TODA query DEVE ter os campos Prisma reais do fragment.prisma:
 where: {
-  tenant_id: req.tenantId,
-  company_id: req.companyId,
+  tenant_id: req.tenant.tenantId,        // Organização (campo Prisma real)
+  company_id: req.tenant.companyId,      // Workspace (campo Prisma real)
   // ... filtros adicionais
 }
 ```
 
-- Catalogo, templates, layouts, favoritos = SEMPRE filtrados por `company_id`
-- Cross-tenant retorna **404** (nunca 403)
-- Um despachante com N clientes = N company_ids = N catalogos separados
-- NF de um company_id NUNCA visivel para outro company_id
+> Os nomes dos campos Prisma `tenant_id` e `company_id` são preservados conforme o `fragment.prisma` real (Mandamento 02 — schema intocável). Em payloads, JSON e variáveis TypeScript fora do contexto Prisma, use a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
+
+- Catalogo, templates, layouts, favoritos = SEMPRE filtrados por Workspace (`company_id`)
+- Acesso entre Organizações distintas retorna **404** (nunca 403)
+- Um despachante com N clientes = N Workspaces = N catalogos separados
+- NF de um Workspace NUNCA visivel para outro Workspace
 
 ---
 
@@ -121,7 +123,7 @@ rascunho → em_composicao → pronta → exportada
 ## 6. Despesas — Regras
 
 1. **Catalogo e LIVRE** — usuario nomeia como quiser (nao ha lista fixa)
-2. **Nome unico por empresa** — `@@unique([tenant_id, company_id, nome])`
+2. **Nome unico por empresa** — `@@unique([tenant_id, company_id, nome])` (campos Prisma reais que mapeiam Organização + Workspace)
 3. **Template auto-popula** — ao criar NF, se empresa tem template padrao, despesas sao adicionadas automaticamente
 4. **Smart Read de recibos** — upload de PDF/imagem → IA extrai tipo + valor → preview amarelo → confirma
 5. **Conta contabil opcional** — para integracao ERP (cada empresa mapeia)

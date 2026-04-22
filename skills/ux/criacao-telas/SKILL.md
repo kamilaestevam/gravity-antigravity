@@ -11,7 +11,7 @@ A expectativa para qualquer nova interface é que ela entregue uma experiência 
 ## 👥 A Equipe de Elite (Papéis na Criação)
 
 Cada nova funcionalidade visual exige a colaboração sistêmica dos seguintes papéis operacionais:
-1. **Product Manager (PM):** Define a visão de negócio, as necessidades do cliente (Tenant/Company) e o escopo esperado para a jornada do usuário.
+1. **Product Manager (PM):** Define a visão de negócio, as necessidades do cliente (Organização/Workspace) e o escopo esperado para a jornada do usuário.
 2. **UX/UI Lead:** Evocador do Padrão "UX 10". Responsável pela arquitetura da informação, fidelidade visual, especificação de micro-interações (glow, sombras translúcidas, glass) e coerência com a harmonia da plataforma Gravity.
 3. **Engenheiro Frontend / Arquiteto UI:** Transforma os construtos do UX em código eficiente e escalável, utilizando o design system base (`@nucleo` e `@gravity/shell`).
 4. **Tech Lead:** Valida as integrações rest, as nuances do GraphQL/Prisma, estados atípicos (carregando, erro limite de API), e a eficiência da árvore de renderização.

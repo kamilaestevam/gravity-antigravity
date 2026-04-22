@@ -25,10 +25,12 @@ Uma tarefa só está "Done" quando **todos** os critérios abaixo são atendidos
 
 ### 2. Segurança
 
-- [ ] Validação Zod em toda rota
-- [ ] `tenant_id` filtrado em toda query
+- [ ] Validação Zod em toda rota (Mandamento 06)
+- [ ] Em produtos Schema-per-Organização: acesso via `withTenant`/`withTenantContext`; em Configurador (`public`): `id_organizacao` filtrado em toda query
 - [ ] `x-internal-key` em toda chamada inter-serviço
-- [ ] JWT validado independentemente em cada serviço
+- [ ] JWT do Clerk validado independentemente em cada serviço (Clerk é APENAS autenticação — Mandamento 01)
+- [ ] Autorização SEMPRE via Prisma/`/api/v1/me` — **nunca** via `publicMetadata.role` do Clerk (Mandamento 01)
+- [ ] Sem fallback silencioso em autorização (Mandamento 08)
 - [ ] Nenhum dado sensível em logs ou responses
 
 ### 3. Testes
@@ -65,15 +67,15 @@ A entrega não está Done se a base de conhecimento ficou para trás. Esta categ
 
 > **Regra:** o código só está pronto quando o time inteiro (através das docs e skills atualizadas) aprender o novo padrão.
 
-### 7. Tenant Isolation (após pivô Schema-per-Tenant — ADR-001/002)
+### 7. Isolamento de Organização (após pivô Schema-per-Organização — ADR-001/002)
 
 Para qualquer toque em backend de produto:
 
-- [ ] Acesso ao banco **exclusivamente** via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`
+- [ ] Acesso ao banco **exclusivamente** via `withTenant(req, async (rawDb) => ...)` do `@gravity/tenant-resolver` (API real do SDK)
 - [ ] Zero `import { PrismaClient } from '@prisma/client'` fora do SDK (linter CI bloqueia)
-- [ ] Zero `WHERE tenant_id` em queries de produto (modelo antigo morto)
-- [ ] Chaves de cache prefixadas com `tenant:<id>:` ou `tenant:_global:` (com justificativa)
-- [ ] Teste E2E de cross-tenant rodando e passando
+- [ ] Zero `WHERE id_organizacao` em queries de produto (modelo antigo morto — o schema **é** a organização)
+- [ ] Chaves de cache prefixadas com `org:<idOrganizacao>:` ou `org:_global:` (com justificativa)
+- [ ] Teste E2E de cross-organização rodando e passando
 
 ---
 

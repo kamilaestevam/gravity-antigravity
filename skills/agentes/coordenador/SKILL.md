@@ -1,12 +1,11 @@
 ---
 name: antigravity-coordenador
-description: "Use esta skill quando o agente estiver operando no papel de Coordenador do projeto Gravity. Reescrita 2026-04-17 após o pivô Schema-per-Tenant. O Coordenador é o guardião técnico das ondas: compõe schemas POR PRODUTO (não mais um único schema unificado), orquestra migrations em N schemas via scripts/migrate-all-tenants.ts, mantém contracts.json, resolve conflitos entre agentes paralelos e valida checklists antes de cada onda."
+description: "Use esta skill quando o agente estiver operando no papel de Coordenador do projeto Gravity. O Coordenador é o guardião técnico das ondas: compõe schemas POR PRODUTO (não mais um único schema unificado), orquestra migrations em N schemas via scripts/migrate-all-tenants.ts, mantém contracts.json, resolve conflitos entre agentes paralelos e valida checklists antes de cada onda. Atua sob a regência dos 9 Mandamentos — em especial o Mandamento 02 (schema.prisma INTOCÁVEL)."
 ---
 
-# Gravity — Coordenador de Agentes (pós-pivô 2026-04-17)
+# Gravity — Coordenador de Agentes
 
-> **Reescrita 2026-04-17 após o pivô Schema-per-Tenant.**
-> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
+> Skill alinhada aos 9 Mandamentos e à arquitetura DDD.
 
 ---
 
@@ -16,7 +15,7 @@ O Coordenador é o agente técnico transversal do projeto. Não escreve código 
 
 1. **Schemas estão consistentes** — composição por produto roda sem conflito de naming entre fragments.
 2. **Migrations são aplicadas com segurança em N schemas** — orquestrador `migrate-all-tenants.ts`, dry-run em staging, rollback definido.
-3. **Provisionamento de schemas novos funciona** — worker do evento `TenantProvisioned` está saudável (DLQ vazia).
+3. **Provisionamento de schemas novos funciona** — worker do evento `OrganizacaoProvisionada` está saudável (DLQ vazia).
 4. **`contracts.json` está atualizado** — toda rota nova/alterada está registrada.
 5. **Nenhuma onda avança sem validação** — checklists obrigatórios.
 6. **Documentação e skills evoluem junto** — DoD §6 é inviolável.
@@ -29,9 +28,9 @@ O Coordenador é o agente técnico transversal do projeto. Não escreve código 
 
 ## 1 — Composição de Schema (POR PRODUTO)
 
-A composição de schema unificado de tenant **foi eliminada** no pivô. Agora cada banco tem composição própria:
+A composição de schema único e global foi eliminada. Cada banco tem composição própria:
 
-### Banco `tenant-shared` (super-servidor de serviços de tenant)
+### Banco `tenant-shared` (super-servidor de serviços por organização)
 
 Continua tendo composição via fragments (paralelismo dos agentes da Onda 3):
 
@@ -50,7 +49,7 @@ servicos-global/tenant/
 └── gabi/prisma/fragment.prisma
 ```
 
-> Resultado é aplicado em **cada schema `tenant_<uuid>`** via orquestrador, não mais em uma única tabela compartilhada.
+> Resultado é aplicado em **cada schema `tenant_<cuid>`** (Schema-per-Organização) via orquestrador, não mais em uma única tabela compartilhada.
 
 ### Cada produto (banco próprio)
 
@@ -79,17 +78,18 @@ Ver `antigravity-schema-composition` para detalhes.
 
 ---
 
-## 2 — Validação de Schema (pós-pivô)
+## 2 — Validação de Schema
 
 Após compor cada schema, o Coordenador valida obrigatoriamente:
 
 - [ ] Nenhum nome de model duplicado entre fragments
-- [ ] **Models de produto NÃO têm `tenant_id`** (exceto durante janela ADR-003 Fases 2-3)
-- [ ] **Models de produto NÃO têm `@@index([tenant_id, ...])`** após Fase 4
+- [ ] **Models de produto NÃO têm campo de identificador de organização** (após migração completa — schema isola)
+- [ ] **Models de produto NÃO têm `@@index` em campo de identificador de organização** (após migração completa)
 - [ ] Convenção de naming respeitada: PascalCase para models, snake_case para campos
 - [ ] Nenhum `@map` ou `@@map` (mantém naming canônico)
 - [ ] `prisma validate` passa sem erros
 - [ ] Nenhuma relação cross-fragment não-arbitrada
+- [ ] **Mandamento 02 respeitado:** nenhum agente alterou `schema.prisma` final manualmente
 
 Se qualquer item falhar → **bloqueia a onda** e notifica o Líder com o erro específico.
 
@@ -97,7 +97,7 @@ Se qualquer item falhar → **bloqueia a onda** e notifica o Líder com o erro e
 
 ## 3 — Orquestração de Migrations em N Schemas
 
-Esta é a maior responsabilidade técnica nova do Coordenador pós-pivô.
+Esta é uma das maiores responsabilidades técnicas do Coordenador.
 
 ### Fluxo obrigatório
 
@@ -129,10 +129,11 @@ npx tsx scripts/migrate-all-tenants.ts --product=pedido --env=production --batch
 ### Regras invioláveis
 
 - **Falha em 1 schema aborta o lote inteiro** (rollback manual + investigação)
-- **Nenhuma migration "destrutiva" sem feature flag de cutover** (ver ADR-003 Fase 3)
+- **Nenhuma migration "destrutiva" sem feature flag de cutover**
 - **Toda migration tem ROLLBACK SQL documentado** no PR
 - **Lock metadata < 5s** — migrations longas devem ser fatiadas
 - **Migrations rodam apenas em horário de baixo tráfego** (define janela com Líder)
+- **Mandamento 02 inviolável:** o Coordenador é o ÚNICO que orquestra alterações de schema, sempre via script — nunca edita `schema.prisma` à mão
 
 ---
 
@@ -140,10 +141,10 @@ npx tsx scripts/migrate-all-tenants.ts --product=pedido --env=production --batch
 
 Coordenador monitora diariamente:
 
-- [ ] Worker do evento `TenantProvisioned` está vivo (health check)?
+- [ ] Worker do evento `OrganizacaoProvisionada` está vivo (health check)?
 - [ ] DLQ do worker está vazia? Se não, investigar e drenar.
 - [ ] Tempo médio de provisionamento (p95) < 30s?
-- [ ] Nenhum tenant em estado "PROVISIONING_FAILED" há mais de 1h sem ação humana?
+- [ ] Nenhuma organização em estado "PROVISIONING_FAILED" há mais de 1h sem ação humana?
 
 Se algum item falhar → escalar para o Líder + DevOps. Não tente "consertar" sozinho um schema corrompido — a correção pode mascarar o bug raiz.
 
@@ -188,7 +189,7 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 
 ---
 
-## Checklists de Validação por Onda (pós-pivô)
+## Checklists de Validação por Onda
 
 ### Após Onda 1 — antes de iniciar Onda 2
 
@@ -197,9 +198,8 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 | Estrutura do monorepo correta | Reexecutar agente 0A |
 | `@gravity/tenant-resolver` SDK compila e tests passam | Reexecutar Tech Lead — bloqueia tudo |
 | Bancos `configurador-db` e `tenant-shared` criados | DevOps recria via Railway |
-| Migration de bootstrap aplicada (1 schema `tenant_<uuid>` de teste) | Reexecutar `provision-test-tenant` |
+| Migration de bootstrap aplicada (1 schema `tenant_<cuid>` de teste) | Reexecutar `provision-test-tenant` |
 | ESLint custom rule (bloqueia `import { PrismaClient }`) ativa em CI | Reexecutar agente DevOps |
-| `documentos-tecnicos/adr/ADR-001..003` mergeados | Coordenador completa manualmente |
 
 ### Após Onda 2 — antes de iniciar Onda 3
 
@@ -207,27 +207,27 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 |:---|:---|
 | `<TabelaGlobal>`, `<ModalGlobal>`, `<SelectGlobal>` renderizam | Reexecutar agente 1A |
 | Shell carrega Layout + Sidebar + Header | Reexecutar agente 1B |
-| Configurador autentica via Clerk e responde `GET /api/me` | Reexecutar agente Configurador |
-| Configurador emite `TenantProvisioned` no event bus | Reexecutar agente Configurador |
+| Configurador autentica via Clerk e responde `GET /api/v1/me` (autorização do Prisma — Mandamento 01) | Reexecutar agente Configurador |
+| Configurador emite `OrganizacaoProvisionada` no event bus | Reexecutar agente Configurador |
 | Worker `provisioner` consome o evento e cria schema | Reexecutar Tech Lead — bloqueia Onda 3 |
 
 ### Após Onda 3 — antes de iniciar Onda 4
 
 | Item | Rollback se falhar |
 |:---|:---|
-| Cada serviço de tenant responde `GET /health` | Reexecutar serviço que falhou |
+| Cada serviço por organização responde `GET /health` | Reexecutar serviço que falhou |
 | Todos os serviços usam **exclusivamente** `withTenant` ou `withTenantContext` | Reprovação imediata pelo lint CI |
 | Schema `tenant-shared` compõe sem conflito (todos os fragments) | Coordenador resolve naming |
 | Schema de cada produto compõe sem conflito | Coordenador resolve naming |
 | `contracts.json` atualizado com endpoints da Onda 3 | Coordenador atualiza |
-| Testes anti-cross-tenant + pool leak passam para cada serviço | Reprovação imediata |
+| Testes anti-cross-organização + pool leak passam para cada serviço | Reprovação imediata |
 | `documentos-tecnicos/api/` tem entry para cada novo endpoint | Coordenador cobra do agente |
 
 ### Após Onda 4 — plataforma completa
 
 | Item | Rollback se falhar |
 |:---|:---|
-| Produto navega entre pages e serviços de tenant | Verificar `PRODUCT_CONFIG` |
+| Produto navega entre pages e serviços por organização | Verificar `PRODUCT_CONFIG` |
 | Proxy roteia para todos os serviços | Verificar `contracts.json` vs endpoints reais |
 | JWT propagado em toda a cadeia | Reexecutar Auth Flow |
 | `x-internal-key` validado em toda chamada S2S | Verificar env Railway |
@@ -265,10 +265,11 @@ Quando dois agentes da mesma onda geram conflito (naming duplicado, sobreposiç�
 - [ ] Composição executada sem erros (por produto + tenant-shared)?
 - [ ] `prisma validate` passou em todos os schemas?
 - [ ] Nenhum model duplicado entre fragments?
-- [ ] Nenhum model de produto com `tenant_id` (após Fase 4 do ADR-003)?
+- [ ] Nenhum model de produto com campo de identificador de organização (após migração completa)?
 - [ ] `contracts.json` atualizado?
 - [ ] Conflitos identificados e resolvidos?
-- [ ] Testes anti-cross-tenant passando?
+- [ ] Testes anti-cross-organização passando?
 - [ ] `documentos-tecnicos/` reflete as mudanças (DoD §6)?
 - [ ] Skills relacionadas refatoradas se a entrega muda padrão?
+- [ ] Mandamentos 02 (schema intocável) e 07 (sincronia de contratos) respeitados?
 - [ ] Líder notificado com status?

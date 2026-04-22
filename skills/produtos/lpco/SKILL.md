@@ -1,6 +1,6 @@
 ---
 name: antigravity-lpco
-description: "Use esta skill ao desenvolver ou modificar o produto LPCO (Licencas, Permissoes, Certificados e Outros). Define o ciclo de vida do documento LPCO, os status de tramitacao, a integracao com orgaos anuentes do Portal Unico Siscomex, os modelos de formularios por orgao, o vinculo com DUIMP/DU-E, e o isolamento zero-trust por tenant+company. Todo agente consulta esta skill antes de tocar em LPCO, LpcoItem, ou nas rotas de /api/v1/lpcos."
+description: "Use esta skill ao desenvolver ou modificar o produto LPCO (Licencas, Permissoes, Certificados e Outros). Define o ciclo de vida do documento LPCO, os status de tramitacao, a integracao com orgaos anuentes do Portal Unico Siscomex, os modelos de formularios por orgao, o vinculo com DUIMP/DU-E, e o isolamento zero-trust por organizacao+workspace. Todo agente consulta esta skill antes de tocar em LPCO, LpcoItem, ou nas rotas de /api/v1/lpcos."
 ---
 
 # Gravity — Skill: LPCO (Licencas, Permissoes, Certificados e Outros)
@@ -323,8 +323,8 @@ class TokenOAuth2Strategy implements PortalUnicoAuthStrategy {
 ```prisma
 model SiscomexCredencial {
   id                    String    @id @default(cuid())
-  tenant_id             String
-  company_id            String
+  id_organizacao        String    @map("tenant_id")
+  id_workspace          String    @map("company_id")
 
   // Tipo de autenticacao
   tipo_auth             String                  // CERTIFICADO_DIGITAL | TOKEN_OAUTH2
@@ -371,7 +371,7 @@ Usuario configura credenciais (1x por empresa):
   └─── Tem token gov.br? ──→ client_id + secret → AES-256 → DB
 
 Ao registrar LPCO no Portal Unico:
-  1. portalUnicoAdapter.getAuthStrategy(tenant_id, company_id)
+  1. portalUnicoAdapter.getAuthStrategy(idOrganizacao, idWorkspace)
   2. Se CERTIFICADO_DIGITAL disponivel → mTLS → JWT
   3. Se apenas TOKEN_OAUTH2 → client_credentials → Bearer
   4. Se nenhum → modo manual (usuario registra por fora)
@@ -384,28 +384,30 @@ Ao registrar LPCO no Portal Unico:
 
 ---
 
-## 9. Isolamento Zero-Trust (tenant_id + company_id)
+## 9. Isolamento Zero-Trust (Organização + Workspace)
 
-**Toda query exige o par `tenant_id` + `company_id`.**
+**Toda query exige o par de campos de Organização + Workspace do model Prisma (atualmente `tenant_id` + `company_id` — colunas reais do fragment.prisma do LPCO).**
+
+> Os nomes dos campos Prisma são preservados conforme o `fragment.prisma` real (Mandamento 02 — schema intocável). Em payloads, JSON e variáveis TypeScript fora do contexto Prisma, use a nomenclatura DDD (`idOrganizacao`, `idWorkspace`).
 
 ```typescript
-// CORRETO
+// CORRETO — campos Prisma reais
 prisma.lpco.findMany({
   where: { tenant_id, company_id, status: 'deferida' }
 })
 
-// PROIBIDO — falta tenant_id
+// PROIBIDO — falta tenant_id (Organização)
 prisma.lpco.findMany({
   where: { status: 'deferida' }
 })
 
-// PROIBIDO — falta company_id
+// PROIBIDO — falta company_id (Workspace)
 prisma.lpco.findMany({
   where: { tenant_id, status: 'deferida' }
 })
 ```
 
-**Anti-enumeracao:** Se usuario tenta acessar LPCO de outro tenant/company, retornar HTTP 404 (nao 403).
+**Anti-enumeracao:** Se usuario tenta acessar LPCO de outra Organização/Workspace, retornar HTTP 404 (nao 403).
 
 ---
 
@@ -440,9 +442,12 @@ const LpcoItemSchema = z.object({
 ## 11. Anti-Padroes — O Que NUNCA Fazer
 
 - ❌ Mudar status de LPCO sem passar pelo `lpcoStatusEngine`
-- ❌ Query sem filtro `tenant_id` + `company_id`
+- ❌ Query sem filtro de Organização + Workspace (`tenant_id` + `company_id` no fragment.prisma atual)
 - ❌ Usar `cuid()` ou `uuid()` em vez de IDs corporativos
 - ❌ Cancelar LPCO deferida que tem vinculos ativos
+- ❌ Ler `publicMetadata.role` do Clerk para autorização — permissões vêm de `GET /api/v1/me` (Mandamento 01)
+- ❌ `useState<T>({} as T)` em telas de LPCO — usar `null` + tratamento de loading (Mandamento 05)
+- ❌ Consumir `fetch().json()` sem `schema.parse()` Zod (Mandamento 06)
 - ❌ Permitir vinculo em LPCO Flex sem verificar saldo
 - ❌ Permitir vinculo em LPCO com `data_vigencia_fim` expirada
 - ❌ Criar LPCO de importacao sem produto no Catalogo
@@ -454,13 +459,15 @@ const LpcoItemSchema = z.object({
 
 ## 12. Checklist Pre-Entrega
 
-- [ ] Todo model Prisma tem `tenant_id` + `company_id` obrigatorios?
-- [ ] 3 indices por model: `[tenant_id]`, `[tenant_id, product_id]`, `[tenant_id, user_id]`?
+- [ ] Todo model Prisma do LPCO tem campos de Organização + Workspace obrigatórios (`tenant_id` + `company_id` no fragment.prisma atual)?
+- [ ] 3 índices por model: `[tenant_id]`, `[tenant_id, product_id]`, `[tenant_id, user_id]` (nomes dos campos Prisma reais)?
 - [ ] IDs corporativos com prefixo `lpco_id_`, `lpit_id_`, etc.?
 - [ ] Status muda apenas via `lpcoStatusEngine`?
 - [ ] Saldo de LPCO Flex validado antes de criar vinculo?
 - [ ] Cancelamento automatico (90 dias) implementado via cron?
 - [ ] Validacao Zod em todas as rotas de criacao/atualizacao?
 - [ ] `LpcoHistorico` append-only em toda transicao?
-- [ ] Anti-enumeracao: 404 para acesso cross-tenant?
-- [ ] Testes de tenant isolation cobrindo todos os endpoints?
+- [ ] Anti-enumeracao: 404 para acesso entre Organizações?
+- [ ] Testes de Isolamento de Organização cobrindo todos os endpoints?
+- [ ] Front lê `tipo_usuario` apenas via `/api/v1/me` validado por Zod (Mandamentos 01, 06, 09)?
+- [ ] Sem `publicMetadata` lido para autorização?

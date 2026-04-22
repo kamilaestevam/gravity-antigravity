@@ -38,7 +38,7 @@ const EndpointSchema = z.object({
   temBody:     z.boolean(),
   temAuth:     z.boolean(),
   temRbac:     z.boolean().default(false),
-  temDados:    z.boolean().default(false),          // retorna/persiste dados de tenant
+  temDados:    z.boolean().default(false),          // retorna/persiste dados da Organização
   critico:     z.boolean().default(false),          // true → mínimo 10 casos
   schemaBody:  z.string().optional(),               // nome do schema Zod de input
   schemaResponse: z.string().optional(),            // nome do schema Zod de response
@@ -65,16 +65,18 @@ const BuildTestAppSchema = z.object({
 })
 
 // ─── Request do caso ─────────────────────────────────────────────────────────
+// authInjetada usa nomenclatura DDD (Mandamento 03). tipoUsuario é lido do banco
+// via /api/v1/me — nunca do publicMetadata do Clerk (Mandamento 01).
 const RequestFuncSchema = z.object({
   metodo:    MetodoHttpSchema,
   path:      z.string(),
   headers:   z.record(z.string(), z.string()).optional(),
   body:      z.record(z.string(), z.unknown()).optional(),
   authInjetada: z.object({
-    userId:      z.string(),
-    tenantId:    z.string(),
-    clerkUserId: z.string(),
-    role:        z.string(),
+    idUsuario:     z.string(),
+    idOrganizacao: z.string(),
+    clerkUserId:   z.string(),
+    tipoUsuario:   z.string(),
   }).optional(),
 })
 
@@ -201,7 +203,7 @@ export type PlanoTesteFuncional = z.infer<typeof PlanoTesteFuncionalSchema>
   "temDinheiro": false,
   "smeRevisadoPor": null,
   "smeRevisadoEm": null,
-  "resumoExecutivo": "Rota POST /api/v1/assinaturas/subscribe que cria ou atualiza config de produto para o tenant autenticado. Risco principal: tenant_id do request injetado de req.auth (não do body) — caso de cross-tenant crítico.",
+  "resumoExecutivo": "Rota POST /api/v1/assinaturas/subscribe que cria ou atualiza config de produto para a Organização autenticada. Risco principal: id da Organização injetado de req.auth.idOrganizacao (gravado no campo Prisma real `tenant_id`), nunca do body — caso de Isolamento de Organização crítico.",
   "buildTestApp": {
     "ordem": [
       { "tipo": "json" },
@@ -223,14 +225,14 @@ export type PlanoTesteFuncional = z.infer<typeof PlanoTesteFuncionalSchema>
       "nomeMock": "mockConfigUpsert",
       "alvo": "prisma.configuracaoProduto.upsert",
       "estrategia": "vi.hoisted",
-      "descricao": "Upsert da config do produto para o tenant"
+      "descricao": "Upsert da config do produto para a Organização"
     }
   ],
   "endpoints": [
     {
       "metodo": "POST",
       "path": "/api/v1/assinaturas/subscribe",
-      "descricao": "Contrata produto para o tenant autenticado",
+      "descricao": "Contrata produto para a Organização autenticada",
       "temBody": true,
       "temAuth": true,
       "temRbac": false,
@@ -244,12 +246,12 @@ export type PlanoTesteFuncional = z.infer<typeof PlanoTesteFuncionalSchema>
     { "categoria": 1, "nome": "Happy path (2xx)", "status": "coberta", "casosAssociados": [1] },
     { "categoria": 2, "nome": "Validação de body (400)", "status": "coberta", "casosAssociados": [2, 3, 4] },
     { "categoria": 3, "nome": "Autenticação ausente/inválida (401)", "status": "coberta", "casosAssociados": [5] },
-    { "categoria": 4, "nome": "Autorização insuficiente (403)", "status": "nao_aplicavel", "justificativa": "Rota não tem RBAC — qualquer role autenticado pode contratar produto" },
+    { "categoria": 4, "nome": "Autorização insuficiente (403)", "status": "nao_aplicavel", "justificativa": "Rota não tem RBAC — qualquer tipo_usuario autenticado pode contratar produto" },
     { "categoria": 5, "nome": "Recurso não encontrado (404)", "status": "coberta", "casosAssociados": [6] },
     { "categoria": 6, "nome": "Erro de servidor (500)", "status": "coberta", "casosAssociados": [7] },
     { "categoria": 7, "nome": "Formato de erro canônico", "status": "coberta", "casosAssociados": [2, 3, 5, 6, 7] },
     { "categoria": 8, "nome": "Contrato de response (shape Zod)", "status": "coberta", "casosAssociados": [1] },
-    { "categoria": 9, "nome": "Isolamento cross-tenant (WHERE)", "status": "coberta", "casosAssociados": [8] },
+    { "categoria": 9, "nome": "Isolamento de Organização (WHERE)", "status": "coberta", "casosAssociados": [8] },
     { "categoria": 10, "nome": "Inputs adversariais", "status": "coberta", "casosAssociados": [9] },
     { "categoria": 11, "nome": "Idempotência", "status": "coberta", "casosAssociados": [10] },
     { "categoria": 12, "nome": "Chamada cross-service", "status": "nao_aplicavel", "justificativa": "Rota não chama outros serviços internos" },
@@ -274,14 +276,14 @@ export type PlanoTesteFuncional = z.infer<typeof PlanoTesteFuncionalSchema>
         "metodo": "POST",
         "path": "/api/v1/assinaturas/subscribe",
         "body": { "product_key": "pedido" },
-        "authInjetada": { "userId": "usr_func_01", "tenantId": "ten_func_01", "clerkUserId": "clerk_01", "role": "MASTER" }
+        "authInjetada": { "idUsuario": "usr_func_01", "idOrganizacao": "org_func_01", "clerkUserId": "clerk_01", "tipoUsuario": "MASTER" }
       },
       "assercoes": [
         { "tipo": "status", "valor": 201 },
         { "tipo": "bodyField", "campo": "config.product_key", "valor": "pedido" },
-        { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": { "where.tenant_id_product_key.tenant_id": "ten_func_01" } }
+        { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": { "where.tenant_id_product_key.tenant_id": "org_func_01" } }
       ],
-      "resultadoEsperado": "201 com config e catalog; upsert chamado com tenant_id = ten_func_01",
+      "resultadoEsperado": "201 com config e catalog; upsert chamado com campo Prisma tenant_id = org_func_01 (de req.auth.idOrganizacao)",
       "adversarial": false
     }
   ],

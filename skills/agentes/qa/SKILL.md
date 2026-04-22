@@ -35,32 +35,41 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 
 ## Checklist Completo de Revisão
 
-### 1 — Segurança
+### 1 — Segurança e 9 Mandamentos
 
-- [ ] Nenhuma rota aceita `req.body` sem validação Zod
+- [ ] Nenhuma rota aceita `req.body` sem validação Zod (Mandamento 06)
 - [ ] Nenhum dado sensível exposto em logs ou respostas
-- [ ] JWT validado em toda rota protegida via `@clerk/backend`
+- [ ] JWT validado em toda rota protegida via `@clerk/backend` (autenticação APENAS — Mandamento 01)
+- [ ] **PROIBIDO ler `publicMetadata.role` ou qualquer publicMetadata para autorização** (Mandamento 01) — autorização vem do Prisma via `GET /api/v1/me`
+- [ ] Nenhum `(data?.x?.y ?? null) as Role` (Mandamento 08 — sem fallback silencioso)
+- [ ] Toda resposta `fetch().json()` passa por `schema.parse()` Zod (Mandamento 06)
 - [ ] `x-internal-key` presente em toda chamada entre serviços internos
 - [ ] Nenhuma variável de ambiente hardcoded no código
-- [ ] Nenhum `console.log` expondo dados de usuário ou tenant
+- [ ] Nenhum `console.log` expondo dados de usuário ou organização
+- [ ] Nenhum `useState<T>({} as T)` (Mandamento 05) — usar `useState<T | null>(null)` + tratamento loading
+- [ ] **DDD respeitado** (Mandamento 03): `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `is_gravity_admin` em payloads/props/variáveis
+- [ ] **Mandamento 02**: nenhuma alteração manual em `schema.prisma` — código adequado ao schema
+- [ ] **Mandamento 04**: Master/Super Admin reconhecidos sem `UsuarioWorkspace`
+- [ ] **Mandamento 07**: renomear campo de API atualizou TODOS os consumidores no MESMO commit
+- [ ] **Mandamento 09**: backend mudou → schema Zod do front mudou no MESMO commit
 
-### 2 — Tenant Isolation (pós-pivô Schema-per-Tenant — 2026-04-17)
+### 2 — Isolamento de Organização (Schema-per-Organização)
 
-> Consultar `antigravity-tenant-isolation` (reescrita 2026-04-17), `antigravity-tier1-security`, [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
+> Consultar `antigravity-tenant-isolation`.
 
 - [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`
-- [ ] `withTenantContext(tenantId, fn)` em CRON jobs e workers (sem `req`)
+- [ ] `withTenantContext(idOrganizacao, fn)` em CRON jobs e workers (sem `req`)
 - [ ] **Nenhum** `import { PrismaClient } from '@prisma/client'` fora do SDK — reprovação imediata
 - [ ] **Nenhum** `new PrismaClient(` no código de aplicação — reprovação imediata
-- [ ] **Nenhum** `WHERE tenant_id = ?` em queries de produto (o schema **é** o tenant)
-- [ ] Models de produto **não têm coluna `tenant_id`** (após Fase 4 da [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md))
+- [ ] **Nenhum** `WHERE id_organizacao = ?` em queries de produto (o schema **é** a organização)
+- [ ] Models de produto **não têm campo de identificador de organização** (após migração completa)
 - [ ] **Nenhum** `SET search_path` sem `LOCAL` dentro de transação
 - [ ] **Nenhum** uso de PgBouncer session mode para banco de produto
-- [ ] `tenantId` lido de `req.tenant` (do `GET /api/me` cacheado pelo SDK), **nunca** do `publicMetadata` do Clerk
-- [ ] Chaves de cache prefixadas por `tenant:<id>:` ou `tenant:_global:` (com justificativa)
-- [ ] Teste anti-cross-tenant em `testes/security/cross-tenant-isolation.test.ts`
+- [ ] `idOrganizacao` lido de `req.tenant.tenantId` (do `GET /api/v1/me` cacheado pelo SDK), **nunca** do `publicMetadata` do Clerk
+- [ ] Chaves de cache prefixadas por `tenant:<id>:` ou `tenant:_global:` (prefixo técnico real do SDK — manter)
+- [ ] Teste anti-cross-organização em `testes/security/cross-tenant-isolation.test.ts`
 - [ ] Teste de pool leak (crash do handler não polui `search_path` da próxima request)
-- [ ] Nenhum endpoint retorna dados de múltiplos tenants misturados
+- [ ] Nenhum endpoint retorna dados de múltiplas organizações misturados
 
 ### 3 — Padrões de Código
 
@@ -81,7 +90,7 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 - [ ] Testes unitários presentes e passando
 - [ ] Testes funcionais presentes e passando
 - [ ] Cobertura unitária ≥ 80% para `nucleo-global`, ≥ 70% para demais módulos
-- [ ] Teste de cross-tenant implementado para serviços de tenant
+- [ ] Teste de cross-organização implementado para serviços por organização
 - [ ] Plano de testes E2E criado e aprovado pelo dono antes da execução
 - [ ] Specs E2E implementam exatamente o plano aprovado
 - [ ] Categoria 11 (testes específicos do produto) preenchida e aprovada pelo dono
@@ -93,11 +102,11 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 
 - [ ] O agente só tocou nas pastas autorizadas na tarefa distribuída pelo Líder
 - [ ] Nenhum componente do `nucleo-global` foi modificado por agente fora da Onda 2
-- [ ] Nenhum serviço de tenant importa código de outro serviço de tenant
+- [ ] Nenhum serviço por organização importa código de outro serviço por organização
 - [ ] Serviços de produto não acessam o banco do Configurador diretamente
 - [ ] Produtos não acessam o banco de outros produtos
 - [ ] Imports usam aliases configurados (`@nucleo/`, `@tenant/`, `@produto/`)
-- [ ] `Fragment.prisma` não modifica o `schema.prisma` final diretamente
+- [ ] `Fragment.prisma` não modifica o `schema.prisma` final diretamente (Mandamento 02)
 
 ### 6 — Qualidade Geral
 
@@ -152,7 +161,7 @@ O plano de testes deve cobrir **todas** as categorias abaixo sem exceção. Se u
 ### Categoria 5 — Navegação e Layout
 - [ ] Menu lateral expandindo e retraindo
 - [ ] Navegação entre todas as seções do produto
-- [ ] Navegação entre produto e serviços de tenant
+- [ ] Navegação entre produto e serviços por organização
 - [ ] Breadcrumb ou indicador de rota ativa correto
 - [ ] Botão voltar funciona corretamente
 - [ ] Rota direta via URL — acesso autorizado e não autorizado
@@ -312,8 +321,11 @@ Após correção, QA deve ser acionado novamente.
 
 ## Regras que o QA nunca viola
 
-- **Nunca aprova entrega com falha de tenant isolation** — bloqueio imediato
+- **Nunca aprova entrega com violação de qualquer um dos 9 Mandamentos** — bloqueio imediato
+- **Nunca aprova entrega com falha de Isolamento de Organização** — bloqueio imediato
 - **Nunca aprova entrega com falha de segurança** — bloqueio imediato
+- **Nunca aprova entrega que lê `publicMetadata.role`** (Mandamento 01) — bloqueio imediato
+- **Nunca aprova entrega que altera `schema.prisma`** (Mandamento 02) — bloqueio imediato
 - **Nunca aprova sem os três tipos de teste presentes e passando**
 - **Nunca cria specs E2E sem plano aprovado pelo dono** — bloqueio absoluto
 - **Nunca omite categoria do plano** sem justificativa explícita
@@ -327,8 +339,8 @@ Após correção, QA deve ser acionado novamente.
 
 | Para validar | Consultar |
 |:---|:---|
-| Tenant isolation (pós-pivô) | `antigravity-tenant-isolation` + `antigravity-tier1-security` |
-| ADRs do pivô Schema-per-Tenant | [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md) |
+| 9 Mandamentos | `antigravity-9-mandamentos` |
+| Isolamento de Organização | `antigravity-tenant-isolation` + `antigravity-tier1-security` |
 | Padrões de código | `antigravity-code-standards` + `antigravity-api-design` |
 | Como escrever testes | `antigravity-testes` |
 | Documentação + skills (DoD) | `antigravity-definition-of-done` (§6 e §7) |

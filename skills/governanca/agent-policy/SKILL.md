@@ -107,33 +107,36 @@ Se um agente perceber que está tentando usar algo que ainda não foi construíd
 
 ---
 
-## Regras de Schema (pós-pivô Schema-per-Tenant — ADR-001)
+## Regras de Schema (Schema-per-Organização — DDD)
 
-- Cada banco de produto opera em **schema-per-tenant**: 1 schema PostgreSQL por tenant. Models de produto **NÃO** têm coluna `tenant_id` (o schema **é** o tenant).
-- Configurador permanece single-schema `public` (fonte de verdade global de identidade).
-- Todo agente de produto escreve **apenas** o schema do seu produto (sem fragments de tenant).
-- **Nenhum agente** edita o `schema.prisma` manualmente — alterações de schema disparam migration que roda em N schemas via `scripts/migrate-all-tenants.ts`.
-- Provisionamento de schema novo é responsabilidade do worker do evento `TenantProvisioned` — não do agente que escreve a feature.
+- Cada banco de produto opera em **Schema-per-Organização**: 1 schema PostgreSQL por organização. Models de produto **NÃO** têm coluna de identificador de organização (o schema **é** a organização).
+- Configurador permanece single-schema `public` (fonte de verdade global de identidade — Organização, Workspace, Usuário).
+- Todo agente de produto escreve **apenas** o schema do seu produto (sem fragments globais).
+- **Nenhum agente** edita o `schema.prisma` manualmente (Mandamento 02 — schema é INTOCÁVEL). Alterações de schema disparam migration que roda em N schemas via `scripts/migrate-all-tenants.ts`.
+- Provisionamento de schema novo é responsabilidade do worker do evento `OrganizacaoProvisionada` — não do agente que escreve a feature.
 
 ---
 
-## Regras de Segurança (pós-pivô — ADR-001/002)
+## Regras de Segurança (alinhadas aos 9 Mandamentos)
 
 Todo agente que escreve código garante:
 
-- Nenhuma rota sem validação Zod
+- Nenhuma rota sem validação Zod (Mandamento 06)
 - Nenhum `console.log` com dados sensíveis
 - Nenhuma variável de ambiente hardcoded
-- JWT validado em toda rota protegida via `@clerk/backend`
+- JWT validado em toda rota protegida via `@clerk/backend` — **Clerk APENAS para autenticação** (Mandamento 01)
 - `x-internal-key` presente em toda chamada entre serviços
 - **Acesso ao banco de produto exclusivamente via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`** — `import { PrismaClient } from '@prisma/client'` é proibido fora do SDK (linter CI bloqueia)
-- Toda chave de cache prefixada por `tenant:<id>:` (ou `tenant:_global:` com justificativa)
-- Identidade do tenant lida de `req.tenant` (vem do `GET /api/me` do Configurador) — **nunca** do `publicMetadata` do Clerk
+- Toda chave de cache prefixada por `tenant:<id>:` (ou `tenant:_global:` com justificativa) — o nome do SDK é mantido por compatibilidade técnica
+- **Autorização vem do Prisma via `GET /api/v1/me`** — PROIBIDO ler `publicMetadata.role` do Clerk para decidir permissões (Mandamento 01)
+- Identidade da organização vem do JWT validado pelo SDK — **nunca** do body da requisição
+- Sem fallbacks silenciosos em autorização: `tipo_usuario` ausente → falhar alto (Mandamento 08)
+- Toda resposta de `fetch().json()` passa por `schema.parse()` Zod antes do uso (Mandamento 06)
 
-> Consultar `antigravity-tenant-isolation` (reescrita 2026-04-17) para as regras completas de isolamento.
+> Consultar `antigravity-9-mandamentos` para as regras absolutas e não-negociáveis.
+> Consultar `antigravity-tenant-isolation` para as regras completas de Isolamento de Organização.
 > Consultar `antigravity-code-standards` para os padrões completos de código.
 > Consultar `antigravity-monorepo` antes de alterar package.json, tsconfig.json, vite.config.ts ou instalar dependências.
-> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
 
 ---
 

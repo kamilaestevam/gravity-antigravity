@@ -16,7 +16,7 @@
 | 6 | Erro de servidor (500) | baixa:1 / media:1 / alta:2 / crit:3 | Todos | 🔴 |
 | 7 | Formato de erro canônico | baixa:1 / media:2 / alta:3 / crit:4 | Todos | 🔴 |
 | 8 | Contrato de response (shape Zod) | baixa:1 / media:2 / alta:3 / crit:4 | Contrato API, Rota CRUD | 🔴 |
-| 9 | Isolamento cross-tenant (WHERE) | baixa:0 / media:1 / alta:2 / crit:4 | Rota CRUD, Fluxo, Cross-Tenant | 🔴 |
+| 9 | Isolamento de Organização (WHERE) | baixa:0 / media:1 / alta:2 / crit:4 | Rota CRUD, Fluxo, Cross-Tenant | 🔴 |
 | 10 | Inputs adversariais | baixa:0 / media:1 / alta:2 / crit:3 | Rota CRUD, Webhook, Fluxo | 🔴 |
 | 11 | Idempotência | baixa:0 / media:1 / alta:2 / crit:3 | Webhook, Fluxo, Script CLI | 🟡 |
 | 12 | Chamada cross-service (URL + headers) | baixa:0 / media:1 / alta:2 / crit:3 | Cross-Service | 🟡 |
@@ -81,25 +81,26 @@ expect(res.body.error.details.fieldErrors['campo_faltando']).toHaveLength.greate
 ---
 
 ### 4. Autorização insuficiente (403) 🔴
-**O que cobre:** usuário autenticado mas sem role suficiente.
+**O que cobre:** usuário autenticado mas sem `tipo_usuario` suficiente.
 
 **Casos típicos:**
-- Role `USER` tenta ação de `ADMIN` → `403 FORBIDDEN`
-- Role `ADMIN` tenta ação de `SUPER_ADMIN` → `403 FORBIDDEN`
-- Usuário de tenant X tenta operação em tenant Y (se detectado antes do 404) → `403 FORBIDDEN`
+- `tipo_usuario` `USUARIO` tenta ação de `ADMIN` → `403 FORBIDDEN`
+- `tipo_usuario` `ADMIN` tenta ação de `SUPER_ADMIN` → `403 FORBIDDEN`
+- Usuário da Organização X tenta operação na Organização Y (se detectado antes do 404) → `403 FORBIDDEN`
+- `tipo_usuario` lido SEMPRE de `GET /api/v1/me` (Mandamento 01) — nunca do `publicMetadata`
 
 ---
 
 ### 5. Recurso não encontrado (404) 🔴
-**O que cobre:** ID ou recurso não existe ou pertence a outro tenant.
+**O que cobre:** ID ou recurso não existe ou pertence a outra Organização.
 
 **Casos típicos:**
 - `GET /:id` com ID inexistente → `404 NOT_FOUND`
-- `GET /:id` com ID de outro tenant → `404 NOT_FOUND` (não 403 — não vazar existência)
+- `GET /:id` com ID de outra Organização → `404 NOT_FOUND` (não 403 — não vazar existência)
 - `PUT /:id` com ID inexistente → `404 NOT_FOUND`
 - `DELETE /:id` com ID inexistente → `404 NOT_FOUND`
 
-**Regra crítica:** resposta é sempre `404`, nunca `403`, para IDs de outros tenants — 403 vazaria que o recurso existe.
+**Regra crítica:** resposta é sempre `404`, nunca `403`, para IDs de outras Organizações — 403 vazaria que o recurso existe.
 
 ---
 
@@ -152,12 +153,16 @@ expect(res.body).not.toHaveProperty('error_message')
 
 ---
 
-### 9. Isolamento cross-tenant (WHERE) 🔴
-**O que cobre:** que o `tenant_id` do usuário autenticado sempre filtra as queries.**Casos típicos:**
-- Verificar `mockFindMany.mock.calls[0][0].where.tenant_id === req.auth.tenantId`
-- Tenant A faz GET → mock retorna dados de A → verificar que WHERE não contém tenant B
-- Tenant B faz GET → mesmo mock → WHERE filtra tenant B
-- Request com `tenant_id` no body (tentativa de injeção) → sistema usa `req.auth.tenantId`, ignora o body
+### 9. Isolamento de Organização (WHERE) 🔴
+**O que cobre:** que o campo Prisma de Organização (`tenant_id` no fragment real) do usuário autenticado sempre filtra as queries.
+
+> Os nomes Prisma `tenant_id` são preservados (Mandamento 02 — schema intocável). Em payloads/JSON/TS de aplicação, use a nomenclatura DDD (`idOrganizacao`).
+
+**Casos típicos:**
+- Verificar `mockFindMany.mock.calls[0][0].where.tenant_id === req.tenant.tenantId`
+- Organização A faz GET → mock retorna dados de A → verificar que WHERE não contém Organização B
+- Organização B faz GET → mesmo mock → WHERE filtra Organização B
+- Request com `idOrganizacao` no body (tentativa de injeção) → sistema usa `req.tenant.tenantId` do JWT, ignora o body
 
 **Regra:** não basta verificar status 200. É preciso inspecionar o argumento passado ao mock do Prisma.
 
@@ -198,7 +203,7 @@ expect(res.status).not.toBe(500)  // sistema não crasha
 **Casos típicos:**
 - Verificar URL da chamada inclui path correto
 - Verificar header `x-internal-key` presente e não vazio
-- Verificar que `tenant_id` é passado corretamente para o serviço B
+- Verificar que o id da Organização é passado corretamente para o serviço B (header `x-tenant-id` ou body conforme contrato)
 - Serviço B retorna erro → comportamento de degradação correto
 
 ---
@@ -221,7 +226,7 @@ expect(res.status).not.toBe(500)  // sistema não crasha
 - Token novo (miss) → `clerkClient.verifyToken` chamado → resultado cacheado
 - Token repetido (hit) → `clerkClient.verifyToken` NÃO chamado novamente
 - Token invalidado → próxima request forçada a verificar novamente
-- Cache prefixado por `tenant:<id>:` — não vaza entre tenants
+- Cache prefixado por `tenant:<idOrganizacao>:` — não vaza entre Organizações
 
 ---
 
@@ -252,7 +257,7 @@ EXCEÇÕES:
 - tipoModulo = "middleware_auth" → força categorias 3, 14 com mínimo "alta"
 - tipoModulo = "webhook_assinatura" → força categoria 13 com mínimo "alta"
 - tipoModulo = "isolamento_cross_tenant" → força categoria 9 com mínimo "critica"
-- Qualquer rota com dados de tenant → força categoria 9 com mínimo "media"
+- Qualquer rota com dados de Organização → força categoria 9 com mínimo "media"
 ```
 
 ---

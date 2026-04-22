@@ -42,14 +42,15 @@ router.get('/rota', async (req: Request, res: Response, next: NextFunction) => {
   try {
     await withTenant(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const db        = rawDb as any           // cast obrigatório: TenantDatabase não inclui models do produto
-      const ctx       = (req as unknown as { tenant: TenantContext }).tenant  // cast obrigatório: module augmentation não propaga entre node_modules locais
-      const tenantId  = ctx.tenantId
-      const userId    = ctx.userId
-      const userRoles = ctx.roles
+      const db            = rawDb as any           // cast obrigatório: TenantDatabase não inclui models do produto
+      const ctx           = (req as unknown as { tenant: TenantContext }).tenant  // cast obrigatório: module augmentation não propaga entre node_modules locais
+      // A API atual do SDK ainda usa tenantId/userId — semântica: idOrganizacao/idUsuario
+      const idOrganizacao = ctx.tenantId
+      const idUsuario     = ctx.userId
+      const userRoles     = ctx.roles
 
       const resultado = await db.meuModel.findMany({
-        where: { tenant_id: tenantId },        // ← durante fase de transição (ADR-003 Fase 4)
+        where: { id_organizacao: idOrganizacao },   // ← campo Prisma DDD; durante fase de transição (ADR-003 Fase 4) o model legado usa @map("tenant_id")
       })
       res.json({ data: resultado })
     })
@@ -67,7 +68,7 @@ let itens: Array<{ id: string }> = []
 await withTenant(req, async (rawDb) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const db = rawDb as any
-  itens = await db.pedidoItem.findMany({ where: { tenant_id: tenantId } })
+  itens = await db.pedidoItem.findMany({ where: { id_organizacao: idOrganizacao } })   // campo Prisma DDD
   // res.json() aqui dentro se os dados não saem
 })
 // ⚠️ Se chamar código externo com itens: db JÁ fechou. Não reutilizar rawDb aqui.
@@ -76,8 +77,9 @@ await withTenant(req, async (rawDb) => {
 ### Padrão fire-and-forget (background após transação principal)
 
 ```typescript
-// ✅ CORRETO — capturar tenantId ANTES de withTenant; disparar DEPOIS que a transação fecha
-const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
+// ✅ CORRETO — capturar idOrganizacao ANTES de withTenant; disparar DEPOIS que a transação fecha
+//             (a API atual do SDK ainda chama o campo de tenantId — semântica: idOrganizacao)
+const idOrganizacao = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
 await withTenant(req, async (rawDb) => {
   // ... operação principal, res.json() aqui dentro
@@ -86,9 +88,9 @@ await withTenant(req, async (rawDb) => {
 // Só depois que withTenant resolve (transação fechada):
 if (deveDisparar) {
   setImmediate(() => {
-    withTenantContext(tenantId, async (ctx, rawDb) => {
+    withTenantContext(idOrganizacao, async (ctx, rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await executarTarefaBackground(rawDb as any, ctx.tenantId)
+      await executarTarefaBackground(rawDb as any, ctx.tenantId)   // ctx.tenantId = idOrganizacao
     }).catch(console.error)
   })
 }
@@ -376,7 +378,7 @@ CREATE TABLE audit_logs_2026_01 PARTITION OF audit_logs
 - [ ] Unique constraints incluem `id_organizacao`?
 
 **Antes de escrever código de acesso ao banco:**
-- [ ] Todo acesso ao banco usa `withTenant(req, fn)` ou `withTenantContext(tenantId, fn)`?
+- [ ] Todo acesso ao banco usa `withTenant(req, fn)` ou `withTenantContext(idOrganizacao, fn)` (semântica DDD; o nome do parâmetro na API atual do SDK ainda é `tenantId`)?
 - [ ] Nenhum `(req as any).prisma`, `req.prisma` ou `TenantRequest` no diff?
 - [ ] `TenantContext` extraído via `(req as unknown as { tenant: TenantContext }).tenant`?
 - [ ] `rawDb` castado como `const db = rawDb as any` com eslint-disable?

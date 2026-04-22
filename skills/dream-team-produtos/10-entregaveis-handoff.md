@@ -269,7 +269,7 @@ Duração: 60-90 minutos
 - [ ] Código implementado seguindo code-standards
 - [ ] Critérios de aceite passando
 - [ ] Testes unitários (cobertura mín. 70%)
-- [ ] Testes de tenant isolation
+- [ ] Testes de Isolamento de Organização
 - [ ] Validação Zod no endpoint
 - [ ] Dark mode e light mode funcionando
 - [ ] Responsividade verificada (desktop, tablet, mobile)
@@ -465,7 +465,7 @@ Então o foco segue a ordem: [elemento 1] → [elemento 2] → [elemento 3]
 - [ ] PRODUCT_CONFIG definido
 - [ ] Fragment.prisma rascunhado
 - [ ] Estimativas de complexidade por tela/funcionalidade
-- [ ] Segurança — tenant isolation, Zod, auth planejados
+- [ ] Segurança — Isolamento de Organização, Zod, auth planejados
 
 ### Gestão
 

@@ -739,7 +739,7 @@ Implementar wizard de 3-5 passos no primeiro acesso. Ver skill `antigravity-onbo
 - [ ] 17. Registrado no Configurador (catálogo + marketplace)?
 
 ### Qualidade
-- [ ] 18. Testes unitários + funcionais + cross-tenant?
+- [ ] 18. Testes unitários + funcionais + cross-organização?
 - [ ] 19. Seed de dados demo com is_demo flag?
 - [ ] 20. Rate limiting configurado?
 - [ ] 21. 5 camadas de segurança validadas?

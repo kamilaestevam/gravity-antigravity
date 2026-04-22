@@ -176,7 +176,7 @@ O agente **para tudo e notifica o Líder** quando:
 - Um pré-requisito da onda anterior não está pronto
 - Há conflito de naming ou sobreposição de escopo com outro agente
 - Uma decisão de produto precisa ser tomada (o que construir, como funciona)
-- Há dúvida sobre segurança ou tenant isolation
+- Há dúvida sobre segurança ou Isolamento de Organização
 
 **Nunca assume. Nunca inventa. Nunca avança com dúvida.**
 

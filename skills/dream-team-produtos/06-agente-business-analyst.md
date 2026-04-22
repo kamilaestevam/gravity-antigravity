@@ -200,12 +200,12 @@ Quando [ação]
 Então [resultado em menos de Y segundos]
 ```
 
-### CA-005: [Nome do critério — tenant isolation]
+### CA-005: [Nome do critério — Isolamento de Organização]
 ```gherkin
-Dado que existem dados de [tenant A] e [tenant B]
-Quando [usuário do tenant A faz ação]
-Então [apenas dados do tenant A são exibidos/afetados]
-  E [dados do tenant B permanecem intactos]
+Dado que existem dados da [Organização A] e [Organização B]
+Quando [usuário da Organização A faz ação]
+Então [apenas dados da Organização A são exibidos/afetados]
+  E [dados da Organização B permanecem intactos]
 ```
 ```
 
@@ -214,7 +214,7 @@ Então [apenas dados do tenant A são exibidos/afetados]
 - **Todo requisito funcional** do PRD tem pelo menos 3 critérios de aceite
 - **Cenário de sucesso** (happy path) — obrigatório
 - **Cenário de erro** — obrigatório (o que acontece quando dá errado?)
-- **Cenário de tenant isolation** — obrigatório para qualquer operação com dados
+- **Cenário de Isolamento de Organização** — obrigatório para qualquer operação com dados
 - **Cenário de performance** — obrigatório para operações com volume
 - **Mensagens de erro** devem ser os textos exatos que o sistema exibirá
 - **Dados de teste** devem ser especificados (não "com dados válidos", mas "com NCM 8471.30.19")
@@ -340,7 +340,7 @@ O Business Analyst compila todos os artefatos em um documento de especificação
 
 - ❌ Escreve critérios de aceite vagos ("sistema deve funcionar corretamente")
 - ❌ Omite fluxos de exceção ("o usuário sempre preenche certo")
-- ❌ Ignora tenant isolation nos critérios de aceite
+- ❌ Ignora Isolamento de Organização nos critérios de aceite
 - ❌ Cria regras de negócio sem validação do SME
 - ❌ Especifica comportamento visual (isso é do Designer)
 - ❌ Define arquitetura técnica (isso é do Tech Lead)
@@ -354,7 +354,7 @@ O Business Analyst compila todos os artefatos em um documento de especificação
 - [ ] Toda regra de negócio tem cenário principal + alternativos + exceções?
 - [ ] Todo caso de uso tem pré-condições, pós-condições e fluxos completos?
 - [ ] Todo critério de aceite está em formato Dado/Quando/Então?
-- [ ] Há critério de aceite de tenant isolation para operações com dados?
+- [ ] Há critério de aceite de Isolamento de Organização para operações com dados?
 - [ ] Mensagens de erro são textos exatos (não genéricos)?
 - [ ] Integrações com serviços Gravity existentes estão mapeadas?
 - [ ] O que precisa ser criado do zero está explícito?

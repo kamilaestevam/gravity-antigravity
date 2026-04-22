@@ -37,7 +37,7 @@ Uma tarefa só está "Done" quando **todos** os critérios abaixo são atendidos
 
 - [ ] Testes unitários criados (cobertura ≥ 70%, nucleo ≥ 80%)
 - [ ] Testes funcionais criados para rotas
-- [ ] Teste de cross-tenant implementado (serviços tenant)
+- [ ] Teste de cross-organização implementado (serviços da Organização)
 - [ ] Todos os testes passam sem warnings
 - [ ] Nenhum `describe.skip` ou `it.skip` sem justificativa
 

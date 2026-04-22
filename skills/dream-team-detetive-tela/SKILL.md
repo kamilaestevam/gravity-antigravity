@@ -186,7 +186,7 @@ Artefatos:
 - Todos têm `id_organizacao String @map("tenant_id")` (DDD obrigatório — Mandamento 03)?
 - Todos têm os 3 índices obrigatórios?
   - `@@index([id_organizacao])`
-  - `@@index([id_organizacao, product_id])`
+  - `@@index([id_organizacao, id_produto])`
   - `@@index([id_organizacao, id_usuario])`
 
 #### 5.2 Isolamento de Organização (Schema-per-Organização)

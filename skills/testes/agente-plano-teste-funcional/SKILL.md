@@ -19,7 +19,7 @@ description: "Use sempre que precisar criar ou expandir um plano de teste funcio
        /                  \
       /  Funcional (este)   \
      ┌────────────────────────┐
-     │ HTTP real (Supertest)  │ ← rotas, contratos, auth chain, cross-tenant
+     │ HTTP real (Supertest)  │ ← rotas, contratos, auth chain, cross-organização
      │ Zod real               │
      │ Error handler real     │
      │ Prisma/Clerk mockados  │
@@ -44,7 +44,7 @@ description: "Use sempre que precisar criar ou expandir um plano de teste funcio
 - Uma rota Express nova foi criada e precisa ter o contrato HTTP validado
 - Um fluxo de negócio multi-step precisa ser testado sem browser
 - Um middleware de auth precisa ser testado em cadeia
-- Isolamento de Organização (cross-tenant) precisa ser verificado na camada de rota
+- Isolamento de Organização (cross-organização) precisa ser verificado na camada de rota
 - Um contrato de API precisa ser validado contra schema Zod
 - Um webhook precisa ser testado com assinatura e side effects
 
@@ -135,28 +135,29 @@ it('response válido contra meResponseSchema (DDD)', async () => {
 - `x-internal-key` ausente/inválido → `401` (para rotas S2S)
 - `x-internal-key` válido → `req.auth` S2S injetado
 
-### 4. Isolamento de Organização (Cross-Tenant)
-*Arquivo: qualquer rota com `WHERE tenant_id = req.tenant.tenantId` (campo Prisma real do fragment)*
+### 4. Isolamento de Organização (Cross-Organização)
+*Arquivo: qualquer rota com `WHERE id_organizacao = req.tenant.tenantId` (campo Prisma DDD)*
 
 **O que testa:**
-- WHERE da query Prisma **sempre** inclui o campo Prisma real de Organização (`tenant_id: req.tenant.tenantId`)
+- WHERE da query Prisma **sempre** inclui o campo Prisma DDD de Organização (`id_organizacao: req.tenant.tenantId`)
 - Token da Organização A não consegue ler dados da Organização B (mesmo com ID válido)
 - URL `GET /recurso/:id` com ID de outra Organização → `404` (não `403` — não vazar existência)
 - `POST` com `idOrganizacao` no body diferente de `req.tenant.tenantId` → o body é ignorado; `idOrganizacao` vem SEMPRE do JWT/middleware (Mandamento 01)
 - Mock com 2 Organizações distintas → verificar que cada query filtra pela Organização correta
 
-> Os nomes de campo Prisma `tenant_id` são preservados (Mandamento 02 — schema intocável). Em payloads/JSON/TS de aplicação, use a nomenclatura DDD (`idOrganizacao`).
+> Em models novos, use `id_organizacao` direto. Em models legados que ainda persistem a coluna física antiga, use `id_organizacao String @map("tenant_id")` no Prisma — o `schema.prisma` é INTOCÁVEL (Mandamento 02). O header HTTP `x-tenant-id` e o campo da API atual `req.tenant.tenantId` são contratos externos preservados (semântica: Organização). Em payloads/JSON/TS de aplicação, use sempre a nomenclatura DDD (`idOrganizacao`).
 
 **Padrão de mock:**
 ```typescript
 function headersForOrganizacao(idOrganizacao: string, idUsuario: string) {
+  // headers HTTP mantêm nomes históricos por compatibilidade de protocolo
   return { 'x-internal-validated': '1', 'x-tenant-id': idOrganizacao, 'x-user-id': idUsuario }
 }
 
-// Verificar WHERE clause (campo Prisma real)
+// Verificar WHERE clause (campo Prisma DDD)
 const whereClause = mockFindMany.mock.calls[0][0].where
-expect(whereClause.tenant_id).toBe(ORG_A)
-expect(whereClause.tenant_id).not.toBe(ORG_B)
+expect(whereClause.id_organizacao).toBe(ORG_A)
+expect(whereClause.id_organizacao).not.toBe(ORG_B)
 ```
 
 ### 5. Webhook com Assinatura
@@ -386,7 +387,7 @@ expect(res.body.error.stack).toBeUndefined()  // stack trace não vaza
 ```
 
 ### 8. Isolamento de Organização: verificar o WHERE da query, não só o status HTTP
-Verificar `mockFindMany.mock.calls[0][0].where.tenant_id === req.tenant.tenantId` (nome do campo Prisma real). Status 200 pode estar correto e o WHERE errado — isso é o bug mais perigoso.
+Verificar `mockFindMany.mock.calls[0][0].where.id_organizacao === req.tenant.tenantId` (campo Prisma DDD; `req.tenant.tenantId` é o nome legado da API atual do SDK — semântica: `idOrganizacao`). Status 200 pode estar correto e o WHERE errado — isso é o bug mais perigoso.
 
 ### 9. Contrato de API: validar response contra schema Zod
 Para rotas com `tipoModulo: 'contrato_api'`, todo teste de happy path valida `schema.safeParse(res.body).success === true`.

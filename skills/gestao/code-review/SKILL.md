@@ -59,7 +59,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 
 - [ ] Testes unitários presentes?
 - [ ] Testes funcionais para rotas?
-- [ ] Teste de cross-tenant (se serviço tenant)?
+- [ ] Teste de cross-organização (se serviço da Organização)?
 - [ ] Cobertura ≥ 70%?
 
 ### Arquitetura

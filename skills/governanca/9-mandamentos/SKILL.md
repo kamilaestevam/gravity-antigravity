@@ -16,7 +16,7 @@ Nunca use `user.publicMetadata.role` no frontend ou backend.
 ✅ A **fonte da verdade** para permissões é o nosso Banco de Dados (Prisma).
 O Frontend deve ler a patente do usuário a partir do nosso próprio backend (ex: consumindo o JSON da rota `/api/v1/me` através de um estado global).
 
-**Por quê:** Clerk é provedor terceirizado. Manter autorização lá cria acoplamento, dificulta auditoria, viola tenant isolation e impede que o banco seja a fonte única de verdade.
+**Por quê:** Clerk é provedor terceirizado. Manter autorização lá cria acoplamento, dificulta auditoria, viola o Isolamento de Organização e impede que o banco seja a fonte única de verdade.
 
 ---
 

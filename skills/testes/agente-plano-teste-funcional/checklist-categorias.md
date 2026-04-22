@@ -16,7 +16,7 @@
 | 6 | Erro de servidor (500) | baixa:1 / media:1 / alta:2 / crit:3 | Todos | 🔴 |
 | 7 | Formato de erro canônico | baixa:1 / media:2 / alta:3 / crit:4 | Todos | 🔴 |
 | 8 | Contrato de response (shape Zod) | baixa:1 / media:2 / alta:3 / crit:4 | Contrato API, Rota CRUD | 🔴 |
-| 9 | Isolamento de Organização (WHERE) | baixa:0 / media:1 / alta:2 / crit:4 | Rota CRUD, Fluxo, Cross-Tenant | 🔴 |
+| 9 | Isolamento de Organização (WHERE) | baixa:0 / media:1 / alta:2 / crit:4 | Rota CRUD, Fluxo, Cross-Organização | 🔴 |
 | 10 | Inputs adversariais | baixa:0 / media:1 / alta:2 / crit:3 | Rota CRUD, Webhook, Fluxo | 🔴 |
 | 11 | Idempotência | baixa:0 / media:1 / alta:2 / crit:3 | Webhook, Fluxo, Script CLI | 🟡 |
 | 12 | Chamada cross-service (URL + headers) | baixa:0 / media:1 / alta:2 / crit:3 | Cross-Service | 🟡 |
@@ -154,15 +154,15 @@ expect(res.body).not.toHaveProperty('error_message')
 ---
 
 ### 9. Isolamento de Organização (WHERE) 🔴
-**O que cobre:** que o campo Prisma de Organização (`tenant_id` no fragment real) do usuário autenticado sempre filtra as queries.
+**O que cobre:** que o campo Prisma de Organização (`id_organizacao`) do usuário autenticado sempre filtra as queries.
 
-> Os nomes Prisma `tenant_id` são preservados (Mandamento 02 — schema intocável). Em payloads/JSON/TS de aplicação, use a nomenclatura DDD (`idOrganizacao`).
+> Em models novos, use `id_organizacao` direto. Em models legados que ainda persistem a coluna física antiga, use `id_organizacao String @map("tenant_id")` no Prisma — o `schema.prisma` é INTOCÁVEL (Mandamento 02). Em payloads/JSON/TS de aplicação, use sempre a nomenclatura DDD (`idOrganizacao`).
 
 **Casos típicos:**
-- Verificar `mockFindMany.mock.calls[0][0].where.tenant_id === req.tenant.tenantId`
+- Verificar `mockFindMany.mock.calls[0][0].where.id_organizacao === req.tenant.tenantId` (semântica: `idOrganizacao`)
 - Organização A faz GET → mock retorna dados de A → verificar que WHERE não contém Organização B
 - Organização B faz GET → mesmo mock → WHERE filtra Organização B
-- Request com `idOrganizacao` no body (tentativa de injeção) → sistema usa `req.tenant.tenantId` do JWT, ignora o body
+- Request com `idOrganizacao` no body (tentativa de injeção) → sistema usa `req.tenant.tenantId` do JWT (semântica: `idOrganizacao`), ignora o body
 
 **Regra:** não basta verificar status 200. É preciso inspecionar o argumento passado ao mock do Prisma.
 

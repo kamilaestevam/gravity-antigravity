@@ -94,7 +94,7 @@ beforeEach(() => {
 
 ## Resumo executivo
 
-> **Rota de contratação de produto** para a Organização autenticada. Faz lookup do produto no catálogo (`produtoGravity.findFirst`) e upsert da config (`configuracaoProduto.upsert`). **Risco principal:** o id da Organização (campo Prisma real `tenant_id`) deve vir de `req.auth.idOrganizacao`, nunca do body — caso de Isolamento de Organização testado explicitamente. **Contrato DDD:** response tem `{ config, catalog }` — validado contra `subscribeResponseSchema`. **Zod real:** schema `subscribeSchema` roda no request sem mock. **Error handler real:** formato `{ error: { code, message } }` verificado em todos os casos de erro.
+> **Rota de contratação de produto** para a Organização autenticada. Faz lookup do produto no catálogo (`produtoGravity.findFirst`) e upsert da config (`configuracaoProduto.upsert`). **Risco principal:** o id da Organização (campo Prisma DDD `id_organizacao`) deve vir de `req.auth.idOrganizacao`, nunca do body — caso de Isolamento de Organização testado explicitamente. **Contrato DDD:** response tem `{ config, catalog }` — validado contra `subscribeResponseSchema`. **Zod real:** schema `subscribeSchema` roda no request sem mock. **Error handler real:** formato `{ error: { code, message } }` verificado em todos os casos de erro.
 
 ---
 
@@ -124,12 +124,12 @@ beforeEach(() => {
     { "tipo": "bodyField", "campo": "config.product_key", "valor": "pedido" },
     { "tipo": "bodyField", "campo": "config.is_active", "valor": true },
     { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": {
-      "where.tenant_id_product_key.tenant_id": "org_func_01",
-      "where.tenant_id_product_key.product_key": "pedido",
-      "create.tenant_id": "org_func_01"
+      "where.id_organizacao_product_key.id_organizacao": "org_func_01",
+      "where.id_organizacao_product_key.product_key": "pedido",
+      "create.id_organizacao": "org_func_01"
     }}
   ],
-  "resultadoEsperado": "201 com config.product_key = 'pedido'; upsert chamado com campo Prisma tenant_id = org_func_01 (de req.auth.idOrganizacao, não do body)",
+  "resultadoEsperado": "201 com config.product_key = 'pedido'; upsert chamado com campo Prisma DDD id_organizacao = org_func_01 (de req.auth.idOrganizacao, não do body)",
   "adversarial": false
 }
 ```
@@ -317,13 +317,13 @@ beforeEach(() => {
 }
 ```
 
-### Describe 6 — Isolamento de Organização (Cross-Tenant)
+### Describe 6 — Isolamento de Organização (Cross-Organização)
 
 ```json
 {
   "id": "TST-FUN-CONFIG-ASSIN-000009",
   "numero": 9,
-  "descricao": "campo Prisma tenant_id do upsert vem sempre de req.auth.idOrganizacao — nunca do body",
+  "descricao": "campo Prisma DDD id_organizacao do upsert vem sempre de req.auth.idOrganizacao — nunca do body",
   "categoria": 9,
   "origem": "existente",
   "endpointTestado": "POST /api/v1/assinaturas/subscribe",
@@ -339,12 +339,12 @@ beforeEach(() => {
   },
   "assercoes": [
     { "tipo": "status", "valor": 201 },
-    { "tipo": "whereClause", "nomeMock": "mockConfigUpsert", "campo": "where.tenant_id_product_key.tenant_id", "valor": "org_func_01" },
-    { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": { "create.tenant_id": "org_func_01" } }
+    { "tipo": "whereClause", "nomeMock": "mockConfigUpsert", "campo": "where.id_organizacao_product_key.id_organizacao", "valor": "org_func_01" },
+    { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": { "create.id_organizacao": "org_func_01" } }
   ],
   "resultadoEsperado": "upsert usa org_func_01 (de req.auth.idOrganizacao) — idOrganizacao: 'org_MALICIOSA' do body é ignorado completamente",
   "adversarial": true,
-  "notas": "Caso de Isolamento de Organização mais crítico — injeção de idOrganizacao via body. Backend deve sempre usar o id do JWT (Mandamento 01) e gravar no campo Prisma real tenant_id."
+  "notas": "Caso de Isolamento de Organização mais crítico — injeção de idOrganizacao via body. Backend deve sempre usar o id do JWT (Mandamento 01) e gravar no campo Prisma DDD id_organizacao."
 }
 ```
 
@@ -357,7 +357,7 @@ beforeEach(() => {
   "origem": "agente-adicionado",
   "endpointTestado": "GET /api/v1/assinaturas",
   "mockRetornos": [
-    { "nomeMock": "mockConfigFindMany", "retorno": "[{ tenant_id: 'org_b', product_key: 'pedido' }]", "metodo": "mockResolvedValue" }
+    { "nomeMock": "mockConfigFindMany", "retorno": "[{ id_organizacao: 'org_b', product_key: 'pedido' }]", "metodo": "mockResolvedValue" }
   ],
   "request": {
     "metodo": "GET",
@@ -366,9 +366,9 @@ beforeEach(() => {
   },
   "assercoes": [
     { "tipo": "status", "valor": 200 },
-    { "tipo": "whereClause", "nomeMock": "mockConfigFindMany", "campo": "where.tenant_id", "valor": "org_b" }
+    { "tipo": "whereClause", "nomeMock": "mockConfigFindMany", "campo": "where.id_organizacao", "valor": "org_b" }
   ],
-  "resultadoEsperado": "findMany chamado com WHERE tenant_id = 'org_b' (campo Prisma real) — nunca 'org_a'",
+  "resultadoEsperado": "findMany chamado com WHERE id_organizacao = 'org_b' (campo Prisma DDD) — nunca 'org_a'",
   "adversarial": false
 }
 ```
@@ -530,7 +530,7 @@ beforeEach(() => {
 ## O que esse exemplo prova
 
 1. **Zod e error handler são reais** — casos 3, 4, 5 provam que a validação Zod está corretamente wired na rota. Mock da validação esconderia um bug de schema.
-2. **Isolamento de Organização detectado no WHERE, não só no status** — caso 9 verifica o argumento exato passado ao Prisma (campo real `tenant_id`). Status 200 com WHERE errado é o bug mais silencioso da plataforma.
+2. **Isolamento de Organização detectado no WHERE, não só no status** — caso 9 verifica o argumento exato passado ao Prisma (campo Prisma DDD `id_organizacao`). Status 200 com WHERE errado é o bug mais silencioso da plataforma.
 3. **Inputs adversariais são casos, não observações** — casos 11–13 têm request real e asserção de resultado esperado.
 4. **Stack trace nunca vaza** — `noStackTrace` em todo caso de erro, incluindo o 500 do Prisma.
 5. **Isolamento de mocks verificado** — caso 15 valida que `vi.clearAllMocks()` no `beforeEach` funciona corretamente.

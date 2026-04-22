@@ -203,7 +203,7 @@ export type PlanoTesteFuncional = z.infer<typeof PlanoTesteFuncionalSchema>
   "temDinheiro": false,
   "smeRevisadoPor": null,
   "smeRevisadoEm": null,
-  "resumoExecutivo": "Rota POST /api/v1/assinaturas/subscribe que cria ou atualiza config de produto para a Organização autenticada. Risco principal: id da Organização injetado de req.auth.idOrganizacao (gravado no campo Prisma real `tenant_id`), nunca do body — caso de Isolamento de Organização crítico.",
+  "resumoExecutivo": "Rota POST /api/v1/assinaturas/subscribe que cria ou atualiza config de produto para a Organização autenticada. Risco principal: id da Organização injetado de req.auth.idOrganizacao (gravado no campo Prisma DDD `id_organizacao`), nunca do body — caso de Isolamento de Organização crítico.",
   "buildTestApp": {
     "ordem": [
       { "tipo": "json" },
@@ -281,9 +281,9 @@ export type PlanoTesteFuncional = z.infer<typeof PlanoTesteFuncionalSchema>
       "assercoes": [
         { "tipo": "status", "valor": 201 },
         { "tipo": "bodyField", "campo": "config.product_key", "valor": "pedido" },
-        { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": { "where.tenant_id_product_key.tenant_id": "org_func_01" } }
+        { "tipo": "mockCalledWith", "nomeMock": "mockConfigUpsert", "args": { "where.id_organizacao_product_key.id_organizacao": "org_func_01" } }
       ],
-      "resultadoEsperado": "201 com config e catalog; upsert chamado com campo Prisma tenant_id = org_func_01 (de req.auth.idOrganizacao)",
+      "resultadoEsperado": "201 com config e catalog; upsert chamado com campo Prisma DDD id_organizacao = org_func_01 (de req.auth.idOrganizacao)",
       "adversarial": false
     }
   ],

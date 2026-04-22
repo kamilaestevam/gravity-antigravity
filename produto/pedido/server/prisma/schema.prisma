@@ -1,3 +1,19 @@
+// ============================================================================
+// schema.prisma — GERADO AUTOMATICAMENTE
+// NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
+// Gerado em: 2026-04-22T22:43:06.074Z
+// Banco: gravity-pedido-* (Railway)
+// Produto: produto/pedido
+// ============================================================================
+
+// schema.base.prisma — cabeçalho fixo do produto Pedido
+// Combinado pelo script `scripts/ativamente/compose-pedido-schema.ts` com
+// `fragment.prisma` para gerar o `schema.prisma` final.
+//
+// NUNCA editar `schema.prisma` diretamente (Mandamento 02).
+//
+// Banco-alvo: gravity-pedido-* (Railway), conectado via env DATABASE_URL.
+
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -7,6 +23,23 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+
+// --- Fragment: pedido ---
+
+// ============================================================================
+// fragment.prisma — produto/pedido
+// Fonte da verdade dos models do produto Pedido (Mandamento 02).
+// O Coordenador combina este arquivo com schema.base.prisma via
+// `npx tsx scripts/ativamente/compose-pedido-schema.ts`.
+//
+// Nomenclatura: por enquanto preservamos `tenant_id`/`company_id` em modelos
+// existentes para manter consistência interna do produto (renomeação massiva
+// para `id_organizacao`/`id_workspace` será feita em sub-fase própria,
+// depois que a planilha DDD geral estiver finalizada — PASSO 06).
+// Modelos NOVOS criados neste arquivo (PedidoSnapshotEmpresa,
+// PedidoSnapshotOpe, PedidoConfigAtualizacaoCadastros) já adotam DDD.
+// ============================================================================
 
 model Pedido {
   id                               String                      @id
@@ -50,8 +83,79 @@ model Pedido {
   casas_decimais_cubagem_pedido    Int                         @default(3)
   created_at                       DateTime                    @default(now())
   updated_at                       DateTime                    @updatedAt
+
+  // ============================================================
+  // FASE 06B — Campos novos (cobertura cambial agregada + volumes)
+  // ============================================================
+  cobertura_cambial_pedido         String?
+  quantidade_volumes_pedido        Int?
+
+  // ============================================================
+  // FASE 06B — Datas dos documentos (Pedido / Proforma / Invoice)
+  // ============================================================
+  data_documento_pedido            DateTime?
+  data_documento_proforma          DateTime?
+  data_documento_invoice           DateTime?
+
+  // ============================================================
+  // FASE 06B — Datas de etapa do Pedido (prev / conf / meta)
+  // ============================================================
+  data_prevista_pedido_pronto      DateTime?
+  data_confirmada_pedido_pronto    DateTime?
+  data_meta_pedido_pronto          DateTime?
+  data_prevista_inspecao_pedido    DateTime?
+  data_confirmada_inspecao_pedido  DateTime?
+  data_meta_inspecao_pedido        DateTime?
+  data_prevista_coleta_pedido      DateTime?
+  data_confirmada_coleta_pedido    DateTime?
+  data_meta_coleta_pedido          DateTime?
+
+  // ============================================================
+  // FASE 06B — Datas Draft Pedido (recebimento / aprovação)
+  // ============================================================
+  data_prev_recebimento_draft_pedido     DateTime?
+  data_conf_recebimento_draft_pedido     DateTime?
+  data_meta_recebimento_draft_pedido     DateTime?
+  data_prev_aprovacao_draft_pedido       DateTime?
+  data_conf_aprovacao_draft_pedido       DateTime?
+  data_meta_aprovacao_draft_pedido       DateTime?
+
+  // ============================================================
+  // FASE 06B — Datas Proforma (Draft + Original)
+  // ============================================================
+  data_prev_recebimento_draft_proforma     DateTime?
+  data_conf_recebimento_draft_proforma     DateTime?
+  data_meta_recebimento_draft_proforma     DateTime?
+  data_prev_aprovacao_draft_proforma       DateTime?
+  data_conf_aprovacao_draft_proforma       DateTime?
+  data_meta_aprovacao_draft_proforma       DateTime?
+  data_prev_envio_original_proforma        DateTime?
+  data_conf_envio_original_proforma        DateTime?
+  data_meta_envio_original_proforma        DateTime?
+  data_prev_recebimento_original_proforma  DateTime?
+  data_conf_recebimento_original_proforma  DateTime?
+  data_meta_recebimento_original_proforma  DateTime?
+
+  // ============================================================
+  // FASE 06B — Datas Invoice (Draft + Original)
+  // ============================================================
+  data_prev_recebimento_draft_invoice     DateTime?
+  data_conf_recebimento_draft_invoice     DateTime?
+  data_meta_recebimento_draft_invoice     DateTime?
+  data_prev_aprovacao_draft_invoice       DateTime?
+  data_conf_aprovacao_draft_invoice       DateTime?
+  data_meta_aprovacao_draft_invoice       DateTime?
+  data_prev_envio_original_invoice        DateTime?
+  data_conf_envio_original_invoice        DateTime?
+  data_meta_envio_original_invoice        DateTime?
+  data_prev_recebimento_original_invoice  DateTime?
+  data_conf_recebimento_original_invoice  DateTime?
+  data_meta_recebimento_original_invoice  DateTime?
+
   itens                            PedidoItem[]
   transferencias                   TrackingItemsTransferidos[]
+  snapshots_empresa                PedidoSnapshotEmpresa[]
+  snapshots_ope                    PedidoSnapshotOpe[]
 
   @@unique([tenant_id, numero_pedido])
   @@index([tenant_id])
@@ -404,9 +508,14 @@ model AnexoPedido {
   uploaded_by   String
   created_at    DateTime @default(now())
 
+  // FASE 06B — categoria do documento (pedido | proforma | invoice | certificado_origem | apolice | etc.)
+  // Versão (draft/original) NÃO é atributo do anexo — vive em colunas de data no model Pedido.
+  tipo_documento String?
+
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, vinculo_id])
+  @@index([tenant_id, tipo_documento])
   @@map("anexo_pedido")
 }
 
@@ -440,6 +549,9 @@ model TrackingItemsTransferidos {
   created_at                  DateTime  @default(now())
   created_by                  String
   pedido_origem               Pedido    @relation(fields: [pedido_origem_id], references: [id])
+
+  // FASE 06B — Dt Transferência Qtd. do Pedido (timestamp da efetivação da transferência da quantidade)
+  data_transferencia_qtd      DateTime?
 
   @@index([tenant_id])
   @@index([tenant_id, product_id])
@@ -581,9 +693,135 @@ model DashboardPainel {
   @@map("dashboard_painel")
 }
 
-// ============================================
+// ============================================================================
+// FASE 06B — Modelos novos (snapshot Cadastros + config de atualização)
+// Nomenclatura DDD aplicada: id_organizacao / id_workspace.
+// (Modelos legados acima ainda usam tenant_id/company_id — renomeação massiva
+// fica para sub-fase própria após a planilha DDD geral.)
+// ============================================================================
+
+/// Snapshot congelado de uma Empresa (importador / exportador / fabricante / agente
+/// / despachante / armador) no momento da emissão ou re-snapshot do pedido.
+/// Referência ao banco Cadastros via SUID lógico (sem FK física).
+model PedidoSnapshotEmpresa {
+  id                    String   @id @default(cuid())
+  id_organizacao        String
+  id_workspace          String?
+  id_pedido             String
+  papel                 String   // 'importador' | 'exportador' | 'fabricante' | 'agente' | 'despachante' | 'armador'
+
+  // Identidade
+  suid_empresa          String   // referência lógica ao Cadastros (sem FK física)
+  nome_empresa          String
+  nome_fantasia         String?
+  documento_principal   String   // CNPJ / EIN / VAT / TIN
+  tipo_documento        String   // 'CNPJ' | 'EIN' | 'VAT' | 'TIN' | etc.
+  cnpj_raiz             String?  // primeiros 8 dígitos do CNPJ — para empresas BR
+
+  // Endereço
+  endereco_logradouro   String?
+  endereco_numero       String?
+  endereco_complemento  String?
+  endereco_bairro       String?
+  endereco_cidade       String?
+  endereco_uf           String?  // estado / província
+  endereco_cep          String?  // zipcode
+  endereco_pais         String?  // ISO-3166 alpha-2
+
+  // Contato (principalmente exportador)
+  contato_nome          String?
+  contato_email         String?
+  contato_whatsapp      String?
+  contato_cargo         String?
+  contato_departamento  String?
+
+  // Relação Exportador <-> Fabricante (preenchido quando papel = exportador)
+  exportador_e_fabricante      Boolean?
+  relacao_exportador_fabricante String? // texto livre / enum a definir
+
+  // Metadados do snapshot
+  congelado_em          DateTime @default(now())
+  motivo_congelamento   String   // 'emissao' | 'atualizacao_manual' | 'transicao_status'
+
+  pedido                Pedido   @relation(fields: [id_pedido], references: [id], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_pedido])
+  @@index([id_organizacao, suid_empresa])
+  @@index([id_organizacao, papel])
+  @@map("pedido_snapshot_empresa")
+}
+
+/// Snapshot congelado da OPE (Operação) vinculada ao pedido,
+/// sincronizada do banco Cadastros (que por sua vez vem do Portal Único).
+model PedidoSnapshotOpe {
+  id                    String   @id @default(cuid())
+  id_organizacao        String
+  id_workspace          String?
+  id_pedido             String
+
+  // Identidade da OPE
+  codigo_ope            String   // "Código OPE - Catálogo"
+  versao_ope            String?  // "Versão OPE - Catálogo"
+  situacao_ope          String?  // "Situação OPE - Catálogo"
+  nome_ope              String?  // "Nome OPE - Catálogo"
+  cnpj_raiz_empresa     String?  // "CNPJ Raiz Empresa - Catálogo" — 8 primeiros dígitos do CNPJ da empresa dona da OPE
+
+  // Endereço da OPE
+  pais_ope              String?
+  estado_ope            String?
+  cidade_ope            String?
+  endereco_ope          String?
+  zip_ope               String?
+  tin_ope               String?
+  email_ope             String?
+
+  // Metadados
+  congelado_em          DateTime @default(now())
+  motivo_congelamento   String
+
+  pedido                Pedido   @relation(fields: [id_pedido], references: [id], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_pedido])
+  @@index([id_organizacao, codigo_ope])
+  @@map("pedido_snapshot_ope")
+}
+
+/// Política por workspace de quando re-snapshotar dados do Cadastros nos pedidos.
+/// Usado pelo fluxo "atualização represada" e pelo banner retroativo (FASE 06E).
+model PedidoConfigAtualizacaoCadastros {
+  id                       String   @id @default(cuid())
+  id_organizacao           String
+  id_workspace             String
+
+  // Política de atualização por papel (Empresa)
+  atualiza_importador      Boolean  @default(false)
+  atualiza_exportador      Boolean  @default(false)
+  atualiza_fabricante      Boolean  @default(false)
+  atualiza_agente          Boolean  @default(false)
+  atualiza_despachante     Boolean  @default(false)
+  atualiza_armador         Boolean  @default(false)
+
+  // Política de atualização da OPE
+  atualiza_ope             Boolean  @default(false)
+
+  // Em quais transições de status re-snapshotar
+  resnap_em_emissao        Boolean  @default(true)
+  resnap_em_embarque       Boolean  @default(false)
+  resnap_em_desembaraco    Boolean  @default(false)
+
+  created_at               DateTime @default(now())
+  updated_at               DateTime @updatedAt
+
+  @@unique([id_organizacao, id_workspace])
+  @@index([id_organizacao])
+  @@map("pedido_config_atualizacao_cadastros")
+}
+
+// ============================================================================
 // Enums de proteção estrutural
-// ============================================
+// ============================================================================
 
 enum StatusPedido {
   draft

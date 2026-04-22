@@ -304,9 +304,9 @@ Campos identificados como faltantes no schema atual de Pedido:
 - [ ] Modelo `PedidoSnapshotEmpresa` (substitui colunas espalhadas de Importador/Exportador/Fabricante)
 - [ ] Modelo `PedidoSnapshotOpe` (substitui colunas espalhadas de OPE)
 - [ ] `AnexoPedido.tipo_documento` (proforma | invoice | bl_draft | bl_original | apolice | etc.)
-- [ ] Separação Draft vs Original quando aplicável (modelo X2)
+- [x] Decisão fechada (22/04/2026): `AnexoPedido.tipo_documento` fica como String única (categoria pura — `proforma | invoice | certificado_origem | apolice | pedido | etc.`). Versão Draft/Original NÃO é atributo do anexo — vive em colunas de data explícitas no `model Pedido` (ex: `data_prev_aprovacao_draft_proforma` vs `data_prev_envio_original_proforma`).
 - [ ] Campos de prev/conf/meta para etapas (~20 campos)
-- [ ] Decisão técnica pendente: campos de etapa ficam em `Pedido` ou em nova tabela `PedidoEtapas`?
+- [x] Decisão técnica fechada (22/04/2026): campos de etapa ficam em `model Pedido` como colunas. Sem tabela `PedidoEtapas` separada.
 - [ ] `dt_transferencia_qtd` em `TrackingItemsTransferidos`
 - [ ] Modelo `PedidoConfigAtualizacaoCadastros`
 
@@ -396,9 +396,8 @@ Campos identificados como faltantes no schema atual de Pedido:
 
 ## 11. Itens em aberto
 
-1. **Etapas de Pedido (datas prev/conf/meta):** ficam em `Pedido` ou em nova `PedidoEtapas`?
-2. **Janela de manutenção pra Fase 4:** quando? Quanto tempo?
-3. **Backup/rollback strategy:** snapshot full do banco ou point-in-time recovery?
+1. **Janela de manutenção pra Fase 4:** quando? Quanto tempo?
+2. **Backup/rollback strategy:** snapshot full do banco ou point-in-time recovery?
 
 ---
 

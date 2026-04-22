@@ -1,13 +1,474 @@
-// ============================================
-// Pedido — Anexos
-// Produto: produto/pedido
-// ============================================
+// ============================================================================
+// fragment.prisma — produto/pedido
+// Fonte da verdade dos models do produto Pedido (Mandamento 02).
+// O Coordenador combina este arquivo com schema.base.prisma via
+// `npx tsx scripts/ativamente/compose-pedido-schema.ts`.
+//
+// Nomenclatura: por enquanto preservamos `tenant_id`/`company_id` em modelos
+// existentes para manter consistência interna do produto (renomeação massiva
+// para `id_organizacao`/`id_workspace` será feita em sub-fase própria,
+// depois que a planilha DDD geral estiver finalizada — PASSO 06).
+// Modelos NOVOS criados neste arquivo (PedidoSnapshotEmpresa,
+// PedidoSnapshotOpe, PedidoConfigAtualizacaoCadastros) já adotam DDD.
+// ============================================================================
 
-model PedidoAnexo {
+model Pedido {
+  id                               String                      @id
+  tenant_id                        String
+  company_id                       String
+  tipo_operacao                    String
+  numero_pedido                    String
+  status                           String                      @default("draft")
+  status_id                        String?
+  importacao_exportador_id         String?
+  exportacao_importador_id         String?
+  fabricante_id                    String?
+  incoterm                         String?
+  moeda_pedido                     String                      @default("USD")
+  valor_total_pedido               Decimal?                    @db.Decimal(18, 6)
+  casas_decimais_valor_pedido      Int                         @default(2)
+  quantidade_total_pedido          Decimal?                    @db.Decimal(18, 6)
+  casas_decimais_quantidade_pedido Int                         @default(2)
+  unidade_comercializada_pedido    String?
+  condicao_pagamento               String?
+  numero_proforma                  String?
+  numero_invoice                   String?
+  referencia_importador            String?
+  referencia_exportador            String?
+  referencia_fabricante            String?
+  valor_total_cambio_pedido        Decimal?                    @db.Decimal(18, 6)
+  moeda_cambio_pedido              String?
+  taxa_cambio_estimada             Decimal?                    @db.Decimal(18, 6)
+  contrato_cambio_id_pedido        String?
+  data_emissao_pedido              DateTime                    @default(now())
+  detalhes_operacionais            Json?
+  campos_custom                    Json?
+  pedidos_origem_id                Json?
+  cnpj_importador                  String?
+  data_consolidacao_pedido         DateTime?
+  deleted_at                       DateTime?
+  peso_liquido_total_pedido        Decimal?                    @db.Decimal(18, 6)
+  peso_bruto_total_pedido          Decimal?                    @db.Decimal(18, 6)
+  cubagem_total_pedido             Decimal?                    @db.Decimal(18, 6)
+  casas_decimais_peso_pedido       Int                         @default(3)
+  casas_decimais_cubagem_pedido    Int                         @default(3)
+  created_at                       DateTime                    @default(now())
+  updated_at                       DateTime                    @updatedAt
+
+  // ============================================================
+  // FASE 06B — Campos novos (cobertura cambial agregada + volumes)
+  // ============================================================
+  cobertura_cambial_pedido         String?
+  quantidade_volumes_pedido        Int?
+
+  // ============================================================
+  // FASE 06B — Datas dos documentos (Pedido / Proforma / Invoice)
+  // ============================================================
+  data_documento_pedido            DateTime?
+  data_documento_proforma          DateTime?
+  data_documento_invoice           DateTime?
+
+  // ============================================================
+  // FASE 06B — Datas de etapa do Pedido (prev / conf / meta)
+  // ============================================================
+  data_prevista_pedido_pronto      DateTime?
+  data_confirmada_pedido_pronto    DateTime?
+  data_meta_pedido_pronto          DateTime?
+  data_prevista_inspecao_pedido    DateTime?
+  data_confirmada_inspecao_pedido  DateTime?
+  data_meta_inspecao_pedido        DateTime?
+  data_prevista_coleta_pedido      DateTime?
+  data_confirmada_coleta_pedido    DateTime?
+  data_meta_coleta_pedido          DateTime?
+
+  // ============================================================
+  // FASE 06B — Datas Draft Pedido (recebimento / aprovação)
+  // ============================================================
+  data_prev_recebimento_draft_pedido     DateTime?
+  data_conf_recebimento_draft_pedido     DateTime?
+  data_meta_recebimento_draft_pedido     DateTime?
+  data_prev_aprovacao_draft_pedido       DateTime?
+  data_conf_aprovacao_draft_pedido       DateTime?
+  data_meta_aprovacao_draft_pedido       DateTime?
+
+  // ============================================================
+  // FASE 06B — Datas Proforma (Draft + Original)
+  // ============================================================
+  data_prev_recebimento_draft_proforma     DateTime?
+  data_conf_recebimento_draft_proforma     DateTime?
+  data_meta_recebimento_draft_proforma     DateTime?
+  data_prev_aprovacao_draft_proforma       DateTime?
+  data_conf_aprovacao_draft_proforma       DateTime?
+  data_meta_aprovacao_draft_proforma       DateTime?
+  data_prev_envio_original_proforma        DateTime?
+  data_conf_envio_original_proforma        DateTime?
+  data_meta_envio_original_proforma        DateTime?
+  data_prev_recebimento_original_proforma  DateTime?
+  data_conf_recebimento_original_proforma  DateTime?
+  data_meta_recebimento_original_proforma  DateTime?
+
+  // ============================================================
+  // FASE 06B — Datas Invoice (Draft + Original)
+  // ============================================================
+  data_prev_recebimento_draft_invoice     DateTime?
+  data_conf_recebimento_draft_invoice     DateTime?
+  data_meta_recebimento_draft_invoice     DateTime?
+  data_prev_aprovacao_draft_invoice       DateTime?
+  data_conf_aprovacao_draft_invoice       DateTime?
+  data_meta_aprovacao_draft_invoice       DateTime?
+  data_prev_envio_original_invoice        DateTime?
+  data_conf_envio_original_invoice        DateTime?
+  data_meta_envio_original_invoice        DateTime?
+  data_prev_recebimento_original_invoice  DateTime?
+  data_conf_recebimento_original_invoice  DateTime?
+  data_meta_recebimento_original_invoice  DateTime?
+
+  itens                            PedidoItem[]
+  transferencias                   TrackingItemsTransferidos[]
+  snapshots_empresa                PedidoSnapshotEmpresa[]
+  snapshots_ope                    PedidoSnapshotOpe[]
+
+  @@unique([tenant_id, numero_pedido])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, status])
+  @@index([tenant_id, status_id])
+  @@index([tenant_id, tipo_operacao])
+  @@index([tenant_id, data_emissao_pedido])
+  @@index([tenant_id, deleted_at])
+  @@map("pedido_produto_gravity")
+}
+
+model PedidoItem {
+  id                             String         @id
+  tenant_id                      String
+  company_id                     String
+  pedido_id                      String
+  sequencia_item                 Int?
+  part_number                    String
+  ncm                            String
+  descricao_item                 String
+  unidade_comercializada_item    String?
+  quantidade_inicial_pedido      Decimal        @db.Decimal(18, 6)
+  quantidade_atual_pedido        Decimal        @db.Decimal(18, 6)
+  quantidade_pronta_pedido       Decimal        @default(0) @db.Decimal(18, 6)
+  quantidade_transferida_pedido  Decimal        @default(0) @db.Decimal(18, 6)
+  quantidade_cancelada_pedido    Decimal        @default(0) @db.Decimal(18, 6)
+  casas_decimais_quantidade_item Int            @default(2)
+  moeda_item                     String         @default("USD")
+  valor_total_item               Decimal?       @db.Decimal(18, 6)
+  valor_por_unidade_item         Decimal?       @db.Decimal(18, 6)
+  casas_decimais_valor_item      Int            @default(2)
+  cobertura_cambial              String         @default("com_cobertura")
+  nome_exportador                String?
+  nome_importador                String?
+  nome_fabricante                String?
+  referencia_importador          String?
+  referencia_exportador          String?
+  referencia_fabricante          String?
+  incoterm                       String?
+  condicao_pagamento_pedido      String?
+  data_emissao_pedido            DateTime?
+  peso_liquido_unitario          Decimal?       @db.Decimal(18, 6)
+  peso_bruto_unitario            Decimal?       @db.Decimal(18, 6)
+  cubagem_unitaria               Decimal?       @db.Decimal(18, 6)
+  casas_decimais_peso_item       Int            @default(3)
+  casas_decimais_cubagem_item    Int            @default(3)
+  campos_custom                  Json?
+  created_at                     DateTime       @default(now())
+  updated_at                     DateTime       @updatedAt
+  pedido                         Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
+  embarques_efetivos             ProcessoItem[]
+
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@index([pedido_id])
+  @@map("pedido_itens")
+}
+
+model Processo {
+  id                                            String              @id
+  tenant_id                                     String
+  company_id                                    String
+  estimativa_custo_id                           String?
+  cotacao_frete_id                              String?
+  status_embarque                               String              @default("aberto")
+  tipo_operacao                                 String
+  referencia_processo                           String?
+  id_processo                                   String?
+  responsavel_processo                          String?
+  responsavel_rotina                            String?
+  setor_responsavel                             String?
+  vendedor_responsavel                          String?
+  canal_parametrizacao                          String?
+  importacao_exportador_id                      String?
+  exportacao_importador_id                      String?
+  agente_carga_id                               String?
+  armador_id                                    String?
+  cia_aerea_id                                  String?
+  transportador_rodo_internacional_id           String?
+  transportador_rodo_nacional_id                String?
+  transportador_ferroviario_id                  String?
+  despachante_id                                String?
+  armazem_alfandegado_id                        String?
+  securadora_internacional_id                   String?
+  banco_id                                      String?
+  corretora_cambio_id                           String?
+  moeda_pedido                                  String              @default("USD")
+  valor_total_pedido                            Float?
+  incoterm                                      String?
+  premio_seguro_internacional                   Decimal?            @db.Decimal(18, 6)
+  modal_frete_internacional                     String?
+  porto_origem                                  String?
+  porto_transbordo                              String?
+  porto_destino                                 String?
+  aeroporto_origem                              String?
+  aeroporto_escala                              String?
+  aeroporto_destino                             String?
+  transit_time_previsto_frete_internacional     Int?
+  moeda_frete_internacional                     String?             @default("USD")
+  tipo_frete_internacional                      String?
+  proposta_frete_internacional                  String?
+  valor_frete_internacional_estimado            Decimal?            @db.Decimal(18, 6)
+  valor_total_frete_internacional               Decimal?            @db.Decimal(18, 6)
+  valor_total_taxas_origem_frete_internacional  Decimal?            @db.Decimal(18, 6)
+  valor_total_taxas_destino_frete_internacional Decimal?            @db.Decimal(18, 6)
+  tipo_volume                                   String?
+  quantidade_total_volumes                      Int?                @default(0)
+  peso_bruto_total                              Decimal?            @default(0) @db.Decimal(18, 6)
+  peso_liquido_total                            Decimal?            @default(0) @db.Decimal(18, 6)
+  data_pedido                                   DateTime?
+  data_pedido_aberto                            DateTime?           @default(now())
+  data_previsao_pedido                          DateTime?
+  data_pedido_pronto                            DateTime?
+  data_pedido_consolidado                       DateTime?
+  data_previsao_coleta_pedido_origem            DateTime?
+  data_coleta_pedido_origem                     DateTime?
+  data_previsao_entrega_pedido_origem           DateTime?
+  data_entrega_pedido_origem                    DateTime?
+  data_previsao_carregamento_container          DateTime?
+  data_carregamento_container                   DateTime?
+  data_previsao_coleta_embarque_origem          DateTime?
+  data_coleta_embarque_origem                   DateTime?
+  data_previsao_entrega_embarque_origem         DateTime?
+  data_entrega_embarque_origem                  DateTime?
+  data_previsao_coleta_container_origem         DateTime?
+  data_coleta_container_origem                  DateTime?
+  data_previsao_entrega_container_origem        DateTime?
+  data_entrega_container_origem                 DateTime?
+  data_previsao_embarque_origem_etd             DateTime?
+  data_embarque_origem                          DateTime?
+  data_previsao_transbordo_embarque             DateTime?
+  data_transbordo_embarque                      DateTime?
+  data_previsao_chegada_destino_eta             DateTime?
+  data_chegada_destino_eta                      DateTime?
+  data_previsao_presenca_carga_destino          DateTime?
+  data_presenca_carga_destino                   DateTime?
+  data_previsao_registro_duimp                  DateTime?
+  data_registro_duimp                           DateTime?
+  data_previsao_liberacao_duimp                 DateTime?
+  data_liberacao_duimp                          DateTime?
+  data_consulta_liberacao_duimp                 DateTime?
+  data_previsao_registro_lpco                   DateTime?
+  data_registro_lpco                            DateTime?
+  data_deferimento_lpco                         DateTime?
+  data_indeferimento_lpco                       DateTime?
+  data_pendencia_lpco                           DateTime?
+  data_consulta_liberacao_lpco                  DateTime?
+  numero_certificado_origem                     String?
+  numero_bl                                     String?
+  numero_mbl                                    String?
+  numero_hbl                                    String?
+  numero_awb                                    String?
+  numero_mawb                                   String?
+  numero_hawb                                   String?
+  numero_crt                                    String?
+  numero_cim                                    String?
+  numero_ce_mercante                            String?
+  numero_presenca_carga_destino                 String?
+  numero_duimp                                  String?
+  numero_nfe                                    String?
+  chave_acesso_nfe                              String?
+  total_imposto_ii                              Decimal?            @default(0) @db.Decimal(18, 6)
+  total_imposto_ipi                             Decimal?            @default(0) @db.Decimal(18, 6)
+  total_imposto_pis                             Decimal?            @default(0) @db.Decimal(18, 6)
+  total_imposto_cofins                          Decimal?            @default(0) @db.Decimal(18, 6)
+  total_imposto_icms                            Decimal?            @default(0) @db.Decimal(18, 6)
+  detalhes_fiscais                              Json?
+  detalhes_logisticos                           Json?
+  detalhes_financeiros                          Json?
+  created_at                                    DateTime            @default(now())
+  updated_at                                    DateTime            @updatedAt
+  containers                                    ProcessoContainer[]
+  faturas                                       ProcessoFatura[]
+  itens_processo                                ProcessoItem[]
+
+  @@index([tenant_id])
+  @@index([company_id])
+  @@index([tenant_id, company_id])
+  @@map("tabela_processos")
+}
+
+model ProcessoFatura {
+  id               String    @id
+  tenant_id        String
+  company_id       String
+  processo_id      String
+  tipo_fatura      String
+  numero_fatura    String
+  moeda_fatura     String    @default("USD")
+  valor_total      Decimal   @db.Decimal(18, 6)
+  valor_pago       Decimal   @default(0) @db.Decimal(18, 6)
+  data_vencimento  DateTime?
+  status_pagamento String    @default("pendente")
+  processo         Processo  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id, company_id])
+  @@index([tenant_id, processo_id])
+  @@map("fatura_processo")
+}
+
+model ProcessoItem {
+  id                          String      @id
+  tenant_id                   String
+  company_id                  String
+  processo_id                 String
+  pedido_item_id              String?
+  sequencia_item              Int?
+  part_number                 String
+  ncm                         String
+  descricao_po                String
+  descricao_en                String?
+  quantidade                  Decimal     @db.Decimal(18, 6)
+  unidade_comercializada_item String?
+  valor_unitario              Decimal     @db.Decimal(18, 6)
+  valor_total                 Decimal     @db.Decimal(18, 6)
+  peso_liquido_unitario       Decimal?    @db.Decimal(18, 6)
+  peso_bruto_unitario         Decimal?    @db.Decimal(18, 6)
+  detalhes_do_produto         Json?
+  pedido_item                 PedidoItem? @relation(fields: [pedido_item_id], references: [id])
+  processo                    Processo    @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id, company_id])
+  @@index([processo_id])
+  @@index([pedido_item_id])
+  @@map("logistica_processo")
+}
+
+model ProcessoContainer {
+  id                        String    @id
+  tenant_id                 String
+  company_id                String
+  processo_id               String
+  container_numero          String
+  container_lacre           String?
+  container_tipo            String
+  container_tara            Decimal?  @db.Decimal(18, 6)
+  container_peso_bruto      Decimal?  @db.Decimal(18, 6)
+  container_peso_liquido    Decimal?  @db.Decimal(18, 6)
+  container_metragem_cubica Decimal?  @db.Decimal(18, 6)
+  data_devolucao_prevista   DateTime?
+  data_devolucao_real       DateTime?
+  local_devolucao           String?
+  processo                  Processo  @relation(fields: [processo_id], references: [id], onDelete: Cascade)
+
+  @@index([tenant_id, company_id])
+  @@index([processo_id])
+  @@map("container_processo")
+}
+
+model PedidoStatus {
+  id         String   @id @default(cuid())
+  tenant_id  String
+  company_id String?
+  nome       String
+  rotulo     String
+  cor        String
+  icone      String?
+  ordem      Int      @default(0)
+  is_padrao  Boolean  @default(false)
+  is_sistema Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@map("status_pedido")
+}
+
+model PedidoColuna {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  company_id     String?
+  nome           String
+  rotulo         String
+  tipo           String
+  casas_decimais Int      @default(2)
+  opcoes         Json?
+  ordem          Int      @default(0)
+  filtravel      Boolean  @default(true)
+  exibida_padrao Boolean  @default(false)
+  index_criado   Boolean  @default(false)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
+  @@index([tenant_id, company_id])
+  @@map("pedido_colunas")
+}
+
+model PedidoPreferenciaUsuario {
+  id               String   @id @default(cuid())
+  tenant_id        String
+  company_id       String?
+  user_id          String
+  colunas_visiveis String[]
+  colunas_largura  Json?
+  updated_at       DateTime @updatedAt
+
+  @@unique([tenant_id, user_id])
+  @@index([tenant_id])
+  @@index([tenant_id, user_id])
+  @@map("preferencia_coluna_pedido")
+}
+
+model PedidoPreferenciaPadrao {
+  id               String   @id @default(cuid())
+  tenant_id        String   @unique
+  company_id       String?
+  colunas_visiveis String[]
+  colunas_largura  Json?
+  updated_at       DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@map("preferencia_padrao_pedido")
+}
+
+model AprendizadoImportacaoDados {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String?
+  user_id      String?
+  hash_colunas String
+  mapeamento   String
+  uso_count    Int      @default(1)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@unique([tenant_id, hash_colunas])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@index([tenant_id, user_id])
+  @@map("aprendizado_importacao_dados")
+}
+
+model AnexoPedido {
   id            String   @id @default(cuid())
   tenant_id     String
   product_id    String?
-  vinculo       String              // 'pedido' | 'item'
+  vinculo       String
   vinculo_id    String
   nome_arquivo  String
   tipo_arquivo  String
@@ -18,24 +479,24 @@ model PedidoAnexo {
   uploaded_by   String
   created_at    DateTime @default(now())
 
+  // FASE 06B — categoria do documento (pedido | proforma | invoice | certificado_origem | apolice | etc.)
+  // Versão (draft/original) NÃO é atributo do anexo — vive em colunas de data no model Pedido.
+  tipo_documento String?
+
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, vinculo_id])
+  @@index([tenant_id, tipo_documento])
   @@map("anexo_pedido")
 }
 
-// ============================================
-// Pedido — Templates PDF
-// Produto: produto/pedido
-// ============================================
-
-model PedidoTemplatePdf {
+model TemplatePedidoPdf {
   id            String   @id @default(cuid())
   tenant_id     String
   product_id    String?
   nome          String
   descricao     String?
-  conteudo_html String   @db.Text
+  conteudo_html String
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
@@ -44,72 +505,51 @@ model PedidoTemplatePdf {
   @@map("template_pedido_pdf")
 }
 
-// ============================================
-// Pedido — Transferência de Pedidos
-// Produto: produto/pedido
-// ============================================
+model TrackingItemsTransferidos {
+  id                          String    @id @default(cuid())
+  tenant_id                   String
+  product_id                  String?
+  pedido_origem_id            String
+  item_origem_id              String
+  cenario                     String
+  quantidade_item_transferida Float
+  destinos_json               String
+  revertido                   Boolean   @default(false)
+  revertido_em                DateTime?
+  revertido_por               String?
+  created_at                  DateTime  @default(now())
+  created_by                  String
+  pedido_origem               Pedido    @relation(fields: [pedido_origem_id], references: [id])
 
-model TransferHistorico {
-  id               String    @id @default(cuid())
-  tenant_id        String
-  product_id       String?
+  // FASE 06B — Dt Transferência Qtd. do Pedido (timestamp da efetivação da transferência da quantidade)
+  data_transferencia_qtd      DateTime?
 
-  // Referências de origem
-  pedido_origem_id String
-  item_origem_id   String
-
-  // Dados da transferência
-  cenario          String
-  quantidade       Float
-  destinos_json    String    // JSON serializado de TransferDestino[]
-
-  // Reversão
-  revertido        Boolean   @default(false)
-  revertido_em     DateTime?
-  revertido_por    String?
-
-  // Auditoria
-  created_at       DateTime  @default(now())
-  created_by       String
-
-  pedido_origem    Pedido @relation(fields: [pedido_origem_id], references: [id])
-
-  // Índices obrigatórios (agent-policy)
   @@index([tenant_id])
   @@index([tenant_id, product_id])
   @@index([tenant_id, pedido_origem_id])
   @@map("tracking_items_transferidos")
 }
 
-// Adicionar ao model PedidoComercial:
-// transferencias TransferHistorico[]
-
-// ============================================
-// Pedido — Colunas do Usuário
-// Produto: produto/pedido
-// ============================================
-
 model ColunaUsuarioPedido {
-  id               String   @id @default(cuid())
+  id               String                     @id @default(cuid())
   tenant_id        String
   product_id       String?
   nome             String
   chave            String
   tipo             String
-  escopo           String   // 'pedido' | 'item' | 'ambos'
-  visibilidade     String   // 'todos' | 'roles' | 'privado'
-  roles_permitidas String[] @default([])
-  obrigatorio      Boolean  @default(false)
-  opcoes           String[] @default([])
+  escopo           String
+  visibilidade     String
+  roles_permitidas String[]                   @default([])
+  obrigatorio      Boolean                    @default(false)
+  opcoes           String[]                   @default([])
   descricao        String?
   valor_padrao     String?
-  ordem            Int      @default(0)
-  ativo            Boolean  @default(true)
+  ordem            Int                        @default(0)
+  ativo            Boolean                    @default(true)
   created_by       String
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-
-  valores ValorColunaUsuarioPedido[]
+  created_at       DateTime                   @default(now())
+  updated_at       DateTime                   @updatedAt
+  valores          ValorColunaUsuarioPedido[]
 
   @@unique([tenant_id, chave])
   @@index([tenant_id])
@@ -119,15 +559,14 @@ model ColunaUsuarioPedido {
 }
 
 model ValorColunaUsuarioPedido {
-  id         String   @id @default(cuid())
+  id         String              @id @default(cuid())
   tenant_id  String
   product_id String?
   coluna_id  String
-  vinculo    String   // 'pedido' | 'item'
+  vinculo    String
   vinculo_id String
   valor      String
-
-  coluna ColunaUsuarioPedido @relation(fields: [coluna_id], references: [id])
+  coluna     ColunaUsuarioPedido @relation(fields: [coluna_id], references: [id])
 
   @@unique([tenant_id, coluna_id, vinculo_id])
   @@index([tenant_id])
@@ -135,102 +574,6 @@ model ValorColunaUsuarioPedido {
   @@index([tenant_id, vinculo_id])
   @@map("valor_coluna_usuario_pedido")
 }
-
-// ============================================
-// Pedido — Mapeamento de Importacao (Smart Import)
-// Produto: produto/pedido
-// ============================================
-
-model MapeamentoImport {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  product_id   String?
-
-  // Hash SHA256/CRC dos cabecalhos ordenados do arquivo
-  hash_colunas String
-
-  // JSON serializado de ColunaMapeada[]
-  mapeamento   String
-
-  // Quantas vezes este mapeamento foi utilizado/confirmado
-  uso_count    Int      @default(1)
-
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  // Unicidade por tenant + estrutura de arquivo
-  @@unique([tenant_id, hash_colunas])
-
-  // Indices obrigatorios (agent-policy)
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, hash_colunas])
-
-  @@map("aprendizado_importacao_dados")
-}
-
-// ============================================
-// Pedido — Rastreamento de Comportamento (Gabi Insights Fase 2)
-// Produto: produto/pedido
-// ============================================
-
-model UserBehaviorEvent {
-  id         String   @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  user_id    String
-
-  /// Tipo: route_visited | filter_applied | widget_clicked | column_viewed | insight_clicked
-  event      String
-
-  /// JSON com dados do evento (rota, campo filtrado, widget_id, insight_id, etc.)
-  payload    Json
-
-  created_at DateTime @default(now())
-
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, user_id, event])
-  @@index([tenant_id, user_id, created_at])
-  @@map("user_behavior_events")
-}
-
-// ============================================
-// Pedido — Casas Decimais Config (por tenant)
-// Produto: produto/pedido
-// Armazena os defaults do workspace — aplicados em novos pedidos/itens
-// e usados na migração em massa quando o admin altera a configuração.
-// ============================================
-
-model PedidoCasasDecimaisConfig {
-  id         String   @id @default(cuid())
-  tenant_id  String   @unique
-  product_id String?
-
-  // Grupo PEDIDO — 10 campos conforme spec mapas_pedido.pdf
-  valor_total_pedido            Int @default(2)
-  valor_unitario_item           Int @default(2)
-  quantidade_total_inicial_pedido Int @default(2)
-  quantidade_pronta_pedido_total  Int @default(2)
-  saldo_itens_do_pedido           Int @default(2)
-  quantidade_transferida_total    Int @default(2)
-  quantidade_cancelada_total_pedido Int @default(2)
-  peso_liquido_total_pedido       Int @default(3)
-  peso_bruto_total_pedido         Int @default(3)
-  cubagem_total_pedido            Int @default(3)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@map("pedido_casas_decimais")
-}
-
-// ============================================
-// Pedido — Kanban Preferências
-// Produto: produto/pedido
-// ============================================
 
 model KanbanPreferencias {
   id           String   @id @default(cuid())
@@ -246,11 +589,65 @@ model KanbanPreferencias {
   @@map("kanban_preferencias")
 }
 
-// ============================================
-// Pedido — Dashboard Painéis (por usuário)
-// Produto: produto/pedido
-// ============================================
+/// Configuração de widgets do Dashboard por tenant/produto.
+model DashboardPreferencias {
+  id           String   @id @default(cuid())
+  tenant_id    String
+  product_id   String
+  widgets_json String   @default("[]") @db.Text
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
+  @@unique([tenant_id, product_id])
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("dashboard_preferencias")
+}
+
+/// Configuração de casas decimais e formato de data por workspace (tenant).
+model PedidoCasasDecimais {
+  id         String  @id @default(cuid())
+  tenant_id  String  @unique
+  product_id String?
+
+  valor_total_pedido                Int @default(2)
+  valor_unitario_item               Int @default(2)
+  quantidade_total_inicial_pedido   Int @default(2)
+  quantidade_pronta_pedido_total    Int @default(2)
+  saldo_itens_do_pedido             Int @default(2)
+  quantidade_transferida_total      Int @default(2)
+  quantidade_cancelada_total_pedido Int @default(2)
+  peso_liquido_total_pedido         Int @default(3)
+  peso_bruto_total_pedido           Int @default(3)
+  cubagem_total_pedido              Int @default(3)
+
+  formato_data String @default("DD/MM/AAAA")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_casas_decimais")
+}
+
+/// Configuração da fórmula do Saldo do Pedido por workspace (tenant).
+model PedidoSaldoFormula {
+  id         String  @id @default(cuid())
+  tenant_id  String  @unique
+  product_id String?
+
+  formula_expressao String @default("quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([tenant_id])
+  @@index([tenant_id, product_id])
+  @@map("pedido_saldo_formula")
+}
+
+/// Painéis do Dashboard por usuário.
 model DashboardPainel {
   id           String   @id @default(cuid())
   tenant_id    String
@@ -258,11 +655,192 @@ model DashboardPainel {
   nome         String
   ordem        Int      @default(0)
   is_visivel   Boolean  @default(true)
-  widgets_json String   @default("[]")
+  widgets_json String   @default("[]") @db.Text
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
   @@index([tenant_id])
   @@index([tenant_id, user_id])
   @@map("dashboard_painel")
+}
+
+// ============================================================================
+// FASE 06B — Modelos novos (snapshot Cadastros + config de atualização)
+// Nomenclatura DDD aplicada: id_organizacao / id_workspace.
+// (Modelos legados acima ainda usam tenant_id/company_id — renomeação massiva
+// fica para sub-fase própria após a planilha DDD geral.)
+// ============================================================================
+
+/// Snapshot congelado de uma Empresa (importador / exportador / fabricante / agente
+/// / despachante / armador) no momento da emissão ou re-snapshot do pedido.
+/// Referência ao banco Cadastros via SUID lógico (sem FK física).
+model PedidoSnapshotEmpresa {
+  id                    String   @id @default(cuid())
+  id_organizacao        String
+  id_workspace          String?
+  id_pedido             String
+  papel                 String   // 'importador' | 'exportador' | 'fabricante' | 'agente' | 'despachante' | 'armador'
+
+  // Identidade
+  suid_empresa          String   // referência lógica ao Cadastros (sem FK física)
+  nome_empresa          String
+  nome_fantasia         String?
+  documento_principal   String   // CNPJ / EIN / VAT / TIN
+  tipo_documento        String   // 'CNPJ' | 'EIN' | 'VAT' | 'TIN' | etc.
+  cnpj_raiz             String?  // primeiros 8 dígitos do CNPJ — para empresas BR
+
+  // Endereço
+  endereco_logradouro   String?
+  endereco_numero       String?
+  endereco_complemento  String?
+  endereco_bairro       String?
+  endereco_cidade       String?
+  endereco_uf           String?  // estado / província
+  endereco_cep          String?  // zipcode
+  endereco_pais         String?  // ISO-3166 alpha-2
+
+  // Contato (principalmente exportador)
+  contato_nome          String?
+  contato_email         String?
+  contato_whatsapp      String?
+  contato_cargo         String?
+  contato_departamento  String?
+
+  // Relação Exportador <-> Fabricante (preenchido quando papel = exportador)
+  exportador_e_fabricante      Boolean?
+  relacao_exportador_fabricante String? // texto livre / enum a definir
+
+  // Metadados do snapshot
+  congelado_em          DateTime @default(now())
+  motivo_congelamento   String   // 'emissao' | 'atualizacao_manual' | 'transicao_status'
+
+  pedido                Pedido   @relation(fields: [id_pedido], references: [id], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_pedido])
+  @@index([id_organizacao, suid_empresa])
+  @@index([id_organizacao, papel])
+  @@map("pedido_snapshot_empresa")
+}
+
+/// Snapshot congelado da OPE (Operação) vinculada ao pedido,
+/// sincronizada do banco Cadastros (que por sua vez vem do Portal Único).
+model PedidoSnapshotOpe {
+  id                    String   @id @default(cuid())
+  id_organizacao        String
+  id_workspace          String?
+  id_pedido             String
+
+  // Identidade da OPE
+  codigo_ope            String   // "Código OPE - Catálogo"
+  versao_ope            String?  // "Versão OPE - Catálogo"
+  situacao_ope          String?  // "Situação OPE - Catálogo"
+  nome_ope              String?  // "Nome OPE - Catálogo"
+  cnpj_raiz_empresa     String?  // "CNPJ Raiz Empresa - Catálogo" — 8 primeiros dígitos do CNPJ da empresa dona da OPE
+
+  // Endereço da OPE
+  pais_ope              String?
+  estado_ope            String?
+  cidade_ope            String?
+  endereco_ope          String?
+  zip_ope               String?
+  tin_ope               String?
+  email_ope             String?
+
+  // Metadados
+  congelado_em          DateTime @default(now())
+  motivo_congelamento   String
+
+  pedido                Pedido   @relation(fields: [id_pedido], references: [id], onDelete: Cascade)
+
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_pedido])
+  @@index([id_organizacao, codigo_ope])
+  @@map("pedido_snapshot_ope")
+}
+
+/// Política por workspace de quando re-snapshotar dados do Cadastros nos pedidos.
+/// Usado pelo fluxo "atualização represada" e pelo banner retroativo (FASE 06E).
+model PedidoConfigAtualizacaoCadastros {
+  id                       String   @id @default(cuid())
+  id_organizacao           String
+  id_workspace             String
+
+  // Política de atualização por papel (Empresa)
+  atualiza_importador      Boolean  @default(false)
+  atualiza_exportador      Boolean  @default(false)
+  atualiza_fabricante      Boolean  @default(false)
+  atualiza_agente          Boolean  @default(false)
+  atualiza_despachante     Boolean  @default(false)
+  atualiza_armador         Boolean  @default(false)
+
+  // Política de atualização da OPE
+  atualiza_ope             Boolean  @default(false)
+
+  // Em quais transições de status re-snapshotar
+  resnap_em_emissao        Boolean  @default(true)
+  resnap_em_embarque       Boolean  @default(false)
+  resnap_em_desembaraco    Boolean  @default(false)
+
+  created_at               DateTime @default(now())
+  updated_at               DateTime @updatedAt
+
+  @@unique([id_organizacao, id_workspace])
+  @@index([id_organizacao])
+  @@map("pedido_config_atualizacao_cadastros")
+}
+
+// ============================================================================
+// Enums de proteção estrutural
+// ============================================================================
+
+enum StatusPedido {
+  draft
+  aberto
+  em_andamento
+  aprovado
+  transferencia
+  consolidado
+  cancelado
+}
+
+enum TipoOperacao {
+  importacao
+  exportacao
+}
+
+enum MoedaPedido {
+  USD
+  EUR
+  CNY
+  JPY
+  GBP
+  BRL
+}
+
+enum IncotermPedido {
+  FOB
+  CIF
+  EXW
+  CFR
+  FCA
+  DDP
+  DAP
+  CPT
+  CIP
+  DPU
+  FAS
+}
+
+enum UnidadeComercializada {
+  UNID
+  KG
+  TON
+  M
+  M2
+  M3
+  LT
+  PARES
+  DUZIA
+  JOGO
 }

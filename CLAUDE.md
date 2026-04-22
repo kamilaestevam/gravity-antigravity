@@ -36,6 +36,41 @@ Antes de qualquer tarefa — **mesmo quando nenhum time ou papel específico foi
 
 ---
 
+## Regra de Criação Restrita — Slash Commands
+
+**PROIBIDO criar, recriar ou restaurar qualquer slash command** (`.claude/commands/*.md` no projeto OU `~/.claude/commands/*.md` user-global) **sem confirmação dupla explícita do dono do projeto.**
+
+❌ Jamais faça:
+- Criar arquivo novo em `.claude/commands/` ou `~/.claude/commands/`
+- Sugerir "vou recriar o `/lider` para você" sem pedir autorização
+- Restaurar via `git checkout` ou cópia de outra fonte sem aval
+
+✅ Sempre faça:
+- Se identificar necessidade de slash command, **descrever a proposta** e aguardar duas confirmações explícitas do dono antes de criar
+- Documentar no commit a justificativa da criação
+
+**Por quê:** os 11 slash commands originais foram deletados em 21/04/2026 como parte da FASE 1 do alinhamento DDD. Recriação descontrolada gera ruído, comandos desatualizados e regressão dos padrões.
+
+---
+
+## Regra de Criação Restrita — Memory Persistente
+
+**PROIBIDO criar, atualizar ou restaurar arquivos de memory** (`~/.claude/projects/<projeto>/memory/*.md`) **sem confirmação dupla explícita do dono do projeto.**
+
+❌ Jamais faça:
+- Salvar memory automaticamente quando o usuário diz "lembra que..." sem confirmar duas vezes
+- Criar memory novo só porque a auto-memory do system prompt sugere
+- Restaurar entries deletadas
+
+✅ Sempre faça:
+- Se identificar potencial memory útil, **descrever em uma frase** o que seria salvo e aguardar duas confirmações explícitas
+- Quando confirmar, atualizar também o `MEMORY.md` (índice) com a nova entrada
+- Em caso de dúvida sobre sobrescrita: parar e perguntar
+
+**Por quê:** memory carrega automaticamente em toda conversa, sem o usuário pedir. Memory desatualizada ou conflitante causa propagação silenciosa de erros entre sessões. Em 21/04/2026 foram deletadas 5 entries por conterem nomenclatura legada ou anti-padrões de autorização (Clerk publicMetadata).
+
+---
+
 ## Os 9 Mandamentos do Gravity (não-negociáveis)
 
 > **Estas regras são absolutas e valem para TODO agente, em TODA conversa, em TODA alteração de código — sem exceção.**

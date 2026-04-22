@@ -45,7 +45,7 @@ Você DEVE usar EXATAMENTE estes nomes nas propriedades de objetos, payloads JSO
 | User            | `id_usuario`, `nome_usuario`, `email_usuario` |
 | Role (geral)    | `tipo_usuario` |
 | Role (no workspace) | `tipo_usuario_workspace` |
-| Admin Gravity   | `is_gravity_admin` (Boolean para controle absoluto) |
+| Admin Gravity   | `gravity_admin` (Boolean para controle absoluto — sem prefixo `is_`, ver skill `ddd-nomenclatura` REGRA 5) |
 
 **Por quê:** consistência terminológica entre banco, backend, frontend e documentação. Mistura de nomenclatura é a principal causa de bugs silenciosos de contrato (vide Mandamento 06 e 09).
 
@@ -53,7 +53,7 @@ Você DEVE usar EXATAMENTE estes nomes nas propriedades de objetos, payloads JSO
 
 ## REGRA 04 — LÓGICA DE VÍNCULO (O LIMBO)
 
-Usuários **Master** (`is_gravity_admin = true`) ou **Super Admins** (`tipo_usuario = 'SUPER_ADMIN'`) **não podem** ficar presos em telas de "Nenhum workspace encontrado".
+Usuários **Master** (`gravity_admin = true`) ou **Super Admins** (`tipo_usuario = 'SUPER_ADMIN'`) **não podem** ficar presos em telas de "Nenhum workspace encontrado".
 
 O código deve garantir que o **Frontend e o Backend** reconheçam o acesso global deles, **independentemente** de estarem vinculados fisicamente na tabela `UsuarioWorkspace`.
 

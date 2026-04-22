@@ -1,0 +1,80 @@
+/**
+ * CRUD de Moeda — catálogo GLOBAL (sem id_organizacao).
+ * Soft delete via `ativo = false`.
+ */
+import { Router } from 'express'
+import { Prisma } from '../../../generated/index.js'
+import { requireInternalKey } from '../middleware/internal-key.js'
+import { prisma } from '../lib/prisma.js'
+import { AppError } from '../lib/app-error.js'
+import { criarMoedaSchema, atualizarMoedaSchema } from '../../../shared/schemas/index.js'
+
+const router = Router()
+router.use(requireInternalKey)
+
+router.post('/', async (req, res, next) => {
+  try {
+    const dados = criarMoedaSchema.parse(req.body)
+    const criada = await prisma.moeda.create({ data: dados })
+    res.status(201).json(criada)
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      return next(AppError.conflito('Moeda já cadastrada (codigo duplicado)'))
+    }
+    next(err)
+  }
+})
+
+router.get('/', async (req, res, next) => {
+  try {
+    const apenasAtivas = req.query.apenas_ativas === 'true'
+    const itens = await prisma.moeda.findMany({
+      where: apenasAtivas ? { ativo: true } : undefined,
+      orderBy: { codigo: 'asc' },
+    })
+    res.status(200).json({ itens, total: itens.length })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.get('/:codigo', async (req, res, next) => {
+  try {
+    const moeda = await prisma.moeda.findUnique({ where: { codigo: req.params.codigo } })
+    if (!moeda) throw AppError.naoEncontrado('Moeda')
+    res.status(200).json(moeda)
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.put('/:codigo', async (req, res, next) => {
+  try {
+    const dados = atualizarMoedaSchema.parse(req.body)
+    const existente = await prisma.moeda.findUnique({ where: { codigo: req.params.codigo } })
+    if (!existente) throw AppError.naoEncontrado('Moeda')
+    const atualizada = await prisma.moeda.update({
+      where: { codigo: existente.codigo },
+      data: dados,
+    })
+    res.status(200).json(atualizada)
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.delete('/:codigo', async (req, res, next) => {
+  try {
+    const existente = await prisma.moeda.findUnique({ where: { codigo: req.params.codigo } })
+    if (!existente) throw AppError.naoEncontrado('Moeda')
+    const desativada = await prisma.moeda.update({
+      where: { codigo: existente.codigo },
+      data: { ativo: false },
+    })
+    res.status(200).json(desativada)
+  } catch (err) {
+    next(err)
+  }
+})
+
+export { router as moedasRouter }

@@ -1,0 +1,20 @@
+// servicos-global/tenant/cadastros/prisma/schema.base.prisma
+// ARQUIVO BASE — NÃO MODIFICAR DIRETAMENTE
+// Contém apenas datasource e generator.
+// O Coordenador compõe o schema.prisma final via scripts/ativamente/compose-cadastros-schema.ts
+// adicionando o fragment.prisma do serviço cadastros.
+//
+// Banco: gravity-cadastros-* (Railway) — 4º banco do ecossistema Gravity
+// Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
+// Padrão: Database-per-Service, schema único `public`
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CADASTROS_DATABASE_URL")
+}

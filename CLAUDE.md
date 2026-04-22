@@ -29,8 +29,9 @@ Antes de qualquer tarefa — **mesmo quando nenhum time ou papel específico foi
 1. Ler `skills/governanca/9-mandamentos/SKILL.md` (**os 9 Mandamentos — não-negociáveis**)
 2. Ler `skills/governanca/agent-policy/SKILL.md` (regras universais)
 3. Ler `skills/governanca/code-standards/SKILL.md` (padrões de código)
-4. Ler a(s) skill(s) específica(s) da área sendo trabalhada (ver mapa abaixo)
-5. Confirmar que está dentro do escopo autorizado (ver agent-policy)
+4. Ler `skills/governanca/ddd-nomenclatura/SKILL.md` (**lei única de nomenclatura — nomes de campo, tabela, rota, função, arquivo, label**)
+5. Ler a(s) skill(s) específica(s) da área sendo trabalhada (ver mapa abaixo)
+6. Confirmar que está dentro do escopo autorizado (ver agent-policy)
 
 **Se a skill não foi lida, o trabalho não pode começar.**
 
@@ -112,13 +113,13 @@ Nós abandonamos nomenclaturas legadas (`Tenant`, `Company`, `Role`). Você DEVE
 - **Company** ➔ Use `id_workspace`, `nome_workspace`, `subdominio_workspace`
 - **User** ➔ Use `id_usuario`, `nome_usuario`, `email_usuario`
 - **Role** ➔ Use `tipo_usuario` (para patentes gerais) e `tipo_usuario_workspace` (para patentes na filial)
-- **Admin** ➔ Use `is_gravity_admin` (Boolean para controle absoluto)
+- **Admin** ➔ Use `gravity_admin` (Boolean para controle absoluto — sem prefixo `is_`, ver skill `ddd-nomenclatura` REGRA 5)
 
 ---
 
 ### REGRA 04 — LÓGICA DE VÍNCULO (O LIMBO)
 
-Usuários **Master** (`is_gravity_admin = true`) ou **Super Admins** (`tipo_usuario = 'SUPER_ADMIN'`) **não podem** ficar presos em telas de "Nenhum workspace encontrado". O código deve garantir que o Frontend e o Backend reconheçam o acesso global deles, independentemente de estarem vinculados fisicamente na tabela de `UsuarioWorkspace`.
+Usuários **Master** (`gravity_admin = true`) ou **Super Admins** (`tipo_usuario = 'SUPER_ADMIN'`) **não podem** ficar presos em telas de "Nenhum workspace encontrado". O código deve garantir que o Frontend e o Backend reconheçam o acesso global deles, independentemente de estarem vinculados fisicamente na tabela de `UsuarioWorkspace`.
 
 ---
 
@@ -226,6 +227,7 @@ const meResponseSchema = z.object({
 | Agent Policy | `skills/governanca/agent-policy/SKILL.md` | **SEMPRE — antes de qualquer tarefa** |
 | Ambiente | `skills/governanca/ambiente/SKILL.md` | Antes de iniciar servidor, definir porta |
 | Code Standards | `skills/governanca/code-standards/SKILL.md` | **SEMPRE — antes de escrever código** |
+| DDD Nomenclatura | `skills/governanca/ddd-nomenclatura/SKILL.md` | **SEMPRE — antes de nomear qualquer coisa (campo, tabela, rota, função, arquivo, label)** |
 | Deploy | `skills/governanca/deploy/SKILL.md` | Migrações, deploy, rollback, Railway |
 | Database Governance | `skills/governanca/database-governance/SKILL.md` | **Criar/alterar models Prisma** — paridade nominal, Database-per-Service, public vazio |
 | Lint Tenant-Safety | `skills/governanca/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia PrismaClient direto, cache sem prefixo, etc. |

@@ -1,0 +1,143 @@
+// ============================================================================
+// schema.prisma — GERADO AUTOMATICAMENTE
+// NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
+// Gerado em: 2026-04-22T18:19:29.420Z
+// Banco: gravity-cadastros-* (Railway)
+// Serviço: @tenant/cadastros
+// Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
+// ============================================================================
+
+// servicos-global/tenant/cadastros/prisma/schema.base.prisma
+// ARQUIVO BASE — NÃO MODIFICAR DIRETAMENTE
+// Contém apenas datasource e generator.
+// O Coordenador compõe o schema.prisma final via scripts/ativamente/compose-cadastros-schema.ts
+// adicionando o fragment.prisma do serviço cadastros.
+//
+// Banco: gravity-cadastros-* (Railway) — 4º banco do ecossistema Gravity
+// Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
+// Padrão: Database-per-Service, schema único `public`
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("CADASTROS_DATABASE_URL")
+}
+
+
+// --- Fragment: cadastros ---
+
+// =====================================================================
+// Fragment Prisma — Serviço @tenant/cadastros
+// =====================================================================
+// Fonte da verdade: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
+// Versão: 1.0 (Fase 1 — scaffold inicial)
+//
+// IMPORTANTE:
+// - Este fragment NÃO deve ser editado diretamente em schema.prisma.
+// - O Coordenador é o único autorizado a rodar a composição do schema
+//   consolidado (Mandamento 02).
+// - Todos os models seguem o DDD Gravity (PT-BR, sem @map/@@map,
+//   booleans sem prefixo `is_`, valores de enum em UPPER_SNAKE EN).
+// =====================================================================
+
+// ---------------------------------------------------------------------
+// 4.1 Empresa — cartório de identidades COMEX (per-tenant)
+// ---------------------------------------------------------------------
+// Tipo da empresa é DERIVADO das flags pode_ser_*, NÃO é campo persistido.
+// Função utilitária: derivarTipoVisual(empresa) em server/src/utils.
+model Empresa {
+  suid                   String   @id           // ex: SHENZHEN-00042
+  id_organizacao         String                 // tenant dono
+  nome_empresa           String
+  cnpj                   String?                // obrigatório se pais = BR
+  tin                    String?                // estrangeiros (opcional)
+  pais                   String                 // ISO-2
+  estado                 String?
+  cidade                 String?
+  endereco               String?
+  zipcode                String?
+  email                  String?
+  telefone               String?
+  whatsapp               String?
+  pode_ser_importador    Boolean  @default(false)
+  pode_ser_exportador    Boolean  @default(false)
+  pode_ser_fabricante    Boolean  @default(false)
+  pode_ser_agente        Boolean  @default(false)
+  pode_ser_despachante   Boolean  @default(false)
+  pode_ser_armador       Boolean  @default(false)
+  ativo                  Boolean  @default(true)
+  criado_em              DateTime @default(now())
+  atualizado_em          DateTime @updatedAt
+
+  @@unique([id_organizacao, cnpj])
+  @@unique([id_organizacao, tin, pais])
+  @@index([id_organizacao])
+  @@index([id_organizacao, nome_empresa])
+}
+
+// ---------------------------------------------------------------------
+// 4.2 Catálogos compartilhados (Moeda, Unidade, NCM)
+// ---------------------------------------------------------------------
+model Moeda {
+  codigo          String   @id           // BRL, USD, EUR, CNY
+  nome            String
+  simbolo         String
+  ativo           Boolean  @default(true)
+}
+
+model Unidade {
+  codigo          String   @id           // KG, UN, M, L
+  nome            String
+  tipo            String                 // peso, quantidade, comprimento, volume
+  ativo           Boolean  @default(true)
+}
+
+model NCM {
+  codigo          String   @id           // 8 dígitos
+  descricao       String
+  ipi             Float?
+  ii              Float?
+  ativo           Boolean  @default(true)
+}
+
+// ---------------------------------------------------------------------
+// 4.3 OPE — sincronizado de Portal Único (fonte da verdade SISCOMEX)
+// ---------------------------------------------------------------------
+model OPE {
+  suid                   String   @id
+  id_organizacao         String
+  codigo_portal_unico    String   @unique
+  situacao               String                 // espelho do status SISCOMEX
+  versao                 String
+  nome_ope               String
+  cnpj_raiz_empresa      String
+  pais                   String
+  estado                 String?
+  cidade                 String?
+  endereco               String?
+  zip                    String?
+  tin                    String?
+  email                  String?
+  ultima_sincronizacao   DateTime
+  origem                 String   @default("portal_unico")
+
+  @@index([id_organizacao])
+}
+
+model HistoricoStatusOPE {
+  id                     String   @id @default(cuid())
+  suid_ope               String
+  status_anterior        String?
+  status_novo            String
+  origem                 String                 // portal_unico, manual, sistema
+  payload                Json
+  registrado_em          DateTime @default(now())
+
+  @@index([suid_ope])
+  @@index([registrado_em])
+}

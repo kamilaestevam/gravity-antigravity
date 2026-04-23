@@ -72,6 +72,7 @@ model Organizacao {
   status             StatusOrganizacao @default(PENDING_SETUP) @map("status_organizacao")
   clerk_org_id       String?      @unique
   stripe_customer_id String?      @unique
+  suid_empresa       String?      @unique
 
   // Dados cadastrais da organização
   cnpj         String? @map("cnpj_organizacao")

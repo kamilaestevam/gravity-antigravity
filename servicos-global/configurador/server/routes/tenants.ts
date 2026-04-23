@@ -16,18 +16,46 @@ export const tenantsRouter = Router()
 
 // ─── Schemas de validação ───────────────────────────────────────────────────
 
-const CreateTenantSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
-  slug: z
-    .string()
-    .min(2)
-    .regex(/^[a-z0-9-]+$/, 'Slug deve ser lowercase alfanumérico com hifens'),
-  clerkUserId: z.string(),
-  owner: z.object({
-    email: z.string().email(),
-    name: z.string().min(1),
-  }),
-})
+const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/
+const isoPaisRegex = /^[A-Z]{2}$/
+
+export const CreateTenantSchema = z
+  .object({
+    name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
+    slug: z
+      .string()
+      .min(2)
+      .regex(/^[a-z0-9-]+$/, 'Slug deve ser lowercase alfanumérico com hifens'),
+    clerkUserId: z.string(),
+    owner: z.object({
+      email: z.string().email(),
+      name: z.string().min(1),
+    }),
+    cnpj: z
+      .string()
+      .regex(cnpjRegex, 'CNPJ precisa estar no formato XX.XXX.XXX/XXXX-XX')
+      .optional(),
+    pais: z
+      .string()
+      .regex(isoPaisRegex, 'País precisa ser código ISO-2 (ex: BR, US, CN)')
+      .default('BR'),
+  })
+  .superRefine((data, ctx) => {
+    if (data.pais === 'BR' && !data.cnpj) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['cnpj'],
+        message: 'CNPJ é obrigatório quando país = BR',
+      })
+    }
+    if (data.pais !== 'BR' && data.cnpj) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['cnpj'],
+        message: 'CNPJ só pode ser preenchido quando país = BR',
+      })
+    }
+  })
 
 const UpdateTenantSchema = z.object({
   name: z.string().min(2).optional(),
@@ -69,7 +97,10 @@ tenantsRouter.post('/', async (req, res, next) => {
       )
     }
 
-    const tenant = await tenantService.createTenant(parsed.data)
+    const tenant = await tenantService.createTenant({
+      ...parsed.data,
+      correlationId: req.correlationId,
+    })
     return res.status(201).json({ tenant })
   } catch (err) {
     next(err)

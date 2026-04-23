@@ -129,6 +129,7 @@ exports.Prisma.OrganizacaoScalarFieldEnum = {
   status: 'status',
   clerk_org_id: 'clerk_org_id',
   stripe_customer_id: 'stripe_customer_id',
+  suid_empresa: 'suid_empresa',
   cnpj: 'cnpj',
   state: 'state',
   city: 'city',
@@ -482,14 +483,14 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.TenantStatus = exports.$Enums.TenantStatus = {
+exports.StatusOrganizacao = exports.$Enums.StatusOrganizacao = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
   CANCELLED: 'CANCELLED',
   PENDING_SETUP: 'PENDING_SETUP'
 };
 
-exports.UserRole = exports.$Enums.UserRole = {
+exports.TipoUsuario = exports.$Enums.TipoUsuario = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   MASTER: 'MASTER',
@@ -497,7 +498,7 @@ exports.UserRole = exports.$Enums.UserRole = {
   SUPPLIER: 'SUPPLIER'
 };
 
-exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
+exports.StatusAssinatura = exports.$Enums.StatusAssinatura = {
   ACTIVE: 'ACTIVE',
   PAST_DUE: 'PAST_DUE',
   CANCELLED: 'CANCELLED',
@@ -505,18 +506,18 @@ exports.SubscriptionStatus = exports.$Enums.SubscriptionStatus = {
   INCOMPLETE: 'INCOMPLETE'
 };
 
-exports.CompanyStatus = exports.$Enums.CompanyStatus = {
+exports.StatusEmpresa = exports.$Enums.StatusEmpresa = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE'
 };
 
-exports.UserMembershipRole = exports.$Enums.UserMembershipRole = {
+exports.TipoMembroEmpresa = exports.$Enums.TipoMembroEmpresa = {
   MASTER: 'MASTER',
   STANDARD: 'STANDARD',
   SUPPLIER: 'SUPPLIER'
 };
 
-exports.ProductStatus = exports.$Enums.ProductStatus = {
+exports.StatusProduto = exports.$Enums.StatusProduto = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
   COMING_SOON: 'COMING_SOON',
@@ -524,7 +525,7 @@ exports.ProductStatus = exports.$Enums.ProductStatus = {
   INACTIVE: 'INACTIVE'
 };
 
-exports.BillingType = exports.$Enums.BillingType = {
+exports.TipoCobranca = exports.$Enums.TipoCobranca = {
   MONTHLY: 'MONTHLY',
   PER_PROCESS: 'PER_PROCESS',
   PER_DOCUMENT: 'PER_DOCUMENT',
@@ -536,19 +537,19 @@ exports.BillingType = exports.$Enums.BillingType = {
   PER_LPCO: 'PER_LPCO'
 };
 
-exports.UserLimitType = exports.$Enums.UserLimitType = {
+exports.TipoLimiteUsuario = exports.$Enums.TipoLimiteUsuario = {
   UNLIMITED: 'UNLIMITED',
   LIMITED: 'LIMITED'
 };
 
-exports.DeployEnvironment = exports.$Enums.DeployEnvironment = {
+exports.AmbienteDeploy = exports.$Enums.AmbienteDeploy = {
   DEVELOPMENT: 'DEVELOPMENT',
   STAGING: 'STAGING',
   PRODUCTION: 'PRODUCTION',
   ALL: 'ALL'
 };
 
-exports.DeployStatus = exports.$Enums.DeployStatus = {
+exports.StatusDeploy = exports.$Enums.StatusDeploy = {
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
   ROLLBACK: 'ROLLBACK',

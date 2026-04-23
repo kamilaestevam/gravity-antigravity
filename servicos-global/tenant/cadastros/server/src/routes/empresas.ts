@@ -3,7 +3,10 @@
  *
  * - Toda query filtra por `id_organizacao` (Tenant Isolation).
  * - 404 ao buscar SUID alheio (não 403 — não vazamos existência).
- * - Soft delete via `ativo = false`. Hard delete não é permitido.
+ * - Soft delete via `ativo = false` (DELETE /empresas/:suid) — uso normal.
+ * - Hard delete (DELETE /empresas/:suid/compensacao) — exclusivo para
+ *   compensação de saga inter-serviço quando a criação da Organizacao no
+ *   Configurador falha após a Empresa ter sido criada aqui.
  * - SUID gerado por `gerarSuid()` no formato `${PAIS}-${SLUG}-${SEQ_5}`.
  */
 import { Router } from 'express'
@@ -196,6 +199,32 @@ router.put('/:suid', async (req, res, next) => {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return next(AppError.conflito('Atualização viola unicidade (CNPJ/TIN duplicado neste tenant)'))
     }
+    next(err)
+  }
+})
+
+// ---------------------------------------------------------------------------
+// DELETE /empresas/:suid/compensacao — hard delete para saga
+//
+// Rota EXCLUSIVA para compensação quando a criação da Organizacao no
+// Configurador falha após a Empresa ter sido criada aqui. Remove o registro
+// fisicamente para não deixar "empresa fantasma" no cadastro.
+//
+// NÃO usar para uso normal — a rota canônica de exclusão continua sendo
+// DELETE /empresas/:suid (soft delete).
+// ---------------------------------------------------------------------------
+router.delete('/:suid/compensacao', async (req, res, next) => {
+  try {
+    const idOrganizacao = extrairIdOrganizacao(req)
+    const existente = await prisma.empresa.findFirst({
+      where: { suid: req.params.suid, id_organizacao: idOrganizacao },
+      select: { suid: true },
+    })
+    if (!existente) throw AppError.naoEncontrado('Empresa')
+
+    await prisma.empresa.delete({ where: { suid: existente.suid } })
+    res.status(204).send()
+  } catch (err) {
     next(err)
   }
 })

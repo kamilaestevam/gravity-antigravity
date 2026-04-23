@@ -3120,6 +3120,7 @@ export namespace Prisma {
     status: $Enums.StatusOrganizacao | null
     clerk_org_id: string | null
     stripe_customer_id: string | null
+    suid_empresa: string | null
     cnpj: string | null
     state: string | null
     city: string | null
@@ -3136,6 +3137,7 @@ export namespace Prisma {
     status: $Enums.StatusOrganizacao | null
     clerk_org_id: string | null
     stripe_customer_id: string | null
+    suid_empresa: string | null
     cnpj: string | null
     state: string | null
     city: string | null
@@ -3152,6 +3154,7 @@ export namespace Prisma {
     status: number
     clerk_org_id: number
     stripe_customer_id: number
+    suid_empresa: number
     cnpj: number
     state: number
     city: number
@@ -3170,6 +3173,7 @@ export namespace Prisma {
     status?: true
     clerk_org_id?: true
     stripe_customer_id?: true
+    suid_empresa?: true
     cnpj?: true
     state?: true
     city?: true
@@ -3186,6 +3190,7 @@ export namespace Prisma {
     status?: true
     clerk_org_id?: true
     stripe_customer_id?: true
+    suid_empresa?: true
     cnpj?: true
     state?: true
     city?: true
@@ -3202,6 +3207,7 @@ export namespace Prisma {
     status?: true
     clerk_org_id?: true
     stripe_customer_id?: true
+    suid_empresa?: true
     cnpj?: true
     state?: true
     city?: true
@@ -3291,6 +3297,7 @@ export namespace Prisma {
     status: $Enums.StatusOrganizacao
     clerk_org_id: string | null
     stripe_customer_id: string | null
+    suid_empresa: string | null
     cnpj: string | null
     state: string | null
     city: string | null
@@ -3324,6 +3331,7 @@ export namespace Prisma {
     status?: boolean
     clerk_org_id?: boolean
     stripe_customer_id?: boolean
+    suid_empresa?: boolean
     cnpj?: boolean
     state?: boolean
     city?: boolean
@@ -3347,6 +3355,7 @@ export namespace Prisma {
     status?: boolean
     clerk_org_id?: boolean
     stripe_customer_id?: boolean
+    suid_empresa?: boolean
     cnpj?: boolean
     state?: boolean
     city?: boolean
@@ -3363,6 +3372,7 @@ export namespace Prisma {
     status?: boolean
     clerk_org_id?: boolean
     stripe_customer_id?: boolean
+    suid_empresa?: boolean
     cnpj?: boolean
     state?: boolean
     city?: boolean
@@ -3400,6 +3410,7 @@ export namespace Prisma {
       status: $Enums.StatusOrganizacao
       clerk_org_id: string | null
       stripe_customer_id: string | null
+      suid_empresa: string | null
       cnpj: string | null
       state: string | null
       city: string | null
@@ -3812,6 +3823,7 @@ export namespace Prisma {
     readonly status: FieldRef<"Organizacao", 'StatusOrganizacao'>
     readonly clerk_org_id: FieldRef<"Organizacao", 'String'>
     readonly stripe_customer_id: FieldRef<"Organizacao", 'String'>
+    readonly suid_empresa: FieldRef<"Organizacao", 'String'>
     readonly cnpj: FieldRef<"Organizacao", 'String'>
     readonly state: FieldRef<"Organizacao", 'String'>
     readonly city: FieldRef<"Organizacao", 'String'>
@@ -26412,6 +26424,7 @@ export namespace Prisma {
     status: 'status',
     clerk_org_id: 'clerk_org_id',
     stripe_customer_id: 'stripe_customer_id',
+    suid_empresa: 'suid_empresa',
     cnpj: 'cnpj',
     state: 'state',
     city: 'city',
@@ -27109,6 +27122,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFilter<"Organizacao"> | $Enums.StatusOrganizacao
     clerk_org_id?: StringNullableFilter<"Organizacao"> | string | null
     stripe_customer_id?: StringNullableFilter<"Organizacao"> | string | null
+    suid_empresa?: StringNullableFilter<"Organizacao"> | string | null
     cnpj?: StringNullableFilter<"Organizacao"> | string | null
     state?: StringNullableFilter<"Organizacao"> | string | null
     city?: StringNullableFilter<"Organizacao"> | string | null
@@ -27131,6 +27145,7 @@ export namespace Prisma {
     status?: SortOrder
     clerk_org_id?: SortOrderInput | SortOrder
     stripe_customer_id?: SortOrderInput | SortOrder
+    suid_empresa?: SortOrderInput | SortOrder
     cnpj?: SortOrderInput | SortOrder
     state?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
@@ -27151,6 +27166,7 @@ export namespace Prisma {
     slug?: string
     clerk_org_id?: string
     stripe_customer_id?: string
+    suid_empresa?: string
     AND?: OrganizacaoWhereInput | OrganizacaoWhereInput[]
     OR?: OrganizacaoWhereInput[]
     NOT?: OrganizacaoWhereInput | OrganizacaoWhereInput[]
@@ -27169,7 +27185,7 @@ export namespace Prisma {
     companies?: EmpresaListRelationFilter
     product_configs?: ConfiguracaoProdutoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
-  }, "id" | "slug" | "clerk_org_id" | "stripe_customer_id">
+  }, "id" | "slug" | "clerk_org_id" | "stripe_customer_id" | "suid_empresa">
 
   export type OrganizacaoOrderByWithAggregationInput = {
     id?: SortOrder
@@ -27178,6 +27194,7 @@ export namespace Prisma {
     status?: SortOrder
     clerk_org_id?: SortOrderInput | SortOrder
     stripe_customer_id?: SortOrderInput | SortOrder
+    suid_empresa?: SortOrderInput | SortOrder
     cnpj?: SortOrderInput | SortOrder
     state?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
@@ -27200,6 +27217,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoWithAggregatesFilter<"Organizacao"> | $Enums.StatusOrganizacao
     clerk_org_id?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     stripe_customer_id?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
+    suid_empresa?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     cnpj?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     state?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     city?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
@@ -29143,6 +29161,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -29165,6 +29184,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -29187,6 +29207,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29209,6 +29230,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29231,6 +29253,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -29247,6 +29270,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29263,6 +29287,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -31612,6 +31637,7 @@ export namespace Prisma {
     status?: SortOrder
     clerk_org_id?: SortOrder
     stripe_customer_id?: SortOrder
+    suid_empresa?: SortOrder
     cnpj?: SortOrder
     state?: SortOrder
     city?: SortOrder
@@ -31628,6 +31654,7 @@ export namespace Prisma {
     status?: SortOrder
     clerk_org_id?: SortOrder
     stripe_customer_id?: SortOrder
+    suid_empresa?: SortOrder
     cnpj?: SortOrder
     state?: SortOrder
     city?: SortOrder
@@ -31644,6 +31671,7 @@ export namespace Prisma {
     status?: SortOrder
     clerk_org_id?: SortOrder
     stripe_customer_id?: SortOrder
+    suid_empresa?: SortOrder
     cnpj?: SortOrder
     state?: SortOrder
     city?: SortOrder
@@ -35006,6 +35034,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35027,6 +35056,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35157,6 +35187,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35178,6 +35209,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35282,6 +35314,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35303,6 +35336,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35340,6 +35374,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35361,6 +35396,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35382,6 +35418,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35403,6 +35440,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35471,6 +35509,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35492,6 +35531,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35550,6 +35590,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35571,6 +35612,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35702,6 +35744,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35723,6 +35766,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35928,6 +35972,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35949,6 +35994,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -35986,6 +36032,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36007,6 +36054,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36028,6 +36076,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -36049,6 +36098,7 @@ export namespace Prisma {
     status?: $Enums.StatusOrganizacao
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
+    suid_empresa?: string | null
     cnpj?: string | null
     state?: string | null
     city?: string | null
@@ -36117,6 +36167,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36138,6 +36189,7 @@ export namespace Prisma {
     status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null

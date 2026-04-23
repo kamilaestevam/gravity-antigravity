@@ -36,6 +36,9 @@ import {
   SALDO_FORMULA_PADRAO,
 } from '../services/formulaEngine.js'
 import { isPropagavel } from '../../../../../produto/pedido/shared/columnPropagationConfig.js'
+import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
+import { montarSnapshotEmpresa, type PapelEmpresa } from '../services/pedidoSnapshots.js'
+import { randomUUID } from 'node:crypto'
 
 export const pedidosRouter = Router()
 
@@ -55,12 +58,15 @@ const criarItemSchema = z.object({
   sequencia_item: z.number().int().optional().nullable(),
 })
 
-const criarPedidoSchema = z.object({
+const criarPedidoObjectSchema = z.object({
   tipo_operacao: z.enum(['importacao', 'exportacao']),
   numero_pedido: z.string().min(1).max(100),
-  importacao_exportador_id: z.string().optional().nullable(),
-  exportacao_importador_id: z.string().optional().nullable(),
-  fabricante_id:            z.string().optional().nullable(),
+  // Fase 4 DDD: SUIDs referenciam Empresas no serviço Cadastros — usados para
+  // gravar PedidoSnapshotEmpresa. Os campos *_id legados (importacao_exportador_id
+  // etc.) nao sao mais aceitos no payload; snapshots sao a fonte da verdade.
+  suid_importador:          z.string().min(1).optional().nullable(),
+  suid_exportador:          z.string().min(1).optional().nullable(),
+  suid_fabricante:          z.string().min(1).optional().nullable(),
   numero_proforma:          z.string().optional().nullable(),
   numero_invoice:           z.string().optional().nullable(),
   referencia_importador:    z.string().optional().nullable(),
@@ -79,7 +85,30 @@ const criarPedidoSchema = z.object({
   itens: z.array(criarItemSchema).optional().default([]),
 })
 
-const atualizarPedidoSchema = criarPedidoSchema.partial().omit({ itens: true })
+/**
+ * Regra cross-field Fase 4:
+ *   - importacao → exige suid_exportador (quem vende ao nosso importador)
+ *   - exportacao → exige suid_importador (quem compra do nosso exportador)
+ * suid_fabricante permanece opcional nos dois tipos.
+ */
+export const criarPedidoSchema = criarPedidoObjectSchema.superRefine((data, ctx) => {
+  if (data.tipo_operacao === 'importacao' && !data.suid_exportador) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['suid_exportador'],
+      message: 'suid_exportador e obrigatorio quando tipo_operacao = importacao',
+    })
+  }
+  if (data.tipo_operacao === 'exportacao' && !data.suid_importador) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['suid_importador'],
+      message: 'suid_importador e obrigatorio quando tipo_operacao = exportacao',
+    })
+  }
+})
+
+const atualizarPedidoSchema = criarPedidoObjectSchema.partial().omit({ itens: true })
 
 const atualizarItemSchema = z.object({
   part_number: z.string().min(1).optional(),
@@ -538,9 +567,32 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
     return res.status(400).json({ error: { message: 'Dados invalidos', details: result.error.flatten() } })
   }
 
-  const { itens, ...pedidoData } = result.data
+  const {
+    itens,
+    suid_importador,
+    suid_exportador,
+    suid_fabricante,
+    ...pedidoData
+  } = result.data
 
   try {
+    // ── Fase 4 DDD: busca Empresas no Cadastros ANTES do $transaction ─────
+    // I/O de rede não pode segurar conexão Prisma (mesma regra da saga
+    // Cadastros-primeiro da Fase 3).
+    const ctxTenant = (req as unknown as { tenant: TenantContext }).tenant
+    const correlation_id =
+      (req.headers['x-correlation-id'] as string | undefined) ?? randomUUID()
+
+    const papeisPorSuid: Array<{ suid: string; papel: PapelEmpresa }> = []
+    if (suid_importador) papeisPorSuid.push({ suid: suid_importador, papel: 'importador' })
+    if (suid_exportador) papeisPorSuid.push({ suid: suid_exportador, papel: 'exportador' })
+    if (suid_fabricante) papeisPorSuid.push({ suid: suid_fabricante, papel: 'fabricante' })
+
+    const empresasMap = await buscarEmpresasPorSuids(
+      papeisPorSuid.map((p) => p.suid),
+      { id_organizacao: ctxTenant.tenantId, correlation_id },
+    )
+
     await withTenant(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db       = rawDb as any
@@ -558,6 +610,14 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
       }, 0)
 
       const qtdTotal = itens.reduce((acc, item) => acc + (item.quantidade_inicial_pedido ?? 0), 0)
+
+      const snapshotsData = papeisPorSuid
+        .map(({ suid, papel }) => {
+          const empresa = empresasMap.get(suid)
+          if (!empresa) return null
+          return montarSnapshotEmpresa(empresa, papel, tenant_id, company_id)
+        })
+        .filter((s): s is NonNullable<typeof s> => s !== null)
 
       const novoPedido = await db.pedido.create({
         data: {
@@ -587,8 +647,14 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
               casas_decimais_valor_item: item.casas_decimais_valor_item,
             })),
           },
+          snapshots_empresa: snapshotsData.length
+            ? { create: snapshotsData }
+            : undefined,
         },
-        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+        include: {
+          itens: { orderBy: { sequencia_item: 'asc' } },
+          snapshots_empresa: true,
+        },
       })
 
       res.status(201).json(mapPedido(novoPedido))
@@ -998,7 +1064,10 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
 
       const original = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
-        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+        include: {
+          itens: { orderBy: { sequencia_item: 'asc' } },
+          snapshots_empresa: true,
+        },
       })
 
       if (!original) {
@@ -1008,6 +1077,10 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
       const novoPedidoId = gerarId('pedi')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const itensOriginais = (original.itens ?? []) as any[]
+      // Fase 4: snapshots duplicados carregam o estado CONGELADO do original.
+      // Duplicar não é re-emitir — não re-consulta Cadastros.
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const snapshotsOriginais = (original.snapshots_empresa ?? []) as any[]
 
       const duplicado = await db.pedido.create({
         data: {
@@ -1017,8 +1090,6 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
           tipo_operacao: original.tipo_operacao,
           numero_pedido: `${original.numero_pedido}-COPIA`,
           status: 'draft',
-          importacao_exportador_id: original.importacao_exportador_id,
-          exportacao_importador_id: original.exportacao_importador_id,
           incoterm: original.incoterm,
           moeda_pedido: original.moeda_pedido,
           valor_total_pedido: original.valor_total_pedido,
@@ -1048,8 +1119,42 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
               cobertura_cambial: item.cobertura_cambial,
             })),
           },
+          snapshots_empresa: snapshotsOriginais.length
+            ? {
+                create: snapshotsOriginais.map((snap) => ({
+                  id_organizacao: snap.id_organizacao,
+                  id_workspace: snap.id_workspace,
+                  papel: snap.papel,
+                  suid_empresa: snap.suid_empresa,
+                  nome_empresa: snap.nome_empresa,
+                  nome_fantasia: snap.nome_fantasia,
+                  documento_principal: snap.documento_principal,
+                  tipo_documento: snap.tipo_documento,
+                  cnpj_raiz: snap.cnpj_raiz,
+                  endereco_logradouro: snap.endereco_logradouro,
+                  endereco_numero: snap.endereco_numero,
+                  endereco_complemento: snap.endereco_complemento,
+                  endereco_bairro: snap.endereco_bairro,
+                  endereco_cidade: snap.endereco_cidade,
+                  endereco_uf: snap.endereco_uf,
+                  endereco_cep: snap.endereco_cep,
+                  endereco_pais: snap.endereco_pais,
+                  contato_nome: snap.contato_nome,
+                  contato_email: snap.contato_email,
+                  contato_whatsapp: snap.contato_whatsapp,
+                  contato_cargo: snap.contato_cargo,
+                  contato_departamento: snap.contato_departamento,
+                  exportador_e_fabricante: snap.exportador_e_fabricante,
+                  relacao_exportador_fabricante: snap.relacao_exportador_fabricante,
+                  motivo_congelamento: snap.motivo_congelamento,
+                })),
+              }
+            : undefined,
         },
-        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+        include: {
+          itens: { orderBy: { sequencia_item: 'asc' } },
+          snapshots_empresa: true,
+        },
       })
 
       res.status(201).json(mapPedido(duplicado))

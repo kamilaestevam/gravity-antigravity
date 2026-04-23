@@ -13,9 +13,12 @@
 import { Router } from 'express'
 import type { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
+import { randomUUID } from 'node:crypto'
 import { importEngine } from '../services/importEngine.js'
 import type { PedidoImportado } from '../services/importEngine.js'
 import { AppError } from '../services/saldoEngine.js'
+import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
+import { montarSnapshotEmpresa, type PapelEmpresa } from '../services/pedidoSnapshots.js'
 
 export const importacaoRouter = Router()
 
@@ -46,30 +49,50 @@ importacaoRouter.post('/importar', async (req: Request, res: Response, next: Nex
 
 // ── POST /importar/confirmar — Criar pedidos em batch ─────────────────────────
 
-const confirmarSchema = z.object({
-  pedidos: z.array(z.object({
-    numero_pedido: z.string().min(1),
-    tipo_operacao: z.enum(['importacao', 'exportacao']),
-    exportador: z.string().optional(),
-    fabricante: z.string().optional(),
-    incoterm: z.string().optional(),
-    moeda_pedido: z.string().optional().default('USD'),
-    referencia_importador: z.string().optional(),
-    referencia_exportador: z.string().optional(),
-    referencia_fabricante: z.string().optional(),
-    numero_proforma: z.string().optional(),
-    numero_invoice: z.string().optional(),
-    data_emissao_pedido: z.string().optional(),
-    itens: z.array(z.object({
-      part_number: z.string().min(1),
-      ncm: z.string().min(1),
-      descricao_item: z.string().min(1),
-      quantidade_inicial_pedido: z.number().positive(),
-      unidade_comercializada_item: z.string().optional(),
-      valor_por_unidade_item: z.number().optional(),
-      valor_total_item: z.number().optional(),
-    })).min(1),
+const pedidoImportadoObjectSchema = z.object({
+  numero_pedido: z.string().min(1),
+  tipo_operacao: z.enum(['importacao', 'exportacao']),
+  // Fase 4 DDD: SUIDs substituem nomes livres. Empresas devem existir no
+  // serviço Cadastros antes da importação.
+  suid_importador: z.string().min(1).optional().nullable(),
+  suid_exportador: z.string().min(1).optional().nullable(),
+  suid_fabricante: z.string().min(1).optional().nullable(),
+  incoterm: z.string().optional(),
+  moeda_pedido: z.string().optional().default('USD'),
+  referencia_importador: z.string().optional(),
+  referencia_exportador: z.string().optional(),
+  referencia_fabricante: z.string().optional(),
+  numero_proforma: z.string().optional(),
+  numero_invoice: z.string().optional(),
+  data_emissao_pedido: z.string().optional(),
+  itens: z.array(z.object({
+    part_number: z.string().min(1),
+    ncm: z.string().min(1),
+    descricao_item: z.string().min(1),
+    quantidade_inicial_pedido: z.number().positive(),
+    unidade_comercializada_item: z.string().optional(),
+    valor_por_unidade_item: z.number().optional(),
+    valor_total_item: z.number().optional(),
   })).min(1),
+}).superRefine((data, ctx) => {
+  if (data.tipo_operacao === 'importacao' && !data.suid_exportador) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['suid_exportador'],
+      message: 'suid_exportador e obrigatorio quando tipo_operacao = importacao',
+    })
+  }
+  if (data.tipo_operacao === 'exportacao' && !data.suid_importador) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['suid_importador'],
+      message: 'suid_importador e obrigatorio quando tipo_operacao = exportacao',
+    })
+  }
+})
+
+export const confirmarSchema = z.object({
+  pedidos: z.array(pedidoImportadoObjectSchema).min(1),
 })
 
 importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response, next: NextFunction) => {
@@ -81,6 +104,21 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
 
     const tenant_id = req.headers['x-tenant-id'] as string
     const company_id = req.headers['x-company-id'] as string
+    const correlation_id =
+      (req.headers['x-correlation-id'] as string | undefined) ?? randomUUID()
+
+    // ── Fase 4 DDD: coleta SUIDs únicos do batch e busca Empresas no Cadastros
+    // ANTES de abrir a transação (I/O de rede fora de $transaction).
+    const suidsUnicos = new Set<string>()
+    for (const p of result.data.pedidos) {
+      if (p.suid_importador) suidsUnicos.add(p.suid_importador)
+      if (p.suid_exportador) suidsUnicos.add(p.suid_exportador)
+      if (p.suid_fabricante) suidsUnicos.add(p.suid_fabricante)
+    }
+    const empresasMap = await buscarEmpresasPorSuids(
+      Array.from(suidsUnicos),
+      { id_organizacao: tenant_id, correlation_id },
+    )
 
     const criados = await req.prisma.$transaction(async (tx) => {
       const pedidosCriados: string[] = []
@@ -91,6 +129,19 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
           return acc + (item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido)
         }, 0)
         const qtdTotal = pedidoData.itens.reduce((acc, item) => acc + item.quantidade_inicial_pedido, 0)
+
+        const papeisPedido: Array<{ suid: string; papel: PapelEmpresa }> = []
+        if (pedidoData.suid_importador) papeisPedido.push({ suid: pedidoData.suid_importador, papel: 'importador' })
+        if (pedidoData.suid_exportador) papeisPedido.push({ suid: pedidoData.suid_exportador, papel: 'exportador' })
+        if (pedidoData.suid_fabricante) papeisPedido.push({ suid: pedidoData.suid_fabricante, papel: 'fabricante' })
+
+        const snapshotsData = papeisPedido
+          .map(({ suid, papel }) => {
+            const empresa = empresasMap.get(suid)
+            if (!empresa) return null
+            return montarSnapshotEmpresa(empresa, papel, tenant_id, company_id)
+          })
+          .filter((s): s is NonNullable<typeof s> => s !== null)
 
         await tx.pedido.create({
           data: {
@@ -106,8 +157,6 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
             quantidade_total_pedido: qtdTotal || null,
             condicao_pagamento: null,
             detalhes_operacionais: {
-              nome_exportador: pedidoData.exportador,
-              nome_fabricante: pedidoData.fabricante,
               referencia_importador: pedidoData.referencia_importador,
               referencia_exportador: pedidoData.referencia_exportador,
               referencia_fabricante: pedidoData.referencia_fabricante,
@@ -137,6 +186,9 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
                 cobertura_cambial: 'com_cobertura',
               })),
             },
+            snapshots_empresa: snapshotsData.length
+              ? { create: snapshotsData }
+              : undefined,
           },
         })
 

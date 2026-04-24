@@ -41,23 +41,23 @@ export function montarSuid(pais: string, nome: string, sequencial: number): stri
  */
 export async function gerarSuid(
   prisma: Pick<PrismaClient, 'empresa'>,
-  args: { id_organizacao: string; pais: string; nome_empresa: string },
+  args: { id_organizacao: string; pais_empresa: string; nome_empresa: string },
 ): Promise<string> {
-  const { id_organizacao, pais, nome_empresa } = args
+  const { id_organizacao, pais_empresa, nome_empresa } = args
   const total = await prisma.empresa.count({
-    where: { id_organizacao, pais },
+    where: { id_organizacao, pais_empresa },
   })
 
   // Tenta até 50 vezes — colisão extrema indicaria bug no slug ou catálogo
   // monstro de homônimos no tenant. Falha alto se ultrapassar (M08).
   let proximo = total + 1
   for (let tentativa = 0; tentativa < 50; tentativa++) {
-    const candidato = montarSuid(pais, nome_empresa, proximo)
-    const existe = await prisma.empresa.findUnique({ where: { suid: candidato } })
+    const candidato = montarSuid(pais_empresa, nome_empresa, proximo)
+    const existe = await prisma.empresa.findUnique({ where: { suid_empresa: candidato } })
     if (!existe) return candidato
     proximo++
   }
   throw new Error(
-    `[gerarSuid] Não foi possível gerar SUID livre após 50 tentativas (id_organizacao=${id_organizacao}, pais=${pais}, nome=${nome_empresa})`,
+    `[gerarSuid] Não foi possível gerar SUID livre após 50 tentativas (id_organizacao=${id_organizacao}, pais=${pais_empresa}, nome=${nome_empresa})`,
   )
 }

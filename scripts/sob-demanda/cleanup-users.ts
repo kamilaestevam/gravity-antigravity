@@ -84,22 +84,22 @@ async function main() {
     console.log('\nDRY RUN — verificando banco...')
 
     // Contar registros no banco
-    const dbUsers = await prisma.user.count({
+    const dbUsers = await prisma.usuario.count({
       where: {
         clerk_user_id: { in: toDelete.map(u => u.id) },
       },
     })
-    const dbPermissions = await prisma.userPermission.count({
+    const dbPermissions = await prisma.usuarioPermissao.count({
       where: {
         user: { clerk_user_id: { in: toDelete.map(u => u.id) } },
       },
     })
-    const dbMemberships = await prisma.userMembership.count({
+    const dbMemberships = await prisma.usuarioWorkspace.count({
       where: {
         user: { clerk_user_id: { in: toDelete.map(u => u.id) } },
       },
     })
-    const dbSupplier = await prisma.supplierTenantAccess.count({
+    const dbSupplier = await prisma.fornecedorOrganizacao.count({
       where: {
         clerk_user_id: { in: toDelete.map(u => u.id) },
       },
@@ -119,20 +119,20 @@ async function main() {
   const clerkIds = toDelete.map(u => u.id)
 
   const deleted = await prisma.$transaction(async (tx) => {
-    // SupplierTenantAccess não tem cascade automático
-    const sup = await tx.supplierTenantAccess.deleteMany({
+    // FornecedorOrganizacao não tem cascade automático
+    const sup = await tx.fornecedorOrganizacao.deleteMany({
       where: { clerk_user_id: { in: clerkIds } },
     })
 
-    // User delete cascata: UserPermission + UserMembership (onDelete: Cascade no schema)
-    const users = await tx.user.deleteMany({
+    // Usuario delete cascata: UsuarioPermissao + UsuarioWorkspace (onDelete: Cascade no schema)
+    const users = await tx.usuario.deleteMany({
       where: { clerk_user_id: { in: clerkIds } },
     })
 
     return { users: users.count, supplier: sup.count }
   })
 
-  console.log(`   Banco: ${deleted.users} User(s) + ${deleted.supplier} SupplierTenantAccess excluidos`)
+  console.log(`   Banco: ${deleted.users} Usuario(s) + ${deleted.supplier} FornecedorOrganizacao excluidos`)
 
   // 3. Excluir do Clerk
   console.log('\nExcluindo do Clerk...')

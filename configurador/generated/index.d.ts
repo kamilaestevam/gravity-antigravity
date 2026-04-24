@@ -133,17 +133,17 @@ export type MetricasGemini = $Result.DefaultSelection<Prisma.$MetricasGeminiPayl
  * Enums
  */
 export namespace $Enums {
-  export const StatusOrganizacao: {
+  export const OrganizacaoStatus: {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
   CANCELLED: 'CANCELLED',
   PENDING_SETUP: 'PENDING_SETUP'
 };
 
-export type StatusOrganizacao = (typeof StatusOrganizacao)[keyof typeof StatusOrganizacao]
+export type OrganizacaoStatus = (typeof OrganizacaoStatus)[keyof typeof OrganizacaoStatus]
 
 
-export const TipoUsuario: {
+export const UsuarioTipo: {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   MASTER: 'MASTER',
@@ -151,10 +151,10 @@ export const TipoUsuario: {
   SUPPLIER: 'SUPPLIER'
 };
 
-export type TipoUsuario = (typeof TipoUsuario)[keyof typeof TipoUsuario]
+export type UsuarioTipo = (typeof UsuarioTipo)[keyof typeof UsuarioTipo]
 
 
-export const StatusAssinatura: {
+export const StatusAssinaturaProdutoGravity: {
   ACTIVE: 'ACTIVE',
   PAST_DUE: 'PAST_DUE',
   CANCELLED: 'CANCELLED',
@@ -162,27 +162,27 @@ export const StatusAssinatura: {
   INCOMPLETE: 'INCOMPLETE'
 };
 
-export type StatusAssinatura = (typeof StatusAssinatura)[keyof typeof StatusAssinatura]
+export type StatusAssinaturaProdutoGravity = (typeof StatusAssinaturaProdutoGravity)[keyof typeof StatusAssinaturaProdutoGravity]
 
 
-export const StatusEmpresa: {
+export const EmpresaStatus: {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE'
 };
 
-export type StatusEmpresa = (typeof StatusEmpresa)[keyof typeof StatusEmpresa]
+export type EmpresaStatus = (typeof EmpresaStatus)[keyof typeof EmpresaStatus]
 
 
-export const TipoMembroEmpresa: {
+export const TipoUsuarioEmpresa: {
   MASTER: 'MASTER',
   STANDARD: 'STANDARD',
   SUPPLIER: 'SUPPLIER'
 };
 
-export type TipoMembroEmpresa = (typeof TipoMembroEmpresa)[keyof typeof TipoMembroEmpresa]
+export type TipoUsuarioEmpresa = (typeof TipoUsuarioEmpresa)[keyof typeof TipoUsuarioEmpresa]
 
 
-export const StatusProduto: {
+export const StatusProdutoGravity: {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
   COMING_SOON: 'COMING_SOON',
@@ -190,10 +190,10 @@ export const StatusProduto: {
   INACTIVE: 'INACTIVE'
 };
 
-export type StatusProduto = (typeof StatusProduto)[keyof typeof StatusProduto]
+export type StatusProdutoGravity = (typeof StatusProdutoGravity)[keyof typeof StatusProdutoGravity]
 
 
-export const TipoCobranca: {
+export const TipoCobrancaGravity: {
   MONTHLY: 'MONTHLY',
   PER_PROCESS: 'PER_PROCESS',
   PER_DOCUMENT: 'PER_DOCUMENT',
@@ -205,38 +205,38 @@ export const TipoCobranca: {
   PER_LPCO: 'PER_LPCO'
 };
 
-export type TipoCobranca = (typeof TipoCobranca)[keyof typeof TipoCobranca]
+export type TipoCobrancaGravity = (typeof TipoCobrancaGravity)[keyof typeof TipoCobrancaGravity]
 
 
-export const TipoLimiteUsuario: {
+export const ProdutoGravityLimiteUsuario: {
   UNLIMITED: 'UNLIMITED',
   LIMITED: 'LIMITED'
 };
 
-export type TipoLimiteUsuario = (typeof TipoLimiteUsuario)[keyof typeof TipoLimiteUsuario]
+export type ProdutoGravityLimiteUsuario = (typeof ProdutoGravityLimiteUsuario)[keyof typeof ProdutoGravityLimiteUsuario]
 
 
-export const AmbienteDeploy: {
+export const DeployAmbiente: {
   DEVELOPMENT: 'DEVELOPMENT',
   STAGING: 'STAGING',
   PRODUCTION: 'PRODUCTION',
   ALL: 'ALL'
 };
 
-export type AmbienteDeploy = (typeof AmbienteDeploy)[keyof typeof AmbienteDeploy]
+export type DeployAmbiente = (typeof DeployAmbiente)[keyof typeof DeployAmbiente]
 
 
-export const StatusDeploy: {
+export const DeployStatus: {
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
   ROLLBACK: 'ROLLBACK',
   IN_PROGRESS: 'IN_PROGRESS'
 };
 
-export type StatusDeploy = (typeof StatusDeploy)[keyof typeof StatusDeploy]
+export type DeployStatus = (typeof DeployStatus)[keyof typeof DeployStatus]
 
 
-export const FaturaStatus: {
+export const FaturaStatusGravity: {
   DRAFT: 'DRAFT',
   OPEN: 'OPEN',
   PAID: 'PAID',
@@ -245,53 +245,53 @@ export const FaturaStatus: {
   UNCOLLECTIBLE: 'UNCOLLECTIBLE'
 };
 
-export type FaturaStatus = (typeof FaturaStatus)[keyof typeof FaturaStatus]
+export type FaturaStatusGravity = (typeof FaturaStatusGravity)[keyof typeof FaturaStatusGravity]
 
 }
 
-export type StatusOrganizacao = $Enums.StatusOrganizacao
+export type OrganizacaoStatus = $Enums.OrganizacaoStatus
 
-export const StatusOrganizacao: typeof $Enums.StatusOrganizacao
+export const OrganizacaoStatus: typeof $Enums.OrganizacaoStatus
 
-export type TipoUsuario = $Enums.TipoUsuario
+export type UsuarioTipo = $Enums.UsuarioTipo
 
-export const TipoUsuario: typeof $Enums.TipoUsuario
+export const UsuarioTipo: typeof $Enums.UsuarioTipo
 
-export type StatusAssinatura = $Enums.StatusAssinatura
+export type StatusAssinaturaProdutoGravity = $Enums.StatusAssinaturaProdutoGravity
 
-export const StatusAssinatura: typeof $Enums.StatusAssinatura
+export const StatusAssinaturaProdutoGravity: typeof $Enums.StatusAssinaturaProdutoGravity
 
-export type StatusEmpresa = $Enums.StatusEmpresa
+export type EmpresaStatus = $Enums.EmpresaStatus
 
-export const StatusEmpresa: typeof $Enums.StatusEmpresa
+export const EmpresaStatus: typeof $Enums.EmpresaStatus
 
-export type TipoMembroEmpresa = $Enums.TipoMembroEmpresa
+export type TipoUsuarioEmpresa = $Enums.TipoUsuarioEmpresa
 
-export const TipoMembroEmpresa: typeof $Enums.TipoMembroEmpresa
+export const TipoUsuarioEmpresa: typeof $Enums.TipoUsuarioEmpresa
 
-export type StatusProduto = $Enums.StatusProduto
+export type StatusProdutoGravity = $Enums.StatusProdutoGravity
 
-export const StatusProduto: typeof $Enums.StatusProduto
+export const StatusProdutoGravity: typeof $Enums.StatusProdutoGravity
 
-export type TipoCobranca = $Enums.TipoCobranca
+export type TipoCobrancaGravity = $Enums.TipoCobrancaGravity
 
-export const TipoCobranca: typeof $Enums.TipoCobranca
+export const TipoCobrancaGravity: typeof $Enums.TipoCobrancaGravity
 
-export type TipoLimiteUsuario = $Enums.TipoLimiteUsuario
+export type ProdutoGravityLimiteUsuario = $Enums.ProdutoGravityLimiteUsuario
 
-export const TipoLimiteUsuario: typeof $Enums.TipoLimiteUsuario
+export const ProdutoGravityLimiteUsuario: typeof $Enums.ProdutoGravityLimiteUsuario
 
-export type AmbienteDeploy = $Enums.AmbienteDeploy
+export type DeployAmbiente = $Enums.DeployAmbiente
 
-export const AmbienteDeploy: typeof $Enums.AmbienteDeploy
+export const DeployAmbiente: typeof $Enums.DeployAmbiente
 
-export type StatusDeploy = $Enums.StatusDeploy
+export type DeployStatus = $Enums.DeployStatus
 
-export const StatusDeploy: typeof $Enums.StatusDeploy
+export const DeployStatus: typeof $Enums.DeployStatus
 
-export type FaturaStatus = $Enums.FaturaStatus
+export type FaturaStatusGravity = $Enums.FaturaStatusGravity
 
-export const FaturaStatus: typeof $Enums.FaturaStatus
+export const FaturaStatusGravity: typeof $Enums.FaturaStatusGravity
 
 /**
  * ##  Prisma Client ʲˢ
@@ -3117,7 +3117,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     slug: string | null
-    status: $Enums.StatusOrganizacao | null
+    status: $Enums.OrganizacaoStatus | null
     clerk_org_id: string | null
     stripe_customer_id: string | null
     suid_empresa: string | null
@@ -3134,7 +3134,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     slug: string | null
-    status: $Enums.StatusOrganizacao | null
+    status: $Enums.OrganizacaoStatus | null
     clerk_org_id: string | null
     stripe_customer_id: string | null
     suid_empresa: string | null
@@ -3294,7 +3294,7 @@ export namespace Prisma {
     id: string
     name: string
     slug: string
-    status: $Enums.StatusOrganizacao
+    status: $Enums.OrganizacaoStatus
     clerk_org_id: string | null
     stripe_customer_id: string | null
     suid_empresa: string | null
@@ -3407,7 +3407,7 @@ export namespace Prisma {
       id: string
       name: string
       slug: string
-      status: $Enums.StatusOrganizacao
+      status: $Enums.OrganizacaoStatus
       clerk_org_id: string | null
       stripe_customer_id: string | null
       suid_empresa: string | null
@@ -3820,7 +3820,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Organizacao", 'String'>
     readonly name: FieldRef<"Organizacao", 'String'>
     readonly slug: FieldRef<"Organizacao", 'String'>
-    readonly status: FieldRef<"Organizacao", 'StatusOrganizacao'>
+    readonly status: FieldRef<"Organizacao", 'OrganizacaoStatus'>
     readonly clerk_org_id: FieldRef<"Organizacao", 'String'>
     readonly stripe_customer_id: FieldRef<"Organizacao", 'String'>
     readonly suid_empresa: FieldRef<"Organizacao", 'String'>
@@ -4295,7 +4295,7 @@ export namespace Prisma {
     clerk_user_id: string | null
     email: string | null
     name: string | null
-    role: $Enums.TipoUsuario | null
+    role: $Enums.UsuarioTipo | null
     preferred_company_id: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -4307,7 +4307,7 @@ export namespace Prisma {
     clerk_user_id: string | null
     email: string | null
     name: string | null
-    role: $Enums.TipoUsuario | null
+    role: $Enums.UsuarioTipo | null
     preferred_company_id: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -4442,7 +4442,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role: $Enums.TipoUsuario
+    role: $Enums.UsuarioTipo
     preferred_company_id: string | null
     created_at: Date
     updated_at: Date
@@ -4534,7 +4534,7 @@ export namespace Prisma {
       clerk_user_id: string
       email: string
       name: string
-      role: $Enums.TipoUsuario
+      role: $Enums.UsuarioTipo
       preferred_company_id: string | null
       created_at: Date
       updated_at: Date
@@ -4940,7 +4940,7 @@ export namespace Prisma {
     readonly clerk_user_id: FieldRef<"Usuario", 'String'>
     readonly email: FieldRef<"Usuario", 'String'>
     readonly name: FieldRef<"Usuario", 'String'>
-    readonly role: FieldRef<"Usuario", 'TipoUsuario'>
+    readonly role: FieldRef<"Usuario", 'UsuarioTipo'>
     readonly preferred_company_id: FieldRef<"Usuario", 'String'>
     readonly created_at: FieldRef<"Usuario", 'DateTime'>
     readonly updated_at: FieldRef<"Usuario", 'DateTime'>
@@ -5344,7 +5344,7 @@ export namespace Prisma {
   export type AssinaturaProdutoGravityMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
-    status: $Enums.StatusAssinatura | null
+    status: $Enums.StatusAssinaturaProdutoGravity | null
     stripe_subscription_id: string | null
     stripe_price_id: string | null
     trial_ends_at: Date | null
@@ -5358,7 +5358,7 @@ export namespace Prisma {
   export type AssinaturaProdutoGravityMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
-    status: $Enums.StatusAssinatura | null
+    status: $Enums.StatusAssinaturaProdutoGravity | null
     stripe_subscription_id: string | null
     stripe_price_id: string | null
     trial_ends_at: Date | null
@@ -5503,7 +5503,7 @@ export namespace Prisma {
   export type AssinaturaProdutoGravityGroupByOutputType = {
     id: string
     tenant_id: string
-    status: $Enums.StatusAssinatura
+    status: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id: string | null
     stripe_price_id: string | null
     trial_ends_at: Date | null
@@ -5590,7 +5590,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       tenant_id: string
-      status: $Enums.StatusAssinatura
+      status: $Enums.StatusAssinaturaProdutoGravity
       stripe_subscription_id: string | null
       stripe_price_id: string | null
       trial_ends_at: Date | null
@@ -5995,7 +5995,7 @@ export namespace Prisma {
   interface AssinaturaProdutoGravityFieldRefs {
     readonly id: FieldRef<"AssinaturaProdutoGravity", 'String'>
     readonly tenant_id: FieldRef<"AssinaturaProdutoGravity", 'String'>
-    readonly status: FieldRef<"AssinaturaProdutoGravity", 'StatusAssinatura'>
+    readonly status: FieldRef<"AssinaturaProdutoGravity", 'StatusAssinaturaProdutoGravity'>
     readonly stripe_subscription_id: FieldRef<"AssinaturaProdutoGravity", 'String'>
     readonly stripe_price_id: FieldRef<"AssinaturaProdutoGravity", 'String'>
     readonly trial_ends_at: FieldRef<"AssinaturaProdutoGravity", 'DateTime'>
@@ -8241,7 +8241,7 @@ export namespace Prisma {
     name: string | null
     subdomain: string | null
     cnpj: string | null
-    status: $Enums.StatusEmpresa | null
+    status: $Enums.EmpresaStatus | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -8252,7 +8252,7 @@ export namespace Prisma {
     name: string | null
     subdomain: string | null
     cnpj: string | null
-    status: $Enums.StatusEmpresa | null
+    status: $Enums.EmpresaStatus | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -8382,7 +8382,7 @@ export namespace Prisma {
     name: string
     subdomain: string | null
     cnpj: string | null
-    status: $Enums.StatusEmpresa
+    status: $Enums.EmpresaStatus
     created_at: Date
     updated_at: Date
     _count: EmpresaCountAggregateOutputType | null
@@ -8468,7 +8468,7 @@ export namespace Prisma {
       name: string
       subdomain: string | null
       cnpj: string | null
-      status: $Enums.StatusEmpresa
+      status: $Enums.EmpresaStatus
       created_at: Date
       updated_at: Date
     }, ExtArgs["result"]["empresa"]>
@@ -8873,7 +8873,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Empresa", 'String'>
     readonly subdomain: FieldRef<"Empresa", 'String'>
     readonly cnpj: FieldRef<"Empresa", 'String'>
-    readonly status: FieldRef<"Empresa", 'StatusEmpresa'>
+    readonly status: FieldRef<"Empresa", 'EmpresaStatus'>
     readonly created_at: FieldRef<"Empresa", 'DateTime'>
     readonly updated_at: FieldRef<"Empresa", 'DateTime'>
   }
@@ -9283,7 +9283,7 @@ export namespace Prisma {
     tenant_id: string | null
     user_id: string | null
     company_id: string | null
-    role: $Enums.TipoMembroEmpresa | null
+    role: $Enums.TipoUsuarioEmpresa | null
     is_active: boolean | null
     created_at: Date | null
     updated_at: Date | null
@@ -9294,7 +9294,7 @@ export namespace Prisma {
     tenant_id: string | null
     user_id: string | null
     company_id: string | null
-    role: $Enums.TipoMembroEmpresa | null
+    role: $Enums.TipoUsuarioEmpresa | null
     is_active: boolean | null
     created_at: Date | null
     updated_at: Date | null
@@ -9424,7 +9424,7 @@ export namespace Prisma {
     tenant_id: string
     user_id: string
     company_id: string
-    role: $Enums.TipoMembroEmpresa
+    role: $Enums.TipoUsuarioEmpresa
     is_active: boolean
     created_at: Date
     updated_at: Date
@@ -9504,7 +9504,7 @@ export namespace Prisma {
       tenant_id: string
       user_id: string
       company_id: string
-      role: $Enums.TipoMembroEmpresa
+      role: $Enums.TipoUsuarioEmpresa
       is_active: boolean
       created_at: Date
       updated_at: Date
@@ -9907,7 +9907,7 @@ export namespace Prisma {
     readonly tenant_id: FieldRef<"UsuarioWorkspace", 'String'>
     readonly user_id: FieldRef<"UsuarioWorkspace", 'String'>
     readonly company_id: FieldRef<"UsuarioWorkspace", 'String'>
-    readonly role: FieldRef<"UsuarioWorkspace", 'TipoMembroEmpresa'>
+    readonly role: FieldRef<"UsuarioWorkspace", 'TipoUsuarioEmpresa'>
     readonly is_active: FieldRef<"UsuarioWorkspace", 'Boolean'>
     readonly created_at: FieldRef<"UsuarioWorkspace", 'DateTime'>
     readonly updated_at: FieldRef<"UsuarioWorkspace", 'DateTime'>
@@ -12200,19 +12200,19 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     description: string | null
-    status: $Enums.StatusProduto | null
+    status: $Enums.StatusProdutoGravity | null
     launch_date: Date | null
     has_setup: boolean | null
     setup_price: Decimal | null
     setup_currency: string | null
-    billing_type: $Enums.TipoCobranca | null
+    billing_type: $Enums.TipoCobrancaGravity | null
     unit_price: Decimal | null
     unit_currency: string | null
     minimum_price: Decimal | null
     minimum_currency: string | null
     total_price: Decimal | null
     total_currency: string | null
-    user_limit_type: $Enums.TipoLimiteUsuario | null
+    user_limit_type: $Enums.ProdutoGravityLimiteUsuario | null
     base_users_qty: number | null
     extra_user_price: Decimal | null
     extra_user_currency: string | null
@@ -12232,19 +12232,19 @@ export namespace Prisma {
     name: string | null
     slug: string | null
     description: string | null
-    status: $Enums.StatusProduto | null
+    status: $Enums.StatusProdutoGravity | null
     launch_date: Date | null
     has_setup: boolean | null
     setup_price: Decimal | null
     setup_currency: string | null
-    billing_type: $Enums.TipoCobranca | null
+    billing_type: $Enums.TipoCobrancaGravity | null
     unit_price: Decimal | null
     unit_currency: string | null
     minimum_price: Decimal | null
     minimum_currency: string | null
     total_price: Decimal | null
     total_currency: string | null
-    user_limit_type: $Enums.TipoLimiteUsuario | null
+    user_limit_type: $Enums.ProdutoGravityLimiteUsuario | null
     base_users_qty: number | null
     extra_user_price: Decimal | null
     extra_user_currency: string | null
@@ -12505,19 +12505,19 @@ export namespace Prisma {
     name: string
     slug: string
     description: string
-    status: $Enums.StatusProduto
+    status: $Enums.StatusProdutoGravity
     launch_date: Date | null
     has_setup: boolean
     setup_price: Decimal | null
     setup_currency: string
-    billing_type: $Enums.TipoCobranca
+    billing_type: $Enums.TipoCobrancaGravity
     unit_price: Decimal
     unit_currency: string
     minimum_price: Decimal
     minimum_currency: string
     total_price: Decimal | null
     total_currency: string
-    user_limit_type: $Enums.TipoLimiteUsuario
+    user_limit_type: $Enums.ProdutoGravityLimiteUsuario
     base_users_qty: number | null
     extra_user_price: Decimal | null
     extra_user_currency: string
@@ -12668,19 +12668,19 @@ export namespace Prisma {
       name: string
       slug: string
       description: string
-      status: $Enums.StatusProduto
+      status: $Enums.StatusProdutoGravity
       launch_date: Date | null
       has_setup: boolean
       setup_price: Prisma.Decimal | null
       setup_currency: string
-      billing_type: $Enums.TipoCobranca
+      billing_type: $Enums.TipoCobrancaGravity
       unit_price: Prisma.Decimal
       unit_currency: string
       minimum_price: Prisma.Decimal
       minimum_currency: string
       total_price: Prisma.Decimal | null
       total_currency: string
-      user_limit_type: $Enums.TipoLimiteUsuario
+      user_limit_type: $Enums.ProdutoGravityLimiteUsuario
       base_users_qty: number | null
       extra_user_price: Prisma.Decimal | null
       extra_user_currency: string
@@ -13092,19 +13092,19 @@ export namespace Prisma {
     readonly name: FieldRef<"ProdutoGravity", 'String'>
     readonly slug: FieldRef<"ProdutoGravity", 'String'>
     readonly description: FieldRef<"ProdutoGravity", 'String'>
-    readonly status: FieldRef<"ProdutoGravity", 'StatusProduto'>
+    readonly status: FieldRef<"ProdutoGravity", 'StatusProdutoGravity'>
     readonly launch_date: FieldRef<"ProdutoGravity", 'DateTime'>
     readonly has_setup: FieldRef<"ProdutoGravity", 'Boolean'>
     readonly setup_price: FieldRef<"ProdutoGravity", 'Decimal'>
     readonly setup_currency: FieldRef<"ProdutoGravity", 'String'>
-    readonly billing_type: FieldRef<"ProdutoGravity", 'TipoCobranca'>
+    readonly billing_type: FieldRef<"ProdutoGravity", 'TipoCobrancaGravity'>
     readonly unit_price: FieldRef<"ProdutoGravity", 'Decimal'>
     readonly unit_currency: FieldRef<"ProdutoGravity", 'String'>
     readonly minimum_price: FieldRef<"ProdutoGravity", 'Decimal'>
     readonly minimum_currency: FieldRef<"ProdutoGravity", 'String'>
     readonly total_price: FieldRef<"ProdutoGravity", 'Decimal'>
     readonly total_currency: FieldRef<"ProdutoGravity", 'String'>
-    readonly user_limit_type: FieldRef<"ProdutoGravity", 'TipoLimiteUsuario'>
+    readonly user_limit_type: FieldRef<"ProdutoGravity", 'ProdutoGravityLimiteUsuario'>
     readonly base_users_qty: FieldRef<"ProdutoGravity", 'Int'>
     readonly extra_user_price: FieldRef<"ProdutoGravity", 'Decimal'>
     readonly extra_user_currency: FieldRef<"ProdutoGravity", 'String'>
@@ -15503,8 +15503,8 @@ export namespace Prisma {
     area: string | null
     version: string | null
     description: string | null
-    environment: $Enums.AmbienteDeploy | null
-    status: $Enums.StatusDeploy | null
+    environment: $Enums.DeployAmbiente | null
+    status: $Enums.DeployStatus | null
     deployed_by: string | null
     deployed_by_user_id: string | null
     deployed_at: Date | null
@@ -15517,8 +15517,8 @@ export namespace Prisma {
     area: string | null
     version: string | null
     description: string | null
-    environment: $Enums.AmbienteDeploy | null
-    status: $Enums.StatusDeploy | null
+    environment: $Enums.DeployAmbiente | null
+    status: $Enums.DeployStatus | null
     deployed_by: string | null
     deployed_by_user_id: string | null
     deployed_at: Date | null
@@ -15684,8 +15684,8 @@ export namespace Prisma {
     area: string
     version: string
     description: string
-    environment: $Enums.AmbienteDeploy
-    status: $Enums.StatusDeploy
+    environment: $Enums.DeployAmbiente
+    status: $Enums.DeployStatus
     deployed_by: string
     deployed_by_user_id: string | null
     deployed_at: Date
@@ -15763,8 +15763,8 @@ export namespace Prisma {
       area: string
       version: string
       description: string
-      environment: $Enums.AmbienteDeploy
-      status: $Enums.StatusDeploy
+      environment: $Enums.DeployAmbiente
+      status: $Enums.DeployStatus
       deployed_by: string
       deployed_by_user_id: string | null
       deployed_at: Date
@@ -16167,8 +16167,8 @@ export namespace Prisma {
     readonly area: FieldRef<"Deploy", 'String'>
     readonly version: FieldRef<"Deploy", 'String'>
     readonly description: FieldRef<"Deploy", 'String'>
-    readonly environment: FieldRef<"Deploy", 'AmbienteDeploy'>
-    readonly status: FieldRef<"Deploy", 'StatusDeploy'>
+    readonly environment: FieldRef<"Deploy", 'DeployAmbiente'>
+    readonly status: FieldRef<"Deploy", 'DeployStatus'>
     readonly deployed_by: FieldRef<"Deploy", 'String'>
     readonly deployed_by_user_id: FieldRef<"Deploy", 'String'>
     readonly deployed_at: FieldRef<"Deploy", 'DateTime'>
@@ -24411,7 +24411,7 @@ export namespace Prisma {
     id: string | null
     tenant_id: string | null
     numero_fatura_servicos_gravity: string | null
-    status_fatura_servicos_gravity: $Enums.FaturaStatus | null
+    status_fatura_servicos_gravity: $Enums.FaturaStatusGravity | null
     organizacao_fatura_servicos_gravity: string | null
     email_organizacao_fatura_servicos_gravity: string | null
     valor_total_fatura_servicos_gravity: Decimal | null
@@ -24426,7 +24426,7 @@ export namespace Prisma {
     id: string | null
     tenant_id: string | null
     numero_fatura_servicos_gravity: string | null
-    status_fatura_servicos_gravity: $Enums.FaturaStatus | null
+    status_fatura_servicos_gravity: $Enums.FaturaStatusGravity | null
     organizacao_fatura_servicos_gravity: string | null
     email_organizacao_fatura_servicos_gravity: string | null
     valor_total_fatura_servicos_gravity: Decimal | null
@@ -24598,7 +24598,7 @@ export namespace Prisma {
     id: string
     tenant_id: string
     numero_fatura_servicos_gravity: string
-    status_fatura_servicos_gravity: $Enums.FaturaStatus
+    status_fatura_servicos_gravity: $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity: string
     email_organizacao_fatura_servicos_gravity: string | null
     valor_total_fatura_servicos_gravity: Decimal
@@ -24681,7 +24681,7 @@ export namespace Prisma {
       id: string
       tenant_id: string
       numero_fatura_servicos_gravity: string
-      status_fatura_servicos_gravity: $Enums.FaturaStatus
+      status_fatura_servicos_gravity: $Enums.FaturaStatusGravity
       organizacao_fatura_servicos_gravity: string
       email_organizacao_fatura_servicos_gravity: string | null
       valor_total_fatura_servicos_gravity: Prisma.Decimal
@@ -25086,7 +25086,7 @@ export namespace Prisma {
     readonly id: FieldRef<"FaturaProdutosGravity", 'String'>
     readonly tenant_id: FieldRef<"FaturaProdutosGravity", 'String'>
     readonly numero_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly status_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'FaturaStatus'>
+    readonly status_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'FaturaStatusGravity'>
     readonly organizacao_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
     readonly email_organizacao_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
     readonly valor_total_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'Decimal'>
@@ -26886,16 +26886,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'StatusOrganizacao'
+   * Reference to a field of type 'OrganizacaoStatus'
    */
-  export type EnumStatusOrganizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusOrganizacao'>
+  export type EnumOrganizacaoStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrganizacaoStatus'>
     
 
 
   /**
-   * Reference to a field of type 'StatusOrganizacao[]'
+   * Reference to a field of type 'OrganizacaoStatus[]'
    */
-  export type ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusOrganizacao[]'>
+  export type ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'OrganizacaoStatus[]'>
     
 
 
@@ -26914,58 +26914,58 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'TipoUsuario'
+   * Reference to a field of type 'UsuarioTipo'
    */
-  export type EnumTipoUsuarioFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoUsuario'>
+  export type EnumUsuarioTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsuarioTipo'>
     
 
 
   /**
-   * Reference to a field of type 'TipoUsuario[]'
+   * Reference to a field of type 'UsuarioTipo[]'
    */
-  export type ListEnumTipoUsuarioFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoUsuario[]'>
+  export type ListEnumUsuarioTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'UsuarioTipo[]'>
     
 
 
   /**
-   * Reference to a field of type 'StatusAssinatura'
+   * Reference to a field of type 'StatusAssinaturaProdutoGravity'
    */
-  export type EnumStatusAssinaturaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusAssinatura'>
+  export type EnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusAssinaturaProdutoGravity'>
     
 
 
   /**
-   * Reference to a field of type 'StatusAssinatura[]'
+   * Reference to a field of type 'StatusAssinaturaProdutoGravity[]'
    */
-  export type ListEnumStatusAssinaturaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusAssinatura[]'>
+  export type ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusAssinaturaProdutoGravity[]'>
     
 
 
   /**
-   * Reference to a field of type 'StatusEmpresa'
+   * Reference to a field of type 'EmpresaStatus'
    */
-  export type EnumStatusEmpresaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusEmpresa'>
+  export type EnumEmpresaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmpresaStatus'>
     
 
 
   /**
-   * Reference to a field of type 'StatusEmpresa[]'
+   * Reference to a field of type 'EmpresaStatus[]'
    */
-  export type ListEnumStatusEmpresaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusEmpresa[]'>
+  export type ListEnumEmpresaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmpresaStatus[]'>
     
 
 
   /**
-   * Reference to a field of type 'TipoMembroEmpresa'
+   * Reference to a field of type 'TipoUsuarioEmpresa'
    */
-  export type EnumTipoMembroEmpresaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoMembroEmpresa'>
+  export type EnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoUsuarioEmpresa'>
     
 
 
   /**
-   * Reference to a field of type 'TipoMembroEmpresa[]'
+   * Reference to a field of type 'TipoUsuarioEmpresa[]'
    */
-  export type ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoMembroEmpresa[]'>
+  export type ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoUsuarioEmpresa[]'>
     
 
 
@@ -26984,16 +26984,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'StatusProduto'
+   * Reference to a field of type 'StatusProdutoGravity'
    */
-  export type EnumStatusProdutoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusProduto'>
+  export type EnumStatusProdutoGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusProdutoGravity'>
     
 
 
   /**
-   * Reference to a field of type 'StatusProduto[]'
+   * Reference to a field of type 'StatusProdutoGravity[]'
    */
-  export type ListEnumStatusProdutoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusProduto[]'>
+  export type ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusProdutoGravity[]'>
     
 
 
@@ -27012,30 +27012,30 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'TipoCobranca'
+   * Reference to a field of type 'TipoCobrancaGravity'
    */
-  export type EnumTipoCobrancaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoCobranca'>
+  export type EnumTipoCobrancaGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoCobrancaGravity'>
     
 
 
   /**
-   * Reference to a field of type 'TipoCobranca[]'
+   * Reference to a field of type 'TipoCobrancaGravity[]'
    */
-  export type ListEnumTipoCobrancaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoCobranca[]'>
+  export type ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoCobrancaGravity[]'>
     
 
 
   /**
-   * Reference to a field of type 'TipoLimiteUsuario'
+   * Reference to a field of type 'ProdutoGravityLimiteUsuario'
    */
-  export type EnumTipoLimiteUsuarioFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoLimiteUsuario'>
+  export type EnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProdutoGravityLimiteUsuario'>
     
 
 
   /**
-   * Reference to a field of type 'TipoLimiteUsuario[]'
+   * Reference to a field of type 'ProdutoGravityLimiteUsuario[]'
    */
-  export type ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoLimiteUsuario[]'>
+  export type ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProdutoGravityLimiteUsuario[]'>
     
 
 
@@ -27054,44 +27054,44 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'AmbienteDeploy'
+   * Reference to a field of type 'DeployAmbiente'
    */
-  export type EnumAmbienteDeployFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AmbienteDeploy'>
+  export type EnumDeployAmbienteFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeployAmbiente'>
     
 
 
   /**
-   * Reference to a field of type 'AmbienteDeploy[]'
+   * Reference to a field of type 'DeployAmbiente[]'
    */
-  export type ListEnumAmbienteDeployFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AmbienteDeploy[]'>
+  export type ListEnumDeployAmbienteFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeployAmbiente[]'>
     
 
 
   /**
-   * Reference to a field of type 'StatusDeploy'
+   * Reference to a field of type 'DeployStatus'
    */
-  export type EnumStatusDeployFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusDeploy'>
+  export type EnumDeployStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeployStatus'>
     
 
 
   /**
-   * Reference to a field of type 'StatusDeploy[]'
+   * Reference to a field of type 'DeployStatus[]'
    */
-  export type ListEnumStatusDeployFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusDeploy[]'>
+  export type ListEnumDeployStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DeployStatus[]'>
     
 
 
   /**
-   * Reference to a field of type 'FaturaStatus'
+   * Reference to a field of type 'FaturaStatusGravity'
    */
-  export type EnumFaturaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FaturaStatus'>
+  export type EnumFaturaStatusGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FaturaStatusGravity'>
     
 
 
   /**
-   * Reference to a field of type 'FaturaStatus[]'
+   * Reference to a field of type 'FaturaStatusGravity[]'
    */
-  export type ListEnumFaturaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FaturaStatus[]'>
+  export type ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FaturaStatusGravity[]'>
     
 
 
@@ -27119,7 +27119,7 @@ export namespace Prisma {
     id?: StringFilter<"Organizacao"> | string
     name?: StringFilter<"Organizacao"> | string
     slug?: StringFilter<"Organizacao"> | string
-    status?: EnumStatusOrganizacaoFilter<"Organizacao"> | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFilter<"Organizacao"> | $Enums.OrganizacaoStatus
     clerk_org_id?: StringNullableFilter<"Organizacao"> | string | null
     stripe_customer_id?: StringNullableFilter<"Organizacao"> | string | null
     suid_empresa?: StringNullableFilter<"Organizacao"> | string | null
@@ -27171,7 +27171,7 @@ export namespace Prisma {
     OR?: OrganizacaoWhereInput[]
     NOT?: OrganizacaoWhereInput | OrganizacaoWhereInput[]
     name?: StringFilter<"Organizacao"> | string
-    status?: EnumStatusOrganizacaoFilter<"Organizacao"> | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFilter<"Organizacao"> | $Enums.OrganizacaoStatus
     cnpj?: StringNullableFilter<"Organizacao"> | string | null
     state?: StringNullableFilter<"Organizacao"> | string | null
     city?: StringNullableFilter<"Organizacao"> | string | null
@@ -27214,7 +27214,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Organizacao"> | string
     name?: StringWithAggregatesFilter<"Organizacao"> | string
     slug?: StringWithAggregatesFilter<"Organizacao"> | string
-    status?: EnumStatusOrganizacaoWithAggregatesFilter<"Organizacao"> | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusWithAggregatesFilter<"Organizacao"> | $Enums.OrganizacaoStatus
     clerk_org_id?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     stripe_customer_id?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     suid_empresa?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
@@ -27236,7 +27236,7 @@ export namespace Prisma {
     clerk_user_id?: StringFilter<"Usuario"> | string
     email?: StringFilter<"Usuario"> | string
     name?: StringFilter<"Usuario"> | string
-    role?: EnumTipoUsuarioFilter<"Usuario"> | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
     created_at?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
@@ -27272,7 +27272,7 @@ export namespace Prisma {
     tenant_id?: StringFilter<"Usuario"> | string
     email?: StringFilter<"Usuario"> | string
     name?: StringFilter<"Usuario"> | string
-    role?: EnumTipoUsuarioFilter<"Usuario"> | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
     created_at?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
@@ -27306,7 +27306,7 @@ export namespace Prisma {
     clerk_user_id?: StringWithAggregatesFilter<"Usuario"> | string
     email?: StringWithAggregatesFilter<"Usuario"> | string
     name?: StringWithAggregatesFilter<"Usuario"> | string
-    role?: EnumTipoUsuarioWithAggregatesFilter<"Usuario"> | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoWithAggregatesFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableWithAggregatesFilter<"Usuario"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Usuario"> | Date | string
@@ -27318,7 +27318,7 @@ export namespace Prisma {
     NOT?: AssinaturaProdutoGravityWhereInput | AssinaturaProdutoGravityWhereInput[]
     id?: StringFilter<"AssinaturaProdutoGravity"> | string
     tenant_id?: StringFilter<"AssinaturaProdutoGravity"> | string
-    status?: EnumStatusAssinaturaFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
     stripe_price_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
     trial_ends_at?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
@@ -27352,7 +27352,7 @@ export namespace Prisma {
     OR?: AssinaturaProdutoGravityWhereInput[]
     NOT?: AssinaturaProdutoGravityWhereInput | AssinaturaProdutoGravityWhereInput[]
     tenant_id?: StringFilter<"AssinaturaProdutoGravity"> | string
-    status?: EnumStatusAssinaturaFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinaturaProdutoGravity
     stripe_price_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
     trial_ends_at?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
     current_period_start?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
@@ -27386,7 +27386,7 @@ export namespace Prisma {
     NOT?: AssinaturaProdutoGravityScalarWhereWithAggregatesInput | AssinaturaProdutoGravityScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"AssinaturaProdutoGravity"> | string
     tenant_id?: StringWithAggregatesFilter<"AssinaturaProdutoGravity"> | string
-    status?: EnumStatusAssinaturaWithAggregatesFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityWithAggregatesFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: StringNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | string | null
     stripe_price_id?: StringNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | string | null
     trial_ends_at?: DateTimeNullableWithAggregatesFilter<"AssinaturaProdutoGravity"> | Date | string | null
@@ -27548,7 +27548,7 @@ export namespace Prisma {
     name?: StringFilter<"Empresa"> | string
     subdomain?: StringNullableFilter<"Empresa"> | string | null
     cnpj?: StringNullableFilter<"Empresa"> | string | null
-    status?: EnumStatusEmpresaFilter<"Empresa"> | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
     created_at?: DateTimeFilter<"Empresa"> | Date | string
     updated_at?: DateTimeFilter<"Empresa"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
@@ -27581,7 +27581,7 @@ export namespace Prisma {
     tenant_id?: StringFilter<"Empresa"> | string
     name?: StringFilter<"Empresa"> | string
     cnpj?: StringNullableFilter<"Empresa"> | string | null
-    status?: EnumStatusEmpresaFilter<"Empresa"> | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
     created_at?: DateTimeFilter<"Empresa"> | Date | string
     updated_at?: DateTimeFilter<"Empresa"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
@@ -27613,7 +27613,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Empresa"> | string
     subdomain?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
     cnpj?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    status?: EnumStatusEmpresaWithAggregatesFilter<"Empresa"> | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusWithAggregatesFilter<"Empresa"> | $Enums.EmpresaStatus
     created_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
   }
@@ -27626,7 +27626,7 @@ export namespace Prisma {
     tenant_id?: StringFilter<"UsuarioWorkspace"> | string
     user_id?: StringFilter<"UsuarioWorkspace"> | string
     company_id?: StringFilter<"UsuarioWorkspace"> | string
-    role?: EnumTipoMembroEmpresaFilter<"UsuarioWorkspace"> | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFilter<"UsuarioWorkspace"> | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFilter<"UsuarioWorkspace"> | boolean
     created_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     updated_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
@@ -27656,7 +27656,7 @@ export namespace Prisma {
     tenant_id?: StringFilter<"UsuarioWorkspace"> | string
     user_id?: StringFilter<"UsuarioWorkspace"> | string
     company_id?: StringFilter<"UsuarioWorkspace"> | string
-    role?: EnumTipoMembroEmpresaFilter<"UsuarioWorkspace"> | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFilter<"UsuarioWorkspace"> | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFilter<"UsuarioWorkspace"> | boolean
     created_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     updated_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
@@ -27686,7 +27686,7 @@ export namespace Prisma {
     tenant_id?: StringWithAggregatesFilter<"UsuarioWorkspace"> | string
     user_id?: StringWithAggregatesFilter<"UsuarioWorkspace"> | string
     company_id?: StringWithAggregatesFilter<"UsuarioWorkspace"> | string
-    role?: EnumTipoMembroEmpresaWithAggregatesFilter<"UsuarioWorkspace"> | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaWithAggregatesFilter<"UsuarioWorkspace"> | $Enums.TipoUsuarioEmpresa
     is_active?: BoolWithAggregatesFilter<"UsuarioWorkspace"> | boolean
     created_at?: DateTimeWithAggregatesFilter<"UsuarioWorkspace"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"UsuarioWorkspace"> | Date | string
@@ -27835,19 +27835,19 @@ export namespace Prisma {
     name?: StringFilter<"ProdutoGravity"> | string
     slug?: StringFilter<"ProdutoGravity"> | string
     description?: StringFilter<"ProdutoGravity"> | string
-    status?: EnumStatusProdutoFilter<"ProdutoGravity"> | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
     launch_date?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
     has_setup?: BoolFilter<"ProdutoGravity"> | boolean
     setup_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFilter<"ProdutoGravity"> | string
-    billing_type?: EnumTipoCobrancaFilter<"ProdutoGravity"> | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFilter<"ProdutoGravity"> | string
     minimum_price?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFilter<"ProdutoGravity"> | string
     total_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFilter<"ProdutoGravity"> | string
-    user_limit_type?: EnumTipoLimiteUsuarioFilter<"ProdutoGravity"> | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: IntNullableFilter<"ProdutoGravity"> | number | null
     extra_user_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFilter<"ProdutoGravity"> | string
@@ -27906,19 +27906,19 @@ export namespace Prisma {
     NOT?: ProdutoGravityWhereInput | ProdutoGravityWhereInput[]
     name?: StringFilter<"ProdutoGravity"> | string
     description?: StringFilter<"ProdutoGravity"> | string
-    status?: EnumStatusProdutoFilter<"ProdutoGravity"> | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
     launch_date?: DateTimeNullableFilter<"ProdutoGravity"> | Date | string | null
     has_setup?: BoolFilter<"ProdutoGravity"> | boolean
     setup_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFilter<"ProdutoGravity"> | string
-    billing_type?: EnumTipoCobrancaFilter<"ProdutoGravity"> | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFilter<"ProdutoGravity"> | string
     minimum_price?: DecimalFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFilter<"ProdutoGravity"> | string
     total_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFilter<"ProdutoGravity"> | string
-    user_limit_type?: EnumTipoLimiteUsuarioFilter<"ProdutoGravity"> | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: IntNullableFilter<"ProdutoGravity"> | number | null
     extra_user_price?: DecimalNullableFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFilter<"ProdutoGravity"> | string
@@ -27980,19 +27980,19 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"ProdutoGravity"> | string
     slug?: StringWithAggregatesFilter<"ProdutoGravity"> | string
     description?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    status?: EnumStatusProdutoWithAggregatesFilter<"ProdutoGravity"> | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityWithAggregatesFilter<"ProdutoGravity"> | $Enums.StatusProdutoGravity
     launch_date?: DateTimeNullableWithAggregatesFilter<"ProdutoGravity"> | Date | string | null
     has_setup?: BoolWithAggregatesFilter<"ProdutoGravity"> | boolean
     setup_price?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    billing_type?: EnumTipoCobrancaWithAggregatesFilter<"ProdutoGravity"> | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityWithAggregatesFilter<"ProdutoGravity"> | $Enums.TipoCobrancaGravity
     unit_price?: DecimalWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
     unit_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
     minimum_price?: DecimalWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
     total_price?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
-    user_limit_type?: EnumTipoLimiteUsuarioWithAggregatesFilter<"ProdutoGravity"> | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioWithAggregatesFilter<"ProdutoGravity"> | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: IntNullableWithAggregatesFilter<"ProdutoGravity"> | number | null
     extra_user_price?: DecimalNullableWithAggregatesFilter<"ProdutoGravity"> | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringWithAggregatesFilter<"ProdutoGravity"> | string
@@ -28163,8 +28163,8 @@ export namespace Prisma {
     area?: StringFilter<"Deploy"> | string
     version?: StringFilter<"Deploy"> | string
     description?: StringFilter<"Deploy"> | string
-    environment?: EnumAmbienteDeployFilter<"Deploy"> | $Enums.AmbienteDeploy
-    status?: EnumStatusDeployFilter<"Deploy"> | $Enums.StatusDeploy
+    environment?: EnumDeployAmbienteFilter<"Deploy"> | $Enums.DeployAmbiente
+    status?: EnumDeployStatusFilter<"Deploy"> | $Enums.DeployStatus
     deployed_by?: StringFilter<"Deploy"> | string
     deployed_by_user_id?: StringNullableFilter<"Deploy"> | string | null
     deployed_at?: DateTimeFilter<"Deploy"> | Date | string
@@ -28194,8 +28194,8 @@ export namespace Prisma {
     area?: StringFilter<"Deploy"> | string
     version?: StringFilter<"Deploy"> | string
     description?: StringFilter<"Deploy"> | string
-    environment?: EnumAmbienteDeployFilter<"Deploy"> | $Enums.AmbienteDeploy
-    status?: EnumStatusDeployFilter<"Deploy"> | $Enums.StatusDeploy
+    environment?: EnumDeployAmbienteFilter<"Deploy"> | $Enums.DeployAmbiente
+    status?: EnumDeployStatusFilter<"Deploy"> | $Enums.DeployStatus
     deployed_by?: StringFilter<"Deploy"> | string
     deployed_by_user_id?: StringNullableFilter<"Deploy"> | string | null
     deployed_at?: DateTimeFilter<"Deploy"> | Date | string
@@ -28230,8 +28230,8 @@ export namespace Prisma {
     area?: StringWithAggregatesFilter<"Deploy"> | string
     version?: StringWithAggregatesFilter<"Deploy"> | string
     description?: StringWithAggregatesFilter<"Deploy"> | string
-    environment?: EnumAmbienteDeployWithAggregatesFilter<"Deploy"> | $Enums.AmbienteDeploy
-    status?: EnumStatusDeployWithAggregatesFilter<"Deploy"> | $Enums.StatusDeploy
+    environment?: EnumDeployAmbienteWithAggregatesFilter<"Deploy"> | $Enums.DeployAmbiente
+    status?: EnumDeployStatusWithAggregatesFilter<"Deploy"> | $Enums.DeployStatus
     deployed_by?: StringWithAggregatesFilter<"Deploy"> | string
     deployed_by_user_id?: StringNullableWithAggregatesFilter<"Deploy"> | string | null
     deployed_at?: DateTimeWithAggregatesFilter<"Deploy"> | Date | string
@@ -28983,7 +28983,7 @@ export namespace Prisma {
     id?: StringFilter<"FaturaProdutosGravity"> | string
     tenant_id?: StringFilter<"FaturaProdutosGravity"> | string
     numero_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
     email_organizacao_fatura_servicos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
     valor_total_fatura_servicos_gravity?: DecimalFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
@@ -29016,7 +29016,7 @@ export namespace Prisma {
     NOT?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
     tenant_id?: StringFilter<"FaturaProdutosGravity"> | string
     numero_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
     email_organizacao_fatura_servicos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
     valor_total_fatura_servicos_gravity?: DecimalFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
@@ -29054,7 +29054,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
     tenant_id?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
     numero_fatura_servicos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusWithAggregatesFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: EnumFaturaStatusGravityWithAggregatesFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
     email_organizacao_fatura_servicos_gravity?: StringNullableWithAggregatesFilter<"FaturaProdutosGravity"> | string | null
     valor_total_fatura_servicos_gravity?: DecimalWithAggregatesFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
@@ -29158,7 +29158,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -29181,7 +29181,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -29204,7 +29204,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29227,7 +29227,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29250,7 +29250,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -29267,7 +29267,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29284,7 +29284,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -29302,7 +29302,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsersInput
@@ -29317,7 +29317,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29330,7 +29330,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
@@ -29345,7 +29345,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29359,7 +29359,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29370,7 +29370,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29381,7 +29381,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29389,7 +29389,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityCreateInput = {
     id?: string
-    status?: $Enums.StatusAssinatura
+    status?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
     trial_ends_at?: Date | string | null
@@ -29404,7 +29404,7 @@ export namespace Prisma {
   export type AssinaturaProdutoGravityUncheckedCreateInput = {
     id?: string
     tenant_id: string
-    status?: $Enums.StatusAssinatura
+    status?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
     trial_ends_at?: Date | string | null
@@ -29417,7 +29417,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusAssinaturaFieldUpdateOperationsInput | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
     trial_ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29432,7 +29432,7 @@ export namespace Prisma {
   export type AssinaturaProdutoGravityUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusAssinaturaFieldUpdateOperationsInput | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
     trial_ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29446,7 +29446,7 @@ export namespace Prisma {
   export type AssinaturaProdutoGravityCreateManyInput = {
     id?: string
     tenant_id: string
-    status?: $Enums.StatusAssinatura
+    status?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
     trial_ends_at?: Date | string | null
@@ -29459,7 +29459,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusAssinaturaFieldUpdateOperationsInput | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
     trial_ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29473,7 +29473,7 @@ export namespace Prisma {
   export type AssinaturaProdutoGravityUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusAssinaturaFieldUpdateOperationsInput | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
     trial_ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29641,7 +29641,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompaniesInput
@@ -29656,7 +29656,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
@@ -29669,7 +29669,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput
@@ -29684,7 +29684,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -29698,7 +29698,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -29708,7 +29708,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29719,7 +29719,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -29727,7 +29727,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceCreateInput = {
     id?: string
     tenant_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -29740,7 +29740,7 @@ export namespace Prisma {
     tenant_id: string
     user_id: string
     company_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -29749,7 +29749,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29762,7 +29762,7 @@ export namespace Prisma {
     tenant_id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
     company_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29773,7 +29773,7 @@ export namespace Prisma {
     tenant_id: string
     user_id: string
     company_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -29782,7 +29782,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29793,7 +29793,7 @@ export namespace Prisma {
     tenant_id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
     company_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29941,19 +29941,19 @@ export namespace Prisma {
     name: string
     slug: string
     description: string
-    status?: $Enums.StatusProduto
+    status?: $Enums.StatusProdutoGravity
     launch_date?: Date | string | null
     has_setup?: boolean
     setup_price?: Decimal | DecimalJsLike | number | string | null
     setup_currency?: string
-    billing_type?: $Enums.TipoCobranca
+    billing_type?: $Enums.TipoCobrancaGravity
     unit_price: Decimal | DecimalJsLike | number | string
     unit_currency?: string
     minimum_price?: Decimal | DecimalJsLike | number | string
     minimum_currency?: string
     total_price?: Decimal | DecimalJsLike | number | string | null
     total_currency?: string
-    user_limit_type?: $Enums.TipoLimiteUsuario
+    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: number | null
     extra_user_price?: Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: string
@@ -29975,19 +29975,19 @@ export namespace Prisma {
     name: string
     slug: string
     description: string
-    status?: $Enums.StatusProduto
+    status?: $Enums.StatusProdutoGravity
     launch_date?: Date | string | null
     has_setup?: boolean
     setup_price?: Decimal | DecimalJsLike | number | string | null
     setup_currency?: string
-    billing_type?: $Enums.TipoCobranca
+    billing_type?: $Enums.TipoCobrancaGravity
     unit_price: Decimal | DecimalJsLike | number | string
     unit_currency?: string
     minimum_price?: Decimal | DecimalJsLike | number | string
     minimum_currency?: string
     total_price?: Decimal | DecimalJsLike | number | string | null
     total_currency?: string
-    user_limit_type?: $Enums.TipoLimiteUsuario
+    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: number | null
     extra_user_price?: Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: string
@@ -30009,19 +30009,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoFieldUpdateOperationsInput | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
     launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     has_setup?: BoolFieldUpdateOperationsInput | boolean
     setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaFieldUpdateOperationsInput | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFieldUpdateOperationsInput | string
     minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFieldUpdateOperationsInput | string
     total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumTipoLimiteUsuarioFieldUpdateOperationsInput | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
     extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFieldUpdateOperationsInput | string
@@ -30043,19 +30043,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoFieldUpdateOperationsInput | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
     launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     has_setup?: BoolFieldUpdateOperationsInput | boolean
     setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaFieldUpdateOperationsInput | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFieldUpdateOperationsInput | string
     minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFieldUpdateOperationsInput | string
     total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumTipoLimiteUsuarioFieldUpdateOperationsInput | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
     extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFieldUpdateOperationsInput | string
@@ -30077,19 +30077,19 @@ export namespace Prisma {
     name: string
     slug: string
     description: string
-    status?: $Enums.StatusProduto
+    status?: $Enums.StatusProdutoGravity
     launch_date?: Date | string | null
     has_setup?: boolean
     setup_price?: Decimal | DecimalJsLike | number | string | null
     setup_currency?: string
-    billing_type?: $Enums.TipoCobranca
+    billing_type?: $Enums.TipoCobrancaGravity
     unit_price: Decimal | DecimalJsLike | number | string
     unit_currency?: string
     minimum_price?: Decimal | DecimalJsLike | number | string
     minimum_currency?: string
     total_price?: Decimal | DecimalJsLike | number | string | null
     total_currency?: string
-    user_limit_type?: $Enums.TipoLimiteUsuario
+    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: number | null
     extra_user_price?: Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: string
@@ -30109,19 +30109,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoFieldUpdateOperationsInput | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
     launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     has_setup?: BoolFieldUpdateOperationsInput | boolean
     setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaFieldUpdateOperationsInput | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFieldUpdateOperationsInput | string
     minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFieldUpdateOperationsInput | string
     total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumTipoLimiteUsuarioFieldUpdateOperationsInput | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
     extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFieldUpdateOperationsInput | string
@@ -30141,19 +30141,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoFieldUpdateOperationsInput | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
     launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     has_setup?: BoolFieldUpdateOperationsInput | boolean
     setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaFieldUpdateOperationsInput | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFieldUpdateOperationsInput | string
     minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFieldUpdateOperationsInput | string
     total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumTipoLimiteUsuarioFieldUpdateOperationsInput | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
     extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFieldUpdateOperationsInput | string
@@ -30333,8 +30333,8 @@ export namespace Prisma {
     area: string
     version: string
     description: string
-    environment?: $Enums.AmbienteDeploy
-    status?: $Enums.StatusDeploy
+    environment?: $Enums.DeployAmbiente
+    status?: $Enums.DeployStatus
     deployed_by: string
     deployed_by_user_id?: string | null
     deployed_at?: Date | string
@@ -30347,8 +30347,8 @@ export namespace Prisma {
     area: string
     version: string
     description: string
-    environment?: $Enums.AmbienteDeploy
-    status?: $Enums.StatusDeploy
+    environment?: $Enums.DeployAmbiente
+    status?: $Enums.DeployStatus
     deployed_by: string
     deployed_by_user_id?: string | null
     deployed_at?: Date | string
@@ -30361,8 +30361,8 @@ export namespace Prisma {
     area?: StringFieldUpdateOperationsInput | string
     version?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    environment?: EnumAmbienteDeployFieldUpdateOperationsInput | $Enums.AmbienteDeploy
-    status?: EnumStatusDeployFieldUpdateOperationsInput | $Enums.StatusDeploy
+    environment?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
+    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
     deployed_by?: StringFieldUpdateOperationsInput | string
     deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
     deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30375,8 +30375,8 @@ export namespace Prisma {
     area?: StringFieldUpdateOperationsInput | string
     version?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    environment?: EnumAmbienteDeployFieldUpdateOperationsInput | $Enums.AmbienteDeploy
-    status?: EnumStatusDeployFieldUpdateOperationsInput | $Enums.StatusDeploy
+    environment?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
+    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
     deployed_by?: StringFieldUpdateOperationsInput | string
     deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
     deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30389,8 +30389,8 @@ export namespace Prisma {
     area: string
     version: string
     description: string
-    environment?: $Enums.AmbienteDeploy
-    status?: $Enums.StatusDeploy
+    environment?: $Enums.DeployAmbiente
+    status?: $Enums.DeployStatus
     deployed_by: string
     deployed_by_user_id?: string | null
     deployed_at?: Date | string
@@ -30403,8 +30403,8 @@ export namespace Prisma {
     area?: StringFieldUpdateOperationsInput | string
     version?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    environment?: EnumAmbienteDeployFieldUpdateOperationsInput | $Enums.AmbienteDeploy
-    status?: EnumStatusDeployFieldUpdateOperationsInput | $Enums.StatusDeploy
+    environment?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
+    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
     deployed_by?: StringFieldUpdateOperationsInput | string
     deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
     deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30417,8 +30417,8 @@ export namespace Prisma {
     area?: StringFieldUpdateOperationsInput | string
     version?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    environment?: EnumAmbienteDeployFieldUpdateOperationsInput | $Enums.AmbienteDeploy
-    status?: EnumStatusDeployFieldUpdateOperationsInput | $Enums.StatusDeploy
+    environment?: EnumDeployAmbienteFieldUpdateOperationsInput | $Enums.DeployAmbiente
+    status?: EnumDeployStatusFieldUpdateOperationsInput | $Enums.DeployStatus
     deployed_by?: StringFieldUpdateOperationsInput | string
     deployed_by_user_id?: NullableStringFieldUpdateOperationsInput | string | null
     deployed_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31311,7 +31311,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     numero_fatura_servicos_gravity: string
-    status_fatura_servicos_gravity?: $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity: string
     email_organizacao_fatura_servicos_gravity?: string | null
     valor_total_fatura_servicos_gravity: Decimal | DecimalJsLike | number | string
@@ -31326,7 +31326,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     numero_fatura_servicos_gravity: string
-    status_fatura_servicos_gravity?: $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity: string
     email_organizacao_fatura_servicos_gravity?: string | null
     valor_total_fatura_servicos_gravity: Decimal | DecimalJsLike | number | string
@@ -31341,7 +31341,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     numero_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusFieldUpdateOperationsInput | $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
     email_organizacao_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_fatura_servicos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -31356,7 +31356,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     numero_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusFieldUpdateOperationsInput | $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
     email_organizacao_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_fatura_servicos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -31371,7 +31371,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     numero_fatura_servicos_gravity: string
-    status_fatura_servicos_gravity?: $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity: string
     email_organizacao_fatura_servicos_gravity?: string | null
     valor_total_fatura_servicos_gravity: Decimal | DecimalJsLike | number | string
@@ -31386,7 +31386,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     numero_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusFieldUpdateOperationsInput | $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
     email_organizacao_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_fatura_servicos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -31401,7 +31401,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     numero_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusFieldUpdateOperationsInput | $Enums.FaturaStatus
+    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
     organizacao_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
     email_organizacao_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
     valor_total_fatura_servicos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
@@ -31532,11 +31532,11 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
-  export type EnumStatusOrganizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusOrganizacao | EnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusOrganizacao[] | ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusOrganizacao[] | ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusOrganizacaoFilter<$PrismaModel> | $Enums.StatusOrganizacao
+  export type EnumOrganizacaoStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizacaoStatus | EnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizacaoStatus[] | ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizacaoStatus[] | ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizacaoStatusFilter<$PrismaModel> | $Enums.OrganizacaoStatus
   }
 
   export type StringNullableFilter<$PrismaModel = never> = {
@@ -31699,14 +31699,14 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
-  export type EnumStatusOrganizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusOrganizacao | EnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusOrganizacao[] | ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusOrganizacao[] | ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusOrganizacaoWithAggregatesFilter<$PrismaModel> | $Enums.StatusOrganizacao
+  export type EnumOrganizacaoStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizacaoStatus | EnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizacaoStatus[] | ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizacaoStatus[] | ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizacaoStatusWithAggregatesFilter<$PrismaModel> | $Enums.OrganizacaoStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusOrganizacaoFilter<$PrismaModel>
-    _max?: NestedEnumStatusOrganizacaoFilter<$PrismaModel>
+    _min?: NestedEnumOrganizacaoStatusFilter<$PrismaModel>
+    _max?: NestedEnumOrganizacaoStatusFilter<$PrismaModel>
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -31741,11 +31741,11 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type EnumTipoUsuarioFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoUsuario | EnumTipoUsuarioFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoUsuario[] | ListEnumTipoUsuarioFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoUsuario[] | ListEnumTipoUsuarioFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoUsuarioFilter<$PrismaModel> | $Enums.TipoUsuario
+  export type EnumUsuarioTipoFilter<$PrismaModel = never> = {
+    equals?: $Enums.UsuarioTipo | EnumUsuarioTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumUsuarioTipoFilter<$PrismaModel> | $Enums.UsuarioTipo
   }
 
   export type OrganizacaoRelationFilter = {
@@ -31809,21 +31809,21 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumTipoUsuarioWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoUsuario | EnumTipoUsuarioFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoUsuario[] | ListEnumTipoUsuarioFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoUsuario[] | ListEnumTipoUsuarioFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoUsuarioWithAggregatesFilter<$PrismaModel> | $Enums.TipoUsuario
+  export type EnumUsuarioTipoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UsuarioTipo | EnumUsuarioTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumUsuarioTipoWithAggregatesFilter<$PrismaModel> | $Enums.UsuarioTipo
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoUsuarioFilter<$PrismaModel>
-    _max?: NestedEnumTipoUsuarioFilter<$PrismaModel>
+    _min?: NestedEnumUsuarioTipoFilter<$PrismaModel>
+    _max?: NestedEnumUsuarioTipoFilter<$PrismaModel>
   }
 
-  export type EnumStatusAssinaturaFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusAssinatura | EnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusAssinatura[] | ListEnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusAssinatura[] | ListEnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusAssinaturaFilter<$PrismaModel> | $Enums.StatusAssinatura
+  export type EnumStatusAssinaturaProdutoGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusAssinaturaProdutoGravity | EnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusAssinaturaProdutoGravity[] | ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusAssinaturaProdutoGravity[] | ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel> | $Enums.StatusAssinaturaProdutoGravity
   }
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -31879,14 +31879,14 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumStatusAssinaturaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusAssinatura | EnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusAssinatura[] | ListEnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusAssinatura[] | ListEnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusAssinaturaWithAggregatesFilter<$PrismaModel> | $Enums.StatusAssinatura
+  export type EnumStatusAssinaturaProdutoGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusAssinaturaProdutoGravity | EnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusAssinaturaProdutoGravity[] | ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusAssinaturaProdutoGravity[] | ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusAssinaturaProdutoGravityWithAggregatesFilter<$PrismaModel> | $Enums.StatusAssinaturaProdutoGravity
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusAssinaturaFilter<$PrismaModel>
-    _max?: NestedEnumStatusAssinaturaFilter<$PrismaModel>
+    _min?: NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel>
+    _max?: NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel>
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -31988,11 +31988,11 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumStatusEmpresaFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEmpresa | EnumStatusEmpresaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEmpresa[] | ListEnumStatusEmpresaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEmpresa[] | ListEnumStatusEmpresaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEmpresaFilter<$PrismaModel> | $Enums.StatusEmpresa
+  export type EnumEmpresaStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmpresaStatus | EnumEmpresaStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmpresaStatusFilter<$PrismaModel> | $Enums.EmpresaStatus
   }
 
   export type EmpresaCountOrderByAggregateInput = {
@@ -32028,21 +32028,21 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumStatusEmpresaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEmpresa | EnumStatusEmpresaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEmpresa[] | ListEnumStatusEmpresaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEmpresa[] | ListEnumStatusEmpresaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEmpresaWithAggregatesFilter<$PrismaModel> | $Enums.StatusEmpresa
+  export type EnumEmpresaStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmpresaStatus | EnumEmpresaStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmpresaStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmpresaStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusEmpresaFilter<$PrismaModel>
-    _max?: NestedEnumStatusEmpresaFilter<$PrismaModel>
+    _min?: NestedEnumEmpresaStatusFilter<$PrismaModel>
+    _max?: NestedEnumEmpresaStatusFilter<$PrismaModel>
   }
 
-  export type EnumTipoMembroEmpresaFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoMembroEmpresa | EnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoMembroEmpresa[] | ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoMembroEmpresa[] | ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoMembroEmpresaFilter<$PrismaModel> | $Enums.TipoMembroEmpresa
+  export type EnumTipoUsuarioEmpresaFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoUsuarioEmpresa | EnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoUsuarioEmpresa[] | ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoUsuarioEmpresa[] | ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoUsuarioEmpresaFilter<$PrismaModel> | $Enums.TipoUsuarioEmpresa
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -32094,14 +32094,14 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumTipoMembroEmpresaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoMembroEmpresa | EnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoMembroEmpresa[] | ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoMembroEmpresa[] | ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoMembroEmpresaWithAggregatesFilter<$PrismaModel> | $Enums.TipoMembroEmpresa
+  export type EnumTipoUsuarioEmpresaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoUsuarioEmpresa | EnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoUsuarioEmpresa[] | ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoUsuarioEmpresa[] | ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoUsuarioEmpresaWithAggregatesFilter<$PrismaModel> | $Enums.TipoUsuarioEmpresa
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoMembroEmpresaFilter<$PrismaModel>
-    _max?: NestedEnumTipoMembroEmpresaFilter<$PrismaModel>
+    _min?: NestedEnumTipoUsuarioEmpresaFilter<$PrismaModel>
+    _max?: NestedEnumTipoUsuarioEmpresaFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -32227,11 +32227,11 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumStatusProdutoFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusProduto | EnumStatusProdutoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusProduto[] | ListEnumStatusProdutoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusProduto[] | ListEnumStatusProdutoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusProdutoFilter<$PrismaModel> | $Enums.StatusProduto
+  export type EnumStatusProdutoGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusProdutoGravity | EnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusProdutoGravity[] | ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusProdutoGravity[] | ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusProdutoGravityFilter<$PrismaModel> | $Enums.StatusProdutoGravity
   }
 
   export type DecimalNullableFilter<$PrismaModel = never> = {
@@ -32245,11 +32245,11 @@ export namespace Prisma {
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
-  export type EnumTipoCobrancaFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoCobranca | EnumTipoCobrancaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoCobranca[] | ListEnumTipoCobrancaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoCobranca[] | ListEnumTipoCobrancaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoCobrancaFilter<$PrismaModel> | $Enums.TipoCobranca
+  export type EnumTipoCobrancaGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCobrancaGravity | EnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCobrancaGravity[] | ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCobrancaGravity[] | ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCobrancaGravityFilter<$PrismaModel> | $Enums.TipoCobrancaGravity
   }
 
   export type DecimalFilter<$PrismaModel = never> = {
@@ -32263,11 +32263,11 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
-  export type EnumTipoLimiteUsuarioFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoLimiteUsuario | EnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoLimiteUsuario[] | ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoLimiteUsuario[] | ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoLimiteUsuarioFilter<$PrismaModel> | $Enums.TipoLimiteUsuario
+  export type EnumProdutoGravityLimiteUsuarioFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProdutoGravityLimiteUsuario | EnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    in?: $Enums.ProdutoGravityLimiteUsuario[] | ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProdutoGravityLimiteUsuario[] | ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    not?: NestedEnumProdutoGravityLimiteUsuarioFilter<$PrismaModel> | $Enums.ProdutoGravityLimiteUsuario
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -32432,14 +32432,14 @@ export namespace Prisma {
     gabi_quota_mensal?: SortOrder
   }
 
-  export type EnumStatusProdutoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusProduto | EnumStatusProdutoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusProduto[] | ListEnumStatusProdutoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusProduto[] | ListEnumStatusProdutoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusProdutoWithAggregatesFilter<$PrismaModel> | $Enums.StatusProduto
+  export type EnumStatusProdutoGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusProdutoGravity | EnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusProdutoGravity[] | ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusProdutoGravity[] | ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusProdutoGravityWithAggregatesFilter<$PrismaModel> | $Enums.StatusProdutoGravity
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusProdutoFilter<$PrismaModel>
-    _max?: NestedEnumStatusProdutoFilter<$PrismaModel>
+    _min?: NestedEnumStatusProdutoGravityFilter<$PrismaModel>
+    _max?: NestedEnumStatusProdutoGravityFilter<$PrismaModel>
   }
 
   export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -32458,14 +32458,14 @@ export namespace Prisma {
     _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
-  export type EnumTipoCobrancaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoCobranca | EnumTipoCobrancaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoCobranca[] | ListEnumTipoCobrancaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoCobranca[] | ListEnumTipoCobrancaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoCobrancaWithAggregatesFilter<$PrismaModel> | $Enums.TipoCobranca
+  export type EnumTipoCobrancaGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCobrancaGravity | EnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCobrancaGravity[] | ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCobrancaGravity[] | ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCobrancaGravityWithAggregatesFilter<$PrismaModel> | $Enums.TipoCobrancaGravity
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoCobrancaFilter<$PrismaModel>
-    _max?: NestedEnumTipoCobrancaFilter<$PrismaModel>
+    _min?: NestedEnumTipoCobrancaGravityFilter<$PrismaModel>
+    _max?: NestedEnumTipoCobrancaGravityFilter<$PrismaModel>
   }
 
   export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -32484,14 +32484,14 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
-  export type EnumTipoLimiteUsuarioWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoLimiteUsuario | EnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoLimiteUsuario[] | ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoLimiteUsuario[] | ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoLimiteUsuarioWithAggregatesFilter<$PrismaModel> | $Enums.TipoLimiteUsuario
+  export type EnumProdutoGravityLimiteUsuarioWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProdutoGravityLimiteUsuario | EnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    in?: $Enums.ProdutoGravityLimiteUsuario[] | ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProdutoGravityLimiteUsuario[] | ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    not?: NestedEnumProdutoGravityLimiteUsuarioWithAggregatesFilter<$PrismaModel> | $Enums.ProdutoGravityLimiteUsuario
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoLimiteUsuarioFilter<$PrismaModel>
-    _max?: NestedEnumTipoLimiteUsuarioFilter<$PrismaModel>
+    _min?: NestedEnumProdutoGravityLimiteUsuarioFilter<$PrismaModel>
+    _max?: NestedEnumProdutoGravityLimiteUsuarioFilter<$PrismaModel>
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -32612,18 +32612,18 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumAmbienteDeployFilter<$PrismaModel = never> = {
-    equals?: $Enums.AmbienteDeploy | EnumAmbienteDeployFieldRefInput<$PrismaModel>
-    in?: $Enums.AmbienteDeploy[] | ListEnumAmbienteDeployFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AmbienteDeploy[] | ListEnumAmbienteDeployFieldRefInput<$PrismaModel>
-    not?: NestedEnumAmbienteDeployFilter<$PrismaModel> | $Enums.AmbienteDeploy
+  export type EnumDeployAmbienteFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployAmbiente | EnumDeployAmbienteFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployAmbiente[] | ListEnumDeployAmbienteFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployAmbiente[] | ListEnumDeployAmbienteFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployAmbienteFilter<$PrismaModel> | $Enums.DeployAmbiente
   }
 
-  export type EnumStatusDeployFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusDeploy | EnumStatusDeployFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusDeploy[] | ListEnumStatusDeployFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusDeploy[] | ListEnumStatusDeployFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusDeployFilter<$PrismaModel> | $Enums.StatusDeploy
+  export type EnumDeployStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployStatus | EnumDeployStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployStatusFilter<$PrismaModel> | $Enums.DeployStatus
   }
 
   export type DeployCountOrderByAggregateInput = {
@@ -32676,24 +32676,24 @@ export namespace Prisma {
     deploy_number?: SortOrder
   }
 
-  export type EnumAmbienteDeployWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AmbienteDeploy | EnumAmbienteDeployFieldRefInput<$PrismaModel>
-    in?: $Enums.AmbienteDeploy[] | ListEnumAmbienteDeployFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AmbienteDeploy[] | ListEnumAmbienteDeployFieldRefInput<$PrismaModel>
-    not?: NestedEnumAmbienteDeployWithAggregatesFilter<$PrismaModel> | $Enums.AmbienteDeploy
+  export type EnumDeployAmbienteWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployAmbiente | EnumDeployAmbienteFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployAmbiente[] | ListEnumDeployAmbienteFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployAmbiente[] | ListEnumDeployAmbienteFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployAmbienteWithAggregatesFilter<$PrismaModel> | $Enums.DeployAmbiente
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAmbienteDeployFilter<$PrismaModel>
-    _max?: NestedEnumAmbienteDeployFilter<$PrismaModel>
+    _min?: NestedEnumDeployAmbienteFilter<$PrismaModel>
+    _max?: NestedEnumDeployAmbienteFilter<$PrismaModel>
   }
 
-  export type EnumStatusDeployWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusDeploy | EnumStatusDeployFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusDeploy[] | ListEnumStatusDeployFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusDeploy[] | ListEnumStatusDeployFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusDeployWithAggregatesFilter<$PrismaModel> | $Enums.StatusDeploy
+  export type EnumDeployStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployStatus | EnumDeployStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployStatusWithAggregatesFilter<$PrismaModel> | $Enums.DeployStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusDeployFilter<$PrismaModel>
-    _max?: NestedEnumStatusDeployFilter<$PrismaModel>
+    _min?: NestedEnumDeployStatusFilter<$PrismaModel>
+    _max?: NestedEnumDeployStatusFilter<$PrismaModel>
   }
 
   export type FornecedorOrganizacaoClerk_user_idTenant_idCompoundUniqueInput = {
@@ -33174,11 +33174,11 @@ export namespace Prisma {
     passos_total?: SortOrder
   }
 
-  export type EnumFaturaStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.FaturaStatus | EnumFaturaStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.FaturaStatus[] | ListEnumFaturaStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FaturaStatus[] | ListEnumFaturaStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumFaturaStatusFilter<$PrismaModel> | $Enums.FaturaStatus
+  export type EnumFaturaStatusGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.FaturaStatusGravity | EnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.FaturaStatusGravity[] | ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FaturaStatusGravity[] | ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumFaturaStatusGravityFilter<$PrismaModel> | $Enums.FaturaStatusGravity
   }
 
   export type FaturaProdutosGravityCountOrderByAggregateInput = {
@@ -33234,14 +33234,14 @@ export namespace Prisma {
     valor_total_fatura_servicos_gravity?: SortOrder
   }
 
-  export type EnumFaturaStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.FaturaStatus | EnumFaturaStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.FaturaStatus[] | ListEnumFaturaStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FaturaStatus[] | ListEnumFaturaStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumFaturaStatusWithAggregatesFilter<$PrismaModel> | $Enums.FaturaStatus
+  export type EnumFaturaStatusGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FaturaStatusGravity | EnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.FaturaStatusGravity[] | ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FaturaStatusGravity[] | ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumFaturaStatusGravityWithAggregatesFilter<$PrismaModel> | $Enums.FaturaStatusGravity
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumFaturaStatusFilter<$PrismaModel>
-    _max?: NestedEnumFaturaStatusFilter<$PrismaModel>
+    _min?: NestedEnumFaturaStatusGravityFilter<$PrismaModel>
+    _max?: NestedEnumFaturaStatusGravityFilter<$PrismaModel>
   }
 
   export type MetricasGeminiCountOrderByAggregateInput = {
@@ -33397,8 +33397,8 @@ export namespace Prisma {
     set?: string
   }
 
-  export type EnumStatusOrganizacaoFieldUpdateOperationsInput = {
-    set?: $Enums.StatusOrganizacao
+  export type EnumOrganizacaoStatusFieldUpdateOperationsInput = {
+    set?: $Enums.OrganizacaoStatus
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -33617,8 +33617,8 @@ export namespace Prisma {
     connect?: UsuarioWorkspaceWhereUniqueInput | UsuarioWorkspaceWhereUniqueInput[]
   }
 
-  export type EnumTipoUsuarioFieldUpdateOperationsInput = {
-    set?: $Enums.TipoUsuario
+  export type EnumUsuarioTipoFieldUpdateOperationsInput = {
+    set?: $Enums.UsuarioTipo
   }
 
   export type OrganizacaoUpdateOneRequiredWithoutUsersNestedInput = {
@@ -33701,8 +33701,8 @@ export namespace Prisma {
     connect?: OrganizacaoWhereUniqueInput
   }
 
-  export type EnumStatusAssinaturaFieldUpdateOperationsInput = {
-    set?: $Enums.StatusAssinatura
+  export type EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput = {
+    set?: $Enums.StatusAssinaturaProdutoGravity
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -33793,8 +33793,8 @@ export namespace Prisma {
     connect?: UsuarioWhereUniqueInput | UsuarioWhereUniqueInput[]
   }
 
-  export type EnumStatusEmpresaFieldUpdateOperationsInput = {
-    set?: $Enums.StatusEmpresa
+  export type EnumEmpresaStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EmpresaStatus
   }
 
   export type OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput = {
@@ -33901,8 +33901,8 @@ export namespace Prisma {
     connect?: EmpresaWhereUniqueInput
   }
 
-  export type EnumTipoMembroEmpresaFieldUpdateOperationsInput = {
-    set?: $Enums.TipoMembroEmpresa
+  export type EnumTipoUsuarioEmpresaFieldUpdateOperationsInput = {
+    set?: $Enums.TipoUsuarioEmpresa
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -33995,8 +33995,8 @@ export namespace Prisma {
     connect?: NegociacaoEspecialWhereUniqueInput | NegociacaoEspecialWhereUniqueInput[]
   }
 
-  export type EnumStatusProdutoFieldUpdateOperationsInput = {
-    set?: $Enums.StatusProduto
+  export type EnumStatusProdutoGravityFieldUpdateOperationsInput = {
+    set?: $Enums.StatusProdutoGravity
   }
 
   export type NullableDecimalFieldUpdateOperationsInput = {
@@ -34007,8 +34007,8 @@ export namespace Prisma {
     divide?: Decimal | DecimalJsLike | number | string
   }
 
-  export type EnumTipoCobrancaFieldUpdateOperationsInput = {
-    set?: $Enums.TipoCobranca
+  export type EnumTipoCobrancaGravityFieldUpdateOperationsInput = {
+    set?: $Enums.TipoCobrancaGravity
   }
 
   export type DecimalFieldUpdateOperationsInput = {
@@ -34019,8 +34019,8 @@ export namespace Prisma {
     divide?: Decimal | DecimalJsLike | number | string
   }
 
-  export type EnumTipoLimiteUsuarioFieldUpdateOperationsInput = {
-    set?: $Enums.TipoLimiteUsuario
+  export type EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput = {
+    set?: $Enums.ProdutoGravityLimiteUsuario
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -34123,12 +34123,12 @@ export namespace Prisma {
     update?: XOR<XOR<ProdutoGravityUpdateToOneWithWhereWithoutNegotiationsInput, ProdutoGravityUpdateWithoutNegotiationsInput>, ProdutoGravityUncheckedUpdateWithoutNegotiationsInput>
   }
 
-  export type EnumAmbienteDeployFieldUpdateOperationsInput = {
-    set?: $Enums.AmbienteDeploy
+  export type EnumDeployAmbienteFieldUpdateOperationsInput = {
+    set?: $Enums.DeployAmbiente
   }
 
-  export type EnumStatusDeployFieldUpdateOperationsInput = {
-    set?: $Enums.StatusDeploy
+  export type EnumDeployStatusFieldUpdateOperationsInput = {
+    set?: $Enums.DeployStatus
   }
 
   export type AgendamentoTesteCreateescoposInput = {
@@ -34149,8 +34149,8 @@ export namespace Prisma {
     push?: string | string[]
   }
 
-  export type EnumFaturaStatusFieldUpdateOperationsInput = {
-    set?: $Enums.FaturaStatus
+  export type EnumFaturaStatusGravityFieldUpdateOperationsInput = {
+    set?: $Enums.FaturaStatusGravity
   }
 
   export type MetricasGeminiCreatenome_llmInput = {
@@ -34176,11 +34176,11 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
-  export type NestedEnumStatusOrganizacaoFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusOrganizacao | EnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusOrganizacao[] | ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusOrganizacao[] | ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusOrganizacaoFilter<$PrismaModel> | $Enums.StatusOrganizacao
+  export type NestedEnumOrganizacaoStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizacaoStatus | EnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizacaoStatus[] | ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizacaoStatus[] | ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizacaoStatusFilter<$PrismaModel> | $Enums.OrganizacaoStatus
   }
 
   export type NestedStringNullableFilter<$PrismaModel = never> = {
@@ -34236,14 +34236,14 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
-  export type NestedEnumStatusOrganizacaoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusOrganizacao | EnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusOrganizacao[] | ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusOrganizacao[] | ListEnumStatusOrganizacaoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusOrganizacaoWithAggregatesFilter<$PrismaModel> | $Enums.StatusOrganizacao
+  export type NestedEnumOrganizacaoStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.OrganizacaoStatus | EnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.OrganizacaoStatus[] | ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.OrganizacaoStatus[] | ListEnumOrganizacaoStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumOrganizacaoStatusWithAggregatesFilter<$PrismaModel> | $Enums.OrganizacaoStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusOrganizacaoFilter<$PrismaModel>
-    _max?: NestedEnumStatusOrganizacaoFilter<$PrismaModel>
+    _min?: NestedEnumOrganizacaoStatusFilter<$PrismaModel>
+    _max?: NestedEnumOrganizacaoStatusFilter<$PrismaModel>
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -34288,28 +34288,28 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedEnumTipoUsuarioFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoUsuario | EnumTipoUsuarioFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoUsuario[] | ListEnumTipoUsuarioFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoUsuario[] | ListEnumTipoUsuarioFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoUsuarioFilter<$PrismaModel> | $Enums.TipoUsuario
+  export type NestedEnumUsuarioTipoFilter<$PrismaModel = never> = {
+    equals?: $Enums.UsuarioTipo | EnumUsuarioTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumUsuarioTipoFilter<$PrismaModel> | $Enums.UsuarioTipo
   }
 
-  export type NestedEnumTipoUsuarioWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoUsuario | EnumTipoUsuarioFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoUsuario[] | ListEnumTipoUsuarioFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoUsuario[] | ListEnumTipoUsuarioFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoUsuarioWithAggregatesFilter<$PrismaModel> | $Enums.TipoUsuario
+  export type NestedEnumUsuarioTipoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.UsuarioTipo | EnumUsuarioTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.UsuarioTipo[] | ListEnumUsuarioTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumUsuarioTipoWithAggregatesFilter<$PrismaModel> | $Enums.UsuarioTipo
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoUsuarioFilter<$PrismaModel>
-    _max?: NestedEnumTipoUsuarioFilter<$PrismaModel>
+    _min?: NestedEnumUsuarioTipoFilter<$PrismaModel>
+    _max?: NestedEnumUsuarioTipoFilter<$PrismaModel>
   }
 
-  export type NestedEnumStatusAssinaturaFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusAssinatura | EnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusAssinatura[] | ListEnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusAssinatura[] | ListEnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusAssinaturaFilter<$PrismaModel> | $Enums.StatusAssinatura
+  export type NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusAssinaturaProdutoGravity | EnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusAssinaturaProdutoGravity[] | ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusAssinaturaProdutoGravity[] | ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel> | $Enums.StatusAssinaturaProdutoGravity
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -34323,14 +34323,14 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type NestedEnumStatusAssinaturaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusAssinatura | EnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusAssinatura[] | ListEnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusAssinatura[] | ListEnumStatusAssinaturaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusAssinaturaWithAggregatesFilter<$PrismaModel> | $Enums.StatusAssinatura
+  export type NestedEnumStatusAssinaturaProdutoGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusAssinaturaProdutoGravity | EnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusAssinaturaProdutoGravity[] | ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusAssinaturaProdutoGravity[] | ListEnumStatusAssinaturaProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusAssinaturaProdutoGravityWithAggregatesFilter<$PrismaModel> | $Enums.StatusAssinaturaProdutoGravity
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusAssinaturaFilter<$PrismaModel>
-    _max?: NestedEnumStatusAssinaturaFilter<$PrismaModel>
+    _min?: NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel>
+    _max?: NestedEnumStatusAssinaturaProdutoGravityFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -34347,28 +34347,28 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type NestedEnumStatusEmpresaFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEmpresa | EnumStatusEmpresaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEmpresa[] | ListEnumStatusEmpresaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEmpresa[] | ListEnumStatusEmpresaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEmpresaFilter<$PrismaModel> | $Enums.StatusEmpresa
+  export type NestedEnumEmpresaStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmpresaStatus | EnumEmpresaStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmpresaStatusFilter<$PrismaModel> | $Enums.EmpresaStatus
   }
 
-  export type NestedEnumStatusEmpresaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEmpresa | EnumStatusEmpresaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEmpresa[] | ListEnumStatusEmpresaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEmpresa[] | ListEnumStatusEmpresaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEmpresaWithAggregatesFilter<$PrismaModel> | $Enums.StatusEmpresa
+  export type NestedEnumEmpresaStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmpresaStatus | EnumEmpresaStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmpresaStatus[] | ListEnumEmpresaStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmpresaStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmpresaStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusEmpresaFilter<$PrismaModel>
-    _max?: NestedEnumStatusEmpresaFilter<$PrismaModel>
+    _min?: NestedEnumEmpresaStatusFilter<$PrismaModel>
+    _max?: NestedEnumEmpresaStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumTipoMembroEmpresaFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoMembroEmpresa | EnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoMembroEmpresa[] | ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoMembroEmpresa[] | ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoMembroEmpresaFilter<$PrismaModel> | $Enums.TipoMembroEmpresa
+  export type NestedEnumTipoUsuarioEmpresaFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoUsuarioEmpresa | EnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoUsuarioEmpresa[] | ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoUsuarioEmpresa[] | ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoUsuarioEmpresaFilter<$PrismaModel> | $Enums.TipoUsuarioEmpresa
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -34376,14 +34376,14 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
-  export type NestedEnumTipoMembroEmpresaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoMembroEmpresa | EnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoMembroEmpresa[] | ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoMembroEmpresa[] | ListEnumTipoMembroEmpresaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoMembroEmpresaWithAggregatesFilter<$PrismaModel> | $Enums.TipoMembroEmpresa
+  export type NestedEnumTipoUsuarioEmpresaWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoUsuarioEmpresa | EnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoUsuarioEmpresa[] | ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoUsuarioEmpresa[] | ListEnumTipoUsuarioEmpresaFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoUsuarioEmpresaWithAggregatesFilter<$PrismaModel> | $Enums.TipoUsuarioEmpresa
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoMembroEmpresaFilter<$PrismaModel>
-    _max?: NestedEnumTipoMembroEmpresaFilter<$PrismaModel>
+    _min?: NestedEnumTipoUsuarioEmpresaFilter<$PrismaModel>
+    _max?: NestedEnumTipoUsuarioEmpresaFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -34416,11 +34416,11 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedEnumStatusProdutoFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusProduto | EnumStatusProdutoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusProduto[] | ListEnumStatusProdutoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusProduto[] | ListEnumStatusProdutoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusProdutoFilter<$PrismaModel> | $Enums.StatusProduto
+  export type NestedEnumStatusProdutoGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusProdutoGravity | EnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusProdutoGravity[] | ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusProdutoGravity[] | ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusProdutoGravityFilter<$PrismaModel> | $Enums.StatusProdutoGravity
   }
 
   export type NestedDecimalNullableFilter<$PrismaModel = never> = {
@@ -34434,11 +34434,11 @@ export namespace Prisma {
     not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
   }
 
-  export type NestedEnumTipoCobrancaFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoCobranca | EnumTipoCobrancaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoCobranca[] | ListEnumTipoCobrancaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoCobranca[] | ListEnumTipoCobrancaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoCobrancaFilter<$PrismaModel> | $Enums.TipoCobranca
+  export type NestedEnumTipoCobrancaGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCobrancaGravity | EnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCobrancaGravity[] | ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCobrancaGravity[] | ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCobrancaGravityFilter<$PrismaModel> | $Enums.TipoCobrancaGravity
   }
 
   export type NestedDecimalFilter<$PrismaModel = never> = {
@@ -34452,21 +34452,21 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
-  export type NestedEnumTipoLimiteUsuarioFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoLimiteUsuario | EnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoLimiteUsuario[] | ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoLimiteUsuario[] | ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoLimiteUsuarioFilter<$PrismaModel> | $Enums.TipoLimiteUsuario
+  export type NestedEnumProdutoGravityLimiteUsuarioFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProdutoGravityLimiteUsuario | EnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    in?: $Enums.ProdutoGravityLimiteUsuario[] | ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProdutoGravityLimiteUsuario[] | ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    not?: NestedEnumProdutoGravityLimiteUsuarioFilter<$PrismaModel> | $Enums.ProdutoGravityLimiteUsuario
   }
 
-  export type NestedEnumStatusProdutoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusProduto | EnumStatusProdutoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusProduto[] | ListEnumStatusProdutoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusProduto[] | ListEnumStatusProdutoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusProdutoWithAggregatesFilter<$PrismaModel> | $Enums.StatusProduto
+  export type NestedEnumStatusProdutoGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StatusProdutoGravity | EnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.StatusProdutoGravity[] | ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StatusProdutoGravity[] | ListEnumStatusProdutoGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumStatusProdutoGravityWithAggregatesFilter<$PrismaModel> | $Enums.StatusProdutoGravity
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusProdutoFilter<$PrismaModel>
-    _max?: NestedEnumStatusProdutoFilter<$PrismaModel>
+    _min?: NestedEnumStatusProdutoGravityFilter<$PrismaModel>
+    _max?: NestedEnumStatusProdutoGravityFilter<$PrismaModel>
   }
 
   export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -34485,14 +34485,14 @@ export namespace Prisma {
     _max?: NestedDecimalNullableFilter<$PrismaModel>
   }
 
-  export type NestedEnumTipoCobrancaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoCobranca | EnumTipoCobrancaFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoCobranca[] | ListEnumTipoCobrancaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoCobranca[] | ListEnumTipoCobrancaFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoCobrancaWithAggregatesFilter<$PrismaModel> | $Enums.TipoCobranca
+  export type NestedEnumTipoCobrancaGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TipoCobrancaGravity | EnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.TipoCobrancaGravity[] | ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TipoCobrancaGravity[] | ListEnumTipoCobrancaGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumTipoCobrancaGravityWithAggregatesFilter<$PrismaModel> | $Enums.TipoCobrancaGravity
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoCobrancaFilter<$PrismaModel>
-    _max?: NestedEnumTipoCobrancaFilter<$PrismaModel>
+    _min?: NestedEnumTipoCobrancaGravityFilter<$PrismaModel>
+    _max?: NestedEnumTipoCobrancaGravityFilter<$PrismaModel>
   }
 
   export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -34511,14 +34511,14 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
-  export type NestedEnumTipoLimiteUsuarioWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoLimiteUsuario | EnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoLimiteUsuario[] | ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoLimiteUsuario[] | ListEnumTipoLimiteUsuarioFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoLimiteUsuarioWithAggregatesFilter<$PrismaModel> | $Enums.TipoLimiteUsuario
+  export type NestedEnumProdutoGravityLimiteUsuarioWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ProdutoGravityLimiteUsuario | EnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    in?: $Enums.ProdutoGravityLimiteUsuario[] | ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ProdutoGravityLimiteUsuario[] | ListEnumProdutoGravityLimiteUsuarioFieldRefInput<$PrismaModel>
+    not?: NestedEnumProdutoGravityLimiteUsuarioWithAggregatesFilter<$PrismaModel> | $Enums.ProdutoGravityLimiteUsuario
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoLimiteUsuarioFilter<$PrismaModel>
-    _max?: NestedEnumTipoLimiteUsuarioFilter<$PrismaModel>
+    _min?: NestedEnumProdutoGravityLimiteUsuarioFilter<$PrismaModel>
+    _max?: NestedEnumProdutoGravityLimiteUsuarioFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -34575,38 +34575,38 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type NestedEnumAmbienteDeployFilter<$PrismaModel = never> = {
-    equals?: $Enums.AmbienteDeploy | EnumAmbienteDeployFieldRefInput<$PrismaModel>
-    in?: $Enums.AmbienteDeploy[] | ListEnumAmbienteDeployFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AmbienteDeploy[] | ListEnumAmbienteDeployFieldRefInput<$PrismaModel>
-    not?: NestedEnumAmbienteDeployFilter<$PrismaModel> | $Enums.AmbienteDeploy
+  export type NestedEnumDeployAmbienteFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployAmbiente | EnumDeployAmbienteFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployAmbiente[] | ListEnumDeployAmbienteFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployAmbiente[] | ListEnumDeployAmbienteFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployAmbienteFilter<$PrismaModel> | $Enums.DeployAmbiente
   }
 
-  export type NestedEnumStatusDeployFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusDeploy | EnumStatusDeployFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusDeploy[] | ListEnumStatusDeployFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusDeploy[] | ListEnumStatusDeployFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusDeployFilter<$PrismaModel> | $Enums.StatusDeploy
+  export type NestedEnumDeployStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployStatus | EnumDeployStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployStatusFilter<$PrismaModel> | $Enums.DeployStatus
   }
 
-  export type NestedEnumAmbienteDeployWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.AmbienteDeploy | EnumAmbienteDeployFieldRefInput<$PrismaModel>
-    in?: $Enums.AmbienteDeploy[] | ListEnumAmbienteDeployFieldRefInput<$PrismaModel>
-    notIn?: $Enums.AmbienteDeploy[] | ListEnumAmbienteDeployFieldRefInput<$PrismaModel>
-    not?: NestedEnumAmbienteDeployWithAggregatesFilter<$PrismaModel> | $Enums.AmbienteDeploy
+  export type NestedEnumDeployAmbienteWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployAmbiente | EnumDeployAmbienteFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployAmbiente[] | ListEnumDeployAmbienteFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployAmbiente[] | ListEnumDeployAmbienteFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployAmbienteWithAggregatesFilter<$PrismaModel> | $Enums.DeployAmbiente
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumAmbienteDeployFilter<$PrismaModel>
-    _max?: NestedEnumAmbienteDeployFilter<$PrismaModel>
+    _min?: NestedEnumDeployAmbienteFilter<$PrismaModel>
+    _max?: NestedEnumDeployAmbienteFilter<$PrismaModel>
   }
 
-  export type NestedEnumStatusDeployWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusDeploy | EnumStatusDeployFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusDeploy[] | ListEnumStatusDeployFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusDeploy[] | ListEnumStatusDeployFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusDeployWithAggregatesFilter<$PrismaModel> | $Enums.StatusDeploy
+  export type NestedEnumDeployStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DeployStatus | EnumDeployStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DeployStatus[] | ListEnumDeployStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumDeployStatusWithAggregatesFilter<$PrismaModel> | $Enums.DeployStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusDeployFilter<$PrismaModel>
-    _max?: NestedEnumStatusDeployFilter<$PrismaModel>
+    _min?: NestedEnumDeployStatusFilter<$PrismaModel>
+    _max?: NestedEnumDeployStatusFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -34631,21 +34631,21 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedEnumFaturaStatusFilter<$PrismaModel = never> = {
-    equals?: $Enums.FaturaStatus | EnumFaturaStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.FaturaStatus[] | ListEnumFaturaStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FaturaStatus[] | ListEnumFaturaStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumFaturaStatusFilter<$PrismaModel> | $Enums.FaturaStatus
+  export type NestedEnumFaturaStatusGravityFilter<$PrismaModel = never> = {
+    equals?: $Enums.FaturaStatusGravity | EnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.FaturaStatusGravity[] | ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FaturaStatusGravity[] | ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumFaturaStatusGravityFilter<$PrismaModel> | $Enums.FaturaStatusGravity
   }
 
-  export type NestedEnumFaturaStatusWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.FaturaStatus | EnumFaturaStatusFieldRefInput<$PrismaModel>
-    in?: $Enums.FaturaStatus[] | ListEnumFaturaStatusFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FaturaStatus[] | ListEnumFaturaStatusFieldRefInput<$PrismaModel>
-    not?: NestedEnumFaturaStatusWithAggregatesFilter<$PrismaModel> | $Enums.FaturaStatus
+  export type NestedEnumFaturaStatusGravityWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FaturaStatusGravity | EnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    in?: $Enums.FaturaStatusGravity[] | ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FaturaStatusGravity[] | ListEnumFaturaStatusGravityFieldRefInput<$PrismaModel>
+    not?: NestedEnumFaturaStatusGravityWithAggregatesFilter<$PrismaModel> | $Enums.FaturaStatusGravity
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumFaturaStatusFilter<$PrismaModel>
-    _max?: NestedEnumFaturaStatusFilter<$PrismaModel>
+    _min?: NestedEnumFaturaStatusGravityFilter<$PrismaModel>
+    _max?: NestedEnumFaturaStatusGravityFilter<$PrismaModel>
   }
 
   export type UsuarioCreateWithoutTenantInput = {
@@ -34653,7 +34653,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
@@ -34666,7 +34666,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -34686,7 +34686,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityCreateWithoutTenantInput = {
     id?: string
-    status?: $Enums.StatusAssinatura
+    status?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
     trial_ends_at?: Date | string | null
@@ -34699,7 +34699,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityUncheckedCreateWithoutTenantInput = {
     id?: string
-    status?: $Enums.StatusAssinatura
+    status?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
     trial_ends_at?: Date | string | null
@@ -34757,7 +34757,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
@@ -34770,7 +34770,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
@@ -34869,7 +34869,7 @@ export namespace Prisma {
     clerk_user_id?: StringFilter<"Usuario"> | string
     email?: StringFilter<"Usuario"> | string
     name?: StringFilter<"Usuario"> | string
-    role?: EnumTipoUsuarioFilter<"Usuario"> | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFilter<"Usuario"> | $Enums.UsuarioTipo
     preferred_company_id?: StringNullableFilter<"Usuario"> | string | null
     created_at?: DateTimeFilter<"Usuario"> | Date | string
     updated_at?: DateTimeFilter<"Usuario"> | Date | string
@@ -34897,7 +34897,7 @@ export namespace Prisma {
     NOT?: AssinaturaProdutoGravityScalarWhereInput | AssinaturaProdutoGravityScalarWhereInput[]
     id?: StringFilter<"AssinaturaProdutoGravity"> | string
     tenant_id?: StringFilter<"AssinaturaProdutoGravity"> | string
-    status?: EnumStatusAssinaturaFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFilter<"AssinaturaProdutoGravity"> | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
     stripe_price_id?: StringNullableFilter<"AssinaturaProdutoGravity"> | string | null
     trial_ends_at?: DateTimeNullableFilter<"AssinaturaProdutoGravity"> | Date | string | null
@@ -34964,7 +34964,7 @@ export namespace Prisma {
     name?: StringFilter<"Empresa"> | string
     subdomain?: StringNullableFilter<"Empresa"> | string | null
     cnpj?: StringNullableFilter<"Empresa"> | string | null
-    status?: EnumStatusEmpresaFilter<"Empresa"> | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFilter<"Empresa"> | $Enums.EmpresaStatus
     created_at?: DateTimeFilter<"Empresa"> | Date | string
     updated_at?: DateTimeFilter<"Empresa"> | Date | string
   }
@@ -35031,7 +35031,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35053,7 +35053,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35081,7 +35081,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompaniesInput
@@ -35095,7 +35095,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
@@ -35142,7 +35142,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceCreateWithoutUserInput = {
     id?: string
     tenant_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -35153,7 +35153,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     company_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -35184,7 +35184,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35206,7 +35206,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35240,7 +35240,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput
@@ -35254,7 +35254,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -35301,7 +35301,7 @@ export namespace Prisma {
     tenant_id?: StringFilter<"UsuarioWorkspace"> | string
     user_id?: StringFilter<"UsuarioWorkspace"> | string
     company_id?: StringFilter<"UsuarioWorkspace"> | string
-    role?: EnumTipoMembroEmpresaFilter<"UsuarioWorkspace"> | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFilter<"UsuarioWorkspace"> | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFilter<"UsuarioWorkspace"> | boolean
     created_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
     updated_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
@@ -35311,7 +35311,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35333,7 +35333,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35371,7 +35371,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35393,7 +35393,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35415,7 +35415,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35437,7 +35437,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35465,7 +35465,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsersInput
@@ -35479,7 +35479,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35506,7 +35506,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35528,7 +35528,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35562,7 +35562,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
@@ -35576,7 +35576,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35587,7 +35587,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35609,7 +35609,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35635,7 +35635,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceCreateWithoutCompanyInput = {
     id?: string
     tenant_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -35646,7 +35646,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     user_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -35695,7 +35695,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsersInput
@@ -35709,7 +35709,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutUserInput
@@ -35741,7 +35741,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35763,7 +35763,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -35834,7 +35834,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutUsersInput
@@ -35848,7 +35848,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35865,7 +35865,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompaniesInput
@@ -35879,7 +35879,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     company_products?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
@@ -35907,7 +35907,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
@@ -35921,7 +35921,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35944,7 +35944,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput
@@ -35958,7 +35958,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     company_products?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -35969,7 +35969,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -35991,7 +35991,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -36029,7 +36029,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36051,7 +36051,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36073,7 +36073,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -36095,7 +36095,7 @@ export namespace Prisma {
     id?: string
     name: string
     slug: string
-    status?: $Enums.StatusOrganizacao
+    status?: $Enums.OrganizacaoStatus
     clerk_org_id?: string | null
     stripe_customer_id?: string | null
     suid_empresa?: string | null
@@ -36123,7 +36123,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutCompaniesInput
@@ -36137,7 +36137,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
     memberships?: UsuarioWorkspaceUncheckedCreateNestedManyWithoutCompanyInput
@@ -36164,7 +36164,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36186,7 +36186,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusOrganizacaoFieldUpdateOperationsInput | $Enums.StatusOrganizacao
+    status?: EnumOrganizacaoStatusFieldUpdateOperationsInput | $Enums.OrganizacaoStatus
     clerk_org_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36220,7 +36220,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput
@@ -36234,7 +36234,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -36369,19 +36369,19 @@ export namespace Prisma {
     name: string
     slug: string
     description: string
-    status?: $Enums.StatusProduto
+    status?: $Enums.StatusProdutoGravity
     launch_date?: Date | string | null
     has_setup?: boolean
     setup_price?: Decimal | DecimalJsLike | number | string | null
     setup_currency?: string
-    billing_type?: $Enums.TipoCobranca
+    billing_type?: $Enums.TipoCobrancaGravity
     unit_price: Decimal | DecimalJsLike | number | string
     unit_currency?: string
     minimum_price?: Decimal | DecimalJsLike | number | string
     minimum_currency?: string
     total_price?: Decimal | DecimalJsLike | number | string | null
     total_currency?: string
-    user_limit_type?: $Enums.TipoLimiteUsuario
+    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: number | null
     extra_user_price?: Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: string
@@ -36402,19 +36402,19 @@ export namespace Prisma {
     name: string
     slug: string
     description: string
-    status?: $Enums.StatusProduto
+    status?: $Enums.StatusProdutoGravity
     launch_date?: Date | string | null
     has_setup?: boolean
     setup_price?: Decimal | DecimalJsLike | number | string | null
     setup_currency?: string
-    billing_type?: $Enums.TipoCobranca
+    billing_type?: $Enums.TipoCobrancaGravity
     unit_price: Decimal | DecimalJsLike | number | string
     unit_currency?: string
     minimum_price?: Decimal | DecimalJsLike | number | string
     minimum_currency?: string
     total_price?: Decimal | DecimalJsLike | number | string | null
     total_currency?: string
-    user_limit_type?: $Enums.TipoLimiteUsuario
+    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: number | null
     extra_user_price?: Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: string
@@ -36451,19 +36451,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoFieldUpdateOperationsInput | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
     launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     has_setup?: BoolFieldUpdateOperationsInput | boolean
     setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaFieldUpdateOperationsInput | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFieldUpdateOperationsInput | string
     minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFieldUpdateOperationsInput | string
     total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumTipoLimiteUsuarioFieldUpdateOperationsInput | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
     extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFieldUpdateOperationsInput | string
@@ -36484,19 +36484,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoFieldUpdateOperationsInput | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
     launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     has_setup?: BoolFieldUpdateOperationsInput | boolean
     setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaFieldUpdateOperationsInput | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFieldUpdateOperationsInput | string
     minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFieldUpdateOperationsInput | string
     total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumTipoLimiteUsuarioFieldUpdateOperationsInput | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
     extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFieldUpdateOperationsInput | string
@@ -36517,19 +36517,19 @@ export namespace Prisma {
     name: string
     slug: string
     description: string
-    status?: $Enums.StatusProduto
+    status?: $Enums.StatusProdutoGravity
     launch_date?: Date | string | null
     has_setup?: boolean
     setup_price?: Decimal | DecimalJsLike | number | string | null
     setup_currency?: string
-    billing_type?: $Enums.TipoCobranca
+    billing_type?: $Enums.TipoCobrancaGravity
     unit_price: Decimal | DecimalJsLike | number | string
     unit_currency?: string
     minimum_price?: Decimal | DecimalJsLike | number | string
     minimum_currency?: string
     total_price?: Decimal | DecimalJsLike | number | string | null
     total_currency?: string
-    user_limit_type?: $Enums.TipoLimiteUsuario
+    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: number | null
     extra_user_price?: Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: string
@@ -36550,19 +36550,19 @@ export namespace Prisma {
     name: string
     slug: string
     description: string
-    status?: $Enums.StatusProduto
+    status?: $Enums.StatusProdutoGravity
     launch_date?: Date | string | null
     has_setup?: boolean
     setup_price?: Decimal | DecimalJsLike | number | string | null
     setup_currency?: string
-    billing_type?: $Enums.TipoCobranca
+    billing_type?: $Enums.TipoCobrancaGravity
     unit_price: Decimal | DecimalJsLike | number | string
     unit_currency?: string
     minimum_price?: Decimal | DecimalJsLike | number | string
     minimum_currency?: string
     total_price?: Decimal | DecimalJsLike | number | string | null
     total_currency?: string
-    user_limit_type?: $Enums.TipoLimiteUsuario
+    user_limit_type?: $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: number | null
     extra_user_price?: Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: string
@@ -36599,19 +36599,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoFieldUpdateOperationsInput | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
     launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     has_setup?: BoolFieldUpdateOperationsInput | boolean
     setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaFieldUpdateOperationsInput | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFieldUpdateOperationsInput | string
     minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFieldUpdateOperationsInput | string
     total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumTipoLimiteUsuarioFieldUpdateOperationsInput | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
     extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFieldUpdateOperationsInput | string
@@ -36632,19 +36632,19 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusProdutoFieldUpdateOperationsInput | $Enums.StatusProduto
+    status?: EnumStatusProdutoGravityFieldUpdateOperationsInput | $Enums.StatusProdutoGravity
     launch_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     has_setup?: BoolFieldUpdateOperationsInput | boolean
     setup_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     setup_currency?: StringFieldUpdateOperationsInput | string
-    billing_type?: EnumTipoCobrancaFieldUpdateOperationsInput | $Enums.TipoCobranca
+    billing_type?: EnumTipoCobrancaGravityFieldUpdateOperationsInput | $Enums.TipoCobrancaGravity
     unit_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     unit_currency?: StringFieldUpdateOperationsInput | string
     minimum_price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     minimum_currency?: StringFieldUpdateOperationsInput | string
     total_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     total_currency?: StringFieldUpdateOperationsInput | string
-    user_limit_type?: EnumTipoLimiteUsuarioFieldUpdateOperationsInput | $Enums.TipoLimiteUsuario
+    user_limit_type?: EnumProdutoGravityLimiteUsuarioFieldUpdateOperationsInput | $Enums.ProdutoGravityLimiteUsuario
     base_users_qty?: NullableIntFieldUpdateOperationsInput | number | null
     extra_user_price?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     extra_user_currency?: StringFieldUpdateOperationsInput | string
@@ -36665,7 +36665,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     preferred_company_id?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -36673,7 +36673,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityCreateManyTenantInput = {
     id?: string
-    status?: $Enums.StatusAssinatura
+    status?: $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: string | null
     stripe_price_id?: string | null
     trial_ends_at?: Date | string | null
@@ -36700,7 +36700,7 @@ export namespace Prisma {
     name: string
     subdomain?: string | null
     cnpj?: string | null
-    status?: $Enums.StatusEmpresa
+    status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -36728,7 +36728,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
@@ -36741,7 +36741,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36754,7 +36754,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     preferred_company_id?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36762,7 +36762,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusAssinaturaFieldUpdateOperationsInput | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
     trial_ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36775,7 +36775,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityUncheckedUpdateWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusAssinaturaFieldUpdateOperationsInput | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
     trial_ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36788,7 +36788,7 @@ export namespace Prisma {
 
   export type AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantInput = {
     id?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusAssinaturaFieldUpdateOperationsInput | $Enums.StatusAssinatura
+    status?: EnumStatusAssinaturaProdutoGravityFieldUpdateOperationsInput | $Enums.StatusAssinaturaProdutoGravity
     stripe_subscription_id?: NullableStringFieldUpdateOperationsInput | string | null
     stripe_price_id?: NullableStringFieldUpdateOperationsInput | string | null
     trial_ends_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36837,7 +36837,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
@@ -36850,7 +36850,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutCompanyNestedInput
@@ -36863,7 +36863,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     subdomain?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmpresaFieldUpdateOperationsInput | $Enums.StatusEmpresa
+    status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -36937,7 +36937,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     company_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -36979,7 +36979,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36990,7 +36990,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     company_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37000,7 +37000,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     company_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37010,7 +37010,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     user_id: string
-    role?: $Enums.TipoMembroEmpresa
+    role?: $Enums.TipoUsuarioEmpresa
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
@@ -37031,7 +37031,7 @@ export namespace Prisma {
     clerk_user_id: string
     email: string
     name: string
-    role?: $Enums.TipoUsuario
+    role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
   }
@@ -37039,7 +37039,7 @@ export namespace Prisma {
   export type UsuarioWorkspaceUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37050,7 +37050,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37060,7 +37060,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoMembroEmpresaFieldUpdateOperationsInput | $Enums.TipoMembroEmpresa
+    role?: EnumTipoUsuarioEmpresaFieldUpdateOperationsInput | $Enums.TipoUsuarioEmpresa
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37098,7 +37098,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
@@ -37112,7 +37112,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutUserNestedInput
@@ -37125,7 +37125,7 @@ export namespace Prisma {
     clerk_user_id?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    role?: EnumTipoUsuarioFieldUpdateOperationsInput | $Enums.TipoUsuario
+    role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }

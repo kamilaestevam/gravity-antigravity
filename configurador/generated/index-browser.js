@@ -483,14 +483,14 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.StatusOrganizacao = exports.$Enums.StatusOrganizacao = {
+exports.OrganizacaoStatus = exports.$Enums.OrganizacaoStatus = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
   CANCELLED: 'CANCELLED',
   PENDING_SETUP: 'PENDING_SETUP'
 };
 
-exports.TipoUsuario = exports.$Enums.TipoUsuario = {
+exports.UsuarioTipo = exports.$Enums.UsuarioTipo = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   MASTER: 'MASTER',
@@ -498,7 +498,7 @@ exports.TipoUsuario = exports.$Enums.TipoUsuario = {
   SUPPLIER: 'SUPPLIER'
 };
 
-exports.StatusAssinatura = exports.$Enums.StatusAssinatura = {
+exports.StatusAssinaturaProdutoGravity = exports.$Enums.StatusAssinaturaProdutoGravity = {
   ACTIVE: 'ACTIVE',
   PAST_DUE: 'PAST_DUE',
   CANCELLED: 'CANCELLED',
@@ -506,18 +506,18 @@ exports.StatusAssinatura = exports.$Enums.StatusAssinatura = {
   INCOMPLETE: 'INCOMPLETE'
 };
 
-exports.StatusEmpresa = exports.$Enums.StatusEmpresa = {
+exports.EmpresaStatus = exports.$Enums.EmpresaStatus = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE'
 };
 
-exports.TipoMembroEmpresa = exports.$Enums.TipoMembroEmpresa = {
+exports.TipoUsuarioEmpresa = exports.$Enums.TipoUsuarioEmpresa = {
   MASTER: 'MASTER',
   STANDARD: 'STANDARD',
   SUPPLIER: 'SUPPLIER'
 };
 
-exports.StatusProduto = exports.$Enums.StatusProduto = {
+exports.StatusProdutoGravity = exports.$Enums.StatusProdutoGravity = {
   ACTIVE: 'ACTIVE',
   SUSPENDED: 'SUSPENDED',
   COMING_SOON: 'COMING_SOON',
@@ -525,7 +525,7 @@ exports.StatusProduto = exports.$Enums.StatusProduto = {
   INACTIVE: 'INACTIVE'
 };
 
-exports.TipoCobranca = exports.$Enums.TipoCobranca = {
+exports.TipoCobrancaGravity = exports.$Enums.TipoCobrancaGravity = {
   MONTHLY: 'MONTHLY',
   PER_PROCESS: 'PER_PROCESS',
   PER_DOCUMENT: 'PER_DOCUMENT',
@@ -537,26 +537,26 @@ exports.TipoCobranca = exports.$Enums.TipoCobranca = {
   PER_LPCO: 'PER_LPCO'
 };
 
-exports.TipoLimiteUsuario = exports.$Enums.TipoLimiteUsuario = {
+exports.ProdutoGravityLimiteUsuario = exports.$Enums.ProdutoGravityLimiteUsuario = {
   UNLIMITED: 'UNLIMITED',
   LIMITED: 'LIMITED'
 };
 
-exports.AmbienteDeploy = exports.$Enums.AmbienteDeploy = {
+exports.DeployAmbiente = exports.$Enums.DeployAmbiente = {
   DEVELOPMENT: 'DEVELOPMENT',
   STAGING: 'STAGING',
   PRODUCTION: 'PRODUCTION',
   ALL: 'ALL'
 };
 
-exports.StatusDeploy = exports.$Enums.StatusDeploy = {
+exports.DeployStatus = exports.$Enums.DeployStatus = {
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
   ROLLBACK: 'ROLLBACK',
   IN_PROGRESS: 'IN_PROGRESS'
 };
 
-exports.FaturaStatus = exports.$Enums.FaturaStatus = {
+exports.FaturaStatusGravity = exports.$Enums.FaturaStatusGravity = {
   DRAFT: 'DRAFT',
   OPEN: 'OPEN',
   PAID: 'PAID',

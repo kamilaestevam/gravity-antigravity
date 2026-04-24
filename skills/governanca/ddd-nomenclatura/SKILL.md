@@ -34,7 +34,7 @@ A nomenclatura DDD vale para **todo artefato nomeável** do projeto:
 | **Tabelas/Models** | `Organizacao`, `PedidoItem`, `AssinaturaProdutoGravity` |
 | **Campos/Colunas** | `id_organizacao`, `data_criacao_pedido`, `tipo_usuario` |
 | **Relations Prisma** | `usuarios`, `workspaces`, `assinaturas` |
-| **Enums (nome)** | `TipoUsuario`, `StatusOrganizacao`, `FaturaStatus` |
+| **Enums (nome)** | `UsuarioTipo`, `OrganizacaoStatus`, `FaturaStatusGravity` |
 | **Rotas/Endpoints** | `/organizacoes`, `/usuarios/:id_usuario/permissoes` |
 | **Schemas Zod** | `OrganizacaoSchema`, `ConvidarUsuarioSchema` |
 | **Funções/Métodos** | `criarOrganizacao()`, `validarPermissoes()` |
@@ -87,26 +87,51 @@ Em código, **só os nomes da coluna direita aparecem**. Os da esquerda não exi
 
 ---
 
-### REGRA 2 — `@map` e `@@map` proibidos
+### REGRA 2 — `@map` de coluna PROIBIDO; `@@map` de tabela OBRIGATÓRIO quando model name ≠ snake_case
 
-**Estado correto (único permitido):** `Prisma field name === PostgreSQL column name`. Sempre.
+**Atualizada em 24/04/2026 (fix_model_casing_revert).** A regra original "sem `@@map`" foi revertida: a paridade do **nome de coluna** (campo Prisma == coluna PG) continua absoluta, mas o **nome do model** segue a convenção Prisma (PascalCase) e precisa de `@@map("snake_case")` para a tabela PG ficar em snake_case.
+
+**Estado correto (único permitido):**
+
+1. **Campo Prisma === coluna PG** — sempre. Nenhum `@map()` de coluna, nunca.
+2. **Model Prisma em PascalCase** + **`@@map("tabela_snake_case")`** — tabela PG fica em snake_case.
 
 ```prisma
-// ✅ Correto — único padrão aceito
-model Organizacao {
-  id_organizacao   String @id @default(cuid())
-  nome_organizacao String
+// ✅ Correto — padrão DDD Gravity pós-fix_model_casing_revert
+model Empresa {
+  suid_empresa     String @id
+  nome_empresa     String
+  cnpj_empresa     String?
+
+  @@map("empresa")
+}
+
+model OpeHistoricoStatus {
+  id_historico_status_ope   String @id @default(cuid())
+  suid_ope_historico_status_ope  String
+
+  @@map("ope_historico_status")
 }
 ```
 
 ```prisma
-// 🚫 Proibido sempre, em qualquer modelo
-model Organizacao {
-  id  String @id @default(cuid()) @map("id_organizacao")
+// 🚫 Proibido — @map de coluna (rompe paridade Prisma-PG)
+model Empresa {
+  suid_empresa  String @id @map("suid_novo")   // BLOQUEADO
+}
+
+// 🚫 Proibido — model sem @@map e sem PascalCase (Prisma Client fica "feio": prisma.empresa vs prisma.nCM)
+model empresa {                                 // BLOQUEADO — use "Empresa" + @@map("empresa")
+  suid_empresa  String @id
+}
+
+// 🚫 Proibido — PascalCase sem @@map (tabela PG viraria "Empresa" com aspas)
+model Empresa {                                 // BLOQUEADO — falta @@map("empresa")
+  suid_empresa  String @id
 }
 ```
 
-**`@map` e `@@map` não existem no projeto.** Não em código novo, não em código legado. Qualquer ocorrência atual é dívida técnica que será zerada na refatoração de schema (Coordenador, Mandamento 02).
+**Histórico da regra:** entre 22/04/2026 e 24/04/2026 o padrão tentado foi "model name lowercase igual ao PG, sem @@map". Isso gerou accessors Prisma Client esquisitos (`prisma.oPE`, `prisma.nCM`) e quebrou a convenção idiomática. A correção (migration `fix_model_casing_revert`) restaurou PascalCase + `@@map`. **Nunca mais proponha model em lowercase sem `@@map`.**
 
 ---
 
@@ -176,13 +201,13 @@ Em dúvida → **traduz literal**.
 
 ### REGRA 7 — Enums
 
-- **Nome do enum:** PascalCase em PT-BR (`TipoUsuario`, `StatusOrganizacao`, `FaturaStatus`).
+- **Nome do enum:** PascalCase em PT-BR (`UsuarioTipo`, `OrganizacaoStatus`, `FaturaStatusGravity`).
 - **Valores do enum:** **mantém em inglês UPPER_SNAKE** (`ACTIVE`, `SUSPENDED`, `MASTER`, `STANDARD`).
 
 **Por que valores em inglês:** são constantes técnicas armazenadas no banco, não labels de UI. Tradução para o usuário final vai no i18n.
 
 ```prisma
-enum StatusOrganizacao {
+enum OrganizacaoStatus {
   ACTIVE        // i18n: "Ativa" (PT) / "Active" (EN) / "Activa" (ES)
   SUSPENDED     // i18n: "Suspensa" / "Suspended" / "Suspendida"
   CANCELLED     // i18n: "Cancelada" / "Cancelled" / "Cancelada"
@@ -228,11 +253,12 @@ Marcar com `—` quando o campo **não aparece em tela do usuário final**:
 
 ---
 
-### REGRA 10 — Tabelas/Models (PascalCase PT-BR)
+### REGRA 10 — Tabelas/Models (PascalCase Prisma, snake_case PG via `@@map`)
 
-- **Model name** = PascalCase em PT-BR (`Organizacao`, `AssinaturaProdutoGravity`, `PedidoItem`).
-- **Tabela (DB)** = mesma do Prisma, sem `@@map`.
-- Em modelo NOVO: nunca `@@map`. Prisma e Postgres têm o mesmo nome.
+- **Model name** = PascalCase em PT-BR (`Organizacao`, `AssinaturaProdutoGravity`, `PedidoItem`, `Empresa`, `OpeHistoricoStatus`). Acrônimos podem ficar em caixa alta (`NCM`, `OPE`).
+- **Tabela (DB)** = **snake_case em PT-BR**, declarado via `@@map("nome_tabela")` no final do model.
+- **Todo model precisa de `@@map`** — não existe "o nome bate, então posso omitir": a convenção é explícita.
+- Nome da tabela fica **no singular** em Cadastros/Configurador (`empresa`, `organizacao`) e alinhado ao dicionário DDD em produtos (`pedido`, `pedido_item`).
 
 ---
 
@@ -266,7 +292,8 @@ Sub-aplicação das regras pra URLs:
 ```
 Nome novo? → SEMPRE em PT-BR (princípio fundamental)
 Campo físico? → REGRA 1 (com glossário canônico)
-@map ou @@map? → REGRA 2 (PROIBIDO)
+@map de coluna? → REGRA 2 (PROIBIDO — paridade Prisma-PG)
+@@map de tabela? → REGRA 2 (OBRIGATÓRIO — PascalCase Prisma + snake_case PG)
 Audit field (id, data_*)? → REGRA 3
 FK? → REGRA 4
 Boolean? → REGRA 5 (sem is_, só adjetivo PT-BR)
@@ -274,7 +301,7 @@ Relation? → REGRA 6 (plural snake_case PT-BR)
 Enum? → REGRA 7 (nome PT-BR PascalCase, valores UPPER_SNAKE EN)
 JSON? → REGRA 8 (PT-BR, mantém)
 Label tela? → REGRA 9 (— ou canonical PT-BR)
-Tabela/Model? → REGRA 10 (PascalCase PT-BR, sem @@map)
+Tabela/Model? → REGRA 10 (Model PascalCase + @@map("snake_case"))
 Calculado? → REGRA 11
 Rota/Endpoint? → seção "Rotas e endpoints"
 Em dúvida? → consulta glossário canônico
@@ -286,7 +313,9 @@ Em dúvida? → consulta glossário canônico
 
 - ❌ Inventar nome novo sem consultar esta skill
 - ❌ Usar termo legado (`tenant`, `company`, `role`, `subscription`) em código
-- ❌ Adicionar `@map` ou `@@map` em qualquer campo/tabela
+- ❌ Adicionar `@map("...")` em coluna (paridade Prisma-PG precisa ser total)
+- ❌ Criar model Prisma em lowercase/snake_case (use PascalCase + `@@map`)
+- ❌ Criar model PascalCase sem `@@map` (a tabela PG precisa ficar em snake_case)
 - ❌ Traduzir valores de enum (`ACTIVE` → `ATIVO`)
 - ❌ Adicionar `is_` em booleans (use só o adjetivo PT-BR)
 - ❌ Sufixo de entidade em campo único (não-genérico)

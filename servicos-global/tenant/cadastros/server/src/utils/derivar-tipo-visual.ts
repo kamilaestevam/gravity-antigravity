@@ -8,12 +8,12 @@
  */
 
 export interface FlagsTipoEmpresa {
-  pode_ser_importador: boolean
-  pode_ser_exportador: boolean
-  pode_ser_fabricante: boolean
-  pode_ser_agente: boolean
-  pode_ser_despachante: boolean
-  pode_ser_armador: boolean
+  pode_ser_importador_empresa: boolean
+  pode_ser_exportador_empresa: boolean
+  pode_ser_fabricante_empresa: boolean
+  pode_ser_agente_empresa: boolean
+  pode_ser_despachante_empresa: boolean
+  pode_ser_armador_empresa: boolean
 }
 
 /**
@@ -22,12 +22,12 @@ export interface FlagsTipoEmpresa {
  * em qualquer operação COMEX; demais aparecem em ordem alfabética.
  */
 const ORDEM_PAPEIS: ReadonlyArray<{ flag: keyof FlagsTipoEmpresa; label: string }> = [
-  { flag: 'pode_ser_importador', label: 'Importador' },
-  { flag: 'pode_ser_exportador', label: 'Exportador' },
-  { flag: 'pode_ser_agente', label: 'Agente' },
-  { flag: 'pode_ser_armador', label: 'Armador' },
-  { flag: 'pode_ser_despachante', label: 'Despachante' },
-  { flag: 'pode_ser_fabricante', label: 'Fabricante' },
+  { flag: 'pode_ser_importador_empresa', label: 'Importador' },
+  { flag: 'pode_ser_exportador_empresa', label: 'Exportador' },
+  { flag: 'pode_ser_agente_empresa', label: 'Agente' },
+  { flag: 'pode_ser_armador_empresa', label: 'Armador' },
+  { flag: 'pode_ser_despachante_empresa', label: 'Despachante' },
+  { flag: 'pode_ser_fabricante_empresa', label: 'Fabricante' },
 ]
 
 export function derivarTipoVisual(empresa: FlagsTipoEmpresa): string {

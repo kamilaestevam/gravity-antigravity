@@ -13,7 +13,6 @@ import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
 import { AppError } from '../lib/appError.js'
 import { securityAudit } from '../../../tenant/historico-global/server/lib/securityAuditLogger.js'
-import { syncRoleToClerk } from '../lib/syncRole.js'
 
 export const usersRouter = Router()
 
@@ -73,7 +72,16 @@ usersRouter.get('/', async (req, res, next) => {
       },
       orderBy: { created_at: 'desc' },
     })
-    res.json({ users })
+    // DTO DDD: Prisma `role` → JSON `tipo_usuario` (Mandamento 03)
+    const usuarios = users.map(({ role, memberships, ...rest }) => ({
+      ...rest,
+      tipo_usuario: role,
+      memberships: memberships.map(({ role: mRole, ...m }) => ({
+        ...m,
+        tipo_usuario: mRole,
+      })),
+    }))
+    res.json({ users: usuarios })
   } catch (err) {
     next(err)
   }
@@ -104,14 +112,9 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
       throw new AppError('Usuário já pertence a este tenant', 409, 'CONFLICT')
     }
 
-    // Cria convite via Clerk
+    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica)
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
-      publicMetadata: {
-        tenantId: req.auth.tenantId,
-        role,
-        invitedBy: req.auth.clerkUserId,
-      },
     })
 
     // Pré-computa empresas fora da transação — evita lock de longa duração em reads
@@ -172,7 +175,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, tipo_usuario: user.role },
     })
   } catch (err) {
     next(err)
@@ -358,14 +361,9 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
       newRole: parsed.data.role,
     }).catch(() => {})
 
-    // Sincroniza o novo role para o Clerk (badge e useSyncClerkToShell leem daqui)
-    if (user.clerk_user_id && !user.clerk_user_id.startsWith('pending_')) {
-      syncRoleToClerk(user.clerk_user_id, req.auth.tenantId, parsed.data.role).catch((err) => {
-        console.error('[users.patch.role] syncRoleToClerk falhou:', err)
-      })
-    }
-
-    res.json({ user: updated })
+    // DTO DDD: Prisma `role` → JSON `tipo_usuario`
+    const { role, ...rest } = updated
+    res.json({ user: { ...rest, tipo_usuario: role } })
   } catch (err) {
     next(err)
   }

@@ -50,7 +50,7 @@ export const productCatalogService = {
     }
 
     if (params.status) {
-      where.status = params.status as Prisma.EnumStatusProdutoFilter
+      where.status = params.status as Prisma.EnumStatusProdutoGravityFilter
     }
 
     const [products, total] = await Promise.all([

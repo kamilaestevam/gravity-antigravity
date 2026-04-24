@@ -18,7 +18,6 @@ import { requireAuth } from '../middleware/requireAuth.js'
 import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { prisma } from '../lib/prisma.js'
 import { clerkClient } from '../lib/clerk.js'
-import { syncRoleToClerk } from '../lib/syncRole.js'
 import { AppError } from '../lib/appError.js'
 import { spawn } from 'child_process'
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'fs'
@@ -160,7 +159,14 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    res.json({ tenant })
+    // DTO DDD: Prisma `users[].role` → JSON `users[].tipo_usuario`
+    const { users, ...tenantRest } = tenant
+    res.json({
+      tenant: {
+        ...tenantRest,
+        users: users.map(({ role, ...u }) => ({ ...u, tipo_usuario: role })),
+      },
+    })
   } catch (err) {
     next(err)
   }
@@ -425,8 +431,17 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
+    // DTO DDD: Prisma `role` → JSON `tipo_usuario` (incluindo memberships aninhadas)
+    const usuarios = users.map(({ role, memberships, ...rest }) => ({
+      ...rest,
+      tipo_usuario: role,
+      memberships: memberships.map(({ role: mRole, ...m }) => ({
+        ...m,
+        tipo_usuario: mRole,
+      })),
+    }))
     res.json({
-      users,
+      users: usuarios,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     })
   } catch (err) {
@@ -1219,21 +1234,15 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
       select: { id: true, email: true, role: true },
     })
 
-    // Sincroniza publicMetadata no Clerk (com spread de metadata existente + anti-downgrade de SUPER_ADMIN).
-    // Usuários com clerk_user_id 'pending_...' ainda não aceitaram o convite — não há conta para atualizar.
-    if (!user.clerk_user_id.startsWith('pending_')) {
-      syncRoleToClerk(user.clerk_user_id, user.tenant_id, parsed.data.role).catch((err) => {
-        console.error('[admin.promote] syncRoleToClerk falhou:', err)
-      })
-    }
-
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
       targetUserId: req.params.userId,
       oldRole: user.role,
       newRole: updated.role,
     }).catch(() => { /* fire-and-forget */ })
 
-    res.json({ user: updated })
+    // DTO DDD: Prisma `role` → JSON `tipo_usuario`
+    const { role: updRole, ...updRest } = updated
+    res.json({ user: { ...updRest, tipo_usuario: updRole } })
   } catch (err) {
     next(err)
   }
@@ -1271,10 +1280,9 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
       throw new AppError('Já existe um usuário com esse e-mail', 409, 'CONFLICT')
     }
 
-    // Cria convite via Clerk
+    // Cria convite via Clerk — sem publicMetadata (Mandamento 01: Clerk só autentica)
     const invitation = await clerkClient.invitations.createInvitation({
       emailAddress: email,
-      publicMetadata: { role, invitedBy: req.auth.clerkUserId, isAdminInvite: true },
     })
 
     // Cria registro pendente no banco (clerk_user_id será atualizado no webhook user.created)
@@ -1305,7 +1313,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, tipo_usuario: user.role },
     })
   } catch (err) {
     next(err)

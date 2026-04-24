@@ -15,7 +15,7 @@ export const impactoProdutoSchema = z.object({
 })
 
 export const previewImpactoSchema = z.object({
-  suid: z.string(),
+  suid_empresa: z.string(),
   total: z.number().int().nonnegative(),
   por_produto: z.array(impactoProdutoSchema),
 })

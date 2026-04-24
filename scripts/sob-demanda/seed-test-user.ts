@@ -1,7 +1,7 @@
 /**
  * seed-test-user.ts
  * Cria dados de teste para o fluxo completo:
- * Tenant → Company (workspace) → User → ProductConfig → CompanyProduct
+ * Organizacao → Empresa (workspace) → Usuario → ConfiguracaoProduto → ProdutoGravityWorkspace
  *
  * Uso: npx tsx scripts/sob-demanda/seed-test-user.ts
  */
@@ -19,31 +19,31 @@ const prisma = new PrismaClient({
 async function main() {
   console.log('Conectando ao banco...')
 
-  // 1. Busca ou cria o tenant
-  let tenant = await prisma.tenant.findFirst({
+  // 1. Busca ou cria a organizacao
+  let tenant = await prisma.organizacao.findFirst({
     where: { slug: 'dmm-teste' },
   })
 
   if (!tenant) {
-    tenant = await prisma.tenant.create({
+    tenant = await prisma.organizacao.create({
       data: {
         name: 'DMM Importação & Exportação',
         slug: 'dmm-teste',
         status: 'ACTIVE',
       },
     })
-    console.log('Tenant criado:', tenant.id)
+    console.log('Organizacao criada:', tenant.id)
   } else {
-    console.log('Tenant já existe:', tenant.id)
+    console.log('Organizacao já existe:', tenant.id)
   }
 
-  // 2. Busca ou cria o workspace (Company)
-  let company = await prisma.company.findFirst({
+  // 2. Busca ou cria o workspace (Empresa)
+  let company = await prisma.empresa.findFirst({
     where: { tenant_id: tenant.id, name: 'DMM Workspace Principal' },
   })
 
   if (!company) {
-    company = await prisma.company.create({
+    company = await prisma.empresa.create({
       data: {
         tenant_id: tenant.id,
         name: 'DMM Workspace Principal',
@@ -60,21 +60,21 @@ async function main() {
   // 3. Busca ou cria o usuário
   // NOTA: O clerk_user_id precisa corresponder ao ID real do Clerk para daniel@dmm-ie.com.br
   // Se não souber, deixe como placeholder e atualize depois
-  let user = await prisma.user.findFirst({
+  let user = await prisma.usuario.findFirst({
     where: { tenant_id: tenant.id, email: 'daniel@dmm-ie.com.br' },
   })
 
   if (!user) {
-    // Tenta encontrar pelo email em qualquer tenant
-    const existingUser = await prisma.user.findFirst({
+    // Tenta encontrar pelo email em qualquer organizacao
+    const existingUser = await prisma.usuario.findFirst({
       where: { email: 'daniel@dmm-ie.com.br' },
     })
 
     if (existingUser) {
       user = existingUser
-      console.log('Usuário já existe em outro tenant:', user.id)
+      console.log('Usuário já existe em outra organizacao:', user.id)
     } else {
-      user = await prisma.user.create({
+      user = await prisma.usuario.create({
         data: {
           tenant_id: tenant.id,
           clerk_user_id: 'pending_clerk_sync',
@@ -89,8 +89,8 @@ async function main() {
     console.log('Usuário já existe:', user.id, 'clerk_user_id:', user.clerk_user_id)
   }
 
-  // 4. Cria UserMembership (liga o user ao workspace)
-  const membership = await prisma.userMembership.upsert({
+  // 4. Cria UsuarioWorkspace (liga o user ao workspace)
+  const membership = await prisma.usuarioWorkspace.upsert({
     where: {
       tenant_id_user_id_company_id: {
         tenant_id: tenant.id,
@@ -110,25 +110,25 @@ async function main() {
   console.log('Membership:', membership.id)
 
   // 5. Cria produto no catálogo (SimulaCusto)
-  const simulaCusto = await prisma.globalProduct.upsert({
+  const simulaCusto = await prisma.produtoGravity.upsert({
     where: { slug: 'simula-custo' },
     create: {
       name: 'SimulaCusto',
       slug: 'simula-custo',
       description: 'Simulador de custos de importação com cálculo automático de tributos, PTAX e landed cost.',
-      status: 'Ativo',
-      type_billing: 'Mensalidade',
+      status: 'ACTIVE',
+      billing_type: 'MONTHLY',
       unit_price: 199,
-      currency: 'BRL',
+      unit_currency: 'BRL',
       backend_module: 'simula-custo',
-      base_users: 5,
-      help_desk_hours: 4,
+      base_users_qty: 5,
+      helpdesk_hours: 4,
     },
-    update: { status: 'Ativo' },
+    update: { status: 'ACTIVE' },
   })
   console.log('Produto SimulaCusto:', simulaCusto.id)
 
-  // 6. Cria ProductConfig (tenant contrata o produto)
+  // 6. Cria ConfiguracaoProduto (organizacao contrata o produto)
   const productConfig = await prisma.configuracaoProduto.upsert({
     where: {
       tenant_id_product_key: {
@@ -144,10 +144,10 @@ async function main() {
     },
     update: { is_active: true },
   })
-  console.log('ProductConfig:', productConfig.id)
+  console.log('ConfiguracaoProduto:', productConfig.id)
 
-  // 7. Cria CompanyProduct (ativa no workspace)
-  const companyProduct = await prisma.companyProduct.upsert({
+  // 7. Cria ProdutoGravityWorkspace (ativa no workspace)
+  const companyProduct = await prisma.produtoGravityWorkspace.upsert({
     where: {
       company_id_product_key: {
         company_id: company.id,
@@ -162,10 +162,10 @@ async function main() {
     },
     update: { is_active: true },
   })
-  console.log('CompanyProduct:', companyProduct.id)
+  console.log('ProdutoGravityWorkspace:', companyProduct.id)
 
-  // 8. Cria Subscription
-  await prisma.subscription.upsert({
+  // 8. Cria AssinaturaProdutoGravity
+  await prisma.assinaturaProdutoGravity.upsert({
     where: { id: `sub_${tenant.id}` },
     create: {
       id: `sub_${tenant.id}`,
@@ -174,15 +174,15 @@ async function main() {
     },
     update: { status: 'ACTIVE' },
   })
-  console.log('Subscription criada')
+  console.log('Assinatura criada')
 
   console.log('\n=== RESUMO ===')
-  console.log(`Tenant:    ${tenant.name} (${tenant.id})`)
-  console.log(`Workspace: ${company.name} (${company.id})`)
-  console.log(`Usuário:   ${user.email} (${user.id}) — clerk: ${user.clerk_user_id}`)
-  console.log(`Produto:   SimulaCusto — contratado e ativo no workspace`)
+  console.log(`Organizacao: ${tenant.name} (${tenant.id})`)
+  console.log(`Workspace:   ${company.name} (${company.id})`)
+  console.log(`Usuário:     ${user.email} (${user.id}) — clerk: ${user.clerk_user_id}`)
+  console.log(`Produto:     SimulaCusto — contratado e ativo no workspace`)
   console.log('\nSe o clerk_user_id estiver como "pending_clerk_sync", atualize com:')
-  console.log(`  UPDATE "User" SET clerk_user_id = 'user_XXXX' WHERE id = '${user.id}';`)
+  console.log(`  UPDATE "usuario" SET clerk_user_id = 'user_XXXX' WHERE id_usuario = '${user.id}';`)
 }
 
 main()

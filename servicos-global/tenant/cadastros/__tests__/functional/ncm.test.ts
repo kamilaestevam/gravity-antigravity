@@ -14,23 +14,23 @@ afterAll(async () => { await limparDadosDeTeste(); await prismaTeste.$disconnect
 describe('CRUD /ncm', () => {
   it('cria com 8 dígitos numéricos', async () => {
     const res = await request(app).post('/api/v1/cadastros/ncm').set(headers)
-      .send({ codigo: '99999999', descricao: 'NCM teste', ipi: 5, ii: 10 })
+      .send({ codigo_ncm: '99999999', descricao_ncm: 'NCM teste', ipi_ncm: 5, ii_ncm: 10 })
     expect(res.status).toBe(201)
-    expect(res.body.codigo).toBe('99999999')
+    expect(res.body.codigo_ncm).toBe('99999999')
   })
 
   it('rejeita código com letras', async () => {
     const res = await request(app).post('/api/v1/cadastros/ncm').set(headers)
-      .send({ codigo: '9999AAAA', descricao: 'X' })
+      .send({ codigo_ncm: '9999AAAA', descricao_ncm: 'X' })
     expect(res.status).toBe(422)
   })
 
   it('PUT atualiza apenas campos fornecidos', async () => {
     await request(app).post('/api/v1/cadastros/ncm').set(headers)
-      .send({ codigo: '99999998', descricao: 'orig', ipi: 3 })
+      .send({ codigo_ncm: '99999998', descricao_ncm: 'orig', ipi_ncm: 3 })
     const res = await request(app).put('/api/v1/cadastros/ncm/99999998').set(headers)
-      .send({ descricao: 'novo' })
-    expect(res.body.descricao).toBe('novo')
-    expect(res.body.ipi).toBe(3)
+      .send({ descricao_ncm: 'novo' })
+    expect(res.body.descricao_ncm).toBe('novo')
+    expect(res.body.ipi_ncm).toBe(3)
   })
 })

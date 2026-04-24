@@ -268,10 +268,7 @@ export function SelecionarWorkspace() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Role canônico vem do banco (via /api/v1/me) — não do publicMetadata do Clerk.
-  // Alinhado com o refactor de auth de 01/04 (commit dea06fd).
-  // Fallback: se /api/v1/me ainda não respondeu ou falhou, usa publicMetadata
-  // do Clerk (legado) para evitar flash de "Usuário" enquanto o backend carrega.
+  // Role canônico vem do banco (via /api/v1/me) — Mandamento 01: Clerk só autentica.
   const { isGravityAdmin, role: dbRole, isReady: roleReady } = useLoadSystemRole()
   const ROLE_LABELS: Record<string, string> = {
     SUPER_ADMIN: 'Super Admin',
@@ -281,10 +278,9 @@ export function SelecionarWorkspace() {
     SUPPLIER: 'Fornecedor',
     gravity_admin: 'Super Admin',
   }
-  const clerkRole = (user?.publicMetadata?.role as string) ?? ''
   const userRole = dbRole
     ? (ROLE_LABELS[dbRole] ?? dbRole)
-    : (clerkRole ? (ROLE_LABELS[clerkRole] ?? clerkRole) : (roleReady ? 'Usuário' : '…'))
+    : (roleReady ? 'Usuário' : '…')
   const hubEcosystemNodes = buildEcosystemNodes({
     currentProductId: 'hub',
     includeAdmin: isGravityAdmin,

@@ -46,10 +46,12 @@ const TenantDetail = lazy(() => import('./pages/TenantDetail'), 'TenantDetail')
 const DeployAdmin = lazy(() => import('./pages/admin/DeployAdmin'), 'DeployAdmin')
 const SegurancaAdmin = lazy(() => import('./pages/admin/SegurancaAdmin'), 'SegurancaAdmin')
 const NcmIntegracaoAdmin = lazy(() => import('./pages/admin/NcmIntegracaoAdmin'), 'NcmIntegracaoAdmin')
+const CadastrosGlobaisAdmin = React.lazy(() => import('./pages/admin/CadastrosGlobaisAdmin'))
 const WorkspaceLayout = lazy(() => import('./pages/workspace/WorkspaceLayout'), 'WorkspaceLayout')
 const Organizacao = lazy(() => import('./pages/workspace/Organizacao'), 'Organizacao')
 const Workspaces = lazy(() => import('./pages/workspace/Workspaces'), 'Workspaces')
 const Usuarios = lazy(() => import('./pages/workspace/Usuarios'), 'Usuarios')
+const EmpresasParceiros = lazy(() => import('./pages/workspace/EmpresasParceiros'), 'EmpresasParceiros')
 const Assinaturas = lazy(() => import('./pages/workspace/Assinaturas'), 'Assinaturas')
 const Financeiro = lazy(() => import('./pages/workspace/Financeiro'), 'Financeiro')
 const ApiCockpit = lazy(() => import('./pages/workspace/ApiCockpit'), 'ApiCockpit')
@@ -306,6 +308,7 @@ export default function App() {
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpitAdmin /></React.Suspense>} />
           <Route path="seguranca-admin" element={<React.Suspense fallback={<ProductLoading />}><SegurancaAdmin /></React.Suspense>} />
           <Route path="ncm-integracao" element={<React.Suspense fallback={<ProductLoading />}><NcmIntegracaoAdmin /></React.Suspense>} />
+          <Route path="cadastros-globais" element={<React.Suspense fallback={<ProductLoading />}><CadastrosGlobaisAdmin /></React.Suspense>} />
           <Route path="tenants" element={<React.Suspense fallback={<ProductLoading />}><AdminPanel navigate={adminNavigate} /></React.Suspense>} />
           <Route path="tenant/:id" element={<React.Suspense fallback={<ProductLoading />}><TenantDetailWrapper /></React.Suspense>} />
         </Route>
@@ -316,6 +319,7 @@ export default function App() {
           <Route path="organizacao" element={<React.Suspense fallback={<ProductLoading />}><Organizacao /></React.Suspense>} />
           <Route path="workspaces" element={<React.Suspense fallback={<ProductLoading />}><Workspaces /></React.Suspense>} />
           <Route path="usuarios" element={<React.Suspense fallback={<ProductLoading />}><Usuarios /></React.Suspense>} />
+          <Route path="empresas-parceiros" element={<React.Suspense fallback={<ProductLoading />}><EmpresasParceiros /></React.Suspense>} />
           <Route path="assinaturas" element={<React.Suspense fallback={<ProductLoading />}><Assinaturas /></React.Suspense>} />
           <Route path="financeiro" element={<React.Suspense fallback={<ProductLoading />}><Financeiro /></React.Suspense>} />
           <Route path="api-cockpit" element={<React.Suspense fallback={<ProductLoading />}><ApiCockpit /></React.Suspense>} />

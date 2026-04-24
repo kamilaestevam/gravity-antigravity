@@ -18,14 +18,14 @@ datasource db {
 // ENUMS
 // ---------------------------------------------------------------------------
 
-enum TenantStatus {
+enum OrganizacaoStatus {
   ACTIVE
   SUSPENDED
   CANCELLED
   PENDING_SETUP
 }
 
-enum SubscriptionStatus {
+enum StatusAssinaturaProdutoGravity {
   ACTIVE
   PAST_DUE
   CANCELLED
@@ -34,7 +34,7 @@ enum SubscriptionStatus {
 }
 
 // Roles canônicos do sistema — alinhados com skill antigravity-permissoes
-enum UserRole {
+enum UsuarioTipo {
   SUPER_ADMIN // Equipe Gravity — acesso total irrestrito
   ADMIN // Equipe Gravity — acesso com permissões explícitas
   MASTER // Cliente — acesso total na organização
@@ -42,18 +42,18 @@ enum UserRole {
   SUPPLIER // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
 }
 
-enum CompanyStatus {
+enum EmpresaStatus {
   ACTIVE
   INACTIVE
 }
 
-enum UserMembershipRole {
+enum TipoUsuarioEmpresa {
   MASTER // Acesso implícito a todos os workspaces da organização
   STANDARD // Acesso apenas aos workspaces onde foi habilitado
   SUPPLIER // Acesso externo — permissões granulares obrigatórias
 }
 
-enum ServiceTokenScope {
+enum APITokenServico {
   SERVICE
   WEBHOOK
   CRON
@@ -66,12 +66,13 @@ enum ServiceTokenScope {
 // ---------------------------------------------------------------------------
 
 model Organizacao {
-  id                 String       @id @default(cuid()) @map("id_organizacao")
-  name               String       @map("nome_organizacao")
-  slug               String       @unique @map("subdominio_organizacao")
-  status             TenantStatus @default(PENDING_SETUP) @map("status_organizacao")
-  clerk_org_id       String?      @unique
-  stripe_customer_id String?      @unique
+  id                 String            @id @default(cuid()) @map("id_organizacao")
+  name               String            @map("nome_organizacao")
+  slug               String            @unique @map("subdominio_organizacao")
+  status             OrganizacaoStatus @default(PENDING_SETUP) @map("status_organizacao")
+  clerk_org_id       String?           @unique
+  stripe_customer_id String?           @unique
+  suid_empresa       String?           @unique
 
   // Dados cadastrais da organização
   cnpj         String? @map("cnpj_organizacao")
@@ -88,8 +89,8 @@ model Organizacao {
   users                   Usuario[]
   subscriptions           AssinaturaProdutoGravity[]
   user_permissions        UsuarioPermissao[]
-  companies               Workspace[]
-  product_configs         ProductConfig[]
+  companies               Empresa[]
+  product_configs         ConfiguracaoProduto[]
   ProdutoGravityWorkspace ProdutoGravityWorkspace[]
 
   @@index([status])
@@ -104,12 +105,12 @@ model Organizacao {
 // ---------------------------------------------------------------------------
 
 model Usuario {
-  id            String   @id @default(cuid()) @map("id_usuario")
-  tenant_id     String   @map("id_organizacao_usuario")
-  clerk_user_id String   @unique
-  email         String   @map("email_usuario")
-  name          String   @map("nome_usuario")
-  role          UserRole @default(STANDARD) @map("tipo_usuario")
+  id            String      @id @default(cuid()) @map("id_usuario")
+  tenant_id     String      @map("id_organizacao_usuario")
+  clerk_user_id String      @unique
+  email         String      @map("email_usuario")
+  name          String      @map("nome_usuario")
+  role          UsuarioTipo @default(STANDARD) @map("tipo_usuario")
 
   // Workspace preferido — skip pós-login para Master/Standard
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
@@ -121,7 +122,7 @@ model Usuario {
 
   // Relações
   tenant            Organizacao        @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  preferred_company Workspace?         @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id], onDelete: SetNull)
+  preferred_company Empresa?           @relation("UserPreferredCompany", fields: [preferred_company_id], references: [id], onDelete: SetNull)
   user_permissions  UsuarioPermissao[]
   memberships       UsuarioWorkspace[]
 
@@ -142,9 +143,9 @@ model Usuario {
 // ---------------------------------------------------------------------------
 
 model AssinaturaProdutoGravity {
-  id        String             @id @default(cuid())
+  id        String                         @id @default(cuid())
   tenant_id String
-  status    SubscriptionStatus @default(TRIALING)
+  status    StatusAssinaturaProdutoGravity @default(TRIALING)
 
   stripe_subscription_id String? @unique
   stripe_price_id        String?
@@ -207,7 +208,7 @@ model UsuarioPermissao {
 // Super Admin não usa esta tabela — tem acesso irrestrito.
 // ---------------------------------------------------------------------------
 
-model GravityAdminPermission {
+model PermissaoAdminGravity {
   id         String @id @default(cuid())
   admin_id   String // clerk_id do Admin Gravity
   resource   String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
@@ -232,13 +233,13 @@ model GravityAdminPermission {
 // Um tenant pode ter até 50 empresas filhas.
 // ---------------------------------------------------------------------------
 
-model Workspace {
+model Empresa {
   id        String        @id @default(cuid())
   tenant_id String
   name      String
   subdomain String?       @unique
   cnpj      String?
-  status    CompanyStatus @default(ACTIVE)
+  status    EmpresaStatus @default(ACTIVE)
 
   // Timestamps
   created_at DateTime @default(now())
@@ -268,7 +269,7 @@ model UsuarioWorkspace {
   tenant_id  String
   user_id    String
   company_id String
-  role       UserMembershipRole @default(STANDARD)
+  role       TipoUsuarioEmpresa @default(STANDARD)
   is_active  Boolean            @default(true)
 
   // Timestamps
@@ -276,8 +277,8 @@ model UsuarioWorkspace {
   updated_at DateTime @updatedAt
 
   // Relações
-  user    Usuario   @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  company Workspace @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  user    Usuario @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  company Empresa @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   // Usuário não pode ter duplicata de habilitação na mesma empresa
   @@unique([tenant_id, user_id, company_id])
@@ -294,7 +295,7 @@ model UsuarioWorkspace {
 // product_key identifica o produto (ex: "simulacusto", "nf-importacao")
 // ---------------------------------------------------------------------------
 
-model ProductConfig {
+model ConfiguracaoProduto {
   id          String  @id @default(cuid())
   tenant_id   String
   product_key String
@@ -335,7 +336,7 @@ model ProdutoGravityWorkspace {
 
   // Relações
   tenant  Organizacao @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
-  company Workspace   @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  company Empresa     @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   // Apenas uma ativação por produto por workspace
   @@unique([company_id, product_key])
@@ -353,7 +354,7 @@ model ProdutoGravityWorkspace {
 // NÃO confundir com ProductConfig (que é a ativação por tenant).
 // ---------------------------------------------------------------------------
 
-enum ProductStatus {
+enum StatusProdutoGravity {
   ACTIVE
   SUSPENDED
   COMING_SOON
@@ -361,7 +362,7 @@ enum ProductStatus {
   INACTIVE
 }
 
-enum BillingType {
+enum TipoCobrancaGravity {
   MONTHLY
   PER_PROCESS
   PER_DOCUMENT
@@ -373,17 +374,17 @@ enum BillingType {
   PER_LPCO
 }
 
-enum UserLimitType {
+enum ProdutoGravityLimiteUsuario {
   UNLIMITED
   LIMITED
 }
 
 model ProdutoGravity {
-  id          String        @id @default(cuid())
+  id          String               @id @default(cuid())
   name        String
-  slug        String        @unique
+  slug        String               @unique
   description String
-  status      ProductStatus @default(ACTIVE)
+  status      StatusProdutoGravity @default(ACTIVE)
   launch_date DateTime?
 
   // Setup
@@ -392,19 +393,19 @@ model ProdutoGravity {
   setup_currency String   @default("BRL")
 
   // Billing
-  billing_type     BillingType @default(MONTHLY)
-  unit_price       Decimal     @db.Decimal(15, 2)
-  unit_currency    String      @default("BRL")
-  minimum_price    Decimal     @default(0) @db.Decimal(15, 2)
-  minimum_currency String      @default("BRL")
-  total_price      Decimal?    @db.Decimal(15, 2)
-  total_currency   String      @default("BRL")
+  billing_type     TipoCobrancaGravity @default(MONTHLY)
+  unit_price       Decimal             @db.Decimal(15, 2)
+  unit_currency    String              @default("BRL")
+  minimum_price    Decimal             @default(0) @db.Decimal(15, 2)
+  minimum_currency String              @default("BRL")
+  total_price      Decimal?            @db.Decimal(15, 2)
+  total_currency   String              @default("BRL")
 
   // Users
-  user_limit_type     UserLimitType @default(UNLIMITED)
+  user_limit_type     ProdutoGravityLimiteUsuario @default(UNLIMITED)
   base_users_qty      Int?
-  extra_user_price    Decimal?      @db.Decimal(15, 2)
-  extra_user_currency String        @default("BRL")
+  extra_user_price    Decimal?                    @db.Decimal(15, 2)
+  extra_user_currency String                      @default("BRL")
 
   // Support
   helpdesk_hours      Int      @default(0)
@@ -424,8 +425,8 @@ model ProdutoGravity {
   deleted_at DateTime? // soft-delete — preserva negociações especiais
 
   // Relations
-  price_tiers  PriceTier[]
-  negotiations SpecialNegotiation[]
+  price_tiers  FaixaPreco[]
+  negotiations NegociacaoEspecial[]
 
   @@index([status])
   @@index([slug])
@@ -438,7 +439,7 @@ model ProdutoGravity {
 // Precificação escalonada — preço varia conforme quantidade.
 // ---------------------------------------------------------------------------
 
-model PriceTier {
+model FaixaPreco {
   id         String  @id @default(cuid())
   product_id String
   range_from Int
@@ -462,7 +463,7 @@ model PriceTier {
 // Condições comerciais personalizadas para tenants específicos.
 // ---------------------------------------------------------------------------
 
-model SpecialNegotiation {
+model NegociacaoEspecial {
   id           String    @id @default(cuid())
   product_id   String
   tenant_id    String
@@ -491,7 +492,7 @@ model SpecialNegotiation {
 // Global — não é tenant-scoped. Apenas gravity_admin grava/lê.
 // ---------------------------------------------------------------------------
 
-enum DeployEnvironment {
+enum DeployAmbiente {
   DEVELOPMENT
   STAGING
   PRODUCTION
@@ -506,16 +507,16 @@ enum DeployStatus {
 }
 
 model Deploy {
-  id                  String            @id @default(cuid()) @map("id_deploy")
-  deploy_number       Int               @default(autoincrement())
-  area                String            @map("area_deploy") // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
-  version             String            @map("versao_deploy") // semver (v1.2.3) ou git sha (8f3a1c2)
-  description         String            @map("descricao_deploy") // resumo das alterações (changelog curto)
-  environment         DeployEnvironment @default(PRODUCTION) @map("ambiente_deploy")
-  status              DeployStatus      @default(SUCCESS) @map("status_deploy")
-  deployed_by         String            @map("quem_deploy") // nome legível do responsável (snapshot no momento do deploy)
-  deployed_by_user_id String?           @map("id_usuario_deploy") // FK opcional para Usuario (pode ser null se deploy veio de CI)
-  deployed_at         DateTime          @default(now()) @map("data_execucao_deploy")
+  id                  String         @id @default(cuid()) @map("id_deploy")
+  deploy_number       Int            @default(autoincrement())
+  area                String         @map("area_deploy") // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
+  version             String         @map("versao_deploy") // semver (v1.2.3) ou git sha (8f3a1c2)
+  description         String         @map("descricao_deploy") // resumo das alterações (changelog curto)
+  environment         DeployAmbiente @default(PRODUCTION) @map("ambiente_deploy")
+  status              DeployStatus   @default(SUCCESS) @map("status_deploy")
+  deployed_by         String         @map("quem_deploy") // nome legível do responsável (snapshot no momento do deploy)
+  deployed_by_user_id String?        @map("id_usuario_deploy") // FK opcional para Usuario (pode ser null se deploy veio de CI)
+  deployed_at         DateTime       @default(now()) @map("data_execucao_deploy")
 
   created_at DateTime @default(now()) @map("data_criacao_deploy")
 
@@ -689,7 +690,7 @@ model Testes {
   @@map("testes")
 }
 
-model TestSchedule {
+model AgendamentoTeste {
   id           String    @id @default(cuid())
   tenant_id    String    @default("platform")
   ativo        Boolean   @default(false)
@@ -711,7 +712,7 @@ model TestSchedule {
   @@map("agendamento_teste")
 }
 
-model TestPlan {
+model PlanoTeste {
   id               String    @id // TST-E2E-CONFIG-000001
   tenant_id        String    @default("platform")
   versao           String    @default("1.0")
@@ -746,7 +747,7 @@ model TestPlan {
 // FATURA PRODUTOS GRAVITY (nova — fatura de serviços internos Gravity)
 // ---------------------------------------------------------------------------
 
-enum FaturaStatus {
+enum FaturaStatusGravity {
   DRAFT
   OPEN
   PAID
@@ -756,18 +757,18 @@ enum FaturaStatus {
 }
 
 model FaturaProdutosGravity {
-  id                                        String       @id @default(cuid())
+  id                                        String              @id @default(cuid())
   tenant_id                                 String
   numero_fatura_servicos_gravity            String
-  status_fatura_servicos_gravity            FaturaStatus @default(DRAFT)
+  status_fatura_servicos_gravity            FaturaStatusGravity @default(DRAFT)
   organizacao_fatura_servicos_gravity       String
   email_organizacao_fatura_servicos_gravity String?
-  valor_total_fatura_servicos_gravity       Decimal      @db.Decimal(18, 2)
-  moeda_fatura_servicos_gravity             String       @default("brl")
+  valor_total_fatura_servicos_gravity       Decimal             @db.Decimal(18, 2)
+  moeda_fatura_servicos_gravity             String              @default("brl")
   competencia_fatura_servicos_gravity       String?
-  data_fatura_servicos_gravity              DateTime     @default(now())
-  created_at                                DateTime     @default(now())
-  updated_at                                DateTime     @updatedAt
+  data_fatura_servicos_gravity              DateTime            @default(now())
+  created_at                                DateTime            @default(now())
+  updated_at                                DateTime            @updatedAt
 
   @@index([tenant_id])
   @@index([status_fatura_servicos_gravity])

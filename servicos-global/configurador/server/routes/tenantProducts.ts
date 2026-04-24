@@ -15,7 +15,7 @@ import { requireGravityAdmin } from '../middleware/requireGravityAdmin.js'
 import { productConfigService } from '../services/productConfigService.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/appError.js'
-import { StatusProduto } from '../../../../configurador/generated/index.js'
+import { StatusProdutoGravity } from '../../../../configurador/generated/index.js'
 
 export const tenantProductsRouter = Router()
 
@@ -73,7 +73,7 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 
     // Verifica se o produto existe no catálogo
     const catalogProduct =
-      await prisma.produtoGravity.findFirst({ where: { slug: product_key, status: { in: [StatusProduto.ACTIVE] } } }).catch(() => null)
+      await prisma.produtoGravity.findFirst({ where: { slug: product_key, status: { in: [StatusProdutoGravity.ACTIVE] } } }).catch(() => null)
 
     if (!catalogProduct) {
       throw new AppError('Produto não encontrado ou inativo', 404, 'NOT_FOUND')

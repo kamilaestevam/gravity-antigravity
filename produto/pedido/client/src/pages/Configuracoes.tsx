@@ -64,6 +64,7 @@ import type {
 } from '../shared/types'
 import { CfgSectionLabel } from '@nucleo/cabecalho-secao-global'
 import { useShellStore } from '@gravity/shell'
+import { MatrizSnapshotCadastros } from './configuracoes/MatrizSnapshotCadastros'
 import './Configuracoes.css'
 
 // ─── Mapa visual dos cards ────────────────────────────────────────────────────
@@ -391,6 +392,7 @@ const SIDEBAR_ITEMS: SidebarItemTipo[] = [
   { tipo: 'item',   id: 'regras',            label: 'Regras',         labelKey: 'pedido.config.sidebar.regras',         icone: <Sliders              size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'categorias-anexos', label: 'Categ. Anexos',  labelKey: 'pedido.config.sidebar.categ_anexos',   icone: <Folder               size={15} weight="duotone" />, ativo: true },
   { tipo: 'item',   id: 'taxa-cambio',       label: 'Taxa de Câmbio', labelKey: 'pedido.config.sidebar.taxa_cambio',    icone: <CurrencyCircleDollar size={15} weight="duotone" />, ativo: true },
+  { tipo: 'item',   id: 'snapshot-cadastros',label: 'Cadastros',      labelKey: 'pedido.config.sidebar.snapshot_cadastros', icone: <ArrowsClockwise     size={15} weight="duotone" />, ativo: true },
   // ── SISTEMA ────────────────────────────────────────────────────────────────
   { tipo: 'grupo',  label: 'SISTEMA', labelKey: 'pedido.config.sidebar.grupo_sistema' },
   { tipo: 'item',   id: 'notificacoes',      label: 'Notificações',   labelKey: 'pedido.config.sidebar.notificacoes',   icone: <Bell                 size={15} weight="duotone" />, ativo: true },
@@ -4475,6 +4477,13 @@ export default function Configuracoes() {
                 )
               })()}
             </section>
+          </div>
+        )}
+
+        {/* ════════════════════════ SNAPSHOT CADASTROS ════════════════════════ */}
+        {categoria === 'snapshot-cadastros' && (
+          <div className="cfg-cards-wrapper">
+            <MatrizSnapshotCadastros />
           </div>
         )}
 

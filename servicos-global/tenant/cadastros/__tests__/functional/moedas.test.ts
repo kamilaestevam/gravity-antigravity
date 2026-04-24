@@ -14,26 +14,26 @@ afterAll(async () => { await limparDadosDeTeste(); await prismaTeste.$disconnect
 describe('CRUD /moedas (catálogo global)', () => {
   it('cria, busca, atualiza e desativa moeda', async () => {
     const criar = await request(app).post('/api/v1/cadastros/moedas').set(headers)
-      .send({ codigo: 'ZZX', nome: 'Moeda Teste', simbolo: 'Z$' })
+      .send({ codigo_moeda: 'ZZX', simbolo_moeda: 'Z$' })
     expect(criar.status).toBe(201)
 
     const buscar = await request(app).get('/api/v1/cadastros/moedas/ZZX').set(headers)
     expect(buscar.status).toBe(200)
-    expect(buscar.body.nome).toBe('Moeda Teste')
+    expect(buscar.body.simbolo_moeda).toBe('Z$')
 
     const atualizar = await request(app).put('/api/v1/cadastros/moedas/ZZX').set(headers)
-      .send({ nome: 'Renomeada', simbolo: 'Z$', ativo: true })
+      .send({ simbolo_moeda: 'ZZ$', ativo_moeda: true })
     expect(atualizar.status).toBe(200)
-    expect(atualizar.body.nome).toBe('Renomeada')
+    expect(atualizar.body.simbolo_moeda).toBe('ZZ$')
 
     const desativar = await request(app).delete('/api/v1/cadastros/moedas/ZZX').set(headers)
     expect(desativar.status).toBe(200)
-    expect(desativar.body.ativo).toBe(false)
+    expect(desativar.body.ativo_moeda).toBe(false)
   })
 
   it('rejeita codigo fora do padrão ISO 4217', async () => {
     const res = await request(app).post('/api/v1/cadastros/moedas').set(headers)
-      .send({ codigo: 'zz1', nome: 'X', simbolo: '$' })
+      .send({ codigo_moeda: 'zz1', simbolo_moeda: '$' })
     expect(res.status).toBe(422)
   })
 

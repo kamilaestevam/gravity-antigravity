@@ -55,17 +55,17 @@ function mapApiUserToGlobal(u: GlobalUserApi): GlobalUser {
     id: m.id,
     nome: m.company?.name ?? 'N/A',
     subdominio: m.company?.subdomain ?? '',
-    perfil: mapRole(m.role),
+    perfil: mapRole(m.tipo_usuario),
   }))
   // Admin/SUPER_ADMIN pertencem à HQ (Gravity) — sem memberships mas sempre ativos.
   // Demais: considerados ativos se tiverem ao menos um workspace ativo.
-  const ehGravity = u.role === 'SUPER_ADMIN' || u.role === 'ADMIN'
+  const ehGravity = u.tipo_usuario === 'SUPER_ADMIN' || u.tipo_usuario === 'ADMIN'
   const status: UserStatus = ehGravity || espacos.length > 0 ? 'Ativo' : 'Inativo'
   return {
     id: u.id,
     nome: u.name,
     email: u.email,
-    tipo: mapRole(u.role),
+    tipo: mapRole(u.tipo_usuario),
     status,
     organizacao: u.tenant?.name ?? 'N/A',
     espacos,

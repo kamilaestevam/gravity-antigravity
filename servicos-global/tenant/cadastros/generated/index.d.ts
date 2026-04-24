@@ -39,10 +39,10 @@ export type NCM = $Result.DefaultSelection<Prisma.$NCMPayload>
  */
 export type OPE = $Result.DefaultSelection<Prisma.$OPEPayload>
 /**
- * Model HistoricoStatusOPE
+ * Model OpeHistoricoStatus
  * 
  */
-export type HistoricoStatusOPE = $Result.DefaultSelection<Prisma.$HistoricoStatusOPEPayload>
+export type OpeHistoricoStatus = $Result.DefaultSelection<Prisma.$OpeHistoricoStatusPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -218,14 +218,14 @@ export class PrismaClient<
   get oPE(): Prisma.OPEDelegate<ExtArgs>;
 
   /**
-   * `prisma.historicoStatusOPE`: Exposes CRUD operations for the **HistoricoStatusOPE** model.
+   * `prisma.opeHistoricoStatus`: Exposes CRUD operations for the **OpeHistoricoStatus** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more HistoricoStatusOPES
-    * const historicoStatusOPES = await prisma.historicoStatusOPE.findMany()
+    * // Fetch zero or more OpeHistoricoStatuses
+    * const opeHistoricoStatuses = await prisma.opeHistoricoStatus.findMany()
     * ```
     */
-  get historicoStatusOPE(): Prisma.HistoricoStatusOPEDelegate<ExtArgs>;
+  get opeHistoricoStatus(): Prisma.OpeHistoricoStatusDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -672,7 +672,7 @@ export namespace Prisma {
     Unidade: 'Unidade',
     NCM: 'NCM',
     OPE: 'OPE',
-    HistoricoStatusOPE: 'HistoricoStatusOPE'
+    OpeHistoricoStatus: 'OpeHistoricoStatus'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -688,7 +688,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "moeda" | "unidade" | "nCM" | "oPE" | "historicoStatusOPE"
+      modelProps: "empresa" | "moeda" | "unidade" | "nCM" | "oPE" | "opeHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1042,73 +1042,73 @@ export namespace Prisma {
           }
         }
       }
-      HistoricoStatusOPE: {
-        payload: Prisma.$HistoricoStatusOPEPayload<ExtArgs>
-        fields: Prisma.HistoricoStatusOPEFieldRefs
+      OpeHistoricoStatus: {
+        payload: Prisma.$OpeHistoricoStatusPayload<ExtArgs>
+        fields: Prisma.OpeHistoricoStatusFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.HistoricoStatusOPEFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload> | null
+            args: Prisma.OpeHistoricoStatusFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.HistoricoStatusOPEFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload>
+            args: Prisma.OpeHistoricoStatusFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
           }
           findFirst: {
-            args: Prisma.HistoricoStatusOPEFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload> | null
+            args: Prisma.OpeHistoricoStatusFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.HistoricoStatusOPEFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload>
+            args: Prisma.OpeHistoricoStatusFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
           }
           findMany: {
-            args: Prisma.HistoricoStatusOPEFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload>[]
+            args: Prisma.OpeHistoricoStatusFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>[]
           }
           create: {
-            args: Prisma.HistoricoStatusOPECreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload>
+            args: Prisma.OpeHistoricoStatusCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
           }
           createMany: {
-            args: Prisma.HistoricoStatusOPECreateManyArgs<ExtArgs>
+            args: Prisma.OpeHistoricoStatusCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.HistoricoStatusOPECreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload>[]
+            args: Prisma.OpeHistoricoStatusCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>[]
           }
           delete: {
-            args: Prisma.HistoricoStatusOPEDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload>
+            args: Prisma.OpeHistoricoStatusDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
           }
           update: {
-            args: Prisma.HistoricoStatusOPEUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload>
+            args: Prisma.OpeHistoricoStatusUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
           }
           deleteMany: {
-            args: Prisma.HistoricoStatusOPEDeleteManyArgs<ExtArgs>
+            args: Prisma.OpeHistoricoStatusDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.HistoricoStatusOPEUpdateManyArgs<ExtArgs>
+            args: Prisma.OpeHistoricoStatusUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.HistoricoStatusOPEUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$HistoricoStatusOPEPayload>
+            args: Prisma.OpeHistoricoStatusUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpeHistoricoStatusPayload>
           }
           aggregate: {
-            args: Prisma.HistoricoStatusOPEAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateHistoricoStatusOPE>
+            args: Prisma.OpeHistoricoStatusAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOpeHistoricoStatus>
           }
           groupBy: {
-            args: Prisma.HistoricoStatusOPEGroupByArgs<ExtArgs>
-            result: $Utils.Optional<HistoricoStatusOPEGroupByOutputType>[]
+            args: Prisma.OpeHistoricoStatusGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OpeHistoricoStatusGroupByOutputType>[]
           }
           count: {
-            args: Prisma.HistoricoStatusOPECountArgs<ExtArgs>
-            result: $Utils.Optional<HistoricoStatusOPECountAggregateOutputType> | number
+            args: Prisma.OpeHistoricoStatusCountArgs<ExtArgs>
+            result: $Utils.Optional<OpeHistoricoStatusCountAggregateOutputType> | number
           }
         }
       }
@@ -1284,155 +1284,203 @@ export namespace Prisma {
   }
 
   export type EmpresaMinAggregateOutputType = {
-    suid: string | null
+    suid_empresa: string | null
     id_organizacao: string | null
     nome_empresa: string | null
-    cnpj: string | null
-    tin: string | null
-    pais: string | null
-    estado: string | null
-    cidade: string | null
-    endereco: string | null
-    zipcode: string | null
-    email: string | null
-    telefone: string | null
-    whatsapp: string | null
-    pode_ser_importador: boolean | null
-    pode_ser_exportador: boolean | null
-    pode_ser_fabricante: boolean | null
-    pode_ser_agente: boolean | null
-    pode_ser_despachante: boolean | null
-    pode_ser_armador: boolean | null
-    ativo: boolean | null
-    criado_em: Date | null
-    atualizado_em: Date | null
+    cnpj_empresa: string | null
+    tin_empresa: string | null
+    pais_empresa: string | null
+    estado_empresa: string | null
+    cidade_empresa: string | null
+    endereco_empresa: string | null
+    zipcode_empresa: string | null
+    email_empresa: string | null
+    telefone_empresa: string | null
+    whatsapp_empresa: string | null
+    pode_ser_importador_empresa: boolean | null
+    pode_ser_exportador_empresa: boolean | null
+    pode_ser_fabricante_empresa: boolean | null
+    pode_ser_agente_empresa: boolean | null
+    pode_ser_despachante_empresa: boolean | null
+    pode_ser_armador_empresa: boolean | null
+    ativo_empresa: boolean | null
+    criado_em_empresa: Date | null
+    atualizado_em_empresa: Date | null
+    pode_ser_armazem_alfandegado_empresa: boolean | null
+    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean | null
+    pode_ser_cia_aerea_empresa: boolean | null
+    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean | null
+    pode_ser_seguradora_internacional_empresa: boolean | null
+    pode_ser_seguradora_corretora_cambio_empresa: boolean | null
+    pode_ser_banco_empresa: boolean | null
+    pode_ser_armazem_nacional_empresa: boolean | null
   }
 
   export type EmpresaMaxAggregateOutputType = {
-    suid: string | null
+    suid_empresa: string | null
     id_organizacao: string | null
     nome_empresa: string | null
-    cnpj: string | null
-    tin: string | null
-    pais: string | null
-    estado: string | null
-    cidade: string | null
-    endereco: string | null
-    zipcode: string | null
-    email: string | null
-    telefone: string | null
-    whatsapp: string | null
-    pode_ser_importador: boolean | null
-    pode_ser_exportador: boolean | null
-    pode_ser_fabricante: boolean | null
-    pode_ser_agente: boolean | null
-    pode_ser_despachante: boolean | null
-    pode_ser_armador: boolean | null
-    ativo: boolean | null
-    criado_em: Date | null
-    atualizado_em: Date | null
+    cnpj_empresa: string | null
+    tin_empresa: string | null
+    pais_empresa: string | null
+    estado_empresa: string | null
+    cidade_empresa: string | null
+    endereco_empresa: string | null
+    zipcode_empresa: string | null
+    email_empresa: string | null
+    telefone_empresa: string | null
+    whatsapp_empresa: string | null
+    pode_ser_importador_empresa: boolean | null
+    pode_ser_exportador_empresa: boolean | null
+    pode_ser_fabricante_empresa: boolean | null
+    pode_ser_agente_empresa: boolean | null
+    pode_ser_despachante_empresa: boolean | null
+    pode_ser_armador_empresa: boolean | null
+    ativo_empresa: boolean | null
+    criado_em_empresa: Date | null
+    atualizado_em_empresa: Date | null
+    pode_ser_armazem_alfandegado_empresa: boolean | null
+    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean | null
+    pode_ser_cia_aerea_empresa: boolean | null
+    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean | null
+    pode_ser_seguradora_internacional_empresa: boolean | null
+    pode_ser_seguradora_corretora_cambio_empresa: boolean | null
+    pode_ser_banco_empresa: boolean | null
+    pode_ser_armazem_nacional_empresa: boolean | null
   }
 
   export type EmpresaCountAggregateOutputType = {
-    suid: number
+    suid_empresa: number
     id_organizacao: number
     nome_empresa: number
-    cnpj: number
-    tin: number
-    pais: number
-    estado: number
-    cidade: number
-    endereco: number
-    zipcode: number
-    email: number
-    telefone: number
-    whatsapp: number
-    pode_ser_importador: number
-    pode_ser_exportador: number
-    pode_ser_fabricante: number
-    pode_ser_agente: number
-    pode_ser_despachante: number
-    pode_ser_armador: number
-    ativo: number
-    criado_em: number
-    atualizado_em: number
+    cnpj_empresa: number
+    tin_empresa: number
+    pais_empresa: number
+    estado_empresa: number
+    cidade_empresa: number
+    endereco_empresa: number
+    zipcode_empresa: number
+    email_empresa: number
+    telefone_empresa: number
+    whatsapp_empresa: number
+    pode_ser_importador_empresa: number
+    pode_ser_exportador_empresa: number
+    pode_ser_fabricante_empresa: number
+    pode_ser_agente_empresa: number
+    pode_ser_despachante_empresa: number
+    pode_ser_armador_empresa: number
+    ativo_empresa: number
+    criado_em_empresa: number
+    atualizado_em_empresa: number
+    pode_ser_armazem_alfandegado_empresa: number
+    pode_ser_transportadora_rodoviaria_nacional_empresa: number
+    pode_ser_cia_aerea_empresa: number
+    pode_ser_transportadora_rodoviaria_internacional_empresa: number
+    pode_ser_seguradora_internacional_empresa: number
+    pode_ser_seguradora_corretora_cambio_empresa: number
+    pode_ser_banco_empresa: number
+    pode_ser_armazem_nacional_empresa: number
     _all: number
   }
 
 
   export type EmpresaMinAggregateInputType = {
-    suid?: true
+    suid_empresa?: true
     id_organizacao?: true
     nome_empresa?: true
-    cnpj?: true
-    tin?: true
-    pais?: true
-    estado?: true
-    cidade?: true
-    endereco?: true
-    zipcode?: true
-    email?: true
-    telefone?: true
-    whatsapp?: true
-    pode_ser_importador?: true
-    pode_ser_exportador?: true
-    pode_ser_fabricante?: true
-    pode_ser_agente?: true
-    pode_ser_despachante?: true
-    pode_ser_armador?: true
-    ativo?: true
-    criado_em?: true
-    atualizado_em?: true
+    cnpj_empresa?: true
+    tin_empresa?: true
+    pais_empresa?: true
+    estado_empresa?: true
+    cidade_empresa?: true
+    endereco_empresa?: true
+    zipcode_empresa?: true
+    email_empresa?: true
+    telefone_empresa?: true
+    whatsapp_empresa?: true
+    pode_ser_importador_empresa?: true
+    pode_ser_exportador_empresa?: true
+    pode_ser_fabricante_empresa?: true
+    pode_ser_agente_empresa?: true
+    pode_ser_despachante_empresa?: true
+    pode_ser_armador_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
+    pode_ser_armazem_alfandegado_empresa?: true
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
+    pode_ser_cia_aerea_empresa?: true
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
+    pode_ser_seguradora_internacional_empresa?: true
+    pode_ser_seguradora_corretora_cambio_empresa?: true
+    pode_ser_banco_empresa?: true
+    pode_ser_armazem_nacional_empresa?: true
   }
 
   export type EmpresaMaxAggregateInputType = {
-    suid?: true
+    suid_empresa?: true
     id_organizacao?: true
     nome_empresa?: true
-    cnpj?: true
-    tin?: true
-    pais?: true
-    estado?: true
-    cidade?: true
-    endereco?: true
-    zipcode?: true
-    email?: true
-    telefone?: true
-    whatsapp?: true
-    pode_ser_importador?: true
-    pode_ser_exportador?: true
-    pode_ser_fabricante?: true
-    pode_ser_agente?: true
-    pode_ser_despachante?: true
-    pode_ser_armador?: true
-    ativo?: true
-    criado_em?: true
-    atualizado_em?: true
+    cnpj_empresa?: true
+    tin_empresa?: true
+    pais_empresa?: true
+    estado_empresa?: true
+    cidade_empresa?: true
+    endereco_empresa?: true
+    zipcode_empresa?: true
+    email_empresa?: true
+    telefone_empresa?: true
+    whatsapp_empresa?: true
+    pode_ser_importador_empresa?: true
+    pode_ser_exportador_empresa?: true
+    pode_ser_fabricante_empresa?: true
+    pode_ser_agente_empresa?: true
+    pode_ser_despachante_empresa?: true
+    pode_ser_armador_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
+    pode_ser_armazem_alfandegado_empresa?: true
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
+    pode_ser_cia_aerea_empresa?: true
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
+    pode_ser_seguradora_internacional_empresa?: true
+    pode_ser_seguradora_corretora_cambio_empresa?: true
+    pode_ser_banco_empresa?: true
+    pode_ser_armazem_nacional_empresa?: true
   }
 
   export type EmpresaCountAggregateInputType = {
-    suid?: true
+    suid_empresa?: true
     id_organizacao?: true
     nome_empresa?: true
-    cnpj?: true
-    tin?: true
-    pais?: true
-    estado?: true
-    cidade?: true
-    endereco?: true
-    zipcode?: true
-    email?: true
-    telefone?: true
-    whatsapp?: true
-    pode_ser_importador?: true
-    pode_ser_exportador?: true
-    pode_ser_fabricante?: true
-    pode_ser_agente?: true
-    pode_ser_despachante?: true
-    pode_ser_armador?: true
-    ativo?: true
-    criado_em?: true
-    atualizado_em?: true
+    cnpj_empresa?: true
+    tin_empresa?: true
+    pais_empresa?: true
+    estado_empresa?: true
+    cidade_empresa?: true
+    endereco_empresa?: true
+    zipcode_empresa?: true
+    email_empresa?: true
+    telefone_empresa?: true
+    whatsapp_empresa?: true
+    pode_ser_importador_empresa?: true
+    pode_ser_exportador_empresa?: true
+    pode_ser_fabricante_empresa?: true
+    pode_ser_agente_empresa?: true
+    pode_ser_despachante_empresa?: true
+    pode_ser_armador_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
+    pode_ser_armazem_alfandegado_empresa?: true
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: true
+    pode_ser_cia_aerea_empresa?: true
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: true
+    pode_ser_seguradora_internacional_empresa?: true
+    pode_ser_seguradora_corretora_cambio_empresa?: true
+    pode_ser_banco_empresa?: true
+    pode_ser_armazem_nacional_empresa?: true
     _all?: true
   }
 
@@ -1509,28 +1557,36 @@ export namespace Prisma {
   }
 
   export type EmpresaGroupByOutputType = {
-    suid: string
+    suid_empresa: string
     id_organizacao: string
     nome_empresa: string
-    cnpj: string | null
-    tin: string | null
-    pais: string
-    estado: string | null
-    cidade: string | null
-    endereco: string | null
-    zipcode: string | null
-    email: string | null
-    telefone: string | null
-    whatsapp: string | null
-    pode_ser_importador: boolean
-    pode_ser_exportador: boolean
-    pode_ser_fabricante: boolean
-    pode_ser_agente: boolean
-    pode_ser_despachante: boolean
-    pode_ser_armador: boolean
-    ativo: boolean
-    criado_em: Date
-    atualizado_em: Date
+    cnpj_empresa: string | null
+    tin_empresa: string | null
+    pais_empresa: string
+    estado_empresa: string | null
+    cidade_empresa: string | null
+    endereco_empresa: string | null
+    zipcode_empresa: string | null
+    email_empresa: string | null
+    telefone_empresa: string | null
+    whatsapp_empresa: string | null
+    pode_ser_importador_empresa: boolean
+    pode_ser_exportador_empresa: boolean
+    pode_ser_fabricante_empresa: boolean
+    pode_ser_agente_empresa: boolean
+    pode_ser_despachante_empresa: boolean
+    pode_ser_armador_empresa: boolean
+    ativo_empresa: boolean
+    criado_em_empresa: Date
+    atualizado_em_empresa: Date
+    pode_ser_armazem_alfandegado_empresa: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
+    pode_ser_cia_aerea_empresa: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa: boolean
+    pode_ser_seguradora_internacional_empresa: boolean
+    pode_ser_seguradora_corretora_cambio_empresa: boolean
+    pode_ser_banco_empresa: boolean
+    pode_ser_armazem_nacional_empresa: boolean
     _count: EmpresaCountAggregateOutputType | null
     _min: EmpresaMinAggregateOutputType | null
     _max: EmpresaMaxAggregateOutputType | null
@@ -1551,78 +1607,102 @@ export namespace Prisma {
 
 
   export type EmpresaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    suid?: boolean
+    suid_empresa?: boolean
     id_organizacao?: boolean
     nome_empresa?: boolean
-    cnpj?: boolean
-    tin?: boolean
-    pais?: boolean
-    estado?: boolean
-    cidade?: boolean
-    endereco?: boolean
-    zipcode?: boolean
-    email?: boolean
-    telefone?: boolean
-    whatsapp?: boolean
-    pode_ser_importador?: boolean
-    pode_ser_exportador?: boolean
-    pode_ser_fabricante?: boolean
-    pode_ser_agente?: boolean
-    pode_ser_despachante?: boolean
-    pode_ser_armador?: boolean
-    ativo?: boolean
-    criado_em?: boolean
-    atualizado_em?: boolean
+    cnpj_empresa?: boolean
+    tin_empresa?: boolean
+    pais_empresa?: boolean
+    estado_empresa?: boolean
+    cidade_empresa?: boolean
+    endereco_empresa?: boolean
+    zipcode_empresa?: boolean
+    email_empresa?: boolean
+    telefone_empresa?: boolean
+    whatsapp_empresa?: boolean
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
   }, ExtArgs["result"]["empresa"]>
 
   export type EmpresaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    suid?: boolean
+    suid_empresa?: boolean
     id_organizacao?: boolean
     nome_empresa?: boolean
-    cnpj?: boolean
-    tin?: boolean
-    pais?: boolean
-    estado?: boolean
-    cidade?: boolean
-    endereco?: boolean
-    zipcode?: boolean
-    email?: boolean
-    telefone?: boolean
-    whatsapp?: boolean
-    pode_ser_importador?: boolean
-    pode_ser_exportador?: boolean
-    pode_ser_fabricante?: boolean
-    pode_ser_agente?: boolean
-    pode_ser_despachante?: boolean
-    pode_ser_armador?: boolean
-    ativo?: boolean
-    criado_em?: boolean
-    atualizado_em?: boolean
+    cnpj_empresa?: boolean
+    tin_empresa?: boolean
+    pais_empresa?: boolean
+    estado_empresa?: boolean
+    cidade_empresa?: boolean
+    endereco_empresa?: boolean
+    zipcode_empresa?: boolean
+    email_empresa?: boolean
+    telefone_empresa?: boolean
+    whatsapp_empresa?: boolean
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
   }, ExtArgs["result"]["empresa"]>
 
   export type EmpresaSelectScalar = {
-    suid?: boolean
+    suid_empresa?: boolean
     id_organizacao?: boolean
     nome_empresa?: boolean
-    cnpj?: boolean
-    tin?: boolean
-    pais?: boolean
-    estado?: boolean
-    cidade?: boolean
-    endereco?: boolean
-    zipcode?: boolean
-    email?: boolean
-    telefone?: boolean
-    whatsapp?: boolean
-    pode_ser_importador?: boolean
-    pode_ser_exportador?: boolean
-    pode_ser_fabricante?: boolean
-    pode_ser_agente?: boolean
-    pode_ser_despachante?: boolean
-    pode_ser_armador?: boolean
-    ativo?: boolean
-    criado_em?: boolean
-    atualizado_em?: boolean
+    cnpj_empresa?: boolean
+    tin_empresa?: boolean
+    pais_empresa?: boolean
+    estado_empresa?: boolean
+    cidade_empresa?: boolean
+    endereco_empresa?: boolean
+    zipcode_empresa?: boolean
+    email_empresa?: boolean
+    telefone_empresa?: boolean
+    whatsapp_empresa?: boolean
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
   }
 
 
@@ -1630,28 +1710,36 @@ export namespace Prisma {
     name: "Empresa"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      suid: string
+      suid_empresa: string
       id_organizacao: string
       nome_empresa: string
-      cnpj: string | null
-      tin: string | null
-      pais: string
-      estado: string | null
-      cidade: string | null
-      endereco: string | null
-      zipcode: string | null
-      email: string | null
-      telefone: string | null
-      whatsapp: string | null
-      pode_ser_importador: boolean
-      pode_ser_exportador: boolean
-      pode_ser_fabricante: boolean
-      pode_ser_agente: boolean
-      pode_ser_despachante: boolean
-      pode_ser_armador: boolean
-      ativo: boolean
-      criado_em: Date
-      atualizado_em: Date
+      cnpj_empresa: string | null
+      tin_empresa: string | null
+      pais_empresa: string
+      estado_empresa: string | null
+      cidade_empresa: string | null
+      endereco_empresa: string | null
+      zipcode_empresa: string | null
+      email_empresa: string | null
+      telefone_empresa: string | null
+      whatsapp_empresa: string | null
+      pode_ser_importador_empresa: boolean
+      pode_ser_exportador_empresa: boolean
+      pode_ser_fabricante_empresa: boolean
+      pode_ser_agente_empresa: boolean
+      pode_ser_despachante_empresa: boolean
+      pode_ser_armador_empresa: boolean
+      ativo_empresa: boolean
+      criado_em_empresa: Date
+      atualizado_em_empresa: Date
+      pode_ser_armazem_alfandegado_empresa: boolean
+      pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
+      pode_ser_cia_aerea_empresa: boolean
+      pode_ser_transportadora_rodoviaria_internacional_empresa: boolean
+      pode_ser_seguradora_internacional_empresa: boolean
+      pode_ser_seguradora_corretora_cambio_empresa: boolean
+      pode_ser_banco_empresa: boolean
+      pode_ser_armazem_nacional_empresa: boolean
     }, ExtArgs["result"]["empresa"]>
     composites: {}
   }
@@ -1735,8 +1823,8 @@ export namespace Prisma {
      * // Get first 10 Empresas
      * const empresas = await prisma.empresa.findMany({ take: 10 })
      * 
-     * // Only select the `suid`
-     * const empresaWithSuidOnly = await prisma.empresa.findMany({ select: { suid: true } })
+     * // Only select the `suid_empresa`
+     * const empresaWithSuid_empresaOnly = await prisma.empresa.findMany({ select: { suid_empresa: true } })
      * 
      */
     findMany<T extends EmpresaFindManyArgs>(args?: SelectSubset<T, EmpresaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany">>
@@ -1780,9 +1868,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Empresas and only return the `suid`
-     * const empresaWithSuidOnly = await prisma.empresa.createManyAndReturn({ 
-     *   select: { suid: true },
+     * // Create many Empresas and only return the `suid_empresa`
+     * const empresaWithSuid_empresaOnly = await prisma.empresa.createManyAndReturn({ 
+     *   select: { suid_empresa: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -2045,28 +2133,36 @@ export namespace Prisma {
    * Fields of the Empresa model
    */ 
   interface EmpresaFieldRefs {
-    readonly suid: FieldRef<"Empresa", 'String'>
+    readonly suid_empresa: FieldRef<"Empresa", 'String'>
     readonly id_organizacao: FieldRef<"Empresa", 'String'>
     readonly nome_empresa: FieldRef<"Empresa", 'String'>
-    readonly cnpj: FieldRef<"Empresa", 'String'>
-    readonly tin: FieldRef<"Empresa", 'String'>
-    readonly pais: FieldRef<"Empresa", 'String'>
-    readonly estado: FieldRef<"Empresa", 'String'>
-    readonly cidade: FieldRef<"Empresa", 'String'>
-    readonly endereco: FieldRef<"Empresa", 'String'>
-    readonly zipcode: FieldRef<"Empresa", 'String'>
-    readonly email: FieldRef<"Empresa", 'String'>
-    readonly telefone: FieldRef<"Empresa", 'String'>
-    readonly whatsapp: FieldRef<"Empresa", 'String'>
-    readonly pode_ser_importador: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_exportador: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_fabricante: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_agente: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_despachante: FieldRef<"Empresa", 'Boolean'>
-    readonly pode_ser_armador: FieldRef<"Empresa", 'Boolean'>
-    readonly ativo: FieldRef<"Empresa", 'Boolean'>
-    readonly criado_em: FieldRef<"Empresa", 'DateTime'>
-    readonly atualizado_em: FieldRef<"Empresa", 'DateTime'>
+    readonly cnpj_empresa: FieldRef<"Empresa", 'String'>
+    readonly tin_empresa: FieldRef<"Empresa", 'String'>
+    readonly pais_empresa: FieldRef<"Empresa", 'String'>
+    readonly estado_empresa: FieldRef<"Empresa", 'String'>
+    readonly cidade_empresa: FieldRef<"Empresa", 'String'>
+    readonly endereco_empresa: FieldRef<"Empresa", 'String'>
+    readonly zipcode_empresa: FieldRef<"Empresa", 'String'>
+    readonly email_empresa: FieldRef<"Empresa", 'String'>
+    readonly telefone_empresa: FieldRef<"Empresa", 'String'>
+    readonly whatsapp_empresa: FieldRef<"Empresa", 'String'>
+    readonly pode_ser_importador_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_exportador_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_fabricante_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_agente_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_despachante_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_armador_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly ativo_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly criado_em_empresa: FieldRef<"Empresa", 'DateTime'>
+    readonly atualizado_em_empresa: FieldRef<"Empresa", 'DateTime'>
+    readonly pode_ser_armazem_alfandegado_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_transportadora_rodoviaria_nacional_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_cia_aerea_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_transportadora_rodoviaria_internacional_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_seguradora_internacional_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_seguradora_corretora_cambio_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_banco_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly pode_ser_armazem_nacional_empresa: FieldRef<"Empresa", 'Boolean'>
   }
     
 
@@ -2366,47 +2462,41 @@ export namespace Prisma {
   }
 
   export type MoedaMinAggregateOutputType = {
-    codigo: string | null
-    nome: string | null
-    simbolo: string | null
-    ativo: boolean | null
+    codigo_moeda: string | null
+    simbolo_moeda: string | null
+    ativo_moeda: boolean | null
   }
 
   export type MoedaMaxAggregateOutputType = {
-    codigo: string | null
-    nome: string | null
-    simbolo: string | null
-    ativo: boolean | null
+    codigo_moeda: string | null
+    simbolo_moeda: string | null
+    ativo_moeda: boolean | null
   }
 
   export type MoedaCountAggregateOutputType = {
-    codigo: number
-    nome: number
-    simbolo: number
-    ativo: number
+    codigo_moeda: number
+    simbolo_moeda: number
+    ativo_moeda: number
     _all: number
   }
 
 
   export type MoedaMinAggregateInputType = {
-    codigo?: true
-    nome?: true
-    simbolo?: true
-    ativo?: true
+    codigo_moeda?: true
+    simbolo_moeda?: true
+    ativo_moeda?: true
   }
 
   export type MoedaMaxAggregateInputType = {
-    codigo?: true
-    nome?: true
-    simbolo?: true
-    ativo?: true
+    codigo_moeda?: true
+    simbolo_moeda?: true
+    ativo_moeda?: true
   }
 
   export type MoedaCountAggregateInputType = {
-    codigo?: true
-    nome?: true
-    simbolo?: true
-    ativo?: true
+    codigo_moeda?: true
+    simbolo_moeda?: true
+    ativo_moeda?: true
     _all?: true
   }
 
@@ -2483,10 +2573,9 @@ export namespace Prisma {
   }
 
   export type MoedaGroupByOutputType = {
-    codigo: string
-    nome: string
-    simbolo: string
-    ativo: boolean
+    codigo_moeda: string
+    simbolo_moeda: string
+    ativo_moeda: boolean
     _count: MoedaCountAggregateOutputType | null
     _min: MoedaMinAggregateOutputType | null
     _max: MoedaMaxAggregateOutputType | null
@@ -2507,24 +2596,21 @@ export namespace Prisma {
 
 
   export type MoedaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    codigo?: boolean
-    nome?: boolean
-    simbolo?: boolean
-    ativo?: boolean
+    codigo_moeda?: boolean
+    simbolo_moeda?: boolean
+    ativo_moeda?: boolean
   }, ExtArgs["result"]["moeda"]>
 
   export type MoedaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    codigo?: boolean
-    nome?: boolean
-    simbolo?: boolean
-    ativo?: boolean
+    codigo_moeda?: boolean
+    simbolo_moeda?: boolean
+    ativo_moeda?: boolean
   }, ExtArgs["result"]["moeda"]>
 
   export type MoedaSelectScalar = {
-    codigo?: boolean
-    nome?: boolean
-    simbolo?: boolean
-    ativo?: boolean
+    codigo_moeda?: boolean
+    simbolo_moeda?: boolean
+    ativo_moeda?: boolean
   }
 
 
@@ -2532,10 +2618,9 @@ export namespace Prisma {
     name: "Moeda"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      codigo: string
-      nome: string
-      simbolo: string
-      ativo: boolean
+      codigo_moeda: string
+      simbolo_moeda: string
+      ativo_moeda: boolean
     }, ExtArgs["result"]["moeda"]>
     composites: {}
   }
@@ -2619,8 +2704,8 @@ export namespace Prisma {
      * // Get first 10 Moedas
      * const moedas = await prisma.moeda.findMany({ take: 10 })
      * 
-     * // Only select the `codigo`
-     * const moedaWithCodigoOnly = await prisma.moeda.findMany({ select: { codigo: true } })
+     * // Only select the `codigo_moeda`
+     * const moedaWithCodigo_moedaOnly = await prisma.moeda.findMany({ select: { codigo_moeda: true } })
      * 
      */
     findMany<T extends MoedaFindManyArgs>(args?: SelectSubset<T, MoedaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MoedaPayload<ExtArgs>, T, "findMany">>
@@ -2664,9 +2749,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Moedas and only return the `codigo`
-     * const moedaWithCodigoOnly = await prisma.moeda.createManyAndReturn({ 
-     *   select: { codigo: true },
+     * // Create many Moedas and only return the `codigo_moeda`
+     * const moedaWithCodigo_moedaOnly = await prisma.moeda.createManyAndReturn({ 
+     *   select: { codigo_moeda: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -2929,10 +3014,9 @@ export namespace Prisma {
    * Fields of the Moeda model
    */ 
   interface MoedaFieldRefs {
-    readonly codigo: FieldRef<"Moeda", 'String'>
-    readonly nome: FieldRef<"Moeda", 'String'>
-    readonly simbolo: FieldRef<"Moeda", 'String'>
-    readonly ativo: FieldRef<"Moeda", 'Boolean'>
+    readonly codigo_moeda: FieldRef<"Moeda", 'String'>
+    readonly simbolo_moeda: FieldRef<"Moeda", 'String'>
+    readonly ativo_moeda: FieldRef<"Moeda", 'Boolean'>
   }
     
 
@@ -3232,47 +3316,47 @@ export namespace Prisma {
   }
 
   export type UnidadeMinAggregateOutputType = {
-    codigo: string | null
-    nome: string | null
-    tipo: string | null
-    ativo: boolean | null
+    codigo_unidade: string | null
+    nome_unidade: string | null
+    tipo_unidade: string | null
+    ativo_unidade: boolean | null
   }
 
   export type UnidadeMaxAggregateOutputType = {
-    codigo: string | null
-    nome: string | null
-    tipo: string | null
-    ativo: boolean | null
+    codigo_unidade: string | null
+    nome_unidade: string | null
+    tipo_unidade: string | null
+    ativo_unidade: boolean | null
   }
 
   export type UnidadeCountAggregateOutputType = {
-    codigo: number
-    nome: number
-    tipo: number
-    ativo: number
+    codigo_unidade: number
+    nome_unidade: number
+    tipo_unidade: number
+    ativo_unidade: number
     _all: number
   }
 
 
   export type UnidadeMinAggregateInputType = {
-    codigo?: true
-    nome?: true
-    tipo?: true
-    ativo?: true
+    codigo_unidade?: true
+    nome_unidade?: true
+    tipo_unidade?: true
+    ativo_unidade?: true
   }
 
   export type UnidadeMaxAggregateInputType = {
-    codigo?: true
-    nome?: true
-    tipo?: true
-    ativo?: true
+    codigo_unidade?: true
+    nome_unidade?: true
+    tipo_unidade?: true
+    ativo_unidade?: true
   }
 
   export type UnidadeCountAggregateInputType = {
-    codigo?: true
-    nome?: true
-    tipo?: true
-    ativo?: true
+    codigo_unidade?: true
+    nome_unidade?: true
+    tipo_unidade?: true
+    ativo_unidade?: true
     _all?: true
   }
 
@@ -3349,10 +3433,10 @@ export namespace Prisma {
   }
 
   export type UnidadeGroupByOutputType = {
-    codigo: string
-    nome: string
-    tipo: string
-    ativo: boolean
+    codigo_unidade: string
+    nome_unidade: string
+    tipo_unidade: string
+    ativo_unidade: boolean
     _count: UnidadeCountAggregateOutputType | null
     _min: UnidadeMinAggregateOutputType | null
     _max: UnidadeMaxAggregateOutputType | null
@@ -3373,24 +3457,24 @@ export namespace Prisma {
 
 
   export type UnidadeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    codigo?: boolean
-    nome?: boolean
-    tipo?: boolean
-    ativo?: boolean
+    codigo_unidade?: boolean
+    nome_unidade?: boolean
+    tipo_unidade?: boolean
+    ativo_unidade?: boolean
   }, ExtArgs["result"]["unidade"]>
 
   export type UnidadeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    codigo?: boolean
-    nome?: boolean
-    tipo?: boolean
-    ativo?: boolean
+    codigo_unidade?: boolean
+    nome_unidade?: boolean
+    tipo_unidade?: boolean
+    ativo_unidade?: boolean
   }, ExtArgs["result"]["unidade"]>
 
   export type UnidadeSelectScalar = {
-    codigo?: boolean
-    nome?: boolean
-    tipo?: boolean
-    ativo?: boolean
+    codigo_unidade?: boolean
+    nome_unidade?: boolean
+    tipo_unidade?: boolean
+    ativo_unidade?: boolean
   }
 
 
@@ -3398,10 +3482,10 @@ export namespace Prisma {
     name: "Unidade"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      codigo: string
-      nome: string
-      tipo: string
-      ativo: boolean
+      codigo_unidade: string
+      nome_unidade: string
+      tipo_unidade: string
+      ativo_unidade: boolean
     }, ExtArgs["result"]["unidade"]>
     composites: {}
   }
@@ -3485,8 +3569,8 @@ export namespace Prisma {
      * // Get first 10 Unidades
      * const unidades = await prisma.unidade.findMany({ take: 10 })
      * 
-     * // Only select the `codigo`
-     * const unidadeWithCodigoOnly = await prisma.unidade.findMany({ select: { codigo: true } })
+     * // Only select the `codigo_unidade`
+     * const unidadeWithCodigo_unidadeOnly = await prisma.unidade.findMany({ select: { codigo_unidade: true } })
      * 
      */
     findMany<T extends UnidadeFindManyArgs>(args?: SelectSubset<T, UnidadeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UnidadePayload<ExtArgs>, T, "findMany">>
@@ -3530,9 +3614,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Unidades and only return the `codigo`
-     * const unidadeWithCodigoOnly = await prisma.unidade.createManyAndReturn({ 
-     *   select: { codigo: true },
+     * // Create many Unidades and only return the `codigo_unidade`
+     * const unidadeWithCodigo_unidadeOnly = await prisma.unidade.createManyAndReturn({ 
+     *   select: { codigo_unidade: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -3795,10 +3879,10 @@ export namespace Prisma {
    * Fields of the Unidade model
    */ 
   interface UnidadeFieldRefs {
-    readonly codigo: FieldRef<"Unidade", 'String'>
-    readonly nome: FieldRef<"Unidade", 'String'>
-    readonly tipo: FieldRef<"Unidade", 'String'>
-    readonly ativo: FieldRef<"Unidade", 'Boolean'>
+    readonly codigo_unidade: FieldRef<"Unidade", 'String'>
+    readonly nome_unidade: FieldRef<"Unidade", 'String'>
+    readonly tipo_unidade: FieldRef<"Unidade", 'String'>
+    readonly ativo_unidade: FieldRef<"Unidade", 'Boolean'>
   }
     
 
@@ -4100,73 +4184,93 @@ export namespace Prisma {
   }
 
   export type NCMAvgAggregateOutputType = {
-    ipi: number | null
-    ii: number | null
+    ipi_ncm: number | null
+    ii_ncm: number | null
+    pis_ncm: number | null
+    cofins_ncm: number | null
   }
 
   export type NCMSumAggregateOutputType = {
-    ipi: number | null
-    ii: number | null
+    ipi_ncm: number | null
+    ii_ncm: number | null
+    pis_ncm: number | null
+    cofins_ncm: number | null
   }
 
   export type NCMMinAggregateOutputType = {
-    codigo: string | null
-    descricao: string | null
-    ipi: number | null
-    ii: number | null
-    ativo: boolean | null
+    codigo_ncm: string | null
+    descricao_ncm: string | null
+    ipi_ncm: number | null
+    ii_ncm: number | null
+    ativo_ncm: boolean | null
+    pis_ncm: number | null
+    cofins_ncm: number | null
   }
 
   export type NCMMaxAggregateOutputType = {
-    codigo: string | null
-    descricao: string | null
-    ipi: number | null
-    ii: number | null
-    ativo: boolean | null
+    codigo_ncm: string | null
+    descricao_ncm: string | null
+    ipi_ncm: number | null
+    ii_ncm: number | null
+    ativo_ncm: boolean | null
+    pis_ncm: number | null
+    cofins_ncm: number | null
   }
 
   export type NCMCountAggregateOutputType = {
-    codigo: number
-    descricao: number
-    ipi: number
-    ii: number
-    ativo: number
+    codigo_ncm: number
+    descricao_ncm: number
+    ipi_ncm: number
+    ii_ncm: number
+    ativo_ncm: number
+    pis_ncm: number
+    cofins_ncm: number
     _all: number
   }
 
 
   export type NCMAvgAggregateInputType = {
-    ipi?: true
-    ii?: true
+    ipi_ncm?: true
+    ii_ncm?: true
+    pis_ncm?: true
+    cofins_ncm?: true
   }
 
   export type NCMSumAggregateInputType = {
-    ipi?: true
-    ii?: true
+    ipi_ncm?: true
+    ii_ncm?: true
+    pis_ncm?: true
+    cofins_ncm?: true
   }
 
   export type NCMMinAggregateInputType = {
-    codigo?: true
-    descricao?: true
-    ipi?: true
-    ii?: true
-    ativo?: true
+    codigo_ncm?: true
+    descricao_ncm?: true
+    ipi_ncm?: true
+    ii_ncm?: true
+    ativo_ncm?: true
+    pis_ncm?: true
+    cofins_ncm?: true
   }
 
   export type NCMMaxAggregateInputType = {
-    codigo?: true
-    descricao?: true
-    ipi?: true
-    ii?: true
-    ativo?: true
+    codigo_ncm?: true
+    descricao_ncm?: true
+    ipi_ncm?: true
+    ii_ncm?: true
+    ativo_ncm?: true
+    pis_ncm?: true
+    cofins_ncm?: true
   }
 
   export type NCMCountAggregateInputType = {
-    codigo?: true
-    descricao?: true
-    ipi?: true
-    ii?: true
-    ativo?: true
+    codigo_ncm?: true
+    descricao_ncm?: true
+    ipi_ncm?: true
+    ii_ncm?: true
+    ativo_ncm?: true
+    pis_ncm?: true
+    cofins_ncm?: true
     _all?: true
   }
 
@@ -4257,11 +4361,13 @@ export namespace Prisma {
   }
 
   export type NCMGroupByOutputType = {
-    codigo: string
-    descricao: string
-    ipi: number | null
-    ii: number | null
-    ativo: boolean
+    codigo_ncm: string
+    descricao_ncm: string
+    ipi_ncm: number | null
+    ii_ncm: number | null
+    ativo_ncm: boolean
+    pis_ncm: number | null
+    cofins_ncm: number | null
     _count: NCMCountAggregateOutputType | null
     _avg: NCMAvgAggregateOutputType | null
     _sum: NCMSumAggregateOutputType | null
@@ -4284,27 +4390,33 @@ export namespace Prisma {
 
 
   export type NCMSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    codigo?: boolean
-    descricao?: boolean
-    ipi?: boolean
-    ii?: boolean
-    ativo?: boolean
+    codigo_ncm?: boolean
+    descricao_ncm?: boolean
+    ipi_ncm?: boolean
+    ii_ncm?: boolean
+    ativo_ncm?: boolean
+    pis_ncm?: boolean
+    cofins_ncm?: boolean
   }, ExtArgs["result"]["nCM"]>
 
   export type NCMSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    codigo?: boolean
-    descricao?: boolean
-    ipi?: boolean
-    ii?: boolean
-    ativo?: boolean
+    codigo_ncm?: boolean
+    descricao_ncm?: boolean
+    ipi_ncm?: boolean
+    ii_ncm?: boolean
+    ativo_ncm?: boolean
+    pis_ncm?: boolean
+    cofins_ncm?: boolean
   }, ExtArgs["result"]["nCM"]>
 
   export type NCMSelectScalar = {
-    codigo?: boolean
-    descricao?: boolean
-    ipi?: boolean
-    ii?: boolean
-    ativo?: boolean
+    codigo_ncm?: boolean
+    descricao_ncm?: boolean
+    ipi_ncm?: boolean
+    ii_ncm?: boolean
+    ativo_ncm?: boolean
+    pis_ncm?: boolean
+    cofins_ncm?: boolean
   }
 
 
@@ -4312,11 +4424,13 @@ export namespace Prisma {
     name: "NCM"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      codigo: string
-      descricao: string
-      ipi: number | null
-      ii: number | null
-      ativo: boolean
+      codigo_ncm: string
+      descricao_ncm: string
+      ipi_ncm: number | null
+      ii_ncm: number | null
+      ativo_ncm: boolean
+      pis_ncm: number | null
+      cofins_ncm: number | null
     }, ExtArgs["result"]["nCM"]>
     composites: {}
   }
@@ -4400,8 +4514,8 @@ export namespace Prisma {
      * // Get first 10 NCMS
      * const nCMS = await prisma.nCM.findMany({ take: 10 })
      * 
-     * // Only select the `codigo`
-     * const nCMWithCodigoOnly = await prisma.nCM.findMany({ select: { codigo: true } })
+     * // Only select the `codigo_ncm`
+     * const nCMWithCodigo_ncmOnly = await prisma.nCM.findMany({ select: { codigo_ncm: true } })
      * 
      */
     findMany<T extends NCMFindManyArgs>(args?: SelectSubset<T, NCMFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "findMany">>
@@ -4445,9 +4559,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many NCMS and only return the `codigo`
-     * const nCMWithCodigoOnly = await prisma.nCM.createManyAndReturn({ 
-     *   select: { codigo: true },
+     * // Create many NCMS and only return the `codigo_ncm`
+     * const nCMWithCodigo_ncmOnly = await prisma.nCM.createManyAndReturn({ 
+     *   select: { codigo_ncm: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -4710,11 +4824,13 @@ export namespace Prisma {
    * Fields of the NCM model
    */ 
   interface NCMFieldRefs {
-    readonly codigo: FieldRef<"NCM", 'String'>
-    readonly descricao: FieldRef<"NCM", 'String'>
-    readonly ipi: FieldRef<"NCM", 'Float'>
-    readonly ii: FieldRef<"NCM", 'Float'>
-    readonly ativo: FieldRef<"NCM", 'Boolean'>
+    readonly codigo_ncm: FieldRef<"NCM", 'String'>
+    readonly descricao_ncm: FieldRef<"NCM", 'String'>
+    readonly ipi_ncm: FieldRef<"NCM", 'Float'>
+    readonly ii_ncm: FieldRef<"NCM", 'Float'>
+    readonly ativo_ncm: FieldRef<"NCM", 'Boolean'>
+    readonly pis_ncm: FieldRef<"NCM", 'Float'>
+    readonly cofins_ncm: FieldRef<"NCM", 'Float'>
   }
     
 
@@ -5014,119 +5130,119 @@ export namespace Prisma {
   }
 
   export type OPEMinAggregateOutputType = {
-    suid: string | null
+    suid_ope: string | null
     id_organizacao: string | null
-    codigo_portal_unico: string | null
-    situacao: string | null
-    versao: string | null
+    codigo_portal_unico_ope: string | null
+    situacao_ope: string | null
+    versao_ope: string | null
     nome_ope: string | null
-    cnpj_raiz_empresa: string | null
-    pais: string | null
-    estado: string | null
-    cidade: string | null
-    endereco: string | null
-    zip: string | null
-    tin: string | null
-    email: string | null
-    ultima_sincronizacao: Date | null
-    origem: string | null
+    cnpj_raiz_empresa_ope: string | null
+    pais_ope: string | null
+    estado_ope: string | null
+    cidade_ope: string | null
+    endereco_ope: string | null
+    zip_ope: string | null
+    tin_ope: string | null
+    email_ope: string | null
+    ultima_sincronizacao_ope: Date | null
+    origem_ope: string | null
   }
 
   export type OPEMaxAggregateOutputType = {
-    suid: string | null
+    suid_ope: string | null
     id_organizacao: string | null
-    codigo_portal_unico: string | null
-    situacao: string | null
-    versao: string | null
+    codigo_portal_unico_ope: string | null
+    situacao_ope: string | null
+    versao_ope: string | null
     nome_ope: string | null
-    cnpj_raiz_empresa: string | null
-    pais: string | null
-    estado: string | null
-    cidade: string | null
-    endereco: string | null
-    zip: string | null
-    tin: string | null
-    email: string | null
-    ultima_sincronizacao: Date | null
-    origem: string | null
+    cnpj_raiz_empresa_ope: string | null
+    pais_ope: string | null
+    estado_ope: string | null
+    cidade_ope: string | null
+    endereco_ope: string | null
+    zip_ope: string | null
+    tin_ope: string | null
+    email_ope: string | null
+    ultima_sincronizacao_ope: Date | null
+    origem_ope: string | null
   }
 
   export type OPECountAggregateOutputType = {
-    suid: number
+    suid_ope: number
     id_organizacao: number
-    codigo_portal_unico: number
-    situacao: number
-    versao: number
+    codigo_portal_unico_ope: number
+    situacao_ope: number
+    versao_ope: number
     nome_ope: number
-    cnpj_raiz_empresa: number
-    pais: number
-    estado: number
-    cidade: number
-    endereco: number
-    zip: number
-    tin: number
-    email: number
-    ultima_sincronizacao: number
-    origem: number
+    cnpj_raiz_empresa_ope: number
+    pais_ope: number
+    estado_ope: number
+    cidade_ope: number
+    endereco_ope: number
+    zip_ope: number
+    tin_ope: number
+    email_ope: number
+    ultima_sincronizacao_ope: number
+    origem_ope: number
     _all: number
   }
 
 
   export type OPEMinAggregateInputType = {
-    suid?: true
+    suid_ope?: true
     id_organizacao?: true
-    codigo_portal_unico?: true
-    situacao?: true
-    versao?: true
+    codigo_portal_unico_ope?: true
+    situacao_ope?: true
+    versao_ope?: true
     nome_ope?: true
-    cnpj_raiz_empresa?: true
-    pais?: true
-    estado?: true
-    cidade?: true
-    endereco?: true
-    zip?: true
-    tin?: true
-    email?: true
-    ultima_sincronizacao?: true
-    origem?: true
+    cnpj_raiz_empresa_ope?: true
+    pais_ope?: true
+    estado_ope?: true
+    cidade_ope?: true
+    endereco_ope?: true
+    zip_ope?: true
+    tin_ope?: true
+    email_ope?: true
+    ultima_sincronizacao_ope?: true
+    origem_ope?: true
   }
 
   export type OPEMaxAggregateInputType = {
-    suid?: true
+    suid_ope?: true
     id_organizacao?: true
-    codigo_portal_unico?: true
-    situacao?: true
-    versao?: true
+    codigo_portal_unico_ope?: true
+    situacao_ope?: true
+    versao_ope?: true
     nome_ope?: true
-    cnpj_raiz_empresa?: true
-    pais?: true
-    estado?: true
-    cidade?: true
-    endereco?: true
-    zip?: true
-    tin?: true
-    email?: true
-    ultima_sincronizacao?: true
-    origem?: true
+    cnpj_raiz_empresa_ope?: true
+    pais_ope?: true
+    estado_ope?: true
+    cidade_ope?: true
+    endereco_ope?: true
+    zip_ope?: true
+    tin_ope?: true
+    email_ope?: true
+    ultima_sincronizacao_ope?: true
+    origem_ope?: true
   }
 
   export type OPECountAggregateInputType = {
-    suid?: true
+    suid_ope?: true
     id_organizacao?: true
-    codigo_portal_unico?: true
-    situacao?: true
-    versao?: true
+    codigo_portal_unico_ope?: true
+    situacao_ope?: true
+    versao_ope?: true
     nome_ope?: true
-    cnpj_raiz_empresa?: true
-    pais?: true
-    estado?: true
-    cidade?: true
-    endereco?: true
-    zip?: true
-    tin?: true
-    email?: true
-    ultima_sincronizacao?: true
-    origem?: true
+    cnpj_raiz_empresa_ope?: true
+    pais_ope?: true
+    estado_ope?: true
+    cidade_ope?: true
+    endereco_ope?: true
+    zip_ope?: true
+    tin_ope?: true
+    email_ope?: true
+    ultima_sincronizacao_ope?: true
+    origem_ope?: true
     _all?: true
   }
 
@@ -5203,22 +5319,22 @@ export namespace Prisma {
   }
 
   export type OPEGroupByOutputType = {
-    suid: string
+    suid_ope: string
     id_organizacao: string
-    codigo_portal_unico: string
-    situacao: string
-    versao: string
+    codigo_portal_unico_ope: string
+    situacao_ope: string
+    versao_ope: string
     nome_ope: string
-    cnpj_raiz_empresa: string
-    pais: string
-    estado: string | null
-    cidade: string | null
-    endereco: string | null
-    zip: string | null
-    tin: string | null
-    email: string | null
-    ultima_sincronizacao: Date
-    origem: string
+    cnpj_raiz_empresa_ope: string
+    pais_ope: string
+    estado_ope: string | null
+    cidade_ope: string | null
+    endereco_ope: string | null
+    zip_ope: string | null
+    tin_ope: string | null
+    email_ope: string | null
+    ultima_sincronizacao_ope: Date
+    origem_ope: string
     _count: OPECountAggregateOutputType | null
     _min: OPEMinAggregateOutputType | null
     _max: OPEMaxAggregateOutputType | null
@@ -5239,60 +5355,60 @@ export namespace Prisma {
 
 
   export type OPESelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    suid?: boolean
+    suid_ope?: boolean
     id_organizacao?: boolean
-    codigo_portal_unico?: boolean
-    situacao?: boolean
-    versao?: boolean
+    codigo_portal_unico_ope?: boolean
+    situacao_ope?: boolean
+    versao_ope?: boolean
     nome_ope?: boolean
-    cnpj_raiz_empresa?: boolean
-    pais?: boolean
-    estado?: boolean
-    cidade?: boolean
-    endereco?: boolean
-    zip?: boolean
-    tin?: boolean
-    email?: boolean
-    ultima_sincronizacao?: boolean
-    origem?: boolean
+    cnpj_raiz_empresa_ope?: boolean
+    pais_ope?: boolean
+    estado_ope?: boolean
+    cidade_ope?: boolean
+    endereco_ope?: boolean
+    zip_ope?: boolean
+    tin_ope?: boolean
+    email_ope?: boolean
+    ultima_sincronizacao_ope?: boolean
+    origem_ope?: boolean
   }, ExtArgs["result"]["oPE"]>
 
   export type OPESelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    suid?: boolean
+    suid_ope?: boolean
     id_organizacao?: boolean
-    codigo_portal_unico?: boolean
-    situacao?: boolean
-    versao?: boolean
+    codigo_portal_unico_ope?: boolean
+    situacao_ope?: boolean
+    versao_ope?: boolean
     nome_ope?: boolean
-    cnpj_raiz_empresa?: boolean
-    pais?: boolean
-    estado?: boolean
-    cidade?: boolean
-    endereco?: boolean
-    zip?: boolean
-    tin?: boolean
-    email?: boolean
-    ultima_sincronizacao?: boolean
-    origem?: boolean
+    cnpj_raiz_empresa_ope?: boolean
+    pais_ope?: boolean
+    estado_ope?: boolean
+    cidade_ope?: boolean
+    endereco_ope?: boolean
+    zip_ope?: boolean
+    tin_ope?: boolean
+    email_ope?: boolean
+    ultima_sincronizacao_ope?: boolean
+    origem_ope?: boolean
   }, ExtArgs["result"]["oPE"]>
 
   export type OPESelectScalar = {
-    suid?: boolean
+    suid_ope?: boolean
     id_organizacao?: boolean
-    codigo_portal_unico?: boolean
-    situacao?: boolean
-    versao?: boolean
+    codigo_portal_unico_ope?: boolean
+    situacao_ope?: boolean
+    versao_ope?: boolean
     nome_ope?: boolean
-    cnpj_raiz_empresa?: boolean
-    pais?: boolean
-    estado?: boolean
-    cidade?: boolean
-    endereco?: boolean
-    zip?: boolean
-    tin?: boolean
-    email?: boolean
-    ultima_sincronizacao?: boolean
-    origem?: boolean
+    cnpj_raiz_empresa_ope?: boolean
+    pais_ope?: boolean
+    estado_ope?: boolean
+    cidade_ope?: boolean
+    endereco_ope?: boolean
+    zip_ope?: boolean
+    tin_ope?: boolean
+    email_ope?: boolean
+    ultima_sincronizacao_ope?: boolean
+    origem_ope?: boolean
   }
 
 
@@ -5300,22 +5416,22 @@ export namespace Prisma {
     name: "OPE"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      suid: string
+      suid_ope: string
       id_organizacao: string
-      codigo_portal_unico: string
-      situacao: string
-      versao: string
+      codigo_portal_unico_ope: string
+      situacao_ope: string
+      versao_ope: string
       nome_ope: string
-      cnpj_raiz_empresa: string
-      pais: string
-      estado: string | null
-      cidade: string | null
-      endereco: string | null
-      zip: string | null
-      tin: string | null
-      email: string | null
-      ultima_sincronizacao: Date
-      origem: string
+      cnpj_raiz_empresa_ope: string
+      pais_ope: string
+      estado_ope: string | null
+      cidade_ope: string | null
+      endereco_ope: string | null
+      zip_ope: string | null
+      tin_ope: string | null
+      email_ope: string | null
+      ultima_sincronizacao_ope: Date
+      origem_ope: string
     }, ExtArgs["result"]["oPE"]>
     composites: {}
   }
@@ -5399,8 +5515,8 @@ export namespace Prisma {
      * // Get first 10 OPES
      * const oPES = await prisma.oPE.findMany({ take: 10 })
      * 
-     * // Only select the `suid`
-     * const oPEWithSuidOnly = await prisma.oPE.findMany({ select: { suid: true } })
+     * // Only select the `suid_ope`
+     * const oPEWithSuid_opeOnly = await prisma.oPE.findMany({ select: { suid_ope: true } })
      * 
      */
     findMany<T extends OPEFindManyArgs>(args?: SelectSubset<T, OPEFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "findMany">>
@@ -5444,9 +5560,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many OPES and only return the `suid`
-     * const oPEWithSuidOnly = await prisma.oPE.createManyAndReturn({ 
-     *   select: { suid: true },
+     * // Create many OPES and only return the `suid_ope`
+     * const oPEWithSuid_opeOnly = await prisma.oPE.createManyAndReturn({ 
+     *   select: { suid_ope: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -5709,22 +5825,22 @@ export namespace Prisma {
    * Fields of the OPE model
    */ 
   interface OPEFieldRefs {
-    readonly suid: FieldRef<"OPE", 'String'>
+    readonly suid_ope: FieldRef<"OPE", 'String'>
     readonly id_organizacao: FieldRef<"OPE", 'String'>
-    readonly codigo_portal_unico: FieldRef<"OPE", 'String'>
-    readonly situacao: FieldRef<"OPE", 'String'>
-    readonly versao: FieldRef<"OPE", 'String'>
+    readonly codigo_portal_unico_ope: FieldRef<"OPE", 'String'>
+    readonly situacao_ope: FieldRef<"OPE", 'String'>
+    readonly versao_ope: FieldRef<"OPE", 'String'>
     readonly nome_ope: FieldRef<"OPE", 'String'>
-    readonly cnpj_raiz_empresa: FieldRef<"OPE", 'String'>
-    readonly pais: FieldRef<"OPE", 'String'>
-    readonly estado: FieldRef<"OPE", 'String'>
-    readonly cidade: FieldRef<"OPE", 'String'>
-    readonly endereco: FieldRef<"OPE", 'String'>
-    readonly zip: FieldRef<"OPE", 'String'>
-    readonly tin: FieldRef<"OPE", 'String'>
-    readonly email: FieldRef<"OPE", 'String'>
-    readonly ultima_sincronizacao: FieldRef<"OPE", 'DateTime'>
-    readonly origem: FieldRef<"OPE", 'String'>
+    readonly cnpj_raiz_empresa_ope: FieldRef<"OPE", 'String'>
+    readonly pais_ope: FieldRef<"OPE", 'String'>
+    readonly estado_ope: FieldRef<"OPE", 'String'>
+    readonly cidade_ope: FieldRef<"OPE", 'String'>
+    readonly endereco_ope: FieldRef<"OPE", 'String'>
+    readonly zip_ope: FieldRef<"OPE", 'String'>
+    readonly tin_ope: FieldRef<"OPE", 'String'>
+    readonly email_ope: FieldRef<"OPE", 'String'>
+    readonly ultima_sincronizacao_ope: FieldRef<"OPE", 'DateTime'>
+    readonly origem_ope: FieldRef<"OPE", 'String'>
   }
     
 
@@ -6014,346 +6130,346 @@ export namespace Prisma {
 
 
   /**
-   * Model HistoricoStatusOPE
+   * Model OpeHistoricoStatus
    */
 
-  export type AggregateHistoricoStatusOPE = {
-    _count: HistoricoStatusOPECountAggregateOutputType | null
-    _min: HistoricoStatusOPEMinAggregateOutputType | null
-    _max: HistoricoStatusOPEMaxAggregateOutputType | null
+  export type AggregateOpeHistoricoStatus = {
+    _count: OpeHistoricoStatusCountAggregateOutputType | null
+    _min: OpeHistoricoStatusMinAggregateOutputType | null
+    _max: OpeHistoricoStatusMaxAggregateOutputType | null
   }
 
-  export type HistoricoStatusOPEMinAggregateOutputType = {
-    id: string | null
-    suid_ope: string | null
-    status_anterior: string | null
-    status_novo: string | null
-    origem: string | null
-    registrado_em: Date | null
+  export type OpeHistoricoStatusMinAggregateOutputType = {
+    id_historico_status_ope: string | null
+    suid_ope_historico_status_ope: string | null
+    status_anterior_historico_status_ope: string | null
+    status_novo_historico_status_ope: string | null
+    origem_historico_status_ope: string | null
+    registrado_em_historico_status_ope: Date | null
   }
 
-  export type HistoricoStatusOPEMaxAggregateOutputType = {
-    id: string | null
-    suid_ope: string | null
-    status_anterior: string | null
-    status_novo: string | null
-    origem: string | null
-    registrado_em: Date | null
+  export type OpeHistoricoStatusMaxAggregateOutputType = {
+    id_historico_status_ope: string | null
+    suid_ope_historico_status_ope: string | null
+    status_anterior_historico_status_ope: string | null
+    status_novo_historico_status_ope: string | null
+    origem_historico_status_ope: string | null
+    registrado_em_historico_status_ope: Date | null
   }
 
-  export type HistoricoStatusOPECountAggregateOutputType = {
-    id: number
-    suid_ope: number
-    status_anterior: number
-    status_novo: number
-    origem: number
-    payload: number
-    registrado_em: number
+  export type OpeHistoricoStatusCountAggregateOutputType = {
+    id_historico_status_ope: number
+    suid_ope_historico_status_ope: number
+    status_anterior_historico_status_ope: number
+    status_novo_historico_status_ope: number
+    origem_historico_status_ope: number
+    payload_historico_status_ope: number
+    registrado_em_historico_status_ope: number
     _all: number
   }
 
 
-  export type HistoricoStatusOPEMinAggregateInputType = {
-    id?: true
-    suid_ope?: true
-    status_anterior?: true
-    status_novo?: true
-    origem?: true
-    registrado_em?: true
+  export type OpeHistoricoStatusMinAggregateInputType = {
+    id_historico_status_ope?: true
+    suid_ope_historico_status_ope?: true
+    status_anterior_historico_status_ope?: true
+    status_novo_historico_status_ope?: true
+    origem_historico_status_ope?: true
+    registrado_em_historico_status_ope?: true
   }
 
-  export type HistoricoStatusOPEMaxAggregateInputType = {
-    id?: true
-    suid_ope?: true
-    status_anterior?: true
-    status_novo?: true
-    origem?: true
-    registrado_em?: true
+  export type OpeHistoricoStatusMaxAggregateInputType = {
+    id_historico_status_ope?: true
+    suid_ope_historico_status_ope?: true
+    status_anterior_historico_status_ope?: true
+    status_novo_historico_status_ope?: true
+    origem_historico_status_ope?: true
+    registrado_em_historico_status_ope?: true
   }
 
-  export type HistoricoStatusOPECountAggregateInputType = {
-    id?: true
-    suid_ope?: true
-    status_anterior?: true
-    status_novo?: true
-    origem?: true
-    payload?: true
-    registrado_em?: true
+  export type OpeHistoricoStatusCountAggregateInputType = {
+    id_historico_status_ope?: true
+    suid_ope_historico_status_ope?: true
+    status_anterior_historico_status_ope?: true
+    status_novo_historico_status_ope?: true
+    origem_historico_status_ope?: true
+    payload_historico_status_ope?: true
+    registrado_em_historico_status_ope?: true
     _all?: true
   }
 
-  export type HistoricoStatusOPEAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which HistoricoStatusOPE to aggregate.
+     * Filter which OpeHistoricoStatus to aggregate.
      */
-    where?: HistoricoStatusOPEWhereInput
+    where?: OpeHistoricoStatusWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of HistoricoStatusOPES to fetch.
+     * Determine the order of OpeHistoricoStatuses to fetch.
      */
-    orderBy?: HistoricoStatusOPEOrderByWithRelationInput | HistoricoStatusOPEOrderByWithRelationInput[]
+    orderBy?: OpeHistoricoStatusOrderByWithRelationInput | OpeHistoricoStatusOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: HistoricoStatusOPEWhereUniqueInput
+    cursor?: OpeHistoricoStatusWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` HistoricoStatusOPES from the position of the cursor.
+     * Take `±n` OpeHistoricoStatuses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` HistoricoStatusOPES.
+     * Skip the first `n` OpeHistoricoStatuses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned HistoricoStatusOPES
+     * Count returned OpeHistoricoStatuses
     **/
-    _count?: true | HistoricoStatusOPECountAggregateInputType
+    _count?: true | OpeHistoricoStatusCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: HistoricoStatusOPEMinAggregateInputType
+    _min?: OpeHistoricoStatusMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: HistoricoStatusOPEMaxAggregateInputType
+    _max?: OpeHistoricoStatusMaxAggregateInputType
   }
 
-  export type GetHistoricoStatusOPEAggregateType<T extends HistoricoStatusOPEAggregateArgs> = {
-        [P in keyof T & keyof AggregateHistoricoStatusOPE]: P extends '_count' | 'count'
+  export type GetOpeHistoricoStatusAggregateType<T extends OpeHistoricoStatusAggregateArgs> = {
+        [P in keyof T & keyof AggregateOpeHistoricoStatus]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateHistoricoStatusOPE[P]>
-      : GetScalarType<T[P], AggregateHistoricoStatusOPE[P]>
+        : GetScalarType<T[P], AggregateOpeHistoricoStatus[P]>
+      : GetScalarType<T[P], AggregateOpeHistoricoStatus[P]>
   }
 
 
 
 
-  export type HistoricoStatusOPEGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: HistoricoStatusOPEWhereInput
-    orderBy?: HistoricoStatusOPEOrderByWithAggregationInput | HistoricoStatusOPEOrderByWithAggregationInput[]
-    by: HistoricoStatusOPEScalarFieldEnum[] | HistoricoStatusOPEScalarFieldEnum
-    having?: HistoricoStatusOPEScalarWhereWithAggregatesInput
+  export type OpeHistoricoStatusGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OpeHistoricoStatusWhereInput
+    orderBy?: OpeHistoricoStatusOrderByWithAggregationInput | OpeHistoricoStatusOrderByWithAggregationInput[]
+    by: OpeHistoricoStatusScalarFieldEnum[] | OpeHistoricoStatusScalarFieldEnum
+    having?: OpeHistoricoStatusScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: HistoricoStatusOPECountAggregateInputType | true
-    _min?: HistoricoStatusOPEMinAggregateInputType
-    _max?: HistoricoStatusOPEMaxAggregateInputType
+    _count?: OpeHistoricoStatusCountAggregateInputType | true
+    _min?: OpeHistoricoStatusMinAggregateInputType
+    _max?: OpeHistoricoStatusMaxAggregateInputType
   }
 
-  export type HistoricoStatusOPEGroupByOutputType = {
-    id: string
-    suid_ope: string
-    status_anterior: string | null
-    status_novo: string
-    origem: string
-    payload: JsonValue
-    registrado_em: Date
-    _count: HistoricoStatusOPECountAggregateOutputType | null
-    _min: HistoricoStatusOPEMinAggregateOutputType | null
-    _max: HistoricoStatusOPEMaxAggregateOutputType | null
+  export type OpeHistoricoStatusGroupByOutputType = {
+    id_historico_status_ope: string
+    suid_ope_historico_status_ope: string
+    status_anterior_historico_status_ope: string | null
+    status_novo_historico_status_ope: string
+    origem_historico_status_ope: string
+    payload_historico_status_ope: JsonValue
+    registrado_em_historico_status_ope: Date
+    _count: OpeHistoricoStatusCountAggregateOutputType | null
+    _min: OpeHistoricoStatusMinAggregateOutputType | null
+    _max: OpeHistoricoStatusMaxAggregateOutputType | null
   }
 
-  type GetHistoricoStatusOPEGroupByPayload<T extends HistoricoStatusOPEGroupByArgs> = Prisma.PrismaPromise<
+  type GetOpeHistoricoStatusGroupByPayload<T extends OpeHistoricoStatusGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<HistoricoStatusOPEGroupByOutputType, T['by']> &
+      PickEnumerable<OpeHistoricoStatusGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof HistoricoStatusOPEGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof OpeHistoricoStatusGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], HistoricoStatusOPEGroupByOutputType[P]>
-            : GetScalarType<T[P], HistoricoStatusOPEGroupByOutputType[P]>
+              : GetScalarType<T[P], OpeHistoricoStatusGroupByOutputType[P]>
+            : GetScalarType<T[P], OpeHistoricoStatusGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type HistoricoStatusOPESelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    suid_ope?: boolean
-    status_anterior?: boolean
-    status_novo?: boolean
-    origem?: boolean
-    payload?: boolean
-    registrado_em?: boolean
-  }, ExtArgs["result"]["historicoStatusOPE"]>
+  export type OpeHistoricoStatusSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_historico_status_ope?: boolean
+    suid_ope_historico_status_ope?: boolean
+    status_anterior_historico_status_ope?: boolean
+    status_novo_historico_status_ope?: boolean
+    origem_historico_status_ope?: boolean
+    payload_historico_status_ope?: boolean
+    registrado_em_historico_status_ope?: boolean
+  }, ExtArgs["result"]["opeHistoricoStatus"]>
 
-  export type HistoricoStatusOPESelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    suid_ope?: boolean
-    status_anterior?: boolean
-    status_novo?: boolean
-    origem?: boolean
-    payload?: boolean
-    registrado_em?: boolean
-  }, ExtArgs["result"]["historicoStatusOPE"]>
+  export type OpeHistoricoStatusSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_historico_status_ope?: boolean
+    suid_ope_historico_status_ope?: boolean
+    status_anterior_historico_status_ope?: boolean
+    status_novo_historico_status_ope?: boolean
+    origem_historico_status_ope?: boolean
+    payload_historico_status_ope?: boolean
+    registrado_em_historico_status_ope?: boolean
+  }, ExtArgs["result"]["opeHistoricoStatus"]>
 
-  export type HistoricoStatusOPESelectScalar = {
-    id?: boolean
-    suid_ope?: boolean
-    status_anterior?: boolean
-    status_novo?: boolean
-    origem?: boolean
-    payload?: boolean
-    registrado_em?: boolean
+  export type OpeHistoricoStatusSelectScalar = {
+    id_historico_status_ope?: boolean
+    suid_ope_historico_status_ope?: boolean
+    status_anterior_historico_status_ope?: boolean
+    status_novo_historico_status_ope?: boolean
+    origem_historico_status_ope?: boolean
+    payload_historico_status_ope?: boolean
+    registrado_em_historico_status_ope?: boolean
   }
 
 
-  export type $HistoricoStatusOPEPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "HistoricoStatusOPE"
+  export type $OpeHistoricoStatusPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OpeHistoricoStatus"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      suid_ope: string
-      status_anterior: string | null
-      status_novo: string
-      origem: string
-      payload: Prisma.JsonValue
-      registrado_em: Date
-    }, ExtArgs["result"]["historicoStatusOPE"]>
+      id_historico_status_ope: string
+      suid_ope_historico_status_ope: string
+      status_anterior_historico_status_ope: string | null
+      status_novo_historico_status_ope: string
+      origem_historico_status_ope: string
+      payload_historico_status_ope: Prisma.JsonValue
+      registrado_em_historico_status_ope: Date
+    }, ExtArgs["result"]["opeHistoricoStatus"]>
     composites: {}
   }
 
-  type HistoricoStatusOPEGetPayload<S extends boolean | null | undefined | HistoricoStatusOPEDefaultArgs> = $Result.GetResult<Prisma.$HistoricoStatusOPEPayload, S>
+  type OpeHistoricoStatusGetPayload<S extends boolean | null | undefined | OpeHistoricoStatusDefaultArgs> = $Result.GetResult<Prisma.$OpeHistoricoStatusPayload, S>
 
-  type HistoricoStatusOPECountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<HistoricoStatusOPEFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: HistoricoStatusOPECountAggregateInputType | true
+  type OpeHistoricoStatusCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<OpeHistoricoStatusFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: OpeHistoricoStatusCountAggregateInputType | true
     }
 
-  export interface HistoricoStatusOPEDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['HistoricoStatusOPE'], meta: { name: 'HistoricoStatusOPE' } }
+  export interface OpeHistoricoStatusDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OpeHistoricoStatus'], meta: { name: 'OpeHistoricoStatus' } }
     /**
-     * Find zero or one HistoricoStatusOPE that matches the filter.
-     * @param {HistoricoStatusOPEFindUniqueArgs} args - Arguments to find a HistoricoStatusOPE
+     * Find zero or one OpeHistoricoStatus that matches the filter.
+     * @param {OpeHistoricoStatusFindUniqueArgs} args - Arguments to find a OpeHistoricoStatus
      * @example
-     * // Get one HistoricoStatusOPE
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.findUnique({
+     * // Get one OpeHistoricoStatus
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends HistoricoStatusOPEFindUniqueArgs>(args: SelectSubset<T, HistoricoStatusOPEFindUniqueArgs<ExtArgs>>): Prisma__HistoricoStatusOPEClient<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends OpeHistoricoStatusFindUniqueArgs>(args: SelectSubset<T, OpeHistoricoStatusFindUniqueArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one HistoricoStatusOPE that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one OpeHistoricoStatus that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {HistoricoStatusOPEFindUniqueOrThrowArgs} args - Arguments to find a HistoricoStatusOPE
+     * @param {OpeHistoricoStatusFindUniqueOrThrowArgs} args - Arguments to find a OpeHistoricoStatus
      * @example
-     * // Get one HistoricoStatusOPE
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.findUniqueOrThrow({
+     * // Get one OpeHistoricoStatus
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends HistoricoStatusOPEFindUniqueOrThrowArgs>(args: SelectSubset<T, HistoricoStatusOPEFindUniqueOrThrowArgs<ExtArgs>>): Prisma__HistoricoStatusOPEClient<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends OpeHistoricoStatusFindUniqueOrThrowArgs>(args: SelectSubset<T, OpeHistoricoStatusFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first HistoricoStatusOPE that matches the filter.
+     * Find the first OpeHistoricoStatus that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {HistoricoStatusOPEFindFirstArgs} args - Arguments to find a HistoricoStatusOPE
+     * @param {OpeHistoricoStatusFindFirstArgs} args - Arguments to find a OpeHistoricoStatus
      * @example
-     * // Get one HistoricoStatusOPE
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.findFirst({
+     * // Get one OpeHistoricoStatus
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends HistoricoStatusOPEFindFirstArgs>(args?: SelectSubset<T, HistoricoStatusOPEFindFirstArgs<ExtArgs>>): Prisma__HistoricoStatusOPEClient<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends OpeHistoricoStatusFindFirstArgs>(args?: SelectSubset<T, OpeHistoricoStatusFindFirstArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first HistoricoStatusOPE that matches the filter or
+     * Find the first OpeHistoricoStatus that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {HistoricoStatusOPEFindFirstOrThrowArgs} args - Arguments to find a HistoricoStatusOPE
+     * @param {OpeHistoricoStatusFindFirstOrThrowArgs} args - Arguments to find a OpeHistoricoStatus
      * @example
-     * // Get one HistoricoStatusOPE
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.findFirstOrThrow({
+     * // Get one OpeHistoricoStatus
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends HistoricoStatusOPEFindFirstOrThrowArgs>(args?: SelectSubset<T, HistoricoStatusOPEFindFirstOrThrowArgs<ExtArgs>>): Prisma__HistoricoStatusOPEClient<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends OpeHistoricoStatusFindFirstOrThrowArgs>(args?: SelectSubset<T, OpeHistoricoStatusFindFirstOrThrowArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more HistoricoStatusOPES that matches the filter.
+     * Find zero or more OpeHistoricoStatuses that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {HistoricoStatusOPEFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {OpeHistoricoStatusFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all HistoricoStatusOPES
-     * const historicoStatusOPES = await prisma.historicoStatusOPE.findMany()
+     * // Get all OpeHistoricoStatuses
+     * const opeHistoricoStatuses = await prisma.opeHistoricoStatus.findMany()
      * 
-     * // Get first 10 HistoricoStatusOPES
-     * const historicoStatusOPES = await prisma.historicoStatusOPE.findMany({ take: 10 })
+     * // Get first 10 OpeHistoricoStatuses
+     * const opeHistoricoStatuses = await prisma.opeHistoricoStatus.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const historicoStatusOPEWithIdOnly = await prisma.historicoStatusOPE.findMany({ select: { id: true } })
+     * // Only select the `id_historico_status_ope`
+     * const opeHistoricoStatusWithId_historico_status_opeOnly = await prisma.opeHistoricoStatus.findMany({ select: { id_historico_status_ope: true } })
      * 
      */
-    findMany<T extends HistoricoStatusOPEFindManyArgs>(args?: SelectSubset<T, HistoricoStatusOPEFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends OpeHistoricoStatusFindManyArgs>(args?: SelectSubset<T, OpeHistoricoStatusFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a HistoricoStatusOPE.
-     * @param {HistoricoStatusOPECreateArgs} args - Arguments to create a HistoricoStatusOPE.
+     * Create a OpeHistoricoStatus.
+     * @param {OpeHistoricoStatusCreateArgs} args - Arguments to create a OpeHistoricoStatus.
      * @example
-     * // Create one HistoricoStatusOPE
-     * const HistoricoStatusOPE = await prisma.historicoStatusOPE.create({
+     * // Create one OpeHistoricoStatus
+     * const OpeHistoricoStatus = await prisma.opeHistoricoStatus.create({
      *   data: {
-     *     // ... data to create a HistoricoStatusOPE
+     *     // ... data to create a OpeHistoricoStatus
      *   }
      * })
      * 
      */
-    create<T extends HistoricoStatusOPECreateArgs>(args: SelectSubset<T, HistoricoStatusOPECreateArgs<ExtArgs>>): Prisma__HistoricoStatusOPEClient<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends OpeHistoricoStatusCreateArgs>(args: SelectSubset<T, OpeHistoricoStatusCreateArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many HistoricoStatusOPES.
-     * @param {HistoricoStatusOPECreateManyArgs} args - Arguments to create many HistoricoStatusOPES.
+     * Create many OpeHistoricoStatuses.
+     * @param {OpeHistoricoStatusCreateManyArgs} args - Arguments to create many OpeHistoricoStatuses.
      * @example
-     * // Create many HistoricoStatusOPES
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.createMany({
+     * // Create many OpeHistoricoStatuses
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends HistoricoStatusOPECreateManyArgs>(args?: SelectSubset<T, HistoricoStatusOPECreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends OpeHistoricoStatusCreateManyArgs>(args?: SelectSubset<T, OpeHistoricoStatusCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many HistoricoStatusOPES and returns the data saved in the database.
-     * @param {HistoricoStatusOPECreateManyAndReturnArgs} args - Arguments to create many HistoricoStatusOPES.
+     * Create many OpeHistoricoStatuses and returns the data saved in the database.
+     * @param {OpeHistoricoStatusCreateManyAndReturnArgs} args - Arguments to create many OpeHistoricoStatuses.
      * @example
-     * // Create many HistoricoStatusOPES
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.createManyAndReturn({
+     * // Create many OpeHistoricoStatuses
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many HistoricoStatusOPES and only return the `id`
-     * const historicoStatusOPEWithIdOnly = await prisma.historicoStatusOPE.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many OpeHistoricoStatuses and only return the `id_historico_status_ope`
+     * const opeHistoricoStatusWithId_historico_status_opeOnly = await prisma.opeHistoricoStatus.createManyAndReturn({ 
+     *   select: { id_historico_status_ope: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -6362,28 +6478,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends HistoricoStatusOPECreateManyAndReturnArgs>(args?: SelectSubset<T, HistoricoStatusOPECreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends OpeHistoricoStatusCreateManyAndReturnArgs>(args?: SelectSubset<T, OpeHistoricoStatusCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a HistoricoStatusOPE.
-     * @param {HistoricoStatusOPEDeleteArgs} args - Arguments to delete one HistoricoStatusOPE.
+     * Delete a OpeHistoricoStatus.
+     * @param {OpeHistoricoStatusDeleteArgs} args - Arguments to delete one OpeHistoricoStatus.
      * @example
-     * // Delete one HistoricoStatusOPE
-     * const HistoricoStatusOPE = await prisma.historicoStatusOPE.delete({
+     * // Delete one OpeHistoricoStatus
+     * const OpeHistoricoStatus = await prisma.opeHistoricoStatus.delete({
      *   where: {
-     *     // ... filter to delete one HistoricoStatusOPE
+     *     // ... filter to delete one OpeHistoricoStatus
      *   }
      * })
      * 
      */
-    delete<T extends HistoricoStatusOPEDeleteArgs>(args: SelectSubset<T, HistoricoStatusOPEDeleteArgs<ExtArgs>>): Prisma__HistoricoStatusOPEClient<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends OpeHistoricoStatusDeleteArgs>(args: SelectSubset<T, OpeHistoricoStatusDeleteArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one HistoricoStatusOPE.
-     * @param {HistoricoStatusOPEUpdateArgs} args - Arguments to update one HistoricoStatusOPE.
+     * Update one OpeHistoricoStatus.
+     * @param {OpeHistoricoStatusUpdateArgs} args - Arguments to update one OpeHistoricoStatus.
      * @example
-     * // Update one HistoricoStatusOPE
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.update({
+     * // Update one OpeHistoricoStatus
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -6393,30 +6509,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends HistoricoStatusOPEUpdateArgs>(args: SelectSubset<T, HistoricoStatusOPEUpdateArgs<ExtArgs>>): Prisma__HistoricoStatusOPEClient<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends OpeHistoricoStatusUpdateArgs>(args: SelectSubset<T, OpeHistoricoStatusUpdateArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more HistoricoStatusOPES.
-     * @param {HistoricoStatusOPEDeleteManyArgs} args - Arguments to filter HistoricoStatusOPES to delete.
+     * Delete zero or more OpeHistoricoStatuses.
+     * @param {OpeHistoricoStatusDeleteManyArgs} args - Arguments to filter OpeHistoricoStatuses to delete.
      * @example
-     * // Delete a few HistoricoStatusOPES
-     * const { count } = await prisma.historicoStatusOPE.deleteMany({
+     * // Delete a few OpeHistoricoStatuses
+     * const { count } = await prisma.opeHistoricoStatus.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends HistoricoStatusOPEDeleteManyArgs>(args?: SelectSubset<T, HistoricoStatusOPEDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends OpeHistoricoStatusDeleteManyArgs>(args?: SelectSubset<T, OpeHistoricoStatusDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more HistoricoStatusOPES.
+     * Update zero or more OpeHistoricoStatuses.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {HistoricoStatusOPEUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {OpeHistoricoStatusUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many HistoricoStatusOPES
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.updateMany({
+     * // Update many OpeHistoricoStatuses
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -6426,56 +6542,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends HistoricoStatusOPEUpdateManyArgs>(args: SelectSubset<T, HistoricoStatusOPEUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends OpeHistoricoStatusUpdateManyArgs>(args: SelectSubset<T, OpeHistoricoStatusUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one HistoricoStatusOPE.
-     * @param {HistoricoStatusOPEUpsertArgs} args - Arguments to update or create a HistoricoStatusOPE.
+     * Create or update one OpeHistoricoStatus.
+     * @param {OpeHistoricoStatusUpsertArgs} args - Arguments to update or create a OpeHistoricoStatus.
      * @example
-     * // Update or create a HistoricoStatusOPE
-     * const historicoStatusOPE = await prisma.historicoStatusOPE.upsert({
+     * // Update or create a OpeHistoricoStatus
+     * const opeHistoricoStatus = await prisma.opeHistoricoStatus.upsert({
      *   create: {
-     *     // ... data to create a HistoricoStatusOPE
+     *     // ... data to create a OpeHistoricoStatus
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the HistoricoStatusOPE we want to update
+     *     // ... the filter for the OpeHistoricoStatus we want to update
      *   }
      * })
      */
-    upsert<T extends HistoricoStatusOPEUpsertArgs>(args: SelectSubset<T, HistoricoStatusOPEUpsertArgs<ExtArgs>>): Prisma__HistoricoStatusOPEClient<$Result.GetResult<Prisma.$HistoricoStatusOPEPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends OpeHistoricoStatusUpsertArgs>(args: SelectSubset<T, OpeHistoricoStatusUpsertArgs<ExtArgs>>): Prisma__OpeHistoricoStatusClient<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of HistoricoStatusOPES.
+     * Count the number of OpeHistoricoStatuses.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {HistoricoStatusOPECountArgs} args - Arguments to filter HistoricoStatusOPES to count.
+     * @param {OpeHistoricoStatusCountArgs} args - Arguments to filter OpeHistoricoStatuses to count.
      * @example
-     * // Count the number of HistoricoStatusOPES
-     * const count = await prisma.historicoStatusOPE.count({
+     * // Count the number of OpeHistoricoStatuses
+     * const count = await prisma.opeHistoricoStatus.count({
      *   where: {
-     *     // ... the filter for the HistoricoStatusOPES we want to count
+     *     // ... the filter for the OpeHistoricoStatuses we want to count
      *   }
      * })
     **/
-    count<T extends HistoricoStatusOPECountArgs>(
-      args?: Subset<T, HistoricoStatusOPECountArgs>,
+    count<T extends OpeHistoricoStatusCountArgs>(
+      args?: Subset<T, OpeHistoricoStatusCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], HistoricoStatusOPECountAggregateOutputType>
+          : GetScalarType<T['select'], OpeHistoricoStatusCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a HistoricoStatusOPE.
+     * Allows you to perform aggregations operations on a OpeHistoricoStatus.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {HistoricoStatusOPEAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {OpeHistoricoStatusAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -6495,13 +6611,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends HistoricoStatusOPEAggregateArgs>(args: Subset<T, HistoricoStatusOPEAggregateArgs>): Prisma.PrismaPromise<GetHistoricoStatusOPEAggregateType<T>>
+    aggregate<T extends OpeHistoricoStatusAggregateArgs>(args: Subset<T, OpeHistoricoStatusAggregateArgs>): Prisma.PrismaPromise<GetOpeHistoricoStatusAggregateType<T>>
 
     /**
-     * Group by HistoricoStatusOPE.
+     * Group by OpeHistoricoStatus.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {HistoricoStatusOPEGroupByArgs} args - Group by arguments.
+     * @param {OpeHistoricoStatusGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -6516,14 +6632,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends HistoricoStatusOPEGroupByArgs,
+      T extends OpeHistoricoStatusGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: HistoricoStatusOPEGroupByArgs['orderBy'] }
-        : { orderBy?: HistoricoStatusOPEGroupByArgs['orderBy'] },
+        ? { orderBy: OpeHistoricoStatusGroupByArgs['orderBy'] }
+        : { orderBy?: OpeHistoricoStatusGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -6572,20 +6688,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, HistoricoStatusOPEGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetHistoricoStatusOPEGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, OpeHistoricoStatusGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOpeHistoricoStatusGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the HistoricoStatusOPE model
+   * Fields of the OpeHistoricoStatus model
    */
-  readonly fields: HistoricoStatusOPEFieldRefs;
+  readonly fields: OpeHistoricoStatusFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for HistoricoStatusOPE.
+   * The delegate class that acts as a "Promise-like" for OpeHistoricoStatus.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__HistoricoStatusOPEClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__OpeHistoricoStatusClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -6613,301 +6729,301 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the HistoricoStatusOPE model
+   * Fields of the OpeHistoricoStatus model
    */ 
-  interface HistoricoStatusOPEFieldRefs {
-    readonly id: FieldRef<"HistoricoStatusOPE", 'String'>
-    readonly suid_ope: FieldRef<"HistoricoStatusOPE", 'String'>
-    readonly status_anterior: FieldRef<"HistoricoStatusOPE", 'String'>
-    readonly status_novo: FieldRef<"HistoricoStatusOPE", 'String'>
-    readonly origem: FieldRef<"HistoricoStatusOPE", 'String'>
-    readonly payload: FieldRef<"HistoricoStatusOPE", 'Json'>
-    readonly registrado_em: FieldRef<"HistoricoStatusOPE", 'DateTime'>
+  interface OpeHistoricoStatusFieldRefs {
+    readonly id_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly suid_ope_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly status_anterior_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly status_novo_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly origem_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly payload_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'Json'>
+    readonly registrado_em_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * HistoricoStatusOPE findUnique
+   * OpeHistoricoStatus findUnique
    */
-  export type HistoricoStatusOPEFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which HistoricoStatusOPE to fetch.
+     * Filter, which OpeHistoricoStatus to fetch.
      */
-    where: HistoricoStatusOPEWhereUniqueInput
+    where: OpeHistoricoStatusWhereUniqueInput
   }
 
   /**
-   * HistoricoStatusOPE findUniqueOrThrow
+   * OpeHistoricoStatus findUniqueOrThrow
    */
-  export type HistoricoStatusOPEFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which HistoricoStatusOPE to fetch.
+     * Filter, which OpeHistoricoStatus to fetch.
      */
-    where: HistoricoStatusOPEWhereUniqueInput
+    where: OpeHistoricoStatusWhereUniqueInput
   }
 
   /**
-   * HistoricoStatusOPE findFirst
+   * OpeHistoricoStatus findFirst
    */
-  export type HistoricoStatusOPEFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which HistoricoStatusOPE to fetch.
+     * Filter, which OpeHistoricoStatus to fetch.
      */
-    where?: HistoricoStatusOPEWhereInput
+    where?: OpeHistoricoStatusWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of HistoricoStatusOPES to fetch.
+     * Determine the order of OpeHistoricoStatuses to fetch.
      */
-    orderBy?: HistoricoStatusOPEOrderByWithRelationInput | HistoricoStatusOPEOrderByWithRelationInput[]
+    orderBy?: OpeHistoricoStatusOrderByWithRelationInput | OpeHistoricoStatusOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for HistoricoStatusOPES.
+     * Sets the position for searching for OpeHistoricoStatuses.
      */
-    cursor?: HistoricoStatusOPEWhereUniqueInput
+    cursor?: OpeHistoricoStatusWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` HistoricoStatusOPES from the position of the cursor.
+     * Take `±n` OpeHistoricoStatuses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` HistoricoStatusOPES.
+     * Skip the first `n` OpeHistoricoStatuses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of HistoricoStatusOPES.
+     * Filter by unique combinations of OpeHistoricoStatuses.
      */
-    distinct?: HistoricoStatusOPEScalarFieldEnum | HistoricoStatusOPEScalarFieldEnum[]
+    distinct?: OpeHistoricoStatusScalarFieldEnum | OpeHistoricoStatusScalarFieldEnum[]
   }
 
   /**
-   * HistoricoStatusOPE findFirstOrThrow
+   * OpeHistoricoStatus findFirstOrThrow
    */
-  export type HistoricoStatusOPEFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which HistoricoStatusOPE to fetch.
+     * Filter, which OpeHistoricoStatus to fetch.
      */
-    where?: HistoricoStatusOPEWhereInput
+    where?: OpeHistoricoStatusWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of HistoricoStatusOPES to fetch.
+     * Determine the order of OpeHistoricoStatuses to fetch.
      */
-    orderBy?: HistoricoStatusOPEOrderByWithRelationInput | HistoricoStatusOPEOrderByWithRelationInput[]
+    orderBy?: OpeHistoricoStatusOrderByWithRelationInput | OpeHistoricoStatusOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for HistoricoStatusOPES.
+     * Sets the position for searching for OpeHistoricoStatuses.
      */
-    cursor?: HistoricoStatusOPEWhereUniqueInput
+    cursor?: OpeHistoricoStatusWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` HistoricoStatusOPES from the position of the cursor.
+     * Take `±n` OpeHistoricoStatuses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` HistoricoStatusOPES.
+     * Skip the first `n` OpeHistoricoStatuses.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of HistoricoStatusOPES.
+     * Filter by unique combinations of OpeHistoricoStatuses.
      */
-    distinct?: HistoricoStatusOPEScalarFieldEnum | HistoricoStatusOPEScalarFieldEnum[]
+    distinct?: OpeHistoricoStatusScalarFieldEnum | OpeHistoricoStatusScalarFieldEnum[]
   }
 
   /**
-   * HistoricoStatusOPE findMany
+   * OpeHistoricoStatus findMany
    */
-  export type HistoricoStatusOPEFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter, which HistoricoStatusOPES to fetch.
+     * Filter, which OpeHistoricoStatuses to fetch.
      */
-    where?: HistoricoStatusOPEWhereInput
+    where?: OpeHistoricoStatusWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of HistoricoStatusOPES to fetch.
+     * Determine the order of OpeHistoricoStatuses to fetch.
      */
-    orderBy?: HistoricoStatusOPEOrderByWithRelationInput | HistoricoStatusOPEOrderByWithRelationInput[]
+    orderBy?: OpeHistoricoStatusOrderByWithRelationInput | OpeHistoricoStatusOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing HistoricoStatusOPES.
+     * Sets the position for listing OpeHistoricoStatuses.
      */
-    cursor?: HistoricoStatusOPEWhereUniqueInput
+    cursor?: OpeHistoricoStatusWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` HistoricoStatusOPES from the position of the cursor.
+     * Take `±n` OpeHistoricoStatuses from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` HistoricoStatusOPES.
+     * Skip the first `n` OpeHistoricoStatuses.
      */
     skip?: number
-    distinct?: HistoricoStatusOPEScalarFieldEnum | HistoricoStatusOPEScalarFieldEnum[]
+    distinct?: OpeHistoricoStatusScalarFieldEnum | OpeHistoricoStatusScalarFieldEnum[]
   }
 
   /**
-   * HistoricoStatusOPE create
+   * OpeHistoricoStatus create
    */
-  export type HistoricoStatusOPECreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * The data needed to create a HistoricoStatusOPE.
+     * The data needed to create a OpeHistoricoStatus.
      */
-    data: XOR<HistoricoStatusOPECreateInput, HistoricoStatusOPEUncheckedCreateInput>
+    data: XOR<OpeHistoricoStatusCreateInput, OpeHistoricoStatusUncheckedCreateInput>
   }
 
   /**
-   * HistoricoStatusOPE createMany
+   * OpeHistoricoStatus createMany
    */
-  export type HistoricoStatusOPECreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many HistoricoStatusOPES.
+     * The data used to create many OpeHistoricoStatuses.
      */
-    data: HistoricoStatusOPECreateManyInput | HistoricoStatusOPECreateManyInput[]
+    data: OpeHistoricoStatusCreateManyInput | OpeHistoricoStatusCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * HistoricoStatusOPE createManyAndReturn
+   * OpeHistoricoStatus createManyAndReturn
    */
-  export type HistoricoStatusOPECreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelectCreateManyAndReturn<ExtArgs> | null
+    select?: OpeHistoricoStatusSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many HistoricoStatusOPES.
+     * The data used to create many OpeHistoricoStatuses.
      */
-    data: HistoricoStatusOPECreateManyInput | HistoricoStatusOPECreateManyInput[]
+    data: OpeHistoricoStatusCreateManyInput | OpeHistoricoStatusCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * HistoricoStatusOPE update
+   * OpeHistoricoStatus update
    */
-  export type HistoricoStatusOPEUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * The data needed to update a HistoricoStatusOPE.
+     * The data needed to update a OpeHistoricoStatus.
      */
-    data: XOR<HistoricoStatusOPEUpdateInput, HistoricoStatusOPEUncheckedUpdateInput>
+    data: XOR<OpeHistoricoStatusUpdateInput, OpeHistoricoStatusUncheckedUpdateInput>
     /**
-     * Choose, which HistoricoStatusOPE to update.
+     * Choose, which OpeHistoricoStatus to update.
      */
-    where: HistoricoStatusOPEWhereUniqueInput
+    where: OpeHistoricoStatusWhereUniqueInput
   }
 
   /**
-   * HistoricoStatusOPE updateMany
+   * OpeHistoricoStatus updateMany
    */
-  export type HistoricoStatusOPEUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update HistoricoStatusOPES.
+     * The data used to update OpeHistoricoStatuses.
      */
-    data: XOR<HistoricoStatusOPEUpdateManyMutationInput, HistoricoStatusOPEUncheckedUpdateManyInput>
+    data: XOR<OpeHistoricoStatusUpdateManyMutationInput, OpeHistoricoStatusUncheckedUpdateManyInput>
     /**
-     * Filter which HistoricoStatusOPES to update
+     * Filter which OpeHistoricoStatuses to update
      */
-    where?: HistoricoStatusOPEWhereInput
+    where?: OpeHistoricoStatusWhereInput
   }
 
   /**
-   * HistoricoStatusOPE upsert
+   * OpeHistoricoStatus upsert
    */
-  export type HistoricoStatusOPEUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * The filter to search for the HistoricoStatusOPE to update in case it exists.
+     * The filter to search for the OpeHistoricoStatus to update in case it exists.
      */
-    where: HistoricoStatusOPEWhereUniqueInput
+    where: OpeHistoricoStatusWhereUniqueInput
     /**
-     * In case the HistoricoStatusOPE found by the `where` argument doesn't exist, create a new HistoricoStatusOPE with this data.
+     * In case the OpeHistoricoStatus found by the `where` argument doesn't exist, create a new OpeHistoricoStatus with this data.
      */
-    create: XOR<HistoricoStatusOPECreateInput, HistoricoStatusOPEUncheckedCreateInput>
+    create: XOR<OpeHistoricoStatusCreateInput, OpeHistoricoStatusUncheckedCreateInput>
     /**
-     * In case the HistoricoStatusOPE was found with the provided `where` argument, update it with this data.
+     * In case the OpeHistoricoStatus was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<HistoricoStatusOPEUpdateInput, HistoricoStatusOPEUncheckedUpdateInput>
+    update: XOR<OpeHistoricoStatusUpdateInput, OpeHistoricoStatusUncheckedUpdateInput>
   }
 
   /**
-   * HistoricoStatusOPE delete
+   * OpeHistoricoStatus delete
    */
-  export type HistoricoStatusOPEDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
     /**
-     * Filter which HistoricoStatusOPE to delete.
+     * Filter which OpeHistoricoStatus to delete.
      */
-    where: HistoricoStatusOPEWhereUniqueInput
+    where: OpeHistoricoStatusWhereUniqueInput
   }
 
   /**
-   * HistoricoStatusOPE deleteMany
+   * OpeHistoricoStatus deleteMany
    */
-  export type HistoricoStatusOPEDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which HistoricoStatusOPES to delete
+     * Filter which OpeHistoricoStatuses to delete
      */
-    where?: HistoricoStatusOPEWhereInput
+    where?: OpeHistoricoStatusWhereInput
   }
 
   /**
-   * HistoricoStatusOPE without action
+   * OpeHistoricoStatus without action
    */
-  export type HistoricoStatusOPEDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeHistoricoStatusDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the HistoricoStatusOPE
+     * Select specific fields to fetch from the OpeHistoricoStatus
      */
-    select?: HistoricoStatusOPESelect<ExtArgs> | null
+    select?: OpeHistoricoStatusSelect<ExtArgs> | null
   }
 
 
@@ -6926,97 +7042,106 @@ export namespace Prisma {
 
 
   export const EmpresaScalarFieldEnum: {
-    suid: 'suid',
+    suid_empresa: 'suid_empresa',
     id_organizacao: 'id_organizacao',
     nome_empresa: 'nome_empresa',
-    cnpj: 'cnpj',
-    tin: 'tin',
-    pais: 'pais',
-    estado: 'estado',
-    cidade: 'cidade',
-    endereco: 'endereco',
-    zipcode: 'zipcode',
-    email: 'email',
-    telefone: 'telefone',
-    whatsapp: 'whatsapp',
-    pode_ser_importador: 'pode_ser_importador',
-    pode_ser_exportador: 'pode_ser_exportador',
-    pode_ser_fabricante: 'pode_ser_fabricante',
-    pode_ser_agente: 'pode_ser_agente',
-    pode_ser_despachante: 'pode_ser_despachante',
-    pode_ser_armador: 'pode_ser_armador',
-    ativo: 'ativo',
-    criado_em: 'criado_em',
-    atualizado_em: 'atualizado_em'
+    cnpj_empresa: 'cnpj_empresa',
+    tin_empresa: 'tin_empresa',
+    pais_empresa: 'pais_empresa',
+    estado_empresa: 'estado_empresa',
+    cidade_empresa: 'cidade_empresa',
+    endereco_empresa: 'endereco_empresa',
+    zipcode_empresa: 'zipcode_empresa',
+    email_empresa: 'email_empresa',
+    telefone_empresa: 'telefone_empresa',
+    whatsapp_empresa: 'whatsapp_empresa',
+    pode_ser_importador_empresa: 'pode_ser_importador_empresa',
+    pode_ser_exportador_empresa: 'pode_ser_exportador_empresa',
+    pode_ser_fabricante_empresa: 'pode_ser_fabricante_empresa',
+    pode_ser_agente_empresa: 'pode_ser_agente_empresa',
+    pode_ser_despachante_empresa: 'pode_ser_despachante_empresa',
+    pode_ser_armador_empresa: 'pode_ser_armador_empresa',
+    ativo_empresa: 'ativo_empresa',
+    criado_em_empresa: 'criado_em_empresa',
+    atualizado_em_empresa: 'atualizado_em_empresa',
+    pode_ser_armazem_alfandegado_empresa: 'pode_ser_armazem_alfandegado_empresa',
+    pode_ser_transportadora_rodoviaria_nacional_empresa: 'pode_ser_transportadora_rodoviaria_nacional_empresa',
+    pode_ser_cia_aerea_empresa: 'pode_ser_cia_aerea_empresa',
+    pode_ser_transportadora_rodoviaria_internacional_empresa: 'pode_ser_transportadora_rodoviaria_internacional_empresa',
+    pode_ser_seguradora_internacional_empresa: 'pode_ser_seguradora_internacional_empresa',
+    pode_ser_seguradora_corretora_cambio_empresa: 'pode_ser_seguradora_corretora_cambio_empresa',
+    pode_ser_banco_empresa: 'pode_ser_banco_empresa',
+    pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa'
   };
 
   export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
 
 
   export const MoedaScalarFieldEnum: {
-    codigo: 'codigo',
-    nome: 'nome',
-    simbolo: 'simbolo',
-    ativo: 'ativo'
+    codigo_moeda: 'codigo_moeda',
+    simbolo_moeda: 'simbolo_moeda',
+    ativo_moeda: 'ativo_moeda'
   };
 
   export type MoedaScalarFieldEnum = (typeof MoedaScalarFieldEnum)[keyof typeof MoedaScalarFieldEnum]
 
 
   export const UnidadeScalarFieldEnum: {
-    codigo: 'codigo',
-    nome: 'nome',
-    tipo: 'tipo',
-    ativo: 'ativo'
+    codigo_unidade: 'codigo_unidade',
+    nome_unidade: 'nome_unidade',
+    tipo_unidade: 'tipo_unidade',
+    ativo_unidade: 'ativo_unidade'
   };
 
   export type UnidadeScalarFieldEnum = (typeof UnidadeScalarFieldEnum)[keyof typeof UnidadeScalarFieldEnum]
 
 
   export const NCMScalarFieldEnum: {
-    codigo: 'codigo',
-    descricao: 'descricao',
-    ipi: 'ipi',
-    ii: 'ii',
-    ativo: 'ativo'
+    codigo_ncm: 'codigo_ncm',
+    descricao_ncm: 'descricao_ncm',
+    ipi_ncm: 'ipi_ncm',
+    ii_ncm: 'ii_ncm',
+    ativo_ncm: 'ativo_ncm',
+    pis_ncm: 'pis_ncm',
+    cofins_ncm: 'cofins_ncm'
   };
 
   export type NCMScalarFieldEnum = (typeof NCMScalarFieldEnum)[keyof typeof NCMScalarFieldEnum]
 
 
   export const OPEScalarFieldEnum: {
-    suid: 'suid',
+    suid_ope: 'suid_ope',
     id_organizacao: 'id_organizacao',
-    codigo_portal_unico: 'codigo_portal_unico',
-    situacao: 'situacao',
-    versao: 'versao',
+    codigo_portal_unico_ope: 'codigo_portal_unico_ope',
+    situacao_ope: 'situacao_ope',
+    versao_ope: 'versao_ope',
     nome_ope: 'nome_ope',
-    cnpj_raiz_empresa: 'cnpj_raiz_empresa',
-    pais: 'pais',
-    estado: 'estado',
-    cidade: 'cidade',
-    endereco: 'endereco',
-    zip: 'zip',
-    tin: 'tin',
-    email: 'email',
-    ultima_sincronizacao: 'ultima_sincronizacao',
-    origem: 'origem'
+    cnpj_raiz_empresa_ope: 'cnpj_raiz_empresa_ope',
+    pais_ope: 'pais_ope',
+    estado_ope: 'estado_ope',
+    cidade_ope: 'cidade_ope',
+    endereco_ope: 'endereco_ope',
+    zip_ope: 'zip_ope',
+    tin_ope: 'tin_ope',
+    email_ope: 'email_ope',
+    ultima_sincronizacao_ope: 'ultima_sincronizacao_ope',
+    origem_ope: 'origem_ope'
   };
 
   export type OPEScalarFieldEnum = (typeof OPEScalarFieldEnum)[keyof typeof OPEScalarFieldEnum]
 
 
-  export const HistoricoStatusOPEScalarFieldEnum: {
-    id: 'id',
-    suid_ope: 'suid_ope',
-    status_anterior: 'status_anterior',
-    status_novo: 'status_novo',
-    origem: 'origem',
-    payload: 'payload',
-    registrado_em: 'registrado_em'
+  export const OpeHistoricoStatusScalarFieldEnum: {
+    id_historico_status_ope: 'id_historico_status_ope',
+    suid_ope_historico_status_ope: 'suid_ope_historico_status_ope',
+    status_anterior_historico_status_ope: 'status_anterior_historico_status_ope',
+    status_novo_historico_status_ope: 'status_novo_historico_status_ope',
+    origem_historico_status_ope: 'origem_historico_status_ope',
+    payload_historico_status_ope: 'payload_historico_status_ope',
+    registrado_em_historico_status_ope: 'registrado_em_historico_status_ope'
   };
 
-  export type HistoricoStatusOPEScalarFieldEnum = (typeof HistoricoStatusOPEScalarFieldEnum)[keyof typeof HistoricoStatusOPEScalarFieldEnum]
+  export type OpeHistoricoStatusScalarFieldEnum = (typeof OpeHistoricoStatusScalarFieldEnum)[keyof typeof OpeHistoricoStatusScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -7141,108 +7266,140 @@ export namespace Prisma {
     AND?: EmpresaWhereInput | EmpresaWhereInput[]
     OR?: EmpresaWhereInput[]
     NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    suid?: StringFilter<"Empresa"> | string
+    suid_empresa?: StringFilter<"Empresa"> | string
     id_organizacao?: StringFilter<"Empresa"> | string
     nome_empresa?: StringFilter<"Empresa"> | string
-    cnpj?: StringNullableFilter<"Empresa"> | string | null
-    tin?: StringNullableFilter<"Empresa"> | string | null
-    pais?: StringFilter<"Empresa"> | string
-    estado?: StringNullableFilter<"Empresa"> | string | null
-    cidade?: StringNullableFilter<"Empresa"> | string | null
-    endereco?: StringNullableFilter<"Empresa"> | string | null
-    zipcode?: StringNullableFilter<"Empresa"> | string | null
-    email?: StringNullableFilter<"Empresa"> | string | null
-    telefone?: StringNullableFilter<"Empresa"> | string | null
-    whatsapp?: StringNullableFilter<"Empresa"> | string | null
-    pode_ser_importador?: BoolFilter<"Empresa"> | boolean
-    pode_ser_exportador?: BoolFilter<"Empresa"> | boolean
-    pode_ser_fabricante?: BoolFilter<"Empresa"> | boolean
-    pode_ser_agente?: BoolFilter<"Empresa"> | boolean
-    pode_ser_despachante?: BoolFilter<"Empresa"> | boolean
-    pode_ser_armador?: BoolFilter<"Empresa"> | boolean
-    ativo?: BoolFilter<"Empresa"> | boolean
-    criado_em?: DateTimeFilter<"Empresa"> | Date | string
-    atualizado_em?: DateTimeFilter<"Empresa"> | Date | string
+    cnpj_empresa?: StringNullableFilter<"Empresa"> | string | null
+    tin_empresa?: StringNullableFilter<"Empresa"> | string | null
+    pais_empresa?: StringFilter<"Empresa"> | string
+    estado_empresa?: StringNullableFilter<"Empresa"> | string | null
+    cidade_empresa?: StringNullableFilter<"Empresa"> | string | null
+    endereco_empresa?: StringNullableFilter<"Empresa"> | string | null
+    zipcode_empresa?: StringNullableFilter<"Empresa"> | string | null
+    email_empresa?: StringNullableFilter<"Empresa"> | string | null
+    telefone_empresa?: StringNullableFilter<"Empresa"> | string | null
+    whatsapp_empresa?: StringNullableFilter<"Empresa"> | string | null
+    pode_ser_importador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_exportador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_fabricante_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_agente_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_despachante_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armador_empresa?: BoolFilter<"Empresa"> | boolean
+    ativo_empresa?: BoolFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+    pode_ser_armazem_alfandegado_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_cia_aerea_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_banco_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFilter<"Empresa"> | boolean
   }
 
   export type EmpresaOrderByWithRelationInput = {
-    suid?: SortOrder
+    suid_empresa?: SortOrder
     id_organizacao?: SortOrder
     nome_empresa?: SortOrder
-    cnpj?: SortOrderInput | SortOrder
-    tin?: SortOrderInput | SortOrder
-    pais?: SortOrder
-    estado?: SortOrderInput | SortOrder
-    cidade?: SortOrderInput | SortOrder
-    endereco?: SortOrderInput | SortOrder
-    zipcode?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    telefone?: SortOrderInput | SortOrder
-    whatsapp?: SortOrderInput | SortOrder
-    pode_ser_importador?: SortOrder
-    pode_ser_exportador?: SortOrder
-    pode_ser_fabricante?: SortOrder
-    pode_ser_agente?: SortOrder
-    pode_ser_despachante?: SortOrder
-    pode_ser_armador?: SortOrder
-    ativo?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+    cnpj_empresa?: SortOrderInput | SortOrder
+    tin_empresa?: SortOrderInput | SortOrder
+    pais_empresa?: SortOrder
+    estado_empresa?: SortOrderInput | SortOrder
+    cidade_empresa?: SortOrderInput | SortOrder
+    endereco_empresa?: SortOrderInput | SortOrder
+    zipcode_empresa?: SortOrderInput | SortOrder
+    email_empresa?: SortOrderInput | SortOrder
+    telefone_empresa?: SortOrderInput | SortOrder
+    whatsapp_empresa?: SortOrderInput | SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
   }
 
   export type EmpresaWhereUniqueInput = Prisma.AtLeast<{
-    suid?: string
-    id_organizacao_cnpj?: EmpresaId_organizacaoCnpjCompoundUniqueInput
-    id_organizacao_tin_pais?: EmpresaId_organizacaoTinPaisCompoundUniqueInput
+    suid_empresa?: string
+    id_organizacao_cnpj_empresa?: EmpresaId_organizacaoCnpj_empresaCompoundUniqueInput
+    id_organizacao_tin_empresa_pais_empresa?: EmpresaId_organizacaoTin_empresaPais_empresaCompoundUniqueInput
     AND?: EmpresaWhereInput | EmpresaWhereInput[]
     OR?: EmpresaWhereInput[]
     NOT?: EmpresaWhereInput | EmpresaWhereInput[]
     id_organizacao?: StringFilter<"Empresa"> | string
     nome_empresa?: StringFilter<"Empresa"> | string
-    cnpj?: StringNullableFilter<"Empresa"> | string | null
-    tin?: StringNullableFilter<"Empresa"> | string | null
-    pais?: StringFilter<"Empresa"> | string
-    estado?: StringNullableFilter<"Empresa"> | string | null
-    cidade?: StringNullableFilter<"Empresa"> | string | null
-    endereco?: StringNullableFilter<"Empresa"> | string | null
-    zipcode?: StringNullableFilter<"Empresa"> | string | null
-    email?: StringNullableFilter<"Empresa"> | string | null
-    telefone?: StringNullableFilter<"Empresa"> | string | null
-    whatsapp?: StringNullableFilter<"Empresa"> | string | null
-    pode_ser_importador?: BoolFilter<"Empresa"> | boolean
-    pode_ser_exportador?: BoolFilter<"Empresa"> | boolean
-    pode_ser_fabricante?: BoolFilter<"Empresa"> | boolean
-    pode_ser_agente?: BoolFilter<"Empresa"> | boolean
-    pode_ser_despachante?: BoolFilter<"Empresa"> | boolean
-    pode_ser_armador?: BoolFilter<"Empresa"> | boolean
-    ativo?: BoolFilter<"Empresa"> | boolean
-    criado_em?: DateTimeFilter<"Empresa"> | Date | string
-    atualizado_em?: DateTimeFilter<"Empresa"> | Date | string
-  }, "suid" | "id_organizacao_cnpj" | "id_organizacao_tin_pais">
+    cnpj_empresa?: StringNullableFilter<"Empresa"> | string | null
+    tin_empresa?: StringNullableFilter<"Empresa"> | string | null
+    pais_empresa?: StringFilter<"Empresa"> | string
+    estado_empresa?: StringNullableFilter<"Empresa"> | string | null
+    cidade_empresa?: StringNullableFilter<"Empresa"> | string | null
+    endereco_empresa?: StringNullableFilter<"Empresa"> | string | null
+    zipcode_empresa?: StringNullableFilter<"Empresa"> | string | null
+    email_empresa?: StringNullableFilter<"Empresa"> | string | null
+    telefone_empresa?: StringNullableFilter<"Empresa"> | string | null
+    whatsapp_empresa?: StringNullableFilter<"Empresa"> | string | null
+    pode_ser_importador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_exportador_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_fabricante_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_agente_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_despachante_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armador_empresa?: BoolFilter<"Empresa"> | boolean
+    ativo_empresa?: BoolFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+    pode_ser_armazem_alfandegado_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_cia_aerea_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_banco_empresa?: BoolFilter<"Empresa"> | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFilter<"Empresa"> | boolean
+  }, "suid_empresa" | "id_organizacao_cnpj_empresa" | "id_organizacao_tin_empresa_pais_empresa">
 
   export type EmpresaOrderByWithAggregationInput = {
-    suid?: SortOrder
+    suid_empresa?: SortOrder
     id_organizacao?: SortOrder
     nome_empresa?: SortOrder
-    cnpj?: SortOrderInput | SortOrder
-    tin?: SortOrderInput | SortOrder
-    pais?: SortOrder
-    estado?: SortOrderInput | SortOrder
-    cidade?: SortOrderInput | SortOrder
-    endereco?: SortOrderInput | SortOrder
-    zipcode?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    telefone?: SortOrderInput | SortOrder
-    whatsapp?: SortOrderInput | SortOrder
-    pode_ser_importador?: SortOrder
-    pode_ser_exportador?: SortOrder
-    pode_ser_fabricante?: SortOrder
-    pode_ser_agente?: SortOrder
-    pode_ser_despachante?: SortOrder
-    pode_ser_armador?: SortOrder
-    ativo?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+    cnpj_empresa?: SortOrderInput | SortOrder
+    tin_empresa?: SortOrderInput | SortOrder
+    pais_empresa?: SortOrder
+    estado_empresa?: SortOrderInput | SortOrder
+    cidade_empresa?: SortOrderInput | SortOrder
+    endereco_empresa?: SortOrderInput | SortOrder
+    zipcode_empresa?: SortOrderInput | SortOrder
+    email_empresa?: SortOrderInput | SortOrder
+    telefone_empresa?: SortOrderInput | SortOrder
+    whatsapp_empresa?: SortOrderInput | SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
     _count?: EmpresaCountOrderByAggregateInput
     _max?: EmpresaMaxOrderByAggregateInput
     _min?: EmpresaMinOrderByAggregateInput
@@ -7252,62 +7409,66 @@ export namespace Prisma {
     AND?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
     OR?: EmpresaScalarWhereWithAggregatesInput[]
     NOT?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
-    suid?: StringWithAggregatesFilter<"Empresa"> | string
+    suid_empresa?: StringWithAggregatesFilter<"Empresa"> | string
     id_organizacao?: StringWithAggregatesFilter<"Empresa"> | string
     nome_empresa?: StringWithAggregatesFilter<"Empresa"> | string
-    cnpj?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    tin?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    pais?: StringWithAggregatesFilter<"Empresa"> | string
-    estado?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    cidade?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    endereco?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    zipcode?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    email?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    telefone?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    whatsapp?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
-    pode_ser_importador?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_exportador?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_fabricante?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_agente?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_despachante?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    pode_ser_armador?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    ativo?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    criado_em?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
-    atualizado_em?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+    cnpj_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    tin_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    pais_empresa?: StringWithAggregatesFilter<"Empresa"> | string
+    estado_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    cidade_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    endereco_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    zipcode_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    email_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    telefone_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    whatsapp_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    pode_ser_importador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_exportador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_fabricante_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_agente_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_despachante_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_armador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    ativo_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+    pode_ser_armazem_alfandegado_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_cia_aerea_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_banco_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    pode_ser_armazem_nacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
   }
 
   export type MoedaWhereInput = {
     AND?: MoedaWhereInput | MoedaWhereInput[]
     OR?: MoedaWhereInput[]
     NOT?: MoedaWhereInput | MoedaWhereInput[]
-    codigo?: StringFilter<"Moeda"> | string
-    nome?: StringFilter<"Moeda"> | string
-    simbolo?: StringFilter<"Moeda"> | string
-    ativo?: BoolFilter<"Moeda"> | boolean
+    codigo_moeda?: StringFilter<"Moeda"> | string
+    simbolo_moeda?: StringFilter<"Moeda"> | string
+    ativo_moeda?: BoolFilter<"Moeda"> | boolean
   }
 
   export type MoedaOrderByWithRelationInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    simbolo?: SortOrder
-    ativo?: SortOrder
+    codigo_moeda?: SortOrder
+    simbolo_moeda?: SortOrder
+    ativo_moeda?: SortOrder
   }
 
   export type MoedaWhereUniqueInput = Prisma.AtLeast<{
-    codigo?: string
+    codigo_moeda?: string
     AND?: MoedaWhereInput | MoedaWhereInput[]
     OR?: MoedaWhereInput[]
     NOT?: MoedaWhereInput | MoedaWhereInput[]
-    nome?: StringFilter<"Moeda"> | string
-    simbolo?: StringFilter<"Moeda"> | string
-    ativo?: BoolFilter<"Moeda"> | boolean
-  }, "codigo">
+    simbolo_moeda?: StringFilter<"Moeda"> | string
+    ativo_moeda?: BoolFilter<"Moeda"> | boolean
+  }, "codigo_moeda">
 
   export type MoedaOrderByWithAggregationInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    simbolo?: SortOrder
-    ativo?: SortOrder
+    codigo_moeda?: SortOrder
+    simbolo_moeda?: SortOrder
+    ativo_moeda?: SortOrder
     _count?: MoedaCountOrderByAggregateInput
     _max?: MoedaMaxOrderByAggregateInput
     _min?: MoedaMinOrderByAggregateInput
@@ -7317,44 +7478,43 @@ export namespace Prisma {
     AND?: MoedaScalarWhereWithAggregatesInput | MoedaScalarWhereWithAggregatesInput[]
     OR?: MoedaScalarWhereWithAggregatesInput[]
     NOT?: MoedaScalarWhereWithAggregatesInput | MoedaScalarWhereWithAggregatesInput[]
-    codigo?: StringWithAggregatesFilter<"Moeda"> | string
-    nome?: StringWithAggregatesFilter<"Moeda"> | string
-    simbolo?: StringWithAggregatesFilter<"Moeda"> | string
-    ativo?: BoolWithAggregatesFilter<"Moeda"> | boolean
+    codigo_moeda?: StringWithAggregatesFilter<"Moeda"> | string
+    simbolo_moeda?: StringWithAggregatesFilter<"Moeda"> | string
+    ativo_moeda?: BoolWithAggregatesFilter<"Moeda"> | boolean
   }
 
   export type UnidadeWhereInput = {
     AND?: UnidadeWhereInput | UnidadeWhereInput[]
     OR?: UnidadeWhereInput[]
     NOT?: UnidadeWhereInput | UnidadeWhereInput[]
-    codigo?: StringFilter<"Unidade"> | string
-    nome?: StringFilter<"Unidade"> | string
-    tipo?: StringFilter<"Unidade"> | string
-    ativo?: BoolFilter<"Unidade"> | boolean
+    codigo_unidade?: StringFilter<"Unidade"> | string
+    nome_unidade?: StringFilter<"Unidade"> | string
+    tipo_unidade?: StringFilter<"Unidade"> | string
+    ativo_unidade?: BoolFilter<"Unidade"> | boolean
   }
 
   export type UnidadeOrderByWithRelationInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    tipo?: SortOrder
-    ativo?: SortOrder
+    codigo_unidade?: SortOrder
+    nome_unidade?: SortOrder
+    tipo_unidade?: SortOrder
+    ativo_unidade?: SortOrder
   }
 
   export type UnidadeWhereUniqueInput = Prisma.AtLeast<{
-    codigo?: string
+    codigo_unidade?: string
     AND?: UnidadeWhereInput | UnidadeWhereInput[]
     OR?: UnidadeWhereInput[]
     NOT?: UnidadeWhereInput | UnidadeWhereInput[]
-    nome?: StringFilter<"Unidade"> | string
-    tipo?: StringFilter<"Unidade"> | string
-    ativo?: BoolFilter<"Unidade"> | boolean
-  }, "codigo">
+    nome_unidade?: StringFilter<"Unidade"> | string
+    tipo_unidade?: StringFilter<"Unidade"> | string
+    ativo_unidade?: BoolFilter<"Unidade"> | boolean
+  }, "codigo_unidade">
 
   export type UnidadeOrderByWithAggregationInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    tipo?: SortOrder
-    ativo?: SortOrder
+    codigo_unidade?: SortOrder
+    nome_unidade?: SortOrder
+    tipo_unidade?: SortOrder
+    ativo_unidade?: SortOrder
     _count?: UnidadeCountOrderByAggregateInput
     _max?: UnidadeMaxOrderByAggregateInput
     _min?: UnidadeMinOrderByAggregateInput
@@ -7364,48 +7524,56 @@ export namespace Prisma {
     AND?: UnidadeScalarWhereWithAggregatesInput | UnidadeScalarWhereWithAggregatesInput[]
     OR?: UnidadeScalarWhereWithAggregatesInput[]
     NOT?: UnidadeScalarWhereWithAggregatesInput | UnidadeScalarWhereWithAggregatesInput[]
-    codigo?: StringWithAggregatesFilter<"Unidade"> | string
-    nome?: StringWithAggregatesFilter<"Unidade"> | string
-    tipo?: StringWithAggregatesFilter<"Unidade"> | string
-    ativo?: BoolWithAggregatesFilter<"Unidade"> | boolean
+    codigo_unidade?: StringWithAggregatesFilter<"Unidade"> | string
+    nome_unidade?: StringWithAggregatesFilter<"Unidade"> | string
+    tipo_unidade?: StringWithAggregatesFilter<"Unidade"> | string
+    ativo_unidade?: BoolWithAggregatesFilter<"Unidade"> | boolean
   }
 
   export type NCMWhereInput = {
     AND?: NCMWhereInput | NCMWhereInput[]
     OR?: NCMWhereInput[]
     NOT?: NCMWhereInput | NCMWhereInput[]
-    codigo?: StringFilter<"NCM"> | string
-    descricao?: StringFilter<"NCM"> | string
-    ipi?: FloatNullableFilter<"NCM"> | number | null
-    ii?: FloatNullableFilter<"NCM"> | number | null
-    ativo?: BoolFilter<"NCM"> | boolean
+    codigo_ncm?: StringFilter<"NCM"> | string
+    descricao_ncm?: StringFilter<"NCM"> | string
+    ipi_ncm?: FloatNullableFilter<"NCM"> | number | null
+    ii_ncm?: FloatNullableFilter<"NCM"> | number | null
+    ativo_ncm?: BoolFilter<"NCM"> | boolean
+    pis_ncm?: FloatNullableFilter<"NCM"> | number | null
+    cofins_ncm?: FloatNullableFilter<"NCM"> | number | null
   }
 
   export type NCMOrderByWithRelationInput = {
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ipi?: SortOrderInput | SortOrder
-    ii?: SortOrderInput | SortOrder
-    ativo?: SortOrder
+    codigo_ncm?: SortOrder
+    descricao_ncm?: SortOrder
+    ipi_ncm?: SortOrderInput | SortOrder
+    ii_ncm?: SortOrderInput | SortOrder
+    ativo_ncm?: SortOrder
+    pis_ncm?: SortOrderInput | SortOrder
+    cofins_ncm?: SortOrderInput | SortOrder
   }
 
   export type NCMWhereUniqueInput = Prisma.AtLeast<{
-    codigo?: string
+    codigo_ncm?: string
     AND?: NCMWhereInput | NCMWhereInput[]
     OR?: NCMWhereInput[]
     NOT?: NCMWhereInput | NCMWhereInput[]
-    descricao?: StringFilter<"NCM"> | string
-    ipi?: FloatNullableFilter<"NCM"> | number | null
-    ii?: FloatNullableFilter<"NCM"> | number | null
-    ativo?: BoolFilter<"NCM"> | boolean
-  }, "codigo">
+    descricao_ncm?: StringFilter<"NCM"> | string
+    ipi_ncm?: FloatNullableFilter<"NCM"> | number | null
+    ii_ncm?: FloatNullableFilter<"NCM"> | number | null
+    ativo_ncm?: BoolFilter<"NCM"> | boolean
+    pis_ncm?: FloatNullableFilter<"NCM"> | number | null
+    cofins_ncm?: FloatNullableFilter<"NCM"> | number | null
+  }, "codigo_ncm">
 
   export type NCMOrderByWithAggregationInput = {
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ipi?: SortOrderInput | SortOrder
-    ii?: SortOrderInput | SortOrder
-    ativo?: SortOrder
+    codigo_ncm?: SortOrder
+    descricao_ncm?: SortOrder
+    ipi_ncm?: SortOrderInput | SortOrder
+    ii_ncm?: SortOrderInput | SortOrder
+    ativo_ncm?: SortOrder
+    pis_ncm?: SortOrderInput | SortOrder
+    cofins_ncm?: SortOrderInput | SortOrder
     _count?: NCMCountOrderByAggregateInput
     _avg?: NCMAvgOrderByAggregateInput
     _max?: NCMMaxOrderByAggregateInput
@@ -7417,93 +7585,95 @@ export namespace Prisma {
     AND?: NCMScalarWhereWithAggregatesInput | NCMScalarWhereWithAggregatesInput[]
     OR?: NCMScalarWhereWithAggregatesInput[]
     NOT?: NCMScalarWhereWithAggregatesInput | NCMScalarWhereWithAggregatesInput[]
-    codigo?: StringWithAggregatesFilter<"NCM"> | string
-    descricao?: StringWithAggregatesFilter<"NCM"> | string
-    ipi?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
-    ii?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
-    ativo?: BoolWithAggregatesFilter<"NCM"> | boolean
+    codigo_ncm?: StringWithAggregatesFilter<"NCM"> | string
+    descricao_ncm?: StringWithAggregatesFilter<"NCM"> | string
+    ipi_ncm?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
+    ii_ncm?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
+    ativo_ncm?: BoolWithAggregatesFilter<"NCM"> | boolean
+    pis_ncm?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
+    cofins_ncm?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
   }
 
   export type OPEWhereInput = {
     AND?: OPEWhereInput | OPEWhereInput[]
     OR?: OPEWhereInput[]
     NOT?: OPEWhereInput | OPEWhereInput[]
-    suid?: StringFilter<"OPE"> | string
+    suid_ope?: StringFilter<"OPE"> | string
     id_organizacao?: StringFilter<"OPE"> | string
-    codigo_portal_unico?: StringFilter<"OPE"> | string
-    situacao?: StringFilter<"OPE"> | string
-    versao?: StringFilter<"OPE"> | string
+    codigo_portal_unico_ope?: StringFilter<"OPE"> | string
+    situacao_ope?: StringFilter<"OPE"> | string
+    versao_ope?: StringFilter<"OPE"> | string
     nome_ope?: StringFilter<"OPE"> | string
-    cnpj_raiz_empresa?: StringFilter<"OPE"> | string
-    pais?: StringFilter<"OPE"> | string
-    estado?: StringNullableFilter<"OPE"> | string | null
-    cidade?: StringNullableFilter<"OPE"> | string | null
-    endereco?: StringNullableFilter<"OPE"> | string | null
-    zip?: StringNullableFilter<"OPE"> | string | null
-    tin?: StringNullableFilter<"OPE"> | string | null
-    email?: StringNullableFilter<"OPE"> | string | null
-    ultima_sincronizacao?: DateTimeFilter<"OPE"> | Date | string
-    origem?: StringFilter<"OPE"> | string
+    cnpj_raiz_empresa_ope?: StringFilter<"OPE"> | string
+    pais_ope?: StringFilter<"OPE"> | string
+    estado_ope?: StringNullableFilter<"OPE"> | string | null
+    cidade_ope?: StringNullableFilter<"OPE"> | string | null
+    endereco_ope?: StringNullableFilter<"OPE"> | string | null
+    zip_ope?: StringNullableFilter<"OPE"> | string | null
+    tin_ope?: StringNullableFilter<"OPE"> | string | null
+    email_ope?: StringNullableFilter<"OPE"> | string | null
+    ultima_sincronizacao_ope?: DateTimeFilter<"OPE"> | Date | string
+    origem_ope?: StringFilter<"OPE"> | string
   }
 
   export type OPEOrderByWithRelationInput = {
-    suid?: SortOrder
+    suid_ope?: SortOrder
     id_organizacao?: SortOrder
-    codigo_portal_unico?: SortOrder
-    situacao?: SortOrder
-    versao?: SortOrder
+    codigo_portal_unico_ope?: SortOrder
+    situacao_ope?: SortOrder
+    versao_ope?: SortOrder
     nome_ope?: SortOrder
-    cnpj_raiz_empresa?: SortOrder
-    pais?: SortOrder
-    estado?: SortOrderInput | SortOrder
-    cidade?: SortOrderInput | SortOrder
-    endereco?: SortOrderInput | SortOrder
-    zip?: SortOrderInput | SortOrder
-    tin?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    ultima_sincronizacao?: SortOrder
-    origem?: SortOrder
+    cnpj_raiz_empresa_ope?: SortOrder
+    pais_ope?: SortOrder
+    estado_ope?: SortOrderInput | SortOrder
+    cidade_ope?: SortOrderInput | SortOrder
+    endereco_ope?: SortOrderInput | SortOrder
+    zip_ope?: SortOrderInput | SortOrder
+    tin_ope?: SortOrderInput | SortOrder
+    email_ope?: SortOrderInput | SortOrder
+    ultima_sincronizacao_ope?: SortOrder
+    origem_ope?: SortOrder
   }
 
   export type OPEWhereUniqueInput = Prisma.AtLeast<{
-    suid?: string
-    codigo_portal_unico?: string
+    suid_ope?: string
+    codigo_portal_unico_ope?: string
     AND?: OPEWhereInput | OPEWhereInput[]
     OR?: OPEWhereInput[]
     NOT?: OPEWhereInput | OPEWhereInput[]
     id_organizacao?: StringFilter<"OPE"> | string
-    situacao?: StringFilter<"OPE"> | string
-    versao?: StringFilter<"OPE"> | string
+    situacao_ope?: StringFilter<"OPE"> | string
+    versao_ope?: StringFilter<"OPE"> | string
     nome_ope?: StringFilter<"OPE"> | string
-    cnpj_raiz_empresa?: StringFilter<"OPE"> | string
-    pais?: StringFilter<"OPE"> | string
-    estado?: StringNullableFilter<"OPE"> | string | null
-    cidade?: StringNullableFilter<"OPE"> | string | null
-    endereco?: StringNullableFilter<"OPE"> | string | null
-    zip?: StringNullableFilter<"OPE"> | string | null
-    tin?: StringNullableFilter<"OPE"> | string | null
-    email?: StringNullableFilter<"OPE"> | string | null
-    ultima_sincronizacao?: DateTimeFilter<"OPE"> | Date | string
-    origem?: StringFilter<"OPE"> | string
-  }, "suid" | "codigo_portal_unico">
+    cnpj_raiz_empresa_ope?: StringFilter<"OPE"> | string
+    pais_ope?: StringFilter<"OPE"> | string
+    estado_ope?: StringNullableFilter<"OPE"> | string | null
+    cidade_ope?: StringNullableFilter<"OPE"> | string | null
+    endereco_ope?: StringNullableFilter<"OPE"> | string | null
+    zip_ope?: StringNullableFilter<"OPE"> | string | null
+    tin_ope?: StringNullableFilter<"OPE"> | string | null
+    email_ope?: StringNullableFilter<"OPE"> | string | null
+    ultima_sincronizacao_ope?: DateTimeFilter<"OPE"> | Date | string
+    origem_ope?: StringFilter<"OPE"> | string
+  }, "suid_ope" | "codigo_portal_unico_ope">
 
   export type OPEOrderByWithAggregationInput = {
-    suid?: SortOrder
+    suid_ope?: SortOrder
     id_organizacao?: SortOrder
-    codigo_portal_unico?: SortOrder
-    situacao?: SortOrder
-    versao?: SortOrder
+    codigo_portal_unico_ope?: SortOrder
+    situacao_ope?: SortOrder
+    versao_ope?: SortOrder
     nome_ope?: SortOrder
-    cnpj_raiz_empresa?: SortOrder
-    pais?: SortOrder
-    estado?: SortOrderInput | SortOrder
-    cidade?: SortOrderInput | SortOrder
-    endereco?: SortOrderInput | SortOrder
-    zip?: SortOrderInput | SortOrder
-    tin?: SortOrderInput | SortOrder
-    email?: SortOrderInput | SortOrder
-    ultima_sincronizacao?: SortOrder
-    origem?: SortOrder
+    cnpj_raiz_empresa_ope?: SortOrder
+    pais_ope?: SortOrder
+    estado_ope?: SortOrderInput | SortOrder
+    cidade_ope?: SortOrderInput | SortOrder
+    endereco_ope?: SortOrderInput | SortOrder
+    zip_ope?: SortOrderInput | SortOrder
+    tin_ope?: SortOrderInput | SortOrder
+    email_ope?: SortOrderInput | SortOrder
+    ultima_sincronizacao_ope?: SortOrder
+    origem_ope?: SortOrder
     _count?: OPECountOrderByAggregateInput
     _max?: OPEMaxOrderByAggregateInput
     _min?: OPEMinOrderByAggregateInput
@@ -7513,616 +7683,679 @@ export namespace Prisma {
     AND?: OPEScalarWhereWithAggregatesInput | OPEScalarWhereWithAggregatesInput[]
     OR?: OPEScalarWhereWithAggregatesInput[]
     NOT?: OPEScalarWhereWithAggregatesInput | OPEScalarWhereWithAggregatesInput[]
-    suid?: StringWithAggregatesFilter<"OPE"> | string
+    suid_ope?: StringWithAggregatesFilter<"OPE"> | string
     id_organizacao?: StringWithAggregatesFilter<"OPE"> | string
-    codigo_portal_unico?: StringWithAggregatesFilter<"OPE"> | string
-    situacao?: StringWithAggregatesFilter<"OPE"> | string
-    versao?: StringWithAggregatesFilter<"OPE"> | string
+    codigo_portal_unico_ope?: StringWithAggregatesFilter<"OPE"> | string
+    situacao_ope?: StringWithAggregatesFilter<"OPE"> | string
+    versao_ope?: StringWithAggregatesFilter<"OPE"> | string
     nome_ope?: StringWithAggregatesFilter<"OPE"> | string
-    cnpj_raiz_empresa?: StringWithAggregatesFilter<"OPE"> | string
-    pais?: StringWithAggregatesFilter<"OPE"> | string
-    estado?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    cidade?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    endereco?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    zip?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    tin?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    email?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    ultima_sincronizacao?: DateTimeWithAggregatesFilter<"OPE"> | Date | string
-    origem?: StringWithAggregatesFilter<"OPE"> | string
+    cnpj_raiz_empresa_ope?: StringWithAggregatesFilter<"OPE"> | string
+    pais_ope?: StringWithAggregatesFilter<"OPE"> | string
+    estado_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
+    cidade_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
+    endereco_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
+    zip_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
+    tin_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
+    email_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
+    ultima_sincronizacao_ope?: DateTimeWithAggregatesFilter<"OPE"> | Date | string
+    origem_ope?: StringWithAggregatesFilter<"OPE"> | string
   }
 
-  export type HistoricoStatusOPEWhereInput = {
-    AND?: HistoricoStatusOPEWhereInput | HistoricoStatusOPEWhereInput[]
-    OR?: HistoricoStatusOPEWhereInput[]
-    NOT?: HistoricoStatusOPEWhereInput | HistoricoStatusOPEWhereInput[]
-    id?: StringFilter<"HistoricoStatusOPE"> | string
-    suid_ope?: StringFilter<"HistoricoStatusOPE"> | string
-    status_anterior?: StringNullableFilter<"HistoricoStatusOPE"> | string | null
-    status_novo?: StringFilter<"HistoricoStatusOPE"> | string
-    origem?: StringFilter<"HistoricoStatusOPE"> | string
-    payload?: JsonFilter<"HistoricoStatusOPE">
-    registrado_em?: DateTimeFilter<"HistoricoStatusOPE"> | Date | string
+  export type OpeHistoricoStatusWhereInput = {
+    AND?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
+    OR?: OpeHistoricoStatusWhereInput[]
+    NOT?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
+    id_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
+    suid_ope_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
+    status_anterior_historico_status_ope?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    status_novo_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
+    origem_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
+    payload_historico_status_ope?: JsonFilter<"OpeHistoricoStatus">
+    registrado_em_historico_status_ope?: DateTimeFilter<"OpeHistoricoStatus"> | Date | string
   }
 
-  export type HistoricoStatusOPEOrderByWithRelationInput = {
-    id?: SortOrder
-    suid_ope?: SortOrder
-    status_anterior?: SortOrderInput | SortOrder
-    status_novo?: SortOrder
-    origem?: SortOrder
-    payload?: SortOrder
-    registrado_em?: SortOrder
+  export type OpeHistoricoStatusOrderByWithRelationInput = {
+    id_historico_status_ope?: SortOrder
+    suid_ope_historico_status_ope?: SortOrder
+    status_anterior_historico_status_ope?: SortOrderInput | SortOrder
+    status_novo_historico_status_ope?: SortOrder
+    origem_historico_status_ope?: SortOrder
+    payload_historico_status_ope?: SortOrder
+    registrado_em_historico_status_ope?: SortOrder
   }
 
-  export type HistoricoStatusOPEWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: HistoricoStatusOPEWhereInput | HistoricoStatusOPEWhereInput[]
-    OR?: HistoricoStatusOPEWhereInput[]
-    NOT?: HistoricoStatusOPEWhereInput | HistoricoStatusOPEWhereInput[]
-    suid_ope?: StringFilter<"HistoricoStatusOPE"> | string
-    status_anterior?: StringNullableFilter<"HistoricoStatusOPE"> | string | null
-    status_novo?: StringFilter<"HistoricoStatusOPE"> | string
-    origem?: StringFilter<"HistoricoStatusOPE"> | string
-    payload?: JsonFilter<"HistoricoStatusOPE">
-    registrado_em?: DateTimeFilter<"HistoricoStatusOPE"> | Date | string
-  }, "id">
+  export type OpeHistoricoStatusWhereUniqueInput = Prisma.AtLeast<{
+    id_historico_status_ope?: string
+    AND?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
+    OR?: OpeHistoricoStatusWhereInput[]
+    NOT?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
+    suid_ope_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
+    status_anterior_historico_status_ope?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    status_novo_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
+    origem_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
+    payload_historico_status_ope?: JsonFilter<"OpeHistoricoStatus">
+    registrado_em_historico_status_ope?: DateTimeFilter<"OpeHistoricoStatus"> | Date | string
+  }, "id_historico_status_ope">
 
-  export type HistoricoStatusOPEOrderByWithAggregationInput = {
-    id?: SortOrder
-    suid_ope?: SortOrder
-    status_anterior?: SortOrderInput | SortOrder
-    status_novo?: SortOrder
-    origem?: SortOrder
-    payload?: SortOrder
-    registrado_em?: SortOrder
-    _count?: HistoricoStatusOPECountOrderByAggregateInput
-    _max?: HistoricoStatusOPEMaxOrderByAggregateInput
-    _min?: HistoricoStatusOPEMinOrderByAggregateInput
+  export type OpeHistoricoStatusOrderByWithAggregationInput = {
+    id_historico_status_ope?: SortOrder
+    suid_ope_historico_status_ope?: SortOrder
+    status_anterior_historico_status_ope?: SortOrderInput | SortOrder
+    status_novo_historico_status_ope?: SortOrder
+    origem_historico_status_ope?: SortOrder
+    payload_historico_status_ope?: SortOrder
+    registrado_em_historico_status_ope?: SortOrder
+    _count?: OpeHistoricoStatusCountOrderByAggregateInput
+    _max?: OpeHistoricoStatusMaxOrderByAggregateInput
+    _min?: OpeHistoricoStatusMinOrderByAggregateInput
   }
 
-  export type HistoricoStatusOPEScalarWhereWithAggregatesInput = {
-    AND?: HistoricoStatusOPEScalarWhereWithAggregatesInput | HistoricoStatusOPEScalarWhereWithAggregatesInput[]
-    OR?: HistoricoStatusOPEScalarWhereWithAggregatesInput[]
-    NOT?: HistoricoStatusOPEScalarWhereWithAggregatesInput | HistoricoStatusOPEScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"HistoricoStatusOPE"> | string
-    suid_ope?: StringWithAggregatesFilter<"HistoricoStatusOPE"> | string
-    status_anterior?: StringNullableWithAggregatesFilter<"HistoricoStatusOPE"> | string | null
-    status_novo?: StringWithAggregatesFilter<"HistoricoStatusOPE"> | string
-    origem?: StringWithAggregatesFilter<"HistoricoStatusOPE"> | string
-    payload?: JsonWithAggregatesFilter<"HistoricoStatusOPE">
-    registrado_em?: DateTimeWithAggregatesFilter<"HistoricoStatusOPE"> | Date | string
+  export type OpeHistoricoStatusScalarWhereWithAggregatesInput = {
+    AND?: OpeHistoricoStatusScalarWhereWithAggregatesInput | OpeHistoricoStatusScalarWhereWithAggregatesInput[]
+    OR?: OpeHistoricoStatusScalarWhereWithAggregatesInput[]
+    NOT?: OpeHistoricoStatusScalarWhereWithAggregatesInput | OpeHistoricoStatusScalarWhereWithAggregatesInput[]
+    id_historico_status_ope?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
+    suid_ope_historico_status_ope?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
+    status_anterior_historico_status_ope?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
+    status_novo_historico_status_ope?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
+    origem_historico_status_ope?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
+    payload_historico_status_ope?: JsonWithAggregatesFilter<"OpeHistoricoStatus">
+    registrado_em_historico_status_ope?: DateTimeWithAggregatesFilter<"OpeHistoricoStatus"> | Date | string
   }
 
   export type EmpresaCreateInput = {
-    suid: string
+    suid_empresa: string
     id_organizacao: string
     nome_empresa: string
-    cnpj?: string | null
-    tin?: string | null
-    pais: string
-    estado?: string | null
-    cidade?: string | null
-    endereco?: string | null
-    zipcode?: string | null
-    email?: string | null
-    telefone?: string | null
-    whatsapp?: string | null
-    pode_ser_importador?: boolean
-    pode_ser_exportador?: boolean
-    pode_ser_fabricante?: boolean
-    pode_ser_agente?: boolean
-    pode_ser_despachante?: boolean
-    pode_ser_armador?: boolean
-    ativo?: boolean
-    criado_em?: Date | string
-    atualizado_em?: Date | string
+    cnpj_empresa?: string | null
+    tin_empresa?: string | null
+    pais_empresa: string
+    estado_empresa?: string | null
+    cidade_empresa?: string | null
+    endereco_empresa?: string | null
+    zipcode_empresa?: string | null
+    email_empresa?: string | null
+    telefone_empresa?: string | null
+    whatsapp_empresa?: string | null
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
   }
 
   export type EmpresaUncheckedCreateInput = {
-    suid: string
+    suid_empresa: string
     id_organizacao: string
     nome_empresa: string
-    cnpj?: string | null
-    tin?: string | null
-    pais: string
-    estado?: string | null
-    cidade?: string | null
-    endereco?: string | null
-    zipcode?: string | null
-    email?: string | null
-    telefone?: string | null
-    whatsapp?: string | null
-    pode_ser_importador?: boolean
-    pode_ser_exportador?: boolean
-    pode_ser_fabricante?: boolean
-    pode_ser_agente?: boolean
-    pode_ser_despachante?: boolean
-    pode_ser_armador?: boolean
-    ativo?: boolean
-    criado_em?: Date | string
-    atualizado_em?: Date | string
+    cnpj_empresa?: string | null
+    tin_empresa?: string | null
+    pais_empresa: string
+    estado_empresa?: string | null
+    cidade_empresa?: string | null
+    endereco_empresa?: string | null
+    zipcode_empresa?: string | null
+    email_empresa?: string | null
+    telefone_empresa?: string | null
+    whatsapp_empresa?: string | null
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
   }
 
   export type EmpresaUpdateInput = {
-    suid?: StringFieldUpdateOperationsInput | string
+    suid_empresa?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_empresa?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    tin?: NullableStringFieldUpdateOperationsInput | string | null
-    pais?: StringFieldUpdateOperationsInput | string
-    estado?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco?: NullableStringFieldUpdateOperationsInput | string | null
-    zipcode?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
-    pode_ser_importador?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_exportador?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_fabricante?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_agente?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_despachante?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armador?: BoolFieldUpdateOperationsInput | boolean
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_empresa?: StringFieldUpdateOperationsInput | string
+    estado_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    email_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type EmpresaUncheckedUpdateInput = {
-    suid?: StringFieldUpdateOperationsInput | string
+    suid_empresa?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_empresa?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    tin?: NullableStringFieldUpdateOperationsInput | string | null
-    pais?: StringFieldUpdateOperationsInput | string
-    estado?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco?: NullableStringFieldUpdateOperationsInput | string | null
-    zipcode?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
-    pode_ser_importador?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_exportador?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_fabricante?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_agente?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_despachante?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armador?: BoolFieldUpdateOperationsInput | boolean
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_empresa?: StringFieldUpdateOperationsInput | string
+    estado_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    email_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type EmpresaCreateManyInput = {
-    suid: string
+    suid_empresa: string
     id_organizacao: string
     nome_empresa: string
-    cnpj?: string | null
-    tin?: string | null
-    pais: string
-    estado?: string | null
-    cidade?: string | null
-    endereco?: string | null
-    zipcode?: string | null
-    email?: string | null
-    telefone?: string | null
-    whatsapp?: string | null
-    pode_ser_importador?: boolean
-    pode_ser_exportador?: boolean
-    pode_ser_fabricante?: boolean
-    pode_ser_agente?: boolean
-    pode_ser_despachante?: boolean
-    pode_ser_armador?: boolean
-    ativo?: boolean
-    criado_em?: Date | string
-    atualizado_em?: Date | string
+    cnpj_empresa?: string | null
+    tin_empresa?: string | null
+    pais_empresa: string
+    estado_empresa?: string | null
+    cidade_empresa?: string | null
+    endereco_empresa?: string | null
+    zipcode_empresa?: string | null
+    email_empresa?: string | null
+    telefone_empresa?: string | null
+    whatsapp_empresa?: string | null
+    pode_ser_importador_empresa?: boolean
+    pode_ser_exportador_empresa?: boolean
+    pode_ser_fabricante_empresa?: boolean
+    pode_ser_agente_empresa?: boolean
+    pode_ser_despachante_empresa?: boolean
+    pode_ser_armador_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
+    pode_ser_armazem_alfandegado_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
+    pode_ser_cia_aerea_empresa?: boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: boolean
+    pode_ser_seguradora_internacional_empresa?: boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: boolean
+    pode_ser_banco_empresa?: boolean
+    pode_ser_armazem_nacional_empresa?: boolean
   }
 
   export type EmpresaUpdateManyMutationInput = {
-    suid?: StringFieldUpdateOperationsInput | string
+    suid_empresa?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_empresa?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    tin?: NullableStringFieldUpdateOperationsInput | string | null
-    pais?: StringFieldUpdateOperationsInput | string
-    estado?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco?: NullableStringFieldUpdateOperationsInput | string | null
-    zipcode?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
-    pode_ser_importador?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_exportador?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_fabricante?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_agente?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_despachante?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armador?: BoolFieldUpdateOperationsInput | boolean
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_empresa?: StringFieldUpdateOperationsInput | string
+    estado_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    email_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type EmpresaUncheckedUpdateManyInput = {
-    suid?: StringFieldUpdateOperationsInput | string
+    suid_empresa?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
     nome_empresa?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    tin?: NullableStringFieldUpdateOperationsInput | string | null
-    pais?: StringFieldUpdateOperationsInput | string
-    estado?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco?: NullableStringFieldUpdateOperationsInput | string | null
-    zipcode?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp?: NullableStringFieldUpdateOperationsInput | string | null
-    pode_ser_importador?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_exportador?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_fabricante?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_agente?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_despachante?: BoolFieldUpdateOperationsInput | boolean
-    pode_ser_armador?: BoolFieldUpdateOperationsInput | boolean
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    criado_em?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+    cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pais_empresa?: StringFieldUpdateOperationsInput | string
+    estado_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    zipcode_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    email_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    pode_ser_importador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_exportador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_fabricante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_internacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
+    pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MoedaCreateInput = {
-    codigo: string
-    nome: string
-    simbolo: string
-    ativo?: boolean
+    codigo_moeda: string
+    simbolo_moeda: string
+    ativo_moeda?: boolean
   }
 
   export type MoedaUncheckedCreateInput = {
-    codigo: string
-    nome: string
-    simbolo: string
-    ativo?: boolean
+    codigo_moeda: string
+    simbolo_moeda: string
+    ativo_moeda?: boolean
   }
 
   export type MoedaUpdateInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    simbolo?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_moeda?: StringFieldUpdateOperationsInput | string
+    simbolo_moeda?: StringFieldUpdateOperationsInput | string
+    ativo_moeda?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MoedaUncheckedUpdateInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    simbolo?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_moeda?: StringFieldUpdateOperationsInput | string
+    simbolo_moeda?: StringFieldUpdateOperationsInput | string
+    ativo_moeda?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MoedaCreateManyInput = {
-    codigo: string
-    nome: string
-    simbolo: string
-    ativo?: boolean
+    codigo_moeda: string
+    simbolo_moeda: string
+    ativo_moeda?: boolean
   }
 
   export type MoedaUpdateManyMutationInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    simbolo?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_moeda?: StringFieldUpdateOperationsInput | string
+    simbolo_moeda?: StringFieldUpdateOperationsInput | string
+    ativo_moeda?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type MoedaUncheckedUpdateManyInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    simbolo?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_moeda?: StringFieldUpdateOperationsInput | string
+    simbolo_moeda?: StringFieldUpdateOperationsInput | string
+    ativo_moeda?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UnidadeCreateInput = {
-    codigo: string
-    nome: string
-    tipo: string
-    ativo?: boolean
+    codigo_unidade: string
+    nome_unidade: string
+    tipo_unidade: string
+    ativo_unidade?: boolean
   }
 
   export type UnidadeUncheckedCreateInput = {
-    codigo: string
-    nome: string
-    tipo: string
-    ativo?: boolean
+    codigo_unidade: string
+    nome_unidade: string
+    tipo_unidade: string
+    ativo_unidade?: boolean
   }
 
   export type UnidadeUpdateInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    tipo?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_unidade?: StringFieldUpdateOperationsInput | string
+    nome_unidade?: StringFieldUpdateOperationsInput | string
+    tipo_unidade?: StringFieldUpdateOperationsInput | string
+    ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UnidadeUncheckedUpdateInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    tipo?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_unidade?: StringFieldUpdateOperationsInput | string
+    nome_unidade?: StringFieldUpdateOperationsInput | string
+    tipo_unidade?: StringFieldUpdateOperationsInput | string
+    ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UnidadeCreateManyInput = {
-    codigo: string
-    nome: string
-    tipo: string
-    ativo?: boolean
+    codigo_unidade: string
+    nome_unidade: string
+    tipo_unidade: string
+    ativo_unidade?: boolean
   }
 
   export type UnidadeUpdateManyMutationInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    tipo?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_unidade?: StringFieldUpdateOperationsInput | string
+    nome_unidade?: StringFieldUpdateOperationsInput | string
+    tipo_unidade?: StringFieldUpdateOperationsInput | string
+    ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UnidadeUncheckedUpdateManyInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    tipo?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_unidade?: StringFieldUpdateOperationsInput | string
+    nome_unidade?: StringFieldUpdateOperationsInput | string
+    tipo_unidade?: StringFieldUpdateOperationsInput | string
+    ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type NCMCreateInput = {
-    codigo: string
-    descricao: string
-    ipi?: number | null
-    ii?: number | null
-    ativo?: boolean
+    codigo_ncm: string
+    descricao_ncm: string
+    ipi_ncm?: number | null
+    ii_ncm?: number | null
+    ativo_ncm?: boolean
+    pis_ncm?: number | null
+    cofins_ncm?: number | null
   }
 
   export type NCMUncheckedCreateInput = {
-    codigo: string
-    descricao: string
-    ipi?: number | null
-    ii?: number | null
-    ativo?: boolean
+    codigo_ncm: string
+    descricao_ncm: string
+    ipi_ncm?: number | null
+    ii_ncm?: number | null
+    ativo_ncm?: boolean
+    pis_ncm?: number | null
+    cofins_ncm?: number | null
   }
 
   export type NCMUpdateInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
-    ipi?: NullableFloatFieldUpdateOperationsInput | number | null
-    ii?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_ncm?: StringFieldUpdateOperationsInput | string
+    descricao_ncm?: StringFieldUpdateOperationsInput | string
+    ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
+    pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type NCMUncheckedUpdateInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
-    ipi?: NullableFloatFieldUpdateOperationsInput | number | null
-    ii?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_ncm?: StringFieldUpdateOperationsInput | string
+    descricao_ncm?: StringFieldUpdateOperationsInput | string
+    ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
+    pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type NCMCreateManyInput = {
-    codigo: string
-    descricao: string
-    ipi?: number | null
-    ii?: number | null
-    ativo?: boolean
+    codigo_ncm: string
+    descricao_ncm: string
+    ipi_ncm?: number | null
+    ii_ncm?: number | null
+    ativo_ncm?: boolean
+    pis_ncm?: number | null
+    cofins_ncm?: number | null
   }
 
   export type NCMUpdateManyMutationInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
-    ipi?: NullableFloatFieldUpdateOperationsInput | number | null
-    ii?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_ncm?: StringFieldUpdateOperationsInput | string
+    descricao_ncm?: StringFieldUpdateOperationsInput | string
+    ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
+    pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type NCMUncheckedUpdateManyInput = {
-    codigo?: StringFieldUpdateOperationsInput | string
-    descricao?: StringFieldUpdateOperationsInput | string
-    ipi?: NullableFloatFieldUpdateOperationsInput | number | null
-    ii?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    codigo_ncm?: StringFieldUpdateOperationsInput | string
+    descricao_ncm?: StringFieldUpdateOperationsInput | string
+    ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
+    pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
   }
 
   export type OPECreateInput = {
-    suid: string
+    suid_ope: string
     id_organizacao: string
-    codigo_portal_unico: string
-    situacao: string
-    versao: string
+    codigo_portal_unico_ope: string
+    situacao_ope: string
+    versao_ope: string
     nome_ope: string
-    cnpj_raiz_empresa: string
-    pais: string
-    estado?: string | null
-    cidade?: string | null
-    endereco?: string | null
-    zip?: string | null
-    tin?: string | null
-    email?: string | null
-    ultima_sincronizacao: Date | string
-    origem?: string
+    cnpj_raiz_empresa_ope: string
+    pais_ope: string
+    estado_ope?: string | null
+    cidade_ope?: string | null
+    endereco_ope?: string | null
+    zip_ope?: string | null
+    tin_ope?: string | null
+    email_ope?: string | null
+    ultima_sincronizacao_ope: Date | string
+    origem_ope?: string
   }
 
   export type OPEUncheckedCreateInput = {
-    suid: string
+    suid_ope: string
     id_organizacao: string
-    codigo_portal_unico: string
-    situacao: string
-    versao: string
+    codigo_portal_unico_ope: string
+    situacao_ope: string
+    versao_ope: string
     nome_ope: string
-    cnpj_raiz_empresa: string
-    pais: string
-    estado?: string | null
-    cidade?: string | null
-    endereco?: string | null
-    zip?: string | null
-    tin?: string | null
-    email?: string | null
-    ultima_sincronizacao: Date | string
-    origem?: string
+    cnpj_raiz_empresa_ope: string
+    pais_ope: string
+    estado_ope?: string | null
+    cidade_ope?: string | null
+    endereco_ope?: string | null
+    zip_ope?: string | null
+    tin_ope?: string | null
+    email_ope?: string | null
+    ultima_sincronizacao_ope: Date | string
+    origem_ope?: string
   }
 
   export type OPEUpdateInput = {
-    suid?: StringFieldUpdateOperationsInput | string
+    suid_ope?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    codigo_portal_unico?: StringFieldUpdateOperationsInput | string
-    situacao?: StringFieldUpdateOperationsInput | string
-    versao?: StringFieldUpdateOperationsInput | string
+    codigo_portal_unico_ope?: StringFieldUpdateOperationsInput | string
+    situacao_ope?: StringFieldUpdateOperationsInput | string
+    versao_ope?: StringFieldUpdateOperationsInput | string
     nome_ope?: StringFieldUpdateOperationsInput | string
-    cnpj_raiz_empresa?: StringFieldUpdateOperationsInput | string
-    pais?: StringFieldUpdateOperationsInput | string
-    estado?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco?: NullableStringFieldUpdateOperationsInput | string | null
-    zip?: NullableStringFieldUpdateOperationsInput | string | null
-    tin?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    ultima_sincronizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    origem?: StringFieldUpdateOperationsInput | string
+    cnpj_raiz_empresa_ope?: StringFieldUpdateOperationsInput | string
+    pais_ope?: StringFieldUpdateOperationsInput | string
+    estado_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    zip_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    email_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    ultima_sincronizacao_ope?: DateTimeFieldUpdateOperationsInput | Date | string
+    origem_ope?: StringFieldUpdateOperationsInput | string
   }
 
   export type OPEUncheckedUpdateInput = {
-    suid?: StringFieldUpdateOperationsInput | string
+    suid_ope?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    codigo_portal_unico?: StringFieldUpdateOperationsInput | string
-    situacao?: StringFieldUpdateOperationsInput | string
-    versao?: StringFieldUpdateOperationsInput | string
+    codigo_portal_unico_ope?: StringFieldUpdateOperationsInput | string
+    situacao_ope?: StringFieldUpdateOperationsInput | string
+    versao_ope?: StringFieldUpdateOperationsInput | string
     nome_ope?: StringFieldUpdateOperationsInput | string
-    cnpj_raiz_empresa?: StringFieldUpdateOperationsInput | string
-    pais?: StringFieldUpdateOperationsInput | string
-    estado?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco?: NullableStringFieldUpdateOperationsInput | string | null
-    zip?: NullableStringFieldUpdateOperationsInput | string | null
-    tin?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    ultima_sincronizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    origem?: StringFieldUpdateOperationsInput | string
+    cnpj_raiz_empresa_ope?: StringFieldUpdateOperationsInput | string
+    pais_ope?: StringFieldUpdateOperationsInput | string
+    estado_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    zip_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    email_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    ultima_sincronizacao_ope?: DateTimeFieldUpdateOperationsInput | Date | string
+    origem_ope?: StringFieldUpdateOperationsInput | string
   }
 
   export type OPECreateManyInput = {
-    suid: string
+    suid_ope: string
     id_organizacao: string
-    codigo_portal_unico: string
-    situacao: string
-    versao: string
+    codigo_portal_unico_ope: string
+    situacao_ope: string
+    versao_ope: string
     nome_ope: string
-    cnpj_raiz_empresa: string
-    pais: string
-    estado?: string | null
-    cidade?: string | null
-    endereco?: string | null
-    zip?: string | null
-    tin?: string | null
-    email?: string | null
-    ultima_sincronizacao: Date | string
-    origem?: string
+    cnpj_raiz_empresa_ope: string
+    pais_ope: string
+    estado_ope?: string | null
+    cidade_ope?: string | null
+    endereco_ope?: string | null
+    zip_ope?: string | null
+    tin_ope?: string | null
+    email_ope?: string | null
+    ultima_sincronizacao_ope: Date | string
+    origem_ope?: string
   }
 
   export type OPEUpdateManyMutationInput = {
-    suid?: StringFieldUpdateOperationsInput | string
+    suid_ope?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    codigo_portal_unico?: StringFieldUpdateOperationsInput | string
-    situacao?: StringFieldUpdateOperationsInput | string
-    versao?: StringFieldUpdateOperationsInput | string
+    codigo_portal_unico_ope?: StringFieldUpdateOperationsInput | string
+    situacao_ope?: StringFieldUpdateOperationsInput | string
+    versao_ope?: StringFieldUpdateOperationsInput | string
     nome_ope?: StringFieldUpdateOperationsInput | string
-    cnpj_raiz_empresa?: StringFieldUpdateOperationsInput | string
-    pais?: StringFieldUpdateOperationsInput | string
-    estado?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco?: NullableStringFieldUpdateOperationsInput | string | null
-    zip?: NullableStringFieldUpdateOperationsInput | string | null
-    tin?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    ultima_sincronizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    origem?: StringFieldUpdateOperationsInput | string
+    cnpj_raiz_empresa_ope?: StringFieldUpdateOperationsInput | string
+    pais_ope?: StringFieldUpdateOperationsInput | string
+    estado_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    zip_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    email_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    ultima_sincronizacao_ope?: DateTimeFieldUpdateOperationsInput | Date | string
+    origem_ope?: StringFieldUpdateOperationsInput | string
   }
 
   export type OPEUncheckedUpdateManyInput = {
-    suid?: StringFieldUpdateOperationsInput | string
+    suid_ope?: StringFieldUpdateOperationsInput | string
     id_organizacao?: StringFieldUpdateOperationsInput | string
-    codigo_portal_unico?: StringFieldUpdateOperationsInput | string
-    situacao?: StringFieldUpdateOperationsInput | string
-    versao?: StringFieldUpdateOperationsInput | string
+    codigo_portal_unico_ope?: StringFieldUpdateOperationsInput | string
+    situacao_ope?: StringFieldUpdateOperationsInput | string
+    versao_ope?: StringFieldUpdateOperationsInput | string
     nome_ope?: StringFieldUpdateOperationsInput | string
-    cnpj_raiz_empresa?: StringFieldUpdateOperationsInput | string
-    pais?: StringFieldUpdateOperationsInput | string
-    estado?: NullableStringFieldUpdateOperationsInput | string | null
-    cidade?: NullableStringFieldUpdateOperationsInput | string | null
-    endereco?: NullableStringFieldUpdateOperationsInput | string | null
-    zip?: NullableStringFieldUpdateOperationsInput | string | null
-    tin?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    ultima_sincronizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    origem?: StringFieldUpdateOperationsInput | string
+    cnpj_raiz_empresa_ope?: StringFieldUpdateOperationsInput | string
+    pais_ope?: StringFieldUpdateOperationsInput | string
+    estado_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    endereco_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    zip_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    tin_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    email_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    ultima_sincronizacao_ope?: DateTimeFieldUpdateOperationsInput | Date | string
+    origem_ope?: StringFieldUpdateOperationsInput | string
   }
 
-  export type HistoricoStatusOPECreateInput = {
-    id?: string
-    suid_ope: string
-    status_anterior?: string | null
-    status_novo: string
-    origem: string
-    payload: JsonNullValueInput | InputJsonValue
-    registrado_em?: Date | string
+  export type OpeHistoricoStatusCreateInput = {
+    id_historico_status_ope?: string
+    suid_ope_historico_status_ope: string
+    status_anterior_historico_status_ope?: string | null
+    status_novo_historico_status_ope: string
+    origem_historico_status_ope: string
+    payload_historico_status_ope: JsonNullValueInput | InputJsonValue
+    registrado_em_historico_status_ope?: Date | string
   }
 
-  export type HistoricoStatusOPEUncheckedCreateInput = {
-    id?: string
-    suid_ope: string
-    status_anterior?: string | null
-    status_novo: string
-    origem: string
-    payload: JsonNullValueInput | InputJsonValue
-    registrado_em?: Date | string
+  export type OpeHistoricoStatusUncheckedCreateInput = {
+    id_historico_status_ope?: string
+    suid_ope_historico_status_ope: string
+    status_anterior_historico_status_ope?: string | null
+    status_novo_historico_status_ope: string
+    origem_historico_status_ope: string
+    payload_historico_status_ope: JsonNullValueInput | InputJsonValue
+    registrado_em_historico_status_ope?: Date | string
   }
 
-  export type HistoricoStatusOPEUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    suid_ope?: StringFieldUpdateOperationsInput | string
-    status_anterior?: NullableStringFieldUpdateOperationsInput | string | null
-    status_novo?: StringFieldUpdateOperationsInput | string
-    origem?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    registrado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type OpeHistoricoStatusUpdateInput = {
+    id_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    suid_ope_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    status_anterior_historico_status_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    status_novo_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    origem_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    payload_historico_status_ope?: JsonNullValueInput | InputJsonValue
+    registrado_em_historico_status_ope?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type HistoricoStatusOPEUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    suid_ope?: StringFieldUpdateOperationsInput | string
-    status_anterior?: NullableStringFieldUpdateOperationsInput | string | null
-    status_novo?: StringFieldUpdateOperationsInput | string
-    origem?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    registrado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type OpeHistoricoStatusUncheckedUpdateInput = {
+    id_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    suid_ope_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    status_anterior_historico_status_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    status_novo_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    origem_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    payload_historico_status_ope?: JsonNullValueInput | InputJsonValue
+    registrado_em_historico_status_ope?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type HistoricoStatusOPECreateManyInput = {
-    id?: string
-    suid_ope: string
-    status_anterior?: string | null
-    status_novo: string
-    origem: string
-    payload: JsonNullValueInput | InputJsonValue
-    registrado_em?: Date | string
+  export type OpeHistoricoStatusCreateManyInput = {
+    id_historico_status_ope?: string
+    suid_ope_historico_status_ope: string
+    status_anterior_historico_status_ope?: string | null
+    status_novo_historico_status_ope: string
+    origem_historico_status_ope: string
+    payload_historico_status_ope: JsonNullValueInput | InputJsonValue
+    registrado_em_historico_status_ope?: Date | string
   }
 
-  export type HistoricoStatusOPEUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    suid_ope?: StringFieldUpdateOperationsInput | string
-    status_anterior?: NullableStringFieldUpdateOperationsInput | string | null
-    status_novo?: StringFieldUpdateOperationsInput | string
-    origem?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    registrado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type OpeHistoricoStatusUpdateManyMutationInput = {
+    id_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    suid_ope_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    status_anterior_historico_status_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    status_novo_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    origem_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    payload_historico_status_ope?: JsonNullValueInput | InputJsonValue
+    registrado_em_historico_status_ope?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type HistoricoStatusOPEUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    suid_ope?: StringFieldUpdateOperationsInput | string
-    status_anterior?: NullableStringFieldUpdateOperationsInput | string | null
-    status_novo?: StringFieldUpdateOperationsInput | string
-    origem?: StringFieldUpdateOperationsInput | string
-    payload?: JsonNullValueInput | InputJsonValue
-    registrado_em?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type OpeHistoricoStatusUncheckedUpdateManyInput = {
+    id_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    suid_ope_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    status_anterior_historico_status_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    status_novo_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    origem_historico_status_ope?: StringFieldUpdateOperationsInput | string
+    payload_historico_status_ope?: JsonNullValueInput | InputJsonValue
+    registrado_em_historico_status_ope?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -8176,90 +8409,114 @@ export namespace Prisma {
     nulls?: NullsOrder
   }
 
-  export type EmpresaId_organizacaoCnpjCompoundUniqueInput = {
+  export type EmpresaId_organizacaoCnpj_empresaCompoundUniqueInput = {
     id_organizacao: string
-    cnpj: string
+    cnpj_empresa: string
   }
 
-  export type EmpresaId_organizacaoTinPaisCompoundUniqueInput = {
+  export type EmpresaId_organizacaoTin_empresaPais_empresaCompoundUniqueInput = {
     id_organizacao: string
-    tin: string
-    pais: string
+    tin_empresa: string
+    pais_empresa: string
   }
 
   export type EmpresaCountOrderByAggregateInput = {
-    suid?: SortOrder
+    suid_empresa?: SortOrder
     id_organizacao?: SortOrder
     nome_empresa?: SortOrder
-    cnpj?: SortOrder
-    tin?: SortOrder
-    pais?: SortOrder
-    estado?: SortOrder
-    cidade?: SortOrder
-    endereco?: SortOrder
-    zipcode?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    whatsapp?: SortOrder
-    pode_ser_importador?: SortOrder
-    pode_ser_exportador?: SortOrder
-    pode_ser_fabricante?: SortOrder
-    pode_ser_agente?: SortOrder
-    pode_ser_despachante?: SortOrder
-    pode_ser_armador?: SortOrder
-    ativo?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+    cnpj_empresa?: SortOrder
+    tin_empresa?: SortOrder
+    pais_empresa?: SortOrder
+    estado_empresa?: SortOrder
+    cidade_empresa?: SortOrder
+    endereco_empresa?: SortOrder
+    zipcode_empresa?: SortOrder
+    email_empresa?: SortOrder
+    telefone_empresa?: SortOrder
+    whatsapp_empresa?: SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
   }
 
   export type EmpresaMaxOrderByAggregateInput = {
-    suid?: SortOrder
+    suid_empresa?: SortOrder
     id_organizacao?: SortOrder
     nome_empresa?: SortOrder
-    cnpj?: SortOrder
-    tin?: SortOrder
-    pais?: SortOrder
-    estado?: SortOrder
-    cidade?: SortOrder
-    endereco?: SortOrder
-    zipcode?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    whatsapp?: SortOrder
-    pode_ser_importador?: SortOrder
-    pode_ser_exportador?: SortOrder
-    pode_ser_fabricante?: SortOrder
-    pode_ser_agente?: SortOrder
-    pode_ser_despachante?: SortOrder
-    pode_ser_armador?: SortOrder
-    ativo?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+    cnpj_empresa?: SortOrder
+    tin_empresa?: SortOrder
+    pais_empresa?: SortOrder
+    estado_empresa?: SortOrder
+    cidade_empresa?: SortOrder
+    endereco_empresa?: SortOrder
+    zipcode_empresa?: SortOrder
+    email_empresa?: SortOrder
+    telefone_empresa?: SortOrder
+    whatsapp_empresa?: SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
   }
 
   export type EmpresaMinOrderByAggregateInput = {
-    suid?: SortOrder
+    suid_empresa?: SortOrder
     id_organizacao?: SortOrder
     nome_empresa?: SortOrder
-    cnpj?: SortOrder
-    tin?: SortOrder
-    pais?: SortOrder
-    estado?: SortOrder
-    cidade?: SortOrder
-    endereco?: SortOrder
-    zipcode?: SortOrder
-    email?: SortOrder
-    telefone?: SortOrder
-    whatsapp?: SortOrder
-    pode_ser_importador?: SortOrder
-    pode_ser_exportador?: SortOrder
-    pode_ser_fabricante?: SortOrder
-    pode_ser_agente?: SortOrder
-    pode_ser_despachante?: SortOrder
-    pode_ser_armador?: SortOrder
-    ativo?: SortOrder
-    criado_em?: SortOrder
-    atualizado_em?: SortOrder
+    cnpj_empresa?: SortOrder
+    tin_empresa?: SortOrder
+    pais_empresa?: SortOrder
+    estado_empresa?: SortOrder
+    cidade_empresa?: SortOrder
+    endereco_empresa?: SortOrder
+    zipcode_empresa?: SortOrder
+    email_empresa?: SortOrder
+    telefone_empresa?: SortOrder
+    whatsapp_empresa?: SortOrder
+    pode_ser_importador_empresa?: SortOrder
+    pode_ser_exportador_empresa?: SortOrder
+    pode_ser_fabricante_empresa?: SortOrder
+    pode_ser_agente_empresa?: SortOrder
+    pode_ser_despachante_empresa?: SortOrder
+    pode_ser_armador_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
+    pode_ser_armazem_alfandegado_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
+    pode_ser_cia_aerea_empresa?: SortOrder
+    pode_ser_transportadora_rodoviaria_internacional_empresa?: SortOrder
+    pode_ser_seguradora_internacional_empresa?: SortOrder
+    pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
+    pode_ser_banco_empresa?: SortOrder
+    pode_ser_armazem_nacional_empresa?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -8321,45 +8578,42 @@ export namespace Prisma {
   }
 
   export type MoedaCountOrderByAggregateInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    simbolo?: SortOrder
-    ativo?: SortOrder
+    codigo_moeda?: SortOrder
+    simbolo_moeda?: SortOrder
+    ativo_moeda?: SortOrder
   }
 
   export type MoedaMaxOrderByAggregateInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    simbolo?: SortOrder
-    ativo?: SortOrder
+    codigo_moeda?: SortOrder
+    simbolo_moeda?: SortOrder
+    ativo_moeda?: SortOrder
   }
 
   export type MoedaMinOrderByAggregateInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    simbolo?: SortOrder
-    ativo?: SortOrder
+    codigo_moeda?: SortOrder
+    simbolo_moeda?: SortOrder
+    ativo_moeda?: SortOrder
   }
 
   export type UnidadeCountOrderByAggregateInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    tipo?: SortOrder
-    ativo?: SortOrder
+    codigo_unidade?: SortOrder
+    nome_unidade?: SortOrder
+    tipo_unidade?: SortOrder
+    ativo_unidade?: SortOrder
   }
 
   export type UnidadeMaxOrderByAggregateInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    tipo?: SortOrder
-    ativo?: SortOrder
+    codigo_unidade?: SortOrder
+    nome_unidade?: SortOrder
+    tipo_unidade?: SortOrder
+    ativo_unidade?: SortOrder
   }
 
   export type UnidadeMinOrderByAggregateInput = {
-    codigo?: SortOrder
-    nome?: SortOrder
-    tipo?: SortOrder
-    ativo?: SortOrder
+    codigo_unidade?: SortOrder
+    nome_unidade?: SortOrder
+    tipo_unidade?: SortOrder
+    ativo_unidade?: SortOrder
   }
 
   export type FloatNullableFilter<$PrismaModel = never> = {
@@ -8374,37 +8628,47 @@ export namespace Prisma {
   }
 
   export type NCMCountOrderByAggregateInput = {
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ipi?: SortOrder
-    ii?: SortOrder
-    ativo?: SortOrder
+    codigo_ncm?: SortOrder
+    descricao_ncm?: SortOrder
+    ipi_ncm?: SortOrder
+    ii_ncm?: SortOrder
+    ativo_ncm?: SortOrder
+    pis_ncm?: SortOrder
+    cofins_ncm?: SortOrder
   }
 
   export type NCMAvgOrderByAggregateInput = {
-    ipi?: SortOrder
-    ii?: SortOrder
+    ipi_ncm?: SortOrder
+    ii_ncm?: SortOrder
+    pis_ncm?: SortOrder
+    cofins_ncm?: SortOrder
   }
 
   export type NCMMaxOrderByAggregateInput = {
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ipi?: SortOrder
-    ii?: SortOrder
-    ativo?: SortOrder
+    codigo_ncm?: SortOrder
+    descricao_ncm?: SortOrder
+    ipi_ncm?: SortOrder
+    ii_ncm?: SortOrder
+    ativo_ncm?: SortOrder
+    pis_ncm?: SortOrder
+    cofins_ncm?: SortOrder
   }
 
   export type NCMMinOrderByAggregateInput = {
-    codigo?: SortOrder
-    descricao?: SortOrder
-    ipi?: SortOrder
-    ii?: SortOrder
-    ativo?: SortOrder
+    codigo_ncm?: SortOrder
+    descricao_ncm?: SortOrder
+    ipi_ncm?: SortOrder
+    ii_ncm?: SortOrder
+    ativo_ncm?: SortOrder
+    pis_ncm?: SortOrder
+    cofins_ncm?: SortOrder
   }
 
   export type NCMSumOrderByAggregateInput = {
-    ipi?: SortOrder
-    ii?: SortOrder
+    ipi_ncm?: SortOrder
+    ii_ncm?: SortOrder
+    pis_ncm?: SortOrder
+    cofins_ncm?: SortOrder
   }
 
   export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -8424,60 +8688,60 @@ export namespace Prisma {
   }
 
   export type OPECountOrderByAggregateInput = {
-    suid?: SortOrder
+    suid_ope?: SortOrder
     id_organizacao?: SortOrder
-    codigo_portal_unico?: SortOrder
-    situacao?: SortOrder
-    versao?: SortOrder
+    codigo_portal_unico_ope?: SortOrder
+    situacao_ope?: SortOrder
+    versao_ope?: SortOrder
     nome_ope?: SortOrder
-    cnpj_raiz_empresa?: SortOrder
-    pais?: SortOrder
-    estado?: SortOrder
-    cidade?: SortOrder
-    endereco?: SortOrder
-    zip?: SortOrder
-    tin?: SortOrder
-    email?: SortOrder
-    ultima_sincronizacao?: SortOrder
-    origem?: SortOrder
+    cnpj_raiz_empresa_ope?: SortOrder
+    pais_ope?: SortOrder
+    estado_ope?: SortOrder
+    cidade_ope?: SortOrder
+    endereco_ope?: SortOrder
+    zip_ope?: SortOrder
+    tin_ope?: SortOrder
+    email_ope?: SortOrder
+    ultima_sincronizacao_ope?: SortOrder
+    origem_ope?: SortOrder
   }
 
   export type OPEMaxOrderByAggregateInput = {
-    suid?: SortOrder
+    suid_ope?: SortOrder
     id_organizacao?: SortOrder
-    codigo_portal_unico?: SortOrder
-    situacao?: SortOrder
-    versao?: SortOrder
+    codigo_portal_unico_ope?: SortOrder
+    situacao_ope?: SortOrder
+    versao_ope?: SortOrder
     nome_ope?: SortOrder
-    cnpj_raiz_empresa?: SortOrder
-    pais?: SortOrder
-    estado?: SortOrder
-    cidade?: SortOrder
-    endereco?: SortOrder
-    zip?: SortOrder
-    tin?: SortOrder
-    email?: SortOrder
-    ultima_sincronizacao?: SortOrder
-    origem?: SortOrder
+    cnpj_raiz_empresa_ope?: SortOrder
+    pais_ope?: SortOrder
+    estado_ope?: SortOrder
+    cidade_ope?: SortOrder
+    endereco_ope?: SortOrder
+    zip_ope?: SortOrder
+    tin_ope?: SortOrder
+    email_ope?: SortOrder
+    ultima_sincronizacao_ope?: SortOrder
+    origem_ope?: SortOrder
   }
 
   export type OPEMinOrderByAggregateInput = {
-    suid?: SortOrder
+    suid_ope?: SortOrder
     id_organizacao?: SortOrder
-    codigo_portal_unico?: SortOrder
-    situacao?: SortOrder
-    versao?: SortOrder
+    codigo_portal_unico_ope?: SortOrder
+    situacao_ope?: SortOrder
+    versao_ope?: SortOrder
     nome_ope?: SortOrder
-    cnpj_raiz_empresa?: SortOrder
-    pais?: SortOrder
-    estado?: SortOrder
-    cidade?: SortOrder
-    endereco?: SortOrder
-    zip?: SortOrder
-    tin?: SortOrder
-    email?: SortOrder
-    ultima_sincronizacao?: SortOrder
-    origem?: SortOrder
+    cnpj_raiz_empresa_ope?: SortOrder
+    pais_ope?: SortOrder
+    estado_ope?: SortOrder
+    cidade_ope?: SortOrder
+    endereco_ope?: SortOrder
+    zip_ope?: SortOrder
+    tin_ope?: SortOrder
+    email_ope?: SortOrder
+    ultima_sincronizacao_ope?: SortOrder
+    origem_ope?: SortOrder
   }
   export type JsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -8502,32 +8766,32 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type HistoricoStatusOPECountOrderByAggregateInput = {
-    id?: SortOrder
-    suid_ope?: SortOrder
-    status_anterior?: SortOrder
-    status_novo?: SortOrder
-    origem?: SortOrder
-    payload?: SortOrder
-    registrado_em?: SortOrder
+  export type OpeHistoricoStatusCountOrderByAggregateInput = {
+    id_historico_status_ope?: SortOrder
+    suid_ope_historico_status_ope?: SortOrder
+    status_anterior_historico_status_ope?: SortOrder
+    status_novo_historico_status_ope?: SortOrder
+    origem_historico_status_ope?: SortOrder
+    payload_historico_status_ope?: SortOrder
+    registrado_em_historico_status_ope?: SortOrder
   }
 
-  export type HistoricoStatusOPEMaxOrderByAggregateInput = {
-    id?: SortOrder
-    suid_ope?: SortOrder
-    status_anterior?: SortOrder
-    status_novo?: SortOrder
-    origem?: SortOrder
-    registrado_em?: SortOrder
+  export type OpeHistoricoStatusMaxOrderByAggregateInput = {
+    id_historico_status_ope?: SortOrder
+    suid_ope_historico_status_ope?: SortOrder
+    status_anterior_historico_status_ope?: SortOrder
+    status_novo_historico_status_ope?: SortOrder
+    origem_historico_status_ope?: SortOrder
+    registrado_em_historico_status_ope?: SortOrder
   }
 
-  export type HistoricoStatusOPEMinOrderByAggregateInput = {
-    id?: SortOrder
-    suid_ope?: SortOrder
-    status_anterior?: SortOrder
-    status_novo?: SortOrder
-    origem?: SortOrder
-    registrado_em?: SortOrder
+  export type OpeHistoricoStatusMinOrderByAggregateInput = {
+    id_historico_status_ope?: SortOrder
+    suid_ope_historico_status_ope?: SortOrder
+    status_anterior_historico_status_ope?: SortOrder
+    status_novo_historico_status_ope?: SortOrder
+    origem_historico_status_ope?: SortOrder
+    registrado_em_historico_status_ope?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -8776,9 +9040,9 @@ export namespace Prisma {
      */
     export type OPEArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OPEDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use HistoricoStatusOPEDefaultArgs instead
+     * @deprecated Use OpeHistoricoStatusDefaultArgs instead
      */
-    export type HistoricoStatusOPEArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = HistoricoStatusOPEDefaultArgs<ExtArgs>
+    export type OpeHistoricoStatusArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OpeHistoricoStatusDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

@@ -37,7 +37,7 @@ describe('gerarSuid', () => {
         findUnique: async () => null,
       },
     } as unknown as Parameters<typeof gerarSuid>[0]
-    const suid = await gerarSuid(fakePrisma, { id_organizacao: 'org1', pais: 'BR', nome_empresa: 'Foo' })
+    const suid = await gerarSuid(fakePrisma, { id_organizacao: 'org1', pais_empresa: 'BR', nome_empresa: 'Foo' })
     expect(suid).toBe('BR-FOO-00001')
   })
 
@@ -53,7 +53,7 @@ describe('gerarSuid', () => {
         },
       },
     } as unknown as Parameters<typeof gerarSuid>[0]
-    const suid = await gerarSuid(fakePrisma, { id_organizacao: 'org1', pais: 'BR', nome_empresa: 'Foo' })
+    const suid = await gerarSuid(fakePrisma, { id_organizacao: 'org1', pais_empresa: 'BR', nome_empresa: 'Foo' })
     expect(suid).toBe('BR-FOO-00003')
   })
 
@@ -65,7 +65,7 @@ describe('gerarSuid', () => {
       },
     } as unknown as Parameters<typeof gerarSuid>[0]
     await expect(
-      gerarSuid(fakePrisma, { id_organizacao: 'org1', pais: 'BR', nome_empresa: 'Foo' }),
+      gerarSuid(fakePrisma, { id_organizacao: 'org1', pais_empresa: 'BR', nome_empresa: 'Foo' }),
     ).rejects.toThrow(/50 tentativas/)
   })
 })

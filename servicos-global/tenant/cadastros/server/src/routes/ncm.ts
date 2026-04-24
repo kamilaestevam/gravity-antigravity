@@ -17,11 +17,11 @@ router.post('/', async (req, res, next) => {
     const dados = criarNCMSchema.parse(req.body)
     const criada = await prisma.nCM.create({
       data: {
-        codigo: dados.codigo,
-        descricao: dados.descricao,
-        ipi: dados.ipi ?? null,
-        ii: dados.ii ?? null,
-        ativo: dados.ativo,
+        codigo_ncm: dados.codigo_ncm,
+        descricao_ncm: dados.descricao_ncm,
+        ipi_ncm: dados.ipi_ncm ?? null,
+        ii_ncm: dados.ii_ncm ?? null,
+        ativo_ncm: dados.ativo_ncm,
       },
     })
     res.status(201).json(criada)
@@ -39,15 +39,15 @@ router.get('/', async (req, res, next) => {
     const busca = typeof req.query.busca === 'string' ? req.query.busca : undefined
     const itens = await prisma.nCM.findMany({
       where: {
-        ...(apenasAtivos ? { ativo: true } : {}),
+        ...(apenasAtivos ? { ativo_ncm: true } : {}),
         ...(busca ? {
           OR: [
-            { codigo: { contains: busca } },
-            { descricao: { contains: busca, mode: 'insensitive' } },
+            { codigo_ncm: { contains: busca } },
+            { descricao_ncm: { contains: busca, mode: 'insensitive' } },
           ],
         } : {}),
       },
-      orderBy: { codigo: 'asc' },
+      orderBy: { codigo_ncm: 'asc' },
       take: 500,
     })
     res.status(200).json({ itens, total: itens.length })
@@ -58,7 +58,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:codigo', async (req, res, next) => {
   try {
-    const ncm = await prisma.nCM.findUnique({ where: { codigo: req.params.codigo } })
+    const ncm = await prisma.nCM.findUnique({ where: { codigo_ncm: req.params.codigo } })
     if (!ncm) throw AppError.naoEncontrado('NCM')
     res.status(200).json(ncm)
   } catch (err) {
@@ -69,15 +69,15 @@ router.get('/:codigo', async (req, res, next) => {
 router.put('/:codigo', async (req, res, next) => {
   try {
     const dados = atualizarNCMSchema.parse(req.body)
-    const existente = await prisma.nCM.findUnique({ where: { codigo: req.params.codigo } })
+    const existente = await prisma.nCM.findUnique({ where: { codigo_ncm: req.params.codigo } })
     if (!existente) throw AppError.naoEncontrado('NCM')
     const atualizado = await prisma.nCM.update({
-      where: { codigo: existente.codigo },
+      where: { codigo_ncm: existente.codigo_ncm },
       data: {
-        ...(dados.descricao !== undefined ? { descricao: dados.descricao } : {}),
-        ...(dados.ipi !== undefined ? { ipi: dados.ipi } : {}),
-        ...(dados.ii !== undefined ? { ii: dados.ii } : {}),
-        ...(dados.ativo !== undefined ? { ativo: dados.ativo } : {}),
+        ...(dados.descricao_ncm !== undefined ? { descricao_ncm: dados.descricao_ncm } : {}),
+        ...(dados.ipi_ncm !== undefined ? { ipi_ncm: dados.ipi_ncm } : {}),
+        ...(dados.ii_ncm !== undefined ? { ii_ncm: dados.ii_ncm } : {}),
+        ...(dados.ativo_ncm !== undefined ? { ativo_ncm: dados.ativo_ncm } : {}),
       },
     })
     res.status(200).json(atualizado)
@@ -88,11 +88,11 @@ router.put('/:codigo', async (req, res, next) => {
 
 router.delete('/:codigo', async (req, res, next) => {
   try {
-    const existente = await prisma.nCM.findUnique({ where: { codigo: req.params.codigo } })
+    const existente = await prisma.nCM.findUnique({ where: { codigo_ncm: req.params.codigo } })
     if (!existente) throw AppError.naoEncontrado('NCM')
     const desativado = await prisma.nCM.update({
-      where: { codigo: existente.codigo },
-      data: { ativo: false },
+      where: { codigo_ncm: existente.codigo_ncm },
+      data: { ativo_ncm: false },
     })
     res.status(200).json(desativado)
   } catch (err) {

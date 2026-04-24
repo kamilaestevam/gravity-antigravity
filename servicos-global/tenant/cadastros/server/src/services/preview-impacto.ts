@@ -88,5 +88,5 @@ export async function consultarImpacto(
     .filter((r) => r.status === 'ok')
     .reduce((acc, r) => acc + r.ativos, 0)
 
-  return { suid, total, por_produto: resultados }
+  return { suid_empresa: suid, total, por_produto: resultados }
 }

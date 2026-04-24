@@ -22,10 +22,10 @@ process.env.INTERNAL_SERVICE_KEY = CHAVE_INTERNA_TESTE
 export const prismaTeste = new PrismaClient({ log: ['error'] })
 
 export async function limparDadosDeTeste(): Promise<void> {
-  await prismaTeste.empresa.deleteMany({ where: { suid: { startsWith: PREFIXO_SUID_TESTE } } })
-  await prismaTeste.moeda.deleteMany({ where: { codigo: { startsWith: 'ZZ' } } })
-  await prismaTeste.unidade.deleteMany({ where: { codigo: { startsWith: 'ZZ' } } })
-  await prismaTeste.nCM.deleteMany({ where: { codigo: { startsWith: '99' } } })
+  await prismaTeste.empresa.deleteMany({ where: { suid_empresa: { startsWith: PREFIXO_SUID_TESTE } } })
+  await prismaTeste.moeda.deleteMany({ where: { codigo_moeda: { startsWith: 'ZZ' } } })
+  await prismaTeste.unidade.deleteMany({ where: { codigo_unidade: { startsWith: 'ZZ' } } })
+  await prismaTeste.nCM.deleteMany({ where: { codigo_ncm: { startsWith: '99' } } })
 }
 
 export { CHAVE_INTERNA_TESTE, PREFIXO_SUID_TESTE }

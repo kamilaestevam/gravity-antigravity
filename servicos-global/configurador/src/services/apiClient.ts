@@ -147,7 +147,7 @@ export interface TenantApi {
   created_at: string
   _count?: { users: number; companies: number }
   subscriptions?: Array<{ plan: string; status: string }>
-  users?: Array<{ id: string; name: string; email: string; role: string; created_at: string }>
+  users?: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string }>
   companies?: Array<{ id: string; name: string; subdomain: string | null; status: string; _count?: { memberships: number } }>
   product_configs?: Array<{ product_key: string; is_active: boolean; updated_at: string }>
 }
@@ -288,14 +288,14 @@ export interface GlobalUserApi {
   id: string
   name: string
   email: string
-  role: string
+  tipo_usuario: string
   created_at: string
   tenant_id: string
   tenant: { name: string; slug: string }
   memberships: Array<{
     id: string
     company_id: string
-    role: string
+    tipo_usuario: string
     is_active: boolean
     company: { name: string; subdomain: string | null }
   }>
@@ -313,14 +313,14 @@ export const adminUsersApi = {
   },
 
   async promoteUser(userId: string, role: 'SUPER_ADMIN' | 'ADMIN') {
-    return request<{ user: { id: string; email: string; role: string } }>(
+    return request<{ user: { id: string; email: string; tipo_usuario: string } }>(
       `/admin/usuarios-globais/${userId}/promote`,
       { method: 'POST', body: JSON.stringify({ role }) }
     )
   },
 
   async inviteUser(data: { email: string; name: string; role: string }) {
-    return request<{ user: { id: string; email: string; role: string } }>(
+    return request<{ user: { id: string; email: string; tipo_usuario: string } }>(
       '/admin/usuarios-globais/invite',
       { method: 'POST', body: JSON.stringify(data) }
     )
@@ -789,7 +789,7 @@ export const workspaceApi = {
   },
 
   async getUsers() {
-    return request<{ users: Array<{ id: string; name: string; email: string; role: string; created_at: string; memberships: Array<{ company_id: string; role: string; is_active: boolean }> }> }>(
+    return request<{ users: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string; memberships: Array<{ company_id: string; tipo_usuario: string; is_active: boolean }> }> }>(
       '/v1/usuarios'
     )
   },
@@ -809,7 +809,7 @@ export const workspaceApi = {
   },
 
   async updateUserRole(userId: string, role: string) {
-    return request<{ user: { id: string; role: string } }>(`/v1/usuarios/${userId}/role`, {
+    return request<{ user: { id: string; tipo_usuario: string } }>(`/v1/usuarios/${userId}/role`, {
       method: 'PATCH',
       body: JSON.stringify({ role }),
     })

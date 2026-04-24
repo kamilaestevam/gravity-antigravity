@@ -69,37 +69,53 @@ Configurador cuida de auth (Clerk), Organizacao (CNPJ do tenant pagante), Worksp
 
 ## 4. Modelo de dados — banco Cadastros
 
+> **Convenção DDD Gravity (atualizada 24/04/2026 — fix_model_casing_revert):**
+> - **Model names em PascalCase** (convenção Prisma) — `Empresa`, `Moeda`, `Unidade`, `NCM`, `OPE`, `OpeHistoricoStatus`.
+> - **Nome de tabela PostgreSQL em snake_case** via `@@map("tabela")`.
+> - **Colunas em snake_case PT-BR** com **sufixo da tabela** (ex: `suid_empresa`, `codigo_moeda`) — exceções: FKs `id_<outra>` (ex: `id_organizacao`) e colunas já terminadas com o sufixo.
+> - Valores de enum em UPPER_SNAKE EN. Booleans sem prefixo `is_`.
+> - **Proibido** ficar apenas em `model empresa {}` sem `@@map`. O schema precisa ser válido tanto na ótica Prisma (PascalCase) quanto na ótica PG (snake_case).
+
 ### 4.1 Empresa
 
 ```prisma
 model Empresa {
-  suid                   String   @id           // ex: SHENZHEN-00042
-  id_organizacao         String                 // tenant dono
-  nome_empresa           String
-  cnpj                   String?                // obrigatório se pais = BR
-  tin                    String?                // estrangeiros (opcional)
-  pais                   String                 // ISO-2
-  estado                 String?
-  cidade                 String?
-  endereco               String?
-  zipcode                String?
-  email                  String?
-  telefone               String?
-  whatsapp               String?
-  pode_ser_importador    Boolean  @default(false)
-  pode_ser_exportador    Boolean  @default(false)
-  pode_ser_fabricante    Boolean  @default(false)
-  pode_ser_agente        Boolean  @default(false)
-  pode_ser_despachante   Boolean  @default(false)
-  pode_ser_armador       Boolean  @default(false)
-  ativo                  Boolean  @default(true)
-  criado_em              DateTime @default(now())
-  atualizado_em          DateTime @updatedAt
+  suid_empresa                          String   @id           // ex: SHENZHEN-00042
+  id_organizacao                        String                 // tenant dono
+  nome_empresa                          String
+  cnpj_empresa                          String?                // obrigatório se pais_empresa = BR
+  tin_empresa                           String?                // estrangeiros (opcional)
+  pais_empresa                          String                 // ISO-2
+  estado_empresa                        String?
+  cidade_empresa                        String?
+  endereco_empresa                      String?
+  zipcode_empresa                       String?
+  email_empresa                         String?
+  telefone_empresa                      String?
+  whatsapp_empresa                      String?
+  pode_ser_importador_empresa           Boolean  @default(false)
+  pode_ser_exportador_empresa           Boolean  @default(false)
+  pode_ser_fabricante_empresa           Boolean  @default(false)
+  pode_ser_agente_empresa               Boolean  @default(false)
+  pode_ser_despachante_empresa          Boolean  @default(false)
+  pode_ser_armador_empresa              Boolean  @default(false)
+  pode_ser_armazem_alfandegado_empresa                          Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_nacional_empresa           Boolean @default(false)
+  pode_ser_cia_aerea_empresa                                    Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_internacional_empresa      Boolean @default(false)
+  pode_ser_seguradora_internacional_empresa                     Boolean @default(false)
+  pode_ser_seguradora_corretora_cambio_empresa                  Boolean @default(false)
+  pode_ser_banco_empresa                                        Boolean @default(false)
+  pode_ser_armazem_nacional_empresa                             Boolean @default(false)
+  ativo_empresa                         Boolean  @default(true)
+  criado_em_empresa                     DateTime @default(now())
+  atualizado_em_empresa                 DateTime @updatedAt
 
-  @@unique([id_organizacao, cnpj])
-  @@unique([id_organizacao, tin, pais])
+  @@unique([id_organizacao, cnpj_empresa])
+  @@unique([id_organizacao, tin_empresa, pais_empresa])
   @@index([id_organizacao])
   @@index([id_organizacao, nome_empresa])
+  @@map("empresa")
 }
 ```
 
@@ -109,63 +125,72 @@ model Empresa {
 
 ```prisma
 model Moeda {
-  codigo          String   @id           // BRL, USD, EUR, CNY
-  nome            String
-  simbolo         String
-  ativo           Boolean  @default(true)
+  codigo_moeda    String   @id           // BRL, USD, EUR, CNY — ISO 4217
+  simbolo_moeda   String
+  ativo_moeda     Boolean  @default(true)
+
+  @@map("moeda")
 }
 
 model Unidade {
-  codigo          String   @id           // KG, UN, M, L
-  nome            String
-  tipo            String                 // peso, quantidade, comprimento, volume
-  ativo           Boolean  @default(true)
+  codigo_unidade  String   @id           // KG, UN, M, L
+  nome_unidade    String
+  tipo_unidade    String                 // peso, quantidade, comprimento, volume
+  ativo_unidade   Boolean  @default(true)
+
+  @@map("unidade")
 }
 
-model Ncm {
-  codigo          String   @id           // 8 dígitos
-  descricao       String
-  ipi             Float?
-  ii              Float?
-  ativo           Boolean  @default(true)
+model NCM {
+  codigo_ncm      String   @id           // 8 dígitos
+  descricao_ncm   String
+  ipi_ncm         Float?
+  ii_ncm          Float?
+  pis_ncm         Float?
+  cofins_ncm      Float?
+  ativo_ncm       Boolean  @default(true)
+
+  @@map("ncm")
 }
 ```
 
 ### 4.3 OPE — sincronizado de Portal Único
 
 ```prisma
-model Ope {
-  suid                   String   @id
-  id_organizacao         String
-  codigo_portal_unico    String   @unique
-  situacao               String                 // espelho do status SISCOMEX
-  versao                 String
-  nome_ope               String
-  cnpj_raiz_empresa      String
-  pais                   String
-  estado                 String?
-  cidade                 String?
-  endereco               String?
-  zip                    String?
-  tin                    String?
-  email                  String?
-  ultima_sincronizacao   DateTime
-  origem                 String   @default("portal_unico")
+model OPE {
+  suid_ope                   String   @id
+  id_organizacao             String
+  codigo_portal_unico_ope    String   @unique
+  situacao_ope               String                 // espelho do status SISCOMEX
+  versao_ope                 String
+  nome_ope                   String
+  cnpj_raiz_empresa_ope      String
+  pais_ope                   String
+  estado_ope                 String?
+  cidade_ope                 String?
+  endereco_ope               String?
+  zip_ope                    String?
+  tin_ope                    String?
+  email_ope                  String?
+  ultima_sincronizacao_ope   DateTime
+  origem_ope                 String   @default("portal_unico")
 
   @@index([id_organizacao])
+  @@map("ope")
 }
 
-model OperacaoEvento {
-  id                     String   @id @default(cuid())
-  suid_ope               String
-  status_anterior        String?
-  status_novo            String
-  origem                 String                 // portal_unico, manual, sistema
-  payload                Json
-  registrado_em          DateTime @default(now())
+model OpeHistoricoStatus {
+  id_historico_status_ope                String   @id @default(cuid())
+  suid_ope_historico_status_ope          String
+  status_anterior_historico_status_ope   String?
+  status_novo_historico_status_ope       String
+  origem_historico_status_ope            String                 // portal_unico, manual, sistema
+  payload_historico_status_ope           Json
+  registrado_em_historico_status_ope     DateTime @default(now())
 
-  @@index([suid_ope])
-  @@index([registrado_em])
+  @@index([suid_ope_historico_status_ope])
+  @@index([registrado_em_historico_status_ope])
+  @@map("ope_historico_status")
 }
 ```
 
@@ -178,16 +203,26 @@ OPE é sincronizado via job que consome Portal Único. Portal Único é a fonte 
 ```
 Empresa:
 - nome_empresa: obrigatório, mínimo 2 caracteres
-- pais: obrigatório, ISO-2
-- if (pais === 'BR') { cnpj obrigatório, formato XX.XXX.XXX/XXXX-XX validado }
-- if (pais !== 'BR') { cnpj deve ser null; tin opcional mas recomendado }
-- pelo menos uma flag pode_ser_* deve ser true
-- email: se preenchido, formato válido
-- whatsapp: se preenchido, formato E.164
+- pais_empresa: obrigatório, ISO-2
+- if (pais_empresa === 'BR') { cnpj_empresa obrigatório, formato XX.XXX.XXX/XXXX-XX validado }
+- if (pais_empresa !== 'BR') { cnpj_empresa deve ser null; tin_empresa opcional mas recomendado }
+- pelo menos uma flag pode_ser_*_empresa deve ser true
+- email_empresa: se preenchido, formato válido
+- whatsapp_empresa: se preenchido, formato E.164
 
-Moeda/Unidade/Ncm:
-- codigo: obrigatório, formato específico por entidade
-- nome: obrigatório
+Moeda:
+- codigo_moeda: obrigatório, ISO 4217 (3 letras maiúsculas)
+- simbolo_moeda: obrigatório
+
+Unidade:
+- codigo_unidade: obrigatório, até 8 caracteres
+- nome_unidade: obrigatório
+- tipo_unidade: enum (peso | quantidade | comprimento | volume)
+
+NCM:
+- codigo_ncm: obrigatório, 8 dígitos numéricos
+- descricao_ncm: obrigatório
+- ipi_ncm / ii_ncm / pis_ncm / cofins_ncm: opcionais, quando preenchidos >= 0
 ```
 
 ---
@@ -283,17 +318,18 @@ Sem FK física entre Configurador e Cadastros. `suid_empresa` é cópia.
 - [ ] Coordenador valida que documento está executável
 
 ### Fase 1 — Criação do banco Cadastros (não toca em produtos existentes)
-- [ ] Criar serviço `servicos-global/tenant/cadastros/`
-- [ ] Criar `fragment.prisma` com models: Empresa, Moeda, Unidade, Ncm, Ope, OperacaoEvento
-- [ ] Coordenador roda script de composição → gera novo `schema.prisma` consolidado
-- [ ] Migration inicial criando o banco `cadastros` no Railway
-- [ ] Endpoints CRUD (Empresa, Moeda, Unidade, Ncm) com `x-internal-key`
-- [ ] Endpoint `GET /empresas/:suid/preview-impacto` (consulta produtos via API interna)
-- [ ] Job de sincronização Portal Único → Ope
-- [ ] Cache Redis no client SDK (5min TTL por SUID)
-- [ ] Validações Zod (backend + frontend)
-- [ ] Função utilitária `derivarTipoVisual(empresa)`
-- [ ] Testes unitários e funcionais (incluindo cross-tenant)
+- [x] Criar serviço `servicos-global/tenant/cadastros/`
+- [x] Criar `fragment.prisma` com models: `Empresa`, `Moeda`, `Unidade`, `NCM`, `OPE`, `OpeHistoricoStatus` (PascalCase + `@@map`)
+- [x] Coordenador roda script de composição → gera novo `schema.prisma` consolidado
+- [x] Migration inicial criando o banco `cadastros` no Railway
+- [x] Migration `fix_model_casing_revert` (24/04/2026) — PascalCase + `@@map`, tabelas snake_case com campos DDD e ghost flags
+- [x] Endpoints CRUD (Empresa, Moeda, Unidade, NCM, OPE) com `x-internal-key`
+- [x] Endpoint `GET /empresas/:suid/preview-impacto` (consulta produtos via API interna)
+- [ ] Job de sincronização Portal Único → OPE
+- [x] Cache Redis no client SDK (5min TTL por SUID)
+- [x] Validações Zod (backend + frontend)
+- [x] Função utilitária `derivarTipoVisual(empresa)`
+- [x] Testes unitários e funcionais (53/53 verdes em 24/04/2026, incluindo cross-tenant)
 
 ### Fase 2 — Inclusão dos campos faltantes no Prisma do Pedido
 **(Independente da Fase 1, pode rodar em paralelo. Exige aprovação do Coordenador — Mandamento 02.)**

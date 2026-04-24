@@ -83,8 +83,9 @@ model PedidoItem {
 **Como verificar conformidade:**
 1. Abrir `campos-back-front-banco/export-campos-completo-corrigido.csv`
 2. Colunas `nome_no_banco`, `nome_no_back`, `nome_no_front` devem ser **idênticas**
-3. Nenhum `@map()` de coluna no `fragment.prisma` de produto
+3. Nenhum `@map()` de **coluna** no `fragment.prisma` de produto (paridade campo↔coluna é absoluta)
 4. Nenhum alias em services TypeScript
+5. **`@@map("tabela_snake_case")` é obrigatório em todo model** — o model fica em PascalCase (convenção Prisma), a tabela PG em snake_case. Isso NÃO rompe paridade porque é o nome da tabela, não da coluna.
 
 ---
 
@@ -233,10 +234,10 @@ async function convidarUsuarioComVinculo(idOrganizacao: string, idUsuario: strin
 
 | Contexto | Convenção | Exemplo |
 |:---|:---|:---|
-| Tabela PostgreSQL | `snake_case` plural | `pedido_item` |
-| Campo PostgreSQL | `snake_case` | `quantidade_inicial_item_pedido` |
-| Model Prisma | `PascalCase` singular | `PedidoItem` |
-| Campo Prisma | `snake_case` (idêntico ao banco) | `quantidade_inicial_item_pedido` |
+| Tabela PostgreSQL | `snake_case` singular, declarada via `@@map("...")` | `empresa`, `pedido_item`, `ope_historico_status` |
+| Campo PostgreSQL | `snake_case` com sufixo da tabela | `quantidade_inicial_item_pedido`, `suid_empresa`, `cnpj_empresa` |
+| Model Prisma | `PascalCase` singular (acrônimos em caixa alta OK) | `PedidoItem`, `Empresa`, `NCM`, `OPE`, `OpeHistoricoStatus` |
+| Campo Prisma | `snake_case` (idêntico ao banco) | `quantidade_inicial_item_pedido`, `suid_empresa` |
 | TypeScript server | `snake_case` no DTO/interface | `quantidade_inicial_item_pedido` |
 | TypeScript client | `snake_case` | `item.quantidade_inicial_item_pedido` |
 | Chave JSON API | `snake_case` | `{ "quantidade_inicial_item_pedido": 10 }` |
@@ -385,7 +386,8 @@ servicos-global/tenant/generated/
 ```
 
 **Regras do `fragment.prisma`:**
-- Nenhum `@map()` de coluna
+- Nenhum `@map()` de **coluna** (paridade campo Prisma ↔ coluna PG é absoluta)
+- **`@@map("tabela_snake_case")` é obrigatório** em todo model — garante nome da tabela PG em snake_case enquanto o model fica em PascalCase
 - Nenhum campo de identificador de organização em models de produto após migração completa (o schema isolado dispensa o campo)
 - Nenhum `@@index` em campo de identificador de organização após migração completa
 - Nenhum agente edita `schema.prisma` final — só o Coordenador (Mandamento 02 — schema é INTOCÁVEL)
@@ -397,6 +399,7 @@ servicos-global/tenant/generated/
 - [ ] Nome do campo está idêntico no banco, Prisma, TypeScript e JSON?
 - [ ] Consultei `export-campos-completo-corrigido.csv` (Pedido) ou o dicionário correspondente?
 - [ ] Nenhum `@map()` de coluna no `fragment.prisma`?
+- [ ] **Model em PascalCase com `@@map("tabela_snake_case")` declarado?**
 - [ ] Produto tem seu próprio `DATABASE_URL` (não compartilha banco)?
 - [ ] `public` schema não vai receber tabelas de dados?
 - [ ] Campos calculados não estão marcados como editáveis/obrigatórios no front?

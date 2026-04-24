@@ -513,7 +513,7 @@ exports.Prisma.HistoricoLogScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.RegraAlertaScalarFieldEnum = {
+exports.Prisma.AlertRuleScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   name: 'name',
@@ -535,7 +535,7 @@ exports.Prisma.RegraAlertaScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.EventoAlertaScalarFieldEnum = {
+exports.Prisma.AlertEventScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   rule_id: 'rule_id',
@@ -554,7 +554,7 @@ exports.Prisma.EventoAlertaScalarFieldEnum = {
   created_at: 'created_at'
 };
 
-exports.Prisma.RegistroNotificacaoAlertaScalarFieldEnum = {
+exports.Prisma.AlertNotificationLogScalarFieldEnum = {
   id: 'id',
   alert_event_id: 'alert_event_id',
   channel: 'channel',
@@ -700,7 +700,7 @@ exports.Prisma.PersonalizacaoOrganizacaoGabiaiScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.PreferenciasUsuarioScalarFieldEnum = {
+exports.Prisma.UserPreferencesScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
   tenant_id: 'tenant_id',
@@ -774,7 +774,7 @@ exports.Prisma.NotificacoesTituloCorpoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ContatoExternoScalarFieldEnum = {
+exports.Prisma.ExternalContactScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   created_by: 'created_by',
@@ -787,7 +787,7 @@ exports.Prisma.ContatoExternoScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.ConfiguracaoCanalTenantScalarFieldEnum = {
+exports.Prisma.TenantChannelConfigScalarFieldEnum = {
   id: 'id',
   tenant_id: 'tenant_id',
   email_enabled: 'email_enabled',
@@ -826,13 +826,13 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.EmailThreadStatus = exports.$Enums.EmailThreadStatus = {
+exports.StatusThreadEmail = exports.$Enums.StatusThreadEmail = {
   ABERTA: 'ABERTA',
   ARQUIVADA: 'ARQUIVADA',
   RESOLVIDA: 'RESOLVIDA'
 };
 
-exports.EmailSentimentLevel = exports.$Enums.EmailSentimentLevel = {
+exports.NivelSentimentoEmail = exports.$Enums.NivelSentimentoEmail = {
   MUITO_POSITIVO: 'MUITO_POSITIVO',
   POSITIVO: 'POSITIVO',
   NEUTRO: 'NEUTRO',
@@ -840,12 +840,12 @@ exports.EmailSentimentLevel = exports.$Enums.EmailSentimentLevel = {
   MUITO_NEGATIVO: 'MUITO_NEGATIVO'
 };
 
-exports.EmailDirection = exports.$Enums.EmailDirection = {
+exports.DirecaoEmail = exports.$Enums.DirecaoEmail = {
   INBOUND: 'INBOUND',
   OUTBOUND: 'OUTBOUND'
 };
 
-exports.EmailStatus = exports.$Enums.EmailStatus = {
+exports.StatusEmail = exports.$Enums.StatusEmail = {
   PENDENTE: 'PENDENTE',
   PROCESSANDO: 'PROCESSANDO',
   ENVIADO: 'ENVIADO',
@@ -860,18 +860,18 @@ exports.FilaEmailPrioridade = exports.$Enums.FilaEmailPrioridade = {
   URGENTE: 'URGENTE'
 };
 
-exports.DashboardMode = exports.$Enums.DashboardMode = {
+exports.ModoDashboard = exports.$Enums.ModoDashboard = {
   PRODUCT: 'PRODUCT',
   GENERAL: 'GENERAL'
 };
 
-exports.WidgetType = exports.$Enums.WidgetType = {
+exports.TipoWidget = exports.$Enums.TipoWidget = {
   CATALOG: 'CATALOG',
   CUSTOM: 'CUSTOM',
   GABI: 'GABI'
 };
 
-exports.ChartType = exports.$Enums.ChartType = {
+exports.TipoGrafico = exports.$Enums.TipoGrafico = {
   KPI_CARD: 'KPI_CARD',
   LINE: 'LINE',
   BAR: 'BAR',
@@ -885,7 +885,7 @@ exports.ChartType = exports.$Enums.ChartType = {
   AREA: 'AREA'
 };
 
-exports.ActorType = exports.$Enums.ActorType = {
+exports.TipoAtor = exports.$Enums.TipoAtor = {
   USER: 'USER',
   API: 'API',
   AI: 'AI',
@@ -893,19 +893,19 @@ exports.ActorType = exports.$Enums.ActorType = {
   INTEGRATION: 'INTEGRATION'
 };
 
-exports.EventStatus = exports.$Enums.EventStatus = {
+exports.StatusEvento = exports.$Enums.StatusEvento = {
   SUCCESS: 'SUCCESS',
   FAILURE: 'FAILURE',
   PARTIAL: 'PARTIAL'
 };
 
-exports.AlertStatus = exports.$Enums.AlertStatus = {
+exports.StatusAlerta = exports.$Enums.StatusAlerta = {
   PENDING: 'PENDING',
   REVIEWED: 'REVIEWED',
   ESCALATED: 'ESCALATED'
 };
 
-exports.NcmSyncStatus = exports.$Enums.NcmSyncStatus = {
+exports.StatusNcmSync = exports.$Enums.StatusNcmSync = {
   RUNNING: 'RUNNING',
   SUCCESS: 'SUCCESS',
   ERROR: 'ERROR'
@@ -941,9 +941,9 @@ exports.Prisma.ModelName = {
   RelatoriosConfiguracao: 'RelatoriosConfiguracao',
   ExportarJob: 'ExportarJob',
   HistoricoLog: 'HistoricoLog',
-  RegraAlerta: 'RegraAlerta',
-  EventoAlerta: 'EventoAlerta',
-  RegistroNotificacaoAlerta: 'RegistroNotificacaoAlerta',
+  AlertRule: 'AlertRule',
+  AlertEvent: 'AlertEvent',
+  AlertNotificationLog: 'AlertNotificationLog',
   ExportarResultado: 'ExportarResultado',
   Agenda: 'Agenda',
   Slot: 'Slot',
@@ -955,13 +955,13 @@ exports.Prisma.ModelName = {
   GabiaTokenConsumidos: 'GabiaTokenConsumidos',
   GabiaTokenWorkspace: 'GabiaTokenWorkspace',
   PersonalizacaoOrganizacaoGabiai: 'PersonalizacaoOrganizacaoGabiai',
-  PreferenciasUsuario: 'PreferenciasUsuario',
+  UserPreferences: 'UserPreferences',
   NcmItem: 'NcmItem',
   NcmSyncLog: 'NcmSyncLog',
   NcmScheduleConfig: 'NcmScheduleConfig',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
-  ContatoExterno: 'ContatoExterno',
-  ConfiguracaoCanalTenant: 'ConfiguracaoCanalTenant'
+  ExternalContact: 'ExternalContact',
+  TenantChannelConfig: 'TenantChannelConfig'
 };
 
 /**

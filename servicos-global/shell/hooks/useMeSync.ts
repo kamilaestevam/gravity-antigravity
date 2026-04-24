@@ -1,8 +1,6 @@
 // shell/hooks/useMeSync.ts
-// Substitui useSyncClerkToShell — busca contexto do usuário em GET /api/v1/me
-// em vez de ler publicMetadata do Clerk.
-//
-// Clerk = porteiro (valida JWT). Backend = fonte de verdade (user + tenant + role).
+// Busca contexto do usuário em GET /api/v1/me e popula o shell store.
+// Mandamento 01: Clerk = porteiro (valida JWT). Backend = fonte de verdade (user + tenant + role).
 //
 // Deve ser chamado uma vez no Layout principal (ou App.tsx do produto).
 // Requer que esteja dentro de um <ClerkProvider>.

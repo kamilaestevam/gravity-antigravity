@@ -134,7 +134,7 @@ export function criarCadastrosClient(opts: CadastrosClientOptions): CadastrosCli
           body: dados,
           idOrganizacao: dados.id_organizacao,
         })
-        cacheEmpresa.set(`${empresa.id_organizacao}:${empresa.suid}`, empresa)
+        cacheEmpresa.set(`${empresa.id_organizacao}:${empresa.suid_empresa}`, empresa)
         return empresa
       },
 

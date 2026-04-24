@@ -261,8 +261,9 @@ datasource db {
 | Elemento | Convenção | Exemplo |
 |:---|:---|:---|
 | Schema PostgreSQL | `tenant_<cuid>` | `tenant_a1b2c3d4...` |
-| Model | PascalCase, prefixado se houver risco de colisão | `Fatura`, `HelpdeskTicket` |
-| Campos | snake_case | `numero_pedido`, `created_at` |
+| Model | PascalCase, prefixado se houver risco de colisão | `Fatura`, `HelpdeskTicket`, `Empresa`, `OpeHistoricoStatus`, `NCM` |
+| Tabela PG (via `@@map`) | `snake_case` singular | `@@map("fatura")`, `@@map("helpdesk_ticket")`, `@@map("ope_historico_status")` |
+| Campos | snake_case com sufixo da tabela | `numero_pedido`, `suid_empresa`, `cnpj_empresa` |
 | Enum values | UPPER_SNAKE_CASE | `EM_PROCESSAMENTO`, `PAGA` |
 
 > Validação: regex `^tenant_c[a-z0-9]{24}$` (CUID gerado pelo Prisma). O SDK rejeita schemas que não batem.
@@ -305,7 +306,7 @@ Se qualquer etapa falhar → Coordenador notifica o agente responsável com o er
 - [ ] Models não têm `@@index([id_organizacao, ...])` (o schema isola fisicamente)
 - [ ] Nomes de models e enums não colidem com outros fragments
 - [ ] Nenhuma relação com models de outros fragments (use IDs cruzados ou peça ao Coordenador para arbitrar)
-- [ ] `@map`/`@@map` apenas para colunas físicas legadas durante a janela de migração (ex.: `@map("tenant_id")`); modelos novos usam o naming DDD direto
+- [ ] **`@@map("tabela_snake_case")` declarado em todo model** (PascalCase Prisma + snake_case PG). `@map` de coluna: só para colunas físicas legadas durante janela de migração (ex.: `@map("tenant_id")`). Colunas novas seguem DDD direto com paridade Prisma↔PG.
 
 ---
 

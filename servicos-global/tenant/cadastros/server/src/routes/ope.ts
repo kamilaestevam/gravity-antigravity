@@ -31,7 +31,7 @@ router.get('/', async (req, res, next) => {
     const idOrganizacao = extrairIdOrganizacao(req)
     const itens = await prisma.oPE.findMany({
       where: { id_organizacao: idOrganizacao },
-      orderBy: { ultima_sincronizacao: 'desc' },
+      orderBy: { ultima_sincronizacao_ope: 'desc' },
     })
     res.status(200).json({ itens, total: itens.length })
   } catch (err) {
@@ -43,7 +43,7 @@ router.get('/:suid', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const ope = await prisma.oPE.findFirst({
-      where: { suid: req.params.suid, id_organizacao: idOrganizacao },
+      where: { suid_ope: req.params.suid, id_organizacao: idOrganizacao },
     })
     if (!ope) throw AppError.naoEncontrado('OPE')
     res.status(200).json(ope)
@@ -56,7 +56,7 @@ router.get('/portal-unico/:codigo_portal_unico', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const ope = await prisma.oPE.findFirst({
-      where: { codigo_portal_unico: req.params.codigo_portal_unico, id_organizacao: idOrganizacao },
+      where: { codigo_portal_unico_ope: req.params.codigo_portal_unico, id_organizacao: idOrganizacao },
     })
     if (!ope) throw AppError.naoEncontrado('OPE')
     res.status(200).json(ope)
@@ -69,13 +69,13 @@ router.get('/:suid/eventos', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const ope = await prisma.oPE.findFirst({
-      where: { suid: req.params.suid, id_organizacao: idOrganizacao },
-      select: { suid: true },
+      where: { suid_ope: req.params.suid, id_organizacao: idOrganizacao },
+      select: { suid_ope: true },
     })
     if (!ope) throw AppError.naoEncontrado('OPE')
-    const eventos = await prisma.historicoStatusOPE.findMany({
-      where: { suid_ope: req.params.suid },
-      orderBy: { registrado_em: 'desc' },
+    const eventos = await prisma.opeHistoricoStatus.findMany({
+      where: { suid_ope_historico_status_ope: req.params.suid },
+      orderBy: { registrado_em_historico_status_ope: 'desc' },
       take: 100,
     })
     res.status(200).json({ itens: eventos, total: eventos.length })

@@ -30,6 +30,7 @@ import {
   Info,
   ShieldCheck,
   ArrowsClockwise,
+  Database,
 } from '@phosphor-icons/react'
 import '../workspace/workspace.css'
 import '../workspace/gabi.css'
@@ -60,6 +61,7 @@ export function AdminLayout() {
     { to: '/admin/api-cockpit',  label: t('admin.layout.api-cockpit'),      icon: <Pulse           weight="duotone" size={18} /> },
     { to: '/admin/seguranca-admin', label: t('admin.layout.seguranca'),     icon: <ShieldCheck     weight="duotone" size={18} /> },
     { to: '/admin/ncm-integracao', label: t('admin.layout.ncm_sync', 'NCM Siscomex'), icon: <ArrowsClockwise weight="duotone" size={18} /> },
+    { to: '/admin/cadastros-globais', label: t('admin.layout.cadastros_globais', 'Cadastros Globais'), icon: <Database weight="duotone" size={18} /> },
     { to: '/admin/testes-gerais', label: t('admin.layout.log_testes'),      icon: <Bug             weight="duotone" size={18} /> },
   ]
   const { currentTheme, toggleTheme, tooltipsDisabled, toggleTooltips } = useShellStore()

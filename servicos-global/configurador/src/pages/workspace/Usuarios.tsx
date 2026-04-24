@@ -165,11 +165,11 @@ export function Usuarios() {
 
         if (usersRes.ok) {
           const { users: apiUsers } = await usersRes.json()
-          const mappedUsers: TenantUser[] = apiUsers.map((u: { id: string; name?: string; email?: string; role?: string; memberships?: { is_active: boolean; company_id: string }[] }) => ({
+          const mappedUsers: TenantUser[] = apiUsers.map((u: { id: string; name?: string; email?: string; tipo_usuario?: string; memberships?: { is_active: boolean; company_id: string }[] }) => ({
             id: u.id,
             nome: u.name ?? '',
             email: u.email ?? '',
-            tipo: mapRoleToTipo(u.role),
+            tipo: mapRoleToTipo(u.tipo_usuario),
             status: 'Ativo' as UserStatus,
           }))
           setUsers(mappedUsers)

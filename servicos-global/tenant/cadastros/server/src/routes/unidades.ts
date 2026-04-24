@@ -28,13 +28,13 @@ router.post('/', async (req, res, next) => {
 router.get('/', async (req, res, next) => {
   try {
     const apenasAtivas = req.query.apenas_ativas === 'true'
-    const tipo = typeof req.query.tipo === 'string' ? req.query.tipo : undefined
+    const tipo_unidade = typeof req.query.tipo_unidade === 'string' ? req.query.tipo_unidade : undefined
     const itens = await prisma.unidade.findMany({
       where: {
-        ...(apenasAtivas ? { ativo: true } : {}),
-        ...(tipo ? { tipo } : {}),
+        ...(apenasAtivas ? { ativo_unidade: true } : {}),
+        ...(tipo_unidade ? { tipo_unidade } : {}),
       },
-      orderBy: { codigo: 'asc' },
+      orderBy: { codigo_unidade: 'asc' },
     })
     res.status(200).json({ itens, total: itens.length })
   } catch (err) {
@@ -44,7 +44,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:codigo', async (req, res, next) => {
   try {
-    const unidade = await prisma.unidade.findUnique({ where: { codigo: req.params.codigo } })
+    const unidade = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.codigo } })
     if (!unidade) throw AppError.naoEncontrado('Unidade')
     res.status(200).json(unidade)
   } catch (err) {
@@ -55,10 +55,10 @@ router.get('/:codigo', async (req, res, next) => {
 router.put('/:codigo', async (req, res, next) => {
   try {
     const dados = atualizarUnidadeSchema.parse(req.body)
-    const existente = await prisma.unidade.findUnique({ where: { codigo: req.params.codigo } })
+    const existente = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.codigo } })
     if (!existente) throw AppError.naoEncontrado('Unidade')
     const atualizada = await prisma.unidade.update({
-      where: { codigo: existente.codigo },
+      where: { codigo_unidade: existente.codigo_unidade },
       data: dados,
     })
     res.status(200).json(atualizada)
@@ -69,11 +69,11 @@ router.put('/:codigo', async (req, res, next) => {
 
 router.delete('/:codigo', async (req, res, next) => {
   try {
-    const existente = await prisma.unidade.findUnique({ where: { codigo: req.params.codigo } })
+    const existente = await prisma.unidade.findUnique({ where: { codigo_unidade: req.params.codigo } })
     if (!existente) throw AppError.naoEncontrado('Unidade')
     const desativada = await prisma.unidade.update({
-      where: { codigo: existente.codigo },
-      data: { ativo: false },
+      where: { codigo_unidade: existente.codigo_unidade },
+      data: { ativo_unidade: false },
     })
     res.status(200).json(desativada)
   } catch (err) {

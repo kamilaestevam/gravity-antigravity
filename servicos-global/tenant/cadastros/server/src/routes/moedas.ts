@@ -29,8 +29,8 @@ router.get('/', async (req, res, next) => {
   try {
     const apenasAtivas = req.query.apenas_ativas === 'true'
     const itens = await prisma.moeda.findMany({
-      where: apenasAtivas ? { ativo: true } : undefined,
-      orderBy: { codigo: 'asc' },
+      where: apenasAtivas ? { ativo_moeda: true } : undefined,
+      orderBy: { codigo_moeda: 'asc' },
     })
     res.status(200).json({ itens, total: itens.length })
   } catch (err) {
@@ -40,7 +40,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:codigo', async (req, res, next) => {
   try {
-    const moeda = await prisma.moeda.findUnique({ where: { codigo: req.params.codigo } })
+    const moeda = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.codigo } })
     if (!moeda) throw AppError.naoEncontrado('Moeda')
     res.status(200).json(moeda)
   } catch (err) {
@@ -51,10 +51,10 @@ router.get('/:codigo', async (req, res, next) => {
 router.put('/:codigo', async (req, res, next) => {
   try {
     const dados = atualizarMoedaSchema.parse(req.body)
-    const existente = await prisma.moeda.findUnique({ where: { codigo: req.params.codigo } })
+    const existente = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.codigo } })
     if (!existente) throw AppError.naoEncontrado('Moeda')
     const atualizada = await prisma.moeda.update({
-      where: { codigo: existente.codigo },
+      where: { codigo_moeda: existente.codigo_moeda },
       data: dados,
     })
     res.status(200).json(atualizada)
@@ -65,11 +65,11 @@ router.put('/:codigo', async (req, res, next) => {
 
 router.delete('/:codigo', async (req, res, next) => {
   try {
-    const existente = await prisma.moeda.findUnique({ where: { codigo: req.params.codigo } })
+    const existente = await prisma.moeda.findUnique({ where: { codigo_moeda: req.params.codigo } })
     if (!existente) throw AppError.naoEncontrado('Moeda')
     const desativada = await prisma.moeda.update({
-      where: { codigo: existente.codigo },
-      data: { ativo: false },
+      where: { codigo_moeda: existente.codigo_moeda },
+      data: { ativo_moeda: false },
     })
     res.status(200).json(desativada)
   } catch (err) {

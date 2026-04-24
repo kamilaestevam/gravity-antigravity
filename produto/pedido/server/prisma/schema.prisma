@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-22T22:43:06.074Z
+// Gerado em: 2026-04-24T21:37:32.908Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -494,28 +494,28 @@ model AprendizadoImportacaoDados {
 }
 
 model AnexoPedido {
-  id            String   @id @default(cuid())
-  tenant_id     String
-  product_id    String?
-  vinculo       String
-  vinculo_id    String
-  nome_arquivo  String
-  tipo_arquivo  String
-  tamanho_bytes Int
-  descricao     String?
-  categoria     String?
-  storage_key   String
-  uploaded_by   String
-  created_at    DateTime @default(now())
+  id_anexo_pedido            String   @id @default(cuid())
+  id_organizacao             String
+  id_produto                 String?
+  vinculo_anexo_pedido       String
+  id_vinculo                 String
+  nome_arquivo_anexo_pedido  String
+  tipo_arquivo_anexo_pedido  String
+  tamanho_bytes_anexo_pedido Int
+  descricao_anexo_pedido     String?
+  categoria_anexo_pedido     String?
+  storage_key_anexo_pedido   String
+  uploaded_by_anexo_pedido   String
+  data_criacao_anexo_pedido  DateTime @default(now())
 
   // FASE 06B — categoria do documento (pedido | proforma | invoice | certificado_origem | apolice | etc.)
   // Versão (draft/original) NÃO é atributo do anexo — vive em colunas de data no model Pedido.
-  tipo_documento String?
+  tipo_documento_anexo_pedido String?
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, vinculo_id])
-  @@index([tenant_id, tipo_documento])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto])
+  @@index([id_organizacao, id_vinculo])
+  @@index([id_organizacao, tipo_documento_anexo_pedido])
   @@map("anexo_pedido")
 }
 

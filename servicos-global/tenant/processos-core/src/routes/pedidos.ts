@@ -1420,11 +1420,11 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       // Importante: o evaluator do backend é port do client — ambos devem
       // produzir os mesmos resultados para a mesma fórmula e contexto.
       const [saldoCfg, casasCfg] = await Promise.all([
-        db.pedidoSaldoFormulaConfig.findUnique({ where: { tenant_id } }),
+        db.pedidoSaldoFormulaConfig.findUnique({ where: { id_organizacao: tenant_id } }),
         db.pedidoCasasDecimaisConfig.findUnique({ where: { tenant_id } }),
       ])
 
-      const formulaExpressao: string = saldoCfg?.formula_expressao ?? SALDO_FORMULA_PADRAO
+      const formulaExpressao: string = saldoCfg?.formula_expressao_pedido_saldo_formula ?? SALDO_FORMULA_PADRAO
       const casasValor: number       = Number(casasCfg?.valor_total_pedido ?? 2)
 
       let formulaAST

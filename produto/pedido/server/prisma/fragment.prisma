@@ -633,17 +633,17 @@ model PedidoCasasDecimais {
 
 /// Configuração da fórmula do Saldo do Pedido por workspace (tenant).
 model PedidoSaldoFormula {
-  id         String  @id @default(cuid())
-  tenant_id  String  @unique
-  product_id String?
+  id_pedido_saldo_formula String  @id @default(cuid())
+  id_organizacao          String  @unique
+  id_produto              String?
 
-  formula_expressao String @default("quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido")
+  formula_expressao_pedido_saldo_formula String @default("quantidade_total_inicial_pedido - quantidade_transferida_total - quantidade_cancelada_total_pedido")
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_pedido_saldo_formula     DateTime @default(now())
+  data_atualizacao_pedido_saldo_formula DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto])
   @@map("pedido_saldo_formula")
 }
 

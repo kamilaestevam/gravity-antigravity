@@ -38,11 +38,11 @@ saldoFormulaRouter.get('/saldo-formula', async (req: Request, res: Response, nex
       const db = rawDb as any
       const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
       const registro = await db.pedidoSaldoFormulaConfig.findUnique({
-        where: { tenant_id },
+        where: { id_organizacao: tenant_id },
       })
       res.json({
         data: {
-          formula_expressao: registro?.formula_expressao ?? SALDO_FORMULA_PADRAO,
+          formula_expressao: registro?.formula_expressao_pedido_saldo_formula ?? SALDO_FORMULA_PADRAO,
           is_default: !registro,
         },
       })
@@ -74,13 +74,13 @@ saldoFormulaRouter.put('/saldo-formula', async (req: Request, res: Response, nex
       const db = rawDb as any
       const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
       const registro = await db.pedidoSaldoFormulaConfig.upsert({
-        where:  { tenant_id },
-        create: { tenant_id, formula_expressao: parsed.data.formula_expressao },
-        update: { formula_expressao: parsed.data.formula_expressao },
+        where:  { id_organizacao: tenant_id },
+        create: { id_organizacao: tenant_id, formula_expressao_pedido_saldo_formula: parsed.data.formula_expressao },
+        update: { formula_expressao_pedido_saldo_formula: parsed.data.formula_expressao },
       })
       res.json({
         data: {
-          formula_expressao: registro.formula_expressao,
+          formula_expressao: registro.formula_expressao_pedido_saldo_formula,
           is_default: false,
         },
       })
@@ -98,7 +98,7 @@ saldoFormulaRouter.delete('/saldo-formula', async (req: Request, res: Response, 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
-      await db.pedidoSaldoFormulaConfig.deleteMany({ where: { tenant_id } })
+      await db.pedidoSaldoFormulaConfig.deleteMany({ where: { id_organizacao: tenant_id } })
       res.json({
         data: {
           formula_expressao: SALDO_FORMULA_PADRAO,

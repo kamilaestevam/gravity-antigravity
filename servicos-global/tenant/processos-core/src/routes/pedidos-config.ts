@@ -506,11 +506,17 @@ pedidosConfigRouter.get('/preferencias/usuario', async (req: Request, res: Respo
 
       // Busca preferências do usuário e do workspace em paralelo (evita 2 queries sequenciais)
       const [preferencia, padrao] = await Promise.all([
-        db.pedidoPreferenciaUsuario.findFirst({ where: { tenant_id, user_id } }),
+        db.pedidoPreferenciaUsuario.findFirst({ where: { id_organizacao: tenant_id, id_usuario: user_id } }),
         db.pedidoPreferenciaPadrao.findFirst({ where: { tenant_id } }),
       ])
 
-      res.json(preferencia ?? padrao ?? null)
+      const preferenciaContract = preferencia ? {
+        ...preferencia,
+        colunas_visiveis: preferencia.colunas_visiveis_pedido_preferencia_usuario,
+        colunas_largura:  preferencia.colunas_largura_pedido_preferencia_usuario,
+      } : null
+
+      res.json(preferenciaContract ?? padrao ?? null)
     })
   } catch (err) {
     next(err)
@@ -535,21 +541,25 @@ pedidosConfigRouter.put('/preferencias/usuario', async (req: Request, res: Respo
       const company_id = getCompanyId(req)
 
       const preferencia = await db.pedidoPreferenciaUsuario.upsert({
-        where: { tenant_id_user_id: { tenant_id, user_id } },
+        where: { id_organizacao_id_usuario: { id_organizacao: tenant_id, id_usuario: user_id } },
         update: {
-          colunas_visiveis: result.data.colunas_visiveis,
-          colunas_largura: result.data.colunas_largura ?? undefined,
+          colunas_visiveis_pedido_preferencia_usuario: result.data.colunas_visiveis,
+          colunas_largura_pedido_preferencia_usuario:  result.data.colunas_largura ?? undefined,
         },
         create: {
-          tenant_id,
-          user_id,
-          company_id: company_id ?? null,
-          colunas_visiveis: result.data.colunas_visiveis,
-          colunas_largura: result.data.colunas_largura ?? undefined,
+          id_organizacao: tenant_id,
+          id_usuario:     user_id,
+          id_workspace:   company_id ?? null,
+          colunas_visiveis_pedido_preferencia_usuario: result.data.colunas_visiveis,
+          colunas_largura_pedido_preferencia_usuario:  result.data.colunas_largura ?? undefined,
         },
       })
 
-      res.json(preferencia)
+      res.json({
+        ...preferencia,
+        colunas_visiveis: preferencia.colunas_visiveis_pedido_preferencia_usuario,
+        colunas_largura:  preferencia.colunas_largura_pedido_preferencia_usuario,
+      })
     })
   } catch (err) {
     next(err)

@@ -73,7 +73,7 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           where: { tenant_id },
           orderBy: { ordem: 'asc' },
         }),
-        db.pedidoPreferenciaUsuario.findFirst({ where: { tenant_id, user_id } }),
+        db.pedidoPreferenciaUsuario.findFirst({ where: { id_organizacao: tenant_id, id_usuario: user_id } }),
         db.pedidoPreferenciaPadrao.findFirst({ where: { tenant_id } }),
         colunasService.listar(tenant_id, user_id, user_roles, db as unknown as Record<string, unknown>),
       ])
@@ -101,7 +101,11 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           total:      registros.length,
         },
         status:       { data: statusList },
-        preferencias: preferencia ?? padrao ?? null,
+        preferencias: preferencia ? {
+          ...preferencia,
+          colunas_visiveis: (preferencia as { colunas_visiveis_pedido_preferencia_usuario: string[] }).colunas_visiveis_pedido_preferencia_usuario,
+          colunas_largura:  (preferencia as { colunas_largura_pedido_preferencia_usuario: Record<string, number> | null }).colunas_largura_pedido_preferencia_usuario,
+        } : (padrao ?? null),
         colunas,
       })
     })

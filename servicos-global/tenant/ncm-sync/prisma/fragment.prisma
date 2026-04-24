@@ -38,7 +38,7 @@ model NcmSyncLog {
   iniciado_em  DateTime  @default(now())
   concluido_em DateTime?
 
-  status       StatusNcmSync @default(RUNNING)
+  status       NCMStatusSincronizacao @default(EXECUTANDO)
 
   // Totais do diff
   total        Int @default(0)
@@ -47,7 +47,7 @@ model NcmSyncLog {
   removidos    Int @default(0)
 
   // Origem do trigger
-  origem       NcmSyncOrigem @default(JOB)  // 'JOB' | 'MANUAL'
+  origem       NCMOrigemSincronizacao @default(JOB)  // 'JOB' | 'MANUAL'
   disparado_por String?  // user_id se MANUAL
 
   erro_msg     String?
@@ -63,13 +63,13 @@ model NcmSyncLog {
   @@map("ncm_log")
 }
 
-enum StatusNcmSync {
-  RUNNING
-  SUCCESS
-  ERROR
+enum NCMStatusSincronizacao {
+  EXECUTANDO
+  SUCESSO
+  ERRO
 }
 
-enum NcmSyncOrigem {
+enum NCMOrigemSincronizacao {
   JOB
   MANUAL
 }

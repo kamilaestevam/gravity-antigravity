@@ -13,12 +13,12 @@ vi.mock('../../../servicos-global/tenant/historico-global/server/services/audit.
 }))
 
 vi.mock('../../../servicos-global/tenant/generated/index.js', () => ({
-  TipoAtor: { USER: 'USER', API: 'API', AI: 'AI', JOB: 'JOB', INTEGRATION: 'INTEGRATION' },
-  StatusEvento: { SUCCESS: 'SUCCESS', FAILURE: 'FAILURE', PARTIAL: 'PARTIAL' },
+  AcaoExecutadaPor: { USUARIO: 'USUARIO', API: 'API', IA: 'IA', JOB: 'JOB', INTEGRACAO: 'INTEGRACAO' },
+  EventoStatus: { SUCESSO: 'SUCESSO', FALHA: 'FALHA', PARCIAL: 'PARCIAL' },
 }))
 
 import { securityAudit } from '../../../servicos-global/tenant/historico-global/server/lib/securityAuditLogger.js'
-import { TipoAtor, StatusEvento } from '../../../servicos-global/tenant/generated/index.js'
+import { AcaoExecutadaPor, EventoStatus } from '../../../servicos-global/tenant/generated/index.js'
 
 describe('securityAudit', () => {
   beforeEach(() => {
@@ -30,7 +30,7 @@ describe('securityAudit', () => {
     vi.unstubAllGlobals()
   })
 
-  it('TST-UNIT-TENANT-SAL-001: permissionChanged → AuditService.log com actor_type=TipoAtor.USER', async () => {
+  it('TST-UNIT-TENANT-SAL-001: permissionChanged → AuditService.log com actor_type=AcaoExecutadaPor.USUARIO', async () => {
     await securityAudit.permissionChanged('t-1', 'u-1', {
       targetUserId: 'u-2',
       permission: 'pedido:create',
@@ -38,11 +38,11 @@ describe('securityAudit', () => {
     })
 
     expect(mockAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({ actor_type: TipoAtor.USER })
+      expect.objectContaining({ actor_type: AcaoExecutadaPor.USUARIO })
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-002: rateLimitHit → AuditService.log com actor_type=TipoAtor.INTEGRATION', async () => {
+  it('TST-UNIT-TENANT-SAL-002: rateLimitHit → AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO', async () => {
     await securityAudit.rateLimitHit('t-1', {
       ip: '1.2.3.4',
       endpoint: '/api/test',
@@ -50,11 +50,11 @@ describe('securityAudit', () => {
     })
 
     expect(mockAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({ actor_type: TipoAtor.INTEGRATION })
+      expect.objectContaining({ actor_type: AcaoExecutadaPor.INTEGRACAO })
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-003: apiKeyUsed → AuditService.log com actor_type=TipoAtor.API', async () => {
+  it('TST-UNIT-TENANT-SAL-003: apiKeyUsed → AuditService.log com actor_type=AcaoExecutadaPor.API', async () => {
     await securityAudit.apiKeyUsed('t-1', 'key-abc', {
       module: 'pedido',
       endpoint: '/api/pedidos',
@@ -62,11 +62,11 @@ describe('securityAudit', () => {
     })
 
     expect(mockAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({ actor_type: TipoAtor.API })
+      expect.objectContaining({ actor_type: AcaoExecutadaPor.API })
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-004: webhookSignatureFailure → AuditService.log com actor_type=TipoAtor.INTEGRATION', async () => {
+  it('TST-UNIT-TENANT-SAL-004: webhookSignatureFailure → AuditService.log com actor_type=AcaoExecutadaPor.INTEGRACAO', async () => {
     await securityAudit.webhookSignatureFailure('t-1', {
       source: 'STRIPE',
       ip: '54.1.2.3',
@@ -74,11 +74,11 @@ describe('securityAudit', () => {
     })
 
     expect(mockAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({ actor_type: TipoAtor.INTEGRATION })
+      expect.objectContaining({ actor_type: AcaoExecutadaPor.INTEGRACAO })
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-005: crossTenantAttempt com blocked=true → status=StatusEvento.FAILURE', async () => {
+  it('TST-UNIT-TENANT-SAL-005: crossTenantAttempt com blocked=true → status=EventoStatus.FALHA', async () => {
     await securityAudit.crossTenantAttempt('t-1', 'u-1', {
       targetTenantId: 't-2',
       resource: 'pedido',
@@ -86,11 +86,11 @@ describe('securityAudit', () => {
     })
 
     expect(mockAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({ status: StatusEvento.FAILURE })
+      expect.objectContaining({ status: EventoStatus.FALHA })
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-006: authFailure sem blocked → status=StatusEvento.SUCCESS', async () => {
+  it('TST-UNIT-TENANT-SAL-006: authFailure sem blocked → status=EventoStatus.SUCESSO', async () => {
     await securityAudit.authFailure('t-1', {
       ip: '1.2.3.4',
       reason: 'invalid token',
@@ -98,11 +98,11 @@ describe('securityAudit', () => {
     })
 
     expect(mockAuditLog).toHaveBeenCalledWith(
-      expect.objectContaining({ status: StatusEvento.SUCCESS })
+      expect.objectContaining({ status: EventoStatus.SUCESSO })
     )
   })
 
-  it('TST-UNIT-TENANT-SAL-007: dataDeleted → actor_type=TipoAtor.USER e module=admin', async () => {
+  it('TST-UNIT-TENANT-SAL-007: dataDeleted → actor_type=AcaoExecutadaPor.USUARIO e module=admin', async () => {
     await securityAudit.dataDeleted('t-1', 'admin-1', {
       targetUserId: 'u-2',
       tablesAffected: ['pedido', 'item_pedido'],
@@ -112,7 +112,7 @@ describe('securityAudit', () => {
 
     expect(mockAuditLog).toHaveBeenCalledWith(
       expect.objectContaining({
-        actor_type: TipoAtor.USER,
+        actor_type: AcaoExecutadaPor.USUARIO,
         module: 'admin',
       })
     )

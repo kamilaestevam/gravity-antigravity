@@ -1,0 +1,270 @@
+{
+  "enums": [
+    {
+      "tipo_atual": "DirecaoEmail",
+      "tipo_novo": "EmailDirecao",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/email/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "INBOUND",
+          "novo": "RECEBIDO"
+        },
+        {
+          "antigo": "OUTBOUND",
+          "novo": "ENVIADO"
+        }
+      ],
+      "override": true
+    },
+    {
+      "tipo_atual": "FilaEmailPrioridade",
+      "tipo_novo": "EmailFilaPrioridade",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/email/prisma/fragment.prisma",
+      "valores_rename": [],
+      "override": false
+    },
+    {
+      "tipo_atual": "ModoDashboard",
+      "tipo_novo": "DashboardModo",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/dashboard/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "PRODUCT",
+          "novo": "PRODUTO"
+        },
+        {
+          "antigo": "GENERAL",
+          "novo": "GERAL"
+        }
+      ],
+      "override": false
+    },
+    {
+      "tipo_atual": "NcmSyncOrigem",
+      "tipo_novo": "NCMOrigemSincronizacao",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/ncm-sync/prisma/fragment.prisma",
+      "valores_rename": [],
+      "override": false
+    },
+    {
+      "tipo_atual": "NivelSentimentoEmail",
+      "tipo_novo": "EmailSentimento",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/email/prisma/fragment.prisma",
+      "valores_rename": [],
+      "override": false
+    },
+    {
+      "tipo_atual": "StatusAlerta",
+      "tipo_novo": "AlertaStatus",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/historico-global/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "PENDING",
+          "novo": "PENDENTE"
+        },
+        {
+          "antigo": "REVIEWED",
+          "novo": "REVISADO"
+        },
+        {
+          "antigo": "ESCALATED",
+          "novo": "ESCALADO"
+        }
+      ],
+      "override": false
+    },
+    {
+      "tipo_atual": "StatusEmail",
+      "tipo_novo": "EmailStatus",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/email/prisma/fragment.prisma",
+      "valores_rename": [],
+      "override": false
+    },
+    {
+      "tipo_atual": "StatusEvento",
+      "tipo_novo": "EventoStatus",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/historico-global/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "SUCCESS",
+          "novo": "SUCESSO"
+        },
+        {
+          "antigo": "FAILURE",
+          "novo": "FALHA"
+        },
+        {
+          "antigo": "PARTIAL",
+          "novo": "PARCIAL"
+        }
+      ],
+      "override": false
+    },
+    {
+      "tipo_atual": "StatusNcmSync",
+      "tipo_novo": "NCMStatusSincronizacao",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/ncm-sync/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "RUNNING",
+          "novo": "EXECUTANDO"
+        },
+        {
+          "antigo": "SUCCESS",
+          "novo": "SUCESSO"
+        },
+        {
+          "antigo": "ERROR",
+          "novo": "ERRO"
+        }
+      ],
+      "override": false
+    },
+    {
+      "tipo_atual": "StatusThreadEmail",
+      "tipo_novo": "EmailThreadStatus",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/email/prisma/fragment.prisma",
+      "valores_rename": [],
+      "override": true
+    },
+    {
+      "tipo_atual": "TipoAtor",
+      "tipo_novo": "AcaoExecutadaPor",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/historico-global/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "USER",
+          "novo": "USUARIO"
+        },
+        {
+          "antigo": "AI",
+          "novo": "IA"
+        },
+        {
+          "antigo": "INTEGRATION",
+          "novo": "INTEGRACAO"
+        }
+      ],
+      "override": false
+    },
+    {
+      "tipo_atual": "TipoGrafico",
+      "tipo_novo": "GraficoTipo",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/dashboard/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "LINE",
+          "novo": "LINHA"
+        },
+        {
+          "antigo": "BAR",
+          "novo": "BARRA"
+        },
+        {
+          "antigo": "BAR_HORIZONTAL",
+          "novo": "BARRA_HORIZONTAL"
+        },
+        {
+          "antigo": "DONUT",
+          "novo": "ROSCA"
+        },
+        {
+          "antigo": "HISTOGRAM",
+          "novo": "HISTOGRAMA"
+        },
+        {
+          "antigo": "FUNNEL",
+          "novo": "FUNIL"
+        },
+        {
+          "antigo": "GAUGE",
+          "novo": "MEDIDOR"
+        },
+        {
+          "antigo": "MAP",
+          "novo": "MAPA"
+        },
+        {
+          "antigo": "TABLE",
+          "novo": "TABELA"
+        }
+      ],
+      "override": false
+    },
+    {
+      "tipo_atual": "TipoWidget",
+      "tipo_novo": "DashboardTipo",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/dashboard/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "CATALOG",
+          "novo": "CATALOGO"
+        },
+        {
+          "antigo": "CUSTOM",
+          "novo": "CUSTOMIZADO"
+        }
+      ],
+      "override": false
+    },
+    {
+      "tipo_atual": "TokenExpiration",
+      "tipo_novo": "TokenValidade",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/api-cockpit/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "NEVER",
+          "novo": "NUNCA"
+        },
+        {
+          "antigo": "DAYS_30",
+          "novo": "DIAS_30"
+        },
+        {
+          "antigo": "DAYS_90",
+          "novo": "DIAS_90"
+        },
+        {
+          "antigo": "CUSTOM",
+          "novo": "CUSTOMIZADO"
+        }
+      ],
+      "override": false
+    },
+    {
+      "tipo_atual": "TokenScope",
+      "tipo_novo": "TokenEscopo",
+      "tipo_mudou": true,
+      "fragment": "servicos-global/tenant/api-cockpit/prisma/fragment.prisma",
+      "valores_rename": [
+        {
+          "antigo": "READ",
+          "novo": "LEITURA"
+        },
+        {
+          "antigo": "WRITE",
+          "novo": "ESCRITA"
+        },
+        {
+          "antigo": "DELETE",
+          "novo": "EXCLUSAO"
+        }
+      ],
+      "override": true
+    }
+  ]
+}

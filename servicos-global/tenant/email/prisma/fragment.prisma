@@ -9,7 +9,7 @@
 // Enums
 // ---------------------------------------------------------------------------
 
-enum StatusEmail {
+enum EmailStatus {
   PENDENTE
   PROCESSANDO
   ENVIADO
@@ -17,18 +17,18 @@ enum StatusEmail {
   CANCELADO
 }
 
-enum DirecaoEmail {
-  INBOUND
-  OUTBOUND
+enum EmailDirecao {
+  RECEBIDO
+  ENVIADO
 }
 
-enum StatusThreadEmail {
+enum EmailThreadStatus {
   ABERTA
   ARQUIVADA
   RESOLVIDA
 }
 
-enum NivelSentimentoEmail {
+enum EmailSentimento {
   MUITO_POSITIVO
   POSITIVO
   NEUTRO
@@ -36,7 +36,7 @@ enum NivelSentimentoEmail {
   MUITO_NEGATIVO
 }
 
-enum FilaEmailPrioridade {
+enum EmailFilaPrioridade {
   BAIXA
   NORMAL
   ALTA
@@ -54,9 +54,9 @@ model EmailAssuntosParticipantes {
   user_id    String?
 
   subject        String
-  status         StatusThreadEmail   @default(ABERTA)
+  status         EmailThreadStatus   @default(ABERTA)
   sentiment      Float               @default(0)           // -1 a 1
-  sentiment_label NivelSentimentoEmail @default(NEUTRO)
+  sentiment_label EmailSentimento @default(NEUTRO)
   mensagens_count Int                 @default(0)
   ultimo_contato  DateTime?
   deep_link       String?                                   // ex: /email/thread/{id}
@@ -86,7 +86,7 @@ model EmailMensagem {
   thread           EmailAssuntosParticipantes  @relation(fields: [thread_id], references: [id])
 
   resend_id        String?      @unique                    // ID retornado pelo Resend
-  direction        DirecaoEmail @default(OUTBOUND)
+  direction        EmailDirecao @default(ENVIADO)
   from             String
   to               String
   subject          String?
@@ -127,7 +127,7 @@ model EmailRegistroEnvio {
   reply_to      String?
   subject       String
   template_id   String?
-  status        StatusEmail  @default(PENDENTE)
+  status        EmailStatus  @default(PENDENTE)
   resend_id     String?      @unique
   dedup_key     String       @unique                       // UUID do Reply-To dinâmico
 
@@ -187,8 +187,8 @@ model EmailFilaEnvio {
   product_id String?
   user_id    String?
 
-  status        StatusEmail         @default(PENDENTE)
-  prioridade    FilaEmailPrioridade @default(NORMAL)
+  status        EmailStatus         @default(PENDENTE)
+  prioridade    EmailFilaPrioridade @default(NORMAL)
   payload       String              @db.Text                // JSON: { to, subject, body, ... }
   template_id   String?
   email_enviado_id String?

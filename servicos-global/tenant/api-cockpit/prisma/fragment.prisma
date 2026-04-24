@@ -1,16 +1,16 @@
 // servicos-global/tenant/api-cockpit/prisma/fragment.prisma
 
-enum TokenScope {
-  READ
-  WRITE
-  DELETE
+enum TokenEscopo {
+  LEITURA
+  ESCRITA
+  EXCLUSAO
 }
 
-enum TokenExpiration {
-  NEVER
-  DAYS_30
-  DAYS_90
-  CUSTOM
+enum TokenValidade {
+  NUNCA
+  DIAS_30
+  DIAS_90
+  CUSTOMIZADO
 }
 
 model TokenAPI {
@@ -22,8 +22,8 @@ model TokenAPI {
   name       String
   hash       String   @unique
   prefix     String   // gv_live_sk_ or gv_test_sk_
-  scope      TokenScope @default(READ)
-  expiration TokenExpiration @default(NEVER)
+  scope      TokenEscopo @default(LEITURA)
+  expiration TokenValidade @default(NUNCA)
   expires_at DateTime?
   rate_limit Int      @default(60)
   

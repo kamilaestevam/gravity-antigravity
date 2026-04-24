@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-22T01:22:46.184Z
+// Gerado em: 2026-04-24T21:22:01.944Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -252,7 +252,7 @@ model TempoCriacaoRelatorio {
 // Enums
 // ---------------------------------------------------------------------------
 
-enum StatusEmail {
+enum EmailStatus {
   PENDENTE
   PROCESSANDO
   ENVIADO
@@ -260,18 +260,18 @@ enum StatusEmail {
   CANCELADO
 }
 
-enum DirecaoEmail {
-  INBOUND
-  OUTBOUND
+enum EmailDirecao {
+  RECEBIDO
+  ENVIADO
 }
 
-enum StatusThreadEmail {
+enum EmailThreadStatus {
   ABERTA
   ARQUIVADA
   RESOLVIDA
 }
 
-enum NivelSentimentoEmail {
+enum EmailSentimento {
   MUITO_POSITIVO
   POSITIVO
   NEUTRO
@@ -279,7 +279,7 @@ enum NivelSentimentoEmail {
   MUITO_NEGATIVO
 }
 
-enum FilaEmailPrioridade {
+enum EmailFilaPrioridade {
   BAIXA
   NORMAL
   ALTA
@@ -297,9 +297,9 @@ model EmailAssuntosParticipantes {
   user_id    String?
 
   subject        String
-  status         StatusThreadEmail   @default(ABERTA)
+  status         EmailThreadStatus   @default(ABERTA)
   sentiment      Float               @default(0)           // -1 a 1
-  sentiment_label NivelSentimentoEmail @default(NEUTRO)
+  sentiment_label EmailSentimento @default(NEUTRO)
   mensagens_count Int                 @default(0)
   ultimo_contato  DateTime?
   deep_link       String?                                   // ex: /email/thread/{id}
@@ -329,7 +329,7 @@ model EmailMensagem {
   thread           EmailAssuntosParticipantes  @relation(fields: [thread_id], references: [id])
 
   resend_id        String?      @unique                    // ID retornado pelo Resend
-  direction        DirecaoEmail @default(OUTBOUND)
+  direction        EmailDirecao @default(ENVIADO)
   from             String
   to               String
   subject          String?
@@ -370,7 +370,7 @@ model EmailRegistroEnvio {
   reply_to      String?
   subject       String
   template_id   String?
-  status        StatusEmail  @default(PENDENTE)
+  status        EmailStatus  @default(PENDENTE)
   resend_id     String?      @unique
   dedup_key     String       @unique                       // UUID do Reply-To dinâmico
 
@@ -430,8 +430,8 @@ model EmailFilaEnvio {
   product_id String?
   user_id    String?
 
-  status        StatusEmail         @default(PENDENTE)
-  prioridade    FilaEmailPrioridade @default(NORMAL)
+  status        EmailStatus         @default(PENDENTE)
+  prioridade    EmailFilaPrioridade @default(NORMAL)
   payload       String              @db.Text                // JSON: { to, subject, body, ... }
   template_id   String?
   email_enviado_id String?
@@ -563,28 +563,28 @@ model WhatsappRegra {
 // NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
 // Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
 
-enum ModoDashboard {
-  PRODUCT
-  GENERAL
+enum DashboardModo {
+  PRODUTO
+  GERAL
 }
 
-enum TipoWidget {
-  CATALOG
-  CUSTOM
+enum DashboardTipo {
+  CATALOGO
+  CUSTOMIZADO
   GABI
 }
 
-enum TipoGrafico {
+enum GraficoTipo {
   KPI_CARD
-  LINE
-  BAR
-  BAR_HORIZONTAL
-  DONUT
-  HISTOGRAM
-  FUNNEL
-  GAUGE
-  MAP
-  TABLE
+  LINHA
+  BARRA
+  BARRA_HORIZONTAL
+  ROSCA
+  HISTOGRAMA
+  FUNIL
+  MEDIDOR
+  MAPA
+  TABELA
   AREA
 }
 
@@ -594,7 +594,7 @@ model DashboardConfiguracao {
   product_id String?
   user_id    String
   name       String        @default("Meu Dashboard")
-  mode       ModoDashboard @default(PRODUCT)
+  mode       DashboardModo @default(PRODUTO)
   layout     Json          @default("[]")
   filters    Json?
   is_default Boolean       @default(false)
@@ -617,8 +617,8 @@ model DashboardCriar {
   user_id      String
   dashboard_id String
   widget_key   String
-  widget_type  TipoWidget      @default(CATALOG)
-  chart_type   TipoGrafico       @default(KPI_CARD)
+  widget_type  DashboardTipo      @default(CATALOGO)
+  chart_type   GraficoTipo       @default(KPI_CARD)
   title        String
   query_spec   Json
   position     Json            @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
@@ -771,7 +771,7 @@ model HistoricoLog {
   tenant_id      String
 
   // Ator
-  actor_type     TipoAtor
+  actor_type     AcaoExecutadaPor
   actor_id       String
   actor_name     String
   actor_ip       String?
@@ -791,7 +791,7 @@ model HistoricoLog {
   after          Json?
 
   // Resultado
-  status         StatusEvento @default(SUCCESS)
+  status         EventoStatus @default(SUCESSO)
   error_message  String?
 
   // Integridade
@@ -821,10 +821,10 @@ model AlertRule {
   enabled                  Boolean    @default(true)
 
   // Filtro da regra (null = qualquer valor)
-  actor_type               TipoAtor?
+  actor_type               AcaoExecutadaPor?
   action                   String?
   module                   String?
-  status_filter            StatusEvento?
+  status_filter            EventoStatus?
 
   // Threshold
   threshold_count          Int?
@@ -855,7 +855,7 @@ model AlertEvent {
   rule_id        String
   rule           AlertRule   @relation(fields: [rule_id], references: [id])
 
-  actor_type     TipoAtor
+  actor_type     AcaoExecutadaPor
   actor_id       String
   actor_name     String
   module         String
@@ -864,7 +864,7 @@ model AlertEvent {
   window_seconds Int
   audit_log_ids  String[]
 
-  status         StatusAlerta @default(PENDING)
+  status         AlertaStatus @default(PENDENTE)
   reviewed_by    String?
   reviewed_at    DateTime?
   notes          String?
@@ -896,24 +896,24 @@ model AlertNotificationLog {
   @@map("alerta_registro")
 }
 
-enum TipoAtor {
-  USER
+enum AcaoExecutadaPor {
+  USUARIO
   API
-  AI
+  IA
   JOB
-  INTEGRATION
+  INTEGRACAO
 }
 
-enum StatusEvento {
-  SUCCESS
-  FAILURE
-  PARTIAL
+enum EventoStatus {
+  SUCESSO
+  FALHA
+  PARCIAL
 }
 
-enum StatusAlerta {
-  PENDING
-  REVIEWED
-  ESCALATED
+enum AlertaStatus {
+  PENDENTE
+  REVISADO
+  ESCALADO
 }
 
 /// Resultado de exportação em background (acima de 10k registros).
@@ -1244,7 +1244,7 @@ model NcmSyncLog {
   iniciado_em  DateTime  @default(now())
   concluido_em DateTime?
 
-  status       StatusNcmSync @default(RUNNING)
+  status       NCMStatusSincronizacao @default(EXECUTANDO)
 
   // Totais do diff
   total        Int @default(0)
@@ -1253,7 +1253,7 @@ model NcmSyncLog {
   removidos    Int @default(0)
 
   // Origem do trigger
-  origem       NcmSyncOrigem @default(JOB)  // 'JOB' | 'MANUAL'
+  origem       NCMOrigemSincronizacao @default(JOB)  // 'JOB' | 'MANUAL'
   disparado_por String?  // user_id se MANUAL
 
   erro_msg     String?
@@ -1269,13 +1269,13 @@ model NcmSyncLog {
   @@map("ncm_log")
 }
 
-enum StatusNcmSync {
-  RUNNING
-  SUCCESS
-  ERROR
+enum NCMStatusSincronizacao {
+  EXECUTANDO
+  SUCESSO
+  ERRO
 }
 
-enum NcmSyncOrigem {
+enum NCMOrigemSincronizacao {
   JOB
   MANUAL
 }

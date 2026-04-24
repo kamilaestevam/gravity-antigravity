@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { TipoAtor } from '../../../generated/index.js'
+import { AcaoExecutadaPor } from '../../../generated/index.js'
 import { AuditService } from '../services/audit.service.js'
 
 export interface AuditMiddlewareOptions {
@@ -11,7 +11,7 @@ export interface AuditMiddlewareOptions {
    * Barreira 1 — ator OBRIGATÓRIO e explícito.
    * Nunca inferir do contexto HTTP. Declare sempre: 'USER', 'AI', 'JOB', 'API' ou 'INTEGRATION'.
    */
-  actor_type: TipoAtor
+  actor_type: AcaoExecutadaPor
   actor_id?: string
   actor_name?: string
   /**
@@ -40,7 +40,7 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const auth = req.auth ?? {}
 
-    const actor_type: TipoAtor = opts.actor_type
+    const actor_type: AcaoExecutadaPor = opts.actor_type
     const actor_id: string = opts.actor_id ?? auth.userId ?? 'anonymous'
     const actor_name: string = opts.actor_name ?? auth.name ?? auth.userId ?? 'Unknown'
 
@@ -82,7 +82,7 @@ export function auditMiddleware(opts: AuditMiddlewareOptions) {
           status: isFailure ? 'FAILURE' : isSuccess ? 'SUCCESS' : 'PARTIAL',
           error_message: isFailure ? (body as any)?.message : undefined,
           product_id: auth.productId,
-          user_id: actor_type === TipoAtor.USER ? actor_id : undefined,
+          user_id: actor_type === AcaoExecutadaPor.USUARIO ? actor_id : undefined,
         }).catch((err) => console.error('[auditMiddleware]', err))
       })
 
@@ -109,7 +109,7 @@ export async function auditedJob<T>(
 
     await AuditService.log({
       tenant_id: tenantId,
-      actor_type: TipoAtor.JOB,
+      actor_type: AcaoExecutadaPor.JOB,
       actor_id: jobName,
       actor_name: jobName,
       module: 'jobs',
@@ -123,7 +123,7 @@ export async function auditedJob<T>(
   } catch (error) {
     await AuditService.log({
       tenant_id: tenantId,
-      actor_type: TipoAtor.JOB,
+      actor_type: AcaoExecutadaPor.JOB,
       actor_id: jobName,
       actor_name: jobName,
       module: 'jobs',

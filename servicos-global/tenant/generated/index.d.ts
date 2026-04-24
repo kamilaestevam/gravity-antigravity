@@ -244,16 +244,16 @@ export type TenantChannelConfig = $Result.DefaultSelection<Prisma.$TenantChannel
  * Enums
  */
 export namespace $Enums {
-  export const StatusThreadEmail: {
+  export const EmailThreadStatus: {
   ABERTA: 'ABERTA',
   ARQUIVADA: 'ARQUIVADA',
   RESOLVIDA: 'RESOLVIDA'
 };
 
-export type StatusThreadEmail = (typeof StatusThreadEmail)[keyof typeof StatusThreadEmail]
+export type EmailThreadStatus = (typeof EmailThreadStatus)[keyof typeof EmailThreadStatus]
 
 
-export const NivelSentimentoEmail: {
+export const EmailSentimento: {
   MUITO_POSITIVO: 'MUITO_POSITIVO',
   POSITIVO: 'POSITIVO',
   NEUTRO: 'NEUTRO',
@@ -261,18 +261,18 @@ export const NivelSentimentoEmail: {
   MUITO_NEGATIVO: 'MUITO_NEGATIVO'
 };
 
-export type NivelSentimentoEmail = (typeof NivelSentimentoEmail)[keyof typeof NivelSentimentoEmail]
+export type EmailSentimento = (typeof EmailSentimento)[keyof typeof EmailSentimento]
 
 
-export const DirecaoEmail: {
-  INBOUND: 'INBOUND',
-  OUTBOUND: 'OUTBOUND'
+export const EmailDirecao: {
+  RECEBIDO: 'RECEBIDO',
+  ENVIADO: 'ENVIADO'
 };
 
-export type DirecaoEmail = (typeof DirecaoEmail)[keyof typeof DirecaoEmail]
+export type EmailDirecao = (typeof EmailDirecao)[keyof typeof EmailDirecao]
 
 
-export const StatusEmail: {
+export const EmailStatus: {
   PENDENTE: 'PENDENTE',
   PROCESSANDO: 'PROCESSANDO',
   ENVIADO: 'ENVIADO',
@@ -280,151 +280,151 @@ export const StatusEmail: {
   CANCELADO: 'CANCELADO'
 };
 
-export type StatusEmail = (typeof StatusEmail)[keyof typeof StatusEmail]
+export type EmailStatus = (typeof EmailStatus)[keyof typeof EmailStatus]
 
 
-export const FilaEmailPrioridade: {
+export const EmailFilaPrioridade: {
   BAIXA: 'BAIXA',
   NORMAL: 'NORMAL',
   ALTA: 'ALTA',
   URGENTE: 'URGENTE'
 };
 
-export type FilaEmailPrioridade = (typeof FilaEmailPrioridade)[keyof typeof FilaEmailPrioridade]
+export type EmailFilaPrioridade = (typeof EmailFilaPrioridade)[keyof typeof EmailFilaPrioridade]
 
 
-export const ModoDashboard: {
-  PRODUCT: 'PRODUCT',
-  GENERAL: 'GENERAL'
+export const DashboardModo: {
+  PRODUTO: 'PRODUTO',
+  GERAL: 'GERAL'
 };
 
-export type ModoDashboard = (typeof ModoDashboard)[keyof typeof ModoDashboard]
+export type DashboardModo = (typeof DashboardModo)[keyof typeof DashboardModo]
 
 
-export const TipoWidget: {
-  CATALOG: 'CATALOG',
-  CUSTOM: 'CUSTOM',
+export const DashboardTipo: {
+  CATALOGO: 'CATALOGO',
+  CUSTOMIZADO: 'CUSTOMIZADO',
   GABI: 'GABI'
 };
 
-export type TipoWidget = (typeof TipoWidget)[keyof typeof TipoWidget]
+export type DashboardTipo = (typeof DashboardTipo)[keyof typeof DashboardTipo]
 
 
-export const TipoGrafico: {
+export const GraficoTipo: {
   KPI_CARD: 'KPI_CARD',
-  LINE: 'LINE',
-  BAR: 'BAR',
-  BAR_HORIZONTAL: 'BAR_HORIZONTAL',
-  DONUT: 'DONUT',
-  HISTOGRAM: 'HISTOGRAM',
-  FUNNEL: 'FUNNEL',
-  GAUGE: 'GAUGE',
-  MAP: 'MAP',
-  TABLE: 'TABLE',
+  LINHA: 'LINHA',
+  BARRA: 'BARRA',
+  BARRA_HORIZONTAL: 'BARRA_HORIZONTAL',
+  ROSCA: 'ROSCA',
+  HISTOGRAMA: 'HISTOGRAMA',
+  FUNIL: 'FUNIL',
+  MEDIDOR: 'MEDIDOR',
+  MAPA: 'MAPA',
+  TABELA: 'TABELA',
   AREA: 'AREA'
 };
 
-export type TipoGrafico = (typeof TipoGrafico)[keyof typeof TipoGrafico]
+export type GraficoTipo = (typeof GraficoTipo)[keyof typeof GraficoTipo]
 
 
-export const TipoAtor: {
-  USER: 'USER',
+export const AcaoExecutadaPor: {
+  USUARIO: 'USUARIO',
   API: 'API',
-  AI: 'AI',
+  IA: 'IA',
   JOB: 'JOB',
-  INTEGRATION: 'INTEGRATION'
+  INTEGRACAO: 'INTEGRACAO'
 };
 
-export type TipoAtor = (typeof TipoAtor)[keyof typeof TipoAtor]
+export type AcaoExecutadaPor = (typeof AcaoExecutadaPor)[keyof typeof AcaoExecutadaPor]
 
 
-export const StatusEvento: {
-  SUCCESS: 'SUCCESS',
-  FAILURE: 'FAILURE',
-  PARTIAL: 'PARTIAL'
+export const EventoStatus: {
+  SUCESSO: 'SUCESSO',
+  FALHA: 'FALHA',
+  PARCIAL: 'PARCIAL'
 };
 
-export type StatusEvento = (typeof StatusEvento)[keyof typeof StatusEvento]
+export type EventoStatus = (typeof EventoStatus)[keyof typeof EventoStatus]
 
 
-export const StatusAlerta: {
-  PENDING: 'PENDING',
-  REVIEWED: 'REVIEWED',
-  ESCALATED: 'ESCALATED'
+export const AlertaStatus: {
+  PENDENTE: 'PENDENTE',
+  REVISADO: 'REVISADO',
+  ESCALADO: 'ESCALADO'
 };
 
-export type StatusAlerta = (typeof StatusAlerta)[keyof typeof StatusAlerta]
+export type AlertaStatus = (typeof AlertaStatus)[keyof typeof AlertaStatus]
 
 
-export const StatusNcmSync: {
-  RUNNING: 'RUNNING',
-  SUCCESS: 'SUCCESS',
-  ERROR: 'ERROR'
+export const NCMStatusSincronizacao: {
+  EXECUTANDO: 'EXECUTANDO',
+  SUCESSO: 'SUCESSO',
+  ERRO: 'ERRO'
 };
 
-export type StatusNcmSync = (typeof StatusNcmSync)[keyof typeof StatusNcmSync]
+export type NCMStatusSincronizacao = (typeof NCMStatusSincronizacao)[keyof typeof NCMStatusSincronizacao]
 
 
-export const NcmSyncOrigem: {
+export const NCMOrigemSincronizacao: {
   JOB: 'JOB',
   MANUAL: 'MANUAL'
 };
 
-export type NcmSyncOrigem = (typeof NcmSyncOrigem)[keyof typeof NcmSyncOrigem]
+export type NCMOrigemSincronizacao = (typeof NCMOrigemSincronizacao)[keyof typeof NCMOrigemSincronizacao]
 
 }
 
-export type StatusThreadEmail = $Enums.StatusThreadEmail
+export type EmailThreadStatus = $Enums.EmailThreadStatus
 
-export const StatusThreadEmail: typeof $Enums.StatusThreadEmail
+export const EmailThreadStatus: typeof $Enums.EmailThreadStatus
 
-export type NivelSentimentoEmail = $Enums.NivelSentimentoEmail
+export type EmailSentimento = $Enums.EmailSentimento
 
-export const NivelSentimentoEmail: typeof $Enums.NivelSentimentoEmail
+export const EmailSentimento: typeof $Enums.EmailSentimento
 
-export type DirecaoEmail = $Enums.DirecaoEmail
+export type EmailDirecao = $Enums.EmailDirecao
 
-export const DirecaoEmail: typeof $Enums.DirecaoEmail
+export const EmailDirecao: typeof $Enums.EmailDirecao
 
-export type StatusEmail = $Enums.StatusEmail
+export type EmailStatus = $Enums.EmailStatus
 
-export const StatusEmail: typeof $Enums.StatusEmail
+export const EmailStatus: typeof $Enums.EmailStatus
 
-export type FilaEmailPrioridade = $Enums.FilaEmailPrioridade
+export type EmailFilaPrioridade = $Enums.EmailFilaPrioridade
 
-export const FilaEmailPrioridade: typeof $Enums.FilaEmailPrioridade
+export const EmailFilaPrioridade: typeof $Enums.EmailFilaPrioridade
 
-export type ModoDashboard = $Enums.ModoDashboard
+export type DashboardModo = $Enums.DashboardModo
 
-export const ModoDashboard: typeof $Enums.ModoDashboard
+export const DashboardModo: typeof $Enums.DashboardModo
 
-export type TipoWidget = $Enums.TipoWidget
+export type DashboardTipo = $Enums.DashboardTipo
 
-export const TipoWidget: typeof $Enums.TipoWidget
+export const DashboardTipo: typeof $Enums.DashboardTipo
 
-export type TipoGrafico = $Enums.TipoGrafico
+export type GraficoTipo = $Enums.GraficoTipo
 
-export const TipoGrafico: typeof $Enums.TipoGrafico
+export const GraficoTipo: typeof $Enums.GraficoTipo
 
-export type TipoAtor = $Enums.TipoAtor
+export type AcaoExecutadaPor = $Enums.AcaoExecutadaPor
 
-export const TipoAtor: typeof $Enums.TipoAtor
+export const AcaoExecutadaPor: typeof $Enums.AcaoExecutadaPor
 
-export type StatusEvento = $Enums.StatusEvento
+export type EventoStatus = $Enums.EventoStatus
 
-export const StatusEvento: typeof $Enums.StatusEvento
+export const EventoStatus: typeof $Enums.EventoStatus
 
-export type StatusAlerta = $Enums.StatusAlerta
+export type AlertaStatus = $Enums.AlertaStatus
 
-export const StatusAlerta: typeof $Enums.StatusAlerta
+export const AlertaStatus: typeof $Enums.AlertaStatus
 
-export type StatusNcmSync = $Enums.StatusNcmSync
+export type NCMStatusSincronizacao = $Enums.NCMStatusSincronizacao
 
-export const StatusNcmSync: typeof $Enums.StatusNcmSync
+export const NCMStatusSincronizacao: typeof $Enums.NCMStatusSincronizacao
 
-export type NcmSyncOrigem = $Enums.NcmSyncOrigem
+export type NCMOrigemSincronizacao = $Enums.NCMOrigemSincronizacao
 
-export const NcmSyncOrigem: typeof $Enums.NcmSyncOrigem
+export const NCMOrigemSincronizacao: typeof $Enums.NCMOrigemSincronizacao
 
 /**
  * ##  Prisma Client ʲˢ
@@ -11154,9 +11154,9 @@ export namespace Prisma {
     product_id: string | null
     user_id: string | null
     subject: string | null
-    status: $Enums.StatusThreadEmail | null
+    status: $Enums.EmailThreadStatus | null
     sentiment: number | null
-    sentiment_label: $Enums.NivelSentimentoEmail | null
+    sentiment_label: $Enums.EmailSentimento | null
     mensagens_count: number | null
     ultimo_contato: Date | null
     deep_link: string | null
@@ -11170,9 +11170,9 @@ export namespace Prisma {
     product_id: string | null
     user_id: string | null
     subject: string | null
-    status: $Enums.StatusThreadEmail | null
+    status: $Enums.EmailThreadStatus | null
     sentiment: number | null
-    sentiment_label: $Enums.NivelSentimentoEmail | null
+    sentiment_label: $Enums.EmailSentimento | null
     mensagens_count: number | null
     ultimo_contato: Date | null
     deep_link: string | null
@@ -11349,9 +11349,9 @@ export namespace Prisma {
     product_id: string | null
     user_id: string | null
     subject: string
-    status: $Enums.StatusThreadEmail
+    status: $Enums.EmailThreadStatus
     sentiment: number
-    sentiment_label: $Enums.NivelSentimentoEmail
+    sentiment_label: $Enums.EmailSentimento
     mensagens_count: number
     ultimo_contato: Date | null
     deep_link: string | null
@@ -11445,9 +11445,9 @@ export namespace Prisma {
       product_id: string | null
       user_id: string | null
       subject: string
-      status: $Enums.StatusThreadEmail
+      status: $Enums.EmailThreadStatus
       sentiment: number
-      sentiment_label: $Enums.NivelSentimentoEmail
+      sentiment_label: $Enums.EmailSentimento
       mensagens_count: number
       ultimo_contato: Date | null
       deep_link: string | null
@@ -11852,9 +11852,9 @@ export namespace Prisma {
     readonly product_id: FieldRef<"EmailAssuntosParticipantes", 'String'>
     readonly user_id: FieldRef<"EmailAssuntosParticipantes", 'String'>
     readonly subject: FieldRef<"EmailAssuntosParticipantes", 'String'>
-    readonly status: FieldRef<"EmailAssuntosParticipantes", 'StatusThreadEmail'>
+    readonly status: FieldRef<"EmailAssuntosParticipantes", 'EmailThreadStatus'>
     readonly sentiment: FieldRef<"EmailAssuntosParticipantes", 'Float'>
-    readonly sentiment_label: FieldRef<"EmailAssuntosParticipantes", 'NivelSentimentoEmail'>
+    readonly sentiment_label: FieldRef<"EmailAssuntosParticipantes", 'EmailSentimento'>
     readonly mensagens_count: FieldRef<"EmailAssuntosParticipantes", 'Int'>
     readonly ultimo_contato: FieldRef<"EmailAssuntosParticipantes", 'DateTime'>
     readonly deep_link: FieldRef<"EmailAssuntosParticipantes", 'String'>
@@ -12235,7 +12235,7 @@ export namespace Prisma {
     user_id: string | null
     thread_id: string | null
     resend_id: string | null
-    direction: $Enums.DirecaoEmail | null
+    direction: $Enums.EmailDirecao | null
     from: string | null
     to: string | null
     subject: string | null
@@ -12258,7 +12258,7 @@ export namespace Prisma {
     user_id: string | null
     thread_id: string | null
     resend_id: string | null
-    direction: $Enums.DirecaoEmail | null
+    direction: $Enums.EmailDirecao | null
     from: string | null
     to: string | null
     subject: string | null
@@ -12470,7 +12470,7 @@ export namespace Prisma {
     user_id: string | null
     thread_id: string
     resend_id: string | null
-    direction: $Enums.DirecaoEmail
+    direction: $Enums.EmailDirecao
     from: string
     to: string
     subject: string | null
@@ -12595,7 +12595,7 @@ export namespace Prisma {
       user_id: string | null
       thread_id: string
       resend_id: string | null
-      direction: $Enums.DirecaoEmail
+      direction: $Enums.EmailDirecao
       from: string
       to: string
       subject: string | null
@@ -13009,7 +13009,7 @@ export namespace Prisma {
     readonly user_id: FieldRef<"EmailMensagem", 'String'>
     readonly thread_id: FieldRef<"EmailMensagem", 'String'>
     readonly resend_id: FieldRef<"EmailMensagem", 'String'>
-    readonly direction: FieldRef<"EmailMensagem", 'DirecaoEmail'>
+    readonly direction: FieldRef<"EmailMensagem", 'EmailDirecao'>
     readonly from: FieldRef<"EmailMensagem", 'String'>
     readonly to: FieldRef<"EmailMensagem", 'String'>
     readonly subject: FieldRef<"EmailMensagem", 'String'>
@@ -13387,7 +13387,7 @@ export namespace Prisma {
     reply_to: string | null
     subject: string | null
     template_id: string | null
-    status: $Enums.StatusEmail | null
+    status: $Enums.EmailStatus | null
     resend_id: string | null
     dedup_key: string | null
     tentativas: number | null
@@ -13409,7 +13409,7 @@ export namespace Prisma {
     reply_to: string | null
     subject: string | null
     template_id: string | null
-    status: $Enums.StatusEmail | null
+    status: $Enums.EmailStatus | null
     resend_id: string | null
     dedup_key: string | null
     tentativas: number | null
@@ -13618,7 +13618,7 @@ export namespace Prisma {
     reply_to: string | null
     subject: string
     template_id: string | null
-    status: $Enums.StatusEmail
+    status: $Enums.EmailStatus
     resend_id: string | null
     dedup_key: string
     tentativas: number
@@ -13729,7 +13729,7 @@ export namespace Prisma {
       reply_to: string | null
       subject: string
       template_id: string | null
-      status: $Enums.StatusEmail
+      status: $Enums.EmailStatus
       resend_id: string | null
       dedup_key: string
       tentativas: number
@@ -14141,7 +14141,7 @@ export namespace Prisma {
     readonly reply_to: FieldRef<"EmailRegistroEnvio", 'String'>
     readonly subject: FieldRef<"EmailRegistroEnvio", 'String'>
     readonly template_id: FieldRef<"EmailRegistroEnvio", 'String'>
-    readonly status: FieldRef<"EmailRegistroEnvio", 'StatusEmail'>
+    readonly status: FieldRef<"EmailRegistroEnvio", 'EmailStatus'>
     readonly resend_id: FieldRef<"EmailRegistroEnvio", 'String'>
     readonly dedup_key: FieldRef<"EmailRegistroEnvio", 'String'>
     readonly tentativas: FieldRef<"EmailRegistroEnvio", 'Int'>
@@ -15448,8 +15448,8 @@ export namespace Prisma {
     tenant_id: string | null
     product_id: string | null
     user_id: string | null
-    status: $Enums.StatusEmail | null
-    prioridade: $Enums.FilaEmailPrioridade | null
+    status: $Enums.EmailStatus | null
+    prioridade: $Enums.EmailFilaPrioridade | null
     payload: string | null
     template_id: string | null
     email_enviado_id: string | null
@@ -15467,8 +15467,8 @@ export namespace Prisma {
     tenant_id: string | null
     product_id: string | null
     user_id: string | null
-    status: $Enums.StatusEmail | null
-    prioridade: $Enums.FilaEmailPrioridade | null
+    status: $Enums.EmailStatus | null
+    prioridade: $Enums.EmailFilaPrioridade | null
     payload: string | null
     template_id: string | null
     email_enviado_id: string | null
@@ -15661,8 +15661,8 @@ export namespace Prisma {
     tenant_id: string
     product_id: string | null
     user_id: string | null
-    status: $Enums.StatusEmail
-    prioridade: $Enums.FilaEmailPrioridade
+    status: $Enums.EmailStatus
+    prioridade: $Enums.EmailFilaPrioridade
     payload: string
     template_id: string | null
     email_enviado_id: string | null
@@ -15760,8 +15760,8 @@ export namespace Prisma {
       tenant_id: string
       product_id: string | null
       user_id: string | null
-      status: $Enums.StatusEmail
-      prioridade: $Enums.FilaEmailPrioridade
+      status: $Enums.EmailStatus
+      prioridade: $Enums.EmailFilaPrioridade
       payload: string
       template_id: string | null
       email_enviado_id: string | null
@@ -16169,8 +16169,8 @@ export namespace Prisma {
     readonly tenant_id: FieldRef<"EmailFilaEnvio", 'String'>
     readonly product_id: FieldRef<"EmailFilaEnvio", 'String'>
     readonly user_id: FieldRef<"EmailFilaEnvio", 'String'>
-    readonly status: FieldRef<"EmailFilaEnvio", 'StatusEmail'>
-    readonly prioridade: FieldRef<"EmailFilaEnvio", 'FilaEmailPrioridade'>
+    readonly status: FieldRef<"EmailFilaEnvio", 'EmailStatus'>
+    readonly prioridade: FieldRef<"EmailFilaEnvio", 'EmailFilaPrioridade'>
     readonly payload: FieldRef<"EmailFilaEnvio", 'String'>
     readonly template_id: FieldRef<"EmailFilaEnvio", 'String'>
     readonly email_enviado_id: FieldRef<"EmailFilaEnvio", 'String'>
@@ -20501,7 +20501,7 @@ export namespace Prisma {
     product_id: string | null
     user_id: string | null
     name: string | null
-    mode: $Enums.ModoDashboard | null
+    mode: $Enums.DashboardModo | null
     is_default: boolean | null
     created_at: Date | null
     updated_at: Date | null
@@ -20513,7 +20513,7 @@ export namespace Prisma {
     product_id: string | null
     user_id: string | null
     name: string | null
-    mode: $Enums.ModoDashboard | null
+    mode: $Enums.DashboardModo | null
     is_default: boolean | null
     created_at: Date | null
     updated_at: Date | null
@@ -20652,7 +20652,7 @@ export namespace Prisma {
     product_id: string | null
     user_id: string
     name: string
-    mode: $Enums.ModoDashboard
+    mode: $Enums.DashboardModo
     layout: JsonValue
     filters: JsonValue | null
     is_default: boolean
@@ -20744,7 +20744,7 @@ export namespace Prisma {
       product_id: string | null
       user_id: string
       name: string
-      mode: $Enums.ModoDashboard
+      mode: $Enums.DashboardModo
       layout: Prisma.JsonValue
       filters: Prisma.JsonValue | null
       is_default: boolean
@@ -21151,7 +21151,7 @@ export namespace Prisma {
     readonly product_id: FieldRef<"DashboardConfiguracao", 'String'>
     readonly user_id: FieldRef<"DashboardConfiguracao", 'String'>
     readonly name: FieldRef<"DashboardConfiguracao", 'String'>
-    readonly mode: FieldRef<"DashboardConfiguracao", 'ModoDashboard'>
+    readonly mode: FieldRef<"DashboardConfiguracao", 'DashboardModo'>
     readonly layout: FieldRef<"DashboardConfiguracao", 'Json'>
     readonly filters: FieldRef<"DashboardConfiguracao", 'Json'>
     readonly is_default: FieldRef<"DashboardConfiguracao", 'Boolean'>
@@ -21562,8 +21562,8 @@ export namespace Prisma {
     user_id: string | null
     dashboard_id: string | null
     widget_key: string | null
-    widget_type: $Enums.TipoWidget | null
-    chart_type: $Enums.TipoGrafico | null
+    widget_type: $Enums.DashboardTipo | null
+    chart_type: $Enums.GraficoTipo | null
     title: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -21576,8 +21576,8 @@ export namespace Prisma {
     user_id: string | null
     dashboard_id: string | null
     widget_key: string | null
-    widget_type: $Enums.TipoWidget | null
-    chart_type: $Enums.TipoGrafico | null
+    widget_type: $Enums.DashboardTipo | null
+    chart_type: $Enums.GraficoTipo | null
     title: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -21727,8 +21727,8 @@ export namespace Prisma {
     user_id: string
     dashboard_id: string
     widget_key: string
-    widget_type: $Enums.TipoWidget
-    chart_type: $Enums.TipoGrafico
+    widget_type: $Enums.DashboardTipo
+    chart_type: $Enums.GraficoTipo
     title: string
     query_spec: JsonValue
     position: JsonValue
@@ -21826,8 +21826,8 @@ export namespace Prisma {
       user_id: string
       dashboard_id: string
       widget_key: string
-      widget_type: $Enums.TipoWidget
-      chart_type: $Enums.TipoGrafico
+      widget_type: $Enums.DashboardTipo
+      chart_type: $Enums.GraficoTipo
       title: string
       query_spec: Prisma.JsonValue
       position: Prisma.JsonValue
@@ -22234,8 +22234,8 @@ export namespace Prisma {
     readonly user_id: FieldRef<"DashboardCriar", 'String'>
     readonly dashboard_id: FieldRef<"DashboardCriar", 'String'>
     readonly widget_key: FieldRef<"DashboardCriar", 'String'>
-    readonly widget_type: FieldRef<"DashboardCriar", 'TipoWidget'>
-    readonly chart_type: FieldRef<"DashboardCriar", 'TipoGrafico'>
+    readonly widget_type: FieldRef<"DashboardCriar", 'DashboardTipo'>
+    readonly chart_type: FieldRef<"DashboardCriar", 'GraficoTipo'>
     readonly title: FieldRef<"DashboardCriar", 'String'>
     readonly query_spec: FieldRef<"DashboardCriar", 'Json'>
     readonly position: FieldRef<"DashboardCriar", 'Json'>
@@ -28433,7 +28433,7 @@ export namespace Prisma {
   export type HistoricoLogMinAggregateOutputType = {
     id: string | null
     tenant_id: string | null
-    actor_type: $Enums.TipoAtor | null
+    actor_type: $Enums.AcaoExecutadaPor | null
     actor_id: string | null
     actor_name: string | null
     actor_ip: string | null
@@ -28442,7 +28442,7 @@ export namespace Prisma {
     resource_id: string | null
     action: string | null
     action_detail: string | null
-    status: $Enums.StatusEvento | null
+    status: $Enums.EventoStatus | null
     error_message: string | null
     integrity_hash: string | null
     product_id: string | null
@@ -28453,7 +28453,7 @@ export namespace Prisma {
   export type HistoricoLogMaxAggregateOutputType = {
     id: string | null
     tenant_id: string | null
-    actor_type: $Enums.TipoAtor | null
+    actor_type: $Enums.AcaoExecutadaPor | null
     actor_id: string | null
     actor_name: string | null
     actor_ip: string | null
@@ -28462,7 +28462,7 @@ export namespace Prisma {
     resource_id: string | null
     action: string | null
     action_detail: string | null
-    status: $Enums.StatusEvento | null
+    status: $Enums.EventoStatus | null
     error_message: string | null
     integrity_hash: string | null
     product_id: string | null
@@ -28634,7 +28634,7 @@ export namespace Prisma {
   export type HistoricoLogGroupByOutputType = {
     id: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     actor_ip: string | null
@@ -28646,7 +28646,7 @@ export namespace Prisma {
     action_detail: string
     before: JsonValue | null
     after: JsonValue | null
-    status: $Enums.StatusEvento
+    status: $Enums.EventoStatus
     error_message: string | null
     integrity_hash: string
     product_id: string | null
@@ -28747,7 +28747,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       tenant_id: string
-      actor_type: $Enums.TipoAtor
+      actor_type: $Enums.AcaoExecutadaPor
       actor_id: string
       actor_name: string
       actor_ip: string | null
@@ -28759,7 +28759,7 @@ export namespace Prisma {
       action_detail: string
       before: Prisma.JsonValue | null
       after: Prisma.JsonValue | null
-      status: $Enums.StatusEvento
+      status: $Enums.EventoStatus
       error_message: string | null
       integrity_hash: string
       product_id: string | null
@@ -29160,7 +29160,7 @@ export namespace Prisma {
   interface HistoricoLogFieldRefs {
     readonly id: FieldRef<"HistoricoLog", 'String'>
     readonly tenant_id: FieldRef<"HistoricoLog", 'String'>
-    readonly actor_type: FieldRef<"HistoricoLog", 'TipoAtor'>
+    readonly actor_type: FieldRef<"HistoricoLog", 'AcaoExecutadaPor'>
     readonly actor_id: FieldRef<"HistoricoLog", 'String'>
     readonly actor_name: FieldRef<"HistoricoLog", 'String'>
     readonly actor_ip: FieldRef<"HistoricoLog", 'String'>
@@ -29172,7 +29172,7 @@ export namespace Prisma {
     readonly action_detail: FieldRef<"HistoricoLog", 'String'>
     readonly before: FieldRef<"HistoricoLog", 'Json'>
     readonly after: FieldRef<"HistoricoLog", 'Json'>
-    readonly status: FieldRef<"HistoricoLog", 'StatusEvento'>
+    readonly status: FieldRef<"HistoricoLog", 'EventoStatus'>
     readonly error_message: FieldRef<"HistoricoLog", 'String'>
     readonly integrity_hash: FieldRef<"HistoricoLog", 'String'>
     readonly product_id: FieldRef<"HistoricoLog", 'String'>
@@ -29494,10 +29494,10 @@ export namespace Prisma {
     name: string | null
     description: string | null
     enabled: boolean | null
-    actor_type: $Enums.TipoAtor | null
+    actor_type: $Enums.AcaoExecutadaPor | null
     action: string | null
     module: string | null
-    status_filter: $Enums.StatusEvento | null
+    status_filter: $Enums.EventoStatus | null
     threshold_count: number | null
     threshold_window_seconds: number | null
     channel_inapp: boolean | null
@@ -29513,10 +29513,10 @@ export namespace Prisma {
     name: string | null
     description: string | null
     enabled: boolean | null
-    actor_type: $Enums.TipoAtor | null
+    actor_type: $Enums.AcaoExecutadaPor | null
     action: string | null
     module: string | null
-    status_filter: $Enums.StatusEvento | null
+    status_filter: $Enums.EventoStatus | null
     threshold_count: number | null
     threshold_window_seconds: number | null
     channel_inapp: boolean | null
@@ -29713,10 +29713,10 @@ export namespace Prisma {
     name: string
     description: string | null
     enabled: boolean
-    actor_type: $Enums.TipoAtor | null
+    actor_type: $Enums.AcaoExecutadaPor | null
     action: string | null
     module: string | null
-    status_filter: $Enums.StatusEvento | null
+    status_filter: $Enums.EventoStatus | null
     threshold_count: number | null
     threshold_window_seconds: number | null
     channel_inapp: boolean
@@ -29833,10 +29833,10 @@ export namespace Prisma {
       name: string
       description: string | null
       enabled: boolean
-      actor_type: $Enums.TipoAtor | null
+      actor_type: $Enums.AcaoExecutadaPor | null
       action: string | null
       module: string | null
-      status_filter: $Enums.StatusEvento | null
+      status_filter: $Enums.EventoStatus | null
       threshold_count: number | null
       threshold_window_seconds: number | null
       channel_inapp: boolean
@@ -30246,10 +30246,10 @@ export namespace Prisma {
     readonly name: FieldRef<"AlertRule", 'String'>
     readonly description: FieldRef<"AlertRule", 'String'>
     readonly enabled: FieldRef<"AlertRule", 'Boolean'>
-    readonly actor_type: FieldRef<"AlertRule", 'TipoAtor'>
+    readonly actor_type: FieldRef<"AlertRule", 'AcaoExecutadaPor'>
     readonly action: FieldRef<"AlertRule", 'String'>
     readonly module: FieldRef<"AlertRule", 'String'>
-    readonly status_filter: FieldRef<"AlertRule", 'StatusEvento'>
+    readonly status_filter: FieldRef<"AlertRule", 'EventoStatus'>
     readonly threshold_count: FieldRef<"AlertRule", 'Int'>
     readonly threshold_window_seconds: FieldRef<"AlertRule", 'Int'>
     readonly channel_inapp: FieldRef<"AlertRule", 'Boolean'>
@@ -30634,14 +30634,14 @@ export namespace Prisma {
     id: string | null
     tenant_id: string | null
     rule_id: string | null
-    actor_type: $Enums.TipoAtor | null
+    actor_type: $Enums.AcaoExecutadaPor | null
     actor_id: string | null
     actor_name: string | null
     module: string | null
     action: string | null
     event_count: number | null
     window_seconds: number | null
-    status: $Enums.StatusAlerta | null
+    status: $Enums.AlertaStatus | null
     reviewed_by: string | null
     reviewed_at: Date | null
     notes: string | null
@@ -30652,14 +30652,14 @@ export namespace Prisma {
     id: string | null
     tenant_id: string | null
     rule_id: string | null
-    actor_type: $Enums.TipoAtor | null
+    actor_type: $Enums.AcaoExecutadaPor | null
     actor_id: string | null
     actor_name: string | null
     module: string | null
     action: string | null
     event_count: number | null
     window_seconds: number | null
-    status: $Enums.StatusAlerta | null
+    status: $Enums.AlertaStatus | null
     reviewed_by: string | null
     reviewed_at: Date | null
     notes: string | null
@@ -30843,7 +30843,7 @@ export namespace Prisma {
     id: string
     tenant_id: string
     rule_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -30851,7 +30851,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids: string[]
-    status: $Enums.StatusAlerta
+    status: $Enums.AlertaStatus
     reviewed_by: string | null
     reviewed_at: Date | null
     notes: string | null
@@ -30957,7 +30957,7 @@ export namespace Prisma {
       id: string
       tenant_id: string
       rule_id: string
-      actor_type: $Enums.TipoAtor
+      actor_type: $Enums.AcaoExecutadaPor
       actor_id: string
       actor_name: string
       module: string
@@ -30965,7 +30965,7 @@ export namespace Prisma {
       event_count: number
       window_seconds: number
       audit_log_ids: string[]
-      status: $Enums.StatusAlerta
+      status: $Enums.AlertaStatus
       reviewed_by: string | null
       reviewed_at: Date | null
       notes: string | null
@@ -31368,7 +31368,7 @@ export namespace Prisma {
     readonly id: FieldRef<"AlertEvent", 'String'>
     readonly tenant_id: FieldRef<"AlertEvent", 'String'>
     readonly rule_id: FieldRef<"AlertEvent", 'String'>
-    readonly actor_type: FieldRef<"AlertEvent", 'TipoAtor'>
+    readonly actor_type: FieldRef<"AlertEvent", 'AcaoExecutadaPor'>
     readonly actor_id: FieldRef<"AlertEvent", 'String'>
     readonly actor_name: FieldRef<"AlertEvent", 'String'>
     readonly module: FieldRef<"AlertEvent", 'String'>
@@ -31376,7 +31376,7 @@ export namespace Prisma {
     readonly event_count: FieldRef<"AlertEvent", 'Int'>
     readonly window_seconds: FieldRef<"AlertEvent", 'Int'>
     readonly audit_log_ids: FieldRef<"AlertEvent", 'String[]'>
-    readonly status: FieldRef<"AlertEvent", 'StatusAlerta'>
+    readonly status: FieldRef<"AlertEvent", 'AlertaStatus'>
     readonly reviewed_by: FieldRef<"AlertEvent", 'String'>
     readonly reviewed_at: FieldRef<"AlertEvent", 'DateTime'>
     readonly notes: FieldRef<"AlertEvent", 'String'>
@@ -45496,12 +45496,12 @@ export namespace Prisma {
     user_id: string | null
     iniciado_em: Date | null
     concluido_em: Date | null
-    status: $Enums.StatusNcmSync | null
+    status: $Enums.NCMStatusSincronizacao | null
     total: number | null
     adicionados: number | null
     alterados: number | null
     removidos: number | null
-    origem: $Enums.NcmSyncOrigem | null
+    origem: $Enums.NCMOrigemSincronizacao | null
     disparado_por: string | null
     erro_msg: string | null
     created_at: Date | null
@@ -45515,12 +45515,12 @@ export namespace Prisma {
     user_id: string | null
     iniciado_em: Date | null
     concluido_em: Date | null
-    status: $Enums.StatusNcmSync | null
+    status: $Enums.NCMStatusSincronizacao | null
     total: number | null
     adicionados: number | null
     alterados: number | null
     removidos: number | null
-    origem: $Enums.NcmSyncOrigem | null
+    origem: $Enums.NCMOrigemSincronizacao | null
     disparado_por: string | null
     erro_msg: string | null
     created_at: Date | null
@@ -45713,12 +45713,12 @@ export namespace Prisma {
     user_id: string | null
     iniciado_em: Date
     concluido_em: Date | null
-    status: $Enums.StatusNcmSync
+    status: $Enums.NCMStatusSincronizacao
     total: number
     adicionados: number
     alterados: number
     removidos: number
-    origem: $Enums.NcmSyncOrigem
+    origem: $Enums.NCMOrigemSincronizacao
     disparado_por: string | null
     erro_msg: string | null
     created_at: Date
@@ -45812,12 +45812,12 @@ export namespace Prisma {
       user_id: string | null
       iniciado_em: Date
       concluido_em: Date | null
-      status: $Enums.StatusNcmSync
+      status: $Enums.NCMStatusSincronizacao
       total: number
       adicionados: number
       alterados: number
       removidos: number
-      origem: $Enums.NcmSyncOrigem
+      origem: $Enums.NCMOrigemSincronizacao
       disparado_por: string | null
       erro_msg: string | null
       created_at: Date
@@ -46221,12 +46221,12 @@ export namespace Prisma {
     readonly user_id: FieldRef<"NcmSyncLog", 'String'>
     readonly iniciado_em: FieldRef<"NcmSyncLog", 'DateTime'>
     readonly concluido_em: FieldRef<"NcmSyncLog", 'DateTime'>
-    readonly status: FieldRef<"NcmSyncLog", 'StatusNcmSync'>
+    readonly status: FieldRef<"NcmSyncLog", 'NCMStatusSincronizacao'>
     readonly total: FieldRef<"NcmSyncLog", 'Int'>
     readonly adicionados: FieldRef<"NcmSyncLog", 'Int'>
     readonly alterados: FieldRef<"NcmSyncLog", 'Int'>
     readonly removidos: FieldRef<"NcmSyncLog", 'Int'>
-    readonly origem: FieldRef<"NcmSyncLog", 'NcmSyncOrigem'>
+    readonly origem: FieldRef<"NcmSyncLog", 'NCMOrigemSincronizacao'>
     readonly disparado_por: FieldRef<"NcmSyncLog", 'String'>
     readonly erro_msg: FieldRef<"NcmSyncLog", 'String'>
     readonly created_at: FieldRef<"NcmSyncLog", 'DateTime'>
@@ -51194,16 +51194,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'StatusThreadEmail'
+   * Reference to a field of type 'EmailThreadStatus'
    */
-  export type EnumStatusThreadEmailFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusThreadEmail'>
+  export type EnumEmailThreadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailThreadStatus'>
     
 
 
   /**
-   * Reference to a field of type 'StatusThreadEmail[]'
+   * Reference to a field of type 'EmailThreadStatus[]'
    */
-  export type ListEnumStatusThreadEmailFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusThreadEmail[]'>
+  export type ListEnumEmailThreadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailThreadStatus[]'>
     
 
 
@@ -51222,58 +51222,58 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'NivelSentimentoEmail'
+   * Reference to a field of type 'EmailSentimento'
    */
-  export type EnumNivelSentimentoEmailFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NivelSentimentoEmail'>
+  export type EnumEmailSentimentoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailSentimento'>
     
 
 
   /**
-   * Reference to a field of type 'NivelSentimentoEmail[]'
+   * Reference to a field of type 'EmailSentimento[]'
    */
-  export type ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NivelSentimentoEmail[]'>
+  export type ListEnumEmailSentimentoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailSentimento[]'>
     
 
 
   /**
-   * Reference to a field of type 'DirecaoEmail'
+   * Reference to a field of type 'EmailDirecao'
    */
-  export type EnumDirecaoEmailFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DirecaoEmail'>
+  export type EnumEmailDirecaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailDirecao'>
     
 
 
   /**
-   * Reference to a field of type 'DirecaoEmail[]'
+   * Reference to a field of type 'EmailDirecao[]'
    */
-  export type ListEnumDirecaoEmailFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DirecaoEmail[]'>
+  export type ListEnumEmailDirecaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailDirecao[]'>
     
 
 
   /**
-   * Reference to a field of type 'StatusEmail'
+   * Reference to a field of type 'EmailStatus'
    */
-  export type EnumStatusEmailFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusEmail'>
+  export type EnumEmailStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailStatus'>
     
 
 
   /**
-   * Reference to a field of type 'StatusEmail[]'
+   * Reference to a field of type 'EmailStatus[]'
    */
-  export type ListEnumStatusEmailFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusEmail[]'>
+  export type ListEnumEmailStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailStatus[]'>
     
 
 
   /**
-   * Reference to a field of type 'FilaEmailPrioridade'
+   * Reference to a field of type 'EmailFilaPrioridade'
    */
-  export type EnumFilaEmailPrioridadeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FilaEmailPrioridade'>
+  export type EnumEmailFilaPrioridadeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailFilaPrioridade'>
     
 
 
   /**
-   * Reference to a field of type 'FilaEmailPrioridade[]'
+   * Reference to a field of type 'EmailFilaPrioridade[]'
    */
-  export type ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FilaEmailPrioridade[]'>
+  export type ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmailFilaPrioridade[]'>
     
 
 
@@ -51299,114 +51299,114 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'ModoDashboard'
+   * Reference to a field of type 'DashboardModo'
    */
-  export type EnumModoDashboardFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModoDashboard'>
+  export type EnumDashboardModoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DashboardModo'>
     
 
 
   /**
-   * Reference to a field of type 'ModoDashboard[]'
+   * Reference to a field of type 'DashboardModo[]'
    */
-  export type ListEnumModoDashboardFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ModoDashboard[]'>
+  export type ListEnumDashboardModoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DashboardModo[]'>
     
 
 
   /**
-   * Reference to a field of type 'TipoWidget'
+   * Reference to a field of type 'DashboardTipo'
    */
-  export type EnumTipoWidgetFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoWidget'>
+  export type EnumDashboardTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DashboardTipo'>
     
 
 
   /**
-   * Reference to a field of type 'TipoWidget[]'
+   * Reference to a field of type 'DashboardTipo[]'
    */
-  export type ListEnumTipoWidgetFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoWidget[]'>
+  export type ListEnumDashboardTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DashboardTipo[]'>
     
 
 
   /**
-   * Reference to a field of type 'TipoGrafico'
+   * Reference to a field of type 'GraficoTipo'
    */
-  export type EnumTipoGraficoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoGrafico'>
+  export type EnumGraficoTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GraficoTipo'>
     
 
 
   /**
-   * Reference to a field of type 'TipoGrafico[]'
+   * Reference to a field of type 'GraficoTipo[]'
    */
-  export type ListEnumTipoGraficoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoGrafico[]'>
+  export type ListEnumGraficoTipoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GraficoTipo[]'>
     
 
 
   /**
-   * Reference to a field of type 'TipoAtor'
+   * Reference to a field of type 'AcaoExecutadaPor'
    */
-  export type EnumTipoAtorFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAtor'>
+  export type EnumAcaoExecutadaPorFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AcaoExecutadaPor'>
     
 
 
   /**
-   * Reference to a field of type 'TipoAtor[]'
+   * Reference to a field of type 'AcaoExecutadaPor[]'
    */
-  export type ListEnumTipoAtorFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TipoAtor[]'>
+  export type ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AcaoExecutadaPor[]'>
     
 
 
   /**
-   * Reference to a field of type 'StatusEvento'
+   * Reference to a field of type 'EventoStatus'
    */
-  export type EnumStatusEventoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusEvento'>
+  export type EnumEventoStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EventoStatus'>
     
 
 
   /**
-   * Reference to a field of type 'StatusEvento[]'
+   * Reference to a field of type 'EventoStatus[]'
    */
-  export type ListEnumStatusEventoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusEvento[]'>
+  export type ListEnumEventoStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EventoStatus[]'>
     
 
 
   /**
-   * Reference to a field of type 'StatusAlerta'
+   * Reference to a field of type 'AlertaStatus'
    */
-  export type EnumStatusAlertaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusAlerta'>
+  export type EnumAlertaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AlertaStatus'>
     
 
 
   /**
-   * Reference to a field of type 'StatusAlerta[]'
+   * Reference to a field of type 'AlertaStatus[]'
    */
-  export type ListEnumStatusAlertaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusAlerta[]'>
+  export type ListEnumAlertaStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AlertaStatus[]'>
     
 
 
   /**
-   * Reference to a field of type 'StatusNcmSync'
+   * Reference to a field of type 'NCMStatusSincronizacao'
    */
-  export type EnumStatusNcmSyncFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusNcmSync'>
+  export type EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMStatusSincronizacao'>
     
 
 
   /**
-   * Reference to a field of type 'StatusNcmSync[]'
+   * Reference to a field of type 'NCMStatusSincronizacao[]'
    */
-  export type ListEnumStatusNcmSyncFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatusNcmSync[]'>
+  export type ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMStatusSincronizacao[]'>
     
 
 
   /**
-   * Reference to a field of type 'NcmSyncOrigem'
+   * Reference to a field of type 'NCMOrigemSincronizacao'
    */
-  export type EnumNcmSyncOrigemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncOrigem'>
+  export type EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMOrigemSincronizacao'>
     
 
 
   /**
-   * Reference to a field of type 'NcmSyncOrigem[]'
+   * Reference to a field of type 'NCMOrigemSincronizacao[]'
    */
-  export type ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NcmSyncOrigem[]'>
+  export type ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NCMOrigemSincronizacao[]'>
     
   /**
    * Deep Input Types
@@ -51922,9 +51922,9 @@ export namespace Prisma {
     product_id?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
     user_id?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
     subject?: StringFilter<"EmailAssuntosParticipantes"> | string
-    status?: EnumStatusThreadEmailFilter<"EmailAssuntosParticipantes"> | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
     sentiment?: FloatFilter<"EmailAssuntosParticipantes"> | number
-    sentiment_label?: EnumNivelSentimentoEmailFilter<"EmailAssuntosParticipantes"> | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
     mensagens_count?: IntFilter<"EmailAssuntosParticipantes"> | number
     ultimo_contato?: DateTimeNullableFilter<"EmailAssuntosParticipantes"> | Date | string | null
     deep_link?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
@@ -51959,9 +51959,9 @@ export namespace Prisma {
     product_id?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
     user_id?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
     subject?: StringFilter<"EmailAssuntosParticipantes"> | string
-    status?: EnumStatusThreadEmailFilter<"EmailAssuntosParticipantes"> | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
     sentiment?: FloatFilter<"EmailAssuntosParticipantes"> | number
-    sentiment_label?: EnumNivelSentimentoEmailFilter<"EmailAssuntosParticipantes"> | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
     mensagens_count?: IntFilter<"EmailAssuntosParticipantes"> | number
     ultimo_contato?: DateTimeNullableFilter<"EmailAssuntosParticipantes"> | Date | string | null
     deep_link?: StringNullableFilter<"EmailAssuntosParticipantes"> | string | null
@@ -52000,9 +52000,9 @@ export namespace Prisma {
     product_id?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
     subject?: StringWithAggregatesFilter<"EmailAssuntosParticipantes"> | string
-    status?: EnumStatusThreadEmailWithAggregatesFilter<"EmailAssuntosParticipantes"> | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusWithAggregatesFilter<"EmailAssuntosParticipantes"> | $Enums.EmailThreadStatus
     sentiment?: FloatWithAggregatesFilter<"EmailAssuntosParticipantes"> | number
-    sentiment_label?: EnumNivelSentimentoEmailWithAggregatesFilter<"EmailAssuntosParticipantes"> | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoWithAggregatesFilter<"EmailAssuntosParticipantes"> | $Enums.EmailSentimento
     mensagens_count?: IntWithAggregatesFilter<"EmailAssuntosParticipantes"> | number
     ultimo_contato?: DateTimeNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | Date | string | null
     deep_link?: StringNullableWithAggregatesFilter<"EmailAssuntosParticipantes"> | string | null
@@ -52020,7 +52020,7 @@ export namespace Prisma {
     user_id?: StringNullableFilter<"EmailMensagem"> | string | null
     thread_id?: StringFilter<"EmailMensagem"> | string
     resend_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    direction?: EnumDirecaoEmailFilter<"EmailMensagem"> | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
     from?: StringFilter<"EmailMensagem"> | string
     to?: StringFilter<"EmailMensagem"> | string
     subject?: StringNullableFilter<"EmailMensagem"> | string | null
@@ -52072,7 +52072,7 @@ export namespace Prisma {
     product_id?: StringNullableFilter<"EmailMensagem"> | string | null
     user_id?: StringNullableFilter<"EmailMensagem"> | string | null
     thread_id?: StringFilter<"EmailMensagem"> | string
-    direction?: EnumDirecaoEmailFilter<"EmailMensagem"> | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
     from?: StringFilter<"EmailMensagem"> | string
     to?: StringFilter<"EmailMensagem"> | string
     subject?: StringNullableFilter<"EmailMensagem"> | string | null
@@ -52126,7 +52126,7 @@ export namespace Prisma {
     user_id?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
     thread_id?: StringWithAggregatesFilter<"EmailMensagem"> | string
     resend_id?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
-    direction?: EnumDirecaoEmailWithAggregatesFilter<"EmailMensagem"> | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoWithAggregatesFilter<"EmailMensagem"> | $Enums.EmailDirecao
     from?: StringWithAggregatesFilter<"EmailMensagem"> | string
     to?: StringWithAggregatesFilter<"EmailMensagem"> | string
     subject?: StringNullableWithAggregatesFilter<"EmailMensagem"> | string | null
@@ -52155,7 +52155,7 @@ export namespace Prisma {
     reply_to?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
     subject?: StringFilter<"EmailRegistroEnvio"> | string
     template_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    status?: EnumStatusEmailFilter<"EmailRegistroEnvio"> | $Enums.StatusEmail
+    status?: EnumEmailStatusFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
     resend_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
     dedup_key?: StringFilter<"EmailRegistroEnvio"> | string
     tentativas?: IntFilter<"EmailRegistroEnvio"> | number
@@ -52204,7 +52204,7 @@ export namespace Prisma {
     reply_to?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
     subject?: StringFilter<"EmailRegistroEnvio"> | string
     template_id?: StringNullableFilter<"EmailRegistroEnvio"> | string | null
-    status?: EnumStatusEmailFilter<"EmailRegistroEnvio"> | $Enums.StatusEmail
+    status?: EnumEmailStatusFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
     tentativas?: IntFilter<"EmailRegistroEnvio"> | number
     max_tentativas?: IntFilter<"EmailRegistroEnvio"> | number
     next_retry_at?: DateTimeNullableFilter<"EmailRegistroEnvio"> | Date | string | null
@@ -52254,7 +52254,7 @@ export namespace Prisma {
     reply_to?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
     subject?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
     template_id?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
-    status?: EnumStatusEmailWithAggregatesFilter<"EmailRegistroEnvio"> | $Enums.StatusEmail
+    status?: EnumEmailStatusWithAggregatesFilter<"EmailRegistroEnvio"> | $Enums.EmailStatus
     resend_id?: StringNullableWithAggregatesFilter<"EmailRegistroEnvio"> | string | null
     dedup_key?: StringWithAggregatesFilter<"EmailRegistroEnvio"> | string
     tentativas?: IntWithAggregatesFilter<"EmailRegistroEnvio"> | number
@@ -52372,8 +52372,8 @@ export namespace Prisma {
     tenant_id?: StringFilter<"EmailFilaEnvio"> | string
     product_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
     user_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    status?: EnumStatusEmailFilter<"EmailFilaEnvio"> | $Enums.StatusEmail
-    prioridade?: EnumFilaEmailPrioridadeFilter<"EmailFilaEnvio"> | $Enums.FilaEmailPrioridade
+    status?: EnumEmailStatusFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
+    prioridade?: EnumEmailFilaPrioridadeFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
     payload?: StringFilter<"EmailFilaEnvio"> | string
     template_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
     email_enviado_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
@@ -52413,8 +52413,8 @@ export namespace Prisma {
     tenant_id?: StringFilter<"EmailFilaEnvio"> | string
     product_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
     user_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
-    status?: EnumStatusEmailFilter<"EmailFilaEnvio"> | $Enums.StatusEmail
-    prioridade?: EnumFilaEmailPrioridadeFilter<"EmailFilaEnvio"> | $Enums.FilaEmailPrioridade
+    status?: EnumEmailStatusFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
+    prioridade?: EnumEmailFilaPrioridadeFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
     payload?: StringFilter<"EmailFilaEnvio"> | string
     template_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
     email_enviado_id?: StringNullableFilter<"EmailFilaEnvio"> | string | null
@@ -52459,8 +52459,8 @@ export namespace Prisma {
     tenant_id?: StringWithAggregatesFilter<"EmailFilaEnvio"> | string
     product_id?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
     user_id?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
-    status?: EnumStatusEmailWithAggregatesFilter<"EmailFilaEnvio"> | $Enums.StatusEmail
-    prioridade?: EnumFilaEmailPrioridadeWithAggregatesFilter<"EmailFilaEnvio"> | $Enums.FilaEmailPrioridade
+    status?: EnumEmailStatusWithAggregatesFilter<"EmailFilaEnvio"> | $Enums.EmailStatus
+    prioridade?: EnumEmailFilaPrioridadeWithAggregatesFilter<"EmailFilaEnvio"> | $Enums.EmailFilaPrioridade
     payload?: StringWithAggregatesFilter<"EmailFilaEnvio"> | string
     template_id?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
     email_enviado_id?: StringNullableWithAggregatesFilter<"EmailFilaEnvio"> | string | null
@@ -52879,7 +52879,7 @@ export namespace Prisma {
     product_id?: StringNullableFilter<"DashboardConfiguracao"> | string | null
     user_id?: StringFilter<"DashboardConfiguracao"> | string
     name?: StringFilter<"DashboardConfiguracao"> | string
-    mode?: EnumModoDashboardFilter<"DashboardConfiguracao"> | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
     layout?: JsonFilter<"DashboardConfiguracao">
     filters?: JsonNullableFilter<"DashboardConfiguracao">
     is_default?: BoolFilter<"DashboardConfiguracao"> | boolean
@@ -52916,7 +52916,7 @@ export namespace Prisma {
     product_id?: StringNullableFilter<"DashboardConfiguracao"> | string | null
     user_id?: StringFilter<"DashboardConfiguracao"> | string
     name?: StringFilter<"DashboardConfiguracao"> | string
-    mode?: EnumModoDashboardFilter<"DashboardConfiguracao"> | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
     layout?: JsonFilter<"DashboardConfiguracao">
     filters?: JsonNullableFilter<"DashboardConfiguracao">
     is_default?: BoolFilter<"DashboardConfiguracao"> | boolean
@@ -52953,7 +52953,7 @@ export namespace Prisma {
     product_id?: StringNullableWithAggregatesFilter<"DashboardConfiguracao"> | string | null
     user_id?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
     name?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
-    mode?: EnumModoDashboardWithAggregatesFilter<"DashboardConfiguracao"> | $Enums.ModoDashboard
+    mode?: EnumDashboardModoWithAggregatesFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
     layout?: JsonWithAggregatesFilter<"DashboardConfiguracao">
     filters?: JsonNullableWithAggregatesFilter<"DashboardConfiguracao">
     is_default?: BoolWithAggregatesFilter<"DashboardConfiguracao"> | boolean
@@ -52971,8 +52971,8 @@ export namespace Prisma {
     user_id?: StringFilter<"DashboardCriar"> | string
     dashboard_id?: StringFilter<"DashboardCriar"> | string
     widget_key?: StringFilter<"DashboardCriar"> | string
-    widget_type?: EnumTipoWidgetFilter<"DashboardCriar"> | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFilter<"DashboardCriar"> | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
     title?: StringFilter<"DashboardCriar"> | string
     query_spec?: JsonFilter<"DashboardCriar">
     position?: JsonFilter<"DashboardCriar">
@@ -53010,8 +53010,8 @@ export namespace Prisma {
     user_id?: StringFilter<"DashboardCriar"> | string
     dashboard_id?: StringFilter<"DashboardCriar"> | string
     widget_key?: StringFilter<"DashboardCriar"> | string
-    widget_type?: EnumTipoWidgetFilter<"DashboardCriar"> | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFilter<"DashboardCriar"> | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
     title?: StringFilter<"DashboardCriar"> | string
     query_spec?: JsonFilter<"DashboardCriar">
     position?: JsonFilter<"DashboardCriar">
@@ -53051,8 +53051,8 @@ export namespace Prisma {
     user_id?: StringWithAggregatesFilter<"DashboardCriar"> | string
     dashboard_id?: StringWithAggregatesFilter<"DashboardCriar"> | string
     widget_key?: StringWithAggregatesFilter<"DashboardCriar"> | string
-    widget_type?: EnumTipoWidgetWithAggregatesFilter<"DashboardCriar"> | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoWithAggregatesFilter<"DashboardCriar"> | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoWithAggregatesFilter<"DashboardCriar"> | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoWithAggregatesFilter<"DashboardCriar"> | $Enums.GraficoTipo
     title?: StringWithAggregatesFilter<"DashboardCriar"> | string
     query_spec?: JsonWithAggregatesFilter<"DashboardCriar">
     position?: JsonWithAggregatesFilter<"DashboardCriar">
@@ -53596,7 +53596,7 @@ export namespace Prisma {
     NOT?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
     id?: StringFilter<"HistoricoLog"> | string
     tenant_id?: StringFilter<"HistoricoLog"> | string
-    actor_type?: EnumTipoAtorFilter<"HistoricoLog"> | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
     actor_id?: StringFilter<"HistoricoLog"> | string
     actor_name?: StringFilter<"HistoricoLog"> | string
     actor_ip?: StringNullableFilter<"HistoricoLog"> | string | null
@@ -53608,7 +53608,7 @@ export namespace Prisma {
     action_detail?: StringFilter<"HistoricoLog"> | string
     before?: JsonNullableFilter<"HistoricoLog">
     after?: JsonNullableFilter<"HistoricoLog">
-    status?: EnumStatusEventoFilter<"HistoricoLog"> | $Enums.StatusEvento
+    status?: EnumEventoStatusFilter<"HistoricoLog"> | $Enums.EventoStatus
     error_message?: StringNullableFilter<"HistoricoLog"> | string | null
     integrity_hash?: StringFilter<"HistoricoLog"> | string
     product_id?: StringNullableFilter<"HistoricoLog"> | string | null
@@ -53645,7 +53645,7 @@ export namespace Prisma {
     OR?: HistoricoLogWhereInput[]
     NOT?: HistoricoLogWhereInput | HistoricoLogWhereInput[]
     tenant_id?: StringFilter<"HistoricoLog"> | string
-    actor_type?: EnumTipoAtorFilter<"HistoricoLog"> | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
     actor_id?: StringFilter<"HistoricoLog"> | string
     actor_name?: StringFilter<"HistoricoLog"> | string
     actor_ip?: StringNullableFilter<"HistoricoLog"> | string | null
@@ -53657,7 +53657,7 @@ export namespace Prisma {
     action_detail?: StringFilter<"HistoricoLog"> | string
     before?: JsonNullableFilter<"HistoricoLog">
     after?: JsonNullableFilter<"HistoricoLog">
-    status?: EnumStatusEventoFilter<"HistoricoLog"> | $Enums.StatusEvento
+    status?: EnumEventoStatusFilter<"HistoricoLog"> | $Enums.EventoStatus
     error_message?: StringNullableFilter<"HistoricoLog"> | string | null
     integrity_hash?: StringFilter<"HistoricoLog"> | string
     product_id?: StringNullableFilter<"HistoricoLog"> | string | null
@@ -53697,7 +53697,7 @@ export namespace Prisma {
     NOT?: HistoricoLogScalarWhereWithAggregatesInput | HistoricoLogScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"HistoricoLog"> | string
     tenant_id?: StringWithAggregatesFilter<"HistoricoLog"> | string
-    actor_type?: EnumTipoAtorWithAggregatesFilter<"HistoricoLog"> | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorWithAggregatesFilter<"HistoricoLog"> | $Enums.AcaoExecutadaPor
     actor_id?: StringWithAggregatesFilter<"HistoricoLog"> | string
     actor_name?: StringWithAggregatesFilter<"HistoricoLog"> | string
     actor_ip?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
@@ -53709,7 +53709,7 @@ export namespace Prisma {
     action_detail?: StringWithAggregatesFilter<"HistoricoLog"> | string
     before?: JsonNullableWithAggregatesFilter<"HistoricoLog">
     after?: JsonNullableWithAggregatesFilter<"HistoricoLog">
-    status?: EnumStatusEventoWithAggregatesFilter<"HistoricoLog"> | $Enums.StatusEvento
+    status?: EnumEventoStatusWithAggregatesFilter<"HistoricoLog"> | $Enums.EventoStatus
     error_message?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
     integrity_hash?: StringWithAggregatesFilter<"HistoricoLog"> | string
     product_id?: StringNullableWithAggregatesFilter<"HistoricoLog"> | string | null
@@ -53726,10 +53726,10 @@ export namespace Prisma {
     name?: StringFilter<"AlertRule"> | string
     description?: StringNullableFilter<"AlertRule"> | string | null
     enabled?: BoolFilter<"AlertRule"> | boolean
-    actor_type?: EnumTipoAtorNullableFilter<"AlertRule"> | $Enums.TipoAtor | null
+    actor_type?: EnumAcaoExecutadaPorNullableFilter<"AlertRule"> | $Enums.AcaoExecutadaPor | null
     action?: StringNullableFilter<"AlertRule"> | string | null
     module?: StringNullableFilter<"AlertRule"> | string | null
-    status_filter?: EnumStatusEventoNullableFilter<"AlertRule"> | $Enums.StatusEvento | null
+    status_filter?: EnumEventoStatusNullableFilter<"AlertRule"> | $Enums.EventoStatus | null
     threshold_count?: IntNullableFilter<"AlertRule"> | number | null
     threshold_window_seconds?: IntNullableFilter<"AlertRule"> | number | null
     channel_inapp?: BoolFilter<"AlertRule"> | boolean
@@ -53775,10 +53775,10 @@ export namespace Prisma {
     name?: StringFilter<"AlertRule"> | string
     description?: StringNullableFilter<"AlertRule"> | string | null
     enabled?: BoolFilter<"AlertRule"> | boolean
-    actor_type?: EnumTipoAtorNullableFilter<"AlertRule"> | $Enums.TipoAtor | null
+    actor_type?: EnumAcaoExecutadaPorNullableFilter<"AlertRule"> | $Enums.AcaoExecutadaPor | null
     action?: StringNullableFilter<"AlertRule"> | string | null
     module?: StringNullableFilter<"AlertRule"> | string | null
-    status_filter?: EnumStatusEventoNullableFilter<"AlertRule"> | $Enums.StatusEvento | null
+    status_filter?: EnumEventoStatusNullableFilter<"AlertRule"> | $Enums.EventoStatus | null
     threshold_count?: IntNullableFilter<"AlertRule"> | number | null
     threshold_window_seconds?: IntNullableFilter<"AlertRule"> | number | null
     channel_inapp?: BoolFilter<"AlertRule"> | boolean
@@ -53828,10 +53828,10 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"AlertRule"> | string
     description?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
     enabled?: BoolWithAggregatesFilter<"AlertRule"> | boolean
-    actor_type?: EnumTipoAtorNullableWithAggregatesFilter<"AlertRule"> | $Enums.TipoAtor | null
+    actor_type?: EnumAcaoExecutadaPorNullableWithAggregatesFilter<"AlertRule"> | $Enums.AcaoExecutadaPor | null
     action?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
     module?: StringNullableWithAggregatesFilter<"AlertRule"> | string | null
-    status_filter?: EnumStatusEventoNullableWithAggregatesFilter<"AlertRule"> | $Enums.StatusEvento | null
+    status_filter?: EnumEventoStatusNullableWithAggregatesFilter<"AlertRule"> | $Enums.EventoStatus | null
     threshold_count?: IntNullableWithAggregatesFilter<"AlertRule"> | number | null
     threshold_window_seconds?: IntNullableWithAggregatesFilter<"AlertRule"> | number | null
     channel_inapp?: BoolWithAggregatesFilter<"AlertRule"> | boolean
@@ -53851,7 +53851,7 @@ export namespace Prisma {
     id?: StringFilter<"AlertEvent"> | string
     tenant_id?: StringFilter<"AlertEvent"> | string
     rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumTipoAtorFilter<"AlertEvent"> | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFilter<"AlertEvent"> | $Enums.AcaoExecutadaPor
     actor_id?: StringFilter<"AlertEvent"> | string
     actor_name?: StringFilter<"AlertEvent"> | string
     module?: StringFilter<"AlertEvent"> | string
@@ -53859,7 +53859,7 @@ export namespace Prisma {
     event_count?: IntFilter<"AlertEvent"> | number
     window_seconds?: IntFilter<"AlertEvent"> | number
     audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumStatusAlertaFilter<"AlertEvent"> | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFilter<"AlertEvent"> | $Enums.AlertaStatus
     reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
     reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
     notes?: StringNullableFilter<"AlertEvent"> | string | null
@@ -53896,7 +53896,7 @@ export namespace Prisma {
     NOT?: AlertEventWhereInput | AlertEventWhereInput[]
     tenant_id?: StringFilter<"AlertEvent"> | string
     rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumTipoAtorFilter<"AlertEvent"> | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFilter<"AlertEvent"> | $Enums.AcaoExecutadaPor
     actor_id?: StringFilter<"AlertEvent"> | string
     actor_name?: StringFilter<"AlertEvent"> | string
     module?: StringFilter<"AlertEvent"> | string
@@ -53904,7 +53904,7 @@ export namespace Prisma {
     event_count?: IntFilter<"AlertEvent"> | number
     window_seconds?: IntFilter<"AlertEvent"> | number
     audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumStatusAlertaFilter<"AlertEvent"> | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFilter<"AlertEvent"> | $Enums.AlertaStatus
     reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
     reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
     notes?: StringNullableFilter<"AlertEvent"> | string | null
@@ -53944,7 +53944,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"AlertEvent"> | string
     tenant_id?: StringWithAggregatesFilter<"AlertEvent"> | string
     rule_id?: StringWithAggregatesFilter<"AlertEvent"> | string
-    actor_type?: EnumTipoAtorWithAggregatesFilter<"AlertEvent"> | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorWithAggregatesFilter<"AlertEvent"> | $Enums.AcaoExecutadaPor
     actor_id?: StringWithAggregatesFilter<"AlertEvent"> | string
     actor_name?: StringWithAggregatesFilter<"AlertEvent"> | string
     module?: StringWithAggregatesFilter<"AlertEvent"> | string
@@ -53952,7 +53952,7 @@ export namespace Prisma {
     event_count?: IntWithAggregatesFilter<"AlertEvent"> | number
     window_seconds?: IntWithAggregatesFilter<"AlertEvent"> | number
     audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumStatusAlertaWithAggregatesFilter<"AlertEvent"> | $Enums.StatusAlerta
+    status?: EnumAlertaStatusWithAggregatesFilter<"AlertEvent"> | $Enums.AlertaStatus
     reviewed_by?: StringNullableWithAggregatesFilter<"AlertEvent"> | string | null
     reviewed_at?: DateTimeNullableWithAggregatesFilter<"AlertEvent"> | Date | string | null
     notes?: StringNullableWithAggregatesFilter<"AlertEvent"> | string | null
@@ -55040,12 +55040,12 @@ export namespace Prisma {
     user_id?: StringNullableFilter<"NcmSyncLog"> | string | null
     iniciado_em?: DateTimeFilter<"NcmSyncLog"> | Date | string
     concluido_em?: DateTimeNullableFilter<"NcmSyncLog"> | Date | string | null
-    status?: EnumStatusNcmSyncFilter<"NcmSyncLog"> | $Enums.StatusNcmSync
+    status?: EnumNCMStatusSincronizacaoFilter<"NcmSyncLog"> | $Enums.NCMStatusSincronizacao
     total?: IntFilter<"NcmSyncLog"> | number
     adicionados?: IntFilter<"NcmSyncLog"> | number
     alterados?: IntFilter<"NcmSyncLog"> | number
     removidos?: IntFilter<"NcmSyncLog"> | number
-    origem?: EnumNcmSyncOrigemFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigem
+    origem?: EnumNCMOrigemSincronizacaoFilter<"NcmSyncLog"> | $Enums.NCMOrigemSincronizacao
     disparado_por?: StringNullableFilter<"NcmSyncLog"> | string | null
     erro_msg?: StringNullableFilter<"NcmSyncLog"> | string | null
     created_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
@@ -55081,12 +55081,12 @@ export namespace Prisma {
     user_id?: StringNullableFilter<"NcmSyncLog"> | string | null
     iniciado_em?: DateTimeFilter<"NcmSyncLog"> | Date | string
     concluido_em?: DateTimeNullableFilter<"NcmSyncLog"> | Date | string | null
-    status?: EnumStatusNcmSyncFilter<"NcmSyncLog"> | $Enums.StatusNcmSync
+    status?: EnumNCMStatusSincronizacaoFilter<"NcmSyncLog"> | $Enums.NCMStatusSincronizacao
     total?: IntFilter<"NcmSyncLog"> | number
     adicionados?: IntFilter<"NcmSyncLog"> | number
     alterados?: IntFilter<"NcmSyncLog"> | number
     removidos?: IntFilter<"NcmSyncLog"> | number
-    origem?: EnumNcmSyncOrigemFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigem
+    origem?: EnumNCMOrigemSincronizacaoFilter<"NcmSyncLog"> | $Enums.NCMOrigemSincronizacao
     disparado_por?: StringNullableFilter<"NcmSyncLog"> | string | null
     erro_msg?: StringNullableFilter<"NcmSyncLog"> | string | null
     created_at?: DateTimeFilter<"NcmSyncLog"> | Date | string
@@ -55127,12 +55127,12 @@ export namespace Prisma {
     user_id?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
     iniciado_em?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
     concluido_em?: DateTimeNullableWithAggregatesFilter<"NcmSyncLog"> | Date | string | null
-    status?: EnumStatusNcmSyncWithAggregatesFilter<"NcmSyncLog"> | $Enums.StatusNcmSync
+    status?: EnumNCMStatusSincronizacaoWithAggregatesFilter<"NcmSyncLog"> | $Enums.NCMStatusSincronizacao
     total?: IntWithAggregatesFilter<"NcmSyncLog"> | number
     adicionados?: IntWithAggregatesFilter<"NcmSyncLog"> | number
     alterados?: IntWithAggregatesFilter<"NcmSyncLog"> | number
     removidos?: IntWithAggregatesFilter<"NcmSyncLog"> | number
-    origem?: EnumNcmSyncOrigemWithAggregatesFilter<"NcmSyncLog"> | $Enums.NcmSyncOrigem
+    origem?: EnumNCMOrigemSincronizacaoWithAggregatesFilter<"NcmSyncLog"> | $Enums.NCMOrigemSincronizacao
     disparado_por?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
     erro_msg?: StringNullableWithAggregatesFilter<"NcmSyncLog"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"NcmSyncLog"> | Date | string
@@ -56026,9 +56026,9 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     subject: string
-    status?: $Enums.StatusThreadEmail
+    status?: $Enums.EmailThreadStatus
     sentiment?: number
-    sentiment_label?: $Enums.NivelSentimentoEmail
+    sentiment_label?: $Enums.EmailSentimento
     mensagens_count?: number
     ultimo_contato?: Date | string | null
     deep_link?: string | null
@@ -56043,9 +56043,9 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     subject: string
-    status?: $Enums.StatusThreadEmail
+    status?: $Enums.EmailThreadStatus
     sentiment?: number
-    sentiment_label?: $Enums.NivelSentimentoEmail
+    sentiment_label?: $Enums.EmailSentimento
     mensagens_count?: number
     ultimo_contato?: Date | string | null
     deep_link?: string | null
@@ -56060,9 +56060,9 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusThreadEmailFieldUpdateOperationsInput | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
     sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumNivelSentimentoEmailFieldUpdateOperationsInput | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
     mensagens_count?: IntFieldUpdateOperationsInput | number
     ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deep_link?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56077,9 +56077,9 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusThreadEmailFieldUpdateOperationsInput | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
     sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumNivelSentimentoEmailFieldUpdateOperationsInput | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
     mensagens_count?: IntFieldUpdateOperationsInput | number
     ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deep_link?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56094,9 +56094,9 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     subject: string
-    status?: $Enums.StatusThreadEmail
+    status?: $Enums.EmailThreadStatus
     sentiment?: number
-    sentiment_label?: $Enums.NivelSentimentoEmail
+    sentiment_label?: $Enums.EmailSentimento
     mensagens_count?: number
     ultimo_contato?: Date | string | null
     deep_link?: string | null
@@ -56110,9 +56110,9 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusThreadEmailFieldUpdateOperationsInput | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
     sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumNivelSentimentoEmailFieldUpdateOperationsInput | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
     mensagens_count?: IntFieldUpdateOperationsInput | number
     ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deep_link?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56126,9 +56126,9 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusThreadEmailFieldUpdateOperationsInput | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
     sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumNivelSentimentoEmailFieldUpdateOperationsInput | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
     mensagens_count?: IntFieldUpdateOperationsInput | number
     ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deep_link?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56142,7 +56142,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     resend_id?: string | null
-    direction?: $Enums.DirecaoEmail
+    direction?: $Enums.EmailDirecao
     from: string
     to: string
     subject?: string | null
@@ -56166,7 +56166,7 @@ export namespace Prisma {
     user_id?: string | null
     thread_id: string
     resend_id?: string | null
-    direction?: $Enums.DirecaoEmail
+    direction?: $Enums.EmailDirecao
     from: string
     to: string
     subject?: string | null
@@ -56188,7 +56188,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumDirecaoEmailFieldUpdateOperationsInput | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     subject?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56212,7 +56212,7 @@ export namespace Prisma {
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     thread_id?: StringFieldUpdateOperationsInput | string
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumDirecaoEmailFieldUpdateOperationsInput | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     subject?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56235,7 +56235,7 @@ export namespace Prisma {
     user_id?: string | null
     thread_id: string
     resend_id?: string | null
-    direction?: $Enums.DirecaoEmail
+    direction?: $Enums.EmailDirecao
     from: string
     to: string
     subject?: string | null
@@ -56257,7 +56257,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumDirecaoEmailFieldUpdateOperationsInput | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     subject?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56280,7 +56280,7 @@ export namespace Prisma {
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     thread_id?: StringFieldUpdateOperationsInput | string
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumDirecaoEmailFieldUpdateOperationsInput | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     subject?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56306,7 +56306,7 @@ export namespace Prisma {
     reply_to?: string | null
     subject: string
     template_id?: string | null
-    status?: $Enums.StatusEmail
+    status?: $Enums.EmailStatus
     resend_id?: string | null
     dedup_key: string
     tentativas?: number
@@ -56328,7 +56328,7 @@ export namespace Prisma {
     reply_to?: string | null
     subject: string
     template_id?: string | null
-    status?: $Enums.StatusEmail
+    status?: $Enums.EmailStatus
     resend_id?: string | null
     dedup_key: string
     tentativas?: number
@@ -56350,7 +56350,7 @@ export namespace Prisma {
     reply_to?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
     template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmailFieldUpdateOperationsInput | $Enums.StatusEmail
+    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
     dedup_key?: StringFieldUpdateOperationsInput | string
     tentativas?: IntFieldUpdateOperationsInput | number
@@ -56372,7 +56372,7 @@ export namespace Prisma {
     reply_to?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
     template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmailFieldUpdateOperationsInput | $Enums.StatusEmail
+    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
     dedup_key?: StringFieldUpdateOperationsInput | string
     tentativas?: IntFieldUpdateOperationsInput | number
@@ -56394,7 +56394,7 @@ export namespace Prisma {
     reply_to?: string | null
     subject: string
     template_id?: string | null
-    status?: $Enums.StatusEmail
+    status?: $Enums.EmailStatus
     resend_id?: string | null
     dedup_key: string
     tentativas?: number
@@ -56416,7 +56416,7 @@ export namespace Prisma {
     reply_to?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
     template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmailFieldUpdateOperationsInput | $Enums.StatusEmail
+    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
     dedup_key?: StringFieldUpdateOperationsInput | string
     tentativas?: IntFieldUpdateOperationsInput | number
@@ -56438,7 +56438,7 @@ export namespace Prisma {
     reply_to?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
     template_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmailFieldUpdateOperationsInput | $Enums.StatusEmail
+    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
     dedup_key?: StringFieldUpdateOperationsInput | string
     tentativas?: IntFieldUpdateOperationsInput | number
@@ -56574,8 +56574,8 @@ export namespace Prisma {
     tenant_id: string
     product_id?: string | null
     user_id?: string | null
-    status?: $Enums.StatusEmail
-    prioridade?: $Enums.FilaEmailPrioridade
+    status?: $Enums.EmailStatus
+    prioridade?: $Enums.EmailFilaPrioridade
     payload: string
     template_id?: string | null
     email_enviado_id?: string | null
@@ -56593,8 +56593,8 @@ export namespace Prisma {
     tenant_id: string
     product_id?: string | null
     user_id?: string | null
-    status?: $Enums.StatusEmail
-    prioridade?: $Enums.FilaEmailPrioridade
+    status?: $Enums.EmailStatus
+    prioridade?: $Enums.EmailFilaPrioridade
     payload: string
     template_id?: string | null
     email_enviado_id?: string | null
@@ -56612,8 +56612,8 @@ export namespace Prisma {
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmailFieldUpdateOperationsInput | $Enums.StatusEmail
-    prioridade?: EnumFilaEmailPrioridadeFieldUpdateOperationsInput | $Enums.FilaEmailPrioridade
+    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    prioridade?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
     payload?: StringFieldUpdateOperationsInput | string
     template_id?: NullableStringFieldUpdateOperationsInput | string | null
     email_enviado_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56631,8 +56631,8 @@ export namespace Prisma {
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmailFieldUpdateOperationsInput | $Enums.StatusEmail
-    prioridade?: EnumFilaEmailPrioridadeFieldUpdateOperationsInput | $Enums.FilaEmailPrioridade
+    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    prioridade?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
     payload?: StringFieldUpdateOperationsInput | string
     template_id?: NullableStringFieldUpdateOperationsInput | string | null
     email_enviado_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56650,8 +56650,8 @@ export namespace Prisma {
     tenant_id: string
     product_id?: string | null
     user_id?: string | null
-    status?: $Enums.StatusEmail
-    prioridade?: $Enums.FilaEmailPrioridade
+    status?: $Enums.EmailStatus
+    prioridade?: $Enums.EmailFilaPrioridade
     payload: string
     template_id?: string | null
     email_enviado_id?: string | null
@@ -56669,8 +56669,8 @@ export namespace Prisma {
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmailFieldUpdateOperationsInput | $Enums.StatusEmail
-    prioridade?: EnumFilaEmailPrioridadeFieldUpdateOperationsInput | $Enums.FilaEmailPrioridade
+    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    prioridade?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
     payload?: StringFieldUpdateOperationsInput | string
     template_id?: NullableStringFieldUpdateOperationsInput | string | null
     email_enviado_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -56688,8 +56688,8 @@ export namespace Prisma {
     tenant_id?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: EnumStatusEmailFieldUpdateOperationsInput | $Enums.StatusEmail
-    prioridade?: EnumFilaEmailPrioridadeFieldUpdateOperationsInput | $Enums.FilaEmailPrioridade
+    status?: EnumEmailStatusFieldUpdateOperationsInput | $Enums.EmailStatus
+    prioridade?: EnumEmailFilaPrioridadeFieldUpdateOperationsInput | $Enums.EmailFilaPrioridade
     payload?: StringFieldUpdateOperationsInput | string
     template_id?: NullableStringFieldUpdateOperationsInput | string | null
     email_enviado_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -57191,7 +57191,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -57208,7 +57208,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -57225,7 +57225,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -57242,7 +57242,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -57259,7 +57259,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -57273,7 +57273,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -57287,7 +57287,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -57301,8 +57301,8 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     widget_key: string
-    widget_type?: $Enums.TipoWidget
-    chart_type?: $Enums.TipoGrafico
+    widget_type?: $Enums.DashboardTipo
+    chart_type?: $Enums.GraficoTipo
     title: string
     query_spec: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -57319,8 +57319,8 @@ export namespace Prisma {
     user_id: string
     dashboard_id: string
     widget_key: string
-    widget_type?: $Enums.TipoWidget
-    chart_type?: $Enums.TipoGrafico
+    widget_type?: $Enums.DashboardTipo
+    chart_type?: $Enums.GraficoTipo
     title: string
     query_spec: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -57335,8 +57335,8 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumTipoWidgetFieldUpdateOperationsInput | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFieldUpdateOperationsInput | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
     title?: StringFieldUpdateOperationsInput | string
     query_spec?: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -57353,8 +57353,8 @@ export namespace Prisma {
     user_id?: StringFieldUpdateOperationsInput | string
     dashboard_id?: StringFieldUpdateOperationsInput | string
     widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumTipoWidgetFieldUpdateOperationsInput | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFieldUpdateOperationsInput | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
     title?: StringFieldUpdateOperationsInput | string
     query_spec?: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -57370,8 +57370,8 @@ export namespace Prisma {
     user_id: string
     dashboard_id: string
     widget_key: string
-    widget_type?: $Enums.TipoWidget
-    chart_type?: $Enums.TipoGrafico
+    widget_type?: $Enums.DashboardTipo
+    chart_type?: $Enums.GraficoTipo
     title: string
     query_spec: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -57386,8 +57386,8 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumTipoWidgetFieldUpdateOperationsInput | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFieldUpdateOperationsInput | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
     title?: StringFieldUpdateOperationsInput | string
     query_spec?: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -57403,8 +57403,8 @@ export namespace Prisma {
     user_id?: StringFieldUpdateOperationsInput | string
     dashboard_id?: StringFieldUpdateOperationsInput | string
     widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumTipoWidgetFieldUpdateOperationsInput | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFieldUpdateOperationsInput | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
     title?: StringFieldUpdateOperationsInput | string
     query_spec?: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -58044,7 +58044,7 @@ export namespace Prisma {
   export type HistoricoLogCreateInput = {
     id?: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     actor_ip?: string | null
@@ -58056,7 +58056,7 @@ export namespace Prisma {
     action_detail: string
     before?: NullableJsonNullValueInput | InputJsonValue
     after?: NullableJsonNullValueInput | InputJsonValue
-    status?: $Enums.StatusEvento
+    status?: $Enums.EventoStatus
     error_message?: string | null
     integrity_hash: string
     product_id?: string | null
@@ -58067,7 +58067,7 @@ export namespace Prisma {
   export type HistoricoLogUncheckedCreateInput = {
     id?: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     actor_ip?: string | null
@@ -58079,7 +58079,7 @@ export namespace Prisma {
     action_detail: string
     before?: NullableJsonNullValueInput | InputJsonValue
     after?: NullableJsonNullValueInput | InputJsonValue
-    status?: $Enums.StatusEvento
+    status?: $Enums.EventoStatus
     error_message?: string | null
     integrity_hash: string
     product_id?: string | null
@@ -58090,7 +58090,7 @@ export namespace Prisma {
   export type HistoricoLogUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     actor_ip?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58102,7 +58102,7 @@ export namespace Prisma {
     action_detail?: StringFieldUpdateOperationsInput | string
     before?: NullableJsonNullValueInput | InputJsonValue
     after?: NullableJsonNullValueInput | InputJsonValue
-    status?: EnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento
+    status?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
     error_message?: NullableStringFieldUpdateOperationsInput | string | null
     integrity_hash?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58113,7 +58113,7 @@ export namespace Prisma {
   export type HistoricoLogUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     actor_ip?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58125,7 +58125,7 @@ export namespace Prisma {
     action_detail?: StringFieldUpdateOperationsInput | string
     before?: NullableJsonNullValueInput | InputJsonValue
     after?: NullableJsonNullValueInput | InputJsonValue
-    status?: EnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento
+    status?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
     error_message?: NullableStringFieldUpdateOperationsInput | string | null
     integrity_hash?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58136,7 +58136,7 @@ export namespace Prisma {
   export type HistoricoLogCreateManyInput = {
     id?: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     actor_ip?: string | null
@@ -58148,7 +58148,7 @@ export namespace Prisma {
     action_detail: string
     before?: NullableJsonNullValueInput | InputJsonValue
     after?: NullableJsonNullValueInput | InputJsonValue
-    status?: $Enums.StatusEvento
+    status?: $Enums.EventoStatus
     error_message?: string | null
     integrity_hash: string
     product_id?: string | null
@@ -58159,7 +58159,7 @@ export namespace Prisma {
   export type HistoricoLogUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     actor_ip?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58171,7 +58171,7 @@ export namespace Prisma {
     action_detail?: StringFieldUpdateOperationsInput | string
     before?: NullableJsonNullValueInput | InputJsonValue
     after?: NullableJsonNullValueInput | InputJsonValue
-    status?: EnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento
+    status?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
     error_message?: NullableStringFieldUpdateOperationsInput | string | null
     integrity_hash?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58182,7 +58182,7 @@ export namespace Prisma {
   export type HistoricoLogUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     actor_ip?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58194,7 +58194,7 @@ export namespace Prisma {
     action_detail?: StringFieldUpdateOperationsInput | string
     before?: NullableJsonNullValueInput | InputJsonValue
     after?: NullableJsonNullValueInput | InputJsonValue
-    status?: EnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento
+    status?: EnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus
     error_message?: NullableStringFieldUpdateOperationsInput | string | null
     integrity_hash?: StringFieldUpdateOperationsInput | string
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58208,10 +58208,10 @@ export namespace Prisma {
     name: string
     description?: string | null
     enabled?: boolean
-    actor_type?: $Enums.TipoAtor | null
+    actor_type?: $Enums.AcaoExecutadaPor | null
     action?: string | null
     module?: string | null
-    status_filter?: $Enums.StatusEvento | null
+    status_filter?: $Enums.EventoStatus | null
     threshold_count?: number | null
     threshold_window_seconds?: number | null
     channel_inapp?: boolean
@@ -58231,10 +58231,10 @@ export namespace Prisma {
     name: string
     description?: string | null
     enabled?: boolean
-    actor_type?: $Enums.TipoAtor | null
+    actor_type?: $Enums.AcaoExecutadaPor | null
     action?: string | null
     module?: string | null
-    status_filter?: $Enums.StatusEvento | null
+    status_filter?: $Enums.EventoStatus | null
     threshold_count?: number | null
     threshold_window_seconds?: number | null
     channel_inapp?: boolean
@@ -58254,10 +58254,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor | null
+    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
     action?: NullableStringFieldUpdateOperationsInput | string | null
     module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento | null
+    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
     threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
     threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
@@ -58277,10 +58277,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor | null
+    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
     action?: NullableStringFieldUpdateOperationsInput | string | null
     module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento | null
+    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
     threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
     threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
@@ -58300,10 +58300,10 @@ export namespace Prisma {
     name: string
     description?: string | null
     enabled?: boolean
-    actor_type?: $Enums.TipoAtor | null
+    actor_type?: $Enums.AcaoExecutadaPor | null
     action?: string | null
     module?: string | null
-    status_filter?: $Enums.StatusEvento | null
+    status_filter?: $Enums.EventoStatus | null
     threshold_count?: number | null
     threshold_window_seconds?: number | null
     channel_inapp?: boolean
@@ -58322,10 +58322,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor | null
+    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
     action?: NullableStringFieldUpdateOperationsInput | string | null
     module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento | null
+    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
     threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
     threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
@@ -58344,10 +58344,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor | null
+    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
     action?: NullableStringFieldUpdateOperationsInput | string | null
     module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento | null
+    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
     threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
     threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
@@ -58363,7 +58363,7 @@ export namespace Prisma {
   export type AlertEventCreateInput = {
     id?: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -58371,7 +58371,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.StatusAlerta
+    status?: $Enums.AlertaStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
@@ -58384,7 +58384,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     rule_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -58392,7 +58392,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.StatusAlerta
+    status?: $Enums.AlertaStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
@@ -58403,7 +58403,7 @@ export namespace Prisma {
   export type AlertEventUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -58411,7 +58411,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58424,7 +58424,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     rule_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -58432,7 +58432,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58444,7 +58444,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     rule_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -58452,7 +58452,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.StatusAlerta
+    status?: $Enums.AlertaStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
@@ -58462,7 +58462,7 @@ export namespace Prisma {
   export type AlertEventUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -58470,7 +58470,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -58481,7 +58481,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     rule_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -58489,7 +58489,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -59718,12 +59718,12 @@ export namespace Prisma {
     user_id?: string | null
     iniciado_em?: Date | string
     concluido_em?: Date | string | null
-    status?: $Enums.StatusNcmSync
+    status?: $Enums.NCMStatusSincronizacao
     total?: number
     adicionados?: number
     alterados?: number
     removidos?: number
-    origem?: $Enums.NcmSyncOrigem
+    origem?: $Enums.NCMOrigemSincronizacao
     disparado_por?: string | null
     erro_msg?: string | null
     created_at?: Date | string
@@ -59737,12 +59737,12 @@ export namespace Prisma {
     user_id?: string | null
     iniciado_em?: Date | string
     concluido_em?: Date | string | null
-    status?: $Enums.StatusNcmSync
+    status?: $Enums.NCMStatusSincronizacao
     total?: number
     adicionados?: number
     alterados?: number
     removidos?: number
-    origem?: $Enums.NcmSyncOrigem
+    origem?: $Enums.NCMOrigemSincronizacao
     disparado_por?: string | null
     erro_msg?: string | null
     created_at?: Date | string
@@ -59756,12 +59756,12 @@ export namespace Prisma {
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumStatusNcmSyncFieldUpdateOperationsInput | $Enums.StatusNcmSync
+    status?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
     total?: IntFieldUpdateOperationsInput | number
     adicionados?: IntFieldUpdateOperationsInput | number
     alterados?: IntFieldUpdateOperationsInput | number
     removidos?: IntFieldUpdateOperationsInput | number
-    origem?: EnumNcmSyncOrigemFieldUpdateOperationsInput | $Enums.NcmSyncOrigem
+    origem?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
     disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
     erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59775,12 +59775,12 @@ export namespace Prisma {
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumStatusNcmSyncFieldUpdateOperationsInput | $Enums.StatusNcmSync
+    status?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
     total?: IntFieldUpdateOperationsInput | number
     adicionados?: IntFieldUpdateOperationsInput | number
     alterados?: IntFieldUpdateOperationsInput | number
     removidos?: IntFieldUpdateOperationsInput | number
-    origem?: EnumNcmSyncOrigemFieldUpdateOperationsInput | $Enums.NcmSyncOrigem
+    origem?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
     disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
     erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59794,12 +59794,12 @@ export namespace Prisma {
     user_id?: string | null
     iniciado_em?: Date | string
     concluido_em?: Date | string | null
-    status?: $Enums.StatusNcmSync
+    status?: $Enums.NCMStatusSincronizacao
     total?: number
     adicionados?: number
     alterados?: number
     removidos?: number
-    origem?: $Enums.NcmSyncOrigem
+    origem?: $Enums.NCMOrigemSincronizacao
     disparado_por?: string | null
     erro_msg?: string | null
     created_at?: Date | string
@@ -59813,12 +59813,12 @@ export namespace Prisma {
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumStatusNcmSyncFieldUpdateOperationsInput | $Enums.StatusNcmSync
+    status?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
     total?: IntFieldUpdateOperationsInput | number
     adicionados?: IntFieldUpdateOperationsInput | number
     alterados?: IntFieldUpdateOperationsInput | number
     removidos?: IntFieldUpdateOperationsInput | number
-    origem?: EnumNcmSyncOrigemFieldUpdateOperationsInput | $Enums.NcmSyncOrigem
+    origem?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
     disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
     erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -59832,12 +59832,12 @@ export namespace Prisma {
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     iniciado_em?: DateTimeFieldUpdateOperationsInput | Date | string
     concluido_em?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: EnumStatusNcmSyncFieldUpdateOperationsInput | $Enums.StatusNcmSync
+    status?: EnumNCMStatusSincronizacaoFieldUpdateOperationsInput | $Enums.NCMStatusSincronizacao
     total?: IntFieldUpdateOperationsInput | number
     adicionados?: IntFieldUpdateOperationsInput | number
     alterados?: IntFieldUpdateOperationsInput | number
     removidos?: IntFieldUpdateOperationsInput | number
-    origem?: EnumNcmSyncOrigemFieldUpdateOperationsInput | $Enums.NcmSyncOrigem
+    origem?: EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput | $Enums.NCMOrigemSincronizacao
     disparado_por?: NullableStringFieldUpdateOperationsInput | string | null
     erro_msg?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60709,11 +60709,11 @@ export namespace Prisma {
     total_minutos?: SortOrder
   }
 
-  export type EnumStatusThreadEmailFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusThreadEmail | EnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusThreadEmail[] | ListEnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusThreadEmail[] | ListEnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusThreadEmailFilter<$PrismaModel> | $Enums.StatusThreadEmail
+  export type EnumEmailThreadStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailThreadStatus | EnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailThreadStatus[] | ListEnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailThreadStatus[] | ListEnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailThreadStatusFilter<$PrismaModel> | $Enums.EmailThreadStatus
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -60727,11 +60727,11 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
-  export type EnumNivelSentimentoEmailFilter<$PrismaModel = never> = {
-    equals?: $Enums.NivelSentimentoEmail | EnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.NivelSentimentoEmail[] | ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NivelSentimentoEmail[] | ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumNivelSentimentoEmailFilter<$PrismaModel> | $Enums.NivelSentimentoEmail
+  export type EnumEmailSentimentoFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailSentimento | EnumEmailSentimentoFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailSentimento[] | ListEnumEmailSentimentoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailSentimento[] | ListEnumEmailSentimentoFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailSentimentoFilter<$PrismaModel> | $Enums.EmailSentimento
   }
 
   export type EmailMensagemListRelationFilter = {
@@ -60802,14 +60802,14 @@ export namespace Prisma {
     mensagens_count?: SortOrder
   }
 
-  export type EnumStatusThreadEmailWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusThreadEmail | EnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusThreadEmail[] | ListEnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusThreadEmail[] | ListEnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusThreadEmailWithAggregatesFilter<$PrismaModel> | $Enums.StatusThreadEmail
+  export type EnumEmailThreadStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailThreadStatus | EnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailThreadStatus[] | ListEnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailThreadStatus[] | ListEnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailThreadStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmailThreadStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusThreadEmailFilter<$PrismaModel>
-    _max?: NestedEnumStatusThreadEmailFilter<$PrismaModel>
+    _min?: NestedEnumEmailThreadStatusFilter<$PrismaModel>
+    _max?: NestedEnumEmailThreadStatusFilter<$PrismaModel>
   }
 
   export type FloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -60828,21 +60828,21 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
-  export type EnumNivelSentimentoEmailWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NivelSentimentoEmail | EnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.NivelSentimentoEmail[] | ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NivelSentimentoEmail[] | ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumNivelSentimentoEmailWithAggregatesFilter<$PrismaModel> | $Enums.NivelSentimentoEmail
+  export type EnumEmailSentimentoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailSentimento | EnumEmailSentimentoFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailSentimento[] | ListEnumEmailSentimentoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailSentimento[] | ListEnumEmailSentimentoFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailSentimentoWithAggregatesFilter<$PrismaModel> | $Enums.EmailSentimento
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNivelSentimentoEmailFilter<$PrismaModel>
-    _max?: NestedEnumNivelSentimentoEmailFilter<$PrismaModel>
+    _min?: NestedEnumEmailSentimentoFilter<$PrismaModel>
+    _max?: NestedEnumEmailSentimentoFilter<$PrismaModel>
   }
 
-  export type EnumDirecaoEmailFilter<$PrismaModel = never> = {
-    equals?: $Enums.DirecaoEmail | EnumDirecaoEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.DirecaoEmail[] | ListEnumDirecaoEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DirecaoEmail[] | ListEnumDirecaoEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumDirecaoEmailFilter<$PrismaModel> | $Enums.DirecaoEmail
+  export type EnumEmailDirecaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailDirecao | EnumEmailDirecaoFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailDirecao[] | ListEnumEmailDirecaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailDirecao[] | ListEnumEmailDirecaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailDirecaoFilter<$PrismaModel> | $Enums.EmailDirecao
   }
 
   export type FloatNullableFilter<$PrismaModel = never> = {
@@ -60938,14 +60938,14 @@ export namespace Prisma {
     gabi_confidence?: SortOrder
   }
 
-  export type EnumDirecaoEmailWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DirecaoEmail | EnumDirecaoEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.DirecaoEmail[] | ListEnumDirecaoEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DirecaoEmail[] | ListEnumDirecaoEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumDirecaoEmailWithAggregatesFilter<$PrismaModel> | $Enums.DirecaoEmail
+  export type EnumEmailDirecaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailDirecao | EnumEmailDirecaoFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailDirecao[] | ListEnumEmailDirecaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailDirecao[] | ListEnumEmailDirecaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailDirecaoWithAggregatesFilter<$PrismaModel> | $Enums.EmailDirecao
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDirecaoEmailFilter<$PrismaModel>
-    _max?: NestedEnumDirecaoEmailFilter<$PrismaModel>
+    _min?: NestedEnumEmailDirecaoFilter<$PrismaModel>
+    _max?: NestedEnumEmailDirecaoFilter<$PrismaModel>
   }
 
   export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -60964,11 +60964,11 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
-  export type EnumStatusEmailFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEmail | EnumStatusEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEmail[] | ListEnumStatusEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEmail[] | ListEnumStatusEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEmailFilter<$PrismaModel> | $Enums.StatusEmail
+  export type EnumEmailStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailStatus | EnumEmailStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailStatus[] | ListEnumEmailStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailStatus[] | ListEnumEmailStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailStatusFilter<$PrismaModel> | $Enums.EmailStatus
   }
 
   export type EmailRegistroEnvioCountOrderByAggregateInput = {
@@ -61047,14 +61047,14 @@ export namespace Prisma {
     max_tentativas?: SortOrder
   }
 
-  export type EnumStatusEmailWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEmail | EnumStatusEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEmail[] | ListEnumStatusEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEmail[] | ListEnumStatusEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEmailWithAggregatesFilter<$PrismaModel> | $Enums.StatusEmail
+  export type EnumEmailStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailStatus | EnumEmailStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailStatus[] | ListEnumEmailStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailStatus[] | ListEnumEmailStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmailStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusEmailFilter<$PrismaModel>
-    _max?: NestedEnumStatusEmailFilter<$PrismaModel>
+    _min?: NestedEnumEmailStatusFilter<$PrismaModel>
+    _max?: NestedEnumEmailStatusFilter<$PrismaModel>
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -61119,11 +61119,11 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumFilaEmailPrioridadeFilter<$PrismaModel = never> = {
-    equals?: $Enums.FilaEmailPrioridade | EnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    in?: $Enums.FilaEmailPrioridade[] | ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FilaEmailPrioridade[] | ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    not?: NestedEnumFilaEmailPrioridadeFilter<$PrismaModel> | $Enums.FilaEmailPrioridade
+  export type EnumEmailFilaPrioridadeFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailFilaPrioridade | EnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailFilaPrioridade[] | ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailFilaPrioridade[] | ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailFilaPrioridadeFilter<$PrismaModel> | $Enums.EmailFilaPrioridade
   }
 
   export type EmailFilaEnvioCountOrderByAggregateInput = {
@@ -61193,14 +61193,14 @@ export namespace Prisma {
     max_tentativas?: SortOrder
   }
 
-  export type EnumFilaEmailPrioridadeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.FilaEmailPrioridade | EnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    in?: $Enums.FilaEmailPrioridade[] | ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FilaEmailPrioridade[] | ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    not?: NestedEnumFilaEmailPrioridadeWithAggregatesFilter<$PrismaModel> | $Enums.FilaEmailPrioridade
+  export type EnumEmailFilaPrioridadeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailFilaPrioridade | EnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailFilaPrioridade[] | ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailFilaPrioridade[] | ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailFilaPrioridadeWithAggregatesFilter<$PrismaModel> | $Enums.EmailFilaPrioridade
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumFilaEmailPrioridadeFilter<$PrismaModel>
-    _max?: NestedEnumFilaEmailPrioridadeFilter<$PrismaModel>
+    _min?: NestedEnumEmailFilaPrioridadeFilter<$PrismaModel>
+    _max?: NestedEnumEmailFilaPrioridadeFilter<$PrismaModel>
   }
   export type JsonNullableFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -61496,11 +61496,11 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumModoDashboardFilter<$PrismaModel = never> = {
-    equals?: $Enums.ModoDashboard | EnumModoDashboardFieldRefInput<$PrismaModel>
-    in?: $Enums.ModoDashboard[] | ListEnumModoDashboardFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ModoDashboard[] | ListEnumModoDashboardFieldRefInput<$PrismaModel>
-    not?: NestedEnumModoDashboardFilter<$PrismaModel> | $Enums.ModoDashboard
+  export type EnumDashboardModoFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardModo | EnumDashboardModoFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardModo[] | ListEnumDashboardModoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardModo[] | ListEnumDashboardModoFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardModoFilter<$PrismaModel> | $Enums.DashboardModo
   }
   export type JsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -61593,14 +61593,14 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumModoDashboardWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ModoDashboard | EnumModoDashboardFieldRefInput<$PrismaModel>
-    in?: $Enums.ModoDashboard[] | ListEnumModoDashboardFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ModoDashboard[] | ListEnumModoDashboardFieldRefInput<$PrismaModel>
-    not?: NestedEnumModoDashboardWithAggregatesFilter<$PrismaModel> | $Enums.ModoDashboard
+  export type EnumDashboardModoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardModo | EnumDashboardModoFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardModo[] | ListEnumDashboardModoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardModo[] | ListEnumDashboardModoFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardModoWithAggregatesFilter<$PrismaModel> | $Enums.DashboardModo
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumModoDashboardFilter<$PrismaModel>
-    _max?: NestedEnumModoDashboardFilter<$PrismaModel>
+    _min?: NestedEnumDashboardModoFilter<$PrismaModel>
+    _max?: NestedEnumDashboardModoFilter<$PrismaModel>
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -61628,18 +61628,18 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
-  export type EnumTipoWidgetFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoWidget | EnumTipoWidgetFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoWidget[] | ListEnumTipoWidgetFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoWidget[] | ListEnumTipoWidgetFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoWidgetFilter<$PrismaModel> | $Enums.TipoWidget
+  export type EnumDashboardTipoFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardTipo | EnumDashboardTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardTipo[] | ListEnumDashboardTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardTipo[] | ListEnumDashboardTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardTipoFilter<$PrismaModel> | $Enums.DashboardTipo
   }
 
-  export type EnumTipoGraficoFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoGrafico | EnumTipoGraficoFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoGrafico[] | ListEnumTipoGraficoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoGrafico[] | ListEnumTipoGraficoFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoGraficoFilter<$PrismaModel> | $Enums.TipoGrafico
+  export type EnumGraficoTipoFilter<$PrismaModel = never> = {
+    equals?: $Enums.GraficoTipo | EnumGraficoTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.GraficoTipo[] | ListEnumGraficoTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GraficoTipo[] | ListEnumGraficoTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumGraficoTipoFilter<$PrismaModel> | $Enums.GraficoTipo
   }
 
   export type DashboardConfiguracaoRelationFilter = {
@@ -61692,24 +61692,24 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumTipoWidgetWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoWidget | EnumTipoWidgetFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoWidget[] | ListEnumTipoWidgetFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoWidget[] | ListEnumTipoWidgetFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoWidgetWithAggregatesFilter<$PrismaModel> | $Enums.TipoWidget
+  export type EnumDashboardTipoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardTipo | EnumDashboardTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardTipo[] | ListEnumDashboardTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardTipo[] | ListEnumDashboardTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardTipoWithAggregatesFilter<$PrismaModel> | $Enums.DashboardTipo
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoWidgetFilter<$PrismaModel>
-    _max?: NestedEnumTipoWidgetFilter<$PrismaModel>
+    _min?: NestedEnumDashboardTipoFilter<$PrismaModel>
+    _max?: NestedEnumDashboardTipoFilter<$PrismaModel>
   }
 
-  export type EnumTipoGraficoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoGrafico | EnumTipoGraficoFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoGrafico[] | ListEnumTipoGraficoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoGrafico[] | ListEnumTipoGraficoFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoGraficoWithAggregatesFilter<$PrismaModel> | $Enums.TipoGrafico
+  export type EnumGraficoTipoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GraficoTipo | EnumGraficoTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.GraficoTipo[] | ListEnumGraficoTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GraficoTipo[] | ListEnumGraficoTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumGraficoTipoWithAggregatesFilter<$PrismaModel> | $Enums.GraficoTipo
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoGraficoFilter<$PrismaModel>
-    _max?: NestedEnumTipoGraficoFilter<$PrismaModel>
+    _min?: NestedEnumGraficoTipoFilter<$PrismaModel>
+    _max?: NestedEnumGraficoTipoFilter<$PrismaModel>
   }
 
   export type DashboardMetricasTenant_idProduct_idMetric_keyPeriod_fromPeriod_toCompoundUniqueInput = {
@@ -61972,18 +61972,18 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumTipoAtorFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoAtor | EnumTipoAtorFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoAtorFilter<$PrismaModel> | $Enums.TipoAtor
+  export type EnumAcaoExecutadaPorFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcaoExecutadaPor | EnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    in?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    not?: NestedEnumAcaoExecutadaPorFilter<$PrismaModel> | $Enums.AcaoExecutadaPor
   }
 
-  export type EnumStatusEventoFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEvento | EnumStatusEventoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEventoFilter<$PrismaModel> | $Enums.StatusEvento
+  export type EnumEventoStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventoStatus | EnumEventoStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventoStatusFilter<$PrismaModel> | $Enums.EventoStatus
   }
 
   export type HistoricoLogCountOrderByAggregateInput = {
@@ -62049,38 +62049,38 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
-  export type EnumTipoAtorWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoAtor | EnumTipoAtorFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoAtorWithAggregatesFilter<$PrismaModel> | $Enums.TipoAtor
+  export type EnumAcaoExecutadaPorWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcaoExecutadaPor | EnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    in?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    not?: NestedEnumAcaoExecutadaPorWithAggregatesFilter<$PrismaModel> | $Enums.AcaoExecutadaPor
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoAtorFilter<$PrismaModel>
-    _max?: NestedEnumTipoAtorFilter<$PrismaModel>
+    _min?: NestedEnumAcaoExecutadaPorFilter<$PrismaModel>
+    _max?: NestedEnumAcaoExecutadaPorFilter<$PrismaModel>
   }
 
-  export type EnumStatusEventoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEvento | EnumStatusEventoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEventoWithAggregatesFilter<$PrismaModel> | $Enums.StatusEvento
+  export type EnumEventoStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventoStatus | EnumEventoStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventoStatusWithAggregatesFilter<$PrismaModel> | $Enums.EventoStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusEventoFilter<$PrismaModel>
-    _max?: NestedEnumStatusEventoFilter<$PrismaModel>
+    _min?: NestedEnumEventoStatusFilter<$PrismaModel>
+    _max?: NestedEnumEventoStatusFilter<$PrismaModel>
   }
 
-  export type EnumTipoAtorNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoAtor | EnumTipoAtorFieldRefInput<$PrismaModel> | null
-    in?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTipoAtorNullableFilter<$PrismaModel> | $Enums.TipoAtor | null
+  export type EnumAcaoExecutadaPorNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcaoExecutadaPor | EnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAcaoExecutadaPorNullableFilter<$PrismaModel> | $Enums.AcaoExecutadaPor | null
   }
 
-  export type EnumStatusEventoNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEvento | EnumStatusEventoFieldRefInput<$PrismaModel> | null
-    in?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumStatusEventoNullableFilter<$PrismaModel> | $Enums.StatusEvento | null
+  export type EnumEventoStatusNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventoStatus | EnumEventoStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEventoStatusNullableFilter<$PrismaModel> | $Enums.EventoStatus | null
   }
 
   export type AlertEventListRelationFilter = {
@@ -62163,31 +62163,31 @@ export namespace Prisma {
     threshold_window_seconds?: SortOrder
   }
 
-  export type EnumTipoAtorNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoAtor | EnumTipoAtorFieldRefInput<$PrismaModel> | null
-    in?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTipoAtorNullableWithAggregatesFilter<$PrismaModel> | $Enums.TipoAtor | null
+  export type EnumAcaoExecutadaPorNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcaoExecutadaPor | EnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAcaoExecutadaPorNullableWithAggregatesFilter<$PrismaModel> | $Enums.AcaoExecutadaPor | null
     _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumTipoAtorNullableFilter<$PrismaModel>
-    _max?: NestedEnumTipoAtorNullableFilter<$PrismaModel>
+    _min?: NestedEnumAcaoExecutadaPorNullableFilter<$PrismaModel>
+    _max?: NestedEnumAcaoExecutadaPorNullableFilter<$PrismaModel>
   }
 
-  export type EnumStatusEventoNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEvento | EnumStatusEventoFieldRefInput<$PrismaModel> | null
-    in?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumStatusEventoNullableWithAggregatesFilter<$PrismaModel> | $Enums.StatusEvento | null
+  export type EnumEventoStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventoStatus | EnumEventoStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEventoStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.EventoStatus | null
     _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumStatusEventoNullableFilter<$PrismaModel>
-    _max?: NestedEnumStatusEventoNullableFilter<$PrismaModel>
+    _min?: NestedEnumEventoStatusNullableFilter<$PrismaModel>
+    _max?: NestedEnumEventoStatusNullableFilter<$PrismaModel>
   }
 
-  export type EnumStatusAlertaFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusAlerta | EnumStatusAlertaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusAlerta[] | ListEnumStatusAlertaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusAlerta[] | ListEnumStatusAlertaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusAlertaFilter<$PrismaModel> | $Enums.StatusAlerta
+  export type EnumAlertaStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AlertaStatus | EnumAlertaStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AlertaStatus[] | ListEnumAlertaStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AlertaStatus[] | ListEnumAlertaStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAlertaStatusFilter<$PrismaModel> | $Enums.AlertaStatus
   }
 
   export type AlertRuleRelationFilter = {
@@ -62270,14 +62270,14 @@ export namespace Prisma {
     window_seconds?: SortOrder
   }
 
-  export type EnumStatusAlertaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusAlerta | EnumStatusAlertaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusAlerta[] | ListEnumStatusAlertaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusAlerta[] | ListEnumStatusAlertaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusAlertaWithAggregatesFilter<$PrismaModel> | $Enums.StatusAlerta
+  export type EnumAlertaStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AlertaStatus | EnumAlertaStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AlertaStatus[] | ListEnumAlertaStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AlertaStatus[] | ListEnumAlertaStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAlertaStatusWithAggregatesFilter<$PrismaModel> | $Enums.AlertaStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusAlertaFilter<$PrismaModel>
-    _max?: NestedEnumStatusAlertaFilter<$PrismaModel>
+    _min?: NestedEnumAlertaStatusFilter<$PrismaModel>
+    _max?: NestedEnumAlertaStatusFilter<$PrismaModel>
   }
 
   export type AlertEventRelationFilter = {
@@ -62936,18 +62936,18 @@ export namespace Prisma {
     updated_at?: SortOrder
   }
 
-  export type EnumStatusNcmSyncFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusNcmSync | EnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusNcmSync[] | ListEnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusNcmSync[] | ListEnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusNcmSyncFilter<$PrismaModel> | $Enums.StatusNcmSync
+  export type EnumNCMStatusSincronizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
   }
 
-  export type EnumNcmSyncOrigemFilter<$PrismaModel = never> = {
-    equals?: $Enums.NcmSyncOrigem | EnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    in?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    not?: NestedEnumNcmSyncOrigemFilter<$PrismaModel> | $Enums.NcmSyncOrigem
+  export type EnumNCMOrigemSincronizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
   }
 
   export type NcmSyncLogCountOrderByAggregateInput = {
@@ -63021,24 +63021,24 @@ export namespace Prisma {
     removidos?: SortOrder
   }
 
-  export type EnumStatusNcmSyncWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusNcmSync | EnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusNcmSync[] | ListEnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusNcmSync[] | ListEnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusNcmSyncWithAggregatesFilter<$PrismaModel> | $Enums.StatusNcmSync
+  export type EnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusNcmSyncFilter<$PrismaModel>
-    _max?: NestedEnumStatusNcmSyncFilter<$PrismaModel>
+    _min?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
+    _max?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
   }
 
-  export type EnumNcmSyncOrigemWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NcmSyncOrigem | EnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    in?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    not?: NestedEnumNcmSyncOrigemWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncOrigem
+  export type EnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
-    _max?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
+    _min?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
+    _max?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
   }
 
   export type NcmScheduleConfigCountOrderByAggregateInput = {
@@ -63357,8 +63357,8 @@ export namespace Prisma {
     connect?: EmailMensagemWhereUniqueInput | EmailMensagemWhereUniqueInput[]
   }
 
-  export type EnumStatusThreadEmailFieldUpdateOperationsInput = {
-    set?: $Enums.StatusThreadEmail
+  export type EnumEmailThreadStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EmailThreadStatus
   }
 
   export type FloatFieldUpdateOperationsInput = {
@@ -63369,8 +63369,8 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type EnumNivelSentimentoEmailFieldUpdateOperationsInput = {
-    set?: $Enums.NivelSentimentoEmail
+  export type EnumEmailSentimentoFieldUpdateOperationsInput = {
+    set?: $Enums.EmailSentimento
   }
 
   export type EmailMensagemUpdateManyWithoutThreadNestedInput = {
@@ -63407,8 +63407,8 @@ export namespace Prisma {
     connect?: EmailAssuntosParticipantesWhereUniqueInput
   }
 
-  export type EnumDirecaoEmailFieldUpdateOperationsInput = {
-    set?: $Enums.DirecaoEmail
+  export type EnumEmailDirecaoFieldUpdateOperationsInput = {
+    set?: $Enums.EmailDirecao
   }
 
   export type NullableFloatFieldUpdateOperationsInput = {
@@ -63427,8 +63427,8 @@ export namespace Prisma {
     update?: XOR<XOR<EmailAssuntosParticipantesUpdateToOneWithWhereWithoutMensagensInput, EmailAssuntosParticipantesUpdateWithoutMensagensInput>, EmailAssuntosParticipantesUncheckedUpdateWithoutMensagensInput>
   }
 
-  export type EnumStatusEmailFieldUpdateOperationsInput = {
-    set?: $Enums.StatusEmail
+  export type EnumEmailStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EmailStatus
   }
 
   export type TemplateEmailCreatevariaveisInput = {
@@ -63440,8 +63440,8 @@ export namespace Prisma {
     push?: string | string[]
   }
 
-  export type EnumFilaEmailPrioridadeFieldUpdateOperationsInput = {
-    set?: $Enums.FilaEmailPrioridade
+  export type EnumEmailFilaPrioridadeFieldUpdateOperationsInput = {
+    set?: $Enums.EmailFilaPrioridade
   }
 
   export type DecimalFieldUpdateOperationsInput = {
@@ -63494,8 +63494,8 @@ export namespace Prisma {
     connect?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
   }
 
-  export type EnumModoDashboardFieldUpdateOperationsInput = {
-    set?: $Enums.ModoDashboard
+  export type EnumDashboardModoFieldUpdateOperationsInput = {
+    set?: $Enums.DashboardModo
   }
 
   export type DashboardCriarUpdateManyWithoutDashboardNestedInput = {
@@ -63588,12 +63588,12 @@ export namespace Prisma {
     connect?: DashboardConfiguracaoWhereUniqueInput
   }
 
-  export type EnumTipoWidgetFieldUpdateOperationsInput = {
-    set?: $Enums.TipoWidget
+  export type EnumDashboardTipoFieldUpdateOperationsInput = {
+    set?: $Enums.DashboardTipo
   }
 
-  export type EnumTipoGraficoFieldUpdateOperationsInput = {
-    set?: $Enums.TipoGrafico
+  export type EnumGraficoTipoFieldUpdateOperationsInput = {
+    set?: $Enums.GraficoTipo
   }
 
   export type DashboardConfiguracaoUpdateOneRequiredWithoutWidgetsNestedInput = {
@@ -63641,12 +63641,12 @@ export namespace Prisma {
     update?: XOR<XOR<DashboardConfiguracaoUpdateToOneWithWhereWithoutSharesInput, DashboardConfiguracaoUpdateWithoutSharesInput>, DashboardConfiguracaoUncheckedUpdateWithoutSharesInput>
   }
 
-  export type EnumTipoAtorFieldUpdateOperationsInput = {
-    set?: $Enums.TipoAtor
+  export type EnumAcaoExecutadaPorFieldUpdateOperationsInput = {
+    set?: $Enums.AcaoExecutadaPor
   }
 
-  export type EnumStatusEventoFieldUpdateOperationsInput = {
-    set?: $Enums.StatusEvento
+  export type EnumEventoStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EventoStatus
   }
 
   export type AlertRuleCreaterecipients_emailInput = {
@@ -63675,12 +63675,12 @@ export namespace Prisma {
     connect?: AlertEventWhereUniqueInput | AlertEventWhereUniqueInput[]
   }
 
-  export type NullableEnumTipoAtorFieldUpdateOperationsInput = {
-    set?: $Enums.TipoAtor | null
+  export type NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput = {
+    set?: $Enums.AcaoExecutadaPor | null
   }
 
-  export type NullableEnumStatusEventoFieldUpdateOperationsInput = {
-    set?: $Enums.StatusEvento | null
+  export type NullableEnumEventoStatusFieldUpdateOperationsInput = {
+    set?: $Enums.EventoStatus | null
   }
 
   export type AlertRuleUpdaterecipients_emailInput = {
@@ -63755,8 +63755,8 @@ export namespace Prisma {
     push?: string | string[]
   }
 
-  export type EnumStatusAlertaFieldUpdateOperationsInput = {
-    set?: $Enums.StatusAlerta
+  export type EnumAlertaStatusFieldUpdateOperationsInput = {
+    set?: $Enums.AlertaStatus
   }
 
   export type AlertRuleUpdateOneRequiredWithoutAlertsNestedInput = {
@@ -64032,12 +64032,12 @@ export namespace Prisma {
     update?: XOR<XOR<ConversaCompletaGabiUpdateToOneWithWhereWithoutMessagesInput, ConversaCompletaGabiUpdateWithoutMessagesInput>, ConversaCompletaGabiUncheckedUpdateWithoutMessagesInput>
   }
 
-  export type EnumStatusNcmSyncFieldUpdateOperationsInput = {
-    set?: $Enums.StatusNcmSync
+  export type EnumNCMStatusSincronizacaoFieldUpdateOperationsInput = {
+    set?: $Enums.NCMStatusSincronizacao
   }
 
-  export type EnumNcmSyncOrigemFieldUpdateOperationsInput = {
-    set?: $Enums.NcmSyncOrigem
+  export type EnumNCMOrigemSincronizacaoFieldUpdateOperationsInput = {
+    set?: $Enums.NCMOrigemSincronizacao
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -64241,28 +64241,28 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NestedEnumStatusThreadEmailFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusThreadEmail | EnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusThreadEmail[] | ListEnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusThreadEmail[] | ListEnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusThreadEmailFilter<$PrismaModel> | $Enums.StatusThreadEmail
+  export type NestedEnumEmailThreadStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailThreadStatus | EnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailThreadStatus[] | ListEnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailThreadStatus[] | ListEnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailThreadStatusFilter<$PrismaModel> | $Enums.EmailThreadStatus
   }
 
-  export type NestedEnumNivelSentimentoEmailFilter<$PrismaModel = never> = {
-    equals?: $Enums.NivelSentimentoEmail | EnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.NivelSentimentoEmail[] | ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NivelSentimentoEmail[] | ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumNivelSentimentoEmailFilter<$PrismaModel> | $Enums.NivelSentimentoEmail
+  export type NestedEnumEmailSentimentoFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailSentimento | EnumEmailSentimentoFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailSentimento[] | ListEnumEmailSentimentoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailSentimento[] | ListEnumEmailSentimentoFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailSentimentoFilter<$PrismaModel> | $Enums.EmailSentimento
   }
 
-  export type NestedEnumStatusThreadEmailWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusThreadEmail | EnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusThreadEmail[] | ListEnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusThreadEmail[] | ListEnumStatusThreadEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusThreadEmailWithAggregatesFilter<$PrismaModel> | $Enums.StatusThreadEmail
+  export type NestedEnumEmailThreadStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailThreadStatus | EnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailThreadStatus[] | ListEnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailThreadStatus[] | ListEnumEmailThreadStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailThreadStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmailThreadStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusThreadEmailFilter<$PrismaModel>
-    _max?: NestedEnumStatusThreadEmailFilter<$PrismaModel>
+    _min?: NestedEnumEmailThreadStatusFilter<$PrismaModel>
+    _max?: NestedEnumEmailThreadStatusFilter<$PrismaModel>
   }
 
   export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
@@ -64281,31 +64281,31 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
-  export type NestedEnumNivelSentimentoEmailWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NivelSentimentoEmail | EnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.NivelSentimentoEmail[] | ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NivelSentimentoEmail[] | ListEnumNivelSentimentoEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumNivelSentimentoEmailWithAggregatesFilter<$PrismaModel> | $Enums.NivelSentimentoEmail
+  export type NestedEnumEmailSentimentoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailSentimento | EnumEmailSentimentoFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailSentimento[] | ListEnumEmailSentimentoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailSentimento[] | ListEnumEmailSentimentoFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailSentimentoWithAggregatesFilter<$PrismaModel> | $Enums.EmailSentimento
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNivelSentimentoEmailFilter<$PrismaModel>
-    _max?: NestedEnumNivelSentimentoEmailFilter<$PrismaModel>
+    _min?: NestedEnumEmailSentimentoFilter<$PrismaModel>
+    _max?: NestedEnumEmailSentimentoFilter<$PrismaModel>
   }
 
-  export type NestedEnumDirecaoEmailFilter<$PrismaModel = never> = {
-    equals?: $Enums.DirecaoEmail | EnumDirecaoEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.DirecaoEmail[] | ListEnumDirecaoEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DirecaoEmail[] | ListEnumDirecaoEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumDirecaoEmailFilter<$PrismaModel> | $Enums.DirecaoEmail
+  export type NestedEnumEmailDirecaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailDirecao | EnumEmailDirecaoFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailDirecao[] | ListEnumEmailDirecaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailDirecao[] | ListEnumEmailDirecaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailDirecaoFilter<$PrismaModel> | $Enums.EmailDirecao
   }
 
-  export type NestedEnumDirecaoEmailWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.DirecaoEmail | EnumDirecaoEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.DirecaoEmail[] | ListEnumDirecaoEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.DirecaoEmail[] | ListEnumDirecaoEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumDirecaoEmailWithAggregatesFilter<$PrismaModel> | $Enums.DirecaoEmail
+  export type NestedEnumEmailDirecaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailDirecao | EnumEmailDirecaoFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailDirecao[] | ListEnumEmailDirecaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailDirecao[] | ListEnumEmailDirecaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailDirecaoWithAggregatesFilter<$PrismaModel> | $Enums.EmailDirecao
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumDirecaoEmailFilter<$PrismaModel>
-    _max?: NestedEnumDirecaoEmailFilter<$PrismaModel>
+    _min?: NestedEnumEmailDirecaoFilter<$PrismaModel>
+    _max?: NestedEnumEmailDirecaoFilter<$PrismaModel>
   }
 
   export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -64324,38 +64324,38 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
-  export type NestedEnumStatusEmailFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEmail | EnumStatusEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEmail[] | ListEnumStatusEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEmail[] | ListEnumStatusEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEmailFilter<$PrismaModel> | $Enums.StatusEmail
+  export type NestedEnumEmailStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailStatus | EnumEmailStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailStatus[] | ListEnumEmailStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailStatus[] | ListEnumEmailStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailStatusFilter<$PrismaModel> | $Enums.EmailStatus
   }
 
-  export type NestedEnumStatusEmailWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEmail | EnumStatusEmailFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEmail[] | ListEnumStatusEmailFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEmail[] | ListEnumStatusEmailFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEmailWithAggregatesFilter<$PrismaModel> | $Enums.StatusEmail
+  export type NestedEnumEmailStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailStatus | EnumEmailStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailStatus[] | ListEnumEmailStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailStatus[] | ListEnumEmailStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailStatusWithAggregatesFilter<$PrismaModel> | $Enums.EmailStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusEmailFilter<$PrismaModel>
-    _max?: NestedEnumStatusEmailFilter<$PrismaModel>
+    _min?: NestedEnumEmailStatusFilter<$PrismaModel>
+    _max?: NestedEnumEmailStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumFilaEmailPrioridadeFilter<$PrismaModel = never> = {
-    equals?: $Enums.FilaEmailPrioridade | EnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    in?: $Enums.FilaEmailPrioridade[] | ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FilaEmailPrioridade[] | ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    not?: NestedEnumFilaEmailPrioridadeFilter<$PrismaModel> | $Enums.FilaEmailPrioridade
+  export type NestedEnumEmailFilaPrioridadeFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailFilaPrioridade | EnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailFilaPrioridade[] | ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailFilaPrioridade[] | ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailFilaPrioridadeFilter<$PrismaModel> | $Enums.EmailFilaPrioridade
   }
 
-  export type NestedEnumFilaEmailPrioridadeWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.FilaEmailPrioridade | EnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    in?: $Enums.FilaEmailPrioridade[] | ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    notIn?: $Enums.FilaEmailPrioridade[] | ListEnumFilaEmailPrioridadeFieldRefInput<$PrismaModel>
-    not?: NestedEnumFilaEmailPrioridadeWithAggregatesFilter<$PrismaModel> | $Enums.FilaEmailPrioridade
+  export type NestedEnumEmailFilaPrioridadeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmailFilaPrioridade | EnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    in?: $Enums.EmailFilaPrioridade[] | ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmailFilaPrioridade[] | ListEnumEmailFilaPrioridadeFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmailFilaPrioridadeWithAggregatesFilter<$PrismaModel> | $Enums.EmailFilaPrioridade
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumFilaEmailPrioridadeFilter<$PrismaModel>
-    _max?: NestedEnumFilaEmailPrioridadeFilter<$PrismaModel>
+    _min?: NestedEnumEmailFilaPrioridadeFilter<$PrismaModel>
+    _max?: NestedEnumEmailFilaPrioridadeFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -64407,21 +64407,21 @@ export namespace Prisma {
     _max?: NestedDecimalFilter<$PrismaModel>
   }
 
-  export type NestedEnumModoDashboardFilter<$PrismaModel = never> = {
-    equals?: $Enums.ModoDashboard | EnumModoDashboardFieldRefInput<$PrismaModel>
-    in?: $Enums.ModoDashboard[] | ListEnumModoDashboardFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ModoDashboard[] | ListEnumModoDashboardFieldRefInput<$PrismaModel>
-    not?: NestedEnumModoDashboardFilter<$PrismaModel> | $Enums.ModoDashboard
+  export type NestedEnumDashboardModoFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardModo | EnumDashboardModoFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardModo[] | ListEnumDashboardModoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardModo[] | ListEnumDashboardModoFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardModoFilter<$PrismaModel> | $Enums.DashboardModo
   }
 
-  export type NestedEnumModoDashboardWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.ModoDashboard | EnumModoDashboardFieldRefInput<$PrismaModel>
-    in?: $Enums.ModoDashboard[] | ListEnumModoDashboardFieldRefInput<$PrismaModel>
-    notIn?: $Enums.ModoDashboard[] | ListEnumModoDashboardFieldRefInput<$PrismaModel>
-    not?: NestedEnumModoDashboardWithAggregatesFilter<$PrismaModel> | $Enums.ModoDashboard
+  export type NestedEnumDashboardModoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardModo | EnumDashboardModoFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardModo[] | ListEnumDashboardModoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardModo[] | ListEnumDashboardModoFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardModoWithAggregatesFilter<$PrismaModel> | $Enums.DashboardModo
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumModoDashboardFilter<$PrismaModel>
-    _max?: NestedEnumModoDashboardFilter<$PrismaModel>
+    _min?: NestedEnumDashboardModoFilter<$PrismaModel>
+    _max?: NestedEnumDashboardModoFilter<$PrismaModel>
   }
   export type NestedJsonFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -64446,157 +64446,157 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type NestedEnumTipoWidgetFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoWidget | EnumTipoWidgetFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoWidget[] | ListEnumTipoWidgetFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoWidget[] | ListEnumTipoWidgetFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoWidgetFilter<$PrismaModel> | $Enums.TipoWidget
+  export type NestedEnumDashboardTipoFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardTipo | EnumDashboardTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardTipo[] | ListEnumDashboardTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardTipo[] | ListEnumDashboardTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardTipoFilter<$PrismaModel> | $Enums.DashboardTipo
   }
 
-  export type NestedEnumTipoGraficoFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoGrafico | EnumTipoGraficoFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoGrafico[] | ListEnumTipoGraficoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoGrafico[] | ListEnumTipoGraficoFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoGraficoFilter<$PrismaModel> | $Enums.TipoGrafico
+  export type NestedEnumGraficoTipoFilter<$PrismaModel = never> = {
+    equals?: $Enums.GraficoTipo | EnumGraficoTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.GraficoTipo[] | ListEnumGraficoTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GraficoTipo[] | ListEnumGraficoTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumGraficoTipoFilter<$PrismaModel> | $Enums.GraficoTipo
   }
 
-  export type NestedEnumTipoWidgetWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoWidget | EnumTipoWidgetFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoWidget[] | ListEnumTipoWidgetFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoWidget[] | ListEnumTipoWidgetFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoWidgetWithAggregatesFilter<$PrismaModel> | $Enums.TipoWidget
+  export type NestedEnumDashboardTipoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.DashboardTipo | EnumDashboardTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.DashboardTipo[] | ListEnumDashboardTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.DashboardTipo[] | ListEnumDashboardTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumDashboardTipoWithAggregatesFilter<$PrismaModel> | $Enums.DashboardTipo
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoWidgetFilter<$PrismaModel>
-    _max?: NestedEnumTipoWidgetFilter<$PrismaModel>
+    _min?: NestedEnumDashboardTipoFilter<$PrismaModel>
+    _max?: NestedEnumDashboardTipoFilter<$PrismaModel>
   }
 
-  export type NestedEnumTipoGraficoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoGrafico | EnumTipoGraficoFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoGrafico[] | ListEnumTipoGraficoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoGrafico[] | ListEnumTipoGraficoFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoGraficoWithAggregatesFilter<$PrismaModel> | $Enums.TipoGrafico
+  export type NestedEnumGraficoTipoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.GraficoTipo | EnumGraficoTipoFieldRefInput<$PrismaModel>
+    in?: $Enums.GraficoTipo[] | ListEnumGraficoTipoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.GraficoTipo[] | ListEnumGraficoTipoFieldRefInput<$PrismaModel>
+    not?: NestedEnumGraficoTipoWithAggregatesFilter<$PrismaModel> | $Enums.GraficoTipo
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoGraficoFilter<$PrismaModel>
-    _max?: NestedEnumTipoGraficoFilter<$PrismaModel>
+    _min?: NestedEnumGraficoTipoFilter<$PrismaModel>
+    _max?: NestedEnumGraficoTipoFilter<$PrismaModel>
   }
 
-  export type NestedEnumTipoAtorFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoAtor | EnumTipoAtorFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoAtorFilter<$PrismaModel> | $Enums.TipoAtor
+  export type NestedEnumAcaoExecutadaPorFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcaoExecutadaPor | EnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    in?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    not?: NestedEnumAcaoExecutadaPorFilter<$PrismaModel> | $Enums.AcaoExecutadaPor
   }
 
-  export type NestedEnumStatusEventoFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEvento | EnumStatusEventoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEventoFilter<$PrismaModel> | $Enums.StatusEvento
+  export type NestedEnumEventoStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventoStatus | EnumEventoStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventoStatusFilter<$PrismaModel> | $Enums.EventoStatus
   }
 
-  export type NestedEnumTipoAtorWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoAtor | EnumTipoAtorFieldRefInput<$PrismaModel>
-    in?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel>
-    notIn?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel>
-    not?: NestedEnumTipoAtorWithAggregatesFilter<$PrismaModel> | $Enums.TipoAtor
+  export type NestedEnumAcaoExecutadaPorWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcaoExecutadaPor | EnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    in?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel>
+    not?: NestedEnumAcaoExecutadaPorWithAggregatesFilter<$PrismaModel> | $Enums.AcaoExecutadaPor
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumTipoAtorFilter<$PrismaModel>
-    _max?: NestedEnumTipoAtorFilter<$PrismaModel>
+    _min?: NestedEnumAcaoExecutadaPorFilter<$PrismaModel>
+    _max?: NestedEnumAcaoExecutadaPorFilter<$PrismaModel>
   }
 
-  export type NestedEnumStatusEventoWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEvento | EnumStatusEventoFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusEventoWithAggregatesFilter<$PrismaModel> | $Enums.StatusEvento
+  export type NestedEnumEventoStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventoStatus | EnumEventoStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumEventoStatusWithAggregatesFilter<$PrismaModel> | $Enums.EventoStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusEventoFilter<$PrismaModel>
-    _max?: NestedEnumStatusEventoFilter<$PrismaModel>
+    _min?: NestedEnumEventoStatusFilter<$PrismaModel>
+    _max?: NestedEnumEventoStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumTipoAtorNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoAtor | EnumTipoAtorFieldRefInput<$PrismaModel> | null
-    in?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTipoAtorNullableFilter<$PrismaModel> | $Enums.TipoAtor | null
+  export type NestedEnumAcaoExecutadaPorNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcaoExecutadaPor | EnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAcaoExecutadaPorNullableFilter<$PrismaModel> | $Enums.AcaoExecutadaPor | null
   }
 
-  export type NestedEnumStatusEventoNullableFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEvento | EnumStatusEventoFieldRefInput<$PrismaModel> | null
-    in?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumStatusEventoNullableFilter<$PrismaModel> | $Enums.StatusEvento | null
+  export type NestedEnumEventoStatusNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventoStatus | EnumEventoStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEventoStatusNullableFilter<$PrismaModel> | $Enums.EventoStatus | null
   }
 
-  export type NestedEnumTipoAtorNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.TipoAtor | EnumTipoAtorFieldRefInput<$PrismaModel> | null
-    in?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.TipoAtor[] | ListEnumTipoAtorFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumTipoAtorNullableWithAggregatesFilter<$PrismaModel> | $Enums.TipoAtor | null
+  export type NestedEnumAcaoExecutadaPorNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AcaoExecutadaPor | EnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    in?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.AcaoExecutadaPor[] | ListEnumAcaoExecutadaPorFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumAcaoExecutadaPorNullableWithAggregatesFilter<$PrismaModel> | $Enums.AcaoExecutadaPor | null
     _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumTipoAtorNullableFilter<$PrismaModel>
-    _max?: NestedEnumTipoAtorNullableFilter<$PrismaModel>
+    _min?: NestedEnumAcaoExecutadaPorNullableFilter<$PrismaModel>
+    _max?: NestedEnumAcaoExecutadaPorNullableFilter<$PrismaModel>
   }
 
-  export type NestedEnumStatusEventoNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusEvento | EnumStatusEventoFieldRefInput<$PrismaModel> | null
-    in?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel> | null
-    notIn?: $Enums.StatusEvento[] | ListEnumStatusEventoFieldRefInput<$PrismaModel> | null
-    not?: NestedEnumStatusEventoNullableWithAggregatesFilter<$PrismaModel> | $Enums.StatusEvento | null
+  export type NestedEnumEventoStatusNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EventoStatus | EnumEventoStatusFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EventoStatus[] | ListEnumEventoStatusFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEventoStatusNullableWithAggregatesFilter<$PrismaModel> | $Enums.EventoStatus | null
     _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedEnumStatusEventoNullableFilter<$PrismaModel>
-    _max?: NestedEnumStatusEventoNullableFilter<$PrismaModel>
+    _min?: NestedEnumEventoStatusNullableFilter<$PrismaModel>
+    _max?: NestedEnumEventoStatusNullableFilter<$PrismaModel>
   }
 
-  export type NestedEnumStatusAlertaFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusAlerta | EnumStatusAlertaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusAlerta[] | ListEnumStatusAlertaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusAlerta[] | ListEnumStatusAlertaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusAlertaFilter<$PrismaModel> | $Enums.StatusAlerta
+  export type NestedEnumAlertaStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.AlertaStatus | EnumAlertaStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AlertaStatus[] | ListEnumAlertaStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AlertaStatus[] | ListEnumAlertaStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAlertaStatusFilter<$PrismaModel> | $Enums.AlertaStatus
   }
 
-  export type NestedEnumStatusAlertaWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusAlerta | EnumStatusAlertaFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusAlerta[] | ListEnumStatusAlertaFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusAlerta[] | ListEnumStatusAlertaFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusAlertaWithAggregatesFilter<$PrismaModel> | $Enums.StatusAlerta
+  export type NestedEnumAlertaStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.AlertaStatus | EnumAlertaStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.AlertaStatus[] | ListEnumAlertaStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.AlertaStatus[] | ListEnumAlertaStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumAlertaStatusWithAggregatesFilter<$PrismaModel> | $Enums.AlertaStatus
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusAlertaFilter<$PrismaModel>
-    _max?: NestedEnumStatusAlertaFilter<$PrismaModel>
+    _min?: NestedEnumAlertaStatusFilter<$PrismaModel>
+    _max?: NestedEnumAlertaStatusFilter<$PrismaModel>
   }
 
-  export type NestedEnumStatusNcmSyncFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusNcmSync | EnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusNcmSync[] | ListEnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusNcmSync[] | ListEnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusNcmSyncFilter<$PrismaModel> | $Enums.StatusNcmSync
+  export type NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
   }
 
-  export type NestedEnumNcmSyncOrigemFilter<$PrismaModel = never> = {
-    equals?: $Enums.NcmSyncOrigem | EnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    in?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    not?: NestedEnumNcmSyncOrigemFilter<$PrismaModel> | $Enums.NcmSyncOrigem
+  export type NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel = never> = {
+    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
   }
 
-  export type NestedEnumStatusNcmSyncWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StatusNcmSync | EnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    in?: $Enums.StatusNcmSync[] | ListEnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StatusNcmSync[] | ListEnumStatusNcmSyncFieldRefInput<$PrismaModel>
-    not?: NestedEnumStatusNcmSyncWithAggregatesFilter<$PrismaModel> | $Enums.StatusNcmSync
+  export type NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NCMStatusSincronizacao | EnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NCMStatusSincronizacao[] | ListEnumNCMStatusSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNCMStatusSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMStatusSincronizacao
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStatusNcmSyncFilter<$PrismaModel>
-    _max?: NestedEnumStatusNcmSyncFilter<$PrismaModel>
+    _min?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
+    _max?: NestedEnumNCMStatusSincronizacaoFilter<$PrismaModel>
   }
 
-  export type NestedEnumNcmSyncOrigemWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.NcmSyncOrigem | EnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    in?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    notIn?: $Enums.NcmSyncOrigem[] | ListEnumNcmSyncOrigemFieldRefInput<$PrismaModel>
-    not?: NestedEnumNcmSyncOrigemWithAggregatesFilter<$PrismaModel> | $Enums.NcmSyncOrigem
+  export type NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.NCMOrigemSincronizacao | EnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    in?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    notIn?: $Enums.NCMOrigemSincronizacao[] | ListEnumNCMOrigemSincronizacaoFieldRefInput<$PrismaModel>
+    not?: NestedEnumNCMOrigemSincronizacaoWithAggregatesFilter<$PrismaModel> | $Enums.NCMOrigemSincronizacao
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
-    _max?: NestedEnumNcmSyncOrigemFilter<$PrismaModel>
+    _min?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
+    _max?: NestedEnumNCMOrigemSincronizacaoFilter<$PrismaModel>
   }
 
   export type AtividadesParticipantesCreateWithoutAtividadeInput = {
@@ -64928,7 +64928,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     resend_id?: string | null
-    direction?: $Enums.DirecaoEmail
+    direction?: $Enums.EmailDirecao
     from: string
     to: string
     subject?: string | null
@@ -64950,7 +64950,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     resend_id?: string | null
-    direction?: $Enums.DirecaoEmail
+    direction?: $Enums.EmailDirecao
     from: string
     to: string
     subject?: string | null
@@ -65002,7 +65002,7 @@ export namespace Prisma {
     user_id?: StringNullableFilter<"EmailMensagem"> | string | null
     thread_id?: StringFilter<"EmailMensagem"> | string
     resend_id?: StringNullableFilter<"EmailMensagem"> | string | null
-    direction?: EnumDirecaoEmailFilter<"EmailMensagem"> | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFilter<"EmailMensagem"> | $Enums.EmailDirecao
     from?: StringFilter<"EmailMensagem"> | string
     to?: StringFilter<"EmailMensagem"> | string
     subject?: StringNullableFilter<"EmailMensagem"> | string | null
@@ -65024,9 +65024,9 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     subject: string
-    status?: $Enums.StatusThreadEmail
+    status?: $Enums.EmailThreadStatus
     sentiment?: number
-    sentiment_label?: $Enums.NivelSentimentoEmail
+    sentiment_label?: $Enums.EmailSentimento
     mensagens_count?: number
     ultimo_contato?: Date | string | null
     deep_link?: string | null
@@ -65040,9 +65040,9 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     subject: string
-    status?: $Enums.StatusThreadEmail
+    status?: $Enums.EmailThreadStatus
     sentiment?: number
-    sentiment_label?: $Enums.NivelSentimentoEmail
+    sentiment_label?: $Enums.EmailSentimento
     mensagens_count?: number
     ultimo_contato?: Date | string | null
     deep_link?: string | null
@@ -65072,9 +65072,9 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusThreadEmailFieldUpdateOperationsInput | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
     sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumNivelSentimentoEmailFieldUpdateOperationsInput | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
     mensagens_count?: IntFieldUpdateOperationsInput | number
     ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deep_link?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65088,9 +65088,9 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     subject?: StringFieldUpdateOperationsInput | string
-    status?: EnumStatusThreadEmailFieldUpdateOperationsInput | $Enums.StatusThreadEmail
+    status?: EnumEmailThreadStatusFieldUpdateOperationsInput | $Enums.EmailThreadStatus
     sentiment?: FloatFieldUpdateOperationsInput | number
-    sentiment_label?: EnumNivelSentimentoEmailFieldUpdateOperationsInput | $Enums.NivelSentimentoEmail
+    sentiment_label?: EnumEmailSentimentoFieldUpdateOperationsInput | $Enums.EmailSentimento
     mensagens_count?: IntFieldUpdateOperationsInput | number
     ultimo_contato?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     deep_link?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65104,8 +65104,8 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     widget_key: string
-    widget_type?: $Enums.TipoWidget
-    chart_type?: $Enums.TipoGrafico
+    widget_type?: $Enums.DashboardTipo
+    chart_type?: $Enums.GraficoTipo
     title: string
     query_spec: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -65120,8 +65120,8 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     widget_key: string
-    widget_type?: $Enums.TipoWidget
-    chart_type?: $Enums.TipoGrafico
+    widget_type?: $Enums.DashboardTipo
+    chart_type?: $Enums.GraficoTipo
     title: string
     query_spec: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -65246,8 +65246,8 @@ export namespace Prisma {
     user_id?: StringFilter<"DashboardCriar"> | string
     dashboard_id?: StringFilter<"DashboardCriar"> | string
     widget_key?: StringFilter<"DashboardCriar"> | string
-    widget_type?: EnumTipoWidgetFilter<"DashboardCriar"> | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFilter<"DashboardCriar"> | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
     title?: StringFilter<"DashboardCriar"> | string
     query_spec?: JsonFilter<"DashboardCriar">
     position?: JsonFilter<"DashboardCriar">
@@ -65332,7 +65332,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -65348,7 +65348,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -65380,7 +65380,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -65396,7 +65396,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -65412,7 +65412,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -65428,7 +65428,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -65460,7 +65460,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -65476,7 +65476,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -65492,7 +65492,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -65508,7 +65508,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     name?: string
-    mode?: $Enums.ModoDashboard
+    mode?: $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: boolean
@@ -65540,7 +65540,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -65556,7 +65556,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumModoDashboardFieldUpdateOperationsInput | $Enums.ModoDashboard
+    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
     layout?: JsonNullValueInput | InputJsonValue
     filters?: NullableJsonNullValueInput | InputJsonValue
     is_default?: BoolFieldUpdateOperationsInput | boolean
@@ -65569,7 +65569,7 @@ export namespace Prisma {
   export type AlertEventCreateWithoutRuleInput = {
     id?: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -65577,7 +65577,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.StatusAlerta
+    status?: $Enums.AlertaStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
@@ -65588,7 +65588,7 @@ export namespace Prisma {
   export type AlertEventUncheckedCreateWithoutRuleInput = {
     id?: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -65596,7 +65596,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.StatusAlerta
+    status?: $Enums.AlertaStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
@@ -65637,7 +65637,7 @@ export namespace Prisma {
     id?: StringFilter<"AlertEvent"> | string
     tenant_id?: StringFilter<"AlertEvent"> | string
     rule_id?: StringFilter<"AlertEvent"> | string
-    actor_type?: EnumTipoAtorFilter<"AlertEvent"> | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFilter<"AlertEvent"> | $Enums.AcaoExecutadaPor
     actor_id?: StringFilter<"AlertEvent"> | string
     actor_name?: StringFilter<"AlertEvent"> | string
     module?: StringFilter<"AlertEvent"> | string
@@ -65645,7 +65645,7 @@ export namespace Prisma {
     event_count?: IntFilter<"AlertEvent"> | number
     window_seconds?: IntFilter<"AlertEvent"> | number
     audit_log_ids?: StringNullableListFilter<"AlertEvent">
-    status?: EnumStatusAlertaFilter<"AlertEvent"> | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFilter<"AlertEvent"> | $Enums.AlertaStatus
     reviewed_by?: StringNullableFilter<"AlertEvent"> | string | null
     reviewed_at?: DateTimeNullableFilter<"AlertEvent"> | Date | string | null
     notes?: StringNullableFilter<"AlertEvent"> | string | null
@@ -65658,10 +65658,10 @@ export namespace Prisma {
     name: string
     description?: string | null
     enabled?: boolean
-    actor_type?: $Enums.TipoAtor | null
+    actor_type?: $Enums.AcaoExecutadaPor | null
     action?: string | null
     module?: string | null
-    status_filter?: $Enums.StatusEvento | null
+    status_filter?: $Enums.EventoStatus | null
     threshold_count?: number | null
     threshold_window_seconds?: number | null
     channel_inapp?: boolean
@@ -65680,10 +65680,10 @@ export namespace Prisma {
     name: string
     description?: string | null
     enabled?: boolean
-    actor_type?: $Enums.TipoAtor | null
+    actor_type?: $Enums.AcaoExecutadaPor | null
     action?: string | null
     module?: string | null
-    status_filter?: $Enums.StatusEvento | null
+    status_filter?: $Enums.EventoStatus | null
     threshold_count?: number | null
     threshold_window_seconds?: number | null
     channel_inapp?: boolean
@@ -65750,10 +65750,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor | null
+    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
     action?: NullableStringFieldUpdateOperationsInput | string | null
     module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento | null
+    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
     threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
     threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
@@ -65772,10 +65772,10 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
     enabled?: BoolFieldUpdateOperationsInput | boolean
-    actor_type?: NullableEnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor | null
+    actor_type?: NullableEnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor | null
     action?: NullableStringFieldUpdateOperationsInput | string | null
     module?: NullableStringFieldUpdateOperationsInput | string | null
-    status_filter?: NullableEnumStatusEventoFieldUpdateOperationsInput | $Enums.StatusEvento | null
+    status_filter?: NullableEnumEventoStatusFieldUpdateOperationsInput | $Enums.EventoStatus | null
     threshold_count?: NullableIntFieldUpdateOperationsInput | number | null
     threshold_window_seconds?: NullableIntFieldUpdateOperationsInput | number | null
     channel_inapp?: BoolFieldUpdateOperationsInput | boolean
@@ -65822,7 +65822,7 @@ export namespace Prisma {
   export type AlertEventCreateWithoutNotificationsInput = {
     id?: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -65830,7 +65830,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.StatusAlerta
+    status?: $Enums.AlertaStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
@@ -65842,7 +65842,7 @@ export namespace Prisma {
     id?: string
     tenant_id: string
     rule_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -65850,7 +65850,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.StatusAlerta
+    status?: $Enums.AlertaStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
@@ -65876,7 +65876,7 @@ export namespace Prisma {
   export type AlertEventUpdateWithoutNotificationsInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -65884,7 +65884,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -65896,7 +65896,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
     rule_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -65904,7 +65904,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66460,7 +66460,7 @@ export namespace Prisma {
     product_id?: string | null
     user_id?: string | null
     resend_id?: string | null
-    direction?: $Enums.DirecaoEmail
+    direction?: $Enums.EmailDirecao
     from: string
     to: string
     subject?: string | null
@@ -66482,7 +66482,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumDirecaoEmailFieldUpdateOperationsInput | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     subject?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66504,7 +66504,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumDirecaoEmailFieldUpdateOperationsInput | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     subject?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66526,7 +66526,7 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: NullableStringFieldUpdateOperationsInput | string | null
     resend_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: EnumDirecaoEmailFieldUpdateOperationsInput | $Enums.DirecaoEmail
+    direction?: EnumEmailDirecaoFieldUpdateOperationsInput | $Enums.EmailDirecao
     from?: StringFieldUpdateOperationsInput | string
     to?: StringFieldUpdateOperationsInput | string
     subject?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66548,8 +66548,8 @@ export namespace Prisma {
     product_id?: string | null
     user_id: string
     widget_key: string
-    widget_type?: $Enums.TipoWidget
-    chart_type?: $Enums.TipoGrafico
+    widget_type?: $Enums.DashboardTipo
+    chart_type?: $Enums.GraficoTipo
     title: string
     query_spec: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -66594,8 +66594,8 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumTipoWidgetFieldUpdateOperationsInput | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFieldUpdateOperationsInput | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
     title?: StringFieldUpdateOperationsInput | string
     query_spec?: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -66610,8 +66610,8 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumTipoWidgetFieldUpdateOperationsInput | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFieldUpdateOperationsInput | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
     title?: StringFieldUpdateOperationsInput | string
     query_spec?: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -66626,8 +66626,8 @@ export namespace Prisma {
     product_id?: NullableStringFieldUpdateOperationsInput | string | null
     user_id?: StringFieldUpdateOperationsInput | string
     widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumTipoWidgetFieldUpdateOperationsInput | $Enums.TipoWidget
-    chart_type?: EnumTipoGraficoFieldUpdateOperationsInput | $Enums.TipoGrafico
+    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
     title?: StringFieldUpdateOperationsInput | string
     query_spec?: JsonNullValueInput | InputJsonValue
     position?: JsonNullValueInput | InputJsonValue
@@ -66729,7 +66729,7 @@ export namespace Prisma {
   export type AlertEventCreateManyRuleInput = {
     id?: string
     tenant_id: string
-    actor_type: $Enums.TipoAtor
+    actor_type: $Enums.AcaoExecutadaPor
     actor_id: string
     actor_name: string
     module: string
@@ -66737,7 +66737,7 @@ export namespace Prisma {
     event_count: number
     window_seconds: number
     audit_log_ids?: AlertEventCreateaudit_log_idsInput | string[]
-    status?: $Enums.StatusAlerta
+    status?: $Enums.AlertaStatus
     reviewed_by?: string | null
     reviewed_at?: Date | string | null
     notes?: string | null
@@ -66747,7 +66747,7 @@ export namespace Prisma {
   export type AlertEventUpdateWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -66755,7 +66755,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66766,7 +66766,7 @@ export namespace Prisma {
   export type AlertEventUncheckedUpdateWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -66774,7 +66774,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
@@ -66785,7 +66785,7 @@ export namespace Prisma {
   export type AlertEventUncheckedUpdateManyWithoutRuleInput = {
     id?: StringFieldUpdateOperationsInput | string
     tenant_id?: StringFieldUpdateOperationsInput | string
-    actor_type?: EnumTipoAtorFieldUpdateOperationsInput | $Enums.TipoAtor
+    actor_type?: EnumAcaoExecutadaPorFieldUpdateOperationsInput | $Enums.AcaoExecutadaPor
     actor_id?: StringFieldUpdateOperationsInput | string
     actor_name?: StringFieldUpdateOperationsInput | string
     module?: StringFieldUpdateOperationsInput | string
@@ -66793,7 +66793,7 @@ export namespace Prisma {
     event_count?: IntFieldUpdateOperationsInput | number
     window_seconds?: IntFieldUpdateOperationsInput | number
     audit_log_ids?: AlertEventUpdateaudit_log_idsInput | string[]
-    status?: EnumStatusAlertaFieldUpdateOperationsInput | $Enums.StatusAlerta
+    status?: EnumAlertaStatusFieldUpdateOperationsInput | $Enums.AlertaStatus
     reviewed_by?: NullableStringFieldUpdateOperationsInput | string | null
     reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null

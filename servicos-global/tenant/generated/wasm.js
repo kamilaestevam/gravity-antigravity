@@ -826,13 +826,13 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.StatusThreadEmail = exports.$Enums.StatusThreadEmail = {
+exports.EmailThreadStatus = exports.$Enums.EmailThreadStatus = {
   ABERTA: 'ABERTA',
   ARQUIVADA: 'ARQUIVADA',
   RESOLVIDA: 'RESOLVIDA'
 };
 
-exports.NivelSentimentoEmail = exports.$Enums.NivelSentimentoEmail = {
+exports.EmailSentimento = exports.$Enums.EmailSentimento = {
   MUITO_POSITIVO: 'MUITO_POSITIVO',
   POSITIVO: 'POSITIVO',
   NEUTRO: 'NEUTRO',
@@ -840,12 +840,12 @@ exports.NivelSentimentoEmail = exports.$Enums.NivelSentimentoEmail = {
   MUITO_NEGATIVO: 'MUITO_NEGATIVO'
 };
 
-exports.DirecaoEmail = exports.$Enums.DirecaoEmail = {
-  INBOUND: 'INBOUND',
-  OUTBOUND: 'OUTBOUND'
+exports.EmailDirecao = exports.$Enums.EmailDirecao = {
+  RECEBIDO: 'RECEBIDO',
+  ENVIADO: 'ENVIADO'
 };
 
-exports.StatusEmail = exports.$Enums.StatusEmail = {
+exports.EmailStatus = exports.$Enums.EmailStatus = {
   PENDENTE: 'PENDENTE',
   PROCESSANDO: 'PROCESSANDO',
   ENVIADO: 'ENVIADO',
@@ -853,65 +853,65 @@ exports.StatusEmail = exports.$Enums.StatusEmail = {
   CANCELADO: 'CANCELADO'
 };
 
-exports.FilaEmailPrioridade = exports.$Enums.FilaEmailPrioridade = {
+exports.EmailFilaPrioridade = exports.$Enums.EmailFilaPrioridade = {
   BAIXA: 'BAIXA',
   NORMAL: 'NORMAL',
   ALTA: 'ALTA',
   URGENTE: 'URGENTE'
 };
 
-exports.ModoDashboard = exports.$Enums.ModoDashboard = {
-  PRODUCT: 'PRODUCT',
-  GENERAL: 'GENERAL'
+exports.DashboardModo = exports.$Enums.DashboardModo = {
+  PRODUTO: 'PRODUTO',
+  GERAL: 'GERAL'
 };
 
-exports.TipoWidget = exports.$Enums.TipoWidget = {
-  CATALOG: 'CATALOG',
-  CUSTOM: 'CUSTOM',
+exports.DashboardTipo = exports.$Enums.DashboardTipo = {
+  CATALOGO: 'CATALOGO',
+  CUSTOMIZADO: 'CUSTOMIZADO',
   GABI: 'GABI'
 };
 
-exports.TipoGrafico = exports.$Enums.TipoGrafico = {
+exports.GraficoTipo = exports.$Enums.GraficoTipo = {
   KPI_CARD: 'KPI_CARD',
-  LINE: 'LINE',
-  BAR: 'BAR',
-  BAR_HORIZONTAL: 'BAR_HORIZONTAL',
-  DONUT: 'DONUT',
-  HISTOGRAM: 'HISTOGRAM',
-  FUNNEL: 'FUNNEL',
-  GAUGE: 'GAUGE',
-  MAP: 'MAP',
-  TABLE: 'TABLE',
+  LINHA: 'LINHA',
+  BARRA: 'BARRA',
+  BARRA_HORIZONTAL: 'BARRA_HORIZONTAL',
+  ROSCA: 'ROSCA',
+  HISTOGRAMA: 'HISTOGRAMA',
+  FUNIL: 'FUNIL',
+  MEDIDOR: 'MEDIDOR',
+  MAPA: 'MAPA',
+  TABELA: 'TABELA',
   AREA: 'AREA'
 };
 
-exports.TipoAtor = exports.$Enums.TipoAtor = {
-  USER: 'USER',
+exports.AcaoExecutadaPor = exports.$Enums.AcaoExecutadaPor = {
+  USUARIO: 'USUARIO',
   API: 'API',
-  AI: 'AI',
+  IA: 'IA',
   JOB: 'JOB',
-  INTEGRATION: 'INTEGRATION'
+  INTEGRACAO: 'INTEGRACAO'
 };
 
-exports.StatusEvento = exports.$Enums.StatusEvento = {
-  SUCCESS: 'SUCCESS',
-  FAILURE: 'FAILURE',
-  PARTIAL: 'PARTIAL'
+exports.EventoStatus = exports.$Enums.EventoStatus = {
+  SUCESSO: 'SUCESSO',
+  FALHA: 'FALHA',
+  PARCIAL: 'PARCIAL'
 };
 
-exports.StatusAlerta = exports.$Enums.StatusAlerta = {
-  PENDING: 'PENDING',
-  REVIEWED: 'REVIEWED',
-  ESCALATED: 'ESCALATED'
+exports.AlertaStatus = exports.$Enums.AlertaStatus = {
+  PENDENTE: 'PENDENTE',
+  REVISADO: 'REVISADO',
+  ESCALADO: 'ESCALADO'
 };
 
-exports.StatusNcmSync = exports.$Enums.StatusNcmSync = {
-  RUNNING: 'RUNNING',
-  SUCCESS: 'SUCCESS',
-  ERROR: 'ERROR'
+exports.NCMStatusSincronizacao = exports.$Enums.NCMStatusSincronizacao = {
+  EXECUTANDO: 'EXECUTANDO',
+  SUCESSO: 'SUCESSO',
+  ERRO: 'ERRO'
 };
 
-exports.NcmSyncOrigem = exports.$Enums.NcmSyncOrigem = {
+exports.NCMOrigemSincronizacao = exports.$Enums.NCMOrigemSincronizacao = {
   JOB: 'JOB',
   MANUAL: 'MANUAL'
 };

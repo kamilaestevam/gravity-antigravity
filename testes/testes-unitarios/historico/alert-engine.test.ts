@@ -15,8 +15,8 @@ const { mockPrisma, MockPrismaClient } = vi.hoisted(() => {
 
 vi.mock('../../../servicos-global/tenant/generated/index.js', () => ({
   PrismaClient: MockPrismaClient,
-  TipoAtor: { USER: 'USER', API: 'API', AI: 'AI', JOB: 'JOB', INTEGRATION: 'INTEGRATION' },
-  StatusAlerta: { PENDING: 'PENDING', RESOLVED: 'RESOLVED', DISMISSED: 'DISMISSED' },
+  AcaoExecutadaPor: { USUARIO: 'USUARIO', API: 'API', IA: 'IA', JOB: 'JOB', INTEGRACAO: 'INTEGRACAO' },
+  AlertaStatus: { PENDENTE: 'PENDENTE', REVISADO: 'REVISADO', ESCALADO: 'ESCALADO' },
 }))
 
 const { mockDispatch } = vi.hoisted(() => ({ mockDispatch: vi.fn() }))
@@ -26,7 +26,7 @@ vi.mock('../../../servicos-global/tenant/historico-global/server/services/notifi
 }))
 
 import { AlertEngine } from '../../../servicos-global/tenant/historico-global/server/services/alert-engine.js'
-import { TipoAtor, StatusAlerta } from '../../../servicos-global/tenant/generated/index.js'
+import { AcaoExecutadaPor, AlertaStatus } from '../../../servicos-global/tenant/generated/index.js'
 
 const BASE_LOG = {
   tenant_id: 'tenant-abc',
@@ -121,27 +121,27 @@ describe('AlertEngine.evaluateRule', () => {
     expect(mockPrisma.eventoAlerta.create).not.toHaveBeenCalled()
   })
 
-  it('TST-UNIT-TENANT-AE-007: sem threshold → evento criado com StatusAlerta.PENDING e audit_log_ids=[logId]', async () => {
+  it('TST-UNIT-TENANT-AE-007: sem threshold → evento criado com AlertaStatus.PENDENTE e audit_log_ids=[logId]', async () => {
     await AlertEngine.evaluateRule(BASE_RULE as any, BASE_LOG as any, 'log-xyz')
 
     expect(mockPrisma.eventoAlerta.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          status: StatusAlerta.PENDING,
+          status: AlertaStatus.PENDENTE,
           audit_log_ids: ['log-xyz'],
         }),
       })
     )
   })
 
-  it('TST-UNIT-TENANT-AE-008: sem threshold → actor_type castado para TipoAtor.USER no evento', async () => {
-    const log = { ...BASE_LOG, actor_type: TipoAtor.USER }
+  it('TST-UNIT-TENANT-AE-008: sem threshold → actor_type castado para AcaoExecutadaPor.USUARIO no evento', async () => {
+    const log = { ...BASE_LOG, actor_type: AcaoExecutadaPor.USUARIO }
 
     await AlertEngine.evaluateRule(BASE_RULE as any, log as any, 'log-1')
 
     expect(mockPrisma.eventoAlerta.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ actor_type: TipoAtor.USER }),
+        data: expect.objectContaining({ actor_type: AcaoExecutadaPor.USUARIO }),
       })
     )
   })
@@ -156,7 +156,7 @@ describe('AlertEngine.evaluateRule', () => {
     expect(mockDispatch).not.toHaveBeenCalled()
   })
 
-  it('TST-UNIT-TENANT-AE-010: com threshold, count >= mínimo → evento criado com StatusAlerta.PENDING', async () => {
+  it('TST-UNIT-TENANT-AE-010: com threshold, count >= mínimo → evento criado com AlertaStatus.PENDENTE', async () => {
     const rule = { ...BASE_RULE, threshold_count: 5, threshold_window_seconds: 60 }
     mockPrisma.historicoLog.count.mockResolvedValue(5)
     mockPrisma.historicoLog.findMany.mockResolvedValue([{ id: 'l1' }, { id: 'l2' }])
@@ -166,7 +166,7 @@ describe('AlertEngine.evaluateRule', () => {
     expect(mockPrisma.eventoAlerta.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          status: StatusAlerta.PENDING,
+          status: AlertaStatus.PENDENTE,
           event_count: 5,
         }),
       })

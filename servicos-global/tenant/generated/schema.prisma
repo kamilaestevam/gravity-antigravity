@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-19T20:05:22.398Z
+// Gerado em: 2026-04-24T21:22:01.944Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -9,7 +9,7 @@
 // servicos-global/tenant/prisma/schema.base.prisma
 // ARQUIVO BASE — NÃO MODIFICAR DIRETAMENTE
 // Contém apenas datasource e generator.
-// O Coordenador compõe o schema.prisma final via scripts/compose-tenant-schema.ts
+// O Coordenador compõe o schema.prisma final via scripts/ativamente/compose-tenant-schema.ts
 // adicionando todos os fragment.prisma dos serviços de tenant.
 
 generator client {
@@ -30,7 +30,7 @@ datasource db {
 // Fragment Prisma para o serviço de Atividades — portado do Journey tasks-board.
 // Suporta Kanban (4 colunas), drag-and-drop, timer, participantes e vínculo a processo.
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // AtividadesDados — tarefas e interações cross-produto do usuário logado
@@ -133,7 +133,7 @@ model AtividadesTempo {
 //
 // Fragment Prisma do serviço de Cronômetro.
 // Não editar schema.prisma diretamente — apenas este fragment.
-// O Coordenador compõe o schema final via scripts/compose-tenant-schema.ts
+// O Coordenador compõe o schema final via scripts/ativamente/compose-tenant-schema.ts
 
 // ---------------------------------------------------------------------------
 // AtividadesCronometro
@@ -243,7 +243,7 @@ model TempoCriacaoRelatorio {
 //
 // Fragment Prisma para o serviço de Email (envio Resend, templates, histórico).
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // Enums
@@ -257,9 +257,9 @@ enum EmailStatus {
   CANCELADO
 }
 
-enum EmailDirection {
-  INBOUND
-  OUTBOUND
+enum EmailDirecao {
+  RECEBIDO
+  ENVIADO
 }
 
 enum EmailThreadStatus {
@@ -268,7 +268,7 @@ enum EmailThreadStatus {
   RESOLVIDA
 }
 
-enum EmailSentimentLevel {
+enum EmailSentimento {
   MUITO_POSITIVO
   POSITIVO
   NEUTRO
@@ -276,7 +276,7 @@ enum EmailSentimentLevel {
   MUITO_NEGATIVO
 }
 
-enum FilaEmailPrioridade {
+enum EmailFilaPrioridade {
   BAIXA
   NORMAL
   ALTA
@@ -294,10 +294,10 @@ model EmailAssuntosParticipantes {
   user_id    String?
 
   subject         String
-  status          EmailThreadStatus   @default(ABERTA)
-  sentiment       Float               @default(0) // -1 a 1
-  sentiment_label EmailSentimentLevel @default(NEUTRO)
-  mensagens_count Int                 @default(0)
+  status          EmailThreadStatus @default(ABERTA)
+  sentiment       Float             @default(0) // -1 a 1
+  sentiment_label EmailSentimento   @default(NEUTRO)
+  mensagens_count Int               @default(0)
   ultimo_contato  DateTime?
   deep_link       String? // ex: /email/thread/{id}
 
@@ -325,14 +325,14 @@ model EmailMensagem {
   thread_id String
   thread    EmailAssuntosParticipantes @relation(fields: [thread_id], references: [id])
 
-  resend_id         String?        @unique // ID retornado pelo Resend
-  direction         EmailDirection @default(OUTBOUND)
+  resend_id         String?      @unique // ID retornado pelo Resend
+  direction         EmailDirecao @default(ENVIADO)
   from              String
   to                String
   subject           String?
-  body              String         @db.Text
-  body_html         String?        @db.Text
-  dedup_key         String?        @unique // UUID para Reply-To dinâmico
+  body              String       @db.Text
+  body_html         String?      @db.Text
+  dedup_key         String?      @unique // UUID para Reply-To dinâmico
   parent_message_id String? // UUID do email pai (threading)
 
   // Análise Gabi
@@ -428,7 +428,7 @@ model EmailFilaEnvio {
   user_id    String?
 
   status           EmailStatus         @default(PENDENTE)
-  prioridade       FilaEmailPrioridade @default(NORMAL)
+  prioridade       EmailFilaPrioridade @default(NORMAL)
   payload          String              @db.Text // JSON: { to, subject, body, ... }
   template_id      String?
   email_enviado_id String?
@@ -556,30 +556,30 @@ model WhatsappRegra {
 // --- Fragment: dashboard ---
 // fragment.prisma — Dashboard Service
 // NÃO EDITAR DIRETAMENTE o schema.prisma. Edite este fragment.
-// Coordenador compõe via scripts/compose-tenant-schema.ts
+// Coordenador compõe via scripts/ativamente/compose-tenant-schema.ts
 
-enum DashboardMode {
-  PRODUCT
-  GENERAL
+enum DashboardModo {
+  PRODUTO
+  GERAL
 }
 
-enum WidgetType {
-  CATALOG
-  CUSTOM
+enum DashboardTipo {
+  CATALOGO
+  CUSTOMIZADO
   GABI
 }
 
-enum ChartType {
+enum GraficoTipo {
   KPI_CARD
-  LINE
-  BAR
-  BAR_HORIZONTAL
-  DONUT
-  HISTOGRAM
-  FUNNEL
-  GAUGE
-  MAP
-  TABLE
+  LINHA
+  BARRA
+  BARRA_HORIZONTAL
+  ROSCA
+  HISTOGRAMA
+  FUNIL
+  MEDIDOR
+  MAPA
+  TABELA
   AREA
 }
 
@@ -589,7 +589,7 @@ model DashboardConfiguracao {
   product_id String?
   user_id    String
   name       String                  @default("Meu Dashboard")
-  mode       DashboardMode           @default(PRODUCT)
+  mode       DashboardModo           @default(PRODUTO)
   layout     Json                    @default("[]")
   filters    Json?
   is_default Boolean                 @default(false)
@@ -612,8 +612,8 @@ model DashboardCriar {
   user_id      String
   dashboard_id String
   widget_key   String
-  widget_type  WidgetType            @default(CATALOG)
-  chart_type   ChartType             @default(KPI_CARD)
+  widget_type  DashboardTipo         @default(CATALOGO)
+  chart_type   GraficoTipo           @default(KPI_CARD)
   title        String
   query_spec   Json
   position     Json                  @default("{\"x\":0,\"y\":0,\"w\":2,\"h\":2}")
@@ -764,7 +764,7 @@ model HistoricoLog {
   tenant_id String
 
   // Ator
-  actor_type     ActorType
+  actor_type     AcaoExecutadaPor
   actor_id       String
   actor_name     String
   actor_ip       String?
@@ -784,7 +784,7 @@ model HistoricoLog {
   after  Json?
 
   // Resultado
-  status        EventStatus @default(SUCCESS)
+  status        EventoStatus @default(SUCESSO)
   error_message String?
 
   // Integridade
@@ -814,10 +814,10 @@ model AlertRule {
   enabled     Boolean @default(true)
 
   // Filtro da regra (null = qualquer valor)
-  actor_type    ActorType?
+  actor_type    AcaoExecutadaPor?
   action        String?
   module        String?
-  status_filter EventStatus?
+  status_filter EventoStatus?
 
   // Threshold
   threshold_count          Int?
@@ -848,7 +848,7 @@ model AlertEvent {
   rule_id   String
   rule      AlertRule @relation(fields: [rule_id], references: [id])
 
-  actor_type     ActorType
+  actor_type     AcaoExecutadaPor
   actor_id       String
   actor_name     String
   module         String
@@ -857,7 +857,7 @@ model AlertEvent {
   window_seconds Int
   audit_log_ids  String[]
 
-  status      AlertStatus @default(PENDING)
+  status      AlertaStatus @default(PENDENTE)
   reviewed_by String?
   reviewed_at DateTime?
   notes       String?
@@ -889,24 +889,24 @@ model AlertNotificationLog {
   @@map("alerta_registro")
 }
 
-enum ActorType {
-  USER
+enum AcaoExecutadaPor {
+  USUARIO
   API
-  AI
+  IA
   JOB
-  INTEGRATION
+  INTEGRACAO
 }
 
-enum EventStatus {
-  SUCCESS
-  FAILURE
-  PARTIAL
+enum EventoStatus {
+  SUCESSO
+  FALHA
+  PARCIAL
 }
 
-enum AlertStatus {
-  PENDING
-  REVIEWED
-  ESCALATED
+enum AlertaStatus {
+  PENDENTE
+  REVISADO
+  ESCALADO
 }
 
 /// Resultado de exportação em background (acima de 10k registros).
@@ -1006,7 +1006,7 @@ model DisponibilidadeConfig {
 //
 // Fragment Prisma para o serviço da Gabi AI (agente autônomo).
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // ConversaCompletaGabi — conversa principal da Gabi com o usuário no tenant
@@ -1158,7 +1158,7 @@ model PersonalizacaoOrganizacaoGabiai {
 // Fragment Prisma para persistência cross-device de preferências de UI.
 // IDs de usuário vêm do Clerk (user.id).
 // Não editar o schema.prisma final — apenas este fragment.
-// O Coordenador compõe o schema via scripts/compose-tenant-schema.ts.
+// O Coordenador compõe o schema via scripts/ativamente/compose-tenant-schema.ts.
 
 // ---------------------------------------------------------------------------
 // UserPreferences — preferências de UI persitidas por usuário (cross-device)
@@ -1233,7 +1233,7 @@ model NcmSyncLog {
   iniciado_em  DateTime  @default(now())
   concluido_em DateTime?
 
-  status NcmSyncStatus @default(RUNNING)
+  status NCMStatusSincronizacao @default(EXECUTANDO)
 
   // Totais do diff
   total       Int @default(0)
@@ -1242,7 +1242,7 @@ model NcmSyncLog {
   removidos   Int @default(0)
 
   // Origem do trigger
-  origem        NcmSyncOrigem @default(JOB) // 'JOB' | 'MANUAL'
+  origem        NCMOrigemSincronizacao @default(JOB) // 'JOB' | 'MANUAL'
   disparado_por String? // user_id se MANUAL
 
   erro_msg String?
@@ -1258,13 +1258,13 @@ model NcmSyncLog {
   @@map("ncm_log")
 }
 
-enum NcmSyncStatus {
-  RUNNING
-  SUCCESS
-  ERROR
+enum NCMStatusSincronizacao {
+  EXECUTANDO
+  SUCESSO
+  ERRO
 }
 
-enum NcmSyncOrigem {
+enum NCMOrigemSincronizacao {
   JOB
   MANUAL
 }

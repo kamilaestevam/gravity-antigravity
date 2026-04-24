@@ -1,4 +1,4 @@
-import { PrismaClient, TipoAtor, StatusAlerta } from '../../../generated/index.js'
+import { PrismaClient, AcaoExecutadaPor, AlertaStatus } from '../../../generated/index.js'
 import { AuditLogInput } from './audit.service.js'
 import { NotificationDispatcher } from './notification-dispatcher.js'
 
@@ -71,7 +71,7 @@ export const AlertEngine = {
         data: {
           tenant_id: log.tenant_id,
           rule_id: rule.id,
-          actor_type: log.actor_type as TipoAtor,
+          actor_type: log.actor_type as AcaoExecutadaPor,
           actor_id: log.actor_id,
           actor_name: log.actor_name,
           module: log.module,
@@ -79,7 +79,7 @@ export const AlertEngine = {
           event_count: recentCount,
           window_seconds: rule.threshold_window_seconds,
           audit_log_ids: recentLogs.map((l) => l.id),
-          status: StatusAlerta.PENDING,
+          status: AlertaStatus.PENDENTE,
         },
       })
 
@@ -90,7 +90,7 @@ export const AlertEngine = {
         data: {
           tenant_id: log.tenant_id,
           rule_id: rule.id,
-          actor_type: log.actor_type as TipoAtor,
+          actor_type: log.actor_type as AcaoExecutadaPor,
           actor_id: log.actor_id,
           actor_name: log.actor_name,
           module: log.module,
@@ -98,7 +98,7 @@ export const AlertEngine = {
           event_count: 1,
           window_seconds: 0,
           audit_log_ids: [logId],
-          status: StatusAlerta.PENDING,
+          status: AlertaStatus.PENDENTE,
         },
       })
 

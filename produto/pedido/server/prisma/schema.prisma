@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-24T21:37:32.908Z
+// Gerado em: 2026-04-24T21:43:10.748Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -520,17 +520,17 @@ model AnexoPedido {
 }
 
 model TemplatePedidoPdf {
-  id            String   @id @default(cuid())
-  tenant_id     String
-  product_id    String?
-  nome          String
-  descricao     String?
-  conteudo_html String
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  id_template_pedido_pdf            String   @id @default(cuid())
+  id_organizacao                    String
+  id_produto                        String?
+  nome_template_pedido_pdf          String
+  descricao_template_pedido_pdf     String?
+  conteudo_html_template_pedido_pdf String
+  data_criacao_template_pedido_pdf  DateTime @default(now())
+  data_atualizacao_template_pedido_pdf DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto])
   @@map("template_pedido_pdf")
 }
 

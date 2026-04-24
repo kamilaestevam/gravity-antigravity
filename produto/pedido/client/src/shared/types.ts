@@ -837,13 +837,13 @@ export interface AnexoUploadResultado {
 // ── PDF ───────────────────────────────────────────────────────────────────────
 
 export interface TemplatePdf {
-  id: string
-  tenant_id: string
-  nome: string
-  descricao?: string
-  conteudo_html: string         // HTML com variáveis Handlebars
-  created_at: string
-  updated_at: string
+  id_template_pedido_pdf: string
+  id_organizacao: string
+  nome_template_pedido_pdf: string
+  descricao_template_pedido_pdf?: string
+  conteudo_html_template_pedido_pdf: string   // HTML com variáveis Handlebars
+  data_criacao_template_pedido_pdf: string
+  data_atualizacao_template_pedido_pdf: string
 }
 
 export interface GerarPdfPayload {

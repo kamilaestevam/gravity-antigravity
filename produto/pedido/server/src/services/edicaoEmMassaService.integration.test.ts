@@ -25,7 +25,7 @@ const ITEM_ID    = 'pite_test_edicao_massa_01'
 
 beforeAll(async () => {
   // Limpar qualquer resíduo de run anterior
-  await prisma.pedidoItem.deleteMany({ where: { tenant_id: TENANT } })
+  await prisma.pedidoItem.deleteMany({ where: { id_organizacao: TENANT } } as any)
   await prisma.pedido.deleteMany({ where: { tenant_id: TENANT } })
 
   await prisma.pedido.create({
@@ -44,31 +44,31 @@ beforeAll(async () => {
 
   await prisma.pedidoItem.create({
     data: {
-      id:                            ITEM_ID,
-      tenant_id:                     TENANT,
-      company_id:                    COMPANY,
-      pedido_id:                     PEDIDO_ID,
-      sequencia_item:                1,
-      part_number:                   'TEST-PART-001',
-      ncm:                           '0000.00.00',
-      descricao_item:                'Item de Teste',
-      quantidade_inicial_pedido:     100,
-      quantidade_atual_pedido:       100,
-      quantidade_pronta_pedido:      10,
-      quantidade_transferida_pedido: 20,
-      quantidade_cancelada_pedido:   5,
-      casas_decimais_quantidade_item: 2,
-      moeda_item:                    'USD',
-      valor_por_unidade_item:        9.99,
-      valor_total_item:              999,
-      casas_decimais_valor_item:     2,
-      cobertura_cambial:             'com_cobertura',
-    },
+      id_pedido_item:                            ITEM_ID,
+      id_organizacao:                            TENANT,
+      id_workspace:                              COMPANY,
+      id_pedido:                                 PEDIDO_ID,
+      sequencia_item_pedido_item:                1,
+      part_number_pedido_item:                   'TEST-PART-001',
+      ncm_pedido_item:                           '0000.00.00',
+      descricao_item_pedido_item:                'Item de Teste',
+      quantidade_inicial_pedido_pedido_item:     100,
+      quantidade_atual_pedido_pedido_item:       100,
+      quantidade_pronta_pedido_pedido_item:      10,
+      quantidade_transferida_pedido_pedido_item: 20,
+      quantidade_cancelada_pedido_pedido_item:   5,
+      casas_decimais_quantidade_item_pedido_item: 2,
+      moeda_item_pedido_item:                    'USD',
+      valor_por_unidade_item_pedido_item:        9.99,
+      valor_total_item_pedido_item:              999,
+      casas_decimais_valor_item_pedido_item:     2,
+      cobertura_cambial_pedido_item:             'com_cobertura',
+    } as any,
   })
 })
 
 afterAll(async () => {
-  await prisma.pedidoItem.deleteMany({ where: { tenant_id: TENANT } })
+  await prisma.pedidoItem.deleteMany({ where: { id_organizacao: TENANT } } as any)
   await prisma.pedido.deleteMany({ where: { tenant_id: TENANT } })
   await prisma.$disconnect()
 })
@@ -76,7 +76,7 @@ afterAll(async () => {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 async function lerItem() {
-  return prisma.pedidoItem.findFirst({ where: { id: ITEM_ID } })
+  return prisma.pedidoItem.findFirst({ where: { id_pedido_item: ITEM_ID } } as any) as any
 }
 
 async function lerPedido() {
@@ -143,7 +143,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_inicial_pedido)).toBe(777)
+      expect(Number(item?.quantidade_inicial_pedido_pedido_item)).toBe(777)
     })
 
     it('persiste quantidade_transferida via alias "quantidade_transferida_item"', async () => {
@@ -160,7 +160,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_transferida_pedido)).toBe(50)
+      expect(Number(item?.quantidade_transferida_pedido_pedido_item)).toBe(50)
     })
 
     it('persiste quantidade_pronta via alias "quantidade_pronta_total"', async () => {
@@ -177,7 +177,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_pronta_pedido)).toBe(30)
+      expect(Number(item?.quantidade_pronta_pedido_pedido_item)).toBe(30)
     })
 
     it('persiste quantidade_cancelada via alias "quantidade_cancelada_pedido"', async () => {
@@ -194,15 +194,15 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_cancelada_pedido)).toBe(2)
+      expect(Number(item?.quantidade_cancelada_pedido_pedido_item)).toBe(2)
     })
 
     it('operação "somar" usa o valor atual do banco (não alias undefined)', async () => {
       // Resetar para valor conhecido
       await prisma.pedidoItem.update({
-        where: { id: ITEM_ID, tenant_id: TENANT },
-        data: { quantidade_inicial_pedido: 100 },
-      })
+        where: { id_pedido_item: ITEM_ID, id_organizacao: TENANT },
+        data: { quantidade_inicial_pedido_pedido_item: 100 },
+      } as any)
 
       await service.confirmar(TENANT, 'user-test', prisma, {
         pedido_ids: [PEDIDO_ID],
@@ -217,7 +217,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
       })
 
       const item = await lerItem()
-      expect(Number(item?.quantidade_inicial_pedido)).toBe(150) // 100 + 50
+      expect(Number(item?.quantidade_inicial_pedido_pedido_item)).toBe(150) // 100 + 50
     })
 
     it('retorna contadores reais: pedidos_atualizados=1, itens_atualizados=1, erros=[]', async () => {
@@ -240,9 +240,9 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
 
     it('recalcularAgregados atualiza quantidade_total_pedido no Pedido sem erro', async () => {
       await prisma.pedidoItem.update({
-        where: { id: ITEM_ID, tenant_id: TENANT },
-        data: { quantidade_inicial_pedido: 500, valor_por_unidade_item: 10 },
-      })
+        where: { id_pedido_item: ITEM_ID, id_organizacao: TENANT },
+        data: { quantidade_inicial_pedido_pedido_item: 500, valor_por_unidade_item_pedido_item: 10 },
+      } as any)
 
       const resultado = await service.confirmar(TENANT, 'user-test', prisma, {
         pedido_ids: [PEDIDO_ID],
@@ -265,7 +265,7 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
     it('UPDATE de item inclui tenant_id no where (tenant isolation)', async () => {
       // Salvar valor antes
       const itemAntes = await lerItem()
-      const valorAntes = Number(itemAntes?.quantidade_inicial_pedido)
+      const valorAntes = Number(itemAntes?.quantidade_inicial_pedido_pedido_item)
 
       // Tentar editar com tenant diferente — service rejeita porque não encontra o pedido
       await expect(
@@ -284,8 +284,8 @@ describe('EdicaoEmMassaService — integração com banco real', () => {
 
       // Valor do banco permanece intacto
       const itemDepois = await lerItem()
-      expect(Number(itemDepois?.quantidade_inicial_pedido)).toBe(valorAntes)
-      expect(Number(itemDepois?.quantidade_inicial_pedido)).not.toBe(9999)
+      expect(Number(itemDepois?.quantidade_inicial_pedido_pedido_item)).toBe(valorAntes)
+      expect(Number(itemDepois?.quantidade_inicial_pedido_pedido_item)).not.toBe(9999)
     })
 
     it('rejeita campo bloqueado com erro (quantidade_atual_pedido)', async () => {

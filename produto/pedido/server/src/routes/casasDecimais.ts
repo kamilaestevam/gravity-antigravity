@@ -78,16 +78,16 @@ const MAP_CONFIG_PEDIDO: Record<keyof CasasDecimaisConfig, string | null> = {
 }
 
 const MAP_CONFIG_ITEM: Record<keyof CasasDecimaisConfig, string | null> = {
-  valor_total_pedido:              'casas_decimais_valor_item',
+  valor_total_pedido:              'casas_decimais_valor_item_pedido_item',
   valor_por_unidade_item:             null, // display usa getCasas() direto — sem metadata separado
-  quantidade_total_pedido: 'casas_decimais_quantidade_item',
+  quantidade_total_pedido: 'casas_decimais_quantidade_item_pedido_item',
   quantidade_pronta_pedido_total:  null,
   saldo_itens_do_pedido:           null,
   quantidade_transferida_total:    null,
   quantidade_cancelada_total_pedido: null,
-  peso_liquido_total_pedido:       'casas_decimais_peso_item',
-  peso_bruto_total_pedido:         'casas_decimais_peso_item',
-  cubagem_total_pedido:            'casas_decimais_cubagem_item',
+  peso_liquido_total_pedido:       'casas_decimais_peso_item_pedido_item',
+  peso_bruto_total_pedido:         'casas_decimais_peso_item_pedido_item',
+  cubagem_total_pedido:            'casas_decimais_cubagem_item_pedido_item',
   formato_data:                    null,
 }
 
@@ -105,15 +105,15 @@ const ARREDONDAR_PEDIDO: Array<{ config: keyof CasasDecimaisConfig; coluna: stri
 ]
 
 const ARREDONDAR_ITEM: Array<{ config: keyof CasasDecimaisConfig; coluna: string }> = [
-  { config: 'valor_total_pedido',                coluna: 'valor_total_item' },
-  { config: 'valor_por_unidade_item',               coluna: 'valor_por_unidade_item' },
-  { config: 'quantidade_total_pedido',   coluna: 'quantidade_inicial_pedido' },
-  { config: 'quantidade_pronta_pedido_total',    coluna: 'quantidade_pronta_pedido' },
-  { config: 'quantidade_transferida_total',      coluna: 'quantidade_transferida_pedido' },
-  { config: 'quantidade_cancelada_total_pedido', coluna: 'quantidade_cancelada_pedido' },
-  { config: 'peso_liquido_total_pedido',         coluna: 'peso_liquido_unitario' },
-  { config: 'peso_bruto_total_pedido',           coluna: 'peso_bruto_unitario' },
-  { config: 'cubagem_total_pedido',              coluna: 'cubagem_unitaria' },
+  { config: 'valor_total_pedido',                coluna: 'valor_total_item_pedido_item' },
+  { config: 'valor_por_unidade_item',               coluna: 'valor_por_unidade_item_pedido_item' },
+  { config: 'quantidade_total_pedido',   coluna: 'quantidade_inicial_pedido_pedido_item' },
+  { config: 'quantidade_pronta_pedido_total',    coluna: 'quantidade_pronta_pedido_pedido_item' },
+  { config: 'quantidade_transferida_total',      coluna: 'quantidade_transferida_pedido_pedido_item' },
+  { config: 'quantidade_cancelada_total_pedido', coluna: 'quantidade_cancelada_pedido_pedido_item' },
+  { config: 'peso_liquido_total_pedido',         coluna: 'peso_liquido_unitario_pedido_item' },
+  { config: 'peso_bruto_total_pedido',           coluna: 'peso_bruto_unitario_pedido_item' },
+  { config: 'cubagem_total_pedido',              coluna: 'cubagem_unitaria_pedido_item' },
 ]
 
 // ── Job de migração em background ─────────────────────────────────────────────
@@ -133,7 +133,7 @@ async function executarMigracaoCasasDecimais(db: TenantDatabase, tenant_id: stri
 
   await Promise.all([
     db.pedido.updateMany({ where: { tenant_id, deleted_at: null }, data: updatePedidoMeta }),
-    db.pedidoItem.updateMany({ where: { tenant_id }, data: updateItemMeta }),
+    db.pedidoItem.updateMany({ where: { id_organizacao: tenant_id }, data: updateItemMeta }),
   ])
 
   // 2. Arredondar valores reais no banco (ROUND SQL) — seguro: nomes de colunas são hardcoded
@@ -153,7 +153,7 @@ async function executarMigracaoCasasDecimais(db: TenantDatabase, tenant_id: stri
     const casas = config[cfgKey]
     roundOps.push(
       db.$executeRawUnsafe(
-        `UPDATE pedido_item SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE tenant_id = $1 AND "${coluna}" IS NOT NULL`,
+        `UPDATE pedido_itens SET "${coluna}" = ROUND("${coluna}"::numeric, ${casas}) WHERE id_organizacao = $1 AND "${coluna}" IS NOT NULL`,
         tenant_id,
       ),
     )
@@ -206,7 +206,7 @@ casasDecimaisRouter.put('/casas-decimais', async (req: Request, res: Response, n
 
       const [totalPedidos, totalItens] = await Promise.all([
         db.pedido.count({ where: { tenant_id, deleted_at: null } }),
-        db.pedidoItem.count({ where: { tenant_id } }),
+        db.pedidoItem.count({ where: { id_organizacao: tenant_id } }),
       ])
 
       res.json({

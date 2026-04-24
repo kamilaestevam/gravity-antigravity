@@ -34,6 +34,25 @@ import {
 
 export const pdfRouter = Router()
 
+// ── ACL: PedidoItem DDD → shape legado consumido por pdfService ──────────────
+// pdfService consome chaves antigas (part_number, descricao_item, ncm, etc.).
+// Traduzimos uma única vez aqui para isolar a refatoração de colunas no banco.
+function mapearPedidoParaPdfService(pedido: Record<string, unknown>): Record<string, unknown> {
+  const itens = (pedido.itens ?? []) as Array<Record<string, unknown>>
+  const itensLegado = itens.map((it) => ({
+    part_number:                 it.part_number_pedido_item,
+    descricao_item:              it.descricao_item_pedido_item,
+    ncm:                         it.ncm_pedido_item,
+    quantidade_atual_pedido:     Number(it.quantidade_atual_pedido_pedido_item ?? 0),
+    quantidade_inicial_pedido:   Number(it.quantidade_inicial_pedido_pedido_item ?? 0),
+    unidade_comercializada_item: it.unidade_comercializada_item_pedido_item,
+    moeda_item:                  it.moeda_item_pedido_item,
+    valor_por_unidade_item:      it.valor_por_unidade_item_pedido_item != null ? Number(it.valor_por_unidade_item_pedido_item) : null,
+    valor_total_item:            it.valor_total_item_pedido_item != null ? Number(it.valor_total_item_pedido_item) : null,
+  }))
+  return { ...pedido, itens: itensLegado }
+}
+
 class AppError extends Error {
   constructor(
     message: string,
@@ -102,7 +121,7 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
         where: { id: pedido_id, tenant_id: tenantId },
-        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
       })
 
       if (!pedido) {
@@ -123,30 +142,9 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
         conteudo_html_template_pedido_pdf: string
       }
 
-      // 3. Compilar variáveis
-      const pedidoTyped = pedido as {
-        numero_pedido: string
-        tipo_operacao: string
-        nome_exportador?: string | null
-        nome_fabricante?: string | null
-        incoterm?: string | null
-        moeda_pedido: string
-        data_emissao_pedido: string
-        valor_total_pedido?: number | null
-        quantidade_total_pedido?: number | null
-        itens: Array<{
-          part_number: string
-          descricao_item: string
-          ncm: string
-          quantidade_atual_pedido: number
-          quantidade_inicial_pedido: number
-          unidade_comercializada_item?: string | null
-          moeda_item: string
-          valor_por_unidade_item?: number | null
-          valor_total_item?: number | null
-        }>
-        [key: string]: unknown
-      }
+      // 3. Compilar variáveis — ACL: traduz itens DDD → shape legado consumido por pdfService
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pedidoTyped = mapearPedidoParaPdfService(pedido as any)
 
       // Tenant nome — usar variável de ambiente ou padrão
       const tenantNome = process.env.TENANT_NOME ?? tenantId
@@ -220,35 +218,16 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
         where: { id: pedido_id, tenant_id: tenantId },
-        include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
       })
 
       if (!pedido) {
         throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
       }
 
-      const pedidoTyped = pedido as {
-        numero_pedido: string
-        tipo_operacao: string
-        nome_exportador?: string | null
-        nome_fabricante?: string | null
-        incoterm?: string | null
-        moeda_pedido: string
-        data_emissao_pedido: string
-        valor_total_pedido?: number | null
-        quantidade_total_pedido?: number | null
-        itens: Array<{
-          part_number: string
-          descricao_item: string
-          ncm: string
-          quantidade_atual_pedido: number
-          quantidade_inicial_pedido: number
-          unidade_comercializada_item?: string | null
-          moeda_item: string
-          valor_por_unidade_item?: number | null
-          valor_total_item?: number | null
-        }>
-      }
+      // ACL: traduz itens DDD → shape legado consumido por pdfService
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pedidoTyped = mapearPedidoParaPdfService(pedido as any)
 
       // 2. Selecionar template Handlebars baseado no tipo_documento
       const templateMap: Record<string, string> = {

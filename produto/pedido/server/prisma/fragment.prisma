@@ -140,49 +140,49 @@ model Pedido {
 }
 
 model PedidoItem {
-  id                             String         @id
-  tenant_id                      String
-  company_id                     String
-  pedido_id                      String
-  sequencia_item                 Int?
-  part_number                    String
-  ncm                            String
-  descricao_item                 String
-  unidade_comercializada_item    String?
-  quantidade_inicial_pedido      Decimal        @db.Decimal(18, 6)
-  quantidade_atual_pedido        Decimal        @db.Decimal(18, 6)
-  quantidade_pronta_pedido       Decimal        @default(0) @db.Decimal(18, 6)
-  quantidade_transferida_pedido  Decimal        @default(0) @db.Decimal(18, 6)
-  quantidade_cancelada_pedido    Decimal        @default(0) @db.Decimal(18, 6)
-  casas_decimais_quantidade_item Int            @default(2)
-  moeda_item                     String         @default("USD")
-  valor_total_item               Decimal?       @db.Decimal(18, 6)
-  valor_por_unidade_item         Decimal?       @db.Decimal(18, 6)
-  casas_decimais_valor_item      Int            @default(2)
-  cobertura_cambial              String         @default("com_cobertura")
-  nome_exportador                String?
-  nome_importador                String?
-  nome_fabricante                String?
-  referencia_importador          String?
-  referencia_exportador          String?
-  referencia_fabricante          String?
-  incoterm                       String?
-  condicao_pagamento_pedido      String?
-  data_emissao_pedido            DateTime?
-  peso_liquido_unitario          Decimal?       @db.Decimal(18, 6)
-  peso_bruto_unitario            Decimal?       @db.Decimal(18, 6)
-  cubagem_unitaria               Decimal?       @db.Decimal(18, 6)
-  casas_decimais_peso_item       Int            @default(3)
-  casas_decimais_cubagem_item    Int            @default(3)
-  campos_custom                  Json?
-  created_at                     DateTime       @default(now())
-  updated_at                     DateTime       @updatedAt
-  pedido                         Pedido         @relation(fields: [pedido_id], references: [id], onDelete: Cascade)
-  embarques_efetivos             ProcessoItem[]
+  id_pedido_item                            String         @id
+  id_organizacao                            String
+  id_workspace                              String
+  id_pedido                                 String
+  sequencia_item_pedido_item                Int?
+  part_number_pedido_item                   String
+  ncm_pedido_item                           String
+  descricao_item_pedido_item                String
+  unidade_comercializada_item_pedido_item   String?
+  quantidade_inicial_pedido_pedido_item     Decimal        @db.Decimal(18, 6)
+  quantidade_atual_pedido_pedido_item       Decimal        @db.Decimal(18, 6)
+  quantidade_pronta_pedido_pedido_item      Decimal        @default(0) @db.Decimal(18, 6)
+  quantidade_transferida_pedido_pedido_item Decimal        @default(0) @db.Decimal(18, 6)
+  quantidade_cancelada_pedido_pedido_item   Decimal        @default(0) @db.Decimal(18, 6)
+  casas_decimais_quantidade_item_pedido_item Int           @default(2)
+  moeda_item_pedido_item                    String         @default("USD")
+  valor_total_item_pedido_item              Decimal?       @db.Decimal(18, 6)
+  valor_por_unidade_item_pedido_item        Decimal?       @db.Decimal(18, 6)
+  casas_decimais_valor_item_pedido_item     Int            @default(2)
+  cobertura_cambial_pedido_item             String         @default("com_cobertura")
+  nome_exportador_pedido_item               String?
+  nome_importador_pedido_item               String?
+  nome_fabricante_pedido_item               String?
+  referencia_importador_pedido_item         String?
+  referencia_exportador_pedido_item         String?
+  referencia_fabricante_pedido_item         String?
+  incoterm_pedido_item                      String?
+  condicao_pagamento_pedido_pedido_item     String?
+  data_emissao_pedido_pedido_item           DateTime?
+  peso_liquido_unitario_pedido_item         Decimal?       @db.Decimal(18, 6)
+  peso_bruto_unitario_pedido_item           Decimal?       @db.Decimal(18, 6)
+  cubagem_unitaria_pedido_item              Decimal?       @db.Decimal(18, 6)
+  casas_decimais_peso_item_pedido_item      Int            @default(3)
+  casas_decimais_cubagem_item_pedido_item   Int            @default(3)
+  campos_custom_pedido_item                 Json?
+  data_criacao_pedido_item                  DateTime       @default(now())
+  data_atualizacao_pedido_item              DateTime       @updatedAt
+  pedido_pedido_item                        Pedido         @relation(fields: [id_pedido], references: [id], onDelete: Cascade)
+  embarques_efetivos_pedido_item            ProcessoItem[]
 
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
-  @@index([pedido_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_workspace])
+  @@index([id_pedido])
   @@map("pedido_itens")
 }
 
@@ -346,7 +346,7 @@ model ProcessoItem {
   peso_liquido_unitario       Decimal?    @db.Decimal(18, 6)
   peso_bruto_unitario         Decimal?    @db.Decimal(18, 6)
   detalhes_do_produto         Json?
-  pedido_item                 PedidoItem? @relation(fields: [pedido_item_id], references: [id])
+  pedido_item                 PedidoItem? @relation(fields: [pedido_item_id], references: [id_pedido_item])
   processo                    Processo    @relation(fields: [processo_id], references: [id], onDelete: Cascade)
 
   @@index([tenant_id, company_id])

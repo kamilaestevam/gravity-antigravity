@@ -29,7 +29,10 @@ const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'updated_at',
 ])
 
+// PedidoItem — bloqueia tanto chaves legadas (vindas da API pública) quanto DDD,
+// já que a tabela física foi renomeada (Onda 3 — Tabela 6).
 const CAMPOS_BLOQUEADOS_ITEM = new Set([
+  // legacy (contrato público)
   'valor_total_item',
   'quantidade_atual_pedido',
   'id',
@@ -37,6 +40,14 @@ const CAMPOS_BLOQUEADOS_ITEM = new Set([
   'pedido_id',
   'created_at',
   'updated_at',
+  // DDD (banco)
+  'valor_total_item_pedido_item',
+  'quantidade_atual_pedido_pedido_item',
+  'id_pedido_item',
+  'id_organizacao',
+  'id_pedido',
+  'data_criacao_pedido_item',
+  'data_atualizacao_pedido_item',
 ])
 
 // ── Campos armazenados em detalhes_operacionais — requerem merge em JSON ────────
@@ -48,6 +59,7 @@ const CAMPOS_DETALHES_OPERACIONAIS = new Set([
 ])
 
 // ── Campos de quantidade — disparam recálculo de agregados ────────────────────
+// Aceita chaves legadas (contrato API) e DDD (banco renomeado Onda 3).
 
 const CAMPOS_QUANTIDADE_ITEM = new Set([
   'quantidade_inicial_pedido',
@@ -55,7 +67,58 @@ const CAMPOS_QUANTIDADE_ITEM = new Set([
   'quantidade_pronta_pedido',
   'quantidade_cancelada_pedido',
   'quantidade_atual_pedido',
+  'quantidade_inicial_pedido_pedido_item',
+  'quantidade_transferida_pedido_pedido_item',
+  'quantidade_pronta_pedido_pedido_item',
+  'quantidade_cancelada_pedido_pedido_item',
+  'quantidade_atual_pedido_pedido_item',
 ])
+
+// ── ACL — chave legada (contrato público) → coluna DDD (banco) para PedidoItem ─
+
+const LEGACY_TO_DDD_PEDIDO_ITEM: Record<string, string> = {
+  id: 'id_pedido_item',
+  tenant_id: 'id_organizacao',
+  company_id: 'id_workspace',
+  pedido_id: 'id_pedido',
+  sequencia_item: 'sequencia_item_pedido_item',
+  part_number: 'part_number_pedido_item',
+  ncm: 'ncm_pedido_item',
+  descricao_item: 'descricao_item_pedido_item',
+  unidade_comercializada_item: 'unidade_comercializada_item_pedido_item',
+  quantidade_inicial_pedido: 'quantidade_inicial_pedido_pedido_item',
+  quantidade_atual_pedido: 'quantidade_atual_pedido_pedido_item',
+  quantidade_pronta_pedido: 'quantidade_pronta_pedido_pedido_item',
+  quantidade_transferida_pedido: 'quantidade_transferida_pedido_pedido_item',
+  quantidade_cancelada_pedido: 'quantidade_cancelada_pedido_pedido_item',
+  casas_decimais_quantidade_item: 'casas_decimais_quantidade_item_pedido_item',
+  moeda_item: 'moeda_item_pedido_item',
+  valor_total_item: 'valor_total_item_pedido_item',
+  valor_por_unidade_item: 'valor_por_unidade_item_pedido_item',
+  casas_decimais_valor_item: 'casas_decimais_valor_item_pedido_item',
+  cobertura_cambial: 'cobertura_cambial_pedido_item',
+  nome_exportador: 'nome_exportador_pedido_item',
+  nome_importador: 'nome_importador_pedido_item',
+  nome_fabricante: 'nome_fabricante_pedido_item',
+  referencia_importador: 'referencia_importador_pedido_item',
+  referencia_exportador: 'referencia_exportador_pedido_item',
+  referencia_fabricante: 'referencia_fabricante_pedido_item',
+  incoterm: 'incoterm_pedido_item',
+  condicao_pagamento_pedido: 'condicao_pagamento_pedido_pedido_item',
+  data_emissao_pedido: 'data_emissao_pedido_pedido_item',
+  peso_liquido_unitario: 'peso_liquido_unitario_pedido_item',
+  peso_bruto_unitario: 'peso_bruto_unitario_pedido_item',
+  cubagem_unitaria: 'cubagem_unitaria_pedido_item',
+  casas_decimais_peso_item: 'casas_decimais_peso_item_pedido_item',
+  casas_decimais_cubagem_item: 'casas_decimais_cubagem_item_pedido_item',
+  campos_custom: 'campos_custom_pedido_item',
+  created_at: 'data_criacao_pedido_item',
+  updated_at: 'data_atualizacao_pedido_item',
+}
+
+function legacyKeyToDddPedidoItem(campo: string): string {
+  return LEGACY_TO_DDD_PEDIDO_ITEM[campo] ?? campo
+}
 
 
 // ── Tipos internos ────────────────────────────────────────────────────────────
@@ -143,7 +206,7 @@ export class EdicaoEmMassaService {
 
     const pedidos = await db.pedido.findMany({
       where: { tenant_id: tenantId, id: { in: payload.pedido_ids } },
-      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+      include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
     })
 
     const itensAfetados = pedidos.reduce(
@@ -162,10 +225,11 @@ export class EdicaoEmMassaService {
           valores.push(String(valor))
         })
       } else {
+        const colDdd = legacyKeyToDddPedidoItem(c.campo)
         pedidos.forEach((p: Record<string, unknown>) => {
           const itens = (p.itens as Record<string, unknown>[]) ?? []
           itens.forEach(item => {
-            valores.push(String(item[c.campo] ?? ''))
+            valores.push(String(item[colDdd] ?? item[c.campo] ?? ''))
           })
         })
       }
@@ -207,7 +271,7 @@ export class EdicaoEmMassaService {
 
     const pedidos = await db.pedido.findMany({
       where: { tenant_id: tenantId, id: { in: payload.pedido_ids } },
-      include: { itens: { orderBy: { sequencia_item: 'asc' } } },
+      include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
     })
 
     if (pedidos.length === 0) {
@@ -289,16 +353,18 @@ export class EdicaoEmMassaService {
             })
           }
 
-          // Aplicar campos de nível item
+          // Aplicar campos de nível item — traduzir chaves legadas para colunas DDD
           if (camposItem.length > 0) {
             const itens = (pedido.itens as Record<string, unknown>[]) ?? []
             for (const item of itens) {
               const dadosItem: Record<string, unknown> = {}
               for (const c of camposItem) {
-                dadosItem[c.campo] = this.aplicarOperacao(item[c.campo], c.operacao, c.valor)
+                const colDdd = legacyKeyToDddPedidoItem(c.campo)
+                const valorAtual = item[colDdd] ?? item[c.campo]
+                dadosItem[colDdd] = this.aplicarOperacao(valorAtual, c.operacao, c.valor)
               }
               const resultado = await (tx as Record<string, Record<string, unknown>>).pedidoItem.update({
-                where: { id: item.id as string, tenant_id: tenantId },
+                where: { id_pedido_item: item.id_pedido_item as string, id_organizacao: tenantId },
                 data: dadosItem,
               })
               if (resultado) itensAtualizados++
@@ -392,22 +458,22 @@ export class EdicaoEmMassaService {
     tx: Prisma.TransactionClient,
   ): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
-      where: { tenant_id: tenantId, pedido_id: pedidoId },
+      where: { id_organizacao: tenantId, id_pedido: pedidoId },
       select: {
-        quantidade_inicial_pedido: true,
-        quantidade_transferida_pedido: true,
-        valor_por_unidade_item: true,
-        quantidade_atual_pedido: true,
+        quantidade_inicial_pedido_pedido_item: true,
+        quantidade_transferida_pedido_pedido_item: true,
+        valor_por_unidade_item_pedido_item: true,
+        quantidade_atual_pedido_pedido_item: true,
       },
     })
 
     const quantidadeInicialTotal = itens.reduce(
-      (acc: number, i: { quantidade_inicial_pedido: number }) => acc + Number(i.quantidade_inicial_pedido ?? 0),
+      (acc: number, i: { quantidade_inicial_pedido_pedido_item: number }) => acc + Number(i.quantidade_inicial_pedido_pedido_item ?? 0),
       0,
     )
     const valorTotal = itens.reduce(
-      (acc: number, i: { valor_por_unidade_item: number | null; quantidade_atual_pedido: number }) =>
-        acc + ((i.valor_por_unidade_item ?? 0) * Number(i.quantidade_atual_pedido ?? 0)),
+      (acc: number, i: { valor_por_unidade_item_pedido_item: number | null; quantidade_atual_pedido_pedido_item: number }) =>
+        acc + (Number(i.valor_por_unidade_item_pedido_item ?? 0) * Number(i.quantidade_atual_pedido_pedido_item ?? 0)),
       0,
     )
 

@@ -262,50 +262,50 @@ export function gerarPedido(opts: {
     const saldo = Number(Math.max(0, quantidade - cancelada - transferida).toFixed(2))
 
     return {
-      id: `item_${id}_${String(i + 1).padStart(3, '0')}`,
-      tenant_id: tenantId,
-      company_id: tenantId,
-      pedido_id: id,
-      sequencia_item: i + 1,
-      part_number: `PN-${randInt(10000, 99999)}-${randInt(100, 999)}`,
-      ncm: pick(NCMS),
-      descricao_item: pick(DESCRICOES_ITEM),
-      unidade_comercializada_item: unidade,
-      quantidade_inicial_item_pedido: quantidade,
-      saldo_item_pedido: saldo,
-      quantidade_pronta_total_item_pedido: pronta,
-      quantidade_transferida_item_pedido: transferida,
-      quantidade_cancelada_item_pedido: cancelada,
-      casas_decimais_quantidade_item: 2,
-      moeda_item: moeda,
-      valor_total_itens: valorTotal,
-      valor_unitario_item: valorUnit,
-      casas_decimais_valor_item: 2,
-      cobertura_cambial: pick(COBERTURA_CAMBIAL),
-      peso_liquido_unitario_item: randFloat(0.1, 50, 3),
-      peso_bruto_unitario_item: randFloat(0.1, 60, 3),
-      cubagem_unitaria_item: randFloat(0.001, 0.5, 4),
-      casas_decimais_peso_item: 3,
-      casas_decimais_cubagem_item: 4,
-      nome_exportador: tipo === 'importacao' ? exportador.nome : null,
-      nome_importador: tipo === 'exportacao' ? importador.nome : null,
-      nome_fabricante: fabricante.nome,
-      referencia_exportador: `REF-EXP-${randInt(1000, 9999)}`,
-      referencia_importador: `REF-IMP-${randInt(1000, 9999)}`,
-      referencia_fabricante: `REF-FAB-${randInt(1000, 9999)}`,
-      incoterm,
-      condicao_pagamento_pedido: pick(CONDICOES_PAGAMENTO),
-      data_emissao_pedido: randDate(730),
-      item_criado_em: new Date(),
-      item_atualizado_em: new Date(),
+      id_pedido_item: `item_${id}_${String(i + 1).padStart(3, '0')}`,
+      id_organizacao: tenantId,
+      id_workspace: tenantId,
+      id_pedido: id,
+      sequencia_item_pedido_item: i + 1,
+      part_number_pedido_item: `PN-${randInt(10000, 99999)}-${randInt(100, 999)}`,
+      ncm_pedido_item: pick(NCMS),
+      descricao_item_pedido_item: pick(DESCRICOES_ITEM),
+      unidade_comercializada_item_pedido_item: unidade,
+      quantidade_inicial_pedido_pedido_item: quantidade,
+      quantidade_atual_pedido_pedido_item: saldo,
+      quantidade_pronta_pedido_pedido_item: pronta,
+      quantidade_transferida_pedido_pedido_item: transferida,
+      quantidade_cancelada_pedido_pedido_item: cancelada,
+      casas_decimais_quantidade_item_pedido_item: 2,
+      moeda_item_pedido_item: moeda,
+      valor_total_item_pedido_item: valorTotal,
+      valor_por_unidade_item_pedido_item: valorUnit,
+      casas_decimais_valor_item_pedido_item: 2,
+      cobertura_cambial_pedido_item: pick(COBERTURA_CAMBIAL),
+      peso_liquido_unitario_pedido_item: randFloat(0.1, 50, 3),
+      peso_bruto_unitario_pedido_item: randFloat(0.1, 60, 3),
+      cubagem_unitaria_pedido_item: randFloat(0.001, 0.5, 4),
+      casas_decimais_peso_item_pedido_item: 3,
+      casas_decimais_cubagem_item_pedido_item: 4,
+      nome_exportador_pedido_item: tipo === 'importacao' ? exportador.nome : null,
+      nome_importador_pedido_item: tipo === 'exportacao' ? importador.nome : null,
+      nome_fabricante_pedido_item: fabricante.nome,
+      referencia_exportador_pedido_item: `REF-EXP-${randInt(1000, 9999)}`,
+      referencia_importador_pedido_item: `REF-IMP-${randInt(1000, 9999)}`,
+      referencia_fabricante_pedido_item: `REF-FAB-${randInt(1000, 9999)}`,
+      incoterm_pedido_item: incoterm,
+      condicao_pagamento_pedido_pedido_item: pick(CONDICOES_PAGAMENTO),
+      data_emissao_pedido_pedido_item: randDate(730),
+      data_criacao_pedido_item: new Date(),
+      data_atualizacao_pedido_item: new Date(),
     }
   })
 
-  const valorTotalPedido = Number(itens.reduce((s, it) => s + Number(it.valor_total_itens ?? 0), 0).toFixed(2))
-  const qtdTotal = Number(itens.reduce((s, it) => s + Number(it.quantidade_inicial_item_pedido), 0).toFixed(2))
-  const pesoLiq = Number(itens.reduce((s, it) => s + Number(it.peso_liquido_unitario_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(3))
-  const pesoBruto = Number(itens.reduce((s, it) => s + Number(it.peso_bruto_unitario_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(3))
-  const cubagem = Number(itens.reduce((s, it) => s + Number(it.cubagem_unitaria_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(4))
+  const valorTotalPedido = Number(itens.reduce((s, it) => s + Number(it.valor_total_item_pedido_item ?? 0), 0).toFixed(2))
+  const qtdTotal = Number(itens.reduce((s, it) => s + Number(it.quantidade_inicial_pedido_pedido_item), 0).toFixed(2))
+  const pesoLiq = Number(itens.reduce((s, it) => s + Number(it.peso_liquido_unitario_pedido_item ?? 0) * Number(it.quantidade_inicial_pedido_pedido_item), 0).toFixed(3))
+  const pesoBruto = Number(itens.reduce((s, it) => s + Number(it.peso_bruto_unitario_pedido_item ?? 0) * Number(it.quantidade_inicial_pedido_pedido_item), 0).toFixed(3))
+  const cubagem = Number(itens.reduce((s, it) => s + Number(it.cubagem_unitaria_pedido_item ?? 0) * Number(it.quantidade_inicial_pedido_pedido_item), 0).toFixed(4))
 
   const pedido = {
     id,
@@ -462,50 +462,50 @@ async function gerarCenariosEdge(
         const saldo = Number(Math.max(0, v.quantidade - v.cancelada - v.transferida).toFixed(2))
 
         itensPedido.push({
-          id: `item_${id}_${String(k + 1).padStart(3, '0')}`,
-          tenant_id: tenantId,
-          company_id: tenantId,
-          pedido_id: id,
-          sequencia_item: k + 1,
-          part_number: `PN-${randInt(10000, 99999)}-${randInt(100, 999)}`,
-          ncm: pick(NCMS),
-          descricao_item: pick(DESCRICOES_ITEM),
-          unidade_comercializada_item: unidade,
-          quantidade_inicial_item_pedido: v.quantidade,
-          saldo_item_pedido: saldo,
-          quantidade_pronta_total_item_pedido: v.pronta,
-          quantidade_transferida_item_pedido: v.transferida,
-          quantidade_cancelada_item_pedido: v.cancelada,
-          casas_decimais_quantidade_item: 2,
-          moeda_item: moeda,
-          valor_total_itens: valorTotal,
-          valor_unitario_item: v.valorUnit,
-          casas_decimais_valor_item: 2,
-          cobertura_cambial: pick(COBERTURA_CAMBIAL),
-          peso_liquido_unitario_item: randFloat(0.1, 50, 3),
-          peso_bruto_unitario_item: randFloat(0.1, 60, 3),
-          cubagem_unitaria_item: randFloat(0.001, 0.5, 4),
-          casas_decimais_peso_item: 3,
-          casas_decimais_cubagem_item: 4,
-          nome_exportador: tipo === 'importacao' ? exportador.nome : null,
-          nome_importador: tipo === 'exportacao' ? importador.nome : null,
-          nome_fabricante: fabricante.nome,
-          referencia_exportador: `REF-EXP-${randInt(1000, 9999)}`,
-          referencia_importador: `REF-IMP-${randInt(1000, 9999)}`,
-          referencia_fabricante: `REF-FAB-${randInt(1000, 9999)}`,
-          incoterm,
-          condicao_pagamento_pedido: pick(CONDICOES_PAGAMENTO),
-          data_emissao_pedido: randDate(730),
-          item_criado_em: new Date(),
-          item_atualizado_em: new Date(),
+          id_pedido_item: `item_${id}_${String(k + 1).padStart(3, '0')}`,
+          id_organizacao: tenantId,
+          id_workspace: tenantId,
+          id_pedido: id,
+          sequencia_item_pedido_item: k + 1,
+          part_number_pedido_item: `PN-${randInt(10000, 99999)}-${randInt(100, 999)}`,
+          ncm_pedido_item: pick(NCMS),
+          descricao_item_pedido_item: pick(DESCRICOES_ITEM),
+          unidade_comercializada_item_pedido_item: unidade,
+          quantidade_inicial_pedido_pedido_item: v.quantidade,
+          quantidade_atual_pedido_pedido_item: saldo,
+          quantidade_pronta_pedido_pedido_item: v.pronta,
+          quantidade_transferida_pedido_pedido_item: v.transferida,
+          quantidade_cancelada_pedido_pedido_item: v.cancelada,
+          casas_decimais_quantidade_item_pedido_item: 2,
+          moeda_item_pedido_item: moeda,
+          valor_total_item_pedido_item: valorTotal,
+          valor_por_unidade_item_pedido_item: v.valorUnit,
+          casas_decimais_valor_item_pedido_item: 2,
+          cobertura_cambial_pedido_item: pick(COBERTURA_CAMBIAL),
+          peso_liquido_unitario_pedido_item: randFloat(0.1, 50, 3),
+          peso_bruto_unitario_pedido_item: randFloat(0.1, 60, 3),
+          cubagem_unitaria_pedido_item: randFloat(0.001, 0.5, 4),
+          casas_decimais_peso_item_pedido_item: 3,
+          casas_decimais_cubagem_item_pedido_item: 4,
+          nome_exportador_pedido_item: tipo === 'importacao' ? exportador.nome : null,
+          nome_importador_pedido_item: tipo === 'exportacao' ? importador.nome : null,
+          nome_fabricante_pedido_item: fabricante.nome,
+          referencia_exportador_pedido_item: `REF-EXP-${randInt(1000, 9999)}`,
+          referencia_importador_pedido_item: `REF-IMP-${randInt(1000, 9999)}`,
+          referencia_fabricante_pedido_item: `REF-FAB-${randInt(1000, 9999)}`,
+          incoterm_pedido_item: incoterm,
+          condicao_pagamento_pedido_pedido_item: pick(CONDICOES_PAGAMENTO),
+          data_emissao_pedido_pedido_item: randDate(730),
+          data_criacao_pedido_item: new Date(),
+          data_atualizacao_pedido_item: new Date(),
         })
       }
 
-      const valorTotalPedido = Number(itensPedido.reduce((s, it) => s + Number(it.valor_total_itens ?? 0), 0).toFixed(2))
-      const qtdTotal = Number(itensPedido.reduce((s, it) => s + Number(it.quantidade_inicial_item_pedido), 0).toFixed(2))
-      const pesoLiq = Number(itensPedido.reduce((s, it) => s + Number(it.peso_liquido_unitario_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(3))
-      const pesoBruto = Number(itensPedido.reduce((s, it) => s + Number(it.peso_bruto_unitario_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(3))
-      const cubagem = Number(itensPedido.reduce((s, it) => s + Number(it.cubagem_unitaria_item ?? 0) * Number(it.quantidade_inicial_item_pedido), 0).toFixed(4))
+      const valorTotalPedido = Number(itensPedido.reduce((s, it) => s + Number(it.valor_total_item_pedido_item ?? 0), 0).toFixed(2))
+      const qtdTotal = Number(itensPedido.reduce((s, it) => s + Number(it.quantidade_inicial_pedido_pedido_item), 0).toFixed(2))
+      const pesoLiq = Number(itensPedido.reduce((s, it) => s + Number(it.peso_liquido_unitario_pedido_item ?? 0) * Number(it.quantidade_inicial_pedido_pedido_item), 0).toFixed(3))
+      const pesoBruto = Number(itensPedido.reduce((s, it) => s + Number(it.peso_bruto_unitario_pedido_item ?? 0) * Number(it.quantidade_inicial_pedido_pedido_item), 0).toFixed(3))
+      const cubagem = Number(itensPedido.reduce((s, it) => s + Number(it.cubagem_unitaria_pedido_item ?? 0) * Number(it.quantidade_inicial_pedido_pedido_item), 0).toFixed(4))
 
       const pedido: PedidoShape = {
         id,
@@ -596,7 +596,7 @@ async function main() {
 
   if (clean) {
     console.log('🧹 Limpando dados existentes do tenant...')
-    const delItens = await prisma.$executeRaw`DELETE FROM pedido.pedido_itens WHERE tenant_id = ${tenantId}`
+    const delItens = await prisma.$executeRaw`DELETE FROM pedido.pedido_itens WHERE id_organizacao = ${tenantId}`
     const delPedidos = await prisma.$executeRaw`DELETE FROM pedido.pedidos_comerciais WHERE tenant_id = ${tenantId}`
     console.log(`   → ${delItens} itens e ${delPedidos} pedidos removidos\n`)
   }

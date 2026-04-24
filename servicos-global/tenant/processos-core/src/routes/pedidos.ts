@@ -218,15 +218,15 @@ async function injetarValoresColunasUsuario<T extends { id: string }>(
 ): Promise<(T & { _colunas_usuario: Record<string, string> })[]> {
   if (registros.length === 0) return []
   const ids = registros.map(r => r.id)
-  const valores: { vinculo_id: string; coluna_id: string; valor: string }[] =
+  const valores: { id_vinculo: string; id_coluna: string; valor_valor_coluna_usuario_pedido: string }[] =
     await prisma.valorColunaUsuarioPedido.findMany({
-      where: { tenant_id, vinculo_id: { in: ids } },
-      select: { vinculo_id: true, coluna_id: true, valor: true },
+      where: { id_organizacao: tenant_id, id_vinculo: { in: ids } },
+      select: { id_vinculo: true, id_coluna: true, valor_valor_coluna_usuario_pedido: true },
     })
   const mapa: Record<string, Record<string, string>> = {}
   for (const v of valores) {
-    if (!mapa[v.vinculo_id]) mapa[v.vinculo_id] = {}
-    mapa[v.vinculo_id][v.coluna_id] = v.valor
+    if (!mapa[v.id_vinculo]) mapa[v.id_vinculo] = {}
+    mapa[v.id_vinculo][v.id_coluna] = v.valor_valor_coluna_usuario_pedido
   }
   return registros.map(r => ({ ...r, _colunas_usuario: mapa[r.id] ?? {} }))
 }

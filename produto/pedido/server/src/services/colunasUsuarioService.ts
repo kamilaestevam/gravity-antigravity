@@ -241,20 +241,20 @@ export class ColunasUsuarioService {
       Object.entries(input.valores).map(([coluna_id, valor]) =>
         prisma.valorColunaUsuarioPedido.upsert({
           where: {
-            tenant_id_coluna_id_vinculo_id: {
-              tenant_id:  tenantId,
-              coluna_id,
-              vinculo_id: input.vinculo_id,
+            id_organizacao_id_coluna_id_vinculo: {
+              id_organizacao: tenantId,
+              id_coluna:      coluna_id,
+              id_vinculo:     input.vinculo_id,
             },
           },
           create: {
-            tenant_id:  tenantId,
-            coluna_id,
-            vinculo:    input.vinculo,
-            vinculo_id: input.vinculo_id,
-            valor,
+            id_organizacao:                      tenantId,
+            id_coluna:                           coluna_id,
+            vinculo_valor_coluna_usuario_pedido: input.vinculo,
+            id_vinculo:                          input.vinculo_id,
+            valor_valor_coluna_usuario_pedido:   valor,
           },
-          update: { valor },
+          update: { valor_valor_coluna_usuario_pedido: valor },
         }),
       ),
     )
@@ -270,12 +270,29 @@ export class ColunasUsuarioService {
   ) {
     const prisma = db as any
 
-    return prisma.valorColunaUsuarioPedido.findMany({
+    const registros: Array<{
+      id_valor_coluna_usuario_pedido:      string
+      id_organizacao:                      string
+      id_coluna:                           string
+      vinculo_valor_coluna_usuario_pedido: string
+      id_vinculo:                          string
+      valor_valor_coluna_usuario_pedido:   string
+    }> = await prisma.valorColunaUsuarioPedido.findMany({
       where: {
-        tenant_id:  tenantId,
-        vinculo,
-        vinculo_id: vinculoId,
+        id_organizacao:                      tenantId,
+        vinculo_valor_coluna_usuario_pedido: vinculo,
+        id_vinculo:                          vinculoId,
       },
     })
+
+    // Mapper: preserva contrato JSON `ValorColunaUsuario` do client (types.ts:911)
+    return registros.map(r => ({
+      id:         r.id_valor_coluna_usuario_pedido,
+      tenant_id:  r.id_organizacao,
+      coluna_id:  r.id_coluna,
+      vinculo:    r.vinculo_valor_coluna_usuario_pedido,
+      vinculo_id: r.id_vinculo,
+      valor:      r.valor_valor_coluna_usuario_pedido,
+    }))
   }
 }

@@ -559,19 +559,19 @@ model ColunaUsuarioPedido {
 }
 
 model ValorColunaUsuarioPedido {
-  id         String              @id @default(cuid())
-  tenant_id  String
-  product_id String?
-  coluna_id  String
-  vinculo    String
-  vinculo_id String
-  valor      String
-  coluna     ColunaUsuarioPedido @relation(fields: [coluna_id], references: [id])
+  id_valor_coluna_usuario_pedido     String              @id @default(cuid())
+  id_organizacao                     String
+  id_produto                         String?
+  id_coluna                          String
+  vinculo_valor_coluna_usuario_pedido String
+  id_vinculo                         String
+  valor_valor_coluna_usuario_pedido  String
+  coluna_valor_coluna_usuario_pedido ColunaUsuarioPedido @relation(fields: [id_coluna], references: [id])
 
-  @@unique([tenant_id, coluna_id, vinculo_id])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, vinculo_id])
+  @@unique([id_organizacao, id_coluna, id_vinculo])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto])
+  @@index([id_organizacao, id_vinculo])
   @@map("valor_coluna_usuario_pedido")
 }
 

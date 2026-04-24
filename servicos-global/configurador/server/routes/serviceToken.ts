@@ -14,7 +14,7 @@ export const serviceTokenRouter = Router()
 const ServiceTokenSchema = z.object({
   tenantId: z.string(),
   userId: z.string(),
-  scope: z.enum(['SERVICE', 'WEBHOOK', 'CRON']).default('SERVICE'),
+  scope: z.enum(['SERVICO', 'WEBHOOK', 'CRON']).default('SERVICO'),
   expiresInHours: z.number().min(1).max(720).default(24),
 })
 

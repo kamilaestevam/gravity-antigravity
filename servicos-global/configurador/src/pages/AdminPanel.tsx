@@ -70,19 +70,19 @@ const API = '/api/admin'
 // ─── Helper: mapeia status do backend para pt-BR ──────────────────────────────
 
 function mapTenantStatus(status: string): EmpresaStatus {
-  if (status === 'ACTIVE' || status === 'Ativa') return 'Ativa'
-  if (status === 'PENDING_SETUP') return 'Pendente'
+  if (status === 'ATIVO' || status === 'Ativa') return 'Ativa'
+  if (status === 'CONFIGURACAO_PENDENTE') return 'Pendente'
   return 'Suspensa'
 }
 
 function mapStatusToBackend(status: EmpresaStatus): string {
-  if (status === 'Ativa') return 'ACTIVE'
-  if (status === 'Pendente') return 'PENDING_SETUP'
-  return 'SUSPENDED'
+  if (status === 'Ativa') return 'ATIVO'
+  if (status === 'Pendente') return 'CONFIGURACAO_PENDENTE'
+  return 'SUSPENSO'
 }
 
-function mapWorkspaceStatusToBackend(status: EmpresaStatus): 'ACTIVE' | 'INACTIVE' {
-  return status === 'Ativa' ? 'ACTIVE' : 'INACTIVE'
+function mapWorkspaceStatusToBackend(status: EmpresaStatus): 'ATIVO' | 'INATIVO' {
+  return status === 'Ativa' ? 'ATIVO' : 'INATIVO'
 }
 
 const SHELL_URL = import.meta.env.VITE_SHELL_URL || 'http://localhost:8010'
@@ -210,7 +210,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
         status: mapTenantStatus(tenant.status),
         created_at: tenant.created_at,
         _count: tenant._count ?? { users: 0, companies: 0 },
-        subscriptions: dados.plano ? [{ plan: dados.plano, status: 'ACTIVE' }] : [],
+        subscriptions: dados.plano ? [{ plan: dados.plano, status: 'ATIVA' }] : [],
         workspaces: [],
       }
       setTenants(prev => [novo, ...prev])

@@ -53,7 +53,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
         orderBy: { created_at: 'desc' },
       }).catch(() => []),
       // Fornecedor nunca tem preferido — evita round-trip desnecessário
-      role === 'SUPPLIER'
+      role === 'FORNECEDOR'
         ? Promise.resolve(null)
         : prisma.usuario.findUnique({
             where: { id: userId },
@@ -79,7 +79,7 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     if (userPref?.preferred_company_id) {
       const stillValid = companies.some(
         (c: { id: string; status?: string }) =>
-          c.id === userPref.preferred_company_id && c.status !== 'INACTIVE',
+          c.id === userPref.preferred_company_id && c.status !== 'INATIVO',
       )
       if (stillValid) {
         preferredCompanyId = userPref.preferred_company_id

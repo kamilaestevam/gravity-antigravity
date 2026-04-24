@@ -1,7 +1,7 @@
 /**
  * create-user.ts
  * Cria um usuário no banco vinculado a um tenant existente.
- * Uso: npx tsx server/scripts/create-user.ts <email> <tenant_id> [SUPER_ADMIN|ADMIN|MASTER|STANDARD]
+ * Uso: npx tsx server/scripts/create-user.ts <email> <tenant_id> [SUPER_ADMIN|ADMIN|MASTER|PADRAO|FORNECEDOR]
  */
 import 'dotenv/config'
 import { PrismaClient } from '../../../../configurador/generated/index.js'
@@ -13,7 +13,7 @@ const prisma = new PrismaClient({
 async function main() {
   const email    = process.argv[2]
   const tenantId = process.argv[3]
-  const role     = (process.argv[4] ?? 'SUPER_ADMIN') as 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'STANDARD'
+  const role     = (process.argv[4] ?? 'SUPER_ADMIN') as 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR'
 
   if (!email || !tenantId) {
     console.error('Uso: npx tsx server/scripts/create-user.ts <email> <tenant_id> [role]')

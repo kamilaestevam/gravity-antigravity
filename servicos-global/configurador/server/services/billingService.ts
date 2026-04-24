@@ -10,6 +10,23 @@ import { getNfseProvider } from '../lib/nfse/index.js'
 
 const log = logger.child({ module: 'billing-service' })
 
+// Mapeia status do Stripe (inglês, lowercase) para o enum StatusAssinaturaProdutoGravity (PT-BR, UPPER)
+function mapStripeStatus(
+  stripeStatus: string,
+): 'ATIVA' | 'VENCIDA' | 'CANCELADA' | 'EM_TESTE' | 'INCOMPLETA' {
+  switch (stripeStatus) {
+    case 'active': return 'ATIVA'
+    case 'past_due': return 'VENCIDA'
+    case 'canceled':
+    case 'cancelled': return 'CANCELADA'
+    case 'trialing': return 'EM_TESTE'
+    case 'incomplete':
+    case 'incomplete_expired':
+    case 'unpaid': return 'INCOMPLETA'
+    default: return 'INCOMPLETA'
+  }
+}
+
 export const billingService = {
   /**
    * Processa eventos do Stripe recebidos via webhook
@@ -29,13 +46,13 @@ export const billingService = {
           prisma.assinaturaProdutoGravity.updateMany({
             where: { tenant_id: tenantId },
             data: {
-              status: 'ACTIVE',
+              status: 'ATIVA',
               stripe_subscription_id: session.subscription as string,
             },
           }),
           prisma.organizacao.update({
             where: { id: tenantId },
-            data: { status: 'ACTIVE' },
+            data: { status: 'ATIVO' },
           }),
         ])
         break
@@ -54,7 +71,7 @@ export const billingService = {
             stripe_subscription_id: sub.id,
           },
           data: {
-            status: sub.status.toUpperCase() as 'ACTIVE' | 'PAST_DUE' | 'CANCELLED' | 'TRIALING' | 'INCOMPLETE',
+            status: mapStripeStatus(sub.status),
             current_period_start: new Date(sub.current_period_start * 1000),
             current_period_end: new Date(sub.current_period_end * 1000),
           },
@@ -72,11 +89,11 @@ export const billingService = {
         await prisma.$transaction([
           prisma.assinaturaProdutoGravity.updateMany({
             where: { tenant_id: tenantRow.id, stripe_subscription_id: sub.id },
-            data: { status: 'CANCELLED', cancelled_at: new Date() },
+            data: { status: 'CANCELADA', cancelled_at: new Date() },
           }),
           prisma.organizacao.update({
             where: { id: tenantRow.id },
-            data: { status: 'SUSPENDED' },
+            data: { status: 'SUSPENSO' },
           }),
         ])
         break
@@ -91,7 +108,7 @@ export const billingService = {
 
         await prisma.assinaturaProdutoGravity.updateMany({
           where: { tenant_id: tenantRow.id },
-          data: { status: 'PAST_DUE' },
+          data: { status: 'VENCIDA' },
         })
         break
       }

@@ -90,37 +90,37 @@ function areaBadgeColors(area: string): { bg: string; text: string; border: stri
 }
 
 const ENVIRONMENT_LABEL: Record<DeployEnvironment, string> = {
-  DEVELOPMENT: 'DEV',
-  STAGING: 'STAGING',
-  PRODUCTION: 'PRODUÇÃO',
-  ALL: 'TODOS',
+  DESENVOLVIMENTO: 'DEV',
+  HOMOLOGACAO: 'HOMOLOGAÇÃO',
+  PRODUCAO: 'PRODUÇÃO',
+  TODOS: 'TODOS',
 }
 
 function envBadgeColors(env: DeployEnvironment): { bg: string; text: string; border: string } {
   switch (env) {
-    case 'PRODUCTION': return { bg: 'rgba(52,211,153,0.12)', text: '#34d399', border: 'rgba(52,211,153,0.3)' }
-    case 'STAGING': return { bg: 'rgba(251,191,36,0.12)', text: '#fbbf24', border: 'rgba(251,191,36,0.3)' }
-    case 'DEVELOPMENT': return { bg: 'rgba(129,140,248,0.12)', text: '#818cf8', border: 'rgba(129,140,248,0.3)' }
-    case 'ALL': return { bg: 'rgba(192,132,252,0.12)', text: '#c084fc', border: 'rgba(192,132,252,0.3)' }
+    case 'PRODUCAO': return { bg: 'rgba(52,211,153,0.12)', text: '#34d399', border: 'rgba(52,211,153,0.3)' }
+    case 'HOMOLOGACAO': return { bg: 'rgba(251,191,36,0.12)', text: '#fbbf24', border: 'rgba(251,191,36,0.3)' }
+    case 'DESENVOLVIMENTO': return { bg: 'rgba(129,140,248,0.12)', text: '#818cf8', border: 'rgba(129,140,248,0.3)' }
+    case 'TODOS': return { bg: 'rgba(192,132,252,0.12)', text: '#c084fc', border: 'rgba(192,132,252,0.3)' }
   }
 }
 
 const STATUS_LABEL: Record<DeployStatus, string> = {
-  SUCCESS: 'Concluído',
-  FAILED: 'Falhado',
-  ROLLBACK: 'Revertido',
-  IN_PROGRESS: 'Em andamento',
+  SUCESSO: 'Concluído',
+  FALHOU: 'Falhado',
+  REVERTIDO: 'Revertido',
+  EM_ANDAMENTO: 'Em andamento',
 }
 
 function statusVisual(status: DeployStatus): { icone: React.ReactNode; bg: string; text: string; border: string } {
   switch (status) {
-    case 'SUCCESS':
+    case 'SUCESSO':
       return { icone: <CheckCircle size={14} weight="bold" />, bg: 'rgba(52,211,153,0.12)', text: '#34d399', border: 'rgba(52,211,153,0.3)' }
-    case 'FAILED':
+    case 'FALHOU':
       return { icone: <XCircle size={14} weight="bold" />, bg: 'rgba(248,113,113,0.12)', text: '#f87171', border: 'rgba(248,113,113,0.3)' }
-    case 'ROLLBACK':
+    case 'REVERTIDO':
       return { icone: <ArrowUUpLeft size={14} weight="bold" />, bg: 'rgba(148,163,184,0.12)', text: '#94a3b8', border: 'rgba(148,163,184,0.3)' }
-    case 'IN_PROGRESS':
+    case 'EM_ANDAMENTO':
       return { icone: <Clock size={14} weight="bold" />, bg: 'rgba(251,191,36,0.12)', text: '#fbbf24', border: 'rgba(251,191,36,0.3)' }
   }
 }
@@ -171,8 +171,8 @@ export function DeployAdmin() {
   const [formArea, setFormArea] = useState<string | null>(null)
   const [formVersion, setFormVersion] = useState('')
   const [formDescription, setFormDescription] = useState('')
-  const [formEnvironment, setFormEnvironment] = useState<DeployEnvironment>('PRODUCTION')
-  const [formStatus, setFormStatus] = useState<DeployStatus>('SUCCESS')
+  const [formEnvironment, setFormEnvironment] = useState<DeployEnvironment>('PRODUCAO')
+  const [formStatus, setFormStatus] = useState<DeployStatus>('SUCESSO')
   const [salvando, setSalvando] = useState(false)
 
   const [deployParaExcluir, setDeployParaExcluir] = useState<DeployApi | null>(null)
@@ -182,8 +182,8 @@ export function DeployAdmin() {
     setFormArea(null)
     setFormVersion('')
     setFormDescription('')
-    setFormEnvironment('PRODUCTION')
-    setFormStatus('SUCCESS')
+    setFormEnvironment('PRODUCAO')
+    setFormStatus('SUCESSO')
   }
 
   const abrirModal = () => {
@@ -596,7 +596,7 @@ export function DeployAdmin() {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                     <GeralCampoGlobal label="Ambiente">
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', flexWrap: 'wrap' }}>
-                        {(['DEVELOPMENT', 'STAGING', 'PRODUCTION', 'ALL'] as const).map(env => (
+                        {(['DESENVOLVIMENTO', 'HOMOLOGACAO', 'PRODUCAO', 'TODOS'] as const).map(env => (
                           <button
                             key={env}
                             type="button"
@@ -618,7 +618,7 @@ export function DeployAdmin() {
 
                     <GeralCampoGlobal label="Status">
                       <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.375rem', flexWrap: 'wrap' }}>
-                        {(['SUCCESS', 'IN_PROGRESS', 'FAILED', 'ROLLBACK'] as const).map(st => (
+                        {(['SUCESSO', 'EM_ANDAMENTO', 'FALHOU', 'REVERTIDO'] as const).map(st => (
                           <button
                             key={st}
                             type="button"

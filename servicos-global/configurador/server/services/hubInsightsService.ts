@@ -661,7 +661,7 @@ export function normalizeHubRole(raw: string | undefined): HubUserRole {
   if (lower.includes('super_admin') || lower.includes('admin')) return 'admin'
   if (lower.includes('diretor') || lower.includes('director')) return 'diretor'
   if (lower.includes('gerente') || lower.includes('manager')) return 'gerente'
-  if (lower.includes('operador') || lower.includes('operator') || lower.includes('standard')) return 'operador'
+  if (lower.includes('operador') || lower.includes('operator') || lower.includes('padrao') || lower.includes('standard')) return 'operador'
   return 'default'
 }
 

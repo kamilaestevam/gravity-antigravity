@@ -255,7 +255,7 @@ adminNcmIntegracaoRouter.post('/schedule/execute', async (req, res, next) => {
     // Todos os tenants ativos
     const tenants = await configuradorPrisma.tenant.findMany({
       select: { id: true },
-      where:  { status: 'ACTIVE' },
+      where:  { status: 'ATIVO' },
     })
 
     if (tenants.length === 0) {

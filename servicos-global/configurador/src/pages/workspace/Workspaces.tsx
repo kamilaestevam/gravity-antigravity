@@ -65,7 +65,7 @@ export function Workspaces() {
             nome: c.name,
             subdominio: c.subdomain ?? '',
             usuarios: c._count?.memberships ?? 0,
-            status: c.status === 'ACTIVE' ? 'Ativa' : 'Suspensa',
+            status: c.status === 'ATIVO' ? 'Ativa' : 'Suspensa',
             criadaEm: c.created_at
               ? new Date(c.created_at).toLocaleDateString('pt-BR')
               : '',
@@ -170,7 +170,7 @@ export function Workspaces() {
   }
 
   async function handleSuspend(linha: Empresa) {
-    const novoStatus = linha.status === 'Ativa' ? 'INACTIVE' : 'ACTIVE'
+    const novoStatus = linha.status === 'Ativa' ? 'INATIVO' : 'ATIVO'
     try {
       const headers = await getAuthHeaders()
       const res = await fetch(`/api/v1/organizacao/companies/${linha.id}`, {
@@ -179,13 +179,13 @@ export function Workspaces() {
         body: JSON.stringify({ status: novoStatus }),
       })
       if (res.ok) {
-        const statusLabel = novoStatus === 'INACTIVE' ? 'Suspensa' : 'Ativa'
+        const statusLabel = novoStatus === 'INATIVO' ? 'Suspensa' : 'Ativa'
         setWorkspaces(prev =>
           prev.map(e => e.id === linha.id ? { ...e, status: statusLabel } : e)
         )
         addNotification({
-          type: novoStatus === 'INACTIVE' ? 'warning' : 'success',
-          message: `Workspace "${linha.nome}" ${novoStatus === 'INACTIVE' ? 'suspenso' : 'reativado'} com sucesso.`,
+          type: novoStatus === 'INATIVO' ? 'warning' : 'success',
+          message: `Workspace "${linha.nome}" ${novoStatus === 'INATIVO' ? 'suspenso' : 'reativado'} com sucesso.`,
         })
       } else {
         const msg = await extractApiError(res, 'Falha ao alterar status do workspace.')

@@ -45,7 +45,7 @@ adminRouter.use(requireAuth, requireGravityAdmin)
 adminRouter.use('/financeiro-admin', rateLimitPresets.admin())
 
 const UpdateTenantSchema = z.object({
-  status: z.enum(['ACTIVE', 'SUSPENDED', 'CANCELLED', 'PENDING_SETUP']).optional(),
+  status: z.enum(['ATIVO', 'SUSPENSO', 'CANCELADO', 'CONFIGURACAO_PENDENTE']).optional(),
   name: z.string().min(2).max(200).optional(),
   slug: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido').optional(),
   note: z.string().optional(),
@@ -59,7 +59,7 @@ const CreateTenantSchema = z.object({
 })
 
 const UpdateWorkspaceSchema = z.object({
-  status: z.enum(['ACTIVE', 'INACTIVE']),
+  status: z.enum(['ATIVO', 'INATIVO']),
 })
 
 /**
@@ -249,7 +249,7 @@ adminRouter.post('/tenants', async (req, res, next) => {
       data: {
         name: parsed.data.name.trim(),
         slug: parsed.data.slug,
-        status: 'ACTIVE',
+        status: 'ATIVO',
         ...(parsed.data.cnpj && { cnpj: parsed.data.cnpj }),
       },
       select: {
@@ -337,8 +337,8 @@ adminRouter.get('/stats', async (_req, res, next) => {
       totalUsers,
     ] = await Promise.all([
       prisma.organizacao.count(),
-      prisma.organizacao.count({ where: { status: 'ACTIVE' } }),
-      prisma.organizacao.count({ where: { status: 'SUSPENDED' } }),
+      prisma.organizacao.count({ where: { status: 'ATIVO' } }),
+      prisma.organizacao.count({ where: { status: 'SUSPENSO' } }),
       prisma.usuario.count(),
     ])
 
@@ -628,8 +628,8 @@ adminRouter.post('/financeiro-admin/invoices/:id/send', async (req, res, next) =
 // CRUD manual do histórico de deploys da plataforma Gravity.
 // Ver server/services/deployLogService.ts
 
-const DeployEnvironmentEnum = z.enum(['DEVELOPMENT', 'STAGING', 'PRODUCTION', 'ALL'])
-const DeployStatusEnum = z.enum(['SUCCESS', 'FAILED', 'ROLLBACK', 'IN_PROGRESS'])
+const DeployEnvironmentEnum = z.enum(['DESENVOLVIMENTO', 'HOMOLOGACAO', 'PRODUCAO', 'TODOS'])
+const DeployStatusEnum = z.enum(['SUCESSO', 'FALHOU', 'REVERTIDO', 'EM_ANDAMENTO'])
 
 const ListDeploysQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
@@ -646,8 +646,8 @@ const CreateDeployBodySchema = z.object({
   area: z.string().min(1).max(50),
   version: z.string().min(1).max(100),
   description: z.string().min(1).max(500),
-  environment: DeployEnvironmentEnum.default('PRODUCTION'),
-  status: DeployStatusEnum.default('SUCCESS'),
+  environment: DeployEnvironmentEnum.default('PRODUCAO'),
+  status: DeployStatusEnum.default('SUCESSO'),
   deployed_at: z.string().datetime().optional(),
 })
 
@@ -1257,7 +1257,7 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
 const AdminInviteSchema = z.object({
   email: z.string().email().max(255),
   name:  z.string().min(1).max(200),
-  role:  z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'STANDARD', 'SUPPLIER']),
+  role:  z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
 })
 
 adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {

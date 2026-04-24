@@ -55,7 +55,7 @@ accessRouter.get('/check-access', async (req, res, next) => {
       where: { id: tenantId },
       select: { status: true },
     })
-    if (!tenant || tenant.status !== 'ACTIVE') {
+    if (!tenant || tenant.status !== 'ATIVO') {
       res.json({ allowed: false, reason: 'TENANT_INACTIVE' })
       return
     }
@@ -170,7 +170,7 @@ accessRouter.post('/tenant-products/deactivate', async (req, res, next) => {
 accessRouter.patch('/catalog-products/:slug/status', async (req, res, next) => {
   try {
     const { status } = req.body
-    const validStatuses = ['ACTIVE', 'SUSPENDED', 'COMING_SOON', 'LEGACY', 'INACTIVE']
+    const validStatuses = ['ATIVO', 'SUSPENSO', 'EM_BREVE', 'LEGADO', 'INATIVO']
     if (!status || !validStatuses.includes(status)) {
       throw new AppError(`Status inválido. Use: ${validStatuses.join(', ')}`, 400, 'VALIDATION_ERROR')
     }

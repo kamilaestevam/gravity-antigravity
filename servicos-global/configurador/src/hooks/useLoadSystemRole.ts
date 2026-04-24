@@ -8,7 +8,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@clerk/clerk-react'
 
-export type SystemRole = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'STANDARD' | 'SUPPLIER' | null
+export type SystemRole = 'SUPER_ADMIN' | 'ADMIN' | 'MASTER' | 'PADRAO' | 'FORNECEDOR' | null
 
 const roleCache = new Map<string, SystemRole>()
 

@@ -76,7 +76,7 @@ const UpdateCompanySchema = z.object({
   name: z.string().min(2).optional(),
   subdomain: z.string().optional(),
   cnpj: z.string().optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE']).optional(),
+  status: z.enum(['ATIVO', 'INATIVO']).optional(),
 })
 
 // ─── Rotas ──────────────────────────────────────────────────────────────────

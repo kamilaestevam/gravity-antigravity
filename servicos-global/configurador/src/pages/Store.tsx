@@ -242,7 +242,7 @@ export function Store() {
         ])
         if (catRes.ok) {
           const catData = await catRes.json()
-          setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ACTIVE' || p.status === 'Ativo' || p.status === 'COMING_SOON'))
+          setCatalog(catData.products.filter((p: CatalogProduct) => p.status === 'ATIVO' || p.status === 'Ativo' || p.status === 'EM_BREVE'))
         }
         if (subRes?.ok) {
           const subData = await subRes.json()

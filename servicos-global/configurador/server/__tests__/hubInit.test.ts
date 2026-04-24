@@ -32,11 +32,11 @@ const tenantServiceMock = {
     id: 'tenant-001',
     name: 'Acme Corp',
     slug: 'acme',
-    status: 'ACTIVE',
+    status: 'ATIVO',
   }),
   getCompanies: vi.fn().mockResolvedValue([
-    { id: 'comp-001', name: 'Filial SP', status: 'ACTIVE' },
-    { id: 'comp-002', name: 'Filial RJ', status: 'ACTIVE' },
+    { id: 'comp-001', name: 'Filial SP', status: 'ATIVO' },
+    { id: 'comp-002', name: 'Filial RJ', status: 'ATIVO' },
   ]),
 }
 
@@ -106,11 +106,11 @@ beforeEach(() => {
   prismaMock.usuario.findUnique.mockResolvedValue(null)
   prismaMock.usuario.update.mockResolvedValue(null)
   tenantServiceMock.getTenantById.mockResolvedValue({
-    id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ACTIVE',
+    id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO',
   })
   tenantServiceMock.getCompanies.mockResolvedValue([
-    { id: 'comp-001', name: 'Filial SP', status: 'ACTIVE' },
-    { id: 'comp-002', name: 'Filial RJ', status: 'ACTIVE' },
+    { id: 'comp-001', name: 'Filial SP', status: 'ATIVO' },
+    { id: 'comp-002', name: 'Filial RJ', status: 'ATIVO' },
   ])
 })
 
@@ -127,8 +127,8 @@ describe('GET /api/v1/hub/catalog', () => {
 
   it('retorna catalog com produtos', async () => {
     const mockCatalog = [
-      { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ACTIVE' },
-      { id: 'p2', name: 'SimulaCusto', slug: 'simula-custo', description: 'Simulação', status: 'ACTIVE' },
+      { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ATIVO' },
+      { id: 'p2', name: 'SimulaCusto', slug: 'simula-custo', description: 'Simulação', status: 'ATIVO' },
     ]
     prismaMock.produtoGravity.findMany.mockResolvedValue(mockCatalog)
 
@@ -176,7 +176,7 @@ describe('GET /api/v1/hub/init', () => {
     const res = await request.get('/api/v1/hub/init')
     expect(tenantServiceMock.getTenantById).toHaveBeenCalledWith('tenant-001')
     expect(res.body.tenant).toEqual({
-      id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ACTIVE',
+      id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO',
     })
   })
 
@@ -219,7 +219,7 @@ describe('GET /api/v1/hub/init', () => {
       { product_key: 'bid-cambio', is_active: true, config: {}, created_at: '2026-01-01' },
     ])
     prismaMock.produtoGravity.findMany.mockResolvedValue([
-      { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ACTIVE' },
+      { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ATIVO' },
     ])
 
     const res = await request.get('/api/v1/hub/init')
@@ -255,7 +255,7 @@ describe('GET /api/v1/hub/init', () => {
 
   it('retorna preferredCompanyId null quando company preferida é INACTIVE', async () => {
     tenantServiceMock.getCompanies.mockResolvedValue([
-      { id: 'comp-001', name: 'Filial SP', status: 'INACTIVE' },
+      { id: 'comp-001', name: 'Filial SP', status: 'INATIVO' },
     ])
     prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
 
@@ -265,7 +265,7 @@ describe('GET /api/v1/hub/init', () => {
 
   it('limpa preferred_company_id no banco quando company inválida (fire-and-forget)', async () => {
     tenantServiceMock.getCompanies.mockResolvedValue([
-      { id: 'comp-001', name: 'Filial SP', status: 'INACTIVE' },
+      { id: 'comp-001', name: 'Filial SP', status: 'INATIVO' },
     ])
     prismaMock.usuario.findUnique.mockResolvedValue({ preferred_company_id: 'comp-001' })
 
@@ -287,7 +287,7 @@ describe('GET /api/v1/hub/init', () => {
   // ── Role SUPPLIER ──
 
   it('não busca preferência de workspace para SUPPLIER', async () => {
-    authOverride = { userId: 'user-supplier', clerkUserId: 'clerk_s', tenantId: 'tenant-001', role: 'SUPPLIER' }
+    authOverride = { userId: 'user-supplier', clerkUserId: 'clerk_s', tenantId: 'tenant-001', role: 'FORNECEDOR' }
 
     const res = await request.get('/api/v1/hub/init')
     expect(res.status).toBe(200)

@@ -59,8 +59,8 @@ type TabKey = 'auditoria' | 'workspaces' | 'usuarios' | 'billing'
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function mapStatus(status: string): string {
-  if (status === 'ACTIVE') return 'Ativa'
-  if (status === 'SUSPENDED') return 'Suspensa'
+  if (status === 'ATIVO') return 'Ativa'
+  if (status === 'SUSPENSO') return 'Suspensa'
   return status
 }
 
@@ -502,8 +502,8 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
             {[
               { label: 'Plano Principal', value: sub?.plan || 'N/A', cor: '#818cf8' },
-              { label: 'Status da Assinatura', value: sub?.status || 'N/A', cor: sub?.status === 'ACTIVE' ? '#34d399' : '#fbbf24' },
-              { label: 'Produtos Ativos', value: tenant.subscriptions.filter(s => s.status === 'ACTIVE').length, cor: '#f1f5f9' },
+              { label: 'Status da Assinatura', value: sub?.status || 'N/A', cor: sub?.status === 'ATIVA' ? '#34d399' : '#fbbf24' },
+              { label: 'Produtos Ativos', value: tenant.subscriptions.filter(s => s.status === 'ATIVA').length, cor: '#f1f5f9' },
             ].map(({ label, value, cor }) => (
               <div key={label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '16px' }}>
                 <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>{label}</div>
@@ -518,9 +518,9 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
                 {tenant.subscriptions.map((s, i) => (
                   <span key={i} style={{
                     fontSize: '0.75rem', fontWeight: 700, padding: '6px 14px', borderRadius: '8px',
-                    background: s.status === 'ACTIVE' ? 'rgba(52,211,153,0.08)' : 'rgba(251,191,36,0.08)',
-                    color: s.status === 'ACTIVE' ? '#34d399' : '#fbbf24',
-                    border: `1px solid ${s.status === 'ACTIVE' ? 'rgba(52,211,153,0.2)' : 'rgba(251,191,36,0.2)'}`,
+                    background: s.status === 'ATIVA' ? 'rgba(52,211,153,0.08)' : 'rgba(251,191,36,0.08)',
+                    color: s.status === 'ATIVA' ? '#34d399' : '#fbbf24',
+                    border: `1px solid ${s.status === 'ATIVA' ? 'rgba(52,211,153,0.2)' : 'rgba(251,191,36,0.2)'}`,
                   }}>
                     {s.plan}
                   </span>

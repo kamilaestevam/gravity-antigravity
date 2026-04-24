@@ -134,10 +134,10 @@ export type MetricasGemini = $Result.DefaultSelection<Prisma.$MetricasGeminiPayl
  */
 export namespace $Enums {
   export const OrganizacaoStatus: {
-  ACTIVE: 'ACTIVE',
-  SUSPENDED: 'SUSPENDED',
-  CANCELLED: 'CANCELLED',
-  PENDING_SETUP: 'PENDING_SETUP'
+  ATIVO: 'ATIVO',
+  SUSPENSO: 'SUSPENSO',
+  CANCELADO: 'CANCELADO',
+  CONFIGURACAO_PENDENTE: 'CONFIGURACAO_PENDENTE'
 };
 
 export type OrganizacaoStatus = (typeof OrganizacaoStatus)[keyof typeof OrganizacaoStatus]
@@ -147,27 +147,27 @@ export const UsuarioTipo: {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   MASTER: 'MASTER',
-  STANDARD: 'STANDARD',
-  SUPPLIER: 'SUPPLIER'
+  PADRAO: 'PADRAO',
+  FORNECEDOR: 'FORNECEDOR'
 };
 
 export type UsuarioTipo = (typeof UsuarioTipo)[keyof typeof UsuarioTipo]
 
 
 export const StatusAssinaturaProdutoGravity: {
-  ACTIVE: 'ACTIVE',
-  PAST_DUE: 'PAST_DUE',
-  CANCELLED: 'CANCELLED',
-  TRIALING: 'TRIALING',
-  INCOMPLETE: 'INCOMPLETE'
+  ATIVA: 'ATIVA',
+  VENCIDA: 'VENCIDA',
+  CANCELADA: 'CANCELADA',
+  EM_TESTE: 'EM_TESTE',
+  INCOMPLETA: 'INCOMPLETA'
 };
 
 export type StatusAssinaturaProdutoGravity = (typeof StatusAssinaturaProdutoGravity)[keyof typeof StatusAssinaturaProdutoGravity]
 
 
 export const EmpresaStatus: {
-  ACTIVE: 'ACTIVE',
-  INACTIVE: 'INACTIVE'
+  ATIVO: 'ATIVO',
+  INATIVO: 'INATIVO'
 };
 
 export type EmpresaStatus = (typeof EmpresaStatus)[keyof typeof EmpresaStatus]
@@ -175,62 +175,62 @@ export type EmpresaStatus = (typeof EmpresaStatus)[keyof typeof EmpresaStatus]
 
 export const TipoUsuarioEmpresa: {
   MASTER: 'MASTER',
-  STANDARD: 'STANDARD',
-  SUPPLIER: 'SUPPLIER'
+  PADRAO: 'PADRAO',
+  FORNECEDOR: 'FORNECEDOR'
 };
 
 export type TipoUsuarioEmpresa = (typeof TipoUsuarioEmpresa)[keyof typeof TipoUsuarioEmpresa]
 
 
 export const StatusProdutoGravity: {
-  ACTIVE: 'ACTIVE',
-  SUSPENDED: 'SUSPENDED',
-  COMING_SOON: 'COMING_SOON',
-  LEGACY: 'LEGACY',
-  INACTIVE: 'INACTIVE'
+  ATIVO: 'ATIVO',
+  SUSPENSO: 'SUSPENSO',
+  EM_BREVE: 'EM_BREVE',
+  LEGADO: 'LEGADO',
+  INATIVO: 'INATIVO'
 };
 
 export type StatusProdutoGravity = (typeof StatusProdutoGravity)[keyof typeof StatusProdutoGravity]
 
 
 export const TipoCobrancaGravity: {
-  MONTHLY: 'MONTHLY',
-  PER_PROCESS: 'PER_PROCESS',
-  PER_DOCUMENT: 'PER_DOCUMENT',
-  PER_ESTIMATE: 'PER_ESTIMATE',
-  PER_DI_DUIMP: 'PER_DI_DUIMP',
-  PER_DUE: 'PER_DUE',
-  PER_PRODUCT: 'PER_PRODUCT',
-  PER_FLOW: 'PER_FLOW',
-  PER_LPCO: 'PER_LPCO'
+  MENSAL: 'MENSAL',
+  POR_PROCESSO: 'POR_PROCESSO',
+  POR_DOCUMENTO: 'POR_DOCUMENTO',
+  POR_ESTIMATIVA: 'POR_ESTIMATIVA',
+  POR_DI_DUIMP: 'POR_DI_DUIMP',
+  POR_DUE: 'POR_DUE',
+  POR_PRODUTO: 'POR_PRODUTO',
+  POR_FLUXO: 'POR_FLUXO',
+  POR_LPCO: 'POR_LPCO'
 };
 
 export type TipoCobrancaGravity = (typeof TipoCobrancaGravity)[keyof typeof TipoCobrancaGravity]
 
 
 export const ProdutoGravityLimiteUsuario: {
-  UNLIMITED: 'UNLIMITED',
-  LIMITED: 'LIMITED'
+  ILIMITADO: 'ILIMITADO',
+  LIMITADO: 'LIMITADO'
 };
 
 export type ProdutoGravityLimiteUsuario = (typeof ProdutoGravityLimiteUsuario)[keyof typeof ProdutoGravityLimiteUsuario]
 
 
 export const DeployAmbiente: {
-  DEVELOPMENT: 'DEVELOPMENT',
-  STAGING: 'STAGING',
-  PRODUCTION: 'PRODUCTION',
-  ALL: 'ALL'
+  DESENVOLVIMENTO: 'DESENVOLVIMENTO',
+  HOMOLOGACAO: 'HOMOLOGACAO',
+  PRODUCAO: 'PRODUCAO',
+  TODOS: 'TODOS'
 };
 
 export type DeployAmbiente = (typeof DeployAmbiente)[keyof typeof DeployAmbiente]
 
 
 export const DeployStatus: {
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  ROLLBACK: 'ROLLBACK',
-  IN_PROGRESS: 'IN_PROGRESS'
+  SUCESSO: 'SUCESSO',
+  FALHOU: 'FALHOU',
+  REVERTIDO: 'REVERTIDO',
+  EM_ANDAMENTO: 'EM_ANDAMENTO'
 };
 
 export type DeployStatus = (typeof DeployStatus)[keyof typeof DeployStatus]

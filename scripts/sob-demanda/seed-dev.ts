@@ -43,11 +43,11 @@ async function main(): Promise<void> {
   // ─────────────────────────────────────────────────────────────────────────
   const tenant = await prisma.organizacao.upsert({
     where: { slug: 'gravity-dev-teste' },
-    update: { status: OrganizacaoStatus.ACTIVE },
+    update: { status: OrganizacaoStatus.ATIVO },
     create: {
       name: 'Gravity Dev Teste',
       slug: 'gravity-dev-teste',
-      status: OrganizacaoStatus.ACTIVE,
+      status: OrganizacaoStatus.ATIVO,
       cnpj: '00.000.000/0001-00',
       segment: 'Tecnologia',
     },
@@ -62,12 +62,12 @@ async function main(): Promise<void> {
   // ─────────────────────────────────────────────────────────────────────────
   const company = await prisma.empresa.upsert({
     where: { subdomain: 'dev-workspace-principal' },
-    update: { status: EmpresaStatus.ACTIVE },
+    update: { status: EmpresaStatus.ATIVO },
     create: {
       tenant_id: tenant.id,
       name: 'Workspace Principal',
       subdomain: 'dev-workspace-principal',
-      status: EmpresaStatus.ACTIVE,
+      status: EmpresaStatus.ATIVO,
     },
   })
 
@@ -139,7 +139,7 @@ async function main(): Promise<void> {
     subscription = await prisma.assinaturaProdutoGravity.create({
       data: {
         tenant_id: tenant.id,
-        status: 'ACTIVE',
+        status: 'ATIVA',
       },
     })
     console.log(`✅  Assinatura id=${subscription.id}  status=${subscription.status}  [criada]`)

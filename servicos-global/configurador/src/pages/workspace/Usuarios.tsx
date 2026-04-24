@@ -52,7 +52,7 @@ function mapRoleToTipo(role: string): NivelAcesso {
   switch (role) {
     case 'MASTER': return 'Master'
     case 'ADMIN': return 'Admin'
-    case 'SUPPLIER': return 'Fornecedor'
+    case 'FORNECEDOR': return 'Fornecedor'
     default: return 'Standard'
   }
 }
@@ -221,8 +221,8 @@ export function Usuarios() {
         'Super Admin': 'MASTER',
         'Admin': 'MASTER',
         'Master': 'MASTER',
-        'Standard': 'STANDARD',
-        'Fornecedor': 'SUPPLIER',
+        'Standard': 'PADRAO',
+        'Fornecedor': 'FORNECEDOR',
       }
       const workspacesPayload = (fTipo === 'Standard' || fTipo === 'Fornecedor')
         ? (fTodosWorkspaces ? 'all' : fWorkspacesSelecionados)
@@ -233,7 +233,7 @@ export function Usuarios() {
         body: JSON.stringify({
           email: fEmail.trim(),
           name: fNome.trim(),
-          role: roleMap[fTipo] ?? 'STANDARD',
+          role: roleMap[fTipo] ?? 'PADRAO',
           workspaces: workspacesPayload,
         }),
       })

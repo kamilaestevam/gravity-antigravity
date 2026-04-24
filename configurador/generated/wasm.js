@@ -484,76 +484,76 @@ exports.Prisma.JsonNullValueFilter = {
   AnyNull: Prisma.AnyNull
 };
 exports.OrganizacaoStatus = exports.$Enums.OrganizacaoStatus = {
-  ACTIVE: 'ACTIVE',
-  SUSPENDED: 'SUSPENDED',
-  CANCELLED: 'CANCELLED',
-  PENDING_SETUP: 'PENDING_SETUP'
+  ATIVO: 'ATIVO',
+  SUSPENSO: 'SUSPENSO',
+  CANCELADO: 'CANCELADO',
+  CONFIGURACAO_PENDENTE: 'CONFIGURACAO_PENDENTE'
 };
 
 exports.UsuarioTipo = exports.$Enums.UsuarioTipo = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
   MASTER: 'MASTER',
-  STANDARD: 'STANDARD',
-  SUPPLIER: 'SUPPLIER'
+  PADRAO: 'PADRAO',
+  FORNECEDOR: 'FORNECEDOR'
 };
 
 exports.StatusAssinaturaProdutoGravity = exports.$Enums.StatusAssinaturaProdutoGravity = {
-  ACTIVE: 'ACTIVE',
-  PAST_DUE: 'PAST_DUE',
-  CANCELLED: 'CANCELLED',
-  TRIALING: 'TRIALING',
-  INCOMPLETE: 'INCOMPLETE'
+  ATIVA: 'ATIVA',
+  VENCIDA: 'VENCIDA',
+  CANCELADA: 'CANCELADA',
+  EM_TESTE: 'EM_TESTE',
+  INCOMPLETA: 'INCOMPLETA'
 };
 
 exports.EmpresaStatus = exports.$Enums.EmpresaStatus = {
-  ACTIVE: 'ACTIVE',
-  INACTIVE: 'INACTIVE'
+  ATIVO: 'ATIVO',
+  INATIVO: 'INATIVO'
 };
 
 exports.TipoUsuarioEmpresa = exports.$Enums.TipoUsuarioEmpresa = {
   MASTER: 'MASTER',
-  STANDARD: 'STANDARD',
-  SUPPLIER: 'SUPPLIER'
+  PADRAO: 'PADRAO',
+  FORNECEDOR: 'FORNECEDOR'
 };
 
 exports.StatusProdutoGravity = exports.$Enums.StatusProdutoGravity = {
-  ACTIVE: 'ACTIVE',
-  SUSPENDED: 'SUSPENDED',
-  COMING_SOON: 'COMING_SOON',
-  LEGACY: 'LEGACY',
-  INACTIVE: 'INACTIVE'
+  ATIVO: 'ATIVO',
+  SUSPENSO: 'SUSPENSO',
+  EM_BREVE: 'EM_BREVE',
+  LEGADO: 'LEGADO',
+  INATIVO: 'INATIVO'
 };
 
 exports.TipoCobrancaGravity = exports.$Enums.TipoCobrancaGravity = {
-  MONTHLY: 'MONTHLY',
-  PER_PROCESS: 'PER_PROCESS',
-  PER_DOCUMENT: 'PER_DOCUMENT',
-  PER_ESTIMATE: 'PER_ESTIMATE',
-  PER_DI_DUIMP: 'PER_DI_DUIMP',
-  PER_DUE: 'PER_DUE',
-  PER_PRODUCT: 'PER_PRODUCT',
-  PER_FLOW: 'PER_FLOW',
-  PER_LPCO: 'PER_LPCO'
+  MENSAL: 'MENSAL',
+  POR_PROCESSO: 'POR_PROCESSO',
+  POR_DOCUMENTO: 'POR_DOCUMENTO',
+  POR_ESTIMATIVA: 'POR_ESTIMATIVA',
+  POR_DI_DUIMP: 'POR_DI_DUIMP',
+  POR_DUE: 'POR_DUE',
+  POR_PRODUTO: 'POR_PRODUTO',
+  POR_FLUXO: 'POR_FLUXO',
+  POR_LPCO: 'POR_LPCO'
 };
 
 exports.ProdutoGravityLimiteUsuario = exports.$Enums.ProdutoGravityLimiteUsuario = {
-  UNLIMITED: 'UNLIMITED',
-  LIMITED: 'LIMITED'
+  ILIMITADO: 'ILIMITADO',
+  LIMITADO: 'LIMITADO'
 };
 
 exports.DeployAmbiente = exports.$Enums.DeployAmbiente = {
-  DEVELOPMENT: 'DEVELOPMENT',
-  STAGING: 'STAGING',
-  PRODUCTION: 'PRODUCTION',
-  ALL: 'ALL'
+  DESENVOLVIMENTO: 'DESENVOLVIMENTO',
+  HOMOLOGACAO: 'HOMOLOGACAO',
+  PRODUCAO: 'PRODUCAO',
+  TODOS: 'TODOS'
 };
 
 exports.DeployStatus = exports.$Enums.DeployStatus = {
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  ROLLBACK: 'ROLLBACK',
-  IN_PROGRESS: 'IN_PROGRESS'
+  SUCESSO: 'SUCESSO',
+  FALHOU: 'FALHOU',
+  REVERTIDO: 'REVERTIDO',
+  EM_ANDAMENTO: 'EM_ANDAMENTO'
 };
 
 exports.FaturaStatusGravity = exports.$Enums.FaturaStatusGravity = {

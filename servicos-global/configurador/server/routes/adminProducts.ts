@@ -76,7 +76,7 @@ const CreateProductSchema = z.object({
   name: z.string().min(2).max(100),
   slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/),
   description: z.string().min(3).max(500),
-  status: z.enum(['ACTIVE', 'SUSPENDED', 'COMING_SOON', 'LEGACY', 'INACTIVE']).default('ACTIVE'),
+  status: z.enum(['ATIVO', 'SUSPENSO', 'EM_BREVE', 'LEGADO', 'INATIVO']).default('ATIVO'),
   launch_date: z.string().datetime().optional(),
 
   has_setup: z.boolean().default(false),
@@ -84,9 +84,9 @@ const CreateProductSchema = z.object({
   setup_currency: z.string().length(3).default('BRL'),
 
   billing_type: z.enum([
-    'MONTHLY', 'PER_PROCESS', 'PER_DOCUMENT', 'PER_ESTIMATE',
-    'PER_DI_DUIMP', 'PER_DUE', 'PER_PRODUCT', 'PER_FLOW', 'PER_LPCO',
-  ]).default('MONTHLY'),
+    'MENSAL', 'POR_PROCESSO', 'POR_DOCUMENTO', 'POR_ESTIMATIVA',
+    'POR_DI_DUIMP', 'POR_DUE', 'POR_PRODUTO', 'POR_FLUXO', 'POR_LPCO',
+  ]).default('MENSAL'),
   unit_price: z.number().min(0),
   unit_currency: z.string().length(3).default('BRL'),
   minimum_price: z.number().min(0).default(0),
@@ -94,7 +94,7 @@ const CreateProductSchema = z.object({
   total_price: z.number().min(0).optional(),
   total_currency: z.string().length(3).default('BRL'),
 
-  user_limit_type: z.enum(['UNLIMITED', 'LIMITED']).default('UNLIMITED'),
+  user_limit_type: z.enum(['ILIMITADO', 'LIMITADO']).default('ILIMITADO'),
   base_users_qty: z.number().int().min(0).optional(),
   extra_user_price: z.number().min(0).optional(),
   extra_user_currency: z.string().length(3).default('BRL'),
@@ -180,8 +180,8 @@ adminProductsRouter.post('/', adminRateLimit, async (req, res, next) => {
       )
     }
 
-    // Se status ACTIVE, o slug deve existir em contracts.json (tem infraestrutura)
-    if (parsed.data.status === 'ACTIVE') {
+    // Se status ATIVO, o slug deve existir em contracts.json (tem infraestrutura)
+    if (parsed.data.status === 'ATIVO') {
       const contractsSlugs = getContractsSlugs()
       const moduleSlug = parsed.data.backend_module ?? parsed.data.slug
       if (!contractsSlugs.includes(moduleSlug)) {

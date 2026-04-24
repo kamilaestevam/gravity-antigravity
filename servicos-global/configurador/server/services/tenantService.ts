@@ -111,7 +111,7 @@ export const tenantService = {
             id: newOrgId,
             name,
             slug,
-            status: 'PENDING_SETUP',
+            status: 'CONFIGURACAO_PENDENTE',
             suid_empresa: suid,
             cnpj: pais === 'BR' ? cnpj ?? null : null,
           },
@@ -131,7 +131,7 @@ export const tenantService = {
         await tx.assinaturaProdutoGravity.create({
           data: {
             tenant_id: newTenant.id,
-            status: 'TRIALING',
+            status: 'EM_TESTE',
             trial_ends_at: new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
           },
         })
@@ -141,7 +141,7 @@ export const tenantService = {
           data: {
             tenant_id: newTenant.id,
             name,
-            status: 'ACTIVE',
+            status: 'ATIVO',
           },
         })
 
@@ -231,7 +231,7 @@ export const tenantService = {
         name: data.name,
         subdomain: data.subdomain,
         cnpj: data.cnpj,
-        status: 'ACTIVE',
+        status: 'ATIVO',
       },
     })
   },
@@ -243,7 +243,7 @@ export const tenantService = {
     name?: string
     subdomain?: string
     cnpj?: string
-    status?: 'ACTIVE' | 'INACTIVE'
+    status?: 'ATIVO' | 'INATIVO'
   }) {
     const company = await prisma.empresa.findFirst({
       where: { id: companyId, tenant_id: tenantId },

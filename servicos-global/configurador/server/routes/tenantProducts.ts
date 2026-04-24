@@ -73,7 +73,7 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
 
     // Verifica se o produto existe no catálogo
     const catalogProduct =
-      await prisma.produtoGravity.findFirst({ where: { slug: product_key, status: { in: [StatusProdutoGravity.ACTIVE] } } }).catch(() => null)
+      await prisma.produtoGravity.findFirst({ where: { slug: product_key, status: { in: [StatusProdutoGravity.ATIVO] } } }).catch(() => null)
 
     if (!catalogProduct) {
       throw new AppError('Produto não encontrado ou inativo', 404, 'NOT_FOUND')

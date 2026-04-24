@@ -57,7 +57,7 @@ async function main() {
       data: {
         name:   ORG_NAME,
         slug:   ORG_SLUG,
-        status: 'ACTIVE',
+        status: 'ATIVO',
       },
     })
     console.log(`  ✔ Organizacao criada: ${org.name} → ${org.id}`)

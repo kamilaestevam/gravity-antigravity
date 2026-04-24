@@ -25,7 +25,7 @@ vi.mock('../lib/prisma.js', () => ({ prisma: prismaMock }))
 
 // Mock tenantService
 const tenantServiceMock = {
-  getTenantById: vi.fn().mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ACTIVE' }),
+  getTenantById: vi.fn().mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO' }),
   getCompanies: vi.fn().mockResolvedValue([]),
 }
 
@@ -84,7 +84,7 @@ beforeEach(() => {
   prismaMock.configuracaoProduto.findMany.mockResolvedValue([])
   prismaMock.user.findUnique.mockResolvedValue(null)
   prismaMock.user.update.mockResolvedValue(null)
-  tenantServiceMock.getTenantById.mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ACTIVE' })
+  tenantServiceMock.getTenantById.mockResolvedValue({ id: 'tenant-001', name: 'Acme Corp', slug: 'acme', status: 'ATIVO' })
   tenantServiceMock.getCompanies.mockResolvedValue([])
 
   // Default: all product fetches fail (resilience test)
@@ -352,9 +352,9 @@ describe('hubInsightsService', () => {
       expect(normalizeHubRole('ADMIN')).toBe('admin')
     })
 
-    it('normaliza STANDARD para operador', async () => {
+    it('normaliza PADRAO para operador', async () => {
       const { normalizeHubRole } = await import('../services/hubInsightsService.js')
-      expect(normalizeHubRole('STANDARD')).toBe('operador')
+      expect(normalizeHubRole('PADRAO')).toBe('operador')
     })
 
     it('normaliza undefined para default', async () => {

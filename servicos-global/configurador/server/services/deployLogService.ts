@@ -5,8 +5,8 @@
 import { prisma } from '../lib/prisma.js'
 import type { Prisma } from '../../../../configurador/generated/index.js'
 
-export type DeployEnvironmentValue = 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION' | 'ALL'
-export type DeployStatusValue = 'SUCCESS' | 'FAILED' | 'ROLLBACK' | 'IN_PROGRESS'
+export type DeployEnvironmentValue = 'DESENVOLVIMENTO' | 'HOMOLOGACAO' | 'PRODUCAO' | 'TODOS'
+export type DeployStatusValue = 'SUCESSO' | 'FALHOU' | 'REVERTIDO' | 'EM_ANDAMENTO'
 
 export interface CreateDeployLogInput {
   area: string
@@ -79,8 +79,8 @@ export const deployLogService = {
         area: data.area,
         version: data.version,
         description: data.description,
-        environment: data.environment ?? 'PRODUCTION',
-        status: data.status ?? 'SUCCESS',
+        environment: data.environment ?? 'PRODUCAO',
+        status: data.status ?? 'SUCESSO',
         deployed_by: data.deployed_by,
         deployed_by_user_id: data.deployed_by_user_id,
         deployed_at: data.deployed_at ?? new Date(),

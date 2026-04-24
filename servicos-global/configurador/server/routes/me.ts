@@ -21,7 +21,7 @@ export const meResponseSchema = z.object({
     id_usuario:             z.string(),
     nome_usuario:           z.string(),
     email_usuario:          z.string().email(),
-    tipo_usuario:           z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'STANDARD', 'SUPPLIER']),
+    tipo_usuario:           z.enum(['SUPER_ADMIN', 'ADMIN', 'MASTER', 'PADRAO', 'FORNECEDOR']),
     id_organizacao_usuario: z.string(),
     preferred_company_id:   z.string().nullable(),
   }),
@@ -35,7 +35,7 @@ export const meResponseSchema = z.object({
     id:             z.string(),
     nome_workspace: z.string(),
     status:         z.string(),
-    tipo_usuario:   z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),
+    tipo_usuario:   z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
     produtos:       z.array(z.string()),
   })),
 })
@@ -168,7 +168,7 @@ async function isPreferredCompanyValid(
       where: {
         id: companyId,
         tenant_id: tenantId,
-        status: 'ACTIVE',
+        status: 'ATIVO',
       },
       select: { id: true },
     })
@@ -182,7 +182,7 @@ async function isPreferredCompanyValid(
       company_id: companyId,
       tenant_id: tenantId,
       is_active: true,
-      company: { status: 'ACTIVE' },
+      company: { status: 'ATIVO' },
     },
     select: { id: true },
   })
@@ -202,7 +202,7 @@ async function isPreferredCompanyValid(
 meRouter.get('/preferences', async (req, res, next) => {
   try {
     // Fornecedor nunca tem preferido
-    if (req.auth.role === 'SUPPLIER') {
+    if (req.auth.role === 'FORNECEDOR') {
       res.json({ data: { preferredCompanyId: null } })
       return
     }
@@ -258,7 +258,7 @@ meRouter.get('/preferences', async (req, res, next) => {
 meRouter.put('/preferences', async (req, res, next) => {
   try {
     // Camada 3 — Autorização: fornecedor não pode marcar preferido
-    if (req.auth.role === 'SUPPLIER') {
+    if (req.auth.role === 'FORNECEDOR') {
       throw new AppError(
         'Fornecedores não podem definir workspace preferido',
         403,

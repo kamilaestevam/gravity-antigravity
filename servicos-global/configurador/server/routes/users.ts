@@ -24,7 +24,7 @@ usersRouter.use(requireAuth)
 const InviteUserSchema = z.object({
   email: z.string().email().max(255),
   name: z.string().min(1).max(200),
-  role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']).default('STANDARD'),
+  role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']).default('PADRAO'),
   workspaces: z.union([z.literal('all'), z.array(z.string().cuid()).min(1)]).optional(),
 }).refine(
   (data) => data.role === 'MASTER' || data.workspaces !== undefined,
@@ -33,7 +33,7 @@ const InviteUserSchema = z.object({
 
 const MembershipSchema = z.object({
   companyId: z.string(),
-  role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']).default('STANDARD'),
+  role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']).default('PADRAO'),
 })
 
 export const UpdateWorkspacesSchema = z.object({
@@ -123,7 +123,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 
     if (role === 'MASTER' || workspacesPayload === 'all') {
       empresasParaVincular = await prisma.empresa.findMany({
-        where: { tenant_id: req.auth.tenantId, status: 'ACTIVE' },
+        where: { tenant_id: req.auth.tenantId, status: 'ATIVO' },
         select: { id: true },
       })
     } else if (Array.isArray(workspacesPayload) && workspacesPayload.length > 0) {
@@ -132,7 +132,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
         where: {
           id: { in: workspacesPayload },
           tenant_id: req.auth.tenantId,
-          status: 'ACTIVE',
+          status: 'ATIVO',
         },
         select: { id: true },
       })
@@ -247,7 +247,7 @@ async function validarWorkspacesDoTenant(
   workspaceIds: string[],
 ): Promise<void> {
   const empresas = await prisma.empresa.findMany({
-    where: { id: { in: workspaceIds }, tenant_id: tenantId, status: 'ACTIVE' },
+    where: { id: { in: workspaceIds }, tenant_id: tenantId, status: 'ATIVO' },
     select: { id: true },
   })
   if (empresas.length !== workspaceIds.length) {
@@ -334,7 +334,7 @@ usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => 
 usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
   try {
     const RoleSchema = z.object({
-      role: z.enum(['MASTER', 'STANDARD', 'SUPPLIER']),
+      role: z.enum(['MASTER', 'PADRAO', 'FORNECEDOR']),
     })
     const parsed = RoleSchema.safeParse(req.body)
     if (!parsed.success) {

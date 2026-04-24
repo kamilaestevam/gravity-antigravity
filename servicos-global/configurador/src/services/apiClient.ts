@@ -90,7 +90,7 @@ export interface ProductApi {
   name: string
   slug: string
   description: string
-  status: 'ACTIVE' | 'SUSPENDED' | 'COMING_SOON' | 'LEGACY' | 'INACTIVE'
+  status: 'ATIVO' | 'SUSPENSO' | 'EM_BREVE' | 'LEGADO' | 'INATIVO'
   launch_date: string | null
   has_setup: boolean
   setup_price: string | null
@@ -102,7 +102,7 @@ export interface ProductApi {
   minimum_currency: string
   total_price: string | null
   total_currency: string
-  user_limit_type: 'UNLIMITED' | 'LIMITED'
+  user_limit_type: 'ILIMITADO' | 'LIMITADO'
   base_users_qty: number | null
   extra_user_price: string | null
   extra_user_currency: string
@@ -263,7 +263,7 @@ export const adminTenantsApi = {
     })
   },
 
-  async updateWorkspaceStatus(id: string, status: 'ACTIVE' | 'INACTIVE') {
+  async updateWorkspaceStatus(id: string, status: 'ATIVO' | 'INATIVO') {
     return request<{ workspace: { id: string; name: string; status: string; tenant_id: string } }>(
       `/admin/workspaces/${id}`,
       { method: 'PATCH', body: JSON.stringify({ status }) }
@@ -443,8 +443,8 @@ export const adminBillingApi = {
 // ─── Admin: Deploy Logs ─────────────────────────────────────────────────────
 // Histórico manual de deploys da plataforma Gravity.
 
-export type DeployEnvironment = 'DEVELOPMENT' | 'STAGING' | 'PRODUCTION' | 'ALL'
-export type DeployStatus = 'SUCCESS' | 'FAILED' | 'ROLLBACK' | 'IN_PROGRESS'
+export type DeployEnvironment = 'DESENVOLVIMENTO' | 'HOMOLOGACAO' | 'PRODUCAO' | 'TODOS'
+export type DeployStatus = 'SUCESSO' | 'FALHOU' | 'REVERTIDO' | 'EM_ANDAMENTO'
 
 export interface DeployApi {
   id: string

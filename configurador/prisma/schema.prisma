@@ -19,18 +19,18 @@ datasource db {
 // ---------------------------------------------------------------------------
 
 enum OrganizacaoStatus {
-  ACTIVE
-  SUSPENDED
-  CANCELLED
-  PENDING_SETUP
+  ATIVO
+  SUSPENSO
+  CANCELADO
+  CONFIGURACAO_PENDENTE
 }
 
 enum StatusAssinaturaProdutoGravity {
-  ACTIVE
-  PAST_DUE
-  CANCELLED
-  TRIALING
-  INCOMPLETE
+  ATIVA
+  VENCIDA
+  CANCELADA
+  EM_TESTE
+  INCOMPLETA
 }
 
 // Roles canônicos do sistema — alinhados com skill antigravity-permissoes
@@ -38,23 +38,23 @@ enum UsuarioTipo {
   SUPER_ADMIN // Equipe Gravity — acesso total irrestrito
   ADMIN // Equipe Gravity — acesso com permissões explícitas
   MASTER // Cliente — acesso total na organização
-  STANDARD // Cliente — acesso conforme permissões do Master
-  SUPPLIER // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
+  PADRAO // Cliente — acesso conforme permissões do Master
+  FORNECEDOR // Fornecedor — permissões explícitas obrigatórias (cross-tenant)
 }
 
 enum EmpresaStatus {
-  ACTIVE
-  INACTIVE
+  ATIVO
+  INATIVO
 }
 
 enum TipoUsuarioEmpresa {
   MASTER // Acesso implícito a todos os workspaces da organização
-  STANDARD // Acesso apenas aos workspaces onde foi habilitado
-  SUPPLIER // Acesso externo — permissões granulares obrigatórias
+  PADRAO // Acesso apenas aos workspaces onde foi habilitado
+  FORNECEDOR // Acesso externo — permissões granulares obrigatórias
 }
 
 enum APITokenServico {
-  SERVICE
+  SERVICO
   WEBHOOK
   CRON
 }
@@ -69,7 +69,7 @@ model Organizacao {
   id                 String       @id @default(cuid()) @map("id_organizacao")
   name               String       @map("nome_organizacao")
   slug               String       @unique @map("subdominio_organizacao")
-  status             OrganizacaoStatus @default(PENDING_SETUP) @map("status_organizacao")
+  status             OrganizacaoStatus @default(CONFIGURACAO_PENDENTE) @map("status_organizacao")
   clerk_org_id       String?      @unique
   stripe_customer_id String?      @unique
   suid_empresa       String?      @unique
@@ -110,7 +110,7 @@ model Usuario {
   clerk_user_id String   @unique
   email         String   @map("email_usuario")
   name          String   @map("nome_usuario")
-  role          UsuarioTipo @default(STANDARD) @map("tipo_usuario")
+  role          UsuarioTipo @default(PADRAO) @map("tipo_usuario")
 
   // Workspace preferido — skip pós-login para Master/Standard
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
@@ -145,7 +145,7 @@ model Usuario {
 model AssinaturaProdutoGravity {
   id        String             @id @default(cuid())
   tenant_id String
-  status    StatusAssinaturaProdutoGravity @default(TRIALING)
+  status    StatusAssinaturaProdutoGravity @default(EM_TESTE)
 
   stripe_subscription_id String? @unique
   stripe_price_id        String?
@@ -239,7 +239,7 @@ model Empresa {
   name      String
   subdomain String?       @unique
   cnpj      String?
-  status    EmpresaStatus @default(ACTIVE)
+  status    EmpresaStatus @default(ATIVO)
 
   // Timestamps
   created_at DateTime @default(now())
@@ -269,7 +269,7 @@ model UsuarioWorkspace {
   tenant_id  String
   user_id    String
   company_id String
-  role       TipoUsuarioEmpresa @default(STANDARD)
+  role       TipoUsuarioEmpresa @default(PADRAO)
   is_active  Boolean            @default(true)
 
   // Timestamps
@@ -355,28 +355,28 @@ model ProdutoGravityWorkspace {
 // ---------------------------------------------------------------------------
 
 enum StatusProdutoGravity {
-  ACTIVE
-  SUSPENDED
-  COMING_SOON
-  LEGACY
-  INACTIVE
+  ATIVO
+  SUSPENSO
+  EM_BREVE
+  LEGADO
+  INATIVO
 }
 
 enum TipoCobrancaGravity {
-  MONTHLY
-  PER_PROCESS
-  PER_DOCUMENT
-  PER_ESTIMATE
-  PER_DI_DUIMP
-  PER_DUE
-  PER_PRODUCT
-  PER_FLOW
-  PER_LPCO
+  MENSAL
+  POR_PROCESSO
+  POR_DOCUMENTO
+  POR_ESTIMATIVA
+  POR_DI_DUIMP
+  POR_DUE
+  POR_PRODUTO
+  POR_FLUXO
+  POR_LPCO
 }
 
 enum ProdutoGravityLimiteUsuario {
-  UNLIMITED
-  LIMITED
+  ILIMITADO
+  LIMITADO
 }
 
 model ProdutoGravity {
@@ -384,7 +384,7 @@ model ProdutoGravity {
   name        String
   slug        String        @unique
   description String
-  status      StatusProdutoGravity @default(ACTIVE)
+  status      StatusProdutoGravity @default(ATIVO)
   launch_date DateTime?
 
   // Setup
@@ -393,7 +393,7 @@ model ProdutoGravity {
   setup_currency String   @default("BRL")
 
   // Billing
-  billing_type     TipoCobrancaGravity @default(MONTHLY)
+  billing_type     TipoCobrancaGravity @default(MENSAL)
   unit_price       Decimal     @db.Decimal(15, 2)
   unit_currency    String      @default("BRL")
   minimum_price    Decimal     @default(0) @db.Decimal(15, 2)
@@ -402,7 +402,7 @@ model ProdutoGravity {
   total_currency   String      @default("BRL")
 
   // Users
-  user_limit_type     ProdutoGravityLimiteUsuario @default(UNLIMITED)
+  user_limit_type     ProdutoGravityLimiteUsuario @default(ILIMITADO)
   base_users_qty      Int?
   extra_user_price    Decimal?      @db.Decimal(15, 2)
   extra_user_currency String        @default("BRL")
@@ -493,17 +493,17 @@ model NegociacaoEspecial {
 // ---------------------------------------------------------------------------
 
 enum DeployAmbiente {
-  DEVELOPMENT
-  STAGING
-  PRODUCTION
-  ALL
+  DESENVOLVIMENTO
+  HOMOLOGACAO
+  PRODUCAO
+  TODOS
 }
 
 enum DeployStatus {
-  SUCCESS
-  FAILED
-  ROLLBACK
-  IN_PROGRESS
+  SUCESSO
+  FALHOU
+  REVERTIDO
+  EM_ANDAMENTO
 }
 
 model Deploy {
@@ -512,8 +512,8 @@ model Deploy {
   area                String            @map("area_deploy") // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
   version             String            @map("versao_deploy") // semver (v1.2.3) ou git sha (8f3a1c2)
   description         String            @map("descricao_deploy") // resumo das alterações (changelog curto)
-  environment         DeployAmbiente @default(PRODUCTION) @map("ambiente_deploy")
-  status              DeployStatus      @default(SUCCESS) @map("status_deploy")
+  environment         DeployAmbiente @default(PRODUCAO) @map("ambiente_deploy")
+  status              DeployStatus      @default(SUCESSO) @map("status_deploy")
   deployed_by         String            @map("quem_deploy") // nome legível do responsável (snapshot no momento do deploy)
   deployed_by_user_id String?           @map("id_usuario_deploy") // FK opcional para Usuario (pode ser null se deploy veio de CI)
   deployed_at         DateTime          @default(now()) @map("data_execucao_deploy")

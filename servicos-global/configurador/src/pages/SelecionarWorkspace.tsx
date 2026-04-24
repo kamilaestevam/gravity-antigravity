@@ -346,7 +346,7 @@ export function SelecionarWorkspace() {
 
   // Produtos sugeridos = catálogo que o tenant ainda não contratou (inclui Em Breve)
   const slugsContratados = new Set(produtosContratados.map(p => p.product_key))
-  const HIDDEN_STATUSES = new Set(['INACTIVE', 'LEGACY', 'SUSPENDED', 'Inativo', 'Legado', 'Suspenso'])
+  const HIDDEN_STATUSES = new Set(['INATIVO', 'LEGADO', 'SUSPENSO', 'Inativo', 'Legado', 'Suspenso'])
   const produtosSugeridos = catalogoProdutos.filter(
     p => !HIDDEN_STATUSES.has(p.status) && !slugsContratados.has(p.slug)
   )
@@ -1067,7 +1067,7 @@ export function SelecionarWorkspace() {
                     {/* Não contratados — bloqueados com "Assine agora" */}
                     {produtosSugeridos.map(prod => {
                       const iconData = getProdutoIcon(prod.slug)
-                      const isActive = prod.status === 'ACTIVE' || prod.status === 'Ativo'
+                      const isActive = prod.status === 'ATIVO' || prod.status === 'Ativo'
                       return (
                         <div
                           key={prod.id}

@@ -29,7 +29,7 @@ async function main() {
       data: {
         name: 'DMM Importação & Exportação',
         slug: 'dmm-teste',
-        status: 'ACTIVE',
+        status: 'ATIVO',
       },
     })
     console.log('Organizacao criada:', tenant.id)
@@ -49,7 +49,7 @@ async function main() {
         name: 'DMM Workspace Principal',
         subdomain: 'dmm-principal',
         cnpj: '12.345.678/0001-90',
-        status: 'ACTIVE',
+        status: 'ATIVO',
       },
     })
     console.log('Workspace criado:', company.id)
@@ -116,15 +116,15 @@ async function main() {
       name: 'SimulaCusto',
       slug: 'simula-custo',
       description: 'Simulador de custos de importação com cálculo automático de tributos, PTAX e landed cost.',
-      status: 'ACTIVE',
-      billing_type: 'MONTHLY',
+      status: 'ATIVO',
+      billing_type: 'MENSAL',
       unit_price: 199,
       unit_currency: 'BRL',
       backend_module: 'simula-custo',
       base_users_qty: 5,
       helpdesk_hours: 4,
     },
-    update: { status: 'ACTIVE' },
+    update: { status: 'ATIVO' },
   })
   console.log('Produto SimulaCusto:', simulaCusto.id)
 
@@ -170,9 +170,9 @@ async function main() {
     create: {
       id: `sub_${tenant.id}`,
       tenant_id: tenant.id,
-      status: 'ACTIVE',
+      status: 'ATIVA',
     },
-    update: { status: 'ACTIVE' },
+    update: { status: 'ATIVA' },
   })
   console.log('Assinatura criada')
 

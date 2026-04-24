@@ -33,7 +33,7 @@ export interface CompanyProductItem {
 export interface AdminProductItem {
   slug: string
   name: string
-  status: 'ACTIVE' | 'SUSPENDED' | 'COMING_SOON' | 'LEGACY' | 'INACTIVE'
+  status: 'ATIVO' | 'SUSPENSO' | 'EM_BREVE' | 'LEGADO' | 'INATIVO'
 }
 
 // ── Builders de nós de produto ────────────────────────────────────────────────
@@ -69,7 +69,7 @@ export function buildTenantProductNodes(
 /**
  * Constrói nós de produto para o painel Admin.
  * Usa a resposta de /api/admin/products:
- *   - ACTIVE   → accessible
+ *   - ATIVO   → accessible
  *   - demais   → locked
  */
 export function buildAdminProductNodes(
@@ -86,7 +86,7 @@ export function buildAdminProductNodes(
       type:     'produto' as const,
       status:   p.slug === currentProductId
                   ? 'current'
-                  : p.status === 'ACTIVE'
+                  : p.status === 'ATIVO'
                     ? 'accessible'
                     : 'locked',
     }

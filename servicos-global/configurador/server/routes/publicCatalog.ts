@@ -28,7 +28,7 @@ publicCatalogRouter.get('/products', async (_req, res, next) => {
 publicCatalogRouter.get('/products/:slug', async (req, res, next) => {
   try {
     const product = await productCatalogService.getBySlug(req.params.slug)
-    if (!product || !['ACTIVE', 'COMING_SOON'].includes(product.status)) {
+    if (!product || !['ATIVO', 'EM_BREVE'].includes(product.status)) {
       res.status(404).json({ error: 'Produto não encontrado' })
       return
     }

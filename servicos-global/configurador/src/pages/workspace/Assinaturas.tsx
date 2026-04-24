@@ -84,7 +84,7 @@ export function Assinaturas() {
           setWorkspaces(companies.map((c: Record<string, unknown>) => ({
             id: c.id,
             nome: c.name ?? '',
-            status: c.status === 'ACTIVE' ? 'Ativa' : 'Suspensa',
+            status: c.status === 'ATIVO' ? 'Ativa' : 'Suspensa',
           })))
         }
 

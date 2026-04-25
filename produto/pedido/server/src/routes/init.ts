@@ -65,7 +65,7 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       const [pedidosRaw, statusList, preferencia, padrao, colunas] = await Promise.all([
         db.pedido.findMany({
           where,
-          include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+          include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
           orderBy: [{ [sortField]: sortDir }, { id: sortDir }],
           take: limitNum + 1,
         }),

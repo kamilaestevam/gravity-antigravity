@@ -124,21 +124,21 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
         }),
         db.pedidoItem.findMany({
           where: {
-            pedido_pedido_item: {
+            pedido_item: {
               data_emissao_pedido: { gte: from, lte: to },
               deleted_at: null,
             },
           },
           select: {
-            quantidade_inicial_pedido_pedido_item: true,
-            quantidade_atual_pedido_pedido_item: true,
-            quantidade_transferida_pedido_pedido_item: true,
-            quantidade_pronta_pedido_pedido_item: true,
-            valor_total_item_pedido_item: true,
-            cobertura_cambial_pedido_item: true,
-            quantidade_cancelada_pedido_pedido_item: true,
-            peso_bruto_unitario_pedido_item: true,
-            cubagem_unitaria_pedido_item: true,
+            quantidade_inicial_item: true,
+            quantidade_atual_item: true,
+            quantidade_transferida_item: true,
+            quantidade_pronta_item: true,
+            valor_total_item: true,
+            cobertura_cambial_item: true,
+            quantidade_cancelada_item: true,
+            peso_bruto_unitario_item: true,
+            cubagem_unitaria_item: true,
           },
         }),
         buscarTaxasVenda(),
@@ -178,8 +178,8 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
       const cubagem_total     = pedidos.reduce((s, p) => s + Number(p.cubagem_total_pedido ?? 0), 0)
 
       // ── Itens — cobertura cambial e cancelamentos ────────────────────────────
-      const itens_sem_cobertura   = itens.filter((i) => i.cobertura_cambial_pedido_item === 'sem_cobertura').length
-      const qtd_cancelada_total   = itens.reduce((s, i) => s + Number(i.quantidade_cancelada_pedido_pedido_item ?? 0), 0)
+      const itens_sem_cobertura   = itens.filter((i) => i.cobertura_cambial_item === 'sem_cobertura').length
+      const qtd_cancelada_total   = itens.reduce((s, i) => s + Number(i.quantidade_cancelada_item ?? 0), 0)
 
       // ── Financeiro ────────────────────────────────────────────────────────────
       const valor_total        = pedidos.reduce((s, p) => s + Number(p.valor_total_pedido ?? 0), 0)
@@ -205,11 +205,11 @@ dashboardDataRouter.get('/kpis', async (req: Request, res: Response) => {
       }
 
       // ── Itens ─────────────────────────────────────────────────────────────────
-      const qtd_inicial_total     = itens.reduce((s, i) => s + Number(i.quantidade_inicial_pedido_pedido_item ?? 0), 0)
-      const qtd_atual_total       = itens.reduce((s, i) => s + Number(i.quantidade_atual_pedido_pedido_item ?? 0), 0)
-      const qtd_transferida_total = itens.reduce((s, i) => s + Number(i.quantidade_transferida_pedido_pedido_item ?? 0), 0)
-      const itens_prontos         = itens.reduce((s, i) => s + Number(i.quantidade_pronta_pedido_pedido_item ?? 0), 0)
-      const valor_itens_total     = itens.reduce((s, i) => s + Number(i.valor_total_item_pedido_item ?? 0), 0)
+      const qtd_inicial_total     = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item ?? 0), 0)
+      const qtd_atual_total       = itens.reduce((s, i) => s + Number(i.quantidade_atual_item ?? 0), 0)
+      const qtd_transferida_total = itens.reduce((s, i) => s + Number(i.quantidade_transferida_item ?? 0), 0)
+      const itens_prontos         = itens.reduce((s, i) => s + Number(i.quantidade_pronta_item ?? 0), 0)
+      const valor_itens_total     = itens.reduce((s, i) => s + Number(i.valor_total_item ?? 0), 0)
 
       res.json({
         period,
@@ -371,13 +371,13 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
           },
         }),
         db.pedidoItem.findMany({
-          where: { pedido_pedido_item: { data_emissao_pedido: { gte: from, lte: to }, deleted_at: null } },
+          where: { pedido_item: { data_emissao_pedido: { gte: from, lte: to }, deleted_at: null } },
           select: {
-            quantidade_inicial_pedido_pedido_item: true,
-            quantidade_atual_pedido_pedido_item: true,
-            quantidade_transferida_pedido_pedido_item: true,
-            quantidade_pronta_pedido_pedido_item: true,
-            valor_total_item_pedido_item: true,
+            quantidade_inicial_item: true,
+            quantidade_atual_item: true,
+            quantidade_transferida_item: true,
+            quantidade_pronta_item: true,
+            valor_total_item: true,
           },
         }),
       ])
@@ -397,11 +397,11 @@ dashboardDataRouter.get('/insights', async (req: Request, res: Response) => {
       const pedidos_exportacao   = pedidos.filter((p) => p.tipo_operacao === 'exportacao').length
 
       const valor_total          = pedidos.reduce((s, p) => s + Number(p.valor_total_pedido ?? 0), 0)
-      const qtd_inicial_total    = itens.reduce((s, i) => s + Number(i.quantidade_inicial_pedido_pedido_item ?? 0), 0)
-      const qtd_transferida_total = itens.reduce((s, i) => s + Number(i.quantidade_transferida_pedido_pedido_item ?? 0), 0)
-      const qtd_pronta_total     = itens.reduce((s, i) => s + Number(i.quantidade_pronta_pedido_pedido_item ?? 0), 0)
-      const qtd_saldo_total      = itens.reduce((s, i) => s + Number(i.quantidade_atual_pedido_pedido_item ?? 0), 0)
-      const valor_itens_total    = itens.reduce((s, i) => s + Number(i.valor_total_item_pedido_item ?? 0), 0)
+      const qtd_inicial_total    = itens.reduce((s, i) => s + Number(i.quantidade_inicial_item ?? 0), 0)
+      const qtd_transferida_total = itens.reduce((s, i) => s + Number(i.quantidade_transferida_item ?? 0), 0)
+      const qtd_pronta_total     = itens.reduce((s, i) => s + Number(i.quantidade_pronta_item ?? 0), 0)
+      const qtd_saldo_total      = itens.reduce((s, i) => s + Number(i.quantidade_atual_item ?? 0), 0)
+      const valor_itens_total    = itens.reduce((s, i) => s + Number(i.valor_total_item ?? 0), 0)
       const ticket_medio         = total_pedidos > 0 ? valor_total / total_pedidos : 0
       const taxa_atraso          = 0
       const taxa_transferencia   = qtd_inicial_total > 0 ? (qtd_transferida_total / qtd_inicial_total) * 100 : 0
@@ -453,21 +453,21 @@ dashboardDataRouter.get('/ncm-status', async (req: Request, res: Response) => {
 
   try {
     // 1. Buscar todos os NCMs distintos usados em itens ativos deste tenant
-    let itensNcm: Array<{ ncm: string | null }> = []
+    let itensNcm: Array<{ ncm_item: string | null }> = []
 
     await withTenant(req, async (rawDb) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const db = rawDb as any
       itensNcm = await db.pedidoItem.findMany({
-        where:  { pedido_pedido_item: { deleted_at: null } },
-        select: { ncm_pedido_item: true },
-      }) as Array<{ ncm_pedido_item: string | null }>
+        where:  { pedido_item: { data_exclusao_pedido: null } },
+        select: { ncm_item: true },
+      }) as Array<{ ncm_item: string | null }>
 
     })
 
     const codigosUsados = [...new Set(
-      (itensNcm as unknown as Array<{ ncm_pedido_item: string | null }>)
-        .map(i => (i.ncm_pedido_item ?? '').replace(/\D/g, ''))
+      itensNcm
+        .map(i => (i.ncm_item ?? '').replace(/\D/g, ''))
         .filter((c) => c.length === 8)
     )]
 
@@ -507,7 +507,7 @@ dashboardDataRouter.get('/ncm-status', async (req: Request, res: Response) => {
     const invalidSet = new Set(ncmData.invalidos)
     const itensInvalidos = itensNcm
       .filter(i => {
-        const c = (i.ncm_pedido_item ?? '').replace(/\D/g, '')
+        const c = (i.ncm_item ?? '').replace(/\D/g, '')
         return c.length === 8 && invalidSet.has(c)
       }).length
 

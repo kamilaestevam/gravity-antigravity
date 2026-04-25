@@ -163,7 +163,7 @@ function gerarId(prefixo: string): string {
  * estáveis sem sufixo). Faz também conversão Decimal → number.
  *
  * Contrato JSON público: nomes preservados (quantidade_inicial_pedido, part_number, …).
- * Lado Prisma (DDD Onda 3): quantidade_inicial_pedido_pedido_item, part_number_pedido_item, …
+ * Lado Prisma (DDD Onda 3): quantidade_inicial_item, part_number_item, …
  */
 type PedidoItemRaw = Record<string, unknown>
 type PedidoRaw = Record<string, unknown> & { itens?: PedidoItemRaw[]; detalhes_operacionais?: unknown }
@@ -173,62 +173,130 @@ export function mapItem(item: PedidoItemRaw): PedidoItemRaw {
     v != null ? Number(v) : fallback
   return {
     // Identidade e FKs (contrato preserva nomes antigos)
-    id:         item.id_pedido_item,
+    id:         item.id_item,
     tenant_id:  item.id_organizacao,
     company_id: item.id_workspace,
     pedido_id:  item.id_pedido,
 
-    sequencia_item:              item.sequencia_item_pedido_item,
-    part_number:                 item.part_number_pedido_item,
-    ncm:                         item.ncm_pedido_item,
-    descricao_item:              item.descricao_item_pedido_item,
-    unidade_comercializada_item: item.unidade_comercializada_item_pedido_item,
+    sequencia_item:              item.sequencia_item_pedido,
+    part_number:                 item.part_number_item,
+    ncm:                         item.ncm_item,
+    descricao_item:              item.descricao_item,
+    unidade_comercializada_item: item.unidade_comercializada_item,
 
     // Decimal → number (quantidades)
-    quantidade_inicial_pedido:     num(item.quantidade_inicial_pedido_pedido_item),
-    quantidade_atual_pedido:       num(item.quantidade_atual_pedido_pedido_item),
-    quantidade_pronta_pedido:      num(item.quantidade_pronta_pedido_pedido_item),
-    quantidade_transferida_pedido: num(item.quantidade_transferida_pedido_pedido_item),
-    quantidade_cancelada_pedido:   num(item.quantidade_cancelada_pedido_pedido_item),
+    quantidade_inicial_pedido:     num(item.quantidade_inicial_item),
+    quantidade_atual_pedido:       num(item.quantidade_atual_item),
+    quantidade_pronta_pedido:      num(item.quantidade_pronta_item),
+    quantidade_transferida_pedido: num(item.quantidade_transferida_item),
+    quantidade_cancelada_pedido:   num(item.quantidade_cancelada_item),
 
-    casas_decimais_quantidade_item: item.casas_decimais_quantidade_item_pedido_item,
-    moeda_item:                     item.moeda_item_pedido_item,
+    casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
+    moeda_item:                     item.moeda_item,
 
     // Decimal → number (valores)
-    valor_total_item:       num(item.valor_total_item_pedido_item, null),
-    valor_por_unidade_item: num(item.valor_por_unidade_item_pedido_item, null),
+    valor_total_item:       num(item.valor_total_item, null),
+    valor_por_unidade_item: num(item.valor_por_unidade_item, null),
 
-    casas_decimais_valor_item: item.casas_decimais_valor_item_pedido_item,
-    cobertura_cambial:         item.cobertura_cambial_pedido_item,
-    nome_exportador:           item.nome_exportador_pedido_item,
-    nome_importador:           item.nome_importador_pedido_item,
-    nome_fabricante:           item.nome_fabricante_pedido_item,
-    referencia_importador:     item.referencia_importador_pedido_item,
-    referencia_exportador:     item.referencia_exportador_pedido_item,
-    referencia_fabricante:     item.referencia_fabricante_pedido_item,
-    incoterm:                  item.incoterm_pedido_item,
-    condicao_pagamento_pedido: item.condicao_pagamento_pedido_pedido_item,
-    data_emissao_pedido:       item.data_emissao_pedido_pedido_item,
+    casas_decimais_valor_item: item.casas_decimais_valor_item,
+    cobertura_cambial:         item.cobertura_cambial_item,
+    nome_exportador:           item.nome_exportador_item,
+    nome_importador:           item.nome_importador_item,
+    nome_fabricante:           item.nome_fabricante_item,
+    referencia_importador:     item.referencia_importador_item,
+    referencia_exportador:     item.referencia_exportador_item,
+    referencia_fabricante:     item.referencia_fabricante_item,
+    incoterm:                  item.incoterm_item,
+    condicao_pagamento_pedido: item.condicao_pagamento_item,
+    data_emissao_pedido:       item.data_emissao_item,
 
     // Decimal → number (dados físicos unitários)
-    peso_liquido_unitario: num(item.peso_liquido_unitario_pedido_item, null),
-    peso_bruto_unitario:   num(item.peso_bruto_unitario_pedido_item, null),
-    cubagem_unitaria:      num(item.cubagem_unitaria_pedido_item, null),
+    peso_liquido_unitario: num(item.peso_liquido_unitario_item, null),
+    peso_bruto_unitario:   num(item.peso_bruto_unitario_item, null),
+    cubagem_unitaria:      num(item.cubagem_unitaria_item, null),
 
-    casas_decimais_peso_item:    item.casas_decimais_peso_item_pedido_item,
-    casas_decimais_cubagem_item: item.casas_decimais_cubagem_item_pedido_item,
-    campos_custom:               item.campos_custom_pedido_item,
-    created_at:                  item.data_criacao_pedido_item,
-    updated_at:                  item.data_atualizacao_pedido_item,
+    casas_decimais_peso_item:    item.casas_decimais_peso_item,
+    casas_decimais_cubagem_item: item.casas_decimais_cubagem_item,
+    campos_custom:               item.dados_extras_importacao_item,
+    created_at:                  item.data_criacao_item,
+    updated_at:                  item.data_atualizacao_item,
   }
 }
 
+/**
+ * mapPedido — ACL Pedido DDD → contrato JSON público.
+ *
+ * Após Onda 3 Tabela 7, as colunas físicas do model Pedido seguem DDD
+ * (id_pedido, id_organizacao, status_pedido, ...). O contrato JSON público
+ * preserva os nomes legados (id, tenant_id, status, ...) para não quebrar
+ * o frontend. Esta função traduz uma única vez no boundary.
+ *
+ * Relations Prisma (`itens`, `transferencias`, `snapshots_empresa`, `snapshots_ope`) seguem
+ * com seus nomes originais — apenas colunas físicas foram renomeadas (escopo da planilha).
+ */
 export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | null | undefined {
   if (!pedido) return pedido
-  const itens = Array.isArray(pedido.itens) ? pedido.itens.map(mapItem) : pedido.itens
-  const det = (pedido.detalhes_operacionais as Record<string, unknown> | null) ?? {}
+  const rawItens = pedido.itens as PedidoItemRaw[] | undefined
+  const itens = Array.isArray(rawItens) ? rawItens.map(mapItem) : rawItens
+  const det = (pedido.detalhes_operacionais_pedido as Record<string, unknown> | null)
+    ?? (pedido.detalhes_operacionais as Record<string, unknown> | null)
+    ?? {}
   return {
     ...pedido,
+    // Identidade / isolamento — contrato legado
+    id:                       pedido.id_pedido            ?? pedido.id,
+    tenant_id:                pedido.id_organizacao       ?? pedido.tenant_id,
+    company_id:               pedido.id_workspace         ?? pedido.company_id,
+    tipo_operacao:            pedido.tipo_operacao_pedido ?? pedido.tipo_operacao,
+    status:                   pedido.status_pedido        ?? pedido.status,
+    status_id:                pedido.id_status            ?? pedido.status_id,
+    importacao_exportador_id: pedido.id_importacao_exportador ?? pedido.importacao_exportador_id,
+    exportacao_importador_id: pedido.id_exportacao_importador ?? pedido.exportacao_importador_id,
+    fabricante_id:            pedido.id_fabricante        ?? pedido.fabricante_id,
+    incoterm:                 pedido.incoterm_pedido      ?? pedido.incoterm,
+    condicao_pagamento:       pedido.condicao_pagamento_pedido ?? pedido.condicao_pagamento,
+    numero_proforma:          pedido.numero_proforma_pedido    ?? pedido.numero_proforma,
+    numero_invoice:           pedido.numero_invoice_pedido     ?? pedido.numero_invoice,
+    referencia_importador:    pedido.referencia_importador_pedido ?? pedido.referencia_importador,
+    referencia_exportador:    pedido.referencia_exportador_pedido ?? pedido.referencia_exportador,
+    referencia_fabricante:    pedido.referencia_fabricante_pedido ?? pedido.referencia_fabricante,
+    taxa_cambio_estimada:     pedido.taxa_cambio_estimada_pedido  ?? pedido.taxa_cambio_estimada,
+    detalhes_operacionais:    pedido.detalhes_operacionais_pedido ?? pedido.detalhes_operacionais,
+    campos_custom:            pedido.campos_custom_pedido         ?? pedido.campos_custom,
+    pedidos_origem_id:        pedido.id_pedidos_origem            ?? pedido.pedidos_origem_id,
+    cnpj_importador:          pedido.cnpj_importador_pedido       ?? pedido.cnpj_importador,
+    deleted_at:               pedido.data_exclusao_pedido         ?? pedido.deleted_at,
+    created_at:               pedido.data_criacao_pedido          ?? pedido.created_at,
+    updated_at:               pedido.data_atualizacao_pedido      ?? pedido.updated_at,
+    data_documento_proforma:  pedido.data_documento_proforma_pedido ?? pedido.data_documento_proforma,
+    data_documento_invoice:   pedido.data_documento_invoice_pedido  ?? pedido.data_documento_invoice,
+    data_prevista_pedido_pronto:   pedido.data_prevista_pedido_pronto_pedido   ?? pedido.data_prevista_pedido_pronto,
+    data_confirmada_pedido_pronto: pedido.data_confirmada_pedido_pronto_pedido ?? pedido.data_confirmada_pedido_pronto,
+    data_meta_pedido_pronto:       pedido.data_meta_pedido_pronto_pedido       ?? pedido.data_meta_pedido_pronto,
+    data_prev_recebimento_draft_proforma:    pedido.data_previsao_recebimento_draft_proforma_pedido    ?? pedido.data_prev_recebimento_draft_proforma,
+    data_conf_recebimento_draft_proforma:    pedido.data_confirmacao_recebimento_draft_proforma_pedido ?? pedido.data_conf_recebimento_draft_proforma,
+    data_meta_recebimento_draft_proforma:    pedido.data_meta_recebimento_draft_proforma_pedido        ?? pedido.data_meta_recebimento_draft_proforma,
+    data_prev_aprovacao_draft_proforma:      pedido.data_previsao_aprovacao_draft_proforma_pedido      ?? pedido.data_prev_aprovacao_draft_proforma,
+    data_conf_aprovacao_draft_proforma:      pedido.data_confirmacao_aprovacao_draft_proforma_pedido   ?? pedido.data_conf_aprovacao_draft_proforma,
+    data_meta_aprovacao_draft_proforma:      pedido.data_meta_aprovacao_draft_proforma_pedido          ?? pedido.data_meta_aprovacao_draft_proforma,
+    data_prev_envio_original_proforma:       pedido.data_previsao_envio_original_proforma_pedido       ?? pedido.data_prev_envio_original_proforma,
+    data_conf_envio_original_proforma:       pedido.data_confirmacao_envio_original_proforma_pedido    ?? pedido.data_conf_envio_original_proforma,
+    data_meta_envio_original_proforma:       pedido.data_meta_envio_original_proforma_pedido           ?? pedido.data_meta_envio_original_proforma,
+    data_prev_recebimento_original_proforma: pedido.data_previsao_recebimento_original_proforma_pedido    ?? pedido.data_prev_recebimento_original_proforma,
+    data_conf_recebimento_original_proforma: pedido.data_confirmacao_recebimento_original_proforma_pedido ?? pedido.data_conf_recebimento_original_proforma,
+    data_meta_recebimento_original_proforma: pedido.data_meta_recebimento_original_proforma_pedido        ?? pedido.data_meta_recebimento_original_proforma,
+    data_prev_recebimento_draft_invoice:     pedido.data_previsao_recebimento_draft_invoice_pedido     ?? pedido.data_prev_recebimento_draft_invoice,
+    data_conf_recebimento_draft_invoice:     pedido.data_confirmacao_recebimento_draft_invoice_pedido  ?? pedido.data_conf_recebimento_draft_invoice,
+    data_meta_recebimento_draft_invoice:     pedido.data_meta_recebimento_draft_invoice_pedido         ?? pedido.data_meta_recebimento_draft_invoice,
+    data_prev_aprovacao_draft_invoice:       pedido.data_previsao_aprovacao_draft_invoice_pedido       ?? pedido.data_prev_aprovacao_draft_invoice,
+    data_conf_aprovacao_draft_invoice:       pedido.data_confirmacao_aprovacao_draft_invoice_pedido    ?? pedido.data_conf_aprovacao_draft_invoice,
+    data_meta_aprovacao_draft_invoice:       pedido.data_meta_aprovacao_draft_invoice_pedido           ?? pedido.data_meta_aprovacao_draft_invoice,
+    data_prev_envio_original_invoice:        pedido.data_previsao_envio_original_invoice_pedido        ?? pedido.data_prev_envio_original_invoice,
+    data_conf_envio_original_invoice:        pedido.data_confirmacao_envio_original_invoice_pedido     ?? pedido.data_conf_envio_original_invoice,
+    data_meta_envio_original_invoice:        pedido.data_meta_envio_original_invoice_pedido            ?? pedido.data_meta_envio_original_invoice,
+    data_prev_recebimento_original_invoice:  pedido.data_previsao_recebimento_original_invoice_pedido     ?? pedido.data_prev_recebimento_original_invoice,
+    data_conf_recebimento_original_invoice:  pedido.data_confirmacao_recebimento_original_invoice_pedido  ?? pedido.data_conf_recebimento_original_invoice,
+    data_meta_recebimento_original_invoice:  pedido.data_meta_recebimento_original_invoice_pedido         ?? pedido.data_meta_recebimento_original_invoice,
     itens,
     // Campos armazenados em detalhes_operacionais → surfaçados como top-level
     nome_exportador: (det.nome_exportador as string | null | undefined) ?? null,
@@ -397,13 +465,13 @@ pedidosRouter.get('/', async (req: Request, res: Response, next: NextFunction) =
       const [dataRaw, total, totalItens] = await Promise.all([
         db.pedido.findMany({
           where,
-          include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+          include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
           orderBy: { data_emissao_pedido: 'desc' },
           skip,
           take: limitNum,
         }),
         db.pedido.count({ where }),
-        db.pedidoItem.count({ where: { pedido_pedido_item: where } }),
+        db.pedidoItem.count({ where: { pedido_item: where } }),
       ])
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -469,11 +537,11 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
 
       // ── Campos textuais do PedidoItem (ORM) ─────────────────────────────────────
       const itemOR = [
-        { part_number_pedido_item:                 { contains: termo, mode: 'insensitive' as const } },
-        { ncm_pedido_item:                         { contains: termo, mode: 'insensitive' as const } },
-        { descricao_item_pedido_item:              { contains: termo, mode: 'insensitive' as const } },
-        { unidade_comercializada_item_pedido_item: { contains: termo, mode: 'insensitive' as const } },
-        { moeda_item_pedido_item:                  { contains: termo, mode: 'insensitive' as const } },
+        { part_number_item:                 { contains: termo, mode: 'insensitive' as const } },
+        { ncm_item:                         { contains: termo, mode: 'insensitive' as const } },
+        { descricao_item:              { contains: termo, mode: 'insensitive' as const } },
+        { unidade_comercializada_item: { contains: termo, mode: 'insensitive' as const } },
+        { moeda_item:                  { contains: termo, mode: 'insensitive' as const } },
       ]
 
       const [
@@ -490,7 +558,7 @@ pedidosRouter.get('/localizar', async (req: Request, res: Response, next: NextFu
         db.pedidoItem.count({
           where: {
             id_organizacao: tenant_id,
-            pedido_pedido_item: { company_id, deleted_at: null },
+            pedido_item: { company_id, deleted_at: null },
             OR: itemOR,
           },
         }),
@@ -554,7 +622,7 @@ pedidosRouter.get('/:id', async (req: Request, res: Response, next: NextFunction
 
       const pedido = await db.pedido.findFirst({
         where: { id: req.params.id, tenant_id, company_id },
-        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       if (!pedido) {
@@ -590,7 +658,7 @@ pedidosRouter.get('/:id/itens', async (req: Request, res: Response, next: NextFu
 
       const itens = await db.pedidoItem.findMany({
         where: { id_pedido: req.params.id, id_organizacao: tenant_id, id_workspace: company_id },
-        orderBy: { sequencia_item_pedido_item: 'asc' },
+        orderBy: { sequencia_item_pedido: 'asc' },
       })
 
       res.json(itens.map(mapItem))
@@ -671,21 +739,21 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
           status: 'draft',
           itens: {
             create: itens.map((item, index) => ({
-              id_pedido_item: gerarId('pite'),
+              id_item: gerarId('pite'),
               id_organizacao: tenant_id,
               id_workspace: company_id,
-              sequencia_item_pedido_item: item.sequencia_item ?? (index + 1),
-              part_number_pedido_item: item.part_number ?? '',
-              ncm_pedido_item: item.ncm ?? '',
-              descricao_item_pedido_item: item.descricao_item ?? '',
-              quantidade_inicial_pedido_pedido_item: item.quantidade_inicial_pedido ?? 0,
-              quantidade_atual_pedido_pedido_item: item.quantidade_inicial_pedido ?? 0,
-              casas_decimais_quantidade_item_pedido_item: item.casas_decimais_quantidade_item,
-              unidade_comercializada_item_pedido_item: item.unidade_comercializada_item,
-              moeda_item_pedido_item: item.moeda_item,
-              valor_por_unidade_item_pedido_item: item.valor_por_unidade_item,
-              valor_total_item_pedido_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * (item.quantidade_inicial_pedido ?? 0),
-              casas_decimais_valor_item_pedido_item: item.casas_decimais_valor_item,
+              sequencia_item_pedido: item.sequencia_item ?? (index + 1),
+              part_number_item: item.part_number ?? '',
+              ncm_item: item.ncm ?? '',
+              descricao_item: item.descricao_item ?? '',
+              quantidade_inicial_item: item.quantidade_inicial_pedido ?? 0,
+              quantidade_atual_item: item.quantidade_inicial_pedido ?? 0,
+              casas_decimais_quantidade_item: item.casas_decimais_quantidade_item,
+              unidade_comercializada_item: item.unidade_comercializada_item,
+              moeda_item: item.moeda_item,
+              valor_por_unidade_item: item.valor_por_unidade_item,
+              valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * (item.quantidade_inicial_pedido ?? 0),
+              casas_decimais_valor_item: item.casas_decimais_valor_item,
             })),
           },
           snapshots_empresa: snapshotsData.length
@@ -693,7 +761,7 @@ pedidosRouter.post('/', async (req: Request, res: Response, next: NextFunction) 
             : undefined,
         },
         include: {
-          itens: { orderBy: { sequencia_item_pedido_item: 'asc' } },
+          itens: { orderBy: { sequencia_item_pedido: 'asc' } },
           snapshots_empresa: true,
         },
       })
@@ -736,7 +804,7 @@ pedidosRouter.put('/:id', async (req: Request, res: Response, next: NextFunction
       const updated = await db.pedido.update({
         where: { id: req.params.id },
         data: result.data,
-        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       res.json(mapPedido(updated))
@@ -1011,27 +1079,27 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
         const dadosRecalc: Record<string, unknown> = {}
 
         if (campo === 'quantidade_total_inicial_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_pedido_pedido_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_inicial_item ?? 0), 0)
           const casas = pedido.casas_decimais_quantidade_pedido ?? 0
           dadosRecalc.quantidade_total_inicial_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'valor_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.valor_total_item_pedido_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.valor_total_item ?? 0), 0)
           const casas = pedido.casas_decimais_valor_pedido ?? 2
           dadosRecalc.valor_total_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'peso_liquido_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario_pedido_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.peso_liquido_unitario_item ?? 0), 0)
           const casas = pedido.casas_decimais_peso_pedido ?? 3
           dadosRecalc.peso_liquido_total_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'peso_bruto_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.peso_bruto_unitario_pedido_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.peso_bruto_unitario_item ?? 0), 0)
           const casas = pedido.casas_decimais_peso_pedido ?? 3
           dadosRecalc.peso_bruto_total_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'cubagem_total_pedido') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria_pedido_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.cubagem_unitaria_item ?? 0), 0)
           const casas = pedido.casas_decimais_cubagem_pedido ?? 4
           dadosRecalc.cubagem_total_pedido = parseFloat(soma.toFixed(casas))
         } else if (campo === 'quantidade_transferida_total') {
-          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_transferida_pedido_pedido_item ?? 0), 0)
+          const soma = itens.reduce((acc, i) => acc + Number(i.quantidade_transferida_item ?? 0), 0)
           const casas = pedido.casas_decimais_quantidade_pedido ?? 0
           dadosRecalc.quantidade_transferida_total = parseFloat(soma.toFixed(casas))
         }
@@ -1046,7 +1114,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
 
         const updatedRecalc = await db.pedido.findFirst({
           where: { id: req.params.id, tenant_id },
-          include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+          include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
         })
         return res.json(mapPedido(updatedRecalc))
       }
@@ -1074,7 +1142,7 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       const updated = await db.pedido.update({
         where: { id: req.params.id },
         data: dadosUpdate,
-        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       // Propaga o valor actualizado para todos os itens filhos (atómico, mesma transacção implícita)
@@ -1193,7 +1261,7 @@ pedidosRouter.post('/:id/duplicar', async (req: Request, res: Response, next: Ne
             : undefined,
         },
         include: {
-          itens: { orderBy: { sequencia_item_pedido_item: 'asc' } },
+          itens: { orderBy: { sequencia_item_pedido: 'asc' } },
           snapshots_empresa: true,
         },
       })
@@ -1239,25 +1307,25 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
 
       // Traduz chaves do schema público (criarItemSchema) para nomes DDD Prisma
       const itemData: Record<string, unknown> = {
-        id_pedido_item: gerarId('pite'),
+        id_item: gerarId('pite'),
         id_organizacao: tenant_id,
         id_workspace:   company_id,
         id_pedido:      req.params.id,
-        sequencia_item_pedido_item: result.data.sequencia_item ?? (itemCount + 1),
-        part_number_pedido_item:                 result.data.part_number,
-        ncm_pedido_item:                         result.data.ncm,
-        descricao_item_pedido_item:              result.data.descricao_item,
-        unidade_comercializada_item_pedido_item: result.data.unidade_comercializada_item,
-        quantidade_inicial_pedido_pedido_item:   result.data.quantidade_inicial_pedido,
-        quantidade_atual_pedido_pedido_item:     result.data.quantidade_inicial_pedido,
-        quantidade_pronta_pedido_pedido_item:      0,
-        quantidade_transferida_pedido_pedido_item: 0,
-        quantidade_cancelada_pedido_pedido_item:   0,
-        casas_decimais_quantidade_item_pedido_item: result.data.casas_decimais_quantidade_item,
-        moeda_item_pedido_item:                     result.data.moeda_item,
-        valor_por_unidade_item_pedido_item:         result.data.valor_por_unidade_item,
-        valor_total_item_pedido_item:               result.data.valor_total_item ?? (result.data.valor_por_unidade_item ?? 0) * result.data.quantidade_inicial_pedido,
-        casas_decimais_valor_item_pedido_item:      result.data.casas_decimais_valor_item,
+        sequencia_item_pedido: result.data.sequencia_item ?? (itemCount + 1),
+        part_number_item:                 result.data.part_number,
+        ncm_item:                         result.data.ncm,
+        descricao_item:              result.data.descricao_item,
+        unidade_comercializada_item: result.data.unidade_comercializada_item,
+        quantidade_inicial_item:   result.data.quantidade_inicial_pedido,
+        quantidade_atual_item:     result.data.quantidade_inicial_pedido,
+        quantidade_pronta_item:      0,
+        quantidade_transferida_item: 0,
+        quantidade_cancelada_item:   0,
+        casas_decimais_quantidade_item: result.data.casas_decimais_quantidade_item,
+        moeda_item:                     result.data.moeda_item,
+        valor_por_unidade_item:         result.data.valor_por_unidade_item,
+        valor_total_item:               result.data.valor_total_item ?? (result.data.valor_por_unidade_item ?? 0) * result.data.quantidade_inicial_pedido,
+        casas_decimais_valor_item:      result.data.casas_decimais_valor_item,
       }
       const item = await db.pedidoItem.create({ data: itemData })
 
@@ -1273,28 +1341,28 @@ pedidosRouter.post('/:id/itens', async (req: Request, res: Response, next: NextF
 // CAMPOS_EDITAVEIS_ITEM/CAMPOS_EDITAVEIS_ITEM_NUMERICOS). Chaves ausentes aqui
 // são ignoradas no update (pass-through não suportado após rename DDD).
 const publicToDddItem: Record<string, string> = {
-  part_number:                 'part_number_pedido_item',
-  ncm:                         'ncm_pedido_item',
-  descricao_item:              'descricao_item_pedido_item',
-  unidade_comercializada_item: 'unidade_comercializada_item_pedido_item',
-  moeda_item:                  'moeda_item_pedido_item',
-  valor_por_unidade_item:      'valor_por_unidade_item_pedido_item',
-  valor_total_item:            'valor_total_item_pedido_item',
-  quantidade_inicial_pedido:   'quantidade_inicial_pedido_pedido_item',
-  quantidade_atual_pedido:     'quantidade_atual_pedido_pedido_item',
-  cobertura_cambial:           'cobertura_cambial_pedido_item',
-  nome_exportador:             'nome_exportador_pedido_item',
-  nome_importador:             'nome_importador_pedido_item',
-  nome_fabricante:             'nome_fabricante_pedido_item',
-  referencia_importador:       'referencia_importador_pedido_item',
-  referencia_exportador:       'referencia_exportador_pedido_item',
-  referencia_fabricante:       'referencia_fabricante_pedido_item',
-  incoterm:                    'incoterm_pedido_item',
-  condicao_pagamento:          'condicao_pagamento_pedido_pedido_item',
-  data_emissao_pedido:         'data_emissao_pedido_pedido_item',
-  peso_liquido_unitario:       'peso_liquido_unitario_pedido_item',
-  peso_bruto_unitario:         'peso_bruto_unitario_pedido_item',
-  cubagem_unitaria:            'cubagem_unitaria_pedido_item',
+  part_number:                 'part_number_item',
+  ncm:                         'ncm_item',
+  descricao_item:              'descricao_item',
+  unidade_comercializada_item: 'unidade_comercializada_item',
+  moeda_item:                  'moeda_item',
+  valor_por_unidade_item:      'valor_por_unidade_item',
+  valor_total_item:            'valor_total_item',
+  quantidade_inicial_pedido:   'quantidade_inicial_item',
+  quantidade_atual_pedido:     'quantidade_atual_item',
+  cobertura_cambial:           'cobertura_cambial_item',
+  nome_exportador:             'nome_exportador_item',
+  nome_importador:             'nome_importador_item',
+  nome_fabricante:             'nome_fabricante_item',
+  referencia_importador:       'referencia_importador_item',
+  referencia_exportador:       'referencia_exportador_item',
+  referencia_fabricante:       'referencia_fabricante_item',
+  incoterm:                    'incoterm_item',
+  condicao_pagamento:          'condicao_pagamento_item',
+  data_emissao_pedido:         'data_emissao_item',
+  peso_liquido_unitario:       'peso_liquido_unitario_item',
+  peso_bruto_unitario:         'peso_bruto_unitario_item',
+  cubagem_unitaria:            'cubagem_unitaria_item',
 }
 
 // ── PUT /:id/itens/:itemId — Atualizar item ──────────────────────────────────
@@ -1313,7 +1381,7 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
       const tenant_id = ctx.tenantId
 
       const item = await db.pedidoItem.findFirst({
-        where: { id_pedido_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
+        where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
       })
 
       if (!item) {
@@ -1330,13 +1398,13 @@ pedidosRouter.put('/:id/itens/:itemId', async (req: Request, res: Response, next
       if (result.data.quantidade_inicial_pedido !== undefined) {
         // Recalcular saldo: inicial - transferida - cancelada (nunca negativo)
         const novoAtual = result.data.quantidade_inicial_pedido
-          - Number(item.quantidade_transferida_pedido_pedido_item)
-          - Number(item.quantidade_cancelada_pedido_pedido_item)
-        prismaData.quantidade_atual_pedido_pedido_item = Math.max(0, novoAtual)
+          - Number(item.quantidade_transferida_item)
+          - Number(item.quantidade_cancelada_item)
+        prismaData.quantidade_atual_item = Math.max(0, novoAtual)
       }
 
       const updated = await db.pedidoItem.update({
-        where: { id_pedido_item: req.params.itemId },
+        where: { id_item: req.params.itemId },
         data: prismaData,
       })
 
@@ -1475,7 +1543,7 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       const tenant_id = ctx.tenantId
 
       const item = await db.pedidoItem.findFirst({
-        where: { id_pedido_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
+        where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
       })
       if (!item) throw new AppError(404, 'Item do pedido nao encontrado')
 
@@ -1488,7 +1556,7 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       // ── Campos texto/enum — update simples ────────────────────────────────────
       if (ehTexto) {
         const updated = await db.pedidoItem.update({
-          where: { id_pedido_item: req.params.itemId },
+          where: { id_item: req.params.itemId },
           data: { [campoDdd]: valor === undefined ? null : valor },
         })
         return res.json(mapItem(updated))
@@ -1527,12 +1595,12 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
 
       const A_novo = campo === 'quantidade_inicial_pedido'
         ? (valorNumerico ?? 0)
-        : Number(item.quantidade_inicial_pedido_pedido_item ?? 0)
-      const C = Number(item.quantidade_cancelada_pedido_pedido_item ?? 0)
-      const D = Number(item.quantidade_transferida_pedido_pedido_item ?? 0)
+        : Number(item.quantidade_inicial_item ?? 0)
+      const C = Number(item.quantidade_cancelada_item ?? 0)
+      const D = Number(item.quantidade_transferida_item ?? 0)
       const unit_novo = campo === 'valor_por_unidade_item'
         ? (valorNumerico ?? 0)
-        : Number(item.valor_por_unidade_item_pedido_item ?? 0)
+        : Number(item.valor_por_unidade_item ?? 0)
 
       // Constrói o contexto do item pós-edição para avaliar a fórmula.
       // O contexto usa os tokens pedido-level (quantidade_total_inicial_pedido etc.)
@@ -1564,11 +1632,11 @@ pedidosRouter.patch('/:id/itens/:itemId/campo', async (req: Request, res: Respon
       const valor_total_novo = Math.round(unit_novo * A_novo * fator) / fator
 
       const updated = await db.pedidoItem.update({
-        where: { id_pedido_item: req.params.itemId },
+        where: { id_item: req.params.itemId },
         data: {
           [campoDdd]:                          valorNumerico,
-          quantidade_atual_pedido_pedido_item: saldo_novo,
-          valor_total_item_pedido_item:        valor_total_novo,
+          quantidade_atual_item: saldo_novo,
+          valor_total_item:        valor_total_novo,
         },
       })
       return res.json(mapItem(updated))
@@ -1589,18 +1657,18 @@ pedidosRouter.delete('/:id/itens/:itemId', async (req: Request, res: Response, n
       const tenant_id = ctx.tenantId
 
       const item = await db.pedidoItem.findFirst({
-        where: { id_pedido_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
+        where: { id_item: req.params.itemId, id_pedido: req.params.id, id_organizacao: tenant_id },
       })
 
       if (!item) {
         throw new AppError(404, 'Item do pedido nao encontrado')
       }
 
-      if (Number(item.quantidade_transferida_pedido_pedido_item) > 0) {
+      if (Number(item.quantidade_transferida_item) > 0) {
         throw new AppError(400, 'Item com quantidade transferida nao pode ser removido')
       }
 
-      await db.pedidoItem.delete({ where: { id_pedido_item: req.params.itemId } })
+      await db.pedidoItem.delete({ where: { id_item: req.params.itemId } })
       res.status(204).send()
     })
   } catch (err) {

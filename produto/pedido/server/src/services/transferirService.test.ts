@@ -25,29 +25,29 @@ const USER   = 'user-001'
 
 function criarItemPrisma(overrides: Record<string, unknown> = {}) {
   return {
-    id_pedido_item: 'pite_id_0000001-26',
+    id_item: 'pite_id_0000001-26',
     id_organizacao: TENANT,
     id_workspace: TENANT,
     id_pedido: 'pedi_id_0000001-26',
-    sequencia_item_pedido_item: 1,
-    part_number_pedido_item: 'PART-001',
-    ncm_pedido_item: '1234.56.78',
-    descricao_item_pedido_item: 'Produto Teste',
-    unidade_comercializada_item_pedido_item: 'UN',
-    quantidade_inicial_pedido_pedido_item: 111,
-    quantidade_atual_pedido_pedido_item: 111,
-    quantidade_pronta_pedido_pedido_item: 0,
-    quantidade_transferida_pedido_pedido_item: 0,
-    quantidade_cancelada_pedido_pedido_item: 0,
-    casas_decimais_quantidade_item_pedido_item: 2,
-    moeda_item_pedido_item: 'USD',
-    valor_por_unidade_item_pedido_item: 10,
-    valor_total_item_pedido_item: 1110,
-    casas_decimais_valor_item_pedido_item: 2,
-    cobertura_cambial_pedido_item: 'com_cobertura',
-    campos_custom_pedido_item: null,
-    data_criacao_pedido_item: new Date(),
-    data_atualizacao_pedido_item: new Date(),
+    sequencia_item_pedido: 1,
+    part_number_item: 'PART-001',
+    ncm_item: '1234.56.78',
+    descricao_item: 'Produto Teste',
+    unidade_comercializada_item: 'UN',
+    quantidade_inicial_item: 111,
+    quantidade_atual_item: 111,
+    quantidade_pronta_item: 0,
+    quantidade_transferida_item: 0,
+    quantidade_cancelada_item: 0,
+    casas_decimais_quantidade_item: 2,
+    moeda_item: 'USD',
+    valor_por_unidade_item: 10,
+    valor_total_item: 1110,
+    casas_decimais_valor_item: 2,
+    cobertura_cambial_item: 'com_cobertura',
+    dados_extras_importacao_item: null,
+    data_criacao_item: new Date(),
+    data_atualizacao_item: new Date(),
     ...overrides,
   }
 }
@@ -221,13 +221,13 @@ describe('TransferirService.confirmar — reducao_simples', () => {
     // Deve ter atualizado o item de origem com novaQty = 111 - 110 = 1
     expect(mocks.itemUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id_pedido_item: 'pite_id_0000001-26' },
-        data: expect.objectContaining({ quantidade_atual_pedido_pedido_item: 1 }),
+        where: { id_item: 'pite_id_0000001-26' },
+        data: expect.objectContaining({ quantidade_atual_item: 1 }),
       }),
     )
   })
 
-  it('incrementa quantidade_transferida_pedido_pedido_item', async () => {
+  it('incrementa quantidade_transferida_item', async () => {
     const { db, mocks } = criarMockDb()
     const service = new TransferirService()
 
@@ -235,7 +235,7 @@ describe('TransferirService.confirmar — reducao_simples', () => {
 
     expect(mocks.itemUpdate).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ quantidade_transferida_pedido_pedido_item: 110 }),
+        data: expect.objectContaining({ quantidade_transferida_item: 110 }),
       }),
     )
   })
@@ -326,10 +326,10 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
 
     expect(mocks.itemCreate).toHaveBeenCalledOnce()
     const itemData = mocks.itemCreate.mock.calls[0][0].data
-    expect(itemData.id_pedido_item).toMatch(/^pite_id_/)
-    expect(itemData.quantidade_atual_pedido_pedido_item).toBe(100)
-    expect(itemData.quantidade_inicial_pedido_pedido_item).toBe(100)
-    expect(itemData.part_number_pedido_item).toBe('PART-001')
+    expect(itemData.id_item).toMatch(/^pite_id_/)
+    expect(itemData.quantidade_atual_item).toBe(100)
+    expect(itemData.quantidade_inicial_item).toBe(100)
+    expect(itemData.part_number_item).toBe('PART-001')
   })
 
   it('usa numero_pedido_novo quando fornecido', async () => {
@@ -373,12 +373,12 @@ describe('TransferirService.confirmar — split_novo_pedido', () => {
     await service.confirmar(TENANT, USER, payload, db)
 
     // itemUpdate chamado para a origem (111 - 100 = 11)
-    type UpdateArg = { where: { id_pedido_item: string }; data: Record<string, unknown> }
+    type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }
     const updateOrigemCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
-      c => c[0].where.id_pedido_item === 'pite_id_0000001-26',
+      c => c[0].where.id_item === 'pite_id_0000001-26',
     )
     expect(updateOrigemCall).toBeDefined()
-    expect(updateOrigemCall![0].data.quantidade_atual_pedido_pedido_item).toBe(11)
+    expect(updateOrigemCall![0].data.quantidade_atual_item).toBe(11)
   })
 
   it('não copia campos inválidos para o pedido destino', async () => {
@@ -421,19 +421,19 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
 
     expect(mocks.itemCreate).toHaveBeenCalledOnce()
     const itemData = mocks.itemCreate.mock.calls[0][0].data
-    expect(itemData.quantidade_atual_pedido_pedido_item).toBe(50)
+    expect(itemData.quantidade_atual_item).toBe(50)
     expect(itemData.id_pedido).toBe('pedi_destino') // id do pedido existente passado no payload
   })
 
   it('incrementa quantidade no item existente quando part_number já existe no destino', async () => {
     const { db, txBase, mocks } = criarMockDb()
     const itemDestino = criarItemPrisma({
-      id_pedido_item: 'pite_destino',
+      id_item: 'pite_destino',
       id_pedido: 'pedi_destino',
-      part_number_pedido_item: 'PART-001',
-      quantidade_atual_pedido_pedido_item: 200,
-      quantidade_inicial_pedido_pedido_item: 200,
-      quantidade_transferida_pedido_pedido_item: 0,
+      part_number_item: 'PART-001',
+      quantidade_atual_item: 200,
+      quantidade_inicial_item: 200,
+      quantidade_transferida_item: 0,
     })
     txBase.pedido.findFirst
       .mockResolvedValueOnce(criarPedidoPrisma())
@@ -450,12 +450,12 @@ describe('TransferirService.confirmar — split_pedido_existente', () => {
 
     // Não deve criar novo item — deve atualizar o existente
     expect(mocks.itemCreate).not.toHaveBeenCalled()
-    type UpdateArg = { where: { id_pedido_item: string }; data: Record<string, unknown> }
+    type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }
     const updateDestinoCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
-      c => c[0].where.id_pedido_item === 'pite_destino',
+      c => c[0].where.id_item === 'pite_destino',
     )
     expect(updateDestinoCall).toBeDefined()
-    expect(updateDestinoCall![0].data.quantidade_atual_pedido_pedido_item).toBe(250) // 200 + 50
+    expect(updateDestinoCall![0].data.quantidade_atual_item).toBe(250) // 200 + 50
   })
 
   it('lança erro quando pedido destino não encontrado', async () => {
@@ -489,9 +489,9 @@ describe('TransferirService.confirmar — substituicao_pura', () => {
 
     await service.confirmar(TENANT, USER, payload, db)
 
-    type UpdateArg = { where: { id_pedido_item: string }; data: Record<string, unknown> }
+    type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }
     const updateCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
-      c => c[0].data?.part_number_pedido_item === 'PART-002-NOVO',
+      c => c[0].data?.part_number_item === 'PART-002-NOVO',
     )
     expect(updateCall).toBeDefined()
   })
@@ -507,10 +507,10 @@ describe('TransferirService.confirmar — substituicao_pura', () => {
 
     await service.confirmar(TENANT, USER, payload, db)
 
-    // O update de qty (com quantidade_atual_pedido_pedido_item) não deve ter sido chamado
-    type UpdateArg = { where: { id_pedido_item: string }; data: Record<string, unknown> }
+    // O update de qty (com quantidade_atual_item) não deve ter sido chamado
+    type UpdateArg = { where: { id_item: string }; data: Record<string, unknown> }
     const updateQtyCall = (mocks.itemUpdate.mock.calls as UpdateArg[][]).find(
-      c => c[0].data?.quantidade_atual_pedido_pedido_item !== undefined,
+      c => c[0].data?.quantidade_atual_item !== undefined,
     )
     expect(updateQtyCall).toBeUndefined()
   })
@@ -550,8 +550,8 @@ describe('TransferirService — recalcularAgregados', () => {
     const { db, txBase, mocks } = criarMockDb()
     // Dois itens com saldos
     txBase.pedidoItem.findMany.mockResolvedValue([
-      { quantidade_atual_pedido_pedido_item: 100 },
-      { quantidade_atual_pedido_pedido_item: 50 },
+      { quantidade_atual_item: 100 },
+      { quantidade_atual_item: 50 },
     ])
     const service = new TransferirService()
 
@@ -586,9 +586,9 @@ describe('TransferirService — prepararItemDestino', () => {
     const service = new TransferirService()
     const item = criarItemPrisma()
     const result = (service as any).prepararItemDestino(item, 'pedi_destino', { tipo: 'novo', quantidade: 50 })
-    expect(result.id_pedido_item).toBeDefined()
-    expect(result.id_pedido_item).not.toBe(item.id_pedido_item)
-    expect(result.id_pedido_item).toMatch(/^pite_id_/)
+    expect(result.id_item).toBeDefined()
+    expect(result.id_item).not.toBe(item.id_item)
+    expect(result.id_item).toMatch(/^pite_id_/)
   })
 
   it('define id_pedido correto', () => {
@@ -598,26 +598,26 @@ describe('TransferirService — prepararItemDestino', () => {
     expect(result.id_pedido).toBe('pedi_destino-999')
   })
 
-  it('usa part_number_pedido_item do destino quando fornecido', () => {
+  it('usa part_number_item do destino quando fornecido', () => {
     const service = new TransferirService()
-    const item = criarItemPrisma({ part_number_pedido_item: 'ORIGINAL' })
+    const item = criarItemPrisma({ part_number_item: 'ORIGINAL' })
     const result = (service as any).prepararItemDestino(item, 'pedi', { tipo: 'novo', quantidade: 10, part_number: 'SUBSTITUTO' })
-    expect(result.part_number_pedido_item).toBe('SUBSTITUTO')
+    expect(result.part_number_item).toBe('SUBSTITUTO')
   })
 
-  it('mantém part_number_pedido_item original quando destino não especifica', () => {
+  it('mantém part_number_item original quando destino não especifica', () => {
     const service = new TransferirService()
-    const item = criarItemPrisma({ part_number_pedido_item: 'ORIGINAL' })
+    const item = criarItemPrisma({ part_number_item: 'ORIGINAL' })
     const result = (service as any).prepararItemDestino(item, 'pedi', { tipo: 'novo', quantidade: 10 })
-    expect(result.part_number_pedido_item).toBe('ORIGINAL')
+    expect(result.part_number_item).toBe('ORIGINAL')
   })
 
-  it('define quantidade_atual_pedido_pedido_item igual à quantidade do destino', () => {
+  it('define quantidade_atual_item igual à quantidade do destino', () => {
     const service = new TransferirService()
     const item = criarItemPrisma()
     const result = (service as any).prepararItemDestino(item, 'pedi', { tipo: 'novo', quantidade: 77 })
-    expect(result.quantidade_atual_pedido_pedido_item).toBe(77)
-    expect(result.quantidade_inicial_pedido_pedido_item).toBe(77)
+    expect(result.quantidade_atual_item).toBe(77)
+    expect(result.quantidade_inicial_item).toBe(77)
   })
 
   it('inclui campos obrigatórios do schema PedidoItem e exclui campos de audit', () => {
@@ -625,11 +625,11 @@ describe('TransferirService — prepararItemDestino', () => {
     const item = criarItemPrisma()
     const result = (service as any).prepararItemDestino(item, 'pedi', { tipo: 'novo', quantidade: 10 })
     // Campos de audit gerados pelo Prisma — não devem ser passados no create
-    expect(result.data_criacao_pedido_item).toBeUndefined()
-    expect(result.data_atualizacao_pedido_item).toBeUndefined()
+    expect(result.data_criacao_item).toBeUndefined()
+    expect(result.data_atualizacao_item).toBeUndefined()
     // Campos obrigatórios do schema — devem estar presentes com os valores corretos
-    expect(result.quantidade_atual_pedido_pedido_item).toBe(10)
-    expect(result.quantidade_inicial_pedido_pedido_item).toBe(10)
+    expect(result.quantidade_atual_item).toBe(10)
+    expect(result.quantidade_inicial_item).toBe(10)
   })
 })
 

@@ -17,6 +17,9 @@
 
 import { PrismaClient, Prisma } from '@prisma/client'
 
+// Workaround Prisma 5.22: TransactionClient (Omit em classe genérica) perde delegates
+type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
+
 const CAMPOS_BLOQUEADOS_PEDIDO = new Set([
   'valor_total_pedido',
   'quantidade_total_pedido',
@@ -41,13 +44,13 @@ const CAMPOS_BLOQUEADOS_ITEM = new Set([
   'created_at',
   'updated_at',
   // DDD (banco)
-  'valor_total_item_pedido_item',
-  'quantidade_atual_pedido_pedido_item',
-  'id_pedido_item',
+  'valor_total_item',
+  'quantidade_atual_item',
+  'id_item',
   'id_organizacao',
   'id_pedido',
-  'data_criacao_pedido_item',
-  'data_atualizacao_pedido_item',
+  'data_criacao_item',
+  'data_atualizacao_item',
 ])
 
 // ── Campos armazenados em detalhes_operacionais — requerem merge em JSON ────────
@@ -67,53 +70,53 @@ const CAMPOS_QUANTIDADE_ITEM = new Set([
   'quantidade_pronta_pedido',
   'quantidade_cancelada_pedido',
   'quantidade_atual_pedido',
-  'quantidade_inicial_pedido_pedido_item',
-  'quantidade_transferida_pedido_pedido_item',
-  'quantidade_pronta_pedido_pedido_item',
-  'quantidade_cancelada_pedido_pedido_item',
-  'quantidade_atual_pedido_pedido_item',
+  'quantidade_inicial_item',
+  'quantidade_transferida_item',
+  'quantidade_pronta_item',
+  'quantidade_cancelada_item',
+  'quantidade_atual_item',
 ])
 
 // ── ACL — chave legada (contrato público) → coluna DDD (banco) para PedidoItem ─
 
 const LEGACY_TO_DDD_PEDIDO_ITEM: Record<string, string> = {
-  id: 'id_pedido_item',
+  id: 'id_item',
   tenant_id: 'id_organizacao',
   company_id: 'id_workspace',
   pedido_id: 'id_pedido',
-  sequencia_item: 'sequencia_item_pedido_item',
-  part_number: 'part_number_pedido_item',
-  ncm: 'ncm_pedido_item',
-  descricao_item: 'descricao_item_pedido_item',
-  unidade_comercializada_item: 'unidade_comercializada_item_pedido_item',
-  quantidade_inicial_pedido: 'quantidade_inicial_pedido_pedido_item',
-  quantidade_atual_pedido: 'quantidade_atual_pedido_pedido_item',
-  quantidade_pronta_pedido: 'quantidade_pronta_pedido_pedido_item',
-  quantidade_transferida_pedido: 'quantidade_transferida_pedido_pedido_item',
-  quantidade_cancelada_pedido: 'quantidade_cancelada_pedido_pedido_item',
-  casas_decimais_quantidade_item: 'casas_decimais_quantidade_item_pedido_item',
-  moeda_item: 'moeda_item_pedido_item',
-  valor_total_item: 'valor_total_item_pedido_item',
-  valor_por_unidade_item: 'valor_por_unidade_item_pedido_item',
-  casas_decimais_valor_item: 'casas_decimais_valor_item_pedido_item',
-  cobertura_cambial: 'cobertura_cambial_pedido_item',
-  nome_exportador: 'nome_exportador_pedido_item',
-  nome_importador: 'nome_importador_pedido_item',
-  nome_fabricante: 'nome_fabricante_pedido_item',
-  referencia_importador: 'referencia_importador_pedido_item',
-  referencia_exportador: 'referencia_exportador_pedido_item',
-  referencia_fabricante: 'referencia_fabricante_pedido_item',
-  incoterm: 'incoterm_pedido_item',
-  condicao_pagamento_pedido: 'condicao_pagamento_pedido_pedido_item',
-  data_emissao_pedido: 'data_emissao_pedido_pedido_item',
-  peso_liquido_unitario: 'peso_liquido_unitario_pedido_item',
-  peso_bruto_unitario: 'peso_bruto_unitario_pedido_item',
-  cubagem_unitaria: 'cubagem_unitaria_pedido_item',
-  casas_decimais_peso_item: 'casas_decimais_peso_item_pedido_item',
-  casas_decimais_cubagem_item: 'casas_decimais_cubagem_item_pedido_item',
-  campos_custom: 'campos_custom_pedido_item',
-  created_at: 'data_criacao_pedido_item',
-  updated_at: 'data_atualizacao_pedido_item',
+  sequencia_item: 'sequencia_item_pedido',
+  part_number: 'part_number_item',
+  ncm: 'ncm_item',
+  descricao_item: 'descricao_item',
+  unidade_comercializada_item: 'unidade_comercializada_item',
+  quantidade_inicial_pedido: 'quantidade_inicial_item',
+  quantidade_atual_pedido: 'quantidade_atual_item',
+  quantidade_pronta_pedido: 'quantidade_pronta_item',
+  quantidade_transferida_pedido: 'quantidade_transferida_item',
+  quantidade_cancelada_pedido: 'quantidade_cancelada_item',
+  casas_decimais_quantidade_item: 'casas_decimais_quantidade_item',
+  moeda_item: 'moeda_item',
+  valor_total_item: 'valor_total_item',
+  valor_por_unidade_item: 'valor_por_unidade_item',
+  casas_decimais_valor_item: 'casas_decimais_valor_item',
+  cobertura_cambial: 'cobertura_cambial_item',
+  nome_exportador: 'nome_exportador_item',
+  nome_importador: 'nome_importador_item',
+  nome_fabricante: 'nome_fabricante_item',
+  referencia_importador: 'referencia_importador_item',
+  referencia_exportador: 'referencia_exportador_item',
+  referencia_fabricante: 'referencia_fabricante_item',
+  incoterm: 'incoterm_item',
+  condicao_pagamento_pedido: 'condicao_pagamento_item',
+  data_emissao_pedido: 'data_emissao_item',
+  peso_liquido_unitario: 'peso_liquido_unitario_item',
+  peso_bruto_unitario: 'peso_bruto_unitario_item',
+  cubagem_unitaria: 'cubagem_unitaria_item',
+  casas_decimais_peso_item: 'casas_decimais_peso_item',
+  casas_decimais_cubagem_item: 'casas_decimais_cubagem_item',
+  campos_custom: 'dados_extras_importacao_item',
+  created_at: 'data_criacao_item',
+  updated_at: 'data_atualizacao_item',
 }
 
 function legacyKeyToDddPedidoItem(campo: string): string {
@@ -205,8 +208,8 @@ export class EdicaoEmMassaService {
     this.validarCamposEditaveis(payload.campos)
 
     const pedidos = await db.pedido.findMany({
-      where: { tenant_id: tenantId, id: { in: payload.pedido_ids } },
-      include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+      where: { id_organizacao: tenantId, id_pedido: { in: payload.pedido_ids } },
+      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
     const itensAfetados = pedidos.reduce(
@@ -270,8 +273,8 @@ export class EdicaoEmMassaService {
     this.validarCamposEditaveis(payload.campos)
 
     const pedidos = await db.pedido.findMany({
-      where: { tenant_id: tenantId, id: { in: payload.pedido_ids } },
-      include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+      where: { id_organizacao: tenantId, id_pedido: { in: payload.pedido_ids } },
+      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
     if (pedidos.length === 0) {
@@ -285,7 +288,7 @@ export class EdicaoEmMassaService {
     let itensAtualizados = 0
 
     const precisaRecalcularAgregados = camposItem.some(c => CAMPOS_QUANTIDADE_ITEM.has(c.campo))
-    const pedidoIds = (pedidos as Record<string, unknown>[]).map(p => p.id as string)
+    const pedidoIds = (pedidos as Record<string, unknown>[]).map(p => p.id_pedido as string)
 
     // ── CAMINHO RÁPIDO (updateMany) ───────────────────────────────────────────
     // Condição: todos os campos de pedido são "substituir" em campos diretos do
@@ -302,7 +305,7 @@ export class EdicaoEmMassaService {
         dadosUpdateMany[c.campo] = c.valor
       }
       await db.pedido.updateMany({
-        where: { id: { in: pedidoIds } },
+        where: { id_pedido: { in: pedidoIds } },
         data: dadosUpdateMany,
       })
       pedidosAtualizados = pedidos.length
@@ -318,9 +321,10 @@ export class EdicaoEmMassaService {
     // Campos com operação matemática (somar/subtrair/percentual), campos em
     // detalhes_operacionais (merge JSON), ou campos de item.
     // Timeout de 60s para suportar grandes volumes no Railway.
-    await db.$transaction(async (tx: Record<string, unknown>) => {
+    await db.$transaction(async (tx0) => {
+      const tx = tx0 as Tx
       for (const pedido of pedidos as Record<string, unknown>[]) {
-        const pedidoId = pedido.id as string
+        const pedidoId = pedido.id_pedido as string
 
         try {
           // Aplicar campos de nível pedido
@@ -347,8 +351,8 @@ export class EdicaoEmMassaService {
               dadosPedido.detalhes_operacionais = detalhesUpdate
             }
 
-            await (tx as Record<string, Record<string, unknown>>).pedido.update({
-              where: { id: pedidoId },
+            await tx.pedido.update({
+              where: { id_pedido: pedidoId },
               data: dadosPedido,
             })
           }
@@ -363,8 +367,8 @@ export class EdicaoEmMassaService {
                 const valorAtual = item[colDdd] ?? item[c.campo]
                 dadosItem[colDdd] = this.aplicarOperacao(valorAtual, c.operacao, c.valor)
               }
-              const resultado = await (tx as Record<string, Record<string, unknown>>).pedidoItem.update({
-                where: { id_pedido_item: item.id_pedido_item as string, id_organizacao: tenantId },
+              const resultado = await tx.pedidoItem.update({
+                where: { id_item: item.id_item as string, id_organizacao: tenantId },
                 data: dadosItem,
               })
               if (resultado) itensAtualizados++
@@ -388,10 +392,12 @@ export class EdicaoEmMassaService {
       // Registrar audit trail (não bloqueia se tabela não existir)
       try {
         const camposAlterados = payload.campos.map(c => c.campo)
-        await (tx as Record<string, Record<string, unknown>>).pedidoHistorico.createMany({
+        // pedidoHistorico best-effort — tabela pode não existir
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (tx as any).pedidoHistorico.createMany({
           data: pedidos.map((p: Record<string, unknown>) => ({
             tenant_id: tenantId,
-            pedido_id: p.id as string,
+            pedido_id: p.id_pedido as string,
             acao: 'EDICAO_EM_MASSA',
             descricao: `Edição em massa: ${camposAlterados.join(', ')}`,
             usuario_id: userId,
@@ -455,30 +461,30 @@ export class EdicaoEmMassaService {
   private async recalcularAgregados(
     tenantId: string,
     pedidoId: string,
-    tx: Prisma.TransactionClient,
+    tx: Tx,
   ): Promise<void> {
     const itens = await tx.pedidoItem.findMany({
       where: { id_organizacao: tenantId, id_pedido: pedidoId },
       select: {
-        quantidade_inicial_pedido_pedido_item: true,
-        quantidade_transferida_pedido_pedido_item: true,
-        valor_por_unidade_item_pedido_item: true,
-        quantidade_atual_pedido_pedido_item: true,
+        quantidade_inicial_item: true,
+        quantidade_transferida_item: true,
+        valor_por_unidade_item: true,
+        quantidade_atual_item: true,
       },
     })
 
     const quantidadeInicialTotal = itens.reduce(
-      (acc: number, i: { quantidade_inicial_pedido_pedido_item: number }) => acc + Number(i.quantidade_inicial_pedido_pedido_item ?? 0),
+      (acc: number, i: { quantidade_inicial_item: number }) => acc + Number(i.quantidade_inicial_item ?? 0),
       0,
     )
     const valorTotal = itens.reduce(
-      (acc: number, i: { valor_por_unidade_item_pedido_item: number | null; quantidade_atual_pedido_pedido_item: number }) =>
-        acc + (Number(i.valor_por_unidade_item_pedido_item ?? 0) * Number(i.quantidade_atual_pedido_pedido_item ?? 0)),
+      (acc: number, i: { valor_por_unidade_item: number | null; quantidade_atual_item: number }) =>
+        acc + (Number(i.valor_por_unidade_item ?? 0) * Number(i.quantidade_atual_item ?? 0)),
       0,
     )
 
     await tx.pedido.update({
-      where: { id: pedidoId },
+      where: { id_pedido: pedidoId },
       data: {
         quantidade_total_pedido: quantidadeInicialTotal,
         valor_total_pedido: valorTotal,

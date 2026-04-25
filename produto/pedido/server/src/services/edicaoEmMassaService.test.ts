@@ -10,6 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import type { PrismaClient } from '@prisma/client'
 import { EdicaoEmMassaService } from './edicaoEmMassaService.js'
 
 const TENANT = 'tenant-test'
@@ -40,24 +41,31 @@ function criarPedido(overrides: Record<string, unknown> = {}) {
   }
 }
 
+interface TxMock {
+  pedidoItem:      { update: ReturnType<typeof vi.fn>; findMany: ReturnType<typeof vi.fn> }
+  pedido:          { update: ReturnType<typeof vi.fn> }
+  pedidoHistorico: { createMany: ReturnType<typeof vi.fn> }
+}
+
 function criarDbMock(pedido = criarPedido()) {
   const itemUpdateMock = vi.fn().mockResolvedValue({ id: 'item-001' })
   const pedidoUpdateMock = vi.fn().mockResolvedValue({ id: 'pedido-001' })
   const pedidoHistoricoCreateManyMock = vi.fn().mockResolvedValue({})
   const itemFindManyMock = vi.fn().mockResolvedValue(pedido.itens)
 
-  const tx = {
+  const tx: TxMock = {
     pedidoItem: { update: itemUpdateMock, findMany: itemFindManyMock },
     pedido: { update: pedidoUpdateMock },
     pedidoHistorico: { createMany: pedidoHistoricoCreateManyMock },
   }
 
-  const db = {
+  const dbBase = {
     pedido: {
       findMany: vi.fn().mockResolvedValue([pedido]),
     },
-    $transaction: vi.fn().mockImplementation((fn: (tx: typeof tx) => Promise<unknown>) => fn(tx)),
+    $transaction: vi.fn().mockImplementation((fn: (tx: TxMock) => Promise<unknown>) => fn(tx)),
   }
+  const db = dbBase as unknown as PrismaClient
 
   return { db, tx, itemUpdateMock, pedidoUpdateMock, itemFindManyMock }
 }

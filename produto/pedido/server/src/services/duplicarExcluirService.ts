@@ -8,7 +8,11 @@
  *   - $transaction para atomicidade
  */
 
-import { Prisma } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
+
+// Workaround: Prisma.TransactionClient (Omit em classe genérica) perde os model delegates
+// no Prisma 5.22 — usamos Omit literal para preservar tx.pedido, tx.pedidoItem, etc.
+type Tx = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
 // ── Erro local (padrão project) ───────────────────────────────────────────────
 
@@ -131,8 +135,8 @@ export class DuplicarService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id: { in: ids }, tenant_id: tenantId },
-      include: { itens: { select: { id: true } } },
+      where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+      include: { itens: { select: { id_item: true } } },
     })
 
     if (pedidos.length !== ids.length) {
@@ -145,10 +149,10 @@ export class DuplicarService {
         copiar_datas: config.duplicar_copiar_datas,
         status_inicial: config.duplicar_status_inicial,
       },
-      pedidos: pedidos.map((p) => ({
-        id: p.id,
-        numero_pedido: p.numero_pedido,
-        total_itens: p.itens.length,
+      pedidos: pedidos.map((p: Record<string, unknown>) => ({
+        id: p.id_pedido as string,
+        numero_pedido: p.numero_pedido as string,
+        total_itens: (p.itens as unknown[]).length,
       })),
     }
   }
@@ -164,8 +168,8 @@ export class DuplicarService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id: { in: payload.ids }, tenant_id: tenantId },
-      include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+      where: { id_pedido: { in: payload.ids }, id_organizacao: tenantId },
+      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
     if (pedidos.length !== payload.ids.length) {
@@ -186,47 +190,49 @@ export class DuplicarService {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const resultado: DuplicarResultado = await (db as any).$transaction(async (tx: Prisma.TransactionClient) => {
+    const resultado: DuplicarResultado = await (db as any).$transaction(async (tx0: unknown) => {
+      const tx = tx0 as Tx
       const criados: DuplicarResultado['criados'] = []
       const erros: DuplicarResultado['erros'] = []
 
-      for (const pedido of pedidos) {
+      for (const pedidoRaw of pedidos) {
+        const pedido = pedidoRaw as Record<string, unknown>
         try {
           // Definir número do pedido duplicado
           let numeroPedido: string
           if (config.duplicar_numero_auto) {
-            const total = await tx.pedido.count({ where: { tenant_id: tenantId } })
+            const total = await tx.pedido.count({ where: { id_organizacao: tenantId } })
             numeroPedido = gerarNumeroPedido(total + 1)
           } else {
-            numeroPedido = payload.numeros![pedido.id]
+            numeroPedido = payload.numeros![pedido.id_pedido as string]
           }
 
           // Verificar se número já existe
           const numeroExistente = await tx.pedido.findFirst({
-            where: { numero_pedido: numeroPedido, tenant_id: tenantId },
+            where: { numero_pedido: numeroPedido, id_organizacao: tenantId },
           })
           if (numeroExistente) {
-            erros.push({ id: pedido.id, motivo: `Número "${numeroPedido}" já está em uso` })
+            erros.push({ id: pedido.id_pedido as string, motivo: `Número "${numeroPedido}" já está em uso` })
             continue
           }
 
           // Definir status
           const status =
             config.duplicar_status_inicial === 'copiar'
-              ? pedido.status
+              ? (pedido.status_pedido as string)
               : config.duplicar_status_inicial
 
-          // Definir datas
+          // Definir datas (data_emissao_pedido é DateTime, não string)
           const datas = config.duplicar_copiar_datas
-            ? { data_emissao_pedido: pedido.data_emissao_pedido }
-            : { data_emissao_pedido: new Date().toISOString() }
+            ? { data_emissao_pedido: pedido.data_emissao_pedido as Date }
+            : { data_emissao_pedido: new Date() }
 
           // Extrair campos a copiar (sem id, timestamps, pedidos_origem, histórico de transferências)
           const {
-            id: _id,
-            created_at: _ca,
-            updated_at: _ua,
-            pedidos_origem_id: _po,
+            id_pedido: _id,
+            data_criacao_pedido: _ca,
+            data_atualizacao_pedido: _ua,
+            id_pedidos_origem: _po,
             data_consolidacao_pedido: _dcp,
             data_transferencia_saldo_pedido: _dtsp,
             itens: _itens,
@@ -234,27 +240,27 @@ export class DuplicarService {
           } = pedido
 
           // Clonar itens com contadores de execução zerados
-          const itensClonados = pedido.itens.map((item: Record<string, unknown>) => {
+          const itensClonados = (pedido.itens as Array<Record<string, unknown>>).map((item: Record<string, unknown>) => {
             const {
-              id_pedido_item: _iid,
+              id_item: _iid,
               id_pedido: _pid,
-              data_criacao_pedido_item: _ica,
-              data_atualizacao_pedido_item: _iua,
-              quantidade_atual_pedido_pedido_item: _qsp,
-              quantidade_pronta_pedido_pedido_item: _qpp,
-              quantidade_transferida_pedido_pedido_item: _qtp,
-              quantidade_cancelada_pedido_pedido_item: _qcp,
+              data_criacao_item: _ica,
+              data_atualizacao_item: _iua,
+              quantidade_atual_item: _qsp,
+              quantidade_pronta_item: _qpp,
+              quantidade_transferida_item: _qtp,
+              quantidade_cancelada_item: _qcp,
               ...itemBase
             } = item
             return {
               ...itemBase,
-              id_pedido_item: gerarId('pite'),
+              id_item: gerarId('pite'),
               id_organizacao: tenantId,
               id_workspace: companyId,
-              quantidade_atual_pedido_pedido_item: item.quantidade_inicial_pedido_pedido_item,
-              quantidade_pronta_pedido_pedido_item: 0,
-              quantidade_transferida_pedido_pedido_item: 0,
-              quantidade_cancelada_pedido_pedido_item: 0,
+              quantidade_atual_item: item.quantidade_inicial_item,
+              quantidade_pronta_item: 0,
+              quantidade_transferida_item: 0,
+              quantidade_cancelada_item: 0,
             }
           })
 
@@ -262,36 +268,38 @@ export class DuplicarService {
             data: {
               ...camposBase,
               ...datas,
-              id: gerarId('pedi'),
-              tenant_id: tenantId,
-              company_id: companyId,
+              id_pedido: gerarId('pedi'),
+              id_organizacao: tenantId,
+              id_workspace: companyId,
               numero_pedido: numeroPedido,
-              status,
+              status_pedido: status,
               itens: { create: itensClonados },
-            },
+            } as unknown as Prisma.PedidoUncheckedCreateInput,
           })
 
-          // Audit trail de duplicação
-          await tx.pedidoHistorico?.create?.({
+          // Audit trail de duplicação — pedidoHistorico é best-effort (tabela pode não existir)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (tx as any).pedidoHistorico?.create?.({
             data: {
               tenant_id: tenantId,
-              pedido_id: novoPedido.id,
+              pedido_id: novoPedido.id_pedido,
               user_id: userId,
               canal: 'duplicacao',
-              dados: JSON.stringify({ original_id: pedido.id, numero_original: pedido.numero_pedido }),
+              dados: JSON.stringify({ original_id: pedido.id_pedido, numero_original: pedido.numero_pedido }),
             },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           }).catch(() => {
             // Audit trail é best-effort se tabela não existir ainda
           })
 
           criados.push({
-            original_id: pedido.id,
-            novo_id: novoPedido.id,
+            original_id: pedido.id_pedido as string,
+            novo_id: novoPedido.id_pedido,
             numero_pedido: numeroPedido,
           })
         } catch (err) {
           erros.push({
-            id: pedido.id,
+            id: pedido.id_pedido as string,
             motivo: err instanceof Error ? err.message : 'Erro desconhecido',
           })
         }
@@ -312,7 +320,7 @@ export class DuplicarService {
     // Verificar que o pedido pertence ao tenant
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedido = await (db as any).pedido.findFirst({
-      where: { id: payload.pedido_id, tenant_id: tenantId },
+      where: { id_pedido: payload.pedido_id, id_organizacao: tenantId },
     })
     if (!pedido) {
       throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
@@ -321,7 +329,7 @@ export class DuplicarService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const itens = await (db as any).pedidoItem.findMany({
       where: {
-        id_pedido_item: { in: payload.item_ids },
+        id_item: { in: payload.item_ids },
         id_pedido: payload.pedido_id,
         id_organizacao: tenantId,
       },
@@ -335,49 +343,50 @@ export class DuplicarService {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const todosItens = await (db as any).pedidoItem.findMany({
       where: { id_pedido: payload.pedido_id, id_organizacao: tenantId },
-      select: { sequencia_item_pedido_item: true },
+      select: { sequencia_item_pedido: true },
     })
-    const maxSequencia = todosItens.reduce((max: number, i) => Math.max(max, (i as { sequencia_item_pedido_item?: number }).sequencia_item_pedido_item ?? 0), 0)
+    const maxSequencia = todosItens.reduce((max: number, i: Record<string, unknown>) => Math.max(max, (i.sequencia_item_pedido as number | undefined) ?? 0), 0)
     let proximaSequencia = maxSequencia + 1
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const criados: DuplicarResultado['criados'] = await (db as any).$transaction(async (tx: Prisma.TransactionClient) => {
+    const criados: DuplicarResultado['criados'] = await (db as any).$transaction(async (tx0: unknown) => {
+      const tx = tx0 as Tx
       const resultado = []
 
-      for (const item of itens) {
+      for (const itemRaw of itens) {
+        const item = itemRaw as Record<string, unknown>
         const {
-          id_pedido_item: _id,
+          id_item: _id,
           id_pedido: _pid,
-          data_criacao_pedido_item: _ca,
-          data_atualizacao_pedido_item: _ua,
-          sequencia_item_pedido_item: _seq,
-          quantidade_atual_pedido_pedido_item: _qsp,
-          quantidade_pronta_pedido_pedido_item: _qpp,
-          quantidade_transferida_pedido_pedido_item: _qtp,
-          quantidade_cancelada_pedido_pedido_item: _qcp,
+          data_criacao_item: _ca,
+          data_atualizacao_item: _ua,
+          sequencia_item_pedido: _seq,
+          quantidade_atual_item: _qsp,
+          quantidade_pronta_item: _qpp,
+          quantidade_transferida_item: _qtp,
+          quantidade_cancelada_item: _qcp,
           ...itemBase
         } = item
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const novoItem = await (tx as any).pedidoItem.create({
+        const novoItem = await tx.pedidoItem.create({
           data: {
             ...itemBase,
-            id_pedido_item: gerarId('pite'),
+            id_item: gerarId('pite'),
             id_organizacao: tenantId,
             id_workspace: companyId,
             id_pedido: payload.pedido_id,
-            sequencia_item_pedido_item: proximaSequencia++,
-            quantidade_atual_pedido_pedido_item: item.quantidade_inicial_pedido_pedido_item,
-            quantidade_pronta_pedido_pedido_item: 0,
-            quantidade_transferida_pedido_pedido_item: 0,
-            quantidade_cancelada_pedido_pedido_item: 0,
-          },
+            sequencia_item_pedido: proximaSequencia++,
+            quantidade_atual_item: item.quantidade_inicial_item as number,
+            quantidade_pronta_item: 0,
+            quantidade_transferida_item: 0,
+            quantidade_cancelada_item: 0,
+          } as unknown as Prisma.PedidoItemUncheckedCreateInput,
         })
 
         resultado.push({
-          original_id: item.id_pedido_item,
-          novo_id: novoItem.id_pedido_item,
-          numero_pedido: pedido.numero_pedido,
+          original_id: item.id_item as string,
+          novo_id: novoItem.id_item,
+          numero_pedido: pedido.numero_pedido as string,
         })
       }
 
@@ -400,8 +409,8 @@ export class ExcluirService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id: { in: ids }, tenant_id: tenantId },
-      include: { itens: { select: { id: true } } },
+      where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+      include: { itens: { select: { id_item: true } } },
     })
 
     if (pedidos.length !== ids.length) {
@@ -411,20 +420,22 @@ export class ExcluirService {
     const permitidos: ExcluirPreview['permitidos'] = []
     const bloqueados: ExcluirPreview['bloqueados'] = []
 
-    for (const pedido of pedidos) {
-      if (config.excluir_status_permitidos.includes(pedido.status)) {
+    for (const pedidoRaw of pedidos) {
+      const pedido = pedidoRaw as Record<string, unknown>
+      const statusPed = pedido.status_pedido as string
+      if (config.excluir_status_permitidos.includes(statusPed)) {
         permitidos.push({
-          id: pedido.id,
-          numero_pedido: pedido.numero_pedido,
-          total_itens: pedido.itens.length,
+          id: pedido.id_pedido as string,
+          numero_pedido: pedido.numero_pedido as string,
+          total_itens: (pedido.itens as unknown[]).length,
         })
       } else {
         const statusPermitidosLabel = config.excluir_status_permitidos.join(', ')
         bloqueados.push({
-          id: pedido.id,
-          numero_pedido: pedido.numero_pedido,
-          status: pedido.status,
-          motivo: `Status "${pedido.status}" não permite exclusão. Permitidos: ${statusPermitidosLabel}`,
+          id: pedido.id_pedido as string,
+          numero_pedido: pedido.numero_pedido as string,
+          status: statusPed,
+          motivo: `Status "${statusPed}" não permite exclusão. Permitidos: ${statusPermitidosLabel}`,
         })
       }
     }
@@ -442,8 +453,8 @@ export class ExcluirService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedidos = await (db as any).pedido.findMany({
-      where: { id: { in: ids }, tenant_id: tenantId },
-      include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+      where: { id_pedido: { in: ids }, id_organizacao: tenantId },
+      include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
     })
 
     if (pedidos.length !== ids.length) {
@@ -452,7 +463,7 @@ export class ExcluirService {
 
     // Validar todos os status no backend (nunca confiar no frontend)
     const bloqueados = pedidos.filter(
-      (p) => !config.excluir_status_permitidos.includes((p as { status: string }).status),
+      (p: Record<string, unknown>) => !config.excluir_status_permitidos.includes(p.status_pedido as string),
     )
     if (bloqueados.length > 0) {
       const numeros = bloqueados.map((p: Record<string, unknown>) => p.numero_pedido).join(', ')
@@ -463,41 +474,46 @@ export class ExcluirService {
       )
     }
 
-    const totalItens = pedidos.reduce((acc: number, p) => acc + ((p as { itens: unknown[] }).itens?.length ?? 0), 0)
+    const totalItens = pedidos.reduce((acc: number, p: Record<string, unknown>) => acc + ((p.itens as unknown[] | undefined)?.length ?? 0), 0)
 
-    await (db as any).$transaction(async (tx: Prisma.TransactionClient) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (db as any).$transaction(async (tx0: unknown) => {
+      const tx = tx0 as Tx
       // AUDIT TRAIL ANTES de excluir (obrigatório — dados serão perdidos)
-      for (const pedido of pedidos) {
-        await tx.pedidoHistorico?.create?.({
+      for (const pedidoRaw of pedidos) {
+        const pedido = pedidoRaw as Record<string, unknown>
+        // pedidoHistorico best-effort — tabela pode não existir
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (tx as any).pedidoHistorico?.create?.({
           data: {
             tenant_id: tenantId,
-            pedido_id: pedido.id,
+            pedido_id: pedido.id_pedido,
             user_id: userId,
             canal: 'exclusao',
             dados: JSON.stringify({
               numero_pedido: pedido.numero_pedido,
-              status: pedido.status,
-              total_itens: pedido.itens.length,
-              itens: pedido.itens.map((i: Record<string, unknown>) => ({
-                id: i.id_pedido_item,
-                part_number: i.part_number_pedido_item,
-                quantidade_inicial_pedido: i.quantidade_inicial_pedido_pedido_item,
+              status: pedido.status_pedido,
+              total_itens: (pedido.itens as unknown[]).length,
+              itens: (pedido.itens as Array<Record<string, unknown>>).map((i) => ({
+                id: i.id_item,
+                part_number: i.part_number_item,
+                quantidade_inicial_pedido: i.quantidade_inicial_item,
               })),
             }),
           },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }).catch(() => {
           // Best-effort se tabela não existir
         })
       }
 
       // Hard delete: itens primeiro (FK), depois pedidos
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (tx as any).pedidoItem.deleteMany({
+      await tx.pedidoItem.deleteMany({
         where: { id_pedido: { in: ids }, id_organizacao: tenantId },
       })
 
       await tx.pedido.deleteMany({
-        where: { id: { in: ids }, tenant_id: tenantId },
+        where: { id_pedido: { in: ids }, id_organizacao: tenantId },
       })
     })
 
@@ -520,16 +536,16 @@ export class ExcluirService {
     // Verificar que o pedido pertence ao tenant e está em status permitido
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pedido = await (db as any).pedido.findFirst({
-      where: { id: pedidoId, tenant_id: tenantId },
-      include: { itens: { select: { id: true } } },
+      where: { id_pedido: pedidoId, id_organizacao: tenantId },
+      include: { itens: { select: { id_item: true } } },
     })
     if (!pedido) {
       throw new AppError('Pedido não encontrado', 404, 'NOT_FOUND')
     }
 
-    if (!config.excluir_status_permitidos.includes(pedido.status)) {
+    if (!config.excluir_status_permitidos.includes(pedido.status_pedido)) {
       throw new AppError(
-        `Status "${pedido.status}" não permite exclusão de itens`,
+        `Status "${pedido.status_pedido}" não permite exclusão de itens`,
         400,
         'STATUS_NAO_PERMITIDO',
       )
@@ -537,7 +553,7 @@ export class ExcluirService {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const itens = await (db as any).pedidoItem.findMany({
-      where: { id_pedido_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: tenantId },
+      where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: tenantId },
     })
     if (itens.length !== itemIds.length) {
       throw new AppError('Um ou mais itens não encontrados', 404, 'NOT_FOUND')
@@ -546,9 +562,11 @@ export class ExcluirService {
     let pedidosExcluidosPorSemItem = 0
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db as any).$transaction(async (tx: Prisma.TransactionClient) => {
-      // Audit trail ANTES da exclusão
-      await tx.pedidoHistorico?.create?.({
+    await (db as any).$transaction(async (tx0: unknown) => {
+      const tx = tx0 as Tx
+      // Audit trail ANTES da exclusão (best-effort — pedidoHistorico pode não existir)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await (tx as any).pedidoHistorico?.create?.({
         data: {
           tenant_id: tenantId,
           pedido_id: pedidoId,
@@ -557,31 +575,31 @@ export class ExcluirService {
           dados: JSON.stringify({
             item_ids: itemIds,
             itens: itens.map((i: Record<string, unknown>) => ({
-              id: i.id_pedido_item,
-              part_number: i.part_number_pedido_item,
-              quantidade_inicial_pedido: i.quantidade_inicial_pedido_pedido_item,
+              id: i.id_item,
+              part_number: i.part_number_item,
+              quantidade_inicial_pedido: i.quantidade_inicial_item,
             })),
           }),
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }).catch(() => {
         // Best-effort se tabela não existir
       })
 
       // Hard delete dos itens
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (tx as any).pedidoItem.deleteMany({
-        where: { id_pedido_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: tenantId },
+      await tx.pedidoItem.deleteMany({
+        where: { id_item: { in: itemIds }, id_pedido: pedidoId, id_organizacao: tenantId },
       })
 
       // Verificar itens restantes no pedido
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const itensRestantes = await (tx as any).pedidoItem.count({
+      const itensRestantes = await tx.pedidoItem.count({
         where: { id_pedido: pedidoId, id_organizacao: tenantId },
       })
 
       if (itensRestantes === 0 && !config.excluir_pedido_sem_item_permitido) {
         // Audit trail do pedido pai antes de excluir
-        await tx.pedidoHistorico?.create?.({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (tx as any).pedidoHistorico?.create?.({
           data: {
             tenant_id: tenantId,
             pedido_id: pedidoId,
@@ -592,12 +610,13 @@ export class ExcluirService {
               motivo: 'Pedido excluído automaticamente por ficar sem itens',
             }),
           },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }).catch(() => {
           // Best-effort se tabela não existir
         })
 
         await tx.pedido.delete({
-          where: { id: pedidoId },
+          where: { id_pedido: pedidoId },
         })
 
         pedidosExcluidosPorSemItem = 1

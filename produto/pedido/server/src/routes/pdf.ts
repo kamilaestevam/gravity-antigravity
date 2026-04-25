@@ -37,20 +37,57 @@ export const pdfRouter = Router()
 // ── ACL: PedidoItem DDD → shape legado consumido por pdfService ──────────────
 // pdfService consome chaves antigas (part_number, descricao_item, ncm, etc.).
 // Traduzimos uma única vez aqui para isolar a refatoração de colunas no banco.
-function mapearPedidoParaPdfService(pedido: Record<string, unknown>): Record<string, unknown> {
+interface ItemLegacyParaPdf {
+  part_number: string
+  descricao_item: string
+  ncm: string
+  quantidade_atual_pedido: number
+  quantidade_inicial_pedido: number
+  [key: string]: unknown
+}
+
+interface PedidoLegacyParaPdf {
+  numero_pedido: string
+  tipo_operacao: string
+  nome_exportador?: string | null
+  nome_fabricante?: string | null
+  incoterm?: string | null
+  data_emissao_pedido: string
+  valor_total_pedido?: number | null
+  quantidade_total_pedido?: number | null
+  itens: ItemLegacyParaPdf[]
+  [key: string]: unknown
+}
+
+function mapearPedidoParaPdfService(pedido: Record<string, unknown>): PedidoLegacyParaPdf {
   const itens = (pedido.itens ?? []) as Array<Record<string, unknown>>
   const itensLegado = itens.map((it) => ({
-    part_number:                 it.part_number_pedido_item,
-    descricao_item:              it.descricao_item_pedido_item,
-    ncm:                         it.ncm_pedido_item,
-    quantidade_atual_pedido:     Number(it.quantidade_atual_pedido_pedido_item ?? 0),
-    quantidade_inicial_pedido:   Number(it.quantidade_inicial_pedido_pedido_item ?? 0),
-    unidade_comercializada_item: it.unidade_comercializada_item_pedido_item,
-    moeda_item:                  it.moeda_item_pedido_item,
-    valor_por_unidade_item:      it.valor_por_unidade_item_pedido_item != null ? Number(it.valor_por_unidade_item_pedido_item) : null,
-    valor_total_item:            it.valor_total_item_pedido_item != null ? Number(it.valor_total_item_pedido_item) : null,
+    part_number:                 String(it.part_number_item ?? ''),
+    descricao_item:              String(it.descricao_item ?? ''),
+    ncm:                         String(it.ncm_item ?? ''),
+    quantidade_atual_pedido:     Number(it.quantidade_atual_item ?? 0),
+    quantidade_inicial_pedido:   Number(it.quantidade_inicial_item ?? 0),
+    unidade_comercializada_item: it.unidade_comercializada_item,
+    moeda_item:                  it.moeda_item,
+    valor_por_unidade_item:      it.valor_por_unidade_item != null ? Number(it.valor_por_unidade_item) : null,
+    valor_total_item:            it.valor_total_item != null ? Number(it.valor_total_item) : null,
   }))
-  return { ...pedido, itens: itensLegado }
+  const detalhes = (pedido.detalhes_operacionais_pedido ?? pedido.detalhes_operacionais ?? {}) as Record<string, unknown>
+  const dataEmissao = pedido.data_emissao_pedido instanceof Date
+    ? pedido.data_emissao_pedido.toISOString()
+    : String(pedido.data_emissao_pedido ?? '')
+  return {
+    ...pedido,
+    numero_pedido: String(pedido.numero_pedido ?? ''),
+    tipo_operacao: String(pedido.tipo_operacao_pedido ?? pedido.tipo_operacao ?? ''),
+    nome_exportador: (detalhes.nome_exportador as string | null | undefined) ?? null,
+    nome_fabricante: (detalhes.nome_fabricante as string | null | undefined) ?? null,
+    incoterm: (pedido.incoterm_pedido as string | null | undefined) ?? null,
+    data_emissao_pedido: dataEmissao,
+    valor_total_pedido: (pedido.valor_total_pedido as number | null | undefined) ?? null,
+    quantidade_total_pedido: (pedido.quantidade_total_pedido as number | null | undefined) ?? null,
+    itens: itensLegado,
+  }
 }
 
 class AppError extends Error {
@@ -120,8 +157,8 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
 
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
-        where: { id: pedido_id, tenant_id: tenantId },
-        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+        where: { id_pedido: pedido_id, id_organizacao: tenantId },
+        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       if (!pedido) {
@@ -217,8 +254,8 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
 
       // 1. Buscar pedido com itens
       const pedido = await db.pedido.findFirst({
-        where: { id: pedido_id, tenant_id: tenantId },
-        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+        where: { id_pedido: pedido_id, id_organizacao: tenantId },
+        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       if (!pedido) {
@@ -240,7 +277,7 @@ pdfRouter.post('/documentos/gerar', async (req: Request, res: Response, next: Ne
       // 3. Compilar variáveis passando o idioma ao contexto
       const tenantNome = process.env.TENANT_NOME ?? tenantId
       const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
-      const variaveisComIdioma = { ...variaveis as Record<string, unknown>, idioma, tipo_documento }
+      const variaveisComIdioma = { ...variaveis, idioma, tipo_documento }
 
       // 4. Renderizar template (fallback: HTML inline mínimo se template não existir)
       const htmlFallback = `<h1>${templateNome}</h1><p>${pedidoTyped.numero_pedido}</p><p>Lang: ${idioma}</p>`

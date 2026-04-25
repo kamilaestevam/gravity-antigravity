@@ -95,7 +95,7 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const pedidos = await db.pedido.findMany({
         where: { id: { in: ids }, tenant_id: tenantId },
-        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
       }) as any[]
 
       if (pedidos.length < 2) {
@@ -141,20 +141,20 @@ consolidarRouter.post('/preview', async (req: Request, res: Response, next: Next
       const itensPorPart: Record<string, Record<string, unknown>> = {}
       for (const pedido of pedidos) {
         for (const item of pedido.itens) {
-          const partNumber = item.part_number_pedido_item
+          const partNumber = item.part_number_item
           if (itensPorPart[partNumber]) {
-            itensPorPart[partNumber].quantidade_total += Number(item.quantidade_atual_pedido_pedido_item ?? 0)
-            itensPorPart[partNumber].pedidos_origem.push(pedido.numero_pedido)
+            itensPorPart[partNumber].quantidade_total = Number(itensPorPart[partNumber].quantidade_total ?? 0) + Number(item.quantidade_atual_item ?? 0);
+            (itensPorPart[partNumber].pedidos_origem as string[]).push(pedido.numero_pedido)
             itensPorPart[partNumber].pode_fundir = true
           } else {
             itensPorPart[partNumber] = {
               part_number: partNumber,
-              descricao_item: item.descricao_item_pedido_item,
-              ncm: item.ncm_pedido_item,
-              unidade_comercializada_item: item.unidade_comercializada_item_pedido_item,
-              moeda_item: item.moeda_item_pedido_item,
-              valor_unitario: item.valor_por_unidade_item_pedido_item,
-              quantidade_total: Number(item.quantidade_atual_pedido_pedido_item ?? 0),
+              descricao_item: item.descricao_item,
+              ncm: item.ncm_item,
+              unidade_comercializada_item: item.unidade_comercializada_item,
+              moeda_item: item.moeda_item,
+              valor_unitario: item.valor_por_unidade_item,
+              quantidade_total: Number(item.quantidade_atual_item ?? 0),
               pedidos_origem: [pedido.numero_pedido],
               pode_fundir: false,
             }
@@ -206,7 +206,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
       // Buscar pedidos originais — filtrado por tenant_id
       const pedidos = await db.pedido.findMany({
         where: { id: { in: ids }, tenant_id: tenantId },
-        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       if (pedidos.length < 2) {
@@ -244,26 +244,26 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
 
       for (const pedido of pedidos) {
         for (const item of pedido.itens) {
-          const partNumber = item.part_number_pedido_item
+          const partNumber = item.part_number_item
           if (fundir_itens_mesmo_part_number && partNumbersVistos.has(partNumber)) {
-            const existente = itensMerge.find((i) => i['part_number_pedido_item'] === partNumber) as Record<string, number> | undefined
+            const existente = itensMerge.find((i) => i['part_number_item'] === partNumber) as Record<string, number> | undefined
             if (existente) {
-              existente.quantidade_inicial_pedido_pedido_item = (Number(existente.quantidade_inicial_pedido_pedido_item) || 0) + (Number(item.quantidade_inicial_pedido_pedido_item) || 0)
-              existente.quantidade_atual_pedido_pedido_item = (Number(existente.quantidade_atual_pedido_pedido_item) || 0) + (Number(item.quantidade_atual_pedido_pedido_item) || 0)
-              existente.quantidade_pronta_pedido_pedido_item = (Number(existente.quantidade_pronta_pedido_pedido_item) || 0) + (Number(item.quantidade_pronta_pedido_pedido_item) || 0)
-              existente.valor_total_item_pedido_item = (Number(existente.valor_total_item_pedido_item) || 0) + (Number(item.valor_total_item_pedido_item) || 0)
+              existente.quantidade_inicial_item = (Number(existente.quantidade_inicial_item) || 0) + (Number(item.quantidade_inicial_item) || 0)
+              existente.quantidade_atual_item = (Number(existente.quantidade_atual_item) || 0) + (Number(item.quantidade_atual_item) || 0)
+              existente.quantidade_pronta_item = (Number(existente.quantidade_pronta_item) || 0) + (Number(item.quantidade_pronta_item) || 0)
+              existente.valor_total_item = (Number(existente.valor_total_item) || 0) + (Number(item.valor_total_item) || 0)
             }
           } else {
             partNumbersVistos.add(partNumber)
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { id_pedido_item: _id, id_pedido: _pedido_id, data_criacao_pedido_item: _ca, data_atualizacao_pedido_item: _ua, sequencia_item_pedido_item: _seq, ...itemData } = item
-            itensMerge.push({ ...itemData, id_pedido_item: gerarId('pite') })
+            const { id_item: _id, id_pedido: _pedido_id, data_criacao_item: _ca, data_atualizacao_item: _ua, sequencia_item_pedido: _seq, ...itemData } = item
+            itensMerge.push({ ...itemData, id_item: gerarId('pite') })
           }
         }
       }
 
       // Renumerar sequencia de forma limpa (1, 2, 3...) no pedido consolidado
-      itensMerge.forEach((item, i) => { item.sequencia_item_pedido_item = i + 1 })
+      itensMerge.forEach((item, i) => { item.sequencia_item_pedido = i + 1 })
 
       const valorTotal = pedidos.reduce((acc: number, p: { valor_total_pedido?: number | null }) => acc + (Number(p.valor_total_pedido) || 0), 0)
 
@@ -310,7 +310,7 @@ consolidarRouter.post('/confirmar', async (req: Request, res: Response, next: Ne
             create: itensMerge,
           },
         },
-        include: { itens: { orderBy: { sequencia_item_pedido_item: 'asc' } } },
+        include: { itens: { orderBy: { sequencia_item_pedido: 'asc' } } },
       })
 
       // 2. Soft delete dos pedidos originais — marcados como deleted_at

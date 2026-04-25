@@ -19,6 +19,7 @@ import type { PedidoImportado } from '../services/importEngine.js'
 import { AppError } from '../services/saldoEngine.js'
 import { buscarEmpresasPorSuids } from '../services/cadastrosClient.js'
 import { montarSnapshotEmpresa, type PapelEmpresa } from '../services/pedidoSnapshots.js'
+import { withTenant } from '@gravity/tenant-resolver'
 
 export const importacaoRouter = Router()
 
@@ -120,82 +121,88 @@ importacaoRouter.post('/importar/confirmar', async (req: Request, res: Response,
       { id_organizacao: tenant_id, correlation_id },
     )
 
-    const criados = await req.prisma.$transaction(async (tx) => {
-      const pedidosCriados: string[] = []
+    let criados: string[] = []
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      criados = await db.$transaction(async (tx: Record<string, Record<string, unknown>>) => {
+        const pedidosCriados: string[] = []
 
-      for (const pedidoData of result.data.pedidos) {
-        const pedidoId = gerarId('pedi')
-        const valorTotal = pedidoData.itens.reduce((acc, item) => {
-          return acc + (item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido)
-        }, 0)
-        const qtdTotal = pedidoData.itens.reduce((acc, item) => acc + item.quantidade_inicial_pedido, 0)
+        for (const pedidoData of result.data.pedidos) {
+          const pedidoId = gerarId('pedi')
+          const valorTotal = pedidoData.itens.reduce((acc, item) => {
+            return acc + (item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido)
+          }, 0)
+          const qtdTotal = pedidoData.itens.reduce((acc, item) => acc + item.quantidade_inicial_pedido, 0)
 
-        const papeisPedido: Array<{ suid: string; papel: PapelEmpresa }> = []
-        if (pedidoData.suid_importador) papeisPedido.push({ suid: pedidoData.suid_importador, papel: 'importador' })
-        if (pedidoData.suid_exportador) papeisPedido.push({ suid: pedidoData.suid_exportador, papel: 'exportador' })
-        if (pedidoData.suid_fabricante) papeisPedido.push({ suid: pedidoData.suid_fabricante, papel: 'fabricante' })
+          const papeisPedido: Array<{ suid: string; papel: PapelEmpresa }> = []
+          if (pedidoData.suid_importador) papeisPedido.push({ suid: pedidoData.suid_importador, papel: 'importador' })
+          if (pedidoData.suid_exportador) papeisPedido.push({ suid: pedidoData.suid_exportador, papel: 'exportador' })
+          if (pedidoData.suid_fabricante) papeisPedido.push({ suid: pedidoData.suid_fabricante, papel: 'fabricante' })
 
-        const snapshotsData = papeisPedido
-          .map(({ suid, papel }) => {
-            const empresa = empresasMap.get(suid)
-            if (!empresa) return null
-            return montarSnapshotEmpresa(empresa, papel, tenant_id, company_id)
+          const snapshotsData = papeisPedido
+            .map(({ suid, papel }) => {
+              const empresa = empresasMap.get(suid)
+              if (!empresa) return null
+              return montarSnapshotEmpresa(empresa, papel, tenant_id, company_id)
+            })
+            .filter((s): s is NonNullable<typeof s> => s !== null)
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (tx as any).pedido.create({
+            data: {
+              id_pedido: pedidoId,
+              id_organizacao: tenant_id,
+              id_workspace: company_id,
+              tipo_operacao_pedido: pedidoData.tipo_operacao,
+              numero_pedido: pedidoData.numero_pedido,
+              status_pedido: 'draft',
+              incoterm_pedido: pedidoData.incoterm ?? null,
+              moeda_pedido: pedidoData.moeda_pedido ?? 'USD',
+              valor_total_pedido: valorTotal || null,
+              quantidade_total_pedido: qtdTotal || null,
+              condicao_pagamento_pedido: null,
+              detalhes_operacionais_pedido: {
+                referencia_importador: pedidoData.referencia_importador,
+                referencia_exportador: pedidoData.referencia_exportador,
+                referencia_fabricante: pedidoData.referencia_fabricante,
+                numero_proforma: pedidoData.numero_proforma,
+                numero_invoice: pedidoData.numero_invoice,
+              },
+              itens: {
+                create: pedidoData.itens.map((item, index) => ({
+                  id_item: gerarId('pite'),
+                  id_organizacao: tenant_id,
+                  id_workspace: company_id,
+                  sequencia_item_pedido: (index + 1),
+                  part_number_item: item.part_number,
+                  ncm_item: item.ncm,
+                  descricao_item: item.descricao_item,
+                  quantidade_inicial_item: item.quantidade_inicial_pedido,
+                  quantidade_atual_item: item.quantidade_inicial_pedido,
+                  quantidade_pronta_item: 0,
+                  quantidade_transferida_item: 0,
+                  quantidade_cancelada_item: 0,
+                  casas_decimais_quantidade_item: 2,
+                  unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
+                  moeda_item: pedidoData.moeda_pedido ?? 'USD',
+                  valor_por_unidade_item: item.valor_por_unidade_item ?? null,
+                  valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido,
+                  casas_decimais_valor_item: 2,
+                  cobertura_cambial_item: 'com_cobertura',
+                })),
+              },
+              snapshots_empresa: snapshotsData.length
+                ? { create: snapshotsData }
+                : undefined,
+            },
           })
-          .filter((s): s is NonNullable<typeof s> => s !== null)
 
-        await tx.pedido.create({
-          data: {
-            id: pedidoId,
-            tenant_id,
-            company_id,
-            tipo_operacao: pedidoData.tipo_operacao,
-            numero_pedido: pedidoData.numero_pedido,
-            status: 'draft',
-            incoterm: pedidoData.incoterm ?? null,
-            moeda_pedido: pedidoData.moeda_pedido ?? 'USD',
-            valor_total_pedido: valorTotal || null,
-            quantidade_total_pedido: qtdTotal || null,
-            condicao_pagamento: null,
-            detalhes_operacionais: {
-              referencia_importador: pedidoData.referencia_importador,
-              referencia_exportador: pedidoData.referencia_exportador,
-              referencia_fabricante: pedidoData.referencia_fabricante,
-              numero_proforma: pedidoData.numero_proforma,
-              numero_invoice: pedidoData.numero_invoice,
-            },
-            itens: {
-              create: pedidoData.itens.map((item, index) => ({
-                id: gerarId('pite'),
-                tenant_id,
-                company_id,
-                sequencia_item: (index + 1),
-                part_number: item.part_number,
-                ncm: item.ncm,
-                descricao_item: item.descricao_item,
-                quantidade_inicial_pedido: item.quantidade_inicial_pedido,
-                quantidade_atual_pedido: item.quantidade_inicial_pedido,
-                quantidade_pronta_pedido: 0,
-                quantidade_transferida_pedido: 0,
-                quantidade_cancelada_pedido: 0,
-                casas_decimais_quantidade_item: 2,
-                unidade_comercializada_item: item.unidade_comercializada_item ?? 'UN',
-                moeda_item: pedidoData.moeda_pedido ?? 'USD',
-                valor_por_unidade_item: item.valor_por_unidade_item ?? null,
-                valor_total_item: item.valor_total_item ?? (item.valor_por_unidade_item ?? 0) * item.quantidade_inicial_pedido,
-                casas_decimais_valor_item: 2,
-                cobertura_cambial: 'com_cobertura',
-              })),
-            },
-            snapshots_empresa: snapshotsData.length
-              ? { create: snapshotsData }
-              : undefined,
-          },
-        })
+          pedidosCriados.push(pedidoId)
+        }
 
-        pedidosCriados.push(pedidoId)
-      }
-
-      return pedidosCriados
+        return pedidosCriados
+      })
     })
 
     res.status(201).json({
@@ -216,14 +223,19 @@ importacaoRouter.post('/exportar', async (req: Request, res: Response, next: Nex
     const tenant_id = req.headers['x-tenant-id'] as string
     const company_id = req.headers['x-company-id'] as string
 
-    const where: Record<string, unknown> = { tenant_id, company_id }
-    if (filtros?.status) where.status = filtros.status
-    if (filtros?.tipo_operacao) where.tipo_operacao = filtros.tipo_operacao
+    const where: Record<string, unknown> = { id_organizacao: tenant_id, id_workspace: company_id }
+    if (filtros?.status) where.status_pedido = filtros.status
+    if (filtros?.tipo_operacao) where.tipo_operacao_pedido = filtros.tipo_operacao
 
-    const pedidos = await req.prisma.pedido.findMany({
-      where,
-      include: { itens: true },
-      orderBy: { data_emissao_pedido: 'desc' },
+    let pedidos: Array<Record<string, unknown>> = []
+    await withTenant(req, async (rawDb) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = rawDb as any
+      pedidos = await db.pedido.findMany({
+        where,
+        include: { itens: true },
+        orderBy: { data_emissao_pedido: 'desc' },
+      })
     })
 
     if (formato === 'csv') {
@@ -235,13 +247,13 @@ importacaoRouter.post('/exportar', async (req: Request, res: Response, next: Nex
         'item_unidade', 'item_valor',
       ]
 
-      const rows = pedidos.flatMap((p) =>
-        p.itens.map((item) =>
+      const rows = pedidos.flatMap((p: Record<string, unknown>) =>
+        (p.itens as Array<Record<string, unknown>>).map((item) =>
           [
-            p.numero_pedido, p.tipo_operacao, p.status, p.incoterm ?? '', p.moeda_pedido,
+            p.numero_pedido, p.tipo_operacao_pedido, p.status_pedido, p.incoterm_pedido ?? '', p.moeda_pedido,
             p.valor_total_pedido ?? '', p.quantidade_total_pedido ?? '', p.data_emissao_pedido,
-            item.part_number, item.ncm, item.descricao_item,
-            item.quantidade_inicial_pedido, item.quantidade_atual_pedido, item.quantidade_transferida_pedido,
+            item.part_number_item, item.ncm_item, item.descricao_item,
+            item.quantidade_inicial_item, item.quantidade_atual_item, item.quantidade_transferida_item,
             item.unidade_comercializada_item ?? '', item.valor_total_item ?? '',
           ].map((v) => `"${String(v).replace(/"/g, '""')}"`)
            .join(',')

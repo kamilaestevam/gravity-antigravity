@@ -78,16 +78,16 @@ const MAP_CONFIG_PEDIDO: Record<keyof CasasDecimaisConfig, string | null> = {
 }
 
 const MAP_CONFIG_ITEM: Record<keyof CasasDecimaisConfig, string | null> = {
-  valor_total_pedido:              'casas_decimais_valor_item_pedido_item',
+  valor_total_pedido:              'casas_decimais_valor_item',
   valor_por_unidade_item:             null, // display usa getCasas() direto — sem metadata separado
-  quantidade_total_pedido: 'casas_decimais_quantidade_item_pedido_item',
+  quantidade_total_pedido: 'casas_decimais_quantidade_item',
   quantidade_pronta_pedido_total:  null,
   saldo_itens_do_pedido:           null,
   quantidade_transferida_total:    null,
   quantidade_cancelada_total_pedido: null,
-  peso_liquido_total_pedido:       'casas_decimais_peso_item_pedido_item',
-  peso_bruto_total_pedido:         'casas_decimais_peso_item_pedido_item',
-  cubagem_total_pedido:            'casas_decimais_cubagem_item_pedido_item',
+  peso_liquido_total_pedido:       'casas_decimais_peso_item',
+  peso_bruto_total_pedido:         'casas_decimais_peso_item',
+  cubagem_total_pedido:            'casas_decimais_cubagem_item',
   formato_data:                    null,
 }
 
@@ -105,15 +105,15 @@ const ARREDONDAR_PEDIDO: Array<{ config: keyof CasasDecimaisConfig; coluna: stri
 ]
 
 const ARREDONDAR_ITEM: Array<{ config: keyof CasasDecimaisConfig; coluna: string }> = [
-  { config: 'valor_total_pedido',                coluna: 'valor_total_item_pedido_item' },
-  { config: 'valor_por_unidade_item',               coluna: 'valor_por_unidade_item_pedido_item' },
-  { config: 'quantidade_total_pedido',   coluna: 'quantidade_inicial_pedido_pedido_item' },
-  { config: 'quantidade_pronta_pedido_total',    coluna: 'quantidade_pronta_pedido_pedido_item' },
-  { config: 'quantidade_transferida_total',      coluna: 'quantidade_transferida_pedido_pedido_item' },
-  { config: 'quantidade_cancelada_total_pedido', coluna: 'quantidade_cancelada_pedido_pedido_item' },
-  { config: 'peso_liquido_total_pedido',         coluna: 'peso_liquido_unitario_pedido_item' },
-  { config: 'peso_bruto_total_pedido',           coluna: 'peso_bruto_unitario_pedido_item' },
-  { config: 'cubagem_total_pedido',              coluna: 'cubagem_unitaria_pedido_item' },
+  { config: 'valor_total_pedido',                coluna: 'valor_total_item' },
+  { config: 'valor_por_unidade_item',               coluna: 'valor_por_unidade_item' },
+  { config: 'quantidade_total_pedido',   coluna: 'quantidade_inicial_item' },
+  { config: 'quantidade_pronta_pedido_total',    coluna: 'quantidade_pronta_item' },
+  { config: 'quantidade_transferida_total',      coluna: 'quantidade_transferida_item' },
+  { config: 'quantidade_cancelada_total_pedido', coluna: 'quantidade_cancelada_item' },
+  { config: 'peso_liquido_total_pedido',         coluna: 'peso_liquido_unitario_item' },
+  { config: 'peso_bruto_total_pedido',           coluna: 'peso_bruto_unitario_item' },
+  { config: 'cubagem_total_pedido',              coluna: 'cubagem_unitaria_item' },
 ]
 
 // ── Job de migração em background ─────────────────────────────────────────────

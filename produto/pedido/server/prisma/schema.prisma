@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-25T23:14:14.627Z
+// Gerado em: 2026-04-25T23:22:56.256Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -100,9 +100,9 @@ model Pedido {
   // ============================================================
   // FASE 06B — Datas de etapa do Pedido (prev / conf / meta)
   // ============================================================
-  data_prevista_pedido_pronto_pedido                          DateTime?
-  data_confirmada_pedido_pronto_pedido                        DateTime?
-  data_meta_pedido_pronto_pedido                              DateTime?
+  data_prevista_pedido_pronto                                 DateTime?
+  data_confirmada_pedido_pronto                               DateTime?
+  data_meta_pedido_pronto                                     DateTime?
   data_prevista_inspecao_pedido                               DateTime?
   data_confirmada_inspecao_pedido                             DateTime?
   data_meta_inspecao_pedido                                   DateTime?
@@ -113,11 +113,11 @@ model Pedido {
   // ============================================================
   // FASE 06B — Datas Draft Pedido (recebimento / aprovação)
   // ============================================================
-  data_prev_recebimento_draft_pedido                          DateTime?
-  data_conf_recebimento_draft_pedido                          DateTime?
+  data_previsao_recebimento_draft_pedido                      DateTime?
+  data_confirmacao_recebimento_draft_pedido                   DateTime?
   data_meta_recebimento_draft_pedido                          DateTime?
-  data_prev_aprovacao_draft_pedido                            DateTime?
-  data_conf_aprovacao_draft_pedido                            DateTime?
+  data_previsao_aprovacao_draft_pedido                        DateTime?
+  data_confirmacao_aprovacao_draft_pedido                     DateTime?
   data_meta_aprovacao_draft_pedido                            DateTime?
 
   // ============================================================

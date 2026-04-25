@@ -270,9 +270,15 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     updated_at:               pedido.data_atualizacao_pedido      ?? pedido.updated_at,
     data_documento_proforma:  pedido.data_documento_proforma_pedido ?? pedido.data_documento_proforma,
     data_documento_invoice:   pedido.data_documento_invoice_pedido  ?? pedido.data_documento_invoice,
-    data_prevista_pedido_pronto:   pedido.data_prevista_pedido_pronto_pedido   ?? pedido.data_prevista_pedido_pronto,
-    data_confirmada_pedido_pronto: pedido.data_confirmada_pedido_pronto_pedido ?? pedido.data_confirmada_pedido_pronto,
-    data_meta_pedido_pronto:       pedido.data_meta_pedido_pronto_pedido       ?? pedido.data_meta_pedido_pronto,
+    data_prevista_pedido_pronto:   pedido.data_prevista_pedido_pronto,
+    data_confirmada_pedido_pronto: pedido.data_confirmada_pedido_pronto,
+    data_meta_pedido_pronto:       pedido.data_meta_pedido_pronto,
+    data_prev_recebimento_draft_pedido:      pedido.data_previsao_recebimento_draft_pedido,
+    data_conf_recebimento_draft_pedido:      pedido.data_confirmacao_recebimento_draft_pedido,
+    data_meta_recebimento_draft_pedido:      pedido.data_meta_recebimento_draft_pedido,
+    data_prev_aprovacao_draft_pedido:        pedido.data_previsao_aprovacao_draft_pedido,
+    data_conf_aprovacao_draft_pedido:        pedido.data_confirmacao_aprovacao_draft_pedido,
+    data_meta_aprovacao_draft_pedido:        pedido.data_meta_aprovacao_draft_pedido,
     data_prev_recebimento_draft_proforma:    pedido.data_previsao_recebimento_draft_proforma_pedido    ?? pedido.data_prev_recebimento_draft_proforma,
     data_conf_recebimento_draft_proforma:    pedido.data_confirmacao_recebimento_draft_proforma_pedido ?? pedido.data_conf_recebimento_draft_proforma,
     data_meta_recebimento_draft_proforma:    pedido.data_meta_recebimento_draft_proforma_pedido        ?? pedido.data_meta_recebimento_draft_proforma,
@@ -1124,6 +1130,11 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       const ALIAS_LEGADO_PARA_PRISMA: Record<string, string> = {
         importacao_exportador_id: 'id_importacao_exportador_pedido',
         exportacao_importador_id: 'id_exportacao_importador_pedido',
+        // Sub-onda 7c — datas Draft Pedido (alias prevista/confirmada → previsao/confirmacao DB)
+        data_prevista_recebimento_draft_pedido:    'data_previsao_recebimento_draft_pedido',
+        data_confirmada_recebimento_draft_pedido:  'data_confirmacao_recebimento_draft_pedido',
+        data_prevista_aprovacao_draft_pedido:      'data_previsao_aprovacao_draft_pedido',
+        data_confirmada_aprovacao_draft_pedido:    'data_confirmacao_aprovacao_draft_pedido',
         // campos_custom é tratado em branch próprio
       }
       let dadosUpdate: Record<string, unknown>

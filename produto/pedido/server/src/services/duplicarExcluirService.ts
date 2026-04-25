@@ -232,7 +232,7 @@ export class DuplicarService {
             id_pedido: _id,
             data_criacao_pedido: _ca,
             data_atualizacao_pedido: _ua,
-            id_pedidos_origem: _po,
+            ids_origem_consolidacao_pedido: _po,
             data_consolidacao_pedido: _dcp,
             data_transferencia_saldo_pedido: _dtsp,
             itens: _itens,

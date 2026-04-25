@@ -249,10 +249,10 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     company_id:               pedido.id_workspace         ?? pedido.company_id,
     tipo_operacao:            pedido.tipo_operacao_pedido ?? pedido.tipo_operacao,
     status:                   pedido.status_pedido        ?? pedido.status,
-    status_id:                pedido.id_status            ?? pedido.status_id,
-    importacao_exportador_id: pedido.id_importacao_exportador ?? pedido.importacao_exportador_id,
-    exportacao_importador_id: pedido.id_exportacao_importador ?? pedido.exportacao_importador_id,
-    fabricante_id:            pedido.id_fabricante        ?? pedido.fabricante_id,
+    status_id:                pedido.id_status_pedido            ?? pedido.id_status            ?? pedido.status_id,
+    importacao_exportador_id: pedido.id_importacao_exportador_pedido ?? pedido.id_importacao_exportador ?? pedido.importacao_exportador_id,
+    exportacao_importador_id: pedido.id_exportacao_importador_pedido ?? pedido.id_exportacao_importador ?? pedido.exportacao_importador_id,
+    fabricante_id:            pedido.id_fabricante_pedido        ?? pedido.id_fabricante        ?? pedido.fabricante_id,
     incoterm:                 pedido.incoterm_pedido      ?? pedido.incoterm,
     condicao_pagamento:       pedido.condicao_pagamento_pedido ?? pedido.condicao_pagamento,
     numero_proforma:          pedido.numero_proforma_pedido    ?? pedido.numero_proforma,
@@ -262,8 +262,8 @@ export function mapPedido(pedido: PedidoRaw | null | undefined): PedidoRaw | nul
     referencia_fabricante:    pedido.referencia_fabricante_pedido ?? pedido.referencia_fabricante,
     taxa_cambio_estimada:     pedido.taxa_cambio_estimada_pedido  ?? pedido.taxa_cambio_estimada,
     detalhes_operacionais:    pedido.detalhes_operacionais_pedido ?? pedido.detalhes_operacionais,
-    campos_custom:            pedido.campos_custom_pedido         ?? pedido.campos_custom,
-    pedidos_origem_id:        pedido.id_pedidos_origem            ?? pedido.pedidos_origem_id,
+    campos_custom:            pedido.dados_extras_importacao_pedido ?? pedido.campos_custom_pedido         ?? pedido.campos_custom,
+    pedidos_origem_id:        pedido.ids_origem_consolidacao_pedido ?? pedido.id_pedidos_origem            ?? pedido.pedidos_origem_id,
     cnpj_importador:          pedido.cnpj_importador_pedido       ?? pedido.cnpj_importador,
     deleted_at:               pedido.data_exclusao_pedido         ?? pedido.deleted_at,
     created_at:               pedido.data_criacao_pedido          ?? pedido.created_at,
@@ -1120,15 +1120,21 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
       }
 
       // ── Campos editados diretamente no banco ────────────────────────────────────
+      // ACL: traduz alias legado (contrato JSON do frontend) → coluna Prisma DDD
+      const ALIAS_LEGADO_PARA_PRISMA: Record<string, string> = {
+        importacao_exportador_id: 'id_importacao_exportador_pedido',
+        exportacao_importador_id: 'id_exportacao_importador_pedido',
+        // campos_custom é tratado em branch próprio
+      }
       let dadosUpdate: Record<string, unknown>
       if (campo === 'campos_custom') {
         if (typeof valor !== 'object' || valor === null || Array.isArray(valor)) {
           throw new AppError(400, 'campos_custom deve ser um objeto')
         }
-        const customAtual = (typeof pedido.campos_custom === 'object' && pedido.campos_custom !== null)
-          ? pedido.campos_custom as Record<string, unknown>
+        const customAtual = (typeof pedido.dados_extras_importacao_pedido === 'object' && pedido.dados_extras_importacao_pedido !== null)
+          ? pedido.dados_extras_importacao_pedido as Record<string, unknown>
           : {}
-        dadosUpdate = { campos_custom: { ...customAtual, ...(valor as Record<string, unknown>) } }
+        dadosUpdate = { dados_extras_importacao_pedido: { ...customAtual, ...(valor as Record<string, unknown>) } }
       } else if (campo === 'nome_exportador' || campo === 'nome_importador' || campo === 'nome_fabricante') {
         // Armazenados em detalhes_operacionais — merge para não perder outros campos
         const detAtual = (typeof pedido.detalhes_operacionais === 'object' && pedido.detalhes_operacionais !== null)
@@ -1136,7 +1142,8 @@ pedidosRouter.patch('/:id/campo', async (req: Request, res: Response, next: Next
           : {}
         dadosUpdate = { detalhes_operacionais: { ...detAtual, [campo]: valor } }
       } else {
-        dadosUpdate = { [campo]: valor }
+        const colunaPrisma = ALIAS_LEGADO_PARA_PRISMA[campo] ?? campo
+        dadosUpdate = { [colunaPrisma]: valor }
       }
 
       const updated = await db.pedido.update({

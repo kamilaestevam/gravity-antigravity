@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-25T22:57:07.077Z
+// Gerado em: 2026-04-25T23:14:14.627Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -48,10 +48,10 @@ model Pedido {
   tipo_operacao_pedido                                        String
   numero_pedido                                               String
   status_pedido                                               String                      @default("draft")
-  id_status                                                   String?
-  id_importacao_exportador                                    String?
-  id_exportacao_importador                                    String?
-  id_fabricante                                               String?
+  id_status_pedido                                            String?
+  id_importacao_exportador_pedido                             String?
+  id_exportacao_importador_pedido                             String?
+  id_fabricante_pedido                                        String?
   incoterm_pedido                                             String?
   moeda_pedido                                                String                      @default("USD")
   valor_total_pedido                                          Decimal?                    @db.Decimal(18, 6)
@@ -71,8 +71,8 @@ model Pedido {
   contrato_cambio_id_pedido                                   String?
   data_emissao_pedido                                         DateTime                    @default(now())
   detalhes_operacionais_pedido                                Json?
-  campos_custom_pedido                                        Json?
-  id_pedidos_origem                                           Json?
+  dados_extras_importacao_pedido                              Json?
+  ids_origem_consolidacao_pedido                              Json?
   cnpj_importador_pedido                                      String?
   data_consolidacao_pedido                                    DateTime?
   data_exclusao_pedido                                        DateTime?
@@ -161,7 +161,7 @@ model Pedido {
   @@index([id_organizacao])
   @@index([id_organizacao, id_workspace])
   @@index([id_organizacao, status_pedido])
-  @@index([id_organizacao, id_status])
+  @@index([id_organizacao, id_status_pedido])
   @@index([id_organizacao, tipo_operacao_pedido])
   @@index([id_organizacao, data_emissao_pedido])
   @@index([id_organizacao, data_exclusao_pedido])

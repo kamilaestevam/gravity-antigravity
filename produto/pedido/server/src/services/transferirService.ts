@@ -408,9 +408,9 @@ export class TransferirService {
         unidade_comercializada_pedido: (base.unidade_comercializada_pedido as string | null) ?? null,
         condicao_pagamento_pedido: ((base.condicao_pagamento_pedido ?? base.condicao_pagamento) as string | null) ?? null,
         data_emissao_pedido: new Date(),
-        id_importacao_exportador: ((base.id_importacao_exportador ?? base.importacao_exportador_id) as string | null) ?? null,
-        id_exportacao_importador: ((base.id_exportacao_importador ?? base.exportacao_importador_id) as string | null) ?? null,
-        id_fabricante: ((base.id_fabricante ?? base.fabricante_id) as string | null) ?? null,
+        id_importacao_exportador_pedido: ((base.id_importacao_exportador_pedido ?? base.id_importacao_exportador ?? base.importacao_exportador_id) as string | null) ?? null,
+        id_exportacao_importador_pedido: ((base.id_exportacao_importador_pedido ?? base.id_exportacao_importador ?? base.exportacao_importador_id) as string | null) ?? null,
+        id_fabricante_pedido: ((base.id_fabricante_pedido ?? base.id_fabricante ?? base.fabricante_id) as string | null) ?? null,
       },
     })
   }

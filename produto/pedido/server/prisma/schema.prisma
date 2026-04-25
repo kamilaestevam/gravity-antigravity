@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-25T23:22:56.256Z
+// Gerado em: 2026-04-25T23:55:58.738Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -449,7 +449,7 @@ model PedidoColuna {
 }
 
 model PedidoPreferenciaUsuario {
-  id_pedido_preferencia_usuario               String   @id @default(cuid())
+  id_pedido_colunas_preferencia_usuario       String   @id @default(cuid())
   id_organizacao                              String
   id_workspace                                String?
   id_usuario                                  String
@@ -493,28 +493,26 @@ model AprendizadoImportacaoDados {
   @@map("aprendizado_importacao_dados")
 }
 
-model AnexoPedido {
+model PedidoAnexo {
   id_anexo_pedido            String   @id @default(cuid())
   id_organizacao             String
-  id_produto                 String?
+  id_produto_gravity         String?
   vinculo_anexo_pedido       String
-  id_vinculo                 String
+  id_vinculo_anexo_pedido    String
   nome_arquivo_anexo_pedido  String
   tipo_arquivo_anexo_pedido  String
   tamanho_bytes_anexo_pedido Int
   descricao_anexo_pedido     String?
   categoria_anexo_pedido     String?
-  storage_key_anexo_pedido   String
-  uploaded_by_anexo_pedido   String
+  chave_storage_anexo_pedido String
+  enviado_por_anexo_pedido   String
   data_criacao_anexo_pedido  DateTime @default(now())
 
-  // FASE 06B — categoria do documento (pedido | proforma | invoice | certificado_origem | apolice | etc.)
-  // Versão (draft/original) NÃO é atributo do anexo — vive em colunas de data no model Pedido.
   tipo_documento_anexo_pedido String?
 
   @@index([id_organizacao])
-  @@index([id_organizacao, id_produto])
-  @@index([id_organizacao, id_vinculo])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_vinculo_anexo_pedido])
   @@index([id_organizacao, tipo_documento_anexo_pedido])
   @@map("anexo_pedido")
 }
@@ -578,7 +576,7 @@ model ColunaUsuarioPedido {
   created_by       String
   created_at       DateTime                   @default(now())
   updated_at       DateTime                   @updatedAt
-  valores          ValorColunaUsuarioPedido[]
+  valores          PedidoValorColunaUsuario[]
 
   @@unique([tenant_id, chave])
   @@index([tenant_id])
@@ -587,20 +585,20 @@ model ColunaUsuarioPedido {
   @@map("coluna_usuario_pedido")
 }
 
-model ValorColunaUsuarioPedido {
-  id_valor_coluna_usuario_pedido     String              @id @default(cuid())
-  id_organizacao                     String
-  id_produto                         String?
-  id_coluna                          String
-  vinculo_valor_coluna_usuario_pedido String
-  id_vinculo                         String
-  valor_valor_coluna_usuario_pedido  String
-  coluna_valor_coluna_usuario_pedido ColunaUsuarioPedido @relation(fields: [id_coluna], references: [id])
+model PedidoValorColunaUsuario {
+  id_valor_coluna_usuario_pedido            String              @id @default(cuid())
+  id_organizacao                            String
+  id_produto_gravity                        String?
+  id_coluna_usuario_pedido                  String
+  vinculo_valor_coluna_usuario_pedido       String
+  id_vinculo_valor_coluna_usuario_pedido    String
+  valor_coluna_usuario_pedido               String
+  coluna_valor_coluna_usuario_pedido        ColunaUsuarioPedido @relation(fields: [id_coluna_usuario_pedido], references: [id])
 
-  @@unique([id_organizacao, id_coluna, id_vinculo])
+  @@unique([id_organizacao, id_coluna_usuario_pedido, id_vinculo_valor_coluna_usuario_pedido])
   @@index([id_organizacao])
-  @@index([id_organizacao, id_produto])
-  @@index([id_organizacao, id_vinculo])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_vinculo_valor_coluna_usuario_pedido])
   @@map("valor_coluna_usuario_pedido")
 }
 

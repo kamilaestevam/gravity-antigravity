@@ -239,22 +239,22 @@ export class ColunasUsuarioService {
 
     await prisma.$transaction(
       Object.entries(input.valores).map(([coluna_id, valor]) =>
-        prisma.valorColunaUsuarioPedido.upsert({
+        prisma.pedidoValorColunaUsuario.upsert({
           where: {
-            id_organizacao_id_coluna_id_vinculo: {
-              id_organizacao: tenantId,
-              id_coluna:      coluna_id,
-              id_vinculo:     input.vinculo_id,
+            id_organizacao_id_coluna_usuario_pedido_id_vinculo_valor_coluna_usuario_pedido: {
+              id_organizacao:                         tenantId,
+              id_coluna_usuario_pedido:               coluna_id,
+              id_vinculo_valor_coluna_usuario_pedido: input.vinculo_id,
             },
           },
           create: {
-            id_organizacao:                      tenantId,
-            id_coluna:                           coluna_id,
-            vinculo_valor_coluna_usuario_pedido: input.vinculo,
-            id_vinculo:                          input.vinculo_id,
-            valor_valor_coluna_usuario_pedido:   valor,
+            id_organizacao:                         tenantId,
+            id_coluna_usuario_pedido:               coluna_id,
+            vinculo_valor_coluna_usuario_pedido:    input.vinculo,
+            id_vinculo_valor_coluna_usuario_pedido: input.vinculo_id,
+            valor_coluna_usuario_pedido:            valor,
           },
-          update: { valor_valor_coluna_usuario_pedido: valor },
+          update: { valor_coluna_usuario_pedido: valor },
         }),
       ),
     )
@@ -271,17 +271,17 @@ export class ColunasUsuarioService {
     const prisma = db as any
 
     const registros: Array<{
-      id_valor_coluna_usuario_pedido:      string
-      id_organizacao:                      string
-      id_coluna:                           string
-      vinculo_valor_coluna_usuario_pedido: string
-      id_vinculo:                          string
-      valor_valor_coluna_usuario_pedido:   string
-    }> = await prisma.valorColunaUsuarioPedido.findMany({
+      id_valor_coluna_usuario_pedido:         string
+      id_organizacao:                         string
+      id_coluna_usuario_pedido:               string
+      vinculo_valor_coluna_usuario_pedido:    string
+      id_vinculo_valor_coluna_usuario_pedido: string
+      valor_coluna_usuario_pedido:            string
+    }> = await prisma.pedidoValorColunaUsuario.findMany({
       where: {
         id_organizacao:                      tenantId,
         vinculo_valor_coluna_usuario_pedido: vinculo,
-        id_vinculo:                          vinculoId,
+        id_vinculo_valor_coluna_usuario_pedido: vinculoId,
       },
     })
 
@@ -289,10 +289,10 @@ export class ColunasUsuarioService {
     return registros.map(r => ({
       id:         r.id_valor_coluna_usuario_pedido,
       tenant_id:  r.id_organizacao,
-      coluna_id:  r.id_coluna,
+      coluna_id:  r.id_coluna_usuario_pedido,
       vinculo:    r.vinculo_valor_coluna_usuario_pedido,
-      vinculo_id: r.id_vinculo,
-      valor:      r.valor_valor_coluna_usuario_pedido,
+      vinculo_id: r.id_vinculo_valor_coluna_usuario_pedido,
+      valor:      r.valor_coluna_usuario_pedido,
     }))
   }
 }

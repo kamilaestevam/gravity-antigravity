@@ -198,11 +198,24 @@ async function fetchStats() {
 
 async function fetchRateLimitMetrics() {
   const since = new Date(Date.now() - 60 * 60 * 1000) // última hora
-  const metrics = await prisma.requisicoes.findMany({
-    where: { created_at: { gte: since } },
-    orderBy: { created_at: 'desc' },
+  const rows = await prisma.requisicoes.findMany({
+    where: { data_criacao_requisicoes: { gte: since } },
+    orderBy: { data_criacao_requisicoes: 'desc' },
     take: 100,
   })
+  // DTO: Requisicoes rename → contrato legado da UI
+  const metrics = rows.map((r) => ({
+    id: r.id_requisicoes,
+    key: r.chave_requisicoes,
+    tenant_id: r.id_organizacao_requisicoes,
+    ip: r.ip_requisicoes,
+    endpoint: r.endpoint_requisicoes,
+    count: r.contagem_requisicoes,
+    limit_max: r.limite_maximo_requisicoes,
+    blocked: r.bloqueado_requisicoes,
+    window_start: r.inicio_janela_requisicoes,
+    created_at: r.data_criacao_requisicoes,
+  }))
   const blockedCount = metrics.filter((m) => m.blocked).length
   return { metrics, blockedCount, period: '1h' as const }
 }

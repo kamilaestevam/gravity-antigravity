@@ -590,20 +590,20 @@ model Seguranca {
 // ---------------------------------------------------------------------------
 
 model Requisicoes {
-  id           String   @id @default(cuid())
-  key          String // tenant:ip combo
-  tenant_id    String?
-  ip           String?
-  endpoint     String
-  count        Int
-  limit_max    Int
-  blocked      Boolean  @default(false)
-  window_start DateTime
-  created_at   DateTime @default(now())
+  id_requisicoes             String   @id @default(cuid())
+  chave_requisicoes          String // tenant:ip combo
+  id_organizacao_requisicoes String?
+  ip_requisicoes             String?
+  endpoint_requisicoes       String
+  contagem_requisicoes       Int
+  limite_maximo_requisicoes  Int
+  bloqueado_requisicoes      Boolean  @default(false)
+  inicio_janela_requisicoes  DateTime
+  data_criacao_requisicoes   DateTime @default(now())
 
-  @@index([created_at])
-  @@index([blocked, created_at])
-  @@index([tenant_id])
+  @@index([data_criacao_requisicoes])
+  @@index([bloqueado_requisicoes, data_criacao_requisicoes])
+  @@index([id_organizacao_requisicoes])
   @@map("requisicoes")
 }
 

@@ -326,16 +326,16 @@ exports.Prisma.SegurancaScalarFieldEnum = {
 };
 
 exports.Prisma.RequisicoesScalarFieldEnum = {
-  id: 'id',
-  key: 'key',
-  tenant_id: 'tenant_id',
-  ip: 'ip',
-  endpoint: 'endpoint',
-  count: 'count',
-  limit_max: 'limit_max',
-  blocked: 'blocked',
-  window_start: 'window_start',
-  created_at: 'created_at'
+  id_requisicoes: 'id_requisicoes',
+  chave_requisicoes: 'chave_requisicoes',
+  id_organizacao_requisicoes: 'id_organizacao_requisicoes',
+  ip_requisicoes: 'ip_requisicoes',
+  endpoint_requisicoes: 'endpoint_requisicoes',
+  contagem_requisicoes: 'contagem_requisicoes',
+  limite_maximo_requisicoes: 'limite_maximo_requisicoes',
+  bloqueado_requisicoes: 'bloqueado_requisicoes',
+  inicio_janela_requisicoes: 'inicio_janela_requisicoes',
+  data_criacao_requisicoes: 'data_criacao_requisicoes'
 };
 
 exports.Prisma.ServicosScalarFieldEnum = {

@@ -18358,103 +18358,103 @@ export namespace Prisma {
   }
 
   export type RequisicoesAvgAggregateOutputType = {
-    count: number | null
-    limit_max: number | null
+    contagem_requisicoes: number | null
+    limite_maximo_requisicoes: number | null
   }
 
   export type RequisicoesSumAggregateOutputType = {
-    count: number | null
-    limit_max: number | null
+    contagem_requisicoes: number | null
+    limite_maximo_requisicoes: number | null
   }
 
   export type RequisicoesMinAggregateOutputType = {
-    id: string | null
-    key: string | null
-    tenant_id: string | null
-    ip: string | null
-    endpoint: string | null
-    count: number | null
-    limit_max: number | null
-    blocked: boolean | null
-    window_start: Date | null
-    created_at: Date | null
+    id_requisicoes: string | null
+    chave_requisicoes: string | null
+    id_organizacao_requisicoes: string | null
+    ip_requisicoes: string | null
+    endpoint_requisicoes: string | null
+    contagem_requisicoes: number | null
+    limite_maximo_requisicoes: number | null
+    bloqueado_requisicoes: boolean | null
+    inicio_janela_requisicoes: Date | null
+    data_criacao_requisicoes: Date | null
   }
 
   export type RequisicoesMaxAggregateOutputType = {
-    id: string | null
-    key: string | null
-    tenant_id: string | null
-    ip: string | null
-    endpoint: string | null
-    count: number | null
-    limit_max: number | null
-    blocked: boolean | null
-    window_start: Date | null
-    created_at: Date | null
+    id_requisicoes: string | null
+    chave_requisicoes: string | null
+    id_organizacao_requisicoes: string | null
+    ip_requisicoes: string | null
+    endpoint_requisicoes: string | null
+    contagem_requisicoes: number | null
+    limite_maximo_requisicoes: number | null
+    bloqueado_requisicoes: boolean | null
+    inicio_janela_requisicoes: Date | null
+    data_criacao_requisicoes: Date | null
   }
 
   export type RequisicoesCountAggregateOutputType = {
-    id: number
-    key: number
-    tenant_id: number
-    ip: number
-    endpoint: number
-    count: number
-    limit_max: number
-    blocked: number
-    window_start: number
-    created_at: number
+    id_requisicoes: number
+    chave_requisicoes: number
+    id_organizacao_requisicoes: number
+    ip_requisicoes: number
+    endpoint_requisicoes: number
+    contagem_requisicoes: number
+    limite_maximo_requisicoes: number
+    bloqueado_requisicoes: number
+    inicio_janela_requisicoes: number
+    data_criacao_requisicoes: number
     _all: number
   }
 
 
   export type RequisicoesAvgAggregateInputType = {
-    count?: true
-    limit_max?: true
+    contagem_requisicoes?: true
+    limite_maximo_requisicoes?: true
   }
 
   export type RequisicoesSumAggregateInputType = {
-    count?: true
-    limit_max?: true
+    contagem_requisicoes?: true
+    limite_maximo_requisicoes?: true
   }
 
   export type RequisicoesMinAggregateInputType = {
-    id?: true
-    key?: true
-    tenant_id?: true
-    ip?: true
-    endpoint?: true
-    count?: true
-    limit_max?: true
-    blocked?: true
-    window_start?: true
-    created_at?: true
+    id_requisicoes?: true
+    chave_requisicoes?: true
+    id_organizacao_requisicoes?: true
+    ip_requisicoes?: true
+    endpoint_requisicoes?: true
+    contagem_requisicoes?: true
+    limite_maximo_requisicoes?: true
+    bloqueado_requisicoes?: true
+    inicio_janela_requisicoes?: true
+    data_criacao_requisicoes?: true
   }
 
   export type RequisicoesMaxAggregateInputType = {
-    id?: true
-    key?: true
-    tenant_id?: true
-    ip?: true
-    endpoint?: true
-    count?: true
-    limit_max?: true
-    blocked?: true
-    window_start?: true
-    created_at?: true
+    id_requisicoes?: true
+    chave_requisicoes?: true
+    id_organizacao_requisicoes?: true
+    ip_requisicoes?: true
+    endpoint_requisicoes?: true
+    contagem_requisicoes?: true
+    limite_maximo_requisicoes?: true
+    bloqueado_requisicoes?: true
+    inicio_janela_requisicoes?: true
+    data_criacao_requisicoes?: true
   }
 
   export type RequisicoesCountAggregateInputType = {
-    id?: true
-    key?: true
-    tenant_id?: true
-    ip?: true
-    endpoint?: true
-    count?: true
-    limit_max?: true
-    blocked?: true
-    window_start?: true
-    created_at?: true
+    id_requisicoes?: true
+    chave_requisicoes?: true
+    id_organizacao_requisicoes?: true
+    ip_requisicoes?: true
+    endpoint_requisicoes?: true
+    contagem_requisicoes?: true
+    limite_maximo_requisicoes?: true
+    bloqueado_requisicoes?: true
+    inicio_janela_requisicoes?: true
+    data_criacao_requisicoes?: true
     _all?: true
   }
 
@@ -18545,16 +18545,16 @@ export namespace Prisma {
   }
 
   export type RequisicoesGroupByOutputType = {
-    id: string
-    key: string
-    tenant_id: string | null
-    ip: string | null
-    endpoint: string
-    count: number
-    limit_max: number
-    blocked: boolean
-    window_start: Date
-    created_at: Date
+    id_requisicoes: string
+    chave_requisicoes: string
+    id_organizacao_requisicoes: string | null
+    ip_requisicoes: string | null
+    endpoint_requisicoes: string
+    contagem_requisicoes: number
+    limite_maximo_requisicoes: number
+    bloqueado_requisicoes: boolean
+    inicio_janela_requisicoes: Date
+    data_criacao_requisicoes: Date
     _count: RequisicoesCountAggregateOutputType | null
     _avg: RequisicoesAvgAggregateOutputType | null
     _sum: RequisicoesSumAggregateOutputType | null
@@ -18577,42 +18577,42 @@ export namespace Prisma {
 
 
   export type RequisicoesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    key?: boolean
-    tenant_id?: boolean
-    ip?: boolean
-    endpoint?: boolean
-    count?: boolean
-    limit_max?: boolean
-    blocked?: boolean
-    window_start?: boolean
-    created_at?: boolean
+    id_requisicoes?: boolean
+    chave_requisicoes?: boolean
+    id_organizacao_requisicoes?: boolean
+    ip_requisicoes?: boolean
+    endpoint_requisicoes?: boolean
+    contagem_requisicoes?: boolean
+    limite_maximo_requisicoes?: boolean
+    bloqueado_requisicoes?: boolean
+    inicio_janela_requisicoes?: boolean
+    data_criacao_requisicoes?: boolean
   }, ExtArgs["result"]["requisicoes"]>
 
   export type RequisicoesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    key?: boolean
-    tenant_id?: boolean
-    ip?: boolean
-    endpoint?: boolean
-    count?: boolean
-    limit_max?: boolean
-    blocked?: boolean
-    window_start?: boolean
-    created_at?: boolean
+    id_requisicoes?: boolean
+    chave_requisicoes?: boolean
+    id_organizacao_requisicoes?: boolean
+    ip_requisicoes?: boolean
+    endpoint_requisicoes?: boolean
+    contagem_requisicoes?: boolean
+    limite_maximo_requisicoes?: boolean
+    bloqueado_requisicoes?: boolean
+    inicio_janela_requisicoes?: boolean
+    data_criacao_requisicoes?: boolean
   }, ExtArgs["result"]["requisicoes"]>
 
   export type RequisicoesSelectScalar = {
-    id?: boolean
-    key?: boolean
-    tenant_id?: boolean
-    ip?: boolean
-    endpoint?: boolean
-    count?: boolean
-    limit_max?: boolean
-    blocked?: boolean
-    window_start?: boolean
-    created_at?: boolean
+    id_requisicoes?: boolean
+    chave_requisicoes?: boolean
+    id_organizacao_requisicoes?: boolean
+    ip_requisicoes?: boolean
+    endpoint_requisicoes?: boolean
+    contagem_requisicoes?: boolean
+    limite_maximo_requisicoes?: boolean
+    bloqueado_requisicoes?: boolean
+    inicio_janela_requisicoes?: boolean
+    data_criacao_requisicoes?: boolean
   }
 
 
@@ -18620,16 +18620,16 @@ export namespace Prisma {
     name: "Requisicoes"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      key: string
-      tenant_id: string | null
-      ip: string | null
-      endpoint: string
-      count: number
-      limit_max: number
-      blocked: boolean
-      window_start: Date
-      created_at: Date
+      id_requisicoes: string
+      chave_requisicoes: string
+      id_organizacao_requisicoes: string | null
+      ip_requisicoes: string | null
+      endpoint_requisicoes: string
+      contagem_requisicoes: number
+      limite_maximo_requisicoes: number
+      bloqueado_requisicoes: boolean
+      inicio_janela_requisicoes: Date
+      data_criacao_requisicoes: Date
     }, ExtArgs["result"]["requisicoes"]>
     composites: {}
   }
@@ -18713,8 +18713,8 @@ export namespace Prisma {
      * // Get first 10 Requisicoes
      * const requisicoes = await prisma.requisicoes.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const requisicoesWithIdOnly = await prisma.requisicoes.findMany({ select: { id: true } })
+     * // Only select the `id_requisicoes`
+     * const requisicoesWithId_requisicoesOnly = await prisma.requisicoes.findMany({ select: { id_requisicoes: true } })
      * 
      */
     findMany<T extends RequisicoesFindManyArgs>(args?: SelectSubset<T, RequisicoesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RequisicoesPayload<ExtArgs>, T, "findMany">>
@@ -18758,9 +18758,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Requisicoes and only return the `id`
-     * const requisicoesWithIdOnly = await prisma.requisicoes.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Requisicoes and only return the `id_requisicoes`
+     * const requisicoesWithId_requisicoesOnly = await prisma.requisicoes.createManyAndReturn({ 
+     *   select: { id_requisicoes: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -19023,16 +19023,16 @@ export namespace Prisma {
    * Fields of the Requisicoes model
    */ 
   interface RequisicoesFieldRefs {
-    readonly id: FieldRef<"Requisicoes", 'String'>
-    readonly key: FieldRef<"Requisicoes", 'String'>
-    readonly tenant_id: FieldRef<"Requisicoes", 'String'>
-    readonly ip: FieldRef<"Requisicoes", 'String'>
-    readonly endpoint: FieldRef<"Requisicoes", 'String'>
-    readonly count: FieldRef<"Requisicoes", 'Int'>
-    readonly limit_max: FieldRef<"Requisicoes", 'Int'>
-    readonly blocked: FieldRef<"Requisicoes", 'Boolean'>
-    readonly window_start: FieldRef<"Requisicoes", 'DateTime'>
-    readonly created_at: FieldRef<"Requisicoes", 'DateTime'>
+    readonly id_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly chave_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly id_organizacao_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly ip_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly endpoint_requisicoes: FieldRef<"Requisicoes", 'String'>
+    readonly contagem_requisicoes: FieldRef<"Requisicoes", 'Int'>
+    readonly limite_maximo_requisicoes: FieldRef<"Requisicoes", 'Int'>
+    readonly bloqueado_requisicoes: FieldRef<"Requisicoes", 'Boolean'>
+    readonly inicio_janela_requisicoes: FieldRef<"Requisicoes", 'DateTime'>
+    readonly data_criacao_requisicoes: FieldRef<"Requisicoes", 'DateTime'>
   }
     
 
@@ -26666,16 +26666,16 @@ export namespace Prisma {
 
 
   export const RequisicoesScalarFieldEnum: {
-    id: 'id',
-    key: 'key',
-    tenant_id: 'tenant_id',
-    ip: 'ip',
-    endpoint: 'endpoint',
-    count: 'count',
-    limit_max: 'limit_max',
-    blocked: 'blocked',
-    window_start: 'window_start',
-    created_at: 'created_at'
+    id_requisicoes: 'id_requisicoes',
+    chave_requisicoes: 'chave_requisicoes',
+    id_organizacao_requisicoes: 'id_organizacao_requisicoes',
+    ip_requisicoes: 'ip_requisicoes',
+    endpoint_requisicoes: 'endpoint_requisicoes',
+    contagem_requisicoes: 'contagem_requisicoes',
+    limite_maximo_requisicoes: 'limite_maximo_requisicoes',
+    bloqueado_requisicoes: 'bloqueado_requisicoes',
+    inicio_janela_requisicoes: 'inicio_janela_requisicoes',
+    data_criacao_requisicoes: 'data_criacao_requisicoes'
   };
 
   export type RequisicoesScalarFieldEnum = (typeof RequisicoesScalarFieldEnum)[keyof typeof RequisicoesScalarFieldEnum]
@@ -28402,58 +28402,58 @@ export namespace Prisma {
     AND?: RequisicoesWhereInput | RequisicoesWhereInput[]
     OR?: RequisicoesWhereInput[]
     NOT?: RequisicoesWhereInput | RequisicoesWhereInput[]
-    id?: StringFilter<"Requisicoes"> | string
-    key?: StringFilter<"Requisicoes"> | string
-    tenant_id?: StringNullableFilter<"Requisicoes"> | string | null
-    ip?: StringNullableFilter<"Requisicoes"> | string | null
-    endpoint?: StringFilter<"Requisicoes"> | string
-    count?: IntFilter<"Requisicoes"> | number
-    limit_max?: IntFilter<"Requisicoes"> | number
-    blocked?: BoolFilter<"Requisicoes"> | boolean
-    window_start?: DateTimeFilter<"Requisicoes"> | Date | string
-    created_at?: DateTimeFilter<"Requisicoes"> | Date | string
+    id_requisicoes?: StringFilter<"Requisicoes"> | string
+    chave_requisicoes?: StringFilter<"Requisicoes"> | string
+    id_organizacao_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    ip_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    endpoint_requisicoes?: StringFilter<"Requisicoes"> | string
+    contagem_requisicoes?: IntFilter<"Requisicoes"> | number
+    limite_maximo_requisicoes?: IntFilter<"Requisicoes"> | number
+    bloqueado_requisicoes?: BoolFilter<"Requisicoes"> | boolean
+    inicio_janela_requisicoes?: DateTimeFilter<"Requisicoes"> | Date | string
+    data_criacao_requisicoes?: DateTimeFilter<"Requisicoes"> | Date | string
   }
 
   export type RequisicoesOrderByWithRelationInput = {
-    id?: SortOrder
-    key?: SortOrder
-    tenant_id?: SortOrderInput | SortOrder
-    ip?: SortOrderInput | SortOrder
-    endpoint?: SortOrder
-    count?: SortOrder
-    limit_max?: SortOrder
-    blocked?: SortOrder
-    window_start?: SortOrder
-    created_at?: SortOrder
+    id_requisicoes?: SortOrder
+    chave_requisicoes?: SortOrder
+    id_organizacao_requisicoes?: SortOrderInput | SortOrder
+    ip_requisicoes?: SortOrderInput | SortOrder
+    endpoint_requisicoes?: SortOrder
+    contagem_requisicoes?: SortOrder
+    limite_maximo_requisicoes?: SortOrder
+    bloqueado_requisicoes?: SortOrder
+    inicio_janela_requisicoes?: SortOrder
+    data_criacao_requisicoes?: SortOrder
   }
 
   export type RequisicoesWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_requisicoes?: string
     AND?: RequisicoesWhereInput | RequisicoesWhereInput[]
     OR?: RequisicoesWhereInput[]
     NOT?: RequisicoesWhereInput | RequisicoesWhereInput[]
-    key?: StringFilter<"Requisicoes"> | string
-    tenant_id?: StringNullableFilter<"Requisicoes"> | string | null
-    ip?: StringNullableFilter<"Requisicoes"> | string | null
-    endpoint?: StringFilter<"Requisicoes"> | string
-    count?: IntFilter<"Requisicoes"> | number
-    limit_max?: IntFilter<"Requisicoes"> | number
-    blocked?: BoolFilter<"Requisicoes"> | boolean
-    window_start?: DateTimeFilter<"Requisicoes"> | Date | string
-    created_at?: DateTimeFilter<"Requisicoes"> | Date | string
-  }, "id">
+    chave_requisicoes?: StringFilter<"Requisicoes"> | string
+    id_organizacao_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    ip_requisicoes?: StringNullableFilter<"Requisicoes"> | string | null
+    endpoint_requisicoes?: StringFilter<"Requisicoes"> | string
+    contagem_requisicoes?: IntFilter<"Requisicoes"> | number
+    limite_maximo_requisicoes?: IntFilter<"Requisicoes"> | number
+    bloqueado_requisicoes?: BoolFilter<"Requisicoes"> | boolean
+    inicio_janela_requisicoes?: DateTimeFilter<"Requisicoes"> | Date | string
+    data_criacao_requisicoes?: DateTimeFilter<"Requisicoes"> | Date | string
+  }, "id_requisicoes">
 
   export type RequisicoesOrderByWithAggregationInput = {
-    id?: SortOrder
-    key?: SortOrder
-    tenant_id?: SortOrderInput | SortOrder
-    ip?: SortOrderInput | SortOrder
-    endpoint?: SortOrder
-    count?: SortOrder
-    limit_max?: SortOrder
-    blocked?: SortOrder
-    window_start?: SortOrder
-    created_at?: SortOrder
+    id_requisicoes?: SortOrder
+    chave_requisicoes?: SortOrder
+    id_organizacao_requisicoes?: SortOrderInput | SortOrder
+    ip_requisicoes?: SortOrderInput | SortOrder
+    endpoint_requisicoes?: SortOrder
+    contagem_requisicoes?: SortOrder
+    limite_maximo_requisicoes?: SortOrder
+    bloqueado_requisicoes?: SortOrder
+    inicio_janela_requisicoes?: SortOrder
+    data_criacao_requisicoes?: SortOrder
     _count?: RequisicoesCountOrderByAggregateInput
     _avg?: RequisicoesAvgOrderByAggregateInput
     _max?: RequisicoesMaxOrderByAggregateInput
@@ -28465,16 +28465,16 @@ export namespace Prisma {
     AND?: RequisicoesScalarWhereWithAggregatesInput | RequisicoesScalarWhereWithAggregatesInput[]
     OR?: RequisicoesScalarWhereWithAggregatesInput[]
     NOT?: RequisicoesScalarWhereWithAggregatesInput | RequisicoesScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Requisicoes"> | string
-    key?: StringWithAggregatesFilter<"Requisicoes"> | string
-    tenant_id?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
-    ip?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
-    endpoint?: StringWithAggregatesFilter<"Requisicoes"> | string
-    count?: IntWithAggregatesFilter<"Requisicoes"> | number
-    limit_max?: IntWithAggregatesFilter<"Requisicoes"> | number
-    blocked?: BoolWithAggregatesFilter<"Requisicoes"> | boolean
-    window_start?: DateTimeWithAggregatesFilter<"Requisicoes"> | Date | string
-    created_at?: DateTimeWithAggregatesFilter<"Requisicoes"> | Date | string
+    id_requisicoes?: StringWithAggregatesFilter<"Requisicoes"> | string
+    chave_requisicoes?: StringWithAggregatesFilter<"Requisicoes"> | string
+    id_organizacao_requisicoes?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
+    ip_requisicoes?: StringNullableWithAggregatesFilter<"Requisicoes"> | string | null
+    endpoint_requisicoes?: StringWithAggregatesFilter<"Requisicoes"> | string
+    contagem_requisicoes?: IntWithAggregatesFilter<"Requisicoes"> | number
+    limite_maximo_requisicoes?: IntWithAggregatesFilter<"Requisicoes"> | number
+    bloqueado_requisicoes?: BoolWithAggregatesFilter<"Requisicoes"> | boolean
+    inicio_janela_requisicoes?: DateTimeWithAggregatesFilter<"Requisicoes"> | Date | string
+    data_criacao_requisicoes?: DateTimeWithAggregatesFilter<"Requisicoes"> | Date | string
   }
 
   export type ServicosWhereInput = {
@@ -30615,94 +30615,94 @@ export namespace Prisma {
   }
 
   export type RequisicoesCreateInput = {
-    id?: string
-    key: string
-    tenant_id?: string | null
-    ip?: string | null
-    endpoint: string
-    count: number
-    limit_max: number
-    blocked?: boolean
-    window_start: Date | string
-    created_at?: Date | string
+    id_requisicoes?: string
+    chave_requisicoes: string
+    id_organizacao_requisicoes?: string | null
+    ip_requisicoes?: string | null
+    endpoint_requisicoes: string
+    contagem_requisicoes: number
+    limite_maximo_requisicoes: number
+    bloqueado_requisicoes?: boolean
+    inicio_janela_requisicoes: Date | string
+    data_criacao_requisicoes?: Date | string
   }
 
   export type RequisicoesUncheckedCreateInput = {
-    id?: string
-    key: string
-    tenant_id?: string | null
-    ip?: string | null
-    endpoint: string
-    count: number
-    limit_max: number
-    blocked?: boolean
-    window_start: Date | string
-    created_at?: Date | string
+    id_requisicoes?: string
+    chave_requisicoes: string
+    id_organizacao_requisicoes?: string | null
+    ip_requisicoes?: string | null
+    endpoint_requisicoes: string
+    contagem_requisicoes: number
+    limite_maximo_requisicoes: number
+    bloqueado_requisicoes?: boolean
+    inicio_janela_requisicoes: Date | string
+    data_criacao_requisicoes?: Date | string
   }
 
   export type RequisicoesUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ip?: NullableStringFieldUpdateOperationsInput | string | null
-    endpoint?: StringFieldUpdateOperationsInput | string
-    count?: IntFieldUpdateOperationsInput | number
-    limit_max?: IntFieldUpdateOperationsInput | number
-    blocked?: BoolFieldUpdateOperationsInput | boolean
-    window_start?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_requisicoes?: StringFieldUpdateOperationsInput | string
+    chave_requisicoes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_requisicoes?: StringFieldUpdateOperationsInput | string
+    contagem_requisicoes?: IntFieldUpdateOperationsInput | number
+    limite_maximo_requisicoes?: IntFieldUpdateOperationsInput | number
+    bloqueado_requisicoes?: BoolFieldUpdateOperationsInput | boolean
+    inicio_janela_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RequisicoesUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ip?: NullableStringFieldUpdateOperationsInput | string | null
-    endpoint?: StringFieldUpdateOperationsInput | string
-    count?: IntFieldUpdateOperationsInput | number
-    limit_max?: IntFieldUpdateOperationsInput | number
-    blocked?: BoolFieldUpdateOperationsInput | boolean
-    window_start?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_requisicoes?: StringFieldUpdateOperationsInput | string
+    chave_requisicoes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_requisicoes?: StringFieldUpdateOperationsInput | string
+    contagem_requisicoes?: IntFieldUpdateOperationsInput | number
+    limite_maximo_requisicoes?: IntFieldUpdateOperationsInput | number
+    bloqueado_requisicoes?: BoolFieldUpdateOperationsInput | boolean
+    inicio_janela_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RequisicoesCreateManyInput = {
-    id?: string
-    key: string
-    tenant_id?: string | null
-    ip?: string | null
-    endpoint: string
-    count: number
-    limit_max: number
-    blocked?: boolean
-    window_start: Date | string
-    created_at?: Date | string
+    id_requisicoes?: string
+    chave_requisicoes: string
+    id_organizacao_requisicoes?: string | null
+    ip_requisicoes?: string | null
+    endpoint_requisicoes: string
+    contagem_requisicoes: number
+    limite_maximo_requisicoes: number
+    bloqueado_requisicoes?: boolean
+    inicio_janela_requisicoes: Date | string
+    data_criacao_requisicoes?: Date | string
   }
 
   export type RequisicoesUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ip?: NullableStringFieldUpdateOperationsInput | string | null
-    endpoint?: StringFieldUpdateOperationsInput | string
-    count?: IntFieldUpdateOperationsInput | number
-    limit_max?: IntFieldUpdateOperationsInput | number
-    blocked?: BoolFieldUpdateOperationsInput | boolean
-    window_start?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_requisicoes?: StringFieldUpdateOperationsInput | string
+    chave_requisicoes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_requisicoes?: StringFieldUpdateOperationsInput | string
+    contagem_requisicoes?: IntFieldUpdateOperationsInput | number
+    limite_maximo_requisicoes?: IntFieldUpdateOperationsInput | number
+    bloqueado_requisicoes?: BoolFieldUpdateOperationsInput | boolean
+    inicio_janela_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RequisicoesUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    key?: StringFieldUpdateOperationsInput | string
-    tenant_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ip?: NullableStringFieldUpdateOperationsInput | string | null
-    endpoint?: StringFieldUpdateOperationsInput | string
-    count?: IntFieldUpdateOperationsInput | number
-    limit_max?: IntFieldUpdateOperationsInput | number
-    blocked?: BoolFieldUpdateOperationsInput | boolean
-    window_start?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_requisicoes?: StringFieldUpdateOperationsInput | string
+    chave_requisicoes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    ip_requisicoes?: NullableStringFieldUpdateOperationsInput | string | null
+    endpoint_requisicoes?: StringFieldUpdateOperationsInput | string
+    contagem_requisicoes?: IntFieldUpdateOperationsInput | number
+    limite_maximo_requisicoes?: IntFieldUpdateOperationsInput | number
+    bloqueado_requisicoes?: BoolFieldUpdateOperationsInput | boolean
+    inicio_janela_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_requisicoes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ServicosCreateInput = {
@@ -32828,52 +32828,52 @@ export namespace Prisma {
   }
 
   export type RequisicoesCountOrderByAggregateInput = {
-    id?: SortOrder
-    key?: SortOrder
-    tenant_id?: SortOrder
-    ip?: SortOrder
-    endpoint?: SortOrder
-    count?: SortOrder
-    limit_max?: SortOrder
-    blocked?: SortOrder
-    window_start?: SortOrder
-    created_at?: SortOrder
+    id_requisicoes?: SortOrder
+    chave_requisicoes?: SortOrder
+    id_organizacao_requisicoes?: SortOrder
+    ip_requisicoes?: SortOrder
+    endpoint_requisicoes?: SortOrder
+    contagem_requisicoes?: SortOrder
+    limite_maximo_requisicoes?: SortOrder
+    bloqueado_requisicoes?: SortOrder
+    inicio_janela_requisicoes?: SortOrder
+    data_criacao_requisicoes?: SortOrder
   }
 
   export type RequisicoesAvgOrderByAggregateInput = {
-    count?: SortOrder
-    limit_max?: SortOrder
+    contagem_requisicoes?: SortOrder
+    limite_maximo_requisicoes?: SortOrder
   }
 
   export type RequisicoesMaxOrderByAggregateInput = {
-    id?: SortOrder
-    key?: SortOrder
-    tenant_id?: SortOrder
-    ip?: SortOrder
-    endpoint?: SortOrder
-    count?: SortOrder
-    limit_max?: SortOrder
-    blocked?: SortOrder
-    window_start?: SortOrder
-    created_at?: SortOrder
+    id_requisicoes?: SortOrder
+    chave_requisicoes?: SortOrder
+    id_organizacao_requisicoes?: SortOrder
+    ip_requisicoes?: SortOrder
+    endpoint_requisicoes?: SortOrder
+    contagem_requisicoes?: SortOrder
+    limite_maximo_requisicoes?: SortOrder
+    bloqueado_requisicoes?: SortOrder
+    inicio_janela_requisicoes?: SortOrder
+    data_criacao_requisicoes?: SortOrder
   }
 
   export type RequisicoesMinOrderByAggregateInput = {
-    id?: SortOrder
-    key?: SortOrder
-    tenant_id?: SortOrder
-    ip?: SortOrder
-    endpoint?: SortOrder
-    count?: SortOrder
-    limit_max?: SortOrder
-    blocked?: SortOrder
-    window_start?: SortOrder
-    created_at?: SortOrder
+    id_requisicoes?: SortOrder
+    chave_requisicoes?: SortOrder
+    id_organizacao_requisicoes?: SortOrder
+    ip_requisicoes?: SortOrder
+    endpoint_requisicoes?: SortOrder
+    contagem_requisicoes?: SortOrder
+    limite_maximo_requisicoes?: SortOrder
+    bloqueado_requisicoes?: SortOrder
+    inicio_janela_requisicoes?: SortOrder
+    data_criacao_requisicoes?: SortOrder
   }
 
   export type RequisicoesSumOrderByAggregateInput = {
-    count?: SortOrder
-    limit_max?: SortOrder
+    contagem_requisicoes?: SortOrder
+    limite_maximo_requisicoes?: SortOrder
   }
 
   export type ServicosCountOrderByAggregateInput = {

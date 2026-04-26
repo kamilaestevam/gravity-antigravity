@@ -1,22 +1,22 @@
 # Dream Team Tecnologia — Documentação Completa
 
-> **Versão:** 2.0
+> **Versão:** 3.0
 > **Data:** Abril 2026
 > **Autor:** Daniel Mendes
-> **Status:** Ativo — alinhado aos 9 Mandamentos e ao DDD
+> **Status:** Ativo — pós-reorganização SSOT (Operação Linguagem Ubíqua)
 > **Escopo:** esta é a ÚNICA fonte oficial do Dream Team Tecnologia
 
 ---
 
 ## O Que É o Dream Team Tecnologia
 
-O Dream Team Tecnologia é o **framework completo de governança técnica** da plataforma Gravity. Ele reúne **53 skills** organizadas em **7 categorias ativas**, representando o conhecimento de **11 profissionais** de tecnologia em um sistema integrado de regras, padrões e checklists.
+O Dream Team Tecnologia é o **framework completo de governança técnica** da plataforma Gravity. Ele reúne **64 skills** organizadas em **11 grupos**, representando o conhecimento de **11 profissionais** de tecnologia em um sistema integrado de regras, padrões e checklists.
 
 Quando ativado (via comando `/dream-team-tecnologia`), o agente AI assume o conhecimento de todo o time técnico e aplica as regras corretas de acordo com o contexto da tarefa.
 
 > **Importante:** As regras universais (9 Mandamentos, DDD, isolamento de organização) aplicam-se a **TODO agente em TODA conversa** — independem desta ativação. O Dream Team apenas concentra os papéis técnicos especializados.
 
-> **Categorias pendentes de definição** (serviços por organização e produtos) não estão listadas nesta versão; serão incorporadas quando 100% definidas. Produto em andamento atualmente: **Pedido**.
+> **Pós-reorganização (Abril 2026):** governança virou **Fonte Única de Verdade (SSOT)**. Toda regra absoluta vive em `skills/governanca/lei/` ou `skills/governanca/convencao-tecnica/`. Skills de operação e verticais **referenciam** as regras — nunca as redefinem.
 
 ### Em uma frase
 
@@ -44,11 +44,12 @@ Sempre que o Clerk aparecer neste documento, está estritamente no contexto de a
 
 Na ordem:
 
-1. **`skills/governanca/9-mandamentos/SKILL.md`** — regras absolutas e não-negociáveis
+1. **`skills/governanca/lei/9-mandamentos/SKILL.md`** — regras absolutas e não-negociáveis
 2. **`CLAUDE.md` (raiz)** — instruções universais carregadas em toda conversa
-3. **`skills/governanca/ddd-nomenclatura/SKILL.md`** — **lei única de nomenclatura** (campos, tabelas, rotas, funções, arquivos, labels) — em conflito com qualquer outro doc, esta prevalece
-4. **`skills/governanca/ddd-regras-usuario/SKILL.md`** — plano de alinhamento DDD em vigor
-5. **As skills do Dream Team** (mapa abaixo)
+3. **`skills/governanca/lei/ddd-nomenclatura/SKILL.md`** — **lei única de nomenclatura** (campos, tabelas, rotas, funções, arquivos, labels) — em conflito com qualquer outro doc, esta prevalece
+4. **`skills/governanca/lei/agent-policy/SKILL.md`** — escopo, prioridades, comportamento
+5. **`skills/governanca/convencao-tecnica/code-standards/SKILL.md`** — TypeScript, Zod, AppError, naming
+6. **As skills do grupo da tarefa em mãos** (mapa abaixo)
 
 Sem essas leituras, qualquer entrega será rejeitada pelo QA.
 
@@ -72,123 +73,162 @@ Sem governança técnica, agentes AI e desenvolvedores cometem erros que se prop
 
 | # | Profissional | Responsabilidade | Skills que carrega |
 |---|:---|:---|:---|
-| 1 | **Líder do Projeto** | Cadência, priorização, entrega | Sprint Management, Handoff, Definition of Done, Onboarding Produto |
-| 2 | **Líder Técnico** | Qualidade de código, arquitetura | Code Review, API Design, Definition of Done |
-| 3 | **PO** | Backlog, valor de negócio | Sprint Management, Onboarding Produto |
-| 4 | **QA** | Testes, contratos, aprovação | Contract Testing, Definition of Done, Testes |
+| 1 | **Líder do Projeto** | Cadência, priorização, entrega | Líder, Coordenador (papéis) |
+| 2 | **Líder Técnico** | Qualidade de código, arquitetura | Code Review, API Design, Code Standards |
+| 3 | **PO** | Backlog, valor de negócio | Visão Geral, Agent Policy |
+| 4 | **QA** | Testes, contratos, aprovação | QA (papel), Contract Testing, Coordenação de Testes |
 | 5 | **Backend** | APIs, performance, lógica | API Design, SLA Metas, Cache |
 | 6 | **Frontend** | UI, acessibilidade, UX | Acessibilidade, Design System |
-| 7 | **Estrutura de Dados** | Banco, índices, migrations | Database Governance, Cache, SLA Metas |
-| 8 | **Estrutura de Sistemas** | Contratos, scaling | Contract Testing, Auto-Scaling |
-| 9 | **UX** | Design, tokens, handoff | Acessibilidade, Handoff |
-| 10 | **DevOps/SRE** | Infra, monitoramento, DR | Incident Response, Performance & Monitoring, Auto-Scaling, SLA & Performance, Backup & DR |
-| 11 | **Segurança** | 5 camadas, pentest, rate limit | Segurança 5 Camadas, Pentest, Incident Response, Rate Limiting |
+| 7 | **Estrutura de Dados** | Banco, índices, migrations | Database Governance, Cache, SLA Metas, Backup Policy |
+| 8 | **Estrutura de Sistemas** | Contratos, scaling | Contract Testing, Auto-Scaling, Service Registry |
+| 9 | **UX** | Design, tokens, telas | Acessibilidade, Design System, Criação de Telas |
+| 10 | **DevOps/SRE** | Infra, monitoramento, DR | Incident Response, Performance Monitoring, Auto-Scaling, Cost Budget, Backup Policy, Backup & DR |
+| 11 | **Segurança** | 5 camadas, pentest, rate limit | Segurança 5 Camadas, Pentest, Rate Limiting, Criptografia, Tier 1 Security |
 
 ---
 
-## As 53 Skills — Inventário Ativo
+## As 64 Skills — Inventário Ativo
 
-### Governança (11) — Obrigatórias em toda tarefa
+### 1. Governança › Lei (10) — Regras absolutas
 
-| # | Skill | Arquivo | Escopo |
-|---|:---|:---|:---|
-| 1 | **9 Mandamentos** | `skills/governanca/9-mandamentos/SKILL.md` | **Regras absolutas e não-negociáveis (Clerk isolado, schema intocável, DDD, sem fallback silencioso)** |
-| 2 | **DDD Nomenclatura** | `skills/governanca/ddd-nomenclatura/SKILL.md` | **Lei única de nomenclatura** — nomes de campo, tabela, rota, função, arquivo, label. Em conflito com qualquer outro doc, esta prevalece |
-| 3 | DDD Regras Usuário | `skills/governanca/ddd-regras-usuario/SKILL.md` | Plano de alinhamento DDD em vigor (transição) |
-| 4 | Database Governance | `skills/governanca/database-governance/SKILL.md` | Paridade nominal Prisma↔PG, Database-per-Service, schema `public` vazio |
-| 5 | Lint Tenant-Safety | `skills/governanca/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia PrismaClient direto, cache sem prefixo, etc. |
-| 6 | Monorepo | `skills/governanca/monorepo/SKILL.md` | Regras de package.json, tsconfig, vite.config, dependências |
-| 7 | Agent Policy | `skills/governanca/agent-policy/SKILL.md` | Regras universais de escopo, prioridade e comportamento |
-| 8 | Ambiente | `skills/governanca/ambiente/SKILL.md` | Portas, dev servers, variáveis de ambiente |
-| 9 | Code Standards | `skills/governanca/code-standards/SKILL.md` | TypeScript strict, Zod, AppError, naming, env vars |
-| 10 | Deploy | `skills/governanca/deploy/SKILL.md` | Railway, staging→prod, backup, rollback, auto-scaling |
-| 11 | Visão Geral | `skills/governanca/visao-geral/SKILL.md` | Arquitetura geral, ondas, stack |
-
-### Agentes (3) — Papéis de orquestração
+> Ler antes de qualquer tarefa. Estas valem sempre, independente de papel ou área.
 
 | # | Skill | Arquivo | Escopo |
 |---|:---|:---|:---|
-| 12 | Líder | `skills/agentes/lider/SKILL.md` | Distribuição de tarefas, relatórios |
-| 13 | Coordenador | `skills/agentes/coordenador/SKILL.md` | Schema composition, contratos, ondas |
-| 14 | QA | `skills/agentes/qa/SKILL.md` | Revisão pós-entrega, 6 categorias |
+| 1 | **9 Mandamentos** | `skills/governanca/lei/9-mandamentos/SKILL.md` | **Regras absolutas e não-negociáveis (Clerk isolado, schema intocável, DDD, sem fallback silencioso)** |
+| 2 | **Agent Policy** | `skills/governanca/lei/agent-policy/SKILL.md` | Escopo, prioridade, bloqueios, comportamento universal |
+| 3 | **Visão Geral** | `skills/governanca/lei/visao-geral/SKILL.md` | Arquitetura geral, ondas, stack |
+| 4 | **DDD Nomenclatura** | `skills/governanca/lei/ddd-nomenclatura/SKILL.md` | **Lei única de nomenclatura** — em conflito com qualquer outro doc, esta prevalece |
+| 5 | Terminal | `skills/governanca/lei/terminal/SKILL.md` | Autorização de comandos autônomos (instalar, build, kill-port) |
+| 6 | Isolamento de Organização | `skills/governanca/lei/isolamento-organizacao/SKILL.md` | Schema-per-Organização — **qualquer acesso a banco** |
+| 7 | SDK Resolvedor de Organização | `skills/governanca/lei/sdk-resolvedor-organizacao/SKILL.md` | `@gravity/tenant-resolver` — `withTenant`, `withTenantContext`, `TenantDatabase` |
+| 8 | SLA Metas ⭐ | `skills/governanca/lei/sla-metas/SKILL.md` | 200ms p95, 50k req/s, 99,9% uptime, budget de latência |
+| 9 | Cost Budget ⭐ | `skills/governanca/lei/cost-budget/SKILL.md` | Limites mensais, thresholds 70/80/90/95%, bloqueio de scaling em 95% |
+| 10 | Backup Policy ⭐ | `skills/governanca/lei/backup-policy/SKILL.md` | RPO 24h, RTO 1h, backup pré-migration obrigatório, teste mensal |
 
-### Arquitetura (13) — Padrões técnicos
+> ⭐ = nova skill da Fase C1 (reorganização SSOT, Abril 2026)
 
-| # | Skill | Arquivo | Escopo |
-|---|:---|:---|:---|
-| 15 | Núcleo Global | `skills/arquitetura/nucleo-global/SKILL.md` | Componentes puros, sem estado |
-| 16 | Observabilidade | `skills/arquitetura/observabilidade/SKILL.md` | Logs, correlation ID, health check P0, Sentry, p95/p99 |
-| 17 | Schema Composition | `skills/arquitetura/schema-composition/SKILL.md` | Prisma fragments, compose-schema |
-| 18 | Serviços da Organização | `skills/arquitetura/servicos-organizacao/SKILL.md` | Servidor por organização, banco compartilhado |
-| 19 | State Management | `skills/arquitetura/state-management/SKILL.md` | Zustand, shell vs produto, Event Bus |
-| 20 | Isolamento de Organização | `skills/arquitetura/isolamento-organizacao/SKILL.md` | Schema-per-Organização, SDK `@gravity/tenant-resolver` obrigatório, `withTenant`/`withTenantContext` |
-| 21 | SDK Resolvedor de Organização | `skills/arquitetura/sdk-resolvedor-organizacao/SKILL.md` | Uso do `@gravity/tenant-resolver`: `withTenant`, `withTenantContext`, `TenantDatabase` |
-| 22 | Testes | `skills/arquitetura/testes/SKILL.md` | Vitest, Playwright, cobertura, contract tests Zod |
-| 23 | Teste em Tela | `skills/arquitetura/teste-em-tela/SKILL.md` | Validação visual em browser, evidências de UX |
-| 24 | Tier1 Security | `skills/arquitetura/tier1-security/SKILL.md` | Padrões P0 de segurança em endpoints críticos |
-| 25 | Contract Testing | `skills/arquitetura/contract-testing/SKILL.md` | Zod como contrato, CI bloqueando breaking changes |
-| 26 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação, prefixo `tenant:` |
-| 27 | Resilience Patterns | `skills/arquitetura/resilience-patterns/SKILL.md` | Degradação graciosa, retry, circuit breaker, DLQ |
-
-### Segurança (9) — Proteção em profundidade
+### 2. Governança › Convenção Técnica (7) — Como escrever código
 
 | # | Skill | Arquivo | Escopo |
 |---|:---|:---|:---|
-| 28 | Autenticação S2S | `skills/seguranca/autenticacao-s2s/SKILL.md` | JWT síncrono, machine token, `x-chave-interna`, proxy de organização |
-| 29 | Cross-Boundary | `skills/seguranca/cross-boundary/SKILL.md` | enqueueOrgAction, retry, DLQ, BullMQ, agregação |
-| 30 | Permissões | `skills/seguranca/permissoes/SKILL.md` | RBAC via `tipo_usuario`, Configurador como fonte da verdade |
-| 31 | Incident Response | `skills/seguranca/incident-response/SKILL.md` | Severidades P0-P3, runbook, post-mortem |
-| 32 | Performance & Monitoring | `skills/seguranca/performance-monitoring/SKILL.md` | APM, Sentry performance, dashboards, profiling |
-| 33 | Pentest | `skills/seguranca/pentest/SKILL.md` | OWASP Top 10, ferramentas, relatório |
-| 34 | SLA & Performance | `skills/seguranca/sla-performance/SKILL.md` | 200ms/50k/99,9%, budget por camada, k6 load tests |
-| 35 | Rate Limiting | `skills/seguranca/rate-limiting/SKILL.md` | Por organização, por rota, express-rate-limit, Redis store |
-| 36 | Segurança 5 Camadas | `skills/seguranca/seguranca-5-camadas/SKILL.md` | Rede, Auth, Autorização, Isolamento, Auditoria |
+| 11 | Code Standards | `skills/governanca/convencao-tecnica/code-standards/SKILL.md` | TypeScript strict, Zod, AppError, naming, env vars |
+| 12 | Monorepo | `skills/governanca/convencao-tecnica/monorepo/SKILL.md` | NPM workspaces, aliases, tsconfig, dependências |
+| 13 | Lint Tenant-Safety | `skills/governanca/convencao-tecnica/lint-tenant-safety/SKILL.md` | Linter custom CI — bloqueia PrismaClient direto, cache sem prefixo `tenant:` |
+| 14 | Database Governance | `skills/governanca/convencao-tecnica/database-governance/SKILL.md` | Paridade Prisma↔PG, Database-per-Service, schema `public` vazio, CUID |
+| 15 | API Design | `skills/governanca/convencao-tecnica/api-design/SKILL.md` | Convenções REST, versionamento, paginação, validação Zod |
+| 16 | Criptografia ⭐ | `skills/governanca/convencao-tecnica/criptografia/SKILL.md` | SHA-256 (tokens), AES-256-GCM (credenciais ERP), HMAC-SHA256 (webhooks) |
+| 17 | Observabilidade Mínima ⭐ | `skills/governanca/convencao-tecnica/observabilidade-minima/SKILL.md` | Métricas obrigatórias por serviço, ferramentas obrigatórias, log de auditoria |
 
-### Infraestrutura (10) — Plataforma e infra
+### 3. Governança › Operação (4) — Como a plataforma roda em produção
 
-| # | Skill | Arquivo | Escopo |
-|---|:---|:---|:---|
-| 37 | Admin | `skills/infra-estrutura/admin/SKILL.md` | Painel admin interno |
-| 38 | API Cockpit | `skills/infra-estrutura/api-cockpit/SKILL.md` | Tokens, playground, webhooks |
-| 39 | Configurador | `skills/infra-estrutura/configurador/SKILL.md` | Clerk (apenas autenticação), permissões via `tipo_usuario`, workspaces |
-| 40 | Criar Produto | `skills/infra-estrutura/criar-produto/SKILL.md` | Passos completos para novo produto |
-| 41 | Marketplace | `skills/infra-estrutura/marketplace/SKILL.md` | Landing, pricing, onboarding público |
-| 42 | Service Registry | `skills/infra-estrutura/service-registry/SKILL.md` | PRODUCT_CONFIG, contracts.json |
-| 43 | Simulador COMEX | `skills/infra-estrutura/simulador-comex/SKILL.md` | Bloqueado (aguarda regras de negócio) |
-| 44 | Database Operations | `skills/infra-estrutura/database-operations/SKILL.md` | Migrations, PgBouncer, particionamento, vacuum |
-| 45 | Auto-Scaling | `skills/infra-estrutura/auto-scaling/SKILL.md` | Railway scaling, budget, scale-to-zero |
-| 46 | Backup & DR | `skills/infra-estrutura/backup-disaster-recovery/SKILL.md` | 4 backups, RPO/RTO, disaster recovery |
-
-### UX (5) — Interface e experiência
+> Estas skills implementam as regras das duas seções acima. **Não duplicam** — referenciam.
 
 | # | Skill | Arquivo | Escopo |
 |---|:---|:---|:---|
-| 47 | Componentes | `skills/ux/componentes/SKILL.md` | Qual componente usar |
-| 48 | Design System | `skills/ux/design-system/SKILL.md` | Cores, tipografia, ícones |
-| 49 | Criação de Telas | `skills/ux/criacao-telas/SKILL.md` | Padrão inviolável de criação/replicação de tela |
-| 50 | Tooltip | `skills/ux/tooltip/SKILL.md` | Texto de dicas |
-| 51 | Acessibilidade | `skills/ux/acessibilidade/SKILL.md` | WCAG 2.1 AA, aria, teclado |
+| 18 | Auto-Scaling | `skills/governanca/operacao/auto-scaling/SKILL.md` | Configuração Railway (instâncias, triggers, scale-to-zero). Regras → `lei/cost-budget` |
+| 19 | Backup & DR | `skills/governanca/operacao/backup-disaster-recovery/SKILL.md` | Scripts pg_dump, S3, plano de DR (4 cenários). Regras → `lei/backup-policy` |
+| 20 | Performance Monitoring | `skills/governanca/operacao/performance-monitoring/SKILL.md` | Sentry, UptimeRobot, Grafana, alertas. Regras → `lei/sla-metas` + `convencao-tecnica/observabilidade-minima` |
+| 21 | Service Registry | `skills/governanca/operacao/service-registry/SKILL.md` | PRODUCT_CONFIG, contracts.json, discovery |
 
-### Gestão (2) — Processos e cadência
-
-> **Nota:** as skills `sprint-management`, `handoff`, `definition-of-done`, `onboarding-produto` foram retiradas do inventário ativo e podem retornar quando reescritas em conformidade com os 9 Mandamentos e o DDD.
+### 4. Processos (4) — Fluxos de trabalho pontuais
 
 | # | Skill | Arquivo | Escopo |
 |---|:---|:---|:---|
-| 52 | Code Review | `skills/gestao/code-review/SKILL.md` | Review, feedback, aprovação |
-| 53 | API Design | `skills/gestao/api-design/SKILL.md` | REST, versionamento, paginação |
+| 22 | Deploy | `skills/processos/deploy/SKILL.md` | Migrações, deploy, rollback, Railway, bootstrap |
+| 23 | Code Review | `skills/processos/code-review/SKILL.md` | Padrões de review, checklist técnico, aprovação |
+| 24 | Criar Produto | `skills/processos/criar-produto/SKILL.md` | Passos completos para novo produto |
+| 25 | Incident Response | `skills/processos/incident-response/SKILL.md` | Severidades P0-P3, runbook, post-mortem |
+
+### 5. Papéis (4) — Quem age
+
+| # | Skill | Arquivo | Escopo |
+|---|:---|:---|:---|
+| 26 | Líder | `skills/papeis/lider/SKILL.md` | Distribuição de tarefas, análise de progresso, relatórios |
+| 27 | Coordenador | `skills/papeis/coordenador/SKILL.md` | Schema composition, contratos, ondas, aprovações |
+| 28 | QA | `skills/papeis/qa/SKILL.md` | Revisão pós-entrega, 6 categorias obrigatórias |
+| 29 | Analista de Erros (Testes) | `skills/papeis/analista-erros-testes/SKILL.md` | Análise de falhas de teste com Gemini |
+
+### 6. Arquitetura (8) — Padrões dos sistemas Gravity
+
+| # | Skill | Arquivo | Escopo |
+|---|:---|:---|:---|
+| 30 | Núcleo Global | `skills/arquitetura/nucleo-global/SKILL.md` | Componentes React puros, sem estado de servidor |
+| 31 | Schema Composition | `skills/arquitetura/schema-composition/SKILL.md` | Composição de Prisma fragments por serviço |
+| 32 | Serviços de Organização | `skills/arquitetura/servicos-organizacao/SKILL.md` | Serviços tenant — 1 banco compartilhado por organização |
+| 33 | State Management | `skills/arquitetura/state-management/SKILL.md` | Zustand, Event Bus, cache cliente |
+| 34 | Cache | `skills/arquitetura/cache/SKILL.md` | Camadas (in-memory + Redis), Cache-Aside, TTL, invalidação, prefixo `tenant:` |
+| 35 | Resilience Patterns | `skills/arquitetura/resilience-patterns/SKILL.md` | Retry, circuit breaker, DLQ, degradação graciosa |
+| 36 | Observabilidade | `skills/arquitetura/observabilidade/SKILL.md` | Logs estruturados, correlation ID, integração Sentry |
+| 37 | i18n | `skills/arquitetura/i18n/SKILL.md` | i18next, pipeline Gemini, useLocale, lazy loading |
+
+### 7. Segurança (7) — Padrões da camada de segurança
+
+| # | Skill | Arquivo | Escopo |
+|---|:---|:---|:---|
+| 38 | Segurança 5 Camadas | `skills/seguranca/seguranca-5-camadas/SKILL.md` | **Checklist obrigatório** — Rede, Auth, Autorização, Isolamento, Auditoria |
+| 39 | Permissões | `skills/seguranca/permissoes/SKILL.md` | RBAC via `tipo_usuario`, Configurador como fonte da verdade |
+| 40 | Autenticação S2S | `skills/seguranca/autenticacao-s2s/SKILL.md` | JWT inter-serviço, machine tokens, `x-chave-interna` |
+| 41 | Cross-Boundary | `skills/seguranca/cross-boundary/SKILL.md` | Ações cross-banco, BullMQ, DLQ, agregação eventual |
+| 42 | Rate Limiting | `skills/seguranca/rate-limiting/SKILL.md` | `express-rate-limit` + Redis, limites por organização/rota |
+| 43 | Pentest | `skills/seguranca/pentest/SKILL.md` | OWASP Top 10, ferramentas, relatório |
+| 44 | Tier 1 Security | `skills/seguranca/tier1-security/SKILL.md` | Padrões P0 em endpoints críticos |
+
+### 8. Testes (8) — Padrões e agentes de teste
+
+| # | Skill | Arquivo | Escopo |
+|---|:---|:---|:---|
+| 45 | Coordenação de Testes | `skills/testes/SKILL.md` | Visão geral — Vitest unitário/funcional + Playwright E2E |
+| 46 | Padrões Vitest/Playwright | `skills/testes/padroes-vitest-playwright/SKILL.md` | Estrutura centralizada, cobertura, mocks |
+| 47 | Teste em Tela | `skills/testes/teste-em-tela/SKILL.md` | Validação visual em browser, snapshots Percy |
+| 48 | Contract Testing | `skills/testes/contract-testing/SKILL.md` | Zod como contrato bilateral, CI bloqueia breaking changes |
+| 49 | Agente Plano de Teste | `skills/testes/agente-plano-teste/SKILL.md` | Agente que cria planos de teste |
+| 50 | Agente Plano E2E | `skills/testes/agente-plano-teste-e2e/SKILL.md` | Playwright + Percy em staging |
+| 51 | Agente Plano Funcional | `skills/testes/agente-plano-teste-funcional/SKILL.md` | Rotas, fluxos, integração |
+| 52 | Agente Plano Unitário | `skills/testes/agente-plano-teste-unitario/SKILL.md` | Vitest, cobertura, categorias |
+
+### 9. UX (5) — Padrões de interface
+
+| # | Skill | Arquivo | Escopo |
+|---|:---|:---|:---|
+| 53 | Design System | `skills/ux/design-system/SKILL.md` | Solid Slate (cores, tipografia, ícones, dark mode padrão) |
+| 54 | Componentes | `skills/ux/componentes/SKILL.md` | Mapeamento nucleo-global vs custom |
+| 55 | Criação de Telas | `skills/ux/criacao-telas/SKILL.md` | **Padrão inviolável** de criação/replicação de tela |
+| 56 | Tooltip | `skills/ux/tooltip/SKILL.md` | Texto de tooltip (≤ 90 caracteres), i18n |
+| 57 | Acessibilidade | `skills/ux/acessibilidade/SKILL.md` | WCAG 2.1 AA, aria-labels, navegação por teclado |
+
+### 10. Produtos Gravity (5) — Verticais da empresa Gravity
+
+| # | Skill | Arquivo | Escopo |
+|---|:---|:---|:---|
+| 58 | Configurador | `skills/produtos-gravity/configurador/SKILL.md` | Auth/Clerk, billing/Stripe, permissões, multi-workspace |
+| 59 | Configurador › Admin | `skills/produtos-gravity/configurador/admin/SKILL.md` | Painel admin interno (impersonação, deploy Railway, monitor de APIs) |
+| 60 | API Cockpit | `skills/produtos-gravity/api-cockpit/SKILL.md` | Tokens, playground, webhooks, conector ERP/SAP, fluxo Gabi OData |
+| 61 | Marketplace | `skills/produtos-gravity/marketplace/SKILL.md` | Landing pública, pricing, onboarding (sem auth, sem backend) |
+| 62 | Simulador COMEX | `skills/produtos-gravity/simulador-comex/SKILL.md` | **BLOQUEADO** — não iniciar sem regras de negócio |
+
+> Futuros: `pedido/`, `bid-frete/`, etc. seguem o mesmo padrão (vertical em `produtos-gravity/`, **sem** regras absolutas embutidas — referenciar SSOT).
+
+### 11. Dream Team — Umbrellas (2 SKILL.md + 12 arquivos especializados)
+
+| # | Sub-projeto | Arquivo | Conteúdo |
+|---|:---|:---|:---|
+| 63 | Detetive de Tela | `skills/dream-team/detetive-tela/SKILL.md` | **Análise forense completa** — front, back, rotas, banco, segurança, performance, UX |
+| 64 | Ajustes | `skills/dream-team/ajustes/SKILL.md` | Ajustes em produtos existentes |
+| — | Produtos (umbrella) | `skills/dream-team/produtos/` | 11 arquivos: 8 agentes (PM, SME, Data, Pesquisador, UX, BA, Designer, Tech Lead) + fluxo + entregáveis/handoff |
+| — | Tecnologia (este doc) | `skills/dream-team/tecnologia/README.md` | Mapa do time de tecnologia |
 
 ---
 
 ## Os 9 Mandamentos — Resumo Operacional
 
-Detalhes completos em `skills/governanca/9-mandamentos/SKILL.md`.
+Detalhes completos em `skills/governanca/lei/9-mandamentos/SKILL.md`.
 
 | # | Mandamento | Resumo |
 |---|:---|:---|
 | 01 | Isolamento total do Clerk | Clerk só para autenticação. Permissões vêm do banco via `/api/v1/me`. PROIBIDO ler `publicMetadata.role`. |
 | 02 | `schema.prisma` é intocável | Apenas o Coordenador altera, via script. Adeque o código ao schema, não o contrário. |
-| 03 | Adesão estrita ao DDD | `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` (booleans sem `is_` — REGRA 5). Lei única: `skills/governanca/ddd-nomenclatura/SKILL.md`. |
+| 03 | Adesão estrita ao DDD | `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` (booleans sem `is_` — REGRA 5). Lei única: `skills/governanca/lei/ddd-nomenclatura/SKILL.md`. |
 | 04 | Lógica de Vínculo (O Limbo) | Master e Super Admin têm acesso global, sem depender de `UsuarioWorkspace`. |
 | 05 | Proibido mocks preguiçosos | Sem `useState<T>({} as T)`, sem string vazia para satisfazer compilador. Use `null`/`undefined`. |
 | 06 | Validação Zod obrigatória | Toda resposta de `fetch().json()` passa por `schema.parse()`. |
@@ -199,6 +239,8 @@ Detalhes completos em `skills/governanca/9-mandamentos/SKILL.md`.
 ---
 
 ## Metas de SLA
+
+> Fonte canônica: `skills/governanca/lei/sla-metas/SKILL.md` (SSOT).
 
 | Requisito | Meta |
 |:---|:---|
@@ -225,6 +267,8 @@ Detalhes completos em `skills/governanca/9-mandamentos/SKILL.md`.
 ---
 
 ## Segurança — 5 Camadas
+
+> Fonte canônica: `skills/seguranca/seguranca-5-camadas/SKILL.md`.
 
 Cada request passa por 5 camadas de proteção independentes:
 
@@ -270,6 +314,7 @@ Request → [1. Rede] → [2. Autenticação] → [3. Autorização] → [4. Iso
 - Logs de auditoria são **imutáveis** (sem DELETE/UPDATE)
 - Tentativas de acesso negado também são logadas
 - Dados sensíveis nunca aparecem nos logs
+- Detalhes: `skills/governanca/convencao-tecnica/observabilidade-minima/SKILL.md`
 
 ---
 
@@ -283,7 +328,7 @@ No Claude Code, digite:
 /dream-team-tecnologia
 ```
 
-Isso carrega as 48 skills e ativa os 11 papéis. O agente passa a aplicar todas as regras automaticamente de acordo com o contexto.
+Isso carrega as 64 skills e ativa os 11 papéis. O agente passa a aplicar todas as regras automaticamente de acordo com o contexto.
 
 > **Lembrete:** os 9 Mandamentos e o CLAUDE.md raiz já carregam automaticamente em toda conversa, mesmo sem este comando.
 
@@ -291,7 +336,9 @@ Isso carrega as 48 skills e ativa os 11 papéis. O agente passa a aplicar todas 
 
 | Comando | O que faz |
 |:---|:---|
-| `/dream-team-tecnologia` | Carrega o time completo (48 skills) |
+| `/dream-team-tecnologia` | Carrega o time completo (64 skills em 11 grupos) |
+| `/dream-team-produtos` | Carrega o time de produtos (11 arquivos, 8 agentes) |
+| `/dream-team-detetive-tela` | Análise forense completa de uma tela |
 | `/lider` | Ativa modo Líder (análise + distribuição) |
 | `/coordenar` | Ativa modo Coordenador (schema + contratos + ondas) |
 | `/qa` | Ativa modo QA (revisão completa pós-entrega) |
@@ -299,56 +346,40 @@ Isso carrega as 48 skills e ativa os 11 papéis. O agente passa a aplicar todas 
 
 ---
 
-## Evolução — O Que Veio de Onde
+## Evolução — O Que Mudou
 
-### Origem (38 skills)
-
-As 38 skills originais foram criadas para cobrir a arquitetura do monorepo, padrões de código, segurança básica e serviços da plataforma. Elas cobriam bem o "como construir", mas tinham gaps em:
-
-- Processos de gestão (sem sprints, sem handoff, sem definition of done)
-- Performance (sem SLAs, sem load testing, sem budget de latência)
-- Segurança avançada (sem pentest, sem rate limiting, sem incident response)
-- Infraestrutura (sem backup strategy, sem auto-scaling, sem DR)
-
-### Análise de Gaps
-
-O documento `gravity_projeto_completo.docx` foi analisado capítulo por capítulo. Foram encontrados **16 gaps** entre o que o documento define e o que as skills cobriam. Os mais críticos:
-
-1. **Rate Limiting por organização** — sem isso, uma organização pode derrubar a plataforma
-2. **Backup & DR** — documento define 4 tipos de backup, nenhuma skill governava
-3. **Resilience Patterns** — degradação graciosa, retry, DLQ estavam dispersos
-
-### Expansão e alinhamento pós-refatoração
-
-| Fase | Resultado |
+| Marco | Resultado |
 |:---|:---|
-| Expansão inicial | 38 → 57 skills (19 novas + 8 enriquecidas) |
-| Pós-refatoração DDD (Abril 2026) | +1 skill (9 Mandamentos) |
-| Categorias pausadas (Serviços por Organização, Produtos) | −10 skills do inventário ativo |
-| Reforço DDD/Governança (Abril 2026) | +5 skills (ddd-nomenclatura, ddd-regras-usuario, database-governance, lint-tenant-safety, monorepo) |
-| Reforço Arquitetura (Abril 2026) | +3 skills (sdk-resolvedor-organizacao, teste-em-tela, tier1-security) |
-| Reforço UX (Abril 2026) | +1 skill (criacao-telas) |
-| Gestão revista | −4 skills (sprint-management, handoff, definition-of-done, onboarding-produto retiradas até reescrita) |
-| **Total ativo atual** | **53 skills** |
+| Origem (Início 2026) | 38 skills cobrindo "como construir" |
+| Análise de gaps | +19 skills (rate limiting, backup/DR, resilience patterns, etc.) |
+| Pós-DDD (Abril 2026) | +9 skills de governança (9-mandamentos, ddd-nomenclatura, database-governance, lint-tenant-safety, monorepo, etc.) |
+| Categorias pausadas | −10 skills (Serviços por Organização, Produtos antigos) |
+| **Reorganização SSOT (Abril 2026)** — Operação Linguagem Ubíqua | Estrutural: 9 grupos no topo + governança subdividida em 3 (lei, convenção técnica, operação). Conteúdo: +5 skills novas em governança (sla-metas, cost-budget, backup-policy, criptografia, observabilidade-minima). Limpeza: −2 duplicatas (database-operations, sla-performance). 14 ponteiros REGRA ABSOLUTA inseridos nas verticais/operação. |
+| **Total ativo atual** | **64 SKILL.md em 11 grupos** |
 
 ---
 
 ## Estrutura de Arquivos
 
 ```
-skills/                              ← 53 SKILL.md ativos
-├── agentes/                         ← 3 skills (lider, coordenador, qa)
-├── arquitetura/                     ← 13 skills
-├── gestao/                          ← 2 skills
-├── governanca/                      ← 11 skills (9-mandamentos, ddd-nomenclatura, ddd-regras-usuario, database-governance, lint-tenant-safety, monorepo, agent-policy, ambiente, code-standards, deploy, visao-geral)
-├── infra-estrutura/                 ← 10 skills
-├── seguranca/                       ← 9 skills
-└── ux/                              ← 5 skills
+skills/                                       ← 64 SKILL.md em 11 grupos
+├── governanca/                               ← 21 skills (SSOT — Fonte Única de Verdade)
+│   ├── lei/                                  ← 10 — regras absolutas
+│   ├── convencao-tecnica/                    ← 7 — como escrever código
+│   └── operacao/                             ← 4 — como a plataforma roda
+├── processos/                                ← 4 skills (deploy, code-review, criar-produto, incident-response)
+├── papeis/                                   ← 4 skills (lider, coordenador, qa, analista-erros-testes)
+├── arquitetura/                              ← 8 skills (padrões dos sistemas Gravity)
+├── seguranca/                                ← 7 skills (camada de segurança)
+├── testes/                                   ← 8 skills (Vitest, Playwright, agentes de plano)
+├── ux/                                       ← 5 skills (Solid Slate)
+├── produtos-gravity/                         ← 5 skills (Configurador, Admin, API Cockpit, Marketplace, Simulador COMEX)
+└── dream-team/                               ← 4 sub-projetos (produtos, tecnologia, detetive-tela, ajustes)
 
 .claude/commands/
-└── dream-team-tecnologia.md         ← Comando que carrega tudo
+└── dream-team-tecnologia.md                  ← Comando que carrega tudo
 
-CLAUDE.md                            ← Mapa completo (carregado automaticamente)
+CLAUDE.md                                     ← Mapa completo (carregado automaticamente)
 ```
 
 ---
@@ -368,7 +399,7 @@ CLAUDE.md                            ← Mapa completo (carregado automaticament
 - **TypeScript** strict, sem `any`, sem `@ts-ignore`, ESModules only
 - **Banco**: bancos de produto usam Schema-per-Organização; acesso exclusivamente via `withTenant`/`withTenantContext` do `@gravity/tenant-resolver`; `PrismaClient` direto é PROIBIDO; Configurador usa single-schema `public`
 - **Schema Prisma**: NUNCA alterar `schema.prisma` (Mandamento 02). Apenas o Coordenador, via script
-- **DDD**: usar `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` em payloads, propriedades e variáveis (Mandamento 03; REGRA 5 — booleans sem prefixo `is_`). Lei única: `skills/governanca/ddd-nomenclatura/SKILL.md`
+- **DDD**: usar `id_organizacao`, `id_workspace`, `id_usuario`, `tipo_usuario`, `gravity_admin` em payloads, propriedades e variáveis (Mandamento 03; REGRA 5 — booleans sem prefixo `is_`). Lei única: `skills/governanca/lei/ddd-nomenclatura/SKILL.md`
 - **Acesso global**: Master e Super Admin reconhecidos sem `UsuarioWorkspace` (Mandamento 04)
 - **Estado React**: nunca `useState<T>({} as T)`, sempre `null`/`undefined` + tratamento (Mandamento 05)
 - **Validação Zod**: toda resposta de `fetch().json()` passa por `schema.parse()` antes do uso (Mandamento 06)
@@ -377,6 +408,10 @@ CLAUDE.md                            ← Mapa completo (carregado automaticament
 - **Schemas Zod bilaterais**: backend mudou → Zod do frontend muda no mesmo commit (Mandamento 09)
 - **Autenticação**: Clerk APENAS para autenticação; permissões vêm do Prisma via `GET /api/v1/me` (Mandamento 01)
 - **Segurança**: Zod em toda rota, JWT validado via `@clerk/backend`, `x-chave-interna` em S2S
+- **Cache**: chave começa com `tenant:` (REGRA 4 do linter); detalhes em `skills/arquitetura/cache/SKILL.md`
+- **Criptografia**: SHA-256 (tokens), AES-256-GCM (credenciais), HMAC-SHA256 (webhooks); `skills/governanca/convencao-tecnica/criptografia/SKILL.md`
+- **SLA & Custo**: 200ms p95, 50k req/s, 99,9% uptime; budget mensal com bloqueio em 95%; `skills/governanca/lei/sla-metas/SKILL.md` + `cost-budget/SKILL.md`
+- **Backup**: pré-migration destrutiva é obrigatório; teste de restauração mensal; `skills/governanca/lei/backup-policy/SKILL.md`
 - **Isolamento**: serviços nunca importam código de outro serviço
 - **Testes**: todo código entregue com unitários + funcionais, cobertura ≥ 70%
 - **Entrega**: QA revisa com checklist completo → aprovado ou rejeitado
@@ -387,32 +422,41 @@ CLAUDE.md                            ← Mapa completo (carregado automaticament
 
 ### Quando Adicionar uma Nova Skill
 
-1. Criar `skills/[categoria]/[nome]/SKILL.md` seguindo o formato frontmatter
-2. Atualizar o mapa em `CLAUDE.md`
-3. Atualizar `.claude/commands/dream-team-tecnologia.md`
-4. Atualizar este documento (`skills/dream-team-tecnologia/README.md`)
+1. Decidir o grupo correto (consultar a árvore de 11 grupos acima)
+   - **Regra absoluta?** → `skills/governanca/lei/`
+   - **Convenção de código universal?** → `skills/governanca/convencao-tecnica/`
+   - **Operação de plataforma/SRE?** → `skills/governanca/operacao/`
+   - **Padrão técnico transversal?** → `skills/arquitetura/`
+   - **Camada específica?** → `skills/seguranca/`, `skills/testes/`, `skills/ux/`
+   - **Vertical de produto Gravity?** → `skills/produtos-gravity/`
+   - **Fluxo pontual?** → `skills/processos/`
+   - **Papel/agente?** → `skills/papeis/`
+2. Criar `skills/[grupo]/[nome]/SKILL.md` seguindo o formato frontmatter
+3. Atualizar o mapa em `CLAUDE.md`
+4. Atualizar este documento (`skills/dream-team/tecnologia/README.md`)
 5. Garantir que a nova skill respeita os 9 Mandamentos e o DDD
+6. **Se for vertical/operação/padrão:** NUNCA escrever regra absoluta — referenciar `governanca/lei/` ou `governanca/convencao-tecnica/` via bloco `> ⚠️ REGRA ABSOLUTA: Ver [...]`
 
 ### Quando Enriquecer uma Skill Existente
 
-1. Adicionar a seção com tag `(Dream Team)` para rastreabilidade
+1. Verificar se o conteúdo a adicionar é regra absoluta
+   - **Sim** → mover/reforçar em `skills/governanca/lei/` ou `convencao-tecnica/` (SSOT)
+   - **Não (padrão/exemplo/operação)** → enriquecer a skill atual
 2. Atualizar checklist se houver novos itens
-3. Não remover conteúdo existente — apenas adicionar
-4. Reler os 9 Mandamentos antes de qualquer mudança em contratos ou autorização
+3. Não remover conteúdo existente sem justificativa explícita no commit
 
 ### Quando Remover uma Skill
 
-1. Verificar se alguma outra skill referencia a que será removida
-2. Atualizar todas as referências
+1. Verificar se alguma outra skill referencia a que será removida (`grep -r "skills/<grupo>/<nome>"`)
+2. Atualizar todas as referências (incluindo `CLAUDE.md`, este README, e qualquer SKILL.md que aponte)
 3. Remover do mapa em `CLAUDE.md`
-4. Remover do comando `dream-team-tecnologia.md`
-5. Justificar a remoção no commit (motivo + impacto)
+4. Justificar a remoção no commit (motivo + impacto)
 
 ### Quando Reativar Categorias Pausadas
 
-Quando as categorias **Serviços por Organização** ou **Produtos** (hoje em andamento com Pedido) forem 100% definidas:
+Quando um produto vertical (ex: Pedido, Bid Frete) for 100% definido:
 
-1. Reinserir as seções no inventário deste README
-2. Atualizar a contagem total de skills
-3. Incluir as skills no comando `dream-team-tecnologia.md`
-4. Validar que todas as skills reativadas passam nos 9 Mandamentos
+1. Criar a pasta em `skills/produtos-gravity/<nome-produto>/`
+2. Criar a SKILL.md sem regras absolutas embutidas (referenciar SSOT)
+3. Atualizar este README e o `CLAUDE.md`
+4. Validar que respeita os 9 Mandamentos e o DDD

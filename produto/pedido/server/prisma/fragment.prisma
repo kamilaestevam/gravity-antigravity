@@ -760,12 +760,12 @@ model PedidoSnapshotOpe {
 /// Política por workspace de quando re-snapshotar dados do Cadastros nos pedidos.
 /// Usado pelo fluxo "atualização represada" e pelo banner retroativo (FASE 06E).
 model PedidoConfigAtualizacaoCadastros {
-  id                       String   @id @default(cuid())
+  id_politica_snapshot_cadastros String   @id @default(cuid())
   id_organizacao           String
   id_workspace             String
 
-  // Política de atualização por papel (Empresa)
-  atualiza_importador                          Boolean  @default(false)
+  // Política de atualização por papel (Empresa) — renomeado para "matriz" (json/booleano agregado)
+  matriz_snapshot_politica_snapshot_cadastros  Boolean  @default(false)
   atualiza_exportador_politica_snapshot_cadastros  Boolean  @default(false)
   atualiza_fabricante_politica_snapshot_cadastros  Boolean  @default(false)
   atualiza_agente_politica_snapshot_cadastros      Boolean  @default(false)
@@ -780,8 +780,8 @@ model PedidoConfigAtualizacaoCadastros {
   gatilho_embarque_politica_snapshot_cadastros     Boolean  @default(false)
   gatilho_desembaraco_politica_snapshot_cadastros  Boolean  @default(false)
 
-  created_at               DateTime @default(now())
-  updated_at               DateTime @updatedAt
+  data_criacao_politica_snapshot_cadastros     DateTime @default(now())
+  data_atualizacao_politica_snapshot_cadastros DateTime @updatedAt
 
   @@unique([id_organizacao, id_workspace])
   @@index([id_organizacao])

@@ -191,9 +191,9 @@ export const tenantService = {
   async updateTenant(tenantId: string, data: {
     name?: string
     cnpj?: string
-    state?: string
-    city?: string
-    segment?: string
+    estado_organizacao?: string
+    cidade_organizacao?: string
+    segmento_organizacao?: string
     tipo_empresa?: string
   }) {
     return prisma.organizacao.update({

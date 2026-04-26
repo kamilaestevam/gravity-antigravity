@@ -3122,9 +3122,9 @@ export namespace Prisma {
     stripe_customer_id: string | null
     suid_empresa: string | null
     cnpj: string | null
-    state: string | null
-    city: string | null
-    segment: string | null
+    estado_organizacao: string | null
+    cidade_organizacao: string | null
+    segmento_organizacao: string | null
     tipo_empresa: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -3139,9 +3139,9 @@ export namespace Prisma {
     stripe_customer_id: string | null
     suid_empresa: string | null
     cnpj: string | null
-    state: string | null
-    city: string | null
-    segment: string | null
+    estado_organizacao: string | null
+    cidade_organizacao: string | null
+    segmento_organizacao: string | null
     tipo_empresa: string | null
     created_at: Date | null
     updated_at: Date | null
@@ -3156,9 +3156,9 @@ export namespace Prisma {
     stripe_customer_id: number
     suid_empresa: number
     cnpj: number
-    state: number
-    city: number
-    segment: number
+    estado_organizacao: number
+    cidade_organizacao: number
+    segmento_organizacao: number
     tipo_empresa: number
     created_at: number
     updated_at: number
@@ -3175,9 +3175,9 @@ export namespace Prisma {
     stripe_customer_id?: true
     suid_empresa?: true
     cnpj?: true
-    state?: true
-    city?: true
-    segment?: true
+    estado_organizacao?: true
+    cidade_organizacao?: true
+    segmento_organizacao?: true
     tipo_empresa?: true
     created_at?: true
     updated_at?: true
@@ -3192,9 +3192,9 @@ export namespace Prisma {
     stripe_customer_id?: true
     suid_empresa?: true
     cnpj?: true
-    state?: true
-    city?: true
-    segment?: true
+    estado_organizacao?: true
+    cidade_organizacao?: true
+    segmento_organizacao?: true
     tipo_empresa?: true
     created_at?: true
     updated_at?: true
@@ -3209,9 +3209,9 @@ export namespace Prisma {
     stripe_customer_id?: true
     suid_empresa?: true
     cnpj?: true
-    state?: true
-    city?: true
-    segment?: true
+    estado_organizacao?: true
+    cidade_organizacao?: true
+    segmento_organizacao?: true
     tipo_empresa?: true
     created_at?: true
     updated_at?: true
@@ -3299,9 +3299,9 @@ export namespace Prisma {
     stripe_customer_id: string | null
     suid_empresa: string | null
     cnpj: string | null
-    state: string | null
-    city: string | null
-    segment: string | null
+    estado_organizacao: string | null
+    cidade_organizacao: string | null
+    segmento_organizacao: string | null
     tipo_empresa: string | null
     created_at: Date
     updated_at: Date
@@ -3333,9 +3333,9 @@ export namespace Prisma {
     stripe_customer_id?: boolean
     suid_empresa?: boolean
     cnpj?: boolean
-    state?: boolean
-    city?: boolean
-    segment?: boolean
+    estado_organizacao?: boolean
+    cidade_organizacao?: boolean
+    segmento_organizacao?: boolean
     tipo_empresa?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -3357,9 +3357,9 @@ export namespace Prisma {
     stripe_customer_id?: boolean
     suid_empresa?: boolean
     cnpj?: boolean
-    state?: boolean
-    city?: boolean
-    segment?: boolean
+    estado_organizacao?: boolean
+    cidade_organizacao?: boolean
+    segmento_organizacao?: boolean
     tipo_empresa?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -3374,9 +3374,9 @@ export namespace Prisma {
     stripe_customer_id?: boolean
     suid_empresa?: boolean
     cnpj?: boolean
-    state?: boolean
-    city?: boolean
-    segment?: boolean
+    estado_organizacao?: boolean
+    cidade_organizacao?: boolean
+    segmento_organizacao?: boolean
     tipo_empresa?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -3412,9 +3412,9 @@ export namespace Prisma {
       stripe_customer_id: string | null
       suid_empresa: string | null
       cnpj: string | null
-      state: string | null
-      city: string | null
-      segment: string | null
+      estado_organizacao: string | null
+      cidade_organizacao: string | null
+      segmento_organizacao: string | null
       tipo_empresa: string | null
       created_at: Date
       updated_at: Date
@@ -3825,9 +3825,9 @@ export namespace Prisma {
     readonly stripe_customer_id: FieldRef<"Organizacao", 'String'>
     readonly suid_empresa: FieldRef<"Organizacao", 'String'>
     readonly cnpj: FieldRef<"Organizacao", 'String'>
-    readonly state: FieldRef<"Organizacao", 'String'>
-    readonly city: FieldRef<"Organizacao", 'String'>
-    readonly segment: FieldRef<"Organizacao", 'String'>
+    readonly estado_organizacao: FieldRef<"Organizacao", 'String'>
+    readonly cidade_organizacao: FieldRef<"Organizacao", 'String'>
+    readonly segmento_organizacao: FieldRef<"Organizacao", 'String'>
     readonly tipo_empresa: FieldRef<"Organizacao", 'String'>
     readonly created_at: FieldRef<"Organizacao", 'DateTime'>
     readonly updated_at: FieldRef<"Organizacao", 'DateTime'>
@@ -26426,9 +26426,9 @@ export namespace Prisma {
     stripe_customer_id: 'stripe_customer_id',
     suid_empresa: 'suid_empresa',
     cnpj: 'cnpj',
-    state: 'state',
-    city: 'city',
-    segment: 'segment',
+    estado_organizacao: 'estado_organizacao',
+    cidade_organizacao: 'cidade_organizacao',
+    segmento_organizacao: 'segmento_organizacao',
     tipo_empresa: 'tipo_empresa',
     created_at: 'created_at',
     updated_at: 'updated_at'
@@ -27124,9 +27124,9 @@ export namespace Prisma {
     stripe_customer_id?: StringNullableFilter<"Organizacao"> | string | null
     suid_empresa?: StringNullableFilter<"Organizacao"> | string | null
     cnpj?: StringNullableFilter<"Organizacao"> | string | null
-    state?: StringNullableFilter<"Organizacao"> | string | null
-    city?: StringNullableFilter<"Organizacao"> | string | null
-    segment?: StringNullableFilter<"Organizacao"> | string | null
+    estado_organizacao?: StringNullableFilter<"Organizacao"> | string | null
+    cidade_organizacao?: StringNullableFilter<"Organizacao"> | string | null
+    segmento_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     tipo_empresa?: StringNullableFilter<"Organizacao"> | string | null
     created_at?: DateTimeFilter<"Organizacao"> | Date | string
     updated_at?: DateTimeFilter<"Organizacao"> | Date | string
@@ -27147,9 +27147,9 @@ export namespace Prisma {
     stripe_customer_id?: SortOrderInput | SortOrder
     suid_empresa?: SortOrderInput | SortOrder
     cnpj?: SortOrderInput | SortOrder
-    state?: SortOrderInput | SortOrder
-    city?: SortOrderInput | SortOrder
-    segment?: SortOrderInput | SortOrder
+    estado_organizacao?: SortOrderInput | SortOrder
+    cidade_organizacao?: SortOrderInput | SortOrder
+    segmento_organizacao?: SortOrderInput | SortOrder
     tipo_empresa?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -27173,9 +27173,9 @@ export namespace Prisma {
     name?: StringFilter<"Organizacao"> | string
     status?: EnumOrganizacaoStatusFilter<"Organizacao"> | $Enums.OrganizacaoStatus
     cnpj?: StringNullableFilter<"Organizacao"> | string | null
-    state?: StringNullableFilter<"Organizacao"> | string | null
-    city?: StringNullableFilter<"Organizacao"> | string | null
-    segment?: StringNullableFilter<"Organizacao"> | string | null
+    estado_organizacao?: StringNullableFilter<"Organizacao"> | string | null
+    cidade_organizacao?: StringNullableFilter<"Organizacao"> | string | null
+    segmento_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     tipo_empresa?: StringNullableFilter<"Organizacao"> | string | null
     created_at?: DateTimeFilter<"Organizacao"> | Date | string
     updated_at?: DateTimeFilter<"Organizacao"> | Date | string
@@ -27196,9 +27196,9 @@ export namespace Prisma {
     stripe_customer_id?: SortOrderInput | SortOrder
     suid_empresa?: SortOrderInput | SortOrder
     cnpj?: SortOrderInput | SortOrder
-    state?: SortOrderInput | SortOrder
-    city?: SortOrderInput | SortOrder
-    segment?: SortOrderInput | SortOrder
+    estado_organizacao?: SortOrderInput | SortOrder
+    cidade_organizacao?: SortOrderInput | SortOrder
+    segmento_organizacao?: SortOrderInput | SortOrder
     tipo_empresa?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -27219,9 +27219,9 @@ export namespace Prisma {
     stripe_customer_id?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     suid_empresa?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     cnpj?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
-    state?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
-    city?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
-    segment?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
+    estado_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
+    cidade_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
+    segmento_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     tipo_empresa?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     created_at?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
@@ -29163,9 +29163,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29186,9 +29186,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29209,9 +29209,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29232,9 +29232,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29255,9 +29255,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29272,9 +29272,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29289,9 +29289,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31639,9 +31639,9 @@ export namespace Prisma {
     stripe_customer_id?: SortOrder
     suid_empresa?: SortOrder
     cnpj?: SortOrder
-    state?: SortOrder
-    city?: SortOrder
-    segment?: SortOrder
+    estado_organizacao?: SortOrder
+    cidade_organizacao?: SortOrder
+    segmento_organizacao?: SortOrder
     tipo_empresa?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -31656,9 +31656,9 @@ export namespace Prisma {
     stripe_customer_id?: SortOrder
     suid_empresa?: SortOrder
     cnpj?: SortOrder
-    state?: SortOrder
-    city?: SortOrder
-    segment?: SortOrder
+    estado_organizacao?: SortOrder
+    cidade_organizacao?: SortOrder
+    segmento_organizacao?: SortOrder
     tipo_empresa?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -31673,9 +31673,9 @@ export namespace Prisma {
     stripe_customer_id?: SortOrder
     suid_empresa?: SortOrder
     cnpj?: SortOrder
-    state?: SortOrder
-    city?: SortOrder
-    segment?: SortOrder
+    estado_organizacao?: SortOrder
+    cidade_organizacao?: SortOrder
+    segmento_organizacao?: SortOrder
     tipo_empresa?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -35036,9 +35036,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35058,9 +35058,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35189,9 +35189,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35211,9 +35211,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35316,9 +35316,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35338,9 +35338,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35376,9 +35376,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35398,9 +35398,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35420,9 +35420,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35442,9 +35442,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35511,9 +35511,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35533,9 +35533,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35592,9 +35592,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35614,9 +35614,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35746,9 +35746,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35768,9 +35768,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35974,9 +35974,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -35996,9 +35996,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -36034,9 +36034,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36056,9 +36056,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36078,9 +36078,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -36100,9 +36100,9 @@ export namespace Prisma {
     stripe_customer_id?: string | null
     suid_empresa?: string | null
     cnpj?: string | null
-    state?: string | null
-    city?: string | null
-    segment?: string | null
+    estado_organizacao?: string | null
+    cidade_organizacao?: string | null
+    segmento_organizacao?: string | null
     tipo_empresa?: string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -36169,9 +36169,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36191,9 +36191,9 @@ export namespace Prisma {
     stripe_customer_id?: NullableStringFieldUpdateOperationsInput | string | null
     suid_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    segment?: NullableStringFieldUpdateOperationsInput | string | null
+    estado_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
+    segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string

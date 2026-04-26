@@ -602,9 +602,9 @@ export interface PlatformConfigApi {
   name: string
   slug: string
   cnpj: string | null
-  state: string | null
-  city: string | null
-  segment: string | null
+  estado_organizacao: string | null
+  cidade_organizacao: string | null
+  segmento_organizacao: string | null
   tipo_empresa: string | null
   created_at: string
   subscriptions?: Array<{ plan: string }>
@@ -618,9 +618,9 @@ export const adminPlatformApi = {
   async updateConfig(data: {
     name?: string
     cnpj?: string
-    state?: string
-    city?: string
-    segment?: string
+    estado_organizacao?: string
+    cidade_organizacao?: string
+    segmento_organizacao?: string
     tipo_empresa?: string
   }) {
     return request<{ config: PlatformConfigApi }>('/admin/visao-geral', {

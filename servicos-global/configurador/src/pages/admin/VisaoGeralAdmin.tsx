@@ -110,9 +110,9 @@ export function VisaoGeralAdmin() {
           const loaded: DadosAdmin = {
             nome: c.name || '',
             cnpj: c.cnpj || '',
-            estado: c.state || '',
-            cidade: c.city || '',
-            segmento: c.segment || '',
+            estado: c.estado_organizacao || '',
+            cidade: c.cidade_organizacao || '',
+            segmento: c.segmento_organizacao || '',
             tipo_empresa: c.tipo_empresa || '',
             plano: c.subscriptions?.[0]?.plan || 'N/A',
             subdominio: c.slug || '',
@@ -142,9 +142,9 @@ export function VisaoGeralAdmin() {
       await adminPlatformApi.updateConfig({
         name: dados.nome,
         cnpj: dados.cnpj,
-        state: dados.estado,
-        city: dados.cidade,
-        segment: dados.segmento,
+        estado_organizacao: dados.estado,
+        cidade_organizacao: dados.cidade,
+        segmento_organizacao: dados.segmento,
         tipo_empresa: dados.tipo_empresa,
       })
 

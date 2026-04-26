@@ -142,9 +142,9 @@ export function Organizacao() {
           const dadosApi: DadosMae = {
             nome:       tenant.name ?? '',
             cnpj:       tenant.cnpj ?? '',
-            estado:     tenant.state ?? '',
-            cidade:     tenant.city ?? '',
-            segmento:     tenant.segment ?? '',
+            estado:     tenant.estado_organizacao ?? '',
+            cidade:     tenant.cidade_organizacao ?? '',
+            segmento:     tenant.segmento_organizacao ?? '',
             tipo_empresa: tenant.tipo_empresa ?? '',
             subdominio: tenant.slug ?? '',
             criadaEm:   tenant.created_at
@@ -227,9 +227,9 @@ export function Organizacao() {
         body: JSON.stringify({
           name: dados.nome,
           cnpj: dados.cnpj,
-          state: dados.estado,
-          city: dados.cidade,
-          segment: dados.segmento,
+          estado_organizacao: dados.estado,
+          cidade_organizacao: dados.cidade,
+          segmento_organizacao: dados.segmento,
           tipo_empresa: dados.tipo_empresa,
         }),
       })

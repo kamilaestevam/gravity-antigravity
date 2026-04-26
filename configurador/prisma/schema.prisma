@@ -75,11 +75,11 @@ model Organizacao {
   suid_empresa       String?      @unique
 
   // Dados cadastrais da organização
-  cnpj         String? @map("cnpj_organizacao")
-  state        String? @map("estado_organizacao")
-  city         String? @map("cidade_organizacao")
-  segment      String? @map("segmento_organizacao")
-  tipo_empresa String? @map("tipo_organizacao")
+  cnpj                 String? @map("cnpj_organizacao")
+  estado_organizacao   String?
+  cidade_organizacao   String?
+  segmento_organizacao String?
+  tipo_empresa         String? @map("tipo_organizacao")
 
   // Metadata
   created_at DateTime @default(now()) @map("data_criacao_organizacao")

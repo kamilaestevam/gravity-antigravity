@@ -60,9 +60,9 @@ export const CreateTenantSchema = z
 const UpdateTenantSchema = z.object({
   name: z.string().min(2).optional(),
   cnpj: z.string().optional(),
-  state: z.string().optional(),
-  city: z.string().optional(),
-  segment: z.string().optional(),
+  estado_organizacao: z.string().optional(),
+  cidade_organizacao: z.string().optional(),
+  segmento_organizacao: z.string().optional(),
   tipo_empresa: z.string().optional(),
 })
 

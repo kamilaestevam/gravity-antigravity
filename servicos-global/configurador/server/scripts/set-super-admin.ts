@@ -34,7 +34,7 @@ async function main() {
 
   const user = await prisma.usuario.findFirst({
     where: { email_usuario: email },
-    select: { id: true, email_usuario: true, role: true, tenant_id: true, clerk_user_id: true },
+    select: { id: true, email_usuario: true, tipo_usuario: true, tenant_id: true, clerk_user_id: true },
   })
 
   if (!user) {
@@ -45,21 +45,21 @@ async function main() {
   console.log(`\nUsuário encontrado:`)
   console.log(`  ID:       ${user.id}`)
   console.log(`  Email:    ${user.email_usuario}`)
-  console.log(`  Role atual: ${user.role}`)
+  console.log(`  Role atual: ${user.tipo_usuario}`)
   console.log(`  TenantID: ${user.tenant_id}`)
 
-  if (user.role === role) {
+  if (user.tipo_usuario === role) {
     console.log(`\nNada a fazer — usuário já possui role ${role}.`)
     return
   }
 
   const updated = await prisma.usuario.update({
     where: { id: user.id },
-    data: { role },
-    select: { id: true, email_usuario: true, role: true },
+    data: { tipo_usuario: role },
+    select: { id: true, email_usuario: true, tipo_usuario: true },
   })
 
-  console.log(`\n✓ Role atualizado: ${user.role} → ${updated.role}`)
+  console.log(`\n✓ Role atualizado: ${user.tipo_usuario} → ${updated.tipo_usuario}`)
   console.log(`  Usuário: ${updated.email_usuario}`)
   console.log(`  Frontend lerá o novo role na próxima chamada a /api/v1/me`)
 }

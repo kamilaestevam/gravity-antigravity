@@ -153,7 +153,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       where: { id_organizacao: idParsed.data },
       include: {
         users_organizacao: {
-          select: { id: true, nome_usuario: true, email_usuario: true, role: true, data_criacao_usuario: true },
+          select: { id: true, nome_usuario: true, email_usuario: true, tipo_usuario: true, data_criacao_usuario: true },
           orderBy: { data_criacao_usuario: 'desc' as const },
           take: 50,
         },
@@ -191,7 +191,7 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       tenant: {
         id: id_organizacao,
         ...tenantRest,
-        users: users_organizacao.map(({ role, data_criacao_usuario, email_usuario, nome_usuario, ...u }) => ({ ...u, tipo_usuario: role, created_at: data_criacao_usuario, email: email_usuario, name: nome_usuario })),
+        users: users_organizacao.map(({ data_criacao_usuario, email_usuario, nome_usuario, ...u }) => ({ ...u, created_at: data_criacao_usuario, email: email_usuario, name: nome_usuario })),
         companies: companies_organizacao,
         subscriptions: subscriptions_organizacao,
         product_configs: product_configs_organizacao,
@@ -432,7 +432,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
           id: true,
           nome_usuario: true,
           email_usuario: true,
-          role: true,
+          tipo_usuario: true,
           data_criacao_usuario: true,
           tenant_id: true,
           tenant: {
@@ -472,9 +472,8 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
     }).catch(() => { /* fire-and-forget */ })
 
     // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
-    const usuarios = users.map(({ role, memberships, data_criacao_usuario, email_usuario, nome_usuario, ...rest }) => ({
+    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, ...rest }) => ({
       ...rest,
-      tipo_usuario: role,
       created_at: data_criacao_usuario,
       email: email_usuario,
       name: nome_usuario,
@@ -1267,7 +1266,7 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
 
     const user = await prisma.usuario.findUnique({
       where: { id: req.params.userId },
-      select: { id: true, email_usuario: true, role: true, clerk_user_id: true, tenant_id: true },
+      select: { id: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, tenant_id: true },
     })
     if (!user || user.tenant_id !== req.auth.tenantId) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -1275,19 +1274,19 @@ adminRouter.post('/usuarios-globais/:userId/promote', async (req, res, next) => 
 
     const updated = await prisma.usuario.update({
       where: { id: req.params.userId },
-      data: { role: parsed.data.role },
-      select: { id: true, email_usuario: true, role: true },
+      data: { tipo_usuario: parsed.data.role },
+      select: { id: true, email_usuario: true, tipo_usuario: true },
     })
 
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
       targetUserId: req.params.userId,
-      oldRole: user.role,
-      newRole: updated.role,
+      oldRole: user.tipo_usuario,
+      newRole: updated.tipo_usuario,
     }).catch(() => { /* fire-and-forget */ })
 
-    // DTO DDD: Prisma `role` → `tipo_usuario`, `email_usuario` → `email`
-    const { role: updRole, email_usuario, ...updRest } = updated
-    res.json({ user: { ...updRest, tipo_usuario: updRole, email: email_usuario } })
+    // DTO DDD: Prisma `email_usuario` → `email`
+    const { email_usuario, ...updRest } = updated
+    res.json({ user: { ...updRest, email: email_usuario } })
   } catch (err) {
     next(err)
   }
@@ -1337,7 +1336,7 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
         clerk_user_id: `pending_${invitation.id}`,
         email_usuario: email,
         nome_usuario:  name,
-        role,
+        tipo_usuario:  role,
       },
     })
 
@@ -1352,13 +1351,13 @@ adminRouter.post('/usuarios-globais/invite', async (req, res, next) => {
       resource_id: user.id,
       action: 'USER_INVITED',
       action_detail: `Convite enviado — role=${role}`,
-      after: { email: user.email_usuario, role: user.role },
+      after: { email: user.email_usuario, role: user.tipo_usuario },
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email_usuario, tipo_usuario: user.role },
+      user: { id: user.id, email: user.email_usuario, tipo_usuario: user.tipo_usuario },
     })
   } catch (err) {
     next(err)

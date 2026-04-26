@@ -31,7 +31,7 @@ async function main() {
 
   const user = await prisma.usuario.findFirst({
     where: { email_usuario: email },
-    select: { id: true, email_usuario: true, role: true, clerk_user_id: true, tenant_id: true },
+    select: { id: true, email_usuario: true, tipo_usuario: true, clerk_user_id: true, tenant_id: true },
   })
 
   if (!user) {
@@ -42,7 +42,7 @@ async function main() {
   console.log(`\nAntes:`)
   console.log(`  id:            ${user.id}`)
   console.log(`  email:         ${user.email_usuario}`)
-  console.log(`  role:          ${user.role}`)
+  console.log(`  role:          ${user.tipo_usuario}`)
   console.log(`  tenant_id:     ${user.tenant_id}`)
   console.log(`  clerk_user_id: ${user.clerk_user_id}`)
 

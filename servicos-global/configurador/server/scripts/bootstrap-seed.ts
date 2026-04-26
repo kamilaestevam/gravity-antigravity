@@ -67,7 +67,7 @@ async function main() {
   const existing = await prisma.usuario.findFirst({ where: { email_usuario: email } })
 
   if (existing) {
-    console.log(`  ✔ Usuário já existe: ${existing.email_usuario} | ${existing.role} | tenant: ${existing.tenant_id}`)
+    console.log(`  ✔ Usuário já existe: ${existing.email_usuario} | ${existing.tipo_usuario} | tenant: ${existing.tenant_id}`)
     console.log('\n  Nada criado. O banco já tem dados de bootstrap.\n')
     return
   }
@@ -76,7 +76,7 @@ async function main() {
     data: {
       email_usuario: email,
       nome_usuario:  name,
-      role:          'SUPER_ADMIN',
+      tipo_usuario:  'SUPER_ADMIN',
       tenant_id:     org.id_organizacao,
       clerk_user_id: `bootstrap_${Date.now()}`,
     },
@@ -85,7 +85,7 @@ async function main() {
   console.log(`  ✔ Usuário criado:`)
   console.log(`      id:        ${user.id}`)
   console.log(`      email:     ${user.email_usuario}`)
-  console.log(`      role:      ${user.role}`)
+  console.log(`      role:      ${user.tipo_usuario}`)
   console.log(`      tenant_id: ${user.tenant_id}`)
 
   console.log(`

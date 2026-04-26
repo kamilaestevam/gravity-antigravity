@@ -23,13 +23,13 @@ export const permissionsService = {
     // Busca usuário e sua role global
     const user = await prisma.usuario.findFirst({
       where: { id: userId, tenant_id: tenantId },
-      select: { role: true },
+      select: { tipo_usuario: true },
     })
 
     if (!user) return false
 
     // 1. Cadeia 1 — Roles Globais (Acesso total)
-    if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN' || user.role === 'MASTER') {
+    if (user.tipo_usuario === 'SUPER_ADMIN' || user.tipo_usuario === 'ADMIN' || user.tipo_usuario === 'MASTER') {
       return true
     }
 

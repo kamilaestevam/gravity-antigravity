@@ -22,7 +22,7 @@ async function main() {
 
   const existing = await prisma.usuario.findFirst({ where: { email_usuario: email } })
   if (existing) {
-    console.log(`Usuário já existe: ${existing.email_usuario} | role: ${existing.role} | tenant: ${existing.tenant_id}`)
+    console.log(`Usuário já existe: ${existing.email_usuario} | role: ${existing.tipo_usuario} | tenant: ${existing.tenant_id}`)
     process.exit(0)
   }
 
@@ -36,7 +36,7 @@ async function main() {
     data: {
       email_usuario: email,
       nome_usuario:  email.split('@')[0],
-      role,
+      tipo_usuario:  role,
       tenant_id: tenantId,
       clerk_user_id: `pending_${Date.now()}`,  // será auto-vinculado no primeiro login
     },
@@ -45,7 +45,7 @@ async function main() {
   console.log(`\n✓ Usuário criado:`)
   console.log(`  ID:       ${user.id}`)
   console.log(`  Email:    ${user.email_usuario}`)
-  console.log(`  Role:     ${user.role}`)
+  console.log(`  Role:     ${user.tipo_usuario}`)
   console.log(`  Organizacao:   ${user.tenant_id}`)
   console.log(`\nQuando fizer login, o requireAuth vai auto-vincular o clerk_user_id pelo email.`)
 }

@@ -59,7 +59,7 @@ usersRouter.get('/', async (req, res, next) => {
         id: true,
         nome_usuario: true,
         email_usuario: true,
-        role: true,
+        tipo_usuario: true,
         data_criacao_usuario: true,
         memberships: {
           select: {
@@ -73,9 +73,8 @@ usersRouter.get('/', async (req, res, next) => {
       orderBy: { data_criacao_usuario: 'desc' },
     })
     // DTO DDD: Prisma `role` → `tipo_usuario`, `data_criacao_usuario` → `created_at`, `email_usuario` → `email`
-    const usuarios = users.map(({ role, memberships, data_criacao_usuario, email_usuario, nome_usuario, ...rest }) => ({
+    const usuarios = users.map(({ memberships, data_criacao_usuario, email_usuario, nome_usuario, ...rest }) => ({
       ...rest,
-      tipo_usuario: role,
       created_at: data_criacao_usuario,
       email: email_usuario,
       name: nome_usuario,
@@ -156,7 +155,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
           clerk_user_id: `pending_${invitation.id}`,
           email_usuario: email,
           nome_usuario:  name,
-          role,
+          tipo_usuario: role,
         },
       })
 
@@ -178,7 +177,7 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
 
     res.status(201).json({
       message: 'Convite enviado com sucesso',
-      user: { id: user.id, email: user.email_usuario, tipo_usuario: user.role },
+      user: { id: user.id, email: user.email_usuario, tipo_usuario: user.tipo_usuario },
     })
   } catch (err) {
     next(err)
@@ -299,10 +298,10 @@ usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => 
 
     const user = await prisma.usuario.findFirst({
       where: { id: userId, tenant_id: req.auth.tenantId },
-      select: { id: true, role: true },
+      select: { id: true, tipo_usuario: true },
     })
     if (!user) throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
-    if (user.role === 'MASTER') {
+    if (user.tipo_usuario === 'MASTER') {
       throw new AppError('Usuário Master tem acesso a todos os workspaces automaticamente', 400, 'INVALID_OPERATION')
     }
 
@@ -312,7 +311,7 @@ usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => 
       .findMany({ where: { tenant_id: req.auth.tenantId, user_id: userId }, select: { company_id: true } })
       .then((ws) => ws.map((w) => w.company_id))
 
-    await substituirWorkspacesAtomicamente(req.auth.tenantId, userId, workspaceIds, user.role)
+    await substituirWorkspacesAtomicamente(req.auth.tenantId, userId, workspaceIds, user.tipo_usuario)
 
     const adicionados = workspaceIds.filter((id) => !antesIds.includes(id))
     const removidos = antesIds.filter((id) => !workspaceIds.includes(id))
@@ -346,7 +345,7 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
 
     const user = await prisma.usuario.findFirst({
       where: { id: req.params.id, tenant_id: req.auth.tenantId },
-      select: { id: true, clerk_user_id: true, role: true },
+      select: { id: true, clerk_user_id: true, tipo_usuario: true },
     })
     if (!user) {
       throw new AppError('Usuário não encontrado', 404, 'NOT_FOUND')
@@ -354,19 +353,19 @@ usersRouter.patch('/:id/role', requireMasterRole, async (req, res, next) => {
 
     const updated = await prisma.usuario.update({
       where: { id: req.params.id, tenant_id: req.auth.tenantId },
-      data: { role: parsed.data.role },
-      select: { id: true, email_usuario: true, role: true },
+      data: { tipo_usuario: parsed.data.role },
+      select: { id: true, email_usuario: true, tipo_usuario: true },
     })
 
     securityAudit.roleChanged(req.auth.tenantId, req.auth.userId, {
       targetUserId: req.params.id,
-      oldRole: user.role,
+      oldRole: user.tipo_usuario,
       newRole: parsed.data.role,
     }).catch(() => {})
 
-    // DTO DDD: Prisma `role` → `tipo_usuario`, `email_usuario` → `email`
-    const { role, email_usuario, ...rest } = updated
-    res.json({ user: { ...rest, tipo_usuario: role, email: email_usuario } })
+    // DTO DDD: Prisma `email_usuario` → `email`
+    const { email_usuario, ...rest } = updated
+    res.json({ user: { ...rest, email: email_usuario } })
   } catch (err) {
     next(err)
   }

@@ -110,7 +110,7 @@ model Usuario {
   clerk_user_id String   @unique
   email_usuario String
   nome_usuario  String
-  role          UsuarioTipo @default(PADRAO) @map("tipo_usuario")
+  tipo_usuario  UsuarioTipo @default(PADRAO)
 
   // Workspace preferido — skip pós-login para Master/Standard
   // Supplier ignora este campo (fornecedor cross-tenant sempre vê tela de seleção)
@@ -131,7 +131,7 @@ model Usuario {
   // Índices obrigatórios (tenant_id base + compostos)
   @@index([tenant_id])
   @@index([tenant_id, data_criacao_usuario])
-  @@index([tenant_id, role])
+  @@index([tenant_id, tipo_usuario])
   @@index([preferred_company_id])
   @@map("usuario")
 }

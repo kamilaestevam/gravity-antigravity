@@ -20,9 +20,9 @@ export async function isGravityAdmin(clerkUserId: string): Promise<boolean> {
     const { prisma } = await import('./prisma.js')
     const usuario = await prisma.usuario.findFirst({
       where: { clerk_user_id: clerkUserId },
-      select: { role: true },
+      select: { tipo_usuario: true },
     })
-    return usuario?.role === 'SUPER_ADMIN' || usuario?.role === 'ADMIN'
+    return usuario?.tipo_usuario === 'SUPER_ADMIN' || usuario?.tipo_usuario === 'ADMIN'
   } catch {
     return false
   }

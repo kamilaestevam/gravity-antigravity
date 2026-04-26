@@ -21,8 +21,8 @@ const isoPaisRegex = /^[A-Z]{2}$/
 
 export const CreateTenantSchema = z
   .object({
-    name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
-    slug: z
+    nome_organizacao: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
+    subdominio_organizacao: z
       .string()
       .min(2)
       .regex(/^[a-z0-9-]+$/, 'Slug deve ser lowercase alfanumérico com hifens'),
@@ -58,7 +58,7 @@ export const CreateTenantSchema = z
   })
 
 const UpdateTenantSchema = z.object({
-  name: z.string().min(2).optional(),
+  nome_organizacao: z.string().min(2).optional(),
   cnpj_organizacao: z.string().optional(),
   estado_organizacao: z.string().optional(),
   cidade_organizacao: z.string().optional(),

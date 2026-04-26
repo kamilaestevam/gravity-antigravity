@@ -67,9 +67,9 @@ enum APITokenServico {
 
 model Organizacao {
   id                 String       @id @default(cuid()) @map("id_organizacao")
-  name               String       @map("nome_organizacao")
-  slug               String       @unique @map("subdominio_organizacao")
-  status             OrganizacaoStatus @default(CONFIGURACAO_PENDENTE) @map("status_organizacao")
+  nome_organizacao         String
+  subdominio_organizacao   String       @unique
+  status_organizacao       OrganizacaoStatus @default(CONFIGURACAO_PENDENTE)
   clerk_org_id       String?      @unique
   stripe_customer_id String?      @unique
   suid_empresa_organizacao String?      @unique
@@ -93,8 +93,8 @@ model Organizacao {
   product_configs         ConfiguracaoProduto[]
   ProdutoGravityWorkspace ProdutoGravityWorkspace[]
 
-  @@index([status])
-  @@index([slug])
+  @@index([status_organizacao])
+  @@index([subdominio_organizacao])
   @@map("organizacao")
 }
 

@@ -6,8 +6,8 @@ import { describe, it, expect } from 'vitest'
 import { CreateTenantSchema } from '../routes/tenants.js'
 
 const baseInput = {
-  name: 'Empresa Exemplo',
-  slug: 'empresa-exemplo',
+  nome_organizacao: 'Empresa Exemplo',
+  subdominio_organizacao: 'empresa-exemplo',
   clerkUserId: 'user_clerk_123',
   owner: { email: 'owner@exemplo.com', name: 'Owner' },
 }
@@ -98,13 +98,13 @@ describe('CreateTenantSchema — validação BR / CNPJ', () => {
   it('rejeita slug com caracteres inválidos', () => {
     const parsed = CreateTenantSchema.safeParse({
       ...baseInput,
-      slug: 'Empresa Exemplo!',
+      subdominio_organizacao: 'Empresa Exemplo!',
       pais: 'BR',
       cnpj_organizacao: '12.345.678/0001-99',
     })
     expect(parsed.success).toBe(false)
     if (!parsed.success) {
-      const erro = parsed.error.errors.find((e) => e.path.includes('slug'))
+      const erro = parsed.error.errors.find((e) => e.path.includes('subdominio_organizacao'))
       expect(erro?.message).toMatch(/lowercase alfanumérico/)
     }
   })

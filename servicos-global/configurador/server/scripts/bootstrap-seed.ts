@@ -48,19 +48,19 @@ async function main() {
   console.log(`  DB: ${process.env.CONFIGURADOR_DATABASE_URL?.replace(/:[^:@]+@/, ':***@')}\n`)
 
   // ── 1. Organizacao ───────────────────────────────────────────────────────────
-  let org = await prisma.organizacao.findFirst({ where: { slug: ORG_SLUG } })
+  let org = await prisma.organizacao.findFirst({ where: { subdominio_organizacao: ORG_SLUG } })
 
   if (org) {
-    console.log(`  ✔ Organizacao já existe: ${org.name} (${org.id})`)
+    console.log(`  ✔ Organizacao já existe: ${org.nome_organizacao} (${org.id})`)
   } else {
     org = await prisma.organizacao.create({
       data: {
-        name:   ORG_NAME,
-        slug:   ORG_SLUG,
-        status: 'ATIVO',
+        nome_organizacao:       ORG_NAME,
+        subdominio_organizacao: ORG_SLUG,
+        status_organizacao:     'ATIVO',
       },
     })
-    console.log(`  ✔ Organizacao criada: ${org.name} → ${org.id}`)
+    console.log(`  ✔ Organizacao criada: ${org.nome_organizacao} → ${org.id}`)
   }
 
   // ── 2. Usuario SUPER_ADMIN ───────────────────────────────────────────────────

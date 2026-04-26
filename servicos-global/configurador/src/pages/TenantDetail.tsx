@@ -135,9 +135,9 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
         const t = res.tenant
         const mapped: TenantMock = {
           id: t.id,
-          name: t.name,
-          slug: t.slug,
-          status: mapStatus(t.status),
+          name: t.nome_organizacao,
+          slug: t.subdominio_organizacao,
+          status: mapStatus(t.status_organizacao),
           created_at: t.created_at,
           _count: t._count ?? { users: 0, companies: 0 },
           subscriptions: (t.subscriptions ?? []).map((s: { plan: string; status: string }) => ({
@@ -147,7 +147,7 @@ export function TenantDetail({ tenantId, onBack }: { tenantId: string; onBack: (
           workspaces: (t.companies ?? []).map((c: { id: string; name: string; subdomain: string | null; status: string }) => ({
             id: c.id,
             nome: c.name,
-            subdominio: c.subdomain ?? t.slug,
+            subdominio: c.subdomain ?? t.subdominio_organizacao,
             status: mapStatus(c.status),
             usuarios: 0,
             plano: (t.subscriptions ?? []).map((s: { plan: string }) => s.plan).join(', ') || 'N/A',

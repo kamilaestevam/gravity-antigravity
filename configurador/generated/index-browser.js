@@ -124,9 +124,9 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.OrganizacaoScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  slug: 'slug',
-  status: 'status',
+  nome_organizacao: 'nome_organizacao',
+  subdominio_organizacao: 'subdominio_organizacao',
+  status_organizacao: 'status_organizacao',
   clerk_org_id: 'clerk_org_id',
   stripe_customer_id: 'stripe_customer_id',
   suid_empresa_organizacao: 'suid_empresa_organizacao',

@@ -51,8 +51,8 @@ vi.stubGlobal('fetch', fetchMock)
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const INPUT_BASE = {
-  name: 'Empresa Teste',
-  slug: 'empresa-teste',
+  nome_organizacao: 'Empresa Teste',
+  subdominio_organizacao: 'empresa-teste',
   clerkUserId: 'clerk_user_123',
   owner: { email: 'owner@teste.com', name: 'Owner' },
   cnpj_organizacao: '12.345.678/0001-99',
@@ -123,8 +123,8 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
     prismaMock.$transaction.mockImplementation(async (cb: (tx: typeof prismaMock) => unknown) => {
       prismaMock.organizacao.create.mockResolvedValueOnce({
         id: 'new-id',
-        name: INPUT_BASE.name,
-        slug: INPUT_BASE.slug,
+        nome_organizacao: INPUT_BASE.nome_organizacao,
+        subdominio_organizacao: INPUT_BASE.subdominio_organizacao,
         suid_empresa_organizacao: suid,
       })
       prismaMock.usuario.create.mockResolvedValueOnce({ id: 'user-id' })
@@ -231,7 +231,7 @@ describe('tenantService.createTenant — saga Cadastros-primeiro', () => {
   })
 
   it('rejeita cedo quando slug já existe (nenhuma chamada a Cadastros)', async () => {
-    prismaMock.organizacao.findUnique.mockResolvedValueOnce({ id: 'existente', slug: INPUT_BASE.slug })
+    prismaMock.organizacao.findUnique.mockResolvedValueOnce({ id: 'existente', subdominio_organizacao: INPUT_BASE.subdominio_organizacao })
 
     await expect(tenantService.createTenant({ ...INPUT_BASE })).rejects.toThrow(
       /slug já está em uso/,

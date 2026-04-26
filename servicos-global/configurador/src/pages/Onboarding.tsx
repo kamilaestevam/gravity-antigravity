@@ -76,8 +76,8 @@ export function Onboarding() {
         .replace(/^-|-$/g, '')
 
       const payload = {
-        name: companyName,
-        slug,
+        nome_organizacao: companyName,
+        subdominio_organizacao: slug,
         clerkUserId: user?.id ?? '',
         owner: {
           email: user?.primaryEmailAddress?.emailAddress ?? '',

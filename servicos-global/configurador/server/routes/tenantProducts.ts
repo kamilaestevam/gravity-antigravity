@@ -137,7 +137,7 @@ tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin
   try {
     const tenant = await prisma.organizacao.findUnique({
       where: { id: req.params.tenantId },
-      select: { id: true, name: true },
+      select: { id: true, nome_organizacao: true },
     })
     if (!tenant) {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
@@ -148,7 +148,7 @@ tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin
       orderBy: { created_at: 'desc' },
     })
 
-    res.json({ tenant_id: tenant.id, tenant_name: tenant.name, products: configs })
+    res.json({ tenant_id: tenant.id, tenant_name: tenant.nome_organizacao, products: configs })
   } catch (err) {
     next(err)
   }

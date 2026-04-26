@@ -24,7 +24,7 @@ async function main() {
   console.log('🧹 Limpando tenants de seed...\n')
 
   for (const slug of SLUGS_TO_DELETE) {
-    const tenant = await prisma.organizacao.findUnique({ where: { slug } })
+    const tenant = await prisma.organizacao.findUnique({ where: { subdominio_organizacao: slug } })
 
     if (!tenant) {
       console.log(`⚠  ${slug} — não encontrado, pulando`)

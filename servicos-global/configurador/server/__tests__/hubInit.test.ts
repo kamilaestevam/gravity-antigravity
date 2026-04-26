@@ -30,9 +30,9 @@ vi.mock('../lib/prisma.js', () => ({
 const tenantServiceMock = {
   getTenantById: vi.fn().mockResolvedValue({
     id: 'tenant-001',
-    name: 'Acme Corp',
-    slug: 'acme',
-    status: 'ATIVO',
+    nome_organizacao: 'Acme Corp',
+    subdominio_organizacao: 'acme',
+    status_organizacao: 'ATIVO',
   }),
   getCompanies: vi.fn().mockResolvedValue([
     { id: 'comp-001', name: 'Filial SP', status: 'ATIVO' },

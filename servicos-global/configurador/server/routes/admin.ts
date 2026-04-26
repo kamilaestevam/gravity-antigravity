@@ -45,15 +45,15 @@ adminRouter.use(requireAuth, requireGravityAdmin)
 adminRouter.use('/financeiro-admin', rateLimitPresets.admin())
 
 const UpdateTenantSchema = z.object({
-  status: z.enum(['ATIVO', 'SUSPENSO', 'CANCELADO', 'CONFIGURACAO_PENDENTE']).optional(),
-  name: z.string().min(2).max(200).optional(),
-  slug: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido').optional(),
+  status_organizacao: z.enum(['ATIVO', 'SUSPENSO', 'CANCELADO', 'CONFIGURACAO_PENDENTE']).optional(),
+  nome_organizacao: z.string().min(2).max(200).optional(),
+  subdominio_organizacao: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido').optional(),
   note: z.string().optional(),
 })
 
 const CreateTenantSchema = z.object({
-  name: z.string().min(2).max(200),
-  slug: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido'),
+  nome_organizacao: z.string().min(2).max(200),
+  subdominio_organizacao: z.string().min(2).max(100).regex(/^[a-z][a-z0-9-]*$/, 'Subdomínio inválido'),
   plano: z.string().max(100).optional(),
   cnpj_organizacao: z.string().max(20).optional(),
 })
@@ -76,8 +76,8 @@ adminRouter.get('/tenants', async (req, res, next) => {
     const where = search
       ? {
           OR: [
-            { name: { contains: search, mode: 'insensitive' as const } },
-            { slug: { contains: search, mode: 'insensitive' as const } },
+            { nome_organizacao: { contains: search, mode: 'insensitive' as const } },
+            { subdominio_organizacao: { contains: search, mode: 'insensitive' as const } },
           ],
         }
       : {}
@@ -89,9 +89,9 @@ adminRouter.get('/tenants', async (req, res, next) => {
         take: limit,
         select: {
           id: true,
-          name: true,
-          slug: true,
-          status: true,
+          nome_organizacao: true,
+          subdominio_organizacao: true,
+          status_organizacao: true,
           created_at: true,
           _count: { select: { users: true, companies: true } },
           subscriptions: {
@@ -202,11 +202,11 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
     const tenant = await prisma.organizacao.update({
       where: { id: req.params.id },
       data: {
-        ...(parsed.data.status && { status: parsed.data.status }),
-        ...(parsed.data.name && { name: parsed.data.name.trim() }),
-        ...(parsed.data.slug && { slug: parsed.data.slug }),
+        ...(parsed.data.status_organizacao && { status_organizacao: parsed.data.status_organizacao }),
+        ...(parsed.data.nome_organizacao && { nome_organizacao: parsed.data.nome_organizacao.trim() }),
+        ...(parsed.data.subdominio_organizacao && { subdominio_organizacao: parsed.data.subdominio_organizacao }),
       },
-      select: { id: true, name: true, slug: true, status: true },
+      select: { id: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true },
     })
 
     AuditService.log({
@@ -219,9 +219,9 @@ adminRouter.patch('/tenants/:id', async (req, res, next) => {
       resource_type: 'Organizacao',
       resource_id: tenant.id,
       action: 'TENANT_STATUS_CHANGED',
-      action_detail: `Status alterado de ${existing.status} para ${tenant.status}`,
-      before: { status: existing.status },
-      after: { status: tenant.status },
+      action_detail: `Status alterado de ${existing.status_organizacao} para ${tenant.status_organizacao}`,
+      before: { status: existing.status_organizacao },
+      after: { status: tenant.status_organizacao },
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
@@ -242,18 +242,18 @@ adminRouter.post('/tenants', async (req, res, next) => {
       throw new AppError(parsed.error.errors[0]?.message ?? 'Dados inválidos', 400, 'VALIDATION_ERROR')
     }
 
-    const existing = await prisma.organizacao.findUnique({ where: { slug: parsed.data.slug } })
+    const existing = await prisma.organizacao.findUnique({ where: { subdominio_organizacao: parsed.data.subdominio_organizacao } })
     if (existing) throw new AppError('Subdomínio já está em uso', 409, 'CONFLICT')
 
     const tenant = await prisma.organizacao.create({
       data: {
-        name: parsed.data.name.trim(),
-        slug: parsed.data.slug,
-        status: 'ATIVO',
+        nome_organizacao: parsed.data.nome_organizacao.trim(),
+        subdominio_organizacao: parsed.data.subdominio_organizacao,
+        status_organizacao: 'ATIVO',
         ...(parsed.data.cnpj_organizacao && { cnpj_organizacao: parsed.data.cnpj_organizacao }),
       },
       select: {
-        id: true, name: true, slug: true, status: true, created_at: true,
+        id: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, created_at: true,
         _count: { select: { users: true, companies: true } },
       },
     })
@@ -268,8 +268,8 @@ adminRouter.post('/tenants', async (req, res, next) => {
       resource_type: 'Organizacao',
       resource_id: tenant.id,
       action: 'TENANT_CREATED',
-      action_detail: `Organização "${tenant.name}" criada — slug: ${tenant.slug}`,
-      after: { name: tenant.name, slug: tenant.slug, status: tenant.status },
+      action_detail: `Organização "${tenant.nome_organizacao}" criada — slug: ${tenant.subdominio_organizacao}`,
+      after: { nome_organizacao: tenant.nome_organizacao, subdominio_organizacao: tenant.subdominio_organizacao, status_organizacao: tenant.status_organizacao },
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
@@ -337,8 +337,8 @@ adminRouter.get('/stats', async (_req, res, next) => {
       totalUsers,
     ] = await Promise.all([
       prisma.organizacao.count(),
-      prisma.organizacao.count({ where: { status: 'ATIVO' } }),
-      prisma.organizacao.count({ where: { status: 'SUSPENSO' } }),
+      prisma.organizacao.count({ where: { status_organizacao: 'ATIVO' } }),
+      prisma.organizacao.count({ where: { status_organizacao: 'SUSPENSO' } }),
       prisma.usuario.count(),
     ])
 
@@ -396,7 +396,7 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
           created_at: true,
           tenant_id: true,
           tenant: {
-            select: { name: true, slug: true },
+            select: { nome_organizacao: true, subdominio_organizacao: true },
           },
           memberships: {
             where: { is_active: true },
@@ -1145,8 +1145,8 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
       where: { id: user.tenant_id },
       select: {
         id: true,
-        name: true,
-        slug: true,
+        nome_organizacao: true,
+        subdominio_organizacao: true,
         cnpj_organizacao: true,
         estado_organizacao: true,
         cidade_organizacao: true,
@@ -1182,7 +1182,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
  * Atualiza dados cadastrais da plataforma (tenant HQ)
  */
 const PlatformConfigSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
+  nome_organizacao: z.string().min(1).max(200).optional(),
   cnpj_organizacao: z.string().max(20).optional(),
   estado_organizacao: z.string().max(2).optional(),
   cidade_organizacao: z.string().max(200).optional(),
@@ -1342,7 +1342,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
 
     const before = await prisma.organizacao.findUnique({
       where: { id: user.tenant_id },
-      select: { name: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa_organizacao: true },
+      select: { nome_organizacao: true, cnpj_organizacao: true, estado_organizacao: true, cidade_organizacao: true, segmento_organizacao: true, tipo_empresa_organizacao: true },
     })
 
     const tenant = await prisma.organizacao.update({
@@ -1350,8 +1350,8 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
       data: parsed.data,
       select: {
         id: true,
-        name: true,
-        slug: true,
+        nome_organizacao: true,
+        subdominio_organizacao: true,
         cnpj_organizacao: true,
         estado_organizacao: true,
         cidade_organizacao: true,

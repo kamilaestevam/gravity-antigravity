@@ -64,9 +64,9 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         tenant: {
           select: {
             id: true,
-            name: true,
-            slug: true,
-            status: true,
+            nome_organizacao: true,
+            subdominio_organizacao: true,
+            status_organizacao: true,
           },
         },
         memberships: {
@@ -105,9 +105,9 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
       organizacao: usuario.tenant
         ? {
             id_organizacao: usuario.tenant.id,
-            nome_organizacao: usuario.tenant.name,
-            subdominio_organizacao: usuario.tenant.slug,
-            status_organizacao: usuario.tenant.status,
+            nome_organizacao: usuario.tenant.nome_organizacao,
+            subdominio_organizacao: usuario.tenant.subdominio_organizacao,
+            status_organizacao: usuario.tenant.status_organizacao,
           }
         : null,
       workspaces: usuario.memberships.map((m) => ({

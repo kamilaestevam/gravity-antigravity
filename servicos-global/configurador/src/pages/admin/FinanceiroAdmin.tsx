@@ -634,7 +634,7 @@ export function FinanceiroAdmin() {
 
                   <GeralCampoGlobal label="Tenant (Cliente)" obrigatorio>
                     <SelectGlobal
-                      opcoes={tenants.map(tn => ({ valor: tn.id, rotulo: `${tn.name} (${tn.slug})` }))}
+                      opcoes={tenants.map(tn => ({ valor: tn.id, rotulo: `${tn.nome_organizacao} (${tn.subdominio_organizacao})` }))}
                       valor={formTenantId}
                       aoMudarValor={v => { setFormTenantId(v ? String(v) : null); setFormDirty(true) }}
                       iconeEsquerda={<Buildings size={16} />}

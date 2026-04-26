@@ -141,9 +141,9 @@ export interface NegotiationApi {
 
 export interface TenantApi {
   id: string
-  name: string
-  slug: string
-  status: string
+  nome_organizacao: string
+  subdominio_organizacao: string
+  status_organizacao: string
   created_at: string
   _count?: { users: number; companies: number }
   subscriptions?: Array<{ plan: string; status: string }>
@@ -242,21 +242,21 @@ export const adminTenantsApi = {
     return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`)
   },
 
-  async create(data: { name: string; slug: string; plano?: string; cnpj_organizacao?: string }) {
+  async create(data: { nome_organizacao: string; subdominio_organizacao: string; plano?: string; cnpj_organizacao?: string }) {
     return request<{ tenant: TenantApi }>('/admin/tenants', {
       method: 'POST',
       body: JSON.stringify(data),
     })
   },
 
-  async updateStatus(id: string, status: string) {
+  async updateStatus(id: string, status_organizacao: string) {
     return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status_organizacao }),
     })
   },
 
-  async update(id: string, data: { name?: string; slug?: string; plano?: string }) {
+  async update(id: string, data: { nome_organizacao?: string; subdominio_organizacao?: string; plano?: string }) {
     return request<{ tenant: TenantApi }>(`/admin/tenants/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
@@ -291,7 +291,7 @@ export interface GlobalUserApi {
   tipo_usuario: string
   created_at: string
   tenant_id: string
-  tenant: { name: string; slug: string }
+  tenant: { nome_organizacao: string; subdominio_organizacao: string }
   memberships: Array<{
     id: string
     company_id: string
@@ -599,8 +599,8 @@ export const adminTestesApi = {
 
 export interface PlatformConfigApi {
   id: string
-  name: string
-  slug: string
+  nome_organizacao: string
+  subdominio_organizacao: string
   cnpj_organizacao: string | null
   estado_organizacao: string | null
   cidade_organizacao: string | null
@@ -616,7 +616,7 @@ export const adminPlatformApi = {
   },
 
   async updateConfig(data: {
-    name?: string
+    nome_organizacao?: string
     cnpj_organizacao?: string
     estado_organizacao?: string
     cidade_organizacao?: string

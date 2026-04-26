@@ -67,7 +67,7 @@ function mapApiUserToGlobal(u: GlobalUserApi): GlobalUser {
     email: u.email,
     tipo: mapRole(u.tipo_usuario),
     status,
-    organizacao: u.tenant?.name ?? 'N/A',
+    organizacao: u.tenant?.nome_organizacao ?? 'N/A',
     espacos,
   }
 }

@@ -108,14 +108,14 @@ export function VisaoGeralAdmin() {
         if (res.config) {
           const c = res.config
           const loaded: DadosAdmin = {
-            nome: c.name || '',
+            nome: c.nome_organizacao || '',
             cnpj: c.cnpj_organizacao || '',
             estado: c.estado_organizacao || '',
             cidade: c.cidade_organizacao || '',
             segmento: c.segmento_organizacao || '',
             tipo_empresa: c.tipo_empresa_organizacao || '',
             plano: c.subscriptions?.[0]?.plan || 'N/A',
-            subdominio: c.slug || '',
+            subdominio: c.subdominio_organizacao || '',
             criadaEm: c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : '',
           }
           setDados(loaded)
@@ -140,7 +140,7 @@ export function VisaoGeralAdmin() {
     try {
       setSalvando(true)
       await adminPlatformApi.updateConfig({
-        name: dados.nome,
+        nome_organizacao: dados.nome,
         cnpj_organizacao: dados.cnpj,
         estado_organizacao: dados.estado,
         cidade_organizacao: dados.cidade,

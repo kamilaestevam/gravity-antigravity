@@ -56,7 +56,7 @@ async function resolveCustomer(inv: Stripe.Invoice) {
   // Tenta casar com tenant do Gravity
   const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
-    select: { id: true, name: true },
+    select: { id: true, nome_organizacao: true },
   })
 
   // Stripe pode ter customer email direto
@@ -69,7 +69,7 @@ async function resolveCustomer(inv: Stripe.Invoice) {
 
   return {
     id: tenant?.id ?? stripeCustomerId,
-    name: tenant?.name ?? (typeof inv.customer !== 'string' && inv.customer && 'name' in inv.customer
+    name: tenant?.nome_organizacao ?? (typeof inv.customer !== 'string' && inv.customer && 'name' in inv.customer
       ? (inv.customer as Stripe.Customer).name ?? 'Sem nome'
       : 'Órfão (Stripe)'),
     email,
@@ -236,7 +236,7 @@ export class StripeProvider implements BillingProvider {
     // 1. Resolver stripe_customer_id do tenant
     const tenant = await prisma.organizacao.findUnique({
       where: { id: params.customer_tenant_id },
-      select: { id: true, name: true, stripe_customer_id: true },
+      select: { id: true, nome_organizacao: true, stripe_customer_id: true },
     })
 
     if (!tenant) {
@@ -247,7 +247,7 @@ export class StripeProvider implements BillingProvider {
     if (!stripeCustomerId) {
       // Cria customer on-the-fly se o tenant não tinha
       const created = await stripe.customers.create({
-        name: tenant.name,
+        name: tenant.nome_organizacao,
         metadata: { tenant_id: tenant.id },
       })
       stripeCustomerId = created.id

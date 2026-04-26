@@ -140,13 +140,13 @@ export function Organizacao() {
         if (tenantRes.ok) {
           const { tenant } = await tenantRes.json()
           const dadosApi: DadosMae = {
-            nome:       tenant.name ?? '',
+            nome:       tenant.nome_organizacao ?? '',
             cnpj:       tenant.cnpj_organizacao ?? '',
             estado:     tenant.estado_organizacao ?? '',
             cidade:     tenant.cidade_organizacao ?? '',
             segmento:     tenant.segmento_organizacao ?? '',
             tipo_empresa: tenant.tipo_empresa_organizacao ?? '',
-            subdominio: tenant.slug ?? '',
+            subdominio: tenant.subdominio_organizacao ?? '',
             criadaEm:   tenant.created_at
               ? new Date(tenant.created_at).toLocaleDateString('pt-BR')
               : '',

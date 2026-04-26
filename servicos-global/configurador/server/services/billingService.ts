@@ -52,7 +52,7 @@ export const billingService = {
           }),
           prisma.organizacao.update({
             where: { id: tenantId },
-            data: { status: 'ATIVO' },
+            data: { status_organizacao: 'ATIVO' },
           }),
         ])
         break
@@ -93,7 +93,7 @@ export const billingService = {
           }),
           prisma.organizacao.update({
             where: { id: tenantRow.id },
-            data: { status: 'SUSPENSO' },
+            data: { status_organizacao: 'SUSPENSO' },
           }),
         ])
         break
@@ -139,7 +139,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
 
   const tenant = await prisma.organizacao.findFirst({
     where: { stripe_customer_id: stripeCustomerId },
-    select: { id: true, name: true, cnpj_organizacao: true },
+    select: { id: true, nome_organizacao: true, cnpj_organizacao: true },
   })
   if (!tenant) {
     log.warn('invoice.paid — tenant não encontrado pelo stripe_customer_id', {
@@ -176,7 +176,7 @@ async function handleInvoicePaid(inv: Stripe.Invoice): Promise<void> {
       reference_id: inv.id,
       tomador: {
         cnpj_cpf: tenant.cnpj_organizacao.replace(/\D/g, ''),
-        razao_social: tenant.name,
+        razao_social: tenant.nome_organizacao,
         email: inv.customer_email ?? undefined,
       },
       servico: {

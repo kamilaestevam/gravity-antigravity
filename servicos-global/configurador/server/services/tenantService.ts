@@ -10,8 +10,8 @@ import { criarEmpresa, compensarEmpresa } from './cadastrosClient.js'
 const log = logger.child({ module: 'tenant-service' })
 
 interface CreateTenantInput {
-  name: string
-  slug: string
+  nome_organizacao: string
+  subdominio_organizacao: string
   clerkUserId: string
   owner: { email: string; name: string }
   cnpj_organizacao?: string
@@ -49,8 +49,8 @@ export const tenantService = {
    */
   async createTenant(input: CreateTenantInput) {
     const {
-      name,
-      slug,
+      nome_organizacao,
+      subdominio_organizacao,
       clerkUserId,
       owner,
       cnpj_organizacao,
@@ -59,7 +59,7 @@ export const tenantService = {
     } = input
 
     // 1. Pré-checks fora da transação (fail fast)
-    const existingSlug = await prisma.organizacao.findUnique({ where: { slug } })
+    const existingSlug = await prisma.organizacao.findUnique({ where: { subdominio_organizacao } })
     if (existingSlug) {
       throw new AppError('Este slug já está em uso', 409, 'CONFLICT')
     }
@@ -80,7 +80,7 @@ export const tenantService = {
     log.info('saga.onboarding.start', {
       correlation_id: correlationId,
       id_organizacao: newOrgId,
-      slug,
+      subdominio_organizacao,
       pais,
     })
 
@@ -88,7 +88,7 @@ export const tenantService = {
     const empresaCadastros = await criarEmpresa(
       {
         id_organizacao: newOrgId,
-        nome_empresa: name,
+        nome_empresa: nome_organizacao,
         cnpj: pais === 'BR' ? cnpj_organizacao ?? null : null,
         pais,
         pode_ser_importador: true,
@@ -109,9 +109,9 @@ export const tenantService = {
         const newTenant = await tx.organizacao.create({
           data: {
             id: newOrgId,
-            name,
-            slug,
-            status: 'CONFIGURACAO_PENDENTE',
+            nome_organizacao,
+            subdominio_organizacao,
+            status_organizacao: 'CONFIGURACAO_PENDENTE',
             suid_empresa_organizacao: suid,
             cnpj_organizacao: pais === 'BR' ? cnpj_organizacao ?? null : null,
           },
@@ -140,7 +140,7 @@ export const tenantService = {
         await tx.empresa.create({
           data: {
             tenant_id: newTenant.id,
-            name,
+            name: nome_organizacao,
             status: 'ATIVO',
           },
         })
@@ -189,7 +189,7 @@ export const tenantService = {
    * Atualiza dados cadastrais do tenant
    */
   async updateTenant(tenantId: string, data: {
-    name?: string
+    nome_organizacao?: string
     cnpj_organizacao?: string
     estado_organizacao?: string
     cidade_organizacao?: string

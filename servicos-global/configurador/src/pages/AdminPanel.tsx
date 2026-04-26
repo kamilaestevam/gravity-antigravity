@@ -113,9 +113,9 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       // Mapeia dados do backend para formato do frontend
       const mapped: Tenant[] = tenantsRes.tenants.map((t: TenantApi) => ({
         id: t.id,
-        name: t.name,
-        slug: t.slug,
-        status: mapTenantStatus(t.status),
+        name: t.nome_organizacao,
+        slug: t.subdominio_organizacao,
+        status: mapTenantStatus(t.status_organizacao),
         created_at: t.created_at,
         _count: t._count ?? { users: 0, companies: 0 },
         subscriptions: (t.subscriptions ?? []).map((s: { plan: string; status: string }) => ({
@@ -198,16 +198,16 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
   async function handleSalvarOrg(dados: DadosNovaOrg) {
     try {
       const { tenant } = await adminTenantsApi.create({
-        name: dados.nome,
-        slug: dados.subdominio,
+        nome_organizacao: dados.nome,
+        subdominio_organizacao: dados.subdominio,
         plano: dados.plano,
         cnpj_organizacao: dados.cnpj || undefined,
       })
       const novo: Tenant = {
         id: tenant.id,
-        name: tenant.name,
-        slug: tenant.slug,
-        status: mapTenantStatus(tenant.status),
+        name: tenant.nome_organizacao,
+        slug: tenant.subdominio_organizacao,
+        status: mapTenantStatus(tenant.status_organizacao),
         created_at: tenant.created_at,
         _count: tenant._count ?? { users: 0, companies: 0 },
         subscriptions: dados.plano ? [{ plan: dados.plano, status: 'ATIVA' }] : [],
@@ -216,7 +216,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
       setTenants(prev => [novo, ...prev])
       setStats(prev => prev ? { ...prev, totalTenants: prev.totalTenants + 1, activeTenants: prev.activeTenants + 1 } : null)
       setShowNovaOrg(false)
-      addNotification({ type: 'success', message: `Organização "${tenant.name}" criada com sucesso!` })
+      addNotification({ type: 'success', message: `Organização "${tenant.nome_organizacao}" criada com sucesso!` })
     } catch (err) {
       addNotification({ type: 'error', message: err instanceof Error ? err.message : 'Erro ao criar organização.' })
     }
@@ -230,8 +230,8 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
     if (!orgEditando) return
     try {
       await adminTenantsApi.update(orgEditando.id, {
-        name: dados.nome,
-        slug: dados.subdominio,
+        nome_organizacao: dados.nome,
+        subdominio_organizacao: dados.subdominio,
         plano: dados.plano,
       })
       setTenants(prev => prev.map(t => {

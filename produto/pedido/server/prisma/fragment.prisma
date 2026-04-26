@@ -529,16 +529,16 @@ model TrackingItemsTransferidos {
 }
 
 model ColunaUsuarioPedido {
-  id               String                     @id @default(cuid())
-  tenant_id        String
-  product_id       String?
-  nome             String
-  chave            String
-  tipo             String
-  escopo           String
-  visibilidade     String
-  roles_permitidas String[]                   @default([])
-  obrigatorio      Boolean                    @default(false)
+  id_coluna_usuario_pedido          String                     @id @default(cuid())
+  id_organizacao                    String
+  id_produto_gravity                String?
+  nome_coluna_usuario_pedido        String
+  chave_coluna_usuario_pedido       String
+  tipo_coluna_usuario_pedido        String
+  escopo_coluna_usuario_pedido      String
+  visibilidade_coluna_usuario_pedido String
+  tipos_usuario_workspace_permitidos_coluna_usuario_pedido String[] @default([])
+  obrigatorio_coluna_usuario_pedido Boolean                    @default(false)
   opcoes           String[]                   @default([])
   descricao        String?
   valor_padrao     String?
@@ -549,10 +549,10 @@ model ColunaUsuarioPedido {
   updated_at       DateTime                   @updatedAt
   valores          PedidoValorColunaUsuario[]
 
-  @@unique([tenant_id, chave])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, ativo])
+  @@unique([id_organizacao, chave_coluna_usuario_pedido])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, ativo])
   @@map("coluna_usuario_pedido")
 }
 
@@ -564,7 +564,7 @@ model PedidoValorColunaUsuario {
   vinculo_valor_coluna_usuario_pedido       String
   id_vinculo_valor_coluna_usuario_pedido    String
   valor_coluna_usuario_pedido               String
-  coluna_valor_coluna_usuario_pedido        ColunaUsuarioPedido @relation(fields: [id_coluna_usuario_pedido], references: [id])
+  coluna_valor_coluna_usuario_pedido        ColunaUsuarioPedido @relation(fields: [id_coluna_usuario_pedido], references: [id_coluna_usuario_pedido])
 
   @@unique([id_organizacao, id_coluna_usuario_pedido, id_vinculo_valor_coluna_usuario_pedido])
   @@index([id_organizacao])

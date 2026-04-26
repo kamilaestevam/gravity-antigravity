@@ -435,14 +435,14 @@ model PedidoPreferenciaUsuario {
 }
 
 model PedidoPreferenciaPadrao {
-  id               String   @id @default(cuid())
-  tenant_id        String   @unique
-  company_id       String?
-  colunas_visiveis String[]
-  colunas_largura  Json?
-  updated_at       DateTime @updatedAt
+  id_pedido_preferencia_padrao                String   @id @default(cuid())
+  id_organizacao                              String   @unique
+  id_workspace                                String?
+  colunas_visiveis_pedido_preferencia_padrao  String[]
+  colunas_largura_pedido_preferencia_padrao   Json?
+  data_atualizacao_pedido_preferencia_padrao  DateTime @updatedAt
 
-  @@index([tenant_id])
+  @@index([id_organizacao])
   @@map("preferencia_padrao_pedido")
 }
 

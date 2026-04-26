@@ -507,7 +507,7 @@ pedidosConfigRouter.get('/preferencias/usuario', async (req: Request, res: Respo
       // Busca preferências do usuário e do workspace em paralelo (evita 2 queries sequenciais)
       const [preferencia, padrao] = await Promise.all([
         db.pedidoPreferenciaUsuario.findFirst({ where: { id_organizacao: tenant_id, id_usuario: user_id } }),
-        db.pedidoPreferenciaPadrao.findFirst({ where: { tenant_id } }),
+        db.pedidoPreferenciaPadrao.findFirst({ where: { id_organizacao: tenant_id } }),
       ])
 
       const preferenciaContract = preferencia ? {
@@ -516,7 +516,13 @@ pedidosConfigRouter.get('/preferencias/usuario', async (req: Request, res: Respo
         colunas_largura:  preferencia.colunas_largura_pedido_preferencia_usuario,
       } : null
 
-      res.json(preferenciaContract ?? padrao ?? null)
+      const padraoContract = padrao ? {
+        ...padrao,
+        colunas_visiveis: padrao.colunas_visiveis_pedido_preferencia_padrao,
+        colunas_largura:  padrao.colunas_largura_pedido_preferencia_padrao,
+      } : null
+
+      res.json(preferenciaContract ?? padraoContract ?? null)
     })
   } catch (err) {
     next(err)
@@ -575,10 +581,16 @@ pedidosConfigRouter.get('/preferencias/padrao', async (req: Request, res: Respon
       const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
       const padrao = await db.pedidoPreferenciaPadrao.findFirst({
-        where: { tenant_id },
+        where: { id_organizacao: tenant_id },
       })
 
-      res.json({ data: padrao ?? null })
+      const padraoContract = padrao ? {
+        ...padrao,
+        colunas_visiveis: padrao.colunas_visiveis_pedido_preferencia_padrao,
+        colunas_largura:  padrao.colunas_largura_pedido_preferencia_padrao,
+      } : null
+
+      res.json({ data: padraoContract })
     })
   } catch (err) {
     next(err)
@@ -685,20 +697,26 @@ pedidosConfigRouter.put('/preferencias/padrao', async (req: Request, res: Respon
       const company_id = getCompanyId(req)
 
       const padrao = await db.pedidoPreferenciaPadrao.upsert({
-        where: { tenant_id },
+        where: { id_organizacao: tenant_id },
         update: {
-          colunas_visiveis: result.data.colunas_visiveis,
-          colunas_largura: result.data.colunas_largura ?? undefined,
+          colunas_visiveis_pedido_preferencia_padrao: result.data.colunas_visiveis,
+          colunas_largura_pedido_preferencia_padrao: result.data.colunas_largura ?? undefined,
         },
         create: {
-          tenant_id,
-          company_id: company_id ?? null,
-          colunas_visiveis: result.data.colunas_visiveis,
-          colunas_largura: result.data.colunas_largura ?? undefined,
+          id_organizacao: tenant_id,
+          id_workspace: company_id ?? null,
+          colunas_visiveis_pedido_preferencia_padrao: result.data.colunas_visiveis,
+          colunas_largura_pedido_preferencia_padrao: result.data.colunas_largura ?? undefined,
         },
       })
 
-      res.json(padrao)
+      const padraoContract = {
+        ...padrao,
+        colunas_visiveis: padrao.colunas_visiveis_pedido_preferencia_padrao,
+        colunas_largura:  padrao.colunas_largura_pedido_preferencia_padrao,
+      }
+
+      res.json(padraoContract)
     })
   } catch (err) {
     next(err)

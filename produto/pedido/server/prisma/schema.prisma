@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T00:21:34.835Z
+// Gerado em: 2026-04-26T00:24:11.659Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -464,14 +464,14 @@ model PedidoPreferenciaUsuario {
 }
 
 model PedidoPreferenciaPadrao {
-  id               String   @id @default(cuid())
-  tenant_id        String   @unique
-  company_id       String?
-  colunas_visiveis String[]
-  colunas_largura  Json?
-  updated_at       DateTime @updatedAt
+  id_pedido_preferencia_padrao                String   @id @default(cuid())
+  id_organizacao                              String   @unique
+  id_workspace                                String?
+  colunas_visiveis_pedido_preferencia_padrao  String[]
+  colunas_largura_pedido_preferencia_padrao   Json?
+  data_atualizacao_pedido_preferencia_padrao  DateTime @updatedAt
 
-  @@index([tenant_id])
+  @@index([id_organizacao])
   @@map("preferencia_padrao_pedido")
 }
 

@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T00:31:53.490Z
+// Gerado em: 2026-04-26T00:36:14.631Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -407,22 +407,22 @@ model ProcessoContainer {
 }
 
 model PedidoStatus {
-  id         String   @id @default(cuid())
-  tenant_id  String
-  company_id String?
-  nome       String
-  rotulo     String
-  cor        String
-  icone      String?
-  ordem      Int      @default(0)
-  is_padrao  Boolean  @default(false)
-  is_sistema Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id_pedido_status                  String   @id @default(cuid())
+  id_organizacao                    String
+  id_workspace                      String?
+  nome_pedido_status                String
+  rotulo_pedido_status              String
+  cor_pedido_status                 String
+  icone_pedido_status               String?
+  ordem_pedido_status               Int      @default(0)
+  padrao_pedido_status              Boolean  @default(false)
+  gerenciado_sistema_pedido_status  Boolean  @default(false)
+  created_at                        DateTime @default(now())
+  updated_at                        DateTime @updatedAt
 
-  @@unique([tenant_id, nome])
-  @@index([tenant_id])
-  @@index([tenant_id, company_id])
+  @@unique([id_organizacao, nome_pedido_status])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_workspace])
   @@map("status_pedido")
 }
 

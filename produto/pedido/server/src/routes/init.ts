@@ -70,8 +70,8 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           take: limitNum + 1,
         }),
         db.pedidoStatus.findMany({
-          where: { tenant_id },
-          orderBy: { ordem: 'asc' },
+          where: { id_organizacao: tenant_id },
+          orderBy: { ordem_pedido_status: 'asc' },
         }),
         db.pedidoPreferenciaUsuario.findFirst({ where: { id_organizacao: tenant_id, id_usuario: user_id } }),
         db.pedidoPreferenciaPadrao.findFirst({ where: { id_organizacao: tenant_id } }),
@@ -100,7 +100,16 @@ initRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           nextCursor,
           total:      registros.length,
         },
-        status:       { data: statusList },
+        status:       { data: (statusList as Array<Record<string, unknown>>).map((s) => ({
+          id:         s.id_pedido_status,
+          nome:       s.nome_pedido_status,
+          rotulo:     s.rotulo_pedido_status,
+          cor:        s.cor_pedido_status,
+          icone:      s.icone_pedido_status,
+          ordem:      s.ordem_pedido_status,
+          is_padrao:  s.padrao_pedido_status,
+          is_sistema: s.gerenciado_sistema_pedido_status,
+        })) },
         preferencias: preferencia ? {
           ...preferencia,
           colunas_visiveis: (preferencia as { colunas_visiveis_pedido_preferencia_usuario: string[] }).colunas_visiveis_pedido_preferencia_usuario,

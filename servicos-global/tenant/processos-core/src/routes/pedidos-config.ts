@@ -79,6 +79,52 @@ function getCompanyId(req: Request): string | undefined {
   return req.headers['x-company-id'] as string | undefined
 }
 
+// ── ACL: PedidoStatus mappers (DDD ↔ contrato externo legacy) ─────────────────
+
+interface PedidoStatusDB {
+  id_pedido_status:                  string
+  id_organizacao:                    string
+  id_workspace:                      string | null
+  nome_pedido_status:                string
+  rotulo_pedido_status:              string
+  cor_pedido_status:                 string
+  icone_pedido_status:               string | null
+  ordem_pedido_status:               number
+  padrao_pedido_status:              boolean
+  gerenciado_sistema_pedido_status:  boolean
+  created_at:                        Date | string
+  updated_at:                        Date | string
+}
+
+function mapStatus(s: PedidoStatusDB): Record<string, unknown> {
+  return {
+    id:         s.id_pedido_status,
+    tenant_id:  s.id_organizacao,
+    company_id: s.id_workspace,
+    nome:       s.nome_pedido_status,
+    rotulo:     s.rotulo_pedido_status,
+    cor:        s.cor_pedido_status,
+    icone:      s.icone_pedido_status,
+    ordem:      s.ordem_pedido_status,
+    is_padrao:  s.padrao_pedido_status,
+    is_sistema: s.gerenciado_sistema_pedido_status,
+    created_at: s.created_at,
+    updated_at: s.updated_at,
+  }
+}
+
+function mapStatusPatch(patch: {
+  rotulo?: string; cor?: string; icone?: string | null; ordem?: number; is_padrao?: boolean
+}): Record<string, unknown> {
+  const data: Record<string, unknown> = {}
+  if (patch.rotulo    !== undefined) data.rotulo_pedido_status = patch.rotulo
+  if (patch.cor       !== undefined) data.cor_pedido_status    = patch.cor
+  if (patch.icone     !== undefined) data.icone_pedido_status  = patch.icone
+  if (patch.ordem     !== undefined) data.ordem_pedido_status  = patch.ordem
+  if (patch.is_padrao !== undefined) data.padrao_pedido_status = patch.is_padrao
+  return data
+}
+
 // ── STATUS ────────────────────────────────────────────────────────────────────
 
 /** Status padrão criados automaticamente para novos tenants */
@@ -101,12 +147,12 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
       const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
       const company_id = getCompanyId(req)
 
-      const where: Record<string, unknown> = { tenant_id }
-      if (company_id) where.company_id = company_id
+      const where: Record<string, unknown> = { id_organizacao: tenant_id }
+      if (company_id) where.id_workspace = company_id
 
       const status = await db.pedidoStatus.findMany({
         where,
-        orderBy: { ordem: 'asc' },
+        orderBy: { ordem_pedido_status: 'asc' },
       })
 
       // Auto-seed: se o tenant não tem nenhum status configurado, criar os padrões
@@ -114,18 +160,27 @@ pedidosConfigRouter.get('/status', async (req: Request, res: Response, next: Nex
         await Promise.all(
           STATUS_PADRAO.map(s =>
             db.pedidoStatus.create({
-              data: { tenant_id, company_id: company_id ?? null, ...s },
+              data: {
+                id_organizacao:                   tenant_id,
+                id_workspace:                     company_id ?? null,
+                nome_pedido_status:               s.nome,
+                rotulo_pedido_status:             s.rotulo,
+                cor_pedido_status:                s.cor,
+                ordem_pedido_status:              s.ordem,
+                padrao_pedido_status:             s.is_padrao,
+                gerenciado_sistema_pedido_status: s.is_sistema,
+              },
             })
           )
         )
         const seeded = await db.pedidoStatus.findMany({
           where,
-          orderBy: { ordem: 'asc' },
+          orderBy: { ordem_pedido_status: 'asc' },
         })
-        return res.json({ data: seeded })
+        return res.json({ data: (seeded as PedidoStatusDB[]).map(mapStatus) })
       }
 
-      res.json({ data: status })
+      res.json({ data: (status as PedidoStatusDB[]).map(mapStatus) })
     })
   } catch (err) {
     next(err)
@@ -146,8 +201,8 @@ pedidosConfigRouter.post('/status', async (req: Request, res: Response, next: Ne
       const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
       const company_id = getCompanyId(req)
 
-      const where: Record<string, unknown> = { tenant_id }
-      if (company_id) where.company_id = company_id
+      const where: Record<string, unknown> = { id_organizacao: tenant_id }
+      if (company_id) where.id_workspace = company_id
 
       const count = await db.pedidoStatus.count({ where })
       if (count >= 20) {
@@ -156,14 +211,19 @@ pedidosConfigRouter.post('/status', async (req: Request, res: Response, next: Ne
 
       const novoStatus = await db.pedidoStatus.create({
         data: {
-          tenant_id,
-          company_id: company_id ?? null,
-          ...result.data,
-          is_sistema: false,
+          id_organizacao:                   tenant_id,
+          id_workspace:                     company_id ?? null,
+          nome_pedido_status:               result.data.nome,
+          rotulo_pedido_status:             result.data.rotulo,
+          cor_pedido_status:                result.data.cor,
+          icone_pedido_status:              result.data.icone ?? null,
+          ordem_pedido_status:              result.data.ordem,
+          padrao_pedido_status:             result.data.is_padrao,
+          gerenciado_sistema_pedido_status: false,
         },
       })
 
-      res.status(201).json(novoStatus)
+      res.status(201).json(mapStatus(novoStatus as PedidoStatusDB))
     })
   } catch (err) {
     next(err)
@@ -197,50 +257,57 @@ pedidosConfigRouter.put('/status/sync', async (req: Request, res: Response, next
       const db         = rawDb as any
       const tenant_id  = (req as unknown as { tenant: TenantContext }).tenant.tenantId
       const company_id = getCompanyId(req)
-      const where: Record<string, unknown> = { tenant_id }
-      if (company_id) where.company_id = company_id
+      const where: Record<string, unknown> = { id_organizacao: tenant_id }
+      if (company_id) where.id_workspace = company_id
 
       const nomesNovos = new Set(result.data.status.map(s => s.nome))
 
       // Buscar todos os status atuais do tenant para saber quais deletar
-      const atuais = await db.pedidoStatus.findMany({ where, select: { id: true, nome: true, is_sistema: true } })
+      const atuais = await db.pedidoStatus.findMany({
+        where,
+        select: {
+          id_pedido_status:                 true,
+          nome_pedido_status:               true,
+          gerenciado_sistema_pedido_status: true,
+        },
+      })
 
-      // Upserts por nome (chave única tenant_id + nome)
+      // Upserts por nome (chave única id_organizacao + nome_pedido_status)
       const ops = result.data.status.map(s =>
         db.pedidoStatus.upsert({
-          where: { tenant_id_nome: { tenant_id, nome: s.nome } },
+          where: { id_organizacao_nome_pedido_status: { id_organizacao: tenant_id, nome_pedido_status: s.nome } },
           update: {
-            rotulo:    s.rotulo,
-            cor:       s.cor,
-            ordem:     s.ordem,
-            is_padrao: s.is_padrao ?? false,
+            rotulo_pedido_status: s.rotulo,
+            cor_pedido_status:    s.cor,
+            ordem_pedido_status:  s.ordem,
+            padrao_pedido_status: s.is_padrao ?? false,
           },
           create: {
-            tenant_id,
-            company_id:  company_id ?? null,
-            nome:        s.nome,
-            rotulo:      s.rotulo,
-            cor:         s.cor,
-            ordem:       s.ordem,
-            is_padrao:   s.is_padrao ?? false,
-            is_sistema:  s.is_sistema ?? false,
+            id_organizacao:                   tenant_id,
+            id_workspace:                     company_id ?? null,
+            nome_pedido_status:               s.nome,
+            rotulo_pedido_status:             s.rotulo,
+            cor_pedido_status:                s.cor,
+            ordem_pedido_status:              s.ordem,
+            padrao_pedido_status:             s.is_padrao ?? false,
+            gerenciado_sistema_pedido_status: s.is_sistema ?? false,
           },
         })
       )
 
       // Deletar os que não estão na nova lista (apenas não-sistema)
-      const idsParaDeletar = (atuais as Array<{ id: string; nome: string; is_sistema: boolean }>)
-        .filter(a => !nomesNovos.has(a.nome) && !a.is_sistema)
-        .map(a => a.id)
+      const idsParaDeletar = (atuais as Array<{ id_pedido_status: string; nome_pedido_status: string; gerenciado_sistema_pedido_status: boolean }>)
+        .filter(a => !nomesNovos.has(a.nome_pedido_status) && !a.gerenciado_sistema_pedido_status)
+        .map(a => a.id_pedido_status)
 
       const deleteOp = idsParaDeletar.length > 0
-        ? [db.pedidoStatus.deleteMany({ where: { id: { in: idsParaDeletar }, tenant_id } })]
+        ? [db.pedidoStatus.deleteMany({ where: { id_pedido_status: { in: idsParaDeletar }, id_organizacao: tenant_id } })]
         : []
 
       await Promise.all([...ops, ...deleteOp])
 
-      const synced = await db.pedidoStatus.findMany({ where, orderBy: { ordem: 'asc' } })
-      res.json({ data: synced })
+      const synced = await db.pedidoStatus.findMany({ where, orderBy: { ordem_pedido_status: 'asc' } })
+      res.json({ data: (synced as PedidoStatusDB[]).map(mapStatus) })
     })
   } catch (err) {
     next(err)
@@ -261,20 +328,20 @@ pedidosConfigRouter.put('/status/:id', async (req: Request, res: Response, next:
       const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
       const existente = await db.pedidoStatus.findFirst({
-        where: { id: req.params.id, tenant_id },
+        where: { id_pedido_status: req.params.id, id_organizacao: tenant_id },
       })
 
       if (!existente) {
         throw new AppError(404, 'Status nao encontrado')
       }
 
-      // Inclui tenant_id no where para garantir isolamento atômico
+      // Inclui id_organizacao no where para garantir isolamento atômico
       const updated = await db.pedidoStatus.update({
-        where: { id: req.params.id, tenant_id },
-        data: result.data,
+        where: { id_pedido_status: req.params.id, id_organizacao: tenant_id },
+        data: mapStatusPatch(result.data),
       })
 
-      res.json(updated)
+      res.json(mapStatus(updated as PedidoStatusDB))
     })
   } catch (err) {
     next(err)
@@ -290,19 +357,19 @@ pedidosConfigRouter.delete('/status/:id', async (req: Request, res: Response, ne
       const tenant_id = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
       const existente = await db.pedidoStatus.findFirst({
-        where: { id: req.params.id, tenant_id },
+        where: { id_pedido_status: req.params.id, id_organizacao: tenant_id },
       })
 
       if (!existente) {
         throw new AppError(404, 'Status nao encontrado')
       }
 
-      if (existente.is_sistema) {
+      if (existente.gerenciado_sistema_pedido_status) {
         throw new AppError(400, 'Status do sistema nao pode ser deletado')
       }
 
-      // Inclui tenant_id no where para garantir isolamento atômico
-      await db.pedidoStatus.delete({ where: { id: req.params.id, tenant_id } })
+      // Inclui id_organizacao no where para garantir isolamento atômico
+      await db.pedidoStatus.delete({ where: { id_pedido_status: req.params.id, id_organizacao: tenant_id } })
       res.status(204).send()
     })
   } catch (err) {
@@ -325,11 +392,11 @@ pedidosConfigRouter.patch('/status/reordenar', async (req: Request, res: Respons
 
       // Verificar que todos os IDs pertencem ao tenant
       const existentes = await db.pedidoStatus.findMany({
-        where: { id: { in: result.data.ids }, tenant_id },
-        select: { id: true },
+        where: { id_pedido_status: { in: result.data.ids }, id_organizacao: tenant_id },
+        select: { id_pedido_status: true },
       })
 
-      const idsEncontrados = new Set((existentes as Array<{ id: string }>).map(s => s.id))
+      const idsEncontrados = new Set((existentes as Array<{ id_pedido_status: string }>).map(s => s.id_pedido_status))
       const idsInvalidos = result.data.ids.filter(id => !idsEncontrados.has(id))
       if (idsInvalidos.length > 0) {
         throw new AppError(400, `IDs nao encontrados ou nao pertencem ao tenant: ${idsInvalidos.join(', ')}`)
@@ -339,8 +406,8 @@ pedidosConfigRouter.patch('/status/reordenar', async (req: Request, res: Respons
       await Promise.all(
         result.data.ids.map((id, index) =>
           db.pedidoStatus.update({
-            where: { id },
-            data: { ordem: index },
+            where: { id_pedido_status: id },
+            data: { ordem_pedido_status: index },
           })
         )
       )

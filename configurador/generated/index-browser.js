@@ -425,33 +425,33 @@ exports.Prisma.PlanoTesteScalarFieldEnum = {
 };
 
 exports.Prisma.FaturaProdutosGravityScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  numero_fatura_servicos_gravity: 'numero_fatura_servicos_gravity',
-  status_fatura_servicos_gravity: 'status_fatura_servicos_gravity',
-  organizacao_fatura_servicos_gravity: 'organizacao_fatura_servicos_gravity',
-  email_organizacao_fatura_servicos_gravity: 'email_organizacao_fatura_servicos_gravity',
-  valor_total_fatura_servicos_gravity: 'valor_total_fatura_servicos_gravity',
-  moeda_fatura_servicos_gravity: 'moeda_fatura_servicos_gravity',
-  competencia_fatura_servicos_gravity: 'competencia_fatura_servicos_gravity',
-  data_fatura_servicos_gravity: 'data_fatura_servicos_gravity',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_fatura_produtos_gravity: 'id_fatura_produtos_gravity',
+  id_organizacao_fatura_produtos_gravity: 'id_organizacao_fatura_produtos_gravity',
+  numero_fatura_produtos_gravity: 'numero_fatura_produtos_gravity',
+  status_fatura_produtos_gravity: 'status_fatura_produtos_gravity',
+  nome_organizacao_fatura_produtos_gravity: 'nome_organizacao_fatura_produtos_gravity',
+  email_organizacao_fatura_produtos_gravity: 'email_organizacao_fatura_produtos_gravity',
+  valor_total_fatura_produtos_gravity: 'valor_total_fatura_produtos_gravity',
+  moeda_fatura_produtos_gravity: 'moeda_fatura_produtos_gravity',
+  competencia_fatura_produtos_gravity: 'competencia_fatura_produtos_gravity',
+  data_fatura_produtos_gravity: 'data_fatura_produtos_gravity',
+  data_criacao_fatura_produtos_gravity: 'data_criacao_fatura_produtos_gravity',
+  data_atualizacao_fatura_produtos_gravity: 'data_atualizacao_fatura_produtos_gravity'
 };
 
 exports.Prisma.MetricasGeminiScalarFieldEnum = {
-  id: 'id',
-  nome_llm: 'nome_llm',
-  data_analise_llm: 'data_analise_llm',
-  total_analise_llm: 'total_analise_llm',
-  total_token_llm: 'total_token_llm',
-  custo_llm: 'custo_llm',
-  latencia_llm: 'latencia_llm',
-  confianca_alta_llm: 'confianca_alta_llm',
-  confianca_media_llm: 'confianca_media_llm',
-  confianca_baixa_llm: 'confianca_baixa_llm',
-  quantidade_codigo_validado_llm: 'quantidade_codigo_validado_llm',
-  created_at: 'created_at'
+  id_metricas_gemini: 'id_metricas_gemini',
+  nome_metricas_gemini: 'nome_metricas_gemini',
+  data_analise_metricas_gemini: 'data_analise_metricas_gemini',
+  total_analise_metricas_gemini: 'total_analise_metricas_gemini',
+  total_token_metricas_gemini: 'total_token_metricas_gemini',
+  custo_metricas_gemini: 'custo_metricas_gemini',
+  latencia_metricas_gemini: 'latencia_metricas_gemini',
+  confianca_alta_metricas_gemini: 'confianca_alta_metricas_gemini',
+  confianca_media_metricas_gemini: 'confianca_media_metricas_gemini',
+  confianca_baixa_metricas_gemini: 'confianca_baixa_metricas_gemini',
+  quantidade_codigo_validado_metricas_gemini: 'quantidade_codigo_validado_metricas_gemini',
+  data_criacao_metricas_gemini: 'data_criacao_metricas_gemini'
 };
 
 exports.Prisma.SortOrder = {

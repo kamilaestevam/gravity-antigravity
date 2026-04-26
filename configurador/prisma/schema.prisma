@@ -757,21 +757,21 @@ enum FaturaStatusGravity {
 }
 
 model FaturaProdutosGravity {
-  id                                        String              @id @default(cuid())
-  tenant_id                                 String
-  numero_fatura_servicos_gravity            String
-  status_fatura_servicos_gravity            FaturaStatusGravity @default(DRAFT)
-  organizacao_fatura_servicos_gravity       String
-  email_organizacao_fatura_servicos_gravity String?
-  valor_total_fatura_servicos_gravity       Decimal             @db.Decimal(18, 2)
-  moeda_fatura_servicos_gravity             String              @default("brl")
-  competencia_fatura_servicos_gravity       String?
-  data_fatura_servicos_gravity              DateTime            @default(now())
-  created_at                                DateTime            @default(now())
-  updated_at                                DateTime            @updatedAt
+  id_fatura_produtos_gravity                String              @id @default(cuid())
+  id_organizacao_fatura_produtos_gravity    String
+  numero_fatura_produtos_gravity            String
+  status_fatura_produtos_gravity            FaturaStatusGravity @default(DRAFT)
+  nome_organizacao_fatura_produtos_gravity  String
+  email_organizacao_fatura_produtos_gravity String?
+  valor_total_fatura_produtos_gravity       Decimal             @db.Decimal(18, 2)
+  moeda_fatura_produtos_gravity             String              @default("brl")
+  competencia_fatura_produtos_gravity       String?
+  data_fatura_produtos_gravity              DateTime            @default(now())
+  data_criacao_fatura_produtos_gravity      DateTime            @default(now())
+  data_atualizacao_fatura_produtos_gravity  DateTime            @updatedAt
 
-  @@index([tenant_id])
-  @@index([status_fatura_servicos_gravity])
+  @@index([id_organizacao_fatura_produtos_gravity], map: "fpg_org_idx")
+  @@index([status_fatura_produtos_gravity], map: "fpg_status_idx")
   @@map("fatura_produtos_gravity")
 }
 
@@ -780,19 +780,19 @@ model FaturaProdutosGravity {
 // ---------------------------------------------------------------------------
 
 model MetricasGemini {
-  id                             String   @id @default(cuid())
-  nome_llm                       String[]
-  data_analise_llm               DateTime
-  total_analise_llm              Int      @default(0)
-  total_token_llm                Int      @default(0)
-  custo_llm                      Decimal  @db.Decimal(10, 4)
-  latencia_llm                   Int      @default(0)
-  confianca_alta_llm             Int      @default(0)
-  confianca_media_llm            Int      @default(0)
-  confianca_baixa_llm            Int      @default(0)
-  quantidade_codigo_validado_llm Int      @default(0)
-  created_at                     DateTime @default(now())
+  id_metricas_gemini                         String   @id @default(cuid())
+  nome_metricas_gemini                       String[]
+  data_analise_metricas_gemini               DateTime
+  total_analise_metricas_gemini              Int      @default(0)
+  total_token_metricas_gemini                Int      @default(0)
+  custo_metricas_gemini                      Decimal  @db.Decimal(10, 4)
+  latencia_metricas_gemini                   Int      @default(0)
+  confianca_alta_metricas_gemini             Int      @default(0)
+  confianca_media_metricas_gemini            Int      @default(0)
+  confianca_baixa_metricas_gemini            Int      @default(0)
+  quantidade_codigo_validado_metricas_gemini Int      @default(0)
+  data_criacao_metricas_gemini               DateTime @default(now())
 
-  @@index([data_analise_llm])
+  @@index([data_analise_metricas_gemini], map: "mtg_data_idx")
   @@map("metricas_gemini")
 }

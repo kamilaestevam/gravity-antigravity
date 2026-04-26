@@ -24400,111 +24400,111 @@ export namespace Prisma {
   }
 
   export type FaturaProdutosGravityAvgAggregateOutputType = {
-    valor_total_fatura_servicos_gravity: Decimal | null
+    valor_total_fatura_produtos_gravity: Decimal | null
   }
 
   export type FaturaProdutosGravitySumAggregateOutputType = {
-    valor_total_fatura_servicos_gravity: Decimal | null
+    valor_total_fatura_produtos_gravity: Decimal | null
   }
 
   export type FaturaProdutosGravityMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    numero_fatura_servicos_gravity: string | null
-    status_fatura_servicos_gravity: $Enums.FaturaStatusGravity | null
-    organizacao_fatura_servicos_gravity: string | null
-    email_organizacao_fatura_servicos_gravity: string | null
-    valor_total_fatura_servicos_gravity: Decimal | null
-    moeda_fatura_servicos_gravity: string | null
-    competencia_fatura_servicos_gravity: string | null
-    data_fatura_servicos_gravity: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_fatura_produtos_gravity: string | null
+    id_organizacao_fatura_produtos_gravity: string | null
+    numero_fatura_produtos_gravity: string | null
+    status_fatura_produtos_gravity: $Enums.FaturaStatusGravity | null
+    nome_organizacao_fatura_produtos_gravity: string | null
+    email_organizacao_fatura_produtos_gravity: string | null
+    valor_total_fatura_produtos_gravity: Decimal | null
+    moeda_fatura_produtos_gravity: string | null
+    competencia_fatura_produtos_gravity: string | null
+    data_fatura_produtos_gravity: Date | null
+    data_criacao_fatura_produtos_gravity: Date | null
+    data_atualizacao_fatura_produtos_gravity: Date | null
   }
 
   export type FaturaProdutosGravityMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    numero_fatura_servicos_gravity: string | null
-    status_fatura_servicos_gravity: $Enums.FaturaStatusGravity | null
-    organizacao_fatura_servicos_gravity: string | null
-    email_organizacao_fatura_servicos_gravity: string | null
-    valor_total_fatura_servicos_gravity: Decimal | null
-    moeda_fatura_servicos_gravity: string | null
-    competencia_fatura_servicos_gravity: string | null
-    data_fatura_servicos_gravity: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_fatura_produtos_gravity: string | null
+    id_organizacao_fatura_produtos_gravity: string | null
+    numero_fatura_produtos_gravity: string | null
+    status_fatura_produtos_gravity: $Enums.FaturaStatusGravity | null
+    nome_organizacao_fatura_produtos_gravity: string | null
+    email_organizacao_fatura_produtos_gravity: string | null
+    valor_total_fatura_produtos_gravity: Decimal | null
+    moeda_fatura_produtos_gravity: string | null
+    competencia_fatura_produtos_gravity: string | null
+    data_fatura_produtos_gravity: Date | null
+    data_criacao_fatura_produtos_gravity: Date | null
+    data_atualizacao_fatura_produtos_gravity: Date | null
   }
 
   export type FaturaProdutosGravityCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    numero_fatura_servicos_gravity: number
-    status_fatura_servicos_gravity: number
-    organizacao_fatura_servicos_gravity: number
-    email_organizacao_fatura_servicos_gravity: number
-    valor_total_fatura_servicos_gravity: number
-    moeda_fatura_servicos_gravity: number
-    competencia_fatura_servicos_gravity: number
-    data_fatura_servicos_gravity: number
-    created_at: number
-    updated_at: number
+    id_fatura_produtos_gravity: number
+    id_organizacao_fatura_produtos_gravity: number
+    numero_fatura_produtos_gravity: number
+    status_fatura_produtos_gravity: number
+    nome_organizacao_fatura_produtos_gravity: number
+    email_organizacao_fatura_produtos_gravity: number
+    valor_total_fatura_produtos_gravity: number
+    moeda_fatura_produtos_gravity: number
+    competencia_fatura_produtos_gravity: number
+    data_fatura_produtos_gravity: number
+    data_criacao_fatura_produtos_gravity: number
+    data_atualizacao_fatura_produtos_gravity: number
     _all: number
   }
 
 
   export type FaturaProdutosGravityAvgAggregateInputType = {
-    valor_total_fatura_servicos_gravity?: true
+    valor_total_fatura_produtos_gravity?: true
   }
 
   export type FaturaProdutosGravitySumAggregateInputType = {
-    valor_total_fatura_servicos_gravity?: true
+    valor_total_fatura_produtos_gravity?: true
   }
 
   export type FaturaProdutosGravityMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    numero_fatura_servicos_gravity?: true
-    status_fatura_servicos_gravity?: true
-    organizacao_fatura_servicos_gravity?: true
-    email_organizacao_fatura_servicos_gravity?: true
-    valor_total_fatura_servicos_gravity?: true
-    moeda_fatura_servicos_gravity?: true
-    competencia_fatura_servicos_gravity?: true
-    data_fatura_servicos_gravity?: true
-    created_at?: true
-    updated_at?: true
+    id_fatura_produtos_gravity?: true
+    id_organizacao_fatura_produtos_gravity?: true
+    numero_fatura_produtos_gravity?: true
+    status_fatura_produtos_gravity?: true
+    nome_organizacao_fatura_produtos_gravity?: true
+    email_organizacao_fatura_produtos_gravity?: true
+    valor_total_fatura_produtos_gravity?: true
+    moeda_fatura_produtos_gravity?: true
+    competencia_fatura_produtos_gravity?: true
+    data_fatura_produtos_gravity?: true
+    data_criacao_fatura_produtos_gravity?: true
+    data_atualizacao_fatura_produtos_gravity?: true
   }
 
   export type FaturaProdutosGravityMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    numero_fatura_servicos_gravity?: true
-    status_fatura_servicos_gravity?: true
-    organizacao_fatura_servicos_gravity?: true
-    email_organizacao_fatura_servicos_gravity?: true
-    valor_total_fatura_servicos_gravity?: true
-    moeda_fatura_servicos_gravity?: true
-    competencia_fatura_servicos_gravity?: true
-    data_fatura_servicos_gravity?: true
-    created_at?: true
-    updated_at?: true
+    id_fatura_produtos_gravity?: true
+    id_organizacao_fatura_produtos_gravity?: true
+    numero_fatura_produtos_gravity?: true
+    status_fatura_produtos_gravity?: true
+    nome_organizacao_fatura_produtos_gravity?: true
+    email_organizacao_fatura_produtos_gravity?: true
+    valor_total_fatura_produtos_gravity?: true
+    moeda_fatura_produtos_gravity?: true
+    competencia_fatura_produtos_gravity?: true
+    data_fatura_produtos_gravity?: true
+    data_criacao_fatura_produtos_gravity?: true
+    data_atualizacao_fatura_produtos_gravity?: true
   }
 
   export type FaturaProdutosGravityCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    numero_fatura_servicos_gravity?: true
-    status_fatura_servicos_gravity?: true
-    organizacao_fatura_servicos_gravity?: true
-    email_organizacao_fatura_servicos_gravity?: true
-    valor_total_fatura_servicos_gravity?: true
-    moeda_fatura_servicos_gravity?: true
-    competencia_fatura_servicos_gravity?: true
-    data_fatura_servicos_gravity?: true
-    created_at?: true
-    updated_at?: true
+    id_fatura_produtos_gravity?: true
+    id_organizacao_fatura_produtos_gravity?: true
+    numero_fatura_produtos_gravity?: true
+    status_fatura_produtos_gravity?: true
+    nome_organizacao_fatura_produtos_gravity?: true
+    email_organizacao_fatura_produtos_gravity?: true
+    valor_total_fatura_produtos_gravity?: true
+    moeda_fatura_produtos_gravity?: true
+    competencia_fatura_produtos_gravity?: true
+    data_fatura_produtos_gravity?: true
+    data_criacao_fatura_produtos_gravity?: true
+    data_atualizacao_fatura_produtos_gravity?: true
     _all?: true
   }
 
@@ -24595,18 +24595,18 @@ export namespace Prisma {
   }
 
   export type FaturaProdutosGravityGroupByOutputType = {
-    id: string
-    tenant_id: string
-    numero_fatura_servicos_gravity: string
-    status_fatura_servicos_gravity: $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity: string
-    email_organizacao_fatura_servicos_gravity: string | null
-    valor_total_fatura_servicos_gravity: Decimal
-    moeda_fatura_servicos_gravity: string
-    competencia_fatura_servicos_gravity: string | null
-    data_fatura_servicos_gravity: Date
-    created_at: Date
-    updated_at: Date
+    id_fatura_produtos_gravity: string
+    id_organizacao_fatura_produtos_gravity: string
+    numero_fatura_produtos_gravity: string
+    status_fatura_produtos_gravity: $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity: string
+    email_organizacao_fatura_produtos_gravity: string | null
+    valor_total_fatura_produtos_gravity: Decimal
+    moeda_fatura_produtos_gravity: string
+    competencia_fatura_produtos_gravity: string | null
+    data_fatura_produtos_gravity: Date
+    data_criacao_fatura_produtos_gravity: Date
+    data_atualizacao_fatura_produtos_gravity: Date
     _count: FaturaProdutosGravityCountAggregateOutputType | null
     _avg: FaturaProdutosGravityAvgAggregateOutputType | null
     _sum: FaturaProdutosGravitySumAggregateOutputType | null
@@ -24629,48 +24629,48 @@ export namespace Prisma {
 
 
   export type FaturaProdutosGravitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    numero_fatura_servicos_gravity?: boolean
-    status_fatura_servicos_gravity?: boolean
-    organizacao_fatura_servicos_gravity?: boolean
-    email_organizacao_fatura_servicos_gravity?: boolean
-    valor_total_fatura_servicos_gravity?: boolean
-    moeda_fatura_servicos_gravity?: boolean
-    competencia_fatura_servicos_gravity?: boolean
-    data_fatura_servicos_gravity?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_fatura_produtos_gravity?: boolean
+    id_organizacao_fatura_produtos_gravity?: boolean
+    numero_fatura_produtos_gravity?: boolean
+    status_fatura_produtos_gravity?: boolean
+    nome_organizacao_fatura_produtos_gravity?: boolean
+    email_organizacao_fatura_produtos_gravity?: boolean
+    valor_total_fatura_produtos_gravity?: boolean
+    moeda_fatura_produtos_gravity?: boolean
+    competencia_fatura_produtos_gravity?: boolean
+    data_fatura_produtos_gravity?: boolean
+    data_criacao_fatura_produtos_gravity?: boolean
+    data_atualizacao_fatura_produtos_gravity?: boolean
   }, ExtArgs["result"]["faturaProdutosGravity"]>
 
   export type FaturaProdutosGravitySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    numero_fatura_servicos_gravity?: boolean
-    status_fatura_servicos_gravity?: boolean
-    organizacao_fatura_servicos_gravity?: boolean
-    email_organizacao_fatura_servicos_gravity?: boolean
-    valor_total_fatura_servicos_gravity?: boolean
-    moeda_fatura_servicos_gravity?: boolean
-    competencia_fatura_servicos_gravity?: boolean
-    data_fatura_servicos_gravity?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_fatura_produtos_gravity?: boolean
+    id_organizacao_fatura_produtos_gravity?: boolean
+    numero_fatura_produtos_gravity?: boolean
+    status_fatura_produtos_gravity?: boolean
+    nome_organizacao_fatura_produtos_gravity?: boolean
+    email_organizacao_fatura_produtos_gravity?: boolean
+    valor_total_fatura_produtos_gravity?: boolean
+    moeda_fatura_produtos_gravity?: boolean
+    competencia_fatura_produtos_gravity?: boolean
+    data_fatura_produtos_gravity?: boolean
+    data_criacao_fatura_produtos_gravity?: boolean
+    data_atualizacao_fatura_produtos_gravity?: boolean
   }, ExtArgs["result"]["faturaProdutosGravity"]>
 
   export type FaturaProdutosGravitySelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    numero_fatura_servicos_gravity?: boolean
-    status_fatura_servicos_gravity?: boolean
-    organizacao_fatura_servicos_gravity?: boolean
-    email_organizacao_fatura_servicos_gravity?: boolean
-    valor_total_fatura_servicos_gravity?: boolean
-    moeda_fatura_servicos_gravity?: boolean
-    competencia_fatura_servicos_gravity?: boolean
-    data_fatura_servicos_gravity?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_fatura_produtos_gravity?: boolean
+    id_organizacao_fatura_produtos_gravity?: boolean
+    numero_fatura_produtos_gravity?: boolean
+    status_fatura_produtos_gravity?: boolean
+    nome_organizacao_fatura_produtos_gravity?: boolean
+    email_organizacao_fatura_produtos_gravity?: boolean
+    valor_total_fatura_produtos_gravity?: boolean
+    moeda_fatura_produtos_gravity?: boolean
+    competencia_fatura_produtos_gravity?: boolean
+    data_fatura_produtos_gravity?: boolean
+    data_criacao_fatura_produtos_gravity?: boolean
+    data_atualizacao_fatura_produtos_gravity?: boolean
   }
 
 
@@ -24678,18 +24678,18 @@ export namespace Prisma {
     name: "FaturaProdutosGravity"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      numero_fatura_servicos_gravity: string
-      status_fatura_servicos_gravity: $Enums.FaturaStatusGravity
-      organizacao_fatura_servicos_gravity: string
-      email_organizacao_fatura_servicos_gravity: string | null
-      valor_total_fatura_servicos_gravity: Prisma.Decimal
-      moeda_fatura_servicos_gravity: string
-      competencia_fatura_servicos_gravity: string | null
-      data_fatura_servicos_gravity: Date
-      created_at: Date
-      updated_at: Date
+      id_fatura_produtos_gravity: string
+      id_organizacao_fatura_produtos_gravity: string
+      numero_fatura_produtos_gravity: string
+      status_fatura_produtos_gravity: $Enums.FaturaStatusGravity
+      nome_organizacao_fatura_produtos_gravity: string
+      email_organizacao_fatura_produtos_gravity: string | null
+      valor_total_fatura_produtos_gravity: Prisma.Decimal
+      moeda_fatura_produtos_gravity: string
+      competencia_fatura_produtos_gravity: string | null
+      data_fatura_produtos_gravity: Date
+      data_criacao_fatura_produtos_gravity: Date
+      data_atualizacao_fatura_produtos_gravity: Date
     }, ExtArgs["result"]["faturaProdutosGravity"]>
     composites: {}
   }
@@ -24773,8 +24773,8 @@ export namespace Prisma {
      * // Get first 10 FaturaProdutosGravities
      * const faturaProdutosGravities = await prisma.faturaProdutosGravity.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const faturaProdutosGravityWithIdOnly = await prisma.faturaProdutosGravity.findMany({ select: { id: true } })
+     * // Only select the `id_fatura_produtos_gravity`
+     * const faturaProdutosGravityWithId_fatura_produtos_gravityOnly = await prisma.faturaProdutosGravity.findMany({ select: { id_fatura_produtos_gravity: true } })
      * 
      */
     findMany<T extends FaturaProdutosGravityFindManyArgs>(args?: SelectSubset<T, FaturaProdutosGravityFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaturaProdutosGravityPayload<ExtArgs>, T, "findMany">>
@@ -24818,9 +24818,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many FaturaProdutosGravities and only return the `id`
-     * const faturaProdutosGravityWithIdOnly = await prisma.faturaProdutosGravity.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many FaturaProdutosGravities and only return the `id_fatura_produtos_gravity`
+     * const faturaProdutosGravityWithId_fatura_produtos_gravityOnly = await prisma.faturaProdutosGravity.createManyAndReturn({ 
+     *   select: { id_fatura_produtos_gravity: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -25083,18 +25083,18 @@ export namespace Prisma {
    * Fields of the FaturaProdutosGravity model
    */ 
   interface FaturaProdutosGravityFieldRefs {
-    readonly id: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly tenant_id: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly numero_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly status_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'FaturaStatusGravity'>
-    readonly organizacao_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly email_organizacao_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly valor_total_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'Decimal'>
-    readonly moeda_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly competencia_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
-    readonly data_fatura_servicos_gravity: FieldRef<"FaturaProdutosGravity", 'DateTime'>
-    readonly created_at: FieldRef<"FaturaProdutosGravity", 'DateTime'>
-    readonly updated_at: FieldRef<"FaturaProdutosGravity", 'DateTime'>
+    readonly id_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
+    readonly id_organizacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
+    readonly numero_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
+    readonly status_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'FaturaStatusGravity'>
+    readonly nome_organizacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
+    readonly email_organizacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
+    readonly valor_total_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'Decimal'>
+    readonly moeda_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
+    readonly competencia_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'String'>
+    readonly data_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'DateTime'>
+    readonly data_criacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'DateTime'>
+    readonly data_atualizacao_fatura_produtos_gravity: FieldRef<"FaturaProdutosGravity", 'DateTime'>
   }
     
 
@@ -25396,135 +25396,135 @@ export namespace Prisma {
   }
 
   export type MetricasGeminiAvgAggregateOutputType = {
-    total_analise_llm: number | null
-    total_token_llm: number | null
-    custo_llm: Decimal | null
-    latencia_llm: number | null
-    confianca_alta_llm: number | null
-    confianca_media_llm: number | null
-    confianca_baixa_llm: number | null
-    quantidade_codigo_validado_llm: number | null
+    total_analise_metricas_gemini: number | null
+    total_token_metricas_gemini: number | null
+    custo_metricas_gemini: Decimal | null
+    latencia_metricas_gemini: number | null
+    confianca_alta_metricas_gemini: number | null
+    confianca_media_metricas_gemini: number | null
+    confianca_baixa_metricas_gemini: number | null
+    quantidade_codigo_validado_metricas_gemini: number | null
   }
 
   export type MetricasGeminiSumAggregateOutputType = {
-    total_analise_llm: number | null
-    total_token_llm: number | null
-    custo_llm: Decimal | null
-    latencia_llm: number | null
-    confianca_alta_llm: number | null
-    confianca_media_llm: number | null
-    confianca_baixa_llm: number | null
-    quantidade_codigo_validado_llm: number | null
+    total_analise_metricas_gemini: number | null
+    total_token_metricas_gemini: number | null
+    custo_metricas_gemini: Decimal | null
+    latencia_metricas_gemini: number | null
+    confianca_alta_metricas_gemini: number | null
+    confianca_media_metricas_gemini: number | null
+    confianca_baixa_metricas_gemini: number | null
+    quantidade_codigo_validado_metricas_gemini: number | null
   }
 
   export type MetricasGeminiMinAggregateOutputType = {
-    id: string | null
-    data_analise_llm: Date | null
-    total_analise_llm: number | null
-    total_token_llm: number | null
-    custo_llm: Decimal | null
-    latencia_llm: number | null
-    confianca_alta_llm: number | null
-    confianca_media_llm: number | null
-    confianca_baixa_llm: number | null
-    quantidade_codigo_validado_llm: number | null
-    created_at: Date | null
+    id_metricas_gemini: string | null
+    data_analise_metricas_gemini: Date | null
+    total_analise_metricas_gemini: number | null
+    total_token_metricas_gemini: number | null
+    custo_metricas_gemini: Decimal | null
+    latencia_metricas_gemini: number | null
+    confianca_alta_metricas_gemini: number | null
+    confianca_media_metricas_gemini: number | null
+    confianca_baixa_metricas_gemini: number | null
+    quantidade_codigo_validado_metricas_gemini: number | null
+    data_criacao_metricas_gemini: Date | null
   }
 
   export type MetricasGeminiMaxAggregateOutputType = {
-    id: string | null
-    data_analise_llm: Date | null
-    total_analise_llm: number | null
-    total_token_llm: number | null
-    custo_llm: Decimal | null
-    latencia_llm: number | null
-    confianca_alta_llm: number | null
-    confianca_media_llm: number | null
-    confianca_baixa_llm: number | null
-    quantidade_codigo_validado_llm: number | null
-    created_at: Date | null
+    id_metricas_gemini: string | null
+    data_analise_metricas_gemini: Date | null
+    total_analise_metricas_gemini: number | null
+    total_token_metricas_gemini: number | null
+    custo_metricas_gemini: Decimal | null
+    latencia_metricas_gemini: number | null
+    confianca_alta_metricas_gemini: number | null
+    confianca_media_metricas_gemini: number | null
+    confianca_baixa_metricas_gemini: number | null
+    quantidade_codigo_validado_metricas_gemini: number | null
+    data_criacao_metricas_gemini: Date | null
   }
 
   export type MetricasGeminiCountAggregateOutputType = {
-    id: number
-    nome_llm: number
-    data_analise_llm: number
-    total_analise_llm: number
-    total_token_llm: number
-    custo_llm: number
-    latencia_llm: number
-    confianca_alta_llm: number
-    confianca_media_llm: number
-    confianca_baixa_llm: number
-    quantidade_codigo_validado_llm: number
-    created_at: number
+    id_metricas_gemini: number
+    nome_metricas_gemini: number
+    data_analise_metricas_gemini: number
+    total_analise_metricas_gemini: number
+    total_token_metricas_gemini: number
+    custo_metricas_gemini: number
+    latencia_metricas_gemini: number
+    confianca_alta_metricas_gemini: number
+    confianca_media_metricas_gemini: number
+    confianca_baixa_metricas_gemini: number
+    quantidade_codigo_validado_metricas_gemini: number
+    data_criacao_metricas_gemini: number
     _all: number
   }
 
 
   export type MetricasGeminiAvgAggregateInputType = {
-    total_analise_llm?: true
-    total_token_llm?: true
-    custo_llm?: true
-    latencia_llm?: true
-    confianca_alta_llm?: true
-    confianca_media_llm?: true
-    confianca_baixa_llm?: true
-    quantidade_codigo_validado_llm?: true
+    total_analise_metricas_gemini?: true
+    total_token_metricas_gemini?: true
+    custo_metricas_gemini?: true
+    latencia_metricas_gemini?: true
+    confianca_alta_metricas_gemini?: true
+    confianca_media_metricas_gemini?: true
+    confianca_baixa_metricas_gemini?: true
+    quantidade_codigo_validado_metricas_gemini?: true
   }
 
   export type MetricasGeminiSumAggregateInputType = {
-    total_analise_llm?: true
-    total_token_llm?: true
-    custo_llm?: true
-    latencia_llm?: true
-    confianca_alta_llm?: true
-    confianca_media_llm?: true
-    confianca_baixa_llm?: true
-    quantidade_codigo_validado_llm?: true
+    total_analise_metricas_gemini?: true
+    total_token_metricas_gemini?: true
+    custo_metricas_gemini?: true
+    latencia_metricas_gemini?: true
+    confianca_alta_metricas_gemini?: true
+    confianca_media_metricas_gemini?: true
+    confianca_baixa_metricas_gemini?: true
+    quantidade_codigo_validado_metricas_gemini?: true
   }
 
   export type MetricasGeminiMinAggregateInputType = {
-    id?: true
-    data_analise_llm?: true
-    total_analise_llm?: true
-    total_token_llm?: true
-    custo_llm?: true
-    latencia_llm?: true
-    confianca_alta_llm?: true
-    confianca_media_llm?: true
-    confianca_baixa_llm?: true
-    quantidade_codigo_validado_llm?: true
-    created_at?: true
+    id_metricas_gemini?: true
+    data_analise_metricas_gemini?: true
+    total_analise_metricas_gemini?: true
+    total_token_metricas_gemini?: true
+    custo_metricas_gemini?: true
+    latencia_metricas_gemini?: true
+    confianca_alta_metricas_gemini?: true
+    confianca_media_metricas_gemini?: true
+    confianca_baixa_metricas_gemini?: true
+    quantidade_codigo_validado_metricas_gemini?: true
+    data_criacao_metricas_gemini?: true
   }
 
   export type MetricasGeminiMaxAggregateInputType = {
-    id?: true
-    data_analise_llm?: true
-    total_analise_llm?: true
-    total_token_llm?: true
-    custo_llm?: true
-    latencia_llm?: true
-    confianca_alta_llm?: true
-    confianca_media_llm?: true
-    confianca_baixa_llm?: true
-    quantidade_codigo_validado_llm?: true
-    created_at?: true
+    id_metricas_gemini?: true
+    data_analise_metricas_gemini?: true
+    total_analise_metricas_gemini?: true
+    total_token_metricas_gemini?: true
+    custo_metricas_gemini?: true
+    latencia_metricas_gemini?: true
+    confianca_alta_metricas_gemini?: true
+    confianca_media_metricas_gemini?: true
+    confianca_baixa_metricas_gemini?: true
+    quantidade_codigo_validado_metricas_gemini?: true
+    data_criacao_metricas_gemini?: true
   }
 
   export type MetricasGeminiCountAggregateInputType = {
-    id?: true
-    nome_llm?: true
-    data_analise_llm?: true
-    total_analise_llm?: true
-    total_token_llm?: true
-    custo_llm?: true
-    latencia_llm?: true
-    confianca_alta_llm?: true
-    confianca_media_llm?: true
-    confianca_baixa_llm?: true
-    quantidade_codigo_validado_llm?: true
-    created_at?: true
+    id_metricas_gemini?: true
+    nome_metricas_gemini?: true
+    data_analise_metricas_gemini?: true
+    total_analise_metricas_gemini?: true
+    total_token_metricas_gemini?: true
+    custo_metricas_gemini?: true
+    latencia_metricas_gemini?: true
+    confianca_alta_metricas_gemini?: true
+    confianca_media_metricas_gemini?: true
+    confianca_baixa_metricas_gemini?: true
+    quantidade_codigo_validado_metricas_gemini?: true
+    data_criacao_metricas_gemini?: true
     _all?: true
   }
 
@@ -25615,18 +25615,18 @@ export namespace Prisma {
   }
 
   export type MetricasGeminiGroupByOutputType = {
-    id: string
-    nome_llm: string[]
-    data_analise_llm: Date
-    total_analise_llm: number
-    total_token_llm: number
-    custo_llm: Decimal
-    latencia_llm: number
-    confianca_alta_llm: number
-    confianca_media_llm: number
-    confianca_baixa_llm: number
-    quantidade_codigo_validado_llm: number
-    created_at: Date
+    id_metricas_gemini: string
+    nome_metricas_gemini: string[]
+    data_analise_metricas_gemini: Date
+    total_analise_metricas_gemini: number
+    total_token_metricas_gemini: number
+    custo_metricas_gemini: Decimal
+    latencia_metricas_gemini: number
+    confianca_alta_metricas_gemini: number
+    confianca_media_metricas_gemini: number
+    confianca_baixa_metricas_gemini: number
+    quantidade_codigo_validado_metricas_gemini: number
+    data_criacao_metricas_gemini: Date
     _count: MetricasGeminiCountAggregateOutputType | null
     _avg: MetricasGeminiAvgAggregateOutputType | null
     _sum: MetricasGeminiSumAggregateOutputType | null
@@ -25649,48 +25649,48 @@ export namespace Prisma {
 
 
   export type MetricasGeminiSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    nome_llm?: boolean
-    data_analise_llm?: boolean
-    total_analise_llm?: boolean
-    total_token_llm?: boolean
-    custo_llm?: boolean
-    latencia_llm?: boolean
-    confianca_alta_llm?: boolean
-    confianca_media_llm?: boolean
-    confianca_baixa_llm?: boolean
-    quantidade_codigo_validado_llm?: boolean
-    created_at?: boolean
+    id_metricas_gemini?: boolean
+    nome_metricas_gemini?: boolean
+    data_analise_metricas_gemini?: boolean
+    total_analise_metricas_gemini?: boolean
+    total_token_metricas_gemini?: boolean
+    custo_metricas_gemini?: boolean
+    latencia_metricas_gemini?: boolean
+    confianca_alta_metricas_gemini?: boolean
+    confianca_media_metricas_gemini?: boolean
+    confianca_baixa_metricas_gemini?: boolean
+    quantidade_codigo_validado_metricas_gemini?: boolean
+    data_criacao_metricas_gemini?: boolean
   }, ExtArgs["result"]["metricasGemini"]>
 
   export type MetricasGeminiSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    nome_llm?: boolean
-    data_analise_llm?: boolean
-    total_analise_llm?: boolean
-    total_token_llm?: boolean
-    custo_llm?: boolean
-    latencia_llm?: boolean
-    confianca_alta_llm?: boolean
-    confianca_media_llm?: boolean
-    confianca_baixa_llm?: boolean
-    quantidade_codigo_validado_llm?: boolean
-    created_at?: boolean
+    id_metricas_gemini?: boolean
+    nome_metricas_gemini?: boolean
+    data_analise_metricas_gemini?: boolean
+    total_analise_metricas_gemini?: boolean
+    total_token_metricas_gemini?: boolean
+    custo_metricas_gemini?: boolean
+    latencia_metricas_gemini?: boolean
+    confianca_alta_metricas_gemini?: boolean
+    confianca_media_metricas_gemini?: boolean
+    confianca_baixa_metricas_gemini?: boolean
+    quantidade_codigo_validado_metricas_gemini?: boolean
+    data_criacao_metricas_gemini?: boolean
   }, ExtArgs["result"]["metricasGemini"]>
 
   export type MetricasGeminiSelectScalar = {
-    id?: boolean
-    nome_llm?: boolean
-    data_analise_llm?: boolean
-    total_analise_llm?: boolean
-    total_token_llm?: boolean
-    custo_llm?: boolean
-    latencia_llm?: boolean
-    confianca_alta_llm?: boolean
-    confianca_media_llm?: boolean
-    confianca_baixa_llm?: boolean
-    quantidade_codigo_validado_llm?: boolean
-    created_at?: boolean
+    id_metricas_gemini?: boolean
+    nome_metricas_gemini?: boolean
+    data_analise_metricas_gemini?: boolean
+    total_analise_metricas_gemini?: boolean
+    total_token_metricas_gemini?: boolean
+    custo_metricas_gemini?: boolean
+    latencia_metricas_gemini?: boolean
+    confianca_alta_metricas_gemini?: boolean
+    confianca_media_metricas_gemini?: boolean
+    confianca_baixa_metricas_gemini?: boolean
+    quantidade_codigo_validado_metricas_gemini?: boolean
+    data_criacao_metricas_gemini?: boolean
   }
 
 
@@ -25698,18 +25698,18 @@ export namespace Prisma {
     name: "MetricasGemini"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      nome_llm: string[]
-      data_analise_llm: Date
-      total_analise_llm: number
-      total_token_llm: number
-      custo_llm: Prisma.Decimal
-      latencia_llm: number
-      confianca_alta_llm: number
-      confianca_media_llm: number
-      confianca_baixa_llm: number
-      quantidade_codigo_validado_llm: number
-      created_at: Date
+      id_metricas_gemini: string
+      nome_metricas_gemini: string[]
+      data_analise_metricas_gemini: Date
+      total_analise_metricas_gemini: number
+      total_token_metricas_gemini: number
+      custo_metricas_gemini: Prisma.Decimal
+      latencia_metricas_gemini: number
+      confianca_alta_metricas_gemini: number
+      confianca_media_metricas_gemini: number
+      confianca_baixa_metricas_gemini: number
+      quantidade_codigo_validado_metricas_gemini: number
+      data_criacao_metricas_gemini: Date
     }, ExtArgs["result"]["metricasGemini"]>
     composites: {}
   }
@@ -25793,8 +25793,8 @@ export namespace Prisma {
      * // Get first 10 MetricasGeminis
      * const metricasGeminis = await prisma.metricasGemini.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const metricasGeminiWithIdOnly = await prisma.metricasGemini.findMany({ select: { id: true } })
+     * // Only select the `id_metricas_gemini`
+     * const metricasGeminiWithId_metricas_geminiOnly = await prisma.metricasGemini.findMany({ select: { id_metricas_gemini: true } })
      * 
      */
     findMany<T extends MetricasGeminiFindManyArgs>(args?: SelectSubset<T, MetricasGeminiFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MetricasGeminiPayload<ExtArgs>, T, "findMany">>
@@ -25838,9 +25838,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many MetricasGeminis and only return the `id`
-     * const metricasGeminiWithIdOnly = await prisma.metricasGemini.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many MetricasGeminis and only return the `id_metricas_gemini`
+     * const metricasGeminiWithId_metricas_geminiOnly = await prisma.metricasGemini.createManyAndReturn({ 
+     *   select: { id_metricas_gemini: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -26103,18 +26103,18 @@ export namespace Prisma {
    * Fields of the MetricasGemini model
    */ 
   interface MetricasGeminiFieldRefs {
-    readonly id: FieldRef<"MetricasGemini", 'String'>
-    readonly nome_llm: FieldRef<"MetricasGemini", 'String[]'>
-    readonly data_analise_llm: FieldRef<"MetricasGemini", 'DateTime'>
-    readonly total_analise_llm: FieldRef<"MetricasGemini", 'Int'>
-    readonly total_token_llm: FieldRef<"MetricasGemini", 'Int'>
-    readonly custo_llm: FieldRef<"MetricasGemini", 'Decimal'>
-    readonly latencia_llm: FieldRef<"MetricasGemini", 'Int'>
-    readonly confianca_alta_llm: FieldRef<"MetricasGemini", 'Int'>
-    readonly confianca_media_llm: FieldRef<"MetricasGemini", 'Int'>
-    readonly confianca_baixa_llm: FieldRef<"MetricasGemini", 'Int'>
-    readonly quantidade_codigo_validado_llm: FieldRef<"MetricasGemini", 'Int'>
-    readonly created_at: FieldRef<"MetricasGemini", 'DateTime'>
+    readonly id_metricas_gemini: FieldRef<"MetricasGemini", 'String'>
+    readonly nome_metricas_gemini: FieldRef<"MetricasGemini", 'String[]'>
+    readonly data_analise_metricas_gemini: FieldRef<"MetricasGemini", 'DateTime'>
+    readonly total_analise_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
+    readonly total_token_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
+    readonly custo_metricas_gemini: FieldRef<"MetricasGemini", 'Decimal'>
+    readonly latencia_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
+    readonly confianca_alta_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
+    readonly confianca_media_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
+    readonly confianca_baixa_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
+    readonly quantidade_codigo_validado_metricas_gemini: FieldRef<"MetricasGemini", 'Int'>
+    readonly data_criacao_metricas_gemini: FieldRef<"MetricasGemini", 'DateTime'>
   }
     
 
@@ -26783,36 +26783,36 @@ export namespace Prisma {
 
 
   export const FaturaProdutosGravityScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    numero_fatura_servicos_gravity: 'numero_fatura_servicos_gravity',
-    status_fatura_servicos_gravity: 'status_fatura_servicos_gravity',
-    organizacao_fatura_servicos_gravity: 'organizacao_fatura_servicos_gravity',
-    email_organizacao_fatura_servicos_gravity: 'email_organizacao_fatura_servicos_gravity',
-    valor_total_fatura_servicos_gravity: 'valor_total_fatura_servicos_gravity',
-    moeda_fatura_servicos_gravity: 'moeda_fatura_servicos_gravity',
-    competencia_fatura_servicos_gravity: 'competencia_fatura_servicos_gravity',
-    data_fatura_servicos_gravity: 'data_fatura_servicos_gravity',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_fatura_produtos_gravity: 'id_fatura_produtos_gravity',
+    id_organizacao_fatura_produtos_gravity: 'id_organizacao_fatura_produtos_gravity',
+    numero_fatura_produtos_gravity: 'numero_fatura_produtos_gravity',
+    status_fatura_produtos_gravity: 'status_fatura_produtos_gravity',
+    nome_organizacao_fatura_produtos_gravity: 'nome_organizacao_fatura_produtos_gravity',
+    email_organizacao_fatura_produtos_gravity: 'email_organizacao_fatura_produtos_gravity',
+    valor_total_fatura_produtos_gravity: 'valor_total_fatura_produtos_gravity',
+    moeda_fatura_produtos_gravity: 'moeda_fatura_produtos_gravity',
+    competencia_fatura_produtos_gravity: 'competencia_fatura_produtos_gravity',
+    data_fatura_produtos_gravity: 'data_fatura_produtos_gravity',
+    data_criacao_fatura_produtos_gravity: 'data_criacao_fatura_produtos_gravity',
+    data_atualizacao_fatura_produtos_gravity: 'data_atualizacao_fatura_produtos_gravity'
   };
 
   export type FaturaProdutosGravityScalarFieldEnum = (typeof FaturaProdutosGravityScalarFieldEnum)[keyof typeof FaturaProdutosGravityScalarFieldEnum]
 
 
   export const MetricasGeminiScalarFieldEnum: {
-    id: 'id',
-    nome_llm: 'nome_llm',
-    data_analise_llm: 'data_analise_llm',
-    total_analise_llm: 'total_analise_llm',
-    total_token_llm: 'total_token_llm',
-    custo_llm: 'custo_llm',
-    latencia_llm: 'latencia_llm',
-    confianca_alta_llm: 'confianca_alta_llm',
-    confianca_media_llm: 'confianca_media_llm',
-    confianca_baixa_llm: 'confianca_baixa_llm',
-    quantidade_codigo_validado_llm: 'quantidade_codigo_validado_llm',
-    created_at: 'created_at'
+    id_metricas_gemini: 'id_metricas_gemini',
+    nome_metricas_gemini: 'nome_metricas_gemini',
+    data_analise_metricas_gemini: 'data_analise_metricas_gemini',
+    total_analise_metricas_gemini: 'total_analise_metricas_gemini',
+    total_token_metricas_gemini: 'total_token_metricas_gemini',
+    custo_metricas_gemini: 'custo_metricas_gemini',
+    latencia_metricas_gemini: 'latencia_metricas_gemini',
+    confianca_alta_metricas_gemini: 'confianca_alta_metricas_gemini',
+    confianca_media_metricas_gemini: 'confianca_media_metricas_gemini',
+    confianca_baixa_metricas_gemini: 'confianca_baixa_metricas_gemini',
+    quantidade_codigo_validado_metricas_gemini: 'quantidade_codigo_validado_metricas_gemini',
+    data_criacao_metricas_gemini: 'data_criacao_metricas_gemini'
   };
 
   export type MetricasGeminiScalarFieldEnum = (typeof MetricasGeminiScalarFieldEnum)[keyof typeof MetricasGeminiScalarFieldEnum]
@@ -28980,66 +28980,66 @@ export namespace Prisma {
     AND?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
     OR?: FaturaProdutosGravityWhereInput[]
     NOT?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
-    id?: StringFilter<"FaturaProdutosGravity"> | string
-    tenant_id?: StringFilter<"FaturaProdutosGravity"> | string
-    numero_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    email_organizacao_fatura_servicos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
-    valor_total_fatura_servicos_gravity?: DecimalFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    competencia_fatura_servicos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
-    data_fatura_servicos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-    created_at?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-    updated_at?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
+    id_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    id_organizacao_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    numero_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    email_organizacao_fatura_produtos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
+    valor_total_fatura_produtos_gravity?: DecimalFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    competencia_fatura_produtos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
+    data_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
   }
 
   export type FaturaProdutosGravityOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    numero_fatura_servicos_gravity?: SortOrder
-    status_fatura_servicos_gravity?: SortOrder
-    organizacao_fatura_servicos_gravity?: SortOrder
-    email_organizacao_fatura_servicos_gravity?: SortOrderInput | SortOrder
-    valor_total_fatura_servicos_gravity?: SortOrder
-    moeda_fatura_servicos_gravity?: SortOrder
-    competencia_fatura_servicos_gravity?: SortOrderInput | SortOrder
-    data_fatura_servicos_gravity?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_fatura_produtos_gravity?: SortOrder
+    id_organizacao_fatura_produtos_gravity?: SortOrder
+    numero_fatura_produtos_gravity?: SortOrder
+    status_fatura_produtos_gravity?: SortOrder
+    nome_organizacao_fatura_produtos_gravity?: SortOrder
+    email_organizacao_fatura_produtos_gravity?: SortOrderInput | SortOrder
+    valor_total_fatura_produtos_gravity?: SortOrder
+    moeda_fatura_produtos_gravity?: SortOrder
+    competencia_fatura_produtos_gravity?: SortOrderInput | SortOrder
+    data_fatura_produtos_gravity?: SortOrder
+    data_criacao_fatura_produtos_gravity?: SortOrder
+    data_atualizacao_fatura_produtos_gravity?: SortOrder
   }
 
   export type FaturaProdutosGravityWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_fatura_produtos_gravity?: string
     AND?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
     OR?: FaturaProdutosGravityWhereInput[]
     NOT?: FaturaProdutosGravityWhereInput | FaturaProdutosGravityWhereInput[]
-    tenant_id?: StringFilter<"FaturaProdutosGravity"> | string
-    numero_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    email_organizacao_fatura_servicos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
-    valor_total_fatura_servicos_gravity?: DecimalFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
-    competencia_fatura_servicos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
-    data_fatura_servicos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-    created_at?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-    updated_at?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
-  }, "id">
+    id_organizacao_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    numero_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    email_organizacao_fatura_produtos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
+    valor_total_fatura_produtos_gravity?: DecimalFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringFilter<"FaturaProdutosGravity"> | string
+    competencia_fatura_produtos_gravity?: StringNullableFilter<"FaturaProdutosGravity"> | string | null
+    data_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeFilter<"FaturaProdutosGravity"> | Date | string
+  }, "id_fatura_produtos_gravity">
 
   export type FaturaProdutosGravityOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    numero_fatura_servicos_gravity?: SortOrder
-    status_fatura_servicos_gravity?: SortOrder
-    organizacao_fatura_servicos_gravity?: SortOrder
-    email_organizacao_fatura_servicos_gravity?: SortOrderInput | SortOrder
-    valor_total_fatura_servicos_gravity?: SortOrder
-    moeda_fatura_servicos_gravity?: SortOrder
-    competencia_fatura_servicos_gravity?: SortOrderInput | SortOrder
-    data_fatura_servicos_gravity?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_fatura_produtos_gravity?: SortOrder
+    id_organizacao_fatura_produtos_gravity?: SortOrder
+    numero_fatura_produtos_gravity?: SortOrder
+    status_fatura_produtos_gravity?: SortOrder
+    nome_organizacao_fatura_produtos_gravity?: SortOrder
+    email_organizacao_fatura_produtos_gravity?: SortOrderInput | SortOrder
+    valor_total_fatura_produtos_gravity?: SortOrder
+    moeda_fatura_produtos_gravity?: SortOrder
+    competencia_fatura_produtos_gravity?: SortOrderInput | SortOrder
+    data_fatura_produtos_gravity?: SortOrder
+    data_criacao_fatura_produtos_gravity?: SortOrder
+    data_atualizacao_fatura_produtos_gravity?: SortOrder
     _count?: FaturaProdutosGravityCountOrderByAggregateInput
     _avg?: FaturaProdutosGravityAvgOrderByAggregateInput
     _max?: FaturaProdutosGravityMaxOrderByAggregateInput
@@ -29051,84 +29051,84 @@ export namespace Prisma {
     AND?: FaturaProdutosGravityScalarWhereWithAggregatesInput | FaturaProdutosGravityScalarWhereWithAggregatesInput[]
     OR?: FaturaProdutosGravityScalarWhereWithAggregatesInput[]
     NOT?: FaturaProdutosGravityScalarWhereWithAggregatesInput | FaturaProdutosGravityScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    tenant_id?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    numero_fatura_servicos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusGravityWithAggregatesFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    email_organizacao_fatura_servicos_gravity?: StringNullableWithAggregatesFilter<"FaturaProdutosGravity"> | string | null
-    valor_total_fatura_servicos_gravity?: DecimalWithAggregatesFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
-    competencia_fatura_servicos_gravity?: StringNullableWithAggregatesFilter<"FaturaProdutosGravity"> | string | null
-    data_fatura_servicos_gravity?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
-    created_at?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
+    id_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
+    id_organizacao_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
+    numero_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityWithAggregatesFilter<"FaturaProdutosGravity"> | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
+    email_organizacao_fatura_produtos_gravity?: StringNullableWithAggregatesFilter<"FaturaProdutosGravity"> | string | null
+    valor_total_fatura_produtos_gravity?: DecimalWithAggregatesFilter<"FaturaProdutosGravity"> | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringWithAggregatesFilter<"FaturaProdutosGravity"> | string
+    competencia_fatura_produtos_gravity?: StringNullableWithAggregatesFilter<"FaturaProdutosGravity"> | string | null
+    data_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeWithAggregatesFilter<"FaturaProdutosGravity"> | Date | string
   }
 
   export type MetricasGeminiWhereInput = {
     AND?: MetricasGeminiWhereInput | MetricasGeminiWhereInput[]
     OR?: MetricasGeminiWhereInput[]
     NOT?: MetricasGeminiWhereInput | MetricasGeminiWhereInput[]
-    id?: StringFilter<"MetricasGemini"> | string
-    nome_llm?: StringNullableListFilter<"MetricasGemini">
-    data_analise_llm?: DateTimeFilter<"MetricasGemini"> | Date | string
-    total_analise_llm?: IntFilter<"MetricasGemini"> | number
-    total_token_llm?: IntFilter<"MetricasGemini"> | number
-    custo_llm?: DecimalFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
-    latencia_llm?: IntFilter<"MetricasGemini"> | number
-    confianca_alta_llm?: IntFilter<"MetricasGemini"> | number
-    confianca_media_llm?: IntFilter<"MetricasGemini"> | number
-    confianca_baixa_llm?: IntFilter<"MetricasGemini"> | number
-    quantidade_codigo_validado_llm?: IntFilter<"MetricasGemini"> | number
-    created_at?: DateTimeFilter<"MetricasGemini"> | Date | string
+    id_metricas_gemini?: StringFilter<"MetricasGemini"> | string
+    nome_metricas_gemini?: StringNullableListFilter<"MetricasGemini">
+    data_analise_metricas_gemini?: DateTimeFilter<"MetricasGemini"> | Date | string
+    total_analise_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    total_token_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    custo_metricas_gemini?: DecimalFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    confianca_alta_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    confianca_media_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    confianca_baixa_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    quantidade_codigo_validado_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    data_criacao_metricas_gemini?: DateTimeFilter<"MetricasGemini"> | Date | string
   }
 
   export type MetricasGeminiOrderByWithRelationInput = {
-    id?: SortOrder
-    nome_llm?: SortOrder
-    data_analise_llm?: SortOrder
-    total_analise_llm?: SortOrder
-    total_token_llm?: SortOrder
-    custo_llm?: SortOrder
-    latencia_llm?: SortOrder
-    confianca_alta_llm?: SortOrder
-    confianca_media_llm?: SortOrder
-    confianca_baixa_llm?: SortOrder
-    quantidade_codigo_validado_llm?: SortOrder
-    created_at?: SortOrder
+    id_metricas_gemini?: SortOrder
+    nome_metricas_gemini?: SortOrder
+    data_analise_metricas_gemini?: SortOrder
+    total_analise_metricas_gemini?: SortOrder
+    total_token_metricas_gemini?: SortOrder
+    custo_metricas_gemini?: SortOrder
+    latencia_metricas_gemini?: SortOrder
+    confianca_alta_metricas_gemini?: SortOrder
+    confianca_media_metricas_gemini?: SortOrder
+    confianca_baixa_metricas_gemini?: SortOrder
+    quantidade_codigo_validado_metricas_gemini?: SortOrder
+    data_criacao_metricas_gemini?: SortOrder
   }
 
   export type MetricasGeminiWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_metricas_gemini?: string
     AND?: MetricasGeminiWhereInput | MetricasGeminiWhereInput[]
     OR?: MetricasGeminiWhereInput[]
     NOT?: MetricasGeminiWhereInput | MetricasGeminiWhereInput[]
-    nome_llm?: StringNullableListFilter<"MetricasGemini">
-    data_analise_llm?: DateTimeFilter<"MetricasGemini"> | Date | string
-    total_analise_llm?: IntFilter<"MetricasGemini"> | number
-    total_token_llm?: IntFilter<"MetricasGemini"> | number
-    custo_llm?: DecimalFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
-    latencia_llm?: IntFilter<"MetricasGemini"> | number
-    confianca_alta_llm?: IntFilter<"MetricasGemini"> | number
-    confianca_media_llm?: IntFilter<"MetricasGemini"> | number
-    confianca_baixa_llm?: IntFilter<"MetricasGemini"> | number
-    quantidade_codigo_validado_llm?: IntFilter<"MetricasGemini"> | number
-    created_at?: DateTimeFilter<"MetricasGemini"> | Date | string
-  }, "id">
+    nome_metricas_gemini?: StringNullableListFilter<"MetricasGemini">
+    data_analise_metricas_gemini?: DateTimeFilter<"MetricasGemini"> | Date | string
+    total_analise_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    total_token_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    custo_metricas_gemini?: DecimalFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    confianca_alta_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    confianca_media_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    confianca_baixa_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    quantidade_codigo_validado_metricas_gemini?: IntFilter<"MetricasGemini"> | number
+    data_criacao_metricas_gemini?: DateTimeFilter<"MetricasGemini"> | Date | string
+  }, "id_metricas_gemini">
 
   export type MetricasGeminiOrderByWithAggregationInput = {
-    id?: SortOrder
-    nome_llm?: SortOrder
-    data_analise_llm?: SortOrder
-    total_analise_llm?: SortOrder
-    total_token_llm?: SortOrder
-    custo_llm?: SortOrder
-    latencia_llm?: SortOrder
-    confianca_alta_llm?: SortOrder
-    confianca_media_llm?: SortOrder
-    confianca_baixa_llm?: SortOrder
-    quantidade_codigo_validado_llm?: SortOrder
-    created_at?: SortOrder
+    id_metricas_gemini?: SortOrder
+    nome_metricas_gemini?: SortOrder
+    data_analise_metricas_gemini?: SortOrder
+    total_analise_metricas_gemini?: SortOrder
+    total_token_metricas_gemini?: SortOrder
+    custo_metricas_gemini?: SortOrder
+    latencia_metricas_gemini?: SortOrder
+    confianca_alta_metricas_gemini?: SortOrder
+    confianca_media_metricas_gemini?: SortOrder
+    confianca_baixa_metricas_gemini?: SortOrder
+    quantidade_codigo_validado_metricas_gemini?: SortOrder
+    data_criacao_metricas_gemini?: SortOrder
     _count?: MetricasGeminiCountOrderByAggregateInput
     _avg?: MetricasGeminiAvgOrderByAggregateInput
     _max?: MetricasGeminiMaxOrderByAggregateInput
@@ -29140,18 +29140,18 @@ export namespace Prisma {
     AND?: MetricasGeminiScalarWhereWithAggregatesInput | MetricasGeminiScalarWhereWithAggregatesInput[]
     OR?: MetricasGeminiScalarWhereWithAggregatesInput[]
     NOT?: MetricasGeminiScalarWhereWithAggregatesInput | MetricasGeminiScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"MetricasGemini"> | string
-    nome_llm?: StringNullableListFilter<"MetricasGemini">
-    data_analise_llm?: DateTimeWithAggregatesFilter<"MetricasGemini"> | Date | string
-    total_analise_llm?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    total_token_llm?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    custo_llm?: DecimalWithAggregatesFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
-    latencia_llm?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    confianca_alta_llm?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    confianca_media_llm?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    confianca_baixa_llm?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    quantidade_codigo_validado_llm?: IntWithAggregatesFilter<"MetricasGemini"> | number
-    created_at?: DateTimeWithAggregatesFilter<"MetricasGemini"> | Date | string
+    id_metricas_gemini?: StringWithAggregatesFilter<"MetricasGemini"> | string
+    nome_metricas_gemini?: StringNullableListFilter<"MetricasGemini">
+    data_analise_metricas_gemini?: DateTimeWithAggregatesFilter<"MetricasGemini"> | Date | string
+    total_analise_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
+    total_token_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
+    custo_metricas_gemini?: DecimalWithAggregatesFilter<"MetricasGemini"> | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
+    confianca_alta_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
+    confianca_media_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
+    confianca_baixa_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
+    quantidade_codigo_validado_metricas_gemini?: IntWithAggregatesFilter<"MetricasGemini"> | number
+    data_criacao_metricas_gemini?: DateTimeWithAggregatesFilter<"MetricasGemini"> | Date | string
   }
 
   export type OrganizacaoCreateInput = {
@@ -31308,213 +31308,213 @@ export namespace Prisma {
   }
 
   export type FaturaProdutosGravityCreateInput = {
-    id?: string
-    tenant_id: string
-    numero_fatura_servicos_gravity: string
-    status_fatura_servicos_gravity?: $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity: string
-    email_organizacao_fatura_servicos_gravity?: string | null
-    valor_total_fatura_servicos_gravity: Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: string
-    competencia_fatura_servicos_gravity?: string | null
-    data_fatura_servicos_gravity?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_fatura_produtos_gravity?: string
+    id_organizacao_fatura_produtos_gravity: string
+    numero_fatura_produtos_gravity: string
+    status_fatura_produtos_gravity?: $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity: string
+    email_organizacao_fatura_produtos_gravity?: string | null
+    valor_total_fatura_produtos_gravity: Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: string
+    competencia_fatura_produtos_gravity?: string | null
+    data_fatura_produtos_gravity?: Date | string
+    data_criacao_fatura_produtos_gravity?: Date | string
+    data_atualizacao_fatura_produtos_gravity?: Date | string
   }
 
   export type FaturaProdutosGravityUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    numero_fatura_servicos_gravity: string
-    status_fatura_servicos_gravity?: $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity: string
-    email_organizacao_fatura_servicos_gravity?: string | null
-    valor_total_fatura_servicos_gravity: Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: string
-    competencia_fatura_servicos_gravity?: string | null
-    data_fatura_servicos_gravity?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_fatura_produtos_gravity?: string
+    id_organizacao_fatura_produtos_gravity: string
+    numero_fatura_produtos_gravity: string
+    status_fatura_produtos_gravity?: $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity: string
+    email_organizacao_fatura_produtos_gravity?: string | null
+    valor_total_fatura_produtos_gravity: Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: string
+    competencia_fatura_produtos_gravity?: string | null
+    data_fatura_produtos_gravity?: Date | string
+    data_criacao_fatura_produtos_gravity?: Date | string
+    data_atualizacao_fatura_produtos_gravity?: Date | string
   }
 
   export type FaturaProdutosGravityUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    numero_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    email_organizacao_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_fatura_servicos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    competencia_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
-    data_fatura_servicos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    numero_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    email_organizacao_fatura_produtos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_fatura_produtos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    competencia_fatura_produtos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FaturaProdutosGravityUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    numero_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    email_organizacao_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_fatura_servicos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    competencia_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
-    data_fatura_servicos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    numero_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    email_organizacao_fatura_produtos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_fatura_produtos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    competencia_fatura_produtos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FaturaProdutosGravityCreateManyInput = {
-    id?: string
-    tenant_id: string
-    numero_fatura_servicos_gravity: string
-    status_fatura_servicos_gravity?: $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity: string
-    email_organizacao_fatura_servicos_gravity?: string | null
-    valor_total_fatura_servicos_gravity: Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: string
-    competencia_fatura_servicos_gravity?: string | null
-    data_fatura_servicos_gravity?: Date | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_fatura_produtos_gravity?: string
+    id_organizacao_fatura_produtos_gravity: string
+    numero_fatura_produtos_gravity: string
+    status_fatura_produtos_gravity?: $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity: string
+    email_organizacao_fatura_produtos_gravity?: string | null
+    valor_total_fatura_produtos_gravity: Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: string
+    competencia_fatura_produtos_gravity?: string | null
+    data_fatura_produtos_gravity?: Date | string
+    data_criacao_fatura_produtos_gravity?: Date | string
+    data_atualizacao_fatura_produtos_gravity?: Date | string
   }
 
   export type FaturaProdutosGravityUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    numero_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    email_organizacao_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_fatura_servicos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    competencia_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
-    data_fatura_servicos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    numero_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    email_organizacao_fatura_produtos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_fatura_produtos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    competencia_fatura_produtos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FaturaProdutosGravityUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    numero_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    status_fatura_servicos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
-    organizacao_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    email_organizacao_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
-    valor_total_fatura_servicos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    moeda_fatura_servicos_gravity?: StringFieldUpdateOperationsInput | string
-    competencia_fatura_servicos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
-    data_fatura_servicos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    numero_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    status_fatura_produtos_gravity?: EnumFaturaStatusGravityFieldUpdateOperationsInput | $Enums.FaturaStatusGravity
+    nome_organizacao_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    email_organizacao_fatura_produtos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    valor_total_fatura_produtos_gravity?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    moeda_fatura_produtos_gravity?: StringFieldUpdateOperationsInput | string
+    competencia_fatura_produtos_gravity?: NullableStringFieldUpdateOperationsInput | string | null
+    data_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_fatura_produtos_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MetricasGeminiCreateInput = {
-    id?: string
-    nome_llm?: MetricasGeminiCreatenome_llmInput | string[]
-    data_analise_llm: Date | string
-    total_analise_llm?: number
-    total_token_llm?: number
-    custo_llm: Decimal | DecimalJsLike | number | string
-    latencia_llm?: number
-    confianca_alta_llm?: number
-    confianca_media_llm?: number
-    confianca_baixa_llm?: number
-    quantidade_codigo_validado_llm?: number
-    created_at?: Date | string
+    id_metricas_gemini?: string
+    nome_metricas_gemini?: MetricasGeminiCreatenome_metricas_geminiInput | string[]
+    data_analise_metricas_gemini: Date | string
+    total_analise_metricas_gemini?: number
+    total_token_metricas_gemini?: number
+    custo_metricas_gemini: Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: number
+    confianca_alta_metricas_gemini?: number
+    confianca_media_metricas_gemini?: number
+    confianca_baixa_metricas_gemini?: number
+    quantidade_codigo_validado_metricas_gemini?: number
+    data_criacao_metricas_gemini?: Date | string
   }
 
   export type MetricasGeminiUncheckedCreateInput = {
-    id?: string
-    nome_llm?: MetricasGeminiCreatenome_llmInput | string[]
-    data_analise_llm: Date | string
-    total_analise_llm?: number
-    total_token_llm?: number
-    custo_llm: Decimal | DecimalJsLike | number | string
-    latencia_llm?: number
-    confianca_alta_llm?: number
-    confianca_media_llm?: number
-    confianca_baixa_llm?: number
-    quantidade_codigo_validado_llm?: number
-    created_at?: Date | string
+    id_metricas_gemini?: string
+    nome_metricas_gemini?: MetricasGeminiCreatenome_metricas_geminiInput | string[]
+    data_analise_metricas_gemini: Date | string
+    total_analise_metricas_gemini?: number
+    total_token_metricas_gemini?: number
+    custo_metricas_gemini: Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: number
+    confianca_alta_metricas_gemini?: number
+    confianca_media_metricas_gemini?: number
+    confianca_baixa_metricas_gemini?: number
+    quantidade_codigo_validado_metricas_gemini?: number
+    data_criacao_metricas_gemini?: Date | string
   }
 
   export type MetricasGeminiUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome_llm?: MetricasGeminiUpdatenome_llmInput | string[]
-    data_analise_llm?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_analise_llm?: IntFieldUpdateOperationsInput | number
-    total_token_llm?: IntFieldUpdateOperationsInput | number
-    custo_llm?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    latencia_llm?: IntFieldUpdateOperationsInput | number
-    confianca_alta_llm?: IntFieldUpdateOperationsInput | number
-    confianca_media_llm?: IntFieldUpdateOperationsInput | number
-    confianca_baixa_llm?: IntFieldUpdateOperationsInput | number
-    quantidade_codigo_validado_llm?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_metricas_gemini?: StringFieldUpdateOperationsInput | string
+    nome_metricas_gemini?: MetricasGeminiUpdatenome_metricas_geminiInput | string[]
+    data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    custo_metricas_gemini?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_alta_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_media_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_baixa_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    quantidade_codigo_validado_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MetricasGeminiUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome_llm?: MetricasGeminiUpdatenome_llmInput | string[]
-    data_analise_llm?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_analise_llm?: IntFieldUpdateOperationsInput | number
-    total_token_llm?: IntFieldUpdateOperationsInput | number
-    custo_llm?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    latencia_llm?: IntFieldUpdateOperationsInput | number
-    confianca_alta_llm?: IntFieldUpdateOperationsInput | number
-    confianca_media_llm?: IntFieldUpdateOperationsInput | number
-    confianca_baixa_llm?: IntFieldUpdateOperationsInput | number
-    quantidade_codigo_validado_llm?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_metricas_gemini?: StringFieldUpdateOperationsInput | string
+    nome_metricas_gemini?: MetricasGeminiUpdatenome_metricas_geminiInput | string[]
+    data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    custo_metricas_gemini?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_alta_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_media_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_baixa_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    quantidade_codigo_validado_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MetricasGeminiCreateManyInput = {
-    id?: string
-    nome_llm?: MetricasGeminiCreatenome_llmInput | string[]
-    data_analise_llm: Date | string
-    total_analise_llm?: number
-    total_token_llm?: number
-    custo_llm: Decimal | DecimalJsLike | number | string
-    latencia_llm?: number
-    confianca_alta_llm?: number
-    confianca_media_llm?: number
-    confianca_baixa_llm?: number
-    quantidade_codigo_validado_llm?: number
-    created_at?: Date | string
+    id_metricas_gemini?: string
+    nome_metricas_gemini?: MetricasGeminiCreatenome_metricas_geminiInput | string[]
+    data_analise_metricas_gemini: Date | string
+    total_analise_metricas_gemini?: number
+    total_token_metricas_gemini?: number
+    custo_metricas_gemini: Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: number
+    confianca_alta_metricas_gemini?: number
+    confianca_media_metricas_gemini?: number
+    confianca_baixa_metricas_gemini?: number
+    quantidade_codigo_validado_metricas_gemini?: number
+    data_criacao_metricas_gemini?: Date | string
   }
 
   export type MetricasGeminiUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome_llm?: MetricasGeminiUpdatenome_llmInput | string[]
-    data_analise_llm?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_analise_llm?: IntFieldUpdateOperationsInput | number
-    total_token_llm?: IntFieldUpdateOperationsInput | number
-    custo_llm?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    latencia_llm?: IntFieldUpdateOperationsInput | number
-    confianca_alta_llm?: IntFieldUpdateOperationsInput | number
-    confianca_media_llm?: IntFieldUpdateOperationsInput | number
-    confianca_baixa_llm?: IntFieldUpdateOperationsInput | number
-    quantidade_codigo_validado_llm?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_metricas_gemini?: StringFieldUpdateOperationsInput | string
+    nome_metricas_gemini?: MetricasGeminiUpdatenome_metricas_geminiInput | string[]
+    data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    custo_metricas_gemini?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_alta_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_media_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_baixa_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    quantidade_codigo_validado_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MetricasGeminiUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome_llm?: MetricasGeminiUpdatenome_llmInput | string[]
-    data_analise_llm?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_analise_llm?: IntFieldUpdateOperationsInput | number
-    total_token_llm?: IntFieldUpdateOperationsInput | number
-    custo_llm?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    latencia_llm?: IntFieldUpdateOperationsInput | number
-    confianca_alta_llm?: IntFieldUpdateOperationsInput | number
-    confianca_media_llm?: IntFieldUpdateOperationsInput | number
-    confianca_baixa_llm?: IntFieldUpdateOperationsInput | number
-    quantidade_codigo_validado_llm?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_metricas_gemini?: StringFieldUpdateOperationsInput | string
+    nome_metricas_gemini?: MetricasGeminiUpdatenome_metricas_geminiInput | string[]
+    data_analise_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_analise_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    total_token_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    custo_metricas_gemini?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    latencia_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_alta_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_media_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    confianca_baixa_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    quantidade_codigo_validado_metricas_gemini?: IntFieldUpdateOperationsInput | number
+    data_criacao_metricas_gemini?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -33182,56 +33182,56 @@ export namespace Prisma {
   }
 
   export type FaturaProdutosGravityCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    numero_fatura_servicos_gravity?: SortOrder
-    status_fatura_servicos_gravity?: SortOrder
-    organizacao_fatura_servicos_gravity?: SortOrder
-    email_organizacao_fatura_servicos_gravity?: SortOrder
-    valor_total_fatura_servicos_gravity?: SortOrder
-    moeda_fatura_servicos_gravity?: SortOrder
-    competencia_fatura_servicos_gravity?: SortOrder
-    data_fatura_servicos_gravity?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_fatura_produtos_gravity?: SortOrder
+    id_organizacao_fatura_produtos_gravity?: SortOrder
+    numero_fatura_produtos_gravity?: SortOrder
+    status_fatura_produtos_gravity?: SortOrder
+    nome_organizacao_fatura_produtos_gravity?: SortOrder
+    email_organizacao_fatura_produtos_gravity?: SortOrder
+    valor_total_fatura_produtos_gravity?: SortOrder
+    moeda_fatura_produtos_gravity?: SortOrder
+    competencia_fatura_produtos_gravity?: SortOrder
+    data_fatura_produtos_gravity?: SortOrder
+    data_criacao_fatura_produtos_gravity?: SortOrder
+    data_atualizacao_fatura_produtos_gravity?: SortOrder
   }
 
   export type FaturaProdutosGravityAvgOrderByAggregateInput = {
-    valor_total_fatura_servicos_gravity?: SortOrder
+    valor_total_fatura_produtos_gravity?: SortOrder
   }
 
   export type FaturaProdutosGravityMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    numero_fatura_servicos_gravity?: SortOrder
-    status_fatura_servicos_gravity?: SortOrder
-    organizacao_fatura_servicos_gravity?: SortOrder
-    email_organizacao_fatura_servicos_gravity?: SortOrder
-    valor_total_fatura_servicos_gravity?: SortOrder
-    moeda_fatura_servicos_gravity?: SortOrder
-    competencia_fatura_servicos_gravity?: SortOrder
-    data_fatura_servicos_gravity?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_fatura_produtos_gravity?: SortOrder
+    id_organizacao_fatura_produtos_gravity?: SortOrder
+    numero_fatura_produtos_gravity?: SortOrder
+    status_fatura_produtos_gravity?: SortOrder
+    nome_organizacao_fatura_produtos_gravity?: SortOrder
+    email_organizacao_fatura_produtos_gravity?: SortOrder
+    valor_total_fatura_produtos_gravity?: SortOrder
+    moeda_fatura_produtos_gravity?: SortOrder
+    competencia_fatura_produtos_gravity?: SortOrder
+    data_fatura_produtos_gravity?: SortOrder
+    data_criacao_fatura_produtos_gravity?: SortOrder
+    data_atualizacao_fatura_produtos_gravity?: SortOrder
   }
 
   export type FaturaProdutosGravityMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    numero_fatura_servicos_gravity?: SortOrder
-    status_fatura_servicos_gravity?: SortOrder
-    organizacao_fatura_servicos_gravity?: SortOrder
-    email_organizacao_fatura_servicos_gravity?: SortOrder
-    valor_total_fatura_servicos_gravity?: SortOrder
-    moeda_fatura_servicos_gravity?: SortOrder
-    competencia_fatura_servicos_gravity?: SortOrder
-    data_fatura_servicos_gravity?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_fatura_produtos_gravity?: SortOrder
+    id_organizacao_fatura_produtos_gravity?: SortOrder
+    numero_fatura_produtos_gravity?: SortOrder
+    status_fatura_produtos_gravity?: SortOrder
+    nome_organizacao_fatura_produtos_gravity?: SortOrder
+    email_organizacao_fatura_produtos_gravity?: SortOrder
+    valor_total_fatura_produtos_gravity?: SortOrder
+    moeda_fatura_produtos_gravity?: SortOrder
+    competencia_fatura_produtos_gravity?: SortOrder
+    data_fatura_produtos_gravity?: SortOrder
+    data_criacao_fatura_produtos_gravity?: SortOrder
+    data_atualizacao_fatura_produtos_gravity?: SortOrder
   }
 
   export type FaturaProdutosGravitySumOrderByAggregateInput = {
-    valor_total_fatura_servicos_gravity?: SortOrder
+    valor_total_fatura_produtos_gravity?: SortOrder
   }
 
   export type EnumFaturaStatusGravityWithAggregatesFilter<$PrismaModel = never> = {
@@ -33245,68 +33245,68 @@ export namespace Prisma {
   }
 
   export type MetricasGeminiCountOrderByAggregateInput = {
-    id?: SortOrder
-    nome_llm?: SortOrder
-    data_analise_llm?: SortOrder
-    total_analise_llm?: SortOrder
-    total_token_llm?: SortOrder
-    custo_llm?: SortOrder
-    latencia_llm?: SortOrder
-    confianca_alta_llm?: SortOrder
-    confianca_media_llm?: SortOrder
-    confianca_baixa_llm?: SortOrder
-    quantidade_codigo_validado_llm?: SortOrder
-    created_at?: SortOrder
+    id_metricas_gemini?: SortOrder
+    nome_metricas_gemini?: SortOrder
+    data_analise_metricas_gemini?: SortOrder
+    total_analise_metricas_gemini?: SortOrder
+    total_token_metricas_gemini?: SortOrder
+    custo_metricas_gemini?: SortOrder
+    latencia_metricas_gemini?: SortOrder
+    confianca_alta_metricas_gemini?: SortOrder
+    confianca_media_metricas_gemini?: SortOrder
+    confianca_baixa_metricas_gemini?: SortOrder
+    quantidade_codigo_validado_metricas_gemini?: SortOrder
+    data_criacao_metricas_gemini?: SortOrder
   }
 
   export type MetricasGeminiAvgOrderByAggregateInput = {
-    total_analise_llm?: SortOrder
-    total_token_llm?: SortOrder
-    custo_llm?: SortOrder
-    latencia_llm?: SortOrder
-    confianca_alta_llm?: SortOrder
-    confianca_media_llm?: SortOrder
-    confianca_baixa_llm?: SortOrder
-    quantidade_codigo_validado_llm?: SortOrder
+    total_analise_metricas_gemini?: SortOrder
+    total_token_metricas_gemini?: SortOrder
+    custo_metricas_gemini?: SortOrder
+    latencia_metricas_gemini?: SortOrder
+    confianca_alta_metricas_gemini?: SortOrder
+    confianca_media_metricas_gemini?: SortOrder
+    confianca_baixa_metricas_gemini?: SortOrder
+    quantidade_codigo_validado_metricas_gemini?: SortOrder
   }
 
   export type MetricasGeminiMaxOrderByAggregateInput = {
-    id?: SortOrder
-    data_analise_llm?: SortOrder
-    total_analise_llm?: SortOrder
-    total_token_llm?: SortOrder
-    custo_llm?: SortOrder
-    latencia_llm?: SortOrder
-    confianca_alta_llm?: SortOrder
-    confianca_media_llm?: SortOrder
-    confianca_baixa_llm?: SortOrder
-    quantidade_codigo_validado_llm?: SortOrder
-    created_at?: SortOrder
+    id_metricas_gemini?: SortOrder
+    data_analise_metricas_gemini?: SortOrder
+    total_analise_metricas_gemini?: SortOrder
+    total_token_metricas_gemini?: SortOrder
+    custo_metricas_gemini?: SortOrder
+    latencia_metricas_gemini?: SortOrder
+    confianca_alta_metricas_gemini?: SortOrder
+    confianca_media_metricas_gemini?: SortOrder
+    confianca_baixa_metricas_gemini?: SortOrder
+    quantidade_codigo_validado_metricas_gemini?: SortOrder
+    data_criacao_metricas_gemini?: SortOrder
   }
 
   export type MetricasGeminiMinOrderByAggregateInput = {
-    id?: SortOrder
-    data_analise_llm?: SortOrder
-    total_analise_llm?: SortOrder
-    total_token_llm?: SortOrder
-    custo_llm?: SortOrder
-    latencia_llm?: SortOrder
-    confianca_alta_llm?: SortOrder
-    confianca_media_llm?: SortOrder
-    confianca_baixa_llm?: SortOrder
-    quantidade_codigo_validado_llm?: SortOrder
-    created_at?: SortOrder
+    id_metricas_gemini?: SortOrder
+    data_analise_metricas_gemini?: SortOrder
+    total_analise_metricas_gemini?: SortOrder
+    total_token_metricas_gemini?: SortOrder
+    custo_metricas_gemini?: SortOrder
+    latencia_metricas_gemini?: SortOrder
+    confianca_alta_metricas_gemini?: SortOrder
+    confianca_media_metricas_gemini?: SortOrder
+    confianca_baixa_metricas_gemini?: SortOrder
+    quantidade_codigo_validado_metricas_gemini?: SortOrder
+    data_criacao_metricas_gemini?: SortOrder
   }
 
   export type MetricasGeminiSumOrderByAggregateInput = {
-    total_analise_llm?: SortOrder
-    total_token_llm?: SortOrder
-    custo_llm?: SortOrder
-    latencia_llm?: SortOrder
-    confianca_alta_llm?: SortOrder
-    confianca_media_llm?: SortOrder
-    confianca_baixa_llm?: SortOrder
-    quantidade_codigo_validado_llm?: SortOrder
+    total_analise_metricas_gemini?: SortOrder
+    total_token_metricas_gemini?: SortOrder
+    custo_metricas_gemini?: SortOrder
+    latencia_metricas_gemini?: SortOrder
+    confianca_alta_metricas_gemini?: SortOrder
+    confianca_media_metricas_gemini?: SortOrder
+    confianca_baixa_metricas_gemini?: SortOrder
+    quantidade_codigo_validado_metricas_gemini?: SortOrder
   }
 
   export type UsuarioCreateNestedManyWithoutTenantInput = {
@@ -34153,11 +34153,11 @@ export namespace Prisma {
     set?: $Enums.FaturaStatusGravity
   }
 
-  export type MetricasGeminiCreatenome_llmInput = {
+  export type MetricasGeminiCreatenome_metricas_geminiInput = {
     set: string[]
   }
 
-  export type MetricasGeminiUpdatenome_llmInput = {
+  export type MetricasGeminiUpdatenome_metricas_geminiInput = {
     set?: string[]
     push?: string | string[]
   }

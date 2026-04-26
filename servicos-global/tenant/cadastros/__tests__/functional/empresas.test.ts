@@ -80,7 +80,7 @@ describe('POST /empresas', () => {
     expect(res.status).toBe(201)
     expect(res.body.suid_empresa).toMatch(/^BR-/)
     // limpa direto via prefixo de organizacao
-    await prismaTeste.empresa.deleteMany({ where: { id_organizacao: PREFIXO_SUID_TESTE + 'auto-suid' } })
+    await prismaTeste.empresa.deleteMany({ where: { id_organizacao_empresa: PREFIXO_SUID_TESTE + 'auto-suid' } })
   })
 })
 

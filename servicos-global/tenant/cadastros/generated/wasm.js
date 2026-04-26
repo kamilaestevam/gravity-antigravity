@@ -124,7 +124,9 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.EmpresaScalarFieldEnum = {
   suid_empresa: 'suid_empresa',
-  id_organizacao: 'id_organizacao',
+  id_organizacao_empresa: 'id_organizacao_empresa',
+  id_produto_empresa: 'id_produto_empresa',
+  id_usuario_empresa: 'id_usuario_empresa',
   nome_empresa: 'nome_empresa',
   cnpj_empresa: 'cnpj_empresa',
   tin_empresa: 'tin_empresa',
@@ -142,9 +144,6 @@ exports.Prisma.EmpresaScalarFieldEnum = {
   pode_ser_agente_empresa: 'pode_ser_agente_empresa',
   pode_ser_despachante_empresa: 'pode_ser_despachante_empresa',
   pode_ser_armador_empresa: 'pode_ser_armador_empresa',
-  ativo_empresa: 'ativo_empresa',
-  criado_em_empresa: 'criado_em_empresa',
-  atualizado_em_empresa: 'atualizado_em_empresa',
   pode_ser_armazem_alfandegado_empresa: 'pode_ser_armazem_alfandegado_empresa',
   pode_ser_transportadora_rodoviaria_nacional_empresa: 'pode_ser_transportadora_rodoviaria_nacional_empresa',
   pode_ser_cia_aerea_empresa: 'pode_ser_cia_aerea_empresa',
@@ -152,7 +151,10 @@ exports.Prisma.EmpresaScalarFieldEnum = {
   pode_ser_seguradora_internacional_empresa: 'pode_ser_seguradora_internacional_empresa',
   pode_ser_seguradora_corretora_cambio_empresa: 'pode_ser_seguradora_corretora_cambio_empresa',
   pode_ser_banco_empresa: 'pode_ser_banco_empresa',
-  pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa'
+  pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa',
+  ativo_empresa: 'ativo_empresa',
+  criado_em_empresa: 'criado_em_empresa',
+  atualizado_em_empresa: 'atualizado_em_empresa'
 };
 
 exports.Prisma.MoedaScalarFieldEnum = {
@@ -168,19 +170,21 @@ exports.Prisma.UnidadeScalarFieldEnum = {
   ativo_unidade: 'ativo_unidade'
 };
 
-exports.Prisma.NCMScalarFieldEnum = {
+exports.Prisma.NcmScalarFieldEnum = {
   codigo_ncm: 'codigo_ncm',
   descricao_ncm: 'descricao_ncm',
   ipi_ncm: 'ipi_ncm',
   ii_ncm: 'ii_ncm',
-  ativo_ncm: 'ativo_ncm',
   pis_ncm: 'pis_ncm',
-  cofins_ncm: 'cofins_ncm'
+  cofins_ncm: 'cofins_ncm',
+  ativo_ncm: 'ativo_ncm'
 };
 
-exports.Prisma.OPEScalarFieldEnum = {
+exports.Prisma.OpeScalarFieldEnum = {
   suid_ope: 'suid_ope',
-  id_organizacao: 'id_organizacao',
+  id_organizacao_ope: 'id_organizacao_ope',
+  id_produto_ope: 'id_produto_ope',
+  id_usuario_ope: 'id_usuario_ope',
   codigo_portal_unico_ope: 'codigo_portal_unico_ope',
   situacao_ope: 'situacao_ope',
   versao_ope: 'versao_ope',
@@ -198,13 +202,16 @@ exports.Prisma.OPEScalarFieldEnum = {
 };
 
 exports.Prisma.OpeHistoricoStatusScalarFieldEnum = {
-  id_historico_status_ope: 'id_historico_status_ope',
-  suid_ope_historico_status_ope: 'suid_ope_historico_status_ope',
-  status_anterior_historico_status_ope: 'status_anterior_historico_status_ope',
-  status_novo_historico_status_ope: 'status_novo_historico_status_ope',
-  origem_historico_status_ope: 'origem_historico_status_ope',
-  payload_historico_status_ope: 'payload_historico_status_ope',
-  registrado_em_historico_status_ope: 'registrado_em_historico_status_ope'
+  id_ope_historico_status: 'id_ope_historico_status',
+  id_organizacao_ope_historico_status: 'id_organizacao_ope_historico_status',
+  id_produto_ope_historico_status: 'id_produto_ope_historico_status',
+  id_usuario_ope_historico_status: 'id_usuario_ope_historico_status',
+  suid_ope_historico_status: 'suid_ope_historico_status',
+  status_anterior_ope_historico_status: 'status_anterior_ope_historico_status',
+  status_novo_ope_historico_status: 'status_novo_ope_historico_status',
+  origem_ope_historico_status: 'origem_ope_historico_status',
+  payload_ope_historico_status: 'payload_ope_historico_status',
+  registrado_em_ope_historico_status: 'registrado_em_ope_historico_status'
 };
 
 exports.Prisma.SortOrder = {
@@ -237,8 +244,8 @@ exports.Prisma.ModelName = {
   Empresa: 'Empresa',
   Moeda: 'Moeda',
   Unidade: 'Unidade',
-  NCM: 'NCM',
-  OPE: 'OPE',
+  Ncm: 'Ncm',
+  Ope: 'Ope',
   OpeHistoricoStatus: 'OpeHistoricoStatus'
 };
 

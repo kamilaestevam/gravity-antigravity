@@ -29,15 +29,15 @@ export type Moeda = $Result.DefaultSelection<Prisma.$MoedaPayload>
  */
 export type Unidade = $Result.DefaultSelection<Prisma.$UnidadePayload>
 /**
- * Model NCM
+ * Model Ncm
  * 
  */
-export type NCM = $Result.DefaultSelection<Prisma.$NCMPayload>
+export type Ncm = $Result.DefaultSelection<Prisma.$NcmPayload>
 /**
- * Model OPE
+ * Model Ope
  * 
  */
-export type OPE = $Result.DefaultSelection<Prisma.$OPEPayload>
+export type Ope = $Result.DefaultSelection<Prisma.$OpePayload>
 /**
  * Model OpeHistoricoStatus
  * 
@@ -198,24 +198,24 @@ export class PrismaClient<
   get unidade(): Prisma.UnidadeDelegate<ExtArgs>;
 
   /**
-   * `prisma.nCM`: Exposes CRUD operations for the **NCM** model.
+   * `prisma.ncm`: Exposes CRUD operations for the **Ncm** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more NCMS
-    * const nCMS = await prisma.nCM.findMany()
+    * // Fetch zero or more Ncms
+    * const ncms = await prisma.ncm.findMany()
     * ```
     */
-  get nCM(): Prisma.NCMDelegate<ExtArgs>;
+  get ncm(): Prisma.NcmDelegate<ExtArgs>;
 
   /**
-   * `prisma.oPE`: Exposes CRUD operations for the **OPE** model.
+   * `prisma.ope`: Exposes CRUD operations for the **Ope** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more OPES
-    * const oPES = await prisma.oPE.findMany()
+    * // Fetch zero or more Opes
+    * const opes = await prisma.ope.findMany()
     * ```
     */
-  get oPE(): Prisma.OPEDelegate<ExtArgs>;
+  get ope(): Prisma.OpeDelegate<ExtArgs>;
 
   /**
    * `prisma.opeHistoricoStatus`: Exposes CRUD operations for the **OpeHistoricoStatus** model.
@@ -670,8 +670,8 @@ export namespace Prisma {
     Empresa: 'Empresa',
     Moeda: 'Moeda',
     Unidade: 'Unidade',
-    NCM: 'NCM',
-    OPE: 'OPE',
+    Ncm: 'Ncm',
+    Ope: 'Ope',
     OpeHistoricoStatus: 'OpeHistoricoStatus'
   };
 
@@ -688,7 +688,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "empresa" | "moeda" | "unidade" | "nCM" | "oPE" | "opeHistoricoStatus"
+      modelProps: "empresa" | "moeda" | "unidade" | "ncm" | "ope" | "opeHistoricoStatus"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -902,143 +902,143 @@ export namespace Prisma {
           }
         }
       }
-      NCM: {
-        payload: Prisma.$NCMPayload<ExtArgs>
-        fields: Prisma.NCMFieldRefs
+      Ncm: {
+        payload: Prisma.$NcmPayload<ExtArgs>
+        fields: Prisma.NcmFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.NCMFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload> | null
+            args: Prisma.NcmFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.NCMFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload>
+            args: Prisma.NcmFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
           }
           findFirst: {
-            args: Prisma.NCMFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload> | null
+            args: Prisma.NcmFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.NCMFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload>
+            args: Prisma.NcmFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
           }
           findMany: {
-            args: Prisma.NCMFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload>[]
+            args: Prisma.NcmFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload>[]
           }
           create: {
-            args: Prisma.NCMCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload>
+            args: Prisma.NcmCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
           }
           createMany: {
-            args: Prisma.NCMCreateManyArgs<ExtArgs>
+            args: Prisma.NcmCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.NCMCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload>[]
+            args: Prisma.NcmCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload>[]
           }
           delete: {
-            args: Prisma.NCMDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload>
+            args: Prisma.NcmDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
           }
           update: {
-            args: Prisma.NCMUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload>
+            args: Prisma.NcmUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
           }
           deleteMany: {
-            args: Prisma.NCMDeleteManyArgs<ExtArgs>
+            args: Prisma.NcmDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.NCMUpdateManyArgs<ExtArgs>
+            args: Prisma.NcmUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.NCMUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$NCMPayload>
+            args: Prisma.NcmUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NcmPayload>
           }
           aggregate: {
-            args: Prisma.NCMAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateNCM>
+            args: Prisma.NcmAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNcm>
           }
           groupBy: {
-            args: Prisma.NCMGroupByArgs<ExtArgs>
-            result: $Utils.Optional<NCMGroupByOutputType>[]
+            args: Prisma.NcmGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NcmGroupByOutputType>[]
           }
           count: {
-            args: Prisma.NCMCountArgs<ExtArgs>
-            result: $Utils.Optional<NCMCountAggregateOutputType> | number
+            args: Prisma.NcmCountArgs<ExtArgs>
+            result: $Utils.Optional<NcmCountAggregateOutputType> | number
           }
         }
       }
-      OPE: {
-        payload: Prisma.$OPEPayload<ExtArgs>
-        fields: Prisma.OPEFieldRefs
+      Ope: {
+        payload: Prisma.$OpePayload<ExtArgs>
+        fields: Prisma.OpeFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.OPEFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload> | null
+            args: Prisma.OpeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.OPEFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload>
+            args: Prisma.OpeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload>
           }
           findFirst: {
-            args: Prisma.OPEFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload> | null
+            args: Prisma.OpeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.OPEFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload>
+            args: Prisma.OpeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload>
           }
           findMany: {
-            args: Prisma.OPEFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload>[]
+            args: Prisma.OpeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload>[]
           }
           create: {
-            args: Prisma.OPECreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload>
+            args: Prisma.OpeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload>
           }
           createMany: {
-            args: Prisma.OPECreateManyArgs<ExtArgs>
+            args: Prisma.OpeCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.OPECreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload>[]
+            args: Prisma.OpeCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload>[]
           }
           delete: {
-            args: Prisma.OPEDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload>
+            args: Prisma.OpeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload>
           }
           update: {
-            args: Prisma.OPEUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload>
+            args: Prisma.OpeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload>
           }
           deleteMany: {
-            args: Prisma.OPEDeleteManyArgs<ExtArgs>
+            args: Prisma.OpeDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.OPEUpdateManyArgs<ExtArgs>
+            args: Prisma.OpeUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.OPEUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$OPEPayload>
+            args: Prisma.OpeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OpePayload>
           }
           aggregate: {
-            args: Prisma.OPEAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateOPE>
+            args: Prisma.OpeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOpe>
           }
           groupBy: {
-            args: Prisma.OPEGroupByArgs<ExtArgs>
-            result: $Utils.Optional<OPEGroupByOutputType>[]
+            args: Prisma.OpeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OpeGroupByOutputType>[]
           }
           count: {
-            args: Prisma.OPECountArgs<ExtArgs>
-            result: $Utils.Optional<OPECountAggregateOutputType> | number
+            args: Prisma.OpeCountArgs<ExtArgs>
+            result: $Utils.Optional<OpeCountAggregateOutputType> | number
           }
         }
       }
@@ -1285,7 +1285,9 @@ export namespace Prisma {
 
   export type EmpresaMinAggregateOutputType = {
     suid_empresa: string | null
-    id_organizacao: string | null
+    id_organizacao_empresa: string | null
+    id_produto_empresa: string | null
+    id_usuario_empresa: string | null
     nome_empresa: string | null
     cnpj_empresa: string | null
     tin_empresa: string | null
@@ -1303,9 +1305,6 @@ export namespace Prisma {
     pode_ser_agente_empresa: boolean | null
     pode_ser_despachante_empresa: boolean | null
     pode_ser_armador_empresa: boolean | null
-    ativo_empresa: boolean | null
-    criado_em_empresa: Date | null
-    atualizado_em_empresa: Date | null
     pode_ser_armazem_alfandegado_empresa: boolean | null
     pode_ser_transportadora_rodoviaria_nacional_empresa: boolean | null
     pode_ser_cia_aerea_empresa: boolean | null
@@ -1314,11 +1313,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa: boolean | null
     pode_ser_banco_empresa: boolean | null
     pode_ser_armazem_nacional_empresa: boolean | null
+    ativo_empresa: boolean | null
+    criado_em_empresa: Date | null
+    atualizado_em_empresa: Date | null
   }
 
   export type EmpresaMaxAggregateOutputType = {
     suid_empresa: string | null
-    id_organizacao: string | null
+    id_organizacao_empresa: string | null
+    id_produto_empresa: string | null
+    id_usuario_empresa: string | null
     nome_empresa: string | null
     cnpj_empresa: string | null
     tin_empresa: string | null
@@ -1336,9 +1340,6 @@ export namespace Prisma {
     pode_ser_agente_empresa: boolean | null
     pode_ser_despachante_empresa: boolean | null
     pode_ser_armador_empresa: boolean | null
-    ativo_empresa: boolean | null
-    criado_em_empresa: Date | null
-    atualizado_em_empresa: Date | null
     pode_ser_armazem_alfandegado_empresa: boolean | null
     pode_ser_transportadora_rodoviaria_nacional_empresa: boolean | null
     pode_ser_cia_aerea_empresa: boolean | null
@@ -1347,11 +1348,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa: boolean | null
     pode_ser_banco_empresa: boolean | null
     pode_ser_armazem_nacional_empresa: boolean | null
+    ativo_empresa: boolean | null
+    criado_em_empresa: Date | null
+    atualizado_em_empresa: Date | null
   }
 
   export type EmpresaCountAggregateOutputType = {
     suid_empresa: number
-    id_organizacao: number
+    id_organizacao_empresa: number
+    id_produto_empresa: number
+    id_usuario_empresa: number
     nome_empresa: number
     cnpj_empresa: number
     tin_empresa: number
@@ -1369,9 +1375,6 @@ export namespace Prisma {
     pode_ser_agente_empresa: number
     pode_ser_despachante_empresa: number
     pode_ser_armador_empresa: number
-    ativo_empresa: number
-    criado_em_empresa: number
-    atualizado_em_empresa: number
     pode_ser_armazem_alfandegado_empresa: number
     pode_ser_transportadora_rodoviaria_nacional_empresa: number
     pode_ser_cia_aerea_empresa: number
@@ -1380,13 +1383,18 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa: number
     pode_ser_banco_empresa: number
     pode_ser_armazem_nacional_empresa: number
+    ativo_empresa: number
+    criado_em_empresa: number
+    atualizado_em_empresa: number
     _all: number
   }
 
 
   export type EmpresaMinAggregateInputType = {
     suid_empresa?: true
-    id_organizacao?: true
+    id_organizacao_empresa?: true
+    id_produto_empresa?: true
+    id_usuario_empresa?: true
     nome_empresa?: true
     cnpj_empresa?: true
     tin_empresa?: true
@@ -1404,9 +1412,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: true
     pode_ser_despachante_empresa?: true
     pode_ser_armador_empresa?: true
-    ativo_empresa?: true
-    criado_em_empresa?: true
-    atualizado_em_empresa?: true
     pode_ser_armazem_alfandegado_empresa?: true
     pode_ser_transportadora_rodoviaria_nacional_empresa?: true
     pode_ser_cia_aerea_empresa?: true
@@ -1415,11 +1420,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: true
     pode_ser_banco_empresa?: true
     pode_ser_armazem_nacional_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
   }
 
   export type EmpresaMaxAggregateInputType = {
     suid_empresa?: true
-    id_organizacao?: true
+    id_organizacao_empresa?: true
+    id_produto_empresa?: true
+    id_usuario_empresa?: true
     nome_empresa?: true
     cnpj_empresa?: true
     tin_empresa?: true
@@ -1437,9 +1447,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: true
     pode_ser_despachante_empresa?: true
     pode_ser_armador_empresa?: true
-    ativo_empresa?: true
-    criado_em_empresa?: true
-    atualizado_em_empresa?: true
     pode_ser_armazem_alfandegado_empresa?: true
     pode_ser_transportadora_rodoviaria_nacional_empresa?: true
     pode_ser_cia_aerea_empresa?: true
@@ -1448,11 +1455,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: true
     pode_ser_banco_empresa?: true
     pode_ser_armazem_nacional_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
   }
 
   export type EmpresaCountAggregateInputType = {
     suid_empresa?: true
-    id_organizacao?: true
+    id_organizacao_empresa?: true
+    id_produto_empresa?: true
+    id_usuario_empresa?: true
     nome_empresa?: true
     cnpj_empresa?: true
     tin_empresa?: true
@@ -1470,9 +1482,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: true
     pode_ser_despachante_empresa?: true
     pode_ser_armador_empresa?: true
-    ativo_empresa?: true
-    criado_em_empresa?: true
-    atualizado_em_empresa?: true
     pode_ser_armazem_alfandegado_empresa?: true
     pode_ser_transportadora_rodoviaria_nacional_empresa?: true
     pode_ser_cia_aerea_empresa?: true
@@ -1481,6 +1490,9 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: true
     pode_ser_banco_empresa?: true
     pode_ser_armazem_nacional_empresa?: true
+    ativo_empresa?: true
+    criado_em_empresa?: true
+    atualizado_em_empresa?: true
     _all?: true
   }
 
@@ -1558,7 +1570,9 @@ export namespace Prisma {
 
   export type EmpresaGroupByOutputType = {
     suid_empresa: string
-    id_organizacao: string
+    id_organizacao_empresa: string
+    id_produto_empresa: string | null
+    id_usuario_empresa: string | null
     nome_empresa: string
     cnpj_empresa: string | null
     tin_empresa: string | null
@@ -1576,9 +1590,6 @@ export namespace Prisma {
     pode_ser_agente_empresa: boolean
     pode_ser_despachante_empresa: boolean
     pode_ser_armador_empresa: boolean
-    ativo_empresa: boolean
-    criado_em_empresa: Date
-    atualizado_em_empresa: Date
     pode_ser_armazem_alfandegado_empresa: boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
     pode_ser_cia_aerea_empresa: boolean
@@ -1587,6 +1598,9 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa: boolean
     pode_ser_banco_empresa: boolean
     pode_ser_armazem_nacional_empresa: boolean
+    ativo_empresa: boolean
+    criado_em_empresa: Date
+    atualizado_em_empresa: Date
     _count: EmpresaCountAggregateOutputType | null
     _min: EmpresaMinAggregateOutputType | null
     _max: EmpresaMaxAggregateOutputType | null
@@ -1608,7 +1622,9 @@ export namespace Prisma {
 
   export type EmpresaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     suid_empresa?: boolean
-    id_organizacao?: boolean
+    id_organizacao_empresa?: boolean
+    id_produto_empresa?: boolean
+    id_usuario_empresa?: boolean
     nome_empresa?: boolean
     cnpj_empresa?: boolean
     tin_empresa?: boolean
@@ -1626,9 +1642,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: boolean
     pode_ser_despachante_empresa?: boolean
     pode_ser_armador_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: boolean
-    atualizado_em_empresa?: boolean
     pode_ser_armazem_alfandegado_empresa?: boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
     pode_ser_cia_aerea_empresa?: boolean
@@ -1637,11 +1650,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: boolean
     pode_ser_banco_empresa?: boolean
     pode_ser_armazem_nacional_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
   }, ExtArgs["result"]["empresa"]>
 
   export type EmpresaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     suid_empresa?: boolean
-    id_organizacao?: boolean
+    id_organizacao_empresa?: boolean
+    id_produto_empresa?: boolean
+    id_usuario_empresa?: boolean
     nome_empresa?: boolean
     cnpj_empresa?: boolean
     tin_empresa?: boolean
@@ -1659,9 +1677,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: boolean
     pode_ser_despachante_empresa?: boolean
     pode_ser_armador_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: boolean
-    atualizado_em_empresa?: boolean
     pode_ser_armazem_alfandegado_empresa?: boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
     pode_ser_cia_aerea_empresa?: boolean
@@ -1670,11 +1685,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: boolean
     pode_ser_banco_empresa?: boolean
     pode_ser_armazem_nacional_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
   }, ExtArgs["result"]["empresa"]>
 
   export type EmpresaSelectScalar = {
     suid_empresa?: boolean
-    id_organizacao?: boolean
+    id_organizacao_empresa?: boolean
+    id_produto_empresa?: boolean
+    id_usuario_empresa?: boolean
     nome_empresa?: boolean
     cnpj_empresa?: boolean
     tin_empresa?: boolean
@@ -1692,9 +1712,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: boolean
     pode_ser_despachante_empresa?: boolean
     pode_ser_armador_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: boolean
-    atualizado_em_empresa?: boolean
     pode_ser_armazem_alfandegado_empresa?: boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
     pode_ser_cia_aerea_empresa?: boolean
@@ -1703,6 +1720,9 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: boolean
     pode_ser_banco_empresa?: boolean
     pode_ser_armazem_nacional_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: boolean
+    atualizado_em_empresa?: boolean
   }
 
 
@@ -1711,7 +1731,9 @@ export namespace Prisma {
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       suid_empresa: string
-      id_organizacao: string
+      id_organizacao_empresa: string
+      id_produto_empresa: string | null
+      id_usuario_empresa: string | null
       nome_empresa: string
       cnpj_empresa: string | null
       tin_empresa: string | null
@@ -1729,9 +1751,6 @@ export namespace Prisma {
       pode_ser_agente_empresa: boolean
       pode_ser_despachante_empresa: boolean
       pode_ser_armador_empresa: boolean
-      ativo_empresa: boolean
-      criado_em_empresa: Date
-      atualizado_em_empresa: Date
       pode_ser_armazem_alfandegado_empresa: boolean
       pode_ser_transportadora_rodoviaria_nacional_empresa: boolean
       pode_ser_cia_aerea_empresa: boolean
@@ -1740,6 +1759,9 @@ export namespace Prisma {
       pode_ser_seguradora_corretora_cambio_empresa: boolean
       pode_ser_banco_empresa: boolean
       pode_ser_armazem_nacional_empresa: boolean
+      ativo_empresa: boolean
+      criado_em_empresa: Date
+      atualizado_em_empresa: Date
     }, ExtArgs["result"]["empresa"]>
     composites: {}
   }
@@ -2134,7 +2156,9 @@ export namespace Prisma {
    */ 
   interface EmpresaFieldRefs {
     readonly suid_empresa: FieldRef<"Empresa", 'String'>
-    readonly id_organizacao: FieldRef<"Empresa", 'String'>
+    readonly id_organizacao_empresa: FieldRef<"Empresa", 'String'>
+    readonly id_produto_empresa: FieldRef<"Empresa", 'String'>
+    readonly id_usuario_empresa: FieldRef<"Empresa", 'String'>
     readonly nome_empresa: FieldRef<"Empresa", 'String'>
     readonly cnpj_empresa: FieldRef<"Empresa", 'String'>
     readonly tin_empresa: FieldRef<"Empresa", 'String'>
@@ -2152,9 +2176,6 @@ export namespace Prisma {
     readonly pode_ser_agente_empresa: FieldRef<"Empresa", 'Boolean'>
     readonly pode_ser_despachante_empresa: FieldRef<"Empresa", 'Boolean'>
     readonly pode_ser_armador_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly ativo_empresa: FieldRef<"Empresa", 'Boolean'>
-    readonly criado_em_empresa: FieldRef<"Empresa", 'DateTime'>
-    readonly atualizado_em_empresa: FieldRef<"Empresa", 'DateTime'>
     readonly pode_ser_armazem_alfandegado_empresa: FieldRef<"Empresa", 'Boolean'>
     readonly pode_ser_transportadora_rodoviaria_nacional_empresa: FieldRef<"Empresa", 'Boolean'>
     readonly pode_ser_cia_aerea_empresa: FieldRef<"Empresa", 'Boolean'>
@@ -2163,6 +2184,9 @@ export namespace Prisma {
     readonly pode_ser_seguradora_corretora_cambio_empresa: FieldRef<"Empresa", 'Boolean'>
     readonly pode_ser_banco_empresa: FieldRef<"Empresa", 'Boolean'>
     readonly pode_ser_armazem_nacional_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly ativo_empresa: FieldRef<"Empresa", 'Boolean'>
+    readonly criado_em_empresa: FieldRef<"Empresa", 'DateTime'>
+    readonly atualizado_em_empresa: FieldRef<"Empresa", 'DateTime'>
   }
     
 
@@ -4172,395 +4196,395 @@ export namespace Prisma {
 
 
   /**
-   * Model NCM
+   * Model Ncm
    */
 
-  export type AggregateNCM = {
-    _count: NCMCountAggregateOutputType | null
-    _avg: NCMAvgAggregateOutputType | null
-    _sum: NCMSumAggregateOutputType | null
-    _min: NCMMinAggregateOutputType | null
-    _max: NCMMaxAggregateOutputType | null
+  export type AggregateNcm = {
+    _count: NcmCountAggregateOutputType | null
+    _avg: NcmAvgAggregateOutputType | null
+    _sum: NcmSumAggregateOutputType | null
+    _min: NcmMinAggregateOutputType | null
+    _max: NcmMaxAggregateOutputType | null
   }
 
-  export type NCMAvgAggregateOutputType = {
+  export type NcmAvgAggregateOutputType = {
     ipi_ncm: number | null
     ii_ncm: number | null
     pis_ncm: number | null
     cofins_ncm: number | null
   }
 
-  export type NCMSumAggregateOutputType = {
+  export type NcmSumAggregateOutputType = {
     ipi_ncm: number | null
     ii_ncm: number | null
     pis_ncm: number | null
     cofins_ncm: number | null
   }
 
-  export type NCMMinAggregateOutputType = {
+  export type NcmMinAggregateOutputType = {
     codigo_ncm: string | null
     descricao_ncm: string | null
     ipi_ncm: number | null
     ii_ncm: number | null
-    ativo_ncm: boolean | null
     pis_ncm: number | null
     cofins_ncm: number | null
+    ativo_ncm: boolean | null
   }
 
-  export type NCMMaxAggregateOutputType = {
+  export type NcmMaxAggregateOutputType = {
     codigo_ncm: string | null
     descricao_ncm: string | null
     ipi_ncm: number | null
     ii_ncm: number | null
-    ativo_ncm: boolean | null
     pis_ncm: number | null
     cofins_ncm: number | null
+    ativo_ncm: boolean | null
   }
 
-  export type NCMCountAggregateOutputType = {
+  export type NcmCountAggregateOutputType = {
     codigo_ncm: number
     descricao_ncm: number
     ipi_ncm: number
     ii_ncm: number
-    ativo_ncm: number
     pis_ncm: number
     cofins_ncm: number
+    ativo_ncm: number
     _all: number
   }
 
 
-  export type NCMAvgAggregateInputType = {
+  export type NcmAvgAggregateInputType = {
     ipi_ncm?: true
     ii_ncm?: true
     pis_ncm?: true
     cofins_ncm?: true
   }
 
-  export type NCMSumAggregateInputType = {
+  export type NcmSumAggregateInputType = {
     ipi_ncm?: true
     ii_ncm?: true
     pis_ncm?: true
     cofins_ncm?: true
   }
 
-  export type NCMMinAggregateInputType = {
+  export type NcmMinAggregateInputType = {
     codigo_ncm?: true
     descricao_ncm?: true
     ipi_ncm?: true
     ii_ncm?: true
-    ativo_ncm?: true
     pis_ncm?: true
     cofins_ncm?: true
+    ativo_ncm?: true
   }
 
-  export type NCMMaxAggregateInputType = {
+  export type NcmMaxAggregateInputType = {
     codigo_ncm?: true
     descricao_ncm?: true
     ipi_ncm?: true
     ii_ncm?: true
-    ativo_ncm?: true
     pis_ncm?: true
     cofins_ncm?: true
+    ativo_ncm?: true
   }
 
-  export type NCMCountAggregateInputType = {
+  export type NcmCountAggregateInputType = {
     codigo_ncm?: true
     descricao_ncm?: true
     ipi_ncm?: true
     ii_ncm?: true
-    ativo_ncm?: true
     pis_ncm?: true
     cofins_ncm?: true
+    ativo_ncm?: true
     _all?: true
   }
 
-  export type NCMAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which NCM to aggregate.
+     * Filter which Ncm to aggregate.
      */
-    where?: NCMWhereInput
+    where?: NcmWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NCMS to fetch.
+     * Determine the order of Ncms to fetch.
      */
-    orderBy?: NCMOrderByWithRelationInput | NCMOrderByWithRelationInput[]
+    orderBy?: NcmOrderByWithRelationInput | NcmOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: NCMWhereUniqueInput
+    cursor?: NcmWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NCMS from the position of the cursor.
+     * Take `±n` Ncms from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NCMS.
+     * Skip the first `n` Ncms.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned NCMS
+     * Count returned Ncms
     **/
-    _count?: true | NCMCountAggregateInputType
+    _count?: true | NcmCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: NCMAvgAggregateInputType
+    _avg?: NcmAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: NCMSumAggregateInputType
+    _sum?: NcmSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: NCMMinAggregateInputType
+    _min?: NcmMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: NCMMaxAggregateInputType
+    _max?: NcmMaxAggregateInputType
   }
 
-  export type GetNCMAggregateType<T extends NCMAggregateArgs> = {
-        [P in keyof T & keyof AggregateNCM]: P extends '_count' | 'count'
+  export type GetNcmAggregateType<T extends NcmAggregateArgs> = {
+        [P in keyof T & keyof AggregateNcm]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateNCM[P]>
-      : GetScalarType<T[P], AggregateNCM[P]>
+        : GetScalarType<T[P], AggregateNcm[P]>
+      : GetScalarType<T[P], AggregateNcm[P]>
   }
 
 
 
 
-  export type NCMGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: NCMWhereInput
-    orderBy?: NCMOrderByWithAggregationInput | NCMOrderByWithAggregationInput[]
-    by: NCMScalarFieldEnum[] | NCMScalarFieldEnum
-    having?: NCMScalarWhereWithAggregatesInput
+  export type NcmGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NcmWhereInput
+    orderBy?: NcmOrderByWithAggregationInput | NcmOrderByWithAggregationInput[]
+    by: NcmScalarFieldEnum[] | NcmScalarFieldEnum
+    having?: NcmScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: NCMCountAggregateInputType | true
-    _avg?: NCMAvgAggregateInputType
-    _sum?: NCMSumAggregateInputType
-    _min?: NCMMinAggregateInputType
-    _max?: NCMMaxAggregateInputType
+    _count?: NcmCountAggregateInputType | true
+    _avg?: NcmAvgAggregateInputType
+    _sum?: NcmSumAggregateInputType
+    _min?: NcmMinAggregateInputType
+    _max?: NcmMaxAggregateInputType
   }
 
-  export type NCMGroupByOutputType = {
+  export type NcmGroupByOutputType = {
     codigo_ncm: string
     descricao_ncm: string
     ipi_ncm: number | null
     ii_ncm: number | null
-    ativo_ncm: boolean
     pis_ncm: number | null
     cofins_ncm: number | null
-    _count: NCMCountAggregateOutputType | null
-    _avg: NCMAvgAggregateOutputType | null
-    _sum: NCMSumAggregateOutputType | null
-    _min: NCMMinAggregateOutputType | null
-    _max: NCMMaxAggregateOutputType | null
+    ativo_ncm: boolean
+    _count: NcmCountAggregateOutputType | null
+    _avg: NcmAvgAggregateOutputType | null
+    _sum: NcmSumAggregateOutputType | null
+    _min: NcmMinAggregateOutputType | null
+    _max: NcmMaxAggregateOutputType | null
   }
 
-  type GetNCMGroupByPayload<T extends NCMGroupByArgs> = Prisma.PrismaPromise<
+  type GetNcmGroupByPayload<T extends NcmGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<NCMGroupByOutputType, T['by']> &
+      PickEnumerable<NcmGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof NCMGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof NcmGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], NCMGroupByOutputType[P]>
-            : GetScalarType<T[P], NCMGroupByOutputType[P]>
+              : GetScalarType<T[P], NcmGroupByOutputType[P]>
+            : GetScalarType<T[P], NcmGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type NCMSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type NcmSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     codigo_ncm?: boolean
     descricao_ncm?: boolean
     ipi_ncm?: boolean
     ii_ncm?: boolean
-    ativo_ncm?: boolean
     pis_ncm?: boolean
     cofins_ncm?: boolean
-  }, ExtArgs["result"]["nCM"]>
+    ativo_ncm?: boolean
+  }, ExtArgs["result"]["ncm"]>
 
-  export type NCMSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type NcmSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     codigo_ncm?: boolean
     descricao_ncm?: boolean
     ipi_ncm?: boolean
     ii_ncm?: boolean
-    ativo_ncm?: boolean
     pis_ncm?: boolean
     cofins_ncm?: boolean
-  }, ExtArgs["result"]["nCM"]>
+    ativo_ncm?: boolean
+  }, ExtArgs["result"]["ncm"]>
 
-  export type NCMSelectScalar = {
+  export type NcmSelectScalar = {
     codigo_ncm?: boolean
     descricao_ncm?: boolean
     ipi_ncm?: boolean
     ii_ncm?: boolean
-    ativo_ncm?: boolean
     pis_ncm?: boolean
     cofins_ncm?: boolean
+    ativo_ncm?: boolean
   }
 
 
-  export type $NCMPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "NCM"
+  export type $NcmPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Ncm"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       codigo_ncm: string
       descricao_ncm: string
       ipi_ncm: number | null
       ii_ncm: number | null
-      ativo_ncm: boolean
       pis_ncm: number | null
       cofins_ncm: number | null
-    }, ExtArgs["result"]["nCM"]>
+      ativo_ncm: boolean
+    }, ExtArgs["result"]["ncm"]>
     composites: {}
   }
 
-  type NCMGetPayload<S extends boolean | null | undefined | NCMDefaultArgs> = $Result.GetResult<Prisma.$NCMPayload, S>
+  type NcmGetPayload<S extends boolean | null | undefined | NcmDefaultArgs> = $Result.GetResult<Prisma.$NcmPayload, S>
 
-  type NCMCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<NCMFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: NCMCountAggregateInputType | true
+  type NcmCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<NcmFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: NcmCountAggregateInputType | true
     }
 
-  export interface NCMDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NCM'], meta: { name: 'NCM' } }
+  export interface NcmDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Ncm'], meta: { name: 'Ncm' } }
     /**
-     * Find zero or one NCM that matches the filter.
-     * @param {NCMFindUniqueArgs} args - Arguments to find a NCM
+     * Find zero or one Ncm that matches the filter.
+     * @param {NcmFindUniqueArgs} args - Arguments to find a Ncm
      * @example
-     * // Get one NCM
-     * const nCM = await prisma.nCM.findUnique({
+     * // Get one Ncm
+     * const ncm = await prisma.ncm.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends NCMFindUniqueArgs>(args: SelectSubset<T, NCMFindUniqueArgs<ExtArgs>>): Prisma__NCMClient<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends NcmFindUniqueArgs>(args: SelectSubset<T, NcmFindUniqueArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one NCM that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Ncm that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {NCMFindUniqueOrThrowArgs} args - Arguments to find a NCM
+     * @param {NcmFindUniqueOrThrowArgs} args - Arguments to find a Ncm
      * @example
-     * // Get one NCM
-     * const nCM = await prisma.nCM.findUniqueOrThrow({
+     * // Get one Ncm
+     * const ncm = await prisma.ncm.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends NCMFindUniqueOrThrowArgs>(args: SelectSubset<T, NCMFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NCMClient<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends NcmFindUniqueOrThrowArgs>(args: SelectSubset<T, NcmFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first NCM that matches the filter.
+     * Find the first Ncm that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMFindFirstArgs} args - Arguments to find a NCM
+     * @param {NcmFindFirstArgs} args - Arguments to find a Ncm
      * @example
-     * // Get one NCM
-     * const nCM = await prisma.nCM.findFirst({
+     * // Get one Ncm
+     * const ncm = await prisma.ncm.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends NCMFindFirstArgs>(args?: SelectSubset<T, NCMFindFirstArgs<ExtArgs>>): Prisma__NCMClient<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends NcmFindFirstArgs>(args?: SelectSubset<T, NcmFindFirstArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first NCM that matches the filter or
+     * Find the first Ncm that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMFindFirstOrThrowArgs} args - Arguments to find a NCM
+     * @param {NcmFindFirstOrThrowArgs} args - Arguments to find a Ncm
      * @example
-     * // Get one NCM
-     * const nCM = await prisma.nCM.findFirstOrThrow({
+     * // Get one Ncm
+     * const ncm = await prisma.ncm.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends NCMFindFirstOrThrowArgs>(args?: SelectSubset<T, NCMFindFirstOrThrowArgs<ExtArgs>>): Prisma__NCMClient<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends NcmFindFirstOrThrowArgs>(args?: SelectSubset<T, NcmFindFirstOrThrowArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more NCMS that matches the filter.
+     * Find zero or more Ncms that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {NcmFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all NCMS
-     * const nCMS = await prisma.nCM.findMany()
+     * // Get all Ncms
+     * const ncms = await prisma.ncm.findMany()
      * 
-     * // Get first 10 NCMS
-     * const nCMS = await prisma.nCM.findMany({ take: 10 })
+     * // Get first 10 Ncms
+     * const ncms = await prisma.ncm.findMany({ take: 10 })
      * 
      * // Only select the `codigo_ncm`
-     * const nCMWithCodigo_ncmOnly = await prisma.nCM.findMany({ select: { codigo_ncm: true } })
+     * const ncmWithCodigo_ncmOnly = await prisma.ncm.findMany({ select: { codigo_ncm: true } })
      * 
      */
-    findMany<T extends NCMFindManyArgs>(args?: SelectSubset<T, NCMFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends NcmFindManyArgs>(args?: SelectSubset<T, NcmFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a NCM.
-     * @param {NCMCreateArgs} args - Arguments to create a NCM.
+     * Create a Ncm.
+     * @param {NcmCreateArgs} args - Arguments to create a Ncm.
      * @example
-     * // Create one NCM
-     * const NCM = await prisma.nCM.create({
+     * // Create one Ncm
+     * const Ncm = await prisma.ncm.create({
      *   data: {
-     *     // ... data to create a NCM
+     *     // ... data to create a Ncm
      *   }
      * })
      * 
      */
-    create<T extends NCMCreateArgs>(args: SelectSubset<T, NCMCreateArgs<ExtArgs>>): Prisma__NCMClient<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends NcmCreateArgs>(args: SelectSubset<T, NcmCreateArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many NCMS.
-     * @param {NCMCreateManyArgs} args - Arguments to create many NCMS.
+     * Create many Ncms.
+     * @param {NcmCreateManyArgs} args - Arguments to create many Ncms.
      * @example
-     * // Create many NCMS
-     * const nCM = await prisma.nCM.createMany({
+     * // Create many Ncms
+     * const ncm = await prisma.ncm.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends NCMCreateManyArgs>(args?: SelectSubset<T, NCMCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends NcmCreateManyArgs>(args?: SelectSubset<T, NcmCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many NCMS and returns the data saved in the database.
-     * @param {NCMCreateManyAndReturnArgs} args - Arguments to create many NCMS.
+     * Create many Ncms and returns the data saved in the database.
+     * @param {NcmCreateManyAndReturnArgs} args - Arguments to create many Ncms.
      * @example
-     * // Create many NCMS
-     * const nCM = await prisma.nCM.createManyAndReturn({
+     * // Create many Ncms
+     * const ncm = await prisma.ncm.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many NCMS and only return the `codigo_ncm`
-     * const nCMWithCodigo_ncmOnly = await prisma.nCM.createManyAndReturn({ 
+     * // Create many Ncms and only return the `codigo_ncm`
+     * const ncmWithCodigo_ncmOnly = await prisma.ncm.createManyAndReturn({ 
      *   select: { codigo_ncm: true },
      *   data: [
      *     // ... provide data here
@@ -4570,28 +4594,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends NCMCreateManyAndReturnArgs>(args?: SelectSubset<T, NCMCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends NcmCreateManyAndReturnArgs>(args?: SelectSubset<T, NcmCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a NCM.
-     * @param {NCMDeleteArgs} args - Arguments to delete one NCM.
+     * Delete a Ncm.
+     * @param {NcmDeleteArgs} args - Arguments to delete one Ncm.
      * @example
-     * // Delete one NCM
-     * const NCM = await prisma.nCM.delete({
+     * // Delete one Ncm
+     * const Ncm = await prisma.ncm.delete({
      *   where: {
-     *     // ... filter to delete one NCM
+     *     // ... filter to delete one Ncm
      *   }
      * })
      * 
      */
-    delete<T extends NCMDeleteArgs>(args: SelectSubset<T, NCMDeleteArgs<ExtArgs>>): Prisma__NCMClient<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends NcmDeleteArgs>(args: SelectSubset<T, NcmDeleteArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one NCM.
-     * @param {NCMUpdateArgs} args - Arguments to update one NCM.
+     * Update one Ncm.
+     * @param {NcmUpdateArgs} args - Arguments to update one Ncm.
      * @example
-     * // Update one NCM
-     * const nCM = await prisma.nCM.update({
+     * // Update one Ncm
+     * const ncm = await prisma.ncm.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -4601,30 +4625,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends NCMUpdateArgs>(args: SelectSubset<T, NCMUpdateArgs<ExtArgs>>): Prisma__NCMClient<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends NcmUpdateArgs>(args: SelectSubset<T, NcmUpdateArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more NCMS.
-     * @param {NCMDeleteManyArgs} args - Arguments to filter NCMS to delete.
+     * Delete zero or more Ncms.
+     * @param {NcmDeleteManyArgs} args - Arguments to filter Ncms to delete.
      * @example
-     * // Delete a few NCMS
-     * const { count } = await prisma.nCM.deleteMany({
+     * // Delete a few Ncms
+     * const { count } = await prisma.ncm.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends NCMDeleteManyArgs>(args?: SelectSubset<T, NCMDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends NcmDeleteManyArgs>(args?: SelectSubset<T, NcmDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more NCMS.
+     * Update zero or more Ncms.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {NcmUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many NCMS
-     * const nCM = await prisma.nCM.updateMany({
+     * // Update many Ncms
+     * const ncm = await prisma.ncm.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -4634,56 +4658,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends NCMUpdateManyArgs>(args: SelectSubset<T, NCMUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends NcmUpdateManyArgs>(args: SelectSubset<T, NcmUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one NCM.
-     * @param {NCMUpsertArgs} args - Arguments to update or create a NCM.
+     * Create or update one Ncm.
+     * @param {NcmUpsertArgs} args - Arguments to update or create a Ncm.
      * @example
-     * // Update or create a NCM
-     * const nCM = await prisma.nCM.upsert({
+     * // Update or create a Ncm
+     * const ncm = await prisma.ncm.upsert({
      *   create: {
-     *     // ... data to create a NCM
+     *     // ... data to create a Ncm
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the NCM we want to update
+     *     // ... the filter for the Ncm we want to update
      *   }
      * })
      */
-    upsert<T extends NCMUpsertArgs>(args: SelectSubset<T, NCMUpsertArgs<ExtArgs>>): Prisma__NCMClient<$Result.GetResult<Prisma.$NCMPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends NcmUpsertArgs>(args: SelectSubset<T, NcmUpsertArgs<ExtArgs>>): Prisma__NcmClient<$Result.GetResult<Prisma.$NcmPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of NCMS.
+     * Count the number of Ncms.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMCountArgs} args - Arguments to filter NCMS to count.
+     * @param {NcmCountArgs} args - Arguments to filter Ncms to count.
      * @example
-     * // Count the number of NCMS
-     * const count = await prisma.nCM.count({
+     * // Count the number of Ncms
+     * const count = await prisma.ncm.count({
      *   where: {
-     *     // ... the filter for the NCMS we want to count
+     *     // ... the filter for the Ncms we want to count
      *   }
      * })
     **/
-    count<T extends NCMCountArgs>(
-      args?: Subset<T, NCMCountArgs>,
+    count<T extends NcmCountArgs>(
+      args?: Subset<T, NcmCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], NCMCountAggregateOutputType>
+          : GetScalarType<T['select'], NcmCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a NCM.
+     * Allows you to perform aggregations operations on a Ncm.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {NcmAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -4703,13 +4727,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends NCMAggregateArgs>(args: Subset<T, NCMAggregateArgs>): Prisma.PrismaPromise<GetNCMAggregateType<T>>
+    aggregate<T extends NcmAggregateArgs>(args: Subset<T, NcmAggregateArgs>): Prisma.PrismaPromise<GetNcmAggregateType<T>>
 
     /**
-     * Group by NCM.
+     * Group by Ncm.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {NCMGroupByArgs} args - Group by arguments.
+     * @param {NcmGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -4724,14 +4748,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends NCMGroupByArgs,
+      T extends NcmGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: NCMGroupByArgs['orderBy'] }
-        : { orderBy?: NCMGroupByArgs['orderBy'] },
+        ? { orderBy: NcmGroupByArgs['orderBy'] }
+        : { orderBy?: NcmGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -4780,20 +4804,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, NCMGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNCMGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, NcmGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNcmGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the NCM model
+   * Fields of the Ncm model
    */
-  readonly fields: NCMFieldRefs;
+  readonly fields: NcmFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for NCM.
+   * The delegate class that acts as a "Promise-like" for Ncm.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__NCMClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NcmClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4821,317 +4845,319 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the NCM model
+   * Fields of the Ncm model
    */ 
-  interface NCMFieldRefs {
-    readonly codigo_ncm: FieldRef<"NCM", 'String'>
-    readonly descricao_ncm: FieldRef<"NCM", 'String'>
-    readonly ipi_ncm: FieldRef<"NCM", 'Float'>
-    readonly ii_ncm: FieldRef<"NCM", 'Float'>
-    readonly ativo_ncm: FieldRef<"NCM", 'Boolean'>
-    readonly pis_ncm: FieldRef<"NCM", 'Float'>
-    readonly cofins_ncm: FieldRef<"NCM", 'Float'>
+  interface NcmFieldRefs {
+    readonly codigo_ncm: FieldRef<"Ncm", 'String'>
+    readonly descricao_ncm: FieldRef<"Ncm", 'String'>
+    readonly ipi_ncm: FieldRef<"Ncm", 'Float'>
+    readonly ii_ncm: FieldRef<"Ncm", 'Float'>
+    readonly pis_ncm: FieldRef<"Ncm", 'Float'>
+    readonly cofins_ncm: FieldRef<"Ncm", 'Float'>
+    readonly ativo_ncm: FieldRef<"Ncm", 'Boolean'>
   }
     
 
   // Custom InputTypes
   /**
-   * NCM findUnique
+   * Ncm findUnique
    */
-  export type NCMFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * Filter, which NCM to fetch.
+     * Filter, which Ncm to fetch.
      */
-    where: NCMWhereUniqueInput
+    where: NcmWhereUniqueInput
   }
 
   /**
-   * NCM findUniqueOrThrow
+   * Ncm findUniqueOrThrow
    */
-  export type NCMFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * Filter, which NCM to fetch.
+     * Filter, which Ncm to fetch.
      */
-    where: NCMWhereUniqueInput
+    where: NcmWhereUniqueInput
   }
 
   /**
-   * NCM findFirst
+   * Ncm findFirst
    */
-  export type NCMFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * Filter, which NCM to fetch.
+     * Filter, which Ncm to fetch.
      */
-    where?: NCMWhereInput
+    where?: NcmWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NCMS to fetch.
+     * Determine the order of Ncms to fetch.
      */
-    orderBy?: NCMOrderByWithRelationInput | NCMOrderByWithRelationInput[]
+    orderBy?: NcmOrderByWithRelationInput | NcmOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for NCMS.
+     * Sets the position for searching for Ncms.
      */
-    cursor?: NCMWhereUniqueInput
+    cursor?: NcmWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NCMS from the position of the cursor.
+     * Take `±n` Ncms from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NCMS.
+     * Skip the first `n` Ncms.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of NCMS.
+     * Filter by unique combinations of Ncms.
      */
-    distinct?: NCMScalarFieldEnum | NCMScalarFieldEnum[]
+    distinct?: NcmScalarFieldEnum | NcmScalarFieldEnum[]
   }
 
   /**
-   * NCM findFirstOrThrow
+   * Ncm findFirstOrThrow
    */
-  export type NCMFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * Filter, which NCM to fetch.
+     * Filter, which Ncm to fetch.
      */
-    where?: NCMWhereInput
+    where?: NcmWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NCMS to fetch.
+     * Determine the order of Ncms to fetch.
      */
-    orderBy?: NCMOrderByWithRelationInput | NCMOrderByWithRelationInput[]
+    orderBy?: NcmOrderByWithRelationInput | NcmOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for NCMS.
+     * Sets the position for searching for Ncms.
      */
-    cursor?: NCMWhereUniqueInput
+    cursor?: NcmWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NCMS from the position of the cursor.
+     * Take `±n` Ncms from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NCMS.
+     * Skip the first `n` Ncms.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of NCMS.
+     * Filter by unique combinations of Ncms.
      */
-    distinct?: NCMScalarFieldEnum | NCMScalarFieldEnum[]
+    distinct?: NcmScalarFieldEnum | NcmScalarFieldEnum[]
   }
 
   /**
-   * NCM findMany
+   * Ncm findMany
    */
-  export type NCMFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * Filter, which NCMS to fetch.
+     * Filter, which Ncms to fetch.
      */
-    where?: NCMWhereInput
+    where?: NcmWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of NCMS to fetch.
+     * Determine the order of Ncms to fetch.
      */
-    orderBy?: NCMOrderByWithRelationInput | NCMOrderByWithRelationInput[]
+    orderBy?: NcmOrderByWithRelationInput | NcmOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing NCMS.
+     * Sets the position for listing Ncms.
      */
-    cursor?: NCMWhereUniqueInput
+    cursor?: NcmWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` NCMS from the position of the cursor.
+     * Take `±n` Ncms from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` NCMS.
+     * Skip the first `n` Ncms.
      */
     skip?: number
-    distinct?: NCMScalarFieldEnum | NCMScalarFieldEnum[]
+    distinct?: NcmScalarFieldEnum | NcmScalarFieldEnum[]
   }
 
   /**
-   * NCM create
+   * Ncm create
    */
-  export type NCMCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * The data needed to create a NCM.
+     * The data needed to create a Ncm.
      */
-    data: XOR<NCMCreateInput, NCMUncheckedCreateInput>
+    data: XOR<NcmCreateInput, NcmUncheckedCreateInput>
   }
 
   /**
-   * NCM createMany
+   * Ncm createMany
    */
-  export type NCMCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many NCMS.
+     * The data used to create many Ncms.
      */
-    data: NCMCreateManyInput | NCMCreateManyInput[]
+    data: NcmCreateManyInput | NcmCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * NCM createManyAndReturn
+   * Ncm createManyAndReturn
    */
-  export type NCMCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelectCreateManyAndReturn<ExtArgs> | null
+    select?: NcmSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many NCMS.
+     * The data used to create many Ncms.
      */
-    data: NCMCreateManyInput | NCMCreateManyInput[]
+    data: NcmCreateManyInput | NcmCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * NCM update
+   * Ncm update
    */
-  export type NCMUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * The data needed to update a NCM.
+     * The data needed to update a Ncm.
      */
-    data: XOR<NCMUpdateInput, NCMUncheckedUpdateInput>
+    data: XOR<NcmUpdateInput, NcmUncheckedUpdateInput>
     /**
-     * Choose, which NCM to update.
+     * Choose, which Ncm to update.
      */
-    where: NCMWhereUniqueInput
+    where: NcmWhereUniqueInput
   }
 
   /**
-   * NCM updateMany
+   * Ncm updateMany
    */
-  export type NCMUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update NCMS.
+     * The data used to update Ncms.
      */
-    data: XOR<NCMUpdateManyMutationInput, NCMUncheckedUpdateManyInput>
+    data: XOR<NcmUpdateManyMutationInput, NcmUncheckedUpdateManyInput>
     /**
-     * Filter which NCMS to update
+     * Filter which Ncms to update
      */
-    where?: NCMWhereInput
+    where?: NcmWhereInput
   }
 
   /**
-   * NCM upsert
+   * Ncm upsert
    */
-  export type NCMUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * The filter to search for the NCM to update in case it exists.
+     * The filter to search for the Ncm to update in case it exists.
      */
-    where: NCMWhereUniqueInput
+    where: NcmWhereUniqueInput
     /**
-     * In case the NCM found by the `where` argument doesn't exist, create a new NCM with this data.
+     * In case the Ncm found by the `where` argument doesn't exist, create a new Ncm with this data.
      */
-    create: XOR<NCMCreateInput, NCMUncheckedCreateInput>
+    create: XOR<NcmCreateInput, NcmUncheckedCreateInput>
     /**
-     * In case the NCM was found with the provided `where` argument, update it with this data.
+     * In case the Ncm was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<NCMUpdateInput, NCMUncheckedUpdateInput>
+    update: XOR<NcmUpdateInput, NcmUncheckedUpdateInput>
   }
 
   /**
-   * NCM delete
+   * Ncm delete
    */
-  export type NCMDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
     /**
-     * Filter which NCM to delete.
+     * Filter which Ncm to delete.
      */
-    where: NCMWhereUniqueInput
+    where: NcmWhereUniqueInput
   }
 
   /**
-   * NCM deleteMany
+   * Ncm deleteMany
    */
-  export type NCMDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which NCMS to delete
+     * Filter which Ncms to delete
      */
-    where?: NCMWhereInput
+    where?: NcmWhereInput
   }
 
   /**
-   * NCM without action
+   * Ncm without action
    */
-  export type NCMDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NcmDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the NCM
+     * Select specific fields to fetch from the Ncm
      */
-    select?: NCMSelect<ExtArgs> | null
+    select?: NcmSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model OPE
+   * Model Ope
    */
 
-  export type AggregateOPE = {
-    _count: OPECountAggregateOutputType | null
-    _min: OPEMinAggregateOutputType | null
-    _max: OPEMaxAggregateOutputType | null
+  export type AggregateOpe = {
+    _count: OpeCountAggregateOutputType | null
+    _min: OpeMinAggregateOutputType | null
+    _max: OpeMaxAggregateOutputType | null
   }
 
-  export type OPEMinAggregateOutputType = {
+  export type OpeMinAggregateOutputType = {
     suid_ope: string | null
-    id_organizacao: string | null
+    id_organizacao_ope: string | null
+    id_produto_ope: string | null
+    id_usuario_ope: string | null
     codigo_portal_unico_ope: string | null
     situacao_ope: string | null
     versao_ope: string | null
@@ -5148,9 +5174,11 @@ export namespace Prisma {
     origem_ope: string | null
   }
 
-  export type OPEMaxAggregateOutputType = {
+  export type OpeMaxAggregateOutputType = {
     suid_ope: string | null
-    id_organizacao: string | null
+    id_organizacao_ope: string | null
+    id_produto_ope: string | null
+    id_usuario_ope: string | null
     codigo_portal_unico_ope: string | null
     situacao_ope: string | null
     versao_ope: string | null
@@ -5167,9 +5195,11 @@ export namespace Prisma {
     origem_ope: string | null
   }
 
-  export type OPECountAggregateOutputType = {
+  export type OpeCountAggregateOutputType = {
     suid_ope: number
-    id_organizacao: number
+    id_organizacao_ope: number
+    id_produto_ope: number
+    id_usuario_ope: number
     codigo_portal_unico_ope: number
     situacao_ope: number
     versao_ope: number
@@ -5188,9 +5218,11 @@ export namespace Prisma {
   }
 
 
-  export type OPEMinAggregateInputType = {
+  export type OpeMinAggregateInputType = {
     suid_ope?: true
-    id_organizacao?: true
+    id_organizacao_ope?: true
+    id_produto_ope?: true
+    id_usuario_ope?: true
     codigo_portal_unico_ope?: true
     situacao_ope?: true
     versao_ope?: true
@@ -5207,9 +5239,11 @@ export namespace Prisma {
     origem_ope?: true
   }
 
-  export type OPEMaxAggregateInputType = {
+  export type OpeMaxAggregateInputType = {
     suid_ope?: true
-    id_organizacao?: true
+    id_organizacao_ope?: true
+    id_produto_ope?: true
+    id_usuario_ope?: true
     codigo_portal_unico_ope?: true
     situacao_ope?: true
     versao_ope?: true
@@ -5226,9 +5260,11 @@ export namespace Prisma {
     origem_ope?: true
   }
 
-  export type OPECountAggregateInputType = {
+  export type OpeCountAggregateInputType = {
     suid_ope?: true
-    id_organizacao?: true
+    id_organizacao_ope?: true
+    id_produto_ope?: true
+    id_usuario_ope?: true
     codigo_portal_unico_ope?: true
     situacao_ope?: true
     versao_ope?: true
@@ -5246,81 +5282,83 @@ export namespace Prisma {
     _all?: true
   }
 
-  export type OPEAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which OPE to aggregate.
+     * Filter which Ope to aggregate.
      */
-    where?: OPEWhereInput
+    where?: OpeWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of OPES to fetch.
+     * Determine the order of Opes to fetch.
      */
-    orderBy?: OPEOrderByWithRelationInput | OPEOrderByWithRelationInput[]
+    orderBy?: OpeOrderByWithRelationInput | OpeOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: OPEWhereUniqueInput
+    cursor?: OpeWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` OPES from the position of the cursor.
+     * Take `±n` Opes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` OPES.
+     * Skip the first `n` Opes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned OPES
+     * Count returned Opes
     **/
-    _count?: true | OPECountAggregateInputType
+    _count?: true | OpeCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: OPEMinAggregateInputType
+    _min?: OpeMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: OPEMaxAggregateInputType
+    _max?: OpeMaxAggregateInputType
   }
 
-  export type GetOPEAggregateType<T extends OPEAggregateArgs> = {
-        [P in keyof T & keyof AggregateOPE]: P extends '_count' | 'count'
+  export type GetOpeAggregateType<T extends OpeAggregateArgs> = {
+        [P in keyof T & keyof AggregateOpe]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateOPE[P]>
-      : GetScalarType<T[P], AggregateOPE[P]>
+        : GetScalarType<T[P], AggregateOpe[P]>
+      : GetScalarType<T[P], AggregateOpe[P]>
   }
 
 
 
 
-  export type OPEGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: OPEWhereInput
-    orderBy?: OPEOrderByWithAggregationInput | OPEOrderByWithAggregationInput[]
-    by: OPEScalarFieldEnum[] | OPEScalarFieldEnum
-    having?: OPEScalarWhereWithAggregatesInput
+  export type OpeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OpeWhereInput
+    orderBy?: OpeOrderByWithAggregationInput | OpeOrderByWithAggregationInput[]
+    by: OpeScalarFieldEnum[] | OpeScalarFieldEnum
+    having?: OpeScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: OPECountAggregateInputType | true
-    _min?: OPEMinAggregateInputType
-    _max?: OPEMaxAggregateInputType
+    _count?: OpeCountAggregateInputType | true
+    _min?: OpeMinAggregateInputType
+    _max?: OpeMaxAggregateInputType
   }
 
-  export type OPEGroupByOutputType = {
+  export type OpeGroupByOutputType = {
     suid_ope: string
-    id_organizacao: string
+    id_organizacao_ope: string
+    id_produto_ope: string | null
+    id_usuario_ope: string | null
     codigo_portal_unico_ope: string
     situacao_ope: string
     versao_ope: string
@@ -5335,28 +5373,30 @@ export namespace Prisma {
     email_ope: string | null
     ultima_sincronizacao_ope: Date
     origem_ope: string
-    _count: OPECountAggregateOutputType | null
-    _min: OPEMinAggregateOutputType | null
-    _max: OPEMaxAggregateOutputType | null
+    _count: OpeCountAggregateOutputType | null
+    _min: OpeMinAggregateOutputType | null
+    _max: OpeMaxAggregateOutputType | null
   }
 
-  type GetOPEGroupByPayload<T extends OPEGroupByArgs> = Prisma.PrismaPromise<
+  type GetOpeGroupByPayload<T extends OpeGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<OPEGroupByOutputType, T['by']> &
+      PickEnumerable<OpeGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof OPEGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof OpeGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], OPEGroupByOutputType[P]>
-            : GetScalarType<T[P], OPEGroupByOutputType[P]>
+              : GetScalarType<T[P], OpeGroupByOutputType[P]>
+            : GetScalarType<T[P], OpeGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type OPESelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OpeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     suid_ope?: boolean
-    id_organizacao?: boolean
+    id_organizacao_ope?: boolean
+    id_produto_ope?: boolean
+    id_usuario_ope?: boolean
     codigo_portal_unico_ope?: boolean
     situacao_ope?: boolean
     versao_ope?: boolean
@@ -5371,11 +5411,13 @@ export namespace Prisma {
     email_ope?: boolean
     ultima_sincronizacao_ope?: boolean
     origem_ope?: boolean
-  }, ExtArgs["result"]["oPE"]>
+  }, ExtArgs["result"]["ope"]>
 
-  export type OPESelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type OpeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     suid_ope?: boolean
-    id_organizacao?: boolean
+    id_organizacao_ope?: boolean
+    id_produto_ope?: boolean
+    id_usuario_ope?: boolean
     codigo_portal_unico_ope?: boolean
     situacao_ope?: boolean
     versao_ope?: boolean
@@ -5390,11 +5432,13 @@ export namespace Prisma {
     email_ope?: boolean
     ultima_sincronizacao_ope?: boolean
     origem_ope?: boolean
-  }, ExtArgs["result"]["oPE"]>
+  }, ExtArgs["result"]["ope"]>
 
-  export type OPESelectScalar = {
+  export type OpeSelectScalar = {
     suid_ope?: boolean
-    id_organizacao?: boolean
+    id_organizacao_ope?: boolean
+    id_produto_ope?: boolean
+    id_usuario_ope?: boolean
     codigo_portal_unico_ope?: boolean
     situacao_ope?: boolean
     versao_ope?: boolean
@@ -5412,12 +5456,14 @@ export namespace Prisma {
   }
 
 
-  export type $OPEPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "OPE"
+  export type $OpePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Ope"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       suid_ope: string
-      id_organizacao: string
+      id_organizacao_ope: string
+      id_produto_ope: string | null
+      id_usuario_ope: string | null
       codigo_portal_unico_ope: string
       situacao_ope: string
       versao_ope: string
@@ -5432,136 +5478,136 @@ export namespace Prisma {
       email_ope: string | null
       ultima_sincronizacao_ope: Date
       origem_ope: string
-    }, ExtArgs["result"]["oPE"]>
+    }, ExtArgs["result"]["ope"]>
     composites: {}
   }
 
-  type OPEGetPayload<S extends boolean | null | undefined | OPEDefaultArgs> = $Result.GetResult<Prisma.$OPEPayload, S>
+  type OpeGetPayload<S extends boolean | null | undefined | OpeDefaultArgs> = $Result.GetResult<Prisma.$OpePayload, S>
 
-  type OPECountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<OPEFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: OPECountAggregateInputType | true
+  type OpeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<OpeFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: OpeCountAggregateInputType | true
     }
 
-  export interface OPEDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OPE'], meta: { name: 'OPE' } }
+  export interface OpeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Ope'], meta: { name: 'Ope' } }
     /**
-     * Find zero or one OPE that matches the filter.
-     * @param {OPEFindUniqueArgs} args - Arguments to find a OPE
+     * Find zero or one Ope that matches the filter.
+     * @param {OpeFindUniqueArgs} args - Arguments to find a Ope
      * @example
-     * // Get one OPE
-     * const oPE = await prisma.oPE.findUnique({
+     * // Get one Ope
+     * const ope = await prisma.ope.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends OPEFindUniqueArgs>(args: SelectSubset<T, OPEFindUniqueArgs<ExtArgs>>): Prisma__OPEClient<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends OpeFindUniqueArgs>(args: SelectSubset<T, OpeFindUniqueArgs<ExtArgs>>): Prisma__OpeClient<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one OPE that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one Ope that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {OPEFindUniqueOrThrowArgs} args - Arguments to find a OPE
+     * @param {OpeFindUniqueOrThrowArgs} args - Arguments to find a Ope
      * @example
-     * // Get one OPE
-     * const oPE = await prisma.oPE.findUniqueOrThrow({
+     * // Get one Ope
+     * const ope = await prisma.ope.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends OPEFindUniqueOrThrowArgs>(args: SelectSubset<T, OPEFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OPEClient<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends OpeFindUniqueOrThrowArgs>(args: SelectSubset<T, OpeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OpeClient<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first OPE that matches the filter.
+     * Find the first Ope that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OPEFindFirstArgs} args - Arguments to find a OPE
+     * @param {OpeFindFirstArgs} args - Arguments to find a Ope
      * @example
-     * // Get one OPE
-     * const oPE = await prisma.oPE.findFirst({
+     * // Get one Ope
+     * const ope = await prisma.ope.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends OPEFindFirstArgs>(args?: SelectSubset<T, OPEFindFirstArgs<ExtArgs>>): Prisma__OPEClient<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends OpeFindFirstArgs>(args?: SelectSubset<T, OpeFindFirstArgs<ExtArgs>>): Prisma__OpeClient<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first OPE that matches the filter or
+     * Find the first Ope that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OPEFindFirstOrThrowArgs} args - Arguments to find a OPE
+     * @param {OpeFindFirstOrThrowArgs} args - Arguments to find a Ope
      * @example
-     * // Get one OPE
-     * const oPE = await prisma.oPE.findFirstOrThrow({
+     * // Get one Ope
+     * const ope = await prisma.ope.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends OPEFindFirstOrThrowArgs>(args?: SelectSubset<T, OPEFindFirstOrThrowArgs<ExtArgs>>): Prisma__OPEClient<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends OpeFindFirstOrThrowArgs>(args?: SelectSubset<T, OpeFindFirstOrThrowArgs<ExtArgs>>): Prisma__OpeClient<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more OPES that matches the filter.
+     * Find zero or more Opes that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OPEFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {OpeFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all OPES
-     * const oPES = await prisma.oPE.findMany()
+     * // Get all Opes
+     * const opes = await prisma.ope.findMany()
      * 
-     * // Get first 10 OPES
-     * const oPES = await prisma.oPE.findMany({ take: 10 })
+     * // Get first 10 Opes
+     * const opes = await prisma.ope.findMany({ take: 10 })
      * 
      * // Only select the `suid_ope`
-     * const oPEWithSuid_opeOnly = await prisma.oPE.findMany({ select: { suid_ope: true } })
+     * const opeWithSuid_opeOnly = await prisma.ope.findMany({ select: { suid_ope: true } })
      * 
      */
-    findMany<T extends OPEFindManyArgs>(args?: SelectSubset<T, OPEFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends OpeFindManyArgs>(args?: SelectSubset<T, OpeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a OPE.
-     * @param {OPECreateArgs} args - Arguments to create a OPE.
+     * Create a Ope.
+     * @param {OpeCreateArgs} args - Arguments to create a Ope.
      * @example
-     * // Create one OPE
-     * const OPE = await prisma.oPE.create({
+     * // Create one Ope
+     * const Ope = await prisma.ope.create({
      *   data: {
-     *     // ... data to create a OPE
+     *     // ... data to create a Ope
      *   }
      * })
      * 
      */
-    create<T extends OPECreateArgs>(args: SelectSubset<T, OPECreateArgs<ExtArgs>>): Prisma__OPEClient<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends OpeCreateArgs>(args: SelectSubset<T, OpeCreateArgs<ExtArgs>>): Prisma__OpeClient<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many OPES.
-     * @param {OPECreateManyArgs} args - Arguments to create many OPES.
+     * Create many Opes.
+     * @param {OpeCreateManyArgs} args - Arguments to create many Opes.
      * @example
-     * // Create many OPES
-     * const oPE = await prisma.oPE.createMany({
+     * // Create many Opes
+     * const ope = await prisma.ope.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends OPECreateManyArgs>(args?: SelectSubset<T, OPECreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends OpeCreateManyArgs>(args?: SelectSubset<T, OpeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many OPES and returns the data saved in the database.
-     * @param {OPECreateManyAndReturnArgs} args - Arguments to create many OPES.
+     * Create many Opes and returns the data saved in the database.
+     * @param {OpeCreateManyAndReturnArgs} args - Arguments to create many Opes.
      * @example
-     * // Create many OPES
-     * const oPE = await prisma.oPE.createManyAndReturn({
+     * // Create many Opes
+     * const ope = await prisma.ope.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many OPES and only return the `suid_ope`
-     * const oPEWithSuid_opeOnly = await prisma.oPE.createManyAndReturn({ 
+     * // Create many Opes and only return the `suid_ope`
+     * const opeWithSuid_opeOnly = await prisma.ope.createManyAndReturn({ 
      *   select: { suid_ope: true },
      *   data: [
      *     // ... provide data here
@@ -5571,28 +5617,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends OPECreateManyAndReturnArgs>(args?: SelectSubset<T, OPECreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends OpeCreateManyAndReturnArgs>(args?: SelectSubset<T, OpeCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a OPE.
-     * @param {OPEDeleteArgs} args - Arguments to delete one OPE.
+     * Delete a Ope.
+     * @param {OpeDeleteArgs} args - Arguments to delete one Ope.
      * @example
-     * // Delete one OPE
-     * const OPE = await prisma.oPE.delete({
+     * // Delete one Ope
+     * const Ope = await prisma.ope.delete({
      *   where: {
-     *     // ... filter to delete one OPE
+     *     // ... filter to delete one Ope
      *   }
      * })
      * 
      */
-    delete<T extends OPEDeleteArgs>(args: SelectSubset<T, OPEDeleteArgs<ExtArgs>>): Prisma__OPEClient<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends OpeDeleteArgs>(args: SelectSubset<T, OpeDeleteArgs<ExtArgs>>): Prisma__OpeClient<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one OPE.
-     * @param {OPEUpdateArgs} args - Arguments to update one OPE.
+     * Update one Ope.
+     * @param {OpeUpdateArgs} args - Arguments to update one Ope.
      * @example
-     * // Update one OPE
-     * const oPE = await prisma.oPE.update({
+     * // Update one Ope
+     * const ope = await prisma.ope.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5602,30 +5648,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends OPEUpdateArgs>(args: SelectSubset<T, OPEUpdateArgs<ExtArgs>>): Prisma__OPEClient<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends OpeUpdateArgs>(args: SelectSubset<T, OpeUpdateArgs<ExtArgs>>): Prisma__OpeClient<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more OPES.
-     * @param {OPEDeleteManyArgs} args - Arguments to filter OPES to delete.
+     * Delete zero or more Opes.
+     * @param {OpeDeleteManyArgs} args - Arguments to filter Opes to delete.
      * @example
-     * // Delete a few OPES
-     * const { count } = await prisma.oPE.deleteMany({
+     * // Delete a few Opes
+     * const { count } = await prisma.ope.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends OPEDeleteManyArgs>(args?: SelectSubset<T, OPEDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends OpeDeleteManyArgs>(args?: SelectSubset<T, OpeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more OPES.
+     * Update zero or more Opes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OPEUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {OpeUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many OPES
-     * const oPE = await prisma.oPE.updateMany({
+     * // Update many Opes
+     * const ope = await prisma.ope.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5635,56 +5681,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends OPEUpdateManyArgs>(args: SelectSubset<T, OPEUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends OpeUpdateManyArgs>(args: SelectSubset<T, OpeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one OPE.
-     * @param {OPEUpsertArgs} args - Arguments to update or create a OPE.
+     * Create or update one Ope.
+     * @param {OpeUpsertArgs} args - Arguments to update or create a Ope.
      * @example
-     * // Update or create a OPE
-     * const oPE = await prisma.oPE.upsert({
+     * // Update or create a Ope
+     * const ope = await prisma.ope.upsert({
      *   create: {
-     *     // ... data to create a OPE
+     *     // ... data to create a Ope
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the OPE we want to update
+     *     // ... the filter for the Ope we want to update
      *   }
      * })
      */
-    upsert<T extends OPEUpsertArgs>(args: SelectSubset<T, OPEUpsertArgs<ExtArgs>>): Prisma__OPEClient<$Result.GetResult<Prisma.$OPEPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends OpeUpsertArgs>(args: SelectSubset<T, OpeUpsertArgs<ExtArgs>>): Prisma__OpeClient<$Result.GetResult<Prisma.$OpePayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of OPES.
+     * Count the number of Opes.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OPECountArgs} args - Arguments to filter OPES to count.
+     * @param {OpeCountArgs} args - Arguments to filter Opes to count.
      * @example
-     * // Count the number of OPES
-     * const count = await prisma.oPE.count({
+     * // Count the number of Opes
+     * const count = await prisma.ope.count({
      *   where: {
-     *     // ... the filter for the OPES we want to count
+     *     // ... the filter for the Opes we want to count
      *   }
      * })
     **/
-    count<T extends OPECountArgs>(
-      args?: Subset<T, OPECountArgs>,
+    count<T extends OpeCountArgs>(
+      args?: Subset<T, OpeCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], OPECountAggregateOutputType>
+          : GetScalarType<T['select'], OpeCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a OPE.
+     * Allows you to perform aggregations operations on a Ope.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OPEAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {OpeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -5704,13 +5750,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends OPEAggregateArgs>(args: Subset<T, OPEAggregateArgs>): Prisma.PrismaPromise<GetOPEAggregateType<T>>
+    aggregate<T extends OpeAggregateArgs>(args: Subset<T, OpeAggregateArgs>): Prisma.PrismaPromise<GetOpeAggregateType<T>>
 
     /**
-     * Group by OPE.
+     * Group by Ope.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {OPEGroupByArgs} args - Group by arguments.
+     * @param {OpeGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -5725,14 +5771,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends OPEGroupByArgs,
+      T extends OpeGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: OPEGroupByArgs['orderBy'] }
-        : { orderBy?: OPEGroupByArgs['orderBy'] },
+        ? { orderBy: OpeGroupByArgs['orderBy'] }
+        : { orderBy?: OpeGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -5781,20 +5827,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, OPEGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOPEGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, OpeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOpeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the OPE model
+   * Fields of the Ope model
    */
-  readonly fields: OPEFieldRefs;
+  readonly fields: OpeFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for OPE.
+   * The delegate class that acts as a "Promise-like" for Ope.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__OPEClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__OpeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -5822,310 +5868,312 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the OPE model
+   * Fields of the Ope model
    */ 
-  interface OPEFieldRefs {
-    readonly suid_ope: FieldRef<"OPE", 'String'>
-    readonly id_organizacao: FieldRef<"OPE", 'String'>
-    readonly codigo_portal_unico_ope: FieldRef<"OPE", 'String'>
-    readonly situacao_ope: FieldRef<"OPE", 'String'>
-    readonly versao_ope: FieldRef<"OPE", 'String'>
-    readonly nome_ope: FieldRef<"OPE", 'String'>
-    readonly cnpj_raiz_empresa_ope: FieldRef<"OPE", 'String'>
-    readonly pais_ope: FieldRef<"OPE", 'String'>
-    readonly estado_ope: FieldRef<"OPE", 'String'>
-    readonly cidade_ope: FieldRef<"OPE", 'String'>
-    readonly endereco_ope: FieldRef<"OPE", 'String'>
-    readonly zip_ope: FieldRef<"OPE", 'String'>
-    readonly tin_ope: FieldRef<"OPE", 'String'>
-    readonly email_ope: FieldRef<"OPE", 'String'>
-    readonly ultima_sincronizacao_ope: FieldRef<"OPE", 'DateTime'>
-    readonly origem_ope: FieldRef<"OPE", 'String'>
+  interface OpeFieldRefs {
+    readonly suid_ope: FieldRef<"Ope", 'String'>
+    readonly id_organizacao_ope: FieldRef<"Ope", 'String'>
+    readonly id_produto_ope: FieldRef<"Ope", 'String'>
+    readonly id_usuario_ope: FieldRef<"Ope", 'String'>
+    readonly codigo_portal_unico_ope: FieldRef<"Ope", 'String'>
+    readonly situacao_ope: FieldRef<"Ope", 'String'>
+    readonly versao_ope: FieldRef<"Ope", 'String'>
+    readonly nome_ope: FieldRef<"Ope", 'String'>
+    readonly cnpj_raiz_empresa_ope: FieldRef<"Ope", 'String'>
+    readonly pais_ope: FieldRef<"Ope", 'String'>
+    readonly estado_ope: FieldRef<"Ope", 'String'>
+    readonly cidade_ope: FieldRef<"Ope", 'String'>
+    readonly endereco_ope: FieldRef<"Ope", 'String'>
+    readonly zip_ope: FieldRef<"Ope", 'String'>
+    readonly tin_ope: FieldRef<"Ope", 'String'>
+    readonly email_ope: FieldRef<"Ope", 'String'>
+    readonly ultima_sincronizacao_ope: FieldRef<"Ope", 'DateTime'>
+    readonly origem_ope: FieldRef<"Ope", 'String'>
   }
     
 
   // Custom InputTypes
   /**
-   * OPE findUnique
+   * Ope findUnique
    */
-  export type OPEFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * Filter, which OPE to fetch.
+     * Filter, which Ope to fetch.
      */
-    where: OPEWhereUniqueInput
+    where: OpeWhereUniqueInput
   }
 
   /**
-   * OPE findUniqueOrThrow
+   * Ope findUniqueOrThrow
    */
-  export type OPEFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * Filter, which OPE to fetch.
+     * Filter, which Ope to fetch.
      */
-    where: OPEWhereUniqueInput
+    where: OpeWhereUniqueInput
   }
 
   /**
-   * OPE findFirst
+   * Ope findFirst
    */
-  export type OPEFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * Filter, which OPE to fetch.
+     * Filter, which Ope to fetch.
      */
-    where?: OPEWhereInput
+    where?: OpeWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of OPES to fetch.
+     * Determine the order of Opes to fetch.
      */
-    orderBy?: OPEOrderByWithRelationInput | OPEOrderByWithRelationInput[]
+    orderBy?: OpeOrderByWithRelationInput | OpeOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for OPES.
+     * Sets the position for searching for Opes.
      */
-    cursor?: OPEWhereUniqueInput
+    cursor?: OpeWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` OPES from the position of the cursor.
+     * Take `±n` Opes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` OPES.
+     * Skip the first `n` Opes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of OPES.
+     * Filter by unique combinations of Opes.
      */
-    distinct?: OPEScalarFieldEnum | OPEScalarFieldEnum[]
+    distinct?: OpeScalarFieldEnum | OpeScalarFieldEnum[]
   }
 
   /**
-   * OPE findFirstOrThrow
+   * Ope findFirstOrThrow
    */
-  export type OPEFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * Filter, which OPE to fetch.
+     * Filter, which Ope to fetch.
      */
-    where?: OPEWhereInput
+    where?: OpeWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of OPES to fetch.
+     * Determine the order of Opes to fetch.
      */
-    orderBy?: OPEOrderByWithRelationInput | OPEOrderByWithRelationInput[]
+    orderBy?: OpeOrderByWithRelationInput | OpeOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for OPES.
+     * Sets the position for searching for Opes.
      */
-    cursor?: OPEWhereUniqueInput
+    cursor?: OpeWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` OPES from the position of the cursor.
+     * Take `±n` Opes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` OPES.
+     * Skip the first `n` Opes.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of OPES.
+     * Filter by unique combinations of Opes.
      */
-    distinct?: OPEScalarFieldEnum | OPEScalarFieldEnum[]
+    distinct?: OpeScalarFieldEnum | OpeScalarFieldEnum[]
   }
 
   /**
-   * OPE findMany
+   * Ope findMany
    */
-  export type OPEFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * Filter, which OPES to fetch.
+     * Filter, which Opes to fetch.
      */
-    where?: OPEWhereInput
+    where?: OpeWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of OPES to fetch.
+     * Determine the order of Opes to fetch.
      */
-    orderBy?: OPEOrderByWithRelationInput | OPEOrderByWithRelationInput[]
+    orderBy?: OpeOrderByWithRelationInput | OpeOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing OPES.
+     * Sets the position for listing Opes.
      */
-    cursor?: OPEWhereUniqueInput
+    cursor?: OpeWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` OPES from the position of the cursor.
+     * Take `±n` Opes from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` OPES.
+     * Skip the first `n` Opes.
      */
     skip?: number
-    distinct?: OPEScalarFieldEnum | OPEScalarFieldEnum[]
+    distinct?: OpeScalarFieldEnum | OpeScalarFieldEnum[]
   }
 
   /**
-   * OPE create
+   * Ope create
    */
-  export type OPECreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * The data needed to create a OPE.
+     * The data needed to create a Ope.
      */
-    data: XOR<OPECreateInput, OPEUncheckedCreateInput>
+    data: XOR<OpeCreateInput, OpeUncheckedCreateInput>
   }
 
   /**
-   * OPE createMany
+   * Ope createMany
    */
-  export type OPECreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many OPES.
+     * The data used to create many Opes.
      */
-    data: OPECreateManyInput | OPECreateManyInput[]
+    data: OpeCreateManyInput | OpeCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * OPE createManyAndReturn
+   * Ope createManyAndReturn
    */
-  export type OPECreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelectCreateManyAndReturn<ExtArgs> | null
+    select?: OpeSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many OPES.
+     * The data used to create many Opes.
      */
-    data: OPECreateManyInput | OPECreateManyInput[]
+    data: OpeCreateManyInput | OpeCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * OPE update
+   * Ope update
    */
-  export type OPEUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * The data needed to update a OPE.
+     * The data needed to update a Ope.
      */
-    data: XOR<OPEUpdateInput, OPEUncheckedUpdateInput>
+    data: XOR<OpeUpdateInput, OpeUncheckedUpdateInput>
     /**
-     * Choose, which OPE to update.
+     * Choose, which Ope to update.
      */
-    where: OPEWhereUniqueInput
+    where: OpeWhereUniqueInput
   }
 
   /**
-   * OPE updateMany
+   * Ope updateMany
    */
-  export type OPEUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update OPES.
+     * The data used to update Opes.
      */
-    data: XOR<OPEUpdateManyMutationInput, OPEUncheckedUpdateManyInput>
+    data: XOR<OpeUpdateManyMutationInput, OpeUncheckedUpdateManyInput>
     /**
-     * Filter which OPES to update
+     * Filter which Opes to update
      */
-    where?: OPEWhereInput
+    where?: OpeWhereInput
   }
 
   /**
-   * OPE upsert
+   * Ope upsert
    */
-  export type OPEUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * The filter to search for the OPE to update in case it exists.
+     * The filter to search for the Ope to update in case it exists.
      */
-    where: OPEWhereUniqueInput
+    where: OpeWhereUniqueInput
     /**
-     * In case the OPE found by the `where` argument doesn't exist, create a new OPE with this data.
+     * In case the Ope found by the `where` argument doesn't exist, create a new Ope with this data.
      */
-    create: XOR<OPECreateInput, OPEUncheckedCreateInput>
+    create: XOR<OpeCreateInput, OpeUncheckedCreateInput>
     /**
-     * In case the OPE was found with the provided `where` argument, update it with this data.
+     * In case the Ope was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<OPEUpdateInput, OPEUncheckedUpdateInput>
+    update: XOR<OpeUpdateInput, OpeUncheckedUpdateInput>
   }
 
   /**
-   * OPE delete
+   * Ope delete
    */
-  export type OPEDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
     /**
-     * Filter which OPE to delete.
+     * Filter which Ope to delete.
      */
-    where: OPEWhereUniqueInput
+    where: OpeWhereUniqueInput
   }
 
   /**
-   * OPE deleteMany
+   * Ope deleteMany
    */
-  export type OPEDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which OPES to delete
+     * Filter which Opes to delete
      */
-    where?: OPEWhereInput
+    where?: OpeWhereInput
   }
 
   /**
-   * OPE without action
+   * Ope without action
    */
-  export type OPEDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OpeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the OPE
+     * Select specific fields to fetch from the Ope
      */
-    select?: OPESelect<ExtArgs> | null
+    select?: OpeSelect<ExtArgs> | null
   }
 
 
@@ -6140,61 +6188,79 @@ export namespace Prisma {
   }
 
   export type OpeHistoricoStatusMinAggregateOutputType = {
-    id_historico_status_ope: string | null
-    suid_ope_historico_status_ope: string | null
-    status_anterior_historico_status_ope: string | null
-    status_novo_historico_status_ope: string | null
-    origem_historico_status_ope: string | null
-    registrado_em_historico_status_ope: Date | null
+    id_ope_historico_status: string | null
+    id_organizacao_ope_historico_status: string | null
+    id_produto_ope_historico_status: string | null
+    id_usuario_ope_historico_status: string | null
+    suid_ope_historico_status: string | null
+    status_anterior_ope_historico_status: string | null
+    status_novo_ope_historico_status: string | null
+    origem_ope_historico_status: string | null
+    registrado_em_ope_historico_status: Date | null
   }
 
   export type OpeHistoricoStatusMaxAggregateOutputType = {
-    id_historico_status_ope: string | null
-    suid_ope_historico_status_ope: string | null
-    status_anterior_historico_status_ope: string | null
-    status_novo_historico_status_ope: string | null
-    origem_historico_status_ope: string | null
-    registrado_em_historico_status_ope: Date | null
+    id_ope_historico_status: string | null
+    id_organizacao_ope_historico_status: string | null
+    id_produto_ope_historico_status: string | null
+    id_usuario_ope_historico_status: string | null
+    suid_ope_historico_status: string | null
+    status_anterior_ope_historico_status: string | null
+    status_novo_ope_historico_status: string | null
+    origem_ope_historico_status: string | null
+    registrado_em_ope_historico_status: Date | null
   }
 
   export type OpeHistoricoStatusCountAggregateOutputType = {
-    id_historico_status_ope: number
-    suid_ope_historico_status_ope: number
-    status_anterior_historico_status_ope: number
-    status_novo_historico_status_ope: number
-    origem_historico_status_ope: number
-    payload_historico_status_ope: number
-    registrado_em_historico_status_ope: number
+    id_ope_historico_status: number
+    id_organizacao_ope_historico_status: number
+    id_produto_ope_historico_status: number
+    id_usuario_ope_historico_status: number
+    suid_ope_historico_status: number
+    status_anterior_ope_historico_status: number
+    status_novo_ope_historico_status: number
+    origem_ope_historico_status: number
+    payload_ope_historico_status: number
+    registrado_em_ope_historico_status: number
     _all: number
   }
 
 
   export type OpeHistoricoStatusMinAggregateInputType = {
-    id_historico_status_ope?: true
-    suid_ope_historico_status_ope?: true
-    status_anterior_historico_status_ope?: true
-    status_novo_historico_status_ope?: true
-    origem_historico_status_ope?: true
-    registrado_em_historico_status_ope?: true
+    id_ope_historico_status?: true
+    id_organizacao_ope_historico_status?: true
+    id_produto_ope_historico_status?: true
+    id_usuario_ope_historico_status?: true
+    suid_ope_historico_status?: true
+    status_anterior_ope_historico_status?: true
+    status_novo_ope_historico_status?: true
+    origem_ope_historico_status?: true
+    registrado_em_ope_historico_status?: true
   }
 
   export type OpeHistoricoStatusMaxAggregateInputType = {
-    id_historico_status_ope?: true
-    suid_ope_historico_status_ope?: true
-    status_anterior_historico_status_ope?: true
-    status_novo_historico_status_ope?: true
-    origem_historico_status_ope?: true
-    registrado_em_historico_status_ope?: true
+    id_ope_historico_status?: true
+    id_organizacao_ope_historico_status?: true
+    id_produto_ope_historico_status?: true
+    id_usuario_ope_historico_status?: true
+    suid_ope_historico_status?: true
+    status_anterior_ope_historico_status?: true
+    status_novo_ope_historico_status?: true
+    origem_ope_historico_status?: true
+    registrado_em_ope_historico_status?: true
   }
 
   export type OpeHistoricoStatusCountAggregateInputType = {
-    id_historico_status_ope?: true
-    suid_ope_historico_status_ope?: true
-    status_anterior_historico_status_ope?: true
-    status_novo_historico_status_ope?: true
-    origem_historico_status_ope?: true
-    payload_historico_status_ope?: true
-    registrado_em_historico_status_ope?: true
+    id_ope_historico_status?: true
+    id_organizacao_ope_historico_status?: true
+    id_produto_ope_historico_status?: true
+    id_usuario_ope_historico_status?: true
+    suid_ope_historico_status?: true
+    status_anterior_ope_historico_status?: true
+    status_novo_ope_historico_status?: true
+    origem_ope_historico_status?: true
+    payload_ope_historico_status?: true
+    registrado_em_ope_historico_status?: true
     _all?: true
   }
 
@@ -6271,13 +6337,16 @@ export namespace Prisma {
   }
 
   export type OpeHistoricoStatusGroupByOutputType = {
-    id_historico_status_ope: string
-    suid_ope_historico_status_ope: string
-    status_anterior_historico_status_ope: string | null
-    status_novo_historico_status_ope: string
-    origem_historico_status_ope: string
-    payload_historico_status_ope: JsonValue
-    registrado_em_historico_status_ope: Date
+    id_ope_historico_status: string
+    id_organizacao_ope_historico_status: string | null
+    id_produto_ope_historico_status: string | null
+    id_usuario_ope_historico_status: string | null
+    suid_ope_historico_status: string
+    status_anterior_ope_historico_status: string | null
+    status_novo_ope_historico_status: string
+    origem_ope_historico_status: string
+    payload_ope_historico_status: JsonValue
+    registrado_em_ope_historico_status: Date
     _count: OpeHistoricoStatusCountAggregateOutputType | null
     _min: OpeHistoricoStatusMinAggregateOutputType | null
     _max: OpeHistoricoStatusMaxAggregateOutputType | null
@@ -6298,33 +6367,42 @@ export namespace Prisma {
 
 
   export type OpeHistoricoStatusSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_historico_status_ope?: boolean
-    suid_ope_historico_status_ope?: boolean
-    status_anterior_historico_status_ope?: boolean
-    status_novo_historico_status_ope?: boolean
-    origem_historico_status_ope?: boolean
-    payload_historico_status_ope?: boolean
-    registrado_em_historico_status_ope?: boolean
+    id_ope_historico_status?: boolean
+    id_organizacao_ope_historico_status?: boolean
+    id_produto_ope_historico_status?: boolean
+    id_usuario_ope_historico_status?: boolean
+    suid_ope_historico_status?: boolean
+    status_anterior_ope_historico_status?: boolean
+    status_novo_ope_historico_status?: boolean
+    origem_ope_historico_status?: boolean
+    payload_ope_historico_status?: boolean
+    registrado_em_ope_historico_status?: boolean
   }, ExtArgs["result"]["opeHistoricoStatus"]>
 
   export type OpeHistoricoStatusSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id_historico_status_ope?: boolean
-    suid_ope_historico_status_ope?: boolean
-    status_anterior_historico_status_ope?: boolean
-    status_novo_historico_status_ope?: boolean
-    origem_historico_status_ope?: boolean
-    payload_historico_status_ope?: boolean
-    registrado_em_historico_status_ope?: boolean
+    id_ope_historico_status?: boolean
+    id_organizacao_ope_historico_status?: boolean
+    id_produto_ope_historico_status?: boolean
+    id_usuario_ope_historico_status?: boolean
+    suid_ope_historico_status?: boolean
+    status_anterior_ope_historico_status?: boolean
+    status_novo_ope_historico_status?: boolean
+    origem_ope_historico_status?: boolean
+    payload_ope_historico_status?: boolean
+    registrado_em_ope_historico_status?: boolean
   }, ExtArgs["result"]["opeHistoricoStatus"]>
 
   export type OpeHistoricoStatusSelectScalar = {
-    id_historico_status_ope?: boolean
-    suid_ope_historico_status_ope?: boolean
-    status_anterior_historico_status_ope?: boolean
-    status_novo_historico_status_ope?: boolean
-    origem_historico_status_ope?: boolean
-    payload_historico_status_ope?: boolean
-    registrado_em_historico_status_ope?: boolean
+    id_ope_historico_status?: boolean
+    id_organizacao_ope_historico_status?: boolean
+    id_produto_ope_historico_status?: boolean
+    id_usuario_ope_historico_status?: boolean
+    suid_ope_historico_status?: boolean
+    status_anterior_ope_historico_status?: boolean
+    status_novo_ope_historico_status?: boolean
+    origem_ope_historico_status?: boolean
+    payload_ope_historico_status?: boolean
+    registrado_em_ope_historico_status?: boolean
   }
 
 
@@ -6332,13 +6410,16 @@ export namespace Prisma {
     name: "OpeHistoricoStatus"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id_historico_status_ope: string
-      suid_ope_historico_status_ope: string
-      status_anterior_historico_status_ope: string | null
-      status_novo_historico_status_ope: string
-      origem_historico_status_ope: string
-      payload_historico_status_ope: Prisma.JsonValue
-      registrado_em_historico_status_ope: Date
+      id_ope_historico_status: string
+      id_organizacao_ope_historico_status: string | null
+      id_produto_ope_historico_status: string | null
+      id_usuario_ope_historico_status: string | null
+      suid_ope_historico_status: string
+      status_anterior_ope_historico_status: string | null
+      status_novo_ope_historico_status: string
+      origem_ope_historico_status: string
+      payload_ope_historico_status: Prisma.JsonValue
+      registrado_em_ope_historico_status: Date
     }, ExtArgs["result"]["opeHistoricoStatus"]>
     composites: {}
   }
@@ -6422,8 +6503,8 @@ export namespace Prisma {
      * // Get first 10 OpeHistoricoStatuses
      * const opeHistoricoStatuses = await prisma.opeHistoricoStatus.findMany({ take: 10 })
      * 
-     * // Only select the `id_historico_status_ope`
-     * const opeHistoricoStatusWithId_historico_status_opeOnly = await prisma.opeHistoricoStatus.findMany({ select: { id_historico_status_ope: true } })
+     * // Only select the `id_ope_historico_status`
+     * const opeHistoricoStatusWithId_ope_historico_statusOnly = await prisma.opeHistoricoStatus.findMany({ select: { id_ope_historico_status: true } })
      * 
      */
     findMany<T extends OpeHistoricoStatusFindManyArgs>(args?: SelectSubset<T, OpeHistoricoStatusFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OpeHistoricoStatusPayload<ExtArgs>, T, "findMany">>
@@ -6467,9 +6548,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many OpeHistoricoStatuses and only return the `id_historico_status_ope`
-     * const opeHistoricoStatusWithId_historico_status_opeOnly = await prisma.opeHistoricoStatus.createManyAndReturn({ 
-     *   select: { id_historico_status_ope: true },
+     * // Create many OpeHistoricoStatuses and only return the `id_ope_historico_status`
+     * const opeHistoricoStatusWithId_ope_historico_statusOnly = await prisma.opeHistoricoStatus.createManyAndReturn({ 
+     *   select: { id_ope_historico_status: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -6732,13 +6813,16 @@ export namespace Prisma {
    * Fields of the OpeHistoricoStatus model
    */ 
   interface OpeHistoricoStatusFieldRefs {
-    readonly id_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly suid_ope_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly status_anterior_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly status_novo_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly origem_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'String'>
-    readonly payload_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'Json'>
-    readonly registrado_em_historico_status_ope: FieldRef<"OpeHistoricoStatus", 'DateTime'>
+    readonly id_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly id_organizacao_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly id_produto_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly id_usuario_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly suid_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly status_anterior_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly status_novo_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly origem_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'String'>
+    readonly payload_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'Json'>
+    readonly registrado_em_ope_historico_status: FieldRef<"OpeHistoricoStatus", 'DateTime'>
   }
     
 
@@ -7043,7 +7127,9 @@ export namespace Prisma {
 
   export const EmpresaScalarFieldEnum: {
     suid_empresa: 'suid_empresa',
-    id_organizacao: 'id_organizacao',
+    id_organizacao_empresa: 'id_organizacao_empresa',
+    id_produto_empresa: 'id_produto_empresa',
+    id_usuario_empresa: 'id_usuario_empresa',
     nome_empresa: 'nome_empresa',
     cnpj_empresa: 'cnpj_empresa',
     tin_empresa: 'tin_empresa',
@@ -7061,9 +7147,6 @@ export namespace Prisma {
     pode_ser_agente_empresa: 'pode_ser_agente_empresa',
     pode_ser_despachante_empresa: 'pode_ser_despachante_empresa',
     pode_ser_armador_empresa: 'pode_ser_armador_empresa',
-    ativo_empresa: 'ativo_empresa',
-    criado_em_empresa: 'criado_em_empresa',
-    atualizado_em_empresa: 'atualizado_em_empresa',
     pode_ser_armazem_alfandegado_empresa: 'pode_ser_armazem_alfandegado_empresa',
     pode_ser_transportadora_rodoviaria_nacional_empresa: 'pode_ser_transportadora_rodoviaria_nacional_empresa',
     pode_ser_cia_aerea_empresa: 'pode_ser_cia_aerea_empresa',
@@ -7071,7 +7154,10 @@ export namespace Prisma {
     pode_ser_seguradora_internacional_empresa: 'pode_ser_seguradora_internacional_empresa',
     pode_ser_seguradora_corretora_cambio_empresa: 'pode_ser_seguradora_corretora_cambio_empresa',
     pode_ser_banco_empresa: 'pode_ser_banco_empresa',
-    pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa'
+    pode_ser_armazem_nacional_empresa: 'pode_ser_armazem_nacional_empresa',
+    ativo_empresa: 'ativo_empresa',
+    criado_em_empresa: 'criado_em_empresa',
+    atualizado_em_empresa: 'atualizado_em_empresa'
   };
 
   export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
@@ -7096,22 +7182,24 @@ export namespace Prisma {
   export type UnidadeScalarFieldEnum = (typeof UnidadeScalarFieldEnum)[keyof typeof UnidadeScalarFieldEnum]
 
 
-  export const NCMScalarFieldEnum: {
+  export const NcmScalarFieldEnum: {
     codigo_ncm: 'codigo_ncm',
     descricao_ncm: 'descricao_ncm',
     ipi_ncm: 'ipi_ncm',
     ii_ncm: 'ii_ncm',
-    ativo_ncm: 'ativo_ncm',
     pis_ncm: 'pis_ncm',
-    cofins_ncm: 'cofins_ncm'
+    cofins_ncm: 'cofins_ncm',
+    ativo_ncm: 'ativo_ncm'
   };
 
-  export type NCMScalarFieldEnum = (typeof NCMScalarFieldEnum)[keyof typeof NCMScalarFieldEnum]
+  export type NcmScalarFieldEnum = (typeof NcmScalarFieldEnum)[keyof typeof NcmScalarFieldEnum]
 
 
-  export const OPEScalarFieldEnum: {
+  export const OpeScalarFieldEnum: {
     suid_ope: 'suid_ope',
-    id_organizacao: 'id_organizacao',
+    id_organizacao_ope: 'id_organizacao_ope',
+    id_produto_ope: 'id_produto_ope',
+    id_usuario_ope: 'id_usuario_ope',
     codigo_portal_unico_ope: 'codigo_portal_unico_ope',
     situacao_ope: 'situacao_ope',
     versao_ope: 'versao_ope',
@@ -7128,17 +7216,20 @@ export namespace Prisma {
     origem_ope: 'origem_ope'
   };
 
-  export type OPEScalarFieldEnum = (typeof OPEScalarFieldEnum)[keyof typeof OPEScalarFieldEnum]
+  export type OpeScalarFieldEnum = (typeof OpeScalarFieldEnum)[keyof typeof OpeScalarFieldEnum]
 
 
   export const OpeHistoricoStatusScalarFieldEnum: {
-    id_historico_status_ope: 'id_historico_status_ope',
-    suid_ope_historico_status_ope: 'suid_ope_historico_status_ope',
-    status_anterior_historico_status_ope: 'status_anterior_historico_status_ope',
-    status_novo_historico_status_ope: 'status_novo_historico_status_ope',
-    origem_historico_status_ope: 'origem_historico_status_ope',
-    payload_historico_status_ope: 'payload_historico_status_ope',
-    registrado_em_historico_status_ope: 'registrado_em_historico_status_ope'
+    id_ope_historico_status: 'id_ope_historico_status',
+    id_organizacao_ope_historico_status: 'id_organizacao_ope_historico_status',
+    id_produto_ope_historico_status: 'id_produto_ope_historico_status',
+    id_usuario_ope_historico_status: 'id_usuario_ope_historico_status',
+    suid_ope_historico_status: 'suid_ope_historico_status',
+    status_anterior_ope_historico_status: 'status_anterior_ope_historico_status',
+    status_novo_ope_historico_status: 'status_novo_ope_historico_status',
+    origem_ope_historico_status: 'origem_ope_historico_status',
+    payload_ope_historico_status: 'payload_ope_historico_status',
+    registrado_em_ope_historico_status: 'registrado_em_ope_historico_status'
   };
 
   export type OpeHistoricoStatusScalarFieldEnum = (typeof OpeHistoricoStatusScalarFieldEnum)[keyof typeof OpeHistoricoStatusScalarFieldEnum]
@@ -7267,7 +7358,9 @@ export namespace Prisma {
     OR?: EmpresaWhereInput[]
     NOT?: EmpresaWhereInput | EmpresaWhereInput[]
     suid_empresa?: StringFilter<"Empresa"> | string
-    id_organizacao?: StringFilter<"Empresa"> | string
+    id_organizacao_empresa?: StringFilter<"Empresa"> | string
+    id_produto_empresa?: StringNullableFilter<"Empresa"> | string | null
+    id_usuario_empresa?: StringNullableFilter<"Empresa"> | string | null
     nome_empresa?: StringFilter<"Empresa"> | string
     cnpj_empresa?: StringNullableFilter<"Empresa"> | string | null
     tin_empresa?: StringNullableFilter<"Empresa"> | string | null
@@ -7285,9 +7378,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_despachante_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_armador_empresa?: BoolFilter<"Empresa"> | boolean
-    ativo_empresa?: BoolFilter<"Empresa"> | boolean
-    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
-    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
     pode_ser_armazem_alfandegado_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_cia_aerea_empresa?: BoolFilter<"Empresa"> | boolean
@@ -7296,11 +7386,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_banco_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_armazem_nacional_empresa?: BoolFilter<"Empresa"> | boolean
+    ativo_empresa?: BoolFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
   }
 
   export type EmpresaOrderByWithRelationInput = {
     suid_empresa?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    id_produto_empresa?: SortOrderInput | SortOrder
+    id_usuario_empresa?: SortOrderInput | SortOrder
     nome_empresa?: SortOrder
     cnpj_empresa?: SortOrderInput | SortOrder
     tin_empresa?: SortOrderInput | SortOrder
@@ -7318,9 +7413,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: SortOrder
     pode_ser_despachante_empresa?: SortOrder
     pode_ser_armador_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
     pode_ser_armazem_alfandegado_empresa?: SortOrder
     pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
     pode_ser_cia_aerea_empresa?: SortOrder
@@ -7329,16 +7421,21 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
     pode_ser_banco_empresa?: SortOrder
     pode_ser_armazem_nacional_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
   }
 
   export type EmpresaWhereUniqueInput = Prisma.AtLeast<{
     suid_empresa?: string
-    id_organizacao_cnpj_empresa?: EmpresaId_organizacaoCnpj_empresaCompoundUniqueInput
-    id_organizacao_tin_empresa_pais_empresa?: EmpresaId_organizacaoTin_empresaPais_empresaCompoundUniqueInput
+    id_organizacao_empresa_cnpj_empresa?: EmpresaId_organizacao_empresaCnpj_empresaCompoundUniqueInput
+    id_organizacao_empresa_tin_empresa_pais_empresa?: EmpresaId_organizacao_empresaTin_empresaPais_empresaCompoundUniqueInput
     AND?: EmpresaWhereInput | EmpresaWhereInput[]
     OR?: EmpresaWhereInput[]
     NOT?: EmpresaWhereInput | EmpresaWhereInput[]
-    id_organizacao?: StringFilter<"Empresa"> | string
+    id_organizacao_empresa?: StringFilter<"Empresa"> | string
+    id_produto_empresa?: StringNullableFilter<"Empresa"> | string | null
+    id_usuario_empresa?: StringNullableFilter<"Empresa"> | string | null
     nome_empresa?: StringFilter<"Empresa"> | string
     cnpj_empresa?: StringNullableFilter<"Empresa"> | string | null
     tin_empresa?: StringNullableFilter<"Empresa"> | string | null
@@ -7356,9 +7453,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_despachante_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_armador_empresa?: BoolFilter<"Empresa"> | boolean
-    ativo_empresa?: BoolFilter<"Empresa"> | boolean
-    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
-    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
     pode_ser_armazem_alfandegado_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_cia_aerea_empresa?: BoolFilter<"Empresa"> | boolean
@@ -7367,11 +7461,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_banco_empresa?: BoolFilter<"Empresa"> | boolean
     pode_ser_armazem_nacional_empresa?: BoolFilter<"Empresa"> | boolean
-  }, "suid_empresa" | "id_organizacao_cnpj_empresa" | "id_organizacao_tin_empresa_pais_empresa">
+    ativo_empresa?: BoolFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeFilter<"Empresa"> | Date | string
+  }, "suid_empresa" | "id_organizacao_empresa_cnpj_empresa" | "id_organizacao_empresa_tin_empresa_pais_empresa">
 
   export type EmpresaOrderByWithAggregationInput = {
     suid_empresa?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    id_produto_empresa?: SortOrderInput | SortOrder
+    id_usuario_empresa?: SortOrderInput | SortOrder
     nome_empresa?: SortOrder
     cnpj_empresa?: SortOrderInput | SortOrder
     tin_empresa?: SortOrderInput | SortOrder
@@ -7389,9 +7488,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: SortOrder
     pode_ser_despachante_empresa?: SortOrder
     pode_ser_armador_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
     pode_ser_armazem_alfandegado_empresa?: SortOrder
     pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
     pode_ser_cia_aerea_empresa?: SortOrder
@@ -7400,6 +7496,9 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
     pode_ser_banco_empresa?: SortOrder
     pode_ser_armazem_nacional_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
     _count?: EmpresaCountOrderByAggregateInput
     _max?: EmpresaMaxOrderByAggregateInput
     _min?: EmpresaMinOrderByAggregateInput
@@ -7410,7 +7509,9 @@ export namespace Prisma {
     OR?: EmpresaScalarWhereWithAggregatesInput[]
     NOT?: EmpresaScalarWhereWithAggregatesInput | EmpresaScalarWhereWithAggregatesInput[]
     suid_empresa?: StringWithAggregatesFilter<"Empresa"> | string
-    id_organizacao?: StringWithAggregatesFilter<"Empresa"> | string
+    id_organizacao_empresa?: StringWithAggregatesFilter<"Empresa"> | string
+    id_produto_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
+    id_usuario_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
     nome_empresa?: StringWithAggregatesFilter<"Empresa"> | string
     cnpj_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
     tin_empresa?: StringNullableWithAggregatesFilter<"Empresa"> | string | null
@@ -7428,9 +7529,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
     pode_ser_despachante_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
     pode_ser_armador_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    ativo_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
-    criado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
-    atualizado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
     pode_ser_armazem_alfandegado_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
     pode_ser_cia_aerea_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
@@ -7439,6 +7537,9 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
     pode_ser_banco_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
     pode_ser_armazem_nacional_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    ativo_empresa?: BoolWithAggregatesFilter<"Empresa"> | boolean
+    criado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
+    atualizado_em_empresa?: DateTimeWithAggregatesFilter<"Empresa"> | Date | string
   }
 
   export type MoedaWhereInput = {
@@ -7530,95 +7631,99 @@ export namespace Prisma {
     ativo_unidade?: BoolWithAggregatesFilter<"Unidade"> | boolean
   }
 
-  export type NCMWhereInput = {
-    AND?: NCMWhereInput | NCMWhereInput[]
-    OR?: NCMWhereInput[]
-    NOT?: NCMWhereInput | NCMWhereInput[]
-    codigo_ncm?: StringFilter<"NCM"> | string
-    descricao_ncm?: StringFilter<"NCM"> | string
-    ipi_ncm?: FloatNullableFilter<"NCM"> | number | null
-    ii_ncm?: FloatNullableFilter<"NCM"> | number | null
-    ativo_ncm?: BoolFilter<"NCM"> | boolean
-    pis_ncm?: FloatNullableFilter<"NCM"> | number | null
-    cofins_ncm?: FloatNullableFilter<"NCM"> | number | null
+  export type NcmWhereInput = {
+    AND?: NcmWhereInput | NcmWhereInput[]
+    OR?: NcmWhereInput[]
+    NOT?: NcmWhereInput | NcmWhereInput[]
+    codigo_ncm?: StringFilter<"Ncm"> | string
+    descricao_ncm?: StringFilter<"Ncm"> | string
+    ipi_ncm?: FloatNullableFilter<"Ncm"> | number | null
+    ii_ncm?: FloatNullableFilter<"Ncm"> | number | null
+    pis_ncm?: FloatNullableFilter<"Ncm"> | number | null
+    cofins_ncm?: FloatNullableFilter<"Ncm"> | number | null
+    ativo_ncm?: BoolFilter<"Ncm"> | boolean
   }
 
-  export type NCMOrderByWithRelationInput = {
+  export type NcmOrderByWithRelationInput = {
     codigo_ncm?: SortOrder
     descricao_ncm?: SortOrder
     ipi_ncm?: SortOrderInput | SortOrder
     ii_ncm?: SortOrderInput | SortOrder
-    ativo_ncm?: SortOrder
     pis_ncm?: SortOrderInput | SortOrder
     cofins_ncm?: SortOrderInput | SortOrder
+    ativo_ncm?: SortOrder
   }
 
-  export type NCMWhereUniqueInput = Prisma.AtLeast<{
+  export type NcmWhereUniqueInput = Prisma.AtLeast<{
     codigo_ncm?: string
-    AND?: NCMWhereInput | NCMWhereInput[]
-    OR?: NCMWhereInput[]
-    NOT?: NCMWhereInput | NCMWhereInput[]
-    descricao_ncm?: StringFilter<"NCM"> | string
-    ipi_ncm?: FloatNullableFilter<"NCM"> | number | null
-    ii_ncm?: FloatNullableFilter<"NCM"> | number | null
-    ativo_ncm?: BoolFilter<"NCM"> | boolean
-    pis_ncm?: FloatNullableFilter<"NCM"> | number | null
-    cofins_ncm?: FloatNullableFilter<"NCM"> | number | null
+    AND?: NcmWhereInput | NcmWhereInput[]
+    OR?: NcmWhereInput[]
+    NOT?: NcmWhereInput | NcmWhereInput[]
+    descricao_ncm?: StringFilter<"Ncm"> | string
+    ipi_ncm?: FloatNullableFilter<"Ncm"> | number | null
+    ii_ncm?: FloatNullableFilter<"Ncm"> | number | null
+    pis_ncm?: FloatNullableFilter<"Ncm"> | number | null
+    cofins_ncm?: FloatNullableFilter<"Ncm"> | number | null
+    ativo_ncm?: BoolFilter<"Ncm"> | boolean
   }, "codigo_ncm">
 
-  export type NCMOrderByWithAggregationInput = {
+  export type NcmOrderByWithAggregationInput = {
     codigo_ncm?: SortOrder
     descricao_ncm?: SortOrder
     ipi_ncm?: SortOrderInput | SortOrder
     ii_ncm?: SortOrderInput | SortOrder
-    ativo_ncm?: SortOrder
     pis_ncm?: SortOrderInput | SortOrder
     cofins_ncm?: SortOrderInput | SortOrder
-    _count?: NCMCountOrderByAggregateInput
-    _avg?: NCMAvgOrderByAggregateInput
-    _max?: NCMMaxOrderByAggregateInput
-    _min?: NCMMinOrderByAggregateInput
-    _sum?: NCMSumOrderByAggregateInput
+    ativo_ncm?: SortOrder
+    _count?: NcmCountOrderByAggregateInput
+    _avg?: NcmAvgOrderByAggregateInput
+    _max?: NcmMaxOrderByAggregateInput
+    _min?: NcmMinOrderByAggregateInput
+    _sum?: NcmSumOrderByAggregateInput
   }
 
-  export type NCMScalarWhereWithAggregatesInput = {
-    AND?: NCMScalarWhereWithAggregatesInput | NCMScalarWhereWithAggregatesInput[]
-    OR?: NCMScalarWhereWithAggregatesInput[]
-    NOT?: NCMScalarWhereWithAggregatesInput | NCMScalarWhereWithAggregatesInput[]
-    codigo_ncm?: StringWithAggregatesFilter<"NCM"> | string
-    descricao_ncm?: StringWithAggregatesFilter<"NCM"> | string
-    ipi_ncm?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
-    ii_ncm?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
-    ativo_ncm?: BoolWithAggregatesFilter<"NCM"> | boolean
-    pis_ncm?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
-    cofins_ncm?: FloatNullableWithAggregatesFilter<"NCM"> | number | null
+  export type NcmScalarWhereWithAggregatesInput = {
+    AND?: NcmScalarWhereWithAggregatesInput | NcmScalarWhereWithAggregatesInput[]
+    OR?: NcmScalarWhereWithAggregatesInput[]
+    NOT?: NcmScalarWhereWithAggregatesInput | NcmScalarWhereWithAggregatesInput[]
+    codigo_ncm?: StringWithAggregatesFilter<"Ncm"> | string
+    descricao_ncm?: StringWithAggregatesFilter<"Ncm"> | string
+    ipi_ncm?: FloatNullableWithAggregatesFilter<"Ncm"> | number | null
+    ii_ncm?: FloatNullableWithAggregatesFilter<"Ncm"> | number | null
+    pis_ncm?: FloatNullableWithAggregatesFilter<"Ncm"> | number | null
+    cofins_ncm?: FloatNullableWithAggregatesFilter<"Ncm"> | number | null
+    ativo_ncm?: BoolWithAggregatesFilter<"Ncm"> | boolean
   }
 
-  export type OPEWhereInput = {
-    AND?: OPEWhereInput | OPEWhereInput[]
-    OR?: OPEWhereInput[]
-    NOT?: OPEWhereInput | OPEWhereInput[]
-    suid_ope?: StringFilter<"OPE"> | string
-    id_organizacao?: StringFilter<"OPE"> | string
-    codigo_portal_unico_ope?: StringFilter<"OPE"> | string
-    situacao_ope?: StringFilter<"OPE"> | string
-    versao_ope?: StringFilter<"OPE"> | string
-    nome_ope?: StringFilter<"OPE"> | string
-    cnpj_raiz_empresa_ope?: StringFilter<"OPE"> | string
-    pais_ope?: StringFilter<"OPE"> | string
-    estado_ope?: StringNullableFilter<"OPE"> | string | null
-    cidade_ope?: StringNullableFilter<"OPE"> | string | null
-    endereco_ope?: StringNullableFilter<"OPE"> | string | null
-    zip_ope?: StringNullableFilter<"OPE"> | string | null
-    tin_ope?: StringNullableFilter<"OPE"> | string | null
-    email_ope?: StringNullableFilter<"OPE"> | string | null
-    ultima_sincronizacao_ope?: DateTimeFilter<"OPE"> | Date | string
-    origem_ope?: StringFilter<"OPE"> | string
+  export type OpeWhereInput = {
+    AND?: OpeWhereInput | OpeWhereInput[]
+    OR?: OpeWhereInput[]
+    NOT?: OpeWhereInput | OpeWhereInput[]
+    suid_ope?: StringFilter<"Ope"> | string
+    id_organizacao_ope?: StringFilter<"Ope"> | string
+    id_produto_ope?: StringNullableFilter<"Ope"> | string | null
+    id_usuario_ope?: StringNullableFilter<"Ope"> | string | null
+    codigo_portal_unico_ope?: StringFilter<"Ope"> | string
+    situacao_ope?: StringFilter<"Ope"> | string
+    versao_ope?: StringFilter<"Ope"> | string
+    nome_ope?: StringFilter<"Ope"> | string
+    cnpj_raiz_empresa_ope?: StringFilter<"Ope"> | string
+    pais_ope?: StringFilter<"Ope"> | string
+    estado_ope?: StringNullableFilter<"Ope"> | string | null
+    cidade_ope?: StringNullableFilter<"Ope"> | string | null
+    endereco_ope?: StringNullableFilter<"Ope"> | string | null
+    zip_ope?: StringNullableFilter<"Ope"> | string | null
+    tin_ope?: StringNullableFilter<"Ope"> | string | null
+    email_ope?: StringNullableFilter<"Ope"> | string | null
+    ultima_sincronizacao_ope?: DateTimeFilter<"Ope"> | Date | string
+    origem_ope?: StringFilter<"Ope"> | string
   }
 
-  export type OPEOrderByWithRelationInput = {
+  export type OpeOrderByWithRelationInput = {
     suid_ope?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_ope?: SortOrder
+    id_produto_ope?: SortOrderInput | SortOrder
+    id_usuario_ope?: SortOrderInput | SortOrder
     codigo_portal_unico_ope?: SortOrder
     situacao_ope?: SortOrder
     versao_ope?: SortOrder
@@ -7635,31 +7740,35 @@ export namespace Prisma {
     origem_ope?: SortOrder
   }
 
-  export type OPEWhereUniqueInput = Prisma.AtLeast<{
+  export type OpeWhereUniqueInput = Prisma.AtLeast<{
     suid_ope?: string
     codigo_portal_unico_ope?: string
-    AND?: OPEWhereInput | OPEWhereInput[]
-    OR?: OPEWhereInput[]
-    NOT?: OPEWhereInput | OPEWhereInput[]
-    id_organizacao?: StringFilter<"OPE"> | string
-    situacao_ope?: StringFilter<"OPE"> | string
-    versao_ope?: StringFilter<"OPE"> | string
-    nome_ope?: StringFilter<"OPE"> | string
-    cnpj_raiz_empresa_ope?: StringFilter<"OPE"> | string
-    pais_ope?: StringFilter<"OPE"> | string
-    estado_ope?: StringNullableFilter<"OPE"> | string | null
-    cidade_ope?: StringNullableFilter<"OPE"> | string | null
-    endereco_ope?: StringNullableFilter<"OPE"> | string | null
-    zip_ope?: StringNullableFilter<"OPE"> | string | null
-    tin_ope?: StringNullableFilter<"OPE"> | string | null
-    email_ope?: StringNullableFilter<"OPE"> | string | null
-    ultima_sincronizacao_ope?: DateTimeFilter<"OPE"> | Date | string
-    origem_ope?: StringFilter<"OPE"> | string
+    AND?: OpeWhereInput | OpeWhereInput[]
+    OR?: OpeWhereInput[]
+    NOT?: OpeWhereInput | OpeWhereInput[]
+    id_organizacao_ope?: StringFilter<"Ope"> | string
+    id_produto_ope?: StringNullableFilter<"Ope"> | string | null
+    id_usuario_ope?: StringNullableFilter<"Ope"> | string | null
+    situacao_ope?: StringFilter<"Ope"> | string
+    versao_ope?: StringFilter<"Ope"> | string
+    nome_ope?: StringFilter<"Ope"> | string
+    cnpj_raiz_empresa_ope?: StringFilter<"Ope"> | string
+    pais_ope?: StringFilter<"Ope"> | string
+    estado_ope?: StringNullableFilter<"Ope"> | string | null
+    cidade_ope?: StringNullableFilter<"Ope"> | string | null
+    endereco_ope?: StringNullableFilter<"Ope"> | string | null
+    zip_ope?: StringNullableFilter<"Ope"> | string | null
+    tin_ope?: StringNullableFilter<"Ope"> | string | null
+    email_ope?: StringNullableFilter<"Ope"> | string | null
+    ultima_sincronizacao_ope?: DateTimeFilter<"Ope"> | Date | string
+    origem_ope?: StringFilter<"Ope"> | string
   }, "suid_ope" | "codigo_portal_unico_ope">
 
-  export type OPEOrderByWithAggregationInput = {
+  export type OpeOrderByWithAggregationInput = {
     suid_ope?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_ope?: SortOrder
+    id_produto_ope?: SortOrderInput | SortOrder
+    id_usuario_ope?: SortOrderInput | SortOrder
     codigo_portal_unico_ope?: SortOrder
     situacao_ope?: SortOrder
     versao_ope?: SortOrder
@@ -7674,77 +7783,91 @@ export namespace Prisma {
     email_ope?: SortOrderInput | SortOrder
     ultima_sincronizacao_ope?: SortOrder
     origem_ope?: SortOrder
-    _count?: OPECountOrderByAggregateInput
-    _max?: OPEMaxOrderByAggregateInput
-    _min?: OPEMinOrderByAggregateInput
+    _count?: OpeCountOrderByAggregateInput
+    _max?: OpeMaxOrderByAggregateInput
+    _min?: OpeMinOrderByAggregateInput
   }
 
-  export type OPEScalarWhereWithAggregatesInput = {
-    AND?: OPEScalarWhereWithAggregatesInput | OPEScalarWhereWithAggregatesInput[]
-    OR?: OPEScalarWhereWithAggregatesInput[]
-    NOT?: OPEScalarWhereWithAggregatesInput | OPEScalarWhereWithAggregatesInput[]
-    suid_ope?: StringWithAggregatesFilter<"OPE"> | string
-    id_organizacao?: StringWithAggregatesFilter<"OPE"> | string
-    codigo_portal_unico_ope?: StringWithAggregatesFilter<"OPE"> | string
-    situacao_ope?: StringWithAggregatesFilter<"OPE"> | string
-    versao_ope?: StringWithAggregatesFilter<"OPE"> | string
-    nome_ope?: StringWithAggregatesFilter<"OPE"> | string
-    cnpj_raiz_empresa_ope?: StringWithAggregatesFilter<"OPE"> | string
-    pais_ope?: StringWithAggregatesFilter<"OPE"> | string
-    estado_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    cidade_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    endereco_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    zip_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    tin_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    email_ope?: StringNullableWithAggregatesFilter<"OPE"> | string | null
-    ultima_sincronizacao_ope?: DateTimeWithAggregatesFilter<"OPE"> | Date | string
-    origem_ope?: StringWithAggregatesFilter<"OPE"> | string
+  export type OpeScalarWhereWithAggregatesInput = {
+    AND?: OpeScalarWhereWithAggregatesInput | OpeScalarWhereWithAggregatesInput[]
+    OR?: OpeScalarWhereWithAggregatesInput[]
+    NOT?: OpeScalarWhereWithAggregatesInput | OpeScalarWhereWithAggregatesInput[]
+    suid_ope?: StringWithAggregatesFilter<"Ope"> | string
+    id_organizacao_ope?: StringWithAggregatesFilter<"Ope"> | string
+    id_produto_ope?: StringNullableWithAggregatesFilter<"Ope"> | string | null
+    id_usuario_ope?: StringNullableWithAggregatesFilter<"Ope"> | string | null
+    codigo_portal_unico_ope?: StringWithAggregatesFilter<"Ope"> | string
+    situacao_ope?: StringWithAggregatesFilter<"Ope"> | string
+    versao_ope?: StringWithAggregatesFilter<"Ope"> | string
+    nome_ope?: StringWithAggregatesFilter<"Ope"> | string
+    cnpj_raiz_empresa_ope?: StringWithAggregatesFilter<"Ope"> | string
+    pais_ope?: StringWithAggregatesFilter<"Ope"> | string
+    estado_ope?: StringNullableWithAggregatesFilter<"Ope"> | string | null
+    cidade_ope?: StringNullableWithAggregatesFilter<"Ope"> | string | null
+    endereco_ope?: StringNullableWithAggregatesFilter<"Ope"> | string | null
+    zip_ope?: StringNullableWithAggregatesFilter<"Ope"> | string | null
+    tin_ope?: StringNullableWithAggregatesFilter<"Ope"> | string | null
+    email_ope?: StringNullableWithAggregatesFilter<"Ope"> | string | null
+    ultima_sincronizacao_ope?: DateTimeWithAggregatesFilter<"Ope"> | Date | string
+    origem_ope?: StringWithAggregatesFilter<"Ope"> | string
   }
 
   export type OpeHistoricoStatusWhereInput = {
     AND?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
     OR?: OpeHistoricoStatusWhereInput[]
     NOT?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
-    id_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
-    suid_ope_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
-    status_anterior_historico_status_ope?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    status_novo_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
-    origem_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
-    payload_historico_status_ope?: JsonFilter<"OpeHistoricoStatus">
-    registrado_em_historico_status_ope?: DateTimeFilter<"OpeHistoricoStatus"> | Date | string
+    id_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
+    id_organizacao_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    id_produto_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    id_usuario_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    suid_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
+    status_anterior_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    status_novo_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
+    origem_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
+    payload_ope_historico_status?: JsonFilter<"OpeHistoricoStatus">
+    registrado_em_ope_historico_status?: DateTimeFilter<"OpeHistoricoStatus"> | Date | string
   }
 
   export type OpeHistoricoStatusOrderByWithRelationInput = {
-    id_historico_status_ope?: SortOrder
-    suid_ope_historico_status_ope?: SortOrder
-    status_anterior_historico_status_ope?: SortOrderInput | SortOrder
-    status_novo_historico_status_ope?: SortOrder
-    origem_historico_status_ope?: SortOrder
-    payload_historico_status_ope?: SortOrder
-    registrado_em_historico_status_ope?: SortOrder
+    id_ope_historico_status?: SortOrder
+    id_organizacao_ope_historico_status?: SortOrderInput | SortOrder
+    id_produto_ope_historico_status?: SortOrderInput | SortOrder
+    id_usuario_ope_historico_status?: SortOrderInput | SortOrder
+    suid_ope_historico_status?: SortOrder
+    status_anterior_ope_historico_status?: SortOrderInput | SortOrder
+    status_novo_ope_historico_status?: SortOrder
+    origem_ope_historico_status?: SortOrder
+    payload_ope_historico_status?: SortOrder
+    registrado_em_ope_historico_status?: SortOrder
   }
 
   export type OpeHistoricoStatusWhereUniqueInput = Prisma.AtLeast<{
-    id_historico_status_ope?: string
+    id_ope_historico_status?: string
     AND?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
     OR?: OpeHistoricoStatusWhereInput[]
     NOT?: OpeHistoricoStatusWhereInput | OpeHistoricoStatusWhereInput[]
-    suid_ope_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
-    status_anterior_historico_status_ope?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
-    status_novo_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
-    origem_historico_status_ope?: StringFilter<"OpeHistoricoStatus"> | string
-    payload_historico_status_ope?: JsonFilter<"OpeHistoricoStatus">
-    registrado_em_historico_status_ope?: DateTimeFilter<"OpeHistoricoStatus"> | Date | string
-  }, "id_historico_status_ope">
+    id_organizacao_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    id_produto_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    id_usuario_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    suid_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
+    status_anterior_ope_historico_status?: StringNullableFilter<"OpeHistoricoStatus"> | string | null
+    status_novo_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
+    origem_ope_historico_status?: StringFilter<"OpeHistoricoStatus"> | string
+    payload_ope_historico_status?: JsonFilter<"OpeHistoricoStatus">
+    registrado_em_ope_historico_status?: DateTimeFilter<"OpeHistoricoStatus"> | Date | string
+  }, "id_ope_historico_status">
 
   export type OpeHistoricoStatusOrderByWithAggregationInput = {
-    id_historico_status_ope?: SortOrder
-    suid_ope_historico_status_ope?: SortOrder
-    status_anterior_historico_status_ope?: SortOrderInput | SortOrder
-    status_novo_historico_status_ope?: SortOrder
-    origem_historico_status_ope?: SortOrder
-    payload_historico_status_ope?: SortOrder
-    registrado_em_historico_status_ope?: SortOrder
+    id_ope_historico_status?: SortOrder
+    id_organizacao_ope_historico_status?: SortOrderInput | SortOrder
+    id_produto_ope_historico_status?: SortOrderInput | SortOrder
+    id_usuario_ope_historico_status?: SortOrderInput | SortOrder
+    suid_ope_historico_status?: SortOrder
+    status_anterior_ope_historico_status?: SortOrderInput | SortOrder
+    status_novo_ope_historico_status?: SortOrder
+    origem_ope_historico_status?: SortOrder
+    payload_ope_historico_status?: SortOrder
+    registrado_em_ope_historico_status?: SortOrder
     _count?: OpeHistoricoStatusCountOrderByAggregateInput
     _max?: OpeHistoricoStatusMaxOrderByAggregateInput
     _min?: OpeHistoricoStatusMinOrderByAggregateInput
@@ -7754,18 +7877,23 @@ export namespace Prisma {
     AND?: OpeHistoricoStatusScalarWhereWithAggregatesInput | OpeHistoricoStatusScalarWhereWithAggregatesInput[]
     OR?: OpeHistoricoStatusScalarWhereWithAggregatesInput[]
     NOT?: OpeHistoricoStatusScalarWhereWithAggregatesInput | OpeHistoricoStatusScalarWhereWithAggregatesInput[]
-    id_historico_status_ope?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
-    suid_ope_historico_status_ope?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
-    status_anterior_historico_status_ope?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
-    status_novo_historico_status_ope?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
-    origem_historico_status_ope?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
-    payload_historico_status_ope?: JsonWithAggregatesFilter<"OpeHistoricoStatus">
-    registrado_em_historico_status_ope?: DateTimeWithAggregatesFilter<"OpeHistoricoStatus"> | Date | string
+    id_ope_historico_status?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
+    id_organizacao_ope_historico_status?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
+    id_produto_ope_historico_status?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
+    id_usuario_ope_historico_status?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
+    suid_ope_historico_status?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
+    status_anterior_ope_historico_status?: StringNullableWithAggregatesFilter<"OpeHistoricoStatus"> | string | null
+    status_novo_ope_historico_status?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
+    origem_ope_historico_status?: StringWithAggregatesFilter<"OpeHistoricoStatus"> | string
+    payload_ope_historico_status?: JsonWithAggregatesFilter<"OpeHistoricoStatus">
+    registrado_em_ope_historico_status?: DateTimeWithAggregatesFilter<"OpeHistoricoStatus"> | Date | string
   }
 
   export type EmpresaCreateInput = {
     suid_empresa: string
-    id_organizacao: string
+    id_organizacao_empresa: string
+    id_produto_empresa?: string | null
+    id_usuario_empresa?: string | null
     nome_empresa: string
     cnpj_empresa?: string | null
     tin_empresa?: string | null
@@ -7783,9 +7911,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: boolean
     pode_ser_despachante_empresa?: boolean
     pode_ser_armador_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: Date | string
-    atualizado_em_empresa?: Date | string
     pode_ser_armazem_alfandegado_empresa?: boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
     pode_ser_cia_aerea_empresa?: boolean
@@ -7794,11 +7919,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: boolean
     pode_ser_banco_empresa?: boolean
     pode_ser_armazem_nacional_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
   }
 
   export type EmpresaUncheckedCreateInput = {
     suid_empresa: string
-    id_organizacao: string
+    id_organizacao_empresa: string
+    id_produto_empresa?: string | null
+    id_usuario_empresa?: string | null
     nome_empresa: string
     cnpj_empresa?: string | null
     tin_empresa?: string | null
@@ -7816,9 +7946,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: boolean
     pode_ser_despachante_empresa?: boolean
     pode_ser_armador_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: Date | string
-    atualizado_em_empresa?: Date | string
     pode_ser_armazem_alfandegado_empresa?: boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
     pode_ser_cia_aerea_empresa?: boolean
@@ -7827,11 +7954,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: boolean
     pode_ser_banco_empresa?: boolean
     pode_ser_armazem_nacional_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
   }
 
   export type EmpresaUpdateInput = {
     suid_empresa?: StringFieldUpdateOperationsInput | string
-    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
+    id_produto_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     nome_empresa?: StringFieldUpdateOperationsInput | string
     cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -7849,9 +7981,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
-    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
     pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
@@ -7860,11 +7989,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmpresaUncheckedUpdateInput = {
     suid_empresa?: StringFieldUpdateOperationsInput | string
-    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
+    id_produto_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     nome_empresa?: StringFieldUpdateOperationsInput | string
     cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -7882,9 +8016,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
-    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
     pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
@@ -7893,11 +8024,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmpresaCreateManyInput = {
     suid_empresa: string
-    id_organizacao: string
+    id_organizacao_empresa: string
+    id_produto_empresa?: string | null
+    id_usuario_empresa?: string | null
     nome_empresa: string
     cnpj_empresa?: string | null
     tin_empresa?: string | null
@@ -7915,9 +8051,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: boolean
     pode_ser_despachante_empresa?: boolean
     pode_ser_armador_empresa?: boolean
-    ativo_empresa?: boolean
-    criado_em_empresa?: Date | string
-    atualizado_em_empresa?: Date | string
     pode_ser_armazem_alfandegado_empresa?: boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: boolean
     pode_ser_cia_aerea_empresa?: boolean
@@ -7926,11 +8059,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: boolean
     pode_ser_banco_empresa?: boolean
     pode_ser_armazem_nacional_empresa?: boolean
+    ativo_empresa?: boolean
+    criado_em_empresa?: Date | string
+    atualizado_em_empresa?: Date | string
   }
 
   export type EmpresaUpdateManyMutationInput = {
     suid_empresa?: StringFieldUpdateOperationsInput | string
-    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
+    id_produto_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     nome_empresa?: StringFieldUpdateOperationsInput | string
     cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -7948,9 +8086,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
-    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
     pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
@@ -7959,11 +8094,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmpresaUncheckedUpdateManyInput = {
     suid_empresa?: StringFieldUpdateOperationsInput | string
-    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_empresa?: StringFieldUpdateOperationsInput | string
+    id_produto_empresa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     nome_empresa?: StringFieldUpdateOperationsInput | string
     cnpj_empresa?: NullableStringFieldUpdateOperationsInput | string | null
     tin_empresa?: NullableStringFieldUpdateOperationsInput | string | null
@@ -7981,9 +8121,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_despachante_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_armador_empresa?: BoolFieldUpdateOperationsInput | boolean
-    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
-    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
-    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
     pode_ser_armazem_alfandegado_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_transportadora_rodoviaria_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_cia_aerea_empresa?: BoolFieldUpdateOperationsInput | boolean
@@ -7992,6 +8129,9 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_banco_empresa?: BoolFieldUpdateOperationsInput | boolean
     pode_ser_armazem_nacional_empresa?: BoolFieldUpdateOperationsInput | boolean
+    ativo_empresa?: BoolFieldUpdateOperationsInput | boolean
+    criado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
+    atualizado_em_empresa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type MoedaCreateInput = {
@@ -8085,79 +8225,81 @@ export namespace Prisma {
     ativo_unidade?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type NCMCreateInput = {
+  export type NcmCreateInput = {
     codigo_ncm: string
     descricao_ncm: string
     ipi_ncm?: number | null
     ii_ncm?: number | null
-    ativo_ncm?: boolean
     pis_ncm?: number | null
     cofins_ncm?: number | null
+    ativo_ncm?: boolean
   }
 
-  export type NCMUncheckedCreateInput = {
+  export type NcmUncheckedCreateInput = {
     codigo_ncm: string
     descricao_ncm: string
     ipi_ncm?: number | null
     ii_ncm?: number | null
-    ativo_ncm?: boolean
     pis_ncm?: number | null
     cofins_ncm?: number | null
+    ativo_ncm?: boolean
   }
 
-  export type NCMUpdateInput = {
+  export type NcmUpdateInput = {
     codigo_ncm?: StringFieldUpdateOperationsInput | string
     descricao_ncm?: StringFieldUpdateOperationsInput | string
     ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
     ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
     pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
     cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type NCMUncheckedUpdateInput = {
+  export type NcmUncheckedUpdateInput = {
     codigo_ncm?: StringFieldUpdateOperationsInput | string
     descricao_ncm?: StringFieldUpdateOperationsInput | string
     ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
     ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
     pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
     cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type NCMCreateManyInput = {
+  export type NcmCreateManyInput = {
     codigo_ncm: string
     descricao_ncm: string
     ipi_ncm?: number | null
     ii_ncm?: number | null
-    ativo_ncm?: boolean
     pis_ncm?: number | null
     cofins_ncm?: number | null
+    ativo_ncm?: boolean
   }
 
-  export type NCMUpdateManyMutationInput = {
+  export type NcmUpdateManyMutationInput = {
     codigo_ncm?: StringFieldUpdateOperationsInput | string
     descricao_ncm?: StringFieldUpdateOperationsInput | string
     ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
     ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
     pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
     cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type NCMUncheckedUpdateManyInput = {
+  export type NcmUncheckedUpdateManyInput = {
     codigo_ncm?: StringFieldUpdateOperationsInput | string
     descricao_ncm?: StringFieldUpdateOperationsInput | string
     ipi_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
     ii_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
-    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
     pis_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
     cofins_ncm?: NullableFloatFieldUpdateOperationsInput | number | null
+    ativo_ncm?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type OPECreateInput = {
+  export type OpeCreateInput = {
     suid_ope: string
-    id_organizacao: string
+    id_organizacao_ope: string
+    id_produto_ope?: string | null
+    id_usuario_ope?: string | null
     codigo_portal_unico_ope: string
     situacao_ope: string
     versao_ope: string
@@ -8174,9 +8316,11 @@ export namespace Prisma {
     origem_ope?: string
   }
 
-  export type OPEUncheckedCreateInput = {
+  export type OpeUncheckedCreateInput = {
     suid_ope: string
-    id_organizacao: string
+    id_organizacao_ope: string
+    id_produto_ope?: string | null
+    id_usuario_ope?: string | null
     codigo_portal_unico_ope: string
     situacao_ope: string
     versao_ope: string
@@ -8193,9 +8337,11 @@ export namespace Prisma {
     origem_ope?: string
   }
 
-  export type OPEUpdateInput = {
+  export type OpeUpdateInput = {
     suid_ope?: StringFieldUpdateOperationsInput | string
-    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ope?: StringFieldUpdateOperationsInput | string
+    id_produto_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ope?: NullableStringFieldUpdateOperationsInput | string | null
     codigo_portal_unico_ope?: StringFieldUpdateOperationsInput | string
     situacao_ope?: StringFieldUpdateOperationsInput | string
     versao_ope?: StringFieldUpdateOperationsInput | string
@@ -8212,9 +8358,11 @@ export namespace Prisma {
     origem_ope?: StringFieldUpdateOperationsInput | string
   }
 
-  export type OPEUncheckedUpdateInput = {
+  export type OpeUncheckedUpdateInput = {
     suid_ope?: StringFieldUpdateOperationsInput | string
-    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ope?: StringFieldUpdateOperationsInput | string
+    id_produto_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ope?: NullableStringFieldUpdateOperationsInput | string | null
     codigo_portal_unico_ope?: StringFieldUpdateOperationsInput | string
     situacao_ope?: StringFieldUpdateOperationsInput | string
     versao_ope?: StringFieldUpdateOperationsInput | string
@@ -8231,9 +8379,11 @@ export namespace Prisma {
     origem_ope?: StringFieldUpdateOperationsInput | string
   }
 
-  export type OPECreateManyInput = {
+  export type OpeCreateManyInput = {
     suid_ope: string
-    id_organizacao: string
+    id_organizacao_ope: string
+    id_produto_ope?: string | null
+    id_usuario_ope?: string | null
     codigo_portal_unico_ope: string
     situacao_ope: string
     versao_ope: string
@@ -8250,9 +8400,11 @@ export namespace Prisma {
     origem_ope?: string
   }
 
-  export type OPEUpdateManyMutationInput = {
+  export type OpeUpdateManyMutationInput = {
     suid_ope?: StringFieldUpdateOperationsInput | string
-    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ope?: StringFieldUpdateOperationsInput | string
+    id_produto_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ope?: NullableStringFieldUpdateOperationsInput | string | null
     codigo_portal_unico_ope?: StringFieldUpdateOperationsInput | string
     situacao_ope?: StringFieldUpdateOperationsInput | string
     versao_ope?: StringFieldUpdateOperationsInput | string
@@ -8269,9 +8421,11 @@ export namespace Prisma {
     origem_ope?: StringFieldUpdateOperationsInput | string
   }
 
-  export type OPEUncheckedUpdateManyInput = {
+  export type OpeUncheckedUpdateManyInput = {
     suid_ope?: StringFieldUpdateOperationsInput | string
-    id_organizacao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ope?: StringFieldUpdateOperationsInput | string
+    id_produto_ope?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ope?: NullableStringFieldUpdateOperationsInput | string | null
     codigo_portal_unico_ope?: StringFieldUpdateOperationsInput | string
     situacao_ope?: StringFieldUpdateOperationsInput | string
     versao_ope?: StringFieldUpdateOperationsInput | string
@@ -8289,73 +8443,94 @@ export namespace Prisma {
   }
 
   export type OpeHistoricoStatusCreateInput = {
-    id_historico_status_ope?: string
-    suid_ope_historico_status_ope: string
-    status_anterior_historico_status_ope?: string | null
-    status_novo_historico_status_ope: string
-    origem_historico_status_ope: string
-    payload_historico_status_ope: JsonNullValueInput | InputJsonValue
-    registrado_em_historico_status_ope?: Date | string
+    id_ope_historico_status?: string
+    id_organizacao_ope_historico_status?: string | null
+    id_produto_ope_historico_status?: string | null
+    id_usuario_ope_historico_status?: string | null
+    suid_ope_historico_status: string
+    status_anterior_ope_historico_status?: string | null
+    status_novo_ope_historico_status: string
+    origem_ope_historico_status: string
+    payload_ope_historico_status: JsonNullValueInput | InputJsonValue
+    registrado_em_ope_historico_status?: Date | string
   }
 
   export type OpeHistoricoStatusUncheckedCreateInput = {
-    id_historico_status_ope?: string
-    suid_ope_historico_status_ope: string
-    status_anterior_historico_status_ope?: string | null
-    status_novo_historico_status_ope: string
-    origem_historico_status_ope: string
-    payload_historico_status_ope: JsonNullValueInput | InputJsonValue
-    registrado_em_historico_status_ope?: Date | string
+    id_ope_historico_status?: string
+    id_organizacao_ope_historico_status?: string | null
+    id_produto_ope_historico_status?: string | null
+    id_usuario_ope_historico_status?: string | null
+    suid_ope_historico_status: string
+    status_anterior_ope_historico_status?: string | null
+    status_novo_ope_historico_status: string
+    origem_ope_historico_status: string
+    payload_ope_historico_status: JsonNullValueInput | InputJsonValue
+    registrado_em_ope_historico_status?: Date | string
   }
 
   export type OpeHistoricoStatusUpdateInput = {
-    id_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    suid_ope_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    status_anterior_historico_status_ope?: NullableStringFieldUpdateOperationsInput | string | null
-    status_novo_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    origem_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    payload_historico_status_ope?: JsonNullValueInput | InputJsonValue
-    registrado_em_historico_status_ope?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    status_anterior_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    status_novo_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    origem_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    payload_ope_historico_status?: JsonNullValueInput | InputJsonValue
+    registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OpeHistoricoStatusUncheckedUpdateInput = {
-    id_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    suid_ope_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    status_anterior_historico_status_ope?: NullableStringFieldUpdateOperationsInput | string | null
-    status_novo_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    origem_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    payload_historico_status_ope?: JsonNullValueInput | InputJsonValue
-    registrado_em_historico_status_ope?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    status_anterior_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    status_novo_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    origem_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    payload_ope_historico_status?: JsonNullValueInput | InputJsonValue
+    registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OpeHistoricoStatusCreateManyInput = {
-    id_historico_status_ope?: string
-    suid_ope_historico_status_ope: string
-    status_anterior_historico_status_ope?: string | null
-    status_novo_historico_status_ope: string
-    origem_historico_status_ope: string
-    payload_historico_status_ope: JsonNullValueInput | InputJsonValue
-    registrado_em_historico_status_ope?: Date | string
+    id_ope_historico_status?: string
+    id_organizacao_ope_historico_status?: string | null
+    id_produto_ope_historico_status?: string | null
+    id_usuario_ope_historico_status?: string | null
+    suid_ope_historico_status: string
+    status_anterior_ope_historico_status?: string | null
+    status_novo_ope_historico_status: string
+    origem_ope_historico_status: string
+    payload_ope_historico_status: JsonNullValueInput | InputJsonValue
+    registrado_em_ope_historico_status?: Date | string
   }
 
   export type OpeHistoricoStatusUpdateManyMutationInput = {
-    id_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    suid_ope_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    status_anterior_historico_status_ope?: NullableStringFieldUpdateOperationsInput | string | null
-    status_novo_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    origem_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    payload_historico_status_ope?: JsonNullValueInput | InputJsonValue
-    registrado_em_historico_status_ope?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    status_anterior_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    status_novo_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    origem_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    payload_ope_historico_status?: JsonNullValueInput | InputJsonValue
+    registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OpeHistoricoStatusUncheckedUpdateManyInput = {
-    id_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    suid_ope_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    status_anterior_historico_status_ope?: NullableStringFieldUpdateOperationsInput | string | null
-    status_novo_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    origem_historico_status_ope?: StringFieldUpdateOperationsInput | string
-    payload_historico_status_ope?: JsonNullValueInput | InputJsonValue
-    registrado_em_historico_status_ope?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    id_organizacao_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    suid_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    status_anterior_ope_historico_status?: NullableStringFieldUpdateOperationsInput | string | null
+    status_novo_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    origem_ope_historico_status?: StringFieldUpdateOperationsInput | string
+    payload_ope_historico_status?: JsonNullValueInput | InputJsonValue
+    registrado_em_ope_historico_status?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -8409,20 +8584,22 @@ export namespace Prisma {
     nulls?: NullsOrder
   }
 
-  export type EmpresaId_organizacaoCnpj_empresaCompoundUniqueInput = {
-    id_organizacao: string
+  export type EmpresaId_organizacao_empresaCnpj_empresaCompoundUniqueInput = {
+    id_organizacao_empresa: string
     cnpj_empresa: string
   }
 
-  export type EmpresaId_organizacaoTin_empresaPais_empresaCompoundUniqueInput = {
-    id_organizacao: string
+  export type EmpresaId_organizacao_empresaTin_empresaPais_empresaCompoundUniqueInput = {
+    id_organizacao_empresa: string
     tin_empresa: string
     pais_empresa: string
   }
 
   export type EmpresaCountOrderByAggregateInput = {
     suid_empresa?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    id_produto_empresa?: SortOrder
+    id_usuario_empresa?: SortOrder
     nome_empresa?: SortOrder
     cnpj_empresa?: SortOrder
     tin_empresa?: SortOrder
@@ -8440,9 +8617,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: SortOrder
     pode_ser_despachante_empresa?: SortOrder
     pode_ser_armador_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
     pode_ser_armazem_alfandegado_empresa?: SortOrder
     pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
     pode_ser_cia_aerea_empresa?: SortOrder
@@ -8451,11 +8625,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
     pode_ser_banco_empresa?: SortOrder
     pode_ser_armazem_nacional_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
   }
 
   export type EmpresaMaxOrderByAggregateInput = {
     suid_empresa?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    id_produto_empresa?: SortOrder
+    id_usuario_empresa?: SortOrder
     nome_empresa?: SortOrder
     cnpj_empresa?: SortOrder
     tin_empresa?: SortOrder
@@ -8473,9 +8652,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: SortOrder
     pode_ser_despachante_empresa?: SortOrder
     pode_ser_armador_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
     pode_ser_armazem_alfandegado_empresa?: SortOrder
     pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
     pode_ser_cia_aerea_empresa?: SortOrder
@@ -8484,11 +8660,16 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
     pode_ser_banco_empresa?: SortOrder
     pode_ser_armazem_nacional_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
   }
 
   export type EmpresaMinOrderByAggregateInput = {
     suid_empresa?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_empresa?: SortOrder
+    id_produto_empresa?: SortOrder
+    id_usuario_empresa?: SortOrder
     nome_empresa?: SortOrder
     cnpj_empresa?: SortOrder
     tin_empresa?: SortOrder
@@ -8506,9 +8687,6 @@ export namespace Prisma {
     pode_ser_agente_empresa?: SortOrder
     pode_ser_despachante_empresa?: SortOrder
     pode_ser_armador_empresa?: SortOrder
-    ativo_empresa?: SortOrder
-    criado_em_empresa?: SortOrder
-    atualizado_em_empresa?: SortOrder
     pode_ser_armazem_alfandegado_empresa?: SortOrder
     pode_ser_transportadora_rodoviaria_nacional_empresa?: SortOrder
     pode_ser_cia_aerea_empresa?: SortOrder
@@ -8517,6 +8695,9 @@ export namespace Prisma {
     pode_ser_seguradora_corretora_cambio_empresa?: SortOrder
     pode_ser_banco_empresa?: SortOrder
     pode_ser_armazem_nacional_empresa?: SortOrder
+    ativo_empresa?: SortOrder
+    criado_em_empresa?: SortOrder
+    atualizado_em_empresa?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -8627,44 +8808,44 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
-  export type NCMCountOrderByAggregateInput = {
+  export type NcmCountOrderByAggregateInput = {
     codigo_ncm?: SortOrder
     descricao_ncm?: SortOrder
     ipi_ncm?: SortOrder
     ii_ncm?: SortOrder
-    ativo_ncm?: SortOrder
     pis_ncm?: SortOrder
     cofins_ncm?: SortOrder
+    ativo_ncm?: SortOrder
   }
 
-  export type NCMAvgOrderByAggregateInput = {
+  export type NcmAvgOrderByAggregateInput = {
     ipi_ncm?: SortOrder
     ii_ncm?: SortOrder
     pis_ncm?: SortOrder
     cofins_ncm?: SortOrder
   }
 
-  export type NCMMaxOrderByAggregateInput = {
+  export type NcmMaxOrderByAggregateInput = {
     codigo_ncm?: SortOrder
     descricao_ncm?: SortOrder
     ipi_ncm?: SortOrder
     ii_ncm?: SortOrder
-    ativo_ncm?: SortOrder
     pis_ncm?: SortOrder
     cofins_ncm?: SortOrder
+    ativo_ncm?: SortOrder
   }
 
-  export type NCMMinOrderByAggregateInput = {
+  export type NcmMinOrderByAggregateInput = {
     codigo_ncm?: SortOrder
     descricao_ncm?: SortOrder
     ipi_ncm?: SortOrder
     ii_ncm?: SortOrder
-    ativo_ncm?: SortOrder
     pis_ncm?: SortOrder
     cofins_ncm?: SortOrder
+    ativo_ncm?: SortOrder
   }
 
-  export type NCMSumOrderByAggregateInput = {
+  export type NcmSumOrderByAggregateInput = {
     ipi_ncm?: SortOrder
     ii_ncm?: SortOrder
     pis_ncm?: SortOrder
@@ -8687,9 +8868,11 @@ export namespace Prisma {
     _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
-  export type OPECountOrderByAggregateInput = {
+  export type OpeCountOrderByAggregateInput = {
     suid_ope?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_ope?: SortOrder
+    id_produto_ope?: SortOrder
+    id_usuario_ope?: SortOrder
     codigo_portal_unico_ope?: SortOrder
     situacao_ope?: SortOrder
     versao_ope?: SortOrder
@@ -8706,9 +8889,11 @@ export namespace Prisma {
     origem_ope?: SortOrder
   }
 
-  export type OPEMaxOrderByAggregateInput = {
+  export type OpeMaxOrderByAggregateInput = {
     suid_ope?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_ope?: SortOrder
+    id_produto_ope?: SortOrder
+    id_usuario_ope?: SortOrder
     codigo_portal_unico_ope?: SortOrder
     situacao_ope?: SortOrder
     versao_ope?: SortOrder
@@ -8725,9 +8910,11 @@ export namespace Prisma {
     origem_ope?: SortOrder
   }
 
-  export type OPEMinOrderByAggregateInput = {
+  export type OpeMinOrderByAggregateInput = {
     suid_ope?: SortOrder
-    id_organizacao?: SortOrder
+    id_organizacao_ope?: SortOrder
+    id_produto_ope?: SortOrder
+    id_usuario_ope?: SortOrder
     codigo_portal_unico_ope?: SortOrder
     situacao_ope?: SortOrder
     versao_ope?: SortOrder
@@ -8767,31 +8954,40 @@ export namespace Prisma {
   }
 
   export type OpeHistoricoStatusCountOrderByAggregateInput = {
-    id_historico_status_ope?: SortOrder
-    suid_ope_historico_status_ope?: SortOrder
-    status_anterior_historico_status_ope?: SortOrder
-    status_novo_historico_status_ope?: SortOrder
-    origem_historico_status_ope?: SortOrder
-    payload_historico_status_ope?: SortOrder
-    registrado_em_historico_status_ope?: SortOrder
+    id_ope_historico_status?: SortOrder
+    id_organizacao_ope_historico_status?: SortOrder
+    id_produto_ope_historico_status?: SortOrder
+    id_usuario_ope_historico_status?: SortOrder
+    suid_ope_historico_status?: SortOrder
+    status_anterior_ope_historico_status?: SortOrder
+    status_novo_ope_historico_status?: SortOrder
+    origem_ope_historico_status?: SortOrder
+    payload_ope_historico_status?: SortOrder
+    registrado_em_ope_historico_status?: SortOrder
   }
 
   export type OpeHistoricoStatusMaxOrderByAggregateInput = {
-    id_historico_status_ope?: SortOrder
-    suid_ope_historico_status_ope?: SortOrder
-    status_anterior_historico_status_ope?: SortOrder
-    status_novo_historico_status_ope?: SortOrder
-    origem_historico_status_ope?: SortOrder
-    registrado_em_historico_status_ope?: SortOrder
+    id_ope_historico_status?: SortOrder
+    id_organizacao_ope_historico_status?: SortOrder
+    id_produto_ope_historico_status?: SortOrder
+    id_usuario_ope_historico_status?: SortOrder
+    suid_ope_historico_status?: SortOrder
+    status_anterior_ope_historico_status?: SortOrder
+    status_novo_ope_historico_status?: SortOrder
+    origem_ope_historico_status?: SortOrder
+    registrado_em_ope_historico_status?: SortOrder
   }
 
   export type OpeHistoricoStatusMinOrderByAggregateInput = {
-    id_historico_status_ope?: SortOrder
-    suid_ope_historico_status_ope?: SortOrder
-    status_anterior_historico_status_ope?: SortOrder
-    status_novo_historico_status_ope?: SortOrder
-    origem_historico_status_ope?: SortOrder
-    registrado_em_historico_status_ope?: SortOrder
+    id_ope_historico_status?: SortOrder
+    id_organizacao_ope_historico_status?: SortOrder
+    id_produto_ope_historico_status?: SortOrder
+    id_usuario_ope_historico_status?: SortOrder
+    suid_ope_historico_status?: SortOrder
+    status_anterior_ope_historico_status?: SortOrder
+    status_novo_ope_historico_status?: SortOrder
+    origem_ope_historico_status?: SortOrder
+    registrado_em_ope_historico_status?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -9032,13 +9228,13 @@ export namespace Prisma {
      */
     export type UnidadeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = UnidadeDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use NCMDefaultArgs instead
+     * @deprecated Use NcmDefaultArgs instead
      */
-    export type NCMArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NCMDefaultArgs<ExtArgs>
+    export type NcmArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NcmDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use OPEDefaultArgs instead
+     * @deprecated Use OpeDefaultArgs instead
      */
-    export type OPEArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OPEDefaultArgs<ExtArgs>
+    export type OpeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = OpeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use OpeHistoricoStatusDefaultArgs instead
      */

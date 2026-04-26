@@ -45,7 +45,7 @@ export async function gerarSuid(
 ): Promise<string> {
   const { id_organizacao, pais_empresa, nome_empresa } = args
   const total = await prisma.empresa.count({
-    where: { id_organizacao, pais_empresa },
+    where: { id_organizacao_empresa: id_organizacao, pais_empresa },
   })
 
   // Tenta até 50 vezes — colisão extrema indicaria bug no slug ou catálogo

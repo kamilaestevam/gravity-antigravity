@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-24T14:44:40.232Z
+// Gerado em: 2026-04-26T22:03:23.934Z
 // Banco: gravity-cadastros-* (Railway)
 // Serviço: @tenant/cadastros
 // Documento técnico: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
@@ -31,68 +31,89 @@ datasource db {
 // --- Fragment: cadastros ---
 
 // =====================================================================
-// Fragment Prisma — Serviço @tenant/cadastros
+// Fragment Prisma — Serviço @tenant/cadastros — ONDA 38 (DDD Cadastros)
 // =====================================================================
 // Fonte da verdade: documentos-tecnicos/banco-dados/cadastros-arquitetura.md
-// Versão: 1.0 (Fase 1 — scaffold inicial)
+//
+// Onda 38 — DDD: erradicação de @map de coluna; todos os fields físicos
+// usam sufixo completo casando com @@map; modelos em PascalCase.
+// Catálogos globais (Moeda, Unidade, Ncm) preservados sem id_organizacao
+// por decisão arquitetural (seção 4.2 do documento técnico).
 //
 // IMPORTANTE:
 // - Este fragment NÃO deve ser editado diretamente em schema.prisma.
 // - O Coordenador é o único autorizado a rodar a composição do schema
 //   consolidado (Mandamento 02).
-// - Model names em PascalCase (convenção Prisma) + @@map para o nome
-//   snake_case da tabela no PostgreSQL (fix_model_casing_revert 2026-04-24).
-// - Todos os campos em snake_case PT-BR, booleans sem prefixo `is_`,
-//   valores de enum em UPPER_SNAKE EN.
+// - Booleans usam o adjetivo (ativo, pode_ser_*), sem prefixo is_/has_.
+// - DTO/ACL nas rotas preserva contrato público das schemas Zod
+//   (`shared/schemas/`) — `id_organizacao` continua sendo o nome
+//   exposto na API, mesmo que internamente seja `id_organizacao_empresa`.
 // =====================================================================
 
 // ---------------------------------------------------------------------
-// 4.1 empresa — cartório de identidades COMEX (per-tenant)
+// Empresa — cartório de identidades COMEX (per-tenant)
 // ---------------------------------------------------------------------
 // Tipo da empresa é DERIVADO das flags pode_ser_*, NÃO é campo persistido.
 // Função utilitária: derivarTipoVisual(empresa) em server/src/utils.
+// ---------------------------------------------------------------------
 model Empresa {
-  suid_empresa                                             String   @id // ex: SHENZHEN-00042
-  id_organizacao                                           String // tenant dono
-  nome_empresa                                             String
-  cnpj_empresa                                             String? // obrigatório se pais = BR
-  tin_empresa                                              String? // estrangeiros (opcional)
-  pais_empresa                                             String // ISO-2
-  estado_empresa                                           String?
-  cidade_empresa                                           String?
-  endereco_empresa                                         String?
-  zipcode_empresa                                          String?
-  email_empresa                                            String?
-  telefone_empresa                                         String?
-  whatsapp_empresa                                         String?
-  pode_ser_importador_empresa                              Boolean  @default(false)
-  pode_ser_exportador_empresa                              Boolean  @default(false)
-  pode_ser_fabricante_empresa                              Boolean  @default(false)
-  pode_ser_agente_empresa                                  Boolean  @default(false)
-  pode_ser_despachante_empresa                             Boolean  @default(false)
-  pode_ser_armador_empresa                                 Boolean  @default(false)
-  ativo_empresa                                            Boolean  @default(true)
-  criado_em_empresa                                        DateTime @default(now())
-  atualizado_em_empresa                                    DateTime @updatedAt
-  pode_ser_armazem_alfandegado_empresa                     Boolean  @default(false)
-  pode_ser_transportadora_rodoviaria_nacional_empresa      Boolean  @default(false)
-  pode_ser_cia_aerea_empresa                               Boolean  @default(false)
-  pode_ser_transportadora_rodoviaria_internacional_empresa Boolean  @default(false)
-  pode_ser_seguradora_internacional_empresa                Boolean  @default(false)
-  pode_ser_seguradora_corretora_cambio_empresa             Boolean  @default(false)
-  pode_ser_banco_empresa                                   Boolean  @default(false)
-  pode_ser_armazem_nacional_empresa                        Boolean  @default(false)
+  suid_empresa String @id
 
-  @@unique([id_organizacao, cnpj_empresa])
-  @@unique([id_organizacao, tin_empresa, pais_empresa])
-  @@index([id_organizacao])
-  @@index([id_organizacao, nome_empresa])
+  // Identificação tenant — TODO field termina em _empresa (DDD ONDA 38)
+  id_organizacao_empresa String
+  id_produto_empresa     String?
+  id_usuario_empresa     String? // criador (Clerk user_id)
+
+  // Identificação fiscal/legal
+  nome_empresa     String
+  cnpj_empresa     String? // obrigatório se pais_empresa = BR
+  tin_empresa      String? // estrangeiros (opcional)
+  pais_empresa     String // ISO-2
+  estado_empresa   String?
+  cidade_empresa   String?
+  endereco_empresa String?
+  zipcode_empresa  String?
+  email_empresa    String?
+  telefone_empresa String?
+  whatsapp_empresa String?
+
+  // Flags de papel (REGRA 5: sem is_/has_)
+  pode_ser_importador_empresa                              Boolean @default(false)
+  pode_ser_exportador_empresa                              Boolean @default(false)
+  pode_ser_fabricante_empresa                              Boolean @default(false)
+  pode_ser_agente_empresa                                  Boolean @default(false)
+  pode_ser_despachante_empresa                             Boolean @default(false)
+  pode_ser_armador_empresa                                 Boolean @default(false)
+  pode_ser_armazem_alfandegado_empresa                     Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_nacional_empresa      Boolean @default(false)
+  pode_ser_cia_aerea_empresa                               Boolean @default(false)
+  pode_ser_transportadora_rodoviaria_internacional_empresa Boolean @default(false)
+  pode_ser_seguradora_internacional_empresa                Boolean @default(false)
+  pode_ser_seguradora_corretora_cambio_empresa             Boolean @default(false)
+  pode_ser_banco_empresa                                   Boolean @default(false)
+  pode_ser_armazem_nacional_empresa                        Boolean @default(false)
+
+  // Estado (REGRA 5)
+  ativo_empresa Boolean @default(true)
+
+  // Timestamps
+  criado_em_empresa     DateTime @default(now())
+  atualizado_em_empresa DateTime @updatedAt
+
+  @@unique([id_organizacao_empresa, cnpj_empresa], map: "emp_unq_org_cnpj")
+  @@unique([id_organizacao_empresa, tin_empresa, pais_empresa], map: "emp_unq_org_tin_pais")
+  @@index([id_organizacao_empresa], map: "emp_org_idx")
+  @@index([id_organizacao_empresa, id_produto_empresa], map: "emp_org_prd_idx")
+  @@index([id_organizacao_empresa, id_usuario_empresa], map: "emp_org_usr_idx")
+  @@index([id_organizacao_empresa, nome_empresa], map: "emp_org_nome_idx")
   @@map("empresa")
 }
 
 // ---------------------------------------------------------------------
-// 4.2 Catálogos compartilhados (Moeda, Unidade, NCM)
+// Catálogos globais (Moeda, Unidade, Ncm) — sem id_organizacao
+// Decisão arquitetural: catálogos compartilhados entre todos os tenants.
 // ---------------------------------------------------------------------
+
 model Moeda {
   codigo_moeda  String  @id // BRL, USD, EUR, CNY
   simbolo_moeda String
@@ -110,25 +131,30 @@ model Unidade {
   @@map("unidade")
 }
 
-model NCM {
+model Ncm {
   codigo_ncm    String  @id // 8 dígitos
   descricao_ncm String
   ipi_ncm       Float?
   ii_ncm        Float?
-  ativo_ncm     Boolean @default(true)
   pis_ncm       Float?
   cofins_ncm    Float?
+  ativo_ncm     Boolean @default(true)
 
   @@map("ncm")
 }
 
 // ---------------------------------------------------------------------
-// 4.3 OPE — sincronizado de Portal Único (fonte da verdade SISCOMEX)
+// Ope — sincronizado de Portal Único (fonte da verdade SISCOMEX)
 // ---------------------------------------------------------------------
-model OPE {
-  suid_ope                 String   @id
-  id_organizacao           String
-  codigo_portal_unico_ope  String   @unique
+model Ope {
+  suid_ope String @id
+
+  // Identificação tenant — TODO field termina em _ope (DDD ONDA 38)
+  id_organizacao_ope String
+  id_produto_ope     String?
+  id_usuario_ope     String?
+
+  codigo_portal_unico_ope  String   @unique(map: "ope_unq_codigo_portal_unico")
   situacao_ope             String // espelho do status SISCOMEX
   versao_ope               String
   nome_ope                 String
@@ -143,20 +169,36 @@ model OPE {
   ultima_sincronizacao_ope DateTime
   origem_ope               String   @default("portal_unico")
 
-  @@index([id_organizacao])
+  @@index([id_organizacao_ope], map: "ope_org_idx")
+  @@index([id_organizacao_ope, id_produto_ope], map: "ope_org_prd_idx")
+  @@index([id_organizacao_ope, id_usuario_ope], map: "ope_org_usr_idx")
   @@map("ope")
 }
 
+// ---------------------------------------------------------------------
+// OpeHistoricoStatus — log de transições de status do OPE
+// Onda 38: corrigido sufixo (era _historico_status_ope; correto é
+// _ope_historico_status casando com @@map "ope_historico_status").
+// ---------------------------------------------------------------------
 model OpeHistoricoStatus {
-  id_historico_status_ope              String   @id @default(cuid())
-  suid_ope_historico_status_ope        String
-  status_anterior_historico_status_ope String?
-  status_novo_historico_status_ope     String
-  origem_historico_status_ope          String // portal_unico, manual, sistema
-  payload_historico_status_ope         Json
-  registrado_em_historico_status_ope   DateTime @default(now())
+  id_ope_historico_status String @id @default(cuid())
 
-  @@index([suid_ope_historico_status_ope])
-  @@index([registrado_em_historico_status_ope])
+  // Identificação tenant
+  id_organizacao_ope_historico_status String?
+  id_produto_ope_historico_status     String?
+  id_usuario_ope_historico_status     String?
+
+  suid_ope_historico_status            String
+  status_anterior_ope_historico_status String?
+  status_novo_ope_historico_status     String
+  origem_ope_historico_status          String // portal_unico, manual, sistema
+  payload_ope_historico_status         Json
+  registrado_em_ope_historico_status   DateTime @default(now())
+
+  @@index([suid_ope_historico_status], map: "ohs_suid_idx")
+  @@index([registrado_em_ope_historico_status], map: "ohs_data_idx")
+  @@index([id_organizacao_ope_historico_status], map: "ohs_org_idx")
+  @@index([id_organizacao_ope_historico_status, id_produto_ope_historico_status], map: "ohs_org_prd_idx")
+  @@index([id_organizacao_ope_historico_status, id_usuario_ope_historico_status], map: "ohs_org_usr_idx")
   @@map("ope_historico_status")
 }

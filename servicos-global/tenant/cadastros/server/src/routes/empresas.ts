@@ -1,16 +1,21 @@
 /**
  * CRUD de Empresa (cartório de identidades COMEX).
  *
- * - Toda query filtra por `id_organizacao` (Tenant Isolation).
+ * Onda 38 — DDD Cadastros: campos físicos com sufixo _empresa
+ * (id_organizacao_empresa, id_produto_empresa, id_usuario_empresa).
+ * Contrato público de API mantido — `toEmpresaDto()` traduz para o nome
+ * exposto na schema Zod (`id_organizacao` sem sufixo).
+ *
+ * - Toda query filtra por `id_organizacao_empresa` (Tenant Isolation).
  * - 404 ao buscar SUID alheio (não 403 — não vazamos existência).
- * - Soft delete via `ativo = false` (DELETE /empresas/:suid_empresa) — uso normal.
- * - Hard delete (DELETE /empresas/:suid_empresa/compensacao) — exclusivo para
+ * - Soft delete via `ativo_empresa = false` (DELETE /empresas/:suid).
+ * - Hard delete (DELETE /empresas/:suid/compensacao) — exclusivo para
  *   compensação de saga inter-serviço quando a criação da Organizacao no
  *   Configurador falha após a Empresa ter sido criada aqui.
  * - SUID gerado por `gerarSuid()` no formato `${PAIS}-${SLUG}-${SEQ_5}`.
  */
 import { Router } from 'express'
-import { Prisma } from '../../../generated/index.js'
+import { Prisma, type Empresa as PrismaEmpresa } from '../../../generated/index.js'
 import { requireInternalKey } from '../middleware/internal-key.js'
 import { prisma } from '../lib/prisma.js'
 import { AppError } from '../lib/app-error.js'
@@ -23,6 +28,45 @@ import { consultarImpacto } from '../services/preview-impacto.js'
 
 const router = Router()
 router.use(requireInternalKey)
+
+/**
+ * ACL — traduz registro físico (Prisma) para o contrato público da API.
+ * Preserva `id_organizacao` sem sufixo conforme `empresaSchema` (Zod).
+ */
+function toEmpresaDto(e: PrismaEmpresa): Record<string, unknown> {
+  return {
+    suid_empresa:                                              e.suid_empresa,
+    id_organizacao:                                            e.id_organizacao_empresa,
+    nome_empresa:                                              e.nome_empresa,
+    cnpj_empresa:                                              e.cnpj_empresa,
+    tin_empresa:                                               e.tin_empresa,
+    pais_empresa:                                              e.pais_empresa,
+    estado_empresa:                                            e.estado_empresa,
+    cidade_empresa:                                            e.cidade_empresa,
+    endereco_empresa:                                          e.endereco_empresa,
+    zipcode_empresa:                                           e.zipcode_empresa,
+    email_empresa:                                             e.email_empresa,
+    telefone_empresa:                                          e.telefone_empresa,
+    whatsapp_empresa:                                          e.whatsapp_empresa,
+    pode_ser_importador_empresa:                               e.pode_ser_importador_empresa,
+    pode_ser_exportador_empresa:                               e.pode_ser_exportador_empresa,
+    pode_ser_fabricante_empresa:                               e.pode_ser_fabricante_empresa,
+    pode_ser_agente_empresa:                                   e.pode_ser_agente_empresa,
+    pode_ser_despachante_empresa:                              e.pode_ser_despachante_empresa,
+    pode_ser_armador_empresa:                                  e.pode_ser_armador_empresa,
+    pode_ser_armazem_alfandegado_empresa:                      e.pode_ser_armazem_alfandegado_empresa,
+    pode_ser_transportadora_rodoviaria_nacional_empresa:       e.pode_ser_transportadora_rodoviaria_nacional_empresa,
+    pode_ser_cia_aerea_empresa:                                e.pode_ser_cia_aerea_empresa,
+    pode_ser_transportadora_rodoviaria_internacional_empresa:  e.pode_ser_transportadora_rodoviaria_internacional_empresa,
+    pode_ser_seguradora_internacional_empresa:                 e.pode_ser_seguradora_internacional_empresa,
+    pode_ser_seguradora_corretora_cambio_empresa:              e.pode_ser_seguradora_corretora_cambio_empresa,
+    pode_ser_banco_empresa:                                    e.pode_ser_banco_empresa,
+    pode_ser_armazem_nacional_empresa:                         e.pode_ser_armazem_nacional_empresa,
+    ativo_empresa:                                             e.ativo_empresa,
+    criado_em_empresa:                                         e.criado_em_empresa.toISOString(),
+    atualizado_em_empresa:                                     e.atualizado_em_empresa.toISOString(),
+  }
+}
 
 /**
  * Lê e valida `id_organizacao` da query OU do header `x-organizacao-id`.
@@ -58,7 +102,7 @@ router.post('/', async (req, res, next) => {
     const criada = await prisma.empresa.create({
       data: {
         suid_empresa,
-        id_organizacao: dados.id_organizacao,
+        id_organizacao_empresa: dados.id_organizacao,
         nome_empresa: dados.nome_empresa,
         cnpj_empresa: dados.cnpj_empresa ?? null,
         tin_empresa: dados.tin_empresa ?? null,
@@ -79,7 +123,7 @@ router.post('/', async (req, res, next) => {
         ativo_empresa: dados.ativo_empresa,
       },
     })
-    res.status(201).json(criada)
+    res.status(201).json(toEmpresaDto(criada))
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return next(AppError.conflito('Empresa duplicada (SUID, CNPJ ou TIN já existente para este tenant)'))
@@ -101,7 +145,7 @@ router.get('/', async (req, res, next) => {
     const busca = typeof req.query.busca === 'string' ? req.query.busca : undefined
 
     const where: Prisma.EmpresaWhereInput = {
-      id_organizacao: idOrganizacao,
+      id_organizacao_empresa: idOrganizacao,
       ...(podeSerImportador !== undefined ? { pode_ser_importador_empresa: true } : {}),
       ...(pais_empresa ? { pais_empresa } : {}),
       ...(busca ? { nome_empresa: { contains: busca, mode: 'insensitive' } } : {}),
@@ -117,7 +161,7 @@ router.get('/', async (req, res, next) => {
       prisma.empresa.count({ where }),
     ])
 
-    res.status(200).json({ itens, total, pagina, por_pagina: porPagina })
+    res.status(200).json({ itens: itens.map(toEmpresaDto), total, pagina, por_pagina: porPagina })
   } catch (err) {
     next(err)
   }
@@ -130,10 +174,10 @@ router.get('/:suid', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const empresa = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao: idOrganizacao },
+      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
     })
     if (!empresa) throw AppError.naoEncontrado('Empresa')
-    res.status(200).json(empresa)
+    res.status(200).json(toEmpresaDto(empresa))
   } catch (err) {
     next(err)
   }
@@ -146,7 +190,7 @@ router.get('/:suid/preview-impacto', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existe = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao: idOrganizacao },
+      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
       select: { suid_empresa: true },
     })
     if (!existe) throw AppError.naoEncontrado('Empresa')
@@ -167,7 +211,7 @@ router.put('/:suid', async (req, res, next) => {
 
     // Busca primeiro pra garantir tenant ownership (404 se alheio).
     const existente = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao: idOrganizacao },
+      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
     })
     if (!existente) throw AppError.naoEncontrado('Empresa')
 
@@ -194,7 +238,7 @@ router.put('/:suid', async (req, res, next) => {
         ...(dados.ativo_empresa !== undefined ? { ativo_empresa: dados.ativo_empresa } : {}),
       },
     })
-    res.status(200).json(atualizada)
+    res.status(200).json(toEmpresaDto(atualizada))
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       return next(AppError.conflito('Atualização viola unicidade (CNPJ/TIN duplicado neste tenant)'))
@@ -217,7 +261,7 @@ router.delete('/:suid/compensacao', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existente = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao: idOrganizacao },
+      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
       select: { suid_empresa: true },
     })
     if (!existente) throw AppError.naoEncontrado('Empresa')
@@ -236,7 +280,7 @@ router.delete('/:suid', async (req, res, next) => {
   try {
     const idOrganizacao = extrairIdOrganizacao(req)
     const existente = await prisma.empresa.findFirst({
-      where: { suid_empresa: req.params.suid, id_organizacao: idOrganizacao },
+      where: { suid_empresa: req.params.suid, id_organizacao_empresa: idOrganizacao },
     })
     if (!existente) throw AppError.naoEncontrado('Empresa')
 
@@ -244,7 +288,7 @@ router.delete('/:suid', async (req, res, next) => {
       where: { suid_empresa: existente.suid_empresa },
       data: { ativo_empresa: false },
     })
-    res.status(200).json(desativada)
+    res.status(200).json(toEmpresaDto(desativada))
   } catch (err) {
     next(err)
   }

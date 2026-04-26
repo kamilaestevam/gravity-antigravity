@@ -199,14 +199,14 @@ exports.Prisma.EmpresaScalarFieldEnum = {
 };
 
 exports.Prisma.UsuarioWorkspaceScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  user_id: 'user_id',
-  company_id: 'company_id',
-  role: 'role',
-  is_active: 'is_active',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_usuario_workspace: 'id_usuario_workspace',
+  id_organizacao_usuario_workspace: 'id_organizacao_usuario_workspace',
+  id_usuario_usuario_workspace: 'id_usuario_usuario_workspace',
+  id_workspace_usuario_workspace: 'id_workspace_usuario_workspace',
+  tipo_usuario_workspace: 'tipo_usuario_workspace',
+  ativo_usuario_workspace: 'ativo_usuario_workspace',
+  data_criacao_usuario_workspace: 'data_criacao_usuario_workspace',
+  data_atualizacao_usuario_workspace: 'data_atualizacao_usuario_workspace'
 };
 
 exports.Prisma.ConfiguracaoProdutoScalarFieldEnum = {

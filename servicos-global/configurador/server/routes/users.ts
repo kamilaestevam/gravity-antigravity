@@ -63,10 +63,10 @@ usersRouter.get('/', async (req, res, next) => {
         data_criacao_usuario: true,
         memberships: {
           select: {
-            id: true,
-            company_id: true,
-            role: true,
-            is_active: true,
+            id_usuario_workspace: true,
+            id_workspace_usuario_workspace: true,
+            tipo_usuario_workspace: true,
+            ativo_usuario_workspace: true,
           },
         },
       },
@@ -79,9 +79,12 @@ usersRouter.get('/', async (req, res, next) => {
       created_at: data_criacao_usuario,
       email: email_usuario,
       name: nome_usuario,
-      memberships: memberships.map(({ role: mRole, ...m }) => ({
-        ...m,
-        tipo_usuario: mRole,
+      // DTO: UsuarioWorkspace rename → contrato externo legado
+      memberships: memberships.map((m) => ({
+        id: m.id_usuario_workspace,
+        company_id: m.id_workspace_usuario_workspace,
+        tipo_usuario: m.tipo_usuario_workspace,
+        is_active: m.ativo_usuario_workspace,
       })),
     }))
     res.json({ users: usuarios })
@@ -163,11 +166,11 @@ usersRouter.post('/invite', requireMasterRole, async (req, res, next) => {
       if (empresasParaVincular.length > 0) {
         await tx.usuarioWorkspace.createMany({
           data: empresasParaVincular.map((e) => ({
-            tenant_id: req.auth.tenantId,
-            user_id: created.id_usuario,
-            company_id: e.id_workspace,
-            role,
-            is_active: true,
+            id_organizacao_usuario_workspace: req.auth.tenantId,
+            id_usuario_usuario_workspace: created.id_usuario,
+            id_workspace_usuario_workspace: e.id_workspace,
+            tipo_usuario_workspace: role,
+            ativo_usuario_workspace: true,
           })),
           skipDuplicates: true,
         })
@@ -221,23 +224,34 @@ usersRouter.post('/:id/memberships', requireMasterRole, async (req, res, next) =
 
     const membership = await prisma.usuarioWorkspace.upsert({
       where: {
-        tenant_id_user_id_company_id: {
-          tenant_id: req.auth.tenantId,
-          user_id: userId,
-          company_id: companyId,
+        id_organizacao_usuario_workspace_id_usuario_usuario_workspace_id_workspace_usuario_workspace: {
+          id_organizacao_usuario_workspace: req.auth.tenantId,
+          id_usuario_usuario_workspace: userId,
+          id_workspace_usuario_workspace: companyId,
         },
       },
       create: {
-        tenant_id: req.auth.tenantId,
-        user_id: userId,
-        company_id: companyId,
-        role,
-        is_active: true,
+        id_organizacao_usuario_workspace: req.auth.tenantId,
+        id_usuario_usuario_workspace: userId,
+        id_workspace_usuario_workspace: companyId,
+        tipo_usuario_workspace: role,
+        ativo_usuario_workspace: true,
       },
-      update: { role, is_active: true },
+      update: { tipo_usuario_workspace: role, ativo_usuario_workspace: true },
     })
 
-    res.status(201).json({ membership })
+    // DTO: UsuarioWorkspace rename → contrato externo legado
+    const membershipDto = {
+      id: membership.id_usuario_workspace,
+      tenant_id: membership.id_organizacao_usuario_workspace,
+      user_id: membership.id_usuario_usuario_workspace,
+      company_id: membership.id_workspace_usuario_workspace,
+      role: membership.tipo_usuario_workspace,
+      is_active: membership.ativo_usuario_workspace,
+      created_at: membership.data_criacao_usuario_workspace,
+      updated_at: membership.data_atualizacao_usuario_workspace,
+    }
+    res.status(201).json({ membership: membershipDto })
   } catch (err) {
     next(err)
   }
@@ -269,14 +283,20 @@ async function substituirWorkspacesAtomicamente(
   role: string,
 ): Promise<void> {
   await prisma.$transaction(async (tx) => {
-    await tx.usuarioWorkspace.deleteMany({ where: { tenant_id: tenantId, user_id: userId } })
+    await tx.usuarioWorkspace.deleteMany({
+      where: {
+        id_organizacao_usuario_workspace: tenantId,
+        id_usuario_usuario_workspace: userId,
+      },
+    })
     await tx.usuarioWorkspace.createMany({
+      // tipo_usuario_workspace é o enum TipoUsuarioEmpresa — cast para preservar a baseline pré-onda
       data: workspaceIds.map((companyId) => ({
-        tenant_id: tenantId,
-        user_id: userId,
-        company_id: companyId,
-        role,
-        is_active: true,
+        id_organizacao_usuario_workspace: tenantId,
+        id_usuario_usuario_workspace: userId,
+        id_workspace_usuario_workspace: companyId,
+        tipo_usuario_workspace: role as 'MASTER' | 'PADRAO' | 'FORNECEDOR',
+        ativo_usuario_workspace: true,
       })),
       skipDuplicates: true,
     })
@@ -309,8 +329,14 @@ usersRouter.put('/:id/workspaces', requireMasterRole, async (req, res, next) => 
     await validarWorkspacesDoTenant(req.auth.tenantId, workspaceIds)
 
     const antesIds = await prisma.usuarioWorkspace
-      .findMany({ where: { tenant_id: req.auth.tenantId, user_id: userId }, select: { company_id: true } })
-      .then((ws) => ws.map((w) => w.company_id))
+      .findMany({
+        where: {
+          id_organizacao_usuario_workspace: req.auth.tenantId,
+          id_usuario_usuario_workspace: userId,
+        },
+        select: { id_workspace_usuario_workspace: true },
+      })
+      .then((ws) => ws.map((w) => w.id_workspace_usuario_workspace))
 
     await substituirWorkspacesAtomicamente(req.auth.tenantId, userId, workspaceIds, user.tipo_usuario)
 

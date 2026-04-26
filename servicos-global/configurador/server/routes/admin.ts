@@ -475,17 +475,17 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
             select: { nome_organizacao: true, subdominio_organizacao: true },
           },
           memberships: {
-            where: { is_active: true },
+            where: { ativo_usuario_workspace: true },
             select: {
-              id: true,
-              company_id: true,
-              role: true,
-              is_active: true,
+              id_usuario_workspace: true,
+              id_workspace_usuario_workspace: true,
+              tipo_usuario_workspace: true,
+              ativo_usuario_workspace: true,
               company: {
                 select: { nome_workspace: true, subdominio_workspace: true },
               },
             },
-            orderBy: { created_at: 'desc' as const },
+            orderBy: { data_criacao_usuario_workspace: 'desc' as const },
             take: 20,
           },
         },
@@ -515,12 +515,15 @@ adminRouter.get('/usuarios-globais', async (req, res, next) => {
       email: email_usuario,
       name: nome_usuario,
       tenant_id: id_organizacao_usuario,
-      memberships: memberships.map(({ role: mRole, company, ...m }) => ({
-        ...m,
-        tipo_usuario: mRole,
+      // DTO: UsuarioWorkspace rename → contrato externo legado
+      memberships: memberships.map((m) => ({
+        id: m.id_usuario_workspace,
+        company_id: m.id_workspace_usuario_workspace,
+        tipo_usuario: m.tipo_usuario_workspace,
+        is_active: m.ativo_usuario_workspace,
         company: {
-          name: company.nome_workspace,
-          subdomain: company.subdominio_workspace,
+          name: m.company.nome_workspace,
+          subdomain: m.company.subdominio_workspace,
         },
       })),
     }))

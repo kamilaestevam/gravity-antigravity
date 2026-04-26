@@ -265,27 +265,27 @@ model Empresa {
 // ---------------------------------------------------------------------------
 
 model UsuarioWorkspace {
-  id         String             @id @default(cuid())
-  tenant_id  String
-  user_id    String
-  company_id String
-  role       TipoUsuarioEmpresa @default(PADRAO)
-  is_active  Boolean            @default(true)
+  id_usuario_workspace             String             @id @default(cuid())
+  id_organizacao_usuario_workspace String
+  id_usuario_usuario_workspace     String
+  id_workspace_usuario_workspace   String
+  tipo_usuario_workspace           TipoUsuarioEmpresa @default(PADRAO)
+  ativo_usuario_workspace          Boolean            @default(true)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_usuario_workspace     DateTime @default(now())
+  data_atualizacao_usuario_workspace DateTime @updatedAt
 
   // Relações
-  user    Usuario   @relation(fields: [user_id], references: [id_usuario], onDelete: Cascade)
-  company Empresa @relation(fields: [company_id], references: [id_workspace], onDelete: Cascade)
+  user    Usuario @relation(fields: [id_usuario_usuario_workspace], references: [id_usuario], onDelete: Cascade)
+  company Empresa @relation(fields: [id_workspace_usuario_workspace], references: [id_workspace], onDelete: Cascade)
 
   // Usuário não pode ter duplicata de habilitação na mesma empresa
-  @@unique([tenant_id, user_id, company_id])
+  @@unique([id_organizacao_usuario_workspace, id_usuario_usuario_workspace, id_workspace_usuario_workspace], map: "uw_org_user_ws_unq")
   // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, company_id])
+  @@index([id_organizacao_usuario_workspace], map: "uw_org_idx")
+  @@index([id_organizacao_usuario_workspace, id_usuario_usuario_workspace], map: "uw_org_user_idx")
+  @@index([id_organizacao_usuario_workspace, id_workspace_usuario_workspace], map: "uw_org_ws_idx")
   @@map("usuario_workspace")
 }
 

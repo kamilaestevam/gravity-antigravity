@@ -70,9 +70,9 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
           },
         },
         memberships: {
-          where: { is_active: true },
+          where: { ativo_usuario_workspace: true },
           select: {
-            role: true,
+            tipo_usuario_workspace: true,
             company: {
               select: {
                 id_workspace: true,
@@ -114,7 +114,7 @@ meRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
         id: m.company.id_workspace,
         nome_workspace: m.company.nome_workspace,
         status: m.company.status_workspace,
-        tipo_usuario: m.role,
+        tipo_usuario: m.tipo_usuario_workspace,
         produtos: m.company.company_products.map((p) => p.product_key),
       })),
     })
@@ -178,13 +178,13 @@ async function isPreferredCompanyValid(
   // Clientes (MASTER/STANDARD): requer membership ativa
   const membership = await prisma.usuarioWorkspace.findFirst({
     where: {
-      user_id: userId,
-      company_id: companyId,
-      tenant_id: tenantId,
-      is_active: true,
+      id_usuario_usuario_workspace: userId,
+      id_workspace_usuario_workspace: companyId,
+      id_organizacao_usuario_workspace: tenantId,
+      ativo_usuario_workspace: true,
       company: { status_workspace: 'ATIVO' },
     },
-    select: { id: true },
+    select: { id_usuario_workspace: true },
   })
   return membership !== null
 }

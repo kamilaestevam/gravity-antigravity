@@ -117,7 +117,15 @@ tenantsRouter.get('/me', requireAuth, async (req, res, next) => {
     if (!tenant) {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
-    res.json({ tenant })
+    // DTO: mapeia Prisma `*_organizacao` → chaves legadas do contrato
+    const { _count, subscriptions_organizacao, ...rest } = tenant
+    res.json({
+      tenant: {
+        ...rest,
+        _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
+        subscriptions: subscriptions_organizacao,
+      },
+    })
   } catch (err) {
     next(err)
   }

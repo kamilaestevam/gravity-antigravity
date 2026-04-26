@@ -175,12 +175,12 @@ export const tenantService = {
     return prisma.organizacao.findUnique({
       where: { id: tenantId },
       include: {
-        subscriptions: {
+        subscriptions_organizacao: {
           orderBy: { created_at: 'desc' },
           take: 1,
           select: { status: true, trial_ends_at: true },
         },
-        _count: { select: { users: true, companies: true } },
+        _count: { select: { users_organizacao: true, companies_organizacao: true } },
       },
     })
   },

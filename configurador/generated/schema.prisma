@@ -86,12 +86,12 @@ model Organizacao {
   data_atualizacao_organizacao DateTime @updatedAt
 
   // Relações
-  users                   Usuario[]
-  subscriptions           AssinaturaProdutoGravity[]
-  user_permissions        UsuarioPermissao[]
-  companies               Empresa[]
-  product_configs         ConfiguracaoProduto[]
-  ProdutoGravityWorkspace ProdutoGravityWorkspace[]
+  users_organizacao            Usuario[]
+  subscriptions_organizacao    AssinaturaProdutoGravity[]
+  user_permissions_organizacao UsuarioPermissao[]
+  companies_organizacao        Empresa[]
+  product_configs_organizacao  ConfiguracaoProduto[]
+  ProdutoGravityWorkspace      ProdutoGravityWorkspace[]
 
   @@index([status_organizacao])
   @@index([subdominio_organizacao])

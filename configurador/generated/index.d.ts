@@ -2899,20 +2899,20 @@ export namespace Prisma {
    */
 
   export type OrganizacaoCountOutputType = {
-    users: number
-    subscriptions: number
-    user_permissions: number
-    companies: number
-    product_configs: number
+    users_organizacao: number
+    subscriptions_organizacao: number
+    user_permissions_organizacao: number
+    companies_organizacao: number
+    product_configs_organizacao: number
     ProdutoGravityWorkspace: number
   }
 
   export type OrganizacaoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    users?: boolean | OrganizacaoCountOutputTypeCountUsersArgs
-    subscriptions?: boolean | OrganizacaoCountOutputTypeCountSubscriptionsArgs
-    user_permissions?: boolean | OrganizacaoCountOutputTypeCountUser_permissionsArgs
-    companies?: boolean | OrganizacaoCountOutputTypeCountCompaniesArgs
-    product_configs?: boolean | OrganizacaoCountOutputTypeCountProduct_configsArgs
+    users_organizacao?: boolean | OrganizacaoCountOutputTypeCountUsers_organizacaoArgs
+    subscriptions_organizacao?: boolean | OrganizacaoCountOutputTypeCountSubscriptions_organizacaoArgs
+    user_permissions_organizacao?: boolean | OrganizacaoCountOutputTypeCountUser_permissions_organizacaoArgs
+    companies_organizacao?: boolean | OrganizacaoCountOutputTypeCountCompanies_organizacaoArgs
+    product_configs_organizacao?: boolean | OrganizacaoCountOutputTypeCountProduct_configs_organizacaoArgs
     ProdutoGravityWorkspace?: boolean | OrganizacaoCountOutputTypeCountProdutoGravityWorkspaceArgs
   }
 
@@ -2930,35 +2930,35 @@ export namespace Prisma {
   /**
    * OrganizacaoCountOutputType without action
    */
-  export type OrganizacaoCountOutputTypeCountUsersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoCountOutputTypeCountUsers_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuarioWhereInput
   }
 
   /**
    * OrganizacaoCountOutputType without action
    */
-  export type OrganizacaoCountOutputTypeCountSubscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoCountOutputTypeCountSubscriptions_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AssinaturaProdutoGravityWhereInput
   }
 
   /**
    * OrganizacaoCountOutputType without action
    */
-  export type OrganizacaoCountOutputTypeCountUser_permissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoCountOutputTypeCountUser_permissions_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: UsuarioPermissaoWhereInput
   }
 
   /**
    * OrganizacaoCountOutputType without action
    */
-  export type OrganizacaoCountOutputTypeCountCompaniesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoCountOutputTypeCountCompanies_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: EmpresaWhereInput
   }
 
   /**
    * OrganizacaoCountOutputType without action
    */
-  export type OrganizacaoCountOutputTypeCountProduct_configsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type OrganizacaoCountOutputTypeCountProduct_configs_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ConfiguracaoProdutoWhereInput
   }
 
@@ -3339,11 +3339,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: boolean
     data_criacao_organizacao?: boolean
     data_atualizacao_organizacao?: boolean
-    users?: boolean | Organizacao$usersArgs<ExtArgs>
-    subscriptions?: boolean | Organizacao$subscriptionsArgs<ExtArgs>
-    user_permissions?: boolean | Organizacao$user_permissionsArgs<ExtArgs>
-    companies?: boolean | Organizacao$companiesArgs<ExtArgs>
-    product_configs?: boolean | Organizacao$product_configsArgs<ExtArgs>
+    users_organizacao?: boolean | Organizacao$users_organizacaoArgs<ExtArgs>
+    subscriptions_organizacao?: boolean | Organizacao$subscriptions_organizacaoArgs<ExtArgs>
+    user_permissions_organizacao?: boolean | Organizacao$user_permissions_organizacaoArgs<ExtArgs>
+    companies_organizacao?: boolean | Organizacao$companies_organizacaoArgs<ExtArgs>
+    product_configs_organizacao?: boolean | Organizacao$product_configs_organizacaoArgs<ExtArgs>
     ProdutoGravityWorkspace?: boolean | Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs>
     _count?: boolean | OrganizacaoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["organizacao"]>
@@ -3383,11 +3383,11 @@ export namespace Prisma {
   }
 
   export type OrganizacaoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    users?: boolean | Organizacao$usersArgs<ExtArgs>
-    subscriptions?: boolean | Organizacao$subscriptionsArgs<ExtArgs>
-    user_permissions?: boolean | Organizacao$user_permissionsArgs<ExtArgs>
-    companies?: boolean | Organizacao$companiesArgs<ExtArgs>
-    product_configs?: boolean | Organizacao$product_configsArgs<ExtArgs>
+    users_organizacao?: boolean | Organizacao$users_organizacaoArgs<ExtArgs>
+    subscriptions_organizacao?: boolean | Organizacao$subscriptions_organizacaoArgs<ExtArgs>
+    user_permissions_organizacao?: boolean | Organizacao$user_permissions_organizacaoArgs<ExtArgs>
+    companies_organizacao?: boolean | Organizacao$companies_organizacaoArgs<ExtArgs>
+    product_configs_organizacao?: boolean | Organizacao$product_configs_organizacaoArgs<ExtArgs>
     ProdutoGravityWorkspace?: boolean | Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs>
     _count?: boolean | OrganizacaoCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -3396,11 +3396,11 @@ export namespace Prisma {
   export type $OrganizacaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Organizacao"
     objects: {
-      users: Prisma.$UsuarioPayload<ExtArgs>[]
-      subscriptions: Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>[]
-      user_permissions: Prisma.$UsuarioPermissaoPayload<ExtArgs>[]
-      companies: Prisma.$EmpresaPayload<ExtArgs>[]
-      product_configs: Prisma.$ConfiguracaoProdutoPayload<ExtArgs>[]
+      users_organizacao: Prisma.$UsuarioPayload<ExtArgs>[]
+      subscriptions_organizacao: Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>[]
+      user_permissions_organizacao: Prisma.$UsuarioPermissaoPayload<ExtArgs>[]
+      companies_organizacao: Prisma.$EmpresaPayload<ExtArgs>[]
+      product_configs_organizacao: Prisma.$ConfiguracaoProdutoPayload<ExtArgs>[]
       ProdutoGravityWorkspace: Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -3782,11 +3782,11 @@ export namespace Prisma {
    */
   export interface Prisma__OrganizacaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    users<T extends Organizacao$usersArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany"> | Null>
-    subscriptions<T extends Organizacao$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findMany"> | Null>
-    user_permissions<T extends Organizacao$user_permissionsArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$user_permissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPermissaoPayload<ExtArgs>, T, "findMany"> | Null>
-    companies<T extends Organizacao$companiesArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$companiesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany"> | Null>
-    product_configs<T extends Organizacao$product_configsArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$product_configsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findMany"> | Null>
+    users_organizacao<T extends Organizacao$users_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$users_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPayload<ExtArgs>, T, "findMany"> | Null>
+    subscriptions_organizacao<T extends Organizacao$subscriptions_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$subscriptions_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AssinaturaProdutoGravityPayload<ExtArgs>, T, "findMany"> | Null>
+    user_permissions_organizacao<T extends Organizacao$user_permissions_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$user_permissions_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsuarioPermissaoPayload<ExtArgs>, T, "findMany"> | Null>
+    companies_organizacao<T extends Organizacao$companies_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$companies_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmpresaPayload<ExtArgs>, T, "findMany"> | Null>
+    product_configs_organizacao<T extends Organizacao$product_configs_organizacaoArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$product_configs_organizacaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findMany"> | Null>
     ProdutoGravityWorkspace<T extends Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs> = {}>(args?: Subset<T, Organizacao$ProdutoGravityWorkspaceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProdutoGravityWorkspacePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4145,9 +4145,9 @@ export namespace Prisma {
   }
 
   /**
-   * Organizacao.users
+   * Organizacao.users_organizacao
    */
-  export type Organizacao$usersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Organizacao$users_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Usuario
      */
@@ -4165,9 +4165,9 @@ export namespace Prisma {
   }
 
   /**
-   * Organizacao.subscriptions
+   * Organizacao.subscriptions_organizacao
    */
-  export type Organizacao$subscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Organizacao$subscriptions_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the AssinaturaProdutoGravity
      */
@@ -4185,9 +4185,9 @@ export namespace Prisma {
   }
 
   /**
-   * Organizacao.user_permissions
+   * Organizacao.user_permissions_organizacao
    */
-  export type Organizacao$user_permissionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Organizacao$user_permissions_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the UsuarioPermissao
      */
@@ -4205,9 +4205,9 @@ export namespace Prisma {
   }
 
   /**
-   * Organizacao.companies
+   * Organizacao.companies_organizacao
    */
-  export type Organizacao$companiesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Organizacao$companies_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Empresa
      */
@@ -4225,9 +4225,9 @@ export namespace Prisma {
   }
 
   /**
-   * Organizacao.product_configs
+   * Organizacao.product_configs_organizacao
    */
-  export type Organizacao$product_configsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Organizacao$product_configs_organizacaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the ConfiguracaoProduto
      */
@@ -27130,11 +27130,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
-    users?: UsuarioListRelationFilter
-    subscriptions?: AssinaturaProdutoGravityListRelationFilter
-    user_permissions?: UsuarioPermissaoListRelationFilter
-    companies?: EmpresaListRelationFilter
-    product_configs?: ConfiguracaoProdutoListRelationFilter
+    users_organizacao?: UsuarioListRelationFilter
+    subscriptions_organizacao?: AssinaturaProdutoGravityListRelationFilter
+    user_permissions_organizacao?: UsuarioPermissaoListRelationFilter
+    companies_organizacao?: EmpresaListRelationFilter
+    product_configs_organizacao?: ConfiguracaoProdutoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
   }
 
@@ -27153,11 +27153,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: SortOrderInput | SortOrder
     data_criacao_organizacao?: SortOrder
     data_atualizacao_organizacao?: SortOrder
-    users?: UsuarioOrderByRelationAggregateInput
-    subscriptions?: AssinaturaProdutoGravityOrderByRelationAggregateInput
-    user_permissions?: UsuarioPermissaoOrderByRelationAggregateInput
-    companies?: EmpresaOrderByRelationAggregateInput
-    product_configs?: ConfiguracaoProdutoOrderByRelationAggregateInput
+    users_organizacao?: UsuarioOrderByRelationAggregateInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityOrderByRelationAggregateInput
+    user_permissions_organizacao?: UsuarioPermissaoOrderByRelationAggregateInput
+    companies_organizacao?: EmpresaOrderByRelationAggregateInput
+    product_configs_organizacao?: ConfiguracaoProdutoOrderByRelationAggregateInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceOrderByRelationAggregateInput
   }
 
@@ -27179,11 +27179,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
-    users?: UsuarioListRelationFilter
-    subscriptions?: AssinaturaProdutoGravityListRelationFilter
-    user_permissions?: UsuarioPermissaoListRelationFilter
-    companies?: EmpresaListRelationFilter
-    product_configs?: ConfiguracaoProdutoListRelationFilter
+    users_organizacao?: UsuarioListRelationFilter
+    subscriptions_organizacao?: AssinaturaProdutoGravityListRelationFilter
+    user_permissions_organizacao?: UsuarioPermissaoListRelationFilter
+    companies_organizacao?: EmpresaListRelationFilter
+    product_configs_organizacao?: ConfiguracaoProdutoListRelationFilter
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceListRelationFilter
   }, "id" | "subdominio_organizacao" | "clerk_org_id" | "stripe_customer_id" | "suid_empresa_organizacao">
 
@@ -29169,11 +29169,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
@@ -29192,11 +29192,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
@@ -29215,11 +29215,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
@@ -29238,11 +29238,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -29305,7 +29305,7 @@ export namespace Prisma {
     role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutUsersInput
+    tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
@@ -29333,7 +29333,7 @@ export namespace Prisma {
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
@@ -29398,7 +29398,7 @@ export namespace Prisma {
     cancelled_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutSubscriptionsInput
+    tenant: OrganizacaoCreateNestedOneWithoutSubscriptions_organizacaoInput
   }
 
   export type AssinaturaProdutoGravityUncheckedCreateInput = {
@@ -29426,7 +29426,7 @@ export namespace Prisma {
     cancelled_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutSubscriptionsNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutSubscriptions_organizacaoNestedInput
   }
 
   export type AssinaturaProdutoGravityUncheckedUpdateInput = {
@@ -29492,7 +29492,7 @@ export namespace Prisma {
     granted_by: string
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutUser_permissionsInput
+    tenant: OrganizacaoCreateNestedOneWithoutUser_permissions_organizacaoInput
     user: UsuarioCreateNestedOneWithoutUser_permissionsInput
   }
 
@@ -29516,7 +29516,7 @@ export namespace Prisma {
     granted_by?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutUser_permissionsNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutUser_permissions_organizacaoNestedInput
     user?: UsuarioUpdateOneRequiredWithoutUser_permissionsNestedInput
   }
 
@@ -29644,7 +29644,7 @@ export namespace Prisma {
     status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutCompaniesInput
+    tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
@@ -29672,7 +29672,7 @@ export namespace Prisma {
     status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
@@ -29806,7 +29806,7 @@ export namespace Prisma {
     is_active?: boolean
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutProduct_configsInput
+    tenant: OrganizacaoCreateNestedOneWithoutProduct_configs_organizacaoInput
   }
 
   export type ConfiguracaoProdutoUncheckedCreateInput = {
@@ -29826,7 +29826,7 @@ export namespace Prisma {
     is_active?: BoolFieldUpdateOperationsInput | boolean
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutProduct_configsNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutProduct_configs_organizacaoNestedInput
   }
 
   export type ConfiguracaoProdutoUncheckedUpdateInput = {
@@ -33577,9 +33577,9 @@ export namespace Prisma {
     deleteMany?: ProdutoGravityWorkspaceScalarWhereInput | ProdutoGravityWorkspaceScalarWhereInput[]
   }
 
-  export type OrganizacaoCreateNestedOneWithoutUsersInput = {
-    create?: XOR<OrganizacaoCreateWithoutUsersInput, OrganizacaoUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutUsersInput
+  export type OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput = {
+    create?: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutUsers_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
   }
 
@@ -33621,12 +33621,12 @@ export namespace Prisma {
     set?: $Enums.UsuarioTipo
   }
 
-  export type OrganizacaoUpdateOneRequiredWithoutUsersNestedInput = {
-    create?: XOR<OrganizacaoCreateWithoutUsersInput, OrganizacaoUncheckedCreateWithoutUsersInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutUsersInput
-    upsert?: OrganizacaoUpsertWithoutUsersInput
+  export type OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput = {
+    create?: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutUsers_organizacaoInput
+    upsert?: OrganizacaoUpsertWithoutUsers_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
-    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutUsersInput, OrganizacaoUpdateWithoutUsersInput>, OrganizacaoUncheckedUpdateWithoutUsersInput>
+    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutUsers_organizacaoInput, OrganizacaoUpdateWithoutUsers_organizacaoInput>, OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput>
   }
 
   export type EmpresaUpdateOneWithoutPreferred_by_usersNestedInput = {
@@ -33695,9 +33695,9 @@ export namespace Prisma {
     deleteMany?: UsuarioWorkspaceScalarWhereInput | UsuarioWorkspaceScalarWhereInput[]
   }
 
-  export type OrganizacaoCreateNestedOneWithoutSubscriptionsInput = {
-    create?: XOR<OrganizacaoCreateWithoutSubscriptionsInput, OrganizacaoUncheckedCreateWithoutSubscriptionsInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutSubscriptionsInput
+  export type OrganizacaoCreateNestedOneWithoutSubscriptions_organizacaoInput = {
+    create?: XOR<OrganizacaoCreateWithoutSubscriptions_organizacaoInput, OrganizacaoUncheckedCreateWithoutSubscriptions_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutSubscriptions_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
   }
 
@@ -33709,17 +33709,17 @@ export namespace Prisma {
     set?: Date | string | null
   }
 
-  export type OrganizacaoUpdateOneRequiredWithoutSubscriptionsNestedInput = {
-    create?: XOR<OrganizacaoCreateWithoutSubscriptionsInput, OrganizacaoUncheckedCreateWithoutSubscriptionsInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutSubscriptionsInput
-    upsert?: OrganizacaoUpsertWithoutSubscriptionsInput
+  export type OrganizacaoUpdateOneRequiredWithoutSubscriptions_organizacaoNestedInput = {
+    create?: XOR<OrganizacaoCreateWithoutSubscriptions_organizacaoInput, OrganizacaoUncheckedCreateWithoutSubscriptions_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutSubscriptions_organizacaoInput
+    upsert?: OrganizacaoUpsertWithoutSubscriptions_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
-    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutSubscriptionsInput, OrganizacaoUpdateWithoutSubscriptionsInput>, OrganizacaoUncheckedUpdateWithoutSubscriptionsInput>
+    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutSubscriptions_organizacaoInput, OrganizacaoUpdateWithoutSubscriptions_organizacaoInput>, OrganizacaoUncheckedUpdateWithoutSubscriptions_organizacaoInput>
   }
 
-  export type OrganizacaoCreateNestedOneWithoutUser_permissionsInput = {
-    create?: XOR<OrganizacaoCreateWithoutUser_permissionsInput, OrganizacaoUncheckedCreateWithoutUser_permissionsInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutUser_permissionsInput
+  export type OrganizacaoCreateNestedOneWithoutUser_permissions_organizacaoInput = {
+    create?: XOR<OrganizacaoCreateWithoutUser_permissions_organizacaoInput, OrganizacaoUncheckedCreateWithoutUser_permissions_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutUser_permissions_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
   }
 
@@ -33729,12 +33729,12 @@ export namespace Prisma {
     connect?: UsuarioWhereUniqueInput
   }
 
-  export type OrganizacaoUpdateOneRequiredWithoutUser_permissionsNestedInput = {
-    create?: XOR<OrganizacaoCreateWithoutUser_permissionsInput, OrganizacaoUncheckedCreateWithoutUser_permissionsInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutUser_permissionsInput
-    upsert?: OrganizacaoUpsertWithoutUser_permissionsInput
+  export type OrganizacaoUpdateOneRequiredWithoutUser_permissions_organizacaoNestedInput = {
+    create?: XOR<OrganizacaoCreateWithoutUser_permissions_organizacaoInput, OrganizacaoUncheckedCreateWithoutUser_permissions_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutUser_permissions_organizacaoInput
+    upsert?: OrganizacaoUpsertWithoutUser_permissions_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
-    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutUser_permissionsInput, OrganizacaoUpdateWithoutUser_permissionsInput>, OrganizacaoUncheckedUpdateWithoutUser_permissionsInput>
+    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutUser_permissions_organizacaoInput, OrganizacaoUpdateWithoutUser_permissions_organizacaoInput>, OrganizacaoUncheckedUpdateWithoutUser_permissions_organizacaoInput>
   }
 
   export type UsuarioUpdateOneRequiredWithoutUser_permissionsNestedInput = {
@@ -33745,9 +33745,9 @@ export namespace Prisma {
     update?: XOR<XOR<UsuarioUpdateToOneWithWhereWithoutUser_permissionsInput, UsuarioUpdateWithoutUser_permissionsInput>, UsuarioUncheckedUpdateWithoutUser_permissionsInput>
   }
 
-  export type OrganizacaoCreateNestedOneWithoutCompaniesInput = {
-    create?: XOR<OrganizacaoCreateWithoutCompaniesInput, OrganizacaoUncheckedCreateWithoutCompaniesInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutCompaniesInput
+  export type OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput = {
+    create?: XOR<OrganizacaoCreateWithoutCompanies_organizacaoInput, OrganizacaoUncheckedCreateWithoutCompanies_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutCompanies_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
   }
 
@@ -33797,12 +33797,12 @@ export namespace Prisma {
     set?: $Enums.EmpresaStatus
   }
 
-  export type OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput = {
-    create?: XOR<OrganizacaoCreateWithoutCompaniesInput, OrganizacaoUncheckedCreateWithoutCompaniesInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutCompaniesInput
-    upsert?: OrganizacaoUpsertWithoutCompaniesInput
+  export type OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput = {
+    create?: XOR<OrganizacaoCreateWithoutCompanies_organizacaoInput, OrganizacaoUncheckedCreateWithoutCompanies_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutCompanies_organizacaoInput
+    upsert?: OrganizacaoUpsertWithoutCompanies_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
-    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutCompaniesInput, OrganizacaoUpdateWithoutCompaniesInput>, OrganizacaoUncheckedUpdateWithoutCompaniesInput>
+    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutCompanies_organizacaoInput, OrganizacaoUpdateWithoutCompanies_organizacaoInput>, OrganizacaoUncheckedUpdateWithoutCompanies_organizacaoInput>
   }
 
   export type UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput = {
@@ -33925,18 +33925,18 @@ export namespace Prisma {
     update?: XOR<XOR<EmpresaUpdateToOneWithWhereWithoutMembershipsInput, EmpresaUpdateWithoutMembershipsInput>, EmpresaUncheckedUpdateWithoutMembershipsInput>
   }
 
-  export type OrganizacaoCreateNestedOneWithoutProduct_configsInput = {
-    create?: XOR<OrganizacaoCreateWithoutProduct_configsInput, OrganizacaoUncheckedCreateWithoutProduct_configsInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutProduct_configsInput
+  export type OrganizacaoCreateNestedOneWithoutProduct_configs_organizacaoInput = {
+    create?: XOR<OrganizacaoCreateWithoutProduct_configs_organizacaoInput, OrganizacaoUncheckedCreateWithoutProduct_configs_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutProduct_configs_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
   }
 
-  export type OrganizacaoUpdateOneRequiredWithoutProduct_configsNestedInput = {
-    create?: XOR<OrganizacaoCreateWithoutProduct_configsInput, OrganizacaoUncheckedCreateWithoutProduct_configsInput>
-    connectOrCreate?: OrganizacaoCreateOrConnectWithoutProduct_configsInput
-    upsert?: OrganizacaoUpsertWithoutProduct_configsInput
+  export type OrganizacaoUpdateOneRequiredWithoutProduct_configs_organizacaoNestedInput = {
+    create?: XOR<OrganizacaoCreateWithoutProduct_configs_organizacaoInput, OrganizacaoUncheckedCreateWithoutProduct_configs_organizacaoInput>
+    connectOrCreate?: OrganizacaoCreateOrConnectWithoutProduct_configs_organizacaoInput
+    upsert?: OrganizacaoUpsertWithoutProduct_configs_organizacaoInput
     connect?: OrganizacaoWhereUniqueInput
-    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutProduct_configsInput, OrganizacaoUpdateWithoutProduct_configsInput>, OrganizacaoUncheckedUpdateWithoutProduct_configsInput>
+    update?: XOR<XOR<OrganizacaoUpdateToOneWithWhereWithoutProduct_configs_organizacaoInput, OrganizacaoUpdateWithoutProduct_configs_organizacaoInput>, OrganizacaoUncheckedUpdateWithoutProduct_configs_organizacaoInput>
   }
 
   export type OrganizacaoCreateNestedOneWithoutProdutoGravityWorkspaceInput = {
@@ -35027,7 +35027,7 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"ProdutoGravityWorkspace"> | Date | string
   }
 
-  export type OrganizacaoCreateWithoutUsersInput = {
+  export type OrganizacaoCreateWithoutUsers_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35042,14 +35042,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoUncheckedCreateWithoutUsersInput = {
+  export type OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35064,16 +35064,16 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoCreateOrConnectWithoutUsersInput = {
+  export type OrganizacaoCreateOrConnectWithoutUsers_organizacaoInput = {
     where: OrganizacaoWhereUniqueInput
-    create: XOR<OrganizacaoCreateWithoutUsersInput, OrganizacaoUncheckedCreateWithoutUsersInput>
+    create: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
   }
 
   export type EmpresaCreateWithoutPreferred_by_usersInput = {
@@ -35084,7 +35084,7 @@ export namespace Prisma {
     status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutCompaniesInput
+    tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
   }
@@ -35115,7 +35115,7 @@ export namespace Prisma {
     granted_by: string
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutUser_permissionsInput
+    tenant: OrganizacaoCreateNestedOneWithoutUser_permissions_organizacaoInput
   }
 
   export type UsuarioPermissaoUncheckedCreateWithoutUserInput = {
@@ -35169,18 +35169,18 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type OrganizacaoUpsertWithoutUsersInput = {
-    update: XOR<OrganizacaoUpdateWithoutUsersInput, OrganizacaoUncheckedUpdateWithoutUsersInput>
-    create: XOR<OrganizacaoCreateWithoutUsersInput, OrganizacaoUncheckedCreateWithoutUsersInput>
+  export type OrganizacaoUpsertWithoutUsers_organizacaoInput = {
+    update: XOR<OrganizacaoUpdateWithoutUsers_organizacaoInput, OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput>
+    create: XOR<OrganizacaoCreateWithoutUsers_organizacaoInput, OrganizacaoUncheckedCreateWithoutUsers_organizacaoInput>
     where?: OrganizacaoWhereInput
   }
 
-  export type OrganizacaoUpdateToOneWithWhereWithoutUsersInput = {
+  export type OrganizacaoUpdateToOneWithWhereWithoutUsers_organizacaoInput = {
     where?: OrganizacaoWhereInput
-    data: XOR<OrganizacaoUpdateWithoutUsersInput, OrganizacaoUncheckedUpdateWithoutUsersInput>
+    data: XOR<OrganizacaoUpdateWithoutUsers_organizacaoInput, OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput>
   }
 
-  export type OrganizacaoUpdateWithoutUsersInput = {
+  export type OrganizacaoUpdateWithoutUsers_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -35195,14 +35195,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
-  export type OrganizacaoUncheckedUpdateWithoutUsersInput = {
+  export type OrganizacaoUncheckedUpdateWithoutUsers_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -35217,10 +35217,10 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35243,7 +35243,7 @@ export namespace Prisma {
     status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
   }
@@ -35307,7 +35307,7 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"UsuarioWorkspace"> | Date | string
   }
 
-  export type OrganizacaoCreateWithoutSubscriptionsInput = {
+  export type OrganizacaoCreateWithoutSubscriptions_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35322,14 +35322,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoUncheckedCreateWithoutSubscriptionsInput = {
+  export type OrganizacaoUncheckedCreateWithoutSubscriptions_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35344,30 +35344,30 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoCreateOrConnectWithoutSubscriptionsInput = {
+  export type OrganizacaoCreateOrConnectWithoutSubscriptions_organizacaoInput = {
     where: OrganizacaoWhereUniqueInput
-    create: XOR<OrganizacaoCreateWithoutSubscriptionsInput, OrganizacaoUncheckedCreateWithoutSubscriptionsInput>
+    create: XOR<OrganizacaoCreateWithoutSubscriptions_organizacaoInput, OrganizacaoUncheckedCreateWithoutSubscriptions_organizacaoInput>
   }
 
-  export type OrganizacaoUpsertWithoutSubscriptionsInput = {
-    update: XOR<OrganizacaoUpdateWithoutSubscriptionsInput, OrganizacaoUncheckedUpdateWithoutSubscriptionsInput>
-    create: XOR<OrganizacaoCreateWithoutSubscriptionsInput, OrganizacaoUncheckedCreateWithoutSubscriptionsInput>
+  export type OrganizacaoUpsertWithoutSubscriptions_organizacaoInput = {
+    update: XOR<OrganizacaoUpdateWithoutSubscriptions_organizacaoInput, OrganizacaoUncheckedUpdateWithoutSubscriptions_organizacaoInput>
+    create: XOR<OrganizacaoCreateWithoutSubscriptions_organizacaoInput, OrganizacaoUncheckedCreateWithoutSubscriptions_organizacaoInput>
     where?: OrganizacaoWhereInput
   }
 
-  export type OrganizacaoUpdateToOneWithWhereWithoutSubscriptionsInput = {
+  export type OrganizacaoUpdateToOneWithWhereWithoutSubscriptions_organizacaoInput = {
     where?: OrganizacaoWhereInput
-    data: XOR<OrganizacaoUpdateWithoutSubscriptionsInput, OrganizacaoUncheckedUpdateWithoutSubscriptionsInput>
+    data: XOR<OrganizacaoUpdateWithoutSubscriptions_organizacaoInput, OrganizacaoUncheckedUpdateWithoutSubscriptions_organizacaoInput>
   }
 
-  export type OrganizacaoUpdateWithoutSubscriptionsInput = {
+  export type OrganizacaoUpdateWithoutSubscriptions_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -35382,14 +35382,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
-  export type OrganizacaoUncheckedUpdateWithoutSubscriptionsInput = {
+  export type OrganizacaoUncheckedUpdateWithoutSubscriptions_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -35404,14 +35404,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
-  export type OrganizacaoCreateWithoutUser_permissionsInput = {
+  export type OrganizacaoCreateWithoutUser_permissions_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35426,14 +35426,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
-    companies?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoUncheckedCreateWithoutUser_permissionsInput = {
+  export type OrganizacaoUncheckedCreateWithoutUser_permissions_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35448,16 +35448,16 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
-    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoCreateOrConnectWithoutUser_permissionsInput = {
+  export type OrganizacaoCreateOrConnectWithoutUser_permissions_organizacaoInput = {
     where: OrganizacaoWhereUniqueInput
-    create: XOR<OrganizacaoCreateWithoutUser_permissionsInput, OrganizacaoUncheckedCreateWithoutUser_permissionsInput>
+    create: XOR<OrganizacaoCreateWithoutUser_permissions_organizacaoInput, OrganizacaoUncheckedCreateWithoutUser_permissions_organizacaoInput>
   }
 
   export type UsuarioCreateWithoutUser_permissionsInput = {
@@ -35468,7 +35468,7 @@ export namespace Prisma {
     role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutUsersInput
+    tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
   }
@@ -35491,18 +35491,18 @@ export namespace Prisma {
     create: XOR<UsuarioCreateWithoutUser_permissionsInput, UsuarioUncheckedCreateWithoutUser_permissionsInput>
   }
 
-  export type OrganizacaoUpsertWithoutUser_permissionsInput = {
-    update: XOR<OrganizacaoUpdateWithoutUser_permissionsInput, OrganizacaoUncheckedUpdateWithoutUser_permissionsInput>
-    create: XOR<OrganizacaoCreateWithoutUser_permissionsInput, OrganizacaoUncheckedCreateWithoutUser_permissionsInput>
+  export type OrganizacaoUpsertWithoutUser_permissions_organizacaoInput = {
+    update: XOR<OrganizacaoUpdateWithoutUser_permissions_organizacaoInput, OrganizacaoUncheckedUpdateWithoutUser_permissions_organizacaoInput>
+    create: XOR<OrganizacaoCreateWithoutUser_permissions_organizacaoInput, OrganizacaoUncheckedCreateWithoutUser_permissions_organizacaoInput>
     where?: OrganizacaoWhereInput
   }
 
-  export type OrganizacaoUpdateToOneWithWhereWithoutUser_permissionsInput = {
+  export type OrganizacaoUpdateToOneWithWhereWithoutUser_permissions_organizacaoInput = {
     where?: OrganizacaoWhereInput
-    data: XOR<OrganizacaoUpdateWithoutUser_permissionsInput, OrganizacaoUncheckedUpdateWithoutUser_permissionsInput>
+    data: XOR<OrganizacaoUpdateWithoutUser_permissions_organizacaoInput, OrganizacaoUncheckedUpdateWithoutUser_permissions_organizacaoInput>
   }
 
-  export type OrganizacaoUpdateWithoutUser_permissionsInput = {
+  export type OrganizacaoUpdateWithoutUser_permissions_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -35517,14 +35517,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
-  export type OrganizacaoUncheckedUpdateWithoutUser_permissionsInput = {
+  export type OrganizacaoUncheckedUpdateWithoutUser_permissions_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -35539,10 +35539,10 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35565,7 +35565,7 @@ export namespace Prisma {
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
   }
@@ -35583,7 +35583,7 @@ export namespace Prisma {
     memberships?: UsuarioWorkspaceUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type OrganizacaoCreateWithoutCompaniesInput = {
+  export type OrganizacaoCreateWithoutCompanies_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35598,14 +35598,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoUncheckedCreateWithoutCompaniesInput = {
+  export type OrganizacaoUncheckedCreateWithoutCompanies_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35620,16 +35620,16 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoCreateOrConnectWithoutCompaniesInput = {
+  export type OrganizacaoCreateOrConnectWithoutCompanies_organizacaoInput = {
     where: OrganizacaoWhereUniqueInput
-    create: XOR<OrganizacaoCreateWithoutCompaniesInput, OrganizacaoUncheckedCreateWithoutCompaniesInput>
+    create: XOR<OrganizacaoCreateWithoutCompanies_organizacaoInput, OrganizacaoUncheckedCreateWithoutCompanies_organizacaoInput>
   }
 
   export type UsuarioWorkspaceCreateWithoutCompanyInput = {
@@ -35698,7 +35698,7 @@ export namespace Prisma {
     role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutUsersInput
+    tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutUserInput
   }
@@ -35726,18 +35726,18 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type OrganizacaoUpsertWithoutCompaniesInput = {
-    update: XOR<OrganizacaoUpdateWithoutCompaniesInput, OrganizacaoUncheckedUpdateWithoutCompaniesInput>
-    create: XOR<OrganizacaoCreateWithoutCompaniesInput, OrganizacaoUncheckedCreateWithoutCompaniesInput>
+  export type OrganizacaoUpsertWithoutCompanies_organizacaoInput = {
+    update: XOR<OrganizacaoUpdateWithoutCompanies_organizacaoInput, OrganizacaoUncheckedUpdateWithoutCompanies_organizacaoInput>
+    create: XOR<OrganizacaoCreateWithoutCompanies_organizacaoInput, OrganizacaoUncheckedCreateWithoutCompanies_organizacaoInput>
     where?: OrganizacaoWhereInput
   }
 
-  export type OrganizacaoUpdateToOneWithWhereWithoutCompaniesInput = {
+  export type OrganizacaoUpdateToOneWithWhereWithoutCompanies_organizacaoInput = {
     where?: OrganizacaoWhereInput
-    data: XOR<OrganizacaoUpdateWithoutCompaniesInput, OrganizacaoUncheckedUpdateWithoutCompaniesInput>
+    data: XOR<OrganizacaoUpdateWithoutCompanies_organizacaoInput, OrganizacaoUncheckedUpdateWithoutCompanies_organizacaoInput>
   }
 
-  export type OrganizacaoUpdateWithoutCompaniesInput = {
+  export type OrganizacaoUpdateWithoutCompanies_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -35752,14 +35752,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
-  export type OrganizacaoUncheckedUpdateWithoutCompaniesInput = {
+  export type OrganizacaoUncheckedUpdateWithoutCompanies_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -35774,10 +35774,10 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -35837,7 +35837,7 @@ export namespace Prisma {
     role?: $Enums.UsuarioTipo
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutUsersInput
+    tenant: OrganizacaoCreateNestedOneWithoutUsers_organizacaoInput
     preferred_company?: EmpresaCreateNestedOneWithoutPreferred_by_usersInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutUserInput
   }
@@ -35868,7 +35868,7 @@ export namespace Prisma {
     status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutCompaniesInput
+    tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     company_products?: ProdutoGravityWorkspaceCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
@@ -35910,7 +35910,7 @@ export namespace Prisma {
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     preferred_company?: EmpresaUpdateOneWithoutPreferred_by_usersNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
   }
@@ -35947,7 +35947,7 @@ export namespace Prisma {
     status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     company_products?: ProdutoGravityWorkspaceUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
@@ -35965,7 +35965,7 @@ export namespace Prisma {
     preferred_by_users?: UsuarioUncheckedUpdateManyWithoutPreferred_companyNestedInput
   }
 
-  export type OrganizacaoCreateWithoutProduct_configsInput = {
+  export type OrganizacaoCreateWithoutProduct_configs_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -35980,14 +35980,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: EmpresaCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoUncheckedCreateWithoutProduct_configsInput = {
+  export type OrganizacaoUncheckedCreateWithoutProduct_configs_organizacaoInput = {
     id?: string
     nome_organizacao: string
     subdominio_organizacao: string
@@ -36002,30 +36002,30 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedCreateNestedManyWithoutTenantInput
   }
 
-  export type OrganizacaoCreateOrConnectWithoutProduct_configsInput = {
+  export type OrganizacaoCreateOrConnectWithoutProduct_configs_organizacaoInput = {
     where: OrganizacaoWhereUniqueInput
-    create: XOR<OrganizacaoCreateWithoutProduct_configsInput, OrganizacaoUncheckedCreateWithoutProduct_configsInput>
+    create: XOR<OrganizacaoCreateWithoutProduct_configs_organizacaoInput, OrganizacaoUncheckedCreateWithoutProduct_configs_organizacaoInput>
   }
 
-  export type OrganizacaoUpsertWithoutProduct_configsInput = {
-    update: XOR<OrganizacaoUpdateWithoutProduct_configsInput, OrganizacaoUncheckedUpdateWithoutProduct_configsInput>
-    create: XOR<OrganizacaoCreateWithoutProduct_configsInput, OrganizacaoUncheckedCreateWithoutProduct_configsInput>
+  export type OrganizacaoUpsertWithoutProduct_configs_organizacaoInput = {
+    update: XOR<OrganizacaoUpdateWithoutProduct_configs_organizacaoInput, OrganizacaoUncheckedUpdateWithoutProduct_configs_organizacaoInput>
+    create: XOR<OrganizacaoCreateWithoutProduct_configs_organizacaoInput, OrganizacaoUncheckedCreateWithoutProduct_configs_organizacaoInput>
     where?: OrganizacaoWhereInput
   }
 
-  export type OrganizacaoUpdateToOneWithWhereWithoutProduct_configsInput = {
+  export type OrganizacaoUpdateToOneWithWhereWithoutProduct_configs_organizacaoInput = {
     where?: OrganizacaoWhereInput
-    data: XOR<OrganizacaoUpdateWithoutProduct_configsInput, OrganizacaoUncheckedUpdateWithoutProduct_configsInput>
+    data: XOR<OrganizacaoUpdateWithoutProduct_configs_organizacaoInput, OrganizacaoUncheckedUpdateWithoutProduct_configs_organizacaoInput>
   }
 
-  export type OrganizacaoUpdateWithoutProduct_configsInput = {
+  export type OrganizacaoUpdateWithoutProduct_configs_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -36040,14 +36040,14 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUpdateManyWithoutTenantNestedInput
   }
 
-  export type OrganizacaoUncheckedUpdateWithoutProduct_configsInput = {
+  export type OrganizacaoUncheckedUpdateWithoutProduct_configs_organizacaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome_organizacao?: StringFieldUpdateOperationsInput | string
     subdominio_organizacao?: StringFieldUpdateOperationsInput | string
@@ -36062,10 +36062,10 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
     ProdutoGravityWorkspace?: ProdutoGravityWorkspaceUncheckedUpdateManyWithoutTenantNestedInput
   }
 
@@ -36084,11 +36084,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
-    companies?: EmpresaCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoCreateNestedManyWithoutTenantInput
   }
 
   export type OrganizacaoUncheckedCreateWithoutProdutoGravityWorkspaceInput = {
@@ -36106,11 +36106,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: string | null
     data_criacao_organizacao?: Date | string
     data_atualizacao_organizacao?: Date | string
-    users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
-    user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
-    companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
-    product_configs?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
+    users_organizacao?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
+    companies_organizacao?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type OrganizacaoCreateOrConnectWithoutProdutoGravityWorkspaceInput = {
@@ -36126,7 +36126,7 @@ export namespace Prisma {
     status?: $Enums.EmpresaStatus
     created_at?: Date | string
     updated_at?: Date | string
-    tenant: OrganizacaoCreateNestedOneWithoutCompaniesInput
+    tenant: OrganizacaoCreateNestedOneWithoutCompanies_organizacaoInput
     memberships?: UsuarioWorkspaceCreateNestedManyWithoutCompanyInput
     preferred_by_users?: UsuarioCreateNestedManyWithoutPreferred_companyInput
   }
@@ -36175,11 +36175,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUpdateManyWithoutTenantNestedInput
   }
 
   export type OrganizacaoUncheckedUpdateWithoutProdutoGravityWorkspaceInput = {
@@ -36197,11 +36197,11 @@ export namespace Prisma {
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
-    users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
-    subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
-    user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
-    companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
-    product_configs?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
+    users_organizacao?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
+    subscriptions_organizacao?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
+    user_permissions_organizacao?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
+    companies_organizacao?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
+    product_configs_organizacao?: ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type EmpresaUpsertWithoutCompany_productsInput = {
@@ -36223,7 +36223,7 @@ export namespace Prisma {
     status?: EnumEmpresaStatusFieldUpdateOperationsInput | $Enums.EmpresaStatus
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutCompaniesNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutCompanies_organizacaoNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutCompanyNestedInput
     preferred_by_users?: UsuarioUpdateManyWithoutPreferred_companyNestedInput
   }
@@ -36951,7 +36951,7 @@ export namespace Prisma {
     granted_by?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutUser_permissionsNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutUser_permissions_organizacaoNestedInput
   }
 
   export type UsuarioPermissaoUncheckedUpdateWithoutUserInput = {
@@ -37101,7 +37101,7 @@ export namespace Prisma {
     role?: EnumUsuarioTipoFieldUpdateOperationsInput | $Enums.UsuarioTipo
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: OrganizacaoUpdateOneRequiredWithoutUsersNestedInput
+    tenant?: OrganizacaoUpdateOneRequiredWithoutUsers_organizacaoNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutUserNestedInput
     memberships?: UsuarioWorkspaceUpdateManyWithoutUserNestedInput
   }

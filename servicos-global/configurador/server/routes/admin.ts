@@ -93,13 +93,13 @@ adminRouter.get('/tenants', async (req, res, next) => {
           subdominio_organizacao: true,
           status_organizacao: true,
           data_criacao_organizacao: true,
-          _count: { select: { users: true, companies: true } },
-          subscriptions: {
+          _count: { select: { users_organizacao: true, companies_organizacao: true } },
+          subscriptions_organizacao: {
             orderBy: { created_at: 'desc' },
             take: 1,
             select: { status: true },
           },
-          companies: {
+          companies_organizacao: {
             select: {
               id: true, name: true, subdomain: true, status: true,
               _count: { select: { memberships: true } },
@@ -113,8 +113,24 @@ adminRouter.get('/tenants', async (req, res, next) => {
       prisma.organizacao.count({ where }),
     ])
 
+    // DTO: mapeia Prisma `*_organizacao` (back-relations renomeados) → chaves legadas do contrato
+    const tenantsDto = tenants.map((t) => {
+      const {
+        _count,
+        subscriptions_organizacao,
+        companies_organizacao,
+        ...rest
+      } = t
+      return {
+        ...rest,
+        _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
+        subscriptions: subscriptions_organizacao,
+        companies: companies_organizacao,
+      }
+    })
+
     res.json({
-      tenants,
+      tenants: tenantsDto,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     })
   } catch (err) {
@@ -134,21 +150,21 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
     const tenant = await prisma.organizacao.findUnique({
       where: { id: idParsed.data },
       include: {
-        users: {
+        users_organizacao: {
           select: { id: true, name: true, email: true, role: true, created_at: true },
           orderBy: { created_at: 'desc' as const },
           take: 50,
         },
-        companies: {
+        companies_organizacao: {
           select: { id: true, name: true, subdomain: true, status: true },
           orderBy: { created_at: 'desc' as const },
           take: 50,
         },
-        subscriptions: {
+        subscriptions_organizacao: {
           orderBy: { created_at: 'desc' as const },
           take: 1,
         },
-        product_configs: {
+        product_configs_organizacao: {
           select: { product_key: true, is_active: true, updated_at: true },
           take: 50,
         },
@@ -159,12 +175,22 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
       throw new AppError('Organizacao não encontrado', 404, 'NOT_FOUND')
     }
 
-    // DTO DDD: Prisma `users[].role` → JSON `users[].tipo_usuario`
-    const { users, ...tenantRest } = tenant
+    // DTO DDD: Prisma `users_organizacao[].role` → JSON `users[].tipo_usuario`
+    // DTO: back-relations Prisma `*_organizacao` → chaves legadas do contrato
+    const {
+      users_organizacao,
+      companies_organizacao,
+      subscriptions_organizacao,
+      product_configs_organizacao,
+      ...tenantRest
+    } = tenant
     res.json({
       tenant: {
         ...tenantRest,
-        users: users.map(({ role, ...u }) => ({ ...u, tipo_usuario: role })),
+        users: users_organizacao.map(({ role, ...u }) => ({ ...u, tipo_usuario: role })),
+        companies: companies_organizacao,
+        subscriptions: subscriptions_organizacao,
+        product_configs: product_configs_organizacao,
       },
     })
   } catch (err) {
@@ -254,7 +280,7 @@ adminRouter.post('/tenants', async (req, res, next) => {
       },
       select: {
         id: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true,
-        _count: { select: { users: true, companies: true } },
+        _count: { select: { users_organizacao: true, companies_organizacao: true } },
       },
     })
 
@@ -273,7 +299,14 @@ adminRouter.post('/tenants', async (req, res, next) => {
       status: 'SUCCESS',
     }).catch(() => { /* fire-and-forget */ })
 
-    res.status(201).json({ tenant })
+    // DTO: mapeia _count Prisma → chaves legadas
+    const { _count, ...tenantRest } = tenant
+    const tenantDto = {
+      ...tenantRest,
+      _count: { users: _count.users_organizacao, companies: _count.companies_organizacao },
+    }
+
+    res.status(201).json({ tenant: tenantDto })
   } catch (err) {
     next(err)
   }

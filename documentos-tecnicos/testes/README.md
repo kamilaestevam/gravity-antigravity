@@ -51,9 +51,9 @@ documentos-tecnicos/testes/
 - **`skills/testes/SKILL.md`** — Skill geral de testes em tela (já existia)
 - **`skills/testes/analista-erros-testes-gemini/`** — Análise de falhas via Gemini 2.0 Flash
 - **`skills/testes/agente-plano-teste/`** — Geração de planos 10/10 a partir de telas
-- **`skills/arquitetura/testes/`** — Skill antiga (estrutura técnica de Vitest/Playwright)
-- **`skills/arquitetura/contract-testing/`** — Contract tests com Zod
-- **`skills/arquitetura/tenant-isolation/`** — Cross-tenant testing
+- **`skills/testes/padroes-vitest-playwright/`** — Estrutura técnica de Vitest/Playwright
+- **`skills/testes/contract-testing/`** — Contract tests com Zod
+- **`skills/governanca/lei/isolamento-organizacao/`** — Cross-organização testing
 - **`skills/seguranca/pentest/`** — Pentest (OWASP)
 
 ---

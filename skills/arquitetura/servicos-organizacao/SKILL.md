@@ -80,7 +80,7 @@ servicos-global/organização/
 │   └── lib/
 │       └── prisma.ts  ← instância Prisma compartilhada
 ├── middleware/
-│   ├── auth.ts                       ← authMiddleware (x-organização-id obrigatório)
+│   ├── auth.ts                       ← authMiddleware (x-tenant-id obrigatório)
 │   ├── correlation.ts                ← correlationMiddleware (SUID automático)
 │   ├── withInternalKeyValidation.ts  ← timingSafeEqual no x-chave-interna
 │   ├── appError.ts                   ← classe AppError
@@ -105,13 +105,13 @@ app.use(correlationMiddleware)          // 1. Gera/propaga x-id-correlacao
 app.get('/health', healthHandler)       // 2. Health check — sem auth
 app.use('/webhook', express.raw(...))   // 3. Raw body para webhooks (antes do json)
 app.use(express.json())                 // 4. Body parser
-app.use(authMiddleware)                 // 5. Exige x-organização-id (header de protocolo) → 401 se ausente
+app.use(authMiddleware)                 // 5. Exige x-tenant-id (header de protocolo) → 401 se ausente
 app.use(withInternalKeyValidation)      // 6. Valida x-chave-interna → 403 se inválida
 app.use(serviceRouter)                  // 7. Routers dos 11 serviços
 app.use(errorHandler)                   // 8. Handler global de erros
 ```
 
-> **Nota:** o header `x-organização-id` é nome de protocolo HTTP em uso e não é renomeado por compatibilidade. O valor que ele transporta corresponde ao `id_organizacao` da request.
+> **Nota:** o header `x-tenant-id` é nome de protocolo HTTP em uso e não é renomeado por compatibilidade. O valor que ele transporta corresponde ao `id_organizacao` da request.
 
 ---
 
@@ -222,14 +222,14 @@ O shell carrega a navegação e delega para o módulo correto via lazy loading:
 ```typescript
 // nucleo-global/shell/navigation.tsx
 const tenantModules = {
-  activities: lazy(() => import('@organização/atividades/src/Atividades')),
-  email:      lazy(() => import('@organização/email/src/Email')),
-  whatsapp:   lazy(() => import('@organização/whatsapp/src/WhatsApp')),
-  dashboard:  lazy(() => import('@organização/dashboard/src/Dashboard')),
-  reports:    lazy(() => import('@organização/relatorios/src/Relatorios')),
-  history:    lazy(() => import('@organização/historico/src/Historico')),
-  schedule:   lazy(() => import('@organização/agendamento/src/Agendamento')),
-  gabi:       lazy(() => import('@organização/gabi/src/Gabi')),
+  activities: lazy(() => import('@tenant/atividades/src/Atividades')),
+  email:      lazy(() => import('@tenant/email/src/Email')),
+  whatsapp:   lazy(() => import('@tenant/whatsapp/src/WhatsApp')),
+  dashboard:  lazy(() => import('@tenant/dashboard/src/Dashboard')),
+  reports:    lazy(() => import('@tenant/relatorios/src/Relatorios')),
+  history:    lazy(() => import('@tenant/historico/src/Historico')),
+  schedule:   lazy(() => import('@tenant/agendamento/src/Agendamento')),
+  gabi:       lazy(() => import('@tenant/gabi/src/Gabi')),
 }
 ```
 
@@ -241,7 +241,7 @@ const tenantModules = {
 
 ```typescript
 // produtos/simulador-comex/server/index.ts
-import { createOrgProxy } from '@organização/proxy'
+import { createOrgProxy } from '@tenant/proxy'
 import { PRODUCT_CONFIG } from '../src/shared/config'
 
 // Rotas específicas do produto

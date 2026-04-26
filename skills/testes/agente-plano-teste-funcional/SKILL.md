@@ -145,13 +145,13 @@ it('response válido contra meResponseSchema (DDD)', async () => {
 - `POST` com `idOrganizacao` no body diferente de `req.organizacao.idOrganizacao` → o body é ignorado; `idOrganizacao` vem SEMPRE do JWT/middleware (Mandamento 01)
 - Mock com 2 Organizações distintas → verificar que cada query filtra pela Organização correta
 
-> Em models novos, use `id_organizacao` direto. Em models legados que ainda persistem a coluna física antiga, use `id_organizacao String` no Prisma — o `schema.prisma` é INTOCÁVEL (Mandamento 02). O header HTTP `x-organização-id` e o campo da API atual `req.organizacao.idOrganizacao` são contratos externos preservados (semântica: Organização). Em payloads/JSON/TS de aplicação, use sempre a nomenclatura DDD (`idOrganizacao`).
+> Em models novos, use `id_organizacao` direto. Em models legados que ainda persistem a coluna física antiga, use `id_organizacao String` no Prisma — o `schema.prisma` é INTOCÁVEL (Mandamento 02). O header HTTP `x-tenant-id` e o campo da API atual `req.organizacao.idOrganizacao` são contratos externos preservados (semântica: Organização). Em payloads/JSON/TS de aplicação, use sempre a nomenclatura DDD (`idOrganizacao`).
 
 **Padrão de mock:**
 ```typescript
 function headersForOrganizacao(idOrganizacao: string, idUsuario: string) {
   // headers HTTP mantêm nomes históricos por compatibilidade de protocolo
-  return { 'x-internal-validated': '1', 'x-organização-id': idOrganizacao, 'x-user-id': idUsuario }
+  return { 'x-internal-validated': '1', 'x-tenant-id': idOrganizacao, 'x-user-id': idUsuario }
 }
 
 // Verificar WHERE clause (campo Prisma DDD)

@@ -203,7 +203,7 @@ expect(res.status).not.toBe(500)  // sistema não crasha
 **Casos típicos:**
 - Verificar URL da chamada inclui path correto
 - Verificar header `x-chave-interna` presente e não vazio
-- Verificar que o id da Organização é passado corretamente para o serviço B (header `x-organização-id` ou body conforme contrato)
+- Verificar que o id da Organização é passado corretamente para o serviço B (header `x-tenant-id` ou body conforme contrato)
 - Serviço B retorna erro → comportamento de degradação correto
 
 ---

@@ -222,7 +222,7 @@ model Recurso {
 - `strict: true` — sem `@ts-ignore`
 - Sem `any` explícito
 - ESModules (`import`/`export`) — nunca `require()`
-- Imports via alias: `@nucleo/`, `@organização/`, `@produto/`
+- Imports via alias: `@nucleo/`, `@tenant/`, `@produto/`
 
 ### Naming
 

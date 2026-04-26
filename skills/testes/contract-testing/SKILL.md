@@ -86,7 +86,7 @@ it('meResponseSchema rejeita payload com estrutura legada', () => {
 Para serviços com múltiplos endpoints, usar arquivo `contracts.ts` dedicado:
 
 ```typescript
-// servicos-global/organização/atividades/server/contracts.ts
+// servicos-global/tenant/atividades/server/contracts.ts
 import { z } from 'zod'
 
 // Contrato de Request
@@ -124,7 +124,7 @@ O produto que consome a API valida que o response ainda segue o contrato:
 ```typescript
 // testes/testes-funcionais/bid-frete/contracts.test.ts
 import { describe, it, expect } from 'vitest'
-import { activityResponseContract } from '@organização/atividades/server/contracts'
+import { activityResponseContract } from '@tenant/atividades/server/contracts'
 
 describe('Contract: Atividades API', () => {
   it('GET /api/v1/activities response matches contract', async () => {
@@ -149,7 +149,7 @@ describe('Contract: Atividades API', () => {
 O serviço valida que seus responses continuam conformes:
 
 ```typescript
-// testes/testes-unitarios/servicos-organização/atividades/contract.test.ts
+// testes/testes-unitarios/servicos-tenant/atividades/contract.test.ts
 import { describe, it, expect } from 'vitest'
 import { activityResponseContract } from './contracts'
 

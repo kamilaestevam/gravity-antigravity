@@ -6,7 +6,7 @@ description: "Use esta skill sempre que uma tarefa envolver schemas Prisma, frag
 # Gravity — Schema Composition (pós-pivô 2026-04-17)
 
 > **Reescrita 2026-04-17 após o pivô Schema-per-Organização.**
-> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-organização.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
+> Decisões em [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md) e [ADR-003](../../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md).
 >
 > **Notas sobre nomes técnicos preservados:** o prefixo de schema PostgreSQL `tenant_<cuid>` é nome físico real; `` é a coluna física antiga durante a janela de migração — o **campo Prisma é sempre `id_organizacao`** (DDD). Os ADRs mantêm os nomes de arquivo originais.
 

@@ -45,7 +45,7 @@ Todo código passa por review antes de merge. Nenhuma exceção. Nenhum "é urge
 - [ ] Schemas Zod do front refletem o payload do back no MESMO commit (Mandamento 07 + 09)?
 - [ ] **Nenhum** `schema.prisma` editado (apenas Coordenador, via script — Mandamento 02)?
 
-> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-organização.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), `antigravity-organização-isolation`, `antigravity-tier1-security`, `9-mandamentos`.
+> Consultar [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md), [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md), `antigravity-isolamento-organizacao`, `antigravity-tier1-security`, `9-mandamentos`.
 
 ### Qualidade de Código
 

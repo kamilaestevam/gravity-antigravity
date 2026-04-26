@@ -27,7 +27,7 @@ Veja:
 - [`ADR-002 — Contrato do tenant-resolver`](../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md)
 - [`ADR-003 — Migração de dados legados`](../../documentos-tecnicos/adr/ADR-003-migracao-dados-legados.md)
 - [`SPEC.md`](./SPEC.md)
-- [`skills/arquitetura/tenant-isolation/SKILL.md`](../../skills/arquitetura/tenant-isolation/SKILL.md)
+- [`skills/governanca/lei/isolamento-organizacao/SKILL.md`](../../skills/governanca/lei/isolamento-organizacao/SKILL.md)
 
 ---
 

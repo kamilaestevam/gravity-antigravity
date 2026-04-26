@@ -5,7 +5,7 @@ description: "Use esta skill sempre que precisar acessar banco de dados de produ
 
 # Gravity — SDK `@gravity/tenant-resolver`
 
-> Implementa [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-organização.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
+> Implementa [ADR-001](../../../documentos-tecnicos/adr/ADR-001-schema-per-tenant.md) e [ADR-002](../../../documentos-tecnicos/adr/ADR-002-tenant-resolver-sdk.md).
 > Referência completa: [`documentos-tecnicos/sdk/tenant-resolver.md`](../../../documentos-tecnicos/sdk/tenant-resolver.md)
 >
 > **Nota DDD (Mandamento 03):** embora a biblioteca tenha nome legado (`@gravity/tenant-resolver`) e a sua API pública atual ainda exponha campos com nome `tenantId`/`schemaName`, o **parâmetro semântico que trafega é estritamente a Organização** (`id_organizacao`/`idOrganizacao`). Em código de aplicação, alimente sempre as chamadas com a variável `idOrganizacao` (DDD); funções legadas internas que ainda recebem `tenantId` devem ser refatoradas para aceitar `idOrganizacao` no roadmap. Os identificadores reais preservados (nome do pacote, prefixo de schema PostgreSQL `tenant_<cuid>`, header `x-organização-id`) são objetos físicos/contratos externos que não são renomeados sem ciclo de migração coordenado.

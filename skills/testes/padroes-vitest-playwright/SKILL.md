@@ -31,7 +31,7 @@ Gravity/
       │   │   ├── modal-global/
       │   │   ├── shell/
       │   │   └── utilitarios-global/
-      │   └── servicos-organização/
+      │   └── servicos-tenant/
       │       ├── atividades/
       │       ├── cronometro/
       │       ├── email/
@@ -47,13 +47,13 @@ Gravity/
       │   ├── infra/                 ← funções com efeitos externos (pg.Pool, fs) mockados
       │   │   └── migrate-tenants/
       │   ├── nucleo-global/
-      │   ├── servicos-organização/
+      │   ├── servicos-tenant/
       │   └── produtos/
       └── testes-e2e/
           ├── infra/                 ← integração real com PostgreSQL (requer TEST_DATABASE_URL)
           │   └── migrate-tenants/
           ├── nucleo-global/
-          ├── servicos-organização/
+          ├── servicos-tenant/
           ├── produtos/
           └── simulador-comex/
               ├── plano-de-testes.md
@@ -148,7 +148,7 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   const appReq = req as AppRequest  // assertion para tipo mais específico, não any
   appReq.prisma = prismaMock
   // Headers HTTP mantêm nomes históricos por compatibilidade de protocolo
-  appReq.idOrganizacao = (req.headers['x-organização-id'] as string) ?? 'org-test'
+  appReq.idOrganizacao = (req.headers['x-tenant-id'] as string) ?? 'org-test'
   appReq.idWorkspace = (req.headers['x-workspace-id'] as string) ?? 'workspace-test'
   appReq.idUsuario = (req.headers['x-user-id'] as string) ?? 'user-test'
   next()
@@ -361,10 +361,10 @@ describe('formatarCNPJ', () => {
 
 ### Configuração padrão
 
-Testes funcionais de serviços organização **importam o app do super-servidor** (`servicos-global/organização/server/index.ts`), não de serviços individuais. O plugin `resolveTsFromJs` é obrigatório porque os arquivos têm extensão `.ts` mas os imports usam `.js` (ESModules).
+Testes funcionais de serviços organização **importam o app do super-servidor** (`servicos-global/tenant/server/index.ts`), não de serviços individuais. O plugin `resolveTsFromJs` é obrigatório porque os arquivos têm extensão `.ts` mas os imports usam `.js` (ESModules).
 
 ```typescript
-// testes/testes-funcionais/servicos-organização/vitest.config.ts
+// testes/testes-funcionais/servicos-tenant/vitest.config.ts
 import { defineConfig } from 'vitest/config'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -388,7 +388,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    include: ['testes/testes-funcionais/servicos-organização/**/*.test.ts'],
+    include: ['testes/testes-funcionais/servicos-tenant/**/*.test.ts'],
     env: {
       NODE_ENV: 'test',           // impede bootstrap() de chamar app.listen() e pg-boss
       INTERNAL_API_KEY: 'test-key',
@@ -398,7 +398,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@nucleo': path.resolve(root, 'nucleo-global'),
-      '@organização': path.resolve(root, 'servicos-global/organização'),
+      '@tenant': path.resolve(root, 'servicos-global/tenant'),
       '@produto': path.resolve(root, 'produto'),
     },
   },
@@ -428,27 +428,27 @@ afterAll(async () => {
 ### Exemplo — Teste via Super-Servidor
 
 ```typescript
-// testes/testes-funcionais/servicos-organização/organização-server.test.ts
+// testes/testes-funcionais/servicos-tenant/tenant-server.test.ts
 // @vitest-environment node
 
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import request from 'supertest'
 
 // Mockar dependências pesadas ANTES de importar o app
-vi.mock('../../../servicos-global/organização/server/lib/prisma.js', () => ({
+vi.mock('../../../servicos-global/tenant/server/lib/prisma.js', () => ({
   prisma: { $queryRaw: vi.fn().mockResolvedValue([{ '?column?': 1n }]) },
 }))
-vi.mock('../../../servicos-global/organização/historico-global/server/init.js', () => ({
+vi.mock('../../../servicos-global/tenant/historico-global/server/init.js', () => ({
   initHistorico: vi.fn().mockResolvedValue(undefined),
 }))
 // ... mockar os 11 service routers com async factories ...
 
 // Importar DEPOIS dos mocks
-import { app } from '../../../servicos-global/organização/server/index.js'
+import { app } from '../../../servicos-global/tenant/server/index.js'
 
 const VALID_KEY = 'test-internal-key'
 const validHeaders = {
-  'x-organização-id': 'organização-aaa',
+  'x-tenant-id': 'tenant-aaa',
   'x-user-id': 'user-001',
   'x-chave-interna': VALID_KEY,
 }
@@ -461,12 +461,12 @@ describe('GET /health', () => {
   it('retorna 200 sem autenticação', async () => {
     const res = await request(app).get('/health')
     expect(res.status).toBe(200)
-    expect(res.body.service).toBe('organização-server')
+    expect(res.body.service).toBe('tenant-server')
   })
 })
 
 describe('Autenticação', () => {
-  it('retorna 401 sem x-organização-id', async () => {
+  it('retorna 401 sem x-tenant-id', async () => {
     const res = await request(app).get('/api/v1/qualquer-rota')
     expect(res.status).toBe(401)
     expect(res.body.error.code).toBe('UNAUTHORIZED')
@@ -475,7 +475,7 @@ describe('Autenticação', () => {
   it('retorna 403 com x-chave-interna inválida', async () => {
     const res = await request(app)
       .get('/api/v1/qualquer-rota')
-      .set('x-organização-id', 'organização-aaa')
+      .set('x-tenant-id', 'tenant-aaa')
       .set('x-chave-interna', 'chave-errada')
     expect(res.status).toBe(403)
   })
@@ -542,7 +542,7 @@ test('modal de criação aberto', async ({ page }) => {
 Cada serviço da organização exporta os schemas Zod dos seus endpoints. O mesmo schema que valida a rota serve como contrato da API. O CI valida que os contratos não foram quebrados antes do merge.
 
 ```typescript
-// servicos-global/organização/atividades/server/schemas.ts
+// servicos-global/tenant/atividades/server/schemas.ts
 import { z } from 'zod'
 
 export const createActivitySchema = z.object({
@@ -574,7 +574,7 @@ Se um endpoint mudar o payload sem versionar, o contract test falha e bloqueia o
 | Módulo | Unitário | Funcional | E2E |
 |:---|:---|:---|:---|
 | nucleo-global | 80% | N/A | Smoke tests |
-| servicos-organização (cada) | 70% | 100% rotas críticas | Por produto |
+| servicos-tenant (cada) | 70% | 100% rotas críticas | Por produto |
 | produtos | 70% | 100% rotas críticas | 11 categorias obrigatórias |
 | configurador | 70% | 100% auth + billing | Fluxo completo de onboarding |
 
@@ -587,7 +587,7 @@ Cada serviço exporta schemas Zod que funcionam como **contratos da API**. O CI 
 ### Estrutura de Contract Tests
 
 ```typescript
-// servicos-global/organização/atividades/server/contracts.ts
+// servicos-global/tenant/atividades/server/contracts.ts
 export const createActivityContract = z.object({
   title: z.string().min(1).max(200),
   status: z.enum(['PENDING', 'IN_PROGRESS', 'DONE']),

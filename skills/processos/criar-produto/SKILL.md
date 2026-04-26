@@ -21,7 +21,7 @@ Antes de criar qualquer produto, ler **obrigatoriamente**:
 | `antigravity-code-standards` | Padrões de código |
 | `antigravity-service-registry` | PRODUCT_CONFIG e navegação |
 | `antigravity-ambiente` | Portas e dev servers |
-| `antigravity-organização-isolation` | Schema-per-Organização e 3 índices |
+| `antigravity-isolamento-organizacao` | Schema-per-Organização e 3 índices |
 | `antigravity-seguranca-5-camadas` | 5 camadas de segurança |
 | `antigravity-schema-composition` | Prisma fragments |
 | `antigravity-observabilidade` | Logs, health check, Sentry |
@@ -172,7 +172,7 @@ testes/
       "@nucleo/*": ["../../../nucleo-global/*"],
       "@shell": ["../../../servicos-global/shell/index.ts"],
       "@shell/*": ["../../../servicos-global/shell/*"],
-      "@organização/*": ["../../../servicos-global/organização/*"],
+      "@tenant/*": ["../../../servicos-global/tenant/*"],
       "@produto/*": ["../../../servicos-global/produto/*"]
     }
   },
@@ -210,7 +210,7 @@ export default defineConfig({
       // ... adicionar cada componente usado
       '@shell': path.resolve(monorepoRoot, 'servicos-global/shell/index.ts'),
       '@gravity/shell': path.resolve(monorepoRoot, 'servicos-global/shell'),
-      '@organização': path.resolve(monorepoRoot, 'servicos-global/organização'),
+      '@tenant': path.resolve(monorepoRoot, 'servicos-global/tenant'),
     },
     dedupe: ['react', 'react-dom', '@clerk/clerk-react', 'react-router-dom', 'zustand'],
   },
@@ -418,7 +418,7 @@ import cors from 'cors'
 import { join } from 'path'
 import { correlationMiddleware } from './middleware/correlation'
 import { requireInternalKey } from './middleware/internal-auth'
-import { tenantIsolationMiddleware } from './middleware/organização-isolation'
+import { tenantIsolationMiddleware } from './middleware/tenant-isolation'
 import { errorHandler } from './middleware/error-handler'
 import { recursoRouter } from './routes/recursos'
 import { prisma } from './lib/prisma'
@@ -614,7 +614,7 @@ testes/
 │   └── engine.test.ts             ← Lógica de negócio pura
 ├── testes-funcionais/meu-produto/
 │   ├── recursos.test.ts           ← CRUD via supertest (banco real)
-│   └── organização-isolation.test.ts   ← Cross-organização obrigatório
+│   └── tenant-isolation.test.ts   ← Cross-organização obrigatório
 └── testes-e2e/meu-produto/
     └── fluxo-completo.spec.ts     ← Playwright (após plano aprovado)
 ```
@@ -720,7 +720,7 @@ Implementar wizard de 3-5 passos no primeiro acesso. Ver skill `antigravity-onbo
 
 ### Client
 - [ ] 4. Dependências instaladas (Clerk, i18next, zustand, phosphor)?
-- [ ] 5. tsconfig.json com paths (`@nucleo/*`, `@shell`, `@organização/*`, `@produto/*`)?
+- [ ] 5. tsconfig.json com paths (`@nucleo/*`, `@shell`, `@tenant/*`, `@produto/*`)?
 - [ ] 6. vite.config.ts com aliases, dedupe, optimizeDeps, fs.allow, proxy?
 - [ ] 7. main.tsx com ClerkProvider + BrowserRouter?
 - [ ] 8. App.tsx com Layout do Shell + setApiContext?

@@ -161,14 +161,14 @@ app.use(correlationMiddleware)          // 1. Correlation ID (gera SUID se ausen
 app.get('/health', healthHandler)       // 2. Health check — sem auth, antes dos guards
 app.use('/api/v1/email/webhook', express.raw({ type: 'application/json' }))  // 3. Raw body para webhooks
 app.use(express.json())                 // 4. Body parser
-app.use(authMiddleware)                 // 5. Exige x-organização-id → 401 se ausente
+app.use(authMiddleware)                 // 5. Exige x-tenant-id → 401 se ausente
 app.use(withInternalKeyValidation)      // 6. Valida x-chave-interna → 403 se inválida
 // ... service routers ...
 app.use(errorHandler)                   // 7. Handler global de erros
 ```
 
 **Por que `authMiddleware` antes de `withInternalKeyValidation`:**
-- Toda chamada a serviços organização já carrega `x-organização-id` (é o identificador do organização, não segredo)
+- Toda chamada a serviços organização já carrega `x-tenant-id` (é o identificador do organização, não segredo)
 - Falhar rápido em 401 antes de verificar a chave interna é semanticamente correto e mais informativo para debugging
 
 ---

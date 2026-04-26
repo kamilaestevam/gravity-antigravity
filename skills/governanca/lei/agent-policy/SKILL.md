@@ -134,7 +134,7 @@ Todo agente que escreve código garante:
 - Toda resposta de `fetch().json()` passa por `schema.parse()` Zod antes do uso (Mandamento 06)
 
 > Consultar `antigravity-9-mandamentos` para as regras absolutas e não-negociáveis.
-> Consultar `antigravity-organização-isolation` para as regras completas de Isolamento de Organização.
+> Consultar `antigravity-isolamento-organizacao` para as regras completas de Isolamento de Organização.
 > Consultar `antigravity-code-standards` para os padrões completos de código.
 > Consultar `antigravity-monorepo` antes de alterar package.json, tsconfig.json, vite.config.ts ou instalar dependências.
 

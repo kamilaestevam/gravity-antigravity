@@ -111,7 +111,7 @@ import { something } from '../../../servicos-global/organização/gabi/src'
 
 // ✅ SEMPRE usar aliases configurados
 import { TabelaGlobal } from '@nucleo/tabela-global'
-import { something } from '@organização/gabi'
+import { something } from '@tenant/gabi'
 ```
 
 ### Três funções disponíveis
@@ -120,7 +120,7 @@ import { something } from '@organização/gabi'
 |:---|:---|:---|
 | `createNucleoAliases(root)` | `@nucleo/*` para 16 categorias | **Todo** vite.config.ts de client |
 | `createServiceAliases(root)` | `@gravity/shell`, `@shell`, `@organização`, `@produto` | **Todo** vite.config.ts |
-| `createTenantAliases(root, [...])` | `@organização/gabi`, `@organização/historico`, etc. | Só quando importar organização específico |
+| `createTenantAliases(root, [...])` | `@tenant/gabi`, `@tenant/historico`, etc. | Só quando importar organização específico |
 
 ---
 

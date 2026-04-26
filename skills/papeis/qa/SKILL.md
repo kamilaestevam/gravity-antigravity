@@ -55,7 +55,7 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 
 ### 2 — Isolamento de Organização (Schema-per-Organização)
 
-> Consultar `antigravity-organização-isolation`.
+> Consultar `antigravity-isolamento-organizacao`.
 
 - [ ] Acesso ao banco de produto **exclusivamente** via `withTenant(req, async db => ...)` do `@gravity/tenant-resolver`
 - [ ] `withTenantContext(idOrganizacao, fn)` em CRON jobs e workers (sem `req`)
@@ -105,7 +105,7 @@ description: "Use esta skill quando o agente estiver operando no papel de QA do 
 - [ ] Nenhum serviço por organização importa código de outro serviço por organização
 - [ ] Serviços de produto não acessam o banco do Configurador diretamente
 - [ ] Produtos não acessam o banco de outros produtos
-- [ ] Imports usam aliases configurados (`@nucleo/`, `@organização/`, `@produto/`)
+- [ ] Imports usam aliases configurados (`@nucleo/`, `@tenant/`, `@produto/`)
 - [ ] `Fragment.prisma` não modifica o `schema.prisma` final diretamente (Mandamento 02)
 
 ### 6 — Qualidade Geral
@@ -340,7 +340,7 @@ Após correção, QA deve ser acionado novamente.
 | Para validar | Consultar |
 |:---|:---|
 | 9 Mandamentos | `antigravity-9-mandamentos` |
-| Isolamento de Organização | `antigravity-organização-isolation` (nome do arquivo da skill preservado) + `antigravity-tier1-security` |
+| Isolamento de Organização | `antigravity-isolamento-organizacao` + `antigravity-tier1-security` |
 | Padrões de código | `antigravity-code-standards` + `antigravity-api-design` |
 | Como escrever testes | `antigravity-testes` |
 | Documentação + skills (DoD) | `antigravity-definition-of-done` (§6 e §7) |

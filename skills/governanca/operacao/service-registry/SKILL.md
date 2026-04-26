@@ -101,14 +101,14 @@ import type { NavigationItem } from '../types'
 
 // Módulos de organização — carregados via lazy loading
 const tenantModules: Record<string, React.LazyExoticComponent<React.FC>> = {
-  activities: lazy(() => import('@organização/atividades/src/Atividades')),
-  email:      lazy(() => import('@organização/email/src/Email')),
-  whatsapp:   lazy(() => import('@organização/whatsapp/src/WhatsApp')),
-  dashboard:  lazy(() => import('@organização/dashboard/src/Dashboard')),
-  reports:    lazy(() => import('@organização/relatorios/src/Relatorios')),
-  history:    lazy(() => import('@organização/historico/src/Historico')),
-  schedule:   lazy(() => import('@organização/agendamento/src/Agendamento')),
-  gabi:       lazy(() => import('@organização/gabi/src/Gabi')),
+  activities: lazy(() => import('@tenant/atividades/src/Atividades')),
+  email:      lazy(() => import('@tenant/email/src/Email')),
+  whatsapp:   lazy(() => import('@tenant/whatsapp/src/WhatsApp')),
+  dashboard:  lazy(() => import('@tenant/dashboard/src/Dashboard')),
+  reports:    lazy(() => import('@tenant/relatorios/src/Relatorios')),
+  history:    lazy(() => import('@tenant/historico/src/Historico')),
+  schedule:   lazy(() => import('@tenant/agendamento/src/Agendamento')),
+  gabi:       lazy(() => import('@tenant/gabi/src/Gabi')),
 }
 
 export function renderModule(
@@ -137,7 +137,7 @@ export function renderModule(
 
 ```typescript
 // produtos/[nome-do-produto]/server/index.ts
-import { createTenantProxy } from '@organização/proxy'
+import { createTenantProxy } from '@tenant/proxy'
 import { PRODUCT_CONFIG } from '../src/shared/config'
 
 // Proxy automático para todos os serviços de organização declarados

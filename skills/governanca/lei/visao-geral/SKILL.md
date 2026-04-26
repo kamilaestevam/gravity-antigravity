@@ -232,8 +232,8 @@ As ondas são sequenciais. Nenhuma onda inicia sem que a anterior tenha sido val
 | Ambiente de trabalho (porta, navegador) | `antigravity-ambiente` |
 | Padrões de código (TypeScript, Zod, AppError, naming) | `antigravity-code-standards` |
 | Schema Prisma, fragments, composição | `antigravity-schema-composition` |
-| Serviços por organização vs produto, estrutura de pastas | `antigravity-servicos-organização` |
-| Isolamento de Organização (Schema-per-Organização + SDK) | `antigravity-organização-isolation` |
+| Serviços por organização vs produto, estrutura de pastas | `antigravity-servicos-organizacao` |
+| Isolamento de Organização (Schema-per-Organização + SDK) | `antigravity-isolamento-organizacao` |
 | Auth entre serviços (`x-chave-interna`, JWT) | `antigravity-autenticacao-s2s` |
 | Ações cross-boundary entre serviços | `antigravity-cross-boundary` |
 | Permissões de usuário (`tipo_usuario`, granulares, produtos) | `antigravity-permissoes` |

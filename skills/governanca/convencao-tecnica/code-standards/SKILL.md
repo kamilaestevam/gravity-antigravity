@@ -32,7 +32,7 @@ Todo código do projeto Gravity — frontend e backend — segue estes padrões 
     "baseUrl": ".",
     "paths": {
       "@nucleo/*": ["../../nucleo-global/*"],
-      "@organização/*": ["../../servicos-global/organização/*"],
+      "@tenant/*": ["../../servicos-global/tenant/*"],
       "@produto/*": ["../../servicos-global/produto/*"]
     }
   }
@@ -215,8 +215,8 @@ Para erros de validação Zod, o campo `details` é incluído:
 | Models Prisma | PascalCase | `Activity`, `Pedido` |
 | Campos de banco | snake_case | `created_at`, `numero_pedido` |
 | Schemas de organização (Postgres) | `tenant_<uuid_sem_hifens>` | `tenant_a1b2c3d4e5f6...` |
-| Arquivos de server | kebab-case | `organização-isolation.ts` |
-| Aliases de import | camelCase com `@` | `@nucleo`, `@organização`, `@produto` |
+| Arquivos de server | kebab-case | `tenant-isolation.ts` |
+| Aliases de import | camelCase com `@` | `@nucleo`, `@tenant`, `@produto` |
 
 ---
 
@@ -372,7 +372,7 @@ Todos os endpoints usam prefixo de versão desde o início:
 - [ ] Toda rota tem schema Zod?
 - [ ] Erros lançados via `AppError`, nunca `res.status()` direto?
 - [ ] Error handler global registrado no servidor?
-- [ ] Imports via aliases `@nucleo/`, `@organização/`, `@produto/`?
+- [ ] Imports via aliases `@nucleo/`, `@tenant/`, `@produto/`?
 - [ ] Nenhum `console.log` com dados sensíveis?
 - [ ] Nenhuma variável de ambiente hardcoded?
 - [ ] Funções com menos de 50 linhas?

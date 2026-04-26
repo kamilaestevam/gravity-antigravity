@@ -258,7 +258,7 @@ model Estimativa {
   created_at      DateTime           @default(now())
   updated_at      DateTime           @updatedAt
 
-  // Indices obrigatorios (skill: antigravity-tenant-isolation)
+  // Indices obrigatorios (skill: antigravity-isolamento-organizacao)
   @@index([tenant_id])
   @@index([company_id])
   @@index([tenant_id, company_id])

@@ -932,11 +932,11 @@ Quando liberado:
 - `skills/governanca/9-mandamentos/SKILL.md`
 - `skills/governanca/agent-policy/SKILL.md`
 - `skills/governanca/code-standards/SKILL.md`
-- `skills/governanca/ddd-nomenclatura/SKILL.md`
+- `skills/governanca/lei/ddd-nomenclatura/SKILL.md`
 - `skills/seguranca/permissoes/SKILL.md`
-- `skills/infra-estrutura/configurador/SKILL.md`
-- `skills/arquitetura/tenant-isolation/SKILL.md`
-- `skills/arquitetura/testes/SKILL.md`
+- `skills/produtos-gravity/configurador/SKILL.md`
+- `skills/governanca/lei/isolamento-organizacao/SKILL.md`
+- `skills/testes/padroes-vitest-playwright/SKILL.md`
 - `skills/agentes/qa/SKILL.md`
 - `skills/agentes/coordenador/SKILL.md`
 - `skills/agentes/lider/SKILL.md`

@@ -30,28 +30,28 @@ vi.stubGlobal('fetch', fetchMock)
 
 function empresaBR(suid: string, cnpj = '12.345.678/0001-99') {
   return {
-    suid,
+    suid_empresa: suid,
     id_organizacao: 'org-test',
     nome_empresa: 'ACME Importadora',
-    cnpj,
-    tin: null,
-    pais: 'BR',
-    estado: 'SP',
-    cidade: 'Sao Paulo',
-    endereco: 'Rua Teste, 100',
-    zipcode: '01000-000',
-    email: 'contato@acme.test',
-    telefone: null,
-    whatsapp: null,
-    pode_ser_importador: true,
-    pode_ser_exportador: false,
-    pode_ser_fabricante: false,
-    pode_ser_agente: false,
-    pode_ser_despachante: false,
-    pode_ser_armador: false,
-    ativo: true,
-    criado_em: '2026-04-22T00:00:00.000Z',
-    atualizado_em: '2026-04-22T00:00:00.000Z',
+    cnpj_empresa: cnpj,
+    tin_empresa: null,
+    pais_empresa: 'BR',
+    estado_empresa: 'SP',
+    cidade_empresa: 'Sao Paulo',
+    endereco_empresa: 'Rua Teste, 100',
+    zipcode_empresa: '01000-000',
+    email_empresa: 'contato@acme.test',
+    telefone_empresa: null,
+    whatsapp_empresa: null,
+    pode_ser_importador_empresa: true,
+    pode_ser_exportador_empresa: false,
+    pode_ser_fabricante_empresa: false,
+    pode_ser_agente_empresa: false,
+    pode_ser_despachante_empresa: false,
+    pode_ser_armador_empresa: false,
+    ativo_empresa: true,
+    criado_em_empresa: '2026-04-22T00:00:00.000Z',
+    atualizado_em_empresa: '2026-04-22T00:00:00.000Z',
   }
 }
 
@@ -59,12 +59,12 @@ function empresaUS(suid: string) {
   return {
     ...empresaBR(suid),
     nome_empresa: 'Buyer Corp',
-    cnpj: null,
-    tin: 'US-EIN-123456789',
-    pais: 'US',
-    estado: 'NY',
-    cidade: 'New York',
-    zipcode: '10001',
+    cnpj_empresa: null,
+    tin_empresa: 'US-EIN-123456789',
+    pais_empresa: 'US',
+    estado_empresa: 'NY',
+    cidade_empresa: 'New York',
+    zipcode_empresa: '10001',
   }
 }
 
@@ -85,8 +85,8 @@ describe('buscarEmpresaPorSuid', () => {
   it('200 → retorna Empresa parseada', async () => {
     fetchMock.mockResolvedValueOnce(jsonResp(empresaBR('BR-ACME-00001')))
     const empresa = await buscarEmpresaPorSuid('BR-ACME-00001', ctx)
-    expect(empresa.suid).toBe('BR-ACME-00001')
-    expect(empresa.pais).toBe('BR')
+    expect(empresa.suid_empresa).toBe('BR-ACME-00001')
+    expect(empresa.pais_empresa).toBe('BR')
 
     // Headers corretos
     const [url, init] = fetchMock.mock.calls[0]
@@ -146,8 +146,8 @@ describe('buscarEmpresasPorSuids', () => {
     )
     expect(fetchMock).toHaveBeenCalledTimes(2) // dedup aplicado
     expect(mapa.size).toBe(2)
-    expect(mapa.get('BR-ACME-00001')?.pais).toBe('BR')
-    expect(mapa.get('US-BUYER-00001')?.pais).toBe('US')
+    expect(mapa.get('BR-ACME-00001')?.pais_empresa).toBe('BR')
+    expect(mapa.get('US-BUYER-00001')?.pais_empresa).toBe('US')
   })
 
   it('lista vazia → Map vazio sem tocar rede', async () => {
@@ -199,7 +199,7 @@ describe('montarSnapshotEmpresa', () => {
   })
 
   it('empresa sem documento válido → lança erro', () => {
-    const semDoc = { ...empresaBR('BR-X-00001'), cnpj: null }
+    const semDoc = { ...empresaBR('BR-X-00001'), cnpj_empresa: null }
     expect(() => montarSnapshotEmpresa(semDoc, 'exportador', 'org')).toThrow(
       /sem documento/,
     )

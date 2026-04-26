@@ -488,18 +488,18 @@ model PedidoAnexo {
   @@map("anexo_pedido")
 }
 
-model TemplatePedidoPdf {
-  id_template_pedido_pdf            String   @id @default(cuid())
-  id_organizacao                    String
-  id_produto                        String?
-  nome_template_pedido_pdf          String
-  descricao_template_pedido_pdf     String?
-  conteudo_html_template_pedido_pdf String
-  data_criacao_template_pedido_pdf  DateTime @default(now())
-  data_atualizacao_template_pedido_pdf DateTime @updatedAt
+model PedidoTemplate {
+  id_template_pedido               String   @id @default(cuid())
+  id_organizacao                   String
+  id_produto_gravity               String?
+  nome_template_pedido             String
+  descricao_template_pedido        String?
+  conteudo_html_template_pedido    String
+  data_criacao_template_pedido     DateTime @default(now())
+  data_atualizacao_template_pedido DateTime @updatedAt
 
   @@index([id_organizacao])
-  @@index([id_organizacao, id_produto])
+  @@index([id_organizacao, id_produto_gravity])
   @@map("template_pedido_pdf")
 }
 

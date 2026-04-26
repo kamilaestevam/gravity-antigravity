@@ -11,7 +11,8 @@
       "WebSearch",
       "Skill(update-config)",
       "Skill(update-config:*)",
-      "Read(//c/Users/danie/.claude/**)"
+      "Read(//c/Users/danie/.claude/**)",
+      "PowerShell(Get-Process | Where-Object {$_.ProcessName -match \"node|tsx|vite|prisma\"} | Select-Object Id, ProcessName, StartTime | Format-Table -AutoSize)"
     ],
     "defaultMode": "acceptEdits"
   }

@@ -44,11 +44,11 @@ export function montarSnapshotEmpresa(
   idOrganizacao: string,
   idWorkspace: string | null = null,
 ): SnapshotEmpresaData {
-  const ehBr = empresa.pais === 'BR'
-  const documento = ehBr ? empresa.cnpj : empresa.tin
+  const ehBr = empresa.pais_empresa === 'BR'
+  const documento = ehBr ? empresa.cnpj_empresa : empresa.tin_empresa
   if (!documento) {
     throw new Error(
-      `Empresa ${empresa.suid} sem documento (${ehBr ? 'cnpj' : 'tin'}) — snapshot não pode ser gerado`,
+      `Empresa ${empresa.suid_empresa} sem documento (${ehBr ? 'cnpj' : 'tin'}) — snapshot não pode ser gerado`,
     )
   }
 
@@ -56,18 +56,18 @@ export function montarSnapshotEmpresa(
     id_organizacao: idOrganizacao,
     id_workspace: idWorkspace,
     papel,
-    suid_empresa: empresa.suid,
+    suid_empresa: empresa.suid_empresa,
     nome_empresa: empresa.nome_empresa,
     documento_principal: documento,
     tipo_documento: ehBr ? 'CNPJ' : 'TIN',
-    cnpj_raiz: ehBr && empresa.cnpj ? empresa.cnpj.replace(/\D/g, '').slice(0, 8) : null,
-    endereco_cidade: empresa.cidade,
-    endereco_uf: empresa.estado,
-    endereco_cep: empresa.zipcode,
-    endereco_pais: empresa.pais,
-    endereco_logradouro: empresa.endereco,
-    contato_email: empresa.email,
-    contato_whatsapp: empresa.whatsapp,
+    cnpj_raiz: ehBr && empresa.cnpj_empresa ? empresa.cnpj_empresa.replace(/\D/g, '').slice(0, 8) : null,
+    endereco_cidade: empresa.cidade_empresa,
+    endereco_uf: empresa.estado_empresa,
+    endereco_cep: empresa.zipcode_empresa ?? null,
+    endereco_pais: empresa.pais_empresa,
+    endereco_logradouro: empresa.endereco_empresa ?? null,
+    contato_email: empresa.email_empresa ?? null,
+    contato_whatsapp: empresa.whatsapp_empresa ?? null,
     motivo_congelamento: 'emissao',
   }
 }

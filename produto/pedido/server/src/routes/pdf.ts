@@ -125,9 +125,9 @@ pdfRouter.get('/templates', async (req: Request, res: Response, next: NextFuncti
       const db       = rawDb as any
       const tenantId = (req as unknown as { tenant: TenantContext }).tenant.tenantId
 
-      const templates = await db.pedidoTemplatePdf.findMany({
+      const templates = await db.pedidoTemplate.findMany({
         where: { id_organizacao: tenantId },
-        orderBy: { nome_template_pedido_pdf: 'asc' },
+        orderBy: { nome_template_pedido: 'asc' },
       })
 
       res.json(templates)
@@ -166,8 +166,8 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       }
 
       // 2. Buscar template
-      const template = await db.pedidoTemplatePdf.findFirst({
-        where: { id_template_pedido_pdf: template_id, id_organizacao: tenantId },
+      const template = await db.pedidoTemplate.findFirst({
+        where: { id_template_pedido: template_id, id_organizacao: tenantId },
       })
 
       if (!template) {
@@ -175,8 +175,8 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       }
 
       const typedTemplate = template as {
-        nome_template_pedido_pdf: string
-        conteudo_html_template_pedido_pdf: string
+        nome_template_pedido: string
+        conteudo_html_template_pedido: string
       }
 
       // 3. Compilar variáveis — ACL: traduz itens DDD → shape legado consumido por pdfService
@@ -189,13 +189,13 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
       const variaveis = compilarVariaveis(pedidoTyped, tenantNome)
 
       // 4. Renderizar Handlebars
-      const htmlFinal = renderizarTemplate(typedTemplate.conteudo_html_template_pedido_pdf, variaveis)
+      const htmlFinal = renderizarTemplate(typedTemplate.conteudo_html_template_pedido, variaveis)
 
       // 5. Gerar PDF (ou HTML fallback)
       const { buffer, isPdf } = await gerarPdfBuffer(htmlFinal)
 
       // 6. Salvar no storage e criar anexo (conforme spec: salvar_como_anexo sempre true)
-      const nomeArquivo = gerarNomeArquivoPdf(typedTemplate.nome_template_pedido_pdf, pedidoTyped.numero_pedido)
+      const nomeArquivo = gerarNomeArquivoPdf(typedTemplate.nome_template_pedido, pedidoTyped.numero_pedido)
       const uuid: string = randomUUID()
       const storageKey = resolverStorageKey(tenantId, pedido_id, uuid, nomeArquivo)
       salvarArquivoLocal(buffer, storageKey)
@@ -212,7 +212,7 @@ pdfRouter.post('/gerar', async (req: Request, res: Response, next: NextFunction)
             tipo_arquivo: isPdf ? 'application/pdf' : 'text/html',
             tamanho_bytes: buffer.length,
             categoria: 'PDF Gerado',
-            descricao: `Gerado a partir do template: ${typedTemplate.nome_template_pedido_pdf}`,
+            descricao: `Gerado a partir do template: ${typedTemplate.nome_template_pedido}`,
             storage_key: storageKey,
             uploaded_by: userId,
           },

@@ -663,83 +663,83 @@ model Cambio {
 // Convenção de IDs: TST-{TIPO}-{ESCOPO}-{NNNNNN}
 
 model Testes {
-  id           String   @id @default(cuid())
-  tenant_id    String   @default("platform") // sempre "platform" — logs globais
-  type         String // UNI | CON | FUN | CRO | E2E | PEN
-  escopo       String // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
-  sublocal     String?
-  module       String
-  test_name    String
-  test_id      String? // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
-  result       String // APROVADO | REPROVADO | ERRO
-  duration     String
-  error_log    String?  @db.Text
-  ai_analysis  Json? // AiAnalysis schema do gemini-test-analyzer
-  screenshot   String? // path do PNG capturado pela fixture
-  ambiente     String   @default("Local") // Local | Staging | Producao
-  run_id       String? // agrupa logs do mesmo run
-  triggered_by String? // userId que disparou (manual) ou "cron" (automático)
-  created_at   DateTime @default(now())
+  id_testes             String   @id @default(cuid())
+  id_organizacao_testes String   @default("platform") // sempre "platform" — logs globais
+  tipo_testes           String // UNI | CON | FUN | CRO | E2E | PEN
+  escopo_testes         String // LOGIN | CONFIG | ADMIN | HUB | CORE | MARKET | TENANT | DBASE | PEDIDO | NFIMP | LPCO | BIDFRT | BIDCAM | SIMCUS | FINCOM | PROCSO
+  sublocal_testes       String?
+  modulo_testes         String
+  nome_testes           String
+  id_plano_testes       String? // TST-E2E-CONFIG-000001 (quando vinculado a um plano)
+  resultado_testes      String // APROVADO | REPROVADO | ERRO
+  duracao_testes        String
+  log_erro_testes       String?  @db.Text
+  analise_ia_testes     Json? // AiAnalysis schema do gemini-test-analyzer
+  screenshot_testes     String? // path do PNG capturado pela fixture
+  ambiente_testes       String   @default("Local") // Local | Staging | Producao
+  id_execucao_testes    String? // agrupa logs do mesmo run
+  disparado_por_testes  String? // userId que disparou (manual) ou "cron" (automático)
+  data_criacao_testes   DateTime @default(now())
 
-  @@index([tenant_id])
-  @@index([created_at])
-  @@index([type, escopo])
-  @@index([result])
-  @@index([run_id])
-  @@index([test_id])
+  @@index([id_organizacao_testes], map: "tst_org_idx")
+  @@index([data_criacao_testes], map: "tst_criacao_idx")
+  @@index([tipo_testes, escopo_testes], map: "tst_tipo_escopo_idx")
+  @@index([resultado_testes], map: "tst_resultado_idx")
+  @@index([id_execucao_testes], map: "tst_execucao_idx")
+  @@index([id_plano_testes], map: "tst_plano_idx")
   @@map("testes")
 }
 
 model AgendamentoTeste {
-  id           String    @id @default(cuid())
-  tenant_id    String    @default("platform")
-  ativo        Boolean   @default(false)
-  frequencia   String    @default("Manual") // Manual | Diario | Semanal
-  hora         Int       @default(0) // 0-23
-  minuto       Int       @default(0) // 0-59
-  tipos        Json // { uni: bool, con: bool, fun: bool, cro: bool, e2e: bool, pen: bool }
-  escopos      String[] // ['CONFIG','PEDIDO','ADMIN',...]
-  ambiente     String    @default("Local") // Local | Staging | Producao
-  alertas      Json      @default("[]") // [{ nome, contato, condicao, canal }]
-  ultima_exec  DateTime?
-  proxima_exec DateTime?
-  created_at   DateTime  @default(now())
-  updated_at   DateTime  @updatedAt
+  id_agendamento_teste               String    @id @default(cuid())
+  id_organizacao_agendamento_teste   String    @default("platform")
+  ativo_agendamento_teste            Boolean   @default(false)
+  frequencia_agendamento_teste       String    @default("Manual") // Manual | Diario | Semanal
+  hora_agendamento_teste             Int       @default(0) // 0-23
+  minuto_agendamento_teste           Int       @default(0) // 0-59
+  tipos_agendamento_teste            Json // { uni: bool, con: bool, fun: bool, cro: bool, e2e: bool, pen: bool }
+  escopos_agendamento_teste          String[] // ['CONFIG','PEDIDO','ADMIN',...]
+  ambiente_agendamento_teste         String    @default("Local") // Local | Staging | Producao
+  alertas_agendamento_teste          Json      @default("[]") // [{ nome, contato, condicao, canal }]
+  ultima_execucao_agendamento_teste  DateTime?
+  proxima_execucao_agendamento_teste DateTime?
+  data_criacao_agendamento_teste     DateTime  @default(now())
+  data_atualizacao_agendamento_teste DateTime  @updatedAt
 
-  @@index([tenant_id])
-  @@index([ativo])
-  @@index([proxima_exec])
+  @@index([id_organizacao_agendamento_teste], map: "agt_org_idx")
+  @@index([ativo_agendamento_teste], map: "agt_ativo_idx")
+  @@index([proxima_execucao_agendamento_teste], map: "agt_proxima_idx")
   @@map("agendamento_teste")
 }
 
 model PlanoTeste {
-  id               String    @id // TST-E2E-CONFIG-000001
-  tenant_id        String    @default("platform")
-  versao           String    @default("1.0")
-  tipo             String // UNI | CON | FUN | CRO | E2E | PEN
-  escopo           String // LOGIN | CONFIG | ...
-  sublocal         String
-  tela             String
-  rota             String
-  criticidade      String    @default("media") // baixa | media | alta | critica
-  ambientes        String[]
-  componente_path  String
-  spec_path        String?
-  mapeamento_path  String
-  cobertura_pct    Int       @default(0)
-  passos_total     Int       @default(0)
-  resumo_executivo String    @db.Text
-  plano_completo   Json // o JSON inteiro do plano (formato do agente-plano-teste)
-  status           String    @default("pendente_validacao") // pendente_validacao | aprovado | obsoleto
-  ultima_execucao  DateTime?
-  ultimo_resultado String? // APROVADO | REPROVADO | ERRO | NAO_EXECUTADO
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
+  id_plano_teste                 String    @id // TST-E2E-CONFIG-000001
+  id_organizacao_plano_teste     String    @default("platform")
+  versao_plano_teste             String    @default("1.0")
+  tipo_plano_teste               String // UNI | CON | FUN | CRO | E2E | PEN
+  escopo_plano_teste             String // LOGIN | CONFIG | ...
+  sublocal_plano_teste           String
+  tela_plano_teste               String
+  rota_plano_teste               String
+  criticidade_plano_teste        String    @default("media") // baixa | media | alta | critica
+  ambientes_plano_teste          String[]
+  caminho_componente_plano_teste String
+  caminho_spec_plano_teste       String?
+  caminho_mapeamento_plano_teste String
+  cobertura_pct_plano_teste      Int       @default(0)
+  passos_total_plano_teste       Int       @default(0)
+  resumo_executivo_plano_teste   String    @db.Text
+  plano_completo_plano_teste     Json // o JSON inteiro do plano (formato do agente-plano-teste)
+  status_plano_teste             String    @default("pendente_validacao") // pendente_validacao | aprovado | obsoleto
+  ultima_execucao_plano_teste    DateTime?
+  ultimo_resultado_plano_teste   String? // APROVADO | REPROVADO | ERRO | NAO_EXECUTADO
+  data_criacao_plano_teste       DateTime  @default(now())
+  data_atualizacao_plano_teste   DateTime  @updatedAt
 
-  @@index([tenant_id])
-  @@index([tipo, escopo])
-  @@index([status])
-  @@index([sublocal])
+  @@index([id_organizacao_plano_teste], map: "plt_org_idx")
+  @@index([tipo_plano_teste, escopo_plano_teste], map: "plt_tipo_escopo_idx")
+  @@index([status_plano_teste], map: "plt_status_idx")
+  @@index([sublocal_plano_teste], map: "plt_sublocal_idx")
   @@map("plano_teste")
 }
 

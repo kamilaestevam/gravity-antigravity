@@ -9,7 +9,9 @@ description: "Use esta skill sempre que uma tarefa envolver o painel administrat
 
 Interface exclusiva da equipe Gravity para gerenciar a plataforma como um todo. **Não é o Configurador** (que é para o cliente).
 
-- **Quem acessa:** apenas usuários com `tipo_usuario = 'GRAVITY_ADMIN'` (ou `is_gravity_admin = true`) — membros internos da equipe Gravity com acesso privilegiado. Verificação SEMPRE via `/api/v1/me` (Prisma), nunca via `publicMetadata` do Clerk (Mandamento 01).
+- **Quem acessa:** apenas usuários com `tipo_usuario = 'GRAVITY_ADMIN'` (ou `is_gravity_admin = true`) — membros internos da equipe Gravity com acesso privilegiado.
+
+> ⚠️ **REGRA ABSOLUTA:** Ver [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md) — Regra 01: verificação SEMPRE via `/api/v1/me` (Prisma), nunca via `publicMetadata` do Clerk.
 - **Princípio:** visibilidade total de todas as organizações, produtos, usuários, consumo, deploys e saúde da plataforma em um único lugar
 
 ---
@@ -37,7 +39,6 @@ servicos-global/configurador/
 
 ```typescript
 // Middleware que protege todas as rotas /admin/*
-// PROIBIDO ler publicMetadata.role do Clerk — sempre Prisma via req.auth populado pelo /api/v1/me
 function requireGravityAdmin(req, res, next) {
   if (req.auth.tipoUsuario !== 'GRAVITY_ADMIN' && !req.auth.isGravityAdmin) {
     return res.status(403).json({ error: 'Acesso restrito à equipe Gravity' })
@@ -84,9 +85,9 @@ Todos os usuários de todas as organizações em uma única visão.
 - Ver permissões detalhadas
 - Suspender acesso
 - Resetar senha (força reset no próximo login)
-- **Impersonar usuário** (para suporte) — com **registro obrigatório** no histórico
+- **Impersonar usuário** (para suporte)
 
-> ⚠️ **Impersonação:** quando um admin Gravity assume a sessão de um usuário para suporte, isso é registrado no histórico com: `actor_type: 'gravity_admin'`, `triggered_by: idAdmin`, `impersonating: idUsuario`.
+> ⚠️ **REGRA ABSOLUTA:** Ver [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md) — impersonação gera log obrigatório com `actor_type`, `triggered_by` e `impersonating`.
 
 ---
 
@@ -102,11 +103,7 @@ Igual ao histórico de alterações da organização, mas com visão de todas as
 
 **Filtros adicionais:** Por organização | Por tipo de ator: usuário, Gabi AI, sistema, Gravity Admin
 
-**Importante:** o Gravity Admin que acessa o histórico de outra organização gera um log próprio:
-```
-action: 'ACESSO_ADMIN', entity: 'historico',
-description: 'Admin Gravity visualizou histórico da organização X'
-```
+> ⚠️ **REGRA ABSOLUTA:** Ver [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md) — acesso de Gravity Admin a histórico de outra organização gera log próprio com `action: 'ACESSO_ADMIN'`.
 
 ---
 
@@ -151,6 +148,8 @@ Monitora dois tipos:
 - API externa offline → email + WhatsApp para equipe Gravity
 - Latência > 3x a média → status "Degradada" + alerta
 
+> ⚠️ **REGRA ABSOLUTA:** Ver [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md) para health check obrigatório a cada 30s e métricas mínimas por API monitorada.
+
 ---
 
 ## Middleware de Observabilidade
@@ -185,10 +184,9 @@ export function apiObservabilityMiddleware(req, res, next) {
 
 ## Schema Prisma
 
-```prisma
-// Mandamento 02: schema.prisma é INTOCÁVEL — exemplos abaixo refletem o schema atual
-// (campos em DDD: id_organizacao, tipo_usuario, is_gravity_admin)
+> ⚠️ **REGRA ABSOLUTA:** Ver [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md) — Regra 02: `schema.prisma` é INTOCÁVEL. Exemplos abaixo refletem o schema atual (campos em DDD: `id_organizacao`, `tipo_usuario`, `is_gravity_admin`).
 
+```prisma
 model ApiKey {
   id              String    @id @default(cuid())
   id_organizacao  String
@@ -261,8 +259,8 @@ model GravityAdmin {
 
 ## Checklist
 
-- [ ] Painel Admin exclusivo para `tipo_usuario = 'GRAVITY_ADMIN'` validado via `/api/v1/me` (Mandamento 01)?
-- [ ] Impersonação de usuário com log obrigatório?
+- [ ] Painel Admin restrito a `tipo_usuario = 'GRAVITY_ADMIN'` conforme [9 Mandamentos](../../../governanca/lei/9-mandamentos/SKILL.md)?
+- [ ] Impersonação e acessos sensíveis com log conforme [Observabilidade Mínima](../../../governanca/convencao-tecnica/observabilidade-minima/SKILL.md)?
 - [ ] Painel de Deploy Railway com logs e métricas em tempo real?
 - [ ] Gestão de API Keys com escopo, rate limit e expiração?
 - [ ] APIs externas com health check a cada 30s e histórico de incidentes?

@@ -21256,121 +21256,121 @@ export namespace Prisma {
   }
 
   export type TestesMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    type: string | null
-    escopo: string | null
-    sublocal: string | null
-    module: string | null
-    test_name: string | null
-    test_id: string | null
-    result: string | null
-    duration: string | null
-    error_log: string | null
-    screenshot: string | null
-    ambiente: string | null
-    run_id: string | null
-    triggered_by: string | null
-    created_at: Date | null
+    id_testes: string | null
+    id_organizacao_testes: string | null
+    tipo_testes: string | null
+    escopo_testes: string | null
+    sublocal_testes: string | null
+    modulo_testes: string | null
+    nome_testes: string | null
+    id_plano_testes: string | null
+    resultado_testes: string | null
+    duracao_testes: string | null
+    log_erro_testes: string | null
+    screenshot_testes: string | null
+    ambiente_testes: string | null
+    id_execucao_testes: string | null
+    disparado_por_testes: string | null
+    data_criacao_testes: Date | null
   }
 
   export type TestesMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    type: string | null
-    escopo: string | null
-    sublocal: string | null
-    module: string | null
-    test_name: string | null
-    test_id: string | null
-    result: string | null
-    duration: string | null
-    error_log: string | null
-    screenshot: string | null
-    ambiente: string | null
-    run_id: string | null
-    triggered_by: string | null
-    created_at: Date | null
+    id_testes: string | null
+    id_organizacao_testes: string | null
+    tipo_testes: string | null
+    escopo_testes: string | null
+    sublocal_testes: string | null
+    modulo_testes: string | null
+    nome_testes: string | null
+    id_plano_testes: string | null
+    resultado_testes: string | null
+    duracao_testes: string | null
+    log_erro_testes: string | null
+    screenshot_testes: string | null
+    ambiente_testes: string | null
+    id_execucao_testes: string | null
+    disparado_por_testes: string | null
+    data_criacao_testes: Date | null
   }
 
   export type TestesCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    type: number
-    escopo: number
-    sublocal: number
-    module: number
-    test_name: number
-    test_id: number
-    result: number
-    duration: number
-    error_log: number
-    ai_analysis: number
-    screenshot: number
-    ambiente: number
-    run_id: number
-    triggered_by: number
-    created_at: number
+    id_testes: number
+    id_organizacao_testes: number
+    tipo_testes: number
+    escopo_testes: number
+    sublocal_testes: number
+    modulo_testes: number
+    nome_testes: number
+    id_plano_testes: number
+    resultado_testes: number
+    duracao_testes: number
+    log_erro_testes: number
+    analise_ia_testes: number
+    screenshot_testes: number
+    ambiente_testes: number
+    id_execucao_testes: number
+    disparado_por_testes: number
+    data_criacao_testes: number
     _all: number
   }
 
 
   export type TestesMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    type?: true
-    escopo?: true
-    sublocal?: true
-    module?: true
-    test_name?: true
-    test_id?: true
-    result?: true
-    duration?: true
-    error_log?: true
-    screenshot?: true
-    ambiente?: true
-    run_id?: true
-    triggered_by?: true
-    created_at?: true
+    id_testes?: true
+    id_organizacao_testes?: true
+    tipo_testes?: true
+    escopo_testes?: true
+    sublocal_testes?: true
+    modulo_testes?: true
+    nome_testes?: true
+    id_plano_testes?: true
+    resultado_testes?: true
+    duracao_testes?: true
+    log_erro_testes?: true
+    screenshot_testes?: true
+    ambiente_testes?: true
+    id_execucao_testes?: true
+    disparado_por_testes?: true
+    data_criacao_testes?: true
   }
 
   export type TestesMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    type?: true
-    escopo?: true
-    sublocal?: true
-    module?: true
-    test_name?: true
-    test_id?: true
-    result?: true
-    duration?: true
-    error_log?: true
-    screenshot?: true
-    ambiente?: true
-    run_id?: true
-    triggered_by?: true
-    created_at?: true
+    id_testes?: true
+    id_organizacao_testes?: true
+    tipo_testes?: true
+    escopo_testes?: true
+    sublocal_testes?: true
+    modulo_testes?: true
+    nome_testes?: true
+    id_plano_testes?: true
+    resultado_testes?: true
+    duracao_testes?: true
+    log_erro_testes?: true
+    screenshot_testes?: true
+    ambiente_testes?: true
+    id_execucao_testes?: true
+    disparado_por_testes?: true
+    data_criacao_testes?: true
   }
 
   export type TestesCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    type?: true
-    escopo?: true
-    sublocal?: true
-    module?: true
-    test_name?: true
-    test_id?: true
-    result?: true
-    duration?: true
-    error_log?: true
-    ai_analysis?: true
-    screenshot?: true
-    ambiente?: true
-    run_id?: true
-    triggered_by?: true
-    created_at?: true
+    id_testes?: true
+    id_organizacao_testes?: true
+    tipo_testes?: true
+    escopo_testes?: true
+    sublocal_testes?: true
+    modulo_testes?: true
+    nome_testes?: true
+    id_plano_testes?: true
+    resultado_testes?: true
+    duracao_testes?: true
+    log_erro_testes?: true
+    analise_ia_testes?: true
+    screenshot_testes?: true
+    ambiente_testes?: true
+    id_execucao_testes?: true
+    disparado_por_testes?: true
+    data_criacao_testes?: true
     _all?: true
   }
 
@@ -21447,23 +21447,23 @@ export namespace Prisma {
   }
 
   export type TestesGroupByOutputType = {
-    id: string
-    tenant_id: string
-    type: string
-    escopo: string
-    sublocal: string | null
-    module: string
-    test_name: string
-    test_id: string | null
-    result: string
-    duration: string
-    error_log: string | null
-    ai_analysis: JsonValue | null
-    screenshot: string | null
-    ambiente: string
-    run_id: string | null
-    triggered_by: string | null
-    created_at: Date
+    id_testes: string
+    id_organizacao_testes: string
+    tipo_testes: string
+    escopo_testes: string
+    sublocal_testes: string | null
+    modulo_testes: string
+    nome_testes: string
+    id_plano_testes: string | null
+    resultado_testes: string
+    duracao_testes: string
+    log_erro_testes: string | null
+    analise_ia_testes: JsonValue | null
+    screenshot_testes: string | null
+    ambiente_testes: string
+    id_execucao_testes: string | null
+    disparado_por_testes: string | null
+    data_criacao_testes: Date
     _count: TestesCountAggregateOutputType | null
     _min: TestesMinAggregateOutputType | null
     _max: TestesMaxAggregateOutputType | null
@@ -21484,63 +21484,63 @@ export namespace Prisma {
 
 
   export type TestesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    type?: boolean
-    escopo?: boolean
-    sublocal?: boolean
-    module?: boolean
-    test_name?: boolean
-    test_id?: boolean
-    result?: boolean
-    duration?: boolean
-    error_log?: boolean
-    ai_analysis?: boolean
-    screenshot?: boolean
-    ambiente?: boolean
-    run_id?: boolean
-    triggered_by?: boolean
-    created_at?: boolean
+    id_testes?: boolean
+    id_organizacao_testes?: boolean
+    tipo_testes?: boolean
+    escopo_testes?: boolean
+    sublocal_testes?: boolean
+    modulo_testes?: boolean
+    nome_testes?: boolean
+    id_plano_testes?: boolean
+    resultado_testes?: boolean
+    duracao_testes?: boolean
+    log_erro_testes?: boolean
+    analise_ia_testes?: boolean
+    screenshot_testes?: boolean
+    ambiente_testes?: boolean
+    id_execucao_testes?: boolean
+    disparado_por_testes?: boolean
+    data_criacao_testes?: boolean
   }, ExtArgs["result"]["testes"]>
 
   export type TestesSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    type?: boolean
-    escopo?: boolean
-    sublocal?: boolean
-    module?: boolean
-    test_name?: boolean
-    test_id?: boolean
-    result?: boolean
-    duration?: boolean
-    error_log?: boolean
-    ai_analysis?: boolean
-    screenshot?: boolean
-    ambiente?: boolean
-    run_id?: boolean
-    triggered_by?: boolean
-    created_at?: boolean
+    id_testes?: boolean
+    id_organizacao_testes?: boolean
+    tipo_testes?: boolean
+    escopo_testes?: boolean
+    sublocal_testes?: boolean
+    modulo_testes?: boolean
+    nome_testes?: boolean
+    id_plano_testes?: boolean
+    resultado_testes?: boolean
+    duracao_testes?: boolean
+    log_erro_testes?: boolean
+    analise_ia_testes?: boolean
+    screenshot_testes?: boolean
+    ambiente_testes?: boolean
+    id_execucao_testes?: boolean
+    disparado_por_testes?: boolean
+    data_criacao_testes?: boolean
   }, ExtArgs["result"]["testes"]>
 
   export type TestesSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    type?: boolean
-    escopo?: boolean
-    sublocal?: boolean
-    module?: boolean
-    test_name?: boolean
-    test_id?: boolean
-    result?: boolean
-    duration?: boolean
-    error_log?: boolean
-    ai_analysis?: boolean
-    screenshot?: boolean
-    ambiente?: boolean
-    run_id?: boolean
-    triggered_by?: boolean
-    created_at?: boolean
+    id_testes?: boolean
+    id_organizacao_testes?: boolean
+    tipo_testes?: boolean
+    escopo_testes?: boolean
+    sublocal_testes?: boolean
+    modulo_testes?: boolean
+    nome_testes?: boolean
+    id_plano_testes?: boolean
+    resultado_testes?: boolean
+    duracao_testes?: boolean
+    log_erro_testes?: boolean
+    analise_ia_testes?: boolean
+    screenshot_testes?: boolean
+    ambiente_testes?: boolean
+    id_execucao_testes?: boolean
+    disparado_por_testes?: boolean
+    data_criacao_testes?: boolean
   }
 
 
@@ -21548,23 +21548,23 @@ export namespace Prisma {
     name: "Testes"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      type: string
-      escopo: string
-      sublocal: string | null
-      module: string
-      test_name: string
-      test_id: string | null
-      result: string
-      duration: string
-      error_log: string | null
-      ai_analysis: Prisma.JsonValue | null
-      screenshot: string | null
-      ambiente: string
-      run_id: string | null
-      triggered_by: string | null
-      created_at: Date
+      id_testes: string
+      id_organizacao_testes: string
+      tipo_testes: string
+      escopo_testes: string
+      sublocal_testes: string | null
+      modulo_testes: string
+      nome_testes: string
+      id_plano_testes: string | null
+      resultado_testes: string
+      duracao_testes: string
+      log_erro_testes: string | null
+      analise_ia_testes: Prisma.JsonValue | null
+      screenshot_testes: string | null
+      ambiente_testes: string
+      id_execucao_testes: string | null
+      disparado_por_testes: string | null
+      data_criacao_testes: Date
     }, ExtArgs["result"]["testes"]>
     composites: {}
   }
@@ -21648,8 +21648,8 @@ export namespace Prisma {
      * // Get first 10 Testes
      * const testes = await prisma.testes.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const testesWithIdOnly = await prisma.testes.findMany({ select: { id: true } })
+     * // Only select the `id_testes`
+     * const testesWithId_testesOnly = await prisma.testes.findMany({ select: { id_testes: true } })
      * 
      */
     findMany<T extends TestesFindManyArgs>(args?: SelectSubset<T, TestesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestesPayload<ExtArgs>, T, "findMany">>
@@ -21693,9 +21693,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Testes and only return the `id`
-     * const testesWithIdOnly = await prisma.testes.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many Testes and only return the `id_testes`
+     * const testesWithId_testesOnly = await prisma.testes.createManyAndReturn({ 
+     *   select: { id_testes: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -21958,23 +21958,23 @@ export namespace Prisma {
    * Fields of the Testes model
    */ 
   interface TestesFieldRefs {
-    readonly id: FieldRef<"Testes", 'String'>
-    readonly tenant_id: FieldRef<"Testes", 'String'>
-    readonly type: FieldRef<"Testes", 'String'>
-    readonly escopo: FieldRef<"Testes", 'String'>
-    readonly sublocal: FieldRef<"Testes", 'String'>
-    readonly module: FieldRef<"Testes", 'String'>
-    readonly test_name: FieldRef<"Testes", 'String'>
-    readonly test_id: FieldRef<"Testes", 'String'>
-    readonly result: FieldRef<"Testes", 'String'>
-    readonly duration: FieldRef<"Testes", 'String'>
-    readonly error_log: FieldRef<"Testes", 'String'>
-    readonly ai_analysis: FieldRef<"Testes", 'Json'>
-    readonly screenshot: FieldRef<"Testes", 'String'>
-    readonly ambiente: FieldRef<"Testes", 'String'>
-    readonly run_id: FieldRef<"Testes", 'String'>
-    readonly triggered_by: FieldRef<"Testes", 'String'>
-    readonly created_at: FieldRef<"Testes", 'DateTime'>
+    readonly id_testes: FieldRef<"Testes", 'String'>
+    readonly id_organizacao_testes: FieldRef<"Testes", 'String'>
+    readonly tipo_testes: FieldRef<"Testes", 'String'>
+    readonly escopo_testes: FieldRef<"Testes", 'String'>
+    readonly sublocal_testes: FieldRef<"Testes", 'String'>
+    readonly modulo_testes: FieldRef<"Testes", 'String'>
+    readonly nome_testes: FieldRef<"Testes", 'String'>
+    readonly id_plano_testes: FieldRef<"Testes", 'String'>
+    readonly resultado_testes: FieldRef<"Testes", 'String'>
+    readonly duracao_testes: FieldRef<"Testes", 'String'>
+    readonly log_erro_testes: FieldRef<"Testes", 'String'>
+    readonly analise_ia_testes: FieldRef<"Testes", 'Json'>
+    readonly screenshot_testes: FieldRef<"Testes", 'String'>
+    readonly ambiente_testes: FieldRef<"Testes", 'String'>
+    readonly id_execucao_testes: FieldRef<"Testes", 'String'>
+    readonly disparado_por_testes: FieldRef<"Testes", 'String'>
+    readonly data_criacao_testes: FieldRef<"Testes", 'DateTime'>
   }
     
 
@@ -22276,115 +22276,115 @@ export namespace Prisma {
   }
 
   export type AgendamentoTesteAvgAggregateOutputType = {
-    hora: number | null
-    minuto: number | null
+    hora_agendamento_teste: number | null
+    minuto_agendamento_teste: number | null
   }
 
   export type AgendamentoTesteSumAggregateOutputType = {
-    hora: number | null
-    minuto: number | null
+    hora_agendamento_teste: number | null
+    minuto_agendamento_teste: number | null
   }
 
   export type AgendamentoTesteMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    ativo: boolean | null
-    frequencia: string | null
-    hora: number | null
-    minuto: number | null
-    ambiente: string | null
-    ultima_exec: Date | null
-    proxima_exec: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_agendamento_teste: string | null
+    id_organizacao_agendamento_teste: string | null
+    ativo_agendamento_teste: boolean | null
+    frequencia_agendamento_teste: string | null
+    hora_agendamento_teste: number | null
+    minuto_agendamento_teste: number | null
+    ambiente_agendamento_teste: string | null
+    ultima_execucao_agendamento_teste: Date | null
+    proxima_execucao_agendamento_teste: Date | null
+    data_criacao_agendamento_teste: Date | null
+    data_atualizacao_agendamento_teste: Date | null
   }
 
   export type AgendamentoTesteMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    ativo: boolean | null
-    frequencia: string | null
-    hora: number | null
-    minuto: number | null
-    ambiente: string | null
-    ultima_exec: Date | null
-    proxima_exec: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_agendamento_teste: string | null
+    id_organizacao_agendamento_teste: string | null
+    ativo_agendamento_teste: boolean | null
+    frequencia_agendamento_teste: string | null
+    hora_agendamento_teste: number | null
+    minuto_agendamento_teste: number | null
+    ambiente_agendamento_teste: string | null
+    ultima_execucao_agendamento_teste: Date | null
+    proxima_execucao_agendamento_teste: Date | null
+    data_criacao_agendamento_teste: Date | null
+    data_atualizacao_agendamento_teste: Date | null
   }
 
   export type AgendamentoTesteCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    ativo: number
-    frequencia: number
-    hora: number
-    minuto: number
-    tipos: number
-    escopos: number
-    ambiente: number
-    alertas: number
-    ultima_exec: number
-    proxima_exec: number
-    created_at: number
-    updated_at: number
+    id_agendamento_teste: number
+    id_organizacao_agendamento_teste: number
+    ativo_agendamento_teste: number
+    frequencia_agendamento_teste: number
+    hora_agendamento_teste: number
+    minuto_agendamento_teste: number
+    tipos_agendamento_teste: number
+    escopos_agendamento_teste: number
+    ambiente_agendamento_teste: number
+    alertas_agendamento_teste: number
+    ultima_execucao_agendamento_teste: number
+    proxima_execucao_agendamento_teste: number
+    data_criacao_agendamento_teste: number
+    data_atualizacao_agendamento_teste: number
     _all: number
   }
 
 
   export type AgendamentoTesteAvgAggregateInputType = {
-    hora?: true
-    minuto?: true
+    hora_agendamento_teste?: true
+    minuto_agendamento_teste?: true
   }
 
   export type AgendamentoTesteSumAggregateInputType = {
-    hora?: true
-    minuto?: true
+    hora_agendamento_teste?: true
+    minuto_agendamento_teste?: true
   }
 
   export type AgendamentoTesteMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    ativo?: true
-    frequencia?: true
-    hora?: true
-    minuto?: true
-    ambiente?: true
-    ultima_exec?: true
-    proxima_exec?: true
-    created_at?: true
-    updated_at?: true
+    id_agendamento_teste?: true
+    id_organizacao_agendamento_teste?: true
+    ativo_agendamento_teste?: true
+    frequencia_agendamento_teste?: true
+    hora_agendamento_teste?: true
+    minuto_agendamento_teste?: true
+    ambiente_agendamento_teste?: true
+    ultima_execucao_agendamento_teste?: true
+    proxima_execucao_agendamento_teste?: true
+    data_criacao_agendamento_teste?: true
+    data_atualizacao_agendamento_teste?: true
   }
 
   export type AgendamentoTesteMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    ativo?: true
-    frequencia?: true
-    hora?: true
-    minuto?: true
-    ambiente?: true
-    ultima_exec?: true
-    proxima_exec?: true
-    created_at?: true
-    updated_at?: true
+    id_agendamento_teste?: true
+    id_organizacao_agendamento_teste?: true
+    ativo_agendamento_teste?: true
+    frequencia_agendamento_teste?: true
+    hora_agendamento_teste?: true
+    minuto_agendamento_teste?: true
+    ambiente_agendamento_teste?: true
+    ultima_execucao_agendamento_teste?: true
+    proxima_execucao_agendamento_teste?: true
+    data_criacao_agendamento_teste?: true
+    data_atualizacao_agendamento_teste?: true
   }
 
   export type AgendamentoTesteCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    ativo?: true
-    frequencia?: true
-    hora?: true
-    minuto?: true
-    tipos?: true
-    escopos?: true
-    ambiente?: true
-    alertas?: true
-    ultima_exec?: true
-    proxima_exec?: true
-    created_at?: true
-    updated_at?: true
+    id_agendamento_teste?: true
+    id_organizacao_agendamento_teste?: true
+    ativo_agendamento_teste?: true
+    frequencia_agendamento_teste?: true
+    hora_agendamento_teste?: true
+    minuto_agendamento_teste?: true
+    tipos_agendamento_teste?: true
+    escopos_agendamento_teste?: true
+    ambiente_agendamento_teste?: true
+    alertas_agendamento_teste?: true
+    ultima_execucao_agendamento_teste?: true
+    proxima_execucao_agendamento_teste?: true
+    data_criacao_agendamento_teste?: true
+    data_atualizacao_agendamento_teste?: true
     _all?: true
   }
 
@@ -22475,20 +22475,20 @@ export namespace Prisma {
   }
 
   export type AgendamentoTesteGroupByOutputType = {
-    id: string
-    tenant_id: string
-    ativo: boolean
-    frequencia: string
-    hora: number
-    minuto: number
-    tipos: JsonValue
-    escopos: string[]
-    ambiente: string
-    alertas: JsonValue
-    ultima_exec: Date | null
-    proxima_exec: Date | null
-    created_at: Date
-    updated_at: Date
+    id_agendamento_teste: string
+    id_organizacao_agendamento_teste: string
+    ativo_agendamento_teste: boolean
+    frequencia_agendamento_teste: string
+    hora_agendamento_teste: number
+    minuto_agendamento_teste: number
+    tipos_agendamento_teste: JsonValue
+    escopos_agendamento_teste: string[]
+    ambiente_agendamento_teste: string
+    alertas_agendamento_teste: JsonValue
+    ultima_execucao_agendamento_teste: Date | null
+    proxima_execucao_agendamento_teste: Date | null
+    data_criacao_agendamento_teste: Date
+    data_atualizacao_agendamento_teste: Date
     _count: AgendamentoTesteCountAggregateOutputType | null
     _avg: AgendamentoTesteAvgAggregateOutputType | null
     _sum: AgendamentoTesteSumAggregateOutputType | null
@@ -22511,54 +22511,54 @@ export namespace Prisma {
 
 
   export type AgendamentoTesteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    ativo?: boolean
-    frequencia?: boolean
-    hora?: boolean
-    minuto?: boolean
-    tipos?: boolean
-    escopos?: boolean
-    ambiente?: boolean
-    alertas?: boolean
-    ultima_exec?: boolean
-    proxima_exec?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_agendamento_teste?: boolean
+    id_organizacao_agendamento_teste?: boolean
+    ativo_agendamento_teste?: boolean
+    frequencia_agendamento_teste?: boolean
+    hora_agendamento_teste?: boolean
+    minuto_agendamento_teste?: boolean
+    tipos_agendamento_teste?: boolean
+    escopos_agendamento_teste?: boolean
+    ambiente_agendamento_teste?: boolean
+    alertas_agendamento_teste?: boolean
+    ultima_execucao_agendamento_teste?: boolean
+    proxima_execucao_agendamento_teste?: boolean
+    data_criacao_agendamento_teste?: boolean
+    data_atualizacao_agendamento_teste?: boolean
   }, ExtArgs["result"]["agendamentoTeste"]>
 
   export type AgendamentoTesteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    ativo?: boolean
-    frequencia?: boolean
-    hora?: boolean
-    minuto?: boolean
-    tipos?: boolean
-    escopos?: boolean
-    ambiente?: boolean
-    alertas?: boolean
-    ultima_exec?: boolean
-    proxima_exec?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_agendamento_teste?: boolean
+    id_organizacao_agendamento_teste?: boolean
+    ativo_agendamento_teste?: boolean
+    frequencia_agendamento_teste?: boolean
+    hora_agendamento_teste?: boolean
+    minuto_agendamento_teste?: boolean
+    tipos_agendamento_teste?: boolean
+    escopos_agendamento_teste?: boolean
+    ambiente_agendamento_teste?: boolean
+    alertas_agendamento_teste?: boolean
+    ultima_execucao_agendamento_teste?: boolean
+    proxima_execucao_agendamento_teste?: boolean
+    data_criacao_agendamento_teste?: boolean
+    data_atualizacao_agendamento_teste?: boolean
   }, ExtArgs["result"]["agendamentoTeste"]>
 
   export type AgendamentoTesteSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    ativo?: boolean
-    frequencia?: boolean
-    hora?: boolean
-    minuto?: boolean
-    tipos?: boolean
-    escopos?: boolean
-    ambiente?: boolean
-    alertas?: boolean
-    ultima_exec?: boolean
-    proxima_exec?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_agendamento_teste?: boolean
+    id_organizacao_agendamento_teste?: boolean
+    ativo_agendamento_teste?: boolean
+    frequencia_agendamento_teste?: boolean
+    hora_agendamento_teste?: boolean
+    minuto_agendamento_teste?: boolean
+    tipos_agendamento_teste?: boolean
+    escopos_agendamento_teste?: boolean
+    ambiente_agendamento_teste?: boolean
+    alertas_agendamento_teste?: boolean
+    ultima_execucao_agendamento_teste?: boolean
+    proxima_execucao_agendamento_teste?: boolean
+    data_criacao_agendamento_teste?: boolean
+    data_atualizacao_agendamento_teste?: boolean
   }
 
 
@@ -22566,20 +22566,20 @@ export namespace Prisma {
     name: "AgendamentoTeste"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      ativo: boolean
-      frequencia: string
-      hora: number
-      minuto: number
-      tipos: Prisma.JsonValue
-      escopos: string[]
-      ambiente: string
-      alertas: Prisma.JsonValue
-      ultima_exec: Date | null
-      proxima_exec: Date | null
-      created_at: Date
-      updated_at: Date
+      id_agendamento_teste: string
+      id_organizacao_agendamento_teste: string
+      ativo_agendamento_teste: boolean
+      frequencia_agendamento_teste: string
+      hora_agendamento_teste: number
+      minuto_agendamento_teste: number
+      tipos_agendamento_teste: Prisma.JsonValue
+      escopos_agendamento_teste: string[]
+      ambiente_agendamento_teste: string
+      alertas_agendamento_teste: Prisma.JsonValue
+      ultima_execucao_agendamento_teste: Date | null
+      proxima_execucao_agendamento_teste: Date | null
+      data_criacao_agendamento_teste: Date
+      data_atualizacao_agendamento_teste: Date
     }, ExtArgs["result"]["agendamentoTeste"]>
     composites: {}
   }
@@ -22663,8 +22663,8 @@ export namespace Prisma {
      * // Get first 10 AgendamentoTestes
      * const agendamentoTestes = await prisma.agendamentoTeste.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const agendamentoTesteWithIdOnly = await prisma.agendamentoTeste.findMany({ select: { id: true } })
+     * // Only select the `id_agendamento_teste`
+     * const agendamentoTesteWithId_agendamento_testeOnly = await prisma.agendamentoTeste.findMany({ select: { id_agendamento_teste: true } })
      * 
      */
     findMany<T extends AgendamentoTesteFindManyArgs>(args?: SelectSubset<T, AgendamentoTesteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgendamentoTestePayload<ExtArgs>, T, "findMany">>
@@ -22708,9 +22708,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many AgendamentoTestes and only return the `id`
-     * const agendamentoTesteWithIdOnly = await prisma.agendamentoTeste.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many AgendamentoTestes and only return the `id_agendamento_teste`
+     * const agendamentoTesteWithId_agendamento_testeOnly = await prisma.agendamentoTeste.createManyAndReturn({ 
+     *   select: { id_agendamento_teste: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -22973,20 +22973,20 @@ export namespace Prisma {
    * Fields of the AgendamentoTeste model
    */ 
   interface AgendamentoTesteFieldRefs {
-    readonly id: FieldRef<"AgendamentoTeste", 'String'>
-    readonly tenant_id: FieldRef<"AgendamentoTeste", 'String'>
-    readonly ativo: FieldRef<"AgendamentoTeste", 'Boolean'>
-    readonly frequencia: FieldRef<"AgendamentoTeste", 'String'>
-    readonly hora: FieldRef<"AgendamentoTeste", 'Int'>
-    readonly minuto: FieldRef<"AgendamentoTeste", 'Int'>
-    readonly tipos: FieldRef<"AgendamentoTeste", 'Json'>
-    readonly escopos: FieldRef<"AgendamentoTeste", 'String[]'>
-    readonly ambiente: FieldRef<"AgendamentoTeste", 'String'>
-    readonly alertas: FieldRef<"AgendamentoTeste", 'Json'>
-    readonly ultima_exec: FieldRef<"AgendamentoTeste", 'DateTime'>
-    readonly proxima_exec: FieldRef<"AgendamentoTeste", 'DateTime'>
-    readonly created_at: FieldRef<"AgendamentoTeste", 'DateTime'>
-    readonly updated_at: FieldRef<"AgendamentoTeste", 'DateTime'>
+    readonly id_agendamento_teste: FieldRef<"AgendamentoTeste", 'String'>
+    readonly id_organizacao_agendamento_teste: FieldRef<"AgendamentoTeste", 'String'>
+    readonly ativo_agendamento_teste: FieldRef<"AgendamentoTeste", 'Boolean'>
+    readonly frequencia_agendamento_teste: FieldRef<"AgendamentoTeste", 'String'>
+    readonly hora_agendamento_teste: FieldRef<"AgendamentoTeste", 'Int'>
+    readonly minuto_agendamento_teste: FieldRef<"AgendamentoTeste", 'Int'>
+    readonly tipos_agendamento_teste: FieldRef<"AgendamentoTeste", 'Json'>
+    readonly escopos_agendamento_teste: FieldRef<"AgendamentoTeste", 'String[]'>
+    readonly ambiente_agendamento_teste: FieldRef<"AgendamentoTeste", 'String'>
+    readonly alertas_agendamento_teste: FieldRef<"AgendamentoTeste", 'Json'>
+    readonly ultima_execucao_agendamento_teste: FieldRef<"AgendamentoTeste", 'DateTime'>
+    readonly proxima_execucao_agendamento_teste: FieldRef<"AgendamentoTeste", 'DateTime'>
+    readonly data_criacao_agendamento_teste: FieldRef<"AgendamentoTeste", 'DateTime'>
+    readonly data_atualizacao_agendamento_teste: FieldRef<"AgendamentoTeste", 'DateTime'>
   }
     
 
@@ -23288,167 +23288,167 @@ export namespace Prisma {
   }
 
   export type PlanoTesteAvgAggregateOutputType = {
-    cobertura_pct: number | null
-    passos_total: number | null
+    cobertura_pct_plano_teste: number | null
+    passos_total_plano_teste: number | null
   }
 
   export type PlanoTesteSumAggregateOutputType = {
-    cobertura_pct: number | null
-    passos_total: number | null
+    cobertura_pct_plano_teste: number | null
+    passos_total_plano_teste: number | null
   }
 
   export type PlanoTesteMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    versao: string | null
-    tipo: string | null
-    escopo: string | null
-    sublocal: string | null
-    tela: string | null
-    rota: string | null
-    criticidade: string | null
-    componente_path: string | null
-    spec_path: string | null
-    mapeamento_path: string | null
-    cobertura_pct: number | null
-    passos_total: number | null
-    resumo_executivo: string | null
-    status: string | null
-    ultima_execucao: Date | null
-    ultimo_resultado: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_plano_teste: string | null
+    id_organizacao_plano_teste: string | null
+    versao_plano_teste: string | null
+    tipo_plano_teste: string | null
+    escopo_plano_teste: string | null
+    sublocal_plano_teste: string | null
+    tela_plano_teste: string | null
+    rota_plano_teste: string | null
+    criticidade_plano_teste: string | null
+    caminho_componente_plano_teste: string | null
+    caminho_spec_plano_teste: string | null
+    caminho_mapeamento_plano_teste: string | null
+    cobertura_pct_plano_teste: number | null
+    passos_total_plano_teste: number | null
+    resumo_executivo_plano_teste: string | null
+    status_plano_teste: string | null
+    ultima_execucao_plano_teste: Date | null
+    ultimo_resultado_plano_teste: string | null
+    data_criacao_plano_teste: Date | null
+    data_atualizacao_plano_teste: Date | null
   }
 
   export type PlanoTesteMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    versao: string | null
-    tipo: string | null
-    escopo: string | null
-    sublocal: string | null
-    tela: string | null
-    rota: string | null
-    criticidade: string | null
-    componente_path: string | null
-    spec_path: string | null
-    mapeamento_path: string | null
-    cobertura_pct: number | null
-    passos_total: number | null
-    resumo_executivo: string | null
-    status: string | null
-    ultima_execucao: Date | null
-    ultimo_resultado: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_plano_teste: string | null
+    id_organizacao_plano_teste: string | null
+    versao_plano_teste: string | null
+    tipo_plano_teste: string | null
+    escopo_plano_teste: string | null
+    sublocal_plano_teste: string | null
+    tela_plano_teste: string | null
+    rota_plano_teste: string | null
+    criticidade_plano_teste: string | null
+    caminho_componente_plano_teste: string | null
+    caminho_spec_plano_teste: string | null
+    caminho_mapeamento_plano_teste: string | null
+    cobertura_pct_plano_teste: number | null
+    passos_total_plano_teste: number | null
+    resumo_executivo_plano_teste: string | null
+    status_plano_teste: string | null
+    ultima_execucao_plano_teste: Date | null
+    ultimo_resultado_plano_teste: string | null
+    data_criacao_plano_teste: Date | null
+    data_atualizacao_plano_teste: Date | null
   }
 
   export type PlanoTesteCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    versao: number
-    tipo: number
-    escopo: number
-    sublocal: number
-    tela: number
-    rota: number
-    criticidade: number
-    ambientes: number
-    componente_path: number
-    spec_path: number
-    mapeamento_path: number
-    cobertura_pct: number
-    passos_total: number
-    resumo_executivo: number
-    plano_completo: number
-    status: number
-    ultima_execucao: number
-    ultimo_resultado: number
-    created_at: number
-    updated_at: number
+    id_plano_teste: number
+    id_organizacao_plano_teste: number
+    versao_plano_teste: number
+    tipo_plano_teste: number
+    escopo_plano_teste: number
+    sublocal_plano_teste: number
+    tela_plano_teste: number
+    rota_plano_teste: number
+    criticidade_plano_teste: number
+    ambientes_plano_teste: number
+    caminho_componente_plano_teste: number
+    caminho_spec_plano_teste: number
+    caminho_mapeamento_plano_teste: number
+    cobertura_pct_plano_teste: number
+    passos_total_plano_teste: number
+    resumo_executivo_plano_teste: number
+    plano_completo_plano_teste: number
+    status_plano_teste: number
+    ultima_execucao_plano_teste: number
+    ultimo_resultado_plano_teste: number
+    data_criacao_plano_teste: number
+    data_atualizacao_plano_teste: number
     _all: number
   }
 
 
   export type PlanoTesteAvgAggregateInputType = {
-    cobertura_pct?: true
-    passos_total?: true
+    cobertura_pct_plano_teste?: true
+    passos_total_plano_teste?: true
   }
 
   export type PlanoTesteSumAggregateInputType = {
-    cobertura_pct?: true
-    passos_total?: true
+    cobertura_pct_plano_teste?: true
+    passos_total_plano_teste?: true
   }
 
   export type PlanoTesteMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    versao?: true
-    tipo?: true
-    escopo?: true
-    sublocal?: true
-    tela?: true
-    rota?: true
-    criticidade?: true
-    componente_path?: true
-    spec_path?: true
-    mapeamento_path?: true
-    cobertura_pct?: true
-    passos_total?: true
-    resumo_executivo?: true
-    status?: true
-    ultima_execucao?: true
-    ultimo_resultado?: true
-    created_at?: true
-    updated_at?: true
+    id_plano_teste?: true
+    id_organizacao_plano_teste?: true
+    versao_plano_teste?: true
+    tipo_plano_teste?: true
+    escopo_plano_teste?: true
+    sublocal_plano_teste?: true
+    tela_plano_teste?: true
+    rota_plano_teste?: true
+    criticidade_plano_teste?: true
+    caminho_componente_plano_teste?: true
+    caminho_spec_plano_teste?: true
+    caminho_mapeamento_plano_teste?: true
+    cobertura_pct_plano_teste?: true
+    passos_total_plano_teste?: true
+    resumo_executivo_plano_teste?: true
+    status_plano_teste?: true
+    ultima_execucao_plano_teste?: true
+    ultimo_resultado_plano_teste?: true
+    data_criacao_plano_teste?: true
+    data_atualizacao_plano_teste?: true
   }
 
   export type PlanoTesteMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    versao?: true
-    tipo?: true
-    escopo?: true
-    sublocal?: true
-    tela?: true
-    rota?: true
-    criticidade?: true
-    componente_path?: true
-    spec_path?: true
-    mapeamento_path?: true
-    cobertura_pct?: true
-    passos_total?: true
-    resumo_executivo?: true
-    status?: true
-    ultima_execucao?: true
-    ultimo_resultado?: true
-    created_at?: true
-    updated_at?: true
+    id_plano_teste?: true
+    id_organizacao_plano_teste?: true
+    versao_plano_teste?: true
+    tipo_plano_teste?: true
+    escopo_plano_teste?: true
+    sublocal_plano_teste?: true
+    tela_plano_teste?: true
+    rota_plano_teste?: true
+    criticidade_plano_teste?: true
+    caminho_componente_plano_teste?: true
+    caminho_spec_plano_teste?: true
+    caminho_mapeamento_plano_teste?: true
+    cobertura_pct_plano_teste?: true
+    passos_total_plano_teste?: true
+    resumo_executivo_plano_teste?: true
+    status_plano_teste?: true
+    ultima_execucao_plano_teste?: true
+    ultimo_resultado_plano_teste?: true
+    data_criacao_plano_teste?: true
+    data_atualizacao_plano_teste?: true
   }
 
   export type PlanoTesteCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    versao?: true
-    tipo?: true
-    escopo?: true
-    sublocal?: true
-    tela?: true
-    rota?: true
-    criticidade?: true
-    ambientes?: true
-    componente_path?: true
-    spec_path?: true
-    mapeamento_path?: true
-    cobertura_pct?: true
-    passos_total?: true
-    resumo_executivo?: true
-    plano_completo?: true
-    status?: true
-    ultima_execucao?: true
-    ultimo_resultado?: true
-    created_at?: true
-    updated_at?: true
+    id_plano_teste?: true
+    id_organizacao_plano_teste?: true
+    versao_plano_teste?: true
+    tipo_plano_teste?: true
+    escopo_plano_teste?: true
+    sublocal_plano_teste?: true
+    tela_plano_teste?: true
+    rota_plano_teste?: true
+    criticidade_plano_teste?: true
+    ambientes_plano_teste?: true
+    caminho_componente_plano_teste?: true
+    caminho_spec_plano_teste?: true
+    caminho_mapeamento_plano_teste?: true
+    cobertura_pct_plano_teste?: true
+    passos_total_plano_teste?: true
+    resumo_executivo_plano_teste?: true
+    plano_completo_plano_teste?: true
+    status_plano_teste?: true
+    ultima_execucao_plano_teste?: true
+    ultimo_resultado_plano_teste?: true
+    data_criacao_plano_teste?: true
+    data_atualizacao_plano_teste?: true
     _all?: true
   }
 
@@ -23539,28 +23539,28 @@ export namespace Prisma {
   }
 
   export type PlanoTesteGroupByOutputType = {
-    id: string
-    tenant_id: string
-    versao: string
-    tipo: string
-    escopo: string
-    sublocal: string
-    tela: string
-    rota: string
-    criticidade: string
-    ambientes: string[]
-    componente_path: string
-    spec_path: string | null
-    mapeamento_path: string
-    cobertura_pct: number
-    passos_total: number
-    resumo_executivo: string
-    plano_completo: JsonValue
-    status: string
-    ultima_execucao: Date | null
-    ultimo_resultado: string | null
-    created_at: Date
-    updated_at: Date
+    id_plano_teste: string
+    id_organizacao_plano_teste: string
+    versao_plano_teste: string
+    tipo_plano_teste: string
+    escopo_plano_teste: string
+    sublocal_plano_teste: string
+    tela_plano_teste: string
+    rota_plano_teste: string
+    criticidade_plano_teste: string
+    ambientes_plano_teste: string[]
+    caminho_componente_plano_teste: string
+    caminho_spec_plano_teste: string | null
+    caminho_mapeamento_plano_teste: string
+    cobertura_pct_plano_teste: number
+    passos_total_plano_teste: number
+    resumo_executivo_plano_teste: string
+    plano_completo_plano_teste: JsonValue
+    status_plano_teste: string
+    ultima_execucao_plano_teste: Date | null
+    ultimo_resultado_plano_teste: string | null
+    data_criacao_plano_teste: Date
+    data_atualizacao_plano_teste: Date
     _count: PlanoTesteCountAggregateOutputType | null
     _avg: PlanoTesteAvgAggregateOutputType | null
     _sum: PlanoTesteSumAggregateOutputType | null
@@ -23583,78 +23583,78 @@ export namespace Prisma {
 
 
   export type PlanoTesteSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    versao?: boolean
-    tipo?: boolean
-    escopo?: boolean
-    sublocal?: boolean
-    tela?: boolean
-    rota?: boolean
-    criticidade?: boolean
-    ambientes?: boolean
-    componente_path?: boolean
-    spec_path?: boolean
-    mapeamento_path?: boolean
-    cobertura_pct?: boolean
-    passos_total?: boolean
-    resumo_executivo?: boolean
-    plano_completo?: boolean
-    status?: boolean
-    ultima_execucao?: boolean
-    ultimo_resultado?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_plano_teste?: boolean
+    id_organizacao_plano_teste?: boolean
+    versao_plano_teste?: boolean
+    tipo_plano_teste?: boolean
+    escopo_plano_teste?: boolean
+    sublocal_plano_teste?: boolean
+    tela_plano_teste?: boolean
+    rota_plano_teste?: boolean
+    criticidade_plano_teste?: boolean
+    ambientes_plano_teste?: boolean
+    caminho_componente_plano_teste?: boolean
+    caminho_spec_plano_teste?: boolean
+    caminho_mapeamento_plano_teste?: boolean
+    cobertura_pct_plano_teste?: boolean
+    passos_total_plano_teste?: boolean
+    resumo_executivo_plano_teste?: boolean
+    plano_completo_plano_teste?: boolean
+    status_plano_teste?: boolean
+    ultima_execucao_plano_teste?: boolean
+    ultimo_resultado_plano_teste?: boolean
+    data_criacao_plano_teste?: boolean
+    data_atualizacao_plano_teste?: boolean
   }, ExtArgs["result"]["planoTeste"]>
 
   export type PlanoTesteSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    versao?: boolean
-    tipo?: boolean
-    escopo?: boolean
-    sublocal?: boolean
-    tela?: boolean
-    rota?: boolean
-    criticidade?: boolean
-    ambientes?: boolean
-    componente_path?: boolean
-    spec_path?: boolean
-    mapeamento_path?: boolean
-    cobertura_pct?: boolean
-    passos_total?: boolean
-    resumo_executivo?: boolean
-    plano_completo?: boolean
-    status?: boolean
-    ultima_execucao?: boolean
-    ultimo_resultado?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_plano_teste?: boolean
+    id_organizacao_plano_teste?: boolean
+    versao_plano_teste?: boolean
+    tipo_plano_teste?: boolean
+    escopo_plano_teste?: boolean
+    sublocal_plano_teste?: boolean
+    tela_plano_teste?: boolean
+    rota_plano_teste?: boolean
+    criticidade_plano_teste?: boolean
+    ambientes_plano_teste?: boolean
+    caminho_componente_plano_teste?: boolean
+    caminho_spec_plano_teste?: boolean
+    caminho_mapeamento_plano_teste?: boolean
+    cobertura_pct_plano_teste?: boolean
+    passos_total_plano_teste?: boolean
+    resumo_executivo_plano_teste?: boolean
+    plano_completo_plano_teste?: boolean
+    status_plano_teste?: boolean
+    ultima_execucao_plano_teste?: boolean
+    ultimo_resultado_plano_teste?: boolean
+    data_criacao_plano_teste?: boolean
+    data_atualizacao_plano_teste?: boolean
   }, ExtArgs["result"]["planoTeste"]>
 
   export type PlanoTesteSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    versao?: boolean
-    tipo?: boolean
-    escopo?: boolean
-    sublocal?: boolean
-    tela?: boolean
-    rota?: boolean
-    criticidade?: boolean
-    ambientes?: boolean
-    componente_path?: boolean
-    spec_path?: boolean
-    mapeamento_path?: boolean
-    cobertura_pct?: boolean
-    passos_total?: boolean
-    resumo_executivo?: boolean
-    plano_completo?: boolean
-    status?: boolean
-    ultima_execucao?: boolean
-    ultimo_resultado?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_plano_teste?: boolean
+    id_organizacao_plano_teste?: boolean
+    versao_plano_teste?: boolean
+    tipo_plano_teste?: boolean
+    escopo_plano_teste?: boolean
+    sublocal_plano_teste?: boolean
+    tela_plano_teste?: boolean
+    rota_plano_teste?: boolean
+    criticidade_plano_teste?: boolean
+    ambientes_plano_teste?: boolean
+    caminho_componente_plano_teste?: boolean
+    caminho_spec_plano_teste?: boolean
+    caminho_mapeamento_plano_teste?: boolean
+    cobertura_pct_plano_teste?: boolean
+    passos_total_plano_teste?: boolean
+    resumo_executivo_plano_teste?: boolean
+    plano_completo_plano_teste?: boolean
+    status_plano_teste?: boolean
+    ultima_execucao_plano_teste?: boolean
+    ultimo_resultado_plano_teste?: boolean
+    data_criacao_plano_teste?: boolean
+    data_atualizacao_plano_teste?: boolean
   }
 
 
@@ -23662,28 +23662,28 @@ export namespace Prisma {
     name: "PlanoTeste"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      versao: string
-      tipo: string
-      escopo: string
-      sublocal: string
-      tela: string
-      rota: string
-      criticidade: string
-      ambientes: string[]
-      componente_path: string
-      spec_path: string | null
-      mapeamento_path: string
-      cobertura_pct: number
-      passos_total: number
-      resumo_executivo: string
-      plano_completo: Prisma.JsonValue
-      status: string
-      ultima_execucao: Date | null
-      ultimo_resultado: string | null
-      created_at: Date
-      updated_at: Date
+      id_plano_teste: string
+      id_organizacao_plano_teste: string
+      versao_plano_teste: string
+      tipo_plano_teste: string
+      escopo_plano_teste: string
+      sublocal_plano_teste: string
+      tela_plano_teste: string
+      rota_plano_teste: string
+      criticidade_plano_teste: string
+      ambientes_plano_teste: string[]
+      caminho_componente_plano_teste: string
+      caminho_spec_plano_teste: string | null
+      caminho_mapeamento_plano_teste: string
+      cobertura_pct_plano_teste: number
+      passos_total_plano_teste: number
+      resumo_executivo_plano_teste: string
+      plano_completo_plano_teste: Prisma.JsonValue
+      status_plano_teste: string
+      ultima_execucao_plano_teste: Date | null
+      ultimo_resultado_plano_teste: string | null
+      data_criacao_plano_teste: Date
+      data_atualizacao_plano_teste: Date
     }, ExtArgs["result"]["planoTeste"]>
     composites: {}
   }
@@ -23767,8 +23767,8 @@ export namespace Prisma {
      * // Get first 10 PlanoTestes
      * const planoTestes = await prisma.planoTeste.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const planoTesteWithIdOnly = await prisma.planoTeste.findMany({ select: { id: true } })
+     * // Only select the `id_plano_teste`
+     * const planoTesteWithId_plano_testeOnly = await prisma.planoTeste.findMany({ select: { id_plano_teste: true } })
      * 
      */
     findMany<T extends PlanoTesteFindManyArgs>(args?: SelectSubset<T, PlanoTesteFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PlanoTestePayload<ExtArgs>, T, "findMany">>
@@ -23812,9 +23812,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many PlanoTestes and only return the `id`
-     * const planoTesteWithIdOnly = await prisma.planoTeste.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many PlanoTestes and only return the `id_plano_teste`
+     * const planoTesteWithId_plano_testeOnly = await prisma.planoTeste.createManyAndReturn({ 
+     *   select: { id_plano_teste: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -24077,28 +24077,28 @@ export namespace Prisma {
    * Fields of the PlanoTeste model
    */ 
   interface PlanoTesteFieldRefs {
-    readonly id: FieldRef<"PlanoTeste", 'String'>
-    readonly tenant_id: FieldRef<"PlanoTeste", 'String'>
-    readonly versao: FieldRef<"PlanoTeste", 'String'>
-    readonly tipo: FieldRef<"PlanoTeste", 'String'>
-    readonly escopo: FieldRef<"PlanoTeste", 'String'>
-    readonly sublocal: FieldRef<"PlanoTeste", 'String'>
-    readonly tela: FieldRef<"PlanoTeste", 'String'>
-    readonly rota: FieldRef<"PlanoTeste", 'String'>
-    readonly criticidade: FieldRef<"PlanoTeste", 'String'>
-    readonly ambientes: FieldRef<"PlanoTeste", 'String[]'>
-    readonly componente_path: FieldRef<"PlanoTeste", 'String'>
-    readonly spec_path: FieldRef<"PlanoTeste", 'String'>
-    readonly mapeamento_path: FieldRef<"PlanoTeste", 'String'>
-    readonly cobertura_pct: FieldRef<"PlanoTeste", 'Int'>
-    readonly passos_total: FieldRef<"PlanoTeste", 'Int'>
-    readonly resumo_executivo: FieldRef<"PlanoTeste", 'String'>
-    readonly plano_completo: FieldRef<"PlanoTeste", 'Json'>
-    readonly status: FieldRef<"PlanoTeste", 'String'>
-    readonly ultima_execucao: FieldRef<"PlanoTeste", 'DateTime'>
-    readonly ultimo_resultado: FieldRef<"PlanoTeste", 'String'>
-    readonly created_at: FieldRef<"PlanoTeste", 'DateTime'>
-    readonly updated_at: FieldRef<"PlanoTeste", 'DateTime'>
+    readonly id_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly id_organizacao_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly versao_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly tipo_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly escopo_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly sublocal_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly tela_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly rota_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly criticidade_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly ambientes_plano_teste: FieldRef<"PlanoTeste", 'String[]'>
+    readonly caminho_componente_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly caminho_spec_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly caminho_mapeamento_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly cobertura_pct_plano_teste: FieldRef<"PlanoTeste", 'Int'>
+    readonly passos_total_plano_teste: FieldRef<"PlanoTeste", 'Int'>
+    readonly resumo_executivo_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly plano_completo_plano_teste: FieldRef<"PlanoTeste", 'Json'>
+    readonly status_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly ultima_execucao_plano_teste: FieldRef<"PlanoTeste", 'DateTime'>
+    readonly ultimo_resultado_plano_teste: FieldRef<"PlanoTeste", 'String'>
+    readonly data_criacao_plano_teste: FieldRef<"PlanoTeste", 'DateTime'>
+    readonly data_atualizacao_plano_teste: FieldRef<"PlanoTeste", 'DateTime'>
   }
     
 
@@ -26712,71 +26712,71 @@ export namespace Prisma {
 
 
   export const TestesScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    type: 'type',
-    escopo: 'escopo',
-    sublocal: 'sublocal',
-    module: 'module',
-    test_name: 'test_name',
-    test_id: 'test_id',
-    result: 'result',
-    duration: 'duration',
-    error_log: 'error_log',
-    ai_analysis: 'ai_analysis',
-    screenshot: 'screenshot',
-    ambiente: 'ambiente',
-    run_id: 'run_id',
-    triggered_by: 'triggered_by',
-    created_at: 'created_at'
+    id_testes: 'id_testes',
+    id_organizacao_testes: 'id_organizacao_testes',
+    tipo_testes: 'tipo_testes',
+    escopo_testes: 'escopo_testes',
+    sublocal_testes: 'sublocal_testes',
+    modulo_testes: 'modulo_testes',
+    nome_testes: 'nome_testes',
+    id_plano_testes: 'id_plano_testes',
+    resultado_testes: 'resultado_testes',
+    duracao_testes: 'duracao_testes',
+    log_erro_testes: 'log_erro_testes',
+    analise_ia_testes: 'analise_ia_testes',
+    screenshot_testes: 'screenshot_testes',
+    ambiente_testes: 'ambiente_testes',
+    id_execucao_testes: 'id_execucao_testes',
+    disparado_por_testes: 'disparado_por_testes',
+    data_criacao_testes: 'data_criacao_testes'
   };
 
   export type TestesScalarFieldEnum = (typeof TestesScalarFieldEnum)[keyof typeof TestesScalarFieldEnum]
 
 
   export const AgendamentoTesteScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    ativo: 'ativo',
-    frequencia: 'frequencia',
-    hora: 'hora',
-    minuto: 'minuto',
-    tipos: 'tipos',
-    escopos: 'escopos',
-    ambiente: 'ambiente',
-    alertas: 'alertas',
-    ultima_exec: 'ultima_exec',
-    proxima_exec: 'proxima_exec',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_agendamento_teste: 'id_agendamento_teste',
+    id_organizacao_agendamento_teste: 'id_organizacao_agendamento_teste',
+    ativo_agendamento_teste: 'ativo_agendamento_teste',
+    frequencia_agendamento_teste: 'frequencia_agendamento_teste',
+    hora_agendamento_teste: 'hora_agendamento_teste',
+    minuto_agendamento_teste: 'minuto_agendamento_teste',
+    tipos_agendamento_teste: 'tipos_agendamento_teste',
+    escopos_agendamento_teste: 'escopos_agendamento_teste',
+    ambiente_agendamento_teste: 'ambiente_agendamento_teste',
+    alertas_agendamento_teste: 'alertas_agendamento_teste',
+    ultima_execucao_agendamento_teste: 'ultima_execucao_agendamento_teste',
+    proxima_execucao_agendamento_teste: 'proxima_execucao_agendamento_teste',
+    data_criacao_agendamento_teste: 'data_criacao_agendamento_teste',
+    data_atualizacao_agendamento_teste: 'data_atualizacao_agendamento_teste'
   };
 
   export type AgendamentoTesteScalarFieldEnum = (typeof AgendamentoTesteScalarFieldEnum)[keyof typeof AgendamentoTesteScalarFieldEnum]
 
 
   export const PlanoTesteScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    versao: 'versao',
-    tipo: 'tipo',
-    escopo: 'escopo',
-    sublocal: 'sublocal',
-    tela: 'tela',
-    rota: 'rota',
-    criticidade: 'criticidade',
-    ambientes: 'ambientes',
-    componente_path: 'componente_path',
-    spec_path: 'spec_path',
-    mapeamento_path: 'mapeamento_path',
-    cobertura_pct: 'cobertura_pct',
-    passos_total: 'passos_total',
-    resumo_executivo: 'resumo_executivo',
-    plano_completo: 'plano_completo',
-    status: 'status',
-    ultima_execucao: 'ultima_execucao',
-    ultimo_resultado: 'ultimo_resultado',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_plano_teste: 'id_plano_teste',
+    id_organizacao_plano_teste: 'id_organizacao_plano_teste',
+    versao_plano_teste: 'versao_plano_teste',
+    tipo_plano_teste: 'tipo_plano_teste',
+    escopo_plano_teste: 'escopo_plano_teste',
+    sublocal_plano_teste: 'sublocal_plano_teste',
+    tela_plano_teste: 'tela_plano_teste',
+    rota_plano_teste: 'rota_plano_teste',
+    criticidade_plano_teste: 'criticidade_plano_teste',
+    ambientes_plano_teste: 'ambientes_plano_teste',
+    caminho_componente_plano_teste: 'caminho_componente_plano_teste',
+    caminho_spec_plano_teste: 'caminho_spec_plano_teste',
+    caminho_mapeamento_plano_teste: 'caminho_mapeamento_plano_teste',
+    cobertura_pct_plano_teste: 'cobertura_pct_plano_teste',
+    passos_total_plano_teste: 'passos_total_plano_teste',
+    resumo_executivo_plano_teste: 'resumo_executivo_plano_teste',
+    plano_completo_plano_teste: 'plano_completo_plano_teste',
+    status_plano_teste: 'status_plano_teste',
+    ultima_execucao_plano_teste: 'ultima_execucao_plano_teste',
+    ultimo_resultado_plano_teste: 'ultimo_resultado_plano_teste',
+    data_criacao_plano_teste: 'data_criacao_plano_teste',
+    data_atualizacao_plano_teste: 'data_atualizacao_plano_teste'
   };
 
   export type PlanoTesteScalarFieldEnum = (typeof PlanoTesteScalarFieldEnum)[keyof typeof PlanoTesteScalarFieldEnum]
@@ -28630,86 +28630,86 @@ export namespace Prisma {
     AND?: TestesWhereInput | TestesWhereInput[]
     OR?: TestesWhereInput[]
     NOT?: TestesWhereInput | TestesWhereInput[]
-    id?: StringFilter<"Testes"> | string
-    tenant_id?: StringFilter<"Testes"> | string
-    type?: StringFilter<"Testes"> | string
-    escopo?: StringFilter<"Testes"> | string
-    sublocal?: StringNullableFilter<"Testes"> | string | null
-    module?: StringFilter<"Testes"> | string
-    test_name?: StringFilter<"Testes"> | string
-    test_id?: StringNullableFilter<"Testes"> | string | null
-    result?: StringFilter<"Testes"> | string
-    duration?: StringFilter<"Testes"> | string
-    error_log?: StringNullableFilter<"Testes"> | string | null
-    ai_analysis?: JsonNullableFilter<"Testes">
-    screenshot?: StringNullableFilter<"Testes"> | string | null
-    ambiente?: StringFilter<"Testes"> | string
-    run_id?: StringNullableFilter<"Testes"> | string | null
-    triggered_by?: StringNullableFilter<"Testes"> | string | null
-    created_at?: DateTimeFilter<"Testes"> | Date | string
+    id_testes?: StringFilter<"Testes"> | string
+    id_organizacao_testes?: StringFilter<"Testes"> | string
+    tipo_testes?: StringFilter<"Testes"> | string
+    escopo_testes?: StringFilter<"Testes"> | string
+    sublocal_testes?: StringNullableFilter<"Testes"> | string | null
+    modulo_testes?: StringFilter<"Testes"> | string
+    nome_testes?: StringFilter<"Testes"> | string
+    id_plano_testes?: StringNullableFilter<"Testes"> | string | null
+    resultado_testes?: StringFilter<"Testes"> | string
+    duracao_testes?: StringFilter<"Testes"> | string
+    log_erro_testes?: StringNullableFilter<"Testes"> | string | null
+    analise_ia_testes?: JsonNullableFilter<"Testes">
+    screenshot_testes?: StringNullableFilter<"Testes"> | string | null
+    ambiente_testes?: StringFilter<"Testes"> | string
+    id_execucao_testes?: StringNullableFilter<"Testes"> | string | null
+    disparado_por_testes?: StringNullableFilter<"Testes"> | string | null
+    data_criacao_testes?: DateTimeFilter<"Testes"> | Date | string
   }
 
   export type TestesOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    type?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrderInput | SortOrder
-    module?: SortOrder
-    test_name?: SortOrder
-    test_id?: SortOrderInput | SortOrder
-    result?: SortOrder
-    duration?: SortOrder
-    error_log?: SortOrderInput | SortOrder
-    ai_analysis?: SortOrderInput | SortOrder
-    screenshot?: SortOrderInput | SortOrder
-    ambiente?: SortOrder
-    run_id?: SortOrderInput | SortOrder
-    triggered_by?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    id_testes?: SortOrder
+    id_organizacao_testes?: SortOrder
+    tipo_testes?: SortOrder
+    escopo_testes?: SortOrder
+    sublocal_testes?: SortOrderInput | SortOrder
+    modulo_testes?: SortOrder
+    nome_testes?: SortOrder
+    id_plano_testes?: SortOrderInput | SortOrder
+    resultado_testes?: SortOrder
+    duracao_testes?: SortOrder
+    log_erro_testes?: SortOrderInput | SortOrder
+    analise_ia_testes?: SortOrderInput | SortOrder
+    screenshot_testes?: SortOrderInput | SortOrder
+    ambiente_testes?: SortOrder
+    id_execucao_testes?: SortOrderInput | SortOrder
+    disparado_por_testes?: SortOrderInput | SortOrder
+    data_criacao_testes?: SortOrder
   }
 
   export type TestesWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_testes?: string
     AND?: TestesWhereInput | TestesWhereInput[]
     OR?: TestesWhereInput[]
     NOT?: TestesWhereInput | TestesWhereInput[]
-    tenant_id?: StringFilter<"Testes"> | string
-    type?: StringFilter<"Testes"> | string
-    escopo?: StringFilter<"Testes"> | string
-    sublocal?: StringNullableFilter<"Testes"> | string | null
-    module?: StringFilter<"Testes"> | string
-    test_name?: StringFilter<"Testes"> | string
-    test_id?: StringNullableFilter<"Testes"> | string | null
-    result?: StringFilter<"Testes"> | string
-    duration?: StringFilter<"Testes"> | string
-    error_log?: StringNullableFilter<"Testes"> | string | null
-    ai_analysis?: JsonNullableFilter<"Testes">
-    screenshot?: StringNullableFilter<"Testes"> | string | null
-    ambiente?: StringFilter<"Testes"> | string
-    run_id?: StringNullableFilter<"Testes"> | string | null
-    triggered_by?: StringNullableFilter<"Testes"> | string | null
-    created_at?: DateTimeFilter<"Testes"> | Date | string
-  }, "id">
+    id_organizacao_testes?: StringFilter<"Testes"> | string
+    tipo_testes?: StringFilter<"Testes"> | string
+    escopo_testes?: StringFilter<"Testes"> | string
+    sublocal_testes?: StringNullableFilter<"Testes"> | string | null
+    modulo_testes?: StringFilter<"Testes"> | string
+    nome_testes?: StringFilter<"Testes"> | string
+    id_plano_testes?: StringNullableFilter<"Testes"> | string | null
+    resultado_testes?: StringFilter<"Testes"> | string
+    duracao_testes?: StringFilter<"Testes"> | string
+    log_erro_testes?: StringNullableFilter<"Testes"> | string | null
+    analise_ia_testes?: JsonNullableFilter<"Testes">
+    screenshot_testes?: StringNullableFilter<"Testes"> | string | null
+    ambiente_testes?: StringFilter<"Testes"> | string
+    id_execucao_testes?: StringNullableFilter<"Testes"> | string | null
+    disparado_por_testes?: StringNullableFilter<"Testes"> | string | null
+    data_criacao_testes?: DateTimeFilter<"Testes"> | Date | string
+  }, "id_testes">
 
   export type TestesOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    type?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrderInput | SortOrder
-    module?: SortOrder
-    test_name?: SortOrder
-    test_id?: SortOrderInput | SortOrder
-    result?: SortOrder
-    duration?: SortOrder
-    error_log?: SortOrderInput | SortOrder
-    ai_analysis?: SortOrderInput | SortOrder
-    screenshot?: SortOrderInput | SortOrder
-    ambiente?: SortOrder
-    run_id?: SortOrderInput | SortOrder
-    triggered_by?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    id_testes?: SortOrder
+    id_organizacao_testes?: SortOrder
+    tipo_testes?: SortOrder
+    escopo_testes?: SortOrder
+    sublocal_testes?: SortOrderInput | SortOrder
+    modulo_testes?: SortOrder
+    nome_testes?: SortOrder
+    id_plano_testes?: SortOrderInput | SortOrder
+    resultado_testes?: SortOrder
+    duracao_testes?: SortOrder
+    log_erro_testes?: SortOrderInput | SortOrder
+    analise_ia_testes?: SortOrderInput | SortOrder
+    screenshot_testes?: SortOrderInput | SortOrder
+    ambiente_testes?: SortOrder
+    id_execucao_testes?: SortOrderInput | SortOrder
+    disparado_por_testes?: SortOrderInput | SortOrder
+    data_criacao_testes?: SortOrder
     _count?: TestesCountOrderByAggregateInput
     _max?: TestesMaxOrderByAggregateInput
     _min?: TestesMinOrderByAggregateInput
@@ -28719,97 +28719,97 @@ export namespace Prisma {
     AND?: TestesScalarWhereWithAggregatesInput | TestesScalarWhereWithAggregatesInput[]
     OR?: TestesScalarWhereWithAggregatesInput[]
     NOT?: TestesScalarWhereWithAggregatesInput | TestesScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Testes"> | string
-    tenant_id?: StringWithAggregatesFilter<"Testes"> | string
-    type?: StringWithAggregatesFilter<"Testes"> | string
-    escopo?: StringWithAggregatesFilter<"Testes"> | string
-    sublocal?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    module?: StringWithAggregatesFilter<"Testes"> | string
-    test_name?: StringWithAggregatesFilter<"Testes"> | string
-    test_id?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    result?: StringWithAggregatesFilter<"Testes"> | string
-    duration?: StringWithAggregatesFilter<"Testes"> | string
-    error_log?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    ai_analysis?: JsonNullableWithAggregatesFilter<"Testes">
-    screenshot?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    ambiente?: StringWithAggregatesFilter<"Testes"> | string
-    run_id?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    triggered_by?: StringNullableWithAggregatesFilter<"Testes"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"Testes"> | Date | string
+    id_testes?: StringWithAggregatesFilter<"Testes"> | string
+    id_organizacao_testes?: StringWithAggregatesFilter<"Testes"> | string
+    tipo_testes?: StringWithAggregatesFilter<"Testes"> | string
+    escopo_testes?: StringWithAggregatesFilter<"Testes"> | string
+    sublocal_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
+    modulo_testes?: StringWithAggregatesFilter<"Testes"> | string
+    nome_testes?: StringWithAggregatesFilter<"Testes"> | string
+    id_plano_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
+    resultado_testes?: StringWithAggregatesFilter<"Testes"> | string
+    duracao_testes?: StringWithAggregatesFilter<"Testes"> | string
+    log_erro_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
+    analise_ia_testes?: JsonNullableWithAggregatesFilter<"Testes">
+    screenshot_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
+    ambiente_testes?: StringWithAggregatesFilter<"Testes"> | string
+    id_execucao_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
+    disparado_por_testes?: StringNullableWithAggregatesFilter<"Testes"> | string | null
+    data_criacao_testes?: DateTimeWithAggregatesFilter<"Testes"> | Date | string
   }
 
   export type AgendamentoTesteWhereInput = {
     AND?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
     OR?: AgendamentoTesteWhereInput[]
     NOT?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
-    id?: StringFilter<"AgendamentoTeste"> | string
-    tenant_id?: StringFilter<"AgendamentoTeste"> | string
-    ativo?: BoolFilter<"AgendamentoTeste"> | boolean
-    frequencia?: StringFilter<"AgendamentoTeste"> | string
-    hora?: IntFilter<"AgendamentoTeste"> | number
-    minuto?: IntFilter<"AgendamentoTeste"> | number
-    tipos?: JsonFilter<"AgendamentoTeste">
-    escopos?: StringNullableListFilter<"AgendamentoTeste">
-    ambiente?: StringFilter<"AgendamentoTeste"> | string
-    alertas?: JsonFilter<"AgendamentoTeste">
-    ultima_exec?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
-    proxima_exec?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
-    created_at?: DateTimeFilter<"AgendamentoTeste"> | Date | string
-    updated_at?: DateTimeFilter<"AgendamentoTeste"> | Date | string
+    id_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
+    id_organizacao_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
+    ativo_agendamento_teste?: BoolFilter<"AgendamentoTeste"> | boolean
+    frequencia_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
+    hora_agendamento_teste?: IntFilter<"AgendamentoTeste"> | number
+    minuto_agendamento_teste?: IntFilter<"AgendamentoTeste"> | number
+    tipos_agendamento_teste?: JsonFilter<"AgendamentoTeste">
+    escopos_agendamento_teste?: StringNullableListFilter<"AgendamentoTeste">
+    ambiente_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
+    alertas_agendamento_teste?: JsonFilter<"AgendamentoTeste">
+    ultima_execucao_agendamento_teste?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
+    proxima_execucao_agendamento_teste?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFilter<"AgendamentoTeste"> | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFilter<"AgendamentoTeste"> | Date | string
   }
 
   export type AgendamentoTesteOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    ativo?: SortOrder
-    frequencia?: SortOrder
-    hora?: SortOrder
-    minuto?: SortOrder
-    tipos?: SortOrder
-    escopos?: SortOrder
-    ambiente?: SortOrder
-    alertas?: SortOrder
-    ultima_exec?: SortOrderInput | SortOrder
-    proxima_exec?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_agendamento_teste?: SortOrder
+    id_organizacao_agendamento_teste?: SortOrder
+    ativo_agendamento_teste?: SortOrder
+    frequencia_agendamento_teste?: SortOrder
+    hora_agendamento_teste?: SortOrder
+    minuto_agendamento_teste?: SortOrder
+    tipos_agendamento_teste?: SortOrder
+    escopos_agendamento_teste?: SortOrder
+    ambiente_agendamento_teste?: SortOrder
+    alertas_agendamento_teste?: SortOrder
+    ultima_execucao_agendamento_teste?: SortOrderInput | SortOrder
+    proxima_execucao_agendamento_teste?: SortOrderInput | SortOrder
+    data_criacao_agendamento_teste?: SortOrder
+    data_atualizacao_agendamento_teste?: SortOrder
   }
 
   export type AgendamentoTesteWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_agendamento_teste?: string
     AND?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
     OR?: AgendamentoTesteWhereInput[]
     NOT?: AgendamentoTesteWhereInput | AgendamentoTesteWhereInput[]
-    tenant_id?: StringFilter<"AgendamentoTeste"> | string
-    ativo?: BoolFilter<"AgendamentoTeste"> | boolean
-    frequencia?: StringFilter<"AgendamentoTeste"> | string
-    hora?: IntFilter<"AgendamentoTeste"> | number
-    minuto?: IntFilter<"AgendamentoTeste"> | number
-    tipos?: JsonFilter<"AgendamentoTeste">
-    escopos?: StringNullableListFilter<"AgendamentoTeste">
-    ambiente?: StringFilter<"AgendamentoTeste"> | string
-    alertas?: JsonFilter<"AgendamentoTeste">
-    ultima_exec?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
-    proxima_exec?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
-    created_at?: DateTimeFilter<"AgendamentoTeste"> | Date | string
-    updated_at?: DateTimeFilter<"AgendamentoTeste"> | Date | string
-  }, "id">
+    id_organizacao_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
+    ativo_agendamento_teste?: BoolFilter<"AgendamentoTeste"> | boolean
+    frequencia_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
+    hora_agendamento_teste?: IntFilter<"AgendamentoTeste"> | number
+    minuto_agendamento_teste?: IntFilter<"AgendamentoTeste"> | number
+    tipos_agendamento_teste?: JsonFilter<"AgendamentoTeste">
+    escopos_agendamento_teste?: StringNullableListFilter<"AgendamentoTeste">
+    ambiente_agendamento_teste?: StringFilter<"AgendamentoTeste"> | string
+    alertas_agendamento_teste?: JsonFilter<"AgendamentoTeste">
+    ultima_execucao_agendamento_teste?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
+    proxima_execucao_agendamento_teste?: DateTimeNullableFilter<"AgendamentoTeste"> | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFilter<"AgendamentoTeste"> | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFilter<"AgendamentoTeste"> | Date | string
+  }, "id_agendamento_teste">
 
   export type AgendamentoTesteOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    ativo?: SortOrder
-    frequencia?: SortOrder
-    hora?: SortOrder
-    minuto?: SortOrder
-    tipos?: SortOrder
-    escopos?: SortOrder
-    ambiente?: SortOrder
-    alertas?: SortOrder
-    ultima_exec?: SortOrderInput | SortOrder
-    proxima_exec?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_agendamento_teste?: SortOrder
+    id_organizacao_agendamento_teste?: SortOrder
+    ativo_agendamento_teste?: SortOrder
+    frequencia_agendamento_teste?: SortOrder
+    hora_agendamento_teste?: SortOrder
+    minuto_agendamento_teste?: SortOrder
+    tipos_agendamento_teste?: SortOrder
+    escopos_agendamento_teste?: SortOrder
+    ambiente_agendamento_teste?: SortOrder
+    alertas_agendamento_teste?: SortOrder
+    ultima_execucao_agendamento_teste?: SortOrderInput | SortOrder
+    proxima_execucao_agendamento_teste?: SortOrderInput | SortOrder
+    data_criacao_agendamento_teste?: SortOrder
+    data_atualizacao_agendamento_teste?: SortOrder
     _count?: AgendamentoTesteCountOrderByAggregateInput
     _avg?: AgendamentoTesteAvgOrderByAggregateInput
     _max?: AgendamentoTesteMaxOrderByAggregateInput
@@ -28821,126 +28821,126 @@ export namespace Prisma {
     AND?: AgendamentoTesteScalarWhereWithAggregatesInput | AgendamentoTesteScalarWhereWithAggregatesInput[]
     OR?: AgendamentoTesteScalarWhereWithAggregatesInput[]
     NOT?: AgendamentoTesteScalarWhereWithAggregatesInput | AgendamentoTesteScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
-    tenant_id?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
-    ativo?: BoolWithAggregatesFilter<"AgendamentoTeste"> | boolean
-    frequencia?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
-    hora?: IntWithAggregatesFilter<"AgendamentoTeste"> | number
-    minuto?: IntWithAggregatesFilter<"AgendamentoTeste"> | number
-    tipos?: JsonWithAggregatesFilter<"AgendamentoTeste">
-    escopos?: StringNullableListFilter<"AgendamentoTeste">
-    ambiente?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
-    alertas?: JsonWithAggregatesFilter<"AgendamentoTeste">
-    ultima_exec?: DateTimeNullableWithAggregatesFilter<"AgendamentoTeste"> | Date | string | null
-    proxima_exec?: DateTimeNullableWithAggregatesFilter<"AgendamentoTeste"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"AgendamentoTeste"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"AgendamentoTeste"> | Date | string
+    id_agendamento_teste?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
+    id_organizacao_agendamento_teste?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
+    ativo_agendamento_teste?: BoolWithAggregatesFilter<"AgendamentoTeste"> | boolean
+    frequencia_agendamento_teste?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
+    hora_agendamento_teste?: IntWithAggregatesFilter<"AgendamentoTeste"> | number
+    minuto_agendamento_teste?: IntWithAggregatesFilter<"AgendamentoTeste"> | number
+    tipos_agendamento_teste?: JsonWithAggregatesFilter<"AgendamentoTeste">
+    escopos_agendamento_teste?: StringNullableListFilter<"AgendamentoTeste">
+    ambiente_agendamento_teste?: StringWithAggregatesFilter<"AgendamentoTeste"> | string
+    alertas_agendamento_teste?: JsonWithAggregatesFilter<"AgendamentoTeste">
+    ultima_execucao_agendamento_teste?: DateTimeNullableWithAggregatesFilter<"AgendamentoTeste"> | Date | string | null
+    proxima_execucao_agendamento_teste?: DateTimeNullableWithAggregatesFilter<"AgendamentoTeste"> | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeWithAggregatesFilter<"AgendamentoTeste"> | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeWithAggregatesFilter<"AgendamentoTeste"> | Date | string
   }
 
   export type PlanoTesteWhereInput = {
     AND?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
     OR?: PlanoTesteWhereInput[]
     NOT?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
-    id?: StringFilter<"PlanoTeste"> | string
-    tenant_id?: StringFilter<"PlanoTeste"> | string
-    versao?: StringFilter<"PlanoTeste"> | string
-    tipo?: StringFilter<"PlanoTeste"> | string
-    escopo?: StringFilter<"PlanoTeste"> | string
-    sublocal?: StringFilter<"PlanoTeste"> | string
-    tela?: StringFilter<"PlanoTeste"> | string
-    rota?: StringFilter<"PlanoTeste"> | string
-    criticidade?: StringFilter<"PlanoTeste"> | string
-    ambientes?: StringNullableListFilter<"PlanoTeste">
-    componente_path?: StringFilter<"PlanoTeste"> | string
-    spec_path?: StringNullableFilter<"PlanoTeste"> | string | null
-    mapeamento_path?: StringFilter<"PlanoTeste"> | string
-    cobertura_pct?: IntFilter<"PlanoTeste"> | number
-    passos_total?: IntFilter<"PlanoTeste"> | number
-    resumo_executivo?: StringFilter<"PlanoTeste"> | string
-    plano_completo?: JsonFilter<"PlanoTeste">
-    status?: StringFilter<"PlanoTeste"> | string
-    ultima_execucao?: DateTimeNullableFilter<"PlanoTeste"> | Date | string | null
-    ultimo_resultado?: StringNullableFilter<"PlanoTeste"> | string | null
-    created_at?: DateTimeFilter<"PlanoTeste"> | Date | string
-    updated_at?: DateTimeFilter<"PlanoTeste"> | Date | string
+    id_plano_teste?: StringFilter<"PlanoTeste"> | string
+    id_organizacao_plano_teste?: StringFilter<"PlanoTeste"> | string
+    versao_plano_teste?: StringFilter<"PlanoTeste"> | string
+    tipo_plano_teste?: StringFilter<"PlanoTeste"> | string
+    escopo_plano_teste?: StringFilter<"PlanoTeste"> | string
+    sublocal_plano_teste?: StringFilter<"PlanoTeste"> | string
+    tela_plano_teste?: StringFilter<"PlanoTeste"> | string
+    rota_plano_teste?: StringFilter<"PlanoTeste"> | string
+    criticidade_plano_teste?: StringFilter<"PlanoTeste"> | string
+    ambientes_plano_teste?: StringNullableListFilter<"PlanoTeste">
+    caminho_componente_plano_teste?: StringFilter<"PlanoTeste"> | string
+    caminho_spec_plano_teste?: StringNullableFilter<"PlanoTeste"> | string | null
+    caminho_mapeamento_plano_teste?: StringFilter<"PlanoTeste"> | string
+    cobertura_pct_plano_teste?: IntFilter<"PlanoTeste"> | number
+    passos_total_plano_teste?: IntFilter<"PlanoTeste"> | number
+    resumo_executivo_plano_teste?: StringFilter<"PlanoTeste"> | string
+    plano_completo_plano_teste?: JsonFilter<"PlanoTeste">
+    status_plano_teste?: StringFilter<"PlanoTeste"> | string
+    ultima_execucao_plano_teste?: DateTimeNullableFilter<"PlanoTeste"> | Date | string | null
+    ultimo_resultado_plano_teste?: StringNullableFilter<"PlanoTeste"> | string | null
+    data_criacao_plano_teste?: DateTimeFilter<"PlanoTeste"> | Date | string
+    data_atualizacao_plano_teste?: DateTimeFilter<"PlanoTeste"> | Date | string
   }
 
   export type PlanoTesteOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    versao?: SortOrder
-    tipo?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrder
-    tela?: SortOrder
-    rota?: SortOrder
-    criticidade?: SortOrder
-    ambientes?: SortOrder
-    componente_path?: SortOrder
-    spec_path?: SortOrderInput | SortOrder
-    mapeamento_path?: SortOrder
-    cobertura_pct?: SortOrder
-    passos_total?: SortOrder
-    resumo_executivo?: SortOrder
-    plano_completo?: SortOrder
-    status?: SortOrder
-    ultima_execucao?: SortOrderInput | SortOrder
-    ultimo_resultado?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_plano_teste?: SortOrder
+    id_organizacao_plano_teste?: SortOrder
+    versao_plano_teste?: SortOrder
+    tipo_plano_teste?: SortOrder
+    escopo_plano_teste?: SortOrder
+    sublocal_plano_teste?: SortOrder
+    tela_plano_teste?: SortOrder
+    rota_plano_teste?: SortOrder
+    criticidade_plano_teste?: SortOrder
+    ambientes_plano_teste?: SortOrder
+    caminho_componente_plano_teste?: SortOrder
+    caminho_spec_plano_teste?: SortOrderInput | SortOrder
+    caminho_mapeamento_plano_teste?: SortOrder
+    cobertura_pct_plano_teste?: SortOrder
+    passos_total_plano_teste?: SortOrder
+    resumo_executivo_plano_teste?: SortOrder
+    plano_completo_plano_teste?: SortOrder
+    status_plano_teste?: SortOrder
+    ultima_execucao_plano_teste?: SortOrderInput | SortOrder
+    ultimo_resultado_plano_teste?: SortOrderInput | SortOrder
+    data_criacao_plano_teste?: SortOrder
+    data_atualizacao_plano_teste?: SortOrder
   }
 
   export type PlanoTesteWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_plano_teste?: string
     AND?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
     OR?: PlanoTesteWhereInput[]
     NOT?: PlanoTesteWhereInput | PlanoTesteWhereInput[]
-    tenant_id?: StringFilter<"PlanoTeste"> | string
-    versao?: StringFilter<"PlanoTeste"> | string
-    tipo?: StringFilter<"PlanoTeste"> | string
-    escopo?: StringFilter<"PlanoTeste"> | string
-    sublocal?: StringFilter<"PlanoTeste"> | string
-    tela?: StringFilter<"PlanoTeste"> | string
-    rota?: StringFilter<"PlanoTeste"> | string
-    criticidade?: StringFilter<"PlanoTeste"> | string
-    ambientes?: StringNullableListFilter<"PlanoTeste">
-    componente_path?: StringFilter<"PlanoTeste"> | string
-    spec_path?: StringNullableFilter<"PlanoTeste"> | string | null
-    mapeamento_path?: StringFilter<"PlanoTeste"> | string
-    cobertura_pct?: IntFilter<"PlanoTeste"> | number
-    passos_total?: IntFilter<"PlanoTeste"> | number
-    resumo_executivo?: StringFilter<"PlanoTeste"> | string
-    plano_completo?: JsonFilter<"PlanoTeste">
-    status?: StringFilter<"PlanoTeste"> | string
-    ultima_execucao?: DateTimeNullableFilter<"PlanoTeste"> | Date | string | null
-    ultimo_resultado?: StringNullableFilter<"PlanoTeste"> | string | null
-    created_at?: DateTimeFilter<"PlanoTeste"> | Date | string
-    updated_at?: DateTimeFilter<"PlanoTeste"> | Date | string
-  }, "id">
+    id_organizacao_plano_teste?: StringFilter<"PlanoTeste"> | string
+    versao_plano_teste?: StringFilter<"PlanoTeste"> | string
+    tipo_plano_teste?: StringFilter<"PlanoTeste"> | string
+    escopo_plano_teste?: StringFilter<"PlanoTeste"> | string
+    sublocal_plano_teste?: StringFilter<"PlanoTeste"> | string
+    tela_plano_teste?: StringFilter<"PlanoTeste"> | string
+    rota_plano_teste?: StringFilter<"PlanoTeste"> | string
+    criticidade_plano_teste?: StringFilter<"PlanoTeste"> | string
+    ambientes_plano_teste?: StringNullableListFilter<"PlanoTeste">
+    caminho_componente_plano_teste?: StringFilter<"PlanoTeste"> | string
+    caminho_spec_plano_teste?: StringNullableFilter<"PlanoTeste"> | string | null
+    caminho_mapeamento_plano_teste?: StringFilter<"PlanoTeste"> | string
+    cobertura_pct_plano_teste?: IntFilter<"PlanoTeste"> | number
+    passos_total_plano_teste?: IntFilter<"PlanoTeste"> | number
+    resumo_executivo_plano_teste?: StringFilter<"PlanoTeste"> | string
+    plano_completo_plano_teste?: JsonFilter<"PlanoTeste">
+    status_plano_teste?: StringFilter<"PlanoTeste"> | string
+    ultima_execucao_plano_teste?: DateTimeNullableFilter<"PlanoTeste"> | Date | string | null
+    ultimo_resultado_plano_teste?: StringNullableFilter<"PlanoTeste"> | string | null
+    data_criacao_plano_teste?: DateTimeFilter<"PlanoTeste"> | Date | string
+    data_atualizacao_plano_teste?: DateTimeFilter<"PlanoTeste"> | Date | string
+  }, "id_plano_teste">
 
   export type PlanoTesteOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    versao?: SortOrder
-    tipo?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrder
-    tela?: SortOrder
-    rota?: SortOrder
-    criticidade?: SortOrder
-    ambientes?: SortOrder
-    componente_path?: SortOrder
-    spec_path?: SortOrderInput | SortOrder
-    mapeamento_path?: SortOrder
-    cobertura_pct?: SortOrder
-    passos_total?: SortOrder
-    resumo_executivo?: SortOrder
-    plano_completo?: SortOrder
-    status?: SortOrder
-    ultima_execucao?: SortOrderInput | SortOrder
-    ultimo_resultado?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_plano_teste?: SortOrder
+    id_organizacao_plano_teste?: SortOrder
+    versao_plano_teste?: SortOrder
+    tipo_plano_teste?: SortOrder
+    escopo_plano_teste?: SortOrder
+    sublocal_plano_teste?: SortOrder
+    tela_plano_teste?: SortOrder
+    rota_plano_teste?: SortOrder
+    criticidade_plano_teste?: SortOrder
+    ambientes_plano_teste?: SortOrder
+    caminho_componente_plano_teste?: SortOrder
+    caminho_spec_plano_teste?: SortOrderInput | SortOrder
+    caminho_mapeamento_plano_teste?: SortOrder
+    cobertura_pct_plano_teste?: SortOrder
+    passos_total_plano_teste?: SortOrder
+    resumo_executivo_plano_teste?: SortOrder
+    plano_completo_plano_teste?: SortOrder
+    status_plano_teste?: SortOrder
+    ultima_execucao_plano_teste?: SortOrderInput | SortOrder
+    ultimo_resultado_plano_teste?: SortOrderInput | SortOrder
+    data_criacao_plano_teste?: SortOrder
+    data_atualizacao_plano_teste?: SortOrder
     _count?: PlanoTesteCountOrderByAggregateInput
     _avg?: PlanoTesteAvgOrderByAggregateInput
     _max?: PlanoTesteMaxOrderByAggregateInput
@@ -28952,28 +28952,28 @@ export namespace Prisma {
     AND?: PlanoTesteScalarWhereWithAggregatesInput | PlanoTesteScalarWhereWithAggregatesInput[]
     OR?: PlanoTesteScalarWhereWithAggregatesInput[]
     NOT?: PlanoTesteScalarWhereWithAggregatesInput | PlanoTesteScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    tenant_id?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    versao?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    tipo?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    escopo?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    sublocal?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    tela?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    rota?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    criticidade?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    ambientes?: StringNullableListFilter<"PlanoTeste">
-    componente_path?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    spec_path?: StringNullableWithAggregatesFilter<"PlanoTeste"> | string | null
-    mapeamento_path?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    cobertura_pct?: IntWithAggregatesFilter<"PlanoTeste"> | number
-    passos_total?: IntWithAggregatesFilter<"PlanoTeste"> | number
-    resumo_executivo?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    plano_completo?: JsonWithAggregatesFilter<"PlanoTeste">
-    status?: StringWithAggregatesFilter<"PlanoTeste"> | string
-    ultima_execucao?: DateTimeNullableWithAggregatesFilter<"PlanoTeste"> | Date | string | null
-    ultimo_resultado?: StringNullableWithAggregatesFilter<"PlanoTeste"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"PlanoTeste"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"PlanoTeste"> | Date | string
+    id_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    id_organizacao_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    versao_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    tipo_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    escopo_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    sublocal_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    tela_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    rota_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    criticidade_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    ambientes_plano_teste?: StringNullableListFilter<"PlanoTeste">
+    caminho_componente_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    caminho_spec_plano_teste?: StringNullableWithAggregatesFilter<"PlanoTeste"> | string | null
+    caminho_mapeamento_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    cobertura_pct_plano_teste?: IntWithAggregatesFilter<"PlanoTeste"> | number
+    passos_total_plano_teste?: IntWithAggregatesFilter<"PlanoTeste"> | number
+    resumo_executivo_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    plano_completo_plano_teste?: JsonWithAggregatesFilter<"PlanoTeste">
+    status_plano_teste?: StringWithAggregatesFilter<"PlanoTeste"> | string
+    ultima_execucao_plano_teste?: DateTimeNullableWithAggregatesFilter<"PlanoTeste"> | Date | string | null
+    ultimo_resultado_plano_teste?: StringNullableWithAggregatesFilter<"PlanoTeste"> | string | null
+    data_criacao_plano_teste?: DateTimeWithAggregatesFilter<"PlanoTeste"> | Date | string
+    data_atualizacao_plano_teste?: DateTimeWithAggregatesFilter<"PlanoTeste"> | Date | string
   }
 
   export type FaturaProdutosGravityWhereInput = {
@@ -30874,437 +30874,437 @@ export namespace Prisma {
   }
 
   export type TestesCreateInput = {
-    id?: string
-    tenant_id?: string
-    type: string
-    escopo: string
-    sublocal?: string | null
-    module: string
-    test_name: string
-    test_id?: string | null
-    result: string
-    duration: string
-    error_log?: string | null
-    ai_analysis?: NullableJsonNullValueInput | InputJsonValue
-    screenshot?: string | null
-    ambiente?: string
-    run_id?: string | null
-    triggered_by?: string | null
-    created_at?: Date | string
+    id_testes?: string
+    id_organizacao_testes?: string
+    tipo_testes: string
+    escopo_testes: string
+    sublocal_testes?: string | null
+    modulo_testes: string
+    nome_testes: string
+    id_plano_testes?: string | null
+    resultado_testes: string
+    duracao_testes: string
+    log_erro_testes?: string | null
+    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_testes?: string | null
+    ambiente_testes?: string
+    id_execucao_testes?: string | null
+    disparado_por_testes?: string | null
+    data_criacao_testes?: Date | string
   }
 
   export type TestesUncheckedCreateInput = {
-    id?: string
-    tenant_id?: string
-    type: string
-    escopo: string
-    sublocal?: string | null
-    module: string
-    test_name: string
-    test_id?: string | null
-    result: string
-    duration: string
-    error_log?: string | null
-    ai_analysis?: NullableJsonNullValueInput | InputJsonValue
-    screenshot?: string | null
-    ambiente?: string
-    run_id?: string | null
-    triggered_by?: string | null
-    created_at?: Date | string
+    id_testes?: string
+    id_organizacao_testes?: string
+    tipo_testes: string
+    escopo_testes: string
+    sublocal_testes?: string | null
+    modulo_testes: string
+    nome_testes: string
+    id_plano_testes?: string | null
+    resultado_testes: string
+    duracao_testes: string
+    log_erro_testes?: string | null
+    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_testes?: string | null
+    ambiente_testes?: string
+    id_execucao_testes?: string | null
+    disparado_por_testes?: string | null
+    data_criacao_testes?: Date | string
   }
 
   export type TestesUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    escopo?: StringFieldUpdateOperationsInput | string
-    sublocal?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: StringFieldUpdateOperationsInput | string
-    test_name?: StringFieldUpdateOperationsInput | string
-    test_id?: NullableStringFieldUpdateOperationsInput | string | null
-    result?: StringFieldUpdateOperationsInput | string
-    duration?: StringFieldUpdateOperationsInput | string
-    error_log?: NullableStringFieldUpdateOperationsInput | string | null
-    ai_analysis?: NullableJsonNullValueInput | InputJsonValue
-    screenshot?: NullableStringFieldUpdateOperationsInput | string | null
-    ambiente?: StringFieldUpdateOperationsInput | string
-    run_id?: NullableStringFieldUpdateOperationsInput | string | null
-    triggered_by?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_testes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_testes?: StringFieldUpdateOperationsInput | string
+    tipo_testes?: StringFieldUpdateOperationsInput | string
+    escopo_testes?: StringFieldUpdateOperationsInput | string
+    sublocal_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_testes?: StringFieldUpdateOperationsInput | string
+    nome_testes?: StringFieldUpdateOperationsInput | string
+    id_plano_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_testes?: StringFieldUpdateOperationsInput | string
+    duracao_testes?: StringFieldUpdateOperationsInput | string
+    log_erro_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_testes?: StringFieldUpdateOperationsInput | string
+    id_execucao_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TestesUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    escopo?: StringFieldUpdateOperationsInput | string
-    sublocal?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: StringFieldUpdateOperationsInput | string
-    test_name?: StringFieldUpdateOperationsInput | string
-    test_id?: NullableStringFieldUpdateOperationsInput | string | null
-    result?: StringFieldUpdateOperationsInput | string
-    duration?: StringFieldUpdateOperationsInput | string
-    error_log?: NullableStringFieldUpdateOperationsInput | string | null
-    ai_analysis?: NullableJsonNullValueInput | InputJsonValue
-    screenshot?: NullableStringFieldUpdateOperationsInput | string | null
-    ambiente?: StringFieldUpdateOperationsInput | string
-    run_id?: NullableStringFieldUpdateOperationsInput | string | null
-    triggered_by?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_testes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_testes?: StringFieldUpdateOperationsInput | string
+    tipo_testes?: StringFieldUpdateOperationsInput | string
+    escopo_testes?: StringFieldUpdateOperationsInput | string
+    sublocal_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_testes?: StringFieldUpdateOperationsInput | string
+    nome_testes?: StringFieldUpdateOperationsInput | string
+    id_plano_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_testes?: StringFieldUpdateOperationsInput | string
+    duracao_testes?: StringFieldUpdateOperationsInput | string
+    log_erro_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_testes?: StringFieldUpdateOperationsInput | string
+    id_execucao_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TestesCreateManyInput = {
-    id?: string
-    tenant_id?: string
-    type: string
-    escopo: string
-    sublocal?: string | null
-    module: string
-    test_name: string
-    test_id?: string | null
-    result: string
-    duration: string
-    error_log?: string | null
-    ai_analysis?: NullableJsonNullValueInput | InputJsonValue
-    screenshot?: string | null
-    ambiente?: string
-    run_id?: string | null
-    triggered_by?: string | null
-    created_at?: Date | string
+    id_testes?: string
+    id_organizacao_testes?: string
+    tipo_testes: string
+    escopo_testes: string
+    sublocal_testes?: string | null
+    modulo_testes: string
+    nome_testes: string
+    id_plano_testes?: string | null
+    resultado_testes: string
+    duracao_testes: string
+    log_erro_testes?: string | null
+    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_testes?: string | null
+    ambiente_testes?: string
+    id_execucao_testes?: string | null
+    disparado_por_testes?: string | null
+    data_criacao_testes?: Date | string
   }
 
   export type TestesUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    escopo?: StringFieldUpdateOperationsInput | string
-    sublocal?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: StringFieldUpdateOperationsInput | string
-    test_name?: StringFieldUpdateOperationsInput | string
-    test_id?: NullableStringFieldUpdateOperationsInput | string | null
-    result?: StringFieldUpdateOperationsInput | string
-    duration?: StringFieldUpdateOperationsInput | string
-    error_log?: NullableStringFieldUpdateOperationsInput | string | null
-    ai_analysis?: NullableJsonNullValueInput | InputJsonValue
-    screenshot?: NullableStringFieldUpdateOperationsInput | string | null
-    ambiente?: StringFieldUpdateOperationsInput | string
-    run_id?: NullableStringFieldUpdateOperationsInput | string | null
-    triggered_by?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_testes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_testes?: StringFieldUpdateOperationsInput | string
+    tipo_testes?: StringFieldUpdateOperationsInput | string
+    escopo_testes?: StringFieldUpdateOperationsInput | string
+    sublocal_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_testes?: StringFieldUpdateOperationsInput | string
+    nome_testes?: StringFieldUpdateOperationsInput | string
+    id_plano_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_testes?: StringFieldUpdateOperationsInput | string
+    duracao_testes?: StringFieldUpdateOperationsInput | string
+    log_erro_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_testes?: StringFieldUpdateOperationsInput | string
+    id_execucao_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TestesUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    escopo?: StringFieldUpdateOperationsInput | string
-    sublocal?: NullableStringFieldUpdateOperationsInput | string | null
-    module?: StringFieldUpdateOperationsInput | string
-    test_name?: StringFieldUpdateOperationsInput | string
-    test_id?: NullableStringFieldUpdateOperationsInput | string | null
-    result?: StringFieldUpdateOperationsInput | string
-    duration?: StringFieldUpdateOperationsInput | string
-    error_log?: NullableStringFieldUpdateOperationsInput | string | null
-    ai_analysis?: NullableJsonNullValueInput | InputJsonValue
-    screenshot?: NullableStringFieldUpdateOperationsInput | string | null
-    ambiente?: StringFieldUpdateOperationsInput | string
-    run_id?: NullableStringFieldUpdateOperationsInput | string | null
-    triggered_by?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_testes?: StringFieldUpdateOperationsInput | string
+    id_organizacao_testes?: StringFieldUpdateOperationsInput | string
+    tipo_testes?: StringFieldUpdateOperationsInput | string
+    escopo_testes?: StringFieldUpdateOperationsInput | string
+    sublocal_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    modulo_testes?: StringFieldUpdateOperationsInput | string
+    nome_testes?: StringFieldUpdateOperationsInput | string
+    id_plano_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    resultado_testes?: StringFieldUpdateOperationsInput | string
+    duracao_testes?: StringFieldUpdateOperationsInput | string
+    log_erro_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    analise_ia_testes?: NullableJsonNullValueInput | InputJsonValue
+    screenshot_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    ambiente_testes?: StringFieldUpdateOperationsInput | string
+    id_execucao_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    disparado_por_testes?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_testes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AgendamentoTesteCreateInput = {
-    id?: string
-    tenant_id?: string
-    ativo?: boolean
-    frequencia?: string
-    hora?: number
-    minuto?: number
-    tipos: JsonNullValueInput | InputJsonValue
-    escopos?: AgendamentoTesteCreateescoposInput | string[]
-    ambiente?: string
-    alertas?: JsonNullValueInput | InputJsonValue
-    ultima_exec?: Date | string | null
-    proxima_exec?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_agendamento_teste?: string
+    id_organizacao_agendamento_teste?: string
+    ativo_agendamento_teste?: boolean
+    frequencia_agendamento_teste?: string
+    hora_agendamento_teste?: number
+    minuto_agendamento_teste?: number
+    tipos_agendamento_teste: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: AgendamentoTesteCreateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: Date | string | null
+    proxima_execucao_agendamento_teste?: Date | string | null
+    data_criacao_agendamento_teste?: Date | string
+    data_atualizacao_agendamento_teste?: Date | string
   }
 
   export type AgendamentoTesteUncheckedCreateInput = {
-    id?: string
-    tenant_id?: string
-    ativo?: boolean
-    frequencia?: string
-    hora?: number
-    minuto?: number
-    tipos: JsonNullValueInput | InputJsonValue
-    escopos?: AgendamentoTesteCreateescoposInput | string[]
-    ambiente?: string
-    alertas?: JsonNullValueInput | InputJsonValue
-    ultima_exec?: Date | string | null
-    proxima_exec?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_agendamento_teste?: string
+    id_organizacao_agendamento_teste?: string
+    ativo_agendamento_teste?: boolean
+    frequencia_agendamento_teste?: string
+    hora_agendamento_teste?: number
+    minuto_agendamento_teste?: number
+    tipos_agendamento_teste: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: AgendamentoTesteCreateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: Date | string | null
+    proxima_execucao_agendamento_teste?: Date | string | null
+    data_criacao_agendamento_teste?: Date | string
+    data_atualizacao_agendamento_teste?: Date | string
   }
 
   export type AgendamentoTesteUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    frequencia?: StringFieldUpdateOperationsInput | string
-    hora?: IntFieldUpdateOperationsInput | number
-    minuto?: IntFieldUpdateOperationsInput | number
-    tipos?: JsonNullValueInput | InputJsonValue
-    escopos?: AgendamentoTesteUpdateescoposInput | string[]
-    ambiente?: StringFieldUpdateOperationsInput | string
-    alertas?: JsonNullValueInput | InputJsonValue
-    ultima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    proxima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: AgendamentoTesteUpdateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proxima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AgendamentoTesteUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    frequencia?: StringFieldUpdateOperationsInput | string
-    hora?: IntFieldUpdateOperationsInput | number
-    minuto?: IntFieldUpdateOperationsInput | number
-    tipos?: JsonNullValueInput | InputJsonValue
-    escopos?: AgendamentoTesteUpdateescoposInput | string[]
-    ambiente?: StringFieldUpdateOperationsInput | string
-    alertas?: JsonNullValueInput | InputJsonValue
-    ultima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    proxima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: AgendamentoTesteUpdateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proxima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AgendamentoTesteCreateManyInput = {
-    id?: string
-    tenant_id?: string
-    ativo?: boolean
-    frequencia?: string
-    hora?: number
-    minuto?: number
-    tipos: JsonNullValueInput | InputJsonValue
-    escopos?: AgendamentoTesteCreateescoposInput | string[]
-    ambiente?: string
-    alertas?: JsonNullValueInput | InputJsonValue
-    ultima_exec?: Date | string | null
-    proxima_exec?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_agendamento_teste?: string
+    id_organizacao_agendamento_teste?: string
+    ativo_agendamento_teste?: boolean
+    frequencia_agendamento_teste?: string
+    hora_agendamento_teste?: number
+    minuto_agendamento_teste?: number
+    tipos_agendamento_teste: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: AgendamentoTesteCreateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: Date | string | null
+    proxima_execucao_agendamento_teste?: Date | string | null
+    data_criacao_agendamento_teste?: Date | string
+    data_atualizacao_agendamento_teste?: Date | string
   }
 
   export type AgendamentoTesteUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    frequencia?: StringFieldUpdateOperationsInput | string
-    hora?: IntFieldUpdateOperationsInput | number
-    minuto?: IntFieldUpdateOperationsInput | number
-    tipos?: JsonNullValueInput | InputJsonValue
-    escopos?: AgendamentoTesteUpdateescoposInput | string[]
-    ambiente?: StringFieldUpdateOperationsInput | string
-    alertas?: JsonNullValueInput | InputJsonValue
-    ultima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    proxima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: AgendamentoTesteUpdateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proxima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AgendamentoTesteUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    ativo?: BoolFieldUpdateOperationsInput | boolean
-    frequencia?: StringFieldUpdateOperationsInput | string
-    hora?: IntFieldUpdateOperationsInput | number
-    minuto?: IntFieldUpdateOperationsInput | number
-    tipos?: JsonNullValueInput | InputJsonValue
-    escopos?: AgendamentoTesteUpdateescoposInput | string[]
-    ambiente?: StringFieldUpdateOperationsInput | string
-    alertas?: JsonNullValueInput | InputJsonValue
-    ultima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    proxima_exec?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    ativo_agendamento_teste?: BoolFieldUpdateOperationsInput | boolean
+    frequencia_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    hora_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    minuto_agendamento_teste?: IntFieldUpdateOperationsInput | number
+    tipos_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    escopos_agendamento_teste?: AgendamentoTesteUpdateescopos_agendamento_testeInput | string[]
+    ambiente_agendamento_teste?: StringFieldUpdateOperationsInput | string
+    alertas_agendamento_teste?: JsonNullValueInput | InputJsonValue
+    ultima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proxima_execucao_agendamento_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_agendamento_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PlanoTesteCreateInput = {
-    id: string
-    tenant_id?: string
-    versao?: string
-    tipo: string
-    escopo: string
-    sublocal: string
-    tela: string
-    rota: string
-    criticidade?: string
-    ambientes?: PlanoTesteCreateambientesInput | string[]
-    componente_path: string
-    spec_path?: string | null
-    mapeamento_path: string
-    cobertura_pct?: number
-    passos_total?: number
-    resumo_executivo: string
-    plano_completo: JsonNullValueInput | InputJsonValue
-    status?: string
-    ultima_execucao?: Date | string | null
-    ultimo_resultado?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_plano_teste: string
+    id_organizacao_plano_teste?: string
+    versao_plano_teste?: string
+    tipo_plano_teste: string
+    escopo_plano_teste: string
+    sublocal_plano_teste: string
+    tela_plano_teste: string
+    rota_plano_teste: string
+    criticidade_plano_teste?: string
+    ambientes_plano_teste?: PlanoTesteCreateambientes_plano_testeInput | string[]
+    caminho_componente_plano_teste: string
+    caminho_spec_plano_teste?: string | null
+    caminho_mapeamento_plano_teste: string
+    cobertura_pct_plano_teste?: number
+    passos_total_plano_teste?: number
+    resumo_executivo_plano_teste: string
+    plano_completo_plano_teste: JsonNullValueInput | InputJsonValue
+    status_plano_teste?: string
+    ultima_execucao_plano_teste?: Date | string | null
+    ultimo_resultado_plano_teste?: string | null
+    data_criacao_plano_teste?: Date | string
+    data_atualizacao_plano_teste?: Date | string
   }
 
   export type PlanoTesteUncheckedCreateInput = {
-    id: string
-    tenant_id?: string
-    versao?: string
-    tipo: string
-    escopo: string
-    sublocal: string
-    tela: string
-    rota: string
-    criticidade?: string
-    ambientes?: PlanoTesteCreateambientesInput | string[]
-    componente_path: string
-    spec_path?: string | null
-    mapeamento_path: string
-    cobertura_pct?: number
-    passos_total?: number
-    resumo_executivo: string
-    plano_completo: JsonNullValueInput | InputJsonValue
-    status?: string
-    ultima_execucao?: Date | string | null
-    ultimo_resultado?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_plano_teste: string
+    id_organizacao_plano_teste?: string
+    versao_plano_teste?: string
+    tipo_plano_teste: string
+    escopo_plano_teste: string
+    sublocal_plano_teste: string
+    tela_plano_teste: string
+    rota_plano_teste: string
+    criticidade_plano_teste?: string
+    ambientes_plano_teste?: PlanoTesteCreateambientes_plano_testeInput | string[]
+    caminho_componente_plano_teste: string
+    caminho_spec_plano_teste?: string | null
+    caminho_mapeamento_plano_teste: string
+    cobertura_pct_plano_teste?: number
+    passos_total_plano_teste?: number
+    resumo_executivo_plano_teste: string
+    plano_completo_plano_teste: JsonNullValueInput | InputJsonValue
+    status_plano_teste?: string
+    ultima_execucao_plano_teste?: Date | string | null
+    ultimo_resultado_plano_teste?: string | null
+    data_criacao_plano_teste?: Date | string
+    data_atualizacao_plano_teste?: Date | string
   }
 
   export type PlanoTesteUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    versao?: StringFieldUpdateOperationsInput | string
-    tipo?: StringFieldUpdateOperationsInput | string
-    escopo?: StringFieldUpdateOperationsInput | string
-    sublocal?: StringFieldUpdateOperationsInput | string
-    tela?: StringFieldUpdateOperationsInput | string
-    rota?: StringFieldUpdateOperationsInput | string
-    criticidade?: StringFieldUpdateOperationsInput | string
-    ambientes?: PlanoTesteUpdateambientesInput | string[]
-    componente_path?: StringFieldUpdateOperationsInput | string
-    spec_path?: NullableStringFieldUpdateOperationsInput | string | null
-    mapeamento_path?: StringFieldUpdateOperationsInput | string
-    cobertura_pct?: IntFieldUpdateOperationsInput | number
-    passos_total?: IntFieldUpdateOperationsInput | number
-    resumo_executivo?: StringFieldUpdateOperationsInput | string
-    plano_completo?: JsonNullValueInput | InputJsonValue
-    status?: StringFieldUpdateOperationsInput | string
-    ultima_execucao?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ultimo_resultado?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_plano_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
+    versao_plano_teste?: StringFieldUpdateOperationsInput | string
+    tipo_plano_teste?: StringFieldUpdateOperationsInput | string
+    escopo_plano_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_plano_teste?: StringFieldUpdateOperationsInput | string
+    tela_plano_teste?: StringFieldUpdateOperationsInput | string
+    rota_plano_teste?: StringFieldUpdateOperationsInput | string
+    criticidade_plano_teste?: StringFieldUpdateOperationsInput | string
+    ambientes_plano_teste?: PlanoTesteUpdateambientes_plano_testeInput | string[]
+    caminho_componente_plano_teste?: StringFieldUpdateOperationsInput | string
+    caminho_spec_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    caminho_mapeamento_plano_teste?: StringFieldUpdateOperationsInput | string
+    cobertura_pct_plano_teste?: IntFieldUpdateOperationsInput | number
+    passos_total_plano_teste?: IntFieldUpdateOperationsInput | number
+    resumo_executivo_plano_teste?: StringFieldUpdateOperationsInput | string
+    plano_completo_plano_teste?: JsonNullValueInput | InputJsonValue
+    status_plano_teste?: StringFieldUpdateOperationsInput | string
+    ultima_execucao_plano_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ultimo_resultado_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PlanoTesteUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    versao?: StringFieldUpdateOperationsInput | string
-    tipo?: StringFieldUpdateOperationsInput | string
-    escopo?: StringFieldUpdateOperationsInput | string
-    sublocal?: StringFieldUpdateOperationsInput | string
-    tela?: StringFieldUpdateOperationsInput | string
-    rota?: StringFieldUpdateOperationsInput | string
-    criticidade?: StringFieldUpdateOperationsInput | string
-    ambientes?: PlanoTesteUpdateambientesInput | string[]
-    componente_path?: StringFieldUpdateOperationsInput | string
-    spec_path?: NullableStringFieldUpdateOperationsInput | string | null
-    mapeamento_path?: StringFieldUpdateOperationsInput | string
-    cobertura_pct?: IntFieldUpdateOperationsInput | number
-    passos_total?: IntFieldUpdateOperationsInput | number
-    resumo_executivo?: StringFieldUpdateOperationsInput | string
-    plano_completo?: JsonNullValueInput | InputJsonValue
-    status?: StringFieldUpdateOperationsInput | string
-    ultima_execucao?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ultimo_resultado?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_plano_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
+    versao_plano_teste?: StringFieldUpdateOperationsInput | string
+    tipo_plano_teste?: StringFieldUpdateOperationsInput | string
+    escopo_plano_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_plano_teste?: StringFieldUpdateOperationsInput | string
+    tela_plano_teste?: StringFieldUpdateOperationsInput | string
+    rota_plano_teste?: StringFieldUpdateOperationsInput | string
+    criticidade_plano_teste?: StringFieldUpdateOperationsInput | string
+    ambientes_plano_teste?: PlanoTesteUpdateambientes_plano_testeInput | string[]
+    caminho_componente_plano_teste?: StringFieldUpdateOperationsInput | string
+    caminho_spec_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    caminho_mapeamento_plano_teste?: StringFieldUpdateOperationsInput | string
+    cobertura_pct_plano_teste?: IntFieldUpdateOperationsInput | number
+    passos_total_plano_teste?: IntFieldUpdateOperationsInput | number
+    resumo_executivo_plano_teste?: StringFieldUpdateOperationsInput | string
+    plano_completo_plano_teste?: JsonNullValueInput | InputJsonValue
+    status_plano_teste?: StringFieldUpdateOperationsInput | string
+    ultima_execucao_plano_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ultimo_resultado_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PlanoTesteCreateManyInput = {
-    id: string
-    tenant_id?: string
-    versao?: string
-    tipo: string
-    escopo: string
-    sublocal: string
-    tela: string
-    rota: string
-    criticidade?: string
-    ambientes?: PlanoTesteCreateambientesInput | string[]
-    componente_path: string
-    spec_path?: string | null
-    mapeamento_path: string
-    cobertura_pct?: number
-    passos_total?: number
-    resumo_executivo: string
-    plano_completo: JsonNullValueInput | InputJsonValue
-    status?: string
-    ultima_execucao?: Date | string | null
-    ultimo_resultado?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_plano_teste: string
+    id_organizacao_plano_teste?: string
+    versao_plano_teste?: string
+    tipo_plano_teste: string
+    escopo_plano_teste: string
+    sublocal_plano_teste: string
+    tela_plano_teste: string
+    rota_plano_teste: string
+    criticidade_plano_teste?: string
+    ambientes_plano_teste?: PlanoTesteCreateambientes_plano_testeInput | string[]
+    caminho_componente_plano_teste: string
+    caminho_spec_plano_teste?: string | null
+    caminho_mapeamento_plano_teste: string
+    cobertura_pct_plano_teste?: number
+    passos_total_plano_teste?: number
+    resumo_executivo_plano_teste: string
+    plano_completo_plano_teste: JsonNullValueInput | InputJsonValue
+    status_plano_teste?: string
+    ultima_execucao_plano_teste?: Date | string | null
+    ultimo_resultado_plano_teste?: string | null
+    data_criacao_plano_teste?: Date | string
+    data_atualizacao_plano_teste?: Date | string
   }
 
   export type PlanoTesteUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    versao?: StringFieldUpdateOperationsInput | string
-    tipo?: StringFieldUpdateOperationsInput | string
-    escopo?: StringFieldUpdateOperationsInput | string
-    sublocal?: StringFieldUpdateOperationsInput | string
-    tela?: StringFieldUpdateOperationsInput | string
-    rota?: StringFieldUpdateOperationsInput | string
-    criticidade?: StringFieldUpdateOperationsInput | string
-    ambientes?: PlanoTesteUpdateambientesInput | string[]
-    componente_path?: StringFieldUpdateOperationsInput | string
-    spec_path?: NullableStringFieldUpdateOperationsInput | string | null
-    mapeamento_path?: StringFieldUpdateOperationsInput | string
-    cobertura_pct?: IntFieldUpdateOperationsInput | number
-    passos_total?: IntFieldUpdateOperationsInput | number
-    resumo_executivo?: StringFieldUpdateOperationsInput | string
-    plano_completo?: JsonNullValueInput | InputJsonValue
-    status?: StringFieldUpdateOperationsInput | string
-    ultima_execucao?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ultimo_resultado?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_plano_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
+    versao_plano_teste?: StringFieldUpdateOperationsInput | string
+    tipo_plano_teste?: StringFieldUpdateOperationsInput | string
+    escopo_plano_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_plano_teste?: StringFieldUpdateOperationsInput | string
+    tela_plano_teste?: StringFieldUpdateOperationsInput | string
+    rota_plano_teste?: StringFieldUpdateOperationsInput | string
+    criticidade_plano_teste?: StringFieldUpdateOperationsInput | string
+    ambientes_plano_teste?: PlanoTesteUpdateambientes_plano_testeInput | string[]
+    caminho_componente_plano_teste?: StringFieldUpdateOperationsInput | string
+    caminho_spec_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    caminho_mapeamento_plano_teste?: StringFieldUpdateOperationsInput | string
+    cobertura_pct_plano_teste?: IntFieldUpdateOperationsInput | number
+    passos_total_plano_teste?: IntFieldUpdateOperationsInput | number
+    resumo_executivo_plano_teste?: StringFieldUpdateOperationsInput | string
+    plano_completo_plano_teste?: JsonNullValueInput | InputJsonValue
+    status_plano_teste?: StringFieldUpdateOperationsInput | string
+    ultima_execucao_plano_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ultimo_resultado_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PlanoTesteUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    versao?: StringFieldUpdateOperationsInput | string
-    tipo?: StringFieldUpdateOperationsInput | string
-    escopo?: StringFieldUpdateOperationsInput | string
-    sublocal?: StringFieldUpdateOperationsInput | string
-    tela?: StringFieldUpdateOperationsInput | string
-    rota?: StringFieldUpdateOperationsInput | string
-    criticidade?: StringFieldUpdateOperationsInput | string
-    ambientes?: PlanoTesteUpdateambientesInput | string[]
-    componente_path?: StringFieldUpdateOperationsInput | string
-    spec_path?: NullableStringFieldUpdateOperationsInput | string | null
-    mapeamento_path?: StringFieldUpdateOperationsInput | string
-    cobertura_pct?: IntFieldUpdateOperationsInput | number
-    passos_total?: IntFieldUpdateOperationsInput | number
-    resumo_executivo?: StringFieldUpdateOperationsInput | string
-    plano_completo?: JsonNullValueInput | InputJsonValue
-    status?: StringFieldUpdateOperationsInput | string
-    ultima_execucao?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    ultimo_resultado?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_plano_teste?: StringFieldUpdateOperationsInput | string
+    id_organizacao_plano_teste?: StringFieldUpdateOperationsInput | string
+    versao_plano_teste?: StringFieldUpdateOperationsInput | string
+    tipo_plano_teste?: StringFieldUpdateOperationsInput | string
+    escopo_plano_teste?: StringFieldUpdateOperationsInput | string
+    sublocal_plano_teste?: StringFieldUpdateOperationsInput | string
+    tela_plano_teste?: StringFieldUpdateOperationsInput | string
+    rota_plano_teste?: StringFieldUpdateOperationsInput | string
+    criticidade_plano_teste?: StringFieldUpdateOperationsInput | string
+    ambientes_plano_teste?: PlanoTesteUpdateambientes_plano_testeInput | string[]
+    caminho_componente_plano_teste?: StringFieldUpdateOperationsInput | string
+    caminho_spec_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    caminho_mapeamento_plano_teste?: StringFieldUpdateOperationsInput | string
+    cobertura_pct_plano_teste?: IntFieldUpdateOperationsInput | number
+    passos_total_plano_teste?: IntFieldUpdateOperationsInput | number
+    resumo_executivo_plano_teste?: StringFieldUpdateOperationsInput | string
+    plano_completo_plano_teste?: JsonNullValueInput | InputJsonValue
+    status_plano_teste?: StringFieldUpdateOperationsInput | string
+    ultima_execucao_plano_teste?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ultimo_resultado_plano_teste?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_plano_teste?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FaturaProdutosGravityCreateInput = {
@@ -32973,61 +32973,61 @@ export namespace Prisma {
   }
 
   export type TestesCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    type?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrder
-    module?: SortOrder
-    test_name?: SortOrder
-    test_id?: SortOrder
-    result?: SortOrder
-    duration?: SortOrder
-    error_log?: SortOrder
-    ai_analysis?: SortOrder
-    screenshot?: SortOrder
-    ambiente?: SortOrder
-    run_id?: SortOrder
-    triggered_by?: SortOrder
-    created_at?: SortOrder
+    id_testes?: SortOrder
+    id_organizacao_testes?: SortOrder
+    tipo_testes?: SortOrder
+    escopo_testes?: SortOrder
+    sublocal_testes?: SortOrder
+    modulo_testes?: SortOrder
+    nome_testes?: SortOrder
+    id_plano_testes?: SortOrder
+    resultado_testes?: SortOrder
+    duracao_testes?: SortOrder
+    log_erro_testes?: SortOrder
+    analise_ia_testes?: SortOrder
+    screenshot_testes?: SortOrder
+    ambiente_testes?: SortOrder
+    id_execucao_testes?: SortOrder
+    disparado_por_testes?: SortOrder
+    data_criacao_testes?: SortOrder
   }
 
   export type TestesMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    type?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrder
-    module?: SortOrder
-    test_name?: SortOrder
-    test_id?: SortOrder
-    result?: SortOrder
-    duration?: SortOrder
-    error_log?: SortOrder
-    screenshot?: SortOrder
-    ambiente?: SortOrder
-    run_id?: SortOrder
-    triggered_by?: SortOrder
-    created_at?: SortOrder
+    id_testes?: SortOrder
+    id_organizacao_testes?: SortOrder
+    tipo_testes?: SortOrder
+    escopo_testes?: SortOrder
+    sublocal_testes?: SortOrder
+    modulo_testes?: SortOrder
+    nome_testes?: SortOrder
+    id_plano_testes?: SortOrder
+    resultado_testes?: SortOrder
+    duracao_testes?: SortOrder
+    log_erro_testes?: SortOrder
+    screenshot_testes?: SortOrder
+    ambiente_testes?: SortOrder
+    id_execucao_testes?: SortOrder
+    disparado_por_testes?: SortOrder
+    data_criacao_testes?: SortOrder
   }
 
   export type TestesMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    type?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrder
-    module?: SortOrder
-    test_name?: SortOrder
-    test_id?: SortOrder
-    result?: SortOrder
-    duration?: SortOrder
-    error_log?: SortOrder
-    screenshot?: SortOrder
-    ambiente?: SortOrder
-    run_id?: SortOrder
-    triggered_by?: SortOrder
-    created_at?: SortOrder
+    id_testes?: SortOrder
+    id_organizacao_testes?: SortOrder
+    tipo_testes?: SortOrder
+    escopo_testes?: SortOrder
+    sublocal_testes?: SortOrder
+    modulo_testes?: SortOrder
+    nome_testes?: SortOrder
+    id_plano_testes?: SortOrder
+    resultado_testes?: SortOrder
+    duracao_testes?: SortOrder
+    log_erro_testes?: SortOrder
+    screenshot_testes?: SortOrder
+    ambiente_testes?: SortOrder
+    id_execucao_testes?: SortOrder
+    disparado_por_testes?: SortOrder
+    data_criacao_testes?: SortOrder
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -33039,139 +33039,139 @@ export namespace Prisma {
   }
 
   export type AgendamentoTesteCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    ativo?: SortOrder
-    frequencia?: SortOrder
-    hora?: SortOrder
-    minuto?: SortOrder
-    tipos?: SortOrder
-    escopos?: SortOrder
-    ambiente?: SortOrder
-    alertas?: SortOrder
-    ultima_exec?: SortOrder
-    proxima_exec?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_agendamento_teste?: SortOrder
+    id_organizacao_agendamento_teste?: SortOrder
+    ativo_agendamento_teste?: SortOrder
+    frequencia_agendamento_teste?: SortOrder
+    hora_agendamento_teste?: SortOrder
+    minuto_agendamento_teste?: SortOrder
+    tipos_agendamento_teste?: SortOrder
+    escopos_agendamento_teste?: SortOrder
+    ambiente_agendamento_teste?: SortOrder
+    alertas_agendamento_teste?: SortOrder
+    ultima_execucao_agendamento_teste?: SortOrder
+    proxima_execucao_agendamento_teste?: SortOrder
+    data_criacao_agendamento_teste?: SortOrder
+    data_atualizacao_agendamento_teste?: SortOrder
   }
 
   export type AgendamentoTesteAvgOrderByAggregateInput = {
-    hora?: SortOrder
-    minuto?: SortOrder
+    hora_agendamento_teste?: SortOrder
+    minuto_agendamento_teste?: SortOrder
   }
 
   export type AgendamentoTesteMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    ativo?: SortOrder
-    frequencia?: SortOrder
-    hora?: SortOrder
-    minuto?: SortOrder
-    ambiente?: SortOrder
-    ultima_exec?: SortOrder
-    proxima_exec?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_agendamento_teste?: SortOrder
+    id_organizacao_agendamento_teste?: SortOrder
+    ativo_agendamento_teste?: SortOrder
+    frequencia_agendamento_teste?: SortOrder
+    hora_agendamento_teste?: SortOrder
+    minuto_agendamento_teste?: SortOrder
+    ambiente_agendamento_teste?: SortOrder
+    ultima_execucao_agendamento_teste?: SortOrder
+    proxima_execucao_agendamento_teste?: SortOrder
+    data_criacao_agendamento_teste?: SortOrder
+    data_atualizacao_agendamento_teste?: SortOrder
   }
 
   export type AgendamentoTesteMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    ativo?: SortOrder
-    frequencia?: SortOrder
-    hora?: SortOrder
-    minuto?: SortOrder
-    ambiente?: SortOrder
-    ultima_exec?: SortOrder
-    proxima_exec?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_agendamento_teste?: SortOrder
+    id_organizacao_agendamento_teste?: SortOrder
+    ativo_agendamento_teste?: SortOrder
+    frequencia_agendamento_teste?: SortOrder
+    hora_agendamento_teste?: SortOrder
+    minuto_agendamento_teste?: SortOrder
+    ambiente_agendamento_teste?: SortOrder
+    ultima_execucao_agendamento_teste?: SortOrder
+    proxima_execucao_agendamento_teste?: SortOrder
+    data_criacao_agendamento_teste?: SortOrder
+    data_atualizacao_agendamento_teste?: SortOrder
   }
 
   export type AgendamentoTesteSumOrderByAggregateInput = {
-    hora?: SortOrder
-    minuto?: SortOrder
+    hora_agendamento_teste?: SortOrder
+    minuto_agendamento_teste?: SortOrder
   }
 
   export type PlanoTesteCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    versao?: SortOrder
-    tipo?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrder
-    tela?: SortOrder
-    rota?: SortOrder
-    criticidade?: SortOrder
-    ambientes?: SortOrder
-    componente_path?: SortOrder
-    spec_path?: SortOrder
-    mapeamento_path?: SortOrder
-    cobertura_pct?: SortOrder
-    passos_total?: SortOrder
-    resumo_executivo?: SortOrder
-    plano_completo?: SortOrder
-    status?: SortOrder
-    ultima_execucao?: SortOrder
-    ultimo_resultado?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_plano_teste?: SortOrder
+    id_organizacao_plano_teste?: SortOrder
+    versao_plano_teste?: SortOrder
+    tipo_plano_teste?: SortOrder
+    escopo_plano_teste?: SortOrder
+    sublocal_plano_teste?: SortOrder
+    tela_plano_teste?: SortOrder
+    rota_plano_teste?: SortOrder
+    criticidade_plano_teste?: SortOrder
+    ambientes_plano_teste?: SortOrder
+    caminho_componente_plano_teste?: SortOrder
+    caminho_spec_plano_teste?: SortOrder
+    caminho_mapeamento_plano_teste?: SortOrder
+    cobertura_pct_plano_teste?: SortOrder
+    passos_total_plano_teste?: SortOrder
+    resumo_executivo_plano_teste?: SortOrder
+    plano_completo_plano_teste?: SortOrder
+    status_plano_teste?: SortOrder
+    ultima_execucao_plano_teste?: SortOrder
+    ultimo_resultado_plano_teste?: SortOrder
+    data_criacao_plano_teste?: SortOrder
+    data_atualizacao_plano_teste?: SortOrder
   }
 
   export type PlanoTesteAvgOrderByAggregateInput = {
-    cobertura_pct?: SortOrder
-    passos_total?: SortOrder
+    cobertura_pct_plano_teste?: SortOrder
+    passos_total_plano_teste?: SortOrder
   }
 
   export type PlanoTesteMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    versao?: SortOrder
-    tipo?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrder
-    tela?: SortOrder
-    rota?: SortOrder
-    criticidade?: SortOrder
-    componente_path?: SortOrder
-    spec_path?: SortOrder
-    mapeamento_path?: SortOrder
-    cobertura_pct?: SortOrder
-    passos_total?: SortOrder
-    resumo_executivo?: SortOrder
-    status?: SortOrder
-    ultima_execucao?: SortOrder
-    ultimo_resultado?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_plano_teste?: SortOrder
+    id_organizacao_plano_teste?: SortOrder
+    versao_plano_teste?: SortOrder
+    tipo_plano_teste?: SortOrder
+    escopo_plano_teste?: SortOrder
+    sublocal_plano_teste?: SortOrder
+    tela_plano_teste?: SortOrder
+    rota_plano_teste?: SortOrder
+    criticidade_plano_teste?: SortOrder
+    caminho_componente_plano_teste?: SortOrder
+    caminho_spec_plano_teste?: SortOrder
+    caminho_mapeamento_plano_teste?: SortOrder
+    cobertura_pct_plano_teste?: SortOrder
+    passos_total_plano_teste?: SortOrder
+    resumo_executivo_plano_teste?: SortOrder
+    status_plano_teste?: SortOrder
+    ultima_execucao_plano_teste?: SortOrder
+    ultimo_resultado_plano_teste?: SortOrder
+    data_criacao_plano_teste?: SortOrder
+    data_atualizacao_plano_teste?: SortOrder
   }
 
   export type PlanoTesteMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    versao?: SortOrder
-    tipo?: SortOrder
-    escopo?: SortOrder
-    sublocal?: SortOrder
-    tela?: SortOrder
-    rota?: SortOrder
-    criticidade?: SortOrder
-    componente_path?: SortOrder
-    spec_path?: SortOrder
-    mapeamento_path?: SortOrder
-    cobertura_pct?: SortOrder
-    passos_total?: SortOrder
-    resumo_executivo?: SortOrder
-    status?: SortOrder
-    ultima_execucao?: SortOrder
-    ultimo_resultado?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_plano_teste?: SortOrder
+    id_organizacao_plano_teste?: SortOrder
+    versao_plano_teste?: SortOrder
+    tipo_plano_teste?: SortOrder
+    escopo_plano_teste?: SortOrder
+    sublocal_plano_teste?: SortOrder
+    tela_plano_teste?: SortOrder
+    rota_plano_teste?: SortOrder
+    criticidade_plano_teste?: SortOrder
+    caminho_componente_plano_teste?: SortOrder
+    caminho_spec_plano_teste?: SortOrder
+    caminho_mapeamento_plano_teste?: SortOrder
+    cobertura_pct_plano_teste?: SortOrder
+    passos_total_plano_teste?: SortOrder
+    resumo_executivo_plano_teste?: SortOrder
+    status_plano_teste?: SortOrder
+    ultima_execucao_plano_teste?: SortOrder
+    ultimo_resultado_plano_teste?: SortOrder
+    data_criacao_plano_teste?: SortOrder
+    data_atualizacao_plano_teste?: SortOrder
   }
 
   export type PlanoTesteSumOrderByAggregateInput = {
-    cobertura_pct?: SortOrder
-    passos_total?: SortOrder
+    cobertura_pct_plano_teste?: SortOrder
+    passos_total_plano_teste?: SortOrder
   }
 
   export type EnumFaturaStatusGravityFilter<$PrismaModel = never> = {
@@ -34131,20 +34131,20 @@ export namespace Prisma {
     set?: $Enums.DeployStatus
   }
 
-  export type AgendamentoTesteCreateescoposInput = {
+  export type AgendamentoTesteCreateescopos_agendamento_testeInput = {
     set: string[]
   }
 
-  export type AgendamentoTesteUpdateescoposInput = {
+  export type AgendamentoTesteUpdateescopos_agendamento_testeInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type PlanoTesteCreateambientesInput = {
+  export type PlanoTesteCreateambientes_plano_testeInput = {
     set: string[]
   }
 
-  export type PlanoTesteUpdateambientesInput = {
+  export type PlanoTesteUpdateambientes_plano_testeInput = {
     set?: string[]
     push?: string | string[]
   }

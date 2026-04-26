@@ -2,12 +2,11 @@
  * notificacoes/server/routes/internal.ts
  * Rota S2S para criar notificações direcionadas a outros usuários.
  *
- * Protegida por x-internal-key (timing-safe) — NUNCA exposta ao browser.
- * Chamada por outros serviços tenant (historico-global, dashboard, etc.)
- * e por produtos (bid-frete, bid-cambio, pedido) via proxy S2S.
+ * Onda 37 — DDD Servicos: campos físicos com sufixo _notificacoes_titulo_corpo;
+ * contrato público de entrada (tenant_id, user_ids, type, title, message,
+ * product_id, target_entity, target_id) preservado.
  *
- * Aceita um array de user_ids para notificação em lote (ex: alertas de
- * segurança para múltiplos admins).
+ * Protegida por x-internal-key (timing-safe) — NUNCA exposta ao browser.
  */
 
 import { Router, type Request, type Response, type NextFunction } from 'express'
@@ -36,27 +35,23 @@ const internalCreateSchema = z.object({
 export type InternalNotificationPayload = z.infer<typeof internalCreateSchema>
 
 // ─── POST /api/v1/notificacoes/internal ──────────────────────────────────────
-// Cria uma notificação para cada user_id no array. Retorna o total criado.
-// Salva target_entity + target_id (nunca URLs) — frontend monta o link via
-// buildEntityLink() na renderização.
 internalRoutes.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body = internalCreateSchema.parse(req.body)
 
     const created = await prisma.notificacoesTituloCorpo.createMany({
       data: body.user_ids.map((uid) => ({
-        tenant_id: body.tenant_id,
-        user_id: uid,
-        product_id: body.product_id ?? null,
-        type: body.type,
-        title: body.title,
-        message: body.message,
-        target_entity: body.target_entity ?? null,
-        target_id: body.target_id ?? null,
+        id_organizacao_notificacoes_titulo_corpo: body.tenant_id,
+        id_usuario_notificacoes_titulo_corpo:     uid,
+        id_produto_notificacoes_titulo_corpo:     body.product_id ?? null,
+        tipo_notificacoes_titulo_corpo:           body.type,
+        titulo_notificacoes_titulo_corpo:         body.title,
+        mensagem_notificacoes_titulo_corpo:       body.message,
+        entidade_alvo_notificacoes_titulo_corpo:  body.target_entity ?? null,
+        id_alvo_notificacoes_titulo_corpo:        body.target_id ?? null,
       })),
     })
 
-    // Push SSE para cada destinatário online
     for (const uid of body.user_ids) {
       emitToUser(uid, 'new_notification', { type: body.type })
     }

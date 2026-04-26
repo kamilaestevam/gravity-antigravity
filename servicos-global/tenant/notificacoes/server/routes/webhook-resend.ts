@@ -100,8 +100,8 @@ webhookResendRoutes.post(
     // ── Atualizar delivery_status no banco ───────────────────────────────────
     try {
       const updated = await prisma.notificacoesTituloCorpo.updateMany({
-        where: { external_id: emailId },
-        data:  { delivery_status: newStatus },
+        where: { id_externo_notificacoes_titulo_corpo: emailId },
+        data:  { status_entrega_notificacoes_titulo_corpo: newStatus },
       })
 
       if (updated.count === 0) {

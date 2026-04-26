@@ -776,43 +776,45 @@ exports.Prisma.NcmAgendamentoScalarFieldEnum = {
 };
 
 exports.Prisma.NotificacoesTituloCorpoScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  type: 'type',
-  title: 'title',
-  message: 'message',
-  read: 'read',
-  target_entity: 'target_entity',
-  target_id: 'target_id',
-  delivery_status: 'delivery_status',
-  external_id: 'external_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_notificacoes_titulo_corpo: 'id_notificacoes_titulo_corpo',
+  id_organizacao_notificacoes_titulo_corpo: 'id_organizacao_notificacoes_titulo_corpo',
+  id_produto_notificacoes_titulo_corpo: 'id_produto_notificacoes_titulo_corpo',
+  id_usuario_notificacoes_titulo_corpo: 'id_usuario_notificacoes_titulo_corpo',
+  tipo_notificacoes_titulo_corpo: 'tipo_notificacoes_titulo_corpo',
+  titulo_notificacoes_titulo_corpo: 'titulo_notificacoes_titulo_corpo',
+  mensagem_notificacoes_titulo_corpo: 'mensagem_notificacoes_titulo_corpo',
+  lida_notificacoes_titulo_corpo: 'lida_notificacoes_titulo_corpo',
+  entidade_alvo_notificacoes_titulo_corpo: 'entidade_alvo_notificacoes_titulo_corpo',
+  id_alvo_notificacoes_titulo_corpo: 'id_alvo_notificacoes_titulo_corpo',
+  status_entrega_notificacoes_titulo_corpo: 'status_entrega_notificacoes_titulo_corpo',
+  id_externo_notificacoes_titulo_corpo: 'id_externo_notificacoes_titulo_corpo',
+  data_criacao_notificacoes_titulo_corpo: 'data_criacao_notificacoes_titulo_corpo',
+  data_atualizacao_notificacoes_titulo_corpo: 'data_atualizacao_notificacoes_titulo_corpo'
 };
 
-exports.Prisma.ExternalContactScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  created_by: 'created_by',
-  name: 'name',
-  email: 'email',
-  whatsapp_phone: 'whatsapp_phone',
-  whatsapp_opt_in_at: 'whatsapp_opt_in_at',
-  notes: 'notes',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+exports.Prisma.ContatoExternoScalarFieldEnum = {
+  id_contato_externo: 'id_contato_externo',
+  id_organizacao_contato_externo: 'id_organizacao_contato_externo',
+  id_produto_contato_externo: 'id_produto_contato_externo',
+  id_usuario_contato_externo: 'id_usuario_contato_externo',
+  nome_contato_externo: 'nome_contato_externo',
+  email_contato_externo: 'email_contato_externo',
+  whatsapp_telefone_contato_externo: 'whatsapp_telefone_contato_externo',
+  whatsapp_opt_in_em_contato_externo: 'whatsapp_opt_in_em_contato_externo',
+  observacoes_contato_externo: 'observacoes_contato_externo',
+  data_criacao_contato_externo: 'data_criacao_contato_externo',
+  data_atualizacao_contato_externo: 'data_atualizacao_contato_externo'
 };
 
-exports.Prisma.TenantChannelConfigScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  email_enabled: 'email_enabled',
-  whatsapp_enabled: 'whatsapp_enabled',
-  updated_by: 'updated_by',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+exports.Prisma.ConfiguracaoCanalTenantScalarFieldEnum = {
+  id_configuracao_canal_tenant: 'id_configuracao_canal_tenant',
+  id_organizacao_configuracao_canal_tenant: 'id_organizacao_configuracao_canal_tenant',
+  id_produto_configuracao_canal_tenant: 'id_produto_configuracao_canal_tenant',
+  id_usuario_configuracao_canal_tenant: 'id_usuario_configuracao_canal_tenant',
+  email_habilitado_configuracao_canal_tenant: 'email_habilitado_configuracao_canal_tenant',
+  whatsapp_habilitado_configuracao_canal_tenant: 'whatsapp_habilitado_configuracao_canal_tenant',
+  data_criacao_configuracao_canal_tenant: 'data_criacao_configuracao_canal_tenant',
+  data_atualizacao_configuracao_canal_tenant: 'data_atualizacao_configuracao_canal_tenant'
 };
 
 exports.Prisma.SortOrder = {
@@ -978,8 +980,8 @@ exports.Prisma.ModelName = {
   NcmLog: 'NcmLog',
   NcmAgendamento: 'NcmAgendamento',
   NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
-  ExternalContact: 'ExternalContact',
-  TenantChannelConfig: 'TenantChannelConfig'
+  ContatoExterno: 'ContatoExterno',
+  ConfiguracaoCanalTenant: 'ConfiguracaoCanalTenant'
 };
 
 /**

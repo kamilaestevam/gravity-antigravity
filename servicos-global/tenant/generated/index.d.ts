@@ -229,15 +229,15 @@ export type NcmAgendamento = $Result.DefaultSelection<Prisma.$NcmAgendamentoPayl
  */
 export type NotificacoesTituloCorpo = $Result.DefaultSelection<Prisma.$NotificacoesTituloCorpoPayload>
 /**
- * Model ExternalContact
+ * Model ContatoExterno
  * 
  */
-export type ExternalContact = $Result.DefaultSelection<Prisma.$ExternalContactPayload>
+export type ContatoExterno = $Result.DefaultSelection<Prisma.$ContatoExternoPayload>
 /**
- * Model TenantChannelConfig
+ * Model ConfiguracaoCanalTenant
  * 
  */
-export type TenantChannelConfig = $Result.DefaultSelection<Prisma.$TenantChannelConfigPayload>
+export type ConfiguracaoCanalTenant = $Result.DefaultSelection<Prisma.$ConfiguracaoCanalTenantPayload>
 
 /**
  * Enums
@@ -979,24 +979,24 @@ export class PrismaClient<
   get notificacoesTituloCorpo(): Prisma.NotificacoesTituloCorpoDelegate<ExtArgs>;
 
   /**
-   * `prisma.externalContact`: Exposes CRUD operations for the **ExternalContact** model.
+   * `prisma.contatoExterno`: Exposes CRUD operations for the **ContatoExterno** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more ExternalContacts
-    * const externalContacts = await prisma.externalContact.findMany()
+    * // Fetch zero or more ContatoExternos
+    * const contatoExternos = await prisma.contatoExterno.findMany()
     * ```
     */
-  get externalContact(): Prisma.ExternalContactDelegate<ExtArgs>;
+  get contatoExterno(): Prisma.ContatoExternoDelegate<ExtArgs>;
 
   /**
-   * `prisma.tenantChannelConfig`: Exposes CRUD operations for the **TenantChannelConfig** model.
+   * `prisma.configuracaoCanalTenant`: Exposes CRUD operations for the **ConfiguracaoCanalTenant** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more TenantChannelConfigs
-    * const tenantChannelConfigs = await prisma.tenantChannelConfig.findMany()
+    * // Fetch zero or more ConfiguracaoCanalTenants
+    * const configuracaoCanalTenants = await prisma.configuracaoCanalTenant.findMany()
     * ```
     */
-  get tenantChannelConfig(): Prisma.TenantChannelConfigDelegate<ExtArgs>;
+  get configuracaoCanalTenant(): Prisma.ConfiguracaoCanalTenantDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1481,8 +1481,8 @@ export namespace Prisma {
     NcmLog: 'NcmLog',
     NcmAgendamento: 'NcmAgendamento',
     NotificacoesTituloCorpo: 'NotificacoesTituloCorpo',
-    ExternalContact: 'ExternalContact',
-    TenantChannelConfig: 'TenantChannelConfig'
+    ContatoExterno: 'ContatoExterno',
+    ConfiguracaoCanalTenant: 'ConfiguracaoCanalTenant'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1498,7 +1498,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "gabiConversa" | "gabiMensagem" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenWorkspace" | "gabiPersonalizacao" | "preferenciaWorkspace" | "ncmItem" | "ncmLog" | "ncmAgendamento" | "notificacoesTituloCorpo" | "externalContact" | "tenantChannelConfig"
+      modelProps: "atividadesDados" | "atividadesParticipantes" | "atividadesTempo" | "atividadesCronometro" | "atividadesTimer" | "tempoCriacaoRelatorio" | "emailAssuntosParticipantes" | "emailMensagem" | "emailRegistroEnvio" | "templateEmail" | "emailFilaEnvio" | "whatsappConversa" | "whatsappMensagem" | "whatsappLog" | "whatsappRegra" | "dashboardConfiguracao" | "dashboardCriar" | "dashboardMetricas" | "dashboardAlertas" | "dashboardCompartilhar" | "relatoriosSalvos" | "relatoriosConfiguracao" | "exportarJob" | "historicoLog" | "regraAlerta" | "eventoAlerta" | "notificacaoAlerta" | "exportarResultado" | "agendaUsuario" | "horarioDisponivel" | "reservaAgenda" | "configDisponibilidadeAgenda" | "gabiConversa" | "gabiMensagem" | "gabiLogUso" | "gabiTokenConsumido" | "gabiTokenWorkspace" | "gabiPersonalizacao" | "preferenciaWorkspace" | "ncmItem" | "ncmLog" | "ncmAgendamento" | "notificacoesTituloCorpo" | "contatoExterno" | "configuracaoCanalTenant"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -4512,143 +4512,143 @@ export namespace Prisma {
           }
         }
       }
-      ExternalContact: {
-        payload: Prisma.$ExternalContactPayload<ExtArgs>
-        fields: Prisma.ExternalContactFieldRefs
+      ContatoExterno: {
+        payload: Prisma.$ContatoExternoPayload<ExtArgs>
+        fields: Prisma.ContatoExternoFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.ExternalContactFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload> | null
+            args: Prisma.ContatoExternoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.ExternalContactFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           findFirst: {
-            args: Prisma.ExternalContactFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload> | null
+            args: Prisma.ContatoExternoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.ExternalContactFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           findMany: {
-            args: Prisma.ExternalContactFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>[]
+            args: Prisma.ContatoExternoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>[]
           }
           create: {
-            args: Prisma.ExternalContactCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           createMany: {
-            args: Prisma.ExternalContactCreateManyArgs<ExtArgs>
+            args: Prisma.ContatoExternoCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.ExternalContactCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>[]
+            args: Prisma.ContatoExternoCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>[]
           }
           delete: {
-            args: Prisma.ExternalContactDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           update: {
-            args: Prisma.ExternalContactUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           deleteMany: {
-            args: Prisma.ExternalContactDeleteManyArgs<ExtArgs>
+            args: Prisma.ContatoExternoDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.ExternalContactUpdateManyArgs<ExtArgs>
+            args: Prisma.ContatoExternoUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.ExternalContactUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$ExternalContactPayload>
+            args: Prisma.ContatoExternoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ContatoExternoPayload>
           }
           aggregate: {
-            args: Prisma.ExternalContactAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateExternalContact>
+            args: Prisma.ContatoExternoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateContatoExterno>
           }
           groupBy: {
-            args: Prisma.ExternalContactGroupByArgs<ExtArgs>
-            result: $Utils.Optional<ExternalContactGroupByOutputType>[]
+            args: Prisma.ContatoExternoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ContatoExternoGroupByOutputType>[]
           }
           count: {
-            args: Prisma.ExternalContactCountArgs<ExtArgs>
-            result: $Utils.Optional<ExternalContactCountAggregateOutputType> | number
+            args: Prisma.ContatoExternoCountArgs<ExtArgs>
+            result: $Utils.Optional<ContatoExternoCountAggregateOutputType> | number
           }
         }
       }
-      TenantChannelConfig: {
-        payload: Prisma.$TenantChannelConfigPayload<ExtArgs>
-        fields: Prisma.TenantChannelConfigFieldRefs
+      ConfiguracaoCanalTenant: {
+        payload: Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>
+        fields: Prisma.ConfiguracaoCanalTenantFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.TenantChannelConfigFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload> | null
+            args: Prisma.ConfiguracaoCanalTenantFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.TenantChannelConfigFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           findFirst: {
-            args: Prisma.TenantChannelConfigFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload> | null
+            args: Prisma.ConfiguracaoCanalTenantFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.TenantChannelConfigFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           findMany: {
-            args: Prisma.TenantChannelConfigFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>[]
+            args: Prisma.ConfiguracaoCanalTenantFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>[]
           }
           create: {
-            args: Prisma.TenantChannelConfigCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           createMany: {
-            args: Prisma.TenantChannelConfigCreateManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoCanalTenantCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.TenantChannelConfigCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>[]
+            args: Prisma.ConfiguracaoCanalTenantCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>[]
           }
           delete: {
-            args: Prisma.TenantChannelConfigDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           update: {
-            args: Prisma.TenantChannelConfigUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           deleteMany: {
-            args: Prisma.TenantChannelConfigDeleteManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoCanalTenantDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.TenantChannelConfigUpdateManyArgs<ExtArgs>
+            args: Prisma.ConfiguracaoCanalTenantUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.TenantChannelConfigUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TenantChannelConfigPayload>
+            args: Prisma.ConfiguracaoCanalTenantUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConfiguracaoCanalTenantPayload>
           }
           aggregate: {
-            args: Prisma.TenantChannelConfigAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateTenantChannelConfig>
+            args: Prisma.ConfiguracaoCanalTenantAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConfiguracaoCanalTenant>
           }
           groupBy: {
-            args: Prisma.TenantChannelConfigGroupByArgs<ExtArgs>
-            result: $Utils.Optional<TenantChannelConfigGroupByOutputType>[]
+            args: Prisma.ConfiguracaoCanalTenantGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConfiguracaoCanalTenantGroupByOutputType>[]
           }
           count: {
-            args: Prisma.TenantChannelConfigCountArgs<ExtArgs>
-            result: $Utils.Optional<TenantChannelConfigCountAggregateOutputType> | number
+            args: Prisma.ConfiguracaoCanalTenantCountArgs<ExtArgs>
+            result: $Utils.Optional<ConfiguracaoCanalTenantCountAggregateOutputType> | number
           }
         }
       }
@@ -47667,107 +47667,107 @@ export namespace Prisma {
   }
 
   export type NotificacoesTituloCorpoMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    type: string | null
-    title: string | null
-    message: string | null
-    read: boolean | null
-    target_entity: string | null
-    target_id: string | null
-    delivery_status: string | null
-    external_id: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_notificacoes_titulo_corpo: string | null
+    id_organizacao_notificacoes_titulo_corpo: string | null
+    id_produto_notificacoes_titulo_corpo: string | null
+    id_usuario_notificacoes_titulo_corpo: string | null
+    tipo_notificacoes_titulo_corpo: string | null
+    titulo_notificacoes_titulo_corpo: string | null
+    mensagem_notificacoes_titulo_corpo: string | null
+    lida_notificacoes_titulo_corpo: boolean | null
+    entidade_alvo_notificacoes_titulo_corpo: string | null
+    id_alvo_notificacoes_titulo_corpo: string | null
+    status_entrega_notificacoes_titulo_corpo: string | null
+    id_externo_notificacoes_titulo_corpo: string | null
+    data_criacao_notificacoes_titulo_corpo: Date | null
+    data_atualizacao_notificacoes_titulo_corpo: Date | null
   }
 
   export type NotificacoesTituloCorpoMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    type: string | null
-    title: string | null
-    message: string | null
-    read: boolean | null
-    target_entity: string | null
-    target_id: string | null
-    delivery_status: string | null
-    external_id: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_notificacoes_titulo_corpo: string | null
+    id_organizacao_notificacoes_titulo_corpo: string | null
+    id_produto_notificacoes_titulo_corpo: string | null
+    id_usuario_notificacoes_titulo_corpo: string | null
+    tipo_notificacoes_titulo_corpo: string | null
+    titulo_notificacoes_titulo_corpo: string | null
+    mensagem_notificacoes_titulo_corpo: string | null
+    lida_notificacoes_titulo_corpo: boolean | null
+    entidade_alvo_notificacoes_titulo_corpo: string | null
+    id_alvo_notificacoes_titulo_corpo: string | null
+    status_entrega_notificacoes_titulo_corpo: string | null
+    id_externo_notificacoes_titulo_corpo: string | null
+    data_criacao_notificacoes_titulo_corpo: Date | null
+    data_atualizacao_notificacoes_titulo_corpo: Date | null
   }
 
   export type NotificacoesTituloCorpoCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    type: number
-    title: number
-    message: number
-    read: number
-    target_entity: number
-    target_id: number
-    delivery_status: number
-    external_id: number
-    created_at: number
-    updated_at: number
+    id_notificacoes_titulo_corpo: number
+    id_organizacao_notificacoes_titulo_corpo: number
+    id_produto_notificacoes_titulo_corpo: number
+    id_usuario_notificacoes_titulo_corpo: number
+    tipo_notificacoes_titulo_corpo: number
+    titulo_notificacoes_titulo_corpo: number
+    mensagem_notificacoes_titulo_corpo: number
+    lida_notificacoes_titulo_corpo: number
+    entidade_alvo_notificacoes_titulo_corpo: number
+    id_alvo_notificacoes_titulo_corpo: number
+    status_entrega_notificacoes_titulo_corpo: number
+    id_externo_notificacoes_titulo_corpo: number
+    data_criacao_notificacoes_titulo_corpo: number
+    data_atualizacao_notificacoes_titulo_corpo: number
     _all: number
   }
 
 
   export type NotificacoesTituloCorpoMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    type?: true
-    title?: true
-    message?: true
-    read?: true
-    target_entity?: true
-    target_id?: true
-    delivery_status?: true
-    external_id?: true
-    created_at?: true
-    updated_at?: true
+    id_notificacoes_titulo_corpo?: true
+    id_organizacao_notificacoes_titulo_corpo?: true
+    id_produto_notificacoes_titulo_corpo?: true
+    id_usuario_notificacoes_titulo_corpo?: true
+    tipo_notificacoes_titulo_corpo?: true
+    titulo_notificacoes_titulo_corpo?: true
+    mensagem_notificacoes_titulo_corpo?: true
+    lida_notificacoes_titulo_corpo?: true
+    entidade_alvo_notificacoes_titulo_corpo?: true
+    id_alvo_notificacoes_titulo_corpo?: true
+    status_entrega_notificacoes_titulo_corpo?: true
+    id_externo_notificacoes_titulo_corpo?: true
+    data_criacao_notificacoes_titulo_corpo?: true
+    data_atualizacao_notificacoes_titulo_corpo?: true
   }
 
   export type NotificacoesTituloCorpoMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    type?: true
-    title?: true
-    message?: true
-    read?: true
-    target_entity?: true
-    target_id?: true
-    delivery_status?: true
-    external_id?: true
-    created_at?: true
-    updated_at?: true
+    id_notificacoes_titulo_corpo?: true
+    id_organizacao_notificacoes_titulo_corpo?: true
+    id_produto_notificacoes_titulo_corpo?: true
+    id_usuario_notificacoes_titulo_corpo?: true
+    tipo_notificacoes_titulo_corpo?: true
+    titulo_notificacoes_titulo_corpo?: true
+    mensagem_notificacoes_titulo_corpo?: true
+    lida_notificacoes_titulo_corpo?: true
+    entidade_alvo_notificacoes_titulo_corpo?: true
+    id_alvo_notificacoes_titulo_corpo?: true
+    status_entrega_notificacoes_titulo_corpo?: true
+    id_externo_notificacoes_titulo_corpo?: true
+    data_criacao_notificacoes_titulo_corpo?: true
+    data_atualizacao_notificacoes_titulo_corpo?: true
   }
 
   export type NotificacoesTituloCorpoCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    type?: true
-    title?: true
-    message?: true
-    read?: true
-    target_entity?: true
-    target_id?: true
-    delivery_status?: true
-    external_id?: true
-    created_at?: true
-    updated_at?: true
+    id_notificacoes_titulo_corpo?: true
+    id_organizacao_notificacoes_titulo_corpo?: true
+    id_produto_notificacoes_titulo_corpo?: true
+    id_usuario_notificacoes_titulo_corpo?: true
+    tipo_notificacoes_titulo_corpo?: true
+    titulo_notificacoes_titulo_corpo?: true
+    mensagem_notificacoes_titulo_corpo?: true
+    lida_notificacoes_titulo_corpo?: true
+    entidade_alvo_notificacoes_titulo_corpo?: true
+    id_alvo_notificacoes_titulo_corpo?: true
+    status_entrega_notificacoes_titulo_corpo?: true
+    id_externo_notificacoes_titulo_corpo?: true
+    data_criacao_notificacoes_titulo_corpo?: true
+    data_atualizacao_notificacoes_titulo_corpo?: true
     _all?: true
   }
 
@@ -47844,20 +47844,20 @@ export namespace Prisma {
   }
 
   export type NotificacoesTituloCorpoGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string
-    type: string
-    title: string | null
-    message: string
-    read: boolean
-    target_entity: string | null
-    target_id: string | null
-    delivery_status: string
-    external_id: string | null
-    created_at: Date
-    updated_at: Date
+    id_notificacoes_titulo_corpo: string
+    id_organizacao_notificacoes_titulo_corpo: string
+    id_produto_notificacoes_titulo_corpo: string | null
+    id_usuario_notificacoes_titulo_corpo: string
+    tipo_notificacoes_titulo_corpo: string
+    titulo_notificacoes_titulo_corpo: string | null
+    mensagem_notificacoes_titulo_corpo: string
+    lida_notificacoes_titulo_corpo: boolean
+    entidade_alvo_notificacoes_titulo_corpo: string | null
+    id_alvo_notificacoes_titulo_corpo: string | null
+    status_entrega_notificacoes_titulo_corpo: string
+    id_externo_notificacoes_titulo_corpo: string | null
+    data_criacao_notificacoes_titulo_corpo: Date
+    data_atualizacao_notificacoes_titulo_corpo: Date
     _count: NotificacoesTituloCorpoCountAggregateOutputType | null
     _min: NotificacoesTituloCorpoMinAggregateOutputType | null
     _max: NotificacoesTituloCorpoMaxAggregateOutputType | null
@@ -47878,54 +47878,54 @@ export namespace Prisma {
 
 
   export type NotificacoesTituloCorpoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    type?: boolean
-    title?: boolean
-    message?: boolean
-    read?: boolean
-    target_entity?: boolean
-    target_id?: boolean
-    delivery_status?: boolean
-    external_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_notificacoes_titulo_corpo?: boolean
+    id_organizacao_notificacoes_titulo_corpo?: boolean
+    id_produto_notificacoes_titulo_corpo?: boolean
+    id_usuario_notificacoes_titulo_corpo?: boolean
+    tipo_notificacoes_titulo_corpo?: boolean
+    titulo_notificacoes_titulo_corpo?: boolean
+    mensagem_notificacoes_titulo_corpo?: boolean
+    lida_notificacoes_titulo_corpo?: boolean
+    entidade_alvo_notificacoes_titulo_corpo?: boolean
+    id_alvo_notificacoes_titulo_corpo?: boolean
+    status_entrega_notificacoes_titulo_corpo?: boolean
+    id_externo_notificacoes_titulo_corpo?: boolean
+    data_criacao_notificacoes_titulo_corpo?: boolean
+    data_atualizacao_notificacoes_titulo_corpo?: boolean
   }, ExtArgs["result"]["notificacoesTituloCorpo"]>
 
   export type NotificacoesTituloCorpoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    type?: boolean
-    title?: boolean
-    message?: boolean
-    read?: boolean
-    target_entity?: boolean
-    target_id?: boolean
-    delivery_status?: boolean
-    external_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_notificacoes_titulo_corpo?: boolean
+    id_organizacao_notificacoes_titulo_corpo?: boolean
+    id_produto_notificacoes_titulo_corpo?: boolean
+    id_usuario_notificacoes_titulo_corpo?: boolean
+    tipo_notificacoes_titulo_corpo?: boolean
+    titulo_notificacoes_titulo_corpo?: boolean
+    mensagem_notificacoes_titulo_corpo?: boolean
+    lida_notificacoes_titulo_corpo?: boolean
+    entidade_alvo_notificacoes_titulo_corpo?: boolean
+    id_alvo_notificacoes_titulo_corpo?: boolean
+    status_entrega_notificacoes_titulo_corpo?: boolean
+    id_externo_notificacoes_titulo_corpo?: boolean
+    data_criacao_notificacoes_titulo_corpo?: boolean
+    data_atualizacao_notificacoes_titulo_corpo?: boolean
   }, ExtArgs["result"]["notificacoesTituloCorpo"]>
 
   export type NotificacoesTituloCorpoSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    type?: boolean
-    title?: boolean
-    message?: boolean
-    read?: boolean
-    target_entity?: boolean
-    target_id?: boolean
-    delivery_status?: boolean
-    external_id?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_notificacoes_titulo_corpo?: boolean
+    id_organizacao_notificacoes_titulo_corpo?: boolean
+    id_produto_notificacoes_titulo_corpo?: boolean
+    id_usuario_notificacoes_titulo_corpo?: boolean
+    tipo_notificacoes_titulo_corpo?: boolean
+    titulo_notificacoes_titulo_corpo?: boolean
+    mensagem_notificacoes_titulo_corpo?: boolean
+    lida_notificacoes_titulo_corpo?: boolean
+    entidade_alvo_notificacoes_titulo_corpo?: boolean
+    id_alvo_notificacoes_titulo_corpo?: boolean
+    status_entrega_notificacoes_titulo_corpo?: boolean
+    id_externo_notificacoes_titulo_corpo?: boolean
+    data_criacao_notificacoes_titulo_corpo?: boolean
+    data_atualizacao_notificacoes_titulo_corpo?: boolean
   }
 
 
@@ -47933,20 +47933,20 @@ export namespace Prisma {
     name: "NotificacoesTituloCorpo"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string
-      type: string
-      title: string | null
-      message: string
-      read: boolean
-      target_entity: string | null
-      target_id: string | null
-      delivery_status: string
-      external_id: string | null
-      created_at: Date
-      updated_at: Date
+      id_notificacoes_titulo_corpo: string
+      id_organizacao_notificacoes_titulo_corpo: string
+      id_produto_notificacoes_titulo_corpo: string | null
+      id_usuario_notificacoes_titulo_corpo: string
+      tipo_notificacoes_titulo_corpo: string
+      titulo_notificacoes_titulo_corpo: string | null
+      mensagem_notificacoes_titulo_corpo: string
+      lida_notificacoes_titulo_corpo: boolean
+      entidade_alvo_notificacoes_titulo_corpo: string | null
+      id_alvo_notificacoes_titulo_corpo: string | null
+      status_entrega_notificacoes_titulo_corpo: string
+      id_externo_notificacoes_titulo_corpo: string | null
+      data_criacao_notificacoes_titulo_corpo: Date
+      data_atualizacao_notificacoes_titulo_corpo: Date
     }, ExtArgs["result"]["notificacoesTituloCorpo"]>
     composites: {}
   }
@@ -48030,8 +48030,8 @@ export namespace Prisma {
      * // Get first 10 NotificacoesTituloCorpos
      * const notificacoesTituloCorpos = await prisma.notificacoesTituloCorpo.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const notificacoesTituloCorpoWithIdOnly = await prisma.notificacoesTituloCorpo.findMany({ select: { id: true } })
+     * // Only select the `id_notificacoes_titulo_corpo`
+     * const notificacoesTituloCorpoWithId_notificacoes_titulo_corpoOnly = await prisma.notificacoesTituloCorpo.findMany({ select: { id_notificacoes_titulo_corpo: true } })
      * 
      */
     findMany<T extends NotificacoesTituloCorpoFindManyArgs>(args?: SelectSubset<T, NotificacoesTituloCorpoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NotificacoesTituloCorpoPayload<ExtArgs>, T, "findMany">>
@@ -48075,9 +48075,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many NotificacoesTituloCorpos and only return the `id`
-     * const notificacoesTituloCorpoWithIdOnly = await prisma.notificacoesTituloCorpo.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many NotificacoesTituloCorpos and only return the `id_notificacoes_titulo_corpo`
+     * const notificacoesTituloCorpoWithId_notificacoes_titulo_corpoOnly = await prisma.notificacoesTituloCorpo.createManyAndReturn({ 
+     *   select: { id_notificacoes_titulo_corpo: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -48340,20 +48340,20 @@ export namespace Prisma {
    * Fields of the NotificacoesTituloCorpo model
    */ 
   interface NotificacoesTituloCorpoFieldRefs {
-    readonly id: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly tenant_id: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly product_id: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly user_id: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly type: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly title: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly message: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly read: FieldRef<"NotificacoesTituloCorpo", 'Boolean'>
-    readonly target_entity: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly target_id: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly delivery_status: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly external_id: FieldRef<"NotificacoesTituloCorpo", 'String'>
-    readonly created_at: FieldRef<"NotificacoesTituloCorpo", 'DateTime'>
-    readonly updated_at: FieldRef<"NotificacoesTituloCorpo", 'DateTime'>
+    readonly id_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly id_organizacao_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly id_produto_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly id_usuario_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly tipo_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly titulo_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly mensagem_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly lida_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'Boolean'>
+    readonly entidade_alvo_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly id_alvo_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly status_entrega_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly id_externo_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'String'>
+    readonly data_criacao_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'DateTime'>
+    readonly data_atualizacao_notificacoes_titulo_corpo: FieldRef<"NotificacoesTituloCorpo", 'DateTime'>
   }
     
 
@@ -48643,383 +48643,394 @@ export namespace Prisma {
 
 
   /**
-   * Model ExternalContact
+   * Model ContatoExterno
    */
 
-  export type AggregateExternalContact = {
-    _count: ExternalContactCountAggregateOutputType | null
-    _min: ExternalContactMinAggregateOutputType | null
-    _max: ExternalContactMaxAggregateOutputType | null
+  export type AggregateContatoExterno = {
+    _count: ContatoExternoCountAggregateOutputType | null
+    _min: ContatoExternoMinAggregateOutputType | null
+    _max: ContatoExternoMaxAggregateOutputType | null
   }
 
-  export type ExternalContactMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    created_by: string | null
-    name: string | null
-    email: string | null
-    whatsapp_phone: string | null
-    whatsapp_opt_in_at: Date | null
-    notes: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type ContatoExternoMinAggregateOutputType = {
+    id_contato_externo: string | null
+    id_organizacao_contato_externo: string | null
+    id_produto_contato_externo: string | null
+    id_usuario_contato_externo: string | null
+    nome_contato_externo: string | null
+    email_contato_externo: string | null
+    whatsapp_telefone_contato_externo: string | null
+    whatsapp_opt_in_em_contato_externo: Date | null
+    observacoes_contato_externo: string | null
+    data_criacao_contato_externo: Date | null
+    data_atualizacao_contato_externo: Date | null
   }
 
-  export type ExternalContactMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    created_by: string | null
-    name: string | null
-    email: string | null
-    whatsapp_phone: string | null
-    whatsapp_opt_in_at: Date | null
-    notes: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type ContatoExternoMaxAggregateOutputType = {
+    id_contato_externo: string | null
+    id_organizacao_contato_externo: string | null
+    id_produto_contato_externo: string | null
+    id_usuario_contato_externo: string | null
+    nome_contato_externo: string | null
+    email_contato_externo: string | null
+    whatsapp_telefone_contato_externo: string | null
+    whatsapp_opt_in_em_contato_externo: Date | null
+    observacoes_contato_externo: string | null
+    data_criacao_contato_externo: Date | null
+    data_atualizacao_contato_externo: Date | null
   }
 
-  export type ExternalContactCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    created_by: number
-    name: number
-    email: number
-    whatsapp_phone: number
-    whatsapp_opt_in_at: number
-    notes: number
-    created_at: number
-    updated_at: number
+  export type ContatoExternoCountAggregateOutputType = {
+    id_contato_externo: number
+    id_organizacao_contato_externo: number
+    id_produto_contato_externo: number
+    id_usuario_contato_externo: number
+    nome_contato_externo: number
+    email_contato_externo: number
+    whatsapp_telefone_contato_externo: number
+    whatsapp_opt_in_em_contato_externo: number
+    observacoes_contato_externo: number
+    data_criacao_contato_externo: number
+    data_atualizacao_contato_externo: number
     _all: number
   }
 
 
-  export type ExternalContactMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    created_by?: true
-    name?: true
-    email?: true
-    whatsapp_phone?: true
-    whatsapp_opt_in_at?: true
-    notes?: true
-    created_at?: true
-    updated_at?: true
+  export type ContatoExternoMinAggregateInputType = {
+    id_contato_externo?: true
+    id_organizacao_contato_externo?: true
+    id_produto_contato_externo?: true
+    id_usuario_contato_externo?: true
+    nome_contato_externo?: true
+    email_contato_externo?: true
+    whatsapp_telefone_contato_externo?: true
+    whatsapp_opt_in_em_contato_externo?: true
+    observacoes_contato_externo?: true
+    data_criacao_contato_externo?: true
+    data_atualizacao_contato_externo?: true
   }
 
-  export type ExternalContactMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    created_by?: true
-    name?: true
-    email?: true
-    whatsapp_phone?: true
-    whatsapp_opt_in_at?: true
-    notes?: true
-    created_at?: true
-    updated_at?: true
+  export type ContatoExternoMaxAggregateInputType = {
+    id_contato_externo?: true
+    id_organizacao_contato_externo?: true
+    id_produto_contato_externo?: true
+    id_usuario_contato_externo?: true
+    nome_contato_externo?: true
+    email_contato_externo?: true
+    whatsapp_telefone_contato_externo?: true
+    whatsapp_opt_in_em_contato_externo?: true
+    observacoes_contato_externo?: true
+    data_criacao_contato_externo?: true
+    data_atualizacao_contato_externo?: true
   }
 
-  export type ExternalContactCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    created_by?: true
-    name?: true
-    email?: true
-    whatsapp_phone?: true
-    whatsapp_opt_in_at?: true
-    notes?: true
-    created_at?: true
-    updated_at?: true
+  export type ContatoExternoCountAggregateInputType = {
+    id_contato_externo?: true
+    id_organizacao_contato_externo?: true
+    id_produto_contato_externo?: true
+    id_usuario_contato_externo?: true
+    nome_contato_externo?: true
+    email_contato_externo?: true
+    whatsapp_telefone_contato_externo?: true
+    whatsapp_opt_in_em_contato_externo?: true
+    observacoes_contato_externo?: true
+    data_criacao_contato_externo?: true
+    data_atualizacao_contato_externo?: true
     _all?: true
   }
 
-  export type ExternalContactAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ExternalContact to aggregate.
+     * Filter which ContatoExterno to aggregate.
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ExternalContacts to fetch.
+     * Determine the order of ContatoExternos to fetch.
      */
-    orderBy?: ExternalContactOrderByWithRelationInput | ExternalContactOrderByWithRelationInput[]
+    orderBy?: ContatoExternoOrderByWithRelationInput | ContatoExternoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: ExternalContactWhereUniqueInput
+    cursor?: ContatoExternoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ExternalContacts from the position of the cursor.
+     * Take `±n` ContatoExternos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ExternalContacts.
+     * Skip the first `n` ContatoExternos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned ExternalContacts
+     * Count returned ContatoExternos
     **/
-    _count?: true | ExternalContactCountAggregateInputType
+    _count?: true | ContatoExternoCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: ExternalContactMinAggregateInputType
+    _min?: ContatoExternoMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: ExternalContactMaxAggregateInputType
+    _max?: ContatoExternoMaxAggregateInputType
   }
 
-  export type GetExternalContactAggregateType<T extends ExternalContactAggregateArgs> = {
-        [P in keyof T & keyof AggregateExternalContact]: P extends '_count' | 'count'
+  export type GetContatoExternoAggregateType<T extends ContatoExternoAggregateArgs> = {
+        [P in keyof T & keyof AggregateContatoExterno]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateExternalContact[P]>
-      : GetScalarType<T[P], AggregateExternalContact[P]>
+        : GetScalarType<T[P], AggregateContatoExterno[P]>
+      : GetScalarType<T[P], AggregateContatoExterno[P]>
   }
 
 
 
 
-  export type ExternalContactGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: ExternalContactWhereInput
-    orderBy?: ExternalContactOrderByWithAggregationInput | ExternalContactOrderByWithAggregationInput[]
-    by: ExternalContactScalarFieldEnum[] | ExternalContactScalarFieldEnum
-    having?: ExternalContactScalarWhereWithAggregatesInput
+  export type ContatoExternoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ContatoExternoWhereInput
+    orderBy?: ContatoExternoOrderByWithAggregationInput | ContatoExternoOrderByWithAggregationInput[]
+    by: ContatoExternoScalarFieldEnum[] | ContatoExternoScalarFieldEnum
+    having?: ContatoExternoScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: ExternalContactCountAggregateInputType | true
-    _min?: ExternalContactMinAggregateInputType
-    _max?: ExternalContactMaxAggregateInputType
+    _count?: ContatoExternoCountAggregateInputType | true
+    _min?: ContatoExternoMinAggregateInputType
+    _max?: ContatoExternoMaxAggregateInputType
   }
 
-  export type ExternalContactGroupByOutputType = {
-    id: string
-    tenant_id: string
-    created_by: string
-    name: string
-    email: string | null
-    whatsapp_phone: string | null
-    whatsapp_opt_in_at: Date | null
-    notes: string | null
-    created_at: Date
-    updated_at: Date
-    _count: ExternalContactCountAggregateOutputType | null
-    _min: ExternalContactMinAggregateOutputType | null
-    _max: ExternalContactMaxAggregateOutputType | null
+  export type ContatoExternoGroupByOutputType = {
+    id_contato_externo: string
+    id_organizacao_contato_externo: string
+    id_produto_contato_externo: string | null
+    id_usuario_contato_externo: string
+    nome_contato_externo: string
+    email_contato_externo: string | null
+    whatsapp_telefone_contato_externo: string | null
+    whatsapp_opt_in_em_contato_externo: Date | null
+    observacoes_contato_externo: string | null
+    data_criacao_contato_externo: Date
+    data_atualizacao_contato_externo: Date
+    _count: ContatoExternoCountAggregateOutputType | null
+    _min: ContatoExternoMinAggregateOutputType | null
+    _max: ContatoExternoMaxAggregateOutputType | null
   }
 
-  type GetExternalContactGroupByPayload<T extends ExternalContactGroupByArgs> = Prisma.PrismaPromise<
+  type GetContatoExternoGroupByPayload<T extends ContatoExternoGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<ExternalContactGroupByOutputType, T['by']> &
+      PickEnumerable<ContatoExternoGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof ExternalContactGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ContatoExternoGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], ExternalContactGroupByOutputType[P]>
-            : GetScalarType<T[P], ExternalContactGroupByOutputType[P]>
+              : GetScalarType<T[P], ContatoExternoGroupByOutputType[P]>
+            : GetScalarType<T[P], ContatoExternoGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type ExternalContactSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    created_by?: boolean
-    name?: boolean
-    email?: boolean
-    whatsapp_phone?: boolean
-    whatsapp_opt_in_at?: boolean
-    notes?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["externalContact"]>
+  export type ContatoExternoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_contato_externo?: boolean
+    id_organizacao_contato_externo?: boolean
+    id_produto_contato_externo?: boolean
+    id_usuario_contato_externo?: boolean
+    nome_contato_externo?: boolean
+    email_contato_externo?: boolean
+    whatsapp_telefone_contato_externo?: boolean
+    whatsapp_opt_in_em_contato_externo?: boolean
+    observacoes_contato_externo?: boolean
+    data_criacao_contato_externo?: boolean
+    data_atualizacao_contato_externo?: boolean
+  }, ExtArgs["result"]["contatoExterno"]>
 
-  export type ExternalContactSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    created_by?: boolean
-    name?: boolean
-    email?: boolean
-    whatsapp_phone?: boolean
-    whatsapp_opt_in_at?: boolean
-    notes?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["externalContact"]>
+  export type ContatoExternoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_contato_externo?: boolean
+    id_organizacao_contato_externo?: boolean
+    id_produto_contato_externo?: boolean
+    id_usuario_contato_externo?: boolean
+    nome_contato_externo?: boolean
+    email_contato_externo?: boolean
+    whatsapp_telefone_contato_externo?: boolean
+    whatsapp_opt_in_em_contato_externo?: boolean
+    observacoes_contato_externo?: boolean
+    data_criacao_contato_externo?: boolean
+    data_atualizacao_contato_externo?: boolean
+  }, ExtArgs["result"]["contatoExterno"]>
 
-  export type ExternalContactSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    created_by?: boolean
-    name?: boolean
-    email?: boolean
-    whatsapp_phone?: boolean
-    whatsapp_opt_in_at?: boolean
-    notes?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+  export type ContatoExternoSelectScalar = {
+    id_contato_externo?: boolean
+    id_organizacao_contato_externo?: boolean
+    id_produto_contato_externo?: boolean
+    id_usuario_contato_externo?: boolean
+    nome_contato_externo?: boolean
+    email_contato_externo?: boolean
+    whatsapp_telefone_contato_externo?: boolean
+    whatsapp_opt_in_em_contato_externo?: boolean
+    observacoes_contato_externo?: boolean
+    data_criacao_contato_externo?: boolean
+    data_atualizacao_contato_externo?: boolean
   }
 
 
-  export type $ExternalContactPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "ExternalContact"
+  export type $ContatoExternoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ContatoExterno"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      created_by: string
-      name: string
-      email: string | null
-      whatsapp_phone: string | null
-      whatsapp_opt_in_at: Date | null
-      notes: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["externalContact"]>
+      id_contato_externo: string
+      id_organizacao_contato_externo: string
+      id_produto_contato_externo: string | null
+      id_usuario_contato_externo: string
+      nome_contato_externo: string
+      email_contato_externo: string | null
+      whatsapp_telefone_contato_externo: string | null
+      whatsapp_opt_in_em_contato_externo: Date | null
+      observacoes_contato_externo: string | null
+      data_criacao_contato_externo: Date
+      data_atualizacao_contato_externo: Date
+    }, ExtArgs["result"]["contatoExterno"]>
     composites: {}
   }
 
-  type ExternalContactGetPayload<S extends boolean | null | undefined | ExternalContactDefaultArgs> = $Result.GetResult<Prisma.$ExternalContactPayload, S>
+  type ContatoExternoGetPayload<S extends boolean | null | undefined | ContatoExternoDefaultArgs> = $Result.GetResult<Prisma.$ContatoExternoPayload, S>
 
-  type ExternalContactCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<ExternalContactFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: ExternalContactCountAggregateInputType | true
+  type ContatoExternoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ContatoExternoFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ContatoExternoCountAggregateInputType | true
     }
 
-  export interface ExternalContactDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExternalContact'], meta: { name: 'ExternalContact' } }
+  export interface ContatoExternoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ContatoExterno'], meta: { name: 'ContatoExterno' } }
     /**
-     * Find zero or one ExternalContact that matches the filter.
-     * @param {ExternalContactFindUniqueArgs} args - Arguments to find a ExternalContact
+     * Find zero or one ContatoExterno that matches the filter.
+     * @param {ContatoExternoFindUniqueArgs} args - Arguments to find a ContatoExterno
      * @example
-     * // Get one ExternalContact
-     * const externalContact = await prisma.externalContact.findUnique({
+     * // Get one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends ExternalContactFindUniqueArgs>(args: SelectSubset<T, ExternalContactFindUniqueArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ContatoExternoFindUniqueArgs>(args: SelectSubset<T, ContatoExternoFindUniqueArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one ExternalContact that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ContatoExterno that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {ExternalContactFindUniqueOrThrowArgs} args - Arguments to find a ExternalContact
+     * @param {ContatoExternoFindUniqueOrThrowArgs} args - Arguments to find a ContatoExterno
      * @example
-     * // Get one ExternalContact
-     * const externalContact = await prisma.externalContact.findUniqueOrThrow({
+     * // Get one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends ExternalContactFindUniqueOrThrowArgs>(args: SelectSubset<T, ExternalContactFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ContatoExternoFindUniqueOrThrowArgs>(args: SelectSubset<T, ContatoExternoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first ExternalContact that matches the filter.
+     * Find the first ContatoExterno that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactFindFirstArgs} args - Arguments to find a ExternalContact
+     * @param {ContatoExternoFindFirstArgs} args - Arguments to find a ContatoExterno
      * @example
-     * // Get one ExternalContact
-     * const externalContact = await prisma.externalContact.findFirst({
+     * // Get one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends ExternalContactFindFirstArgs>(args?: SelectSubset<T, ExternalContactFindFirstArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ContatoExternoFindFirstArgs>(args?: SelectSubset<T, ContatoExternoFindFirstArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first ExternalContact that matches the filter or
+     * Find the first ContatoExterno that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactFindFirstOrThrowArgs} args - Arguments to find a ExternalContact
+     * @param {ContatoExternoFindFirstOrThrowArgs} args - Arguments to find a ContatoExterno
      * @example
-     * // Get one ExternalContact
-     * const externalContact = await prisma.externalContact.findFirstOrThrow({
+     * // Get one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends ExternalContactFindFirstOrThrowArgs>(args?: SelectSubset<T, ExternalContactFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ContatoExternoFindFirstOrThrowArgs>(args?: SelectSubset<T, ContatoExternoFindFirstOrThrowArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more ExternalContacts that matches the filter.
+     * Find zero or more ContatoExternos that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ContatoExternoFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all ExternalContacts
-     * const externalContacts = await prisma.externalContact.findMany()
+     * // Get all ContatoExternos
+     * const contatoExternos = await prisma.contatoExterno.findMany()
      * 
-     * // Get first 10 ExternalContacts
-     * const externalContacts = await prisma.externalContact.findMany({ take: 10 })
+     * // Get first 10 ContatoExternos
+     * const contatoExternos = await prisma.contatoExterno.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const externalContactWithIdOnly = await prisma.externalContact.findMany({ select: { id: true } })
+     * // Only select the `id_contato_externo`
+     * const contatoExternoWithId_contato_externoOnly = await prisma.contatoExterno.findMany({ select: { id_contato_externo: true } })
      * 
      */
-    findMany<T extends ExternalContactFindManyArgs>(args?: SelectSubset<T, ExternalContactFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ContatoExternoFindManyArgs>(args?: SelectSubset<T, ContatoExternoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a ExternalContact.
-     * @param {ExternalContactCreateArgs} args - Arguments to create a ExternalContact.
+     * Create a ContatoExterno.
+     * @param {ContatoExternoCreateArgs} args - Arguments to create a ContatoExterno.
      * @example
-     * // Create one ExternalContact
-     * const ExternalContact = await prisma.externalContact.create({
+     * // Create one ContatoExterno
+     * const ContatoExterno = await prisma.contatoExterno.create({
      *   data: {
-     *     // ... data to create a ExternalContact
+     *     // ... data to create a ContatoExterno
      *   }
      * })
      * 
      */
-    create<T extends ExternalContactCreateArgs>(args: SelectSubset<T, ExternalContactCreateArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ContatoExternoCreateArgs>(args: SelectSubset<T, ContatoExternoCreateArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many ExternalContacts.
-     * @param {ExternalContactCreateManyArgs} args - Arguments to create many ExternalContacts.
+     * Create many ContatoExternos.
+     * @param {ContatoExternoCreateManyArgs} args - Arguments to create many ContatoExternos.
      * @example
-     * // Create many ExternalContacts
-     * const externalContact = await prisma.externalContact.createMany({
+     * // Create many ContatoExternos
+     * const contatoExterno = await prisma.contatoExterno.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends ExternalContactCreateManyArgs>(args?: SelectSubset<T, ExternalContactCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ContatoExternoCreateManyArgs>(args?: SelectSubset<T, ContatoExternoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many ExternalContacts and returns the data saved in the database.
-     * @param {ExternalContactCreateManyAndReturnArgs} args - Arguments to create many ExternalContacts.
+     * Create many ContatoExternos and returns the data saved in the database.
+     * @param {ContatoExternoCreateManyAndReturnArgs} args - Arguments to create many ContatoExternos.
      * @example
-     * // Create many ExternalContacts
-     * const externalContact = await prisma.externalContact.createManyAndReturn({
+     * // Create many ContatoExternos
+     * const contatoExterno = await prisma.contatoExterno.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many ExternalContacts and only return the `id`
-     * const externalContactWithIdOnly = await prisma.externalContact.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many ContatoExternos and only return the `id_contato_externo`
+     * const contatoExternoWithId_contato_externoOnly = await prisma.contatoExterno.createManyAndReturn({ 
+     *   select: { id_contato_externo: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -49028,28 +49039,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends ExternalContactCreateManyAndReturnArgs>(args?: SelectSubset<T, ExternalContactCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ContatoExternoCreateManyAndReturnArgs>(args?: SelectSubset<T, ContatoExternoCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a ExternalContact.
-     * @param {ExternalContactDeleteArgs} args - Arguments to delete one ExternalContact.
+     * Delete a ContatoExterno.
+     * @param {ContatoExternoDeleteArgs} args - Arguments to delete one ContatoExterno.
      * @example
-     * // Delete one ExternalContact
-     * const ExternalContact = await prisma.externalContact.delete({
+     * // Delete one ContatoExterno
+     * const ContatoExterno = await prisma.contatoExterno.delete({
      *   where: {
-     *     // ... filter to delete one ExternalContact
+     *     // ... filter to delete one ContatoExterno
      *   }
      * })
      * 
      */
-    delete<T extends ExternalContactDeleteArgs>(args: SelectSubset<T, ExternalContactDeleteArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ContatoExternoDeleteArgs>(args: SelectSubset<T, ContatoExternoDeleteArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one ExternalContact.
-     * @param {ExternalContactUpdateArgs} args - Arguments to update one ExternalContact.
+     * Update one ContatoExterno.
+     * @param {ContatoExternoUpdateArgs} args - Arguments to update one ContatoExterno.
      * @example
-     * // Update one ExternalContact
-     * const externalContact = await prisma.externalContact.update({
+     * // Update one ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -49059,30 +49070,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends ExternalContactUpdateArgs>(args: SelectSubset<T, ExternalContactUpdateArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ContatoExternoUpdateArgs>(args: SelectSubset<T, ContatoExternoUpdateArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more ExternalContacts.
-     * @param {ExternalContactDeleteManyArgs} args - Arguments to filter ExternalContacts to delete.
+     * Delete zero or more ContatoExternos.
+     * @param {ContatoExternoDeleteManyArgs} args - Arguments to filter ContatoExternos to delete.
      * @example
-     * // Delete a few ExternalContacts
-     * const { count } = await prisma.externalContact.deleteMany({
+     * // Delete a few ContatoExternos
+     * const { count } = await prisma.contatoExterno.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends ExternalContactDeleteManyArgs>(args?: SelectSubset<T, ExternalContactDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ContatoExternoDeleteManyArgs>(args?: SelectSubset<T, ContatoExternoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more ExternalContacts.
+     * Update zero or more ContatoExternos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ContatoExternoUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many ExternalContacts
-     * const externalContact = await prisma.externalContact.updateMany({
+     * // Update many ContatoExternos
+     * const contatoExterno = await prisma.contatoExterno.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -49092,56 +49103,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends ExternalContactUpdateManyArgs>(args: SelectSubset<T, ExternalContactUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ContatoExternoUpdateManyArgs>(args: SelectSubset<T, ContatoExternoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one ExternalContact.
-     * @param {ExternalContactUpsertArgs} args - Arguments to update or create a ExternalContact.
+     * Create or update one ContatoExterno.
+     * @param {ContatoExternoUpsertArgs} args - Arguments to update or create a ContatoExterno.
      * @example
-     * // Update or create a ExternalContact
-     * const externalContact = await prisma.externalContact.upsert({
+     * // Update or create a ContatoExterno
+     * const contatoExterno = await prisma.contatoExterno.upsert({
      *   create: {
-     *     // ... data to create a ExternalContact
+     *     // ... data to create a ContatoExterno
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the ExternalContact we want to update
+     *     // ... the filter for the ContatoExterno we want to update
      *   }
      * })
      */
-    upsert<T extends ExternalContactUpsertArgs>(args: SelectSubset<T, ExternalContactUpsertArgs<ExtArgs>>): Prisma__ExternalContactClient<$Result.GetResult<Prisma.$ExternalContactPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ContatoExternoUpsertArgs>(args: SelectSubset<T, ContatoExternoUpsertArgs<ExtArgs>>): Prisma__ContatoExternoClient<$Result.GetResult<Prisma.$ContatoExternoPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of ExternalContacts.
+     * Count the number of ContatoExternos.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactCountArgs} args - Arguments to filter ExternalContacts to count.
+     * @param {ContatoExternoCountArgs} args - Arguments to filter ContatoExternos to count.
      * @example
-     * // Count the number of ExternalContacts
-     * const count = await prisma.externalContact.count({
+     * // Count the number of ContatoExternos
+     * const count = await prisma.contatoExterno.count({
      *   where: {
-     *     // ... the filter for the ExternalContacts we want to count
+     *     // ... the filter for the ContatoExternos we want to count
      *   }
      * })
     **/
-    count<T extends ExternalContactCountArgs>(
-      args?: Subset<T, ExternalContactCountArgs>,
+    count<T extends ContatoExternoCountArgs>(
+      args?: Subset<T, ContatoExternoCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], ExternalContactCountAggregateOutputType>
+          : GetScalarType<T['select'], ContatoExternoCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a ExternalContact.
+     * Allows you to perform aggregations operations on a ContatoExterno.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ContatoExternoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -49161,13 +49172,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends ExternalContactAggregateArgs>(args: Subset<T, ExternalContactAggregateArgs>): Prisma.PrismaPromise<GetExternalContactAggregateType<T>>
+    aggregate<T extends ContatoExternoAggregateArgs>(args: Subset<T, ContatoExternoAggregateArgs>): Prisma.PrismaPromise<GetContatoExternoAggregateType<T>>
 
     /**
-     * Group by ExternalContact.
+     * Group by ContatoExterno.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {ExternalContactGroupByArgs} args - Group by arguments.
+     * @param {ContatoExternoGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -49182,14 +49193,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends ExternalContactGroupByArgs,
+      T extends ContatoExternoGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: ExternalContactGroupByArgs['orderBy'] }
-        : { orderBy?: ExternalContactGroupByArgs['orderBy'] },
+        ? { orderBy: ContatoExternoGroupByArgs['orderBy'] }
+        : { orderBy?: ContatoExternoGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -49238,20 +49249,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, ExternalContactGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExternalContactGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ContatoExternoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetContatoExternoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the ExternalContact model
+   * Fields of the ContatoExterno model
    */
-  readonly fields: ExternalContactFieldRefs;
+  readonly fields: ContatoExternoFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for ExternalContact.
+   * The delegate class that acts as a "Promise-like" for ContatoExterno.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__ExternalContactClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ContatoExternoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -49279,652 +49290,664 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the ExternalContact model
+   * Fields of the ContatoExterno model
    */ 
-  interface ExternalContactFieldRefs {
-    readonly id: FieldRef<"ExternalContact", 'String'>
-    readonly tenant_id: FieldRef<"ExternalContact", 'String'>
-    readonly created_by: FieldRef<"ExternalContact", 'String'>
-    readonly name: FieldRef<"ExternalContact", 'String'>
-    readonly email: FieldRef<"ExternalContact", 'String'>
-    readonly whatsapp_phone: FieldRef<"ExternalContact", 'String'>
-    readonly whatsapp_opt_in_at: FieldRef<"ExternalContact", 'DateTime'>
-    readonly notes: FieldRef<"ExternalContact", 'String'>
-    readonly created_at: FieldRef<"ExternalContact", 'DateTime'>
-    readonly updated_at: FieldRef<"ExternalContact", 'DateTime'>
+  interface ContatoExternoFieldRefs {
+    readonly id_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly id_organizacao_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly id_produto_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly id_usuario_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly nome_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly email_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly whatsapp_telefone_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly whatsapp_opt_in_em_contato_externo: FieldRef<"ContatoExterno", 'DateTime'>
+    readonly observacoes_contato_externo: FieldRef<"ContatoExterno", 'String'>
+    readonly data_criacao_contato_externo: FieldRef<"ContatoExterno", 'DateTime'>
+    readonly data_atualizacao_contato_externo: FieldRef<"ContatoExterno", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * ExternalContact findUnique
+   * ContatoExterno findUnique
    */
-  export type ExternalContactFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContact to fetch.
+     * Filter, which ContatoExterno to fetch.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
   }
 
   /**
-   * ExternalContact findUniqueOrThrow
+   * ContatoExterno findUniqueOrThrow
    */
-  export type ExternalContactFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContact to fetch.
+     * Filter, which ContatoExterno to fetch.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
   }
 
   /**
-   * ExternalContact findFirst
+   * ContatoExterno findFirst
    */
-  export type ExternalContactFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContact to fetch.
+     * Filter, which ContatoExterno to fetch.
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ExternalContacts to fetch.
+     * Determine the order of ContatoExternos to fetch.
      */
-    orderBy?: ExternalContactOrderByWithRelationInput | ExternalContactOrderByWithRelationInput[]
+    orderBy?: ContatoExternoOrderByWithRelationInput | ContatoExternoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ExternalContacts.
+     * Sets the position for searching for ContatoExternos.
      */
-    cursor?: ExternalContactWhereUniqueInput
+    cursor?: ContatoExternoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ExternalContacts from the position of the cursor.
+     * Take `±n` ContatoExternos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ExternalContacts.
+     * Skip the first `n` ContatoExternos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ExternalContacts.
+     * Filter by unique combinations of ContatoExternos.
      */
-    distinct?: ExternalContactScalarFieldEnum | ExternalContactScalarFieldEnum[]
+    distinct?: ContatoExternoScalarFieldEnum | ContatoExternoScalarFieldEnum[]
   }
 
   /**
-   * ExternalContact findFirstOrThrow
+   * ContatoExterno findFirstOrThrow
    */
-  export type ExternalContactFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContact to fetch.
+     * Filter, which ContatoExterno to fetch.
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ExternalContacts to fetch.
+     * Determine the order of ContatoExternos to fetch.
      */
-    orderBy?: ExternalContactOrderByWithRelationInput | ExternalContactOrderByWithRelationInput[]
+    orderBy?: ContatoExternoOrderByWithRelationInput | ContatoExternoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for ExternalContacts.
+     * Sets the position for searching for ContatoExternos.
      */
-    cursor?: ExternalContactWhereUniqueInput
+    cursor?: ContatoExternoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ExternalContacts from the position of the cursor.
+     * Take `±n` ContatoExternos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ExternalContacts.
+     * Skip the first `n` ContatoExternos.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of ExternalContacts.
+     * Filter by unique combinations of ContatoExternos.
      */
-    distinct?: ExternalContactScalarFieldEnum | ExternalContactScalarFieldEnum[]
+    distinct?: ContatoExternoScalarFieldEnum | ContatoExternoScalarFieldEnum[]
   }
 
   /**
-   * ExternalContact findMany
+   * ContatoExterno findMany
    */
-  export type ExternalContactFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter, which ExternalContacts to fetch.
+     * Filter, which ContatoExternos to fetch.
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of ExternalContacts to fetch.
+     * Determine the order of ContatoExternos to fetch.
      */
-    orderBy?: ExternalContactOrderByWithRelationInput | ExternalContactOrderByWithRelationInput[]
+    orderBy?: ContatoExternoOrderByWithRelationInput | ContatoExternoOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing ExternalContacts.
+     * Sets the position for listing ContatoExternos.
      */
-    cursor?: ExternalContactWhereUniqueInput
+    cursor?: ContatoExternoWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` ExternalContacts from the position of the cursor.
+     * Take `±n` ContatoExternos from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` ExternalContacts.
+     * Skip the first `n` ContatoExternos.
      */
     skip?: number
-    distinct?: ExternalContactScalarFieldEnum | ExternalContactScalarFieldEnum[]
+    distinct?: ContatoExternoScalarFieldEnum | ContatoExternoScalarFieldEnum[]
   }
 
   /**
-   * ExternalContact create
+   * ContatoExterno create
    */
-  export type ExternalContactCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * The data needed to create a ExternalContact.
+     * The data needed to create a ContatoExterno.
      */
-    data: XOR<ExternalContactCreateInput, ExternalContactUncheckedCreateInput>
+    data: XOR<ContatoExternoCreateInput, ContatoExternoUncheckedCreateInput>
   }
 
   /**
-   * ExternalContact createMany
+   * ContatoExterno createMany
    */
-  export type ExternalContactCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many ExternalContacts.
+     * The data used to create many ContatoExternos.
      */
-    data: ExternalContactCreateManyInput | ExternalContactCreateManyInput[]
+    data: ContatoExternoCreateManyInput | ContatoExternoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ExternalContact createManyAndReturn
+   * ContatoExterno createManyAndReturn
    */
-  export type ExternalContactCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ContatoExternoSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many ExternalContacts.
+     * The data used to create many ContatoExternos.
      */
-    data: ExternalContactCreateManyInput | ExternalContactCreateManyInput[]
+    data: ContatoExternoCreateManyInput | ContatoExternoCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * ExternalContact update
+   * ContatoExterno update
    */
-  export type ExternalContactUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * The data needed to update a ExternalContact.
+     * The data needed to update a ContatoExterno.
      */
-    data: XOR<ExternalContactUpdateInput, ExternalContactUncheckedUpdateInput>
+    data: XOR<ContatoExternoUpdateInput, ContatoExternoUncheckedUpdateInput>
     /**
-     * Choose, which ExternalContact to update.
+     * Choose, which ContatoExterno to update.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
   }
 
   /**
-   * ExternalContact updateMany
+   * ContatoExterno updateMany
    */
-  export type ExternalContactUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update ExternalContacts.
+     * The data used to update ContatoExternos.
      */
-    data: XOR<ExternalContactUpdateManyMutationInput, ExternalContactUncheckedUpdateManyInput>
+    data: XOR<ContatoExternoUpdateManyMutationInput, ContatoExternoUncheckedUpdateManyInput>
     /**
-     * Filter which ExternalContacts to update
+     * Filter which ContatoExternos to update
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
   }
 
   /**
-   * ExternalContact upsert
+   * ContatoExterno upsert
    */
-  export type ExternalContactUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * The filter to search for the ExternalContact to update in case it exists.
+     * The filter to search for the ContatoExterno to update in case it exists.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
     /**
-     * In case the ExternalContact found by the `where` argument doesn't exist, create a new ExternalContact with this data.
+     * In case the ContatoExterno found by the `where` argument doesn't exist, create a new ContatoExterno with this data.
      */
-    create: XOR<ExternalContactCreateInput, ExternalContactUncheckedCreateInput>
+    create: XOR<ContatoExternoCreateInput, ContatoExternoUncheckedCreateInput>
     /**
-     * In case the ExternalContact was found with the provided `where` argument, update it with this data.
+     * In case the ContatoExterno was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<ExternalContactUpdateInput, ExternalContactUncheckedUpdateInput>
+    update: XOR<ContatoExternoUpdateInput, ContatoExternoUncheckedUpdateInput>
   }
 
   /**
-   * ExternalContact delete
+   * ContatoExterno delete
    */
-  export type ExternalContactDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
     /**
-     * Filter which ExternalContact to delete.
+     * Filter which ContatoExterno to delete.
      */
-    where: ExternalContactWhereUniqueInput
+    where: ContatoExternoWhereUniqueInput
   }
 
   /**
-   * ExternalContact deleteMany
+   * ContatoExterno deleteMany
    */
-  export type ExternalContactDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which ExternalContacts to delete
+     * Filter which ContatoExternos to delete
      */
-    where?: ExternalContactWhereInput
+    where?: ContatoExternoWhereInput
   }
 
   /**
-   * ExternalContact without action
+   * ContatoExterno without action
    */
-  export type ExternalContactDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ContatoExternoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the ExternalContact
+     * Select specific fields to fetch from the ContatoExterno
      */
-    select?: ExternalContactSelect<ExtArgs> | null
+    select?: ContatoExternoSelect<ExtArgs> | null
   }
 
 
   /**
-   * Model TenantChannelConfig
+   * Model ConfiguracaoCanalTenant
    */
 
-  export type AggregateTenantChannelConfig = {
-    _count: TenantChannelConfigCountAggregateOutputType | null
-    _min: TenantChannelConfigMinAggregateOutputType | null
-    _max: TenantChannelConfigMaxAggregateOutputType | null
+  export type AggregateConfiguracaoCanalTenant = {
+    _count: ConfiguracaoCanalTenantCountAggregateOutputType | null
+    _min: ConfiguracaoCanalTenantMinAggregateOutputType | null
+    _max: ConfiguracaoCanalTenantMaxAggregateOutputType | null
   }
 
-  export type TenantChannelConfigMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    email_enabled: boolean | null
-    whatsapp_enabled: boolean | null
-    updated_by: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type ConfiguracaoCanalTenantMinAggregateOutputType = {
+    id_configuracao_canal_tenant: string | null
+    id_organizacao_configuracao_canal_tenant: string | null
+    id_produto_configuracao_canal_tenant: string | null
+    id_usuario_configuracao_canal_tenant: string | null
+    email_habilitado_configuracao_canal_tenant: boolean | null
+    whatsapp_habilitado_configuracao_canal_tenant: boolean | null
+    data_criacao_configuracao_canal_tenant: Date | null
+    data_atualizacao_configuracao_canal_tenant: Date | null
   }
 
-  export type TenantChannelConfigMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    email_enabled: boolean | null
-    whatsapp_enabled: boolean | null
-    updated_by: string | null
-    created_at: Date | null
-    updated_at: Date | null
+  export type ConfiguracaoCanalTenantMaxAggregateOutputType = {
+    id_configuracao_canal_tenant: string | null
+    id_organizacao_configuracao_canal_tenant: string | null
+    id_produto_configuracao_canal_tenant: string | null
+    id_usuario_configuracao_canal_tenant: string | null
+    email_habilitado_configuracao_canal_tenant: boolean | null
+    whatsapp_habilitado_configuracao_canal_tenant: boolean | null
+    data_criacao_configuracao_canal_tenant: Date | null
+    data_atualizacao_configuracao_canal_tenant: Date | null
   }
 
-  export type TenantChannelConfigCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    email_enabled: number
-    whatsapp_enabled: number
-    updated_by: number
-    created_at: number
-    updated_at: number
+  export type ConfiguracaoCanalTenantCountAggregateOutputType = {
+    id_configuracao_canal_tenant: number
+    id_organizacao_configuracao_canal_tenant: number
+    id_produto_configuracao_canal_tenant: number
+    id_usuario_configuracao_canal_tenant: number
+    email_habilitado_configuracao_canal_tenant: number
+    whatsapp_habilitado_configuracao_canal_tenant: number
+    data_criacao_configuracao_canal_tenant: number
+    data_atualizacao_configuracao_canal_tenant: number
     _all: number
   }
 
 
-  export type TenantChannelConfigMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    email_enabled?: true
-    whatsapp_enabled?: true
-    updated_by?: true
-    created_at?: true
-    updated_at?: true
+  export type ConfiguracaoCanalTenantMinAggregateInputType = {
+    id_configuracao_canal_tenant?: true
+    id_organizacao_configuracao_canal_tenant?: true
+    id_produto_configuracao_canal_tenant?: true
+    id_usuario_configuracao_canal_tenant?: true
+    email_habilitado_configuracao_canal_tenant?: true
+    whatsapp_habilitado_configuracao_canal_tenant?: true
+    data_criacao_configuracao_canal_tenant?: true
+    data_atualizacao_configuracao_canal_tenant?: true
   }
 
-  export type TenantChannelConfigMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    email_enabled?: true
-    whatsapp_enabled?: true
-    updated_by?: true
-    created_at?: true
-    updated_at?: true
+  export type ConfiguracaoCanalTenantMaxAggregateInputType = {
+    id_configuracao_canal_tenant?: true
+    id_organizacao_configuracao_canal_tenant?: true
+    id_produto_configuracao_canal_tenant?: true
+    id_usuario_configuracao_canal_tenant?: true
+    email_habilitado_configuracao_canal_tenant?: true
+    whatsapp_habilitado_configuracao_canal_tenant?: true
+    data_criacao_configuracao_canal_tenant?: true
+    data_atualizacao_configuracao_canal_tenant?: true
   }
 
-  export type TenantChannelConfigCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    email_enabled?: true
-    whatsapp_enabled?: true
-    updated_by?: true
-    created_at?: true
-    updated_at?: true
+  export type ConfiguracaoCanalTenantCountAggregateInputType = {
+    id_configuracao_canal_tenant?: true
+    id_organizacao_configuracao_canal_tenant?: true
+    id_produto_configuracao_canal_tenant?: true
+    id_usuario_configuracao_canal_tenant?: true
+    email_habilitado_configuracao_canal_tenant?: true
+    whatsapp_habilitado_configuracao_canal_tenant?: true
+    data_criacao_configuracao_canal_tenant?: true
+    data_atualizacao_configuracao_canal_tenant?: true
     _all?: true
   }
 
-  export type TenantChannelConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TenantChannelConfig to aggregate.
+     * Filter which ConfiguracaoCanalTenant to aggregate.
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TenantChannelConfigs to fetch.
+     * Determine the order of ConfiguracaoCanalTenants to fetch.
      */
-    orderBy?: TenantChannelConfigOrderByWithRelationInput | TenantChannelConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoCanalTenantOrderByWithRelationInput | ConfiguracaoCanalTenantOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: TenantChannelConfigWhereUniqueInput
+    cursor?: ConfiguracaoCanalTenantWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TenantChannelConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoCanalTenants from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TenantChannelConfigs.
+     * Skip the first `n` ConfiguracaoCanalTenants.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned TenantChannelConfigs
+     * Count returned ConfiguracaoCanalTenants
     **/
-    _count?: true | TenantChannelConfigCountAggregateInputType
+    _count?: true | ConfiguracaoCanalTenantCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: TenantChannelConfigMinAggregateInputType
+    _min?: ConfiguracaoCanalTenantMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: TenantChannelConfigMaxAggregateInputType
+    _max?: ConfiguracaoCanalTenantMaxAggregateInputType
   }
 
-  export type GetTenantChannelConfigAggregateType<T extends TenantChannelConfigAggregateArgs> = {
-        [P in keyof T & keyof AggregateTenantChannelConfig]: P extends '_count' | 'count'
+  export type GetConfiguracaoCanalTenantAggregateType<T extends ConfiguracaoCanalTenantAggregateArgs> = {
+        [P in keyof T & keyof AggregateConfiguracaoCanalTenant]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateTenantChannelConfig[P]>
-      : GetScalarType<T[P], AggregateTenantChannelConfig[P]>
+        : GetScalarType<T[P], AggregateConfiguracaoCanalTenant[P]>
+      : GetScalarType<T[P], AggregateConfiguracaoCanalTenant[P]>
   }
 
 
 
 
-  export type TenantChannelConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: TenantChannelConfigWhereInput
-    orderBy?: TenantChannelConfigOrderByWithAggregationInput | TenantChannelConfigOrderByWithAggregationInput[]
-    by: TenantChannelConfigScalarFieldEnum[] | TenantChannelConfigScalarFieldEnum
-    having?: TenantChannelConfigScalarWhereWithAggregatesInput
+  export type ConfiguracaoCanalTenantGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConfiguracaoCanalTenantWhereInput
+    orderBy?: ConfiguracaoCanalTenantOrderByWithAggregationInput | ConfiguracaoCanalTenantOrderByWithAggregationInput[]
+    by: ConfiguracaoCanalTenantScalarFieldEnum[] | ConfiguracaoCanalTenantScalarFieldEnum
+    having?: ConfiguracaoCanalTenantScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: TenantChannelConfigCountAggregateInputType | true
-    _min?: TenantChannelConfigMinAggregateInputType
-    _max?: TenantChannelConfigMaxAggregateInputType
+    _count?: ConfiguracaoCanalTenantCountAggregateInputType | true
+    _min?: ConfiguracaoCanalTenantMinAggregateInputType
+    _max?: ConfiguracaoCanalTenantMaxAggregateInputType
   }
 
-  export type TenantChannelConfigGroupByOutputType = {
-    id: string
-    tenant_id: string
-    email_enabled: boolean
-    whatsapp_enabled: boolean
-    updated_by: string | null
-    created_at: Date
-    updated_at: Date
-    _count: TenantChannelConfigCountAggregateOutputType | null
-    _min: TenantChannelConfigMinAggregateOutputType | null
-    _max: TenantChannelConfigMaxAggregateOutputType | null
+  export type ConfiguracaoCanalTenantGroupByOutputType = {
+    id_configuracao_canal_tenant: string
+    id_organizacao_configuracao_canal_tenant: string
+    id_produto_configuracao_canal_tenant: string | null
+    id_usuario_configuracao_canal_tenant: string | null
+    email_habilitado_configuracao_canal_tenant: boolean
+    whatsapp_habilitado_configuracao_canal_tenant: boolean
+    data_criacao_configuracao_canal_tenant: Date
+    data_atualizacao_configuracao_canal_tenant: Date
+    _count: ConfiguracaoCanalTenantCountAggregateOutputType | null
+    _min: ConfiguracaoCanalTenantMinAggregateOutputType | null
+    _max: ConfiguracaoCanalTenantMaxAggregateOutputType | null
   }
 
-  type GetTenantChannelConfigGroupByPayload<T extends TenantChannelConfigGroupByArgs> = Prisma.PrismaPromise<
+  type GetConfiguracaoCanalTenantGroupByPayload<T extends ConfiguracaoCanalTenantGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<TenantChannelConfigGroupByOutputType, T['by']> &
+      PickEnumerable<ConfiguracaoCanalTenantGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof TenantChannelConfigGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof ConfiguracaoCanalTenantGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], TenantChannelConfigGroupByOutputType[P]>
-            : GetScalarType<T[P], TenantChannelConfigGroupByOutputType[P]>
+              : GetScalarType<T[P], ConfiguracaoCanalTenantGroupByOutputType[P]>
+            : GetScalarType<T[P], ConfiguracaoCanalTenantGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type TenantChannelConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    email_enabled?: boolean
-    whatsapp_enabled?: boolean
-    updated_by?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["tenantChannelConfig"]>
+  export type ConfiguracaoCanalTenantSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_configuracao_canal_tenant?: boolean
+    id_organizacao_configuracao_canal_tenant?: boolean
+    id_produto_configuracao_canal_tenant?: boolean
+    id_usuario_configuracao_canal_tenant?: boolean
+    email_habilitado_configuracao_canal_tenant?: boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: boolean
+    data_criacao_configuracao_canal_tenant?: boolean
+    data_atualizacao_configuracao_canal_tenant?: boolean
+  }, ExtArgs["result"]["configuracaoCanalTenant"]>
 
-  export type TenantChannelConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    email_enabled?: boolean
-    whatsapp_enabled?: boolean
-    updated_by?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-  }, ExtArgs["result"]["tenantChannelConfig"]>
+  export type ConfiguracaoCanalTenantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id_configuracao_canal_tenant?: boolean
+    id_organizacao_configuracao_canal_tenant?: boolean
+    id_produto_configuracao_canal_tenant?: boolean
+    id_usuario_configuracao_canal_tenant?: boolean
+    email_habilitado_configuracao_canal_tenant?: boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: boolean
+    data_criacao_configuracao_canal_tenant?: boolean
+    data_atualizacao_configuracao_canal_tenant?: boolean
+  }, ExtArgs["result"]["configuracaoCanalTenant"]>
 
-  export type TenantChannelConfigSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    email_enabled?: boolean
-    whatsapp_enabled?: boolean
-    updated_by?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+  export type ConfiguracaoCanalTenantSelectScalar = {
+    id_configuracao_canal_tenant?: boolean
+    id_organizacao_configuracao_canal_tenant?: boolean
+    id_produto_configuracao_canal_tenant?: boolean
+    id_usuario_configuracao_canal_tenant?: boolean
+    email_habilitado_configuracao_canal_tenant?: boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: boolean
+    data_criacao_configuracao_canal_tenant?: boolean
+    data_atualizacao_configuracao_canal_tenant?: boolean
   }
 
 
-  export type $TenantChannelConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "TenantChannelConfig"
+  export type $ConfiguracaoCanalTenantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConfiguracaoCanalTenant"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      email_enabled: boolean
-      whatsapp_enabled: boolean
-      updated_by: string | null
-      created_at: Date
-      updated_at: Date
-    }, ExtArgs["result"]["tenantChannelConfig"]>
+      id_configuracao_canal_tenant: string
+      id_organizacao_configuracao_canal_tenant: string
+      id_produto_configuracao_canal_tenant: string | null
+      id_usuario_configuracao_canal_tenant: string | null
+      email_habilitado_configuracao_canal_tenant: boolean
+      whatsapp_habilitado_configuracao_canal_tenant: boolean
+      data_criacao_configuracao_canal_tenant: Date
+      data_atualizacao_configuracao_canal_tenant: Date
+    }, ExtArgs["result"]["configuracaoCanalTenant"]>
     composites: {}
   }
 
-  type TenantChannelConfigGetPayload<S extends boolean | null | undefined | TenantChannelConfigDefaultArgs> = $Result.GetResult<Prisma.$TenantChannelConfigPayload, S>
+  type ConfiguracaoCanalTenantGetPayload<S extends boolean | null | undefined | ConfiguracaoCanalTenantDefaultArgs> = $Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload, S>
 
-  type TenantChannelConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
-    Omit<TenantChannelConfigFindManyArgs, 'select' | 'include' | 'distinct'> & {
-      select?: TenantChannelConfigCountAggregateInputType | true
+  type ConfiguracaoCanalTenantCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<ConfiguracaoCanalTenantFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: ConfiguracaoCanalTenantCountAggregateInputType | true
     }
 
-  export interface TenantChannelConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TenantChannelConfig'], meta: { name: 'TenantChannelConfig' } }
+  export interface ConfiguracaoCanalTenantDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConfiguracaoCanalTenant'], meta: { name: 'ConfiguracaoCanalTenant' } }
     /**
-     * Find zero or one TenantChannelConfig that matches the filter.
-     * @param {TenantChannelConfigFindUniqueArgs} args - Arguments to find a TenantChannelConfig
+     * Find zero or one ConfiguracaoCanalTenant that matches the filter.
+     * @param {ConfiguracaoCanalTenantFindUniqueArgs} args - Arguments to find a ConfiguracaoCanalTenant
      * @example
-     * // Get one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.findUnique({
+     * // Get one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends TenantChannelConfigFindUniqueArgs>(args: SelectSubset<T, TenantChannelConfigFindUniqueArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+    findUnique<T extends ConfiguracaoCanalTenantFindUniqueArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantFindUniqueArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
 
     /**
-     * Find one TenantChannelConfig that matches the filter or throw an error with `error.code='P2025'` 
+     * Find one ConfiguracaoCanalTenant that matches the filter or throw an error with `error.code='P2025'` 
      * if no matches were found.
-     * @param {TenantChannelConfigFindUniqueOrThrowArgs} args - Arguments to find a TenantChannelConfig
+     * @param {ConfiguracaoCanalTenantFindUniqueOrThrowArgs} args - Arguments to find a ConfiguracaoCanalTenant
      * @example
-     * // Get one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.findUniqueOrThrow({
+     * // Get one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends TenantChannelConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, TenantChannelConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+    findUniqueOrThrow<T extends ConfiguracaoCanalTenantFindUniqueOrThrowArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
 
     /**
-     * Find the first TenantChannelConfig that matches the filter.
+     * Find the first ConfiguracaoCanalTenant that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigFindFirstArgs} args - Arguments to find a TenantChannelConfig
+     * @param {ConfiguracaoCanalTenantFindFirstArgs} args - Arguments to find a ConfiguracaoCanalTenant
      * @example
-     * // Get one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.findFirst({
+     * // Get one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends TenantChannelConfigFindFirstArgs>(args?: SelectSubset<T, TenantChannelConfigFindFirstArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+    findFirst<T extends ConfiguracaoCanalTenantFindFirstArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantFindFirstArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
 
     /**
-     * Find the first TenantChannelConfig that matches the filter or
+     * Find the first ConfiguracaoCanalTenant that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigFindFirstOrThrowArgs} args - Arguments to find a TenantChannelConfig
+     * @param {ConfiguracaoCanalTenantFindFirstOrThrowArgs} args - Arguments to find a ConfiguracaoCanalTenant
      * @example
-     * // Get one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.findFirstOrThrow({
+     * // Get one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends TenantChannelConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, TenantChannelConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+    findFirstOrThrow<T extends ConfiguracaoCanalTenantFindFirstOrThrowArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
 
     /**
-     * Find zero or more TenantChannelConfigs that matches the filter.
+     * Find zero or more ConfiguracaoCanalTenants that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {ConfiguracaoCanalTenantFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all TenantChannelConfigs
-     * const tenantChannelConfigs = await prisma.tenantChannelConfig.findMany()
+     * // Get all ConfiguracaoCanalTenants
+     * const configuracaoCanalTenants = await prisma.configuracaoCanalTenant.findMany()
      * 
-     * // Get first 10 TenantChannelConfigs
-     * const tenantChannelConfigs = await prisma.tenantChannelConfig.findMany({ take: 10 })
+     * // Get first 10 ConfiguracaoCanalTenants
+     * const configuracaoCanalTenants = await prisma.configuracaoCanalTenant.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const tenantChannelConfigWithIdOnly = await prisma.tenantChannelConfig.findMany({ select: { id: true } })
+     * // Only select the `id_configuracao_canal_tenant`
+     * const configuracaoCanalTenantWithId_configuracao_canal_tenantOnly = await prisma.configuracaoCanalTenant.findMany({ select: { id_configuracao_canal_tenant: true } })
      * 
      */
-    findMany<T extends TenantChannelConfigFindManyArgs>(args?: SelectSubset<T, TenantChannelConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "findMany">>
+    findMany<T extends ConfiguracaoCanalTenantFindManyArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "findMany">>
 
     /**
-     * Create a TenantChannelConfig.
-     * @param {TenantChannelConfigCreateArgs} args - Arguments to create a TenantChannelConfig.
+     * Create a ConfiguracaoCanalTenant.
+     * @param {ConfiguracaoCanalTenantCreateArgs} args - Arguments to create a ConfiguracaoCanalTenant.
      * @example
-     * // Create one TenantChannelConfig
-     * const TenantChannelConfig = await prisma.tenantChannelConfig.create({
+     * // Create one ConfiguracaoCanalTenant
+     * const ConfiguracaoCanalTenant = await prisma.configuracaoCanalTenant.create({
      *   data: {
-     *     // ... data to create a TenantChannelConfig
+     *     // ... data to create a ConfiguracaoCanalTenant
      *   }
      * })
      * 
      */
-    create<T extends TenantChannelConfigCreateArgs>(args: SelectSubset<T, TenantChannelConfigCreateArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "create">, never, ExtArgs>
+    create<T extends ConfiguracaoCanalTenantCreateArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantCreateArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "create">, never, ExtArgs>
 
     /**
-     * Create many TenantChannelConfigs.
-     * @param {TenantChannelConfigCreateManyArgs} args - Arguments to create many TenantChannelConfigs.
+     * Create many ConfiguracaoCanalTenants.
+     * @param {ConfiguracaoCanalTenantCreateManyArgs} args - Arguments to create many ConfiguracaoCanalTenants.
      * @example
-     * // Create many TenantChannelConfigs
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.createMany({
+     * // Create many ConfiguracaoCanalTenants
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends TenantChannelConfigCreateManyArgs>(args?: SelectSubset<T, TenantChannelConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends ConfiguracaoCanalTenantCreateManyArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many TenantChannelConfigs and returns the data saved in the database.
-     * @param {TenantChannelConfigCreateManyAndReturnArgs} args - Arguments to create many TenantChannelConfigs.
+     * Create many ConfiguracaoCanalTenants and returns the data saved in the database.
+     * @param {ConfiguracaoCanalTenantCreateManyAndReturnArgs} args - Arguments to create many ConfiguracaoCanalTenants.
      * @example
-     * // Create many TenantChannelConfigs
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.createManyAndReturn({
+     * // Create many ConfiguracaoCanalTenants
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many TenantChannelConfigs and only return the `id`
-     * const tenantChannelConfigWithIdOnly = await prisma.tenantChannelConfig.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many ConfiguracaoCanalTenants and only return the `id_configuracao_canal_tenant`
+     * const configuracaoCanalTenantWithId_configuracao_canal_tenantOnly = await prisma.configuracaoCanalTenant.createManyAndReturn({ 
+     *   select: { id_configuracao_canal_tenant: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -49933,28 +49956,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends TenantChannelConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, TenantChannelConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "createManyAndReturn">>
+    createManyAndReturn<T extends ConfiguracaoCanalTenantCreateManyAndReturnArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "createManyAndReturn">>
 
     /**
-     * Delete a TenantChannelConfig.
-     * @param {TenantChannelConfigDeleteArgs} args - Arguments to delete one TenantChannelConfig.
+     * Delete a ConfiguracaoCanalTenant.
+     * @param {ConfiguracaoCanalTenantDeleteArgs} args - Arguments to delete one ConfiguracaoCanalTenant.
      * @example
-     * // Delete one TenantChannelConfig
-     * const TenantChannelConfig = await prisma.tenantChannelConfig.delete({
+     * // Delete one ConfiguracaoCanalTenant
+     * const ConfiguracaoCanalTenant = await prisma.configuracaoCanalTenant.delete({
      *   where: {
-     *     // ... filter to delete one TenantChannelConfig
+     *     // ... filter to delete one ConfiguracaoCanalTenant
      *   }
      * })
      * 
      */
-    delete<T extends TenantChannelConfigDeleteArgs>(args: SelectSubset<T, TenantChannelConfigDeleteArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+    delete<T extends ConfiguracaoCanalTenantDeleteArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantDeleteArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "delete">, never, ExtArgs>
 
     /**
-     * Update one TenantChannelConfig.
-     * @param {TenantChannelConfigUpdateArgs} args - Arguments to update one TenantChannelConfig.
+     * Update one ConfiguracaoCanalTenant.
+     * @param {ConfiguracaoCanalTenantUpdateArgs} args - Arguments to update one ConfiguracaoCanalTenant.
      * @example
-     * // Update one TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.update({
+     * // Update one ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -49964,30 +49987,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends TenantChannelConfigUpdateArgs>(args: SelectSubset<T, TenantChannelConfigUpdateArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "update">, never, ExtArgs>
+    update<T extends ConfiguracaoCanalTenantUpdateArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantUpdateArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "update">, never, ExtArgs>
 
     /**
-     * Delete zero or more TenantChannelConfigs.
-     * @param {TenantChannelConfigDeleteManyArgs} args - Arguments to filter TenantChannelConfigs to delete.
+     * Delete zero or more ConfiguracaoCanalTenants.
+     * @param {ConfiguracaoCanalTenantDeleteManyArgs} args - Arguments to filter ConfiguracaoCanalTenants to delete.
      * @example
-     * // Delete a few TenantChannelConfigs
-     * const { count } = await prisma.tenantChannelConfig.deleteMany({
+     * // Delete a few ConfiguracaoCanalTenants
+     * const { count } = await prisma.configuracaoCanalTenant.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends TenantChannelConfigDeleteManyArgs>(args?: SelectSubset<T, TenantChannelConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends ConfiguracaoCanalTenantDeleteManyArgs>(args?: SelectSubset<T, ConfiguracaoCanalTenantDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more TenantChannelConfigs.
+     * Update zero or more ConfiguracaoCanalTenants.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {ConfiguracaoCanalTenantUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many TenantChannelConfigs
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.updateMany({
+     * // Update many ConfiguracaoCanalTenants
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -49997,56 +50020,56 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends TenantChannelConfigUpdateManyArgs>(args: SelectSubset<T, TenantChannelConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends ConfiguracaoCanalTenantUpdateManyArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one TenantChannelConfig.
-     * @param {TenantChannelConfigUpsertArgs} args - Arguments to update or create a TenantChannelConfig.
+     * Create or update one ConfiguracaoCanalTenant.
+     * @param {ConfiguracaoCanalTenantUpsertArgs} args - Arguments to update or create a ConfiguracaoCanalTenant.
      * @example
-     * // Update or create a TenantChannelConfig
-     * const tenantChannelConfig = await prisma.tenantChannelConfig.upsert({
+     * // Update or create a ConfiguracaoCanalTenant
+     * const configuracaoCanalTenant = await prisma.configuracaoCanalTenant.upsert({
      *   create: {
-     *     // ... data to create a TenantChannelConfig
+     *     // ... data to create a ConfiguracaoCanalTenant
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the TenantChannelConfig we want to update
+     *     // ... the filter for the ConfiguracaoCanalTenant we want to update
      *   }
      * })
      */
-    upsert<T extends TenantChannelConfigUpsertArgs>(args: SelectSubset<T, TenantChannelConfigUpsertArgs<ExtArgs>>): Prisma__TenantChannelConfigClient<$Result.GetResult<Prisma.$TenantChannelConfigPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+    upsert<T extends ConfiguracaoCanalTenantUpsertArgs>(args: SelectSubset<T, ConfiguracaoCanalTenantUpsertArgs<ExtArgs>>): Prisma__ConfiguracaoCanalTenantClient<$Result.GetResult<Prisma.$ConfiguracaoCanalTenantPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
 
 
     /**
-     * Count the number of TenantChannelConfigs.
+     * Count the number of ConfiguracaoCanalTenants.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigCountArgs} args - Arguments to filter TenantChannelConfigs to count.
+     * @param {ConfiguracaoCanalTenantCountArgs} args - Arguments to filter ConfiguracaoCanalTenants to count.
      * @example
-     * // Count the number of TenantChannelConfigs
-     * const count = await prisma.tenantChannelConfig.count({
+     * // Count the number of ConfiguracaoCanalTenants
+     * const count = await prisma.configuracaoCanalTenant.count({
      *   where: {
-     *     // ... the filter for the TenantChannelConfigs we want to count
+     *     // ... the filter for the ConfiguracaoCanalTenants we want to count
      *   }
      * })
     **/
-    count<T extends TenantChannelConfigCountArgs>(
-      args?: Subset<T, TenantChannelConfigCountArgs>,
+    count<T extends ConfiguracaoCanalTenantCountArgs>(
+      args?: Subset<T, ConfiguracaoCanalTenantCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], TenantChannelConfigCountAggregateOutputType>
+          : GetScalarType<T['select'], ConfiguracaoCanalTenantCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a TenantChannelConfig.
+     * Allows you to perform aggregations operations on a ConfiguracaoCanalTenant.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {ConfiguracaoCanalTenantAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -50066,13 +50089,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends TenantChannelConfigAggregateArgs>(args: Subset<T, TenantChannelConfigAggregateArgs>): Prisma.PrismaPromise<GetTenantChannelConfigAggregateType<T>>
+    aggregate<T extends ConfiguracaoCanalTenantAggregateArgs>(args: Subset<T, ConfiguracaoCanalTenantAggregateArgs>): Prisma.PrismaPromise<GetConfiguracaoCanalTenantAggregateType<T>>
 
     /**
-     * Group by TenantChannelConfig.
+     * Group by ConfiguracaoCanalTenant.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {TenantChannelConfigGroupByArgs} args - Group by arguments.
+     * @param {ConfiguracaoCanalTenantGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -50087,14 +50110,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends TenantChannelConfigGroupByArgs,
+      T extends ConfiguracaoCanalTenantGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: TenantChannelConfigGroupByArgs['orderBy'] }
-        : { orderBy?: TenantChannelConfigGroupByArgs['orderBy'] },
+        ? { orderBy: ConfiguracaoCanalTenantGroupByArgs['orderBy'] }
+        : { orderBy?: ConfiguracaoCanalTenantGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -50143,20 +50166,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, TenantChannelConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTenantChannelConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, ConfiguracaoCanalTenantGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConfiguracaoCanalTenantGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the TenantChannelConfig model
+   * Fields of the ConfiguracaoCanalTenant model
    */
-  readonly fields: TenantChannelConfigFieldRefs;
+  readonly fields: ConfiguracaoCanalTenantFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for TenantChannelConfig.
+   * The delegate class that acts as a "Promise-like" for ConfiguracaoCanalTenant.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__TenantChannelConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__ConfiguracaoCanalTenantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -50184,301 +50207,302 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the TenantChannelConfig model
+   * Fields of the ConfiguracaoCanalTenant model
    */ 
-  interface TenantChannelConfigFieldRefs {
-    readonly id: FieldRef<"TenantChannelConfig", 'String'>
-    readonly tenant_id: FieldRef<"TenantChannelConfig", 'String'>
-    readonly email_enabled: FieldRef<"TenantChannelConfig", 'Boolean'>
-    readonly whatsapp_enabled: FieldRef<"TenantChannelConfig", 'Boolean'>
-    readonly updated_by: FieldRef<"TenantChannelConfig", 'String'>
-    readonly created_at: FieldRef<"TenantChannelConfig", 'DateTime'>
-    readonly updated_at: FieldRef<"TenantChannelConfig", 'DateTime'>
+  interface ConfiguracaoCanalTenantFieldRefs {
+    readonly id_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalTenant", 'String'>
+    readonly id_organizacao_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalTenant", 'String'>
+    readonly id_produto_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalTenant", 'String'>
+    readonly id_usuario_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalTenant", 'String'>
+    readonly email_habilitado_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalTenant", 'Boolean'>
+    readonly whatsapp_habilitado_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalTenant", 'Boolean'>
+    readonly data_criacao_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalTenant", 'DateTime'>
+    readonly data_atualizacao_configuracao_canal_tenant: FieldRef<"ConfiguracaoCanalTenant", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * TenantChannelConfig findUnique
+   * ConfiguracaoCanalTenant findUnique
    */
-  export type TenantChannelConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfig to fetch.
+     * Filter, which ConfiguracaoCanalTenant to fetch.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
   }
 
   /**
-   * TenantChannelConfig findUniqueOrThrow
+   * ConfiguracaoCanalTenant findUniqueOrThrow
    */
-  export type TenantChannelConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfig to fetch.
+     * Filter, which ConfiguracaoCanalTenant to fetch.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
   }
 
   /**
-   * TenantChannelConfig findFirst
+   * ConfiguracaoCanalTenant findFirst
    */
-  export type TenantChannelConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfig to fetch.
+     * Filter, which ConfiguracaoCanalTenant to fetch.
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TenantChannelConfigs to fetch.
+     * Determine the order of ConfiguracaoCanalTenants to fetch.
      */
-    orderBy?: TenantChannelConfigOrderByWithRelationInput | TenantChannelConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoCanalTenantOrderByWithRelationInput | ConfiguracaoCanalTenantOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TenantChannelConfigs.
+     * Sets the position for searching for ConfiguracaoCanalTenants.
      */
-    cursor?: TenantChannelConfigWhereUniqueInput
+    cursor?: ConfiguracaoCanalTenantWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TenantChannelConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoCanalTenants from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TenantChannelConfigs.
+     * Skip the first `n` ConfiguracaoCanalTenants.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TenantChannelConfigs.
+     * Filter by unique combinations of ConfiguracaoCanalTenants.
      */
-    distinct?: TenantChannelConfigScalarFieldEnum | TenantChannelConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoCanalTenantScalarFieldEnum | ConfiguracaoCanalTenantScalarFieldEnum[]
   }
 
   /**
-   * TenantChannelConfig findFirstOrThrow
+   * ConfiguracaoCanalTenant findFirstOrThrow
    */
-  export type TenantChannelConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfig to fetch.
+     * Filter, which ConfiguracaoCanalTenant to fetch.
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TenantChannelConfigs to fetch.
+     * Determine the order of ConfiguracaoCanalTenants to fetch.
      */
-    orderBy?: TenantChannelConfigOrderByWithRelationInput | TenantChannelConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoCanalTenantOrderByWithRelationInput | ConfiguracaoCanalTenantOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for TenantChannelConfigs.
+     * Sets the position for searching for ConfiguracaoCanalTenants.
      */
-    cursor?: TenantChannelConfigWhereUniqueInput
+    cursor?: ConfiguracaoCanalTenantWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TenantChannelConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoCanalTenants from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TenantChannelConfigs.
+     * Skip the first `n` ConfiguracaoCanalTenants.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of TenantChannelConfigs.
+     * Filter by unique combinations of ConfiguracaoCanalTenants.
      */
-    distinct?: TenantChannelConfigScalarFieldEnum | TenantChannelConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoCanalTenantScalarFieldEnum | ConfiguracaoCanalTenantScalarFieldEnum[]
   }
 
   /**
-   * TenantChannelConfig findMany
+   * ConfiguracaoCanalTenant findMany
    */
-  export type TenantChannelConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter, which TenantChannelConfigs to fetch.
+     * Filter, which ConfiguracaoCanalTenants to fetch.
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of TenantChannelConfigs to fetch.
+     * Determine the order of ConfiguracaoCanalTenants to fetch.
      */
-    orderBy?: TenantChannelConfigOrderByWithRelationInput | TenantChannelConfigOrderByWithRelationInput[]
+    orderBy?: ConfiguracaoCanalTenantOrderByWithRelationInput | ConfiguracaoCanalTenantOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing TenantChannelConfigs.
+     * Sets the position for listing ConfiguracaoCanalTenants.
      */
-    cursor?: TenantChannelConfigWhereUniqueInput
+    cursor?: ConfiguracaoCanalTenantWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` TenantChannelConfigs from the position of the cursor.
+     * Take `±n` ConfiguracaoCanalTenants from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` TenantChannelConfigs.
+     * Skip the first `n` ConfiguracaoCanalTenants.
      */
     skip?: number
-    distinct?: TenantChannelConfigScalarFieldEnum | TenantChannelConfigScalarFieldEnum[]
+    distinct?: ConfiguracaoCanalTenantScalarFieldEnum | ConfiguracaoCanalTenantScalarFieldEnum[]
   }
 
   /**
-   * TenantChannelConfig create
+   * ConfiguracaoCanalTenant create
    */
-  export type TenantChannelConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * The data needed to create a TenantChannelConfig.
+     * The data needed to create a ConfiguracaoCanalTenant.
      */
-    data: XOR<TenantChannelConfigCreateInput, TenantChannelConfigUncheckedCreateInput>
+    data: XOR<ConfiguracaoCanalTenantCreateInput, ConfiguracaoCanalTenantUncheckedCreateInput>
   }
 
   /**
-   * TenantChannelConfig createMany
+   * ConfiguracaoCanalTenant createMany
    */
-  export type TenantChannelConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many TenantChannelConfigs.
+     * The data used to create many ConfiguracaoCanalTenants.
      */
-    data: TenantChannelConfigCreateManyInput | TenantChannelConfigCreateManyInput[]
+    data: ConfiguracaoCanalTenantCreateManyInput | ConfiguracaoCanalTenantCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TenantChannelConfig createManyAndReturn
+   * ConfiguracaoCanalTenant createManyAndReturn
    */
-  export type TenantChannelConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelectCreateManyAndReturn<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * The data used to create many TenantChannelConfigs.
+     * The data used to create many ConfiguracaoCanalTenants.
      */
-    data: TenantChannelConfigCreateManyInput | TenantChannelConfigCreateManyInput[]
+    data: ConfiguracaoCanalTenantCreateManyInput | ConfiguracaoCanalTenantCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * TenantChannelConfig update
+   * ConfiguracaoCanalTenant update
    */
-  export type TenantChannelConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * The data needed to update a TenantChannelConfig.
+     * The data needed to update a ConfiguracaoCanalTenant.
      */
-    data: XOR<TenantChannelConfigUpdateInput, TenantChannelConfigUncheckedUpdateInput>
+    data: XOR<ConfiguracaoCanalTenantUpdateInput, ConfiguracaoCanalTenantUncheckedUpdateInput>
     /**
-     * Choose, which TenantChannelConfig to update.
+     * Choose, which ConfiguracaoCanalTenant to update.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
   }
 
   /**
-   * TenantChannelConfig updateMany
+   * ConfiguracaoCanalTenant updateMany
    */
-  export type TenantChannelConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update TenantChannelConfigs.
+     * The data used to update ConfiguracaoCanalTenants.
      */
-    data: XOR<TenantChannelConfigUpdateManyMutationInput, TenantChannelConfigUncheckedUpdateManyInput>
+    data: XOR<ConfiguracaoCanalTenantUpdateManyMutationInput, ConfiguracaoCanalTenantUncheckedUpdateManyInput>
     /**
-     * Filter which TenantChannelConfigs to update
+     * Filter which ConfiguracaoCanalTenants to update
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
   }
 
   /**
-   * TenantChannelConfig upsert
+   * ConfiguracaoCanalTenant upsert
    */
-  export type TenantChannelConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * The filter to search for the TenantChannelConfig to update in case it exists.
+     * The filter to search for the ConfiguracaoCanalTenant to update in case it exists.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
     /**
-     * In case the TenantChannelConfig found by the `where` argument doesn't exist, create a new TenantChannelConfig with this data.
+     * In case the ConfiguracaoCanalTenant found by the `where` argument doesn't exist, create a new ConfiguracaoCanalTenant with this data.
      */
-    create: XOR<TenantChannelConfigCreateInput, TenantChannelConfigUncheckedCreateInput>
+    create: XOR<ConfiguracaoCanalTenantCreateInput, ConfiguracaoCanalTenantUncheckedCreateInput>
     /**
-     * In case the TenantChannelConfig was found with the provided `where` argument, update it with this data.
+     * In case the ConfiguracaoCanalTenant was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<TenantChannelConfigUpdateInput, TenantChannelConfigUncheckedUpdateInput>
+    update: XOR<ConfiguracaoCanalTenantUpdateInput, ConfiguracaoCanalTenantUncheckedUpdateInput>
   }
 
   /**
-   * TenantChannelConfig delete
+   * ConfiguracaoCanalTenant delete
    */
-  export type TenantChannelConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
     /**
-     * Filter which TenantChannelConfig to delete.
+     * Filter which ConfiguracaoCanalTenant to delete.
      */
-    where: TenantChannelConfigWhereUniqueInput
+    where: ConfiguracaoCanalTenantWhereUniqueInput
   }
 
   /**
-   * TenantChannelConfig deleteMany
+   * ConfiguracaoCanalTenant deleteMany
    */
-  export type TenantChannelConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which TenantChannelConfigs to delete
+     * Filter which ConfiguracaoCanalTenants to delete
      */
-    where?: TenantChannelConfigWhereInput
+    where?: ConfiguracaoCanalTenantWhereInput
   }
 
   /**
-   * TenantChannelConfig without action
+   * ConfiguracaoCanalTenant without action
    */
-  export type TenantChannelConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type ConfiguracaoCanalTenantDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the TenantChannelConfig
+     * Select specific fields to fetch from the ConfiguracaoCanalTenant
      */
-    select?: TenantChannelConfigSelect<ExtArgs> | null
+    select?: ConfiguracaoCanalTenantSelect<ExtArgs> | null
   }
 
 
@@ -51276,52 +51300,54 @@ export namespace Prisma {
 
 
   export const NotificacoesTituloCorpoScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    type: 'type',
-    title: 'title',
-    message: 'message',
-    read: 'read',
-    target_entity: 'target_entity',
-    target_id: 'target_id',
-    delivery_status: 'delivery_status',
-    external_id: 'external_id',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_notificacoes_titulo_corpo: 'id_notificacoes_titulo_corpo',
+    id_organizacao_notificacoes_titulo_corpo: 'id_organizacao_notificacoes_titulo_corpo',
+    id_produto_notificacoes_titulo_corpo: 'id_produto_notificacoes_titulo_corpo',
+    id_usuario_notificacoes_titulo_corpo: 'id_usuario_notificacoes_titulo_corpo',
+    tipo_notificacoes_titulo_corpo: 'tipo_notificacoes_titulo_corpo',
+    titulo_notificacoes_titulo_corpo: 'titulo_notificacoes_titulo_corpo',
+    mensagem_notificacoes_titulo_corpo: 'mensagem_notificacoes_titulo_corpo',
+    lida_notificacoes_titulo_corpo: 'lida_notificacoes_titulo_corpo',
+    entidade_alvo_notificacoes_titulo_corpo: 'entidade_alvo_notificacoes_titulo_corpo',
+    id_alvo_notificacoes_titulo_corpo: 'id_alvo_notificacoes_titulo_corpo',
+    status_entrega_notificacoes_titulo_corpo: 'status_entrega_notificacoes_titulo_corpo',
+    id_externo_notificacoes_titulo_corpo: 'id_externo_notificacoes_titulo_corpo',
+    data_criacao_notificacoes_titulo_corpo: 'data_criacao_notificacoes_titulo_corpo',
+    data_atualizacao_notificacoes_titulo_corpo: 'data_atualizacao_notificacoes_titulo_corpo'
   };
 
   export type NotificacoesTituloCorpoScalarFieldEnum = (typeof NotificacoesTituloCorpoScalarFieldEnum)[keyof typeof NotificacoesTituloCorpoScalarFieldEnum]
 
 
-  export const ExternalContactScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    created_by: 'created_by',
-    name: 'name',
-    email: 'email',
-    whatsapp_phone: 'whatsapp_phone',
-    whatsapp_opt_in_at: 'whatsapp_opt_in_at',
-    notes: 'notes',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+  export const ContatoExternoScalarFieldEnum: {
+    id_contato_externo: 'id_contato_externo',
+    id_organizacao_contato_externo: 'id_organizacao_contato_externo',
+    id_produto_contato_externo: 'id_produto_contato_externo',
+    id_usuario_contato_externo: 'id_usuario_contato_externo',
+    nome_contato_externo: 'nome_contato_externo',
+    email_contato_externo: 'email_contato_externo',
+    whatsapp_telefone_contato_externo: 'whatsapp_telefone_contato_externo',
+    whatsapp_opt_in_em_contato_externo: 'whatsapp_opt_in_em_contato_externo',
+    observacoes_contato_externo: 'observacoes_contato_externo',
+    data_criacao_contato_externo: 'data_criacao_contato_externo',
+    data_atualizacao_contato_externo: 'data_atualizacao_contato_externo'
   };
 
-  export type ExternalContactScalarFieldEnum = (typeof ExternalContactScalarFieldEnum)[keyof typeof ExternalContactScalarFieldEnum]
+  export type ContatoExternoScalarFieldEnum = (typeof ContatoExternoScalarFieldEnum)[keyof typeof ContatoExternoScalarFieldEnum]
 
 
-  export const TenantChannelConfigScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    email_enabled: 'email_enabled',
-    whatsapp_enabled: 'whatsapp_enabled',
-    updated_by: 'updated_by',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+  export const ConfiguracaoCanalTenantScalarFieldEnum: {
+    id_configuracao_canal_tenant: 'id_configuracao_canal_tenant',
+    id_organizacao_configuracao_canal_tenant: 'id_organizacao_configuracao_canal_tenant',
+    id_produto_configuracao_canal_tenant: 'id_produto_configuracao_canal_tenant',
+    id_usuario_configuracao_canal_tenant: 'id_usuario_configuracao_canal_tenant',
+    email_habilitado_configuracao_canal_tenant: 'email_habilitado_configuracao_canal_tenant',
+    whatsapp_habilitado_configuracao_canal_tenant: 'whatsapp_habilitado_configuracao_canal_tenant',
+    data_criacao_configuracao_canal_tenant: 'data_criacao_configuracao_canal_tenant',
+    data_atualizacao_configuracao_canal_tenant: 'data_atualizacao_configuracao_canal_tenant'
   };
 
-  export type TenantChannelConfigScalarFieldEnum = (typeof TenantChannelConfigScalarFieldEnum)[keyof typeof TenantChannelConfigScalarFieldEnum]
+  export type ConfiguracaoCanalTenantScalarFieldEnum = (typeof ConfiguracaoCanalTenantScalarFieldEnum)[keyof typeof ConfiguracaoCanalTenantScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -55538,74 +55564,74 @@ export namespace Prisma {
     AND?: NotificacoesTituloCorpoWhereInput | NotificacoesTituloCorpoWhereInput[]
     OR?: NotificacoesTituloCorpoWhereInput[]
     NOT?: NotificacoesTituloCorpoWhereInput | NotificacoesTituloCorpoWhereInput[]
-    id?: StringFilter<"NotificacoesTituloCorpo"> | string
-    tenant_id?: StringFilter<"NotificacoesTituloCorpo"> | string
-    product_id?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    user_id?: StringFilter<"NotificacoesTituloCorpo"> | string
-    type?: StringFilter<"NotificacoesTituloCorpo"> | string
-    title?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    message?: StringFilter<"NotificacoesTituloCorpo"> | string
-    read?: BoolFilter<"NotificacoesTituloCorpo"> | boolean
-    target_entity?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    target_id?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    delivery_status?: StringFilter<"NotificacoesTituloCorpo"> | string
-    external_id?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    created_at?: DateTimeFilter<"NotificacoesTituloCorpo"> | Date | string
-    updated_at?: DateTimeFilter<"NotificacoesTituloCorpo"> | Date | string
+    id_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_organizacao_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_produto_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    id_usuario_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    tipo_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    titulo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    mensagem_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    lida_notificacoes_titulo_corpo?: BoolFilter<"NotificacoesTituloCorpo"> | boolean
+    entidade_alvo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    id_alvo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    status_entrega_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_externo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    data_criacao_notificacoes_titulo_corpo?: DateTimeFilter<"NotificacoesTituloCorpo"> | Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: DateTimeFilter<"NotificacoesTituloCorpo"> | Date | string
   }
 
   export type NotificacoesTituloCorpoOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    type?: SortOrder
-    title?: SortOrderInput | SortOrder
-    message?: SortOrder
-    read?: SortOrder
-    target_entity?: SortOrderInput | SortOrder
-    target_id?: SortOrderInput | SortOrder
-    delivery_status?: SortOrder
-    external_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao_notificacoes_titulo_corpo?: SortOrder
+    id_produto_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    tipo_notificacoes_titulo_corpo?: SortOrder
+    titulo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    mensagem_notificacoes_titulo_corpo?: SortOrder
+    lida_notificacoes_titulo_corpo?: SortOrder
+    entidade_alvo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    id_alvo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    status_entrega_notificacoes_titulo_corpo?: SortOrder
+    id_externo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    data_criacao_notificacoes_titulo_corpo?: SortOrder
+    data_atualizacao_notificacoes_titulo_corpo?: SortOrder
   }
 
   export type NotificacoesTituloCorpoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_notificacoes_titulo_corpo?: string
     AND?: NotificacoesTituloCorpoWhereInput | NotificacoesTituloCorpoWhereInput[]
     OR?: NotificacoesTituloCorpoWhereInput[]
     NOT?: NotificacoesTituloCorpoWhereInput | NotificacoesTituloCorpoWhereInput[]
-    tenant_id?: StringFilter<"NotificacoesTituloCorpo"> | string
-    product_id?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    user_id?: StringFilter<"NotificacoesTituloCorpo"> | string
-    type?: StringFilter<"NotificacoesTituloCorpo"> | string
-    title?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    message?: StringFilter<"NotificacoesTituloCorpo"> | string
-    read?: BoolFilter<"NotificacoesTituloCorpo"> | boolean
-    target_entity?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    target_id?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    delivery_status?: StringFilter<"NotificacoesTituloCorpo"> | string
-    external_id?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
-    created_at?: DateTimeFilter<"NotificacoesTituloCorpo"> | Date | string
-    updated_at?: DateTimeFilter<"NotificacoesTituloCorpo"> | Date | string
-  }, "id">
+    id_organizacao_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_produto_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    id_usuario_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    tipo_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    titulo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    mensagem_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    lida_notificacoes_titulo_corpo?: BoolFilter<"NotificacoesTituloCorpo"> | boolean
+    entidade_alvo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    id_alvo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    status_entrega_notificacoes_titulo_corpo?: StringFilter<"NotificacoesTituloCorpo"> | string
+    id_externo_notificacoes_titulo_corpo?: StringNullableFilter<"NotificacoesTituloCorpo"> | string | null
+    data_criacao_notificacoes_titulo_corpo?: DateTimeFilter<"NotificacoesTituloCorpo"> | Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: DateTimeFilter<"NotificacoesTituloCorpo"> | Date | string
+  }, "id_notificacoes_titulo_corpo">
 
   export type NotificacoesTituloCorpoOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    type?: SortOrder
-    title?: SortOrderInput | SortOrder
-    message?: SortOrder
-    read?: SortOrder
-    target_entity?: SortOrderInput | SortOrder
-    target_id?: SortOrderInput | SortOrder
-    delivery_status?: SortOrder
-    external_id?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao_notificacoes_titulo_corpo?: SortOrder
+    id_produto_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    tipo_notificacoes_titulo_corpo?: SortOrder
+    titulo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    mensagem_notificacoes_titulo_corpo?: SortOrder
+    lida_notificacoes_titulo_corpo?: SortOrder
+    entidade_alvo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    id_alvo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    status_entrega_notificacoes_titulo_corpo?: SortOrder
+    id_externo_notificacoes_titulo_corpo?: SortOrderInput | SortOrder
+    data_criacao_notificacoes_titulo_corpo?: SortOrder
+    data_atualizacao_notificacoes_titulo_corpo?: SortOrder
     _count?: NotificacoesTituloCorpoCountOrderByAggregateInput
     _max?: NotificacoesTituloCorpoMaxOrderByAggregateInput
     _min?: NotificacoesTituloCorpoMinOrderByAggregateInput
@@ -55615,159 +55641,169 @@ export namespace Prisma {
     AND?: NotificacoesTituloCorpoScalarWhereWithAggregatesInput | NotificacoesTituloCorpoScalarWhereWithAggregatesInput[]
     OR?: NotificacoesTituloCorpoScalarWhereWithAggregatesInput[]
     NOT?: NotificacoesTituloCorpoScalarWhereWithAggregatesInput | NotificacoesTituloCorpoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
-    tenant_id?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
-    product_id?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
-    user_id?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
-    type?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
-    title?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
-    message?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
-    read?: BoolWithAggregatesFilter<"NotificacoesTituloCorpo"> | boolean
-    target_entity?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
-    target_id?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
-    delivery_status?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
-    external_id?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"NotificacoesTituloCorpo"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"NotificacoesTituloCorpo"> | Date | string
+    id_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
+    id_organizacao_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
+    id_produto_notificacoes_titulo_corpo?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
+    id_usuario_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
+    tipo_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
+    titulo_notificacoes_titulo_corpo?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
+    mensagem_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
+    lida_notificacoes_titulo_corpo?: BoolWithAggregatesFilter<"NotificacoesTituloCorpo"> | boolean
+    entidade_alvo_notificacoes_titulo_corpo?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
+    id_alvo_notificacoes_titulo_corpo?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
+    status_entrega_notificacoes_titulo_corpo?: StringWithAggregatesFilter<"NotificacoesTituloCorpo"> | string
+    id_externo_notificacoes_titulo_corpo?: StringNullableWithAggregatesFilter<"NotificacoesTituloCorpo"> | string | null
+    data_criacao_notificacoes_titulo_corpo?: DateTimeWithAggregatesFilter<"NotificacoesTituloCorpo"> | Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: DateTimeWithAggregatesFilter<"NotificacoesTituloCorpo"> | Date | string
   }
 
-  export type ExternalContactWhereInput = {
-    AND?: ExternalContactWhereInput | ExternalContactWhereInput[]
-    OR?: ExternalContactWhereInput[]
-    NOT?: ExternalContactWhereInput | ExternalContactWhereInput[]
-    id?: StringFilter<"ExternalContact"> | string
-    tenant_id?: StringFilter<"ExternalContact"> | string
-    created_by?: StringFilter<"ExternalContact"> | string
-    name?: StringFilter<"ExternalContact"> | string
-    email?: StringNullableFilter<"ExternalContact"> | string | null
-    whatsapp_phone?: StringNullableFilter<"ExternalContact"> | string | null
-    whatsapp_opt_in_at?: DateTimeNullableFilter<"ExternalContact"> | Date | string | null
-    notes?: StringNullableFilter<"ExternalContact"> | string | null
-    created_at?: DateTimeFilter<"ExternalContact"> | Date | string
-    updated_at?: DateTimeFilter<"ExternalContact"> | Date | string
+  export type ContatoExternoWhereInput = {
+    AND?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
+    OR?: ContatoExternoWhereInput[]
+    NOT?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
+    id_contato_externo?: StringFilter<"ContatoExterno"> | string
+    id_organizacao_contato_externo?: StringFilter<"ContatoExterno"> | string
+    id_produto_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
+    id_usuario_contato_externo?: StringFilter<"ContatoExterno"> | string
+    nome_contato_externo?: StringFilter<"ContatoExterno"> | string
+    email_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
+    whatsapp_telefone_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
+    whatsapp_opt_in_em_contato_externo?: DateTimeNullableFilter<"ContatoExterno"> | Date | string | null
+    observacoes_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
+    data_criacao_contato_externo?: DateTimeFilter<"ContatoExterno"> | Date | string
+    data_atualizacao_contato_externo?: DateTimeFilter<"ContatoExterno"> | Date | string
   }
 
-  export type ExternalContactOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    created_by?: SortOrder
-    name?: SortOrder
-    email?: SortOrderInput | SortOrder
-    whatsapp_phone?: SortOrderInput | SortOrder
-    whatsapp_opt_in_at?: SortOrderInput | SortOrder
-    notes?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type ContatoExternoOrderByWithRelationInput = {
+    id_contato_externo?: SortOrder
+    id_organizacao_contato_externo?: SortOrder
+    id_produto_contato_externo?: SortOrderInput | SortOrder
+    id_usuario_contato_externo?: SortOrder
+    nome_contato_externo?: SortOrder
+    email_contato_externo?: SortOrderInput | SortOrder
+    whatsapp_telefone_contato_externo?: SortOrderInput | SortOrder
+    whatsapp_opt_in_em_contato_externo?: SortOrderInput | SortOrder
+    observacoes_contato_externo?: SortOrderInput | SortOrder
+    data_criacao_contato_externo?: SortOrder
+    data_atualizacao_contato_externo?: SortOrder
   }
 
-  export type ExternalContactWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: ExternalContactWhereInput | ExternalContactWhereInput[]
-    OR?: ExternalContactWhereInput[]
-    NOT?: ExternalContactWhereInput | ExternalContactWhereInput[]
-    tenant_id?: StringFilter<"ExternalContact"> | string
-    created_by?: StringFilter<"ExternalContact"> | string
-    name?: StringFilter<"ExternalContact"> | string
-    email?: StringNullableFilter<"ExternalContact"> | string | null
-    whatsapp_phone?: StringNullableFilter<"ExternalContact"> | string | null
-    whatsapp_opt_in_at?: DateTimeNullableFilter<"ExternalContact"> | Date | string | null
-    notes?: StringNullableFilter<"ExternalContact"> | string | null
-    created_at?: DateTimeFilter<"ExternalContact"> | Date | string
-    updated_at?: DateTimeFilter<"ExternalContact"> | Date | string
-  }, "id">
+  export type ContatoExternoWhereUniqueInput = Prisma.AtLeast<{
+    id_contato_externo?: string
+    AND?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
+    OR?: ContatoExternoWhereInput[]
+    NOT?: ContatoExternoWhereInput | ContatoExternoWhereInput[]
+    id_organizacao_contato_externo?: StringFilter<"ContatoExterno"> | string
+    id_produto_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
+    id_usuario_contato_externo?: StringFilter<"ContatoExterno"> | string
+    nome_contato_externo?: StringFilter<"ContatoExterno"> | string
+    email_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
+    whatsapp_telefone_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
+    whatsapp_opt_in_em_contato_externo?: DateTimeNullableFilter<"ContatoExterno"> | Date | string | null
+    observacoes_contato_externo?: StringNullableFilter<"ContatoExterno"> | string | null
+    data_criacao_contato_externo?: DateTimeFilter<"ContatoExterno"> | Date | string
+    data_atualizacao_contato_externo?: DateTimeFilter<"ContatoExterno"> | Date | string
+  }, "id_contato_externo">
 
-  export type ExternalContactOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    created_by?: SortOrder
-    name?: SortOrder
-    email?: SortOrderInput | SortOrder
-    whatsapp_phone?: SortOrderInput | SortOrder
-    whatsapp_opt_in_at?: SortOrderInput | SortOrder
-    notes?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: ExternalContactCountOrderByAggregateInput
-    _max?: ExternalContactMaxOrderByAggregateInput
-    _min?: ExternalContactMinOrderByAggregateInput
+  export type ContatoExternoOrderByWithAggregationInput = {
+    id_contato_externo?: SortOrder
+    id_organizacao_contato_externo?: SortOrder
+    id_produto_contato_externo?: SortOrderInput | SortOrder
+    id_usuario_contato_externo?: SortOrder
+    nome_contato_externo?: SortOrder
+    email_contato_externo?: SortOrderInput | SortOrder
+    whatsapp_telefone_contato_externo?: SortOrderInput | SortOrder
+    whatsapp_opt_in_em_contato_externo?: SortOrderInput | SortOrder
+    observacoes_contato_externo?: SortOrderInput | SortOrder
+    data_criacao_contato_externo?: SortOrder
+    data_atualizacao_contato_externo?: SortOrder
+    _count?: ContatoExternoCountOrderByAggregateInput
+    _max?: ContatoExternoMaxOrderByAggregateInput
+    _min?: ContatoExternoMinOrderByAggregateInput
   }
 
-  export type ExternalContactScalarWhereWithAggregatesInput = {
-    AND?: ExternalContactScalarWhereWithAggregatesInput | ExternalContactScalarWhereWithAggregatesInput[]
-    OR?: ExternalContactScalarWhereWithAggregatesInput[]
-    NOT?: ExternalContactScalarWhereWithAggregatesInput | ExternalContactScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ExternalContact"> | string
-    tenant_id?: StringWithAggregatesFilter<"ExternalContact"> | string
-    created_by?: StringWithAggregatesFilter<"ExternalContact"> | string
-    name?: StringWithAggregatesFilter<"ExternalContact"> | string
-    email?: StringNullableWithAggregatesFilter<"ExternalContact"> | string | null
-    whatsapp_phone?: StringNullableWithAggregatesFilter<"ExternalContact"> | string | null
-    whatsapp_opt_in_at?: DateTimeNullableWithAggregatesFilter<"ExternalContact"> | Date | string | null
-    notes?: StringNullableWithAggregatesFilter<"ExternalContact"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"ExternalContact"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"ExternalContact"> | Date | string
+  export type ContatoExternoScalarWhereWithAggregatesInput = {
+    AND?: ContatoExternoScalarWhereWithAggregatesInput | ContatoExternoScalarWhereWithAggregatesInput[]
+    OR?: ContatoExternoScalarWhereWithAggregatesInput[]
+    NOT?: ContatoExternoScalarWhereWithAggregatesInput | ContatoExternoScalarWhereWithAggregatesInput[]
+    id_contato_externo?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    id_organizacao_contato_externo?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    id_produto_contato_externo?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
+    id_usuario_contato_externo?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    nome_contato_externo?: StringWithAggregatesFilter<"ContatoExterno"> | string
+    email_contato_externo?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
+    whatsapp_telefone_contato_externo?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
+    whatsapp_opt_in_em_contato_externo?: DateTimeNullableWithAggregatesFilter<"ContatoExterno"> | Date | string | null
+    observacoes_contato_externo?: StringNullableWithAggregatesFilter<"ContatoExterno"> | string | null
+    data_criacao_contato_externo?: DateTimeWithAggregatesFilter<"ContatoExterno"> | Date | string
+    data_atualizacao_contato_externo?: DateTimeWithAggregatesFilter<"ContatoExterno"> | Date | string
   }
 
-  export type TenantChannelConfigWhereInput = {
-    AND?: TenantChannelConfigWhereInput | TenantChannelConfigWhereInput[]
-    OR?: TenantChannelConfigWhereInput[]
-    NOT?: TenantChannelConfigWhereInput | TenantChannelConfigWhereInput[]
-    id?: StringFilter<"TenantChannelConfig"> | string
-    tenant_id?: StringFilter<"TenantChannelConfig"> | string
-    email_enabled?: BoolFilter<"TenantChannelConfig"> | boolean
-    whatsapp_enabled?: BoolFilter<"TenantChannelConfig"> | boolean
-    updated_by?: StringNullableFilter<"TenantChannelConfig"> | string | null
-    created_at?: DateTimeFilter<"TenantChannelConfig"> | Date | string
-    updated_at?: DateTimeFilter<"TenantChannelConfig"> | Date | string
+  export type ConfiguracaoCanalTenantWhereInput = {
+    AND?: ConfiguracaoCanalTenantWhereInput | ConfiguracaoCanalTenantWhereInput[]
+    OR?: ConfiguracaoCanalTenantWhereInput[]
+    NOT?: ConfiguracaoCanalTenantWhereInput | ConfiguracaoCanalTenantWhereInput[]
+    id_configuracao_canal_tenant?: StringFilter<"ConfiguracaoCanalTenant"> | string
+    id_organizacao_configuracao_canal_tenant?: StringFilter<"ConfiguracaoCanalTenant"> | string
+    id_produto_configuracao_canal_tenant?: StringNullableFilter<"ConfiguracaoCanalTenant"> | string | null
+    id_usuario_configuracao_canal_tenant?: StringNullableFilter<"ConfiguracaoCanalTenant"> | string | null
+    email_habilitado_configuracao_canal_tenant?: BoolFilter<"ConfiguracaoCanalTenant"> | boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: BoolFilter<"ConfiguracaoCanalTenant"> | boolean
+    data_criacao_configuracao_canal_tenant?: DateTimeFilter<"ConfiguracaoCanalTenant"> | Date | string
+    data_atualizacao_configuracao_canal_tenant?: DateTimeFilter<"ConfiguracaoCanalTenant"> | Date | string
   }
 
-  export type TenantChannelConfigOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    email_enabled?: SortOrder
-    whatsapp_enabled?: SortOrder
-    updated_by?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type ConfiguracaoCanalTenantOrderByWithRelationInput = {
+    id_configuracao_canal_tenant?: SortOrder
+    id_organizacao_configuracao_canal_tenant?: SortOrder
+    id_produto_configuracao_canal_tenant?: SortOrderInput | SortOrder
+    id_usuario_configuracao_canal_tenant?: SortOrderInput | SortOrder
+    email_habilitado_configuracao_canal_tenant?: SortOrder
+    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
+    data_criacao_configuracao_canal_tenant?: SortOrder
+    data_atualizacao_configuracao_canal_tenant?: SortOrder
   }
 
-  export type TenantChannelConfigWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenant_id?: string
-    AND?: TenantChannelConfigWhereInput | TenantChannelConfigWhereInput[]
-    OR?: TenantChannelConfigWhereInput[]
-    NOT?: TenantChannelConfigWhereInput | TenantChannelConfigWhereInput[]
-    email_enabled?: BoolFilter<"TenantChannelConfig"> | boolean
-    whatsapp_enabled?: BoolFilter<"TenantChannelConfig"> | boolean
-    updated_by?: StringNullableFilter<"TenantChannelConfig"> | string | null
-    created_at?: DateTimeFilter<"TenantChannelConfig"> | Date | string
-    updated_at?: DateTimeFilter<"TenantChannelConfig"> | Date | string
-  }, "id" | "tenant_id">
+  export type ConfiguracaoCanalTenantWhereUniqueInput = Prisma.AtLeast<{
+    id_configuracao_canal_tenant?: string
+    id_organizacao_configuracao_canal_tenant?: string
+    AND?: ConfiguracaoCanalTenantWhereInput | ConfiguracaoCanalTenantWhereInput[]
+    OR?: ConfiguracaoCanalTenantWhereInput[]
+    NOT?: ConfiguracaoCanalTenantWhereInput | ConfiguracaoCanalTenantWhereInput[]
+    id_produto_configuracao_canal_tenant?: StringNullableFilter<"ConfiguracaoCanalTenant"> | string | null
+    id_usuario_configuracao_canal_tenant?: StringNullableFilter<"ConfiguracaoCanalTenant"> | string | null
+    email_habilitado_configuracao_canal_tenant?: BoolFilter<"ConfiguracaoCanalTenant"> | boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: BoolFilter<"ConfiguracaoCanalTenant"> | boolean
+    data_criacao_configuracao_canal_tenant?: DateTimeFilter<"ConfiguracaoCanalTenant"> | Date | string
+    data_atualizacao_configuracao_canal_tenant?: DateTimeFilter<"ConfiguracaoCanalTenant"> | Date | string
+  }, "id_configuracao_canal_tenant" | "id_organizacao_configuracao_canal_tenant">
 
-  export type TenantChannelConfigOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    email_enabled?: SortOrder
-    whatsapp_enabled?: SortOrder
-    updated_by?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    _count?: TenantChannelConfigCountOrderByAggregateInput
-    _max?: TenantChannelConfigMaxOrderByAggregateInput
-    _min?: TenantChannelConfigMinOrderByAggregateInput
+  export type ConfiguracaoCanalTenantOrderByWithAggregationInput = {
+    id_configuracao_canal_tenant?: SortOrder
+    id_organizacao_configuracao_canal_tenant?: SortOrder
+    id_produto_configuracao_canal_tenant?: SortOrderInput | SortOrder
+    id_usuario_configuracao_canal_tenant?: SortOrderInput | SortOrder
+    email_habilitado_configuracao_canal_tenant?: SortOrder
+    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
+    data_criacao_configuracao_canal_tenant?: SortOrder
+    data_atualizacao_configuracao_canal_tenant?: SortOrder
+    _count?: ConfiguracaoCanalTenantCountOrderByAggregateInput
+    _max?: ConfiguracaoCanalTenantMaxOrderByAggregateInput
+    _min?: ConfiguracaoCanalTenantMinOrderByAggregateInput
   }
 
-  export type TenantChannelConfigScalarWhereWithAggregatesInput = {
-    AND?: TenantChannelConfigScalarWhereWithAggregatesInput | TenantChannelConfigScalarWhereWithAggregatesInput[]
-    OR?: TenantChannelConfigScalarWhereWithAggregatesInput[]
-    NOT?: TenantChannelConfigScalarWhereWithAggregatesInput | TenantChannelConfigScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"TenantChannelConfig"> | string
-    tenant_id?: StringWithAggregatesFilter<"TenantChannelConfig"> | string
-    email_enabled?: BoolWithAggregatesFilter<"TenantChannelConfig"> | boolean
-    whatsapp_enabled?: BoolWithAggregatesFilter<"TenantChannelConfig"> | boolean
-    updated_by?: StringNullableWithAggregatesFilter<"TenantChannelConfig"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"TenantChannelConfig"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"TenantChannelConfig"> | Date | string
+  export type ConfiguracaoCanalTenantScalarWhereWithAggregatesInput = {
+    AND?: ConfiguracaoCanalTenantScalarWhereWithAggregatesInput | ConfiguracaoCanalTenantScalarWhereWithAggregatesInput[]
+    OR?: ConfiguracaoCanalTenantScalarWhereWithAggregatesInput[]
+    NOT?: ConfiguracaoCanalTenantScalarWhereWithAggregatesInput | ConfiguracaoCanalTenantScalarWhereWithAggregatesInput[]
+    id_configuracao_canal_tenant?: StringWithAggregatesFilter<"ConfiguracaoCanalTenant"> | string
+    id_organizacao_configuracao_canal_tenant?: StringWithAggregatesFilter<"ConfiguracaoCanalTenant"> | string
+    id_produto_configuracao_canal_tenant?: StringNullableWithAggregatesFilter<"ConfiguracaoCanalTenant"> | string | null
+    id_usuario_configuracao_canal_tenant?: StringNullableWithAggregatesFilter<"ConfiguracaoCanalTenant"> | string | null
+    email_habilitado_configuracao_canal_tenant?: BoolWithAggregatesFilter<"ConfiguracaoCanalTenant"> | boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: BoolWithAggregatesFilter<"ConfiguracaoCanalTenant"> | boolean
+    data_criacao_configuracao_canal_tenant?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalTenant"> | Date | string
+    data_atualizacao_configuracao_canal_tenant?: DateTimeWithAggregatesFilter<"ConfiguracaoCanalTenant"> | Date | string
   }
 
   export type AtividadesDadosCreateInput = {
@@ -60378,283 +60414,297 @@ export namespace Prisma {
   }
 
   export type NotificacoesTituloCorpoCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    type: string
-    title?: string | null
-    message: string
-    read?: boolean
-    target_entity?: string | null
-    target_id?: string | null
-    delivery_status?: string
-    external_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_notificacoes_titulo_corpo?: string
+    id_organizacao_notificacoes_titulo_corpo: string
+    id_produto_notificacoes_titulo_corpo?: string | null
+    id_usuario_notificacoes_titulo_corpo: string
+    tipo_notificacoes_titulo_corpo: string
+    titulo_notificacoes_titulo_corpo?: string | null
+    mensagem_notificacoes_titulo_corpo: string
+    lida_notificacoes_titulo_corpo?: boolean
+    entidade_alvo_notificacoes_titulo_corpo?: string | null
+    id_alvo_notificacoes_titulo_corpo?: string | null
+    status_entrega_notificacoes_titulo_corpo?: string
+    id_externo_notificacoes_titulo_corpo?: string | null
+    data_criacao_notificacoes_titulo_corpo?: Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: Date | string
   }
 
   export type NotificacoesTituloCorpoUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    type: string
-    title?: string | null
-    message: string
-    read?: boolean
-    target_entity?: string | null
-    target_id?: string | null
-    delivery_status?: string
-    external_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_notificacoes_titulo_corpo?: string
+    id_organizacao_notificacoes_titulo_corpo: string
+    id_produto_notificacoes_titulo_corpo?: string | null
+    id_usuario_notificacoes_titulo_corpo: string
+    tipo_notificacoes_titulo_corpo: string
+    titulo_notificacoes_titulo_corpo?: string | null
+    mensagem_notificacoes_titulo_corpo: string
+    lida_notificacoes_titulo_corpo?: boolean
+    entidade_alvo_notificacoes_titulo_corpo?: string | null
+    id_alvo_notificacoes_titulo_corpo?: string | null
+    status_entrega_notificacoes_titulo_corpo?: string
+    id_externo_notificacoes_titulo_corpo?: string | null
+    data_criacao_notificacoes_titulo_corpo?: Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: Date | string
   }
 
   export type NotificacoesTituloCorpoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    message?: StringFieldUpdateOperationsInput | string
-    read?: BoolFieldUpdateOperationsInput | boolean
-    target_entity?: NullableStringFieldUpdateOperationsInput | string | null
-    target_id?: NullableStringFieldUpdateOperationsInput | string | null
-    delivery_status?: StringFieldUpdateOperationsInput | string
-    external_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    tipo_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    titulo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    lida_notificacoes_titulo_corpo?: BoolFieldUpdateOperationsInput | boolean
+    entidade_alvo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_alvo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    status_entrega_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_externo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_notificacoes_titulo_corpo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NotificacoesTituloCorpoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    message?: StringFieldUpdateOperationsInput | string
-    read?: BoolFieldUpdateOperationsInput | boolean
-    target_entity?: NullableStringFieldUpdateOperationsInput | string | null
-    target_id?: NullableStringFieldUpdateOperationsInput | string | null
-    delivery_status?: StringFieldUpdateOperationsInput | string
-    external_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    tipo_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    titulo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    lida_notificacoes_titulo_corpo?: BoolFieldUpdateOperationsInput | boolean
+    entidade_alvo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_alvo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    status_entrega_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_externo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_notificacoes_titulo_corpo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NotificacoesTituloCorpoCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    type: string
-    title?: string | null
-    message: string
-    read?: boolean
-    target_entity?: string | null
-    target_id?: string | null
-    delivery_status?: string
-    external_id?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_notificacoes_titulo_corpo?: string
+    id_organizacao_notificacoes_titulo_corpo: string
+    id_produto_notificacoes_titulo_corpo?: string | null
+    id_usuario_notificacoes_titulo_corpo: string
+    tipo_notificacoes_titulo_corpo: string
+    titulo_notificacoes_titulo_corpo?: string | null
+    mensagem_notificacoes_titulo_corpo: string
+    lida_notificacoes_titulo_corpo?: boolean
+    entidade_alvo_notificacoes_titulo_corpo?: string | null
+    id_alvo_notificacoes_titulo_corpo?: string | null
+    status_entrega_notificacoes_titulo_corpo?: string
+    id_externo_notificacoes_titulo_corpo?: string | null
+    data_criacao_notificacoes_titulo_corpo?: Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: Date | string
   }
 
   export type NotificacoesTituloCorpoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    message?: StringFieldUpdateOperationsInput | string
-    read?: BoolFieldUpdateOperationsInput | boolean
-    target_entity?: NullableStringFieldUpdateOperationsInput | string | null
-    target_id?: NullableStringFieldUpdateOperationsInput | string | null
-    delivery_status?: StringFieldUpdateOperationsInput | string
-    external_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    tipo_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    titulo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    lida_notificacoes_titulo_corpo?: BoolFieldUpdateOperationsInput | boolean
+    entidade_alvo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_alvo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    status_entrega_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_externo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_notificacoes_titulo_corpo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type NotificacoesTituloCorpoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    type?: StringFieldUpdateOperationsInput | string
-    title?: NullableStringFieldUpdateOperationsInput | string | null
-    message?: StringFieldUpdateOperationsInput | string
-    read?: BoolFieldUpdateOperationsInput | boolean
-    target_entity?: NullableStringFieldUpdateOperationsInput | string | null
-    target_id?: NullableStringFieldUpdateOperationsInput | string | null
-    delivery_status?: StringFieldUpdateOperationsInput | string
-    external_id?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_organizacao_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_produto_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    tipo_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    titulo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    mensagem_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    lida_notificacoes_titulo_corpo?: BoolFieldUpdateOperationsInput | boolean
+    entidade_alvo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_alvo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    status_entrega_notificacoes_titulo_corpo?: StringFieldUpdateOperationsInput | string
+    id_externo_notificacoes_titulo_corpo?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_notificacoes_titulo_corpo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_notificacoes_titulo_corpo?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExternalContactCreateInput = {
-    id?: string
-    tenant_id: string
-    created_by: string
-    name: string
-    email?: string | null
-    whatsapp_phone?: string | null
-    whatsapp_opt_in_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type ContatoExternoCreateInput = {
+    id_contato_externo?: string
+    id_organizacao_contato_externo: string
+    id_produto_contato_externo?: string | null
+    id_usuario_contato_externo: string
+    nome_contato_externo: string
+    email_contato_externo?: string | null
+    whatsapp_telefone_contato_externo?: string | null
+    whatsapp_opt_in_em_contato_externo?: Date | string | null
+    observacoes_contato_externo?: string | null
+    data_criacao_contato_externo?: Date | string
+    data_atualizacao_contato_externo?: Date | string
   }
 
-  export type ExternalContactUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    created_by: string
-    name: string
-    email?: string | null
-    whatsapp_phone?: string | null
-    whatsapp_opt_in_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type ContatoExternoUncheckedCreateInput = {
+    id_contato_externo?: string
+    id_organizacao_contato_externo: string
+    id_produto_contato_externo?: string | null
+    id_usuario_contato_externo: string
+    nome_contato_externo: string
+    email_contato_externo?: string | null
+    whatsapp_telefone_contato_externo?: string | null
+    whatsapp_opt_in_em_contato_externo?: Date | string | null
+    observacoes_contato_externo?: string | null
+    data_criacao_contato_externo?: Date | string
+    data_atualizacao_contato_externo?: Date | string
   }
 
-  export type ExternalContactUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    created_by?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_opt_in_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ContatoExternoUpdateInput = {
+    id_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_organizacao_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_produto_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_contato_externo?: StringFieldUpdateOperationsInput | string
+    nome_contato_externo?: StringFieldUpdateOperationsInput | string
+    email_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_telefone_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_opt_in_em_contato_externo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    observacoes_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_contato_externo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_contato_externo?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExternalContactUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    created_by?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_opt_in_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ContatoExternoUncheckedUpdateInput = {
+    id_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_organizacao_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_produto_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_contato_externo?: StringFieldUpdateOperationsInput | string
+    nome_contato_externo?: StringFieldUpdateOperationsInput | string
+    email_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_telefone_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_opt_in_em_contato_externo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    observacoes_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_contato_externo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_contato_externo?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExternalContactCreateManyInput = {
-    id?: string
-    tenant_id: string
-    created_by: string
-    name: string
-    email?: string | null
-    whatsapp_phone?: string | null
-    whatsapp_opt_in_at?: Date | string | null
-    notes?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type ContatoExternoCreateManyInput = {
+    id_contato_externo?: string
+    id_organizacao_contato_externo: string
+    id_produto_contato_externo?: string | null
+    id_usuario_contato_externo: string
+    nome_contato_externo: string
+    email_contato_externo?: string | null
+    whatsapp_telefone_contato_externo?: string | null
+    whatsapp_opt_in_em_contato_externo?: Date | string | null
+    observacoes_contato_externo?: string | null
+    data_criacao_contato_externo?: Date | string
+    data_atualizacao_contato_externo?: Date | string
   }
 
-  export type ExternalContactUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    created_by?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_opt_in_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ContatoExternoUpdateManyMutationInput = {
+    id_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_organizacao_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_produto_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_contato_externo?: StringFieldUpdateOperationsInput | string
+    nome_contato_externo?: StringFieldUpdateOperationsInput | string
+    email_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_telefone_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_opt_in_em_contato_externo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    observacoes_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_contato_externo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_contato_externo?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ExternalContactUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    created_by?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    whatsapp_opt_in_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    notes?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ContatoExternoUncheckedUpdateManyInput = {
+    id_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_organizacao_contato_externo?: StringFieldUpdateOperationsInput | string
+    id_produto_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_contato_externo?: StringFieldUpdateOperationsInput | string
+    nome_contato_externo?: StringFieldUpdateOperationsInput | string
+    email_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_telefone_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsapp_opt_in_em_contato_externo?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    observacoes_contato_externo?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_contato_externo?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_contato_externo?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TenantChannelConfigCreateInput = {
-    id?: string
-    tenant_id: string
-    email_enabled?: boolean
-    whatsapp_enabled?: boolean
-    updated_by?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type ConfiguracaoCanalTenantCreateInput = {
+    id_configuracao_canal_tenant?: string
+    id_organizacao_configuracao_canal_tenant: string
+    id_produto_configuracao_canal_tenant?: string | null
+    id_usuario_configuracao_canal_tenant?: string | null
+    email_habilitado_configuracao_canal_tenant?: boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: boolean
+    data_criacao_configuracao_canal_tenant?: Date | string
+    data_atualizacao_configuracao_canal_tenant?: Date | string
   }
 
-  export type TenantChannelConfigUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    email_enabled?: boolean
-    whatsapp_enabled?: boolean
-    updated_by?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type ConfiguracaoCanalTenantUncheckedCreateInput = {
+    id_configuracao_canal_tenant?: string
+    id_organizacao_configuracao_canal_tenant: string
+    id_produto_configuracao_canal_tenant?: string | null
+    id_usuario_configuracao_canal_tenant?: string | null
+    email_habilitado_configuracao_canal_tenant?: boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: boolean
+    data_criacao_configuracao_canal_tenant?: Date | string
+    data_atualizacao_configuracao_canal_tenant?: Date | string
   }
 
-  export type TenantChannelConfigUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    email_enabled?: BoolFieldUpdateOperationsInput | boolean
-    whatsapp_enabled?: BoolFieldUpdateOperationsInput | boolean
-    updated_by?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfiguracaoCanalTenantUpdateInput = {
+    id_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
+    id_organizacao_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
+    id_produto_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
+    email_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TenantChannelConfigUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    email_enabled?: BoolFieldUpdateOperationsInput | boolean
-    whatsapp_enabled?: BoolFieldUpdateOperationsInput | boolean
-    updated_by?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfiguracaoCanalTenantUncheckedUpdateInput = {
+    id_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
+    id_organizacao_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
+    id_produto_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
+    email_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TenantChannelConfigCreateManyInput = {
-    id?: string
-    tenant_id: string
-    email_enabled?: boolean
-    whatsapp_enabled?: boolean
-    updated_by?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type ConfiguracaoCanalTenantCreateManyInput = {
+    id_configuracao_canal_tenant?: string
+    id_organizacao_configuracao_canal_tenant: string
+    id_produto_configuracao_canal_tenant?: string | null
+    id_usuario_configuracao_canal_tenant?: string | null
+    email_habilitado_configuracao_canal_tenant?: boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: boolean
+    data_criacao_configuracao_canal_tenant?: Date | string
+    data_atualizacao_configuracao_canal_tenant?: Date | string
   }
 
-  export type TenantChannelConfigUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    email_enabled?: BoolFieldUpdateOperationsInput | boolean
-    whatsapp_enabled?: BoolFieldUpdateOperationsInput | boolean
-    updated_by?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfiguracaoCanalTenantUpdateManyMutationInput = {
+    id_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
+    id_organizacao_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
+    id_produto_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
+    email_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type TenantChannelConfigUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    email_enabled?: BoolFieldUpdateOperationsInput | boolean
-    whatsapp_enabled?: BoolFieldUpdateOperationsInput | boolean
-    updated_by?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ConfiguracaoCanalTenantUncheckedUpdateManyInput = {
+    id_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
+    id_organizacao_configuracao_canal_tenant?: StringFieldUpdateOperationsInput | string
+    id_produto_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_configuracao_canal_tenant?: NullableStringFieldUpdateOperationsInput | string | null
+    email_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
+    whatsapp_habilitado_configuracao_canal_tenant?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_configuracao_canal_tenant?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -63579,123 +63629,129 @@ export namespace Prisma {
   }
 
   export type NotificacoesTituloCorpoCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    type?: SortOrder
-    title?: SortOrder
-    message?: SortOrder
-    read?: SortOrder
-    target_entity?: SortOrder
-    target_id?: SortOrder
-    delivery_status?: SortOrder
-    external_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao_notificacoes_titulo_corpo?: SortOrder
+    id_produto_notificacoes_titulo_corpo?: SortOrder
+    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    tipo_notificacoes_titulo_corpo?: SortOrder
+    titulo_notificacoes_titulo_corpo?: SortOrder
+    mensagem_notificacoes_titulo_corpo?: SortOrder
+    lida_notificacoes_titulo_corpo?: SortOrder
+    entidade_alvo_notificacoes_titulo_corpo?: SortOrder
+    id_alvo_notificacoes_titulo_corpo?: SortOrder
+    status_entrega_notificacoes_titulo_corpo?: SortOrder
+    id_externo_notificacoes_titulo_corpo?: SortOrder
+    data_criacao_notificacoes_titulo_corpo?: SortOrder
+    data_atualizacao_notificacoes_titulo_corpo?: SortOrder
   }
 
   export type NotificacoesTituloCorpoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    type?: SortOrder
-    title?: SortOrder
-    message?: SortOrder
-    read?: SortOrder
-    target_entity?: SortOrder
-    target_id?: SortOrder
-    delivery_status?: SortOrder
-    external_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao_notificacoes_titulo_corpo?: SortOrder
+    id_produto_notificacoes_titulo_corpo?: SortOrder
+    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    tipo_notificacoes_titulo_corpo?: SortOrder
+    titulo_notificacoes_titulo_corpo?: SortOrder
+    mensagem_notificacoes_titulo_corpo?: SortOrder
+    lida_notificacoes_titulo_corpo?: SortOrder
+    entidade_alvo_notificacoes_titulo_corpo?: SortOrder
+    id_alvo_notificacoes_titulo_corpo?: SortOrder
+    status_entrega_notificacoes_titulo_corpo?: SortOrder
+    id_externo_notificacoes_titulo_corpo?: SortOrder
+    data_criacao_notificacoes_titulo_corpo?: SortOrder
+    data_atualizacao_notificacoes_titulo_corpo?: SortOrder
   }
 
   export type NotificacoesTituloCorpoMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    type?: SortOrder
-    title?: SortOrder
-    message?: SortOrder
-    read?: SortOrder
-    target_entity?: SortOrder
-    target_id?: SortOrder
-    delivery_status?: SortOrder
-    external_id?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_notificacoes_titulo_corpo?: SortOrder
+    id_organizacao_notificacoes_titulo_corpo?: SortOrder
+    id_produto_notificacoes_titulo_corpo?: SortOrder
+    id_usuario_notificacoes_titulo_corpo?: SortOrder
+    tipo_notificacoes_titulo_corpo?: SortOrder
+    titulo_notificacoes_titulo_corpo?: SortOrder
+    mensagem_notificacoes_titulo_corpo?: SortOrder
+    lida_notificacoes_titulo_corpo?: SortOrder
+    entidade_alvo_notificacoes_titulo_corpo?: SortOrder
+    id_alvo_notificacoes_titulo_corpo?: SortOrder
+    status_entrega_notificacoes_titulo_corpo?: SortOrder
+    id_externo_notificacoes_titulo_corpo?: SortOrder
+    data_criacao_notificacoes_titulo_corpo?: SortOrder
+    data_atualizacao_notificacoes_titulo_corpo?: SortOrder
   }
 
-  export type ExternalContactCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    created_by?: SortOrder
-    name?: SortOrder
-    email?: SortOrder
-    whatsapp_phone?: SortOrder
-    whatsapp_opt_in_at?: SortOrder
-    notes?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type ContatoExternoCountOrderByAggregateInput = {
+    id_contato_externo?: SortOrder
+    id_organizacao_contato_externo?: SortOrder
+    id_produto_contato_externo?: SortOrder
+    id_usuario_contato_externo?: SortOrder
+    nome_contato_externo?: SortOrder
+    email_contato_externo?: SortOrder
+    whatsapp_telefone_contato_externo?: SortOrder
+    whatsapp_opt_in_em_contato_externo?: SortOrder
+    observacoes_contato_externo?: SortOrder
+    data_criacao_contato_externo?: SortOrder
+    data_atualizacao_contato_externo?: SortOrder
   }
 
-  export type ExternalContactMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    created_by?: SortOrder
-    name?: SortOrder
-    email?: SortOrder
-    whatsapp_phone?: SortOrder
-    whatsapp_opt_in_at?: SortOrder
-    notes?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type ContatoExternoMaxOrderByAggregateInput = {
+    id_contato_externo?: SortOrder
+    id_organizacao_contato_externo?: SortOrder
+    id_produto_contato_externo?: SortOrder
+    id_usuario_contato_externo?: SortOrder
+    nome_contato_externo?: SortOrder
+    email_contato_externo?: SortOrder
+    whatsapp_telefone_contato_externo?: SortOrder
+    whatsapp_opt_in_em_contato_externo?: SortOrder
+    observacoes_contato_externo?: SortOrder
+    data_criacao_contato_externo?: SortOrder
+    data_atualizacao_contato_externo?: SortOrder
   }
 
-  export type ExternalContactMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    created_by?: SortOrder
-    name?: SortOrder
-    email?: SortOrder
-    whatsapp_phone?: SortOrder
-    whatsapp_opt_in_at?: SortOrder
-    notes?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type ContatoExternoMinOrderByAggregateInput = {
+    id_contato_externo?: SortOrder
+    id_organizacao_contato_externo?: SortOrder
+    id_produto_contato_externo?: SortOrder
+    id_usuario_contato_externo?: SortOrder
+    nome_contato_externo?: SortOrder
+    email_contato_externo?: SortOrder
+    whatsapp_telefone_contato_externo?: SortOrder
+    whatsapp_opt_in_em_contato_externo?: SortOrder
+    observacoes_contato_externo?: SortOrder
+    data_criacao_contato_externo?: SortOrder
+    data_atualizacao_contato_externo?: SortOrder
   }
 
-  export type TenantChannelConfigCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    email_enabled?: SortOrder
-    whatsapp_enabled?: SortOrder
-    updated_by?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type ConfiguracaoCanalTenantCountOrderByAggregateInput = {
+    id_configuracao_canal_tenant?: SortOrder
+    id_organizacao_configuracao_canal_tenant?: SortOrder
+    id_produto_configuracao_canal_tenant?: SortOrder
+    id_usuario_configuracao_canal_tenant?: SortOrder
+    email_habilitado_configuracao_canal_tenant?: SortOrder
+    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
+    data_criacao_configuracao_canal_tenant?: SortOrder
+    data_atualizacao_configuracao_canal_tenant?: SortOrder
   }
 
-  export type TenantChannelConfigMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    email_enabled?: SortOrder
-    whatsapp_enabled?: SortOrder
-    updated_by?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type ConfiguracaoCanalTenantMaxOrderByAggregateInput = {
+    id_configuracao_canal_tenant?: SortOrder
+    id_organizacao_configuracao_canal_tenant?: SortOrder
+    id_produto_configuracao_canal_tenant?: SortOrder
+    id_usuario_configuracao_canal_tenant?: SortOrder
+    email_habilitado_configuracao_canal_tenant?: SortOrder
+    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
+    data_criacao_configuracao_canal_tenant?: SortOrder
+    data_atualizacao_configuracao_canal_tenant?: SortOrder
   }
 
-  export type TenantChannelConfigMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    email_enabled?: SortOrder
-    whatsapp_enabled?: SortOrder
-    updated_by?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+  export type ConfiguracaoCanalTenantMinOrderByAggregateInput = {
+    id_configuracao_canal_tenant?: SortOrder
+    id_organizacao_configuracao_canal_tenant?: SortOrder
+    id_produto_configuracao_canal_tenant?: SortOrder
+    id_usuario_configuracao_canal_tenant?: SortOrder
+    email_habilitado_configuracao_canal_tenant?: SortOrder
+    whatsapp_habilitado_configuracao_canal_tenant?: SortOrder
+    data_criacao_configuracao_canal_tenant?: SortOrder
+    data_atualizacao_configuracao_canal_tenant?: SortOrder
   }
 
   export type AtividadesParticipantesCreateNestedManyWithoutAtividade_atividades_participantesInput = {
@@ -67802,13 +67858,13 @@ export namespace Prisma {
      */
     export type NotificacoesTituloCorpoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = NotificacoesTituloCorpoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use ExternalContactDefaultArgs instead
+     * @deprecated Use ContatoExternoDefaultArgs instead
      */
-    export type ExternalContactArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ExternalContactDefaultArgs<ExtArgs>
+    export type ContatoExternoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ContatoExternoDefaultArgs<ExtArgs>
     /**
-     * @deprecated Use TenantChannelConfigDefaultArgs instead
+     * @deprecated Use ConfiguracaoCanalTenantDefaultArgs instead
      */
-    export type TenantChannelConfigArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = TenantChannelConfigDefaultArgs<ExtArgs>
+    export type ConfiguracaoCanalTenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ConfiguracaoCanalTenantDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

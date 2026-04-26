@@ -1,3 +1,11 @@
+/**
+ * notificacoes/server/routes/api.ts
+ *
+ * Onda 37 — DDD Servicos: campos físicos com sufixo _notificacoes_titulo_corpo /
+ * _contato_externo / _configuracao_canal_tenant. DTO/ACL preserva o contrato
+ * público consumido pelo sininho do shell e por integrações externas.
+ */
+
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
 import { prisma } from '../lib/prisma'
@@ -6,10 +14,68 @@ import { getBoss } from '../queue/pg-boss'
 
 export const apiRoutes = Router()
 
+// ─── ACL/DTO — preservam contratos públicos ───────────────────────────────────
+
+interface NotificacaoRow {
+  id_notificacoes_titulo_corpo:               string
+  id_organizacao_notificacoes_titulo_corpo:   string
+  id_produto_notificacoes_titulo_corpo:       string | null
+  id_usuario_notificacoes_titulo_corpo:       string
+  tipo_notificacoes_titulo_corpo:             string
+  titulo_notificacoes_titulo_corpo:           string | null
+  mensagem_notificacoes_titulo_corpo:         string
+  lida_notificacoes_titulo_corpo:             boolean
+  entidade_alvo_notificacoes_titulo_corpo:    string | null
+  id_alvo_notificacoes_titulo_corpo:          string | null
+  status_entrega_notificacoes_titulo_corpo:   string
+  id_externo_notificacoes_titulo_corpo:       string | null
+  data_criacao_notificacoes_titulo_corpo:     Date
+  data_atualizacao_notificacoes_titulo_corpo: Date
+}
+
+function toNotificacaoDto(n: NotificacaoRow) {
+  return {
+    id:              n.id_notificacoes_titulo_corpo,
+    tenant_id:       n.id_organizacao_notificacoes_titulo_corpo,
+    product_id:      n.id_produto_notificacoes_titulo_corpo,
+    user_id:         n.id_usuario_notificacoes_titulo_corpo,
+    type:            n.tipo_notificacoes_titulo_corpo,
+    title:           n.titulo_notificacoes_titulo_corpo,
+    message:         n.mensagem_notificacoes_titulo_corpo,
+    read:            n.lida_notificacoes_titulo_corpo,
+    target_entity:   n.entidade_alvo_notificacoes_titulo_corpo,
+    target_id:       n.id_alvo_notificacoes_titulo_corpo,
+    delivery_status: n.status_entrega_notificacoes_titulo_corpo,
+    external_id:     n.id_externo_notificacoes_titulo_corpo,
+    created_at:      n.data_criacao_notificacoes_titulo_corpo,
+    updated_at:      n.data_atualizacao_notificacoes_titulo_corpo,
+  }
+}
+
+interface ContatoRow {
+  id_contato_externo:                 string
+  nome_contato_externo:               string
+  email_contato_externo:              string | null
+  whatsapp_telefone_contato_externo:  string | null
+  whatsapp_opt_in_em_contato_externo: Date | null
+  observacoes_contato_externo:        string | null
+  data_criacao_contato_externo:       Date
+}
+
+function toContatoDto(c: ContatoRow) {
+  return {
+    id:                 c.id_contato_externo,
+    name:               c.nome_contato_externo,
+    email:              c.email_contato_externo,
+    whatsapp_phone:     c.whatsapp_telefone_contato_externo,
+    whatsapp_opt_in_at: c.whatsapp_opt_in_em_contato_externo,
+    notes:              c.observacoes_contato_externo,
+    created_at:         c.data_criacao_contato_externo,
+  }
+}
+
 // ─── SSE — registro de clientes com limite por tenant ───────────────────────
-// Onda 3 item #11: antes era um Map<userId, Response> sem teto. Em produção,
-// conexões zumbis (mobile/Wi-Fi ruim) que não chamam req.on('close') acumulam
-// e viram memory leak. Limitamos conexões ativas por tenant.
+// Onda 3 item #11: limite por tenant + cleanup robusto + idle timeout.
 const SSE_MAX_PER_TENANT = 100
 const sseClients = new Map<string, Response>()
 const sseClientsByTenant = new Map<string, Set<string>>()
@@ -23,7 +89,6 @@ function registerSseClient(tenantId: string, userId: string, res: Response): boo
   if (tenantSet.size >= SSE_MAX_PER_TENANT && !tenantSet.has(userId)) {
     return false
   }
-  // Se já havia conexão para esse user, fecha a antiga
   const existing = sseClients.get(userId)
   if (existing) {
     try { existing.end() } catch { /* ignora */ }
@@ -58,19 +123,12 @@ export function emitToUser(userId: string, event: string, data: Record<string, u
  *   1. req.auth (populado pelo requireAuth do proxy do configurador, valida JWT Clerk)
  *   2. fallback: headers x-tenant-id / x-user-id apenas se NÃO houver req.auth
  *      (uso restrito a chamadas S2S internas com x-internal-key — nunca para tráfego de browser)
- *
- * Sem isso, qualquer cliente autenticado conseguia ler/escrever notificações de qualquer
- * tenant só mudando o header — vazamento cross-tenant identificado pelo Detetive de Tela
- * (Onda 1, item #2).
  */
 function resolveAuthContext(req: Request): { tenant_id: string; user_id: string } | null {
-  // Caminho preferencial: contexto validado pelo requireAuth (Clerk JWT cruzado com DB)
   if (req.auth?.tenantId && req.auth?.userId) {
     return { tenant_id: req.auth.tenantId, user_id: req.auth.userId }
   }
 
-  // Caminho S2S: aceita headers SOMENTE se a chamada veio com x-internal-key validada
-  // upstream. Se não houver, é cliente não autenticado — bloqueia.
   const internalKeyValidated = req.headers['x-internal-validated'] === '1'
   if (internalKeyValidated) {
     const tenantId = req.headers['x-tenant-id']
@@ -111,10 +169,6 @@ const createBodySchema = z.object({
 })
 
 // ─── POST / — cria notificação para o próprio usuário no tenant atual ───────
-// Onda 2 item #5: rota não existia antes; o frontend chamava POST e batia em
-// 404 silencioso. O destinatário é sempre o próprio user_id resolvido pelo
-// JWT — não aceita target_user_id no body para evitar que um usuário crie
-// notificações para outro usuário sem passar por uma camada de permissão.
 apiRoutes.post('/', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
@@ -122,21 +176,20 @@ apiRoutes.post('/', async (req, res, next) => {
 
     const created = await prisma.notificacoesTituloCorpo.create({
       data: {
-        tenant_id,
-        user_id,
-        product_id: body.product_id ?? null,
-        type: body.type,
-        title: body.title ?? null,
-        message: body.message,
-        target_entity: body.target_entity ?? null,
-        target_id: body.target_id ?? null,
+        id_organizacao_notificacoes_titulo_corpo: tenant_id,
+        id_usuario_notificacoes_titulo_corpo:     user_id,
+        id_produto_notificacoes_titulo_corpo:     body.product_id ?? null,
+        tipo_notificacoes_titulo_corpo:           body.type,
+        titulo_notificacoes_titulo_corpo:         body.title ?? null,
+        mensagem_notificacoes_titulo_corpo:       body.message,
+        entidade_alvo_notificacoes_titulo_corpo:  body.target_entity ?? null,
+        id_alvo_notificacoes_titulo_corpo:        body.target_id ?? null,
       },
     })
 
-    // Push em tempo real para o próprio usuário se houver SSE ativo
-    emitToUser(user_id, 'new_notification', { id: created.id })
+    emitToUser(user_id, 'new_notification', { id: created.id_notificacoes_titulo_corpo })
 
-    res.status(201).json({ status: 'success', data: created })
+    res.status(201).json({ status: 'success', data: toNotificacaoDto(created) })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return next(new AppError(`Body inválido: ${err.issues.map(i => i.message).join(', ')}`, 400))
@@ -153,26 +206,30 @@ apiRoutes.get('/', async (req, res, next) => {
 
     const [notifications, unread_count] = await Promise.all([
       prisma.notificacoesTituloCorpo.findMany({
-        where: { tenant_id, user_id },
-        orderBy: { created_at: 'desc' },
+        where: {
+          id_organizacao_notificacoes_titulo_corpo: tenant_id,
+          id_usuario_notificacoes_titulo_corpo:     user_id,
+        },
+        orderBy: { data_criacao_notificacoes_titulo_corpo: 'desc' },
         take,
       }),
       prisma.notificacoesTituloCorpo.count({
-        where: { tenant_id, user_id, read: false },
+        where: {
+          id_organizacao_notificacoes_titulo_corpo: tenant_id,
+          id_usuario_notificacoes_titulo_corpo:     user_id,
+          lida_notificacoes_titulo_corpo:           false,
+        },
       }),
     ])
 
-    res.json({ status: 'success', data: notifications, unread_count })
+    res.json({ status: 'success', data: notifications.map(toNotificacaoDto), unread_count })
   } catch (err) {
     next(err)
   }
 })
 
 // ─── GET /stream — Server-Sent Events ────────────────────────────────────────
-// SSE protegido pelo mesmo checkAuth: user_id vem do JWT validado, não da query.
-// Onda 1 item #3: removido o fallback de credenciais via query string.
-// Onda 3 item #11: limite por tenant + cleanup robusto + idle timeout.
-const SSE_IDLE_TIMEOUT_MS = 10 * 60 * 1000 // 10 min sem heartbeat → fecha
+const SSE_IDLE_TIMEOUT_MS = 10 * 60 * 1000
 apiRoutes.get('/stream', (req, res) => {
   const { tenant_id, user_id } = req
 
@@ -186,7 +243,6 @@ apiRoutes.get('/stream', (req, res) => {
   res.setHeader('Connection', 'keep-alive')
   res.flushHeaders()
 
-  // Heartbeat — server manda ping a cada 30s
   const heartbeat = setInterval(() => {
     try {
       res.write(':\n\n')
@@ -195,7 +251,6 @@ apiRoutes.get('/stream', (req, res) => {
     }
   }, 30_000)
 
-  // Idle timeout — fecha conexão se não houver atividade
   const idleTimeout = setTimeout(() => cleanup(), SSE_IDLE_TIMEOUT_MS)
 
   function cleanup() {
@@ -215,8 +270,12 @@ apiRoutes.put('/:id/read', async (req, res, next) => {
     const { tenant_id, user_id } = req
     const { id } = idParamSchema.parse(req.params)
     const result = await prisma.notificacoesTituloCorpo.updateMany({
-      where: { id, tenant_id, user_id },
-      data: { read: true },
+      where: {
+        id_notificacoes_titulo_corpo:             id,
+        id_organizacao_notificacoes_titulo_corpo: tenant_id,
+        id_usuario_notificacoes_titulo_corpo:     user_id,
+      },
+      data: { lida_notificacoes_titulo_corpo: true },
     })
     if (result.count === 0) {
       throw new AppError('Notificação não encontrada', 404)
@@ -232,8 +291,12 @@ apiRoutes.put('/read-all', async (req, res, next) => {
   try {
     const { tenant_id, user_id } = req
     await prisma.notificacoesTituloCorpo.updateMany({
-      where: { tenant_id, user_id, read: false },
-      data: { read: true },
+      where: {
+        id_organizacao_notificacoes_titulo_corpo: tenant_id,
+        id_usuario_notificacoes_titulo_corpo:     user_id,
+        lida_notificacoes_titulo_corpo:           false,
+      },
+      data: { lida_notificacoes_titulo_corpo: true },
     })
     res.json({ status: 'success' })
   } catch (err) {
@@ -241,17 +304,14 @@ apiRoutes.put('/read-all', async (req, res, next) => {
   }
 })
 
-// ─── POST /send — envia notificação a outro(s) usuário(s) do mesmo tenant ──
-// Rota autenticada via JWT (browser). Diferente do POST / que só cria para o
-// próprio usuário, esta aceita target_user_ids e cria para cada destinatário.
-// O sender_name é enviado pelo frontend (vem do Clerk).
+// ─── POST /send ─────────────────────────────────────────────────────────────
 const sendBodySchema = z.object({
   user_ids: z.array(z.string().min(1)).min(1).max(20),
   message: z.string().min(1).max(2000),
   sender_name: z.string().min(1).max(120).optional(),
   recipient_names: z.array(z.string().max(120)).max(20).optional(),
-  target_entity: z.string().max(50).optional(),   // "PEDIDO" | "ITEM" | etc.
-  target_id: z.string().max(200).optional(),       // ID da entidade
+  target_entity: z.string().max(50).optional(),
+  target_id: z.string().max(200).optional(),
   via_email: z.boolean().optional(),
   recipient_emails: z.array(z.string().email()).max(20).optional(),
 })
@@ -261,10 +321,8 @@ apiRoutes.post('/send', async (req, res, next) => {
     const { tenant_id, user_id } = req
     const body = sendBodySchema.parse(req.body)
 
-    // Remove o próprio remetente da lista de notificações in-app
     const targets = body.user_ids.filter((uid) => uid !== user_id)
 
-    // Se não há destinatários in-app mas via_email está ativo, ainda envia o email
     const hasEmailOnly = targets.length === 0 && body.via_email && body.recipient_emails && body.recipient_emails.length > 0
     if (targets.length === 0 && !hasEmailOnly) {
       return next(new AppError('Nenhum destinatário válido (não é possível enviar para si mesmo)', 400))
@@ -276,44 +334,41 @@ apiRoutes.post('/send', async (req, res, next) => {
     if (targets.length > 0) {
       created = await prisma.notificacoesTituloCorpo.createMany({
         data: targets.map((uid) => ({
-          tenant_id,
-          user_id: uid,
-          product_id: null,
-          type: 'compartilhamento' as const,
-          title: senderLabel,
-          message: body.message,
-          target_entity: body.target_entity ?? null,
-          target_id: body.target_id ?? null,
-          delivery_status: 'pending',
+          id_organizacao_notificacoes_titulo_corpo: tenant_id,
+          id_usuario_notificacoes_titulo_corpo:     uid,
+          id_produto_notificacoes_titulo_corpo:     null,
+          tipo_notificacoes_titulo_corpo:           'compartilhamento',
+          titulo_notificacoes_titulo_corpo:         senderLabel,
+          mensagem_notificacoes_titulo_corpo:       body.message,
+          entidade_alvo_notificacoes_titulo_corpo:  body.target_entity ?? null,
+          id_alvo_notificacoes_titulo_corpo:        body.target_id ?? null,
+          status_entrega_notificacoes_titulo_corpo: 'pending',
         })),
       })
     }
 
-    // Registro de "enviado" para o remetente
     const recipientLabel = body.recipient_names?.length
       ? body.recipient_names.join(', ')
       : targets.length > 0 ? `${targets.length} usuário(s)` : 'via e-mail'
     await prisma.notificacoesTituloCorpo.create({
       data: {
-        tenant_id,
-        user_id,
-        product_id: null,
-        type: 'enviado' as const,
-        title: `Enviado para ${recipientLabel}`,
-        message: body.message,
-        target_entity: body.target_entity ?? null,
-        target_id: body.target_id ?? null,
-        delivery_status: 'sent',
-        read: true,
+        id_organizacao_notificacoes_titulo_corpo: tenant_id,
+        id_usuario_notificacoes_titulo_corpo:     user_id,
+        id_produto_notificacoes_titulo_corpo:     null,
+        tipo_notificacoes_titulo_corpo:           'enviado',
+        titulo_notificacoes_titulo_corpo:         `Enviado para ${recipientLabel}`,
+        mensagem_notificacoes_titulo_corpo:       body.message,
+        entidade_alvo_notificacoes_titulo_corpo:  body.target_entity ?? null,
+        id_alvo_notificacoes_titulo_corpo:        body.target_id ?? null,
+        status_entrega_notificacoes_titulo_corpo: 'sent',
+        lida_notificacoes_titulo_corpo:           true,
       },
     })
 
-    // Push SSE para cada destinatário online
     for (const uid of targets) {
       emitToUser(uid, 'new_notification', { type: 'compartilhamento' })
     }
 
-    // Enfileirar job de email assíncrono via pg-boss
     if (body.via_email && body.recipient_emails && body.recipient_emails.length > 0) {
       try {
         const boss = getBoss()
@@ -327,7 +382,6 @@ apiRoutes.post('/send', async (req, res, next) => {
           targetId: body.target_id,
         })
       } catch (queueErr) {
-        // Fila indisponível — não bloqueia resposta, mas loga
         console.error('[NOTIFICACOES] Falha ao enfileirar job de email:', queueErr)
       }
     }
@@ -351,7 +405,11 @@ apiRoutes.delete('/:id', async (req, res, next) => {
     const { id } = idParamSchema.parse(req.params)
 
     const result = await prisma.notificacoesTituloCorpo.deleteMany({
-      where: { id, tenant_id, user_id },
+      where: {
+        id_notificacoes_titulo_corpo:             id,
+        id_organizacao_notificacoes_titulo_corpo: tenant_id,
+        id_usuario_notificacoes_titulo_corpo:     user_id,
+      },
     })
 
     if (result.count === 0) {
@@ -366,21 +424,19 @@ apiRoutes.delete('/:id', async (req, res, next) => {
 
 // ════════════════════════════════════════════════════════════════════════════
 // CONFIGURAÇÃO DE CANAIS
-// GET  /config — lê config do tenant (autenticado)
-// PATCH /config — atualiza (apenas MASTER)
 // ════════════════════════════════════════════════════════════════════════════
 
 apiRoutes.get('/config', async (req, res, next) => {
   try {
     const { tenant_id } = req
     const config = await prisma.configuracaoCanalTenant.findUnique({
-      where: { tenant_id },
+      where: { id_organizacao_configuracao_canal_tenant: tenant_id },
     })
     res.json({
       status: 'success',
       data: {
-        email_enabled: config?.email_enabled ?? true,
-        whatsapp_enabled: config?.whatsapp_enabled ?? false,
+        email_enabled:    config?.email_habilitado_configuracao_canal_tenant    ?? true,
+        whatsapp_enabled: config?.whatsapp_habilitado_configuracao_canal_tenant ?? false,
       },
     })
   } catch (err) {
@@ -401,20 +457,31 @@ apiRoutes.patch('/config', async (req, res, next) => {
     }
     const body = channelConfigBodySchema.parse(req.body)
     const updated = await prisma.configuracaoCanalTenant.upsert({
-      where: { tenant_id },
+      where: { id_organizacao_configuracao_canal_tenant: tenant_id },
       create: {
-        tenant_id,
-        email_enabled: body.email_enabled ?? true,
-        whatsapp_enabled: body.whatsapp_enabled ?? false,
-        updated_by: user_id,
+        id_organizacao_configuracao_canal_tenant:      tenant_id,
+        email_habilitado_configuracao_canal_tenant:    body.email_enabled    ?? true,
+        whatsapp_habilitado_configuracao_canal_tenant: body.whatsapp_enabled ?? false,
+        id_usuario_configuracao_canal_tenant:          user_id,
       },
       update: {
-        ...(body.email_enabled !== undefined && { email_enabled: body.email_enabled }),
-        ...(body.whatsapp_enabled !== undefined && { whatsapp_enabled: body.whatsapp_enabled }),
-        updated_by: user_id,
+        ...(body.email_enabled    !== undefined && { email_habilitado_configuracao_canal_tenant:    body.email_enabled }),
+        ...(body.whatsapp_enabled !== undefined && { whatsapp_habilitado_configuracao_canal_tenant: body.whatsapp_enabled }),
+        id_usuario_configuracao_canal_tenant: user_id,
       },
     })
-    res.json({ status: 'success', data: updated })
+    res.json({
+      status: 'success',
+      data: {
+        id:               updated.id_configuracao_canal_tenant,
+        tenant_id:        updated.id_organizacao_configuracao_canal_tenant,
+        email_enabled:    updated.email_habilitado_configuracao_canal_tenant,
+        whatsapp_enabled: updated.whatsapp_habilitado_configuracao_canal_tenant,
+        updated_by:       updated.id_usuario_configuracao_canal_tenant,
+        created_at:       updated.data_criacao_configuracao_canal_tenant,
+        updated_at:       updated.data_atualizacao_configuracao_canal_tenant,
+      },
+    })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return next(new AppError(`Body inválido: ${err.issues.map(i => i.message).join(', ')}`, 400))
@@ -424,11 +491,7 @@ apiRoutes.patch('/config', async (req, res, next) => {
 })
 
 // ════════════════════════════════════════════════════════════════════════════
-// CONTATOS EXTERNOS (agenda de email / WhatsApp)
-// GET    /contacts           — lista contatos do tenant
-// POST   /contacts           — cria contato
-// PATCH  /contacts/:id       — atualiza contato
-// DELETE /contacts/:id       — remove contato
+// CONTATOS EXTERNOS
 // ════════════════════════════════════════════════════════════════════════════
 
 const contactBodySchema = z.object({
@@ -443,15 +506,19 @@ apiRoutes.get('/contacts', async (req, res, next) => {
   try {
     const { tenant_id } = req
     const contacts = await prisma.contatoExterno.findMany({
-      where: { tenant_id },
-      orderBy: { name: 'asc' },
+      where: { id_organizacao_contato_externo: tenant_id },
+      orderBy: { nome_contato_externo: 'asc' },
       select: {
-        id: true, name: true, email: true,
-        whatsapp_phone: true, whatsapp_opt_in_at: true,
-        notes: true, created_at: true,
+        id_contato_externo:                 true,
+        nome_contato_externo:               true,
+        email_contato_externo:              true,
+        whatsapp_telefone_contato_externo:  true,
+        whatsapp_opt_in_em_contato_externo: true,
+        observacoes_contato_externo:        true,
+        data_criacao_contato_externo:       true,
       },
     })
-    res.json({ status: 'success', data: contacts })
+    res.json({ status: 'success', data: contacts.map(toContatoDto) })
   } catch (err) {
     next(err)
   }
@@ -463,16 +530,16 @@ apiRoutes.post('/contacts', async (req, res, next) => {
     const body = contactBodySchema.parse(req.body)
     const created = await prisma.contatoExterno.create({
       data: {
-        tenant_id,
-        created_by: user_id,
-        name: body.name,
-        email: body.email || null,
-        whatsapp_phone: body.whatsapp_phone || null,
-        whatsapp_opt_in_at: body.whatsapp_opt_in ? new Date() : null,
-        notes: body.notes || null,
+        id_organizacao_contato_externo:     tenant_id,
+        id_usuario_contato_externo:         user_id,
+        nome_contato_externo:               body.name,
+        email_contato_externo:              body.email          || null,
+        whatsapp_telefone_contato_externo:  body.whatsapp_phone || null,
+        whatsapp_opt_in_em_contato_externo: body.whatsapp_opt_in ? new Date() : null,
+        observacoes_contato_externo:        body.notes          || null,
       },
     })
-    res.status(201).json({ status: 'success', data: created })
+    res.status(201).json({ status: 'success', data: toContatoDto(created) })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return next(new AppError(`Body inválido: ${err.issues.map(i => i.message).join(', ')}`, 400))
@@ -486,20 +553,22 @@ apiRoutes.patch('/contacts/:id', async (req, res, next) => {
     const { tenant_id } = req
     const { id } = idParamSchema.parse(req.params)
     const body = contactBodySchema.partial().parse(req.body)
-    const existing = await prisma.contatoExterno.findFirst({ where: { id, tenant_id } })
+    const existing = await prisma.contatoExterno.findFirst({
+      where: { id_contato_externo: id, id_organizacao_contato_externo: tenant_id },
+    })
     if (!existing) throw new AppError('Contato não encontrado', 404)
     const updated = await prisma.contatoExterno.update({
-      where: { id },
+      where: { id_contato_externo: id },
       data: {
-        ...(body.name !== undefined && { name: body.name }),
-        ...(body.email !== undefined && { email: body.email || null }),
-        ...(body.whatsapp_phone !== undefined && { whatsapp_phone: body.whatsapp_phone || null }),
-        ...(body.whatsapp_opt_in === true && { whatsapp_opt_in_at: new Date() }),
-        ...(body.whatsapp_opt_in === false && { whatsapp_opt_in_at: null }),
-        ...(body.notes !== undefined && { notes: body.notes || null }),
+        ...(body.name           !== undefined && { nome_contato_externo:              body.name }),
+        ...(body.email          !== undefined && { email_contato_externo:             body.email          || null }),
+        ...(body.whatsapp_phone !== undefined && { whatsapp_telefone_contato_externo: body.whatsapp_phone || null }),
+        ...(body.whatsapp_opt_in === true     && { whatsapp_opt_in_em_contato_externo: new Date() }),
+        ...(body.whatsapp_opt_in === false    && { whatsapp_opt_in_em_contato_externo: null }),
+        ...(body.notes          !== undefined && { observacoes_contato_externo:       body.notes          || null }),
       },
     })
-    res.json({ status: 'success', data: updated })
+    res.json({ status: 'success', data: toContatoDto(updated) })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return next(new AppError(`Body inválido: ${err.issues.map(i => i.message).join(', ')}`, 400))
@@ -512,7 +581,9 @@ apiRoutes.delete('/contacts/:id', async (req, res, next) => {
   try {
     const { tenant_id } = req
     const { id } = idParamSchema.parse(req.params)
-    const result = await prisma.contatoExterno.deleteMany({ where: { id, tenant_id } })
+    const result = await prisma.contatoExterno.deleteMany({
+      where: { id_contato_externo: id, id_organizacao_contato_externo: tenant_id },
+    })
     if (result.count === 0) throw new AppError('Contato não encontrado', 404)
     res.json({ status: 'success' })
   } catch (err) {

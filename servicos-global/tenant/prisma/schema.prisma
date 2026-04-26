@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T19:05:09.259Z
+// Gerado em: 2026-04-26T19:16:18.022Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -1489,77 +1489,112 @@ enum NcmOrigem {
 
 
 // --- Fragment: notificacoes ---
+// servicos-global/tenant/notificacoes/prisma/fragment.prisma
+// SERVIÇO NOTIFICACOES — ONDA 37 (DDD Servicos)
+//
+// NotificacoesTituloCorpo — sininho in-app + tracking de entrega (email/WhatsApp)
+// ContatoExterno          — agenda externa por organização (LGPD Art. 8)
+// ConfiguracaoCanalTenant — toggle email/whatsapp por organização (master-only)
+
+// ---------------------------------------------------------------------------
+// NotificacoesTituloCorpo
+// ---------------------------------------------------------------------------
+
 model NotificacoesTituloCorpo {
-  id          String   @id @default(cuid())
-  tenant_id   String
-  product_id  String?
-  user_id     String   // Clerk ID or direct email
-  type        String   // mentioned | task-assigned | reminder | next-step | etc.
-  title       String?
-  message     String
-  read        Boolean  @default(false)
+  id_notificacoes_titulo_corpo String @id @default(cuid())
 
-  // ── Context link (Pilar 2) ─────────────────────────────────────────────────
-  // Nunca salvar URL strings. Salvar entidade + ID e construir URL no frontend.
-  target_entity  String?  // "PEDIDO" | "ITEM" | "SIMULACUSTO" | "PROCESSO" | etc.
-  target_id      String?  // ID da entidade no banco
+  // Identificação tenant
+  id_organizacao_notificacoes_titulo_corpo String
+  id_produto_notificacoes_titulo_corpo     String?
+  id_usuario_notificacoes_titulo_corpo     String   // destinatário (Clerk ID ou email)
 
-  // ── Delivery tracking (Pilar 3) ────────────────────────────────────────────
-  // delivery_status: ciclo de vida do envio de email/whatsapp
+  // Conteúdo
+  tipo_notificacoes_titulo_corpo     String   // mencao | tarefa | sistema | aviso | compartilhamento | enviado
+  titulo_notificacoes_titulo_corpo   String?
+  mensagem_notificacoes_titulo_corpo String
+
+  // Estado (REGRA 5: sem prefixo is_/has_)
+  lida_notificacoes_titulo_corpo Boolean @default(false)
+
+  // Pilar 2 — link contextual (entidade + id, NUNCA URL)
+  entidade_alvo_notificacoes_titulo_corpo String?
+  id_alvo_notificacoes_titulo_corpo       String?
+
+  // Pilar 3 — tracking de entrega
   // pending → sent → delivered | bounced | failed
-  delivery_status  String   @default("pending")  // pending | sent | delivered | bounced | failed
-  external_id      String?  // ID da mensagem no Resend (para reconciliar webhooks)
+  status_entrega_notificacoes_titulo_corpo String  @default("pending")
+  id_externo_notificacoes_titulo_corpo     String? // Resend message id (para reconciliar webhooks)
 
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  // Timestamps
+  data_criacao_notificacoes_titulo_corpo     DateTime @default(now())
+  data_atualizacao_notificacoes_titulo_corpo DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, user_id, read])
-  @@index([tenant_id, created_at])
-  @@index([tenant_id, delivery_status])
-  @@index([external_id])
+  @@index([id_organizacao_notificacoes_titulo_corpo],                                                                              map: "nt_org_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, id_produto_notificacoes_titulo_corpo],                                        map: "nt_org_prd_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, id_usuario_notificacoes_titulo_corpo],                                        map: "nt_org_usr_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, id_usuario_notificacoes_titulo_corpo, lida_notificacoes_titulo_corpo],        map: "nt_org_usr_lida_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, data_criacao_notificacoes_titulo_corpo],                                      map: "nt_org_data_idx")
+  @@index([id_organizacao_notificacoes_titulo_corpo, status_entrega_notificacoes_titulo_corpo],                                    map: "nt_org_status_idx")
+  @@index([id_externo_notificacoes_titulo_corpo],                                                                                  map: "nt_externo_idx")
   @@map("notificacoes_titulo_corpo")
 }
 
-// ─── Contatos externos (email / WhatsApp) ─────────────────────────────────
-// Agenda de contatos por tenant. Usada pelo sininho para enviar notificações a
-// pessoas que não são usuários do sistema (e-mail ou WhatsApp).
-// whatsapp_opt_in_at: consentimento explícito exigido pela LGPD (Art. 8).
-model ExternalContact {
-  id                 String    @id @default(cuid())
-  tenant_id          String
-  created_by         String    // Clerk user_id
-  name               String    @db.VarChar(200)
-  email              String?   @db.VarChar(255)
-  whatsapp_phone     String?   @db.VarChar(20)  // E.164: +5511999999999
-  whatsapp_opt_in_at DateTime? // LGPD Art. 8 — consentimento explícito
-  notes              String?   @db.VarChar(500)
+// ---------------------------------------------------------------------------
+// ContatoExterno — agenda de contatos para envio externo (LGPD Art. 8)
+// id_usuario_contato_externo: Clerk user_id que criou o contato
+// ---------------------------------------------------------------------------
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+model ContatoExterno {
+  id_contato_externo String @id @default(cuid())
 
-  @@index([tenant_id])
-  @@index([tenant_id, created_by])
-  @@index([tenant_id, email])
-  @@index([tenant_id, whatsapp_phone])
+  // Identificação tenant
+  id_organizacao_contato_externo String
+  id_produto_contato_externo     String?
+  id_usuario_contato_externo     String   // criador (Clerk user_id)
+
+  // Dados do contato
+  nome_contato_externo               String    @db.VarChar(200)
+  email_contato_externo              String?   @db.VarChar(255)
+  whatsapp_telefone_contato_externo  String?   @db.VarChar(20)   // E.164: +5511999999999
+  whatsapp_opt_in_em_contato_externo DateTime? // LGPD Art. 8 — consentimento explícito
+  observacoes_contato_externo        String?   @db.VarChar(500)
+
+  // Timestamps
+  data_criacao_contato_externo     DateTime @default(now())
+  data_atualizacao_contato_externo DateTime @updatedAt
+
+  @@index([id_organizacao_contato_externo],                                       map: "cex_org_idx")
+  @@index([id_organizacao_contato_externo, id_produto_contato_externo],           map: "cex_org_prd_idx")
+  @@index([id_organizacao_contato_externo, id_usuario_contato_externo],           map: "cex_org_usr_idx")
+  @@index([id_organizacao_contato_externo, email_contato_externo],                map: "cex_org_email_idx")
+  @@index([id_organizacao_contato_externo, whatsapp_telefone_contato_externo],    map: "cex_org_whats_idx")
   @@map("contato_externo")
 }
 
-// ─── Configuração de canais por tenant ────────────────────────────────────
-// Controlado exclusivamente pelo usuário com role MASTER.
-// email_enabled default true (backward compat). whatsapp_enabled default false.
-model TenantChannelConfig {
-  id               String  @id @default(cuid())
-  tenant_id        String  @unique
-  email_enabled    Boolean @default(true)
-  whatsapp_enabled Boolean @default(false)
-  updated_by       String? // Clerk user_id do master que alterou
+// ---------------------------------------------------------------------------
+// ConfiguracaoCanalTenant — toggle email/whatsapp por organização (singleton por tenant)
+// id_usuario_configuracao_canal_tenant: último master que alterou
+// REGRA 5: booleans usam o adjetivo (habilitado), sem prefixo is_/has_
+// ---------------------------------------------------------------------------
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+model ConfiguracaoCanalTenant {
+  id_configuracao_canal_tenant String @id @default(cuid())
 
-  @@index([tenant_id])
+  // Identificação tenant — único por organização
+  id_organizacao_configuracao_canal_tenant String  @unique
+  id_produto_configuracao_canal_tenant     String?
+  id_usuario_configuracao_canal_tenant     String? // último master que atualizou
+
+  // Toggles (REGRA 5)
+  email_habilitado_configuracao_canal_tenant    Boolean @default(true)
+  whatsapp_habilitado_configuracao_canal_tenant Boolean @default(false)
+
+  // Timestamps
+  data_criacao_configuracao_canal_tenant     DateTime @default(now())
+  data_atualizacao_configuracao_canal_tenant DateTime @updatedAt
+
+  @@index([id_organizacao_configuracao_canal_tenant],                                       map: "cct_org_idx")
+  @@index([id_organizacao_configuracao_canal_tenant, id_produto_configuracao_canal_tenant], map: "cct_org_prd_idx")
+  @@index([id_organizacao_configuracao_canal_tenant, id_usuario_configuracao_canal_tenant], map: "cct_org_usr_idx")
   @@map("configuracao_canal_tenant")
 }

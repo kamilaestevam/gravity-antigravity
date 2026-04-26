@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T18:04:14.889Z
+// Gerado em: 2026-04-26T18:11:25.489Z
 // Serviços incluídos: atividades, cronometro, email, whatsapp, dashboard, relatorios, historico-global, agendamento, gabi, preferencias-usuario, ncm-sync, notificacoes
 // Serviços ausentes (fragment não encontrado): processos-core
 // ============================================================================
@@ -453,105 +453,128 @@ model EmailFilaEnvio {
 
 
 // --- Fragment: whatsapp ---
+// servicos-global/tenant/whatsapp/prisma/fragment.prisma
+// AGENTE WHATSAPP — ONDA 29 (DDD Servicos)
+//
+// Fragment Prisma para o serviço de WhatsApp (Meta Cloud API + Gabi).
+// Não editar o schema.prisma final — apenas este fragment.
+
+// ---------------------------------------------------------------------------
+// WhatsappConversa — conversa de ida/volta com um contato
+// ---------------------------------------------------------------------------
+
 model WhatsappConversa {
-  id                      String    @id @default(cuid())
-  tenant_id               String
-  product_id              String?
-  user_id                 String?
-  
-  wa_phone_number         String
-  status                  String    @default("open")
-  contact_id              String?
-  company_id              String?
-  contact_nome            String?
-  company_nome            String?
-  activity_id             String?
-  ai_enabled              Boolean   @default(false)
-  opened_at               DateTime  @default(now())
-  closed_at               DateTime?
-  gabi_temperatura        String?
-  gabi_temperatura_score  Int?
-  gabi_resumo             String?
-  gabi_acoes_sugeridas    Json?
+  id_whatsapp_conversa             String  @id @default(cuid())
+  id_organizacao_whatsapp_conversa String
+  id_produto_whatsapp_conversa     String?
+  id_usuario_whatsapp_conversa     String?
 
-  created_at              DateTime  @default(now())
-  updated_at              DateTime  @updatedAt
+  telefone_wa_whatsapp_conversa     String
+  status_whatsapp_conversa          String    @default("open")
+  id_contato_whatsapp_conversa      String?
+  id_empresa_whatsapp_conversa      String?
+  nome_contato_whatsapp_conversa    String?
+  nome_empresa_whatsapp_conversa    String?
+  id_atividade_whatsapp_conversa    String?
+  ia_habilitada_whatsapp_conversa   Boolean   @default(false)
+  aberta_em_whatsapp_conversa       DateTime  @default(now())
+  fechada_em_whatsapp_conversa      DateTime?
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, status])
-  @@index([tenant_id, wa_phone_number])
+  gabi_temperatura_whatsapp_conversa       String?
+  gabi_temperatura_score_whatsapp_conversa Int?
+  gabi_resumo_whatsapp_conversa            String?
+  gabi_acoes_sugeridas_whatsapp_conversa   Json?
+
+  data_criacao_whatsapp_conversa     DateTime @default(now())
+  data_atualizacao_whatsapp_conversa DateTime @updatedAt
+
+  @@index([id_organizacao_whatsapp_conversa], map: "wc_org_idx")
+  @@index([id_organizacao_whatsapp_conversa, id_produto_whatsapp_conversa], map: "wc_org_prd_idx")
+  @@index([id_organizacao_whatsapp_conversa, id_usuario_whatsapp_conversa], map: "wc_org_usr_idx")
+  @@index([id_organizacao_whatsapp_conversa, status_whatsapp_conversa], map: "wc_org_status_idx")
+  @@index([id_organizacao_whatsapp_conversa, telefone_wa_whatsapp_conversa], map: "wc_org_tel_idx")
   @@map("whatsapp_conversa")
 }
 
-model WhatsappMensagem {
-  id              String   @id @default(cuid())
-  tenant_id       String
-  product_id      String?
-  user_id         String?
-  
-  conversation_id String
-  wa_message_id   String?  @unique
-  direction       String
-  content_type    String   @default("text")
-  content         String
-  origin          String   @default("agent")
-  sent_by         String?
-  status          String   @default("sent")
-  
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+// ---------------------------------------------------------------------------
+// WhatsappMensagem — mensagem individual (inbound ou outbound)
+// ---------------------------------------------------------------------------
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, conversation_id])
-  @@index([wa_message_id])
+model WhatsappMensagem {
+  id_whatsapp_mensagem             String  @id @default(cuid())
+  id_organizacao_whatsapp_mensagem String
+  id_produto_whatsapp_mensagem     String?
+  id_usuario_whatsapp_mensagem     String?
+
+  id_conversa_whatsapp_mensagem    String
+  id_wa_mensagem_whatsapp_mensagem String?  @unique(map: "wm_wa_msg_unq")
+  direcao_whatsapp_mensagem        String
+  tipo_conteudo_whatsapp_mensagem  String   @default("text")
+  conteudo_whatsapp_mensagem       String
+  origem_whatsapp_mensagem         String   @default("agent")
+  enviado_por_whatsapp_mensagem    String?
+  status_whatsapp_mensagem         String   @default("sent")
+
+  data_criacao_whatsapp_mensagem     DateTime @default(now())
+  data_atualizacao_whatsapp_mensagem DateTime @updatedAt
+
+  @@index([id_organizacao_whatsapp_mensagem], map: "wm_org_idx")
+  @@index([id_organizacao_whatsapp_mensagem, id_produto_whatsapp_mensagem], map: "wm_org_prd_idx")
+  @@index([id_organizacao_whatsapp_mensagem, id_usuario_whatsapp_mensagem], map: "wm_org_usr_idx")
+  @@index([id_organizacao_whatsapp_mensagem, id_conversa_whatsapp_mensagem], map: "wm_org_conv_idx")
+  @@index([id_wa_mensagem_whatsapp_mensagem], map: "wm_wa_msg_idx")
   @@map("whatsapp_mensagem")
 }
 
+// ---------------------------------------------------------------------------
+// WhatsappLog — log de custos por conversa (Meta cobra por categoria)
+// ---------------------------------------------------------------------------
+
 model WhatsappLog {
-  id                    String   @id @default(cuid())
-  tenant_id             String
-  product_id            String?
-  user_id               String?
+  id_whatsapp_log             String  @id @default(cuid())
+  id_organizacao_whatsapp_log String
+  id_produto_whatsapp_log     String?
+  id_usuario_whatsapp_log     String?
 
-  conversation_id       String?
-  company_id            String?
-  conversation_category String
-  origin                String
-  cost_usd              Decimal
+  id_conversa_whatsapp_log         String?
+  id_empresa_whatsapp_log          String?
+  categoria_conversa_whatsapp_log  String
+  origem_whatsapp_log              String
+  custo_usd_whatsapp_log           Decimal
 
-  created_at            DateTime @default(now())
-  updated_at            DateTime @updatedAt
+  data_criacao_whatsapp_log     DateTime @default(now())
+  data_atualizacao_whatsapp_log DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
+  @@index([id_organizacao_whatsapp_log], map: "wl_org_idx")
+  @@index([id_organizacao_whatsapp_log, id_produto_whatsapp_log], map: "wl_org_prd_idx")
+  @@index([id_organizacao_whatsapp_log, id_usuario_whatsapp_log], map: "wl_org_usr_idx")
   @@map("whatsapp_log")
 }
 
-model WhatsappRegra {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  product_id   String?
-  user_id      String?
-  
-  name         String
-  trigger      String
-  conditions   Json?
-  template_id  String
-  recipient    String
-  active       Boolean  @default(true)
-  
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+// ---------------------------------------------------------------------------
+// WhatsappRegra — automações trigger→template
+// ---------------------------------------------------------------------------
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, active])
+model WhatsappRegra {
+  id_whatsapp_regra             String  @id @default(cuid())
+  id_organizacao_whatsapp_regra String
+  id_produto_whatsapp_regra     String?
+  id_usuario_whatsapp_regra     String?
+
+  nome_whatsapp_regra        String
+  gatilho_whatsapp_regra     String
+  condicoes_whatsapp_regra   Json?
+  id_template_whatsapp_regra String
+  destinatario_whatsapp_regra String
+  ativa_whatsapp_regra       Boolean  @default(true)
+
+  data_criacao_whatsapp_regra     DateTime @default(now())
+  data_atualizacao_whatsapp_regra DateTime @updatedAt
+
+  @@index([id_organizacao_whatsapp_regra], map: "wr_org_idx")
+  @@index([id_organizacao_whatsapp_regra, id_produto_whatsapp_regra], map: "wr_org_prd_idx")
+  @@index([id_organizacao_whatsapp_regra, id_usuario_whatsapp_regra], map: "wr_org_usr_idx")
+  @@index([id_organizacao_whatsapp_regra, ativa_whatsapp_regra], map: "wr_org_ativa_idx")
   @@map("whatsapp_regra")
 }
 

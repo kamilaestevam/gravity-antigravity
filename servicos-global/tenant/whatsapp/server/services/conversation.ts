@@ -3,15 +3,33 @@ import { sseStreamHandlers } from './sse'
 import { callGabiForConversation } from './interpreter'
 import { sendTextMessage } from './whatsapp'
 
+interface MetaWebhookContact {
+  wa_id?: string
+  profile?: { name?: string }
+}
+
+interface MetaWebhookMessage {
+  id: string
+  from: string
+  type: string
+  text?: { body?: string }
+}
+
+interface MetaWebhookValue {
+  metadata?: { phone_number_id?: string }
+  messages?: MetaWebhookMessage[]
+  contacts?: MetaWebhookContact[]
+}
+
 export async function processWebhookPayload(value: Record<string, unknown>) {
-  const metadata = value.metadata
-  const messages = value.messages
-  const contacts = value.contacts || []
+  const v = value as unknown as MetaWebhookValue
+  const messages = v.messages ?? []
+  const contacts = v.contacts ?? []
 
   // Resolver tenant_id a partir do phone_number_id da Meta.
   // Cada deploy/serviço WhatsApp é configurado para um tenant específico via env.
   // O WHATSAPP_PHONE_NUMBER_ID identifica o business e o WHATSAPP_TENANT_ID mapeia ao tenant.
-  const phone_number_id = metadata?.phone_number_id
+  const phone_number_id = v.metadata?.phone_number_id
   const expected_phone_id = process.env.WHATSAPP_PHONE_NUMBER_ID
 
   if (!phone_number_id || !expected_phone_id || phone_number_id !== expected_phone_id) {
@@ -34,55 +52,57 @@ export async function processWebhookPayload(value: Record<string, unknown>) {
     const contact_nome = contact?.profile?.name || 'Desconhecido'
 
     // Evitar duplicate messages
-    const exists = await prisma.whatsappMensagem.findUnique({ where: { wa_message_id } })
+    const exists = await prisma.whatsappMensagem.findUnique({
+      where: { id_wa_mensagem_whatsapp_mensagem: wa_message_id },
+    })
     if (exists) continue
 
     // Achar ou Criar Conversa
     let conversation = await prisma.whatsappConversa.findFirst({
       where: {
-        tenant_id,
-        wa_phone_number,
-        status: 'open'
-      }
+        id_organizacao_whatsapp_conversa: tenant_id,
+        telefone_wa_whatsapp_conversa: wa_phone_number,
+        status_whatsapp_conversa: 'open',
+      },
     })
 
     if (!conversation) {
       conversation = await prisma.whatsappConversa.create({
         data: {
-          tenant_id,
-          wa_phone_number,
-          contact_nome,
-          status: 'open',
-          ai_enabled: false
-        }
+          id_organizacao_whatsapp_conversa: tenant_id,
+          telefone_wa_whatsapp_conversa: wa_phone_number,
+          nome_contato_whatsapp_conversa: contact_nome,
+          status_whatsapp_conversa: 'open',
+          ia_habilitada_whatsapp_conversa: false,
+        },
       })
     }
 
     let content = ''
-    let content_type = msg.type || 'text'
+    const content_type = msg.type || 'text'
 
     if (msg.type === 'text') content = msg.text?.body || ''
     else content = `[${msg.type} não suportado para exibição]`
 
     const savedMessage = await prisma.whatsappMensagem.create({
       data: {
-        tenant_id,
-        conversation_id: conversation.id,
-        wa_message_id,
-        direction: 'inbound',
-        content_type,
-        content,
-        origin: 'contact',
-        status: 'received'
-      }
+        id_organizacao_whatsapp_mensagem: tenant_id,
+        id_conversa_whatsapp_mensagem: conversation.id_whatsapp_conversa,
+        id_wa_mensagem_whatsapp_mensagem: wa_message_id,
+        direcao_whatsapp_mensagem: 'inbound',
+        tipo_conteudo_whatsapp_mensagem: content_type,
+        conteudo_whatsapp_mensagem: content,
+        origem_whatsapp_mensagem: 'contact',
+        status_whatsapp_mensagem: 'received',
+      },
     })
 
     // Emite via SSE
     sseStreamHandlers.emit(tenant_id, 'new_message', { conversation, message: savedMessage })
 
     // Se ai_enabled -> Gabi
-    if (conversation.ai_enabled) {
-       await replyWithGabi(conversation.id, tenant_id, wa_phone_number)
+    if (conversation.ia_habilitada_whatsapp_conversa) {
+      await replyWithGabi(conversation.id_whatsapp_conversa, tenant_id, wa_phone_number)
     }
   }
 }
@@ -96,15 +116,15 @@ async function replyWithGabi(conversation_id: string, tenant_id: string, to_phon
 
     const savedReply = await prisma.whatsappMensagem.create({
       data: {
-        tenant_id,
-        conversation_id,
-        wa_message_id: messageId,
-        direction: 'outbound',
-        content_type: 'text',
-        content: replyText,
-        origin: 'gabi',
-        status: 'sent'
-      }
+        id_organizacao_whatsapp_mensagem: tenant_id,
+        id_conversa_whatsapp_mensagem: conversation_id,
+        id_wa_mensagem_whatsapp_mensagem: messageId,
+        direcao_whatsapp_mensagem: 'outbound',
+        tipo_conteudo_whatsapp_mensagem: 'text',
+        conteudo_whatsapp_mensagem: replyText,
+        origem_whatsapp_mensagem: 'gabi',
+        status_whatsapp_mensagem: 'sent',
+      },
     })
 
     sseStreamHandlers.emit(tenant_id, 'new_message', { message: savedReply })

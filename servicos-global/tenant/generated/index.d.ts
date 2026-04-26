@@ -16482,155 +16482,155 @@ export namespace Prisma {
   }
 
   export type WhatsappConversaAvgAggregateOutputType = {
-    gabi_temperatura_score: number | null
+    gabi_temperatura_score_whatsapp_conversa: number | null
   }
 
   export type WhatsappConversaSumAggregateOutputType = {
-    gabi_temperatura_score: number | null
+    gabi_temperatura_score_whatsapp_conversa: number | null
   }
 
   export type WhatsappConversaMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    wa_phone_number: string | null
-    status: string | null
-    contact_id: string | null
-    company_id: string | null
-    contact_nome: string | null
-    company_nome: string | null
-    activity_id: string | null
-    ai_enabled: boolean | null
-    opened_at: Date | null
-    closed_at: Date | null
-    gabi_temperatura: string | null
-    gabi_temperatura_score: number | null
-    gabi_resumo: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_whatsapp_conversa: string | null
+    id_organizacao_whatsapp_conversa: string | null
+    id_produto_whatsapp_conversa: string | null
+    id_usuario_whatsapp_conversa: string | null
+    telefone_wa_whatsapp_conversa: string | null
+    status_whatsapp_conversa: string | null
+    id_contato_whatsapp_conversa: string | null
+    id_empresa_whatsapp_conversa: string | null
+    nome_contato_whatsapp_conversa: string | null
+    nome_empresa_whatsapp_conversa: string | null
+    id_atividade_whatsapp_conversa: string | null
+    ia_habilitada_whatsapp_conversa: boolean | null
+    aberta_em_whatsapp_conversa: Date | null
+    fechada_em_whatsapp_conversa: Date | null
+    gabi_temperatura_whatsapp_conversa: string | null
+    gabi_temperatura_score_whatsapp_conversa: number | null
+    gabi_resumo_whatsapp_conversa: string | null
+    data_criacao_whatsapp_conversa: Date | null
+    data_atualizacao_whatsapp_conversa: Date | null
   }
 
   export type WhatsappConversaMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    wa_phone_number: string | null
-    status: string | null
-    contact_id: string | null
-    company_id: string | null
-    contact_nome: string | null
-    company_nome: string | null
-    activity_id: string | null
-    ai_enabled: boolean | null
-    opened_at: Date | null
-    closed_at: Date | null
-    gabi_temperatura: string | null
-    gabi_temperatura_score: number | null
-    gabi_resumo: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_whatsapp_conversa: string | null
+    id_organizacao_whatsapp_conversa: string | null
+    id_produto_whatsapp_conversa: string | null
+    id_usuario_whatsapp_conversa: string | null
+    telefone_wa_whatsapp_conversa: string | null
+    status_whatsapp_conversa: string | null
+    id_contato_whatsapp_conversa: string | null
+    id_empresa_whatsapp_conversa: string | null
+    nome_contato_whatsapp_conversa: string | null
+    nome_empresa_whatsapp_conversa: string | null
+    id_atividade_whatsapp_conversa: string | null
+    ia_habilitada_whatsapp_conversa: boolean | null
+    aberta_em_whatsapp_conversa: Date | null
+    fechada_em_whatsapp_conversa: Date | null
+    gabi_temperatura_whatsapp_conversa: string | null
+    gabi_temperatura_score_whatsapp_conversa: number | null
+    gabi_resumo_whatsapp_conversa: string | null
+    data_criacao_whatsapp_conversa: Date | null
+    data_atualizacao_whatsapp_conversa: Date | null
   }
 
   export type WhatsappConversaCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    wa_phone_number: number
-    status: number
-    contact_id: number
-    company_id: number
-    contact_nome: number
-    company_nome: number
-    activity_id: number
-    ai_enabled: number
-    opened_at: number
-    closed_at: number
-    gabi_temperatura: number
-    gabi_temperatura_score: number
-    gabi_resumo: number
-    gabi_acoes_sugeridas: number
-    created_at: number
-    updated_at: number
+    id_whatsapp_conversa: number
+    id_organizacao_whatsapp_conversa: number
+    id_produto_whatsapp_conversa: number
+    id_usuario_whatsapp_conversa: number
+    telefone_wa_whatsapp_conversa: number
+    status_whatsapp_conversa: number
+    id_contato_whatsapp_conversa: number
+    id_empresa_whatsapp_conversa: number
+    nome_contato_whatsapp_conversa: number
+    nome_empresa_whatsapp_conversa: number
+    id_atividade_whatsapp_conversa: number
+    ia_habilitada_whatsapp_conversa: number
+    aberta_em_whatsapp_conversa: number
+    fechada_em_whatsapp_conversa: number
+    gabi_temperatura_whatsapp_conversa: number
+    gabi_temperatura_score_whatsapp_conversa: number
+    gabi_resumo_whatsapp_conversa: number
+    gabi_acoes_sugeridas_whatsapp_conversa: number
+    data_criacao_whatsapp_conversa: number
+    data_atualizacao_whatsapp_conversa: number
     _all: number
   }
 
 
   export type WhatsappConversaAvgAggregateInputType = {
-    gabi_temperatura_score?: true
+    gabi_temperatura_score_whatsapp_conversa?: true
   }
 
   export type WhatsappConversaSumAggregateInputType = {
-    gabi_temperatura_score?: true
+    gabi_temperatura_score_whatsapp_conversa?: true
   }
 
   export type WhatsappConversaMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    wa_phone_number?: true
-    status?: true
-    contact_id?: true
-    company_id?: true
-    contact_nome?: true
-    company_nome?: true
-    activity_id?: true
-    ai_enabled?: true
-    opened_at?: true
-    closed_at?: true
-    gabi_temperatura?: true
-    gabi_temperatura_score?: true
-    gabi_resumo?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_conversa?: true
+    id_organizacao_whatsapp_conversa?: true
+    id_produto_whatsapp_conversa?: true
+    id_usuario_whatsapp_conversa?: true
+    telefone_wa_whatsapp_conversa?: true
+    status_whatsapp_conversa?: true
+    id_contato_whatsapp_conversa?: true
+    id_empresa_whatsapp_conversa?: true
+    nome_contato_whatsapp_conversa?: true
+    nome_empresa_whatsapp_conversa?: true
+    id_atividade_whatsapp_conversa?: true
+    ia_habilitada_whatsapp_conversa?: true
+    aberta_em_whatsapp_conversa?: true
+    fechada_em_whatsapp_conversa?: true
+    gabi_temperatura_whatsapp_conversa?: true
+    gabi_temperatura_score_whatsapp_conversa?: true
+    gabi_resumo_whatsapp_conversa?: true
+    data_criacao_whatsapp_conversa?: true
+    data_atualizacao_whatsapp_conversa?: true
   }
 
   export type WhatsappConversaMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    wa_phone_number?: true
-    status?: true
-    contact_id?: true
-    company_id?: true
-    contact_nome?: true
-    company_nome?: true
-    activity_id?: true
-    ai_enabled?: true
-    opened_at?: true
-    closed_at?: true
-    gabi_temperatura?: true
-    gabi_temperatura_score?: true
-    gabi_resumo?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_conversa?: true
+    id_organizacao_whatsapp_conversa?: true
+    id_produto_whatsapp_conversa?: true
+    id_usuario_whatsapp_conversa?: true
+    telefone_wa_whatsapp_conversa?: true
+    status_whatsapp_conversa?: true
+    id_contato_whatsapp_conversa?: true
+    id_empresa_whatsapp_conversa?: true
+    nome_contato_whatsapp_conversa?: true
+    nome_empresa_whatsapp_conversa?: true
+    id_atividade_whatsapp_conversa?: true
+    ia_habilitada_whatsapp_conversa?: true
+    aberta_em_whatsapp_conversa?: true
+    fechada_em_whatsapp_conversa?: true
+    gabi_temperatura_whatsapp_conversa?: true
+    gabi_temperatura_score_whatsapp_conversa?: true
+    gabi_resumo_whatsapp_conversa?: true
+    data_criacao_whatsapp_conversa?: true
+    data_atualizacao_whatsapp_conversa?: true
   }
 
   export type WhatsappConversaCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    wa_phone_number?: true
-    status?: true
-    contact_id?: true
-    company_id?: true
-    contact_nome?: true
-    company_nome?: true
-    activity_id?: true
-    ai_enabled?: true
-    opened_at?: true
-    closed_at?: true
-    gabi_temperatura?: true
-    gabi_temperatura_score?: true
-    gabi_resumo?: true
-    gabi_acoes_sugeridas?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_conversa?: true
+    id_organizacao_whatsapp_conversa?: true
+    id_produto_whatsapp_conversa?: true
+    id_usuario_whatsapp_conversa?: true
+    telefone_wa_whatsapp_conversa?: true
+    status_whatsapp_conversa?: true
+    id_contato_whatsapp_conversa?: true
+    id_empresa_whatsapp_conversa?: true
+    nome_contato_whatsapp_conversa?: true
+    nome_empresa_whatsapp_conversa?: true
+    id_atividade_whatsapp_conversa?: true
+    ia_habilitada_whatsapp_conversa?: true
+    aberta_em_whatsapp_conversa?: true
+    fechada_em_whatsapp_conversa?: true
+    gabi_temperatura_whatsapp_conversa?: true
+    gabi_temperatura_score_whatsapp_conversa?: true
+    gabi_resumo_whatsapp_conversa?: true
+    gabi_acoes_sugeridas_whatsapp_conversa?: true
+    data_criacao_whatsapp_conversa?: true
+    data_atualizacao_whatsapp_conversa?: true
     _all?: true
   }
 
@@ -16721,26 +16721,26 @@ export namespace Prisma {
   }
 
   export type WhatsappConversaGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    wa_phone_number: string
-    status: string
-    contact_id: string | null
-    company_id: string | null
-    contact_nome: string | null
-    company_nome: string | null
-    activity_id: string | null
-    ai_enabled: boolean
-    opened_at: Date
-    closed_at: Date | null
-    gabi_temperatura: string | null
-    gabi_temperatura_score: number | null
-    gabi_resumo: string | null
-    gabi_acoes_sugeridas: JsonValue | null
-    created_at: Date
-    updated_at: Date
+    id_whatsapp_conversa: string
+    id_organizacao_whatsapp_conversa: string
+    id_produto_whatsapp_conversa: string | null
+    id_usuario_whatsapp_conversa: string | null
+    telefone_wa_whatsapp_conversa: string
+    status_whatsapp_conversa: string
+    id_contato_whatsapp_conversa: string | null
+    id_empresa_whatsapp_conversa: string | null
+    nome_contato_whatsapp_conversa: string | null
+    nome_empresa_whatsapp_conversa: string | null
+    id_atividade_whatsapp_conversa: string | null
+    ia_habilitada_whatsapp_conversa: boolean
+    aberta_em_whatsapp_conversa: Date
+    fechada_em_whatsapp_conversa: Date | null
+    gabi_temperatura_whatsapp_conversa: string | null
+    gabi_temperatura_score_whatsapp_conversa: number | null
+    gabi_resumo_whatsapp_conversa: string | null
+    gabi_acoes_sugeridas_whatsapp_conversa: JsonValue | null
+    data_criacao_whatsapp_conversa: Date
+    data_atualizacao_whatsapp_conversa: Date
     _count: WhatsappConversaCountAggregateOutputType | null
     _avg: WhatsappConversaAvgAggregateOutputType | null
     _sum: WhatsappConversaSumAggregateOutputType | null
@@ -16763,72 +16763,72 @@ export namespace Prisma {
 
 
   export type WhatsappConversaSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    wa_phone_number?: boolean
-    status?: boolean
-    contact_id?: boolean
-    company_id?: boolean
-    contact_nome?: boolean
-    company_nome?: boolean
-    activity_id?: boolean
-    ai_enabled?: boolean
-    opened_at?: boolean
-    closed_at?: boolean
-    gabi_temperatura?: boolean
-    gabi_temperatura_score?: boolean
-    gabi_resumo?: boolean
-    gabi_acoes_sugeridas?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_conversa?: boolean
+    id_organizacao_whatsapp_conversa?: boolean
+    id_produto_whatsapp_conversa?: boolean
+    id_usuario_whatsapp_conversa?: boolean
+    telefone_wa_whatsapp_conversa?: boolean
+    status_whatsapp_conversa?: boolean
+    id_contato_whatsapp_conversa?: boolean
+    id_empresa_whatsapp_conversa?: boolean
+    nome_contato_whatsapp_conversa?: boolean
+    nome_empresa_whatsapp_conversa?: boolean
+    id_atividade_whatsapp_conversa?: boolean
+    ia_habilitada_whatsapp_conversa?: boolean
+    aberta_em_whatsapp_conversa?: boolean
+    fechada_em_whatsapp_conversa?: boolean
+    gabi_temperatura_whatsapp_conversa?: boolean
+    gabi_temperatura_score_whatsapp_conversa?: boolean
+    gabi_resumo_whatsapp_conversa?: boolean
+    gabi_acoes_sugeridas_whatsapp_conversa?: boolean
+    data_criacao_whatsapp_conversa?: boolean
+    data_atualizacao_whatsapp_conversa?: boolean
   }, ExtArgs["result"]["whatsappConversa"]>
 
   export type WhatsappConversaSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    wa_phone_number?: boolean
-    status?: boolean
-    contact_id?: boolean
-    company_id?: boolean
-    contact_nome?: boolean
-    company_nome?: boolean
-    activity_id?: boolean
-    ai_enabled?: boolean
-    opened_at?: boolean
-    closed_at?: boolean
-    gabi_temperatura?: boolean
-    gabi_temperatura_score?: boolean
-    gabi_resumo?: boolean
-    gabi_acoes_sugeridas?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_conversa?: boolean
+    id_organizacao_whatsapp_conversa?: boolean
+    id_produto_whatsapp_conversa?: boolean
+    id_usuario_whatsapp_conversa?: boolean
+    telefone_wa_whatsapp_conversa?: boolean
+    status_whatsapp_conversa?: boolean
+    id_contato_whatsapp_conversa?: boolean
+    id_empresa_whatsapp_conversa?: boolean
+    nome_contato_whatsapp_conversa?: boolean
+    nome_empresa_whatsapp_conversa?: boolean
+    id_atividade_whatsapp_conversa?: boolean
+    ia_habilitada_whatsapp_conversa?: boolean
+    aberta_em_whatsapp_conversa?: boolean
+    fechada_em_whatsapp_conversa?: boolean
+    gabi_temperatura_whatsapp_conversa?: boolean
+    gabi_temperatura_score_whatsapp_conversa?: boolean
+    gabi_resumo_whatsapp_conversa?: boolean
+    gabi_acoes_sugeridas_whatsapp_conversa?: boolean
+    data_criacao_whatsapp_conversa?: boolean
+    data_atualizacao_whatsapp_conversa?: boolean
   }, ExtArgs["result"]["whatsappConversa"]>
 
   export type WhatsappConversaSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    wa_phone_number?: boolean
-    status?: boolean
-    contact_id?: boolean
-    company_id?: boolean
-    contact_nome?: boolean
-    company_nome?: boolean
-    activity_id?: boolean
-    ai_enabled?: boolean
-    opened_at?: boolean
-    closed_at?: boolean
-    gabi_temperatura?: boolean
-    gabi_temperatura_score?: boolean
-    gabi_resumo?: boolean
-    gabi_acoes_sugeridas?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_conversa?: boolean
+    id_organizacao_whatsapp_conversa?: boolean
+    id_produto_whatsapp_conversa?: boolean
+    id_usuario_whatsapp_conversa?: boolean
+    telefone_wa_whatsapp_conversa?: boolean
+    status_whatsapp_conversa?: boolean
+    id_contato_whatsapp_conversa?: boolean
+    id_empresa_whatsapp_conversa?: boolean
+    nome_contato_whatsapp_conversa?: boolean
+    nome_empresa_whatsapp_conversa?: boolean
+    id_atividade_whatsapp_conversa?: boolean
+    ia_habilitada_whatsapp_conversa?: boolean
+    aberta_em_whatsapp_conversa?: boolean
+    fechada_em_whatsapp_conversa?: boolean
+    gabi_temperatura_whatsapp_conversa?: boolean
+    gabi_temperatura_score_whatsapp_conversa?: boolean
+    gabi_resumo_whatsapp_conversa?: boolean
+    gabi_acoes_sugeridas_whatsapp_conversa?: boolean
+    data_criacao_whatsapp_conversa?: boolean
+    data_atualizacao_whatsapp_conversa?: boolean
   }
 
 
@@ -16836,26 +16836,26 @@ export namespace Prisma {
     name: "WhatsappConversa"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      wa_phone_number: string
-      status: string
-      contact_id: string | null
-      company_id: string | null
-      contact_nome: string | null
-      company_nome: string | null
-      activity_id: string | null
-      ai_enabled: boolean
-      opened_at: Date
-      closed_at: Date | null
-      gabi_temperatura: string | null
-      gabi_temperatura_score: number | null
-      gabi_resumo: string | null
-      gabi_acoes_sugeridas: Prisma.JsonValue | null
-      created_at: Date
-      updated_at: Date
+      id_whatsapp_conversa: string
+      id_organizacao_whatsapp_conversa: string
+      id_produto_whatsapp_conversa: string | null
+      id_usuario_whatsapp_conversa: string | null
+      telefone_wa_whatsapp_conversa: string
+      status_whatsapp_conversa: string
+      id_contato_whatsapp_conversa: string | null
+      id_empresa_whatsapp_conversa: string | null
+      nome_contato_whatsapp_conversa: string | null
+      nome_empresa_whatsapp_conversa: string | null
+      id_atividade_whatsapp_conversa: string | null
+      ia_habilitada_whatsapp_conversa: boolean
+      aberta_em_whatsapp_conversa: Date
+      fechada_em_whatsapp_conversa: Date | null
+      gabi_temperatura_whatsapp_conversa: string | null
+      gabi_temperatura_score_whatsapp_conversa: number | null
+      gabi_resumo_whatsapp_conversa: string | null
+      gabi_acoes_sugeridas_whatsapp_conversa: Prisma.JsonValue | null
+      data_criacao_whatsapp_conversa: Date
+      data_atualizacao_whatsapp_conversa: Date
     }, ExtArgs["result"]["whatsappConversa"]>
     composites: {}
   }
@@ -16939,8 +16939,8 @@ export namespace Prisma {
      * // Get first 10 WhatsappConversas
      * const whatsappConversas = await prisma.whatsappConversa.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const whatsappConversaWithIdOnly = await prisma.whatsappConversa.findMany({ select: { id: true } })
+     * // Only select the `id_whatsapp_conversa`
+     * const whatsappConversaWithId_whatsapp_conversaOnly = await prisma.whatsappConversa.findMany({ select: { id_whatsapp_conversa: true } })
      * 
      */
     findMany<T extends WhatsappConversaFindManyArgs>(args?: SelectSubset<T, WhatsappConversaFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsappConversaPayload<ExtArgs>, T, "findMany">>
@@ -16984,9 +16984,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many WhatsappConversas and only return the `id`
-     * const whatsappConversaWithIdOnly = await prisma.whatsappConversa.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many WhatsappConversas and only return the `id_whatsapp_conversa`
+     * const whatsappConversaWithId_whatsapp_conversaOnly = await prisma.whatsappConversa.createManyAndReturn({ 
+     *   select: { id_whatsapp_conversa: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -17249,26 +17249,26 @@ export namespace Prisma {
    * Fields of the WhatsappConversa model
    */ 
   interface WhatsappConversaFieldRefs {
-    readonly id: FieldRef<"WhatsappConversa", 'String'>
-    readonly tenant_id: FieldRef<"WhatsappConversa", 'String'>
-    readonly product_id: FieldRef<"WhatsappConversa", 'String'>
-    readonly user_id: FieldRef<"WhatsappConversa", 'String'>
-    readonly wa_phone_number: FieldRef<"WhatsappConversa", 'String'>
-    readonly status: FieldRef<"WhatsappConversa", 'String'>
-    readonly contact_id: FieldRef<"WhatsappConversa", 'String'>
-    readonly company_id: FieldRef<"WhatsappConversa", 'String'>
-    readonly contact_nome: FieldRef<"WhatsappConversa", 'String'>
-    readonly company_nome: FieldRef<"WhatsappConversa", 'String'>
-    readonly activity_id: FieldRef<"WhatsappConversa", 'String'>
-    readonly ai_enabled: FieldRef<"WhatsappConversa", 'Boolean'>
-    readonly opened_at: FieldRef<"WhatsappConversa", 'DateTime'>
-    readonly closed_at: FieldRef<"WhatsappConversa", 'DateTime'>
-    readonly gabi_temperatura: FieldRef<"WhatsappConversa", 'String'>
-    readonly gabi_temperatura_score: FieldRef<"WhatsappConversa", 'Int'>
-    readonly gabi_resumo: FieldRef<"WhatsappConversa", 'String'>
-    readonly gabi_acoes_sugeridas: FieldRef<"WhatsappConversa", 'Json'>
-    readonly created_at: FieldRef<"WhatsappConversa", 'DateTime'>
-    readonly updated_at: FieldRef<"WhatsappConversa", 'DateTime'>
+    readonly id_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly id_organizacao_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly id_produto_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly id_usuario_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly telefone_wa_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly status_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly id_contato_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly id_empresa_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly nome_contato_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly nome_empresa_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly id_atividade_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly ia_habilitada_whatsapp_conversa: FieldRef<"WhatsappConversa", 'Boolean'>
+    readonly aberta_em_whatsapp_conversa: FieldRef<"WhatsappConversa", 'DateTime'>
+    readonly fechada_em_whatsapp_conversa: FieldRef<"WhatsappConversa", 'DateTime'>
+    readonly gabi_temperatura_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly gabi_temperatura_score_whatsapp_conversa: FieldRef<"WhatsappConversa", 'Int'>
+    readonly gabi_resumo_whatsapp_conversa: FieldRef<"WhatsappConversa", 'String'>
+    readonly gabi_acoes_sugeridas_whatsapp_conversa: FieldRef<"WhatsappConversa", 'Json'>
+    readonly data_criacao_whatsapp_conversa: FieldRef<"WhatsappConversa", 'DateTime'>
+    readonly data_atualizacao_whatsapp_conversa: FieldRef<"WhatsappConversa", 'DateTime'>
   }
     
 
@@ -17568,107 +17568,107 @@ export namespace Prisma {
   }
 
   export type WhatsappMensagemMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string | null
-    wa_message_id: string | null
-    direction: string | null
-    content_type: string | null
-    content: string | null
-    origin: string | null
-    sent_by: string | null
-    status: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_whatsapp_mensagem: string | null
+    id_organizacao_whatsapp_mensagem: string | null
+    id_produto_whatsapp_mensagem: string | null
+    id_usuario_whatsapp_mensagem: string | null
+    id_conversa_whatsapp_mensagem: string | null
+    id_wa_mensagem_whatsapp_mensagem: string | null
+    direcao_whatsapp_mensagem: string | null
+    tipo_conteudo_whatsapp_mensagem: string | null
+    conteudo_whatsapp_mensagem: string | null
+    origem_whatsapp_mensagem: string | null
+    enviado_por_whatsapp_mensagem: string | null
+    status_whatsapp_mensagem: string | null
+    data_criacao_whatsapp_mensagem: Date | null
+    data_atualizacao_whatsapp_mensagem: Date | null
   }
 
   export type WhatsappMensagemMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string | null
-    wa_message_id: string | null
-    direction: string | null
-    content_type: string | null
-    content: string | null
-    origin: string | null
-    sent_by: string | null
-    status: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_whatsapp_mensagem: string | null
+    id_organizacao_whatsapp_mensagem: string | null
+    id_produto_whatsapp_mensagem: string | null
+    id_usuario_whatsapp_mensagem: string | null
+    id_conversa_whatsapp_mensagem: string | null
+    id_wa_mensagem_whatsapp_mensagem: string | null
+    direcao_whatsapp_mensagem: string | null
+    tipo_conteudo_whatsapp_mensagem: string | null
+    conteudo_whatsapp_mensagem: string | null
+    origem_whatsapp_mensagem: string | null
+    enviado_por_whatsapp_mensagem: string | null
+    status_whatsapp_mensagem: string | null
+    data_criacao_whatsapp_mensagem: Date | null
+    data_atualizacao_whatsapp_mensagem: Date | null
   }
 
   export type WhatsappMensagemCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    conversation_id: number
-    wa_message_id: number
-    direction: number
-    content_type: number
-    content: number
-    origin: number
-    sent_by: number
-    status: number
-    created_at: number
-    updated_at: number
+    id_whatsapp_mensagem: number
+    id_organizacao_whatsapp_mensagem: number
+    id_produto_whatsapp_mensagem: number
+    id_usuario_whatsapp_mensagem: number
+    id_conversa_whatsapp_mensagem: number
+    id_wa_mensagem_whatsapp_mensagem: number
+    direcao_whatsapp_mensagem: number
+    tipo_conteudo_whatsapp_mensagem: number
+    conteudo_whatsapp_mensagem: number
+    origem_whatsapp_mensagem: number
+    enviado_por_whatsapp_mensagem: number
+    status_whatsapp_mensagem: number
+    data_criacao_whatsapp_mensagem: number
+    data_atualizacao_whatsapp_mensagem: number
     _all: number
   }
 
 
   export type WhatsappMensagemMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    wa_message_id?: true
-    direction?: true
-    content_type?: true
-    content?: true
-    origin?: true
-    sent_by?: true
-    status?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_mensagem?: true
+    id_organizacao_whatsapp_mensagem?: true
+    id_produto_whatsapp_mensagem?: true
+    id_usuario_whatsapp_mensagem?: true
+    id_conversa_whatsapp_mensagem?: true
+    id_wa_mensagem_whatsapp_mensagem?: true
+    direcao_whatsapp_mensagem?: true
+    tipo_conteudo_whatsapp_mensagem?: true
+    conteudo_whatsapp_mensagem?: true
+    origem_whatsapp_mensagem?: true
+    enviado_por_whatsapp_mensagem?: true
+    status_whatsapp_mensagem?: true
+    data_criacao_whatsapp_mensagem?: true
+    data_atualizacao_whatsapp_mensagem?: true
   }
 
   export type WhatsappMensagemMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    wa_message_id?: true
-    direction?: true
-    content_type?: true
-    content?: true
-    origin?: true
-    sent_by?: true
-    status?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_mensagem?: true
+    id_organizacao_whatsapp_mensagem?: true
+    id_produto_whatsapp_mensagem?: true
+    id_usuario_whatsapp_mensagem?: true
+    id_conversa_whatsapp_mensagem?: true
+    id_wa_mensagem_whatsapp_mensagem?: true
+    direcao_whatsapp_mensagem?: true
+    tipo_conteudo_whatsapp_mensagem?: true
+    conteudo_whatsapp_mensagem?: true
+    origem_whatsapp_mensagem?: true
+    enviado_por_whatsapp_mensagem?: true
+    status_whatsapp_mensagem?: true
+    data_criacao_whatsapp_mensagem?: true
+    data_atualizacao_whatsapp_mensagem?: true
   }
 
   export type WhatsappMensagemCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    wa_message_id?: true
-    direction?: true
-    content_type?: true
-    content?: true
-    origin?: true
-    sent_by?: true
-    status?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_mensagem?: true
+    id_organizacao_whatsapp_mensagem?: true
+    id_produto_whatsapp_mensagem?: true
+    id_usuario_whatsapp_mensagem?: true
+    id_conversa_whatsapp_mensagem?: true
+    id_wa_mensagem_whatsapp_mensagem?: true
+    direcao_whatsapp_mensagem?: true
+    tipo_conteudo_whatsapp_mensagem?: true
+    conteudo_whatsapp_mensagem?: true
+    origem_whatsapp_mensagem?: true
+    enviado_por_whatsapp_mensagem?: true
+    status_whatsapp_mensagem?: true
+    data_criacao_whatsapp_mensagem?: true
+    data_atualizacao_whatsapp_mensagem?: true
     _all?: true
   }
 
@@ -17745,20 +17745,20 @@ export namespace Prisma {
   }
 
   export type WhatsappMensagemGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string
-    wa_message_id: string | null
-    direction: string
-    content_type: string
-    content: string
-    origin: string
-    sent_by: string | null
-    status: string
-    created_at: Date
-    updated_at: Date
+    id_whatsapp_mensagem: string
+    id_organizacao_whatsapp_mensagem: string
+    id_produto_whatsapp_mensagem: string | null
+    id_usuario_whatsapp_mensagem: string | null
+    id_conversa_whatsapp_mensagem: string
+    id_wa_mensagem_whatsapp_mensagem: string | null
+    direcao_whatsapp_mensagem: string
+    tipo_conteudo_whatsapp_mensagem: string
+    conteudo_whatsapp_mensagem: string
+    origem_whatsapp_mensagem: string
+    enviado_por_whatsapp_mensagem: string | null
+    status_whatsapp_mensagem: string
+    data_criacao_whatsapp_mensagem: Date
+    data_atualizacao_whatsapp_mensagem: Date
     _count: WhatsappMensagemCountAggregateOutputType | null
     _min: WhatsappMensagemMinAggregateOutputType | null
     _max: WhatsappMensagemMaxAggregateOutputType | null
@@ -17779,54 +17779,54 @@ export namespace Prisma {
 
 
   export type WhatsappMensagemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    wa_message_id?: boolean
-    direction?: boolean
-    content_type?: boolean
-    content?: boolean
-    origin?: boolean
-    sent_by?: boolean
-    status?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_mensagem?: boolean
+    id_organizacao_whatsapp_mensagem?: boolean
+    id_produto_whatsapp_mensagem?: boolean
+    id_usuario_whatsapp_mensagem?: boolean
+    id_conversa_whatsapp_mensagem?: boolean
+    id_wa_mensagem_whatsapp_mensagem?: boolean
+    direcao_whatsapp_mensagem?: boolean
+    tipo_conteudo_whatsapp_mensagem?: boolean
+    conteudo_whatsapp_mensagem?: boolean
+    origem_whatsapp_mensagem?: boolean
+    enviado_por_whatsapp_mensagem?: boolean
+    status_whatsapp_mensagem?: boolean
+    data_criacao_whatsapp_mensagem?: boolean
+    data_atualizacao_whatsapp_mensagem?: boolean
   }, ExtArgs["result"]["whatsappMensagem"]>
 
   export type WhatsappMensagemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    wa_message_id?: boolean
-    direction?: boolean
-    content_type?: boolean
-    content?: boolean
-    origin?: boolean
-    sent_by?: boolean
-    status?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_mensagem?: boolean
+    id_organizacao_whatsapp_mensagem?: boolean
+    id_produto_whatsapp_mensagem?: boolean
+    id_usuario_whatsapp_mensagem?: boolean
+    id_conversa_whatsapp_mensagem?: boolean
+    id_wa_mensagem_whatsapp_mensagem?: boolean
+    direcao_whatsapp_mensagem?: boolean
+    tipo_conteudo_whatsapp_mensagem?: boolean
+    conteudo_whatsapp_mensagem?: boolean
+    origem_whatsapp_mensagem?: boolean
+    enviado_por_whatsapp_mensagem?: boolean
+    status_whatsapp_mensagem?: boolean
+    data_criacao_whatsapp_mensagem?: boolean
+    data_atualizacao_whatsapp_mensagem?: boolean
   }, ExtArgs["result"]["whatsappMensagem"]>
 
   export type WhatsappMensagemSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    wa_message_id?: boolean
-    direction?: boolean
-    content_type?: boolean
-    content?: boolean
-    origin?: boolean
-    sent_by?: boolean
-    status?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_mensagem?: boolean
+    id_organizacao_whatsapp_mensagem?: boolean
+    id_produto_whatsapp_mensagem?: boolean
+    id_usuario_whatsapp_mensagem?: boolean
+    id_conversa_whatsapp_mensagem?: boolean
+    id_wa_mensagem_whatsapp_mensagem?: boolean
+    direcao_whatsapp_mensagem?: boolean
+    tipo_conteudo_whatsapp_mensagem?: boolean
+    conteudo_whatsapp_mensagem?: boolean
+    origem_whatsapp_mensagem?: boolean
+    enviado_por_whatsapp_mensagem?: boolean
+    status_whatsapp_mensagem?: boolean
+    data_criacao_whatsapp_mensagem?: boolean
+    data_atualizacao_whatsapp_mensagem?: boolean
   }
 
 
@@ -17834,20 +17834,20 @@ export namespace Prisma {
     name: "WhatsappMensagem"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      conversation_id: string
-      wa_message_id: string | null
-      direction: string
-      content_type: string
-      content: string
-      origin: string
-      sent_by: string | null
-      status: string
-      created_at: Date
-      updated_at: Date
+      id_whatsapp_mensagem: string
+      id_organizacao_whatsapp_mensagem: string
+      id_produto_whatsapp_mensagem: string | null
+      id_usuario_whatsapp_mensagem: string | null
+      id_conversa_whatsapp_mensagem: string
+      id_wa_mensagem_whatsapp_mensagem: string | null
+      direcao_whatsapp_mensagem: string
+      tipo_conteudo_whatsapp_mensagem: string
+      conteudo_whatsapp_mensagem: string
+      origem_whatsapp_mensagem: string
+      enviado_por_whatsapp_mensagem: string | null
+      status_whatsapp_mensagem: string
+      data_criacao_whatsapp_mensagem: Date
+      data_atualizacao_whatsapp_mensagem: Date
     }, ExtArgs["result"]["whatsappMensagem"]>
     composites: {}
   }
@@ -17931,8 +17931,8 @@ export namespace Prisma {
      * // Get first 10 WhatsappMensagems
      * const whatsappMensagems = await prisma.whatsappMensagem.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const whatsappMensagemWithIdOnly = await prisma.whatsappMensagem.findMany({ select: { id: true } })
+     * // Only select the `id_whatsapp_mensagem`
+     * const whatsappMensagemWithId_whatsapp_mensagemOnly = await prisma.whatsappMensagem.findMany({ select: { id_whatsapp_mensagem: true } })
      * 
      */
     findMany<T extends WhatsappMensagemFindManyArgs>(args?: SelectSubset<T, WhatsappMensagemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsappMensagemPayload<ExtArgs>, T, "findMany">>
@@ -17976,9 +17976,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many WhatsappMensagems and only return the `id`
-     * const whatsappMensagemWithIdOnly = await prisma.whatsappMensagem.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many WhatsappMensagems and only return the `id_whatsapp_mensagem`
+     * const whatsappMensagemWithId_whatsapp_mensagemOnly = await prisma.whatsappMensagem.createManyAndReturn({ 
+     *   select: { id_whatsapp_mensagem: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -18241,20 +18241,20 @@ export namespace Prisma {
    * Fields of the WhatsappMensagem model
    */ 
   interface WhatsappMensagemFieldRefs {
-    readonly id: FieldRef<"WhatsappMensagem", 'String'>
-    readonly tenant_id: FieldRef<"WhatsappMensagem", 'String'>
-    readonly product_id: FieldRef<"WhatsappMensagem", 'String'>
-    readonly user_id: FieldRef<"WhatsappMensagem", 'String'>
-    readonly conversation_id: FieldRef<"WhatsappMensagem", 'String'>
-    readonly wa_message_id: FieldRef<"WhatsappMensagem", 'String'>
-    readonly direction: FieldRef<"WhatsappMensagem", 'String'>
-    readonly content_type: FieldRef<"WhatsappMensagem", 'String'>
-    readonly content: FieldRef<"WhatsappMensagem", 'String'>
-    readonly origin: FieldRef<"WhatsappMensagem", 'String'>
-    readonly sent_by: FieldRef<"WhatsappMensagem", 'String'>
-    readonly status: FieldRef<"WhatsappMensagem", 'String'>
-    readonly created_at: FieldRef<"WhatsappMensagem", 'DateTime'>
-    readonly updated_at: FieldRef<"WhatsappMensagem", 'DateTime'>
+    readonly id_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly id_organizacao_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly id_produto_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly id_usuario_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly id_conversa_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly id_wa_mensagem_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly direcao_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly tipo_conteudo_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly conteudo_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly origem_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly enviado_por_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly status_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'String'>
+    readonly data_criacao_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'DateTime'>
+    readonly data_atualizacao_whatsapp_mensagem: FieldRef<"WhatsappMensagem", 'DateTime'>
   }
     
 
@@ -18556,105 +18556,105 @@ export namespace Prisma {
   }
 
   export type WhatsappLogAvgAggregateOutputType = {
-    cost_usd: Decimal | null
+    custo_usd_whatsapp_log: Decimal | null
   }
 
   export type WhatsappLogSumAggregateOutputType = {
-    cost_usd: Decimal | null
+    custo_usd_whatsapp_log: Decimal | null
   }
 
   export type WhatsappLogMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string | null
-    company_id: string | null
-    conversation_category: string | null
-    origin: string | null
-    cost_usd: Decimal | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_whatsapp_log: string | null
+    id_organizacao_whatsapp_log: string | null
+    id_produto_whatsapp_log: string | null
+    id_usuario_whatsapp_log: string | null
+    id_conversa_whatsapp_log: string | null
+    id_empresa_whatsapp_log: string | null
+    categoria_conversa_whatsapp_log: string | null
+    origem_whatsapp_log: string | null
+    custo_usd_whatsapp_log: Decimal | null
+    data_criacao_whatsapp_log: Date | null
+    data_atualizacao_whatsapp_log: Date | null
   }
 
   export type WhatsappLogMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string | null
-    company_id: string | null
-    conversation_category: string | null
-    origin: string | null
-    cost_usd: Decimal | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_whatsapp_log: string | null
+    id_organizacao_whatsapp_log: string | null
+    id_produto_whatsapp_log: string | null
+    id_usuario_whatsapp_log: string | null
+    id_conversa_whatsapp_log: string | null
+    id_empresa_whatsapp_log: string | null
+    categoria_conversa_whatsapp_log: string | null
+    origem_whatsapp_log: string | null
+    custo_usd_whatsapp_log: Decimal | null
+    data_criacao_whatsapp_log: Date | null
+    data_atualizacao_whatsapp_log: Date | null
   }
 
   export type WhatsappLogCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    conversation_id: number
-    company_id: number
-    conversation_category: number
-    origin: number
-    cost_usd: number
-    created_at: number
-    updated_at: number
+    id_whatsapp_log: number
+    id_organizacao_whatsapp_log: number
+    id_produto_whatsapp_log: number
+    id_usuario_whatsapp_log: number
+    id_conversa_whatsapp_log: number
+    id_empresa_whatsapp_log: number
+    categoria_conversa_whatsapp_log: number
+    origem_whatsapp_log: number
+    custo_usd_whatsapp_log: number
+    data_criacao_whatsapp_log: number
+    data_atualizacao_whatsapp_log: number
     _all: number
   }
 
 
   export type WhatsappLogAvgAggregateInputType = {
-    cost_usd?: true
+    custo_usd_whatsapp_log?: true
   }
 
   export type WhatsappLogSumAggregateInputType = {
-    cost_usd?: true
+    custo_usd_whatsapp_log?: true
   }
 
   export type WhatsappLogMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    company_id?: true
-    conversation_category?: true
-    origin?: true
-    cost_usd?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_log?: true
+    id_organizacao_whatsapp_log?: true
+    id_produto_whatsapp_log?: true
+    id_usuario_whatsapp_log?: true
+    id_conversa_whatsapp_log?: true
+    id_empresa_whatsapp_log?: true
+    categoria_conversa_whatsapp_log?: true
+    origem_whatsapp_log?: true
+    custo_usd_whatsapp_log?: true
+    data_criacao_whatsapp_log?: true
+    data_atualizacao_whatsapp_log?: true
   }
 
   export type WhatsappLogMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    company_id?: true
-    conversation_category?: true
-    origin?: true
-    cost_usd?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_log?: true
+    id_organizacao_whatsapp_log?: true
+    id_produto_whatsapp_log?: true
+    id_usuario_whatsapp_log?: true
+    id_conversa_whatsapp_log?: true
+    id_empresa_whatsapp_log?: true
+    categoria_conversa_whatsapp_log?: true
+    origem_whatsapp_log?: true
+    custo_usd_whatsapp_log?: true
+    data_criacao_whatsapp_log?: true
+    data_atualizacao_whatsapp_log?: true
   }
 
   export type WhatsappLogCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    conversation_id?: true
-    company_id?: true
-    conversation_category?: true
-    origin?: true
-    cost_usd?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_log?: true
+    id_organizacao_whatsapp_log?: true
+    id_produto_whatsapp_log?: true
+    id_usuario_whatsapp_log?: true
+    id_conversa_whatsapp_log?: true
+    id_empresa_whatsapp_log?: true
+    categoria_conversa_whatsapp_log?: true
+    origem_whatsapp_log?: true
+    custo_usd_whatsapp_log?: true
+    data_criacao_whatsapp_log?: true
+    data_atualizacao_whatsapp_log?: true
     _all?: true
   }
 
@@ -18745,17 +18745,17 @@ export namespace Prisma {
   }
 
   export type WhatsappLogGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    conversation_id: string | null
-    company_id: string | null
-    conversation_category: string
-    origin: string
-    cost_usd: Decimal
-    created_at: Date
-    updated_at: Date
+    id_whatsapp_log: string
+    id_organizacao_whatsapp_log: string
+    id_produto_whatsapp_log: string | null
+    id_usuario_whatsapp_log: string | null
+    id_conversa_whatsapp_log: string | null
+    id_empresa_whatsapp_log: string | null
+    categoria_conversa_whatsapp_log: string
+    origem_whatsapp_log: string
+    custo_usd_whatsapp_log: Decimal
+    data_criacao_whatsapp_log: Date
+    data_atualizacao_whatsapp_log: Date
     _count: WhatsappLogCountAggregateOutputType | null
     _avg: WhatsappLogAvgAggregateOutputType | null
     _sum: WhatsappLogSumAggregateOutputType | null
@@ -18778,45 +18778,45 @@ export namespace Prisma {
 
 
   export type WhatsappLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    company_id?: boolean
-    conversation_category?: boolean
-    origin?: boolean
-    cost_usd?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_log?: boolean
+    id_organizacao_whatsapp_log?: boolean
+    id_produto_whatsapp_log?: boolean
+    id_usuario_whatsapp_log?: boolean
+    id_conversa_whatsapp_log?: boolean
+    id_empresa_whatsapp_log?: boolean
+    categoria_conversa_whatsapp_log?: boolean
+    origem_whatsapp_log?: boolean
+    custo_usd_whatsapp_log?: boolean
+    data_criacao_whatsapp_log?: boolean
+    data_atualizacao_whatsapp_log?: boolean
   }, ExtArgs["result"]["whatsappLog"]>
 
   export type WhatsappLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    company_id?: boolean
-    conversation_category?: boolean
-    origin?: boolean
-    cost_usd?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_log?: boolean
+    id_organizacao_whatsapp_log?: boolean
+    id_produto_whatsapp_log?: boolean
+    id_usuario_whatsapp_log?: boolean
+    id_conversa_whatsapp_log?: boolean
+    id_empresa_whatsapp_log?: boolean
+    categoria_conversa_whatsapp_log?: boolean
+    origem_whatsapp_log?: boolean
+    custo_usd_whatsapp_log?: boolean
+    data_criacao_whatsapp_log?: boolean
+    data_atualizacao_whatsapp_log?: boolean
   }, ExtArgs["result"]["whatsappLog"]>
 
   export type WhatsappLogSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    conversation_id?: boolean
-    company_id?: boolean
-    conversation_category?: boolean
-    origin?: boolean
-    cost_usd?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_log?: boolean
+    id_organizacao_whatsapp_log?: boolean
+    id_produto_whatsapp_log?: boolean
+    id_usuario_whatsapp_log?: boolean
+    id_conversa_whatsapp_log?: boolean
+    id_empresa_whatsapp_log?: boolean
+    categoria_conversa_whatsapp_log?: boolean
+    origem_whatsapp_log?: boolean
+    custo_usd_whatsapp_log?: boolean
+    data_criacao_whatsapp_log?: boolean
+    data_atualizacao_whatsapp_log?: boolean
   }
 
 
@@ -18824,17 +18824,17 @@ export namespace Prisma {
     name: "WhatsappLog"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      conversation_id: string | null
-      company_id: string | null
-      conversation_category: string
-      origin: string
-      cost_usd: Prisma.Decimal
-      created_at: Date
-      updated_at: Date
+      id_whatsapp_log: string
+      id_organizacao_whatsapp_log: string
+      id_produto_whatsapp_log: string | null
+      id_usuario_whatsapp_log: string | null
+      id_conversa_whatsapp_log: string | null
+      id_empresa_whatsapp_log: string | null
+      categoria_conversa_whatsapp_log: string
+      origem_whatsapp_log: string
+      custo_usd_whatsapp_log: Prisma.Decimal
+      data_criacao_whatsapp_log: Date
+      data_atualizacao_whatsapp_log: Date
     }, ExtArgs["result"]["whatsappLog"]>
     composites: {}
   }
@@ -18918,8 +18918,8 @@ export namespace Prisma {
      * // Get first 10 WhatsappLogs
      * const whatsappLogs = await prisma.whatsappLog.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const whatsappLogWithIdOnly = await prisma.whatsappLog.findMany({ select: { id: true } })
+     * // Only select the `id_whatsapp_log`
+     * const whatsappLogWithId_whatsapp_logOnly = await prisma.whatsappLog.findMany({ select: { id_whatsapp_log: true } })
      * 
      */
     findMany<T extends WhatsappLogFindManyArgs>(args?: SelectSubset<T, WhatsappLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsappLogPayload<ExtArgs>, T, "findMany">>
@@ -18963,9 +18963,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many WhatsappLogs and only return the `id`
-     * const whatsappLogWithIdOnly = await prisma.whatsappLog.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many WhatsappLogs and only return the `id_whatsapp_log`
+     * const whatsappLogWithId_whatsapp_logOnly = await prisma.whatsappLog.createManyAndReturn({ 
+     *   select: { id_whatsapp_log: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -19228,17 +19228,17 @@ export namespace Prisma {
    * Fields of the WhatsappLog model
    */ 
   interface WhatsappLogFieldRefs {
-    readonly id: FieldRef<"WhatsappLog", 'String'>
-    readonly tenant_id: FieldRef<"WhatsappLog", 'String'>
-    readonly product_id: FieldRef<"WhatsappLog", 'String'>
-    readonly user_id: FieldRef<"WhatsappLog", 'String'>
-    readonly conversation_id: FieldRef<"WhatsappLog", 'String'>
-    readonly company_id: FieldRef<"WhatsappLog", 'String'>
-    readonly conversation_category: FieldRef<"WhatsappLog", 'String'>
-    readonly origin: FieldRef<"WhatsappLog", 'String'>
-    readonly cost_usd: FieldRef<"WhatsappLog", 'Decimal'>
-    readonly created_at: FieldRef<"WhatsappLog", 'DateTime'>
-    readonly updated_at: FieldRef<"WhatsappLog", 'DateTime'>
+    readonly id_whatsapp_log: FieldRef<"WhatsappLog", 'String'>
+    readonly id_organizacao_whatsapp_log: FieldRef<"WhatsappLog", 'String'>
+    readonly id_produto_whatsapp_log: FieldRef<"WhatsappLog", 'String'>
+    readonly id_usuario_whatsapp_log: FieldRef<"WhatsappLog", 'String'>
+    readonly id_conversa_whatsapp_log: FieldRef<"WhatsappLog", 'String'>
+    readonly id_empresa_whatsapp_log: FieldRef<"WhatsappLog", 'String'>
+    readonly categoria_conversa_whatsapp_log: FieldRef<"WhatsappLog", 'String'>
+    readonly origem_whatsapp_log: FieldRef<"WhatsappLog", 'String'>
+    readonly custo_usd_whatsapp_log: FieldRef<"WhatsappLog", 'Decimal'>
+    readonly data_criacao_whatsapp_log: FieldRef<"WhatsappLog", 'DateTime'>
+    readonly data_atualizacao_whatsapp_log: FieldRef<"WhatsappLog", 'DateTime'>
   }
     
 
@@ -19538,91 +19538,91 @@ export namespace Prisma {
   }
 
   export type WhatsappRegraMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    name: string | null
-    trigger: string | null
-    template_id: string | null
-    recipient: string | null
-    active: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_whatsapp_regra: string | null
+    id_organizacao_whatsapp_regra: string | null
+    id_produto_whatsapp_regra: string | null
+    id_usuario_whatsapp_regra: string | null
+    nome_whatsapp_regra: string | null
+    gatilho_whatsapp_regra: string | null
+    id_template_whatsapp_regra: string | null
+    destinatario_whatsapp_regra: string | null
+    ativa_whatsapp_regra: boolean | null
+    data_criacao_whatsapp_regra: Date | null
+    data_atualizacao_whatsapp_regra: Date | null
   }
 
   export type WhatsappRegraMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    name: string | null
-    trigger: string | null
-    template_id: string | null
-    recipient: string | null
-    active: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_whatsapp_regra: string | null
+    id_organizacao_whatsapp_regra: string | null
+    id_produto_whatsapp_regra: string | null
+    id_usuario_whatsapp_regra: string | null
+    nome_whatsapp_regra: string | null
+    gatilho_whatsapp_regra: string | null
+    id_template_whatsapp_regra: string | null
+    destinatario_whatsapp_regra: string | null
+    ativa_whatsapp_regra: boolean | null
+    data_criacao_whatsapp_regra: Date | null
+    data_atualizacao_whatsapp_regra: Date | null
   }
 
   export type WhatsappRegraCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    name: number
-    trigger: number
-    conditions: number
-    template_id: number
-    recipient: number
-    active: number
-    created_at: number
-    updated_at: number
+    id_whatsapp_regra: number
+    id_organizacao_whatsapp_regra: number
+    id_produto_whatsapp_regra: number
+    id_usuario_whatsapp_regra: number
+    nome_whatsapp_regra: number
+    gatilho_whatsapp_regra: number
+    condicoes_whatsapp_regra: number
+    id_template_whatsapp_regra: number
+    destinatario_whatsapp_regra: number
+    ativa_whatsapp_regra: number
+    data_criacao_whatsapp_regra: number
+    data_atualizacao_whatsapp_regra: number
     _all: number
   }
 
 
   export type WhatsappRegraMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    name?: true
-    trigger?: true
-    template_id?: true
-    recipient?: true
-    active?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_regra?: true
+    id_organizacao_whatsapp_regra?: true
+    id_produto_whatsapp_regra?: true
+    id_usuario_whatsapp_regra?: true
+    nome_whatsapp_regra?: true
+    gatilho_whatsapp_regra?: true
+    id_template_whatsapp_regra?: true
+    destinatario_whatsapp_regra?: true
+    ativa_whatsapp_regra?: true
+    data_criacao_whatsapp_regra?: true
+    data_atualizacao_whatsapp_regra?: true
   }
 
   export type WhatsappRegraMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    name?: true
-    trigger?: true
-    template_id?: true
-    recipient?: true
-    active?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_regra?: true
+    id_organizacao_whatsapp_regra?: true
+    id_produto_whatsapp_regra?: true
+    id_usuario_whatsapp_regra?: true
+    nome_whatsapp_regra?: true
+    gatilho_whatsapp_regra?: true
+    id_template_whatsapp_regra?: true
+    destinatario_whatsapp_regra?: true
+    ativa_whatsapp_regra?: true
+    data_criacao_whatsapp_regra?: true
+    data_atualizacao_whatsapp_regra?: true
   }
 
   export type WhatsappRegraCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    name?: true
-    trigger?: true
-    conditions?: true
-    template_id?: true
-    recipient?: true
-    active?: true
-    created_at?: true
-    updated_at?: true
+    id_whatsapp_regra?: true
+    id_organizacao_whatsapp_regra?: true
+    id_produto_whatsapp_regra?: true
+    id_usuario_whatsapp_regra?: true
+    nome_whatsapp_regra?: true
+    gatilho_whatsapp_regra?: true
+    condicoes_whatsapp_regra?: true
+    id_template_whatsapp_regra?: true
+    destinatario_whatsapp_regra?: true
+    ativa_whatsapp_regra?: true
+    data_criacao_whatsapp_regra?: true
+    data_atualizacao_whatsapp_regra?: true
     _all?: true
   }
 
@@ -19699,18 +19699,18 @@ export namespace Prisma {
   }
 
   export type WhatsappRegraGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string | null
-    name: string
-    trigger: string
-    conditions: JsonValue | null
-    template_id: string
-    recipient: string
-    active: boolean
-    created_at: Date
-    updated_at: Date
+    id_whatsapp_regra: string
+    id_organizacao_whatsapp_regra: string
+    id_produto_whatsapp_regra: string | null
+    id_usuario_whatsapp_regra: string | null
+    nome_whatsapp_regra: string
+    gatilho_whatsapp_regra: string
+    condicoes_whatsapp_regra: JsonValue | null
+    id_template_whatsapp_regra: string
+    destinatario_whatsapp_regra: string
+    ativa_whatsapp_regra: boolean
+    data_criacao_whatsapp_regra: Date
+    data_atualizacao_whatsapp_regra: Date
     _count: WhatsappRegraCountAggregateOutputType | null
     _min: WhatsappRegraMinAggregateOutputType | null
     _max: WhatsappRegraMaxAggregateOutputType | null
@@ -19731,48 +19731,48 @@ export namespace Prisma {
 
 
   export type WhatsappRegraSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    name?: boolean
-    trigger?: boolean
-    conditions?: boolean
-    template_id?: boolean
-    recipient?: boolean
-    active?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_regra?: boolean
+    id_organizacao_whatsapp_regra?: boolean
+    id_produto_whatsapp_regra?: boolean
+    id_usuario_whatsapp_regra?: boolean
+    nome_whatsapp_regra?: boolean
+    gatilho_whatsapp_regra?: boolean
+    condicoes_whatsapp_regra?: boolean
+    id_template_whatsapp_regra?: boolean
+    destinatario_whatsapp_regra?: boolean
+    ativa_whatsapp_regra?: boolean
+    data_criacao_whatsapp_regra?: boolean
+    data_atualizacao_whatsapp_regra?: boolean
   }, ExtArgs["result"]["whatsappRegra"]>
 
   export type WhatsappRegraSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    name?: boolean
-    trigger?: boolean
-    conditions?: boolean
-    template_id?: boolean
-    recipient?: boolean
-    active?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_regra?: boolean
+    id_organizacao_whatsapp_regra?: boolean
+    id_produto_whatsapp_regra?: boolean
+    id_usuario_whatsapp_regra?: boolean
+    nome_whatsapp_regra?: boolean
+    gatilho_whatsapp_regra?: boolean
+    condicoes_whatsapp_regra?: boolean
+    id_template_whatsapp_regra?: boolean
+    destinatario_whatsapp_regra?: boolean
+    ativa_whatsapp_regra?: boolean
+    data_criacao_whatsapp_regra?: boolean
+    data_atualizacao_whatsapp_regra?: boolean
   }, ExtArgs["result"]["whatsappRegra"]>
 
   export type WhatsappRegraSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    name?: boolean
-    trigger?: boolean
-    conditions?: boolean
-    template_id?: boolean
-    recipient?: boolean
-    active?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_whatsapp_regra?: boolean
+    id_organizacao_whatsapp_regra?: boolean
+    id_produto_whatsapp_regra?: boolean
+    id_usuario_whatsapp_regra?: boolean
+    nome_whatsapp_regra?: boolean
+    gatilho_whatsapp_regra?: boolean
+    condicoes_whatsapp_regra?: boolean
+    id_template_whatsapp_regra?: boolean
+    destinatario_whatsapp_regra?: boolean
+    ativa_whatsapp_regra?: boolean
+    data_criacao_whatsapp_regra?: boolean
+    data_atualizacao_whatsapp_regra?: boolean
   }
 
 
@@ -19780,18 +19780,18 @@ export namespace Prisma {
     name: "WhatsappRegra"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string | null
-      name: string
-      trigger: string
-      conditions: Prisma.JsonValue | null
-      template_id: string
-      recipient: string
-      active: boolean
-      created_at: Date
-      updated_at: Date
+      id_whatsapp_regra: string
+      id_organizacao_whatsapp_regra: string
+      id_produto_whatsapp_regra: string | null
+      id_usuario_whatsapp_regra: string | null
+      nome_whatsapp_regra: string
+      gatilho_whatsapp_regra: string
+      condicoes_whatsapp_regra: Prisma.JsonValue | null
+      id_template_whatsapp_regra: string
+      destinatario_whatsapp_regra: string
+      ativa_whatsapp_regra: boolean
+      data_criacao_whatsapp_regra: Date
+      data_atualizacao_whatsapp_regra: Date
     }, ExtArgs["result"]["whatsappRegra"]>
     composites: {}
   }
@@ -19875,8 +19875,8 @@ export namespace Prisma {
      * // Get first 10 WhatsappRegras
      * const whatsappRegras = await prisma.whatsappRegra.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const whatsappRegraWithIdOnly = await prisma.whatsappRegra.findMany({ select: { id: true } })
+     * // Only select the `id_whatsapp_regra`
+     * const whatsappRegraWithId_whatsapp_regraOnly = await prisma.whatsappRegra.findMany({ select: { id_whatsapp_regra: true } })
      * 
      */
     findMany<T extends WhatsappRegraFindManyArgs>(args?: SelectSubset<T, WhatsappRegraFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WhatsappRegraPayload<ExtArgs>, T, "findMany">>
@@ -19920,9 +19920,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many WhatsappRegras and only return the `id`
-     * const whatsappRegraWithIdOnly = await prisma.whatsappRegra.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many WhatsappRegras and only return the `id_whatsapp_regra`
+     * const whatsappRegraWithId_whatsapp_regraOnly = await prisma.whatsappRegra.createManyAndReturn({ 
+     *   select: { id_whatsapp_regra: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -20185,18 +20185,18 @@ export namespace Prisma {
    * Fields of the WhatsappRegra model
    */ 
   interface WhatsappRegraFieldRefs {
-    readonly id: FieldRef<"WhatsappRegra", 'String'>
-    readonly tenant_id: FieldRef<"WhatsappRegra", 'String'>
-    readonly product_id: FieldRef<"WhatsappRegra", 'String'>
-    readonly user_id: FieldRef<"WhatsappRegra", 'String'>
-    readonly name: FieldRef<"WhatsappRegra", 'String'>
-    readonly trigger: FieldRef<"WhatsappRegra", 'String'>
-    readonly conditions: FieldRef<"WhatsappRegra", 'Json'>
-    readonly template_id: FieldRef<"WhatsappRegra", 'String'>
-    readonly recipient: FieldRef<"WhatsappRegra", 'String'>
-    readonly active: FieldRef<"WhatsappRegra", 'Boolean'>
-    readonly created_at: FieldRef<"WhatsappRegra", 'DateTime'>
-    readonly updated_at: FieldRef<"WhatsappRegra", 'DateTime'>
+    readonly id_whatsapp_regra: FieldRef<"WhatsappRegra", 'String'>
+    readonly id_organizacao_whatsapp_regra: FieldRef<"WhatsappRegra", 'String'>
+    readonly id_produto_whatsapp_regra: FieldRef<"WhatsappRegra", 'String'>
+    readonly id_usuario_whatsapp_regra: FieldRef<"WhatsappRegra", 'String'>
+    readonly nome_whatsapp_regra: FieldRef<"WhatsappRegra", 'String'>
+    readonly gatilho_whatsapp_regra: FieldRef<"WhatsappRegra", 'String'>
+    readonly condicoes_whatsapp_regra: FieldRef<"WhatsappRegra", 'Json'>
+    readonly id_template_whatsapp_regra: FieldRef<"WhatsappRegra", 'String'>
+    readonly destinatario_whatsapp_regra: FieldRef<"WhatsappRegra", 'String'>
+    readonly ativa_whatsapp_regra: FieldRef<"WhatsappRegra", 'Boolean'>
+    readonly data_criacao_whatsapp_regra: FieldRef<"WhatsappRegra", 'DateTime'>
+    readonly data_atualizacao_whatsapp_regra: FieldRef<"WhatsappRegra", 'DateTime'>
   }
     
 
@@ -50493,81 +50493,81 @@ export namespace Prisma {
 
 
   export const WhatsappConversaScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    wa_phone_number: 'wa_phone_number',
-    status: 'status',
-    contact_id: 'contact_id',
-    company_id: 'company_id',
-    contact_nome: 'contact_nome',
-    company_nome: 'company_nome',
-    activity_id: 'activity_id',
-    ai_enabled: 'ai_enabled',
-    opened_at: 'opened_at',
-    closed_at: 'closed_at',
-    gabi_temperatura: 'gabi_temperatura',
-    gabi_temperatura_score: 'gabi_temperatura_score',
-    gabi_resumo: 'gabi_resumo',
-    gabi_acoes_sugeridas: 'gabi_acoes_sugeridas',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_whatsapp_conversa: 'id_whatsapp_conversa',
+    id_organizacao_whatsapp_conversa: 'id_organizacao_whatsapp_conversa',
+    id_produto_whatsapp_conversa: 'id_produto_whatsapp_conversa',
+    id_usuario_whatsapp_conversa: 'id_usuario_whatsapp_conversa',
+    telefone_wa_whatsapp_conversa: 'telefone_wa_whatsapp_conversa',
+    status_whatsapp_conversa: 'status_whatsapp_conversa',
+    id_contato_whatsapp_conversa: 'id_contato_whatsapp_conversa',
+    id_empresa_whatsapp_conversa: 'id_empresa_whatsapp_conversa',
+    nome_contato_whatsapp_conversa: 'nome_contato_whatsapp_conversa',
+    nome_empresa_whatsapp_conversa: 'nome_empresa_whatsapp_conversa',
+    id_atividade_whatsapp_conversa: 'id_atividade_whatsapp_conversa',
+    ia_habilitada_whatsapp_conversa: 'ia_habilitada_whatsapp_conversa',
+    aberta_em_whatsapp_conversa: 'aberta_em_whatsapp_conversa',
+    fechada_em_whatsapp_conversa: 'fechada_em_whatsapp_conversa',
+    gabi_temperatura_whatsapp_conversa: 'gabi_temperatura_whatsapp_conversa',
+    gabi_temperatura_score_whatsapp_conversa: 'gabi_temperatura_score_whatsapp_conversa',
+    gabi_resumo_whatsapp_conversa: 'gabi_resumo_whatsapp_conversa',
+    gabi_acoes_sugeridas_whatsapp_conversa: 'gabi_acoes_sugeridas_whatsapp_conversa',
+    data_criacao_whatsapp_conversa: 'data_criacao_whatsapp_conversa',
+    data_atualizacao_whatsapp_conversa: 'data_atualizacao_whatsapp_conversa'
   };
 
   export type WhatsappConversaScalarFieldEnum = (typeof WhatsappConversaScalarFieldEnum)[keyof typeof WhatsappConversaScalarFieldEnum]
 
 
   export const WhatsappMensagemScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    conversation_id: 'conversation_id',
-    wa_message_id: 'wa_message_id',
-    direction: 'direction',
-    content_type: 'content_type',
-    content: 'content',
-    origin: 'origin',
-    sent_by: 'sent_by',
-    status: 'status',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_whatsapp_mensagem: 'id_whatsapp_mensagem',
+    id_organizacao_whatsapp_mensagem: 'id_organizacao_whatsapp_mensagem',
+    id_produto_whatsapp_mensagem: 'id_produto_whatsapp_mensagem',
+    id_usuario_whatsapp_mensagem: 'id_usuario_whatsapp_mensagem',
+    id_conversa_whatsapp_mensagem: 'id_conversa_whatsapp_mensagem',
+    id_wa_mensagem_whatsapp_mensagem: 'id_wa_mensagem_whatsapp_mensagem',
+    direcao_whatsapp_mensagem: 'direcao_whatsapp_mensagem',
+    tipo_conteudo_whatsapp_mensagem: 'tipo_conteudo_whatsapp_mensagem',
+    conteudo_whatsapp_mensagem: 'conteudo_whatsapp_mensagem',
+    origem_whatsapp_mensagem: 'origem_whatsapp_mensagem',
+    enviado_por_whatsapp_mensagem: 'enviado_por_whatsapp_mensagem',
+    status_whatsapp_mensagem: 'status_whatsapp_mensagem',
+    data_criacao_whatsapp_mensagem: 'data_criacao_whatsapp_mensagem',
+    data_atualizacao_whatsapp_mensagem: 'data_atualizacao_whatsapp_mensagem'
   };
 
   export type WhatsappMensagemScalarFieldEnum = (typeof WhatsappMensagemScalarFieldEnum)[keyof typeof WhatsappMensagemScalarFieldEnum]
 
 
   export const WhatsappLogScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    conversation_id: 'conversation_id',
-    company_id: 'company_id',
-    conversation_category: 'conversation_category',
-    origin: 'origin',
-    cost_usd: 'cost_usd',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_whatsapp_log: 'id_whatsapp_log',
+    id_organizacao_whatsapp_log: 'id_organizacao_whatsapp_log',
+    id_produto_whatsapp_log: 'id_produto_whatsapp_log',
+    id_usuario_whatsapp_log: 'id_usuario_whatsapp_log',
+    id_conversa_whatsapp_log: 'id_conversa_whatsapp_log',
+    id_empresa_whatsapp_log: 'id_empresa_whatsapp_log',
+    categoria_conversa_whatsapp_log: 'categoria_conversa_whatsapp_log',
+    origem_whatsapp_log: 'origem_whatsapp_log',
+    custo_usd_whatsapp_log: 'custo_usd_whatsapp_log',
+    data_criacao_whatsapp_log: 'data_criacao_whatsapp_log',
+    data_atualizacao_whatsapp_log: 'data_atualizacao_whatsapp_log'
   };
 
   export type WhatsappLogScalarFieldEnum = (typeof WhatsappLogScalarFieldEnum)[keyof typeof WhatsappLogScalarFieldEnum]
 
 
   export const WhatsappRegraScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    name: 'name',
-    trigger: 'trigger',
-    conditions: 'conditions',
-    template_id: 'template_id',
-    recipient: 'recipient',
-    active: 'active',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_whatsapp_regra: 'id_whatsapp_regra',
+    id_organizacao_whatsapp_regra: 'id_organizacao_whatsapp_regra',
+    id_produto_whatsapp_regra: 'id_produto_whatsapp_regra',
+    id_usuario_whatsapp_regra: 'id_usuario_whatsapp_regra',
+    nome_whatsapp_regra: 'nome_whatsapp_regra',
+    gatilho_whatsapp_regra: 'gatilho_whatsapp_regra',
+    condicoes_whatsapp_regra: 'condicoes_whatsapp_regra',
+    id_template_whatsapp_regra: 'id_template_whatsapp_regra',
+    destinatario_whatsapp_regra: 'destinatario_whatsapp_regra',
+    ativa_whatsapp_regra: 'ativa_whatsapp_regra',
+    data_criacao_whatsapp_regra: 'data_criacao_whatsapp_regra',
+    data_atualizacao_whatsapp_regra: 'data_atualizacao_whatsapp_regra'
   };
 
   export type WhatsappRegraScalarFieldEnum = (typeof WhatsappRegraScalarFieldEnum)[keyof typeof WhatsappRegraScalarFieldEnum]
@@ -52477,98 +52477,98 @@ export namespace Prisma {
     AND?: WhatsappConversaWhereInput | WhatsappConversaWhereInput[]
     OR?: WhatsappConversaWhereInput[]
     NOT?: WhatsappConversaWhereInput | WhatsappConversaWhereInput[]
-    id?: StringFilter<"WhatsappConversa"> | string
-    tenant_id?: StringFilter<"WhatsappConversa"> | string
-    product_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    user_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    wa_phone_number?: StringFilter<"WhatsappConversa"> | string
-    status?: StringFilter<"WhatsappConversa"> | string
-    contact_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    company_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    contact_nome?: StringNullableFilter<"WhatsappConversa"> | string | null
-    company_nome?: StringNullableFilter<"WhatsappConversa"> | string | null
-    activity_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    ai_enabled?: BoolFilter<"WhatsappConversa"> | boolean
-    opened_at?: DateTimeFilter<"WhatsappConversa"> | Date | string
-    closed_at?: DateTimeNullableFilter<"WhatsappConversa"> | Date | string | null
-    gabi_temperatura?: StringNullableFilter<"WhatsappConversa"> | string | null
-    gabi_temperatura_score?: IntNullableFilter<"WhatsappConversa"> | number | null
-    gabi_resumo?: StringNullableFilter<"WhatsappConversa"> | string | null
-    gabi_acoes_sugeridas?: JsonNullableFilter<"WhatsappConversa">
-    created_at?: DateTimeFilter<"WhatsappConversa"> | Date | string
-    updated_at?: DateTimeFilter<"WhatsappConversa"> | Date | string
+    id_whatsapp_conversa?: StringFilter<"WhatsappConversa"> | string
+    id_organizacao_whatsapp_conversa?: StringFilter<"WhatsappConversa"> | string
+    id_produto_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    id_usuario_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    telefone_wa_whatsapp_conversa?: StringFilter<"WhatsappConversa"> | string
+    status_whatsapp_conversa?: StringFilter<"WhatsappConversa"> | string
+    id_contato_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    id_empresa_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    nome_contato_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    nome_empresa_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    id_atividade_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    ia_habilitada_whatsapp_conversa?: BoolFilter<"WhatsappConversa"> | boolean
+    aberta_em_whatsapp_conversa?: DateTimeFilter<"WhatsappConversa"> | Date | string
+    fechada_em_whatsapp_conversa?: DateTimeNullableFilter<"WhatsappConversa"> | Date | string | null
+    gabi_temperatura_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    gabi_temperatura_score_whatsapp_conversa?: IntNullableFilter<"WhatsappConversa"> | number | null
+    gabi_resumo_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: JsonNullableFilter<"WhatsappConversa">
+    data_criacao_whatsapp_conversa?: DateTimeFilter<"WhatsappConversa"> | Date | string
+    data_atualizacao_whatsapp_conversa?: DateTimeFilter<"WhatsappConversa"> | Date | string
   }
 
   export type WhatsappConversaOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    wa_phone_number?: SortOrder
-    status?: SortOrder
-    contact_id?: SortOrderInput | SortOrder
-    company_id?: SortOrderInput | SortOrder
-    contact_nome?: SortOrderInput | SortOrder
-    company_nome?: SortOrderInput | SortOrder
-    activity_id?: SortOrderInput | SortOrder
-    ai_enabled?: SortOrder
-    opened_at?: SortOrder
-    closed_at?: SortOrderInput | SortOrder
-    gabi_temperatura?: SortOrderInput | SortOrder
-    gabi_temperatura_score?: SortOrderInput | SortOrder
-    gabi_resumo?: SortOrderInput | SortOrder
-    gabi_acoes_sugeridas?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_conversa?: SortOrder
+    id_organizacao_whatsapp_conversa?: SortOrder
+    id_produto_whatsapp_conversa?: SortOrderInput | SortOrder
+    id_usuario_whatsapp_conversa?: SortOrderInput | SortOrder
+    telefone_wa_whatsapp_conversa?: SortOrder
+    status_whatsapp_conversa?: SortOrder
+    id_contato_whatsapp_conversa?: SortOrderInput | SortOrder
+    id_empresa_whatsapp_conversa?: SortOrderInput | SortOrder
+    nome_contato_whatsapp_conversa?: SortOrderInput | SortOrder
+    nome_empresa_whatsapp_conversa?: SortOrderInput | SortOrder
+    id_atividade_whatsapp_conversa?: SortOrderInput | SortOrder
+    ia_habilitada_whatsapp_conversa?: SortOrder
+    aberta_em_whatsapp_conversa?: SortOrder
+    fechada_em_whatsapp_conversa?: SortOrderInput | SortOrder
+    gabi_temperatura_whatsapp_conversa?: SortOrderInput | SortOrder
+    gabi_temperatura_score_whatsapp_conversa?: SortOrderInput | SortOrder
+    gabi_resumo_whatsapp_conversa?: SortOrderInput | SortOrder
+    gabi_acoes_sugeridas_whatsapp_conversa?: SortOrderInput | SortOrder
+    data_criacao_whatsapp_conversa?: SortOrder
+    data_atualizacao_whatsapp_conversa?: SortOrder
   }
 
   export type WhatsappConversaWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_whatsapp_conversa?: string
     AND?: WhatsappConversaWhereInput | WhatsappConversaWhereInput[]
     OR?: WhatsappConversaWhereInput[]
     NOT?: WhatsappConversaWhereInput | WhatsappConversaWhereInput[]
-    tenant_id?: StringFilter<"WhatsappConversa"> | string
-    product_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    user_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    wa_phone_number?: StringFilter<"WhatsappConversa"> | string
-    status?: StringFilter<"WhatsappConversa"> | string
-    contact_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    company_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    contact_nome?: StringNullableFilter<"WhatsappConversa"> | string | null
-    company_nome?: StringNullableFilter<"WhatsappConversa"> | string | null
-    activity_id?: StringNullableFilter<"WhatsappConversa"> | string | null
-    ai_enabled?: BoolFilter<"WhatsappConversa"> | boolean
-    opened_at?: DateTimeFilter<"WhatsappConversa"> | Date | string
-    closed_at?: DateTimeNullableFilter<"WhatsappConversa"> | Date | string | null
-    gabi_temperatura?: StringNullableFilter<"WhatsappConversa"> | string | null
-    gabi_temperatura_score?: IntNullableFilter<"WhatsappConversa"> | number | null
-    gabi_resumo?: StringNullableFilter<"WhatsappConversa"> | string | null
-    gabi_acoes_sugeridas?: JsonNullableFilter<"WhatsappConversa">
-    created_at?: DateTimeFilter<"WhatsappConversa"> | Date | string
-    updated_at?: DateTimeFilter<"WhatsappConversa"> | Date | string
-  }, "id">
+    id_organizacao_whatsapp_conversa?: StringFilter<"WhatsappConversa"> | string
+    id_produto_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    id_usuario_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    telefone_wa_whatsapp_conversa?: StringFilter<"WhatsappConversa"> | string
+    status_whatsapp_conversa?: StringFilter<"WhatsappConversa"> | string
+    id_contato_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    id_empresa_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    nome_contato_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    nome_empresa_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    id_atividade_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    ia_habilitada_whatsapp_conversa?: BoolFilter<"WhatsappConversa"> | boolean
+    aberta_em_whatsapp_conversa?: DateTimeFilter<"WhatsappConversa"> | Date | string
+    fechada_em_whatsapp_conversa?: DateTimeNullableFilter<"WhatsappConversa"> | Date | string | null
+    gabi_temperatura_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    gabi_temperatura_score_whatsapp_conversa?: IntNullableFilter<"WhatsappConversa"> | number | null
+    gabi_resumo_whatsapp_conversa?: StringNullableFilter<"WhatsappConversa"> | string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: JsonNullableFilter<"WhatsappConversa">
+    data_criacao_whatsapp_conversa?: DateTimeFilter<"WhatsappConversa"> | Date | string
+    data_atualizacao_whatsapp_conversa?: DateTimeFilter<"WhatsappConversa"> | Date | string
+  }, "id_whatsapp_conversa">
 
   export type WhatsappConversaOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    wa_phone_number?: SortOrder
-    status?: SortOrder
-    contact_id?: SortOrderInput | SortOrder
-    company_id?: SortOrderInput | SortOrder
-    contact_nome?: SortOrderInput | SortOrder
-    company_nome?: SortOrderInput | SortOrder
-    activity_id?: SortOrderInput | SortOrder
-    ai_enabled?: SortOrder
-    opened_at?: SortOrder
-    closed_at?: SortOrderInput | SortOrder
-    gabi_temperatura?: SortOrderInput | SortOrder
-    gabi_temperatura_score?: SortOrderInput | SortOrder
-    gabi_resumo?: SortOrderInput | SortOrder
-    gabi_acoes_sugeridas?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_conversa?: SortOrder
+    id_organizacao_whatsapp_conversa?: SortOrder
+    id_produto_whatsapp_conversa?: SortOrderInput | SortOrder
+    id_usuario_whatsapp_conversa?: SortOrderInput | SortOrder
+    telefone_wa_whatsapp_conversa?: SortOrder
+    status_whatsapp_conversa?: SortOrder
+    id_contato_whatsapp_conversa?: SortOrderInput | SortOrder
+    id_empresa_whatsapp_conversa?: SortOrderInput | SortOrder
+    nome_contato_whatsapp_conversa?: SortOrderInput | SortOrder
+    nome_empresa_whatsapp_conversa?: SortOrderInput | SortOrder
+    id_atividade_whatsapp_conversa?: SortOrderInput | SortOrder
+    ia_habilitada_whatsapp_conversa?: SortOrder
+    aberta_em_whatsapp_conversa?: SortOrder
+    fechada_em_whatsapp_conversa?: SortOrderInput | SortOrder
+    gabi_temperatura_whatsapp_conversa?: SortOrderInput | SortOrder
+    gabi_temperatura_score_whatsapp_conversa?: SortOrderInput | SortOrder
+    gabi_resumo_whatsapp_conversa?: SortOrderInput | SortOrder
+    gabi_acoes_sugeridas_whatsapp_conversa?: SortOrderInput | SortOrder
+    data_criacao_whatsapp_conversa?: SortOrder
+    data_atualizacao_whatsapp_conversa?: SortOrder
     _count?: WhatsappConversaCountOrderByAggregateInput
     _avg?: WhatsappConversaAvgOrderByAggregateInput
     _max?: WhatsappConversaMaxOrderByAggregateInput
@@ -52580,100 +52580,100 @@ export namespace Prisma {
     AND?: WhatsappConversaScalarWhereWithAggregatesInput | WhatsappConversaScalarWhereWithAggregatesInput[]
     OR?: WhatsappConversaScalarWhereWithAggregatesInput[]
     NOT?: WhatsappConversaScalarWhereWithAggregatesInput | WhatsappConversaScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"WhatsappConversa"> | string
-    tenant_id?: StringWithAggregatesFilter<"WhatsappConversa"> | string
-    product_id?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    wa_phone_number?: StringWithAggregatesFilter<"WhatsappConversa"> | string
-    status?: StringWithAggregatesFilter<"WhatsappConversa"> | string
-    contact_id?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    company_id?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    contact_nome?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    company_nome?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    activity_id?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    ai_enabled?: BoolWithAggregatesFilter<"WhatsappConversa"> | boolean
-    opened_at?: DateTimeWithAggregatesFilter<"WhatsappConversa"> | Date | string
-    closed_at?: DateTimeNullableWithAggregatesFilter<"WhatsappConversa"> | Date | string | null
-    gabi_temperatura?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    gabi_temperatura_score?: IntNullableWithAggregatesFilter<"WhatsappConversa"> | number | null
-    gabi_resumo?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
-    gabi_acoes_sugeridas?: JsonNullableWithAggregatesFilter<"WhatsappConversa">
-    created_at?: DateTimeWithAggregatesFilter<"WhatsappConversa"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"WhatsappConversa"> | Date | string
+    id_whatsapp_conversa?: StringWithAggregatesFilter<"WhatsappConversa"> | string
+    id_organizacao_whatsapp_conversa?: StringWithAggregatesFilter<"WhatsappConversa"> | string
+    id_produto_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    id_usuario_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    telefone_wa_whatsapp_conversa?: StringWithAggregatesFilter<"WhatsappConversa"> | string
+    status_whatsapp_conversa?: StringWithAggregatesFilter<"WhatsappConversa"> | string
+    id_contato_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    id_empresa_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    nome_contato_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    nome_empresa_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    id_atividade_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    ia_habilitada_whatsapp_conversa?: BoolWithAggregatesFilter<"WhatsappConversa"> | boolean
+    aberta_em_whatsapp_conversa?: DateTimeWithAggregatesFilter<"WhatsappConversa"> | Date | string
+    fechada_em_whatsapp_conversa?: DateTimeNullableWithAggregatesFilter<"WhatsappConversa"> | Date | string | null
+    gabi_temperatura_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    gabi_temperatura_score_whatsapp_conversa?: IntNullableWithAggregatesFilter<"WhatsappConversa"> | number | null
+    gabi_resumo_whatsapp_conversa?: StringNullableWithAggregatesFilter<"WhatsappConversa"> | string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: JsonNullableWithAggregatesFilter<"WhatsappConversa">
+    data_criacao_whatsapp_conversa?: DateTimeWithAggregatesFilter<"WhatsappConversa"> | Date | string
+    data_atualizacao_whatsapp_conversa?: DateTimeWithAggregatesFilter<"WhatsappConversa"> | Date | string
   }
 
   export type WhatsappMensagemWhereInput = {
     AND?: WhatsappMensagemWhereInput | WhatsappMensagemWhereInput[]
     OR?: WhatsappMensagemWhereInput[]
     NOT?: WhatsappMensagemWhereInput | WhatsappMensagemWhereInput[]
-    id?: StringFilter<"WhatsappMensagem"> | string
-    tenant_id?: StringFilter<"WhatsappMensagem"> | string
-    product_id?: StringNullableFilter<"WhatsappMensagem"> | string | null
-    user_id?: StringNullableFilter<"WhatsappMensagem"> | string | null
-    conversation_id?: StringFilter<"WhatsappMensagem"> | string
-    wa_message_id?: StringNullableFilter<"WhatsappMensagem"> | string | null
-    direction?: StringFilter<"WhatsappMensagem"> | string
-    content_type?: StringFilter<"WhatsappMensagem"> | string
-    content?: StringFilter<"WhatsappMensagem"> | string
-    origin?: StringFilter<"WhatsappMensagem"> | string
-    sent_by?: StringNullableFilter<"WhatsappMensagem"> | string | null
-    status?: StringFilter<"WhatsappMensagem"> | string
-    created_at?: DateTimeFilter<"WhatsappMensagem"> | Date | string
-    updated_at?: DateTimeFilter<"WhatsappMensagem"> | Date | string
+    id_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    id_organizacao_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    id_produto_whatsapp_mensagem?: StringNullableFilter<"WhatsappMensagem"> | string | null
+    id_usuario_whatsapp_mensagem?: StringNullableFilter<"WhatsappMensagem"> | string | null
+    id_conversa_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    id_wa_mensagem_whatsapp_mensagem?: StringNullableFilter<"WhatsappMensagem"> | string | null
+    direcao_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    tipo_conteudo_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    conteudo_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    origem_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    enviado_por_whatsapp_mensagem?: StringNullableFilter<"WhatsappMensagem"> | string | null
+    status_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    data_criacao_whatsapp_mensagem?: DateTimeFilter<"WhatsappMensagem"> | Date | string
+    data_atualizacao_whatsapp_mensagem?: DateTimeFilter<"WhatsappMensagem"> | Date | string
   }
 
   export type WhatsappMensagemOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    conversation_id?: SortOrder
-    wa_message_id?: SortOrderInput | SortOrder
-    direction?: SortOrder
-    content_type?: SortOrder
-    content?: SortOrder
-    origin?: SortOrder
-    sent_by?: SortOrderInput | SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_mensagem?: SortOrder
+    id_organizacao_whatsapp_mensagem?: SortOrder
+    id_produto_whatsapp_mensagem?: SortOrderInput | SortOrder
+    id_usuario_whatsapp_mensagem?: SortOrderInput | SortOrder
+    id_conversa_whatsapp_mensagem?: SortOrder
+    id_wa_mensagem_whatsapp_mensagem?: SortOrderInput | SortOrder
+    direcao_whatsapp_mensagem?: SortOrder
+    tipo_conteudo_whatsapp_mensagem?: SortOrder
+    conteudo_whatsapp_mensagem?: SortOrder
+    origem_whatsapp_mensagem?: SortOrder
+    enviado_por_whatsapp_mensagem?: SortOrderInput | SortOrder
+    status_whatsapp_mensagem?: SortOrder
+    data_criacao_whatsapp_mensagem?: SortOrder
+    data_atualizacao_whatsapp_mensagem?: SortOrder
   }
 
   export type WhatsappMensagemWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    wa_message_id?: string
+    id_whatsapp_mensagem?: string
+    id_wa_mensagem_whatsapp_mensagem?: string
     AND?: WhatsappMensagemWhereInput | WhatsappMensagemWhereInput[]
     OR?: WhatsappMensagemWhereInput[]
     NOT?: WhatsappMensagemWhereInput | WhatsappMensagemWhereInput[]
-    tenant_id?: StringFilter<"WhatsappMensagem"> | string
-    product_id?: StringNullableFilter<"WhatsappMensagem"> | string | null
-    user_id?: StringNullableFilter<"WhatsappMensagem"> | string | null
-    conversation_id?: StringFilter<"WhatsappMensagem"> | string
-    direction?: StringFilter<"WhatsappMensagem"> | string
-    content_type?: StringFilter<"WhatsappMensagem"> | string
-    content?: StringFilter<"WhatsappMensagem"> | string
-    origin?: StringFilter<"WhatsappMensagem"> | string
-    sent_by?: StringNullableFilter<"WhatsappMensagem"> | string | null
-    status?: StringFilter<"WhatsappMensagem"> | string
-    created_at?: DateTimeFilter<"WhatsappMensagem"> | Date | string
-    updated_at?: DateTimeFilter<"WhatsappMensagem"> | Date | string
-  }, "id" | "wa_message_id">
+    id_organizacao_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    id_produto_whatsapp_mensagem?: StringNullableFilter<"WhatsappMensagem"> | string | null
+    id_usuario_whatsapp_mensagem?: StringNullableFilter<"WhatsappMensagem"> | string | null
+    id_conversa_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    direcao_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    tipo_conteudo_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    conteudo_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    origem_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    enviado_por_whatsapp_mensagem?: StringNullableFilter<"WhatsappMensagem"> | string | null
+    status_whatsapp_mensagem?: StringFilter<"WhatsappMensagem"> | string
+    data_criacao_whatsapp_mensagem?: DateTimeFilter<"WhatsappMensagem"> | Date | string
+    data_atualizacao_whatsapp_mensagem?: DateTimeFilter<"WhatsappMensagem"> | Date | string
+  }, "id_whatsapp_mensagem" | "id_wa_mensagem_whatsapp_mensagem">
 
   export type WhatsappMensagemOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    conversation_id?: SortOrder
-    wa_message_id?: SortOrderInput | SortOrder
-    direction?: SortOrder
-    content_type?: SortOrder
-    content?: SortOrder
-    origin?: SortOrder
-    sent_by?: SortOrderInput | SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_mensagem?: SortOrder
+    id_organizacao_whatsapp_mensagem?: SortOrder
+    id_produto_whatsapp_mensagem?: SortOrderInput | SortOrder
+    id_usuario_whatsapp_mensagem?: SortOrderInput | SortOrder
+    id_conversa_whatsapp_mensagem?: SortOrder
+    id_wa_mensagem_whatsapp_mensagem?: SortOrderInput | SortOrder
+    direcao_whatsapp_mensagem?: SortOrder
+    tipo_conteudo_whatsapp_mensagem?: SortOrder
+    conteudo_whatsapp_mensagem?: SortOrder
+    origem_whatsapp_mensagem?: SortOrder
+    enviado_por_whatsapp_mensagem?: SortOrderInput | SortOrder
+    status_whatsapp_mensagem?: SortOrder
+    data_criacao_whatsapp_mensagem?: SortOrder
+    data_atualizacao_whatsapp_mensagem?: SortOrder
     _count?: WhatsappMensagemCountOrderByAggregateInput
     _max?: WhatsappMensagemMaxOrderByAggregateInput
     _min?: WhatsappMensagemMinOrderByAggregateInput
@@ -52683,82 +52683,82 @@ export namespace Prisma {
     AND?: WhatsappMensagemScalarWhereWithAggregatesInput | WhatsappMensagemScalarWhereWithAggregatesInput[]
     OR?: WhatsappMensagemScalarWhereWithAggregatesInput[]
     NOT?: WhatsappMensagemScalarWhereWithAggregatesInput | WhatsappMensagemScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
-    tenant_id?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
-    product_id?: StringNullableWithAggregatesFilter<"WhatsappMensagem"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"WhatsappMensagem"> | string | null
-    conversation_id?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
-    wa_message_id?: StringNullableWithAggregatesFilter<"WhatsappMensagem"> | string | null
-    direction?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
-    content_type?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
-    content?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
-    origin?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
-    sent_by?: StringNullableWithAggregatesFilter<"WhatsappMensagem"> | string | null
-    status?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
-    created_at?: DateTimeWithAggregatesFilter<"WhatsappMensagem"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"WhatsappMensagem"> | Date | string
+    id_whatsapp_mensagem?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
+    id_organizacao_whatsapp_mensagem?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
+    id_produto_whatsapp_mensagem?: StringNullableWithAggregatesFilter<"WhatsappMensagem"> | string | null
+    id_usuario_whatsapp_mensagem?: StringNullableWithAggregatesFilter<"WhatsappMensagem"> | string | null
+    id_conversa_whatsapp_mensagem?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
+    id_wa_mensagem_whatsapp_mensagem?: StringNullableWithAggregatesFilter<"WhatsappMensagem"> | string | null
+    direcao_whatsapp_mensagem?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
+    tipo_conteudo_whatsapp_mensagem?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
+    conteudo_whatsapp_mensagem?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
+    origem_whatsapp_mensagem?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
+    enviado_por_whatsapp_mensagem?: StringNullableWithAggregatesFilter<"WhatsappMensagem"> | string | null
+    status_whatsapp_mensagem?: StringWithAggregatesFilter<"WhatsappMensagem"> | string
+    data_criacao_whatsapp_mensagem?: DateTimeWithAggregatesFilter<"WhatsappMensagem"> | Date | string
+    data_atualizacao_whatsapp_mensagem?: DateTimeWithAggregatesFilter<"WhatsappMensagem"> | Date | string
   }
 
   export type WhatsappLogWhereInput = {
     AND?: WhatsappLogWhereInput | WhatsappLogWhereInput[]
     OR?: WhatsappLogWhereInput[]
     NOT?: WhatsappLogWhereInput | WhatsappLogWhereInput[]
-    id?: StringFilter<"WhatsappLog"> | string
-    tenant_id?: StringFilter<"WhatsappLog"> | string
-    product_id?: StringNullableFilter<"WhatsappLog"> | string | null
-    user_id?: StringNullableFilter<"WhatsappLog"> | string | null
-    conversation_id?: StringNullableFilter<"WhatsappLog"> | string | null
-    company_id?: StringNullableFilter<"WhatsappLog"> | string | null
-    conversation_category?: StringFilter<"WhatsappLog"> | string
-    origin?: StringFilter<"WhatsappLog"> | string
-    cost_usd?: DecimalFilter<"WhatsappLog"> | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFilter<"WhatsappLog"> | Date | string
-    updated_at?: DateTimeFilter<"WhatsappLog"> | Date | string
+    id_whatsapp_log?: StringFilter<"WhatsappLog"> | string
+    id_organizacao_whatsapp_log?: StringFilter<"WhatsappLog"> | string
+    id_produto_whatsapp_log?: StringNullableFilter<"WhatsappLog"> | string | null
+    id_usuario_whatsapp_log?: StringNullableFilter<"WhatsappLog"> | string | null
+    id_conversa_whatsapp_log?: StringNullableFilter<"WhatsappLog"> | string | null
+    id_empresa_whatsapp_log?: StringNullableFilter<"WhatsappLog"> | string | null
+    categoria_conversa_whatsapp_log?: StringFilter<"WhatsappLog"> | string
+    origem_whatsapp_log?: StringFilter<"WhatsappLog"> | string
+    custo_usd_whatsapp_log?: DecimalFilter<"WhatsappLog"> | Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: DateTimeFilter<"WhatsappLog"> | Date | string
+    data_atualizacao_whatsapp_log?: DateTimeFilter<"WhatsappLog"> | Date | string
   }
 
   export type WhatsappLogOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    conversation_id?: SortOrderInput | SortOrder
-    company_id?: SortOrderInput | SortOrder
-    conversation_category?: SortOrder
-    origin?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_log?: SortOrder
+    id_organizacao_whatsapp_log?: SortOrder
+    id_produto_whatsapp_log?: SortOrderInput | SortOrder
+    id_usuario_whatsapp_log?: SortOrderInput | SortOrder
+    id_conversa_whatsapp_log?: SortOrderInput | SortOrder
+    id_empresa_whatsapp_log?: SortOrderInput | SortOrder
+    categoria_conversa_whatsapp_log?: SortOrder
+    origem_whatsapp_log?: SortOrder
+    custo_usd_whatsapp_log?: SortOrder
+    data_criacao_whatsapp_log?: SortOrder
+    data_atualizacao_whatsapp_log?: SortOrder
   }
 
   export type WhatsappLogWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_whatsapp_log?: string
     AND?: WhatsappLogWhereInput | WhatsappLogWhereInput[]
     OR?: WhatsappLogWhereInput[]
     NOT?: WhatsappLogWhereInput | WhatsappLogWhereInput[]
-    tenant_id?: StringFilter<"WhatsappLog"> | string
-    product_id?: StringNullableFilter<"WhatsappLog"> | string | null
-    user_id?: StringNullableFilter<"WhatsappLog"> | string | null
-    conversation_id?: StringNullableFilter<"WhatsappLog"> | string | null
-    company_id?: StringNullableFilter<"WhatsappLog"> | string | null
-    conversation_category?: StringFilter<"WhatsappLog"> | string
-    origin?: StringFilter<"WhatsappLog"> | string
-    cost_usd?: DecimalFilter<"WhatsappLog"> | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFilter<"WhatsappLog"> | Date | string
-    updated_at?: DateTimeFilter<"WhatsappLog"> | Date | string
-  }, "id">
+    id_organizacao_whatsapp_log?: StringFilter<"WhatsappLog"> | string
+    id_produto_whatsapp_log?: StringNullableFilter<"WhatsappLog"> | string | null
+    id_usuario_whatsapp_log?: StringNullableFilter<"WhatsappLog"> | string | null
+    id_conversa_whatsapp_log?: StringNullableFilter<"WhatsappLog"> | string | null
+    id_empresa_whatsapp_log?: StringNullableFilter<"WhatsappLog"> | string | null
+    categoria_conversa_whatsapp_log?: StringFilter<"WhatsappLog"> | string
+    origem_whatsapp_log?: StringFilter<"WhatsappLog"> | string
+    custo_usd_whatsapp_log?: DecimalFilter<"WhatsappLog"> | Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: DateTimeFilter<"WhatsappLog"> | Date | string
+    data_atualizacao_whatsapp_log?: DateTimeFilter<"WhatsappLog"> | Date | string
+  }, "id_whatsapp_log">
 
   export type WhatsappLogOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    conversation_id?: SortOrderInput | SortOrder
-    company_id?: SortOrderInput | SortOrder
-    conversation_category?: SortOrder
-    origin?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_log?: SortOrder
+    id_organizacao_whatsapp_log?: SortOrder
+    id_produto_whatsapp_log?: SortOrderInput | SortOrder
+    id_usuario_whatsapp_log?: SortOrderInput | SortOrder
+    id_conversa_whatsapp_log?: SortOrderInput | SortOrder
+    id_empresa_whatsapp_log?: SortOrderInput | SortOrder
+    categoria_conversa_whatsapp_log?: SortOrder
+    origem_whatsapp_log?: SortOrder
+    custo_usd_whatsapp_log?: SortOrder
+    data_criacao_whatsapp_log?: SortOrder
+    data_atualizacao_whatsapp_log?: SortOrder
     _count?: WhatsappLogCountOrderByAggregateInput
     _avg?: WhatsappLogAvgOrderByAggregateInput
     _max?: WhatsappLogMaxOrderByAggregateInput
@@ -52770,83 +52770,83 @@ export namespace Prisma {
     AND?: WhatsappLogScalarWhereWithAggregatesInput | WhatsappLogScalarWhereWithAggregatesInput[]
     OR?: WhatsappLogScalarWhereWithAggregatesInput[]
     NOT?: WhatsappLogScalarWhereWithAggregatesInput | WhatsappLogScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"WhatsappLog"> | string
-    tenant_id?: StringWithAggregatesFilter<"WhatsappLog"> | string
-    product_id?: StringNullableWithAggregatesFilter<"WhatsappLog"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"WhatsappLog"> | string | null
-    conversation_id?: StringNullableWithAggregatesFilter<"WhatsappLog"> | string | null
-    company_id?: StringNullableWithAggregatesFilter<"WhatsappLog"> | string | null
-    conversation_category?: StringWithAggregatesFilter<"WhatsappLog"> | string
-    origin?: StringWithAggregatesFilter<"WhatsappLog"> | string
-    cost_usd?: DecimalWithAggregatesFilter<"WhatsappLog"> | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeWithAggregatesFilter<"WhatsappLog"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"WhatsappLog"> | Date | string
+    id_whatsapp_log?: StringWithAggregatesFilter<"WhatsappLog"> | string
+    id_organizacao_whatsapp_log?: StringWithAggregatesFilter<"WhatsappLog"> | string
+    id_produto_whatsapp_log?: StringNullableWithAggregatesFilter<"WhatsappLog"> | string | null
+    id_usuario_whatsapp_log?: StringNullableWithAggregatesFilter<"WhatsappLog"> | string | null
+    id_conversa_whatsapp_log?: StringNullableWithAggregatesFilter<"WhatsappLog"> | string | null
+    id_empresa_whatsapp_log?: StringNullableWithAggregatesFilter<"WhatsappLog"> | string | null
+    categoria_conversa_whatsapp_log?: StringWithAggregatesFilter<"WhatsappLog"> | string
+    origem_whatsapp_log?: StringWithAggregatesFilter<"WhatsappLog"> | string
+    custo_usd_whatsapp_log?: DecimalWithAggregatesFilter<"WhatsappLog"> | Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: DateTimeWithAggregatesFilter<"WhatsappLog"> | Date | string
+    data_atualizacao_whatsapp_log?: DateTimeWithAggregatesFilter<"WhatsappLog"> | Date | string
   }
 
   export type WhatsappRegraWhereInput = {
     AND?: WhatsappRegraWhereInput | WhatsappRegraWhereInput[]
     OR?: WhatsappRegraWhereInput[]
     NOT?: WhatsappRegraWhereInput | WhatsappRegraWhereInput[]
-    id?: StringFilter<"WhatsappRegra"> | string
-    tenant_id?: StringFilter<"WhatsappRegra"> | string
-    product_id?: StringNullableFilter<"WhatsappRegra"> | string | null
-    user_id?: StringNullableFilter<"WhatsappRegra"> | string | null
-    name?: StringFilter<"WhatsappRegra"> | string
-    trigger?: StringFilter<"WhatsappRegra"> | string
-    conditions?: JsonNullableFilter<"WhatsappRegra">
-    template_id?: StringFilter<"WhatsappRegra"> | string
-    recipient?: StringFilter<"WhatsappRegra"> | string
-    active?: BoolFilter<"WhatsappRegra"> | boolean
-    created_at?: DateTimeFilter<"WhatsappRegra"> | Date | string
-    updated_at?: DateTimeFilter<"WhatsappRegra"> | Date | string
+    id_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    id_organizacao_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    id_produto_whatsapp_regra?: StringNullableFilter<"WhatsappRegra"> | string | null
+    id_usuario_whatsapp_regra?: StringNullableFilter<"WhatsappRegra"> | string | null
+    nome_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    gatilho_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    condicoes_whatsapp_regra?: JsonNullableFilter<"WhatsappRegra">
+    id_template_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    destinatario_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    ativa_whatsapp_regra?: BoolFilter<"WhatsappRegra"> | boolean
+    data_criacao_whatsapp_regra?: DateTimeFilter<"WhatsappRegra"> | Date | string
+    data_atualizacao_whatsapp_regra?: DateTimeFilter<"WhatsappRegra"> | Date | string
   }
 
   export type WhatsappRegraOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    name?: SortOrder
-    trigger?: SortOrder
-    conditions?: SortOrderInput | SortOrder
-    template_id?: SortOrder
-    recipient?: SortOrder
-    active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_regra?: SortOrder
+    id_organizacao_whatsapp_regra?: SortOrder
+    id_produto_whatsapp_regra?: SortOrderInput | SortOrder
+    id_usuario_whatsapp_regra?: SortOrderInput | SortOrder
+    nome_whatsapp_regra?: SortOrder
+    gatilho_whatsapp_regra?: SortOrder
+    condicoes_whatsapp_regra?: SortOrderInput | SortOrder
+    id_template_whatsapp_regra?: SortOrder
+    destinatario_whatsapp_regra?: SortOrder
+    ativa_whatsapp_regra?: SortOrder
+    data_criacao_whatsapp_regra?: SortOrder
+    data_atualizacao_whatsapp_regra?: SortOrder
   }
 
   export type WhatsappRegraWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_whatsapp_regra?: string
     AND?: WhatsappRegraWhereInput | WhatsappRegraWhereInput[]
     OR?: WhatsappRegraWhereInput[]
     NOT?: WhatsappRegraWhereInput | WhatsappRegraWhereInput[]
-    tenant_id?: StringFilter<"WhatsappRegra"> | string
-    product_id?: StringNullableFilter<"WhatsappRegra"> | string | null
-    user_id?: StringNullableFilter<"WhatsappRegra"> | string | null
-    name?: StringFilter<"WhatsappRegra"> | string
-    trigger?: StringFilter<"WhatsappRegra"> | string
-    conditions?: JsonNullableFilter<"WhatsappRegra">
-    template_id?: StringFilter<"WhatsappRegra"> | string
-    recipient?: StringFilter<"WhatsappRegra"> | string
-    active?: BoolFilter<"WhatsappRegra"> | boolean
-    created_at?: DateTimeFilter<"WhatsappRegra"> | Date | string
-    updated_at?: DateTimeFilter<"WhatsappRegra"> | Date | string
-  }, "id">
+    id_organizacao_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    id_produto_whatsapp_regra?: StringNullableFilter<"WhatsappRegra"> | string | null
+    id_usuario_whatsapp_regra?: StringNullableFilter<"WhatsappRegra"> | string | null
+    nome_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    gatilho_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    condicoes_whatsapp_regra?: JsonNullableFilter<"WhatsappRegra">
+    id_template_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    destinatario_whatsapp_regra?: StringFilter<"WhatsappRegra"> | string
+    ativa_whatsapp_regra?: BoolFilter<"WhatsappRegra"> | boolean
+    data_criacao_whatsapp_regra?: DateTimeFilter<"WhatsappRegra"> | Date | string
+    data_atualizacao_whatsapp_regra?: DateTimeFilter<"WhatsappRegra"> | Date | string
+  }, "id_whatsapp_regra">
 
   export type WhatsappRegraOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrderInput | SortOrder
-    name?: SortOrder
-    trigger?: SortOrder
-    conditions?: SortOrderInput | SortOrder
-    template_id?: SortOrder
-    recipient?: SortOrder
-    active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_regra?: SortOrder
+    id_organizacao_whatsapp_regra?: SortOrder
+    id_produto_whatsapp_regra?: SortOrderInput | SortOrder
+    id_usuario_whatsapp_regra?: SortOrderInput | SortOrder
+    nome_whatsapp_regra?: SortOrder
+    gatilho_whatsapp_regra?: SortOrder
+    condicoes_whatsapp_regra?: SortOrderInput | SortOrder
+    id_template_whatsapp_regra?: SortOrder
+    destinatario_whatsapp_regra?: SortOrder
+    ativa_whatsapp_regra?: SortOrder
+    data_criacao_whatsapp_regra?: SortOrder
+    data_atualizacao_whatsapp_regra?: SortOrder
     _count?: WhatsappRegraCountOrderByAggregateInput
     _max?: WhatsappRegraMaxOrderByAggregateInput
     _min?: WhatsappRegraMinOrderByAggregateInput
@@ -52856,18 +52856,18 @@ export namespace Prisma {
     AND?: WhatsappRegraScalarWhereWithAggregatesInput | WhatsappRegraScalarWhereWithAggregatesInput[]
     OR?: WhatsappRegraScalarWhereWithAggregatesInput[]
     NOT?: WhatsappRegraScalarWhereWithAggregatesInput | WhatsappRegraScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"WhatsappRegra"> | string
-    tenant_id?: StringWithAggregatesFilter<"WhatsappRegra"> | string
-    product_id?: StringNullableWithAggregatesFilter<"WhatsappRegra"> | string | null
-    user_id?: StringNullableWithAggregatesFilter<"WhatsappRegra"> | string | null
-    name?: StringWithAggregatesFilter<"WhatsappRegra"> | string
-    trigger?: StringWithAggregatesFilter<"WhatsappRegra"> | string
-    conditions?: JsonNullableWithAggregatesFilter<"WhatsappRegra">
-    template_id?: StringWithAggregatesFilter<"WhatsappRegra"> | string
-    recipient?: StringWithAggregatesFilter<"WhatsappRegra"> | string
-    active?: BoolWithAggregatesFilter<"WhatsappRegra"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"WhatsappRegra"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"WhatsappRegra"> | Date | string
+    id_whatsapp_regra?: StringWithAggregatesFilter<"WhatsappRegra"> | string
+    id_organizacao_whatsapp_regra?: StringWithAggregatesFilter<"WhatsappRegra"> | string
+    id_produto_whatsapp_regra?: StringNullableWithAggregatesFilter<"WhatsappRegra"> | string | null
+    id_usuario_whatsapp_regra?: StringNullableWithAggregatesFilter<"WhatsappRegra"> | string | null
+    nome_whatsapp_regra?: StringWithAggregatesFilter<"WhatsappRegra"> | string
+    gatilho_whatsapp_regra?: StringWithAggregatesFilter<"WhatsappRegra"> | string
+    condicoes_whatsapp_regra?: JsonNullableWithAggregatesFilter<"WhatsappRegra">
+    id_template_whatsapp_regra?: StringWithAggregatesFilter<"WhatsappRegra"> | string
+    destinatario_whatsapp_regra?: StringWithAggregatesFilter<"WhatsappRegra"> | string
+    ativa_whatsapp_regra?: BoolWithAggregatesFilter<"WhatsappRegra"> | boolean
+    data_criacao_whatsapp_regra?: DateTimeWithAggregatesFilter<"WhatsappRegra"> | Date | string
+    data_atualizacao_whatsapp_regra?: DateTimeWithAggregatesFilter<"WhatsappRegra"> | Date | string
   }
 
   export type DashboardConfiguracaoWhereInput = {
@@ -56703,486 +56703,486 @@ export namespace Prisma {
   }
 
   export type WhatsappConversaCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    wa_phone_number: string
-    status?: string
-    contact_id?: string | null
-    company_id?: string | null
-    contact_nome?: string | null
-    company_nome?: string | null
-    activity_id?: string | null
-    ai_enabled?: boolean
-    opened_at?: Date | string
-    closed_at?: Date | string | null
-    gabi_temperatura?: string | null
-    gabi_temperatura_score?: number | null
-    gabi_resumo?: string | null
-    gabi_acoes_sugeridas?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_conversa?: string
+    id_organizacao_whatsapp_conversa: string
+    id_produto_whatsapp_conversa?: string | null
+    id_usuario_whatsapp_conversa?: string | null
+    telefone_wa_whatsapp_conversa: string
+    status_whatsapp_conversa?: string
+    id_contato_whatsapp_conversa?: string | null
+    id_empresa_whatsapp_conversa?: string | null
+    nome_contato_whatsapp_conversa?: string | null
+    nome_empresa_whatsapp_conversa?: string | null
+    id_atividade_whatsapp_conversa?: string | null
+    ia_habilitada_whatsapp_conversa?: boolean
+    aberta_em_whatsapp_conversa?: Date | string
+    fechada_em_whatsapp_conversa?: Date | string | null
+    gabi_temperatura_whatsapp_conversa?: string | null
+    gabi_temperatura_score_whatsapp_conversa?: number | null
+    gabi_resumo_whatsapp_conversa?: string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_whatsapp_conversa?: Date | string
+    data_atualizacao_whatsapp_conversa?: Date | string
   }
 
   export type WhatsappConversaUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    wa_phone_number: string
-    status?: string
-    contact_id?: string | null
-    company_id?: string | null
-    contact_nome?: string | null
-    company_nome?: string | null
-    activity_id?: string | null
-    ai_enabled?: boolean
-    opened_at?: Date | string
-    closed_at?: Date | string | null
-    gabi_temperatura?: string | null
-    gabi_temperatura_score?: number | null
-    gabi_resumo?: string | null
-    gabi_acoes_sugeridas?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_conversa?: string
+    id_organizacao_whatsapp_conversa: string
+    id_produto_whatsapp_conversa?: string | null
+    id_usuario_whatsapp_conversa?: string | null
+    telefone_wa_whatsapp_conversa: string
+    status_whatsapp_conversa?: string
+    id_contato_whatsapp_conversa?: string | null
+    id_empresa_whatsapp_conversa?: string | null
+    nome_contato_whatsapp_conversa?: string | null
+    nome_empresa_whatsapp_conversa?: string | null
+    id_atividade_whatsapp_conversa?: string | null
+    ia_habilitada_whatsapp_conversa?: boolean
+    aberta_em_whatsapp_conversa?: Date | string
+    fechada_em_whatsapp_conversa?: Date | string | null
+    gabi_temperatura_whatsapp_conversa?: string | null
+    gabi_temperatura_score_whatsapp_conversa?: number | null
+    gabi_resumo_whatsapp_conversa?: string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_whatsapp_conversa?: Date | string
+    data_atualizacao_whatsapp_conversa?: Date | string
   }
 
   export type WhatsappConversaUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    wa_phone_number?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
-    company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contact_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    company_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    activity_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ai_enabled?: BoolFieldUpdateOperationsInput | boolean
-    opened_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    gabi_temperatura?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_temperatura_score?: NullableIntFieldUpdateOperationsInput | number | null
-    gabi_resumo?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_acoes_sugeridas?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_wa_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    status_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_contato_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_empresa_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_contato_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_empresa_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividade_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    ia_habilitada_whatsapp_conversa?: BoolFieldUpdateOperationsInput | boolean
+    aberta_em_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechada_em_whatsapp_conversa?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gabi_temperatura_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    gabi_temperatura_score_whatsapp_conversa?: NullableIntFieldUpdateOperationsInput | number | null
+    gabi_resumo_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappConversaUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    wa_phone_number?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
-    company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contact_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    company_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    activity_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ai_enabled?: BoolFieldUpdateOperationsInput | boolean
-    opened_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    gabi_temperatura?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_temperatura_score?: NullableIntFieldUpdateOperationsInput | number | null
-    gabi_resumo?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_acoes_sugeridas?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_wa_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    status_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_contato_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_empresa_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_contato_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_empresa_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividade_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    ia_habilitada_whatsapp_conversa?: BoolFieldUpdateOperationsInput | boolean
+    aberta_em_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechada_em_whatsapp_conversa?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gabi_temperatura_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    gabi_temperatura_score_whatsapp_conversa?: NullableIntFieldUpdateOperationsInput | number | null
+    gabi_resumo_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappConversaCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    wa_phone_number: string
-    status?: string
-    contact_id?: string | null
-    company_id?: string | null
-    contact_nome?: string | null
-    company_nome?: string | null
-    activity_id?: string | null
-    ai_enabled?: boolean
-    opened_at?: Date | string
-    closed_at?: Date | string | null
-    gabi_temperatura?: string | null
-    gabi_temperatura_score?: number | null
-    gabi_resumo?: string | null
-    gabi_acoes_sugeridas?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_conversa?: string
+    id_organizacao_whatsapp_conversa: string
+    id_produto_whatsapp_conversa?: string | null
+    id_usuario_whatsapp_conversa?: string | null
+    telefone_wa_whatsapp_conversa: string
+    status_whatsapp_conversa?: string
+    id_contato_whatsapp_conversa?: string | null
+    id_empresa_whatsapp_conversa?: string | null
+    nome_contato_whatsapp_conversa?: string | null
+    nome_empresa_whatsapp_conversa?: string | null
+    id_atividade_whatsapp_conversa?: string | null
+    ia_habilitada_whatsapp_conversa?: boolean
+    aberta_em_whatsapp_conversa?: Date | string
+    fechada_em_whatsapp_conversa?: Date | string | null
+    gabi_temperatura_whatsapp_conversa?: string | null
+    gabi_temperatura_score_whatsapp_conversa?: number | null
+    gabi_resumo_whatsapp_conversa?: string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_whatsapp_conversa?: Date | string
+    data_atualizacao_whatsapp_conversa?: Date | string
   }
 
   export type WhatsappConversaUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    wa_phone_number?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
-    company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contact_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    company_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    activity_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ai_enabled?: BoolFieldUpdateOperationsInput | boolean
-    opened_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    gabi_temperatura?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_temperatura_score?: NullableIntFieldUpdateOperationsInput | number | null
-    gabi_resumo?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_acoes_sugeridas?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_wa_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    status_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_contato_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_empresa_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_contato_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_empresa_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividade_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    ia_habilitada_whatsapp_conversa?: BoolFieldUpdateOperationsInput | boolean
+    aberta_em_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechada_em_whatsapp_conversa?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gabi_temperatura_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    gabi_temperatura_score_whatsapp_conversa?: NullableIntFieldUpdateOperationsInput | number | null
+    gabi_resumo_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappConversaUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    wa_phone_number?: StringFieldUpdateOperationsInput | string
-    status?: StringFieldUpdateOperationsInput | string
-    contact_id?: NullableStringFieldUpdateOperationsInput | string | null
-    company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    contact_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    company_nome?: NullableStringFieldUpdateOperationsInput | string | null
-    activity_id?: NullableStringFieldUpdateOperationsInput | string | null
-    ai_enabled?: BoolFieldUpdateOperationsInput | boolean
-    opened_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    closed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    gabi_temperatura?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_temperatura_score?: NullableIntFieldUpdateOperationsInput | number | null
-    gabi_resumo?: NullableStringFieldUpdateOperationsInput | string | null
-    gabi_acoes_sugeridas?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_wa_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    status_whatsapp_conversa?: StringFieldUpdateOperationsInput | string
+    id_contato_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_empresa_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_contato_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_empresa_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    id_atividade_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    ia_habilitada_whatsapp_conversa?: BoolFieldUpdateOperationsInput | boolean
+    aberta_em_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    fechada_em_whatsapp_conversa?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gabi_temperatura_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    gabi_temperatura_score_whatsapp_conversa?: NullableIntFieldUpdateOperationsInput | number | null
+    gabi_resumo_whatsapp_conversa?: NullableStringFieldUpdateOperationsInput | string | null
+    gabi_acoes_sugeridas_whatsapp_conversa?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_conversa?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappMensagemCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    conversation_id: string
-    wa_message_id?: string | null
-    direction: string
-    content_type?: string
-    content: string
-    origin?: string
-    sent_by?: string | null
-    status?: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_mensagem?: string
+    id_organizacao_whatsapp_mensagem: string
+    id_produto_whatsapp_mensagem?: string | null
+    id_usuario_whatsapp_mensagem?: string | null
+    id_conversa_whatsapp_mensagem: string
+    id_wa_mensagem_whatsapp_mensagem?: string | null
+    direcao_whatsapp_mensagem: string
+    tipo_conteudo_whatsapp_mensagem?: string
+    conteudo_whatsapp_mensagem: string
+    origem_whatsapp_mensagem?: string
+    enviado_por_whatsapp_mensagem?: string | null
+    status_whatsapp_mensagem?: string
+    data_criacao_whatsapp_mensagem?: Date | string
+    data_atualizacao_whatsapp_mensagem?: Date | string
   }
 
   export type WhatsappMensagemUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    conversation_id: string
-    wa_message_id?: string | null
-    direction: string
-    content_type?: string
-    content: string
-    origin?: string
-    sent_by?: string | null
-    status?: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_mensagem?: string
+    id_organizacao_whatsapp_mensagem: string
+    id_produto_whatsapp_mensagem?: string | null
+    id_usuario_whatsapp_mensagem?: string | null
+    id_conversa_whatsapp_mensagem: string
+    id_wa_mensagem_whatsapp_mensagem?: string | null
+    direcao_whatsapp_mensagem: string
+    tipo_conteudo_whatsapp_mensagem?: string
+    conteudo_whatsapp_mensagem: string
+    origem_whatsapp_mensagem?: string
+    enviado_por_whatsapp_mensagem?: string | null
+    status_whatsapp_mensagem?: string
+    data_criacao_whatsapp_mensagem?: Date | string
+    data_atualizacao_whatsapp_mensagem?: Date | string
   }
 
   export type WhatsappMensagemUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: StringFieldUpdateOperationsInput | string
-    wa_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: StringFieldUpdateOperationsInput | string
-    content_type?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    origin?: StringFieldUpdateOperationsInput | string
-    sent_by?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_wa_mensagem_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    tipo_conteudo_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    origem_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    enviado_por_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    status_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    data_criacao_whatsapp_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappMensagemUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: StringFieldUpdateOperationsInput | string
-    wa_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: StringFieldUpdateOperationsInput | string
-    content_type?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    origin?: StringFieldUpdateOperationsInput | string
-    sent_by?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_wa_mensagem_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    tipo_conteudo_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    origem_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    enviado_por_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    status_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    data_criacao_whatsapp_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappMensagemCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    conversation_id: string
-    wa_message_id?: string | null
-    direction: string
-    content_type?: string
-    content: string
-    origin?: string
-    sent_by?: string | null
-    status?: string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_mensagem?: string
+    id_organizacao_whatsapp_mensagem: string
+    id_produto_whatsapp_mensagem?: string | null
+    id_usuario_whatsapp_mensagem?: string | null
+    id_conversa_whatsapp_mensagem: string
+    id_wa_mensagem_whatsapp_mensagem?: string | null
+    direcao_whatsapp_mensagem: string
+    tipo_conteudo_whatsapp_mensagem?: string
+    conteudo_whatsapp_mensagem: string
+    origem_whatsapp_mensagem?: string
+    enviado_por_whatsapp_mensagem?: string | null
+    status_whatsapp_mensagem?: string
+    data_criacao_whatsapp_mensagem?: Date | string
+    data_atualizacao_whatsapp_mensagem?: Date | string
   }
 
   export type WhatsappMensagemUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: StringFieldUpdateOperationsInput | string
-    wa_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: StringFieldUpdateOperationsInput | string
-    content_type?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    origin?: StringFieldUpdateOperationsInput | string
-    sent_by?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_wa_mensagem_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    tipo_conteudo_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    origem_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    enviado_por_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    status_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    data_criacao_whatsapp_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappMensagemUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: StringFieldUpdateOperationsInput | string
-    wa_message_id?: NullableStringFieldUpdateOperationsInput | string | null
-    direction?: StringFieldUpdateOperationsInput | string
-    content_type?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    origin?: StringFieldUpdateOperationsInput | string
-    sent_by?: NullableStringFieldUpdateOperationsInput | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    id_wa_mensagem_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    direcao_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    tipo_conteudo_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    conteudo_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    origem_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    enviado_por_whatsapp_mensagem?: NullableStringFieldUpdateOperationsInput | string | null
+    status_whatsapp_mensagem?: StringFieldUpdateOperationsInput | string
+    data_criacao_whatsapp_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappLogCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    conversation_id?: string | null
-    company_id?: string | null
-    conversation_category: string
-    origin: string
-    cost_usd: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_log?: string
+    id_organizacao_whatsapp_log: string
+    id_produto_whatsapp_log?: string | null
+    id_usuario_whatsapp_log?: string | null
+    id_conversa_whatsapp_log?: string | null
+    id_empresa_whatsapp_log?: string | null
+    categoria_conversa_whatsapp_log: string
+    origem_whatsapp_log: string
+    custo_usd_whatsapp_log: Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: Date | string
+    data_atualizacao_whatsapp_log?: Date | string
   }
 
   export type WhatsappLogUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    conversation_id?: string | null
-    company_id?: string | null
-    conversation_category: string
-    origin: string
-    cost_usd: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_log?: string
+    id_organizacao_whatsapp_log: string
+    id_produto_whatsapp_log?: string | null
+    id_usuario_whatsapp_log?: string | null
+    id_conversa_whatsapp_log?: string | null
+    id_empresa_whatsapp_log?: string | null
+    categoria_conversa_whatsapp_log: string
+    origem_whatsapp_log: string
+    custo_usd_whatsapp_log: Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: Date | string
+    data_atualizacao_whatsapp_log?: Date | string
   }
 
   export type WhatsappLogUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: NullableStringFieldUpdateOperationsInput | string | null
-    company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_category?: StringFieldUpdateOperationsInput | string
-    origin?: StringFieldUpdateOperationsInput | string
-    cost_usd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_empresa_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    categoria_conversa_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    origem_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    custo_usd_whatsapp_log?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappLogUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: NullableStringFieldUpdateOperationsInput | string | null
-    company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_category?: StringFieldUpdateOperationsInput | string
-    origin?: StringFieldUpdateOperationsInput | string
-    cost_usd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_empresa_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    categoria_conversa_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    origem_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    custo_usd_whatsapp_log?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappLogCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    conversation_id?: string | null
-    company_id?: string | null
-    conversation_category: string
-    origin: string
-    cost_usd: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_log?: string
+    id_organizacao_whatsapp_log: string
+    id_produto_whatsapp_log?: string | null
+    id_usuario_whatsapp_log?: string | null
+    id_conversa_whatsapp_log?: string | null
+    id_empresa_whatsapp_log?: string | null
+    categoria_conversa_whatsapp_log: string
+    origem_whatsapp_log: string
+    custo_usd_whatsapp_log: Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: Date | string
+    data_atualizacao_whatsapp_log?: Date | string
   }
 
   export type WhatsappLogUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: NullableStringFieldUpdateOperationsInput | string | null
-    company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_category?: StringFieldUpdateOperationsInput | string
-    origin?: StringFieldUpdateOperationsInput | string
-    cost_usd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_empresa_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    categoria_conversa_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    origem_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    custo_usd_whatsapp_log?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappLogUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_id?: NullableStringFieldUpdateOperationsInput | string | null
-    company_id?: NullableStringFieldUpdateOperationsInput | string | null
-    conversation_category?: StringFieldUpdateOperationsInput | string
-    origin?: StringFieldUpdateOperationsInput | string
-    cost_usd?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_conversa_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    id_empresa_whatsapp_log?: NullableStringFieldUpdateOperationsInput | string | null
+    categoria_conversa_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    origem_whatsapp_log?: StringFieldUpdateOperationsInput | string
+    custo_usd_whatsapp_log?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    data_criacao_whatsapp_log?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_log?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappRegraCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    name: string
-    trigger: string
-    conditions?: NullableJsonNullValueInput | InputJsonValue
-    template_id: string
-    recipient: string
-    active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_regra?: string
+    id_organizacao_whatsapp_regra: string
+    id_produto_whatsapp_regra?: string | null
+    id_usuario_whatsapp_regra?: string | null
+    nome_whatsapp_regra: string
+    gatilho_whatsapp_regra: string
+    condicoes_whatsapp_regra?: NullableJsonNullValueInput | InputJsonValue
+    id_template_whatsapp_regra: string
+    destinatario_whatsapp_regra: string
+    ativa_whatsapp_regra?: boolean
+    data_criacao_whatsapp_regra?: Date | string
+    data_atualizacao_whatsapp_regra?: Date | string
   }
 
   export type WhatsappRegraUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    name: string
-    trigger: string
-    conditions?: NullableJsonNullValueInput | InputJsonValue
-    template_id: string
-    recipient: string
-    active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_regra?: string
+    id_organizacao_whatsapp_regra: string
+    id_produto_whatsapp_regra?: string | null
+    id_usuario_whatsapp_regra?: string | null
+    nome_whatsapp_regra: string
+    gatilho_whatsapp_regra: string
+    condicoes_whatsapp_regra?: NullableJsonNullValueInput | InputJsonValue
+    id_template_whatsapp_regra: string
+    destinatario_whatsapp_regra: string
+    ativa_whatsapp_regra?: boolean
+    data_criacao_whatsapp_regra?: Date | string
+    data_atualizacao_whatsapp_regra?: Date | string
   }
 
   export type WhatsappRegraUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    trigger?: StringFieldUpdateOperationsInput | string
-    conditions?: NullableJsonNullValueInput | InputJsonValue
-    template_id?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_regra?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_regra?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    gatilho_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    condicoes_whatsapp_regra?: NullableJsonNullValueInput | InputJsonValue
+    id_template_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    destinatario_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    ativa_whatsapp_regra?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_whatsapp_regra?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_regra?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappRegraUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    trigger?: StringFieldUpdateOperationsInput | string
-    conditions?: NullableJsonNullValueInput | InputJsonValue
-    template_id?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_regra?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_regra?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    gatilho_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    condicoes_whatsapp_regra?: NullableJsonNullValueInput | InputJsonValue
+    id_template_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    destinatario_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    ativa_whatsapp_regra?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_whatsapp_regra?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_regra?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappRegraCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id?: string | null
-    name: string
-    trigger: string
-    conditions?: NullableJsonNullValueInput | InputJsonValue
-    template_id: string
-    recipient: string
-    active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_whatsapp_regra?: string
+    id_organizacao_whatsapp_regra: string
+    id_produto_whatsapp_regra?: string | null
+    id_usuario_whatsapp_regra?: string | null
+    nome_whatsapp_regra: string
+    gatilho_whatsapp_regra: string
+    condicoes_whatsapp_regra?: NullableJsonNullValueInput | InputJsonValue
+    id_template_whatsapp_regra: string
+    destinatario_whatsapp_regra: string
+    ativa_whatsapp_regra?: boolean
+    data_criacao_whatsapp_regra?: Date | string
+    data_atualizacao_whatsapp_regra?: Date | string
   }
 
   export type WhatsappRegraUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    trigger?: StringFieldUpdateOperationsInput | string
-    conditions?: NullableJsonNullValueInput | InputJsonValue
-    template_id?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_regra?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_regra?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    gatilho_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    condicoes_whatsapp_regra?: NullableJsonNullValueInput | InputJsonValue
+    id_template_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    destinatario_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    ativa_whatsapp_regra?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_whatsapp_regra?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_regra?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WhatsappRegraUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    name?: StringFieldUpdateOperationsInput | string
-    trigger?: StringFieldUpdateOperationsInput | string
-    conditions?: NullableJsonNullValueInput | InputJsonValue
-    template_id?: StringFieldUpdateOperationsInput | string
-    recipient?: StringFieldUpdateOperationsInput | string
-    active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    id_organizacao_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    id_produto_whatsapp_regra?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_whatsapp_regra?: NullableStringFieldUpdateOperationsInput | string | null
+    nome_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    gatilho_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    condicoes_whatsapp_regra?: NullableJsonNullValueInput | InputJsonValue
+    id_template_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    destinatario_whatsapp_regra?: StringFieldUpdateOperationsInput | string
+    ativa_whatsapp_regra?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_whatsapp_regra?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_whatsapp_regra?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardConfiguracaoCreateInput = {
@@ -61226,78 +61226,78 @@ export namespace Prisma {
   }
 
   export type WhatsappConversaCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    wa_phone_number?: SortOrder
-    status?: SortOrder
-    contact_id?: SortOrder
-    company_id?: SortOrder
-    contact_nome?: SortOrder
-    company_nome?: SortOrder
-    activity_id?: SortOrder
-    ai_enabled?: SortOrder
-    opened_at?: SortOrder
-    closed_at?: SortOrder
-    gabi_temperatura?: SortOrder
-    gabi_temperatura_score?: SortOrder
-    gabi_resumo?: SortOrder
-    gabi_acoes_sugeridas?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_conversa?: SortOrder
+    id_organizacao_whatsapp_conversa?: SortOrder
+    id_produto_whatsapp_conversa?: SortOrder
+    id_usuario_whatsapp_conversa?: SortOrder
+    telefone_wa_whatsapp_conversa?: SortOrder
+    status_whatsapp_conversa?: SortOrder
+    id_contato_whatsapp_conversa?: SortOrder
+    id_empresa_whatsapp_conversa?: SortOrder
+    nome_contato_whatsapp_conversa?: SortOrder
+    nome_empresa_whatsapp_conversa?: SortOrder
+    id_atividade_whatsapp_conversa?: SortOrder
+    ia_habilitada_whatsapp_conversa?: SortOrder
+    aberta_em_whatsapp_conversa?: SortOrder
+    fechada_em_whatsapp_conversa?: SortOrder
+    gabi_temperatura_whatsapp_conversa?: SortOrder
+    gabi_temperatura_score_whatsapp_conversa?: SortOrder
+    gabi_resumo_whatsapp_conversa?: SortOrder
+    gabi_acoes_sugeridas_whatsapp_conversa?: SortOrder
+    data_criacao_whatsapp_conversa?: SortOrder
+    data_atualizacao_whatsapp_conversa?: SortOrder
   }
 
   export type WhatsappConversaAvgOrderByAggregateInput = {
-    gabi_temperatura_score?: SortOrder
+    gabi_temperatura_score_whatsapp_conversa?: SortOrder
   }
 
   export type WhatsappConversaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    wa_phone_number?: SortOrder
-    status?: SortOrder
-    contact_id?: SortOrder
-    company_id?: SortOrder
-    contact_nome?: SortOrder
-    company_nome?: SortOrder
-    activity_id?: SortOrder
-    ai_enabled?: SortOrder
-    opened_at?: SortOrder
-    closed_at?: SortOrder
-    gabi_temperatura?: SortOrder
-    gabi_temperatura_score?: SortOrder
-    gabi_resumo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_conversa?: SortOrder
+    id_organizacao_whatsapp_conversa?: SortOrder
+    id_produto_whatsapp_conversa?: SortOrder
+    id_usuario_whatsapp_conversa?: SortOrder
+    telefone_wa_whatsapp_conversa?: SortOrder
+    status_whatsapp_conversa?: SortOrder
+    id_contato_whatsapp_conversa?: SortOrder
+    id_empresa_whatsapp_conversa?: SortOrder
+    nome_contato_whatsapp_conversa?: SortOrder
+    nome_empresa_whatsapp_conversa?: SortOrder
+    id_atividade_whatsapp_conversa?: SortOrder
+    ia_habilitada_whatsapp_conversa?: SortOrder
+    aberta_em_whatsapp_conversa?: SortOrder
+    fechada_em_whatsapp_conversa?: SortOrder
+    gabi_temperatura_whatsapp_conversa?: SortOrder
+    gabi_temperatura_score_whatsapp_conversa?: SortOrder
+    gabi_resumo_whatsapp_conversa?: SortOrder
+    data_criacao_whatsapp_conversa?: SortOrder
+    data_atualizacao_whatsapp_conversa?: SortOrder
   }
 
   export type WhatsappConversaMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    wa_phone_number?: SortOrder
-    status?: SortOrder
-    contact_id?: SortOrder
-    company_id?: SortOrder
-    contact_nome?: SortOrder
-    company_nome?: SortOrder
-    activity_id?: SortOrder
-    ai_enabled?: SortOrder
-    opened_at?: SortOrder
-    closed_at?: SortOrder
-    gabi_temperatura?: SortOrder
-    gabi_temperatura_score?: SortOrder
-    gabi_resumo?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_conversa?: SortOrder
+    id_organizacao_whatsapp_conversa?: SortOrder
+    id_produto_whatsapp_conversa?: SortOrder
+    id_usuario_whatsapp_conversa?: SortOrder
+    telefone_wa_whatsapp_conversa?: SortOrder
+    status_whatsapp_conversa?: SortOrder
+    id_contato_whatsapp_conversa?: SortOrder
+    id_empresa_whatsapp_conversa?: SortOrder
+    nome_contato_whatsapp_conversa?: SortOrder
+    nome_empresa_whatsapp_conversa?: SortOrder
+    id_atividade_whatsapp_conversa?: SortOrder
+    ia_habilitada_whatsapp_conversa?: SortOrder
+    aberta_em_whatsapp_conversa?: SortOrder
+    fechada_em_whatsapp_conversa?: SortOrder
+    gabi_temperatura_whatsapp_conversa?: SortOrder
+    gabi_temperatura_score_whatsapp_conversa?: SortOrder
+    gabi_resumo_whatsapp_conversa?: SortOrder
+    data_criacao_whatsapp_conversa?: SortOrder
+    data_atualizacao_whatsapp_conversa?: SortOrder
   }
 
   export type WhatsappConversaSumOrderByAggregateInput = {
-    gabi_temperatura_score?: SortOrder
+    gabi_temperatura_score_whatsapp_conversa?: SortOrder
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -61326,54 +61326,54 @@ export namespace Prisma {
   }
 
   export type WhatsappMensagemCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    wa_message_id?: SortOrder
-    direction?: SortOrder
-    content_type?: SortOrder
-    content?: SortOrder
-    origin?: SortOrder
-    sent_by?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_mensagem?: SortOrder
+    id_organizacao_whatsapp_mensagem?: SortOrder
+    id_produto_whatsapp_mensagem?: SortOrder
+    id_usuario_whatsapp_mensagem?: SortOrder
+    id_conversa_whatsapp_mensagem?: SortOrder
+    id_wa_mensagem_whatsapp_mensagem?: SortOrder
+    direcao_whatsapp_mensagem?: SortOrder
+    tipo_conteudo_whatsapp_mensagem?: SortOrder
+    conteudo_whatsapp_mensagem?: SortOrder
+    origem_whatsapp_mensagem?: SortOrder
+    enviado_por_whatsapp_mensagem?: SortOrder
+    status_whatsapp_mensagem?: SortOrder
+    data_criacao_whatsapp_mensagem?: SortOrder
+    data_atualizacao_whatsapp_mensagem?: SortOrder
   }
 
   export type WhatsappMensagemMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    wa_message_id?: SortOrder
-    direction?: SortOrder
-    content_type?: SortOrder
-    content?: SortOrder
-    origin?: SortOrder
-    sent_by?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_mensagem?: SortOrder
+    id_organizacao_whatsapp_mensagem?: SortOrder
+    id_produto_whatsapp_mensagem?: SortOrder
+    id_usuario_whatsapp_mensagem?: SortOrder
+    id_conversa_whatsapp_mensagem?: SortOrder
+    id_wa_mensagem_whatsapp_mensagem?: SortOrder
+    direcao_whatsapp_mensagem?: SortOrder
+    tipo_conteudo_whatsapp_mensagem?: SortOrder
+    conteudo_whatsapp_mensagem?: SortOrder
+    origem_whatsapp_mensagem?: SortOrder
+    enviado_por_whatsapp_mensagem?: SortOrder
+    status_whatsapp_mensagem?: SortOrder
+    data_criacao_whatsapp_mensagem?: SortOrder
+    data_atualizacao_whatsapp_mensagem?: SortOrder
   }
 
   export type WhatsappMensagemMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    wa_message_id?: SortOrder
-    direction?: SortOrder
-    content_type?: SortOrder
-    content?: SortOrder
-    origin?: SortOrder
-    sent_by?: SortOrder
-    status?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_mensagem?: SortOrder
+    id_organizacao_whatsapp_mensagem?: SortOrder
+    id_produto_whatsapp_mensagem?: SortOrder
+    id_usuario_whatsapp_mensagem?: SortOrder
+    id_conversa_whatsapp_mensagem?: SortOrder
+    id_wa_mensagem_whatsapp_mensagem?: SortOrder
+    direcao_whatsapp_mensagem?: SortOrder
+    tipo_conteudo_whatsapp_mensagem?: SortOrder
+    conteudo_whatsapp_mensagem?: SortOrder
+    origem_whatsapp_mensagem?: SortOrder
+    enviado_por_whatsapp_mensagem?: SortOrder
+    status_whatsapp_mensagem?: SortOrder
+    data_criacao_whatsapp_mensagem?: SortOrder
+    data_atualizacao_whatsapp_mensagem?: SortOrder
   }
 
   export type DecimalFilter<$PrismaModel = never> = {
@@ -61388,53 +61388,53 @@ export namespace Prisma {
   }
 
   export type WhatsappLogCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    company_id?: SortOrder
-    conversation_category?: SortOrder
-    origin?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_log?: SortOrder
+    id_organizacao_whatsapp_log?: SortOrder
+    id_produto_whatsapp_log?: SortOrder
+    id_usuario_whatsapp_log?: SortOrder
+    id_conversa_whatsapp_log?: SortOrder
+    id_empresa_whatsapp_log?: SortOrder
+    categoria_conversa_whatsapp_log?: SortOrder
+    origem_whatsapp_log?: SortOrder
+    custo_usd_whatsapp_log?: SortOrder
+    data_criacao_whatsapp_log?: SortOrder
+    data_atualizacao_whatsapp_log?: SortOrder
   }
 
   export type WhatsappLogAvgOrderByAggregateInput = {
-    cost_usd?: SortOrder
+    custo_usd_whatsapp_log?: SortOrder
   }
 
   export type WhatsappLogMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    company_id?: SortOrder
-    conversation_category?: SortOrder
-    origin?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_log?: SortOrder
+    id_organizacao_whatsapp_log?: SortOrder
+    id_produto_whatsapp_log?: SortOrder
+    id_usuario_whatsapp_log?: SortOrder
+    id_conversa_whatsapp_log?: SortOrder
+    id_empresa_whatsapp_log?: SortOrder
+    categoria_conversa_whatsapp_log?: SortOrder
+    origem_whatsapp_log?: SortOrder
+    custo_usd_whatsapp_log?: SortOrder
+    data_criacao_whatsapp_log?: SortOrder
+    data_atualizacao_whatsapp_log?: SortOrder
   }
 
   export type WhatsappLogMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    conversation_id?: SortOrder
-    company_id?: SortOrder
-    conversation_category?: SortOrder
-    origin?: SortOrder
-    cost_usd?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_log?: SortOrder
+    id_organizacao_whatsapp_log?: SortOrder
+    id_produto_whatsapp_log?: SortOrder
+    id_usuario_whatsapp_log?: SortOrder
+    id_conversa_whatsapp_log?: SortOrder
+    id_empresa_whatsapp_log?: SortOrder
+    categoria_conversa_whatsapp_log?: SortOrder
+    origem_whatsapp_log?: SortOrder
+    custo_usd_whatsapp_log?: SortOrder
+    data_criacao_whatsapp_log?: SortOrder
+    data_atualizacao_whatsapp_log?: SortOrder
   }
 
   export type WhatsappLogSumOrderByAggregateInput = {
-    cost_usd?: SortOrder
+    custo_usd_whatsapp_log?: SortOrder
   }
 
   export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -61454,46 +61454,46 @@ export namespace Prisma {
   }
 
   export type WhatsappRegraCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    name?: SortOrder
-    trigger?: SortOrder
-    conditions?: SortOrder
-    template_id?: SortOrder
-    recipient?: SortOrder
-    active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_regra?: SortOrder
+    id_organizacao_whatsapp_regra?: SortOrder
+    id_produto_whatsapp_regra?: SortOrder
+    id_usuario_whatsapp_regra?: SortOrder
+    nome_whatsapp_regra?: SortOrder
+    gatilho_whatsapp_regra?: SortOrder
+    condicoes_whatsapp_regra?: SortOrder
+    id_template_whatsapp_regra?: SortOrder
+    destinatario_whatsapp_regra?: SortOrder
+    ativa_whatsapp_regra?: SortOrder
+    data_criacao_whatsapp_regra?: SortOrder
+    data_atualizacao_whatsapp_regra?: SortOrder
   }
 
   export type WhatsappRegraMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    name?: SortOrder
-    trigger?: SortOrder
-    template_id?: SortOrder
-    recipient?: SortOrder
-    active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_regra?: SortOrder
+    id_organizacao_whatsapp_regra?: SortOrder
+    id_produto_whatsapp_regra?: SortOrder
+    id_usuario_whatsapp_regra?: SortOrder
+    nome_whatsapp_regra?: SortOrder
+    gatilho_whatsapp_regra?: SortOrder
+    id_template_whatsapp_regra?: SortOrder
+    destinatario_whatsapp_regra?: SortOrder
+    ativa_whatsapp_regra?: SortOrder
+    data_criacao_whatsapp_regra?: SortOrder
+    data_atualizacao_whatsapp_regra?: SortOrder
   }
 
   export type WhatsappRegraMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    name?: SortOrder
-    trigger?: SortOrder
-    template_id?: SortOrder
-    recipient?: SortOrder
-    active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_whatsapp_regra?: SortOrder
+    id_organizacao_whatsapp_regra?: SortOrder
+    id_produto_whatsapp_regra?: SortOrder
+    id_usuario_whatsapp_regra?: SortOrder
+    nome_whatsapp_regra?: SortOrder
+    gatilho_whatsapp_regra?: SortOrder
+    id_template_whatsapp_regra?: SortOrder
+    destinatario_whatsapp_regra?: SortOrder
+    ativa_whatsapp_regra?: SortOrder
+    data_criacao_whatsapp_regra?: SortOrder
+    data_atualizacao_whatsapp_regra?: SortOrder
   }
 
   export type EnumDashboardModoFilter<$PrismaModel = never> = {

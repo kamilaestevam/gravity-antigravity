@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T00:46:00.782Z
+// Gerado em: 2026-04-26T00:48:52.758Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -633,17 +633,17 @@ model PedidoDashboardPreferencias {
 
 /// Configuração de casas decimais e formato de data por workspace (tenant).
 model PedidoCasasDecimais {
-  id         String  @id @default(cuid())
-  tenant_id  String  @unique
-  product_id String?
+  id_pedido_casas_decimais String  @id @default(cuid())
+  id_organizacao           String  @unique
+  id_produto_gravity       String?
 
-  valor_total_pedido                Int @default(2)
-  valor_unitario_item               Int @default(2)
-  quantidade_total_inicial_pedido   Int @default(2)
-  quantidade_pronta_pedido_total    Int @default(2)
-  saldo_itens_do_pedido             Int @default(2)
-  quantidade_transferida_total      Int @default(2)
-  quantidade_cancelada_total_pedido Int @default(2)
+  valor_total_pedido_casas_decimais                Int @default(2)
+  valor_unitario_item_casas_decimais               Int @default(2)
+  quantidade_total_inicial_pedido_casas_decimais   Int @default(2)
+  quantidade_pronta_pedido_total_casas_decimais    Int @default(2)
+  saldo_itens_do_pedido_casas_decimais             Int @default(2)
+  quantidade_transferida_total_pedido_casas_decimais Int @default(2)
+  quantidade_cancelada_total_pedido_casas_decimais Int @default(2)
   peso_liquido_total_pedido         Int @default(3)
   peso_bruto_total_pedido           Int @default(3)
   cubagem_total_pedido              Int @default(3)
@@ -653,8 +653,8 @@ model PedidoCasasDecimais {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
   @@map("pedido_casas_decimais")
 }
 

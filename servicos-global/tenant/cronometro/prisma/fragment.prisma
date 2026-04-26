@@ -1,5 +1,5 @@
 // servicos-global/tenant/cronometro/prisma/fragment.prisma
-// AGENTE CRONÔMETRO — ONDA 3 | 2/13
+// AGENTE CRONÔMETRO — ONDA 27 (DDD Servicos)
 //
 // Fragment Prisma do serviço de Cronômetro.
 // Não editar schema.prisma diretamente — apenas este fragment.
@@ -11,40 +11,38 @@
 // ---------------------------------------------------------------------------
 
 model AtividadesCronometro {
-  id         String  @id @default(cuid())
+  id_atividades_cronometro             String  @id @default(cuid())
 
   // Campos de isolamento — obrigatórios
-  tenant_id  String
-  product_id String?
-  user_id    String
+  id_organizacao_atividades_cronometro String
+  id_produto_atividades_cronometro     String?
+  id_usuario_atividades_cronometro     String
 
   // Relacionamento
-  activity_id String
+  id_atividade_atividades_cronometro   String
 
   // Dados da sessão
-  started_at       DateTime
-  ended_at         DateTime?
-  duration_minutes Int?         // null = timer ainda ativo (em progresso)
-  is_manual        Boolean  @default(false)
+  data_inicio_atividades_cronometro    DateTime
+  data_fim_atividades_cronometro       DateTime?
+  duracao_minutos_atividades_cronometro Int?     // null = timer ainda ativo (em progresso)
+  manual_atividades_cronometro         Boolean  @default(false)
 
   // Assunto e vínculo
-  subject      String?  // texto livre do assunto
-  linked_type  String?  // nf | meeting | process | custom
-  linked_id    String?  // ID do item vinculado
-  linked_label String?  // label de exibição do item vinculado
+  assunto_atividades_cronometro        String?  // texto livre do assunto
+  tipo_vinculo_atividades_cronometro   String?  // nf | meeting | process | custom
+  id_vinculo_atividades_cronometro     String?  // ID do item vinculado
+  rotulo_vinculo_atividades_cronometro String?  // label de exibição do item vinculado
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_atividades_cronometro     DateTime @default(now())
+  data_atualizacao_atividades_cronometro DateTime @updatedAt
 
   // Índices obrigatórios — padrão do projeto
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  // Índice extra para queries de relatório por data
-  @@index([tenant_id, user_id, started_at])
-  // Índice extra para queries por atividade
-  @@index([tenant_id, activity_id])
+  @@index([id_organizacao_atividades_cronometro], map: "ac_org_idx")
+  @@index([id_organizacao_atividades_cronometro, id_produto_atividades_cronometro], map: "ac_org_prd_idx")
+  @@index([id_organizacao_atividades_cronometro, id_usuario_atividades_cronometro], map: "ac_org_usr_idx")
+  @@index([id_organizacao_atividades_cronometro, id_usuario_atividades_cronometro, data_inicio_atividades_cronometro], map: "ac_org_usr_dt_idx")
+  @@index([id_organizacao_atividades_cronometro, id_atividade_atividades_cronometro], map: "ac_org_atv_idx")
   @@map("atividades_cronometro")
 }
 
@@ -55,28 +53,28 @@ model AtividadesCronometro {
 // ---------------------------------------------------------------------------
 
 model AtividadesTimer {
-  id         String  @id @default(cuid())
+  id_atividades_timer                  String  @id @default(cuid())
 
   // Campos de isolamento
-  tenant_id  String
-  user_id    String  @unique // um timer ativo por usuário
+  id_organizacao_atividades_timer      String
+  id_usuario_atividades_timer          String  @unique(map: "atm_usr_unq") // um timer ativo por usuário
 
   // Relacionamento
-  activity_id String
+  id_atividade_atividades_timer        String
 
   // Estado do timer
-  started_at          DateTime
-  paused_at           DateTime?
-  accumulated_seconds Int      @default(0) // segundos acumulados antes de pausas
+  data_inicio_atividades_timer         DateTime
+  data_pausa_atividades_timer          DateTime?
+  segundos_acumulados_atividades_timer Int      @default(0) // segundos acumulados antes de pausas
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_atividades_timer        DateTime @default(now())
+  data_atualizacao_atividades_timer    DateTime @updatedAt
 
   // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, user_id])
-  @@index([user_id])
+  @@index([id_organizacao_atividades_timer], map: "atm_org_idx")
+  @@index([id_organizacao_atividades_timer, id_usuario_atividades_timer], map: "atm_org_usr_idx")
+  @@index([id_usuario_atividades_timer], map: "atm_usr_idx")
   @@map("atividades_timer")
 }
 
@@ -86,23 +84,23 @@ model AtividadesTimer {
 // ---------------------------------------------------------------------------
 
 model TempoCriacaoRelatorio {
-  id        String @id @default(cuid())
+  id_tempo_criacao_relatorio             String @id @default(cuid())
 
-  tenant_id  String
-  user_id    String?
-  product_id String?
+  id_organizacao_tempo_criacao_relatorio String
+  id_usuario_tempo_criacao_relatorio     String?
+  id_produto_tempo_criacao_relatorio     String?
 
-  periodo_inicio DateTime
-  periodo_fim    DateTime
-  total_minutos  Int
-  payload        String  // JSON serializado com breakdown por atividade
+  periodo_inicio_tempo_criacao_relatorio DateTime
+  periodo_fim_tempo_criacao_relatorio    DateTime
+  total_minutos_tempo_criacao_relatorio  Int
+  payload_tempo_criacao_relatorio        String  // JSON serializado com breakdown por atividade
 
-  computed_at DateTime @default(now())
-  expires_at  DateTime
+  data_computacao_tempo_criacao_relatorio DateTime @default(now())
+  data_expiracao_tempo_criacao_relatorio  DateTime
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, user_id])
-  @@index([tenant_id, periodo_inicio, periodo_fim])
+  @@index([id_organizacao_tempo_criacao_relatorio], map: "tcr_org_idx")
+  @@index([id_organizacao_tempo_criacao_relatorio, id_produto_tempo_criacao_relatorio], map: "tcr_org_prd_idx")
+  @@index([id_organizacao_tempo_criacao_relatorio, id_usuario_tempo_criacao_relatorio], map: "tcr_org_usr_idx")
+  @@index([id_organizacao_tempo_criacao_relatorio, periodo_inicio_tempo_criacao_relatorio, periodo_fim_tempo_criacao_relatorio], map: "tcr_org_per_idx")
   @@map("tempo_criacao_relatorio")
 }

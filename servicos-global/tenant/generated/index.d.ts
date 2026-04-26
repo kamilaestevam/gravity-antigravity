@@ -8175,129 +8175,129 @@ export namespace Prisma {
   }
 
   export type AtividadesCronometroAvgAggregateOutputType = {
-    duration_minutes: number | null
+    duracao_minutos_atividades_cronometro: number | null
   }
 
   export type AtividadesCronometroSumAggregateOutputType = {
-    duration_minutes: number | null
+    duracao_minutos_atividades_cronometro: number | null
   }
 
   export type AtividadesCronometroMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    activity_id: string | null
-    started_at: Date | null
-    ended_at: Date | null
-    duration_minutes: number | null
-    is_manual: boolean | null
-    subject: string | null
-    linked_type: string | null
-    linked_id: string | null
-    linked_label: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_atividades_cronometro: string | null
+    id_organizacao_atividades_cronometro: string | null
+    id_produto_atividades_cronometro: string | null
+    id_usuario_atividades_cronometro: string | null
+    id_atividade_atividades_cronometro: string | null
+    data_inicio_atividades_cronometro: Date | null
+    data_fim_atividades_cronometro: Date | null
+    duracao_minutos_atividades_cronometro: number | null
+    manual_atividades_cronometro: boolean | null
+    assunto_atividades_cronometro: string | null
+    tipo_vinculo_atividades_cronometro: string | null
+    id_vinculo_atividades_cronometro: string | null
+    rotulo_vinculo_atividades_cronometro: string | null
+    data_criacao_atividades_cronometro: Date | null
+    data_atualizacao_atividades_cronometro: Date | null
   }
 
   export type AtividadesCronometroMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    activity_id: string | null
-    started_at: Date | null
-    ended_at: Date | null
-    duration_minutes: number | null
-    is_manual: boolean | null
-    subject: string | null
-    linked_type: string | null
-    linked_id: string | null
-    linked_label: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_atividades_cronometro: string | null
+    id_organizacao_atividades_cronometro: string | null
+    id_produto_atividades_cronometro: string | null
+    id_usuario_atividades_cronometro: string | null
+    id_atividade_atividades_cronometro: string | null
+    data_inicio_atividades_cronometro: Date | null
+    data_fim_atividades_cronometro: Date | null
+    duracao_minutos_atividades_cronometro: number | null
+    manual_atividades_cronometro: boolean | null
+    assunto_atividades_cronometro: string | null
+    tipo_vinculo_atividades_cronometro: string | null
+    id_vinculo_atividades_cronometro: string | null
+    rotulo_vinculo_atividades_cronometro: string | null
+    data_criacao_atividades_cronometro: Date | null
+    data_atualizacao_atividades_cronometro: Date | null
   }
 
   export type AtividadesCronometroCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    activity_id: number
-    started_at: number
-    ended_at: number
-    duration_minutes: number
-    is_manual: number
-    subject: number
-    linked_type: number
-    linked_id: number
-    linked_label: number
-    created_at: number
-    updated_at: number
+    id_atividades_cronometro: number
+    id_organizacao_atividades_cronometro: number
+    id_produto_atividades_cronometro: number
+    id_usuario_atividades_cronometro: number
+    id_atividade_atividades_cronometro: number
+    data_inicio_atividades_cronometro: number
+    data_fim_atividades_cronometro: number
+    duracao_minutos_atividades_cronometro: number
+    manual_atividades_cronometro: number
+    assunto_atividades_cronometro: number
+    tipo_vinculo_atividades_cronometro: number
+    id_vinculo_atividades_cronometro: number
+    rotulo_vinculo_atividades_cronometro: number
+    data_criacao_atividades_cronometro: number
+    data_atualizacao_atividades_cronometro: number
     _all: number
   }
 
 
   export type AtividadesCronometroAvgAggregateInputType = {
-    duration_minutes?: true
+    duracao_minutos_atividades_cronometro?: true
   }
 
   export type AtividadesCronometroSumAggregateInputType = {
-    duration_minutes?: true
+    duracao_minutos_atividades_cronometro?: true
   }
 
   export type AtividadesCronometroMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    activity_id?: true
-    started_at?: true
-    ended_at?: true
-    duration_minutes?: true
-    is_manual?: true
-    subject?: true
-    linked_type?: true
-    linked_id?: true
-    linked_label?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_cronometro?: true
+    id_organizacao_atividades_cronometro?: true
+    id_produto_atividades_cronometro?: true
+    id_usuario_atividades_cronometro?: true
+    id_atividade_atividades_cronometro?: true
+    data_inicio_atividades_cronometro?: true
+    data_fim_atividades_cronometro?: true
+    duracao_minutos_atividades_cronometro?: true
+    manual_atividades_cronometro?: true
+    assunto_atividades_cronometro?: true
+    tipo_vinculo_atividades_cronometro?: true
+    id_vinculo_atividades_cronometro?: true
+    rotulo_vinculo_atividades_cronometro?: true
+    data_criacao_atividades_cronometro?: true
+    data_atualizacao_atividades_cronometro?: true
   }
 
   export type AtividadesCronometroMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    activity_id?: true
-    started_at?: true
-    ended_at?: true
-    duration_minutes?: true
-    is_manual?: true
-    subject?: true
-    linked_type?: true
-    linked_id?: true
-    linked_label?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_cronometro?: true
+    id_organizacao_atividades_cronometro?: true
+    id_produto_atividades_cronometro?: true
+    id_usuario_atividades_cronometro?: true
+    id_atividade_atividades_cronometro?: true
+    data_inicio_atividades_cronometro?: true
+    data_fim_atividades_cronometro?: true
+    duracao_minutos_atividades_cronometro?: true
+    manual_atividades_cronometro?: true
+    assunto_atividades_cronometro?: true
+    tipo_vinculo_atividades_cronometro?: true
+    id_vinculo_atividades_cronometro?: true
+    rotulo_vinculo_atividades_cronometro?: true
+    data_criacao_atividades_cronometro?: true
+    data_atualizacao_atividades_cronometro?: true
   }
 
   export type AtividadesCronometroCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    activity_id?: true
-    started_at?: true
-    ended_at?: true
-    duration_minutes?: true
-    is_manual?: true
-    subject?: true
-    linked_type?: true
-    linked_id?: true
-    linked_label?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_cronometro?: true
+    id_organizacao_atividades_cronometro?: true
+    id_produto_atividades_cronometro?: true
+    id_usuario_atividades_cronometro?: true
+    id_atividade_atividades_cronometro?: true
+    data_inicio_atividades_cronometro?: true
+    data_fim_atividades_cronometro?: true
+    duracao_minutos_atividades_cronometro?: true
+    manual_atividades_cronometro?: true
+    assunto_atividades_cronometro?: true
+    tipo_vinculo_atividades_cronometro?: true
+    id_vinculo_atividades_cronometro?: true
+    rotulo_vinculo_atividades_cronometro?: true
+    data_criacao_atividades_cronometro?: true
+    data_atualizacao_atividades_cronometro?: true
     _all?: true
   }
 
@@ -8388,21 +8388,21 @@ export namespace Prisma {
   }
 
   export type AtividadesCronometroGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string
-    activity_id: string
-    started_at: Date
-    ended_at: Date | null
-    duration_minutes: number | null
-    is_manual: boolean
-    subject: string | null
-    linked_type: string | null
-    linked_id: string | null
-    linked_label: string | null
-    created_at: Date
-    updated_at: Date
+    id_atividades_cronometro: string
+    id_organizacao_atividades_cronometro: string
+    id_produto_atividades_cronometro: string | null
+    id_usuario_atividades_cronometro: string
+    id_atividade_atividades_cronometro: string
+    data_inicio_atividades_cronometro: Date
+    data_fim_atividades_cronometro: Date | null
+    duracao_minutos_atividades_cronometro: number | null
+    manual_atividades_cronometro: boolean
+    assunto_atividades_cronometro: string | null
+    tipo_vinculo_atividades_cronometro: string | null
+    id_vinculo_atividades_cronometro: string | null
+    rotulo_vinculo_atividades_cronometro: string | null
+    data_criacao_atividades_cronometro: Date
+    data_atualizacao_atividades_cronometro: Date
     _count: AtividadesCronometroCountAggregateOutputType | null
     _avg: AtividadesCronometroAvgAggregateOutputType | null
     _sum: AtividadesCronometroSumAggregateOutputType | null
@@ -8425,57 +8425,57 @@ export namespace Prisma {
 
 
   export type AtividadesCronometroSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    activity_id?: boolean
-    started_at?: boolean
-    ended_at?: boolean
-    duration_minutes?: boolean
-    is_manual?: boolean
-    subject?: boolean
-    linked_type?: boolean
-    linked_id?: boolean
-    linked_label?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_atividades_cronometro?: boolean
+    id_organizacao_atividades_cronometro?: boolean
+    id_produto_atividades_cronometro?: boolean
+    id_usuario_atividades_cronometro?: boolean
+    id_atividade_atividades_cronometro?: boolean
+    data_inicio_atividades_cronometro?: boolean
+    data_fim_atividades_cronometro?: boolean
+    duracao_minutos_atividades_cronometro?: boolean
+    manual_atividades_cronometro?: boolean
+    assunto_atividades_cronometro?: boolean
+    tipo_vinculo_atividades_cronometro?: boolean
+    id_vinculo_atividades_cronometro?: boolean
+    rotulo_vinculo_atividades_cronometro?: boolean
+    data_criacao_atividades_cronometro?: boolean
+    data_atualizacao_atividades_cronometro?: boolean
   }, ExtArgs["result"]["atividadesCronometro"]>
 
   export type AtividadesCronometroSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    activity_id?: boolean
-    started_at?: boolean
-    ended_at?: boolean
-    duration_minutes?: boolean
-    is_manual?: boolean
-    subject?: boolean
-    linked_type?: boolean
-    linked_id?: boolean
-    linked_label?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_atividades_cronometro?: boolean
+    id_organizacao_atividades_cronometro?: boolean
+    id_produto_atividades_cronometro?: boolean
+    id_usuario_atividades_cronometro?: boolean
+    id_atividade_atividades_cronometro?: boolean
+    data_inicio_atividades_cronometro?: boolean
+    data_fim_atividades_cronometro?: boolean
+    duracao_minutos_atividades_cronometro?: boolean
+    manual_atividades_cronometro?: boolean
+    assunto_atividades_cronometro?: boolean
+    tipo_vinculo_atividades_cronometro?: boolean
+    id_vinculo_atividades_cronometro?: boolean
+    rotulo_vinculo_atividades_cronometro?: boolean
+    data_criacao_atividades_cronometro?: boolean
+    data_atualizacao_atividades_cronometro?: boolean
   }, ExtArgs["result"]["atividadesCronometro"]>
 
   export type AtividadesCronometroSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    activity_id?: boolean
-    started_at?: boolean
-    ended_at?: boolean
-    duration_minutes?: boolean
-    is_manual?: boolean
-    subject?: boolean
-    linked_type?: boolean
-    linked_id?: boolean
-    linked_label?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_atividades_cronometro?: boolean
+    id_organizacao_atividades_cronometro?: boolean
+    id_produto_atividades_cronometro?: boolean
+    id_usuario_atividades_cronometro?: boolean
+    id_atividade_atividades_cronometro?: boolean
+    data_inicio_atividades_cronometro?: boolean
+    data_fim_atividades_cronometro?: boolean
+    duracao_minutos_atividades_cronometro?: boolean
+    manual_atividades_cronometro?: boolean
+    assunto_atividades_cronometro?: boolean
+    tipo_vinculo_atividades_cronometro?: boolean
+    id_vinculo_atividades_cronometro?: boolean
+    rotulo_vinculo_atividades_cronometro?: boolean
+    data_criacao_atividades_cronometro?: boolean
+    data_atualizacao_atividades_cronometro?: boolean
   }
 
 
@@ -8483,21 +8483,21 @@ export namespace Prisma {
     name: "AtividadesCronometro"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string
-      activity_id: string
-      started_at: Date
-      ended_at: Date | null
-      duration_minutes: number | null
-      is_manual: boolean
-      subject: string | null
-      linked_type: string | null
-      linked_id: string | null
-      linked_label: string | null
-      created_at: Date
-      updated_at: Date
+      id_atividades_cronometro: string
+      id_organizacao_atividades_cronometro: string
+      id_produto_atividades_cronometro: string | null
+      id_usuario_atividades_cronometro: string
+      id_atividade_atividades_cronometro: string
+      data_inicio_atividades_cronometro: Date
+      data_fim_atividades_cronometro: Date | null
+      duracao_minutos_atividades_cronometro: number | null
+      manual_atividades_cronometro: boolean
+      assunto_atividades_cronometro: string | null
+      tipo_vinculo_atividades_cronometro: string | null
+      id_vinculo_atividades_cronometro: string | null
+      rotulo_vinculo_atividades_cronometro: string | null
+      data_criacao_atividades_cronometro: Date
+      data_atualizacao_atividades_cronometro: Date
     }, ExtArgs["result"]["atividadesCronometro"]>
     composites: {}
   }
@@ -8581,8 +8581,8 @@ export namespace Prisma {
      * // Get first 10 AtividadesCronometros
      * const atividadesCronometros = await prisma.atividadesCronometro.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const atividadesCronometroWithIdOnly = await prisma.atividadesCronometro.findMany({ select: { id: true } })
+     * // Only select the `id_atividades_cronometro`
+     * const atividadesCronometroWithId_atividades_cronometroOnly = await prisma.atividadesCronometro.findMany({ select: { id_atividades_cronometro: true } })
      * 
      */
     findMany<T extends AtividadesCronometroFindManyArgs>(args?: SelectSubset<T, AtividadesCronometroFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesCronometroPayload<ExtArgs>, T, "findMany">>
@@ -8626,9 +8626,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many AtividadesCronometros and only return the `id`
-     * const atividadesCronometroWithIdOnly = await prisma.atividadesCronometro.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many AtividadesCronometros and only return the `id_atividades_cronometro`
+     * const atividadesCronometroWithId_atividades_cronometroOnly = await prisma.atividadesCronometro.createManyAndReturn({ 
+     *   select: { id_atividades_cronometro: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -8891,21 +8891,21 @@ export namespace Prisma {
    * Fields of the AtividadesCronometro model
    */ 
   interface AtividadesCronometroFieldRefs {
-    readonly id: FieldRef<"AtividadesCronometro", 'String'>
-    readonly tenant_id: FieldRef<"AtividadesCronometro", 'String'>
-    readonly product_id: FieldRef<"AtividadesCronometro", 'String'>
-    readonly user_id: FieldRef<"AtividadesCronometro", 'String'>
-    readonly activity_id: FieldRef<"AtividadesCronometro", 'String'>
-    readonly started_at: FieldRef<"AtividadesCronometro", 'DateTime'>
-    readonly ended_at: FieldRef<"AtividadesCronometro", 'DateTime'>
-    readonly duration_minutes: FieldRef<"AtividadesCronometro", 'Int'>
-    readonly is_manual: FieldRef<"AtividadesCronometro", 'Boolean'>
-    readonly subject: FieldRef<"AtividadesCronometro", 'String'>
-    readonly linked_type: FieldRef<"AtividadesCronometro", 'String'>
-    readonly linked_id: FieldRef<"AtividadesCronometro", 'String'>
-    readonly linked_label: FieldRef<"AtividadesCronometro", 'String'>
-    readonly created_at: FieldRef<"AtividadesCronometro", 'DateTime'>
-    readonly updated_at: FieldRef<"AtividadesCronometro", 'DateTime'>
+    readonly id_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly id_organizacao_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly id_produto_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly id_usuario_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly id_atividade_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly data_inicio_atividades_cronometro: FieldRef<"AtividadesCronometro", 'DateTime'>
+    readonly data_fim_atividades_cronometro: FieldRef<"AtividadesCronometro", 'DateTime'>
+    readonly duracao_minutos_atividades_cronometro: FieldRef<"AtividadesCronometro", 'Int'>
+    readonly manual_atividades_cronometro: FieldRef<"AtividadesCronometro", 'Boolean'>
+    readonly assunto_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly tipo_vinculo_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly id_vinculo_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly rotulo_vinculo_atividades_cronometro: FieldRef<"AtividadesCronometro", 'String'>
+    readonly data_criacao_atividades_cronometro: FieldRef<"AtividadesCronometro", 'DateTime'>
+    readonly data_atualizacao_atividades_cronometro: FieldRef<"AtividadesCronometro", 'DateTime'>
   }
     
 
@@ -9207,93 +9207,93 @@ export namespace Prisma {
   }
 
   export type AtividadesTimerAvgAggregateOutputType = {
-    accumulated_seconds: number | null
+    segundos_acumulados_atividades_timer: number | null
   }
 
   export type AtividadesTimerSumAggregateOutputType = {
-    accumulated_seconds: number | null
+    segundos_acumulados_atividades_timer: number | null
   }
 
   export type AtividadesTimerMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    user_id: string | null
-    activity_id: string | null
-    started_at: Date | null
-    paused_at: Date | null
-    accumulated_seconds: number | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_atividades_timer: string | null
+    id_organizacao_atividades_timer: string | null
+    id_usuario_atividades_timer: string | null
+    id_atividade_atividades_timer: string | null
+    data_inicio_atividades_timer: Date | null
+    data_pausa_atividades_timer: Date | null
+    segundos_acumulados_atividades_timer: number | null
+    data_criacao_atividades_timer: Date | null
+    data_atualizacao_atividades_timer: Date | null
   }
 
   export type AtividadesTimerMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    user_id: string | null
-    activity_id: string | null
-    started_at: Date | null
-    paused_at: Date | null
-    accumulated_seconds: number | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_atividades_timer: string | null
+    id_organizacao_atividades_timer: string | null
+    id_usuario_atividades_timer: string | null
+    id_atividade_atividades_timer: string | null
+    data_inicio_atividades_timer: Date | null
+    data_pausa_atividades_timer: Date | null
+    segundos_acumulados_atividades_timer: number | null
+    data_criacao_atividades_timer: Date | null
+    data_atualizacao_atividades_timer: Date | null
   }
 
   export type AtividadesTimerCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    user_id: number
-    activity_id: number
-    started_at: number
-    paused_at: number
-    accumulated_seconds: number
-    created_at: number
-    updated_at: number
+    id_atividades_timer: number
+    id_organizacao_atividades_timer: number
+    id_usuario_atividades_timer: number
+    id_atividade_atividades_timer: number
+    data_inicio_atividades_timer: number
+    data_pausa_atividades_timer: number
+    segundos_acumulados_atividades_timer: number
+    data_criacao_atividades_timer: number
+    data_atualizacao_atividades_timer: number
     _all: number
   }
 
 
   export type AtividadesTimerAvgAggregateInputType = {
-    accumulated_seconds?: true
+    segundos_acumulados_atividades_timer?: true
   }
 
   export type AtividadesTimerSumAggregateInputType = {
-    accumulated_seconds?: true
+    segundos_acumulados_atividades_timer?: true
   }
 
   export type AtividadesTimerMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    activity_id?: true
-    started_at?: true
-    paused_at?: true
-    accumulated_seconds?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_timer?: true
+    id_organizacao_atividades_timer?: true
+    id_usuario_atividades_timer?: true
+    id_atividade_atividades_timer?: true
+    data_inicio_atividades_timer?: true
+    data_pausa_atividades_timer?: true
+    segundos_acumulados_atividades_timer?: true
+    data_criacao_atividades_timer?: true
+    data_atualizacao_atividades_timer?: true
   }
 
   export type AtividadesTimerMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    activity_id?: true
-    started_at?: true
-    paused_at?: true
-    accumulated_seconds?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_timer?: true
+    id_organizacao_atividades_timer?: true
+    id_usuario_atividades_timer?: true
+    id_atividade_atividades_timer?: true
+    data_inicio_atividades_timer?: true
+    data_pausa_atividades_timer?: true
+    segundos_acumulados_atividades_timer?: true
+    data_criacao_atividades_timer?: true
+    data_atualizacao_atividades_timer?: true
   }
 
   export type AtividadesTimerCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    activity_id?: true
-    started_at?: true
-    paused_at?: true
-    accumulated_seconds?: true
-    created_at?: true
-    updated_at?: true
+    id_atividades_timer?: true
+    id_organizacao_atividades_timer?: true
+    id_usuario_atividades_timer?: true
+    id_atividade_atividades_timer?: true
+    data_inicio_atividades_timer?: true
+    data_pausa_atividades_timer?: true
+    segundos_acumulados_atividades_timer?: true
+    data_criacao_atividades_timer?: true
+    data_atualizacao_atividades_timer?: true
     _all?: true
   }
 
@@ -9384,15 +9384,15 @@ export namespace Prisma {
   }
 
   export type AtividadesTimerGroupByOutputType = {
-    id: string
-    tenant_id: string
-    user_id: string
-    activity_id: string
-    started_at: Date
-    paused_at: Date | null
-    accumulated_seconds: number
-    created_at: Date
-    updated_at: Date
+    id_atividades_timer: string
+    id_organizacao_atividades_timer: string
+    id_usuario_atividades_timer: string
+    id_atividade_atividades_timer: string
+    data_inicio_atividades_timer: Date
+    data_pausa_atividades_timer: Date | null
+    segundos_acumulados_atividades_timer: number
+    data_criacao_atividades_timer: Date
+    data_atualizacao_atividades_timer: Date
     _count: AtividadesTimerCountAggregateOutputType | null
     _avg: AtividadesTimerAvgAggregateOutputType | null
     _sum: AtividadesTimerSumAggregateOutputType | null
@@ -9415,39 +9415,39 @@ export namespace Prisma {
 
 
   export type AtividadesTimerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    activity_id?: boolean
-    started_at?: boolean
-    paused_at?: boolean
-    accumulated_seconds?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_atividades_timer?: boolean
+    id_organizacao_atividades_timer?: boolean
+    id_usuario_atividades_timer?: boolean
+    id_atividade_atividades_timer?: boolean
+    data_inicio_atividades_timer?: boolean
+    data_pausa_atividades_timer?: boolean
+    segundos_acumulados_atividades_timer?: boolean
+    data_criacao_atividades_timer?: boolean
+    data_atualizacao_atividades_timer?: boolean
   }, ExtArgs["result"]["atividadesTimer"]>
 
   export type AtividadesTimerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    activity_id?: boolean
-    started_at?: boolean
-    paused_at?: boolean
-    accumulated_seconds?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_atividades_timer?: boolean
+    id_organizacao_atividades_timer?: boolean
+    id_usuario_atividades_timer?: boolean
+    id_atividade_atividades_timer?: boolean
+    data_inicio_atividades_timer?: boolean
+    data_pausa_atividades_timer?: boolean
+    segundos_acumulados_atividades_timer?: boolean
+    data_criacao_atividades_timer?: boolean
+    data_atualizacao_atividades_timer?: boolean
   }, ExtArgs["result"]["atividadesTimer"]>
 
   export type AtividadesTimerSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    activity_id?: boolean
-    started_at?: boolean
-    paused_at?: boolean
-    accumulated_seconds?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_atividades_timer?: boolean
+    id_organizacao_atividades_timer?: boolean
+    id_usuario_atividades_timer?: boolean
+    id_atividade_atividades_timer?: boolean
+    data_inicio_atividades_timer?: boolean
+    data_pausa_atividades_timer?: boolean
+    segundos_acumulados_atividades_timer?: boolean
+    data_criacao_atividades_timer?: boolean
+    data_atualizacao_atividades_timer?: boolean
   }
 
 
@@ -9455,15 +9455,15 @@ export namespace Prisma {
     name: "AtividadesTimer"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      user_id: string
-      activity_id: string
-      started_at: Date
-      paused_at: Date | null
-      accumulated_seconds: number
-      created_at: Date
-      updated_at: Date
+      id_atividades_timer: string
+      id_organizacao_atividades_timer: string
+      id_usuario_atividades_timer: string
+      id_atividade_atividades_timer: string
+      data_inicio_atividades_timer: Date
+      data_pausa_atividades_timer: Date | null
+      segundos_acumulados_atividades_timer: number
+      data_criacao_atividades_timer: Date
+      data_atualizacao_atividades_timer: Date
     }, ExtArgs["result"]["atividadesTimer"]>
     composites: {}
   }
@@ -9547,8 +9547,8 @@ export namespace Prisma {
      * // Get first 10 AtividadesTimers
      * const atividadesTimers = await prisma.atividadesTimer.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const atividadesTimerWithIdOnly = await prisma.atividadesTimer.findMany({ select: { id: true } })
+     * // Only select the `id_atividades_timer`
+     * const atividadesTimerWithId_atividades_timerOnly = await prisma.atividadesTimer.findMany({ select: { id_atividades_timer: true } })
      * 
      */
     findMany<T extends AtividadesTimerFindManyArgs>(args?: SelectSubset<T, AtividadesTimerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AtividadesTimerPayload<ExtArgs>, T, "findMany">>
@@ -9592,9 +9592,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many AtividadesTimers and only return the `id`
-     * const atividadesTimerWithIdOnly = await prisma.atividadesTimer.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many AtividadesTimers and only return the `id_atividades_timer`
+     * const atividadesTimerWithId_atividades_timerOnly = await prisma.atividadesTimer.createManyAndReturn({ 
+     *   select: { id_atividades_timer: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -9857,15 +9857,15 @@ export namespace Prisma {
    * Fields of the AtividadesTimer model
    */ 
   interface AtividadesTimerFieldRefs {
-    readonly id: FieldRef<"AtividadesTimer", 'String'>
-    readonly tenant_id: FieldRef<"AtividadesTimer", 'String'>
-    readonly user_id: FieldRef<"AtividadesTimer", 'String'>
-    readonly activity_id: FieldRef<"AtividadesTimer", 'String'>
-    readonly started_at: FieldRef<"AtividadesTimer", 'DateTime'>
-    readonly paused_at: FieldRef<"AtividadesTimer", 'DateTime'>
-    readonly accumulated_seconds: FieldRef<"AtividadesTimer", 'Int'>
-    readonly created_at: FieldRef<"AtividadesTimer", 'DateTime'>
-    readonly updated_at: FieldRef<"AtividadesTimer", 'DateTime'>
+    readonly id_atividades_timer: FieldRef<"AtividadesTimer", 'String'>
+    readonly id_organizacao_atividades_timer: FieldRef<"AtividadesTimer", 'String'>
+    readonly id_usuario_atividades_timer: FieldRef<"AtividadesTimer", 'String'>
+    readonly id_atividade_atividades_timer: FieldRef<"AtividadesTimer", 'String'>
+    readonly data_inicio_atividades_timer: FieldRef<"AtividadesTimer", 'DateTime'>
+    readonly data_pausa_atividades_timer: FieldRef<"AtividadesTimer", 'DateTime'>
+    readonly segundos_acumulados_atividades_timer: FieldRef<"AtividadesTimer", 'Int'>
+    readonly data_criacao_atividades_timer: FieldRef<"AtividadesTimer", 'DateTime'>
+    readonly data_atualizacao_atividades_timer: FieldRef<"AtividadesTimer", 'DateTime'>
   }
     
 
@@ -10167,99 +10167,99 @@ export namespace Prisma {
   }
 
   export type TempoCriacaoRelatorioAvgAggregateOutputType = {
-    total_minutos: number | null
+    total_minutos_tempo_criacao_relatorio: number | null
   }
 
   export type TempoCriacaoRelatorioSumAggregateOutputType = {
-    total_minutos: number | null
+    total_minutos_tempo_criacao_relatorio: number | null
   }
 
   export type TempoCriacaoRelatorioMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    user_id: string | null
-    product_id: string | null
-    periodo_inicio: Date | null
-    periodo_fim: Date | null
-    total_minutos: number | null
-    payload: string | null
-    computed_at: Date | null
-    expires_at: Date | null
+    id_tempo_criacao_relatorio: string | null
+    id_organizacao_tempo_criacao_relatorio: string | null
+    id_usuario_tempo_criacao_relatorio: string | null
+    id_produto_tempo_criacao_relatorio: string | null
+    periodo_inicio_tempo_criacao_relatorio: Date | null
+    periodo_fim_tempo_criacao_relatorio: Date | null
+    total_minutos_tempo_criacao_relatorio: number | null
+    payload_tempo_criacao_relatorio: string | null
+    data_computacao_tempo_criacao_relatorio: Date | null
+    data_expiracao_tempo_criacao_relatorio: Date | null
   }
 
   export type TempoCriacaoRelatorioMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    user_id: string | null
-    product_id: string | null
-    periodo_inicio: Date | null
-    periodo_fim: Date | null
-    total_minutos: number | null
-    payload: string | null
-    computed_at: Date | null
-    expires_at: Date | null
+    id_tempo_criacao_relatorio: string | null
+    id_organizacao_tempo_criacao_relatorio: string | null
+    id_usuario_tempo_criacao_relatorio: string | null
+    id_produto_tempo_criacao_relatorio: string | null
+    periodo_inicio_tempo_criacao_relatorio: Date | null
+    periodo_fim_tempo_criacao_relatorio: Date | null
+    total_minutos_tempo_criacao_relatorio: number | null
+    payload_tempo_criacao_relatorio: string | null
+    data_computacao_tempo_criacao_relatorio: Date | null
+    data_expiracao_tempo_criacao_relatorio: Date | null
   }
 
   export type TempoCriacaoRelatorioCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    user_id: number
-    product_id: number
-    periodo_inicio: number
-    periodo_fim: number
-    total_minutos: number
-    payload: number
-    computed_at: number
-    expires_at: number
+    id_tempo_criacao_relatorio: number
+    id_organizacao_tempo_criacao_relatorio: number
+    id_usuario_tempo_criacao_relatorio: number
+    id_produto_tempo_criacao_relatorio: number
+    periodo_inicio_tempo_criacao_relatorio: number
+    periodo_fim_tempo_criacao_relatorio: number
+    total_minutos_tempo_criacao_relatorio: number
+    payload_tempo_criacao_relatorio: number
+    data_computacao_tempo_criacao_relatorio: number
+    data_expiracao_tempo_criacao_relatorio: number
     _all: number
   }
 
 
   export type TempoCriacaoRelatorioAvgAggregateInputType = {
-    total_minutos?: true
+    total_minutos_tempo_criacao_relatorio?: true
   }
 
   export type TempoCriacaoRelatorioSumAggregateInputType = {
-    total_minutos?: true
+    total_minutos_tempo_criacao_relatorio?: true
   }
 
   export type TempoCriacaoRelatorioMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    product_id?: true
-    periodo_inicio?: true
-    periodo_fim?: true
-    total_minutos?: true
-    payload?: true
-    computed_at?: true
-    expires_at?: true
+    id_tempo_criacao_relatorio?: true
+    id_organizacao_tempo_criacao_relatorio?: true
+    id_usuario_tempo_criacao_relatorio?: true
+    id_produto_tempo_criacao_relatorio?: true
+    periodo_inicio_tempo_criacao_relatorio?: true
+    periodo_fim_tempo_criacao_relatorio?: true
+    total_minutos_tempo_criacao_relatorio?: true
+    payload_tempo_criacao_relatorio?: true
+    data_computacao_tempo_criacao_relatorio?: true
+    data_expiracao_tempo_criacao_relatorio?: true
   }
 
   export type TempoCriacaoRelatorioMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    product_id?: true
-    periodo_inicio?: true
-    periodo_fim?: true
-    total_minutos?: true
-    payload?: true
-    computed_at?: true
-    expires_at?: true
+    id_tempo_criacao_relatorio?: true
+    id_organizacao_tempo_criacao_relatorio?: true
+    id_usuario_tempo_criacao_relatorio?: true
+    id_produto_tempo_criacao_relatorio?: true
+    periodo_inicio_tempo_criacao_relatorio?: true
+    periodo_fim_tempo_criacao_relatorio?: true
+    total_minutos_tempo_criacao_relatorio?: true
+    payload_tempo_criacao_relatorio?: true
+    data_computacao_tempo_criacao_relatorio?: true
+    data_expiracao_tempo_criacao_relatorio?: true
   }
 
   export type TempoCriacaoRelatorioCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    user_id?: true
-    product_id?: true
-    periodo_inicio?: true
-    periodo_fim?: true
-    total_minutos?: true
-    payload?: true
-    computed_at?: true
-    expires_at?: true
+    id_tempo_criacao_relatorio?: true
+    id_organizacao_tempo_criacao_relatorio?: true
+    id_usuario_tempo_criacao_relatorio?: true
+    id_produto_tempo_criacao_relatorio?: true
+    periodo_inicio_tempo_criacao_relatorio?: true
+    periodo_fim_tempo_criacao_relatorio?: true
+    total_minutos_tempo_criacao_relatorio?: true
+    payload_tempo_criacao_relatorio?: true
+    data_computacao_tempo_criacao_relatorio?: true
+    data_expiracao_tempo_criacao_relatorio?: true
     _all?: true
   }
 
@@ -10350,16 +10350,16 @@ export namespace Prisma {
   }
 
   export type TempoCriacaoRelatorioGroupByOutputType = {
-    id: string
-    tenant_id: string
-    user_id: string | null
-    product_id: string | null
-    periodo_inicio: Date
-    periodo_fim: Date
-    total_minutos: number
-    payload: string
-    computed_at: Date
-    expires_at: Date
+    id_tempo_criacao_relatorio: string
+    id_organizacao_tempo_criacao_relatorio: string
+    id_usuario_tempo_criacao_relatorio: string | null
+    id_produto_tempo_criacao_relatorio: string | null
+    periodo_inicio_tempo_criacao_relatorio: Date
+    periodo_fim_tempo_criacao_relatorio: Date
+    total_minutos_tempo_criacao_relatorio: number
+    payload_tempo_criacao_relatorio: string
+    data_computacao_tempo_criacao_relatorio: Date
+    data_expiracao_tempo_criacao_relatorio: Date
     _count: TempoCriacaoRelatorioCountAggregateOutputType | null
     _avg: TempoCriacaoRelatorioAvgAggregateOutputType | null
     _sum: TempoCriacaoRelatorioSumAggregateOutputType | null
@@ -10382,42 +10382,42 @@ export namespace Prisma {
 
 
   export type TempoCriacaoRelatorioSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    periodo_inicio?: boolean
-    periodo_fim?: boolean
-    total_minutos?: boolean
-    payload?: boolean
-    computed_at?: boolean
-    expires_at?: boolean
+    id_tempo_criacao_relatorio?: boolean
+    id_organizacao_tempo_criacao_relatorio?: boolean
+    id_usuario_tempo_criacao_relatorio?: boolean
+    id_produto_tempo_criacao_relatorio?: boolean
+    periodo_inicio_tempo_criacao_relatorio?: boolean
+    periodo_fim_tempo_criacao_relatorio?: boolean
+    total_minutos_tempo_criacao_relatorio?: boolean
+    payload_tempo_criacao_relatorio?: boolean
+    data_computacao_tempo_criacao_relatorio?: boolean
+    data_expiracao_tempo_criacao_relatorio?: boolean
   }, ExtArgs["result"]["tempoCriacaoRelatorio"]>
 
   export type TempoCriacaoRelatorioSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    periodo_inicio?: boolean
-    periodo_fim?: boolean
-    total_minutos?: boolean
-    payload?: boolean
-    computed_at?: boolean
-    expires_at?: boolean
+    id_tempo_criacao_relatorio?: boolean
+    id_organizacao_tempo_criacao_relatorio?: boolean
+    id_usuario_tempo_criacao_relatorio?: boolean
+    id_produto_tempo_criacao_relatorio?: boolean
+    periodo_inicio_tempo_criacao_relatorio?: boolean
+    periodo_fim_tempo_criacao_relatorio?: boolean
+    total_minutos_tempo_criacao_relatorio?: boolean
+    payload_tempo_criacao_relatorio?: boolean
+    data_computacao_tempo_criacao_relatorio?: boolean
+    data_expiracao_tempo_criacao_relatorio?: boolean
   }, ExtArgs["result"]["tempoCriacaoRelatorio"]>
 
   export type TempoCriacaoRelatorioSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    user_id?: boolean
-    product_id?: boolean
-    periodo_inicio?: boolean
-    periodo_fim?: boolean
-    total_minutos?: boolean
-    payload?: boolean
-    computed_at?: boolean
-    expires_at?: boolean
+    id_tempo_criacao_relatorio?: boolean
+    id_organizacao_tempo_criacao_relatorio?: boolean
+    id_usuario_tempo_criacao_relatorio?: boolean
+    id_produto_tempo_criacao_relatorio?: boolean
+    periodo_inicio_tempo_criacao_relatorio?: boolean
+    periodo_fim_tempo_criacao_relatorio?: boolean
+    total_minutos_tempo_criacao_relatorio?: boolean
+    payload_tempo_criacao_relatorio?: boolean
+    data_computacao_tempo_criacao_relatorio?: boolean
+    data_expiracao_tempo_criacao_relatorio?: boolean
   }
 
 
@@ -10425,16 +10425,16 @@ export namespace Prisma {
     name: "TempoCriacaoRelatorio"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      user_id: string | null
-      product_id: string | null
-      periodo_inicio: Date
-      periodo_fim: Date
-      total_minutos: number
-      payload: string
-      computed_at: Date
-      expires_at: Date
+      id_tempo_criacao_relatorio: string
+      id_organizacao_tempo_criacao_relatorio: string
+      id_usuario_tempo_criacao_relatorio: string | null
+      id_produto_tempo_criacao_relatorio: string | null
+      periodo_inicio_tempo_criacao_relatorio: Date
+      periodo_fim_tempo_criacao_relatorio: Date
+      total_minutos_tempo_criacao_relatorio: number
+      payload_tempo_criacao_relatorio: string
+      data_computacao_tempo_criacao_relatorio: Date
+      data_expiracao_tempo_criacao_relatorio: Date
     }, ExtArgs["result"]["tempoCriacaoRelatorio"]>
     composites: {}
   }
@@ -10518,8 +10518,8 @@ export namespace Prisma {
      * // Get first 10 TempoCriacaoRelatorios
      * const tempoCriacaoRelatorios = await prisma.tempoCriacaoRelatorio.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const tempoCriacaoRelatorioWithIdOnly = await prisma.tempoCriacaoRelatorio.findMany({ select: { id: true } })
+     * // Only select the `id_tempo_criacao_relatorio`
+     * const tempoCriacaoRelatorioWithId_tempo_criacao_relatorioOnly = await prisma.tempoCriacaoRelatorio.findMany({ select: { id_tempo_criacao_relatorio: true } })
      * 
      */
     findMany<T extends TempoCriacaoRelatorioFindManyArgs>(args?: SelectSubset<T, TempoCriacaoRelatorioFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TempoCriacaoRelatorioPayload<ExtArgs>, T, "findMany">>
@@ -10563,9 +10563,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many TempoCriacaoRelatorios and only return the `id`
-     * const tempoCriacaoRelatorioWithIdOnly = await prisma.tempoCriacaoRelatorio.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many TempoCriacaoRelatorios and only return the `id_tempo_criacao_relatorio`
+     * const tempoCriacaoRelatorioWithId_tempo_criacao_relatorioOnly = await prisma.tempoCriacaoRelatorio.createManyAndReturn({ 
+     *   select: { id_tempo_criacao_relatorio: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -10828,16 +10828,16 @@ export namespace Prisma {
    * Fields of the TempoCriacaoRelatorio model
    */ 
   interface TempoCriacaoRelatorioFieldRefs {
-    readonly id: FieldRef<"TempoCriacaoRelatorio", 'String'>
-    readonly tenant_id: FieldRef<"TempoCriacaoRelatorio", 'String'>
-    readonly user_id: FieldRef<"TempoCriacaoRelatorio", 'String'>
-    readonly product_id: FieldRef<"TempoCriacaoRelatorio", 'String'>
-    readonly periodo_inicio: FieldRef<"TempoCriacaoRelatorio", 'DateTime'>
-    readonly periodo_fim: FieldRef<"TempoCriacaoRelatorio", 'DateTime'>
-    readonly total_minutos: FieldRef<"TempoCriacaoRelatorio", 'Int'>
-    readonly payload: FieldRef<"TempoCriacaoRelatorio", 'String'>
-    readonly computed_at: FieldRef<"TempoCriacaoRelatorio", 'DateTime'>
-    readonly expires_at: FieldRef<"TempoCriacaoRelatorio", 'DateTime'>
+    readonly id_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'String'>
+    readonly id_organizacao_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'String'>
+    readonly id_usuario_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'String'>
+    readonly id_produto_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'String'>
+    readonly periodo_inicio_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'DateTime'>
+    readonly periodo_fim_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'DateTime'>
+    readonly total_minutos_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'Int'>
+    readonly payload_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'String'>
+    readonly data_computacao_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'DateTime'>
+    readonly data_expiracao_tempo_criacao_relatorio: FieldRef<"TempoCriacaoRelatorio", 'DateTime'>
   }
     
 
@@ -50329,52 +50329,52 @@ export namespace Prisma {
 
 
   export const AtividadesCronometroScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    activity_id: 'activity_id',
-    started_at: 'started_at',
-    ended_at: 'ended_at',
-    duration_minutes: 'duration_minutes',
-    is_manual: 'is_manual',
-    subject: 'subject',
-    linked_type: 'linked_type',
-    linked_id: 'linked_id',
-    linked_label: 'linked_label',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_atividades_cronometro: 'id_atividades_cronometro',
+    id_organizacao_atividades_cronometro: 'id_organizacao_atividades_cronometro',
+    id_produto_atividades_cronometro: 'id_produto_atividades_cronometro',
+    id_usuario_atividades_cronometro: 'id_usuario_atividades_cronometro',
+    id_atividade_atividades_cronometro: 'id_atividade_atividades_cronometro',
+    data_inicio_atividades_cronometro: 'data_inicio_atividades_cronometro',
+    data_fim_atividades_cronometro: 'data_fim_atividades_cronometro',
+    duracao_minutos_atividades_cronometro: 'duracao_minutos_atividades_cronometro',
+    manual_atividades_cronometro: 'manual_atividades_cronometro',
+    assunto_atividades_cronometro: 'assunto_atividades_cronometro',
+    tipo_vinculo_atividades_cronometro: 'tipo_vinculo_atividades_cronometro',
+    id_vinculo_atividades_cronometro: 'id_vinculo_atividades_cronometro',
+    rotulo_vinculo_atividades_cronometro: 'rotulo_vinculo_atividades_cronometro',
+    data_criacao_atividades_cronometro: 'data_criacao_atividades_cronometro',
+    data_atualizacao_atividades_cronometro: 'data_atualizacao_atividades_cronometro'
   };
 
   export type AtividadesCronometroScalarFieldEnum = (typeof AtividadesCronometroScalarFieldEnum)[keyof typeof AtividadesCronometroScalarFieldEnum]
 
 
   export const AtividadesTimerScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    user_id: 'user_id',
-    activity_id: 'activity_id',
-    started_at: 'started_at',
-    paused_at: 'paused_at',
-    accumulated_seconds: 'accumulated_seconds',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_atividades_timer: 'id_atividades_timer',
+    id_organizacao_atividades_timer: 'id_organizacao_atividades_timer',
+    id_usuario_atividades_timer: 'id_usuario_atividades_timer',
+    id_atividade_atividades_timer: 'id_atividade_atividades_timer',
+    data_inicio_atividades_timer: 'data_inicio_atividades_timer',
+    data_pausa_atividades_timer: 'data_pausa_atividades_timer',
+    segundos_acumulados_atividades_timer: 'segundos_acumulados_atividades_timer',
+    data_criacao_atividades_timer: 'data_criacao_atividades_timer',
+    data_atualizacao_atividades_timer: 'data_atualizacao_atividades_timer'
   };
 
   export type AtividadesTimerScalarFieldEnum = (typeof AtividadesTimerScalarFieldEnum)[keyof typeof AtividadesTimerScalarFieldEnum]
 
 
   export const TempoCriacaoRelatorioScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    user_id: 'user_id',
-    product_id: 'product_id',
-    periodo_inicio: 'periodo_inicio',
-    periodo_fim: 'periodo_fim',
-    total_minutos: 'total_minutos',
-    payload: 'payload',
-    computed_at: 'computed_at',
-    expires_at: 'expires_at'
+    id_tempo_criacao_relatorio: 'id_tempo_criacao_relatorio',
+    id_organizacao_tempo_criacao_relatorio: 'id_organizacao_tempo_criacao_relatorio',
+    id_usuario_tempo_criacao_relatorio: 'id_usuario_tempo_criacao_relatorio',
+    id_produto_tempo_criacao_relatorio: 'id_produto_tempo_criacao_relatorio',
+    periodo_inicio_tempo_criacao_relatorio: 'periodo_inicio_tempo_criacao_relatorio',
+    periodo_fim_tempo_criacao_relatorio: 'periodo_fim_tempo_criacao_relatorio',
+    total_minutos_tempo_criacao_relatorio: 'total_minutos_tempo_criacao_relatorio',
+    payload_tempo_criacao_relatorio: 'payload_tempo_criacao_relatorio',
+    data_computacao_tempo_criacao_relatorio: 'data_computacao_tempo_criacao_relatorio',
+    data_expiracao_tempo_criacao_relatorio: 'data_expiracao_tempo_criacao_relatorio'
   };
 
   export type TempoCriacaoRelatorioScalarFieldEnum = (typeof TempoCriacaoRelatorioScalarFieldEnum)[keyof typeof TempoCriacaoRelatorioScalarFieldEnum]
@@ -51660,78 +51660,78 @@ export namespace Prisma {
     AND?: AtividadesCronometroWhereInput | AtividadesCronometroWhereInput[]
     OR?: AtividadesCronometroWhereInput[]
     NOT?: AtividadesCronometroWhereInput | AtividadesCronometroWhereInput[]
-    id?: StringFilter<"AtividadesCronometro"> | string
-    tenant_id?: StringFilter<"AtividadesCronometro"> | string
-    product_id?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    user_id?: StringFilter<"AtividadesCronometro"> | string
-    activity_id?: StringFilter<"AtividadesCronometro"> | string
-    started_at?: DateTimeFilter<"AtividadesCronometro"> | Date | string
-    ended_at?: DateTimeNullableFilter<"AtividadesCronometro"> | Date | string | null
-    duration_minutes?: IntNullableFilter<"AtividadesCronometro"> | number | null
-    is_manual?: BoolFilter<"AtividadesCronometro"> | boolean
-    subject?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    linked_type?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    linked_id?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    linked_label?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    created_at?: DateTimeFilter<"AtividadesCronometro"> | Date | string
-    updated_at?: DateTimeFilter<"AtividadesCronometro"> | Date | string
+    id_atividades_cronometro?: StringFilter<"AtividadesCronometro"> | string
+    id_organizacao_atividades_cronometro?: StringFilter<"AtividadesCronometro"> | string
+    id_produto_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    id_usuario_atividades_cronometro?: StringFilter<"AtividadesCronometro"> | string
+    id_atividade_atividades_cronometro?: StringFilter<"AtividadesCronometro"> | string
+    data_inicio_atividades_cronometro?: DateTimeFilter<"AtividadesCronometro"> | Date | string
+    data_fim_atividades_cronometro?: DateTimeNullableFilter<"AtividadesCronometro"> | Date | string | null
+    duracao_minutos_atividades_cronometro?: IntNullableFilter<"AtividadesCronometro"> | number | null
+    manual_atividades_cronometro?: BoolFilter<"AtividadesCronometro"> | boolean
+    assunto_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    tipo_vinculo_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    id_vinculo_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    rotulo_vinculo_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    data_criacao_atividades_cronometro?: DateTimeFilter<"AtividadesCronometro"> | Date | string
+    data_atualizacao_atividades_cronometro?: DateTimeFilter<"AtividadesCronometro"> | Date | string
   }
 
   export type AtividadesCronometroOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    ended_at?: SortOrderInput | SortOrder
-    duration_minutes?: SortOrderInput | SortOrder
-    is_manual?: SortOrder
-    subject?: SortOrderInput | SortOrder
-    linked_type?: SortOrderInput | SortOrder
-    linked_id?: SortOrderInput | SortOrder
-    linked_label?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_cronometro?: SortOrder
+    id_organizacao_atividades_cronometro?: SortOrder
+    id_produto_atividades_cronometro?: SortOrderInput | SortOrder
+    id_usuario_atividades_cronometro?: SortOrder
+    id_atividade_atividades_cronometro?: SortOrder
+    data_inicio_atividades_cronometro?: SortOrder
+    data_fim_atividades_cronometro?: SortOrderInput | SortOrder
+    duracao_minutos_atividades_cronometro?: SortOrderInput | SortOrder
+    manual_atividades_cronometro?: SortOrder
+    assunto_atividades_cronometro?: SortOrderInput | SortOrder
+    tipo_vinculo_atividades_cronometro?: SortOrderInput | SortOrder
+    id_vinculo_atividades_cronometro?: SortOrderInput | SortOrder
+    rotulo_vinculo_atividades_cronometro?: SortOrderInput | SortOrder
+    data_criacao_atividades_cronometro?: SortOrder
+    data_atualizacao_atividades_cronometro?: SortOrder
   }
 
   export type AtividadesCronometroWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_atividades_cronometro?: string
     AND?: AtividadesCronometroWhereInput | AtividadesCronometroWhereInput[]
     OR?: AtividadesCronometroWhereInput[]
     NOT?: AtividadesCronometroWhereInput | AtividadesCronometroWhereInput[]
-    tenant_id?: StringFilter<"AtividadesCronometro"> | string
-    product_id?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    user_id?: StringFilter<"AtividadesCronometro"> | string
-    activity_id?: StringFilter<"AtividadesCronometro"> | string
-    started_at?: DateTimeFilter<"AtividadesCronometro"> | Date | string
-    ended_at?: DateTimeNullableFilter<"AtividadesCronometro"> | Date | string | null
-    duration_minutes?: IntNullableFilter<"AtividadesCronometro"> | number | null
-    is_manual?: BoolFilter<"AtividadesCronometro"> | boolean
-    subject?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    linked_type?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    linked_id?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    linked_label?: StringNullableFilter<"AtividadesCronometro"> | string | null
-    created_at?: DateTimeFilter<"AtividadesCronometro"> | Date | string
-    updated_at?: DateTimeFilter<"AtividadesCronometro"> | Date | string
-  }, "id">
+    id_organizacao_atividades_cronometro?: StringFilter<"AtividadesCronometro"> | string
+    id_produto_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    id_usuario_atividades_cronometro?: StringFilter<"AtividadesCronometro"> | string
+    id_atividade_atividades_cronometro?: StringFilter<"AtividadesCronometro"> | string
+    data_inicio_atividades_cronometro?: DateTimeFilter<"AtividadesCronometro"> | Date | string
+    data_fim_atividades_cronometro?: DateTimeNullableFilter<"AtividadesCronometro"> | Date | string | null
+    duracao_minutos_atividades_cronometro?: IntNullableFilter<"AtividadesCronometro"> | number | null
+    manual_atividades_cronometro?: BoolFilter<"AtividadesCronometro"> | boolean
+    assunto_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    tipo_vinculo_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    id_vinculo_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    rotulo_vinculo_atividades_cronometro?: StringNullableFilter<"AtividadesCronometro"> | string | null
+    data_criacao_atividades_cronometro?: DateTimeFilter<"AtividadesCronometro"> | Date | string
+    data_atualizacao_atividades_cronometro?: DateTimeFilter<"AtividadesCronometro"> | Date | string
+  }, "id_atividades_cronometro">
 
   export type AtividadesCronometroOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    ended_at?: SortOrderInput | SortOrder
-    duration_minutes?: SortOrderInput | SortOrder
-    is_manual?: SortOrder
-    subject?: SortOrderInput | SortOrder
-    linked_type?: SortOrderInput | SortOrder
-    linked_id?: SortOrderInput | SortOrder
-    linked_label?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_cronometro?: SortOrder
+    id_organizacao_atividades_cronometro?: SortOrder
+    id_produto_atividades_cronometro?: SortOrderInput | SortOrder
+    id_usuario_atividades_cronometro?: SortOrder
+    id_atividade_atividades_cronometro?: SortOrder
+    data_inicio_atividades_cronometro?: SortOrder
+    data_fim_atividades_cronometro?: SortOrderInput | SortOrder
+    duracao_minutos_atividades_cronometro?: SortOrderInput | SortOrder
+    manual_atividades_cronometro?: SortOrder
+    assunto_atividades_cronometro?: SortOrderInput | SortOrder
+    tipo_vinculo_atividades_cronometro?: SortOrderInput | SortOrder
+    id_vinculo_atividades_cronometro?: SortOrderInput | SortOrder
+    rotulo_vinculo_atividades_cronometro?: SortOrderInput | SortOrder
+    data_criacao_atividades_cronometro?: SortOrder
+    data_atualizacao_atividades_cronometro?: SortOrder
     _count?: AtividadesCronometroCountOrderByAggregateInput
     _avg?: AtividadesCronometroAvgOrderByAggregateInput
     _max?: AtividadesCronometroMaxOrderByAggregateInput
@@ -51743,75 +51743,75 @@ export namespace Prisma {
     AND?: AtividadesCronometroScalarWhereWithAggregatesInput | AtividadesCronometroScalarWhereWithAggregatesInput[]
     OR?: AtividadesCronometroScalarWhereWithAggregatesInput[]
     NOT?: AtividadesCronometroScalarWhereWithAggregatesInput | AtividadesCronometroScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AtividadesCronometro"> | string
-    tenant_id?: StringWithAggregatesFilter<"AtividadesCronometro"> | string
-    product_id?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
-    user_id?: StringWithAggregatesFilter<"AtividadesCronometro"> | string
-    activity_id?: StringWithAggregatesFilter<"AtividadesCronometro"> | string
-    started_at?: DateTimeWithAggregatesFilter<"AtividadesCronometro"> | Date | string
-    ended_at?: DateTimeNullableWithAggregatesFilter<"AtividadesCronometro"> | Date | string | null
-    duration_minutes?: IntNullableWithAggregatesFilter<"AtividadesCronometro"> | number | null
-    is_manual?: BoolWithAggregatesFilter<"AtividadesCronometro"> | boolean
-    subject?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
-    linked_type?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
-    linked_id?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
-    linked_label?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"AtividadesCronometro"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"AtividadesCronometro"> | Date | string
+    id_atividades_cronometro?: StringWithAggregatesFilter<"AtividadesCronometro"> | string
+    id_organizacao_atividades_cronometro?: StringWithAggregatesFilter<"AtividadesCronometro"> | string
+    id_produto_atividades_cronometro?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
+    id_usuario_atividades_cronometro?: StringWithAggregatesFilter<"AtividadesCronometro"> | string
+    id_atividade_atividades_cronometro?: StringWithAggregatesFilter<"AtividadesCronometro"> | string
+    data_inicio_atividades_cronometro?: DateTimeWithAggregatesFilter<"AtividadesCronometro"> | Date | string
+    data_fim_atividades_cronometro?: DateTimeNullableWithAggregatesFilter<"AtividadesCronometro"> | Date | string | null
+    duracao_minutos_atividades_cronometro?: IntNullableWithAggregatesFilter<"AtividadesCronometro"> | number | null
+    manual_atividades_cronometro?: BoolWithAggregatesFilter<"AtividadesCronometro"> | boolean
+    assunto_atividades_cronometro?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
+    tipo_vinculo_atividades_cronometro?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
+    id_vinculo_atividades_cronometro?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
+    rotulo_vinculo_atividades_cronometro?: StringNullableWithAggregatesFilter<"AtividadesCronometro"> | string | null
+    data_criacao_atividades_cronometro?: DateTimeWithAggregatesFilter<"AtividadesCronometro"> | Date | string
+    data_atualizacao_atividades_cronometro?: DateTimeWithAggregatesFilter<"AtividadesCronometro"> | Date | string
   }
 
   export type AtividadesTimerWhereInput = {
     AND?: AtividadesTimerWhereInput | AtividadesTimerWhereInput[]
     OR?: AtividadesTimerWhereInput[]
     NOT?: AtividadesTimerWhereInput | AtividadesTimerWhereInput[]
-    id?: StringFilter<"AtividadesTimer"> | string
-    tenant_id?: StringFilter<"AtividadesTimer"> | string
-    user_id?: StringFilter<"AtividadesTimer"> | string
-    activity_id?: StringFilter<"AtividadesTimer"> | string
-    started_at?: DateTimeFilter<"AtividadesTimer"> | Date | string
-    paused_at?: DateTimeNullableFilter<"AtividadesTimer"> | Date | string | null
-    accumulated_seconds?: IntFilter<"AtividadesTimer"> | number
-    created_at?: DateTimeFilter<"AtividadesTimer"> | Date | string
-    updated_at?: DateTimeFilter<"AtividadesTimer"> | Date | string
+    id_atividades_timer?: StringFilter<"AtividadesTimer"> | string
+    id_organizacao_atividades_timer?: StringFilter<"AtividadesTimer"> | string
+    id_usuario_atividades_timer?: StringFilter<"AtividadesTimer"> | string
+    id_atividade_atividades_timer?: StringFilter<"AtividadesTimer"> | string
+    data_inicio_atividades_timer?: DateTimeFilter<"AtividadesTimer"> | Date | string
+    data_pausa_atividades_timer?: DateTimeNullableFilter<"AtividadesTimer"> | Date | string | null
+    segundos_acumulados_atividades_timer?: IntFilter<"AtividadesTimer"> | number
+    data_criacao_atividades_timer?: DateTimeFilter<"AtividadesTimer"> | Date | string
+    data_atualizacao_atividades_timer?: DateTimeFilter<"AtividadesTimer"> | Date | string
   }
 
   export type AtividadesTimerOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    paused_at?: SortOrderInput | SortOrder
-    accumulated_seconds?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_timer?: SortOrder
+    id_organizacao_atividades_timer?: SortOrder
+    id_usuario_atividades_timer?: SortOrder
+    id_atividade_atividades_timer?: SortOrder
+    data_inicio_atividades_timer?: SortOrder
+    data_pausa_atividades_timer?: SortOrderInput | SortOrder
+    segundos_acumulados_atividades_timer?: SortOrder
+    data_criacao_atividades_timer?: SortOrder
+    data_atualizacao_atividades_timer?: SortOrder
   }
 
   export type AtividadesTimerWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    user_id?: string
+    id_atividades_timer?: string
+    id_usuario_atividades_timer?: string
     AND?: AtividadesTimerWhereInput | AtividadesTimerWhereInput[]
     OR?: AtividadesTimerWhereInput[]
     NOT?: AtividadesTimerWhereInput | AtividadesTimerWhereInput[]
-    tenant_id?: StringFilter<"AtividadesTimer"> | string
-    activity_id?: StringFilter<"AtividadesTimer"> | string
-    started_at?: DateTimeFilter<"AtividadesTimer"> | Date | string
-    paused_at?: DateTimeNullableFilter<"AtividadesTimer"> | Date | string | null
-    accumulated_seconds?: IntFilter<"AtividadesTimer"> | number
-    created_at?: DateTimeFilter<"AtividadesTimer"> | Date | string
-    updated_at?: DateTimeFilter<"AtividadesTimer"> | Date | string
-  }, "id" | "user_id">
+    id_organizacao_atividades_timer?: StringFilter<"AtividadesTimer"> | string
+    id_atividade_atividades_timer?: StringFilter<"AtividadesTimer"> | string
+    data_inicio_atividades_timer?: DateTimeFilter<"AtividadesTimer"> | Date | string
+    data_pausa_atividades_timer?: DateTimeNullableFilter<"AtividadesTimer"> | Date | string | null
+    segundos_acumulados_atividades_timer?: IntFilter<"AtividadesTimer"> | number
+    data_criacao_atividades_timer?: DateTimeFilter<"AtividadesTimer"> | Date | string
+    data_atualizacao_atividades_timer?: DateTimeFilter<"AtividadesTimer"> | Date | string
+  }, "id_atividades_timer" | "id_usuario_atividades_timer">
 
   export type AtividadesTimerOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    paused_at?: SortOrderInput | SortOrder
-    accumulated_seconds?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_timer?: SortOrder
+    id_organizacao_atividades_timer?: SortOrder
+    id_usuario_atividades_timer?: SortOrder
+    id_atividade_atividades_timer?: SortOrder
+    data_inicio_atividades_timer?: SortOrder
+    data_pausa_atividades_timer?: SortOrderInput | SortOrder
+    segundos_acumulados_atividades_timer?: SortOrder
+    data_criacao_atividades_timer?: SortOrder
+    data_atualizacao_atividades_timer?: SortOrder
     _count?: AtividadesTimerCountOrderByAggregateInput
     _avg?: AtividadesTimerAvgOrderByAggregateInput
     _max?: AtividadesTimerMaxOrderByAggregateInput
@@ -51823,73 +51823,73 @@ export namespace Prisma {
     AND?: AtividadesTimerScalarWhereWithAggregatesInput | AtividadesTimerScalarWhereWithAggregatesInput[]
     OR?: AtividadesTimerScalarWhereWithAggregatesInput[]
     NOT?: AtividadesTimerScalarWhereWithAggregatesInput | AtividadesTimerScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"AtividadesTimer"> | string
-    tenant_id?: StringWithAggregatesFilter<"AtividadesTimer"> | string
-    user_id?: StringWithAggregatesFilter<"AtividadesTimer"> | string
-    activity_id?: StringWithAggregatesFilter<"AtividadesTimer"> | string
-    started_at?: DateTimeWithAggregatesFilter<"AtividadesTimer"> | Date | string
-    paused_at?: DateTimeNullableWithAggregatesFilter<"AtividadesTimer"> | Date | string | null
-    accumulated_seconds?: IntWithAggregatesFilter<"AtividadesTimer"> | number
-    created_at?: DateTimeWithAggregatesFilter<"AtividadesTimer"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"AtividadesTimer"> | Date | string
+    id_atividades_timer?: StringWithAggregatesFilter<"AtividadesTimer"> | string
+    id_organizacao_atividades_timer?: StringWithAggregatesFilter<"AtividadesTimer"> | string
+    id_usuario_atividades_timer?: StringWithAggregatesFilter<"AtividadesTimer"> | string
+    id_atividade_atividades_timer?: StringWithAggregatesFilter<"AtividadesTimer"> | string
+    data_inicio_atividades_timer?: DateTimeWithAggregatesFilter<"AtividadesTimer"> | Date | string
+    data_pausa_atividades_timer?: DateTimeNullableWithAggregatesFilter<"AtividadesTimer"> | Date | string | null
+    segundos_acumulados_atividades_timer?: IntWithAggregatesFilter<"AtividadesTimer"> | number
+    data_criacao_atividades_timer?: DateTimeWithAggregatesFilter<"AtividadesTimer"> | Date | string
+    data_atualizacao_atividades_timer?: DateTimeWithAggregatesFilter<"AtividadesTimer"> | Date | string
   }
 
   export type TempoCriacaoRelatorioWhereInput = {
     AND?: TempoCriacaoRelatorioWhereInput | TempoCriacaoRelatorioWhereInput[]
     OR?: TempoCriacaoRelatorioWhereInput[]
     NOT?: TempoCriacaoRelatorioWhereInput | TempoCriacaoRelatorioWhereInput[]
-    id?: StringFilter<"TempoCriacaoRelatorio"> | string
-    tenant_id?: StringFilter<"TempoCriacaoRelatorio"> | string
-    user_id?: StringNullableFilter<"TempoCriacaoRelatorio"> | string | null
-    product_id?: StringNullableFilter<"TempoCriacaoRelatorio"> | string | null
-    periodo_inicio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
-    periodo_fim?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
-    total_minutos?: IntFilter<"TempoCriacaoRelatorio"> | number
-    payload?: StringFilter<"TempoCriacaoRelatorio"> | string
-    computed_at?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
-    expires_at?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
+    id_tempo_criacao_relatorio?: StringFilter<"TempoCriacaoRelatorio"> | string
+    id_organizacao_tempo_criacao_relatorio?: StringFilter<"TempoCriacaoRelatorio"> | string
+    id_usuario_tempo_criacao_relatorio?: StringNullableFilter<"TempoCriacaoRelatorio"> | string | null
+    id_produto_tempo_criacao_relatorio?: StringNullableFilter<"TempoCriacaoRelatorio"> | string | null
+    periodo_inicio_tempo_criacao_relatorio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
+    periodo_fim_tempo_criacao_relatorio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
+    total_minutos_tempo_criacao_relatorio?: IntFilter<"TempoCriacaoRelatorio"> | number
+    payload_tempo_criacao_relatorio?: StringFilter<"TempoCriacaoRelatorio"> | string
+    data_computacao_tempo_criacao_relatorio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
+    data_expiracao_tempo_criacao_relatorio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
   }
 
   export type TempoCriacaoRelatorioOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrderInput | SortOrder
-    product_id?: SortOrderInput | SortOrder
-    periodo_inicio?: SortOrder
-    periodo_fim?: SortOrder
-    total_minutos?: SortOrder
-    payload?: SortOrder
-    computed_at?: SortOrder
-    expires_at?: SortOrder
+    id_tempo_criacao_relatorio?: SortOrder
+    id_organizacao_tempo_criacao_relatorio?: SortOrder
+    id_usuario_tempo_criacao_relatorio?: SortOrderInput | SortOrder
+    id_produto_tempo_criacao_relatorio?: SortOrderInput | SortOrder
+    periodo_inicio_tempo_criacao_relatorio?: SortOrder
+    periodo_fim_tempo_criacao_relatorio?: SortOrder
+    total_minutos_tempo_criacao_relatorio?: SortOrder
+    payload_tempo_criacao_relatorio?: SortOrder
+    data_computacao_tempo_criacao_relatorio?: SortOrder
+    data_expiracao_tempo_criacao_relatorio?: SortOrder
   }
 
   export type TempoCriacaoRelatorioWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_tempo_criacao_relatorio?: string
     AND?: TempoCriacaoRelatorioWhereInput | TempoCriacaoRelatorioWhereInput[]
     OR?: TempoCriacaoRelatorioWhereInput[]
     NOT?: TempoCriacaoRelatorioWhereInput | TempoCriacaoRelatorioWhereInput[]
-    tenant_id?: StringFilter<"TempoCriacaoRelatorio"> | string
-    user_id?: StringNullableFilter<"TempoCriacaoRelatorio"> | string | null
-    product_id?: StringNullableFilter<"TempoCriacaoRelatorio"> | string | null
-    periodo_inicio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
-    periodo_fim?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
-    total_minutos?: IntFilter<"TempoCriacaoRelatorio"> | number
-    payload?: StringFilter<"TempoCriacaoRelatorio"> | string
-    computed_at?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
-    expires_at?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
-  }, "id">
+    id_organizacao_tempo_criacao_relatorio?: StringFilter<"TempoCriacaoRelatorio"> | string
+    id_usuario_tempo_criacao_relatorio?: StringNullableFilter<"TempoCriacaoRelatorio"> | string | null
+    id_produto_tempo_criacao_relatorio?: StringNullableFilter<"TempoCriacaoRelatorio"> | string | null
+    periodo_inicio_tempo_criacao_relatorio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
+    periodo_fim_tempo_criacao_relatorio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
+    total_minutos_tempo_criacao_relatorio?: IntFilter<"TempoCriacaoRelatorio"> | number
+    payload_tempo_criacao_relatorio?: StringFilter<"TempoCriacaoRelatorio"> | string
+    data_computacao_tempo_criacao_relatorio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
+    data_expiracao_tempo_criacao_relatorio?: DateTimeFilter<"TempoCriacaoRelatorio"> | Date | string
+  }, "id_tempo_criacao_relatorio">
 
   export type TempoCriacaoRelatorioOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrderInput | SortOrder
-    product_id?: SortOrderInput | SortOrder
-    periodo_inicio?: SortOrder
-    periodo_fim?: SortOrder
-    total_minutos?: SortOrder
-    payload?: SortOrder
-    computed_at?: SortOrder
-    expires_at?: SortOrder
+    id_tempo_criacao_relatorio?: SortOrder
+    id_organizacao_tempo_criacao_relatorio?: SortOrder
+    id_usuario_tempo_criacao_relatorio?: SortOrderInput | SortOrder
+    id_produto_tempo_criacao_relatorio?: SortOrderInput | SortOrder
+    periodo_inicio_tempo_criacao_relatorio?: SortOrder
+    periodo_fim_tempo_criacao_relatorio?: SortOrder
+    total_minutos_tempo_criacao_relatorio?: SortOrder
+    payload_tempo_criacao_relatorio?: SortOrder
+    data_computacao_tempo_criacao_relatorio?: SortOrder
+    data_expiracao_tempo_criacao_relatorio?: SortOrder
     _count?: TempoCriacaoRelatorioCountOrderByAggregateInput
     _avg?: TempoCriacaoRelatorioAvgOrderByAggregateInput
     _max?: TempoCriacaoRelatorioMaxOrderByAggregateInput
@@ -51901,16 +51901,16 @@ export namespace Prisma {
     AND?: TempoCriacaoRelatorioScalarWhereWithAggregatesInput | TempoCriacaoRelatorioScalarWhereWithAggregatesInput[]
     OR?: TempoCriacaoRelatorioScalarWhereWithAggregatesInput[]
     NOT?: TempoCriacaoRelatorioScalarWhereWithAggregatesInput | TempoCriacaoRelatorioScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"TempoCriacaoRelatorio"> | string
-    tenant_id?: StringWithAggregatesFilter<"TempoCriacaoRelatorio"> | string
-    user_id?: StringNullableWithAggregatesFilter<"TempoCriacaoRelatorio"> | string | null
-    product_id?: StringNullableWithAggregatesFilter<"TempoCriacaoRelatorio"> | string | null
-    periodo_inicio?: DateTimeWithAggregatesFilter<"TempoCriacaoRelatorio"> | Date | string
-    periodo_fim?: DateTimeWithAggregatesFilter<"TempoCriacaoRelatorio"> | Date | string
-    total_minutos?: IntWithAggregatesFilter<"TempoCriacaoRelatorio"> | number
-    payload?: StringWithAggregatesFilter<"TempoCriacaoRelatorio"> | string
-    computed_at?: DateTimeWithAggregatesFilter<"TempoCriacaoRelatorio"> | Date | string
-    expires_at?: DateTimeWithAggregatesFilter<"TempoCriacaoRelatorio"> | Date | string
+    id_tempo_criacao_relatorio?: StringWithAggregatesFilter<"TempoCriacaoRelatorio"> | string
+    id_organizacao_tempo_criacao_relatorio?: StringWithAggregatesFilter<"TempoCriacaoRelatorio"> | string
+    id_usuario_tempo_criacao_relatorio?: StringNullableWithAggregatesFilter<"TempoCriacaoRelatorio"> | string | null
+    id_produto_tempo_criacao_relatorio?: StringNullableWithAggregatesFilter<"TempoCriacaoRelatorio"> | string | null
+    periodo_inicio_tempo_criacao_relatorio?: DateTimeWithAggregatesFilter<"TempoCriacaoRelatorio"> | Date | string
+    periodo_fim_tempo_criacao_relatorio?: DateTimeWithAggregatesFilter<"TempoCriacaoRelatorio"> | Date | string
+    total_minutos_tempo_criacao_relatorio?: IntWithAggregatesFilter<"TempoCriacaoRelatorio"> | number
+    payload_tempo_criacao_relatorio?: StringWithAggregatesFilter<"TempoCriacaoRelatorio"> | string
+    data_computacao_tempo_criacao_relatorio?: DateTimeWithAggregatesFilter<"TempoCriacaoRelatorio"> | Date | string
+    data_expiracao_tempo_criacao_relatorio?: DateTimeWithAggregatesFilter<"TempoCriacaoRelatorio"> | Date | string
   }
 
   export type EmailAssuntosParticipantesWhereInput = {
@@ -55720,304 +55720,304 @@ export namespace Prisma {
   }
 
   export type AtividadesCronometroCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    activity_id: string
-    started_at: Date | string
-    ended_at?: Date | string | null
-    duration_minutes?: number | null
-    is_manual?: boolean
-    subject?: string | null
-    linked_type?: string | null
-    linked_id?: string | null
-    linked_label?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_atividades_cronometro?: string
+    id_organizacao_atividades_cronometro: string
+    id_produto_atividades_cronometro?: string | null
+    id_usuario_atividades_cronometro: string
+    id_atividade_atividades_cronometro: string
+    data_inicio_atividades_cronometro: Date | string
+    data_fim_atividades_cronometro?: Date | string | null
+    duracao_minutos_atividades_cronometro?: number | null
+    manual_atividades_cronometro?: boolean
+    assunto_atividades_cronometro?: string | null
+    tipo_vinculo_atividades_cronometro?: string | null
+    id_vinculo_atividades_cronometro?: string | null
+    rotulo_vinculo_atividades_cronometro?: string | null
+    data_criacao_atividades_cronometro?: Date | string
+    data_atualizacao_atividades_cronometro?: Date | string
   }
 
   export type AtividadesCronometroUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    activity_id: string
-    started_at: Date | string
-    ended_at?: Date | string | null
-    duration_minutes?: number | null
-    is_manual?: boolean
-    subject?: string | null
-    linked_type?: string | null
-    linked_id?: string | null
-    linked_label?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_atividades_cronometro?: string
+    id_organizacao_atividades_cronometro: string
+    id_produto_atividades_cronometro?: string | null
+    id_usuario_atividades_cronometro: string
+    id_atividade_atividades_cronometro: string
+    data_inicio_atividades_cronometro: Date | string
+    data_fim_atividades_cronometro?: Date | string | null
+    duracao_minutos_atividades_cronometro?: number | null
+    manual_atividades_cronometro?: boolean
+    assunto_atividades_cronometro?: string | null
+    tipo_vinculo_atividades_cronometro?: string | null
+    id_vinculo_atividades_cronometro?: string | null
+    rotulo_vinculo_atividades_cronometro?: string | null
+    data_criacao_atividades_cronometro?: Date | string
+    data_atualizacao_atividades_cronometro?: Date | string
   }
 
   export type AtividadesCronometroUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    activity_id?: StringFieldUpdateOperationsInput | string
-    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    duration_minutes?: NullableIntFieldUpdateOperationsInput | number | null
-    is_manual?: BoolFieldUpdateOperationsInput | boolean
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_type?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_id?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_label?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_produto_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_atividade_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    data_inicio_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_fim_atividades_cronometro?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duracao_minutos_atividades_cronometro?: NullableIntFieldUpdateOperationsInput | number | null
+    manual_atividades_cronometro?: BoolFieldUpdateOperationsInput | boolean
+    assunto_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    id_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    rotulo_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesCronometroUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    activity_id?: StringFieldUpdateOperationsInput | string
-    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    duration_minutes?: NullableIntFieldUpdateOperationsInput | number | null
-    is_manual?: BoolFieldUpdateOperationsInput | boolean
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_type?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_id?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_label?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_produto_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_atividade_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    data_inicio_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_fim_atividades_cronometro?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duracao_minutos_atividades_cronometro?: NullableIntFieldUpdateOperationsInput | number | null
+    manual_atividades_cronometro?: BoolFieldUpdateOperationsInput | boolean
+    assunto_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    id_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    rotulo_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesCronometroCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    activity_id: string
-    started_at: Date | string
-    ended_at?: Date | string | null
-    duration_minutes?: number | null
-    is_manual?: boolean
-    subject?: string | null
-    linked_type?: string | null
-    linked_id?: string | null
-    linked_label?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_atividades_cronometro?: string
+    id_organizacao_atividades_cronometro: string
+    id_produto_atividades_cronometro?: string | null
+    id_usuario_atividades_cronometro: string
+    id_atividade_atividades_cronometro: string
+    data_inicio_atividades_cronometro: Date | string
+    data_fim_atividades_cronometro?: Date | string | null
+    duracao_minutos_atividades_cronometro?: number | null
+    manual_atividades_cronometro?: boolean
+    assunto_atividades_cronometro?: string | null
+    tipo_vinculo_atividades_cronometro?: string | null
+    id_vinculo_atividades_cronometro?: string | null
+    rotulo_vinculo_atividades_cronometro?: string | null
+    data_criacao_atividades_cronometro?: Date | string
+    data_atualizacao_atividades_cronometro?: Date | string
   }
 
   export type AtividadesCronometroUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    activity_id?: StringFieldUpdateOperationsInput | string
-    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    duration_minutes?: NullableIntFieldUpdateOperationsInput | number | null
-    is_manual?: BoolFieldUpdateOperationsInput | boolean
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_type?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_id?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_label?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_produto_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_atividade_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    data_inicio_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_fim_atividades_cronometro?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duracao_minutos_atividades_cronometro?: NullableIntFieldUpdateOperationsInput | number | null
+    manual_atividades_cronometro?: BoolFieldUpdateOperationsInput | boolean
+    assunto_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    id_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    rotulo_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesCronometroUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    activity_id?: StringFieldUpdateOperationsInput | string
-    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    ended_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    duration_minutes?: NullableIntFieldUpdateOperationsInput | number | null
-    is_manual?: BoolFieldUpdateOperationsInput | boolean
-    subject?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_type?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_id?: NullableStringFieldUpdateOperationsInput | string | null
-    linked_label?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_produto_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    id_atividade_atividades_cronometro?: StringFieldUpdateOperationsInput | string
+    data_inicio_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_fim_atividades_cronometro?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    duracao_minutos_atividades_cronometro?: NullableIntFieldUpdateOperationsInput | number | null
+    manual_atividades_cronometro?: BoolFieldUpdateOperationsInput | boolean
+    assunto_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    tipo_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    id_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    rotulo_vinculo_atividades_cronometro?: NullableStringFieldUpdateOperationsInput | string | null
+    data_criacao_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_cronometro?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesTimerCreateInput = {
-    id?: string
-    tenant_id: string
-    user_id: string
-    activity_id: string
-    started_at: Date | string
-    paused_at?: Date | string | null
-    accumulated_seconds?: number
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_atividades_timer?: string
+    id_organizacao_atividades_timer: string
+    id_usuario_atividades_timer: string
+    id_atividade_atividades_timer: string
+    data_inicio_atividades_timer: Date | string
+    data_pausa_atividades_timer?: Date | string | null
+    segundos_acumulados_atividades_timer?: number
+    data_criacao_atividades_timer?: Date | string
+    data_atualizacao_atividades_timer?: Date | string
   }
 
   export type AtividadesTimerUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    user_id: string
-    activity_id: string
-    started_at: Date | string
-    paused_at?: Date | string | null
-    accumulated_seconds?: number
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_atividades_timer?: string
+    id_organizacao_atividades_timer: string
+    id_usuario_atividades_timer: string
+    id_atividade_atividades_timer: string
+    data_inicio_atividades_timer: Date | string
+    data_pausa_atividades_timer?: Date | string | null
+    segundos_acumulados_atividades_timer?: number
+    data_criacao_atividades_timer?: Date | string
+    data_atualizacao_atividades_timer?: Date | string
   }
 
   export type AtividadesTimerUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    activity_id?: StringFieldUpdateOperationsInput | string
-    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    accumulated_seconds?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_atividade_atividades_timer?: StringFieldUpdateOperationsInput | string
+    data_inicio_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_pausa_atividades_timer?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    segundos_acumulados_atividades_timer?: IntFieldUpdateOperationsInput | number
+    data_criacao_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesTimerUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    activity_id?: StringFieldUpdateOperationsInput | string
-    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    accumulated_seconds?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_atividade_atividades_timer?: StringFieldUpdateOperationsInput | string
+    data_inicio_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_pausa_atividades_timer?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    segundos_acumulados_atividades_timer?: IntFieldUpdateOperationsInput | number
+    data_criacao_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesTimerCreateManyInput = {
-    id?: string
-    tenant_id: string
-    user_id: string
-    activity_id: string
-    started_at: Date | string
-    paused_at?: Date | string | null
-    accumulated_seconds?: number
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_atividades_timer?: string
+    id_organizacao_atividades_timer: string
+    id_usuario_atividades_timer: string
+    id_atividade_atividades_timer: string
+    data_inicio_atividades_timer: Date | string
+    data_pausa_atividades_timer?: Date | string | null
+    segundos_acumulados_atividades_timer?: number
+    data_criacao_atividades_timer?: Date | string
+    data_atualizacao_atividades_timer?: Date | string
   }
 
   export type AtividadesTimerUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    activity_id?: StringFieldUpdateOperationsInput | string
-    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    accumulated_seconds?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_atividade_atividades_timer?: StringFieldUpdateOperationsInput | string
+    data_inicio_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_pausa_atividades_timer?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    segundos_acumulados_atividades_timer?: IntFieldUpdateOperationsInput | number
+    data_criacao_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AtividadesTimerUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: StringFieldUpdateOperationsInput | string
-    activity_id?: StringFieldUpdateOperationsInput | string
-    started_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    paused_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    accumulated_seconds?: IntFieldUpdateOperationsInput | number
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_organizacao_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_usuario_atividades_timer?: StringFieldUpdateOperationsInput | string
+    id_atividade_atividades_timer?: StringFieldUpdateOperationsInput | string
+    data_inicio_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_pausa_atividades_timer?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    segundos_acumulados_atividades_timer?: IntFieldUpdateOperationsInput | number
+    data_criacao_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_atividades_timer?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TempoCriacaoRelatorioCreateInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    product_id?: string | null
-    periodo_inicio: Date | string
-    periodo_fim: Date | string
-    total_minutos: number
-    payload: string
-    computed_at?: Date | string
-    expires_at: Date | string
+    id_tempo_criacao_relatorio?: string
+    id_organizacao_tempo_criacao_relatorio: string
+    id_usuario_tempo_criacao_relatorio?: string | null
+    id_produto_tempo_criacao_relatorio?: string | null
+    periodo_inicio_tempo_criacao_relatorio: Date | string
+    periodo_fim_tempo_criacao_relatorio: Date | string
+    total_minutos_tempo_criacao_relatorio: number
+    payload_tempo_criacao_relatorio: string
+    data_computacao_tempo_criacao_relatorio?: Date | string
+    data_expiracao_tempo_criacao_relatorio: Date | string
   }
 
   export type TempoCriacaoRelatorioUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    product_id?: string | null
-    periodo_inicio: Date | string
-    periodo_fim: Date | string
-    total_minutos: number
-    payload: string
-    computed_at?: Date | string
-    expires_at: Date | string
+    id_tempo_criacao_relatorio?: string
+    id_organizacao_tempo_criacao_relatorio: string
+    id_usuario_tempo_criacao_relatorio?: string | null
+    id_produto_tempo_criacao_relatorio?: string | null
+    periodo_inicio_tempo_criacao_relatorio: Date | string
+    periodo_fim_tempo_criacao_relatorio: Date | string
+    total_minutos_tempo_criacao_relatorio: number
+    payload_tempo_criacao_relatorio: string
+    data_computacao_tempo_criacao_relatorio?: Date | string
+    data_expiracao_tempo_criacao_relatorio: Date | string
   }
 
   export type TempoCriacaoRelatorioUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    periodo_inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    periodo_fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_minutos?: IntFieldUpdateOperationsInput | number
-    payload?: StringFieldUpdateOperationsInput | string
-    computed_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    id_usuario_tempo_criacao_relatorio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_tempo_criacao_relatorio?: NullableStringFieldUpdateOperationsInput | string | null
+    periodo_inicio_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo_fim_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_minutos_tempo_criacao_relatorio?: IntFieldUpdateOperationsInput | number
+    payload_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    data_computacao_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_expiracao_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TempoCriacaoRelatorioUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    periodo_inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    periodo_fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_minutos?: IntFieldUpdateOperationsInput | number
-    payload?: StringFieldUpdateOperationsInput | string
-    computed_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    id_usuario_tempo_criacao_relatorio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_tempo_criacao_relatorio?: NullableStringFieldUpdateOperationsInput | string | null
+    periodo_inicio_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo_fim_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_minutos_tempo_criacao_relatorio?: IntFieldUpdateOperationsInput | number
+    payload_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    data_computacao_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_expiracao_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TempoCriacaoRelatorioCreateManyInput = {
-    id?: string
-    tenant_id: string
-    user_id?: string | null
-    product_id?: string | null
-    periodo_inicio: Date | string
-    periodo_fim: Date | string
-    total_minutos: number
-    payload: string
-    computed_at?: Date | string
-    expires_at: Date | string
+    id_tempo_criacao_relatorio?: string
+    id_organizacao_tempo_criacao_relatorio: string
+    id_usuario_tempo_criacao_relatorio?: string | null
+    id_produto_tempo_criacao_relatorio?: string | null
+    periodo_inicio_tempo_criacao_relatorio: Date | string
+    periodo_fim_tempo_criacao_relatorio: Date | string
+    total_minutos_tempo_criacao_relatorio: number
+    payload_tempo_criacao_relatorio: string
+    data_computacao_tempo_criacao_relatorio?: Date | string
+    data_expiracao_tempo_criacao_relatorio: Date | string
   }
 
   export type TempoCriacaoRelatorioUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    periodo_inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    periodo_fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_minutos?: IntFieldUpdateOperationsInput | number
-    payload?: StringFieldUpdateOperationsInput | string
-    computed_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    id_usuario_tempo_criacao_relatorio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_tempo_criacao_relatorio?: NullableStringFieldUpdateOperationsInput | string | null
+    periodo_inicio_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo_fim_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_minutos_tempo_criacao_relatorio?: IntFieldUpdateOperationsInput | number
+    payload_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    data_computacao_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_expiracao_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TempoCriacaoRelatorioUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    periodo_inicio?: DateTimeFieldUpdateOperationsInput | Date | string
-    periodo_fim?: DateTimeFieldUpdateOperationsInput | Date | string
-    total_minutos?: IntFieldUpdateOperationsInput | number
-    payload?: StringFieldUpdateOperationsInput | string
-    computed_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    id_organizacao_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    id_usuario_tempo_criacao_relatorio?: NullableStringFieldUpdateOperationsInput | string | null
+    id_produto_tempo_criacao_relatorio?: NullableStringFieldUpdateOperationsInput | string | null
+    periodo_inicio_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo_fim_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    total_minutos_tempo_criacao_relatorio?: IntFieldUpdateOperationsInput | number
+    payload_tempo_criacao_relatorio?: StringFieldUpdateOperationsInput | string
+    data_computacao_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_expiracao_tempo_criacao_relatorio?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmailAssuntosParticipantesCreateInput = {
@@ -60541,65 +60541,65 @@ export namespace Prisma {
   }
 
   export type AtividadesCronometroCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    ended_at?: SortOrder
-    duration_minutes?: SortOrder
-    is_manual?: SortOrder
-    subject?: SortOrder
-    linked_type?: SortOrder
-    linked_id?: SortOrder
-    linked_label?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_cronometro?: SortOrder
+    id_organizacao_atividades_cronometro?: SortOrder
+    id_produto_atividades_cronometro?: SortOrder
+    id_usuario_atividades_cronometro?: SortOrder
+    id_atividade_atividades_cronometro?: SortOrder
+    data_inicio_atividades_cronometro?: SortOrder
+    data_fim_atividades_cronometro?: SortOrder
+    duracao_minutos_atividades_cronometro?: SortOrder
+    manual_atividades_cronometro?: SortOrder
+    assunto_atividades_cronometro?: SortOrder
+    tipo_vinculo_atividades_cronometro?: SortOrder
+    id_vinculo_atividades_cronometro?: SortOrder
+    rotulo_vinculo_atividades_cronometro?: SortOrder
+    data_criacao_atividades_cronometro?: SortOrder
+    data_atualizacao_atividades_cronometro?: SortOrder
   }
 
   export type AtividadesCronometroAvgOrderByAggregateInput = {
-    duration_minutes?: SortOrder
+    duracao_minutos_atividades_cronometro?: SortOrder
   }
 
   export type AtividadesCronometroMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    ended_at?: SortOrder
-    duration_minutes?: SortOrder
-    is_manual?: SortOrder
-    subject?: SortOrder
-    linked_type?: SortOrder
-    linked_id?: SortOrder
-    linked_label?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_cronometro?: SortOrder
+    id_organizacao_atividades_cronometro?: SortOrder
+    id_produto_atividades_cronometro?: SortOrder
+    id_usuario_atividades_cronometro?: SortOrder
+    id_atividade_atividades_cronometro?: SortOrder
+    data_inicio_atividades_cronometro?: SortOrder
+    data_fim_atividades_cronometro?: SortOrder
+    duracao_minutos_atividades_cronometro?: SortOrder
+    manual_atividades_cronometro?: SortOrder
+    assunto_atividades_cronometro?: SortOrder
+    tipo_vinculo_atividades_cronometro?: SortOrder
+    id_vinculo_atividades_cronometro?: SortOrder
+    rotulo_vinculo_atividades_cronometro?: SortOrder
+    data_criacao_atividades_cronometro?: SortOrder
+    data_atualizacao_atividades_cronometro?: SortOrder
   }
 
   export type AtividadesCronometroMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    ended_at?: SortOrder
-    duration_minutes?: SortOrder
-    is_manual?: SortOrder
-    subject?: SortOrder
-    linked_type?: SortOrder
-    linked_id?: SortOrder
-    linked_label?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_cronometro?: SortOrder
+    id_organizacao_atividades_cronometro?: SortOrder
+    id_produto_atividades_cronometro?: SortOrder
+    id_usuario_atividades_cronometro?: SortOrder
+    id_atividade_atividades_cronometro?: SortOrder
+    data_inicio_atividades_cronometro?: SortOrder
+    data_fim_atividades_cronometro?: SortOrder
+    duracao_minutos_atividades_cronometro?: SortOrder
+    manual_atividades_cronometro?: SortOrder
+    assunto_atividades_cronometro?: SortOrder
+    tipo_vinculo_atividades_cronometro?: SortOrder
+    id_vinculo_atividades_cronometro?: SortOrder
+    rotulo_vinculo_atividades_cronometro?: SortOrder
+    data_criacao_atividades_cronometro?: SortOrder
+    data_atualizacao_atividades_cronometro?: SortOrder
   }
 
   export type AtividadesCronometroSumOrderByAggregateInput = {
-    duration_minutes?: SortOrder
+    duracao_minutos_atividades_cronometro?: SortOrder
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -60619,94 +60619,94 @@ export namespace Prisma {
   }
 
   export type AtividadesTimerCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    paused_at?: SortOrder
-    accumulated_seconds?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_timer?: SortOrder
+    id_organizacao_atividades_timer?: SortOrder
+    id_usuario_atividades_timer?: SortOrder
+    id_atividade_atividades_timer?: SortOrder
+    data_inicio_atividades_timer?: SortOrder
+    data_pausa_atividades_timer?: SortOrder
+    segundos_acumulados_atividades_timer?: SortOrder
+    data_criacao_atividades_timer?: SortOrder
+    data_atualizacao_atividades_timer?: SortOrder
   }
 
   export type AtividadesTimerAvgOrderByAggregateInput = {
-    accumulated_seconds?: SortOrder
+    segundos_acumulados_atividades_timer?: SortOrder
   }
 
   export type AtividadesTimerMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    paused_at?: SortOrder
-    accumulated_seconds?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_timer?: SortOrder
+    id_organizacao_atividades_timer?: SortOrder
+    id_usuario_atividades_timer?: SortOrder
+    id_atividade_atividades_timer?: SortOrder
+    data_inicio_atividades_timer?: SortOrder
+    data_pausa_atividades_timer?: SortOrder
+    segundos_acumulados_atividades_timer?: SortOrder
+    data_criacao_atividades_timer?: SortOrder
+    data_atualizacao_atividades_timer?: SortOrder
   }
 
   export type AtividadesTimerMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    activity_id?: SortOrder
-    started_at?: SortOrder
-    paused_at?: SortOrder
-    accumulated_seconds?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_atividades_timer?: SortOrder
+    id_organizacao_atividades_timer?: SortOrder
+    id_usuario_atividades_timer?: SortOrder
+    id_atividade_atividades_timer?: SortOrder
+    data_inicio_atividades_timer?: SortOrder
+    data_pausa_atividades_timer?: SortOrder
+    segundos_acumulados_atividades_timer?: SortOrder
+    data_criacao_atividades_timer?: SortOrder
+    data_atualizacao_atividades_timer?: SortOrder
   }
 
   export type AtividadesTimerSumOrderByAggregateInput = {
-    accumulated_seconds?: SortOrder
+    segundos_acumulados_atividades_timer?: SortOrder
   }
 
   export type TempoCriacaoRelatorioCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    periodo_inicio?: SortOrder
-    periodo_fim?: SortOrder
-    total_minutos?: SortOrder
-    payload?: SortOrder
-    computed_at?: SortOrder
-    expires_at?: SortOrder
+    id_tempo_criacao_relatorio?: SortOrder
+    id_organizacao_tempo_criacao_relatorio?: SortOrder
+    id_usuario_tempo_criacao_relatorio?: SortOrder
+    id_produto_tempo_criacao_relatorio?: SortOrder
+    periodo_inicio_tempo_criacao_relatorio?: SortOrder
+    periodo_fim_tempo_criacao_relatorio?: SortOrder
+    total_minutos_tempo_criacao_relatorio?: SortOrder
+    payload_tempo_criacao_relatorio?: SortOrder
+    data_computacao_tempo_criacao_relatorio?: SortOrder
+    data_expiracao_tempo_criacao_relatorio?: SortOrder
   }
 
   export type TempoCriacaoRelatorioAvgOrderByAggregateInput = {
-    total_minutos?: SortOrder
+    total_minutos_tempo_criacao_relatorio?: SortOrder
   }
 
   export type TempoCriacaoRelatorioMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    periodo_inicio?: SortOrder
-    periodo_fim?: SortOrder
-    total_minutos?: SortOrder
-    payload?: SortOrder
-    computed_at?: SortOrder
-    expires_at?: SortOrder
+    id_tempo_criacao_relatorio?: SortOrder
+    id_organizacao_tempo_criacao_relatorio?: SortOrder
+    id_usuario_tempo_criacao_relatorio?: SortOrder
+    id_produto_tempo_criacao_relatorio?: SortOrder
+    periodo_inicio_tempo_criacao_relatorio?: SortOrder
+    periodo_fim_tempo_criacao_relatorio?: SortOrder
+    total_minutos_tempo_criacao_relatorio?: SortOrder
+    payload_tempo_criacao_relatorio?: SortOrder
+    data_computacao_tempo_criacao_relatorio?: SortOrder
+    data_expiracao_tempo_criacao_relatorio?: SortOrder
   }
 
   export type TempoCriacaoRelatorioMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    user_id?: SortOrder
-    product_id?: SortOrder
-    periodo_inicio?: SortOrder
-    periodo_fim?: SortOrder
-    total_minutos?: SortOrder
-    payload?: SortOrder
-    computed_at?: SortOrder
-    expires_at?: SortOrder
+    id_tempo_criacao_relatorio?: SortOrder
+    id_organizacao_tempo_criacao_relatorio?: SortOrder
+    id_usuario_tempo_criacao_relatorio?: SortOrder
+    id_produto_tempo_criacao_relatorio?: SortOrder
+    periodo_inicio_tempo_criacao_relatorio?: SortOrder
+    periodo_fim_tempo_criacao_relatorio?: SortOrder
+    total_minutos_tempo_criacao_relatorio?: SortOrder
+    payload_tempo_criacao_relatorio?: SortOrder
+    data_computacao_tempo_criacao_relatorio?: SortOrder
+    data_expiracao_tempo_criacao_relatorio?: SortOrder
   }
 
   export type TempoCriacaoRelatorioSumOrderByAggregateInput = {
-    total_minutos?: SortOrder
+    total_minutos_tempo_criacao_relatorio?: SortOrder
   }
 
   export type EnumEmailThreadStatusFilter<$PrismaModel = never> = {

@@ -161,46 +161,46 @@ exports.Prisma.AtividadesTempoScalarFieldEnum = {
 };
 
 exports.Prisma.AtividadesCronometroScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  product_id: 'product_id',
-  user_id: 'user_id',
-  activity_id: 'activity_id',
-  started_at: 'started_at',
-  ended_at: 'ended_at',
-  duration_minutes: 'duration_minutes',
-  is_manual: 'is_manual',
-  subject: 'subject',
-  linked_type: 'linked_type',
-  linked_id: 'linked_id',
-  linked_label: 'linked_label',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_atividades_cronometro: 'id_atividades_cronometro',
+  id_organizacao_atividades_cronometro: 'id_organizacao_atividades_cronometro',
+  id_produto_atividades_cronometro: 'id_produto_atividades_cronometro',
+  id_usuario_atividades_cronometro: 'id_usuario_atividades_cronometro',
+  id_atividade_atividades_cronometro: 'id_atividade_atividades_cronometro',
+  data_inicio_atividades_cronometro: 'data_inicio_atividades_cronometro',
+  data_fim_atividades_cronometro: 'data_fim_atividades_cronometro',
+  duracao_minutos_atividades_cronometro: 'duracao_minutos_atividades_cronometro',
+  manual_atividades_cronometro: 'manual_atividades_cronometro',
+  assunto_atividades_cronometro: 'assunto_atividades_cronometro',
+  tipo_vinculo_atividades_cronometro: 'tipo_vinculo_atividades_cronometro',
+  id_vinculo_atividades_cronometro: 'id_vinculo_atividades_cronometro',
+  rotulo_vinculo_atividades_cronometro: 'rotulo_vinculo_atividades_cronometro',
+  data_criacao_atividades_cronometro: 'data_criacao_atividades_cronometro',
+  data_atualizacao_atividades_cronometro: 'data_atualizacao_atividades_cronometro'
 };
 
 exports.Prisma.AtividadesTimerScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  user_id: 'user_id',
-  activity_id: 'activity_id',
-  started_at: 'started_at',
-  paused_at: 'paused_at',
-  accumulated_seconds: 'accumulated_seconds',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  id_atividades_timer: 'id_atividades_timer',
+  id_organizacao_atividades_timer: 'id_organizacao_atividades_timer',
+  id_usuario_atividades_timer: 'id_usuario_atividades_timer',
+  id_atividade_atividades_timer: 'id_atividade_atividades_timer',
+  data_inicio_atividades_timer: 'data_inicio_atividades_timer',
+  data_pausa_atividades_timer: 'data_pausa_atividades_timer',
+  segundos_acumulados_atividades_timer: 'segundos_acumulados_atividades_timer',
+  data_criacao_atividades_timer: 'data_criacao_atividades_timer',
+  data_atualizacao_atividades_timer: 'data_atualizacao_atividades_timer'
 };
 
 exports.Prisma.TempoCriacaoRelatorioScalarFieldEnum = {
-  id: 'id',
-  tenant_id: 'tenant_id',
-  user_id: 'user_id',
-  product_id: 'product_id',
-  periodo_inicio: 'periodo_inicio',
-  periodo_fim: 'periodo_fim',
-  total_minutos: 'total_minutos',
-  payload: 'payload',
-  computed_at: 'computed_at',
-  expires_at: 'expires_at'
+  id_tempo_criacao_relatorio: 'id_tempo_criacao_relatorio',
+  id_organizacao_tempo_criacao_relatorio: 'id_organizacao_tempo_criacao_relatorio',
+  id_usuario_tempo_criacao_relatorio: 'id_usuario_tempo_criacao_relatorio',
+  id_produto_tempo_criacao_relatorio: 'id_produto_tempo_criacao_relatorio',
+  periodo_inicio_tempo_criacao_relatorio: 'periodo_inicio_tempo_criacao_relatorio',
+  periodo_fim_tempo_criacao_relatorio: 'periodo_fim_tempo_criacao_relatorio',
+  total_minutos_tempo_criacao_relatorio: 'total_minutos_tempo_criacao_relatorio',
+  payload_tempo_criacao_relatorio: 'payload_tempo_criacao_relatorio',
+  data_computacao_tempo_criacao_relatorio: 'data_computacao_tempo_criacao_relatorio',
+  data_expiracao_tempo_criacao_relatorio: 'data_expiracao_tempo_criacao_relatorio'
 };
 
 exports.Prisma.EmailAssuntosParticipantesScalarFieldEnum = {

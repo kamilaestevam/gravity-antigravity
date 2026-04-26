@@ -1,17 +1,21 @@
 // server/routes/timers.ts
 // Rotas do serviço de Cronômetro.
 // Todas as rotas requerem autenticação — tenant_id vem do JWT, nunca do body.
+//
+// Onda 27 (DDD Servicos): bypass withTenantIsolation — colunas físicas agora
+// usam id_organizacao_<table>. Filtragem explícita + ACL/DTO map nas bordas.
 
 import { Router, Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
-import { prisma } from '../lib/prisma.js'
+import { prisma as prismaDefault } from '../lib/prisma.js'
 import { AppError } from '../lib/errors.js'
-import { withTenantIsolation } from '../../../middleware/withTenantIsolation.js'
 import { requireAuth } from '../middleware/auth.js'
 import { sseManager, setupSSEConnection } from '../lib/sse.js'
+import type { PrismaClient as TenantPrismaClient } from '../../../generated/index.js'
+const prisma = prismaDefault as unknown as TenantPrismaClient
 
 // ---------------------------------------------------------------------------
-// Schemas Zod — validação de entrada
+// Schemas Zod — validação de entrada (contrato externo permanece curto)
 // ---------------------------------------------------------------------------
 
 const ParamActivityId = z.object({
@@ -49,6 +53,74 @@ const ReportQuerySchema = z.object({
   period_start: z.string().datetime({ message: 'period_start deve ser ISO 8601' }),
   period_end: z.string().datetime({ message: 'period_end deve ser ISO 8601' }),
 })
+
+// ---------------------------------------------------------------------------
+// ACL helpers (DTO mapping)
+// ---------------------------------------------------------------------------
+
+type SessionRow = {
+  id_atividades_cronometro: string
+  id_organizacao_atividades_cronometro: string
+  id_produto_atividades_cronometro: string | null
+  id_usuario_atividades_cronometro: string
+  id_atividade_atividades_cronometro: string
+  data_inicio_atividades_cronometro: Date
+  data_fim_atividades_cronometro: Date | null
+  duracao_minutos_atividades_cronometro: number | null
+  manual_atividades_cronometro: boolean
+  assunto_atividades_cronometro: string | null
+  tipo_vinculo_atividades_cronometro: string | null
+  id_vinculo_atividades_cronometro: string | null
+  rotulo_vinculo_atividades_cronometro: string | null
+  data_criacao_atividades_cronometro: Date
+  data_atualizacao_atividades_cronometro: Date
+}
+
+type TimerRow = {
+  id_atividades_timer: string
+  id_organizacao_atividades_timer: string
+  id_usuario_atividades_timer: string
+  id_atividade_atividades_timer: string
+  data_inicio_atividades_timer: Date
+  data_pausa_atividades_timer: Date | null
+  segundos_acumulados_atividades_timer: number
+  data_criacao_atividades_timer: Date
+  data_atualizacao_atividades_timer: Date
+}
+
+function toSessionDto(s: SessionRow) {
+  return {
+    id:                s.id_atividades_cronometro,
+    tenant_id:         s.id_organizacao_atividades_cronometro,
+    product_id:        s.id_produto_atividades_cronometro,
+    user_id:           s.id_usuario_atividades_cronometro,
+    activity_id:       s.id_atividade_atividades_cronometro,
+    started_at:        s.data_inicio_atividades_cronometro,
+    ended_at:          s.data_fim_atividades_cronometro,
+    duration_minutes:  s.duracao_minutos_atividades_cronometro,
+    is_manual:         s.manual_atividades_cronometro,
+    subject:           s.assunto_atividades_cronometro,
+    linked_type:       s.tipo_vinculo_atividades_cronometro,
+    linked_id:         s.id_vinculo_atividades_cronometro,
+    linked_label:      s.rotulo_vinculo_atividades_cronometro,
+    created_at:        s.data_criacao_atividades_cronometro,
+    updated_at:        s.data_atualizacao_atividades_cronometro,
+  }
+}
+
+function toTimerDto(t: TimerRow) {
+  return {
+    id:                  t.id_atividades_timer,
+    tenant_id:           t.id_organizacao_atividades_timer,
+    user_id:             t.id_usuario_atividades_timer,
+    activity_id:         t.id_atividade_atividades_timer,
+    started_at:          t.data_inicio_atividades_timer,
+    paused_at:           t.data_pausa_atividades_timer,
+    accumulated_seconds: t.segundos_acumulados_atividades_timer,
+    created_at:          t.data_criacao_atividades_timer,
+    updated_at:          t.data_atualizacao_atividades_timer,
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -99,23 +171,22 @@ timersRouter.get('/stream', (req: Request, res: Response) => {
   setupSSEConnection(req, res, tenantId, userId)
 
   // Envia estado inicial do timer ativo (se houver)
-  const db = withTenantIsolation(prisma, tenantId)
-  db.atividadesTimer
-    .findFirst({ where: { user_id: userId } })
+  prisma.atividadesTimer
+    .findFirst({ where: { id_organizacao_atividades_timer: tenantId, id_usuario_atividades_timer: userId } })
     .then((active) => {
       if (active) {
         const elapsed = calcElapsedSeconds(
-          active.started_at,
-          active.paused_at,
-          active.accumulated_seconds
+          active.data_inicio_atividades_timer,
+          active.data_pausa_atividades_timer,
+          active.segundos_acumulados_atividades_timer
         )
         sseManager.send(tenantId, userId, {
           event: 'timer:state',
           data: {
             active: true,
-            activity_id: active.activity_id,
+            activity_id: active.id_atividade_atividades_timer,
             elapsed_seconds: elapsed,
-            is_paused: !!active.paused_at,
+            is_paused: !!active.data_pausa_atividades_timer,
           },
         })
       } else {
@@ -136,29 +207,30 @@ timersRouter.get('/stream', (req: Request, res: Response) => {
 timersRouter.get('/active', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { tenantId, userId } = req.auth
-    const db = withTenantIsolation(prisma, tenantId)
 
-    const active = await db.atividadesTimer.findFirst({ where: { user_id: userId } })
+    const active = await prisma.atividadesTimer.findFirst({
+      where: { id_organizacao_atividades_timer: tenantId, id_usuario_atividades_timer: userId },
+    })
 
     if (!active) {
       return res.json({ active: false })
     }
 
     const elapsed = calcElapsedSeconds(
-      active.started_at,
-      active.paused_at,
-      active.accumulated_seconds
+      active.data_inicio_atividades_timer,
+      active.data_pausa_atividades_timer,
+      active.segundos_acumulados_atividades_timer
     )
 
     return res.json({
       active: true,
-      id: active.id,
-      activity_id: active.activity_id,
-      started_at: active.started_at,
-      paused_at: active.paused_at,
-      accumulated_seconds: active.accumulated_seconds,
+      id: active.id_atividades_timer,
+      activity_id: active.id_atividade_atividades_timer,
+      started_at: active.data_inicio_atividades_timer,
+      paused_at: active.data_pausa_atividades_timer,
+      accumulated_seconds: active.segundos_acumulados_atividades_timer,
       elapsed_seconds: elapsed,
-      is_paused: !!active.paused_at,
+      is_paused: !!active.data_pausa_atividades_timer,
     })
   } catch (err) {
     return next(err)
@@ -176,22 +248,22 @@ timersRouter.get('/:activity_id', async (req: Request, res: Response, next: Next
     if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
 
     const { tenantId, userId } = req.auth
-    const db = withTenantIsolation(prisma, tenantId)
 
-    const sessions = await db.atividadesCronometro.findMany({
+    const sessions = await prisma.atividadesCronometro.findMany({
       where: {
-        activity_id: parsed.data.activity_id,
-        user_id: userId,
+        id_organizacao_atividades_cronometro: tenantId,
+        id_atividade_atividades_cronometro: parsed.data.activity_id,
+        id_usuario_atividades_cronometro: userId,
       },
-      orderBy: { started_at: 'desc' },
+      orderBy: { data_inicio_atividades_cronometro: 'desc' },
     })
 
     const total_minutes = sessions.reduce(
-      (acc, s) => acc + (s.duration_minutes ?? 0),
+      (acc, s) => acc + (s.duracao_minutos_atividades_cronometro ?? 0),
       0
     )
 
-    return res.json({ sessions, total_minutes })
+    return res.json({ sessions: sessions.map(toSessionDto), total_minutes })
   } catch (err) {
     return next(err)
   }
@@ -200,7 +272,7 @@ timersRouter.get('/:activity_id', async (req: Request, res: Response, next: Next
 // ---------------------------------------------------------------------------
 // POST /api/v1/timers/:activity_id/start
 // Inicia o timer para uma atividade.
-// Pausa automaticamente qualquer timer ativo de outro atividade.
+// Pausa automaticamente qualquer timer ativo de outra atividade.
 // ---------------------------------------------------------------------------
 
 timersRouter.post(
@@ -211,49 +283,52 @@ timersRouter.post(
       if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
 
       const { tenantId, userId } = req.auth
-      const db = withTenantIsolation(prisma, tenantId)
       const now = new Date()
 
       // Pausa qualquer timer ativo existente do usuário
-      const existingActive = await db.atividadesTimer.findFirst({
-        where: { user_id: userId },
+      const existingActive = await prisma.atividadesTimer.findFirst({
+        where: { id_organizacao_atividades_timer: tenantId, id_usuario_atividades_timer: userId },
       })
 
       if (existingActive) {
-        if (existingActive.activity_id === parsed.data.activity_id) {
+        if (existingActive.id_atividade_atividades_timer === parsed.data.activity_id) {
           // Timer já ativo nesta atividade — retorna estado atual
-          if (!existingActive.paused_at) {
+          if (!existingActive.data_pausa_atividades_timer) {
             return res.status(409).json({
               error: { code: 'ALREADY_RUNNING', message: 'Timer já está em execução para esta atividade.' },
             })
           }
           // Estava pausado — retoma em vez de iniciar novo
-          const updated = await db.atividadesTimer.update({
-            where: { id: existingActive.id },
-            data: { paused_at: null },
+          const updated = await prisma.atividadesTimer.update({
+            where: { id_atividades_timer: existingActive.id_atividades_timer },
+            data: { data_pausa_atividades_timer: null },
           })
           emitTimerEvent(tenantId, userId, 'timer:resumed', {
             activity_id: parsed.data.activity_id,
-            elapsed_seconds: calcElapsedSeconds(updated.started_at, null, updated.accumulated_seconds),
+            elapsed_seconds: calcElapsedSeconds(
+              updated.data_inicio_atividades_timer,
+              null,
+              updated.segundos_acumulados_atividades_timer
+            ),
           })
-          return res.json({ message: 'Timer retomado.', timer: updated })
+          return res.json({ message: 'Timer retomado.', timer: toTimerDto(updated) })
         }
 
         // Timer em outra atividade — pausar automaticamente antes de iniciar
         const accumulatedBeforePause = calcElapsedSeconds(
-          existingActive.started_at,
-          existingActive.paused_at,
-          existingActive.accumulated_seconds
+          existingActive.data_inicio_atividades_timer,
+          existingActive.data_pausa_atividades_timer,
+          existingActive.segundos_acumulados_atividades_timer
         )
-        await db.atividadesTimer.update({
-          where: { id: existingActive.id },
+        await prisma.atividadesTimer.update({
+          where: { id_atividades_timer: existingActive.id_atividades_timer },
           data: {
-            paused_at: now,
-            accumulated_seconds: accumulatedBeforePause,
+            data_pausa_atividades_timer: now,
+            segundos_acumulados_atividades_timer: accumulatedBeforePause,
           },
         })
         emitTimerEvent(tenantId, userId, 'timer:paused', {
-          activity_id: existingActive.activity_id,
+          activity_id: existingActive.id_atividade_atividades_timer,
           elapsed_seconds: accumulatedBeforePause,
         })
       }
@@ -263,17 +338,22 @@ timersRouter.post(
       const newActive = await prisma.$transaction(async (tx) => {
         if (existingActive) {
           // Se havia timer ativo em outra atividade, removemos e criamos novo
-          await tx.atividadesTimer.deleteMany({ where: { user_id: userId, tenant_id: tenantId } })
+          await tx.atividadesTimer.deleteMany({
+            where: {
+              id_organizacao_atividades_timer: tenantId,
+              id_usuario_atividades_timer: userId,
+            },
+          })
         }
 
         return tx.atividadesTimer.create({
           data: {
-            tenant_id: tenantId,
-            user_id: userId,
-            activity_id: parsed.data.activity_id,
-            started_at: now,
-            paused_at: null,
-            accumulated_seconds: 0,
+            id_organizacao_atividades_timer:      tenantId,
+            id_usuario_atividades_timer:          userId,
+            id_atividade_atividades_timer:        parsed.data.activity_id,
+            data_inicio_atividades_timer:         now,
+            data_pausa_atividades_timer:          null,
+            segundos_acumulados_atividades_timer: 0,
           },
         })
       })
@@ -283,7 +363,7 @@ timersRouter.post(
         started_at: now,
       })
 
-      return res.status(201).json({ message: 'Timer iniciado.', timer: newActive })
+      return res.status(201).json({ message: 'Timer iniciado.', timer: toTimerDto(newActive) })
     } catch (err) {
       return next(err)
     }
@@ -303,25 +383,32 @@ timersRouter.post(
       if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
 
       const { tenantId, userId } = req.auth
-      const db = withTenantIsolation(prisma, tenantId)
       const now = new Date()
 
-      const active = await db.atividadesTimer.findFirst({
-        where: { user_id: userId, activity_id: parsed.data.activity_id },
+      const active = await prisma.atividadesTimer.findFirst({
+        where: {
+          id_organizacao_atividades_timer: tenantId,
+          id_usuario_atividades_timer: userId,
+          id_atividade_atividades_timer: parsed.data.activity_id,
+        },
       })
 
       if (!active) throw AppError.notFound('Timer ativo')
-      if (active.paused_at) {
+      if (active.data_pausa_atividades_timer) {
         throw new AppError('Timer já está pausado.', 409, 'ALREADY_PAUSED')
       }
 
-      const elapsed = calcElapsedSeconds(active.started_at, null, active.accumulated_seconds)
+      const elapsed = calcElapsedSeconds(
+        active.data_inicio_atividades_timer,
+        null,
+        active.segundos_acumulados_atividades_timer
+      )
 
-      const updated = await db.atividadesTimer.update({
-        where: { id: active.id },
+      const updated = await prisma.atividadesTimer.update({
+        where: { id_atividades_timer: active.id_atividades_timer },
         data: {
-          paused_at: now,
-          accumulated_seconds: elapsed,
+          data_pausa_atividades_timer:          now,
+          segundos_acumulados_atividades_timer: elapsed,
         },
       })
 
@@ -330,7 +417,7 @@ timersRouter.post(
         elapsed_seconds: elapsed,
       })
 
-      return res.json({ message: 'Timer pausado.', elapsed_seconds: elapsed, timer: updated })
+      return res.json({ message: 'Timer pausado.', elapsed_seconds: elapsed, timer: toTimerDto(updated) })
     } catch (err) {
       return next(err)
     }
@@ -350,24 +437,27 @@ timersRouter.post(
       if (!parsed.success) throw AppError.validation(parsed.error.errors[0].message)
 
       const { tenantId, userId } = req.auth
-      const db = withTenantIsolation(prisma, tenantId)
       const now = new Date()
 
-      const active = await db.atividadesTimer.findFirst({
-        where: { user_id: userId, activity_id: parsed.data.activity_id },
+      const active = await prisma.atividadesTimer.findFirst({
+        where: {
+          id_organizacao_atividades_timer: tenantId,
+          id_usuario_atividades_timer: userId,
+          id_atividade_atividades_timer: parsed.data.activity_id,
+        },
       })
 
       if (!active) throw AppError.notFound('Timer ativo')
 
       const totalSeconds = calcElapsedSeconds(
-        active.started_at,
-        active.paused_at,
-        active.accumulated_seconds
+        active.data_inicio_atividades_timer,
+        active.data_pausa_atividades_timer,
+        active.segundos_acumulados_atividades_timer
       )
 
       // Descarta sessões com menos de 1 minuto (exceto manuais)
-      await db.atividadesTimer.deleteMany({
-        where: { id: active.id },
+      await prisma.atividadesTimer.deleteMany({
+        where: { id_atividades_timer: active.id_atividades_timer },
       })
 
       const durationMinutes = secondsToMinutes(totalSeconds)
@@ -386,25 +476,26 @@ timersRouter.post(
       }
 
       // Cria a sessão salva
-      const session = await db.atividadesCronometro.create({
+      const session = await prisma.atividadesCronometro.create({
         data: {
-          user_id: userId,
-          activity_id: parsed.data.activity_id,
-          product_id: (req.body as { product_id?: string }).product_id ?? null,
-          started_at: active.started_at,
-          ended_at: now,
-          duration_minutes: durationMinutes,
-          is_manual: false,
+          id_organizacao_atividades_cronometro:  tenantId,
+          id_usuario_atividades_cronometro:      userId,
+          id_atividade_atividades_cronometro:    parsed.data.activity_id,
+          id_produto_atividades_cronometro:      (req.body as { product_id?: string }).product_id ?? null,
+          data_inicio_atividades_cronometro:     active.data_inicio_atividades_timer,
+          data_fim_atividades_cronometro:        now,
+          duracao_minutos_atividades_cronometro: durationMinutes,
+          manual_atividades_cronometro:          false,
         },
       })
 
       emitTimerEvent(tenantId, userId, 'timer:stopped', {
         activity_id: parsed.data.activity_id,
         duration_minutes: durationMinutes,
-        session_id: session.id,
+        session_id: session.id_atividades_cronometro,
       })
 
-      return res.json({ message: 'Sessão salva.', session, duration_minutes: durationMinutes })
+      return res.json({ message: 'Sessão salva.', session: toSessionDto(session), duration_minutes: durationMinutes })
     } catch (err) {
       return next(err)
     }
@@ -433,24 +524,24 @@ timersRouter.post(
       const startedDate = started_at ? new Date(started_at) : new Date()
       const endedDate = new Date(startedDate.getTime() + duration_minutes * 60 * 1000)
 
-      const db = withTenantIsolation(prisma, tenantId)
-      const session = await db.atividadesCronometro.create({
+      const session = await prisma.atividadesCronometro.create({
         data: {
-          user_id: userId,
-          activity_id: paramParsed.data.activity_id,
-          product_id: product_id ?? null,
-          started_at: startedDate,
-          ended_at: endedDate,
-          duration_minutes,
-          is_manual: true,
-          subject,
-          linked_type: linked_type ?? null,
-          linked_id: linked_id ?? null,
-          linked_label: linked_label ?? null,
+          id_organizacao_atividades_cronometro:  tenantId,
+          id_usuario_atividades_cronometro:      userId,
+          id_atividade_atividades_cronometro:    paramParsed.data.activity_id,
+          id_produto_atividades_cronometro:      product_id ?? null,
+          data_inicio_atividades_cronometro:     startedDate,
+          data_fim_atividades_cronometro:        endedDate,
+          duracao_minutos_atividades_cronometro: duration_minutes,
+          manual_atividades_cronometro:          true,
+          assunto_atividades_cronometro:         subject,
+          tipo_vinculo_atividades_cronometro:    linked_type ?? null,
+          id_vinculo_atividades_cronometro:      linked_id ?? null,
+          rotulo_vinculo_atividades_cronometro:  linked_label ?? null,
         },
       })
 
-      return res.status(201).json({ message: 'Sessão manual criada.', session })
+      return res.status(201).json({ message: 'Sessão manual criada.', session: toSessionDto(session) })
     } catch (err) {
       return next(err)
     }
@@ -473,24 +564,27 @@ timersRouter.patch(
       if (!bodyParsed.success) throw AppError.validation(bodyParsed.error.errors[0].message)
 
       const { tenantId, userId } = req.auth
-      const db = withTenantIsolation(prisma, tenantId)
 
-      const existing = await db.atividadesCronometro.findFirst({
-        where: { id: paramParsed.data.id, user_id: userId },
+      const existing = await prisma.atividadesCronometro.findFirst({
+        where: {
+          id_atividades_cronometro:             paramParsed.data.id,
+          id_organizacao_atividades_cronometro: tenantId,
+          id_usuario_atividades_cronometro:     userId,
+        },
       })
       if (!existing) throw AppError.notFound('Sessão')
 
-      const updated = await db.atividadesCronometro.update({
-        where: { id: paramParsed.data.id },
+      const updated = await prisma.atividadesCronometro.update({
+        where: { id_atividades_cronometro: paramParsed.data.id },
         data: {
-          ...(bodyParsed.data.subject !== undefined && { subject: bodyParsed.data.subject }),
-          ...(bodyParsed.data.linked_type !== undefined && { linked_type: bodyParsed.data.linked_type }),
-          ...(bodyParsed.data.linked_id !== undefined && { linked_id: bodyParsed.data.linked_id }),
-          ...(bodyParsed.data.linked_label !== undefined && { linked_label: bodyParsed.data.linked_label }),
+          ...(bodyParsed.data.subject !== undefined &&      { assunto_atividades_cronometro: bodyParsed.data.subject }),
+          ...(bodyParsed.data.linked_type !== undefined &&  { tipo_vinculo_atividades_cronometro: bodyParsed.data.linked_type }),
+          ...(bodyParsed.data.linked_id !== undefined &&    { id_vinculo_atividades_cronometro: bodyParsed.data.linked_id }),
+          ...(bodyParsed.data.linked_label !== undefined && { rotulo_vinculo_atividades_cronometro: bodyParsed.data.linked_label }),
         },
       })
 
-      return res.json({ session: updated })
+      return res.json({ session: toSessionDto(updated) })
     } catch (err) {
       return next(err)
     }
@@ -510,14 +604,17 @@ timersRouter.delete(
       if (!paramParsed.success) throw AppError.validation(paramParsed.error.errors[0].message)
 
       const { tenantId, userId } = req.auth
-      const db = withTenantIsolation(prisma, tenantId)
 
-      const existing = await db.atividadesCronometro.findFirst({
-        where: { id: paramParsed.data.id, user_id: userId },
+      const existing = await prisma.atividadesCronometro.findFirst({
+        where: {
+          id_atividades_cronometro:             paramParsed.data.id,
+          id_organizacao_atividades_cronometro: tenantId,
+          id_usuario_atividades_cronometro:     userId,
+        },
       })
       if (!existing) throw AppError.notFound('Sessão')
 
-      await db.atividadesCronometro.delete({ where: { id: paramParsed.data.id } })
+      await prisma.atividadesCronometro.delete({ where: { id_atividades_cronometro: paramParsed.data.id } })
 
       return res.status(204).send()
     } catch (err) {
@@ -544,21 +641,20 @@ timersRouter.get('/report', async (req: Request, res: Response, next: NextFuncti
     const effectiveUserId =
       req.auth.role === 'admin' ? user_id ?? userId : userId
 
-    const db = withTenantIsolation(prisma, tenantId)
-
-    const sessions = await db.atividadesCronometro.findMany({
+    const sessions = await prisma.atividadesCronometro.findMany({
       where: {
-        user_id: effectiveUserId,
-        ...(product_id ? { product_id } : {}),
-        ...(activity_id ? { activity_id } : {}),
-        started_at: {
+        id_organizacao_atividades_cronometro: tenantId,
+        id_usuario_atividades_cronometro:     effectiveUserId,
+        ...(product_id ?  { id_produto_atividades_cronometro: product_id } : {}),
+        ...(activity_id ? { id_atividade_atividades_cronometro: activity_id } : {}),
+        data_inicio_atividades_cronometro: {
           gte: new Date(period_start),
           lte: new Date(period_end),
         },
         // Apenas sessões concluídas
-        duration_minutes: { not: null },
+        duracao_minutos_atividades_cronometro: { not: null },
       },
-      orderBy: { started_at: 'asc' },
+      orderBy: { data_inicio_atividades_cronometro: 'asc' },
     })
 
     // Agrega por atividade
@@ -566,23 +662,25 @@ timersRouter.get('/report', async (req: Request, res: Response, next: NextFuncti
     let totalMinutes = 0
 
     for (const session of sessions) {
-      totalMinutes += session.duration_minutes ?? 0
-      const key = session.activity_id
+      const dur = session.duracao_minutos_atividades_cronometro ?? 0
+      totalMinutes += dur
+      const key = session.id_atividade_atividades_cronometro
       if (!byActivity[key]) {
         byActivity[key] = { activity_id: key, total_minutes: 0, sessions_count: 0 }
       }
-      byActivity[key].total_minutes += session.duration_minutes ?? 0
+      byActivity[key].total_minutes += dur
       byActivity[key].sessions_count++
     }
 
-    // Agrega por produto (se product_id disponível)
+    // Agrega por produto (se id_produto disponível)
     const byProduct: Record<string, { product_id: string; total_minutes: number }> = {}
     for (const session of sessions) {
-      if (!session.product_id) continue
-      if (!byProduct[session.product_id]) {
-        byProduct[session.product_id] = { product_id: session.product_id, total_minutes: 0 }
+      const prdId = session.id_produto_atividades_cronometro
+      if (!prdId) continue
+      if (!byProduct[prdId]) {
+        byProduct[prdId] = { product_id: prdId, total_minutes: 0 }
       }
-      byProduct[session.product_id].total_minutes += session.duration_minutes ?? 0
+      byProduct[prdId].total_minutes += session.duracao_minutos_atividades_cronometro ?? 0
     }
 
     return res.json({
@@ -593,7 +691,7 @@ timersRouter.get('/report', async (req: Request, res: Response, next: NextFuncti
       sessions_count: sessions.length,
       by_activity: Object.values(byActivity),
       by_product: Object.values(byProduct),
-      sessions,
+      sessions: sessions.map(toSessionDto),
     })
   } catch (err) {
     return next(err)

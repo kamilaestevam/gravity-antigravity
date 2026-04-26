@@ -4885,15 +4885,15 @@ export namespace Prisma {
    */
 
   export type DashboardConfiguracaoCountOutputType = {
-    widgets: number
-    alerts: number
-    shares: number
+    widgets_dashboard_configuracao: number
+    alertas_dashboard_configuracao: number
+    shares_dashboard_configuracao: number
   }
 
   export type DashboardConfiguracaoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    widgets?: boolean | DashboardConfiguracaoCountOutputTypeCountWidgetsArgs
-    alerts?: boolean | DashboardConfiguracaoCountOutputTypeCountAlertsArgs
-    shares?: boolean | DashboardConfiguracaoCountOutputTypeCountSharesArgs
+    widgets_dashboard_configuracao?: boolean | DashboardConfiguracaoCountOutputTypeCountWidgets_dashboard_configuracaoArgs
+    alertas_dashboard_configuracao?: boolean | DashboardConfiguracaoCountOutputTypeCountAlertas_dashboard_configuracaoArgs
+    shares_dashboard_configuracao?: boolean | DashboardConfiguracaoCountOutputTypeCountShares_dashboard_configuracaoArgs
   }
 
   // Custom InputTypes
@@ -4910,21 +4910,21 @@ export namespace Prisma {
   /**
    * DashboardConfiguracaoCountOutputType without action
    */
-  export type DashboardConfiguracaoCountOutputTypeCountWidgetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfiguracaoCountOutputTypeCountWidgets_dashboard_configuracaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DashboardCriarWhereInput
   }
 
   /**
    * DashboardConfiguracaoCountOutputType without action
    */
-  export type DashboardConfiguracaoCountOutputTypeCountAlertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfiguracaoCountOutputTypeCountAlertas_dashboard_configuracaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DashboardAlertasWhereInput
   }
 
   /**
    * DashboardConfiguracaoCountOutputType without action
    */
-  export type DashboardConfiguracaoCountOutputTypeCountSharesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfiguracaoCountOutputTypeCountShares_dashboard_configuracaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DashboardCompartilharWhereInput
   }
 
@@ -20496,81 +20496,81 @@ export namespace Prisma {
   }
 
   export type DashboardConfiguracaoMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    name: string | null
-    mode: $Enums.DashboardModo | null
-    is_default: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_dashboard_configuracao: string | null
+    id_organizacao_dashboard_configuracao: string | null
+    id_produto_dashboard_configuracao: string | null
+    id_usuario_dashboard_configuracao: string | null
+    nome_dashboard_configuracao: string | null
+    modo_dashboard_configuracao: $Enums.DashboardModo | null
+    padrao_dashboard_configuracao: boolean | null
+    data_criacao_dashboard_configuracao: Date | null
+    data_atualizacao_dashboard_configuracao: Date | null
   }
 
   export type DashboardConfiguracaoMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    name: string | null
-    mode: $Enums.DashboardModo | null
-    is_default: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_dashboard_configuracao: string | null
+    id_organizacao_dashboard_configuracao: string | null
+    id_produto_dashboard_configuracao: string | null
+    id_usuario_dashboard_configuracao: string | null
+    nome_dashboard_configuracao: string | null
+    modo_dashboard_configuracao: $Enums.DashboardModo | null
+    padrao_dashboard_configuracao: boolean | null
+    data_criacao_dashboard_configuracao: Date | null
+    data_atualizacao_dashboard_configuracao: Date | null
   }
 
   export type DashboardConfiguracaoCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    name: number
-    mode: number
-    layout: number
-    filters: number
-    is_default: number
-    created_at: number
-    updated_at: number
+    id_dashboard_configuracao: number
+    id_organizacao_dashboard_configuracao: number
+    id_produto_dashboard_configuracao: number
+    id_usuario_dashboard_configuracao: number
+    nome_dashboard_configuracao: number
+    modo_dashboard_configuracao: number
+    layout_dashboard_configuracao: number
+    filtros_dashboard_configuracao: number
+    padrao_dashboard_configuracao: number
+    data_criacao_dashboard_configuracao: number
+    data_atualizacao_dashboard_configuracao: number
     _all: number
   }
 
 
   export type DashboardConfiguracaoMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    name?: true
-    mode?: true
-    is_default?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_configuracao?: true
+    id_organizacao_dashboard_configuracao?: true
+    id_produto_dashboard_configuracao?: true
+    id_usuario_dashboard_configuracao?: true
+    nome_dashboard_configuracao?: true
+    modo_dashboard_configuracao?: true
+    padrao_dashboard_configuracao?: true
+    data_criacao_dashboard_configuracao?: true
+    data_atualizacao_dashboard_configuracao?: true
   }
 
   export type DashboardConfiguracaoMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    name?: true
-    mode?: true
-    is_default?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_configuracao?: true
+    id_organizacao_dashboard_configuracao?: true
+    id_produto_dashboard_configuracao?: true
+    id_usuario_dashboard_configuracao?: true
+    nome_dashboard_configuracao?: true
+    modo_dashboard_configuracao?: true
+    padrao_dashboard_configuracao?: true
+    data_criacao_dashboard_configuracao?: true
+    data_atualizacao_dashboard_configuracao?: true
   }
 
   export type DashboardConfiguracaoCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    name?: true
-    mode?: true
-    layout?: true
-    filters?: true
-    is_default?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_configuracao?: true
+    id_organizacao_dashboard_configuracao?: true
+    id_produto_dashboard_configuracao?: true
+    id_usuario_dashboard_configuracao?: true
+    nome_dashboard_configuracao?: true
+    modo_dashboard_configuracao?: true
+    layout_dashboard_configuracao?: true
+    filtros_dashboard_configuracao?: true
+    padrao_dashboard_configuracao?: true
+    data_criacao_dashboard_configuracao?: true
+    data_atualizacao_dashboard_configuracao?: true
     _all?: true
   }
 
@@ -20647,17 +20647,17 @@ export namespace Prisma {
   }
 
   export type DashboardConfiguracaoGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string
-    name: string
-    mode: $Enums.DashboardModo
-    layout: JsonValue
-    filters: JsonValue | null
-    is_default: boolean
-    created_at: Date
-    updated_at: Date
+    id_dashboard_configuracao: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao: string
+    modo_dashboard_configuracao: $Enums.DashboardModo
+    layout_dashboard_configuracao: JsonValue
+    filtros_dashboard_configuracao: JsonValue | null
+    padrao_dashboard_configuracao: boolean
+    data_criacao_dashboard_configuracao: Date
+    data_atualizacao_dashboard_configuracao: Date
     _count: DashboardConfiguracaoCountAggregateOutputType | null
     _min: DashboardConfiguracaoMinAggregateOutputType | null
     _max: DashboardConfiguracaoMaxAggregateOutputType | null
@@ -20678,55 +20678,55 @@ export namespace Prisma {
 
 
   export type DashboardConfiguracaoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    name?: boolean
-    mode?: boolean
-    layout?: boolean
-    filters?: boolean
-    is_default?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    widgets?: boolean | DashboardConfiguracao$widgetsArgs<ExtArgs>
-    alerts?: boolean | DashboardConfiguracao$alertsArgs<ExtArgs>
-    shares?: boolean | DashboardConfiguracao$sharesArgs<ExtArgs>
+    id_dashboard_configuracao?: boolean
+    id_organizacao_dashboard_configuracao?: boolean
+    id_produto_dashboard_configuracao?: boolean
+    id_usuario_dashboard_configuracao?: boolean
+    nome_dashboard_configuracao?: boolean
+    modo_dashboard_configuracao?: boolean
+    layout_dashboard_configuracao?: boolean
+    filtros_dashboard_configuracao?: boolean
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: boolean
+    data_atualizacao_dashboard_configuracao?: boolean
+    widgets_dashboard_configuracao?: boolean | DashboardConfiguracao$widgets_dashboard_configuracaoArgs<ExtArgs>
+    alertas_dashboard_configuracao?: boolean | DashboardConfiguracao$alertas_dashboard_configuracaoArgs<ExtArgs>
+    shares_dashboard_configuracao?: boolean | DashboardConfiguracao$shares_dashboard_configuracaoArgs<ExtArgs>
     _count?: boolean | DashboardConfiguracaoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["dashboardConfiguracao"]>
 
   export type DashboardConfiguracaoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    name?: boolean
-    mode?: boolean
-    layout?: boolean
-    filters?: boolean
-    is_default?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_dashboard_configuracao?: boolean
+    id_organizacao_dashboard_configuracao?: boolean
+    id_produto_dashboard_configuracao?: boolean
+    id_usuario_dashboard_configuracao?: boolean
+    nome_dashboard_configuracao?: boolean
+    modo_dashboard_configuracao?: boolean
+    layout_dashboard_configuracao?: boolean
+    filtros_dashboard_configuracao?: boolean
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: boolean
+    data_atualizacao_dashboard_configuracao?: boolean
   }, ExtArgs["result"]["dashboardConfiguracao"]>
 
   export type DashboardConfiguracaoSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    name?: boolean
-    mode?: boolean
-    layout?: boolean
-    filters?: boolean
-    is_default?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_dashboard_configuracao?: boolean
+    id_organizacao_dashboard_configuracao?: boolean
+    id_produto_dashboard_configuracao?: boolean
+    id_usuario_dashboard_configuracao?: boolean
+    nome_dashboard_configuracao?: boolean
+    modo_dashboard_configuracao?: boolean
+    layout_dashboard_configuracao?: boolean
+    filtros_dashboard_configuracao?: boolean
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: boolean
+    data_atualizacao_dashboard_configuracao?: boolean
   }
 
   export type DashboardConfiguracaoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    widgets?: boolean | DashboardConfiguracao$widgetsArgs<ExtArgs>
-    alerts?: boolean | DashboardConfiguracao$alertsArgs<ExtArgs>
-    shares?: boolean | DashboardConfiguracao$sharesArgs<ExtArgs>
+    widgets_dashboard_configuracao?: boolean | DashboardConfiguracao$widgets_dashboard_configuracaoArgs<ExtArgs>
+    alertas_dashboard_configuracao?: boolean | DashboardConfiguracao$alertas_dashboard_configuracaoArgs<ExtArgs>
+    shares_dashboard_configuracao?: boolean | DashboardConfiguracao$shares_dashboard_configuracaoArgs<ExtArgs>
     _count?: boolean | DashboardConfiguracaoCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DashboardConfiguracaoIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -20734,22 +20734,22 @@ export namespace Prisma {
   export type $DashboardConfiguracaoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DashboardConfiguracao"
     objects: {
-      widgets: Prisma.$DashboardCriarPayload<ExtArgs>[]
-      alerts: Prisma.$DashboardAlertasPayload<ExtArgs>[]
-      shares: Prisma.$DashboardCompartilharPayload<ExtArgs>[]
+      widgets_dashboard_configuracao: Prisma.$DashboardCriarPayload<ExtArgs>[]
+      alertas_dashboard_configuracao: Prisma.$DashboardAlertasPayload<ExtArgs>[]
+      shares_dashboard_configuracao: Prisma.$DashboardCompartilharPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string
-      name: string
-      mode: $Enums.DashboardModo
-      layout: Prisma.JsonValue
-      filters: Prisma.JsonValue | null
-      is_default: boolean
-      created_at: Date
-      updated_at: Date
+      id_dashboard_configuracao: string
+      id_organizacao_dashboard_configuracao: string
+      id_produto_dashboard_configuracao: string | null
+      id_usuario_dashboard_configuracao: string
+      nome_dashboard_configuracao: string
+      modo_dashboard_configuracao: $Enums.DashboardModo
+      layout_dashboard_configuracao: Prisma.JsonValue
+      filtros_dashboard_configuracao: Prisma.JsonValue | null
+      padrao_dashboard_configuracao: boolean
+      data_criacao_dashboard_configuracao: Date
+      data_atualizacao_dashboard_configuracao: Date
     }, ExtArgs["result"]["dashboardConfiguracao"]>
     composites: {}
   }
@@ -20833,8 +20833,8 @@ export namespace Prisma {
      * // Get first 10 DashboardConfiguracaos
      * const dashboardConfiguracaos = await prisma.dashboardConfiguracao.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const dashboardConfiguracaoWithIdOnly = await prisma.dashboardConfiguracao.findMany({ select: { id: true } })
+     * // Only select the `id_dashboard_configuracao`
+     * const dashboardConfiguracaoWithId_dashboard_configuracaoOnly = await prisma.dashboardConfiguracao.findMany({ select: { id_dashboard_configuracao: true } })
      * 
      */
     findMany<T extends DashboardConfiguracaoFindManyArgs>(args?: SelectSubset<T, DashboardConfiguracaoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardConfiguracaoPayload<ExtArgs>, T, "findMany">>
@@ -20878,9 +20878,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many DashboardConfiguracaos and only return the `id`
-     * const dashboardConfiguracaoWithIdOnly = await prisma.dashboardConfiguracao.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many DashboardConfiguracaos and only return the `id_dashboard_configuracao`
+     * const dashboardConfiguracaoWithId_dashboard_configuracaoOnly = await prisma.dashboardConfiguracao.createManyAndReturn({ 
+     *   select: { id_dashboard_configuracao: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -21114,9 +21114,9 @@ export namespace Prisma {
    */
   export interface Prisma__DashboardConfiguracaoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    widgets<T extends DashboardConfiguracao$widgetsArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracao$widgetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardCriarPayload<ExtArgs>, T, "findMany"> | Null>
-    alerts<T extends DashboardConfiguracao$alertsArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracao$alertsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardAlertasPayload<ExtArgs>, T, "findMany"> | Null>
-    shares<T extends DashboardConfiguracao$sharesArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracao$sharesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardCompartilharPayload<ExtArgs>, T, "findMany"> | Null>
+    widgets_dashboard_configuracao<T extends DashboardConfiguracao$widgets_dashboard_configuracaoArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracao$widgets_dashboard_configuracaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardCriarPayload<ExtArgs>, T, "findMany"> | Null>
+    alertas_dashboard_configuracao<T extends DashboardConfiguracao$alertas_dashboard_configuracaoArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracao$alertas_dashboard_configuracaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardAlertasPayload<ExtArgs>, T, "findMany"> | Null>
+    shares_dashboard_configuracao<T extends DashboardConfiguracao$shares_dashboard_configuracaoArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracao$shares_dashboard_configuracaoArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardCompartilharPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -21146,17 +21146,17 @@ export namespace Prisma {
    * Fields of the DashboardConfiguracao model
    */ 
   interface DashboardConfiguracaoFieldRefs {
-    readonly id: FieldRef<"DashboardConfiguracao", 'String'>
-    readonly tenant_id: FieldRef<"DashboardConfiguracao", 'String'>
-    readonly product_id: FieldRef<"DashboardConfiguracao", 'String'>
-    readonly user_id: FieldRef<"DashboardConfiguracao", 'String'>
-    readonly name: FieldRef<"DashboardConfiguracao", 'String'>
-    readonly mode: FieldRef<"DashboardConfiguracao", 'DashboardModo'>
-    readonly layout: FieldRef<"DashboardConfiguracao", 'Json'>
-    readonly filters: FieldRef<"DashboardConfiguracao", 'Json'>
-    readonly is_default: FieldRef<"DashboardConfiguracao", 'Boolean'>
-    readonly created_at: FieldRef<"DashboardConfiguracao", 'DateTime'>
-    readonly updated_at: FieldRef<"DashboardConfiguracao", 'DateTime'>
+    readonly id_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'String'>
+    readonly id_organizacao_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'String'>
+    readonly id_produto_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'String'>
+    readonly id_usuario_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'String'>
+    readonly nome_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'String'>
+    readonly modo_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'DashboardModo'>
+    readonly layout_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'Json'>
+    readonly filtros_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'Json'>
+    readonly padrao_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'Boolean'>
+    readonly data_criacao_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'DateTime'>
+    readonly data_atualizacao_dashboard_configuracao: FieldRef<"DashboardConfiguracao", 'DateTime'>
   }
     
 
@@ -21471,9 +21471,9 @@ export namespace Prisma {
   }
 
   /**
-   * DashboardConfiguracao.widgets
+   * DashboardConfiguracao.widgets_dashboard_configuracao
    */
-  export type DashboardConfiguracao$widgetsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfiguracao$widgets_dashboard_configuracaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the DashboardCriar
      */
@@ -21491,9 +21491,9 @@ export namespace Prisma {
   }
 
   /**
-   * DashboardConfiguracao.alerts
+   * DashboardConfiguracao.alertas_dashboard_configuracao
    */
-  export type DashboardConfiguracao$alertsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfiguracao$alertas_dashboard_configuracaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the DashboardAlertas
      */
@@ -21511,9 +21511,9 @@ export namespace Prisma {
   }
 
   /**
-   * DashboardConfiguracao.shares
+   * DashboardConfiguracao.shares_dashboard_configuracao
    */
-  export type DashboardConfiguracao$sharesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DashboardConfiguracao$shares_dashboard_configuracaoArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the DashboardCompartilhar
      */
@@ -21556,95 +21556,95 @@ export namespace Prisma {
   }
 
   export type DashboardCriarMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    dashboard_id: string | null
-    widget_key: string | null
-    widget_type: $Enums.DashboardTipo | null
-    chart_type: $Enums.GraficoTipo | null
-    title: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_dashboard_criar: string | null
+    id_organizacao_dashboard_criar: string | null
+    id_produto_dashboard_criar: string | null
+    id_usuario_dashboard_criar: string | null
+    id_dashboard_dashboard_criar: string | null
+    chave_widget_dashboard_criar: string | null
+    tipo_widget_dashboard_criar: $Enums.DashboardTipo | null
+    tipo_grafico_dashboard_criar: $Enums.GraficoTipo | null
+    titulo_dashboard_criar: string | null
+    data_criacao_dashboard_criar: Date | null
+    data_atualizacao_dashboard_criar: Date | null
   }
 
   export type DashboardCriarMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    dashboard_id: string | null
-    widget_key: string | null
-    widget_type: $Enums.DashboardTipo | null
-    chart_type: $Enums.GraficoTipo | null
-    title: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_dashboard_criar: string | null
+    id_organizacao_dashboard_criar: string | null
+    id_produto_dashboard_criar: string | null
+    id_usuario_dashboard_criar: string | null
+    id_dashboard_dashboard_criar: string | null
+    chave_widget_dashboard_criar: string | null
+    tipo_widget_dashboard_criar: $Enums.DashboardTipo | null
+    tipo_grafico_dashboard_criar: $Enums.GraficoTipo | null
+    titulo_dashboard_criar: string | null
+    data_criacao_dashboard_criar: Date | null
+    data_atualizacao_dashboard_criar: Date | null
   }
 
   export type DashboardCriarCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    dashboard_id: number
-    widget_key: number
-    widget_type: number
-    chart_type: number
-    title: number
-    query_spec: number
-    position: number
-    config: number
-    created_at: number
-    updated_at: number
+    id_dashboard_criar: number
+    id_organizacao_dashboard_criar: number
+    id_produto_dashboard_criar: number
+    id_usuario_dashboard_criar: number
+    id_dashboard_dashboard_criar: number
+    chave_widget_dashboard_criar: number
+    tipo_widget_dashboard_criar: number
+    tipo_grafico_dashboard_criar: number
+    titulo_dashboard_criar: number
+    query_spec_dashboard_criar: number
+    posicao_dashboard_criar: number
+    config_dashboard_criar: number
+    data_criacao_dashboard_criar: number
+    data_atualizacao_dashboard_criar: number
     _all: number
   }
 
 
   export type DashboardCriarMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    widget_key?: true
-    widget_type?: true
-    chart_type?: true
-    title?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_criar?: true
+    id_organizacao_dashboard_criar?: true
+    id_produto_dashboard_criar?: true
+    id_usuario_dashboard_criar?: true
+    id_dashboard_dashboard_criar?: true
+    chave_widget_dashboard_criar?: true
+    tipo_widget_dashboard_criar?: true
+    tipo_grafico_dashboard_criar?: true
+    titulo_dashboard_criar?: true
+    data_criacao_dashboard_criar?: true
+    data_atualizacao_dashboard_criar?: true
   }
 
   export type DashboardCriarMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    widget_key?: true
-    widget_type?: true
-    chart_type?: true
-    title?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_criar?: true
+    id_organizacao_dashboard_criar?: true
+    id_produto_dashboard_criar?: true
+    id_usuario_dashboard_criar?: true
+    id_dashboard_dashboard_criar?: true
+    chave_widget_dashboard_criar?: true
+    tipo_widget_dashboard_criar?: true
+    tipo_grafico_dashboard_criar?: true
+    titulo_dashboard_criar?: true
+    data_criacao_dashboard_criar?: true
+    data_atualizacao_dashboard_criar?: true
   }
 
   export type DashboardCriarCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    widget_key?: true
-    widget_type?: true
-    chart_type?: true
-    title?: true
-    query_spec?: true
-    position?: true
-    config?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_criar?: true
+    id_organizacao_dashboard_criar?: true
+    id_produto_dashboard_criar?: true
+    id_usuario_dashboard_criar?: true
+    id_dashboard_dashboard_criar?: true
+    chave_widget_dashboard_criar?: true
+    tipo_widget_dashboard_criar?: true
+    tipo_grafico_dashboard_criar?: true
+    titulo_dashboard_criar?: true
+    query_spec_dashboard_criar?: true
+    posicao_dashboard_criar?: true
+    config_dashboard_criar?: true
+    data_criacao_dashboard_criar?: true
+    data_atualizacao_dashboard_criar?: true
     _all?: true
   }
 
@@ -21721,20 +21721,20 @@ export namespace Prisma {
   }
 
   export type DashboardCriarGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string
-    dashboard_id: string
-    widget_key: string
-    widget_type: $Enums.DashboardTipo
-    chart_type: $Enums.GraficoTipo
-    title: string
-    query_spec: JsonValue
-    position: JsonValue
-    config: JsonValue | null
-    created_at: Date
-    updated_at: Date
+    id_dashboard_criar: string
+    id_organizacao_dashboard_criar: string
+    id_produto_dashboard_criar: string | null
+    id_usuario_dashboard_criar: string
+    id_dashboard_dashboard_criar: string
+    chave_widget_dashboard_criar: string
+    tipo_widget_dashboard_criar: $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar: $Enums.GraficoTipo
+    titulo_dashboard_criar: string
+    query_spec_dashboard_criar: JsonValue
+    posicao_dashboard_criar: JsonValue
+    config_dashboard_criar: JsonValue | null
+    data_criacao_dashboard_criar: Date
+    data_atualizacao_dashboard_criar: Date
     _count: DashboardCriarCountAggregateOutputType | null
     _min: DashboardCriarMinAggregateOutputType | null
     _max: DashboardCriarMaxAggregateOutputType | null
@@ -21755,85 +21755,85 @@ export namespace Prisma {
 
 
   export type DashboardCriarSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    widget_key?: boolean
-    widget_type?: boolean
-    chart_type?: boolean
-    title?: boolean
-    query_spec?: boolean
-    position?: boolean
-    config?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    id_dashboard_criar?: boolean
+    id_organizacao_dashboard_criar?: boolean
+    id_produto_dashboard_criar?: boolean
+    id_usuario_dashboard_criar?: boolean
+    id_dashboard_dashboard_criar?: boolean
+    chave_widget_dashboard_criar?: boolean
+    tipo_widget_dashboard_criar?: boolean
+    tipo_grafico_dashboard_criar?: boolean
+    titulo_dashboard_criar?: boolean
+    query_spec_dashboard_criar?: boolean
+    posicao_dashboard_criar?: boolean
+    config_dashboard_criar?: boolean
+    data_criacao_dashboard_criar?: boolean
+    data_atualizacao_dashboard_criar?: boolean
+    dashboard_dashboard_criar?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["dashboardCriar"]>
 
   export type DashboardCriarSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    widget_key?: boolean
-    widget_type?: boolean
-    chart_type?: boolean
-    title?: boolean
-    query_spec?: boolean
-    position?: boolean
-    config?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    id_dashboard_criar?: boolean
+    id_organizacao_dashboard_criar?: boolean
+    id_produto_dashboard_criar?: boolean
+    id_usuario_dashboard_criar?: boolean
+    id_dashboard_dashboard_criar?: boolean
+    chave_widget_dashboard_criar?: boolean
+    tipo_widget_dashboard_criar?: boolean
+    tipo_grafico_dashboard_criar?: boolean
+    titulo_dashboard_criar?: boolean
+    query_spec_dashboard_criar?: boolean
+    posicao_dashboard_criar?: boolean
+    config_dashboard_criar?: boolean
+    data_criacao_dashboard_criar?: boolean
+    data_atualizacao_dashboard_criar?: boolean
+    dashboard_dashboard_criar?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["dashboardCriar"]>
 
   export type DashboardCriarSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    widget_key?: boolean
-    widget_type?: boolean
-    chart_type?: boolean
-    title?: boolean
-    query_spec?: boolean
-    position?: boolean
-    config?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_dashboard_criar?: boolean
+    id_organizacao_dashboard_criar?: boolean
+    id_produto_dashboard_criar?: boolean
+    id_usuario_dashboard_criar?: boolean
+    id_dashboard_dashboard_criar?: boolean
+    chave_widget_dashboard_criar?: boolean
+    tipo_widget_dashboard_criar?: boolean
+    tipo_grafico_dashboard_criar?: boolean
+    titulo_dashboard_criar?: boolean
+    query_spec_dashboard_criar?: boolean
+    posicao_dashboard_criar?: boolean
+    config_dashboard_criar?: boolean
+    data_criacao_dashboard_criar?: boolean
+    data_atualizacao_dashboard_criar?: boolean
   }
 
   export type DashboardCriarInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    dashboard_dashboard_criar?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }
   export type DashboardCriarIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    dashboard_dashboard_criar?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }
 
   export type $DashboardCriarPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DashboardCriar"
     objects: {
-      dashboard: Prisma.$DashboardConfiguracaoPayload<ExtArgs>
+      dashboard_dashboard_criar: Prisma.$DashboardConfiguracaoPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string
-      dashboard_id: string
-      widget_key: string
-      widget_type: $Enums.DashboardTipo
-      chart_type: $Enums.GraficoTipo
-      title: string
-      query_spec: Prisma.JsonValue
-      position: Prisma.JsonValue
-      config: Prisma.JsonValue | null
-      created_at: Date
-      updated_at: Date
+      id_dashboard_criar: string
+      id_organizacao_dashboard_criar: string
+      id_produto_dashboard_criar: string | null
+      id_usuario_dashboard_criar: string
+      id_dashboard_dashboard_criar: string
+      chave_widget_dashboard_criar: string
+      tipo_widget_dashboard_criar: $Enums.DashboardTipo
+      tipo_grafico_dashboard_criar: $Enums.GraficoTipo
+      titulo_dashboard_criar: string
+      query_spec_dashboard_criar: Prisma.JsonValue
+      posicao_dashboard_criar: Prisma.JsonValue
+      config_dashboard_criar: Prisma.JsonValue | null
+      data_criacao_dashboard_criar: Date
+      data_atualizacao_dashboard_criar: Date
     }, ExtArgs["result"]["dashboardCriar"]>
     composites: {}
   }
@@ -21917,8 +21917,8 @@ export namespace Prisma {
      * // Get first 10 DashboardCriars
      * const dashboardCriars = await prisma.dashboardCriar.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const dashboardCriarWithIdOnly = await prisma.dashboardCriar.findMany({ select: { id: true } })
+     * // Only select the `id_dashboard_criar`
+     * const dashboardCriarWithId_dashboard_criarOnly = await prisma.dashboardCriar.findMany({ select: { id_dashboard_criar: true } })
      * 
      */
     findMany<T extends DashboardCriarFindManyArgs>(args?: SelectSubset<T, DashboardCriarFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardCriarPayload<ExtArgs>, T, "findMany">>
@@ -21962,9 +21962,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many DashboardCriars and only return the `id`
-     * const dashboardCriarWithIdOnly = await prisma.dashboardCriar.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many DashboardCriars and only return the `id_dashboard_criar`
+     * const dashboardCriarWithId_dashboard_criarOnly = await prisma.dashboardCriar.createManyAndReturn({ 
+     *   select: { id_dashboard_criar: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -22198,7 +22198,7 @@ export namespace Prisma {
    */
   export interface Prisma__DashboardCriarClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    dashboard<T extends DashboardConfiguracaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracaoDefaultArgs<ExtArgs>>): Prisma__DashboardConfiguracaoClient<$Result.GetResult<Prisma.$DashboardConfiguracaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    dashboard_dashboard_criar<T extends DashboardConfiguracaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracaoDefaultArgs<ExtArgs>>): Prisma__DashboardConfiguracaoClient<$Result.GetResult<Prisma.$DashboardConfiguracaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -22228,20 +22228,20 @@ export namespace Prisma {
    * Fields of the DashboardCriar model
    */ 
   interface DashboardCriarFieldRefs {
-    readonly id: FieldRef<"DashboardCriar", 'String'>
-    readonly tenant_id: FieldRef<"DashboardCriar", 'String'>
-    readonly product_id: FieldRef<"DashboardCriar", 'String'>
-    readonly user_id: FieldRef<"DashboardCriar", 'String'>
-    readonly dashboard_id: FieldRef<"DashboardCriar", 'String'>
-    readonly widget_key: FieldRef<"DashboardCriar", 'String'>
-    readonly widget_type: FieldRef<"DashboardCriar", 'DashboardTipo'>
-    readonly chart_type: FieldRef<"DashboardCriar", 'GraficoTipo'>
-    readonly title: FieldRef<"DashboardCriar", 'String'>
-    readonly query_spec: FieldRef<"DashboardCriar", 'Json'>
-    readonly position: FieldRef<"DashboardCriar", 'Json'>
-    readonly config: FieldRef<"DashboardCriar", 'Json'>
-    readonly created_at: FieldRef<"DashboardCriar", 'DateTime'>
-    readonly updated_at: FieldRef<"DashboardCriar", 'DateTime'>
+    readonly id_dashboard_criar: FieldRef<"DashboardCriar", 'String'>
+    readonly id_organizacao_dashboard_criar: FieldRef<"DashboardCriar", 'String'>
+    readonly id_produto_dashboard_criar: FieldRef<"DashboardCriar", 'String'>
+    readonly id_usuario_dashboard_criar: FieldRef<"DashboardCriar", 'String'>
+    readonly id_dashboard_dashboard_criar: FieldRef<"DashboardCriar", 'String'>
+    readonly chave_widget_dashboard_criar: FieldRef<"DashboardCriar", 'String'>
+    readonly tipo_widget_dashboard_criar: FieldRef<"DashboardCriar", 'DashboardTipo'>
+    readonly tipo_grafico_dashboard_criar: FieldRef<"DashboardCriar", 'GraficoTipo'>
+    readonly titulo_dashboard_criar: FieldRef<"DashboardCriar", 'String'>
+    readonly query_spec_dashboard_criar: FieldRef<"DashboardCriar", 'Json'>
+    readonly posicao_dashboard_criar: FieldRef<"DashboardCriar", 'Json'>
+    readonly config_dashboard_criar: FieldRef<"DashboardCriar", 'Json'>
+    readonly data_criacao_dashboard_criar: FieldRef<"DashboardCriar", 'DateTime'>
+    readonly data_atualizacao_dashboard_criar: FieldRef<"DashboardCriar", 'DateTime'>
   }
     
 
@@ -22585,75 +22585,75 @@ export namespace Prisma {
   }
 
   export type DashboardMetricasMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    metric_key: string | null
-    period_from: Date | null
-    period_to: Date | null
-    captured_at: Date | null
+    id_dashboard_metricas: string | null
+    id_organizacao_dashboard_metricas: string | null
+    id_produto_dashboard_metricas: string | null
+    id_usuario_dashboard_metricas: string | null
+    chave_metrica_dashboard_metricas: string | null
+    periodo_inicio_dashboard_metricas: Date | null
+    periodo_fim_dashboard_metricas: Date | null
+    capturado_em_dashboard_metricas: Date | null
   }
 
   export type DashboardMetricasMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    metric_key: string | null
-    period_from: Date | null
-    period_to: Date | null
-    captured_at: Date | null
+    id_dashboard_metricas: string | null
+    id_organizacao_dashboard_metricas: string | null
+    id_produto_dashboard_metricas: string | null
+    id_usuario_dashboard_metricas: string | null
+    chave_metrica_dashboard_metricas: string | null
+    periodo_inicio_dashboard_metricas: Date | null
+    periodo_fim_dashboard_metricas: Date | null
+    capturado_em_dashboard_metricas: Date | null
   }
 
   export type DashboardMetricasCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    metric_key: number
-    dimensions: number
-    value: number
-    period_from: number
-    period_to: number
-    captured_at: number
+    id_dashboard_metricas: number
+    id_organizacao_dashboard_metricas: number
+    id_produto_dashboard_metricas: number
+    id_usuario_dashboard_metricas: number
+    chave_metrica_dashboard_metricas: number
+    dimensoes_dashboard_metricas: number
+    valor_dashboard_metricas: number
+    periodo_inicio_dashboard_metricas: number
+    periodo_fim_dashboard_metricas: number
+    capturado_em_dashboard_metricas: number
     _all: number
   }
 
 
   export type DashboardMetricasMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    metric_key?: true
-    period_from?: true
-    period_to?: true
-    captured_at?: true
+    id_dashboard_metricas?: true
+    id_organizacao_dashboard_metricas?: true
+    id_produto_dashboard_metricas?: true
+    id_usuario_dashboard_metricas?: true
+    chave_metrica_dashboard_metricas?: true
+    periodo_inicio_dashboard_metricas?: true
+    periodo_fim_dashboard_metricas?: true
+    capturado_em_dashboard_metricas?: true
   }
 
   export type DashboardMetricasMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    metric_key?: true
-    period_from?: true
-    period_to?: true
-    captured_at?: true
+    id_dashboard_metricas?: true
+    id_organizacao_dashboard_metricas?: true
+    id_produto_dashboard_metricas?: true
+    id_usuario_dashboard_metricas?: true
+    chave_metrica_dashboard_metricas?: true
+    periodo_inicio_dashboard_metricas?: true
+    periodo_fim_dashboard_metricas?: true
+    capturado_em_dashboard_metricas?: true
   }
 
   export type DashboardMetricasCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    metric_key?: true
-    dimensions?: true
-    value?: true
-    period_from?: true
-    period_to?: true
-    captured_at?: true
+    id_dashboard_metricas?: true
+    id_organizacao_dashboard_metricas?: true
+    id_produto_dashboard_metricas?: true
+    id_usuario_dashboard_metricas?: true
+    chave_metrica_dashboard_metricas?: true
+    dimensoes_dashboard_metricas?: true
+    valor_dashboard_metricas?: true
+    periodo_inicio_dashboard_metricas?: true
+    periodo_fim_dashboard_metricas?: true
+    capturado_em_dashboard_metricas?: true
     _all?: true
   }
 
@@ -22730,16 +22730,16 @@ export namespace Prisma {
   }
 
   export type DashboardMetricasGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string
-    user_id: string | null
-    metric_key: string
-    dimensions: JsonValue | null
-    value: JsonValue
-    period_from: Date
-    period_to: Date
-    captured_at: Date
+    id_dashboard_metricas: string
+    id_organizacao_dashboard_metricas: string
+    id_produto_dashboard_metricas: string
+    id_usuario_dashboard_metricas: string | null
+    chave_metrica_dashboard_metricas: string
+    dimensoes_dashboard_metricas: JsonValue | null
+    valor_dashboard_metricas: JsonValue
+    periodo_inicio_dashboard_metricas: Date
+    periodo_fim_dashboard_metricas: Date
+    capturado_em_dashboard_metricas: Date
     _count: DashboardMetricasCountAggregateOutputType | null
     _min: DashboardMetricasMinAggregateOutputType | null
     _max: DashboardMetricasMaxAggregateOutputType | null
@@ -22760,42 +22760,42 @@ export namespace Prisma {
 
 
   export type DashboardMetricasSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    metric_key?: boolean
-    dimensions?: boolean
-    value?: boolean
-    period_from?: boolean
-    period_to?: boolean
-    captured_at?: boolean
+    id_dashboard_metricas?: boolean
+    id_organizacao_dashboard_metricas?: boolean
+    id_produto_dashboard_metricas?: boolean
+    id_usuario_dashboard_metricas?: boolean
+    chave_metrica_dashboard_metricas?: boolean
+    dimensoes_dashboard_metricas?: boolean
+    valor_dashboard_metricas?: boolean
+    periodo_inicio_dashboard_metricas?: boolean
+    periodo_fim_dashboard_metricas?: boolean
+    capturado_em_dashboard_metricas?: boolean
   }, ExtArgs["result"]["dashboardMetricas"]>
 
   export type DashboardMetricasSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    metric_key?: boolean
-    dimensions?: boolean
-    value?: boolean
-    period_from?: boolean
-    period_to?: boolean
-    captured_at?: boolean
+    id_dashboard_metricas?: boolean
+    id_organizacao_dashboard_metricas?: boolean
+    id_produto_dashboard_metricas?: boolean
+    id_usuario_dashboard_metricas?: boolean
+    chave_metrica_dashboard_metricas?: boolean
+    dimensoes_dashboard_metricas?: boolean
+    valor_dashboard_metricas?: boolean
+    periodo_inicio_dashboard_metricas?: boolean
+    periodo_fim_dashboard_metricas?: boolean
+    capturado_em_dashboard_metricas?: boolean
   }, ExtArgs["result"]["dashboardMetricas"]>
 
   export type DashboardMetricasSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    metric_key?: boolean
-    dimensions?: boolean
-    value?: boolean
-    period_from?: boolean
-    period_to?: boolean
-    captured_at?: boolean
+    id_dashboard_metricas?: boolean
+    id_organizacao_dashboard_metricas?: boolean
+    id_produto_dashboard_metricas?: boolean
+    id_usuario_dashboard_metricas?: boolean
+    chave_metrica_dashboard_metricas?: boolean
+    dimensoes_dashboard_metricas?: boolean
+    valor_dashboard_metricas?: boolean
+    periodo_inicio_dashboard_metricas?: boolean
+    periodo_fim_dashboard_metricas?: boolean
+    capturado_em_dashboard_metricas?: boolean
   }
 
 
@@ -22803,16 +22803,16 @@ export namespace Prisma {
     name: "DashboardMetricas"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string
-      user_id: string | null
-      metric_key: string
-      dimensions: Prisma.JsonValue | null
-      value: Prisma.JsonValue
-      period_from: Date
-      period_to: Date
-      captured_at: Date
+      id_dashboard_metricas: string
+      id_organizacao_dashboard_metricas: string
+      id_produto_dashboard_metricas: string
+      id_usuario_dashboard_metricas: string | null
+      chave_metrica_dashboard_metricas: string
+      dimensoes_dashboard_metricas: Prisma.JsonValue | null
+      valor_dashboard_metricas: Prisma.JsonValue
+      periodo_inicio_dashboard_metricas: Date
+      periodo_fim_dashboard_metricas: Date
+      capturado_em_dashboard_metricas: Date
     }, ExtArgs["result"]["dashboardMetricas"]>
     composites: {}
   }
@@ -22896,8 +22896,8 @@ export namespace Prisma {
      * // Get first 10 DashboardMetricas
      * const dashboardMetricas = await prisma.dashboardMetricas.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const dashboardMetricasWithIdOnly = await prisma.dashboardMetricas.findMany({ select: { id: true } })
+     * // Only select the `id_dashboard_metricas`
+     * const dashboardMetricasWithId_dashboard_metricasOnly = await prisma.dashboardMetricas.findMany({ select: { id_dashboard_metricas: true } })
      * 
      */
     findMany<T extends DashboardMetricasFindManyArgs>(args?: SelectSubset<T, DashboardMetricasFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardMetricasPayload<ExtArgs>, T, "findMany">>
@@ -22941,9 +22941,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many DashboardMetricas and only return the `id`
-     * const dashboardMetricasWithIdOnly = await prisma.dashboardMetricas.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many DashboardMetricas and only return the `id_dashboard_metricas`
+     * const dashboardMetricasWithId_dashboard_metricasOnly = await prisma.dashboardMetricas.createManyAndReturn({ 
+     *   select: { id_dashboard_metricas: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -23206,16 +23206,16 @@ export namespace Prisma {
    * Fields of the DashboardMetricas model
    */ 
   interface DashboardMetricasFieldRefs {
-    readonly id: FieldRef<"DashboardMetricas", 'String'>
-    readonly tenant_id: FieldRef<"DashboardMetricas", 'String'>
-    readonly product_id: FieldRef<"DashboardMetricas", 'String'>
-    readonly user_id: FieldRef<"DashboardMetricas", 'String'>
-    readonly metric_key: FieldRef<"DashboardMetricas", 'String'>
-    readonly dimensions: FieldRef<"DashboardMetricas", 'Json'>
-    readonly value: FieldRef<"DashboardMetricas", 'Json'>
-    readonly period_from: FieldRef<"DashboardMetricas", 'DateTime'>
-    readonly period_to: FieldRef<"DashboardMetricas", 'DateTime'>
-    readonly captured_at: FieldRef<"DashboardMetricas", 'DateTime'>
+    readonly id_dashboard_metricas: FieldRef<"DashboardMetricas", 'String'>
+    readonly id_organizacao_dashboard_metricas: FieldRef<"DashboardMetricas", 'String'>
+    readonly id_produto_dashboard_metricas: FieldRef<"DashboardMetricas", 'String'>
+    readonly id_usuario_dashboard_metricas: FieldRef<"DashboardMetricas", 'String'>
+    readonly chave_metrica_dashboard_metricas: FieldRef<"DashboardMetricas", 'String'>
+    readonly dimensoes_dashboard_metricas: FieldRef<"DashboardMetricas", 'Json'>
+    readonly valor_dashboard_metricas: FieldRef<"DashboardMetricas", 'Json'>
+    readonly periodo_inicio_dashboard_metricas: FieldRef<"DashboardMetricas", 'DateTime'>
+    readonly periodo_fim_dashboard_metricas: FieldRef<"DashboardMetricas", 'DateTime'>
+    readonly capturado_em_dashboard_metricas: FieldRef<"DashboardMetricas", 'DateTime'>
   }
     
 
@@ -23515,99 +23515,99 @@ export namespace Prisma {
   }
 
   export type DashboardAlertasMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    dashboard_id: string | null
-    widget_id: string | null
-    metric_key: string | null
-    condition: string | null
-    is_active: boolean | null
-    last_triggered: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_dashboard_alertas: string | null
+    id_organizacao_dashboard_alertas: string | null
+    id_produto_dashboard_alertas: string | null
+    id_usuario_dashboard_alertas: string | null
+    id_dashboard_dashboard_alertas: string | null
+    id_widget_dashboard_alertas: string | null
+    chave_metrica_dashboard_alertas: string | null
+    condicao_dashboard_alertas: string | null
+    ativa_dashboard_alertas: boolean | null
+    ultimo_disparo_dashboard_alertas: Date | null
+    data_criacao_dashboard_alertas: Date | null
+    data_atualizacao_dashboard_alertas: Date | null
   }
 
   export type DashboardAlertasMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    dashboard_id: string | null
-    widget_id: string | null
-    metric_key: string | null
-    condition: string | null
-    is_active: boolean | null
-    last_triggered: Date | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_dashboard_alertas: string | null
+    id_organizacao_dashboard_alertas: string | null
+    id_produto_dashboard_alertas: string | null
+    id_usuario_dashboard_alertas: string | null
+    id_dashboard_dashboard_alertas: string | null
+    id_widget_dashboard_alertas: string | null
+    chave_metrica_dashboard_alertas: string | null
+    condicao_dashboard_alertas: string | null
+    ativa_dashboard_alertas: boolean | null
+    ultimo_disparo_dashboard_alertas: Date | null
+    data_criacao_dashboard_alertas: Date | null
+    data_atualizacao_dashboard_alertas: Date | null
   }
 
   export type DashboardAlertasCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    dashboard_id: number
-    widget_id: number
-    metric_key: number
-    condition: number
-    threshold: number
-    channels: number
-    is_active: number
-    last_triggered: number
-    created_at: number
-    updated_at: number
+    id_dashboard_alertas: number
+    id_organizacao_dashboard_alertas: number
+    id_produto_dashboard_alertas: number
+    id_usuario_dashboard_alertas: number
+    id_dashboard_dashboard_alertas: number
+    id_widget_dashboard_alertas: number
+    chave_metrica_dashboard_alertas: number
+    condicao_dashboard_alertas: number
+    limiar_dashboard_alertas: number
+    canais_dashboard_alertas: number
+    ativa_dashboard_alertas: number
+    ultimo_disparo_dashboard_alertas: number
+    data_criacao_dashboard_alertas: number
+    data_atualizacao_dashboard_alertas: number
     _all: number
   }
 
 
   export type DashboardAlertasMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    widget_id?: true
-    metric_key?: true
-    condition?: true
-    is_active?: true
-    last_triggered?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_alertas?: true
+    id_organizacao_dashboard_alertas?: true
+    id_produto_dashboard_alertas?: true
+    id_usuario_dashboard_alertas?: true
+    id_dashboard_dashboard_alertas?: true
+    id_widget_dashboard_alertas?: true
+    chave_metrica_dashboard_alertas?: true
+    condicao_dashboard_alertas?: true
+    ativa_dashboard_alertas?: true
+    ultimo_disparo_dashboard_alertas?: true
+    data_criacao_dashboard_alertas?: true
+    data_atualizacao_dashboard_alertas?: true
   }
 
   export type DashboardAlertasMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    widget_id?: true
-    metric_key?: true
-    condition?: true
-    is_active?: true
-    last_triggered?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_alertas?: true
+    id_organizacao_dashboard_alertas?: true
+    id_produto_dashboard_alertas?: true
+    id_usuario_dashboard_alertas?: true
+    id_dashboard_dashboard_alertas?: true
+    id_widget_dashboard_alertas?: true
+    chave_metrica_dashboard_alertas?: true
+    condicao_dashboard_alertas?: true
+    ativa_dashboard_alertas?: true
+    ultimo_disparo_dashboard_alertas?: true
+    data_criacao_dashboard_alertas?: true
+    data_atualizacao_dashboard_alertas?: true
   }
 
   export type DashboardAlertasCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    widget_id?: true
-    metric_key?: true
-    condition?: true
-    threshold?: true
-    channels?: true
-    is_active?: true
-    last_triggered?: true
-    created_at?: true
-    updated_at?: true
+    id_dashboard_alertas?: true
+    id_organizacao_dashboard_alertas?: true
+    id_produto_dashboard_alertas?: true
+    id_usuario_dashboard_alertas?: true
+    id_dashboard_dashboard_alertas?: true
+    id_widget_dashboard_alertas?: true
+    chave_metrica_dashboard_alertas?: true
+    condicao_dashboard_alertas?: true
+    limiar_dashboard_alertas?: true
+    canais_dashboard_alertas?: true
+    ativa_dashboard_alertas?: true
+    ultimo_disparo_dashboard_alertas?: true
+    data_criacao_dashboard_alertas?: true
+    data_atualizacao_dashboard_alertas?: true
     _all?: true
   }
 
@@ -23684,20 +23684,20 @@ export namespace Prisma {
   }
 
   export type DashboardAlertasGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string
-    dashboard_id: string
-    widget_id: string | null
-    metric_key: string
-    condition: string
-    threshold: JsonValue
-    channels: string[]
-    is_active: boolean
-    last_triggered: Date | null
-    created_at: Date
-    updated_at: Date
+    id_dashboard_alertas: string
+    id_organizacao_dashboard_alertas: string
+    id_produto_dashboard_alertas: string | null
+    id_usuario_dashboard_alertas: string
+    id_dashboard_dashboard_alertas: string
+    id_widget_dashboard_alertas: string | null
+    chave_metrica_dashboard_alertas: string
+    condicao_dashboard_alertas: string
+    limiar_dashboard_alertas: JsonValue
+    canais_dashboard_alertas: string[]
+    ativa_dashboard_alertas: boolean
+    ultimo_disparo_dashboard_alertas: Date | null
+    data_criacao_dashboard_alertas: Date
+    data_atualizacao_dashboard_alertas: Date
     _count: DashboardAlertasCountAggregateOutputType | null
     _min: DashboardAlertasMinAggregateOutputType | null
     _max: DashboardAlertasMaxAggregateOutputType | null
@@ -23718,85 +23718,85 @@ export namespace Prisma {
 
 
   export type DashboardAlertasSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    widget_id?: boolean
-    metric_key?: boolean
-    condition?: boolean
-    threshold?: boolean
-    channels?: boolean
-    is_active?: boolean
-    last_triggered?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    id_dashboard_alertas?: boolean
+    id_organizacao_dashboard_alertas?: boolean
+    id_produto_dashboard_alertas?: boolean
+    id_usuario_dashboard_alertas?: boolean
+    id_dashboard_dashboard_alertas?: boolean
+    id_widget_dashboard_alertas?: boolean
+    chave_metrica_dashboard_alertas?: boolean
+    condicao_dashboard_alertas?: boolean
+    limiar_dashboard_alertas?: boolean
+    canais_dashboard_alertas?: boolean
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: boolean
+    data_criacao_dashboard_alertas?: boolean
+    data_atualizacao_dashboard_alertas?: boolean
+    dashboard_dashboard_alertas?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["dashboardAlertas"]>
 
   export type DashboardAlertasSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    widget_id?: boolean
-    metric_key?: boolean
-    condition?: boolean
-    threshold?: boolean
-    channels?: boolean
-    is_active?: boolean
-    last_triggered?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    id_dashboard_alertas?: boolean
+    id_organizacao_dashboard_alertas?: boolean
+    id_produto_dashboard_alertas?: boolean
+    id_usuario_dashboard_alertas?: boolean
+    id_dashboard_dashboard_alertas?: boolean
+    id_widget_dashboard_alertas?: boolean
+    chave_metrica_dashboard_alertas?: boolean
+    condicao_dashboard_alertas?: boolean
+    limiar_dashboard_alertas?: boolean
+    canais_dashboard_alertas?: boolean
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: boolean
+    data_criacao_dashboard_alertas?: boolean
+    data_atualizacao_dashboard_alertas?: boolean
+    dashboard_dashboard_alertas?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["dashboardAlertas"]>
 
   export type DashboardAlertasSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    widget_id?: boolean
-    metric_key?: boolean
-    condition?: boolean
-    threshold?: boolean
-    channels?: boolean
-    is_active?: boolean
-    last_triggered?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_dashboard_alertas?: boolean
+    id_organizacao_dashboard_alertas?: boolean
+    id_produto_dashboard_alertas?: boolean
+    id_usuario_dashboard_alertas?: boolean
+    id_dashboard_dashboard_alertas?: boolean
+    id_widget_dashboard_alertas?: boolean
+    chave_metrica_dashboard_alertas?: boolean
+    condicao_dashboard_alertas?: boolean
+    limiar_dashboard_alertas?: boolean
+    canais_dashboard_alertas?: boolean
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: boolean
+    data_criacao_dashboard_alertas?: boolean
+    data_atualizacao_dashboard_alertas?: boolean
   }
 
   export type DashboardAlertasInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    dashboard_dashboard_alertas?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }
   export type DashboardAlertasIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    dashboard_dashboard_alertas?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }
 
   export type $DashboardAlertasPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DashboardAlertas"
     objects: {
-      dashboard: Prisma.$DashboardConfiguracaoPayload<ExtArgs>
+      dashboard_dashboard_alertas: Prisma.$DashboardConfiguracaoPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string
-      dashboard_id: string
-      widget_id: string | null
-      metric_key: string
-      condition: string
-      threshold: Prisma.JsonValue
-      channels: string[]
-      is_active: boolean
-      last_triggered: Date | null
-      created_at: Date
-      updated_at: Date
+      id_dashboard_alertas: string
+      id_organizacao_dashboard_alertas: string
+      id_produto_dashboard_alertas: string | null
+      id_usuario_dashboard_alertas: string
+      id_dashboard_dashboard_alertas: string
+      id_widget_dashboard_alertas: string | null
+      chave_metrica_dashboard_alertas: string
+      condicao_dashboard_alertas: string
+      limiar_dashboard_alertas: Prisma.JsonValue
+      canais_dashboard_alertas: string[]
+      ativa_dashboard_alertas: boolean
+      ultimo_disparo_dashboard_alertas: Date | null
+      data_criacao_dashboard_alertas: Date
+      data_atualizacao_dashboard_alertas: Date
     }, ExtArgs["result"]["dashboardAlertas"]>
     composites: {}
   }
@@ -23880,8 +23880,8 @@ export namespace Prisma {
      * // Get first 10 DashboardAlertas
      * const dashboardAlertas = await prisma.dashboardAlertas.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const dashboardAlertasWithIdOnly = await prisma.dashboardAlertas.findMany({ select: { id: true } })
+     * // Only select the `id_dashboard_alertas`
+     * const dashboardAlertasWithId_dashboard_alertasOnly = await prisma.dashboardAlertas.findMany({ select: { id_dashboard_alertas: true } })
      * 
      */
     findMany<T extends DashboardAlertasFindManyArgs>(args?: SelectSubset<T, DashboardAlertasFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardAlertasPayload<ExtArgs>, T, "findMany">>
@@ -23925,9 +23925,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many DashboardAlertas and only return the `id`
-     * const dashboardAlertasWithIdOnly = await prisma.dashboardAlertas.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many DashboardAlertas and only return the `id_dashboard_alertas`
+     * const dashboardAlertasWithId_dashboard_alertasOnly = await prisma.dashboardAlertas.createManyAndReturn({ 
+     *   select: { id_dashboard_alertas: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -24161,7 +24161,7 @@ export namespace Prisma {
    */
   export interface Prisma__DashboardAlertasClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    dashboard<T extends DashboardConfiguracaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracaoDefaultArgs<ExtArgs>>): Prisma__DashboardConfiguracaoClient<$Result.GetResult<Prisma.$DashboardConfiguracaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    dashboard_dashboard_alertas<T extends DashboardConfiguracaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracaoDefaultArgs<ExtArgs>>): Prisma__DashboardConfiguracaoClient<$Result.GetResult<Prisma.$DashboardConfiguracaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -24191,20 +24191,20 @@ export namespace Prisma {
    * Fields of the DashboardAlertas model
    */ 
   interface DashboardAlertasFieldRefs {
-    readonly id: FieldRef<"DashboardAlertas", 'String'>
-    readonly tenant_id: FieldRef<"DashboardAlertas", 'String'>
-    readonly product_id: FieldRef<"DashboardAlertas", 'String'>
-    readonly user_id: FieldRef<"DashboardAlertas", 'String'>
-    readonly dashboard_id: FieldRef<"DashboardAlertas", 'String'>
-    readonly widget_id: FieldRef<"DashboardAlertas", 'String'>
-    readonly metric_key: FieldRef<"DashboardAlertas", 'String'>
-    readonly condition: FieldRef<"DashboardAlertas", 'String'>
-    readonly threshold: FieldRef<"DashboardAlertas", 'Json'>
-    readonly channels: FieldRef<"DashboardAlertas", 'String[]'>
-    readonly is_active: FieldRef<"DashboardAlertas", 'Boolean'>
-    readonly last_triggered: FieldRef<"DashboardAlertas", 'DateTime'>
-    readonly created_at: FieldRef<"DashboardAlertas", 'DateTime'>
-    readonly updated_at: FieldRef<"DashboardAlertas", 'DateTime'>
+    readonly id_dashboard_alertas: FieldRef<"DashboardAlertas", 'String'>
+    readonly id_organizacao_dashboard_alertas: FieldRef<"DashboardAlertas", 'String'>
+    readonly id_produto_dashboard_alertas: FieldRef<"DashboardAlertas", 'String'>
+    readonly id_usuario_dashboard_alertas: FieldRef<"DashboardAlertas", 'String'>
+    readonly id_dashboard_dashboard_alertas: FieldRef<"DashboardAlertas", 'String'>
+    readonly id_widget_dashboard_alertas: FieldRef<"DashboardAlertas", 'String'>
+    readonly chave_metrica_dashboard_alertas: FieldRef<"DashboardAlertas", 'String'>
+    readonly condicao_dashboard_alertas: FieldRef<"DashboardAlertas", 'String'>
+    readonly limiar_dashboard_alertas: FieldRef<"DashboardAlertas", 'Json'>
+    readonly canais_dashboard_alertas: FieldRef<"DashboardAlertas", 'String[]'>
+    readonly ativa_dashboard_alertas: FieldRef<"DashboardAlertas", 'Boolean'>
+    readonly ultimo_disparo_dashboard_alertas: FieldRef<"DashboardAlertas", 'DateTime'>
+    readonly data_criacao_dashboard_alertas: FieldRef<"DashboardAlertas", 'DateTime'>
+    readonly data_atualizacao_dashboard_alertas: FieldRef<"DashboardAlertas", 'DateTime'>
   }
     
 
@@ -24548,91 +24548,91 @@ export namespace Prisma {
   }
 
   export type DashboardCompartilharMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    dashboard_id: string | null
-    share_token: string | null
-    channel: string | null
-    recipient_email: string | null
-    recipient_phone: string | null
-    expires_at: Date | null
-    created_at: Date | null
+    id_dashboard_compartilhar: string | null
+    id_organizacao_dashboard_compartilhar: string | null
+    id_produto_dashboard_compartilhar: string | null
+    id_usuario_dashboard_compartilhar: string | null
+    id_dashboard_dashboard_compartilhar: string | null
+    token_share_dashboard_compartilhar: string | null
+    canal_dashboard_compartilhar: string | null
+    email_destinatario_dashboard_compartilhar: string | null
+    telefone_destinatario_dashboard_compartilhar: string | null
+    expira_em_dashboard_compartilhar: Date | null
+    data_criacao_dashboard_compartilhar: Date | null
   }
 
   export type DashboardCompartilharMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_id: string | null
-    user_id: string | null
-    dashboard_id: string | null
-    share_token: string | null
-    channel: string | null
-    recipient_email: string | null
-    recipient_phone: string | null
-    expires_at: Date | null
-    created_at: Date | null
+    id_dashboard_compartilhar: string | null
+    id_organizacao_dashboard_compartilhar: string | null
+    id_produto_dashboard_compartilhar: string | null
+    id_usuario_dashboard_compartilhar: string | null
+    id_dashboard_dashboard_compartilhar: string | null
+    token_share_dashboard_compartilhar: string | null
+    canal_dashboard_compartilhar: string | null
+    email_destinatario_dashboard_compartilhar: string | null
+    telefone_destinatario_dashboard_compartilhar: string | null
+    expira_em_dashboard_compartilhar: Date | null
+    data_criacao_dashboard_compartilhar: Date | null
   }
 
   export type DashboardCompartilharCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_id: number
-    user_id: number
-    dashboard_id: number
-    share_token: number
-    channel: number
-    recipient_email: number
-    recipient_phone: number
-    snapshot_data: number
-    expires_at: number
-    created_at: number
+    id_dashboard_compartilhar: number
+    id_organizacao_dashboard_compartilhar: number
+    id_produto_dashboard_compartilhar: number
+    id_usuario_dashboard_compartilhar: number
+    id_dashboard_dashboard_compartilhar: number
+    token_share_dashboard_compartilhar: number
+    canal_dashboard_compartilhar: number
+    email_destinatario_dashboard_compartilhar: number
+    telefone_destinatario_dashboard_compartilhar: number
+    snapshot_dashboard_compartilhar: number
+    expira_em_dashboard_compartilhar: number
+    data_criacao_dashboard_compartilhar: number
     _all: number
   }
 
 
   export type DashboardCompartilharMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    share_token?: true
-    channel?: true
-    recipient_email?: true
-    recipient_phone?: true
-    expires_at?: true
-    created_at?: true
+    id_dashboard_compartilhar?: true
+    id_organizacao_dashboard_compartilhar?: true
+    id_produto_dashboard_compartilhar?: true
+    id_usuario_dashboard_compartilhar?: true
+    id_dashboard_dashboard_compartilhar?: true
+    token_share_dashboard_compartilhar?: true
+    canal_dashboard_compartilhar?: true
+    email_destinatario_dashboard_compartilhar?: true
+    telefone_destinatario_dashboard_compartilhar?: true
+    expira_em_dashboard_compartilhar?: true
+    data_criacao_dashboard_compartilhar?: true
   }
 
   export type DashboardCompartilharMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    share_token?: true
-    channel?: true
-    recipient_email?: true
-    recipient_phone?: true
-    expires_at?: true
-    created_at?: true
+    id_dashboard_compartilhar?: true
+    id_organizacao_dashboard_compartilhar?: true
+    id_produto_dashboard_compartilhar?: true
+    id_usuario_dashboard_compartilhar?: true
+    id_dashboard_dashboard_compartilhar?: true
+    token_share_dashboard_compartilhar?: true
+    canal_dashboard_compartilhar?: true
+    email_destinatario_dashboard_compartilhar?: true
+    telefone_destinatario_dashboard_compartilhar?: true
+    expira_em_dashboard_compartilhar?: true
+    data_criacao_dashboard_compartilhar?: true
   }
 
   export type DashboardCompartilharCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_id?: true
-    user_id?: true
-    dashboard_id?: true
-    share_token?: true
-    channel?: true
-    recipient_email?: true
-    recipient_phone?: true
-    snapshot_data?: true
-    expires_at?: true
-    created_at?: true
+    id_dashboard_compartilhar?: true
+    id_organizacao_dashboard_compartilhar?: true
+    id_produto_dashboard_compartilhar?: true
+    id_usuario_dashboard_compartilhar?: true
+    id_dashboard_dashboard_compartilhar?: true
+    token_share_dashboard_compartilhar?: true
+    canal_dashboard_compartilhar?: true
+    email_destinatario_dashboard_compartilhar?: true
+    telefone_destinatario_dashboard_compartilhar?: true
+    snapshot_dashboard_compartilhar?: true
+    expira_em_dashboard_compartilhar?: true
+    data_criacao_dashboard_compartilhar?: true
     _all?: true
   }
 
@@ -24709,18 +24709,18 @@ export namespace Prisma {
   }
 
   export type DashboardCompartilharGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_id: string | null
-    user_id: string
-    dashboard_id: string
-    share_token: string
-    channel: string
-    recipient_email: string | null
-    recipient_phone: string | null
-    snapshot_data: JsonValue | null
-    expires_at: Date | null
-    created_at: Date
+    id_dashboard_compartilhar: string
+    id_organizacao_dashboard_compartilhar: string
+    id_produto_dashboard_compartilhar: string | null
+    id_usuario_dashboard_compartilhar: string
+    id_dashboard_dashboard_compartilhar: string
+    token_share_dashboard_compartilhar: string
+    canal_dashboard_compartilhar: string
+    email_destinatario_dashboard_compartilhar: string | null
+    telefone_destinatario_dashboard_compartilhar: string | null
+    snapshot_dashboard_compartilhar: JsonValue | null
+    expira_em_dashboard_compartilhar: Date | null
+    data_criacao_dashboard_compartilhar: Date
     _count: DashboardCompartilharCountAggregateOutputType | null
     _min: DashboardCompartilharMinAggregateOutputType | null
     _max: DashboardCompartilharMaxAggregateOutputType | null
@@ -24741,77 +24741,77 @@ export namespace Prisma {
 
 
   export type DashboardCompartilharSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    share_token?: boolean
-    channel?: boolean
-    recipient_email?: boolean
-    recipient_phone?: boolean
-    snapshot_data?: boolean
-    expires_at?: boolean
-    created_at?: boolean
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    id_dashboard_compartilhar?: boolean
+    id_organizacao_dashboard_compartilhar?: boolean
+    id_produto_dashboard_compartilhar?: boolean
+    id_usuario_dashboard_compartilhar?: boolean
+    id_dashboard_dashboard_compartilhar?: boolean
+    token_share_dashboard_compartilhar?: boolean
+    canal_dashboard_compartilhar?: boolean
+    email_destinatario_dashboard_compartilhar?: boolean
+    telefone_destinatario_dashboard_compartilhar?: boolean
+    snapshot_dashboard_compartilhar?: boolean
+    expira_em_dashboard_compartilhar?: boolean
+    data_criacao_dashboard_compartilhar?: boolean
+    dashboard_dashboard_compartilhar?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["dashboardCompartilhar"]>
 
   export type DashboardCompartilharSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    share_token?: boolean
-    channel?: boolean
-    recipient_email?: boolean
-    recipient_phone?: boolean
-    snapshot_data?: boolean
-    expires_at?: boolean
-    created_at?: boolean
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    id_dashboard_compartilhar?: boolean
+    id_organizacao_dashboard_compartilhar?: boolean
+    id_produto_dashboard_compartilhar?: boolean
+    id_usuario_dashboard_compartilhar?: boolean
+    id_dashboard_dashboard_compartilhar?: boolean
+    token_share_dashboard_compartilhar?: boolean
+    canal_dashboard_compartilhar?: boolean
+    email_destinatario_dashboard_compartilhar?: boolean
+    telefone_destinatario_dashboard_compartilhar?: boolean
+    snapshot_dashboard_compartilhar?: boolean
+    expira_em_dashboard_compartilhar?: boolean
+    data_criacao_dashboard_compartilhar?: boolean
+    dashboard_dashboard_compartilhar?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["dashboardCompartilhar"]>
 
   export type DashboardCompartilharSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_id?: boolean
-    user_id?: boolean
-    dashboard_id?: boolean
-    share_token?: boolean
-    channel?: boolean
-    recipient_email?: boolean
-    recipient_phone?: boolean
-    snapshot_data?: boolean
-    expires_at?: boolean
-    created_at?: boolean
+    id_dashboard_compartilhar?: boolean
+    id_organizacao_dashboard_compartilhar?: boolean
+    id_produto_dashboard_compartilhar?: boolean
+    id_usuario_dashboard_compartilhar?: boolean
+    id_dashboard_dashboard_compartilhar?: boolean
+    token_share_dashboard_compartilhar?: boolean
+    canal_dashboard_compartilhar?: boolean
+    email_destinatario_dashboard_compartilhar?: boolean
+    telefone_destinatario_dashboard_compartilhar?: boolean
+    snapshot_dashboard_compartilhar?: boolean
+    expira_em_dashboard_compartilhar?: boolean
+    data_criacao_dashboard_compartilhar?: boolean
   }
 
   export type DashboardCompartilharInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    dashboard_dashboard_compartilhar?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }
   export type DashboardCompartilharIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dashboard?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
+    dashboard_dashboard_compartilhar?: boolean | DashboardConfiguracaoDefaultArgs<ExtArgs>
   }
 
   export type $DashboardCompartilharPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DashboardCompartilhar"
     objects: {
-      dashboard: Prisma.$DashboardConfiguracaoPayload<ExtArgs>
+      dashboard_dashboard_compartilhar: Prisma.$DashboardConfiguracaoPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_id: string | null
-      user_id: string
-      dashboard_id: string
-      share_token: string
-      channel: string
-      recipient_email: string | null
-      recipient_phone: string | null
-      snapshot_data: Prisma.JsonValue | null
-      expires_at: Date | null
-      created_at: Date
+      id_dashboard_compartilhar: string
+      id_organizacao_dashboard_compartilhar: string
+      id_produto_dashboard_compartilhar: string | null
+      id_usuario_dashboard_compartilhar: string
+      id_dashboard_dashboard_compartilhar: string
+      token_share_dashboard_compartilhar: string
+      canal_dashboard_compartilhar: string
+      email_destinatario_dashboard_compartilhar: string | null
+      telefone_destinatario_dashboard_compartilhar: string | null
+      snapshot_dashboard_compartilhar: Prisma.JsonValue | null
+      expira_em_dashboard_compartilhar: Date | null
+      data_criacao_dashboard_compartilhar: Date
     }, ExtArgs["result"]["dashboardCompartilhar"]>
     composites: {}
   }
@@ -24895,8 +24895,8 @@ export namespace Prisma {
      * // Get first 10 DashboardCompartilhars
      * const dashboardCompartilhars = await prisma.dashboardCompartilhar.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const dashboardCompartilharWithIdOnly = await prisma.dashboardCompartilhar.findMany({ select: { id: true } })
+     * // Only select the `id_dashboard_compartilhar`
+     * const dashboardCompartilharWithId_dashboard_compartilharOnly = await prisma.dashboardCompartilhar.findMany({ select: { id_dashboard_compartilhar: true } })
      * 
      */
     findMany<T extends DashboardCompartilharFindManyArgs>(args?: SelectSubset<T, DashboardCompartilharFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DashboardCompartilharPayload<ExtArgs>, T, "findMany">>
@@ -24940,9 +24940,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many DashboardCompartilhars and only return the `id`
-     * const dashboardCompartilharWithIdOnly = await prisma.dashboardCompartilhar.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many DashboardCompartilhars and only return the `id_dashboard_compartilhar`
+     * const dashboardCompartilharWithId_dashboard_compartilharOnly = await prisma.dashboardCompartilhar.createManyAndReturn({ 
+     *   select: { id_dashboard_compartilhar: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -25176,7 +25176,7 @@ export namespace Prisma {
    */
   export interface Prisma__DashboardCompartilharClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    dashboard<T extends DashboardConfiguracaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracaoDefaultArgs<ExtArgs>>): Prisma__DashboardConfiguracaoClient<$Result.GetResult<Prisma.$DashboardConfiguracaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    dashboard_dashboard_compartilhar<T extends DashboardConfiguracaoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DashboardConfiguracaoDefaultArgs<ExtArgs>>): Prisma__DashboardConfiguracaoClient<$Result.GetResult<Prisma.$DashboardConfiguracaoPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -25206,18 +25206,18 @@ export namespace Prisma {
    * Fields of the DashboardCompartilhar model
    */ 
   interface DashboardCompartilharFieldRefs {
-    readonly id: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly tenant_id: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly product_id: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly user_id: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly dashboard_id: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly share_token: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly channel: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly recipient_email: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly recipient_phone: FieldRef<"DashboardCompartilhar", 'String'>
-    readonly snapshot_data: FieldRef<"DashboardCompartilhar", 'Json'>
-    readonly expires_at: FieldRef<"DashboardCompartilhar", 'DateTime'>
-    readonly created_at: FieldRef<"DashboardCompartilhar", 'DateTime'>
+    readonly id_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly id_organizacao_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly id_produto_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly id_usuario_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly id_dashboard_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly token_share_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly canal_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly email_destinatario_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly telefone_destinatario_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'String'>
+    readonly snapshot_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'Json'>
+    readonly expira_em_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'DateTime'>
+    readonly data_criacao_dashboard_compartilhar: FieldRef<"DashboardCompartilhar", 'DateTime'>
   }
     
 
@@ -50574,91 +50574,91 @@ export namespace Prisma {
 
 
   export const DashboardConfiguracaoScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    name: 'name',
-    mode: 'mode',
-    layout: 'layout',
-    filters: 'filters',
-    is_default: 'is_default',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_dashboard_configuracao: 'id_dashboard_configuracao',
+    id_organizacao_dashboard_configuracao: 'id_organizacao_dashboard_configuracao',
+    id_produto_dashboard_configuracao: 'id_produto_dashboard_configuracao',
+    id_usuario_dashboard_configuracao: 'id_usuario_dashboard_configuracao',
+    nome_dashboard_configuracao: 'nome_dashboard_configuracao',
+    modo_dashboard_configuracao: 'modo_dashboard_configuracao',
+    layout_dashboard_configuracao: 'layout_dashboard_configuracao',
+    filtros_dashboard_configuracao: 'filtros_dashboard_configuracao',
+    padrao_dashboard_configuracao: 'padrao_dashboard_configuracao',
+    data_criacao_dashboard_configuracao: 'data_criacao_dashboard_configuracao',
+    data_atualizacao_dashboard_configuracao: 'data_atualizacao_dashboard_configuracao'
   };
 
   export type DashboardConfiguracaoScalarFieldEnum = (typeof DashboardConfiguracaoScalarFieldEnum)[keyof typeof DashboardConfiguracaoScalarFieldEnum]
 
 
   export const DashboardCriarScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    dashboard_id: 'dashboard_id',
-    widget_key: 'widget_key',
-    widget_type: 'widget_type',
-    chart_type: 'chart_type',
-    title: 'title',
-    query_spec: 'query_spec',
-    position: 'position',
-    config: 'config',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_dashboard_criar: 'id_dashboard_criar',
+    id_organizacao_dashboard_criar: 'id_organizacao_dashboard_criar',
+    id_produto_dashboard_criar: 'id_produto_dashboard_criar',
+    id_usuario_dashboard_criar: 'id_usuario_dashboard_criar',
+    id_dashboard_dashboard_criar: 'id_dashboard_dashboard_criar',
+    chave_widget_dashboard_criar: 'chave_widget_dashboard_criar',
+    tipo_widget_dashboard_criar: 'tipo_widget_dashboard_criar',
+    tipo_grafico_dashboard_criar: 'tipo_grafico_dashboard_criar',
+    titulo_dashboard_criar: 'titulo_dashboard_criar',
+    query_spec_dashboard_criar: 'query_spec_dashboard_criar',
+    posicao_dashboard_criar: 'posicao_dashboard_criar',
+    config_dashboard_criar: 'config_dashboard_criar',
+    data_criacao_dashboard_criar: 'data_criacao_dashboard_criar',
+    data_atualizacao_dashboard_criar: 'data_atualizacao_dashboard_criar'
   };
 
   export type DashboardCriarScalarFieldEnum = (typeof DashboardCriarScalarFieldEnum)[keyof typeof DashboardCriarScalarFieldEnum]
 
 
   export const DashboardMetricasScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    metric_key: 'metric_key',
-    dimensions: 'dimensions',
-    value: 'value',
-    period_from: 'period_from',
-    period_to: 'period_to',
-    captured_at: 'captured_at'
+    id_dashboard_metricas: 'id_dashboard_metricas',
+    id_organizacao_dashboard_metricas: 'id_organizacao_dashboard_metricas',
+    id_produto_dashboard_metricas: 'id_produto_dashboard_metricas',
+    id_usuario_dashboard_metricas: 'id_usuario_dashboard_metricas',
+    chave_metrica_dashboard_metricas: 'chave_metrica_dashboard_metricas',
+    dimensoes_dashboard_metricas: 'dimensoes_dashboard_metricas',
+    valor_dashboard_metricas: 'valor_dashboard_metricas',
+    periodo_inicio_dashboard_metricas: 'periodo_inicio_dashboard_metricas',
+    periodo_fim_dashboard_metricas: 'periodo_fim_dashboard_metricas',
+    capturado_em_dashboard_metricas: 'capturado_em_dashboard_metricas'
   };
 
   export type DashboardMetricasScalarFieldEnum = (typeof DashboardMetricasScalarFieldEnum)[keyof typeof DashboardMetricasScalarFieldEnum]
 
 
   export const DashboardAlertasScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    dashboard_id: 'dashboard_id',
-    widget_id: 'widget_id',
-    metric_key: 'metric_key',
-    condition: 'condition',
-    threshold: 'threshold',
-    channels: 'channels',
-    is_active: 'is_active',
-    last_triggered: 'last_triggered',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_dashboard_alertas: 'id_dashboard_alertas',
+    id_organizacao_dashboard_alertas: 'id_organizacao_dashboard_alertas',
+    id_produto_dashboard_alertas: 'id_produto_dashboard_alertas',
+    id_usuario_dashboard_alertas: 'id_usuario_dashboard_alertas',
+    id_dashboard_dashboard_alertas: 'id_dashboard_dashboard_alertas',
+    id_widget_dashboard_alertas: 'id_widget_dashboard_alertas',
+    chave_metrica_dashboard_alertas: 'chave_metrica_dashboard_alertas',
+    condicao_dashboard_alertas: 'condicao_dashboard_alertas',
+    limiar_dashboard_alertas: 'limiar_dashboard_alertas',
+    canais_dashboard_alertas: 'canais_dashboard_alertas',
+    ativa_dashboard_alertas: 'ativa_dashboard_alertas',
+    ultimo_disparo_dashboard_alertas: 'ultimo_disparo_dashboard_alertas',
+    data_criacao_dashboard_alertas: 'data_criacao_dashboard_alertas',
+    data_atualizacao_dashboard_alertas: 'data_atualizacao_dashboard_alertas'
   };
 
   export type DashboardAlertasScalarFieldEnum = (typeof DashboardAlertasScalarFieldEnum)[keyof typeof DashboardAlertasScalarFieldEnum]
 
 
   export const DashboardCompartilharScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_id: 'product_id',
-    user_id: 'user_id',
-    dashboard_id: 'dashboard_id',
-    share_token: 'share_token',
-    channel: 'channel',
-    recipient_email: 'recipient_email',
-    recipient_phone: 'recipient_phone',
-    snapshot_data: 'snapshot_data',
-    expires_at: 'expires_at',
-    created_at: 'created_at'
+    id_dashboard_compartilhar: 'id_dashboard_compartilhar',
+    id_organizacao_dashboard_compartilhar: 'id_organizacao_dashboard_compartilhar',
+    id_produto_dashboard_compartilhar: 'id_produto_dashboard_compartilhar',
+    id_usuario_dashboard_compartilhar: 'id_usuario_dashboard_compartilhar',
+    id_dashboard_dashboard_compartilhar: 'id_dashboard_dashboard_compartilhar',
+    token_share_dashboard_compartilhar: 'token_share_dashboard_compartilhar',
+    canal_dashboard_compartilhar: 'canal_dashboard_compartilhar',
+    email_destinatario_dashboard_compartilhar: 'email_destinatario_dashboard_compartilhar',
+    telefone_destinatario_dashboard_compartilhar: 'telefone_destinatario_dashboard_compartilhar',
+    snapshot_dashboard_compartilhar: 'snapshot_dashboard_compartilhar',
+    expira_em_dashboard_compartilhar: 'expira_em_dashboard_compartilhar',
+    data_criacao_dashboard_compartilhar: 'data_criacao_dashboard_compartilhar'
   };
 
   export type DashboardCompartilharScalarFieldEnum = (typeof DashboardCompartilharScalarFieldEnum)[keyof typeof DashboardCompartilharScalarFieldEnum]
@@ -52874,71 +52874,71 @@ export namespace Prisma {
     AND?: DashboardConfiguracaoWhereInput | DashboardConfiguracaoWhereInput[]
     OR?: DashboardConfiguracaoWhereInput[]
     NOT?: DashboardConfiguracaoWhereInput | DashboardConfiguracaoWhereInput[]
-    id?: StringFilter<"DashboardConfiguracao"> | string
-    tenant_id?: StringFilter<"DashboardConfiguracao"> | string
-    product_id?: StringNullableFilter<"DashboardConfiguracao"> | string | null
-    user_id?: StringFilter<"DashboardConfiguracao"> | string
-    name?: StringFilter<"DashboardConfiguracao"> | string
-    mode?: EnumDashboardModoFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
-    layout?: JsonFilter<"DashboardConfiguracao">
-    filters?: JsonNullableFilter<"DashboardConfiguracao">
-    is_default?: BoolFilter<"DashboardConfiguracao"> | boolean
-    created_at?: DateTimeFilter<"DashboardConfiguracao"> | Date | string
-    updated_at?: DateTimeFilter<"DashboardConfiguracao"> | Date | string
-    widgets?: DashboardCriarListRelationFilter
-    alerts?: DashboardAlertasListRelationFilter
-    shares?: DashboardCompartilharListRelationFilter
+    id_dashboard_configuracao?: StringFilter<"DashboardConfiguracao"> | string
+    id_organizacao_dashboard_configuracao?: StringFilter<"DashboardConfiguracao"> | string
+    id_produto_dashboard_configuracao?: StringNullableFilter<"DashboardConfiguracao"> | string | null
+    id_usuario_dashboard_configuracao?: StringFilter<"DashboardConfiguracao"> | string
+    nome_dashboard_configuracao?: StringFilter<"DashboardConfiguracao"> | string
+    modo_dashboard_configuracao?: EnumDashboardModoFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonFilter<"DashboardConfiguracao">
+    filtros_dashboard_configuracao?: JsonNullableFilter<"DashboardConfiguracao">
+    padrao_dashboard_configuracao?: BoolFilter<"DashboardConfiguracao"> | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFilter<"DashboardConfiguracao"> | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFilter<"DashboardConfiguracao"> | Date | string
+    widgets_dashboard_configuracao?: DashboardCriarListRelationFilter
+    alertas_dashboard_configuracao?: DashboardAlertasListRelationFilter
+    shares_dashboard_configuracao?: DashboardCompartilharListRelationFilter
   }
 
   export type DashboardConfiguracaoOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    name?: SortOrder
-    mode?: SortOrder
-    layout?: SortOrder
-    filters?: SortOrderInput | SortOrder
-    is_default?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    widgets?: DashboardCriarOrderByRelationAggregateInput
-    alerts?: DashboardAlertasOrderByRelationAggregateInput
-    shares?: DashboardCompartilharOrderByRelationAggregateInput
+    id_dashboard_configuracao?: SortOrder
+    id_organizacao_dashboard_configuracao?: SortOrder
+    id_produto_dashboard_configuracao?: SortOrderInput | SortOrder
+    id_usuario_dashboard_configuracao?: SortOrder
+    nome_dashboard_configuracao?: SortOrder
+    modo_dashboard_configuracao?: SortOrder
+    layout_dashboard_configuracao?: SortOrder
+    filtros_dashboard_configuracao?: SortOrderInput | SortOrder
+    padrao_dashboard_configuracao?: SortOrder
+    data_criacao_dashboard_configuracao?: SortOrder
+    data_atualizacao_dashboard_configuracao?: SortOrder
+    widgets_dashboard_configuracao?: DashboardCriarOrderByRelationAggregateInput
+    alertas_dashboard_configuracao?: DashboardAlertasOrderByRelationAggregateInput
+    shares_dashboard_configuracao?: DashboardCompartilharOrderByRelationAggregateInput
   }
 
   export type DashboardConfiguracaoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_dashboard_configuracao?: string
     AND?: DashboardConfiguracaoWhereInput | DashboardConfiguracaoWhereInput[]
     OR?: DashboardConfiguracaoWhereInput[]
     NOT?: DashboardConfiguracaoWhereInput | DashboardConfiguracaoWhereInput[]
-    tenant_id?: StringFilter<"DashboardConfiguracao"> | string
-    product_id?: StringNullableFilter<"DashboardConfiguracao"> | string | null
-    user_id?: StringFilter<"DashboardConfiguracao"> | string
-    name?: StringFilter<"DashboardConfiguracao"> | string
-    mode?: EnumDashboardModoFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
-    layout?: JsonFilter<"DashboardConfiguracao">
-    filters?: JsonNullableFilter<"DashboardConfiguracao">
-    is_default?: BoolFilter<"DashboardConfiguracao"> | boolean
-    created_at?: DateTimeFilter<"DashboardConfiguracao"> | Date | string
-    updated_at?: DateTimeFilter<"DashboardConfiguracao"> | Date | string
-    widgets?: DashboardCriarListRelationFilter
-    alerts?: DashboardAlertasListRelationFilter
-    shares?: DashboardCompartilharListRelationFilter
-  }, "id">
+    id_organizacao_dashboard_configuracao?: StringFilter<"DashboardConfiguracao"> | string
+    id_produto_dashboard_configuracao?: StringNullableFilter<"DashboardConfiguracao"> | string | null
+    id_usuario_dashboard_configuracao?: StringFilter<"DashboardConfiguracao"> | string
+    nome_dashboard_configuracao?: StringFilter<"DashboardConfiguracao"> | string
+    modo_dashboard_configuracao?: EnumDashboardModoFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonFilter<"DashboardConfiguracao">
+    filtros_dashboard_configuracao?: JsonNullableFilter<"DashboardConfiguracao">
+    padrao_dashboard_configuracao?: BoolFilter<"DashboardConfiguracao"> | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFilter<"DashboardConfiguracao"> | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFilter<"DashboardConfiguracao"> | Date | string
+    widgets_dashboard_configuracao?: DashboardCriarListRelationFilter
+    alertas_dashboard_configuracao?: DashboardAlertasListRelationFilter
+    shares_dashboard_configuracao?: DashboardCompartilharListRelationFilter
+  }, "id_dashboard_configuracao">
 
   export type DashboardConfiguracaoOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    name?: SortOrder
-    mode?: SortOrder
-    layout?: SortOrder
-    filters?: SortOrderInput | SortOrder
-    is_default?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_configuracao?: SortOrder
+    id_organizacao_dashboard_configuracao?: SortOrder
+    id_produto_dashboard_configuracao?: SortOrderInput | SortOrder
+    id_usuario_dashboard_configuracao?: SortOrder
+    nome_dashboard_configuracao?: SortOrder
+    modo_dashboard_configuracao?: SortOrder
+    layout_dashboard_configuracao?: SortOrder
+    filtros_dashboard_configuracao?: SortOrderInput | SortOrder
+    padrao_dashboard_configuracao?: SortOrder
+    data_criacao_dashboard_configuracao?: SortOrder
+    data_atualizacao_dashboard_configuracao?: SortOrder
     _count?: DashboardConfiguracaoCountOrderByAggregateInput
     _max?: DashboardConfiguracaoMaxOrderByAggregateInput
     _min?: DashboardConfiguracaoMinOrderByAggregateInput
@@ -52948,94 +52948,94 @@ export namespace Prisma {
     AND?: DashboardConfiguracaoScalarWhereWithAggregatesInput | DashboardConfiguracaoScalarWhereWithAggregatesInput[]
     OR?: DashboardConfiguracaoScalarWhereWithAggregatesInput[]
     NOT?: DashboardConfiguracaoScalarWhereWithAggregatesInput | DashboardConfiguracaoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
-    tenant_id?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
-    product_id?: StringNullableWithAggregatesFilter<"DashboardConfiguracao"> | string | null
-    user_id?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
-    name?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
-    mode?: EnumDashboardModoWithAggregatesFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
-    layout?: JsonWithAggregatesFilter<"DashboardConfiguracao">
-    filters?: JsonNullableWithAggregatesFilter<"DashboardConfiguracao">
-    is_default?: BoolWithAggregatesFilter<"DashboardConfiguracao"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"DashboardConfiguracao"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"DashboardConfiguracao"> | Date | string
+    id_dashboard_configuracao?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
+    id_organizacao_dashboard_configuracao?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
+    id_produto_dashboard_configuracao?: StringNullableWithAggregatesFilter<"DashboardConfiguracao"> | string | null
+    id_usuario_dashboard_configuracao?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
+    nome_dashboard_configuracao?: StringWithAggregatesFilter<"DashboardConfiguracao"> | string
+    modo_dashboard_configuracao?: EnumDashboardModoWithAggregatesFilter<"DashboardConfiguracao"> | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonWithAggregatesFilter<"DashboardConfiguracao">
+    filtros_dashboard_configuracao?: JsonNullableWithAggregatesFilter<"DashboardConfiguracao">
+    padrao_dashboard_configuracao?: BoolWithAggregatesFilter<"DashboardConfiguracao"> | boolean
+    data_criacao_dashboard_configuracao?: DateTimeWithAggregatesFilter<"DashboardConfiguracao"> | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeWithAggregatesFilter<"DashboardConfiguracao"> | Date | string
   }
 
   export type DashboardCriarWhereInput = {
     AND?: DashboardCriarWhereInput | DashboardCriarWhereInput[]
     OR?: DashboardCriarWhereInput[]
     NOT?: DashboardCriarWhereInput | DashboardCriarWhereInput[]
-    id?: StringFilter<"DashboardCriar"> | string
-    tenant_id?: StringFilter<"DashboardCriar"> | string
-    product_id?: StringNullableFilter<"DashboardCriar"> | string | null
-    user_id?: StringFilter<"DashboardCriar"> | string
-    dashboard_id?: StringFilter<"DashboardCriar"> | string
-    widget_key?: StringFilter<"DashboardCriar"> | string
-    widget_type?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
-    title?: StringFilter<"DashboardCriar"> | string
-    query_spec?: JsonFilter<"DashboardCriar">
-    position?: JsonFilter<"DashboardCriar">
-    config?: JsonNullableFilter<"DashboardCriar">
-    created_at?: DateTimeFilter<"DashboardCriar"> | Date | string
-    updated_at?: DateTimeFilter<"DashboardCriar"> | Date | string
-    dashboard?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
+    id_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    id_organizacao_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    id_produto_dashboard_criar?: StringNullableFilter<"DashboardCriar"> | string | null
+    id_usuario_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    id_dashboard_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    chave_widget_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    query_spec_dashboard_criar?: JsonFilter<"DashboardCriar">
+    posicao_dashboard_criar?: JsonFilter<"DashboardCriar">
+    config_dashboard_criar?: JsonNullableFilter<"DashboardCriar">
+    data_criacao_dashboard_criar?: DateTimeFilter<"DashboardCriar"> | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFilter<"DashboardCriar"> | Date | string
+    dashboard_dashboard_criar?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
   }
 
   export type DashboardCriarOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_key?: SortOrder
-    widget_type?: SortOrder
-    chart_type?: SortOrder
-    title?: SortOrder
-    query_spec?: SortOrder
-    position?: SortOrder
-    config?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    dashboard?: DashboardConfiguracaoOrderByWithRelationInput
+    id_dashboard_criar?: SortOrder
+    id_organizacao_dashboard_criar?: SortOrder
+    id_produto_dashboard_criar?: SortOrderInput | SortOrder
+    id_usuario_dashboard_criar?: SortOrder
+    id_dashboard_dashboard_criar?: SortOrder
+    chave_widget_dashboard_criar?: SortOrder
+    tipo_widget_dashboard_criar?: SortOrder
+    tipo_grafico_dashboard_criar?: SortOrder
+    titulo_dashboard_criar?: SortOrder
+    query_spec_dashboard_criar?: SortOrder
+    posicao_dashboard_criar?: SortOrder
+    config_dashboard_criar?: SortOrderInput | SortOrder
+    data_criacao_dashboard_criar?: SortOrder
+    data_atualizacao_dashboard_criar?: SortOrder
+    dashboard_dashboard_criar?: DashboardConfiguracaoOrderByWithRelationInput
   }
 
   export type DashboardCriarWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_dashboard_criar?: string
     AND?: DashboardCriarWhereInput | DashboardCriarWhereInput[]
     OR?: DashboardCriarWhereInput[]
     NOT?: DashboardCriarWhereInput | DashboardCriarWhereInput[]
-    tenant_id?: StringFilter<"DashboardCriar"> | string
-    product_id?: StringNullableFilter<"DashboardCriar"> | string | null
-    user_id?: StringFilter<"DashboardCriar"> | string
-    dashboard_id?: StringFilter<"DashboardCriar"> | string
-    widget_key?: StringFilter<"DashboardCriar"> | string
-    widget_type?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
-    title?: StringFilter<"DashboardCriar"> | string
-    query_spec?: JsonFilter<"DashboardCriar">
-    position?: JsonFilter<"DashboardCriar">
-    config?: JsonNullableFilter<"DashboardCriar">
-    created_at?: DateTimeFilter<"DashboardCriar"> | Date | string
-    updated_at?: DateTimeFilter<"DashboardCriar"> | Date | string
-    dashboard?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
-  }, "id">
+    id_organizacao_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    id_produto_dashboard_criar?: StringNullableFilter<"DashboardCriar"> | string | null
+    id_usuario_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    id_dashboard_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    chave_widget_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    query_spec_dashboard_criar?: JsonFilter<"DashboardCriar">
+    posicao_dashboard_criar?: JsonFilter<"DashboardCriar">
+    config_dashboard_criar?: JsonNullableFilter<"DashboardCriar">
+    data_criacao_dashboard_criar?: DateTimeFilter<"DashboardCriar"> | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFilter<"DashboardCriar"> | Date | string
+    dashboard_dashboard_criar?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
+  }, "id_dashboard_criar">
 
   export type DashboardCriarOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_key?: SortOrder
-    widget_type?: SortOrder
-    chart_type?: SortOrder
-    title?: SortOrder
-    query_spec?: SortOrder
-    position?: SortOrder
-    config?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_criar?: SortOrder
+    id_organizacao_dashboard_criar?: SortOrder
+    id_produto_dashboard_criar?: SortOrderInput | SortOrder
+    id_usuario_dashboard_criar?: SortOrder
+    id_dashboard_dashboard_criar?: SortOrder
+    chave_widget_dashboard_criar?: SortOrder
+    tipo_widget_dashboard_criar?: SortOrder
+    tipo_grafico_dashboard_criar?: SortOrder
+    titulo_dashboard_criar?: SortOrder
+    query_spec_dashboard_criar?: SortOrder
+    posicao_dashboard_criar?: SortOrder
+    config_dashboard_criar?: SortOrderInput | SortOrder
+    data_criacao_dashboard_criar?: SortOrder
+    data_atualizacao_dashboard_criar?: SortOrder
     _count?: DashboardCriarCountOrderByAggregateInput
     _max?: DashboardCriarMaxOrderByAggregateInput
     _min?: DashboardCriarMinOrderByAggregateInput
@@ -53045,79 +53045,79 @@ export namespace Prisma {
     AND?: DashboardCriarScalarWhereWithAggregatesInput | DashboardCriarScalarWhereWithAggregatesInput[]
     OR?: DashboardCriarScalarWhereWithAggregatesInput[]
     NOT?: DashboardCriarScalarWhereWithAggregatesInput | DashboardCriarScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"DashboardCriar"> | string
-    tenant_id?: StringWithAggregatesFilter<"DashboardCriar"> | string
-    product_id?: StringNullableWithAggregatesFilter<"DashboardCriar"> | string | null
-    user_id?: StringWithAggregatesFilter<"DashboardCriar"> | string
-    dashboard_id?: StringWithAggregatesFilter<"DashboardCriar"> | string
-    widget_key?: StringWithAggregatesFilter<"DashboardCriar"> | string
-    widget_type?: EnumDashboardTipoWithAggregatesFilter<"DashboardCriar"> | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoWithAggregatesFilter<"DashboardCriar"> | $Enums.GraficoTipo
-    title?: StringWithAggregatesFilter<"DashboardCriar"> | string
-    query_spec?: JsonWithAggregatesFilter<"DashboardCriar">
-    position?: JsonWithAggregatesFilter<"DashboardCriar">
-    config?: JsonNullableWithAggregatesFilter<"DashboardCriar">
-    created_at?: DateTimeWithAggregatesFilter<"DashboardCriar"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"DashboardCriar"> | Date | string
+    id_dashboard_criar?: StringWithAggregatesFilter<"DashboardCriar"> | string
+    id_organizacao_dashboard_criar?: StringWithAggregatesFilter<"DashboardCriar"> | string
+    id_produto_dashboard_criar?: StringNullableWithAggregatesFilter<"DashboardCriar"> | string | null
+    id_usuario_dashboard_criar?: StringWithAggregatesFilter<"DashboardCriar"> | string
+    id_dashboard_dashboard_criar?: StringWithAggregatesFilter<"DashboardCriar"> | string
+    chave_widget_dashboard_criar?: StringWithAggregatesFilter<"DashboardCriar"> | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoWithAggregatesFilter<"DashboardCriar"> | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoWithAggregatesFilter<"DashboardCriar"> | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringWithAggregatesFilter<"DashboardCriar"> | string
+    query_spec_dashboard_criar?: JsonWithAggregatesFilter<"DashboardCriar">
+    posicao_dashboard_criar?: JsonWithAggregatesFilter<"DashboardCriar">
+    config_dashboard_criar?: JsonNullableWithAggregatesFilter<"DashboardCriar">
+    data_criacao_dashboard_criar?: DateTimeWithAggregatesFilter<"DashboardCriar"> | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeWithAggregatesFilter<"DashboardCriar"> | Date | string
   }
 
   export type DashboardMetricasWhereInput = {
     AND?: DashboardMetricasWhereInput | DashboardMetricasWhereInput[]
     OR?: DashboardMetricasWhereInput[]
     NOT?: DashboardMetricasWhereInput | DashboardMetricasWhereInput[]
-    id?: StringFilter<"DashboardMetricas"> | string
-    tenant_id?: StringFilter<"DashboardMetricas"> | string
-    product_id?: StringFilter<"DashboardMetricas"> | string
-    user_id?: StringNullableFilter<"DashboardMetricas"> | string | null
-    metric_key?: StringFilter<"DashboardMetricas"> | string
-    dimensions?: JsonNullableFilter<"DashboardMetricas">
-    value?: JsonFilter<"DashboardMetricas">
-    period_from?: DateTimeFilter<"DashboardMetricas"> | Date | string
-    period_to?: DateTimeFilter<"DashboardMetricas"> | Date | string
-    captured_at?: DateTimeFilter<"DashboardMetricas"> | Date | string
+    id_dashboard_metricas?: StringFilter<"DashboardMetricas"> | string
+    id_organizacao_dashboard_metricas?: StringFilter<"DashboardMetricas"> | string
+    id_produto_dashboard_metricas?: StringFilter<"DashboardMetricas"> | string
+    id_usuario_dashboard_metricas?: StringNullableFilter<"DashboardMetricas"> | string | null
+    chave_metrica_dashboard_metricas?: StringFilter<"DashboardMetricas"> | string
+    dimensoes_dashboard_metricas?: JsonNullableFilter<"DashboardMetricas">
+    valor_dashboard_metricas?: JsonFilter<"DashboardMetricas">
+    periodo_inicio_dashboard_metricas?: DateTimeFilter<"DashboardMetricas"> | Date | string
+    periodo_fim_dashboard_metricas?: DateTimeFilter<"DashboardMetricas"> | Date | string
+    capturado_em_dashboard_metricas?: DateTimeFilter<"DashboardMetricas"> | Date | string
   }
 
   export type DashboardMetricasOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrderInput | SortOrder
-    metric_key?: SortOrder
-    dimensions?: SortOrderInput | SortOrder
-    value?: SortOrder
-    period_from?: SortOrder
-    period_to?: SortOrder
-    captured_at?: SortOrder
+    id_dashboard_metricas?: SortOrder
+    id_organizacao_dashboard_metricas?: SortOrder
+    id_produto_dashboard_metricas?: SortOrder
+    id_usuario_dashboard_metricas?: SortOrderInput | SortOrder
+    chave_metrica_dashboard_metricas?: SortOrder
+    dimensoes_dashboard_metricas?: SortOrderInput | SortOrder
+    valor_dashboard_metricas?: SortOrder
+    periodo_inicio_dashboard_metricas?: SortOrder
+    periodo_fim_dashboard_metricas?: SortOrder
+    capturado_em_dashboard_metricas?: SortOrder
   }
 
   export type DashboardMetricasWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenant_id_product_id_metric_key_period_from_period_to?: DashboardMetricasTenant_idProduct_idMetric_keyPeriod_fromPeriod_toCompoundUniqueInput
+    id_dashboard_metricas?: string
+    id_organizacao_dashboard_metricas_id_produto_dashboard_metricas_chave_metrica_dashboard_metricas_periodo_inicio_dashboard_metricas_periodo_fim_dashboard_metricas?: DashboardMetricasId_organizacao_dashboard_metricasId_produto_dashboard_metricasChave_metrica_dashboard_metricasPeriodo_inicio_dashboard_metricasPeriodo_fim_dashboard_metricasCompoundUniqueInput
     AND?: DashboardMetricasWhereInput | DashboardMetricasWhereInput[]
     OR?: DashboardMetricasWhereInput[]
     NOT?: DashboardMetricasWhereInput | DashboardMetricasWhereInput[]
-    tenant_id?: StringFilter<"DashboardMetricas"> | string
-    product_id?: StringFilter<"DashboardMetricas"> | string
-    user_id?: StringNullableFilter<"DashboardMetricas"> | string | null
-    metric_key?: StringFilter<"DashboardMetricas"> | string
-    dimensions?: JsonNullableFilter<"DashboardMetricas">
-    value?: JsonFilter<"DashboardMetricas">
-    period_from?: DateTimeFilter<"DashboardMetricas"> | Date | string
-    period_to?: DateTimeFilter<"DashboardMetricas"> | Date | string
-    captured_at?: DateTimeFilter<"DashboardMetricas"> | Date | string
-  }, "id" | "tenant_id_product_id_metric_key_period_from_period_to">
+    id_organizacao_dashboard_metricas?: StringFilter<"DashboardMetricas"> | string
+    id_produto_dashboard_metricas?: StringFilter<"DashboardMetricas"> | string
+    id_usuario_dashboard_metricas?: StringNullableFilter<"DashboardMetricas"> | string | null
+    chave_metrica_dashboard_metricas?: StringFilter<"DashboardMetricas"> | string
+    dimensoes_dashboard_metricas?: JsonNullableFilter<"DashboardMetricas">
+    valor_dashboard_metricas?: JsonFilter<"DashboardMetricas">
+    periodo_inicio_dashboard_metricas?: DateTimeFilter<"DashboardMetricas"> | Date | string
+    periodo_fim_dashboard_metricas?: DateTimeFilter<"DashboardMetricas"> | Date | string
+    capturado_em_dashboard_metricas?: DateTimeFilter<"DashboardMetricas"> | Date | string
+  }, "id_dashboard_metricas" | "id_organizacao_dashboard_metricas_id_produto_dashboard_metricas_chave_metrica_dashboard_metricas_periodo_inicio_dashboard_metricas_periodo_fim_dashboard_metricas">
 
   export type DashboardMetricasOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrderInput | SortOrder
-    metric_key?: SortOrder
-    dimensions?: SortOrderInput | SortOrder
-    value?: SortOrder
-    period_from?: SortOrder
-    period_to?: SortOrder
-    captured_at?: SortOrder
+    id_dashboard_metricas?: SortOrder
+    id_organizacao_dashboard_metricas?: SortOrder
+    id_produto_dashboard_metricas?: SortOrder
+    id_usuario_dashboard_metricas?: SortOrderInput | SortOrder
+    chave_metrica_dashboard_metricas?: SortOrder
+    dimensoes_dashboard_metricas?: SortOrderInput | SortOrder
+    valor_dashboard_metricas?: SortOrder
+    periodo_inicio_dashboard_metricas?: SortOrder
+    periodo_fim_dashboard_metricas?: SortOrder
+    capturado_em_dashboard_metricas?: SortOrder
     _count?: DashboardMetricasCountOrderByAggregateInput
     _max?: DashboardMetricasMaxOrderByAggregateInput
     _min?: DashboardMetricasMinOrderByAggregateInput
@@ -53127,93 +53127,93 @@ export namespace Prisma {
     AND?: DashboardMetricasScalarWhereWithAggregatesInput | DashboardMetricasScalarWhereWithAggregatesInput[]
     OR?: DashboardMetricasScalarWhereWithAggregatesInput[]
     NOT?: DashboardMetricasScalarWhereWithAggregatesInput | DashboardMetricasScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"DashboardMetricas"> | string
-    tenant_id?: StringWithAggregatesFilter<"DashboardMetricas"> | string
-    product_id?: StringWithAggregatesFilter<"DashboardMetricas"> | string
-    user_id?: StringNullableWithAggregatesFilter<"DashboardMetricas"> | string | null
-    metric_key?: StringWithAggregatesFilter<"DashboardMetricas"> | string
-    dimensions?: JsonNullableWithAggregatesFilter<"DashboardMetricas">
-    value?: JsonWithAggregatesFilter<"DashboardMetricas">
-    period_from?: DateTimeWithAggregatesFilter<"DashboardMetricas"> | Date | string
-    period_to?: DateTimeWithAggregatesFilter<"DashboardMetricas"> | Date | string
-    captured_at?: DateTimeWithAggregatesFilter<"DashboardMetricas"> | Date | string
+    id_dashboard_metricas?: StringWithAggregatesFilter<"DashboardMetricas"> | string
+    id_organizacao_dashboard_metricas?: StringWithAggregatesFilter<"DashboardMetricas"> | string
+    id_produto_dashboard_metricas?: StringWithAggregatesFilter<"DashboardMetricas"> | string
+    id_usuario_dashboard_metricas?: StringNullableWithAggregatesFilter<"DashboardMetricas"> | string | null
+    chave_metrica_dashboard_metricas?: StringWithAggregatesFilter<"DashboardMetricas"> | string
+    dimensoes_dashboard_metricas?: JsonNullableWithAggregatesFilter<"DashboardMetricas">
+    valor_dashboard_metricas?: JsonWithAggregatesFilter<"DashboardMetricas">
+    periodo_inicio_dashboard_metricas?: DateTimeWithAggregatesFilter<"DashboardMetricas"> | Date | string
+    periodo_fim_dashboard_metricas?: DateTimeWithAggregatesFilter<"DashboardMetricas"> | Date | string
+    capturado_em_dashboard_metricas?: DateTimeWithAggregatesFilter<"DashboardMetricas"> | Date | string
   }
 
   export type DashboardAlertasWhereInput = {
     AND?: DashboardAlertasWhereInput | DashboardAlertasWhereInput[]
     OR?: DashboardAlertasWhereInput[]
     NOT?: DashboardAlertasWhereInput | DashboardAlertasWhereInput[]
-    id?: StringFilter<"DashboardAlertas"> | string
-    tenant_id?: StringFilter<"DashboardAlertas"> | string
-    product_id?: StringNullableFilter<"DashboardAlertas"> | string | null
-    user_id?: StringFilter<"DashboardAlertas"> | string
-    dashboard_id?: StringFilter<"DashboardAlertas"> | string
-    widget_id?: StringNullableFilter<"DashboardAlertas"> | string | null
-    metric_key?: StringFilter<"DashboardAlertas"> | string
-    condition?: StringFilter<"DashboardAlertas"> | string
-    threshold?: JsonFilter<"DashboardAlertas">
-    channels?: StringNullableListFilter<"DashboardAlertas">
-    is_active?: BoolFilter<"DashboardAlertas"> | boolean
-    last_triggered?: DateTimeNullableFilter<"DashboardAlertas"> | Date | string | null
-    created_at?: DateTimeFilter<"DashboardAlertas"> | Date | string
-    updated_at?: DateTimeFilter<"DashboardAlertas"> | Date | string
-    dashboard?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
+    id_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_organizacao_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_produto_dashboard_alertas?: StringNullableFilter<"DashboardAlertas"> | string | null
+    id_usuario_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_dashboard_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_widget_dashboard_alertas?: StringNullableFilter<"DashboardAlertas"> | string | null
+    chave_metrica_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    condicao_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    limiar_dashboard_alertas?: JsonFilter<"DashboardAlertas">
+    canais_dashboard_alertas?: StringNullableListFilter<"DashboardAlertas">
+    ativa_dashboard_alertas?: BoolFilter<"DashboardAlertas"> | boolean
+    ultimo_disparo_dashboard_alertas?: DateTimeNullableFilter<"DashboardAlertas"> | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFilter<"DashboardAlertas"> | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFilter<"DashboardAlertas"> | Date | string
+    dashboard_dashboard_alertas?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
   }
 
   export type DashboardAlertasOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_id?: SortOrderInput | SortOrder
-    metric_key?: SortOrder
-    condition?: SortOrder
-    threshold?: SortOrder
-    channels?: SortOrder
-    is_active?: SortOrder
-    last_triggered?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    dashboard?: DashboardConfiguracaoOrderByWithRelationInput
+    id_dashboard_alertas?: SortOrder
+    id_organizacao_dashboard_alertas?: SortOrder
+    id_produto_dashboard_alertas?: SortOrderInput | SortOrder
+    id_usuario_dashboard_alertas?: SortOrder
+    id_dashboard_dashboard_alertas?: SortOrder
+    id_widget_dashboard_alertas?: SortOrderInput | SortOrder
+    chave_metrica_dashboard_alertas?: SortOrder
+    condicao_dashboard_alertas?: SortOrder
+    limiar_dashboard_alertas?: SortOrder
+    canais_dashboard_alertas?: SortOrder
+    ativa_dashboard_alertas?: SortOrder
+    ultimo_disparo_dashboard_alertas?: SortOrderInput | SortOrder
+    data_criacao_dashboard_alertas?: SortOrder
+    data_atualizacao_dashboard_alertas?: SortOrder
+    dashboard_dashboard_alertas?: DashboardConfiguracaoOrderByWithRelationInput
   }
 
   export type DashboardAlertasWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id_dashboard_alertas?: string
     AND?: DashboardAlertasWhereInput | DashboardAlertasWhereInput[]
     OR?: DashboardAlertasWhereInput[]
     NOT?: DashboardAlertasWhereInput | DashboardAlertasWhereInput[]
-    tenant_id?: StringFilter<"DashboardAlertas"> | string
-    product_id?: StringNullableFilter<"DashboardAlertas"> | string | null
-    user_id?: StringFilter<"DashboardAlertas"> | string
-    dashboard_id?: StringFilter<"DashboardAlertas"> | string
-    widget_id?: StringNullableFilter<"DashboardAlertas"> | string | null
-    metric_key?: StringFilter<"DashboardAlertas"> | string
-    condition?: StringFilter<"DashboardAlertas"> | string
-    threshold?: JsonFilter<"DashboardAlertas">
-    channels?: StringNullableListFilter<"DashboardAlertas">
-    is_active?: BoolFilter<"DashboardAlertas"> | boolean
-    last_triggered?: DateTimeNullableFilter<"DashboardAlertas"> | Date | string | null
-    created_at?: DateTimeFilter<"DashboardAlertas"> | Date | string
-    updated_at?: DateTimeFilter<"DashboardAlertas"> | Date | string
-    dashboard?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
-  }, "id">
+    id_organizacao_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_produto_dashboard_alertas?: StringNullableFilter<"DashboardAlertas"> | string | null
+    id_usuario_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_dashboard_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_widget_dashboard_alertas?: StringNullableFilter<"DashboardAlertas"> | string | null
+    chave_metrica_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    condicao_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    limiar_dashboard_alertas?: JsonFilter<"DashboardAlertas">
+    canais_dashboard_alertas?: StringNullableListFilter<"DashboardAlertas">
+    ativa_dashboard_alertas?: BoolFilter<"DashboardAlertas"> | boolean
+    ultimo_disparo_dashboard_alertas?: DateTimeNullableFilter<"DashboardAlertas"> | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFilter<"DashboardAlertas"> | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFilter<"DashboardAlertas"> | Date | string
+    dashboard_dashboard_alertas?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
+  }, "id_dashboard_alertas">
 
   export type DashboardAlertasOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_id?: SortOrderInput | SortOrder
-    metric_key?: SortOrder
-    condition?: SortOrder
-    threshold?: SortOrder
-    channels?: SortOrder
-    is_active?: SortOrder
-    last_triggered?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_alertas?: SortOrder
+    id_organizacao_dashboard_alertas?: SortOrder
+    id_produto_dashboard_alertas?: SortOrderInput | SortOrder
+    id_usuario_dashboard_alertas?: SortOrder
+    id_dashboard_dashboard_alertas?: SortOrder
+    id_widget_dashboard_alertas?: SortOrderInput | SortOrder
+    chave_metrica_dashboard_alertas?: SortOrder
+    condicao_dashboard_alertas?: SortOrder
+    limiar_dashboard_alertas?: SortOrder
+    canais_dashboard_alertas?: SortOrder
+    ativa_dashboard_alertas?: SortOrder
+    ultimo_disparo_dashboard_alertas?: SortOrderInput | SortOrder
+    data_criacao_dashboard_alertas?: SortOrder
+    data_atualizacao_dashboard_alertas?: SortOrder
     _count?: DashboardAlertasCountOrderByAggregateInput
     _max?: DashboardAlertasMaxOrderByAggregateInput
     _min?: DashboardAlertasMinOrderByAggregateInput
@@ -53223,89 +53223,89 @@ export namespace Prisma {
     AND?: DashboardAlertasScalarWhereWithAggregatesInput | DashboardAlertasScalarWhereWithAggregatesInput[]
     OR?: DashboardAlertasScalarWhereWithAggregatesInput[]
     NOT?: DashboardAlertasScalarWhereWithAggregatesInput | DashboardAlertasScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"DashboardAlertas"> | string
-    tenant_id?: StringWithAggregatesFilter<"DashboardAlertas"> | string
-    product_id?: StringNullableWithAggregatesFilter<"DashboardAlertas"> | string | null
-    user_id?: StringWithAggregatesFilter<"DashboardAlertas"> | string
-    dashboard_id?: StringWithAggregatesFilter<"DashboardAlertas"> | string
-    widget_id?: StringNullableWithAggregatesFilter<"DashboardAlertas"> | string | null
-    metric_key?: StringWithAggregatesFilter<"DashboardAlertas"> | string
-    condition?: StringWithAggregatesFilter<"DashboardAlertas"> | string
-    threshold?: JsonWithAggregatesFilter<"DashboardAlertas">
-    channels?: StringNullableListFilter<"DashboardAlertas">
-    is_active?: BoolWithAggregatesFilter<"DashboardAlertas"> | boolean
-    last_triggered?: DateTimeNullableWithAggregatesFilter<"DashboardAlertas"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"DashboardAlertas"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"DashboardAlertas"> | Date | string
+    id_dashboard_alertas?: StringWithAggregatesFilter<"DashboardAlertas"> | string
+    id_organizacao_dashboard_alertas?: StringWithAggregatesFilter<"DashboardAlertas"> | string
+    id_produto_dashboard_alertas?: StringNullableWithAggregatesFilter<"DashboardAlertas"> | string | null
+    id_usuario_dashboard_alertas?: StringWithAggregatesFilter<"DashboardAlertas"> | string
+    id_dashboard_dashboard_alertas?: StringWithAggregatesFilter<"DashboardAlertas"> | string
+    id_widget_dashboard_alertas?: StringNullableWithAggregatesFilter<"DashboardAlertas"> | string | null
+    chave_metrica_dashboard_alertas?: StringWithAggregatesFilter<"DashboardAlertas"> | string
+    condicao_dashboard_alertas?: StringWithAggregatesFilter<"DashboardAlertas"> | string
+    limiar_dashboard_alertas?: JsonWithAggregatesFilter<"DashboardAlertas">
+    canais_dashboard_alertas?: StringNullableListFilter<"DashboardAlertas">
+    ativa_dashboard_alertas?: BoolWithAggregatesFilter<"DashboardAlertas"> | boolean
+    ultimo_disparo_dashboard_alertas?: DateTimeNullableWithAggregatesFilter<"DashboardAlertas"> | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeWithAggregatesFilter<"DashboardAlertas"> | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeWithAggregatesFilter<"DashboardAlertas"> | Date | string
   }
 
   export type DashboardCompartilharWhereInput = {
     AND?: DashboardCompartilharWhereInput | DashboardCompartilharWhereInput[]
     OR?: DashboardCompartilharWhereInput[]
     NOT?: DashboardCompartilharWhereInput | DashboardCompartilharWhereInput[]
-    id?: StringFilter<"DashboardCompartilhar"> | string
-    tenant_id?: StringFilter<"DashboardCompartilhar"> | string
-    product_id?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    user_id?: StringFilter<"DashboardCompartilhar"> | string
-    dashboard_id?: StringFilter<"DashboardCompartilhar"> | string
-    share_token?: StringFilter<"DashboardCompartilhar"> | string
-    channel?: StringFilter<"DashboardCompartilhar"> | string
-    recipient_email?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    recipient_phone?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    snapshot_data?: JsonNullableFilter<"DashboardCompartilhar">
-    expires_at?: DateTimeNullableFilter<"DashboardCompartilhar"> | Date | string | null
-    created_at?: DateTimeFilter<"DashboardCompartilhar"> | Date | string
-    dashboard?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
+    id_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    id_organizacao_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    id_produto_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    id_usuario_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    id_dashboard_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    token_share_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    canal_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    email_destinatario_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    telefone_destinatario_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    snapshot_dashboard_compartilhar?: JsonNullableFilter<"DashboardCompartilhar">
+    expira_em_dashboard_compartilhar?: DateTimeNullableFilter<"DashboardCompartilhar"> | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFilter<"DashboardCompartilhar"> | Date | string
+    dashboard_dashboard_compartilhar?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
   }
 
   export type DashboardCompartilharOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    share_token?: SortOrder
-    channel?: SortOrder
-    recipient_email?: SortOrderInput | SortOrder
-    recipient_phone?: SortOrderInput | SortOrder
-    snapshot_data?: SortOrderInput | SortOrder
-    expires_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    dashboard?: DashboardConfiguracaoOrderByWithRelationInput
+    id_dashboard_compartilhar?: SortOrder
+    id_organizacao_dashboard_compartilhar?: SortOrder
+    id_produto_dashboard_compartilhar?: SortOrderInput | SortOrder
+    id_usuario_dashboard_compartilhar?: SortOrder
+    id_dashboard_dashboard_compartilhar?: SortOrder
+    token_share_dashboard_compartilhar?: SortOrder
+    canal_dashboard_compartilhar?: SortOrder
+    email_destinatario_dashboard_compartilhar?: SortOrderInput | SortOrder
+    telefone_destinatario_dashboard_compartilhar?: SortOrderInput | SortOrder
+    snapshot_dashboard_compartilhar?: SortOrderInput | SortOrder
+    expira_em_dashboard_compartilhar?: SortOrderInput | SortOrder
+    data_criacao_dashboard_compartilhar?: SortOrder
+    dashboard_dashboard_compartilhar?: DashboardConfiguracaoOrderByWithRelationInput
   }
 
   export type DashboardCompartilharWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    share_token?: string
+    id_dashboard_compartilhar?: string
+    token_share_dashboard_compartilhar?: string
     AND?: DashboardCompartilharWhereInput | DashboardCompartilharWhereInput[]
     OR?: DashboardCompartilharWhereInput[]
     NOT?: DashboardCompartilharWhereInput | DashboardCompartilharWhereInput[]
-    tenant_id?: StringFilter<"DashboardCompartilhar"> | string
-    product_id?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    user_id?: StringFilter<"DashboardCompartilhar"> | string
-    dashboard_id?: StringFilter<"DashboardCompartilhar"> | string
-    channel?: StringFilter<"DashboardCompartilhar"> | string
-    recipient_email?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    recipient_phone?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    snapshot_data?: JsonNullableFilter<"DashboardCompartilhar">
-    expires_at?: DateTimeNullableFilter<"DashboardCompartilhar"> | Date | string | null
-    created_at?: DateTimeFilter<"DashboardCompartilhar"> | Date | string
-    dashboard?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
-  }, "id" | "share_token">
+    id_organizacao_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    id_produto_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    id_usuario_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    id_dashboard_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    canal_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    email_destinatario_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    telefone_destinatario_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    snapshot_dashboard_compartilhar?: JsonNullableFilter<"DashboardCompartilhar">
+    expira_em_dashboard_compartilhar?: DateTimeNullableFilter<"DashboardCompartilhar"> | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFilter<"DashboardCompartilhar"> | Date | string
+    dashboard_dashboard_compartilhar?: XOR<DashboardConfiguracaoRelationFilter, DashboardConfiguracaoWhereInput>
+  }, "id_dashboard_compartilhar" | "token_share_dashboard_compartilhar">
 
   export type DashboardCompartilharOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrderInput | SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    share_token?: SortOrder
-    channel?: SortOrder
-    recipient_email?: SortOrderInput | SortOrder
-    recipient_phone?: SortOrderInput | SortOrder
-    snapshot_data?: SortOrderInput | SortOrder
-    expires_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
+    id_dashboard_compartilhar?: SortOrder
+    id_organizacao_dashboard_compartilhar?: SortOrder
+    id_produto_dashboard_compartilhar?: SortOrderInput | SortOrder
+    id_usuario_dashboard_compartilhar?: SortOrder
+    id_dashboard_dashboard_compartilhar?: SortOrder
+    token_share_dashboard_compartilhar?: SortOrder
+    canal_dashboard_compartilhar?: SortOrder
+    email_destinatario_dashboard_compartilhar?: SortOrderInput | SortOrder
+    telefone_destinatario_dashboard_compartilhar?: SortOrderInput | SortOrder
+    snapshot_dashboard_compartilhar?: SortOrderInput | SortOrder
+    expira_em_dashboard_compartilhar?: SortOrderInput | SortOrder
+    data_criacao_dashboard_compartilhar?: SortOrder
     _count?: DashboardCompartilharCountOrderByAggregateInput
     _max?: DashboardCompartilharMaxOrderByAggregateInput
     _min?: DashboardCompartilharMinOrderByAggregateInput
@@ -53315,18 +53315,18 @@ export namespace Prisma {
     AND?: DashboardCompartilharScalarWhereWithAggregatesInput | DashboardCompartilharScalarWhereWithAggregatesInput[]
     OR?: DashboardCompartilharScalarWhereWithAggregatesInput[]
     NOT?: DashboardCompartilharScalarWhereWithAggregatesInput | DashboardCompartilharScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
-    tenant_id?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
-    product_id?: StringNullableWithAggregatesFilter<"DashboardCompartilhar"> | string | null
-    user_id?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
-    dashboard_id?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
-    share_token?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
-    channel?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
-    recipient_email?: StringNullableWithAggregatesFilter<"DashboardCompartilhar"> | string | null
-    recipient_phone?: StringNullableWithAggregatesFilter<"DashboardCompartilhar"> | string | null
-    snapshot_data?: JsonNullableWithAggregatesFilter<"DashboardCompartilhar">
-    expires_at?: DateTimeNullableWithAggregatesFilter<"DashboardCompartilhar"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"DashboardCompartilhar"> | Date | string
+    id_dashboard_compartilhar?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
+    id_organizacao_dashboard_compartilhar?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
+    id_produto_dashboard_compartilhar?: StringNullableWithAggregatesFilter<"DashboardCompartilhar"> | string | null
+    id_usuario_dashboard_compartilhar?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
+    id_dashboard_dashboard_compartilhar?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
+    token_share_dashboard_compartilhar?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
+    canal_dashboard_compartilhar?: StringWithAggregatesFilter<"DashboardCompartilhar"> | string
+    email_destinatario_dashboard_compartilhar?: StringNullableWithAggregatesFilter<"DashboardCompartilhar"> | string | null
+    telefone_destinatario_dashboard_compartilhar?: StringNullableWithAggregatesFilter<"DashboardCompartilhar"> | string | null
+    snapshot_dashboard_compartilhar?: JsonNullableWithAggregatesFilter<"DashboardCompartilhar">
+    expira_em_dashboard_compartilhar?: DateTimeNullableWithAggregatesFilter<"DashboardCompartilhar"> | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeWithAggregatesFilter<"DashboardCompartilhar"> | Date | string
   }
 
   export type RelatoriosSalvosWhereInput = {
@@ -57186,544 +57186,544 @@ export namespace Prisma {
   }
 
   export type DashboardConfiguracaoCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    widgets?: DashboardCriarCreateNestedManyWithoutDashboardInput
-    alerts?: DashboardAlertasCreateNestedManyWithoutDashboardInput
-    shares?: DashboardCompartilharCreateNestedManyWithoutDashboardInput
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
+    widgets_dashboard_configuracao?: DashboardCriarCreateNestedManyWithoutDashboard_dashboard_criarInput
+    alertas_dashboard_configuracao?: DashboardAlertasCreateNestedManyWithoutDashboard_dashboard_alertasInput
+    shares_dashboard_configuracao?: DashboardCompartilharCreateNestedManyWithoutDashboard_dashboard_compartilharInput
   }
 
   export type DashboardConfiguracaoUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    widgets?: DashboardCriarUncheckedCreateNestedManyWithoutDashboardInput
-    alerts?: DashboardAlertasUncheckedCreateNestedManyWithoutDashboardInput
-    shares?: DashboardCompartilharUncheckedCreateNestedManyWithoutDashboardInput
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUncheckedCreateNestedManyWithoutDashboard_dashboard_criarInput
+    alertas_dashboard_configuracao?: DashboardAlertasUncheckedCreateNestedManyWithoutDashboard_dashboard_alertasInput
+    shares_dashboard_configuracao?: DashboardCompartilharUncheckedCreateNestedManyWithoutDashboard_dashboard_compartilharInput
   }
 
   export type DashboardConfiguracaoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    widgets?: DashboardCriarUpdateManyWithoutDashboardNestedInput
-    alerts?: DashboardAlertasUpdateManyWithoutDashboardNestedInput
-    shares?: DashboardCompartilharUpdateManyWithoutDashboardNestedInput
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUpdateManyWithoutDashboard_dashboard_criarNestedInput
+    alertas_dashboard_configuracao?: DashboardAlertasUpdateManyWithoutDashboard_dashboard_alertasNestedInput
+    shares_dashboard_configuracao?: DashboardCompartilharUpdateManyWithoutDashboard_dashboard_compartilharNestedInput
   }
 
   export type DashboardConfiguracaoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    widgets?: DashboardCriarUncheckedUpdateManyWithoutDashboardNestedInput
-    alerts?: DashboardAlertasUncheckedUpdateManyWithoutDashboardNestedInput
-    shares?: DashboardCompartilharUncheckedUpdateManyWithoutDashboardNestedInput
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUncheckedUpdateManyWithoutDashboard_dashboard_criarNestedInput
+    alertas_dashboard_configuracao?: DashboardAlertasUncheckedUpdateManyWithoutDashboard_dashboard_alertasNestedInput
+    shares_dashboard_configuracao?: DashboardCompartilharUncheckedUpdateManyWithoutDashboard_dashboard_compartilharNestedInput
   }
 
   export type DashboardConfiguracaoCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
   }
 
   export type DashboardConfiguracaoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardConfiguracaoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardCriarCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    widget_key: string
-    widget_type?: $Enums.DashboardTipo
-    chart_type?: $Enums.GraficoTipo
-    title: string
-    query_spec: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
-    dashboard: DashboardConfiguracaoCreateNestedOneWithoutWidgetsInput
+    id_dashboard_criar?: string
+    id_organizacao_dashboard_criar: string
+    id_produto_dashboard_criar?: string | null
+    id_usuario_dashboard_criar: string
+    chave_widget_dashboard_criar: string
+    tipo_widget_dashboard_criar?: $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: $Enums.GraficoTipo
+    titulo_dashboard_criar: string
+    query_spec_dashboard_criar: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: Date | string
+    data_atualizacao_dashboard_criar?: Date | string
+    dashboard_dashboard_criar: DashboardConfiguracaoCreateNestedOneWithoutWidgets_dashboard_configuracaoInput
   }
 
   export type DashboardCriarUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    dashboard_id: string
-    widget_key: string
-    widget_type?: $Enums.DashboardTipo
-    chart_type?: $Enums.GraficoTipo
-    title: string
-    query_spec: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_dashboard_criar?: string
+    id_organizacao_dashboard_criar: string
+    id_produto_dashboard_criar?: string | null
+    id_usuario_dashboard_criar: string
+    id_dashboard_dashboard_criar: string
+    chave_widget_dashboard_criar: string
+    tipo_widget_dashboard_criar?: $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: $Enums.GraficoTipo
+    titulo_dashboard_criar: string
+    query_spec_dashboard_criar: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: Date | string
+    data_atualizacao_dashboard_criar?: Date | string
   }
 
   export type DashboardCriarUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
-    title?: StringFieldUpdateOperationsInput | string
-    query_spec?: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    dashboard?: DashboardConfiguracaoUpdateOneRequiredWithoutWidgetsNestedInput
+    id_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_criar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    chave_widget_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    query_spec_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
+    dashboard_dashboard_criar?: DashboardConfiguracaoUpdateOneRequiredWithoutWidgets_dashboard_configuracaoNestedInput
   }
 
   export type DashboardCriarUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    dashboard_id?: StringFieldUpdateOperationsInput | string
-    widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
-    title?: StringFieldUpdateOperationsInput | string
-    query_spec?: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_criar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_dashboard_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    chave_widget_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    query_spec_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardCriarCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    dashboard_id: string
-    widget_key: string
-    widget_type?: $Enums.DashboardTipo
-    chart_type?: $Enums.GraficoTipo
-    title: string
-    query_spec: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_dashboard_criar?: string
+    id_organizacao_dashboard_criar: string
+    id_produto_dashboard_criar?: string | null
+    id_usuario_dashboard_criar: string
+    id_dashboard_dashboard_criar: string
+    chave_widget_dashboard_criar: string
+    tipo_widget_dashboard_criar?: $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: $Enums.GraficoTipo
+    titulo_dashboard_criar: string
+    query_spec_dashboard_criar: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: Date | string
+    data_atualizacao_dashboard_criar?: Date | string
   }
 
   export type DashboardCriarUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
-    title?: StringFieldUpdateOperationsInput | string
-    query_spec?: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_criar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    chave_widget_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    query_spec_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardCriarUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    dashboard_id?: StringFieldUpdateOperationsInput | string
-    widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
-    title?: StringFieldUpdateOperationsInput | string
-    query_spec?: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_criar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_dashboard_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    chave_widget_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    query_spec_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardMetricasCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    user_id?: string | null
-    metric_key: string
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    value: JsonNullValueInput | InputJsonValue
-    period_from: Date | string
-    period_to: Date | string
-    captured_at?: Date | string
+    id_dashboard_metricas?: string
+    id_organizacao_dashboard_metricas: string
+    id_produto_dashboard_metricas: string
+    id_usuario_dashboard_metricas?: string | null
+    chave_metrica_dashboard_metricas: string
+    dimensoes_dashboard_metricas?: NullableJsonNullValueInput | InputJsonValue
+    valor_dashboard_metricas: JsonNullValueInput | InputJsonValue
+    periodo_inicio_dashboard_metricas: Date | string
+    periodo_fim_dashboard_metricas: Date | string
+    capturado_em_dashboard_metricas?: Date | string
   }
 
   export type DashboardMetricasUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    user_id?: string | null
-    metric_key: string
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    value: JsonNullValueInput | InputJsonValue
-    period_from: Date | string
-    period_to: Date | string
-    captured_at?: Date | string
+    id_dashboard_metricas?: string
+    id_organizacao_dashboard_metricas: string
+    id_produto_dashboard_metricas: string
+    id_usuario_dashboard_metricas?: string | null
+    chave_metrica_dashboard_metricas: string
+    dimensoes_dashboard_metricas?: NullableJsonNullValueInput | InputJsonValue
+    valor_dashboard_metricas: JsonNullValueInput | InputJsonValue
+    periodo_inicio_dashboard_metricas: Date | string
+    periodo_fim_dashboard_metricas: Date | string
+    capturado_em_dashboard_metricas?: Date | string
   }
 
   export type DashboardMetricasUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    value?: JsonNullValueInput | InputJsonValue
-    period_from?: DateTimeFieldUpdateOperationsInput | Date | string
-    period_to?: DateTimeFieldUpdateOperationsInput | Date | string
-    captured_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_usuario_dashboard_metricas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    dimensoes_dashboard_metricas?: NullableJsonNullValueInput | InputJsonValue
+    valor_dashboard_metricas?: JsonNullValueInput | InputJsonValue
+    periodo_inicio_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo_fim_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturado_em_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardMetricasUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    value?: JsonNullValueInput | InputJsonValue
-    period_from?: DateTimeFieldUpdateOperationsInput | Date | string
-    period_to?: DateTimeFieldUpdateOperationsInput | Date | string
-    captured_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_usuario_dashboard_metricas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    dimensoes_dashboard_metricas?: NullableJsonNullValueInput | InputJsonValue
+    valor_dashboard_metricas?: JsonNullValueInput | InputJsonValue
+    periodo_inicio_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo_fim_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturado_em_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardMetricasCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id: string
-    user_id?: string | null
-    metric_key: string
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    value: JsonNullValueInput | InputJsonValue
-    period_from: Date | string
-    period_to: Date | string
-    captured_at?: Date | string
+    id_dashboard_metricas?: string
+    id_organizacao_dashboard_metricas: string
+    id_produto_dashboard_metricas: string
+    id_usuario_dashboard_metricas?: string | null
+    chave_metrica_dashboard_metricas: string
+    dimensoes_dashboard_metricas?: NullableJsonNullValueInput | InputJsonValue
+    valor_dashboard_metricas: JsonNullValueInput | InputJsonValue
+    periodo_inicio_dashboard_metricas: Date | string
+    periodo_fim_dashboard_metricas: Date | string
+    capturado_em_dashboard_metricas?: Date | string
   }
 
   export type DashboardMetricasUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    value?: JsonNullValueInput | InputJsonValue
-    period_from?: DateTimeFieldUpdateOperationsInput | Date | string
-    period_to?: DateTimeFieldUpdateOperationsInput | Date | string
-    captured_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_usuario_dashboard_metricas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    dimensoes_dashboard_metricas?: NullableJsonNullValueInput | InputJsonValue
+    valor_dashboard_metricas?: JsonNullValueInput | InputJsonValue
+    periodo_inicio_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo_fim_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturado_em_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardMetricasUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: StringFieldUpdateOperationsInput | string
-    user_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    value?: JsonNullValueInput | InputJsonValue
-    period_from?: DateTimeFieldUpdateOperationsInput | Date | string
-    period_to?: DateTimeFieldUpdateOperationsInput | Date | string
-    captured_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    id_usuario_dashboard_metricas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_metricas?: StringFieldUpdateOperationsInput | string
+    dimensoes_dashboard_metricas?: NullableJsonNullValueInput | InputJsonValue
+    valor_dashboard_metricas?: JsonNullValueInput | InputJsonValue
+    periodo_inicio_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
+    periodo_fim_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
+    capturado_em_dashboard_metricas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardAlertasCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    widget_id?: string | null
-    metric_key: string
-    condition: string
-    threshold: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasCreatechannelsInput | string[]
-    is_active?: boolean
-    last_triggered?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    dashboard: DashboardConfiguracaoCreateNestedOneWithoutAlertsInput
+    id_dashboard_alertas?: string
+    id_organizacao_dashboard_alertas: string
+    id_produto_dashboard_alertas?: string | null
+    id_usuario_dashboard_alertas: string
+    id_widget_dashboard_alertas?: string | null
+    chave_metrica_dashboard_alertas: string
+    condicao_dashboard_alertas: string
+    limiar_dashboard_alertas: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasCreatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: Date | string | null
+    data_criacao_dashboard_alertas?: Date | string
+    data_atualizacao_dashboard_alertas?: Date | string
+    dashboard_dashboard_alertas: DashboardConfiguracaoCreateNestedOneWithoutAlertas_dashboard_configuracaoInput
   }
 
   export type DashboardAlertasUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    dashboard_id: string
-    widget_id?: string | null
-    metric_key: string
-    condition: string
-    threshold: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasCreatechannelsInput | string[]
-    is_active?: boolean
-    last_triggered?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_dashboard_alertas?: string
+    id_organizacao_dashboard_alertas: string
+    id_produto_dashboard_alertas?: string | null
+    id_usuario_dashboard_alertas: string
+    id_dashboard_dashboard_alertas: string
+    id_widget_dashboard_alertas?: string | null
+    chave_metrica_dashboard_alertas: string
+    condicao_dashboard_alertas: string
+    limiar_dashboard_alertas: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasCreatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: Date | string | null
+    data_criacao_dashboard_alertas?: Date | string
+    data_atualizacao_dashboard_alertas?: Date | string
   }
 
   export type DashboardAlertasUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    condition?: StringFieldUpdateOperationsInput | string
-    threshold?: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasUpdatechannelsInput | string[]
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    dashboard?: DashboardConfiguracaoUpdateOneRequiredWithoutAlertsNestedInput
+    id_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_widget_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    condicao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    limiar_dashboard_alertas?: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasUpdatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: BoolFieldUpdateOperationsInput | boolean
+    ultimo_disparo_dashboard_alertas?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
+    dashboard_dashboard_alertas?: DashboardConfiguracaoUpdateOneRequiredWithoutAlertas_dashboard_configuracaoNestedInput
   }
 
   export type DashboardAlertasUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    dashboard_id?: StringFieldUpdateOperationsInput | string
-    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    condition?: StringFieldUpdateOperationsInput | string
-    threshold?: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasUpdatechannelsInput | string[]
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_dashboard_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_widget_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    condicao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    limiar_dashboard_alertas?: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasUpdatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: BoolFieldUpdateOperationsInput | boolean
+    ultimo_disparo_dashboard_alertas?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardAlertasCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    dashboard_id: string
-    widget_id?: string | null
-    metric_key: string
-    condition: string
-    threshold: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasCreatechannelsInput | string[]
-    is_active?: boolean
-    last_triggered?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_dashboard_alertas?: string
+    id_organizacao_dashboard_alertas: string
+    id_produto_dashboard_alertas?: string | null
+    id_usuario_dashboard_alertas: string
+    id_dashboard_dashboard_alertas: string
+    id_widget_dashboard_alertas?: string | null
+    chave_metrica_dashboard_alertas: string
+    condicao_dashboard_alertas: string
+    limiar_dashboard_alertas: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasCreatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: Date | string | null
+    data_criacao_dashboard_alertas?: Date | string
+    data_atualizacao_dashboard_alertas?: Date | string
   }
 
   export type DashboardAlertasUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    condition?: StringFieldUpdateOperationsInput | string
-    threshold?: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasUpdatechannelsInput | string[]
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_widget_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    condicao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    limiar_dashboard_alertas?: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasUpdatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: BoolFieldUpdateOperationsInput | boolean
+    ultimo_disparo_dashboard_alertas?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardAlertasUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    dashboard_id?: StringFieldUpdateOperationsInput | string
-    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    condition?: StringFieldUpdateOperationsInput | string
-    threshold?: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasUpdatechannelsInput | string[]
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_dashboard_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_widget_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    condicao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    limiar_dashboard_alertas?: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasUpdatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: BoolFieldUpdateOperationsInput | boolean
+    ultimo_disparo_dashboard_alertas?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardCompartilharCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    share_token?: string
-    channel: string
-    recipient_email?: string | null
-    recipient_phone?: string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: Date | string | null
-    created_at?: Date | string
-    dashboard: DashboardConfiguracaoCreateNestedOneWithoutSharesInput
+    id_dashboard_compartilhar?: string
+    id_organizacao_dashboard_compartilhar: string
+    id_produto_dashboard_compartilhar?: string | null
+    id_usuario_dashboard_compartilhar: string
+    token_share_dashboard_compartilhar?: string
+    canal_dashboard_compartilhar: string
+    email_destinatario_dashboard_compartilhar?: string | null
+    telefone_destinatario_dashboard_compartilhar?: string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: Date | string | null
+    data_criacao_dashboard_compartilhar?: Date | string
+    dashboard_dashboard_compartilhar: DashboardConfiguracaoCreateNestedOneWithoutShares_dashboard_configuracaoInput
   }
 
   export type DashboardCompartilharUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    dashboard_id: string
-    share_token?: string
-    channel: string
-    recipient_email?: string | null
-    recipient_phone?: string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: Date | string | null
-    created_at?: Date | string
+    id_dashboard_compartilhar?: string
+    id_organizacao_dashboard_compartilhar: string
+    id_produto_dashboard_compartilhar?: string | null
+    id_usuario_dashboard_compartilhar: string
+    id_dashboard_dashboard_compartilhar: string
+    token_share_dashboard_compartilhar?: string
+    canal_dashboard_compartilhar: string
+    email_destinatario_dashboard_compartilhar?: string | null
+    telefone_destinatario_dashboard_compartilhar?: string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: Date | string | null
+    data_criacao_dashboard_compartilhar?: Date | string
   }
 
   export type DashboardCompartilharUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    share_token?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
-    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    dashboard?: DashboardConfiguracaoUpdateOneRequiredWithoutSharesNestedInput
+    id_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    token_share_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    canal_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    email_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFieldUpdateOperationsInput | Date | string
+    dashboard_dashboard_compartilhar?: DashboardConfiguracaoUpdateOneRequiredWithoutShares_dashboard_configuracaoNestedInput
   }
 
   export type DashboardCompartilharUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    dashboard_id?: StringFieldUpdateOperationsInput | string
-    share_token?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
-    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_dashboard_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    token_share_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    canal_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    email_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardCompartilharCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    dashboard_id: string
-    share_token?: string
-    channel: string
-    recipient_email?: string | null
-    recipient_phone?: string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: Date | string | null
-    created_at?: Date | string
+    id_dashboard_compartilhar?: string
+    id_organizacao_dashboard_compartilhar: string
+    id_produto_dashboard_compartilhar?: string | null
+    id_usuario_dashboard_compartilhar: string
+    id_dashboard_dashboard_compartilhar: string
+    token_share_dashboard_compartilhar?: string
+    canal_dashboard_compartilhar: string
+    email_destinatario_dashboard_compartilhar?: string | null
+    telefone_destinatario_dashboard_compartilhar?: string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: Date | string | null
+    data_criacao_dashboard_compartilhar?: Date | string
   }
 
   export type DashboardCompartilharUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    share_token?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
-    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    token_share_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    canal_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    email_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DashboardCompartilharUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    dashboard_id?: StringFieldUpdateOperationsInput | string
-    share_token?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
-    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_dashboard_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    token_share_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    canal_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    email_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RelatoriosSalvosCreateInput = {
@@ -61556,41 +61556,41 @@ export namespace Prisma {
   }
 
   export type DashboardConfiguracaoCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    name?: SortOrder
-    mode?: SortOrder
-    layout?: SortOrder
-    filters?: SortOrder
-    is_default?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_configuracao?: SortOrder
+    id_organizacao_dashboard_configuracao?: SortOrder
+    id_produto_dashboard_configuracao?: SortOrder
+    id_usuario_dashboard_configuracao?: SortOrder
+    nome_dashboard_configuracao?: SortOrder
+    modo_dashboard_configuracao?: SortOrder
+    layout_dashboard_configuracao?: SortOrder
+    filtros_dashboard_configuracao?: SortOrder
+    padrao_dashboard_configuracao?: SortOrder
+    data_criacao_dashboard_configuracao?: SortOrder
+    data_atualizacao_dashboard_configuracao?: SortOrder
   }
 
   export type DashboardConfiguracaoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    name?: SortOrder
-    mode?: SortOrder
-    is_default?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_configuracao?: SortOrder
+    id_organizacao_dashboard_configuracao?: SortOrder
+    id_produto_dashboard_configuracao?: SortOrder
+    id_usuario_dashboard_configuracao?: SortOrder
+    nome_dashboard_configuracao?: SortOrder
+    modo_dashboard_configuracao?: SortOrder
+    padrao_dashboard_configuracao?: SortOrder
+    data_criacao_dashboard_configuracao?: SortOrder
+    data_atualizacao_dashboard_configuracao?: SortOrder
   }
 
   export type DashboardConfiguracaoMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    name?: SortOrder
-    mode?: SortOrder
-    is_default?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_configuracao?: SortOrder
+    id_organizacao_dashboard_configuracao?: SortOrder
+    id_produto_dashboard_configuracao?: SortOrder
+    id_usuario_dashboard_configuracao?: SortOrder
+    nome_dashboard_configuracao?: SortOrder
+    modo_dashboard_configuracao?: SortOrder
+    padrao_dashboard_configuracao?: SortOrder
+    data_criacao_dashboard_configuracao?: SortOrder
+    data_atualizacao_dashboard_configuracao?: SortOrder
   }
 
   export type EnumDashboardModoWithAggregatesFilter<$PrismaModel = never> = {
@@ -61648,48 +61648,48 @@ export namespace Prisma {
   }
 
   export type DashboardCriarCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_key?: SortOrder
-    widget_type?: SortOrder
-    chart_type?: SortOrder
-    title?: SortOrder
-    query_spec?: SortOrder
-    position?: SortOrder
-    config?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_criar?: SortOrder
+    id_organizacao_dashboard_criar?: SortOrder
+    id_produto_dashboard_criar?: SortOrder
+    id_usuario_dashboard_criar?: SortOrder
+    id_dashboard_dashboard_criar?: SortOrder
+    chave_widget_dashboard_criar?: SortOrder
+    tipo_widget_dashboard_criar?: SortOrder
+    tipo_grafico_dashboard_criar?: SortOrder
+    titulo_dashboard_criar?: SortOrder
+    query_spec_dashboard_criar?: SortOrder
+    posicao_dashboard_criar?: SortOrder
+    config_dashboard_criar?: SortOrder
+    data_criacao_dashboard_criar?: SortOrder
+    data_atualizacao_dashboard_criar?: SortOrder
   }
 
   export type DashboardCriarMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_key?: SortOrder
-    widget_type?: SortOrder
-    chart_type?: SortOrder
-    title?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_criar?: SortOrder
+    id_organizacao_dashboard_criar?: SortOrder
+    id_produto_dashboard_criar?: SortOrder
+    id_usuario_dashboard_criar?: SortOrder
+    id_dashboard_dashboard_criar?: SortOrder
+    chave_widget_dashboard_criar?: SortOrder
+    tipo_widget_dashboard_criar?: SortOrder
+    tipo_grafico_dashboard_criar?: SortOrder
+    titulo_dashboard_criar?: SortOrder
+    data_criacao_dashboard_criar?: SortOrder
+    data_atualizacao_dashboard_criar?: SortOrder
   }
 
   export type DashboardCriarMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_key?: SortOrder
-    widget_type?: SortOrder
-    chart_type?: SortOrder
-    title?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_criar?: SortOrder
+    id_organizacao_dashboard_criar?: SortOrder
+    id_produto_dashboard_criar?: SortOrder
+    id_usuario_dashboard_criar?: SortOrder
+    id_dashboard_dashboard_criar?: SortOrder
+    chave_widget_dashboard_criar?: SortOrder
+    tipo_widget_dashboard_criar?: SortOrder
+    tipo_grafico_dashboard_criar?: SortOrder
+    titulo_dashboard_criar?: SortOrder
+    data_criacao_dashboard_criar?: SortOrder
+    data_atualizacao_dashboard_criar?: SortOrder
   }
 
   export type EnumDashboardTipoWithAggregatesFilter<$PrismaModel = never> = {
@@ -61712,137 +61712,137 @@ export namespace Prisma {
     _max?: NestedEnumGraficoTipoFilter<$PrismaModel>
   }
 
-  export type DashboardMetricasTenant_idProduct_idMetric_keyPeriod_fromPeriod_toCompoundUniqueInput = {
-    tenant_id: string
-    product_id: string
-    metric_key: string
-    period_from: Date | string
-    period_to: Date | string
+  export type DashboardMetricasId_organizacao_dashboard_metricasId_produto_dashboard_metricasChave_metrica_dashboard_metricasPeriodo_inicio_dashboard_metricasPeriodo_fim_dashboard_metricasCompoundUniqueInput = {
+    id_organizacao_dashboard_metricas: string
+    id_produto_dashboard_metricas: string
+    chave_metrica_dashboard_metricas: string
+    periodo_inicio_dashboard_metricas: Date | string
+    periodo_fim_dashboard_metricas: Date | string
   }
 
   export type DashboardMetricasCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    metric_key?: SortOrder
-    dimensions?: SortOrder
-    value?: SortOrder
-    period_from?: SortOrder
-    period_to?: SortOrder
-    captured_at?: SortOrder
+    id_dashboard_metricas?: SortOrder
+    id_organizacao_dashboard_metricas?: SortOrder
+    id_produto_dashboard_metricas?: SortOrder
+    id_usuario_dashboard_metricas?: SortOrder
+    chave_metrica_dashboard_metricas?: SortOrder
+    dimensoes_dashboard_metricas?: SortOrder
+    valor_dashboard_metricas?: SortOrder
+    periodo_inicio_dashboard_metricas?: SortOrder
+    periodo_fim_dashboard_metricas?: SortOrder
+    capturado_em_dashboard_metricas?: SortOrder
   }
 
   export type DashboardMetricasMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    metric_key?: SortOrder
-    period_from?: SortOrder
-    period_to?: SortOrder
-    captured_at?: SortOrder
+    id_dashboard_metricas?: SortOrder
+    id_organizacao_dashboard_metricas?: SortOrder
+    id_produto_dashboard_metricas?: SortOrder
+    id_usuario_dashboard_metricas?: SortOrder
+    chave_metrica_dashboard_metricas?: SortOrder
+    periodo_inicio_dashboard_metricas?: SortOrder
+    periodo_fim_dashboard_metricas?: SortOrder
+    capturado_em_dashboard_metricas?: SortOrder
   }
 
   export type DashboardMetricasMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    metric_key?: SortOrder
-    period_from?: SortOrder
-    period_to?: SortOrder
-    captured_at?: SortOrder
+    id_dashboard_metricas?: SortOrder
+    id_organizacao_dashboard_metricas?: SortOrder
+    id_produto_dashboard_metricas?: SortOrder
+    id_usuario_dashboard_metricas?: SortOrder
+    chave_metrica_dashboard_metricas?: SortOrder
+    periodo_inicio_dashboard_metricas?: SortOrder
+    periodo_fim_dashboard_metricas?: SortOrder
+    capturado_em_dashboard_metricas?: SortOrder
   }
 
   export type DashboardAlertasCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_id?: SortOrder
-    metric_key?: SortOrder
-    condition?: SortOrder
-    threshold?: SortOrder
-    channels?: SortOrder
-    is_active?: SortOrder
-    last_triggered?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_alertas?: SortOrder
+    id_organizacao_dashboard_alertas?: SortOrder
+    id_produto_dashboard_alertas?: SortOrder
+    id_usuario_dashboard_alertas?: SortOrder
+    id_dashboard_dashboard_alertas?: SortOrder
+    id_widget_dashboard_alertas?: SortOrder
+    chave_metrica_dashboard_alertas?: SortOrder
+    condicao_dashboard_alertas?: SortOrder
+    limiar_dashboard_alertas?: SortOrder
+    canais_dashboard_alertas?: SortOrder
+    ativa_dashboard_alertas?: SortOrder
+    ultimo_disparo_dashboard_alertas?: SortOrder
+    data_criacao_dashboard_alertas?: SortOrder
+    data_atualizacao_dashboard_alertas?: SortOrder
   }
 
   export type DashboardAlertasMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_id?: SortOrder
-    metric_key?: SortOrder
-    condition?: SortOrder
-    is_active?: SortOrder
-    last_triggered?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_alertas?: SortOrder
+    id_organizacao_dashboard_alertas?: SortOrder
+    id_produto_dashboard_alertas?: SortOrder
+    id_usuario_dashboard_alertas?: SortOrder
+    id_dashboard_dashboard_alertas?: SortOrder
+    id_widget_dashboard_alertas?: SortOrder
+    chave_metrica_dashboard_alertas?: SortOrder
+    condicao_dashboard_alertas?: SortOrder
+    ativa_dashboard_alertas?: SortOrder
+    ultimo_disparo_dashboard_alertas?: SortOrder
+    data_criacao_dashboard_alertas?: SortOrder
+    data_atualizacao_dashboard_alertas?: SortOrder
   }
 
   export type DashboardAlertasMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    widget_id?: SortOrder
-    metric_key?: SortOrder
-    condition?: SortOrder
-    is_active?: SortOrder
-    last_triggered?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_dashboard_alertas?: SortOrder
+    id_organizacao_dashboard_alertas?: SortOrder
+    id_produto_dashboard_alertas?: SortOrder
+    id_usuario_dashboard_alertas?: SortOrder
+    id_dashboard_dashboard_alertas?: SortOrder
+    id_widget_dashboard_alertas?: SortOrder
+    chave_metrica_dashboard_alertas?: SortOrder
+    condicao_dashboard_alertas?: SortOrder
+    ativa_dashboard_alertas?: SortOrder
+    ultimo_disparo_dashboard_alertas?: SortOrder
+    data_criacao_dashboard_alertas?: SortOrder
+    data_atualizacao_dashboard_alertas?: SortOrder
   }
 
   export type DashboardCompartilharCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    share_token?: SortOrder
-    channel?: SortOrder
-    recipient_email?: SortOrder
-    recipient_phone?: SortOrder
-    snapshot_data?: SortOrder
-    expires_at?: SortOrder
-    created_at?: SortOrder
+    id_dashboard_compartilhar?: SortOrder
+    id_organizacao_dashboard_compartilhar?: SortOrder
+    id_produto_dashboard_compartilhar?: SortOrder
+    id_usuario_dashboard_compartilhar?: SortOrder
+    id_dashboard_dashboard_compartilhar?: SortOrder
+    token_share_dashboard_compartilhar?: SortOrder
+    canal_dashboard_compartilhar?: SortOrder
+    email_destinatario_dashboard_compartilhar?: SortOrder
+    telefone_destinatario_dashboard_compartilhar?: SortOrder
+    snapshot_dashboard_compartilhar?: SortOrder
+    expira_em_dashboard_compartilhar?: SortOrder
+    data_criacao_dashboard_compartilhar?: SortOrder
   }
 
   export type DashboardCompartilharMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    share_token?: SortOrder
-    channel?: SortOrder
-    recipient_email?: SortOrder
-    recipient_phone?: SortOrder
-    expires_at?: SortOrder
-    created_at?: SortOrder
+    id_dashboard_compartilhar?: SortOrder
+    id_organizacao_dashboard_compartilhar?: SortOrder
+    id_produto_dashboard_compartilhar?: SortOrder
+    id_usuario_dashboard_compartilhar?: SortOrder
+    id_dashboard_dashboard_compartilhar?: SortOrder
+    token_share_dashboard_compartilhar?: SortOrder
+    canal_dashboard_compartilhar?: SortOrder
+    email_destinatario_dashboard_compartilhar?: SortOrder
+    telefone_destinatario_dashboard_compartilhar?: SortOrder
+    expira_em_dashboard_compartilhar?: SortOrder
+    data_criacao_dashboard_compartilhar?: SortOrder
   }
 
   export type DashboardCompartilharMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_id?: SortOrder
-    user_id?: SortOrder
-    dashboard_id?: SortOrder
-    share_token?: SortOrder
-    channel?: SortOrder
-    recipient_email?: SortOrder
-    recipient_phone?: SortOrder
-    expires_at?: SortOrder
-    created_at?: SortOrder
+    id_dashboard_compartilhar?: SortOrder
+    id_organizacao_dashboard_compartilhar?: SortOrder
+    id_produto_dashboard_compartilhar?: SortOrder
+    id_usuario_dashboard_compartilhar?: SortOrder
+    id_dashboard_dashboard_compartilhar?: SortOrder
+    token_share_dashboard_compartilhar?: SortOrder
+    canal_dashboard_compartilhar?: SortOrder
+    email_destinatario_dashboard_compartilhar?: SortOrder
+    telefone_destinatario_dashboard_compartilhar?: SortOrder
+    expira_em_dashboard_compartilhar?: SortOrder
+    data_criacao_dashboard_compartilhar?: SortOrder
   }
 
   export type RelatoriosSalvosCountOrderByAggregateInput = {
@@ -63452,45 +63452,45 @@ export namespace Prisma {
     divide?: Decimal | DecimalJsLike | number | string
   }
 
-  export type DashboardCriarCreateNestedManyWithoutDashboardInput = {
-    create?: XOR<DashboardCriarCreateWithoutDashboardInput, DashboardCriarUncheckedCreateWithoutDashboardInput> | DashboardCriarCreateWithoutDashboardInput[] | DashboardCriarUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardCriarCreateOrConnectWithoutDashboardInput | DashboardCriarCreateOrConnectWithoutDashboardInput[]
-    createMany?: DashboardCriarCreateManyDashboardInputEnvelope
+  export type DashboardCriarCreateNestedManyWithoutDashboard_dashboard_criarInput = {
+    create?: XOR<DashboardCriarCreateWithoutDashboard_dashboard_criarInput, DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput> | DashboardCriarCreateWithoutDashboard_dashboard_criarInput[] | DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput[]
+    connectOrCreate?: DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput | DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput[]
+    createMany?: DashboardCriarCreateManyDashboard_dashboard_criarInputEnvelope
     connect?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
   }
 
-  export type DashboardAlertasCreateNestedManyWithoutDashboardInput = {
-    create?: XOR<DashboardAlertasCreateWithoutDashboardInput, DashboardAlertasUncheckedCreateWithoutDashboardInput> | DashboardAlertasCreateWithoutDashboardInput[] | DashboardAlertasUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardAlertasCreateOrConnectWithoutDashboardInput | DashboardAlertasCreateOrConnectWithoutDashboardInput[]
-    createMany?: DashboardAlertasCreateManyDashboardInputEnvelope
+  export type DashboardAlertasCreateNestedManyWithoutDashboard_dashboard_alertasInput = {
+    create?: XOR<DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput, DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput> | DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput[] | DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput[]
+    connectOrCreate?: DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput | DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput[]
+    createMany?: DashboardAlertasCreateManyDashboard_dashboard_alertasInputEnvelope
     connect?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
   }
 
-  export type DashboardCompartilharCreateNestedManyWithoutDashboardInput = {
-    create?: XOR<DashboardCompartilharCreateWithoutDashboardInput, DashboardCompartilharUncheckedCreateWithoutDashboardInput> | DashboardCompartilharCreateWithoutDashboardInput[] | DashboardCompartilharUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardCompartilharCreateOrConnectWithoutDashboardInput | DashboardCompartilharCreateOrConnectWithoutDashboardInput[]
-    createMany?: DashboardCompartilharCreateManyDashboardInputEnvelope
+  export type DashboardCompartilharCreateNestedManyWithoutDashboard_dashboard_compartilharInput = {
+    create?: XOR<DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput, DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput> | DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput[] | DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput[]
+    connectOrCreate?: DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput[]
+    createMany?: DashboardCompartilharCreateManyDashboard_dashboard_compartilharInputEnvelope
     connect?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
   }
 
-  export type DashboardCriarUncheckedCreateNestedManyWithoutDashboardInput = {
-    create?: XOR<DashboardCriarCreateWithoutDashboardInput, DashboardCriarUncheckedCreateWithoutDashboardInput> | DashboardCriarCreateWithoutDashboardInput[] | DashboardCriarUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardCriarCreateOrConnectWithoutDashboardInput | DashboardCriarCreateOrConnectWithoutDashboardInput[]
-    createMany?: DashboardCriarCreateManyDashboardInputEnvelope
+  export type DashboardCriarUncheckedCreateNestedManyWithoutDashboard_dashboard_criarInput = {
+    create?: XOR<DashboardCriarCreateWithoutDashboard_dashboard_criarInput, DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput> | DashboardCriarCreateWithoutDashboard_dashboard_criarInput[] | DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput[]
+    connectOrCreate?: DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput | DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput[]
+    createMany?: DashboardCriarCreateManyDashboard_dashboard_criarInputEnvelope
     connect?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
   }
 
-  export type DashboardAlertasUncheckedCreateNestedManyWithoutDashboardInput = {
-    create?: XOR<DashboardAlertasCreateWithoutDashboardInput, DashboardAlertasUncheckedCreateWithoutDashboardInput> | DashboardAlertasCreateWithoutDashboardInput[] | DashboardAlertasUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardAlertasCreateOrConnectWithoutDashboardInput | DashboardAlertasCreateOrConnectWithoutDashboardInput[]
-    createMany?: DashboardAlertasCreateManyDashboardInputEnvelope
+  export type DashboardAlertasUncheckedCreateNestedManyWithoutDashboard_dashboard_alertasInput = {
+    create?: XOR<DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput, DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput> | DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput[] | DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput[]
+    connectOrCreate?: DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput | DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput[]
+    createMany?: DashboardAlertasCreateManyDashboard_dashboard_alertasInputEnvelope
     connect?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
   }
 
-  export type DashboardCompartilharUncheckedCreateNestedManyWithoutDashboardInput = {
-    create?: XOR<DashboardCompartilharCreateWithoutDashboardInput, DashboardCompartilharUncheckedCreateWithoutDashboardInput> | DashboardCompartilharCreateWithoutDashboardInput[] | DashboardCompartilharUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardCompartilharCreateOrConnectWithoutDashboardInput | DashboardCompartilharCreateOrConnectWithoutDashboardInput[]
-    createMany?: DashboardCompartilharCreateManyDashboardInputEnvelope
+  export type DashboardCompartilharUncheckedCreateNestedManyWithoutDashboard_dashboard_compartilharInput = {
+    create?: XOR<DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput, DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput> | DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput[] | DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput[]
+    connectOrCreate?: DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput[]
+    createMany?: DashboardCompartilharCreateManyDashboard_dashboard_compartilharInputEnvelope
     connect?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
   }
 
@@ -63498,93 +63498,93 @@ export namespace Prisma {
     set?: $Enums.DashboardModo
   }
 
-  export type DashboardCriarUpdateManyWithoutDashboardNestedInput = {
-    create?: XOR<DashboardCriarCreateWithoutDashboardInput, DashboardCriarUncheckedCreateWithoutDashboardInput> | DashboardCriarCreateWithoutDashboardInput[] | DashboardCriarUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardCriarCreateOrConnectWithoutDashboardInput | DashboardCriarCreateOrConnectWithoutDashboardInput[]
-    upsert?: DashboardCriarUpsertWithWhereUniqueWithoutDashboardInput | DashboardCriarUpsertWithWhereUniqueWithoutDashboardInput[]
-    createMany?: DashboardCriarCreateManyDashboardInputEnvelope
+  export type DashboardCriarUpdateManyWithoutDashboard_dashboard_criarNestedInput = {
+    create?: XOR<DashboardCriarCreateWithoutDashboard_dashboard_criarInput, DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput> | DashboardCriarCreateWithoutDashboard_dashboard_criarInput[] | DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput[]
+    connectOrCreate?: DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput | DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput[]
+    upsert?: DashboardCriarUpsertWithWhereUniqueWithoutDashboard_dashboard_criarInput | DashboardCriarUpsertWithWhereUniqueWithoutDashboard_dashboard_criarInput[]
+    createMany?: DashboardCriarCreateManyDashboard_dashboard_criarInputEnvelope
     set?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
     disconnect?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
     delete?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
     connect?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
-    update?: DashboardCriarUpdateWithWhereUniqueWithoutDashboardInput | DashboardCriarUpdateWithWhereUniqueWithoutDashboardInput[]
-    updateMany?: DashboardCriarUpdateManyWithWhereWithoutDashboardInput | DashboardCriarUpdateManyWithWhereWithoutDashboardInput[]
+    update?: DashboardCriarUpdateWithWhereUniqueWithoutDashboard_dashboard_criarInput | DashboardCriarUpdateWithWhereUniqueWithoutDashboard_dashboard_criarInput[]
+    updateMany?: DashboardCriarUpdateManyWithWhereWithoutDashboard_dashboard_criarInput | DashboardCriarUpdateManyWithWhereWithoutDashboard_dashboard_criarInput[]
     deleteMany?: DashboardCriarScalarWhereInput | DashboardCriarScalarWhereInput[]
   }
 
-  export type DashboardAlertasUpdateManyWithoutDashboardNestedInput = {
-    create?: XOR<DashboardAlertasCreateWithoutDashboardInput, DashboardAlertasUncheckedCreateWithoutDashboardInput> | DashboardAlertasCreateWithoutDashboardInput[] | DashboardAlertasUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardAlertasCreateOrConnectWithoutDashboardInput | DashboardAlertasCreateOrConnectWithoutDashboardInput[]
-    upsert?: DashboardAlertasUpsertWithWhereUniqueWithoutDashboardInput | DashboardAlertasUpsertWithWhereUniqueWithoutDashboardInput[]
-    createMany?: DashboardAlertasCreateManyDashboardInputEnvelope
+  export type DashboardAlertasUpdateManyWithoutDashboard_dashboard_alertasNestedInput = {
+    create?: XOR<DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput, DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput> | DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput[] | DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput[]
+    connectOrCreate?: DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput | DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput[]
+    upsert?: DashboardAlertasUpsertWithWhereUniqueWithoutDashboard_dashboard_alertasInput | DashboardAlertasUpsertWithWhereUniqueWithoutDashboard_dashboard_alertasInput[]
+    createMany?: DashboardAlertasCreateManyDashboard_dashboard_alertasInputEnvelope
     set?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
     disconnect?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
     delete?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
     connect?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
-    update?: DashboardAlertasUpdateWithWhereUniqueWithoutDashboardInput | DashboardAlertasUpdateWithWhereUniqueWithoutDashboardInput[]
-    updateMany?: DashboardAlertasUpdateManyWithWhereWithoutDashboardInput | DashboardAlertasUpdateManyWithWhereWithoutDashboardInput[]
+    update?: DashboardAlertasUpdateWithWhereUniqueWithoutDashboard_dashboard_alertasInput | DashboardAlertasUpdateWithWhereUniqueWithoutDashboard_dashboard_alertasInput[]
+    updateMany?: DashboardAlertasUpdateManyWithWhereWithoutDashboard_dashboard_alertasInput | DashboardAlertasUpdateManyWithWhereWithoutDashboard_dashboard_alertasInput[]
     deleteMany?: DashboardAlertasScalarWhereInput | DashboardAlertasScalarWhereInput[]
   }
 
-  export type DashboardCompartilharUpdateManyWithoutDashboardNestedInput = {
-    create?: XOR<DashboardCompartilharCreateWithoutDashboardInput, DashboardCompartilharUncheckedCreateWithoutDashboardInput> | DashboardCompartilharCreateWithoutDashboardInput[] | DashboardCompartilharUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardCompartilharCreateOrConnectWithoutDashboardInput | DashboardCompartilharCreateOrConnectWithoutDashboardInput[]
-    upsert?: DashboardCompartilharUpsertWithWhereUniqueWithoutDashboardInput | DashboardCompartilharUpsertWithWhereUniqueWithoutDashboardInput[]
-    createMany?: DashboardCompartilharCreateManyDashboardInputEnvelope
+  export type DashboardCompartilharUpdateManyWithoutDashboard_dashboard_compartilharNestedInput = {
+    create?: XOR<DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput, DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput> | DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput[] | DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput[]
+    connectOrCreate?: DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput[]
+    upsert?: DashboardCompartilharUpsertWithWhereUniqueWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharUpsertWithWhereUniqueWithoutDashboard_dashboard_compartilharInput[]
+    createMany?: DashboardCompartilharCreateManyDashboard_dashboard_compartilharInputEnvelope
     set?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
     disconnect?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
     delete?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
     connect?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
-    update?: DashboardCompartilharUpdateWithWhereUniqueWithoutDashboardInput | DashboardCompartilharUpdateWithWhereUniqueWithoutDashboardInput[]
-    updateMany?: DashboardCompartilharUpdateManyWithWhereWithoutDashboardInput | DashboardCompartilharUpdateManyWithWhereWithoutDashboardInput[]
+    update?: DashboardCompartilharUpdateWithWhereUniqueWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharUpdateWithWhereUniqueWithoutDashboard_dashboard_compartilharInput[]
+    updateMany?: DashboardCompartilharUpdateManyWithWhereWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharUpdateManyWithWhereWithoutDashboard_dashboard_compartilharInput[]
     deleteMany?: DashboardCompartilharScalarWhereInput | DashboardCompartilharScalarWhereInput[]
   }
 
-  export type DashboardCriarUncheckedUpdateManyWithoutDashboardNestedInput = {
-    create?: XOR<DashboardCriarCreateWithoutDashboardInput, DashboardCriarUncheckedCreateWithoutDashboardInput> | DashboardCriarCreateWithoutDashboardInput[] | DashboardCriarUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardCriarCreateOrConnectWithoutDashboardInput | DashboardCriarCreateOrConnectWithoutDashboardInput[]
-    upsert?: DashboardCriarUpsertWithWhereUniqueWithoutDashboardInput | DashboardCriarUpsertWithWhereUniqueWithoutDashboardInput[]
-    createMany?: DashboardCriarCreateManyDashboardInputEnvelope
+  export type DashboardCriarUncheckedUpdateManyWithoutDashboard_dashboard_criarNestedInput = {
+    create?: XOR<DashboardCriarCreateWithoutDashboard_dashboard_criarInput, DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput> | DashboardCriarCreateWithoutDashboard_dashboard_criarInput[] | DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput[]
+    connectOrCreate?: DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput | DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput[]
+    upsert?: DashboardCriarUpsertWithWhereUniqueWithoutDashboard_dashboard_criarInput | DashboardCriarUpsertWithWhereUniqueWithoutDashboard_dashboard_criarInput[]
+    createMany?: DashboardCriarCreateManyDashboard_dashboard_criarInputEnvelope
     set?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
     disconnect?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
     delete?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
     connect?: DashboardCriarWhereUniqueInput | DashboardCriarWhereUniqueInput[]
-    update?: DashboardCriarUpdateWithWhereUniqueWithoutDashboardInput | DashboardCriarUpdateWithWhereUniqueWithoutDashboardInput[]
-    updateMany?: DashboardCriarUpdateManyWithWhereWithoutDashboardInput | DashboardCriarUpdateManyWithWhereWithoutDashboardInput[]
+    update?: DashboardCriarUpdateWithWhereUniqueWithoutDashboard_dashboard_criarInput | DashboardCriarUpdateWithWhereUniqueWithoutDashboard_dashboard_criarInput[]
+    updateMany?: DashboardCriarUpdateManyWithWhereWithoutDashboard_dashboard_criarInput | DashboardCriarUpdateManyWithWhereWithoutDashboard_dashboard_criarInput[]
     deleteMany?: DashboardCriarScalarWhereInput | DashboardCriarScalarWhereInput[]
   }
 
-  export type DashboardAlertasUncheckedUpdateManyWithoutDashboardNestedInput = {
-    create?: XOR<DashboardAlertasCreateWithoutDashboardInput, DashboardAlertasUncheckedCreateWithoutDashboardInput> | DashboardAlertasCreateWithoutDashboardInput[] | DashboardAlertasUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardAlertasCreateOrConnectWithoutDashboardInput | DashboardAlertasCreateOrConnectWithoutDashboardInput[]
-    upsert?: DashboardAlertasUpsertWithWhereUniqueWithoutDashboardInput | DashboardAlertasUpsertWithWhereUniqueWithoutDashboardInput[]
-    createMany?: DashboardAlertasCreateManyDashboardInputEnvelope
+  export type DashboardAlertasUncheckedUpdateManyWithoutDashboard_dashboard_alertasNestedInput = {
+    create?: XOR<DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput, DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput> | DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput[] | DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput[]
+    connectOrCreate?: DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput | DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput[]
+    upsert?: DashboardAlertasUpsertWithWhereUniqueWithoutDashboard_dashboard_alertasInput | DashboardAlertasUpsertWithWhereUniqueWithoutDashboard_dashboard_alertasInput[]
+    createMany?: DashboardAlertasCreateManyDashboard_dashboard_alertasInputEnvelope
     set?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
     disconnect?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
     delete?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
     connect?: DashboardAlertasWhereUniqueInput | DashboardAlertasWhereUniqueInput[]
-    update?: DashboardAlertasUpdateWithWhereUniqueWithoutDashboardInput | DashboardAlertasUpdateWithWhereUniqueWithoutDashboardInput[]
-    updateMany?: DashboardAlertasUpdateManyWithWhereWithoutDashboardInput | DashboardAlertasUpdateManyWithWhereWithoutDashboardInput[]
+    update?: DashboardAlertasUpdateWithWhereUniqueWithoutDashboard_dashboard_alertasInput | DashboardAlertasUpdateWithWhereUniqueWithoutDashboard_dashboard_alertasInput[]
+    updateMany?: DashboardAlertasUpdateManyWithWhereWithoutDashboard_dashboard_alertasInput | DashboardAlertasUpdateManyWithWhereWithoutDashboard_dashboard_alertasInput[]
     deleteMany?: DashboardAlertasScalarWhereInput | DashboardAlertasScalarWhereInput[]
   }
 
-  export type DashboardCompartilharUncheckedUpdateManyWithoutDashboardNestedInput = {
-    create?: XOR<DashboardCompartilharCreateWithoutDashboardInput, DashboardCompartilharUncheckedCreateWithoutDashboardInput> | DashboardCompartilharCreateWithoutDashboardInput[] | DashboardCompartilharUncheckedCreateWithoutDashboardInput[]
-    connectOrCreate?: DashboardCompartilharCreateOrConnectWithoutDashboardInput | DashboardCompartilharCreateOrConnectWithoutDashboardInput[]
-    upsert?: DashboardCompartilharUpsertWithWhereUniqueWithoutDashboardInput | DashboardCompartilharUpsertWithWhereUniqueWithoutDashboardInput[]
-    createMany?: DashboardCompartilharCreateManyDashboardInputEnvelope
+  export type DashboardCompartilharUncheckedUpdateManyWithoutDashboard_dashboard_compartilharNestedInput = {
+    create?: XOR<DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput, DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput> | DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput[] | DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput[]
+    connectOrCreate?: DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput[]
+    upsert?: DashboardCompartilharUpsertWithWhereUniqueWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharUpsertWithWhereUniqueWithoutDashboard_dashboard_compartilharInput[]
+    createMany?: DashboardCompartilharCreateManyDashboard_dashboard_compartilharInputEnvelope
     set?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
     disconnect?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
     delete?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
     connect?: DashboardCompartilharWhereUniqueInput | DashboardCompartilharWhereUniqueInput[]
-    update?: DashboardCompartilharUpdateWithWhereUniqueWithoutDashboardInput | DashboardCompartilharUpdateWithWhereUniqueWithoutDashboardInput[]
-    updateMany?: DashboardCompartilharUpdateManyWithWhereWithoutDashboardInput | DashboardCompartilharUpdateManyWithWhereWithoutDashboardInput[]
+    update?: DashboardCompartilharUpdateWithWhereUniqueWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharUpdateWithWhereUniqueWithoutDashboard_dashboard_compartilharInput[]
+    updateMany?: DashboardCompartilharUpdateManyWithWhereWithoutDashboard_dashboard_compartilharInput | DashboardCompartilharUpdateManyWithWhereWithoutDashboard_dashboard_compartilharInput[]
     deleteMany?: DashboardCompartilharScalarWhereInput | DashboardCompartilharScalarWhereInput[]
   }
 
-  export type DashboardConfiguracaoCreateNestedOneWithoutWidgetsInput = {
-    create?: XOR<DashboardConfiguracaoCreateWithoutWidgetsInput, DashboardConfiguracaoUncheckedCreateWithoutWidgetsInput>
-    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutWidgetsInput
+  export type DashboardConfiguracaoCreateNestedOneWithoutWidgets_dashboard_configuracaoInput = {
+    create?: XOR<DashboardConfiguracaoCreateWithoutWidgets_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutWidgets_dashboard_configuracaoInput>
+    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutWidgets_dashboard_configuracaoInput
     connect?: DashboardConfiguracaoWhereUniqueInput
   }
 
@@ -63596,49 +63596,49 @@ export namespace Prisma {
     set?: $Enums.GraficoTipo
   }
 
-  export type DashboardConfiguracaoUpdateOneRequiredWithoutWidgetsNestedInput = {
-    create?: XOR<DashboardConfiguracaoCreateWithoutWidgetsInput, DashboardConfiguracaoUncheckedCreateWithoutWidgetsInput>
-    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutWidgetsInput
-    upsert?: DashboardConfiguracaoUpsertWithoutWidgetsInput
+  export type DashboardConfiguracaoUpdateOneRequiredWithoutWidgets_dashboard_configuracaoNestedInput = {
+    create?: XOR<DashboardConfiguracaoCreateWithoutWidgets_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutWidgets_dashboard_configuracaoInput>
+    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutWidgets_dashboard_configuracaoInput
+    upsert?: DashboardConfiguracaoUpsertWithoutWidgets_dashboard_configuracaoInput
     connect?: DashboardConfiguracaoWhereUniqueInput
-    update?: XOR<XOR<DashboardConfiguracaoUpdateToOneWithWhereWithoutWidgetsInput, DashboardConfiguracaoUpdateWithoutWidgetsInput>, DashboardConfiguracaoUncheckedUpdateWithoutWidgetsInput>
+    update?: XOR<XOR<DashboardConfiguracaoUpdateToOneWithWhereWithoutWidgets_dashboard_configuracaoInput, DashboardConfiguracaoUpdateWithoutWidgets_dashboard_configuracaoInput>, DashboardConfiguracaoUncheckedUpdateWithoutWidgets_dashboard_configuracaoInput>
   }
 
-  export type DashboardAlertasCreatechannelsInput = {
+  export type DashboardAlertasCreatecanais_dashboard_alertasInput = {
     set: string[]
   }
 
-  export type DashboardConfiguracaoCreateNestedOneWithoutAlertsInput = {
-    create?: XOR<DashboardConfiguracaoCreateWithoutAlertsInput, DashboardConfiguracaoUncheckedCreateWithoutAlertsInput>
-    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutAlertsInput
+  export type DashboardConfiguracaoCreateNestedOneWithoutAlertas_dashboard_configuracaoInput = {
+    create?: XOR<DashboardConfiguracaoCreateWithoutAlertas_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutAlertas_dashboard_configuracaoInput>
+    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutAlertas_dashboard_configuracaoInput
     connect?: DashboardConfiguracaoWhereUniqueInput
   }
 
-  export type DashboardAlertasUpdatechannelsInput = {
+  export type DashboardAlertasUpdatecanais_dashboard_alertasInput = {
     set?: string[]
     push?: string | string[]
   }
 
-  export type DashboardConfiguracaoUpdateOneRequiredWithoutAlertsNestedInput = {
-    create?: XOR<DashboardConfiguracaoCreateWithoutAlertsInput, DashboardConfiguracaoUncheckedCreateWithoutAlertsInput>
-    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutAlertsInput
-    upsert?: DashboardConfiguracaoUpsertWithoutAlertsInput
+  export type DashboardConfiguracaoUpdateOneRequiredWithoutAlertas_dashboard_configuracaoNestedInput = {
+    create?: XOR<DashboardConfiguracaoCreateWithoutAlertas_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutAlertas_dashboard_configuracaoInput>
+    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutAlertas_dashboard_configuracaoInput
+    upsert?: DashboardConfiguracaoUpsertWithoutAlertas_dashboard_configuracaoInput
     connect?: DashboardConfiguracaoWhereUniqueInput
-    update?: XOR<XOR<DashboardConfiguracaoUpdateToOneWithWhereWithoutAlertsInput, DashboardConfiguracaoUpdateWithoutAlertsInput>, DashboardConfiguracaoUncheckedUpdateWithoutAlertsInput>
+    update?: XOR<XOR<DashboardConfiguracaoUpdateToOneWithWhereWithoutAlertas_dashboard_configuracaoInput, DashboardConfiguracaoUpdateWithoutAlertas_dashboard_configuracaoInput>, DashboardConfiguracaoUncheckedUpdateWithoutAlertas_dashboard_configuracaoInput>
   }
 
-  export type DashboardConfiguracaoCreateNestedOneWithoutSharesInput = {
-    create?: XOR<DashboardConfiguracaoCreateWithoutSharesInput, DashboardConfiguracaoUncheckedCreateWithoutSharesInput>
-    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutSharesInput
+  export type DashboardConfiguracaoCreateNestedOneWithoutShares_dashboard_configuracaoInput = {
+    create?: XOR<DashboardConfiguracaoCreateWithoutShares_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutShares_dashboard_configuracaoInput>
+    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutShares_dashboard_configuracaoInput
     connect?: DashboardConfiguracaoWhereUniqueInput
   }
 
-  export type DashboardConfiguracaoUpdateOneRequiredWithoutSharesNestedInput = {
-    create?: XOR<DashboardConfiguracaoCreateWithoutSharesInput, DashboardConfiguracaoUncheckedCreateWithoutSharesInput>
-    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutSharesInput
-    upsert?: DashboardConfiguracaoUpsertWithoutSharesInput
+  export type DashboardConfiguracaoUpdateOneRequiredWithoutShares_dashboard_configuracaoNestedInput = {
+    create?: XOR<DashboardConfiguracaoCreateWithoutShares_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutShares_dashboard_configuracaoInput>
+    connectOrCreate?: DashboardConfiguracaoCreateOrConnectWithoutShares_dashboard_configuracaoInput
+    upsert?: DashboardConfiguracaoUpsertWithoutShares_dashboard_configuracaoInput
     connect?: DashboardConfiguracaoWhereUniqueInput
-    update?: XOR<XOR<DashboardConfiguracaoUpdateToOneWithWhereWithoutSharesInput, DashboardConfiguracaoUpdateWithoutSharesInput>, DashboardConfiguracaoUncheckedUpdateWithoutSharesInput>
+    update?: XOR<XOR<DashboardConfiguracaoUpdateToOneWithWhereWithoutShares_dashboard_configuracaoInput, DashboardConfiguracaoUpdateWithoutShares_dashboard_configuracaoInput>, DashboardConfiguracaoUncheckedUpdateWithoutShares_dashboard_configuracaoInput>
   }
 
   export type EnumAcaoExecutadaPorFieldUpdateOperationsInput = {
@@ -65098,472 +65098,472 @@ export namespace Prisma {
     data_atualizacao_email_assuntos_participantes?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardCriarCreateWithoutDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    widget_key: string
-    widget_type?: $Enums.DashboardTipo
-    chart_type?: $Enums.GraficoTipo
-    title: string
-    query_spec: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type DashboardCriarCreateWithoutDashboard_dashboard_criarInput = {
+    id_dashboard_criar?: string
+    id_organizacao_dashboard_criar: string
+    id_produto_dashboard_criar?: string | null
+    id_usuario_dashboard_criar: string
+    chave_widget_dashboard_criar: string
+    tipo_widget_dashboard_criar?: $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: $Enums.GraficoTipo
+    titulo_dashboard_criar: string
+    query_spec_dashboard_criar: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: Date | string
+    data_atualizacao_dashboard_criar?: Date | string
   }
 
-  export type DashboardCriarUncheckedCreateWithoutDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    widget_key: string
-    widget_type?: $Enums.DashboardTipo
-    chart_type?: $Enums.GraficoTipo
-    title: string
-    query_spec: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput = {
+    id_dashboard_criar?: string
+    id_organizacao_dashboard_criar: string
+    id_produto_dashboard_criar?: string | null
+    id_usuario_dashboard_criar: string
+    chave_widget_dashboard_criar: string
+    tipo_widget_dashboard_criar?: $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: $Enums.GraficoTipo
+    titulo_dashboard_criar: string
+    query_spec_dashboard_criar: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: Date | string
+    data_atualizacao_dashboard_criar?: Date | string
   }
 
-  export type DashboardCriarCreateOrConnectWithoutDashboardInput = {
+  export type DashboardCriarCreateOrConnectWithoutDashboard_dashboard_criarInput = {
     where: DashboardCriarWhereUniqueInput
-    create: XOR<DashboardCriarCreateWithoutDashboardInput, DashboardCriarUncheckedCreateWithoutDashboardInput>
+    create: XOR<DashboardCriarCreateWithoutDashboard_dashboard_criarInput, DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput>
   }
 
-  export type DashboardCriarCreateManyDashboardInputEnvelope = {
-    data: DashboardCriarCreateManyDashboardInput | DashboardCriarCreateManyDashboardInput[]
+  export type DashboardCriarCreateManyDashboard_dashboard_criarInputEnvelope = {
+    data: DashboardCriarCreateManyDashboard_dashboard_criarInput | DashboardCriarCreateManyDashboard_dashboard_criarInput[]
     skipDuplicates?: boolean
   }
 
-  export type DashboardAlertasCreateWithoutDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    widget_id?: string | null
-    metric_key: string
-    condition: string
-    threshold: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasCreatechannelsInput | string[]
-    is_active?: boolean
-    last_triggered?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput = {
+    id_dashboard_alertas?: string
+    id_organizacao_dashboard_alertas: string
+    id_produto_dashboard_alertas?: string | null
+    id_usuario_dashboard_alertas: string
+    id_widget_dashboard_alertas?: string | null
+    chave_metrica_dashboard_alertas: string
+    condicao_dashboard_alertas: string
+    limiar_dashboard_alertas: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasCreatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: Date | string | null
+    data_criacao_dashboard_alertas?: Date | string
+    data_atualizacao_dashboard_alertas?: Date | string
   }
 
-  export type DashboardAlertasUncheckedCreateWithoutDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    widget_id?: string | null
-    metric_key: string
-    condition: string
-    threshold: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasCreatechannelsInput | string[]
-    is_active?: boolean
-    last_triggered?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput = {
+    id_dashboard_alertas?: string
+    id_organizacao_dashboard_alertas: string
+    id_produto_dashboard_alertas?: string | null
+    id_usuario_dashboard_alertas: string
+    id_widget_dashboard_alertas?: string | null
+    chave_metrica_dashboard_alertas: string
+    condicao_dashboard_alertas: string
+    limiar_dashboard_alertas: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasCreatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: Date | string | null
+    data_criacao_dashboard_alertas?: Date | string
+    data_atualizacao_dashboard_alertas?: Date | string
   }
 
-  export type DashboardAlertasCreateOrConnectWithoutDashboardInput = {
+  export type DashboardAlertasCreateOrConnectWithoutDashboard_dashboard_alertasInput = {
     where: DashboardAlertasWhereUniqueInput
-    create: XOR<DashboardAlertasCreateWithoutDashboardInput, DashboardAlertasUncheckedCreateWithoutDashboardInput>
+    create: XOR<DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput, DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput>
   }
 
-  export type DashboardAlertasCreateManyDashboardInputEnvelope = {
-    data: DashboardAlertasCreateManyDashboardInput | DashboardAlertasCreateManyDashboardInput[]
+  export type DashboardAlertasCreateManyDashboard_dashboard_alertasInputEnvelope = {
+    data: DashboardAlertasCreateManyDashboard_dashboard_alertasInput | DashboardAlertasCreateManyDashboard_dashboard_alertasInput[]
     skipDuplicates?: boolean
   }
 
-  export type DashboardCompartilharCreateWithoutDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    share_token?: string
-    channel: string
-    recipient_email?: string | null
-    recipient_phone?: string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: Date | string | null
-    created_at?: Date | string
+  export type DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput = {
+    id_dashboard_compartilhar?: string
+    id_organizacao_dashboard_compartilhar: string
+    id_produto_dashboard_compartilhar?: string | null
+    id_usuario_dashboard_compartilhar: string
+    token_share_dashboard_compartilhar?: string
+    canal_dashboard_compartilhar: string
+    email_destinatario_dashboard_compartilhar?: string | null
+    telefone_destinatario_dashboard_compartilhar?: string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: Date | string | null
+    data_criacao_dashboard_compartilhar?: Date | string
   }
 
-  export type DashboardCompartilharUncheckedCreateWithoutDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    share_token?: string
-    channel: string
-    recipient_email?: string | null
-    recipient_phone?: string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: Date | string | null
-    created_at?: Date | string
+  export type DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput = {
+    id_dashboard_compartilhar?: string
+    id_organizacao_dashboard_compartilhar: string
+    id_produto_dashboard_compartilhar?: string | null
+    id_usuario_dashboard_compartilhar: string
+    token_share_dashboard_compartilhar?: string
+    canal_dashboard_compartilhar: string
+    email_destinatario_dashboard_compartilhar?: string | null
+    telefone_destinatario_dashboard_compartilhar?: string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: Date | string | null
+    data_criacao_dashboard_compartilhar?: Date | string
   }
 
-  export type DashboardCompartilharCreateOrConnectWithoutDashboardInput = {
+  export type DashboardCompartilharCreateOrConnectWithoutDashboard_dashboard_compartilharInput = {
     where: DashboardCompartilharWhereUniqueInput
-    create: XOR<DashboardCompartilharCreateWithoutDashboardInput, DashboardCompartilharUncheckedCreateWithoutDashboardInput>
+    create: XOR<DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput, DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput>
   }
 
-  export type DashboardCompartilharCreateManyDashboardInputEnvelope = {
-    data: DashboardCompartilharCreateManyDashboardInput | DashboardCompartilharCreateManyDashboardInput[]
+  export type DashboardCompartilharCreateManyDashboard_dashboard_compartilharInputEnvelope = {
+    data: DashboardCompartilharCreateManyDashboard_dashboard_compartilharInput | DashboardCompartilharCreateManyDashboard_dashboard_compartilharInput[]
     skipDuplicates?: boolean
   }
 
-  export type DashboardCriarUpsertWithWhereUniqueWithoutDashboardInput = {
+  export type DashboardCriarUpsertWithWhereUniqueWithoutDashboard_dashboard_criarInput = {
     where: DashboardCriarWhereUniqueInput
-    update: XOR<DashboardCriarUpdateWithoutDashboardInput, DashboardCriarUncheckedUpdateWithoutDashboardInput>
-    create: XOR<DashboardCriarCreateWithoutDashboardInput, DashboardCriarUncheckedCreateWithoutDashboardInput>
+    update: XOR<DashboardCriarUpdateWithoutDashboard_dashboard_criarInput, DashboardCriarUncheckedUpdateWithoutDashboard_dashboard_criarInput>
+    create: XOR<DashboardCriarCreateWithoutDashboard_dashboard_criarInput, DashboardCriarUncheckedCreateWithoutDashboard_dashboard_criarInput>
   }
 
-  export type DashboardCriarUpdateWithWhereUniqueWithoutDashboardInput = {
+  export type DashboardCriarUpdateWithWhereUniqueWithoutDashboard_dashboard_criarInput = {
     where: DashboardCriarWhereUniqueInput
-    data: XOR<DashboardCriarUpdateWithoutDashboardInput, DashboardCriarUncheckedUpdateWithoutDashboardInput>
+    data: XOR<DashboardCriarUpdateWithoutDashboard_dashboard_criarInput, DashboardCriarUncheckedUpdateWithoutDashboard_dashboard_criarInput>
   }
 
-  export type DashboardCriarUpdateManyWithWhereWithoutDashboardInput = {
+  export type DashboardCriarUpdateManyWithWhereWithoutDashboard_dashboard_criarInput = {
     where: DashboardCriarScalarWhereInput
-    data: XOR<DashboardCriarUpdateManyMutationInput, DashboardCriarUncheckedUpdateManyWithoutDashboardInput>
+    data: XOR<DashboardCriarUpdateManyMutationInput, DashboardCriarUncheckedUpdateManyWithoutDashboard_dashboard_criarInput>
   }
 
   export type DashboardCriarScalarWhereInput = {
     AND?: DashboardCriarScalarWhereInput | DashboardCriarScalarWhereInput[]
     OR?: DashboardCriarScalarWhereInput[]
     NOT?: DashboardCriarScalarWhereInput | DashboardCriarScalarWhereInput[]
-    id?: StringFilter<"DashboardCriar"> | string
-    tenant_id?: StringFilter<"DashboardCriar"> | string
-    product_id?: StringNullableFilter<"DashboardCriar"> | string | null
-    user_id?: StringFilter<"DashboardCriar"> | string
-    dashboard_id?: StringFilter<"DashboardCriar"> | string
-    widget_key?: StringFilter<"DashboardCriar"> | string
-    widget_type?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
-    title?: StringFilter<"DashboardCriar"> | string
-    query_spec?: JsonFilter<"DashboardCriar">
-    position?: JsonFilter<"DashboardCriar">
-    config?: JsonNullableFilter<"DashboardCriar">
-    created_at?: DateTimeFilter<"DashboardCriar"> | Date | string
-    updated_at?: DateTimeFilter<"DashboardCriar"> | Date | string
+    id_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    id_organizacao_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    id_produto_dashboard_criar?: StringNullableFilter<"DashboardCriar"> | string | null
+    id_usuario_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    id_dashboard_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    chave_widget_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFilter<"DashboardCriar"> | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFilter<"DashboardCriar"> | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFilter<"DashboardCriar"> | string
+    query_spec_dashboard_criar?: JsonFilter<"DashboardCriar">
+    posicao_dashboard_criar?: JsonFilter<"DashboardCriar">
+    config_dashboard_criar?: JsonNullableFilter<"DashboardCriar">
+    data_criacao_dashboard_criar?: DateTimeFilter<"DashboardCriar"> | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFilter<"DashboardCriar"> | Date | string
   }
 
-  export type DashboardAlertasUpsertWithWhereUniqueWithoutDashboardInput = {
+  export type DashboardAlertasUpsertWithWhereUniqueWithoutDashboard_dashboard_alertasInput = {
     where: DashboardAlertasWhereUniqueInput
-    update: XOR<DashboardAlertasUpdateWithoutDashboardInput, DashboardAlertasUncheckedUpdateWithoutDashboardInput>
-    create: XOR<DashboardAlertasCreateWithoutDashboardInput, DashboardAlertasUncheckedCreateWithoutDashboardInput>
+    update: XOR<DashboardAlertasUpdateWithoutDashboard_dashboard_alertasInput, DashboardAlertasUncheckedUpdateWithoutDashboard_dashboard_alertasInput>
+    create: XOR<DashboardAlertasCreateWithoutDashboard_dashboard_alertasInput, DashboardAlertasUncheckedCreateWithoutDashboard_dashboard_alertasInput>
   }
 
-  export type DashboardAlertasUpdateWithWhereUniqueWithoutDashboardInput = {
+  export type DashboardAlertasUpdateWithWhereUniqueWithoutDashboard_dashboard_alertasInput = {
     where: DashboardAlertasWhereUniqueInput
-    data: XOR<DashboardAlertasUpdateWithoutDashboardInput, DashboardAlertasUncheckedUpdateWithoutDashboardInput>
+    data: XOR<DashboardAlertasUpdateWithoutDashboard_dashboard_alertasInput, DashboardAlertasUncheckedUpdateWithoutDashboard_dashboard_alertasInput>
   }
 
-  export type DashboardAlertasUpdateManyWithWhereWithoutDashboardInput = {
+  export type DashboardAlertasUpdateManyWithWhereWithoutDashboard_dashboard_alertasInput = {
     where: DashboardAlertasScalarWhereInput
-    data: XOR<DashboardAlertasUpdateManyMutationInput, DashboardAlertasUncheckedUpdateManyWithoutDashboardInput>
+    data: XOR<DashboardAlertasUpdateManyMutationInput, DashboardAlertasUncheckedUpdateManyWithoutDashboard_dashboard_alertasInput>
   }
 
   export type DashboardAlertasScalarWhereInput = {
     AND?: DashboardAlertasScalarWhereInput | DashboardAlertasScalarWhereInput[]
     OR?: DashboardAlertasScalarWhereInput[]
     NOT?: DashboardAlertasScalarWhereInput | DashboardAlertasScalarWhereInput[]
-    id?: StringFilter<"DashboardAlertas"> | string
-    tenant_id?: StringFilter<"DashboardAlertas"> | string
-    product_id?: StringNullableFilter<"DashboardAlertas"> | string | null
-    user_id?: StringFilter<"DashboardAlertas"> | string
-    dashboard_id?: StringFilter<"DashboardAlertas"> | string
-    widget_id?: StringNullableFilter<"DashboardAlertas"> | string | null
-    metric_key?: StringFilter<"DashboardAlertas"> | string
-    condition?: StringFilter<"DashboardAlertas"> | string
-    threshold?: JsonFilter<"DashboardAlertas">
-    channels?: StringNullableListFilter<"DashboardAlertas">
-    is_active?: BoolFilter<"DashboardAlertas"> | boolean
-    last_triggered?: DateTimeNullableFilter<"DashboardAlertas"> | Date | string | null
-    created_at?: DateTimeFilter<"DashboardAlertas"> | Date | string
-    updated_at?: DateTimeFilter<"DashboardAlertas"> | Date | string
+    id_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_organizacao_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_produto_dashboard_alertas?: StringNullableFilter<"DashboardAlertas"> | string | null
+    id_usuario_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_dashboard_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    id_widget_dashboard_alertas?: StringNullableFilter<"DashboardAlertas"> | string | null
+    chave_metrica_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    condicao_dashboard_alertas?: StringFilter<"DashboardAlertas"> | string
+    limiar_dashboard_alertas?: JsonFilter<"DashboardAlertas">
+    canais_dashboard_alertas?: StringNullableListFilter<"DashboardAlertas">
+    ativa_dashboard_alertas?: BoolFilter<"DashboardAlertas"> | boolean
+    ultimo_disparo_dashboard_alertas?: DateTimeNullableFilter<"DashboardAlertas"> | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFilter<"DashboardAlertas"> | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFilter<"DashboardAlertas"> | Date | string
   }
 
-  export type DashboardCompartilharUpsertWithWhereUniqueWithoutDashboardInput = {
+  export type DashboardCompartilharUpsertWithWhereUniqueWithoutDashboard_dashboard_compartilharInput = {
     where: DashboardCompartilharWhereUniqueInput
-    update: XOR<DashboardCompartilharUpdateWithoutDashboardInput, DashboardCompartilharUncheckedUpdateWithoutDashboardInput>
-    create: XOR<DashboardCompartilharCreateWithoutDashboardInput, DashboardCompartilharUncheckedCreateWithoutDashboardInput>
+    update: XOR<DashboardCompartilharUpdateWithoutDashboard_dashboard_compartilharInput, DashboardCompartilharUncheckedUpdateWithoutDashboard_dashboard_compartilharInput>
+    create: XOR<DashboardCompartilharCreateWithoutDashboard_dashboard_compartilharInput, DashboardCompartilharUncheckedCreateWithoutDashboard_dashboard_compartilharInput>
   }
 
-  export type DashboardCompartilharUpdateWithWhereUniqueWithoutDashboardInput = {
+  export type DashboardCompartilharUpdateWithWhereUniqueWithoutDashboard_dashboard_compartilharInput = {
     where: DashboardCompartilharWhereUniqueInput
-    data: XOR<DashboardCompartilharUpdateWithoutDashboardInput, DashboardCompartilharUncheckedUpdateWithoutDashboardInput>
+    data: XOR<DashboardCompartilharUpdateWithoutDashboard_dashboard_compartilharInput, DashboardCompartilharUncheckedUpdateWithoutDashboard_dashboard_compartilharInput>
   }
 
-  export type DashboardCompartilharUpdateManyWithWhereWithoutDashboardInput = {
+  export type DashboardCompartilharUpdateManyWithWhereWithoutDashboard_dashboard_compartilharInput = {
     where: DashboardCompartilharScalarWhereInput
-    data: XOR<DashboardCompartilharUpdateManyMutationInput, DashboardCompartilharUncheckedUpdateManyWithoutDashboardInput>
+    data: XOR<DashboardCompartilharUpdateManyMutationInput, DashboardCompartilharUncheckedUpdateManyWithoutDashboard_dashboard_compartilharInput>
   }
 
   export type DashboardCompartilharScalarWhereInput = {
     AND?: DashboardCompartilharScalarWhereInput | DashboardCompartilharScalarWhereInput[]
     OR?: DashboardCompartilharScalarWhereInput[]
     NOT?: DashboardCompartilharScalarWhereInput | DashboardCompartilharScalarWhereInput[]
-    id?: StringFilter<"DashboardCompartilhar"> | string
-    tenant_id?: StringFilter<"DashboardCompartilhar"> | string
-    product_id?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    user_id?: StringFilter<"DashboardCompartilhar"> | string
-    dashboard_id?: StringFilter<"DashboardCompartilhar"> | string
-    share_token?: StringFilter<"DashboardCompartilhar"> | string
-    channel?: StringFilter<"DashboardCompartilhar"> | string
-    recipient_email?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    recipient_phone?: StringNullableFilter<"DashboardCompartilhar"> | string | null
-    snapshot_data?: JsonNullableFilter<"DashboardCompartilhar">
-    expires_at?: DateTimeNullableFilter<"DashboardCompartilhar"> | Date | string | null
-    created_at?: DateTimeFilter<"DashboardCompartilhar"> | Date | string
+    id_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    id_organizacao_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    id_produto_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    id_usuario_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    id_dashboard_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    token_share_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    canal_dashboard_compartilhar?: StringFilter<"DashboardCompartilhar"> | string
+    email_destinatario_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    telefone_destinatario_dashboard_compartilhar?: StringNullableFilter<"DashboardCompartilhar"> | string | null
+    snapshot_dashboard_compartilhar?: JsonNullableFilter<"DashboardCompartilhar">
+    expira_em_dashboard_compartilhar?: DateTimeNullableFilter<"DashboardCompartilhar"> | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFilter<"DashboardCompartilhar"> | Date | string
   }
 
-  export type DashboardConfiguracaoCreateWithoutWidgetsInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    alerts?: DashboardAlertasCreateNestedManyWithoutDashboardInput
-    shares?: DashboardCompartilharCreateNestedManyWithoutDashboardInput
+  export type DashboardConfiguracaoCreateWithoutWidgets_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
+    alertas_dashboard_configuracao?: DashboardAlertasCreateNestedManyWithoutDashboard_dashboard_alertasInput
+    shares_dashboard_configuracao?: DashboardCompartilharCreateNestedManyWithoutDashboard_dashboard_compartilharInput
   }
 
-  export type DashboardConfiguracaoUncheckedCreateWithoutWidgetsInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    alerts?: DashboardAlertasUncheckedCreateNestedManyWithoutDashboardInput
-    shares?: DashboardCompartilharUncheckedCreateNestedManyWithoutDashboardInput
+  export type DashboardConfiguracaoUncheckedCreateWithoutWidgets_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
+    alertas_dashboard_configuracao?: DashboardAlertasUncheckedCreateNestedManyWithoutDashboard_dashboard_alertasInput
+    shares_dashboard_configuracao?: DashboardCompartilharUncheckedCreateNestedManyWithoutDashboard_dashboard_compartilharInput
   }
 
-  export type DashboardConfiguracaoCreateOrConnectWithoutWidgetsInput = {
+  export type DashboardConfiguracaoCreateOrConnectWithoutWidgets_dashboard_configuracaoInput = {
     where: DashboardConfiguracaoWhereUniqueInput
-    create: XOR<DashboardConfiguracaoCreateWithoutWidgetsInput, DashboardConfiguracaoUncheckedCreateWithoutWidgetsInput>
+    create: XOR<DashboardConfiguracaoCreateWithoutWidgets_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutWidgets_dashboard_configuracaoInput>
   }
 
-  export type DashboardConfiguracaoUpsertWithoutWidgetsInput = {
-    update: XOR<DashboardConfiguracaoUpdateWithoutWidgetsInput, DashboardConfiguracaoUncheckedUpdateWithoutWidgetsInput>
-    create: XOR<DashboardConfiguracaoCreateWithoutWidgetsInput, DashboardConfiguracaoUncheckedCreateWithoutWidgetsInput>
+  export type DashboardConfiguracaoUpsertWithoutWidgets_dashboard_configuracaoInput = {
+    update: XOR<DashboardConfiguracaoUpdateWithoutWidgets_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedUpdateWithoutWidgets_dashboard_configuracaoInput>
+    create: XOR<DashboardConfiguracaoCreateWithoutWidgets_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutWidgets_dashboard_configuracaoInput>
     where?: DashboardConfiguracaoWhereInput
   }
 
-  export type DashboardConfiguracaoUpdateToOneWithWhereWithoutWidgetsInput = {
+  export type DashboardConfiguracaoUpdateToOneWithWhereWithoutWidgets_dashboard_configuracaoInput = {
     where?: DashboardConfiguracaoWhereInput
-    data: XOR<DashboardConfiguracaoUpdateWithoutWidgetsInput, DashboardConfiguracaoUncheckedUpdateWithoutWidgetsInput>
+    data: XOR<DashboardConfiguracaoUpdateWithoutWidgets_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedUpdateWithoutWidgets_dashboard_configuracaoInput>
   }
 
-  export type DashboardConfiguracaoUpdateWithoutWidgetsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    alerts?: DashboardAlertasUpdateManyWithoutDashboardNestedInput
-    shares?: DashboardCompartilharUpdateManyWithoutDashboardNestedInput
+  export type DashboardConfiguracaoUpdateWithoutWidgets_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    alertas_dashboard_configuracao?: DashboardAlertasUpdateManyWithoutDashboard_dashboard_alertasNestedInput
+    shares_dashboard_configuracao?: DashboardCompartilharUpdateManyWithoutDashboard_dashboard_compartilharNestedInput
   }
 
-  export type DashboardConfiguracaoUncheckedUpdateWithoutWidgetsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    alerts?: DashboardAlertasUncheckedUpdateManyWithoutDashboardNestedInput
-    shares?: DashboardCompartilharUncheckedUpdateManyWithoutDashboardNestedInput
+  export type DashboardConfiguracaoUncheckedUpdateWithoutWidgets_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    alertas_dashboard_configuracao?: DashboardAlertasUncheckedUpdateManyWithoutDashboard_dashboard_alertasNestedInput
+    shares_dashboard_configuracao?: DashboardCompartilharUncheckedUpdateManyWithoutDashboard_dashboard_compartilharNestedInput
   }
 
-  export type DashboardConfiguracaoCreateWithoutAlertsInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    widgets?: DashboardCriarCreateNestedManyWithoutDashboardInput
-    shares?: DashboardCompartilharCreateNestedManyWithoutDashboardInput
+  export type DashboardConfiguracaoCreateWithoutAlertas_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
+    widgets_dashboard_configuracao?: DashboardCriarCreateNestedManyWithoutDashboard_dashboard_criarInput
+    shares_dashboard_configuracao?: DashboardCompartilharCreateNestedManyWithoutDashboard_dashboard_compartilharInput
   }
 
-  export type DashboardConfiguracaoUncheckedCreateWithoutAlertsInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    widgets?: DashboardCriarUncheckedCreateNestedManyWithoutDashboardInput
-    shares?: DashboardCompartilharUncheckedCreateNestedManyWithoutDashboardInput
+  export type DashboardConfiguracaoUncheckedCreateWithoutAlertas_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUncheckedCreateNestedManyWithoutDashboard_dashboard_criarInput
+    shares_dashboard_configuracao?: DashboardCompartilharUncheckedCreateNestedManyWithoutDashboard_dashboard_compartilharInput
   }
 
-  export type DashboardConfiguracaoCreateOrConnectWithoutAlertsInput = {
+  export type DashboardConfiguracaoCreateOrConnectWithoutAlertas_dashboard_configuracaoInput = {
     where: DashboardConfiguracaoWhereUniqueInput
-    create: XOR<DashboardConfiguracaoCreateWithoutAlertsInput, DashboardConfiguracaoUncheckedCreateWithoutAlertsInput>
+    create: XOR<DashboardConfiguracaoCreateWithoutAlertas_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutAlertas_dashboard_configuracaoInput>
   }
 
-  export type DashboardConfiguracaoUpsertWithoutAlertsInput = {
-    update: XOR<DashboardConfiguracaoUpdateWithoutAlertsInput, DashboardConfiguracaoUncheckedUpdateWithoutAlertsInput>
-    create: XOR<DashboardConfiguracaoCreateWithoutAlertsInput, DashboardConfiguracaoUncheckedCreateWithoutAlertsInput>
+  export type DashboardConfiguracaoUpsertWithoutAlertas_dashboard_configuracaoInput = {
+    update: XOR<DashboardConfiguracaoUpdateWithoutAlertas_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedUpdateWithoutAlertas_dashboard_configuracaoInput>
+    create: XOR<DashboardConfiguracaoCreateWithoutAlertas_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutAlertas_dashboard_configuracaoInput>
     where?: DashboardConfiguracaoWhereInput
   }
 
-  export type DashboardConfiguracaoUpdateToOneWithWhereWithoutAlertsInput = {
+  export type DashboardConfiguracaoUpdateToOneWithWhereWithoutAlertas_dashboard_configuracaoInput = {
     where?: DashboardConfiguracaoWhereInput
-    data: XOR<DashboardConfiguracaoUpdateWithoutAlertsInput, DashboardConfiguracaoUncheckedUpdateWithoutAlertsInput>
+    data: XOR<DashboardConfiguracaoUpdateWithoutAlertas_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedUpdateWithoutAlertas_dashboard_configuracaoInput>
   }
 
-  export type DashboardConfiguracaoUpdateWithoutAlertsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    widgets?: DashboardCriarUpdateManyWithoutDashboardNestedInput
-    shares?: DashboardCompartilharUpdateManyWithoutDashboardNestedInput
+  export type DashboardConfiguracaoUpdateWithoutAlertas_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUpdateManyWithoutDashboard_dashboard_criarNestedInput
+    shares_dashboard_configuracao?: DashboardCompartilharUpdateManyWithoutDashboard_dashboard_compartilharNestedInput
   }
 
-  export type DashboardConfiguracaoUncheckedUpdateWithoutAlertsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    widgets?: DashboardCriarUncheckedUpdateManyWithoutDashboardNestedInput
-    shares?: DashboardCompartilharUncheckedUpdateManyWithoutDashboardNestedInput
+  export type DashboardConfiguracaoUncheckedUpdateWithoutAlertas_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUncheckedUpdateManyWithoutDashboard_dashboard_criarNestedInput
+    shares_dashboard_configuracao?: DashboardCompartilharUncheckedUpdateManyWithoutDashboard_dashboard_compartilharNestedInput
   }
 
-  export type DashboardConfiguracaoCreateWithoutSharesInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    widgets?: DashboardCriarCreateNestedManyWithoutDashboardInput
-    alerts?: DashboardAlertasCreateNestedManyWithoutDashboardInput
+  export type DashboardConfiguracaoCreateWithoutShares_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
+    widgets_dashboard_configuracao?: DashboardCriarCreateNestedManyWithoutDashboard_dashboard_criarInput
+    alertas_dashboard_configuracao?: DashboardAlertasCreateNestedManyWithoutDashboard_dashboard_alertasInput
   }
 
-  export type DashboardConfiguracaoUncheckedCreateWithoutSharesInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    name?: string
-    mode?: $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
-    widgets?: DashboardCriarUncheckedCreateNestedManyWithoutDashboardInput
-    alerts?: DashboardAlertasUncheckedCreateNestedManyWithoutDashboardInput
+  export type DashboardConfiguracaoUncheckedCreateWithoutShares_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: string
+    id_organizacao_dashboard_configuracao: string
+    id_produto_dashboard_configuracao?: string | null
+    id_usuario_dashboard_configuracao: string
+    nome_dashboard_configuracao?: string
+    modo_dashboard_configuracao?: $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: boolean
+    data_criacao_dashboard_configuracao?: Date | string
+    data_atualizacao_dashboard_configuracao?: Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUncheckedCreateNestedManyWithoutDashboard_dashboard_criarInput
+    alertas_dashboard_configuracao?: DashboardAlertasUncheckedCreateNestedManyWithoutDashboard_dashboard_alertasInput
   }
 
-  export type DashboardConfiguracaoCreateOrConnectWithoutSharesInput = {
+  export type DashboardConfiguracaoCreateOrConnectWithoutShares_dashboard_configuracaoInput = {
     where: DashboardConfiguracaoWhereUniqueInput
-    create: XOR<DashboardConfiguracaoCreateWithoutSharesInput, DashboardConfiguracaoUncheckedCreateWithoutSharesInput>
+    create: XOR<DashboardConfiguracaoCreateWithoutShares_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutShares_dashboard_configuracaoInput>
   }
 
-  export type DashboardConfiguracaoUpsertWithoutSharesInput = {
-    update: XOR<DashboardConfiguracaoUpdateWithoutSharesInput, DashboardConfiguracaoUncheckedUpdateWithoutSharesInput>
-    create: XOR<DashboardConfiguracaoCreateWithoutSharesInput, DashboardConfiguracaoUncheckedCreateWithoutSharesInput>
+  export type DashboardConfiguracaoUpsertWithoutShares_dashboard_configuracaoInput = {
+    update: XOR<DashboardConfiguracaoUpdateWithoutShares_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedUpdateWithoutShares_dashboard_configuracaoInput>
+    create: XOR<DashboardConfiguracaoCreateWithoutShares_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedCreateWithoutShares_dashboard_configuracaoInput>
     where?: DashboardConfiguracaoWhereInput
   }
 
-  export type DashboardConfiguracaoUpdateToOneWithWhereWithoutSharesInput = {
+  export type DashboardConfiguracaoUpdateToOneWithWhereWithoutShares_dashboard_configuracaoInput = {
     where?: DashboardConfiguracaoWhereInput
-    data: XOR<DashboardConfiguracaoUpdateWithoutSharesInput, DashboardConfiguracaoUncheckedUpdateWithoutSharesInput>
+    data: XOR<DashboardConfiguracaoUpdateWithoutShares_dashboard_configuracaoInput, DashboardConfiguracaoUncheckedUpdateWithoutShares_dashboard_configuracaoInput>
   }
 
-  export type DashboardConfiguracaoUpdateWithoutSharesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    widgets?: DashboardCriarUpdateManyWithoutDashboardNestedInput
-    alerts?: DashboardAlertasUpdateManyWithoutDashboardNestedInput
+  export type DashboardConfiguracaoUpdateWithoutShares_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUpdateManyWithoutDashboard_dashboard_criarNestedInput
+    alertas_dashboard_configuracao?: DashboardAlertasUpdateManyWithoutDashboard_dashboard_alertasNestedInput
   }
 
-  export type DashboardConfiguracaoUncheckedUpdateWithoutSharesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    mode?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
-    layout?: JsonNullValueInput | InputJsonValue
-    filters?: NullableJsonNullValueInput | InputJsonValue
-    is_default?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    widgets?: DashboardCriarUncheckedUpdateManyWithoutDashboardNestedInput
-    alerts?: DashboardAlertasUncheckedUpdateManyWithoutDashboardNestedInput
+  export type DashboardConfiguracaoUncheckedUpdateWithoutShares_dashboard_configuracaoInput = {
+    id_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_configuracao?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    nome_dashboard_configuracao?: StringFieldUpdateOperationsInput | string
+    modo_dashboard_configuracao?: EnumDashboardModoFieldUpdateOperationsInput | $Enums.DashboardModo
+    layout_dashboard_configuracao?: JsonNullValueInput | InputJsonValue
+    filtros_dashboard_configuracao?: NullableJsonNullValueInput | InputJsonValue
+    padrao_dashboard_configuracao?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_configuracao?: DateTimeFieldUpdateOperationsInput | Date | string
+    widgets_dashboard_configuracao?: DashboardCriarUncheckedUpdateManyWithoutDashboard_dashboard_criarNestedInput
+    alertas_dashboard_configuracao?: DashboardAlertasUncheckedUpdateManyWithoutDashboard_dashboard_alertasNestedInput
   }
 
   export type AlertEventCreateWithoutRuleInput = {
@@ -66542,188 +66542,188 @@ export namespace Prisma {
     data_atualizacao_email_mensagem?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardCriarCreateManyDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    widget_key: string
-    widget_type?: $Enums.DashboardTipo
-    chart_type?: $Enums.GraficoTipo
-    title: string
-    query_spec: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type DashboardCriarCreateManyDashboard_dashboard_criarInput = {
+    id_dashboard_criar?: string
+    id_organizacao_dashboard_criar: string
+    id_produto_dashboard_criar?: string | null
+    id_usuario_dashboard_criar: string
+    chave_widget_dashboard_criar: string
+    tipo_widget_dashboard_criar?: $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: $Enums.GraficoTipo
+    titulo_dashboard_criar: string
+    query_spec_dashboard_criar: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: Date | string
+    data_atualizacao_dashboard_criar?: Date | string
   }
 
-  export type DashboardAlertasCreateManyDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    widget_id?: string | null
-    metric_key: string
-    condition: string
-    threshold: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasCreatechannelsInput | string[]
-    is_active?: boolean
-    last_triggered?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+  export type DashboardAlertasCreateManyDashboard_dashboard_alertasInput = {
+    id_dashboard_alertas?: string
+    id_organizacao_dashboard_alertas: string
+    id_produto_dashboard_alertas?: string | null
+    id_usuario_dashboard_alertas: string
+    id_widget_dashboard_alertas?: string | null
+    chave_metrica_dashboard_alertas: string
+    condicao_dashboard_alertas: string
+    limiar_dashboard_alertas: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasCreatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: boolean
+    ultimo_disparo_dashboard_alertas?: Date | string | null
+    data_criacao_dashboard_alertas?: Date | string
+    data_atualizacao_dashboard_alertas?: Date | string
   }
 
-  export type DashboardCompartilharCreateManyDashboardInput = {
-    id?: string
-    tenant_id: string
-    product_id?: string | null
-    user_id: string
-    share_token?: string
-    channel: string
-    recipient_email?: string | null
-    recipient_phone?: string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: Date | string | null
-    created_at?: Date | string
+  export type DashboardCompartilharCreateManyDashboard_dashboard_compartilharInput = {
+    id_dashboard_compartilhar?: string
+    id_organizacao_dashboard_compartilhar: string
+    id_produto_dashboard_compartilhar?: string | null
+    id_usuario_dashboard_compartilhar: string
+    token_share_dashboard_compartilhar?: string
+    canal_dashboard_compartilhar: string
+    email_destinatario_dashboard_compartilhar?: string | null
+    telefone_destinatario_dashboard_compartilhar?: string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: Date | string | null
+    data_criacao_dashboard_compartilhar?: Date | string
   }
 
-  export type DashboardCriarUpdateWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
-    title?: StringFieldUpdateOperationsInput | string
-    query_spec?: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardCriarUpdateWithoutDashboard_dashboard_criarInput = {
+    id_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_criar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    chave_widget_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    query_spec_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardCriarUncheckedUpdateWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
-    title?: StringFieldUpdateOperationsInput | string
-    query_spec?: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardCriarUncheckedUpdateWithoutDashboard_dashboard_criarInput = {
+    id_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_criar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    chave_widget_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    query_spec_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardCriarUncheckedUpdateManyWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_key?: StringFieldUpdateOperationsInput | string
-    widget_type?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
-    chart_type?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
-    title?: StringFieldUpdateOperationsInput | string
-    query_spec?: JsonNullValueInput | InputJsonValue
-    position?: JsonNullValueInput | InputJsonValue
-    config?: NullableJsonNullValueInput | InputJsonValue
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardCriarUncheckedUpdateManyWithoutDashboard_dashboard_criarInput = {
+    id_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_criar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    chave_widget_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    tipo_widget_dashboard_criar?: EnumDashboardTipoFieldUpdateOperationsInput | $Enums.DashboardTipo
+    tipo_grafico_dashboard_criar?: EnumGraficoTipoFieldUpdateOperationsInput | $Enums.GraficoTipo
+    titulo_dashboard_criar?: StringFieldUpdateOperationsInput | string
+    query_spec_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    posicao_dashboard_criar?: JsonNullValueInput | InputJsonValue
+    config_dashboard_criar?: NullableJsonNullValueInput | InputJsonValue
+    data_criacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_criar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardAlertasUpdateWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    condition?: StringFieldUpdateOperationsInput | string
-    threshold?: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasUpdatechannelsInput | string[]
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardAlertasUpdateWithoutDashboard_dashboard_alertasInput = {
+    id_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_widget_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    condicao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    limiar_dashboard_alertas?: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasUpdatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: BoolFieldUpdateOperationsInput | boolean
+    ultimo_disparo_dashboard_alertas?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardAlertasUncheckedUpdateWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    condition?: StringFieldUpdateOperationsInput | string
-    threshold?: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasUpdatechannelsInput | string[]
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardAlertasUncheckedUpdateWithoutDashboard_dashboard_alertasInput = {
+    id_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_widget_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    condicao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    limiar_dashboard_alertas?: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasUpdatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: BoolFieldUpdateOperationsInput | boolean
+    ultimo_disparo_dashboard_alertas?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardAlertasUncheckedUpdateManyWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    widget_id?: NullableStringFieldUpdateOperationsInput | string | null
-    metric_key?: StringFieldUpdateOperationsInput | string
-    condition?: StringFieldUpdateOperationsInput | string
-    threshold?: JsonNullValueInput | InputJsonValue
-    channels?: DashboardAlertasUpdatechannelsInput | string[]
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    last_triggered?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardAlertasUncheckedUpdateManyWithoutDashboard_dashboard_alertasInput = {
+    id_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    id_widget_dashboard_alertas?: NullableStringFieldUpdateOperationsInput | string | null
+    chave_metrica_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    condicao_dashboard_alertas?: StringFieldUpdateOperationsInput | string
+    limiar_dashboard_alertas?: JsonNullValueInput | InputJsonValue
+    canais_dashboard_alertas?: DashboardAlertasUpdatecanais_dashboard_alertasInput | string[]
+    ativa_dashboard_alertas?: BoolFieldUpdateOperationsInput | boolean
+    ultimo_disparo_dashboard_alertas?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_dashboard_alertas?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardCompartilharUpdateWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    share_token?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
-    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardCompartilharUpdateWithoutDashboard_dashboard_compartilharInput = {
+    id_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    token_share_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    canal_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    email_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardCompartilharUncheckedUpdateWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    share_token?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
-    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardCompartilharUncheckedUpdateWithoutDashboard_dashboard_compartilharInput = {
+    id_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    token_share_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    canal_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    email_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DashboardCompartilharUncheckedUpdateManyWithoutDashboardInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_id?: NullableStringFieldUpdateOperationsInput | string | null
-    user_id?: StringFieldUpdateOperationsInput | string
-    share_token?: StringFieldUpdateOperationsInput | string
-    channel?: StringFieldUpdateOperationsInput | string
-    recipient_email?: NullableStringFieldUpdateOperationsInput | string | null
-    recipient_phone?: NullableStringFieldUpdateOperationsInput | string | null
-    snapshot_data?: NullableJsonNullValueInput | InputJsonValue
-    expires_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DashboardCompartilharUncheckedUpdateManyWithoutDashboard_dashboard_compartilharInput = {
+    id_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_organizacao_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    id_produto_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    id_usuario_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    token_share_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    canal_dashboard_compartilhar?: StringFieldUpdateOperationsInput | string
+    email_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone_destinatario_dashboard_compartilhar?: NullableStringFieldUpdateOperationsInput | string | null
+    snapshot_dashboard_compartilhar?: NullableJsonNullValueInput | InputJsonValue
+    expira_em_dashboard_compartilhar?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    data_criacao_dashboard_compartilhar?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AlertEventCreateManyRuleInput = {

@@ -116,7 +116,7 @@ export function VisaoGeralAdmin() {
             tipo_empresa: c.tipo_empresa_organizacao || '',
             plano: c.subscriptions?.[0]?.plan || 'N/A',
             subdominio: c.subdominio_organizacao || '',
-            criadaEm: c.created_at ? new Date(c.created_at).toLocaleDateString('pt-BR') : '',
+            criadaEm: c.data_criacao_organizacao ? new Date(c.data_criacao_organizacao).toLocaleDateString('pt-BR') : '',
           }
           setDados(loaded)
           setDadosIniciais(loaded)

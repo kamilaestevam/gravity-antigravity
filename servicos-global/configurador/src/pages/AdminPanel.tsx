@@ -116,7 +116,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
         name: t.nome_organizacao,
         slug: t.subdominio_organizacao,
         status: mapTenantStatus(t.status_organizacao),
-        created_at: t.created_at,
+        created_at: t.data_criacao_organizacao,
         _count: t._count ?? { users: 0, companies: 0 },
         subscriptions: (t.subscriptions ?? []).map((s: { plan: string; status: string }) => ({
           plan: s.plan,
@@ -129,7 +129,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
           status: mapTenantStatus(c.status),
           usuarios: c._count?.memberships ?? 0,
           plano: (t.subscriptions ?? []).map((s: { plan: string }) => s.plan).join(', ') || 'N/A',
-          criadaEm: new Date(t.created_at).toLocaleDateString('pt-BR'),
+          criadaEm: new Date(t.data_criacao_organizacao).toLocaleDateString('pt-BR'),
         })),
       }))
 
@@ -208,7 +208,7 @@ export function AdminPanel({ navigate }: { navigate: (p: Page) => void }) {
         name: tenant.nome_organizacao,
         slug: tenant.subdominio_organizacao,
         status: mapTenantStatus(tenant.status_organizacao),
-        created_at: tenant.created_at,
+        created_at: tenant.data_criacao_organizacao,
         _count: tenant._count ?? { users: 0, companies: 0 },
         subscriptions: dados.plano ? [{ plan: dados.plano, status: 'ATIVA' }] : [],
         workspaces: [],

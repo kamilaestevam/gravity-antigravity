@@ -147,8 +147,8 @@ export function Organizacao() {
             segmento:     tenant.segmento_organizacao ?? '',
             tipo_empresa: tenant.tipo_empresa_organizacao ?? '',
             subdominio: tenant.subdominio_organizacao ?? '',
-            criadaEm:   tenant.created_at
-              ? new Date(tenant.created_at).toLocaleDateString('pt-BR')
+            criadaEm:   tenant.data_criacao_organizacao
+              ? new Date(tenant.data_criacao_organizacao).toLocaleDateString('pt-BR')
               : '',
           }
           setDadosIniciaisLocal(dadosApi)

@@ -135,8 +135,8 @@ exports.Prisma.OrganizacaoScalarFieldEnum = {
   cidade_organizacao: 'cidade_organizacao',
   segmento_organizacao: 'segmento_organizacao',
   tipo_empresa_organizacao: 'tipo_empresa_organizacao',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  data_criacao_organizacao: 'data_criacao_organizacao',
+  data_atualizacao_organizacao: 'data_atualizacao_organizacao'
 };
 
 exports.Prisma.UsuarioScalarFieldEnum = {

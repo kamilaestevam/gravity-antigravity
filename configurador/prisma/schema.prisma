@@ -82,8 +82,8 @@ model Organizacao {
   tipo_empresa_organizacao String?
 
   // Metadata
-  created_at DateTime @default(now()) @map("data_criacao_organizacao")
-  updated_at DateTime @updatedAt
+  data_criacao_organizacao     DateTime @default(now())
+  data_atualizacao_organizacao DateTime @updatedAt
 
   // Relações
   users                   Usuario[]

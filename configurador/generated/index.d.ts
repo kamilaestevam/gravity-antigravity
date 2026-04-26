@@ -3126,8 +3126,8 @@ export namespace Prisma {
     cidade_organizacao: string | null
     segmento_organizacao: string | null
     tipo_empresa_organizacao: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    data_criacao_organizacao: Date | null
+    data_atualizacao_organizacao: Date | null
   }
 
   export type OrganizacaoMaxAggregateOutputType = {
@@ -3143,8 +3143,8 @@ export namespace Prisma {
     cidade_organizacao: string | null
     segmento_organizacao: string | null
     tipo_empresa_organizacao: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    data_criacao_organizacao: Date | null
+    data_atualizacao_organizacao: Date | null
   }
 
   export type OrganizacaoCountAggregateOutputType = {
@@ -3160,8 +3160,8 @@ export namespace Prisma {
     cidade_organizacao: number
     segmento_organizacao: number
     tipo_empresa_organizacao: number
-    created_at: number
-    updated_at: number
+    data_criacao_organizacao: number
+    data_atualizacao_organizacao: number
     _all: number
   }
 
@@ -3179,8 +3179,8 @@ export namespace Prisma {
     cidade_organizacao?: true
     segmento_organizacao?: true
     tipo_empresa_organizacao?: true
-    created_at?: true
-    updated_at?: true
+    data_criacao_organizacao?: true
+    data_atualizacao_organizacao?: true
   }
 
   export type OrganizacaoMaxAggregateInputType = {
@@ -3196,8 +3196,8 @@ export namespace Prisma {
     cidade_organizacao?: true
     segmento_organizacao?: true
     tipo_empresa_organizacao?: true
-    created_at?: true
-    updated_at?: true
+    data_criacao_organizacao?: true
+    data_atualizacao_organizacao?: true
   }
 
   export type OrganizacaoCountAggregateInputType = {
@@ -3213,8 +3213,8 @@ export namespace Prisma {
     cidade_organizacao?: true
     segmento_organizacao?: true
     tipo_empresa_organizacao?: true
-    created_at?: true
-    updated_at?: true
+    data_criacao_organizacao?: true
+    data_atualizacao_organizacao?: true
     _all?: true
   }
 
@@ -3303,8 +3303,8 @@ export namespace Prisma {
     cidade_organizacao: string | null
     segmento_organizacao: string | null
     tipo_empresa_organizacao: string | null
-    created_at: Date
-    updated_at: Date
+    data_criacao_organizacao: Date
+    data_atualizacao_organizacao: Date
     _count: OrganizacaoCountAggregateOutputType | null
     _min: OrganizacaoMinAggregateOutputType | null
     _max: OrganizacaoMaxAggregateOutputType | null
@@ -3337,8 +3337,8 @@ export namespace Prisma {
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
     tipo_empresa_organizacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    data_criacao_organizacao?: boolean
+    data_atualizacao_organizacao?: boolean
     users?: boolean | Organizacao$usersArgs<ExtArgs>
     subscriptions?: boolean | Organizacao$subscriptionsArgs<ExtArgs>
     user_permissions?: boolean | Organizacao$user_permissionsArgs<ExtArgs>
@@ -3361,8 +3361,8 @@ export namespace Prisma {
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
     tipo_empresa_organizacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    data_criacao_organizacao?: boolean
+    data_atualizacao_organizacao?: boolean
   }, ExtArgs["result"]["organizacao"]>
 
   export type OrganizacaoSelectScalar = {
@@ -3378,8 +3378,8 @@ export namespace Prisma {
     cidade_organizacao?: boolean
     segmento_organizacao?: boolean
     tipo_empresa_organizacao?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    data_criacao_organizacao?: boolean
+    data_atualizacao_organizacao?: boolean
   }
 
   export type OrganizacaoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3416,8 +3416,8 @@ export namespace Prisma {
       cidade_organizacao: string | null
       segmento_organizacao: string | null
       tipo_empresa_organizacao: string | null
-      created_at: Date
-      updated_at: Date
+      data_criacao_organizacao: Date
+      data_atualizacao_organizacao: Date
     }, ExtArgs["result"]["organizacao"]>
     composites: {}
   }
@@ -3829,8 +3829,8 @@ export namespace Prisma {
     readonly cidade_organizacao: FieldRef<"Organizacao", 'String'>
     readonly segmento_organizacao: FieldRef<"Organizacao", 'String'>
     readonly tipo_empresa_organizacao: FieldRef<"Organizacao", 'String'>
-    readonly created_at: FieldRef<"Organizacao", 'DateTime'>
-    readonly updated_at: FieldRef<"Organizacao", 'DateTime'>
+    readonly data_criacao_organizacao: FieldRef<"Organizacao", 'DateTime'>
+    readonly data_atualizacao_organizacao: FieldRef<"Organizacao", 'DateTime'>
   }
     
 
@@ -26430,8 +26430,8 @@ export namespace Prisma {
     cidade_organizacao: 'cidade_organizacao',
     segmento_organizacao: 'segmento_organizacao',
     tipo_empresa_organizacao: 'tipo_empresa_organizacao',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    data_criacao_organizacao: 'data_criacao_organizacao',
+    data_atualizacao_organizacao: 'data_atualizacao_organizacao'
   };
 
   export type OrganizacaoScalarFieldEnum = (typeof OrganizacaoScalarFieldEnum)[keyof typeof OrganizacaoScalarFieldEnum]
@@ -27128,8 +27128,8 @@ export namespace Prisma {
     cidade_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     tipo_empresa_organizacao?: StringNullableFilter<"Organizacao"> | string | null
-    created_at?: DateTimeFilter<"Organizacao"> | Date | string
-    updated_at?: DateTimeFilter<"Organizacao"> | Date | string
+    data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
+    data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     users?: UsuarioListRelationFilter
     subscriptions?: AssinaturaProdutoGravityListRelationFilter
     user_permissions?: UsuarioPermissaoListRelationFilter
@@ -27151,8 +27151,8 @@ export namespace Prisma {
     cidade_organizacao?: SortOrderInput | SortOrder
     segmento_organizacao?: SortOrderInput | SortOrder
     tipo_empresa_organizacao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    data_criacao_organizacao?: SortOrder
+    data_atualizacao_organizacao?: SortOrder
     users?: UsuarioOrderByRelationAggregateInput
     subscriptions?: AssinaturaProdutoGravityOrderByRelationAggregateInput
     user_permissions?: UsuarioPermissaoOrderByRelationAggregateInput
@@ -27177,8 +27177,8 @@ export namespace Prisma {
     cidade_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableFilter<"Organizacao"> | string | null
     tipo_empresa_organizacao?: StringNullableFilter<"Organizacao"> | string | null
-    created_at?: DateTimeFilter<"Organizacao"> | Date | string
-    updated_at?: DateTimeFilter<"Organizacao"> | Date | string
+    data_criacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
+    data_atualizacao_organizacao?: DateTimeFilter<"Organizacao"> | Date | string
     users?: UsuarioListRelationFilter
     subscriptions?: AssinaturaProdutoGravityListRelationFilter
     user_permissions?: UsuarioPermissaoListRelationFilter
@@ -27200,8 +27200,8 @@ export namespace Prisma {
     cidade_organizacao?: SortOrderInput | SortOrder
     segmento_organizacao?: SortOrderInput | SortOrder
     tipo_empresa_organizacao?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    data_criacao_organizacao?: SortOrder
+    data_atualizacao_organizacao?: SortOrder
     _count?: OrganizacaoCountOrderByAggregateInput
     _max?: OrganizacaoMaxOrderByAggregateInput
     _min?: OrganizacaoMinOrderByAggregateInput
@@ -27223,8 +27223,8 @@ export namespace Prisma {
     cidade_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     segmento_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
     tipo_empresa_organizacao?: StringNullableWithAggregatesFilter<"Organizacao"> | string | null
-    created_at?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
+    data_criacao_organizacao?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
+    data_atualizacao_organizacao?: DateTimeWithAggregatesFilter<"Organizacao"> | Date | string
   }
 
   export type UsuarioWhereInput = {
@@ -29167,8 +29167,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
@@ -29190,8 +29190,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
@@ -29213,8 +29213,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
@@ -29236,8 +29236,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
@@ -29259,8 +29259,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
   }
 
   export type OrganizacaoUpdateManyMutationInput = {
@@ -29276,8 +29276,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OrganizacaoUncheckedUpdateManyInput = {
@@ -29293,8 +29293,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UsuarioCreateInput = {
@@ -31643,8 +31643,8 @@ export namespace Prisma {
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
     tipo_empresa_organizacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    data_criacao_organizacao?: SortOrder
+    data_atualizacao_organizacao?: SortOrder
   }
 
   export type OrganizacaoMaxOrderByAggregateInput = {
@@ -31660,8 +31660,8 @@ export namespace Prisma {
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
     tipo_empresa_organizacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    data_criacao_organizacao?: SortOrder
+    data_atualizacao_organizacao?: SortOrder
   }
 
   export type OrganizacaoMinOrderByAggregateInput = {
@@ -31677,8 +31677,8 @@ export namespace Prisma {
     cidade_organizacao?: SortOrder
     segmento_organizacao?: SortOrder
     tipo_empresa_organizacao?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    data_criacao_organizacao?: SortOrder
+    data_atualizacao_organizacao?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -35040,8 +35040,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
     companies?: EmpresaCreateNestedManyWithoutTenantInput
@@ -35062,8 +35062,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
     companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
@@ -35193,8 +35193,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
     companies?: EmpresaUpdateManyWithoutTenantNestedInput
@@ -35215,8 +35215,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
     companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
@@ -35320,8 +35320,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
     companies?: EmpresaCreateNestedManyWithoutTenantInput
@@ -35342,8 +35342,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
     companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
@@ -35380,8 +35380,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
     companies?: EmpresaUpdateManyWithoutTenantNestedInput
@@ -35402,8 +35402,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
     companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
@@ -35424,8 +35424,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     companies?: EmpresaCreateNestedManyWithoutTenantInput
@@ -35446,8 +35446,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     companies?: EmpresaUncheckedCreateNestedManyWithoutTenantInput
@@ -35515,8 +35515,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     companies?: EmpresaUpdateManyWithoutTenantNestedInput
@@ -35537,8 +35537,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     companies?: EmpresaUncheckedUpdateManyWithoutTenantNestedInput
@@ -35596,8 +35596,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
@@ -35618,8 +35618,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
@@ -35750,8 +35750,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
@@ -35772,8 +35772,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
@@ -35978,8 +35978,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
@@ -36000,8 +36000,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
@@ -36038,8 +36038,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
@@ -36060,8 +36060,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput
@@ -36082,8 +36082,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoCreateNestedManyWithoutTenantInput
@@ -36104,8 +36104,8 @@ export namespace Prisma {
     cidade_organizacao?: string | null
     segmento_organizacao?: string | null
     tipo_empresa_organizacao?: string | null
-    created_at?: Date | string
-    updated_at?: Date | string
+    data_criacao_organizacao?: Date | string
+    data_atualizacao_organizacao?: Date | string
     users?: UsuarioUncheckedCreateNestedManyWithoutTenantInput
     subscriptions?: AssinaturaProdutoGravityUncheckedCreateNestedManyWithoutTenantInput
     user_permissions?: UsuarioPermissaoUncheckedCreateNestedManyWithoutTenantInput
@@ -36173,8 +36173,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUpdateManyWithoutTenantNestedInput
@@ -36195,8 +36195,8 @@ export namespace Prisma {
     cidade_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     segmento_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
     tipo_empresa_organizacao?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_criacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_organizacao?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UsuarioUncheckedUpdateManyWithoutTenantNestedInput
     subscriptions?: AssinaturaProdutoGravityUncheckedUpdateManyWithoutTenantNestedInput
     user_permissions?: UsuarioPermissaoUncheckedUpdateManyWithoutTenantNestedInput

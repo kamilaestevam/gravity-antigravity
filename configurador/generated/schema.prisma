@@ -66,24 +66,24 @@ enum APITokenServico {
 // ---------------------------------------------------------------------------
 
 model Organizacao {
-  id                 String            @id @default(cuid()) @map("id_organizacao")
-  name               String            @map("nome_organizacao")
-  slug               String            @unique @map("subdominio_organizacao")
-  status             OrganizacaoStatus @default(CONFIGURACAO_PENDENTE) @map("status_organizacao")
-  clerk_org_id       String?           @unique
-  stripe_customer_id String?           @unique
-  suid_empresa       String?           @unique
+  id                       String            @id @default(cuid()) @map("id_organizacao")
+  nome_organizacao         String
+  subdominio_organizacao   String            @unique
+  status_organizacao       OrganizacaoStatus @default(CONFIGURACAO_PENDENTE)
+  clerk_org_id             String?           @unique
+  stripe_customer_id       String?           @unique
+  suid_empresa_organizacao String?           @unique
 
   // Dados cadastrais da organização
-  cnpj         String? @map("cnpj_organizacao")
-  state        String? @map("estado_organizacao")
-  city         String? @map("cidade_organizacao")
-  segment      String? @map("segmento_organizacao")
-  tipo_empresa String? @map("tipo_organizacao")
+  cnpj_organizacao         String?
+  estado_organizacao       String?
+  cidade_organizacao       String?
+  segmento_organizacao     String?
+  tipo_empresa_organizacao String?
 
   // Metadata
-  created_at DateTime @default(now()) @map("data_criacao_organizacao")
-  updated_at DateTime @updatedAt
+  data_criacao_organizacao     DateTime @default(now())
+  data_atualizacao_organizacao DateTime @updatedAt
 
   // Relações
   users                   Usuario[]
@@ -93,8 +93,8 @@ model Organizacao {
   product_configs         ConfiguracaoProduto[]
   ProdutoGravityWorkspace ProdutoGravityWorkspace[]
 
-  @@index([status])
-  @@index([slug])
+  @@index([status_organizacao])
+  @@index([subdominio_organizacao])
   @@map("organizacao")
 }
 

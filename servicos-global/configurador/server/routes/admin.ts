@@ -92,7 +92,7 @@ adminRouter.get('/tenants', async (req, res, next) => {
           nome_organizacao: true,
           subdominio_organizacao: true,
           status_organizacao: true,
-          created_at: true,
+          data_criacao_organizacao: true,
           _count: { select: { users: true, companies: true } },
           subscriptions: {
             orderBy: { created_at: 'desc' },
@@ -108,7 +108,7 @@ adminRouter.get('/tenants', async (req, res, next) => {
             take: 5,
           },
         },
-        orderBy: { created_at: 'desc' },
+        orderBy: { data_criacao_organizacao: 'desc' },
       }),
       prisma.organizacao.count({ where }),
     ])
@@ -253,7 +253,7 @@ adminRouter.post('/tenants', async (req, res, next) => {
         ...(parsed.data.cnpj_organizacao && { cnpj_organizacao: parsed.data.cnpj_organizacao }),
       },
       select: {
-        id: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, created_at: true,
+        id: true, nome_organizacao: true, subdominio_organizacao: true, status_organizacao: true, data_criacao_organizacao: true,
         _count: { select: { users: true, companies: true } },
       },
     })
@@ -1150,7 +1150,7 @@ adminRouter.get('/visao-geral', async (req, res, next) => {
         cnpj_organizacao: true,
         estado_organizacao: true,
         cidade_organizacao: true,
-        created_at: true,
+        data_criacao_organizacao: true,
       },
     })
 
@@ -1357,7 +1357,7 @@ adminRouter.put('/visao-geral', async (req, res, next) => {
         cidade_organizacao: true,
         segmento_organizacao: true,
         tipo_empresa_organizacao: true,
-        created_at: true,
+        data_criacao_organizacao: true,
       },
     })
 

@@ -144,7 +144,7 @@ export interface TenantApi {
   nome_organizacao: string
   subdominio_organizacao: string
   status_organizacao: string
-  created_at: string
+  data_criacao_organizacao: string
   _count?: { users: number; companies: number }
   subscriptions?: Array<{ plan: string; status: string }>
   users?: Array<{ id: string; name: string; email: string; tipo_usuario: string; created_at: string }>
@@ -606,7 +606,7 @@ export interface PlatformConfigApi {
   cidade_organizacao: string | null
   segmento_organizacao: string | null
   tipo_empresa_organizacao: string | null
-  created_at: string
+  data_criacao_organizacao: string
   subscriptions?: Array<{ plan: string }>
 }
 

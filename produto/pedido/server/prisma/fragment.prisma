@@ -504,27 +504,27 @@ model PedidoTemplate {
 }
 
 model TrackingItemsTransferidos {
-  id                          String    @id @default(cuid())
-  tenant_id                   String
-  product_id                  String?
-  pedido_origem_id            String
-  item_origem_id              String
-  cenario                     String
-  quantidade_item_transferida Float
-  destinos_json               String
-  revertido                   Boolean   @default(false)
-  revertido_em                DateTime?
+  id_tracking_items_transferidos       String    @id @default(cuid())
+  id_organizacao                       String
+  id_produto_gravity                   String?
+  id_pedido_origem                     String
+  id_item_origem                       String
+  cenario_tracking_items_transferidos  String
+  quantidade_item_transferido_tracking Float
+  destinos_items_transferidos          String
+  revertido_tracking_items_transferidos    Boolean   @default(false)
+  revertido_em_tracking_items_transferidos DateTime?
   revertido_por               String?
   created_at                  DateTime  @default(now())
   created_by                  String
-  pedido_origem               Pedido    @relation(fields: [pedido_origem_id], references: [id_pedido])
+  pedido_origem               Pedido    @relation(fields: [id_pedido_origem], references: [id_pedido])
 
   // FASE 06B — Dt Transferência Qtd. do Pedido (timestamp da efetivação da transferência da quantidade)
   data_transferencia_qtd      DateTime?
 
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
-  @@index([tenant_id, pedido_origem_id])
+  @@index([id_organizacao])
+  @@index([id_organizacao, id_produto_gravity])
+  @@index([id_organizacao, id_pedido_origem])
   @@map("tracking_items_transferidos")
 }
 

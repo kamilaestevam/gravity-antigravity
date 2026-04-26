@@ -1,7 +1,7 @@
 // ============================================================================
 // schema.prisma — GERADO AUTOMATICAMENTE
 // NÃO EDITAR MANUALMENTE — será sobrescrito na próxima execução de compose.
-// Gerado em: 2026-04-26T00:29:39.569Z
+// Gerado em: 2026-04-26T00:31:53.490Z
 // Banco: gravity-pedido-* (Railway)
 // Produto: produto/pedido
 // ============================================================================
@@ -617,17 +617,17 @@ model KanbanPreferencias {
 }
 
 /// Configuração de widgets do Dashboard por tenant/produto.
-model DashboardPreferencias {
-  id           String   @id @default(cuid())
-  tenant_id    String
-  product_id   String
-  widgets_json String   @default("[]") @db.Text
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+model PedidoDashboardPreferencias {
+  id_dashboard_preferencias                     String   @id @default(cuid())
+  id_organizacao                                String
+  chave_produto_gravity_dashboard_preferencias  String
+  widgets_json_dashboard_preferencias           String   @default("[]") @db.Text
+  data_criacao_dashboard_preferencias           DateTime @default(now())
+  data_atualizacao_dashboard_preferencias       DateTime @updatedAt
 
-  @@unique([tenant_id, product_id])
-  @@index([tenant_id])
-  @@index([tenant_id, product_id])
+  @@unique([id_organizacao, chave_produto_gravity_dashboard_preferencias])
+  @@index([id_organizacao])
+  @@index([id_organizacao, chave_produto_gravity_dashboard_preferencias])
   @@map("dashboard_preferencias")
 }
 

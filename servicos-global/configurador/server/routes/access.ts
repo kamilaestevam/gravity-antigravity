@@ -62,7 +62,7 @@ accessRouter.get('/check-access', async (req, res, next) => {
 
     // 2. Verifica se o produto está habilitado para o tenant
     const productConfig = await productConfigService.getConfig(tenantId, productKey)
-    if (!productConfig?.is_active) {
+    if (!productConfig?.ativo_config_produto_gravity) {
       res.json({ allowed: false, reason: 'PRODUCT_NOT_ENABLED' })
       return
     }
@@ -85,7 +85,7 @@ accessRouter.get('/check-access', async (req, res, next) => {
 
     res.json({
       allowed: true,
-      productConfig: productConfig.config,
+      productConfig: productConfig.configuracao_config_produto_gravity,
     })
   } catch (err) {
     next(err)
@@ -217,7 +217,11 @@ accessRouter.get('/product-permissions', async (req, res, next) => {
       return
     }
 
-    res.json({ config: config.config, is_active: config.is_active })
+    // DTO: ConfiguracaoProduto rename → contrato legado
+    res.json({
+      config: config.configuracao_config_produto_gravity,
+      is_active: config.ativo_config_produto_gravity,
+    })
   } catch (err) {
     next(err)
   }

@@ -32,23 +32,24 @@ const SubscribeSchema = z.object({
 tenantProductsRouter.get('/', requireAuth, async (req, res, next) => {
   try {
     const configs = await prisma.configuracaoProduto.findMany({
-      where: { tenant_id: req.auth.tenantId },
-      orderBy: { created_at: 'desc' },
+      where: { id_organizacao_config_produto_gravity: req.auth.tenantId },
+      orderBy: { data_criacao_config_produto_gravity: 'desc' },
     })
 
     // Enriquece com dados do catálogo
-    const slugs = configs.map(c => c.product_key)
+    const slugs = configs.map(c => c.chave_produto_config_produto_gravity)
     const catalog = await prisma.produtoGravity.findMany({
       where: { slug: { in: slugs } },
     })
     const catalogMap = new Map(catalog.map(p => [p.slug, p]))
 
+    // DTO: ConfiguracaoProduto rename → contrato legado
     const products = configs.map(c => ({
-      product_key: c.product_key,
-      is_active: c.is_active,
-      config: c.config,
-      subscribed_at: c.created_at,
-      catalog: catalogMap.get(c.product_key) ?? null,
+      product_key: c.chave_produto_config_produto_gravity,
+      is_active: c.ativo_config_produto_gravity,
+      config: c.configuracao_config_produto_gravity,
+      subscribed_at: c.data_criacao_config_produto_gravity,
+      catalog: catalogMap.get(c.chave_produto_config_produto_gravity) ?? null,
     }))
 
     res.json({ products })
@@ -82,19 +83,19 @@ tenantProductsRouter.post('/subscribe', requireAuth, async (req, res, next) => {
     // Cria ou reativa o ProductConfig
     const config = await prisma.configuracaoProduto.upsert({
       where: {
-        tenant_id_product_key: {
-          tenant_id: req.auth.tenantId,
-          product_key,
+        id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
+          id_organizacao_config_produto_gravity: req.auth.tenantId,
+          chave_produto_config_produto_gravity: product_key,
         },
       },
       create: {
-        tenant_id: req.auth.tenantId,
-        product_key,
-        config: {},
-        is_active: true,
+        id_organizacao_config_produto_gravity: req.auth.tenantId,
+        chave_produto_config_produto_gravity: product_key,
+        configuracao_config_produto_gravity: {},
+        ativo_config_produto_gravity: true,
       },
       update: {
-        is_active: true,
+        ativo_config_produto_gravity: true,
       },
     })
 
@@ -112,10 +113,10 @@ tenantProductsRouter.delete('/:key', requireAuth, async (req, res, next) => {
   try {
     await prisma.configuracaoProduto.updateMany({
       where: {
-        tenant_id: req.auth.tenantId,
-        product_key: req.params.key,
+        id_organizacao_config_produto_gravity: req.auth.tenantId,
+        chave_produto_config_produto_gravity: req.params.key,
       },
-      data: { is_active: false },
+      data: { ativo_config_produto_gravity: false },
     })
     res.json({ ok: true })
   } catch (err) {
@@ -144,11 +145,22 @@ tenantProductsRouter.get('/:tenantId/products', requireAuth, requireGravityAdmin
     }
 
     const configs = await prisma.configuracaoProduto.findMany({
-      where: { tenant_id: req.params.tenantId },
-      orderBy: { created_at: 'desc' },
+      where: { id_organizacao_config_produto_gravity: req.params.tenantId },
+      orderBy: { data_criacao_config_produto_gravity: 'desc' },
     })
 
-    res.json({ tenant_id: tenant.id_organizacao, tenant_name: tenant.nome_organizacao, products: configs })
+    // DTO: ConfiguracaoProduto rename → contrato legado para painel admin
+    const productsDto = configs.map(c => ({
+      id: c.id_config_produto_gravity,
+      tenant_id: c.id_organizacao_config_produto_gravity,
+      product_key: c.chave_produto_config_produto_gravity,
+      config: c.configuracao_config_produto_gravity,
+      is_active: c.ativo_config_produto_gravity,
+      created_at: c.data_criacao_config_produto_gravity,
+      updated_at: c.data_atualizacao_config_produto_gravity,
+    }))
+
+    res.json({ tenant_id: tenant.id_organizacao, tenant_name: tenant.nome_organizacao, products: productsDto })
   } catch (err) {
     next(err)
   }

@@ -192,7 +192,7 @@ describe('GET /api/v1/hub/init', () => {
     await request.get('/api/v1/hub/init')
     expect(prismaMock.configuracaoProduto.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { tenant_id: 'tenant-001' },
+        where: { id_organizacao_config_produto_gravity: 'tenant-001' },
       }),
     )
   })
@@ -206,7 +206,7 @@ describe('GET /api/v1/hub/init', () => {
     expect(tenantServiceMock.getTenantById).toHaveBeenCalledWith('tenant-999')
     expect(tenantServiceMock.getCompanies).toHaveBeenCalledWith('tenant-999')
     expect(prismaMock.configuracaoProduto.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { tenant_id: 'tenant-999' } }),
+      expect.objectContaining({ where: { id_organizacao_config_produto_gravity: 'tenant-999' } }),
     )
     expect(res.body.tenant.id).toBe('tenant-999')
     expect(res.body.companies).toHaveLength(0)
@@ -216,7 +216,12 @@ describe('GET /api/v1/hub/init', () => {
 
   it('enriquece products com dados do catálogo', async () => {
     prismaMock.configuracaoProduto.findMany.mockResolvedValue([
-      { product_key: 'bid-cambio', is_active: true, config: {}, created_at: '2026-01-01' },
+      {
+        chave_produto_config_produto_gravity: 'bid-cambio',
+        ativo_config_produto_gravity: true,
+        configuracao_config_produto_gravity: {},
+        data_criacao_config_produto_gravity: '2026-01-01',
+      },
     ])
     prismaMock.produtoGravity.findMany.mockResolvedValue([
       { id: 'p1', name: 'BID Câmbio', slug: 'bid-cambio', description: 'Câmbio', status: 'ATIVO' },
@@ -231,7 +236,12 @@ describe('GET /api/v1/hub/init', () => {
 
   it('retorna catalog null quando produto não está no catálogo', async () => {
     prismaMock.configuracaoProduto.findMany.mockResolvedValue([
-      { product_key: 'produto-legacy', is_active: false, config: {}, created_at: '2026-01-01' },
+      {
+        chave_produto_config_produto_gravity: 'produto-legacy',
+        ativo_config_produto_gravity: false,
+        configuracao_config_produto_gravity: {},
+        data_criacao_config_produto_gravity: '2026-01-01',
+      },
     ])
     prismaMock.produtoGravity.findMany.mockResolvedValue([])
 

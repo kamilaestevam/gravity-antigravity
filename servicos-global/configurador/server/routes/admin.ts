@@ -174,7 +174,11 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
           take: 1,
         },
         product_configs_organizacao: {
-          select: { product_key: true, is_active: true, updated_at: true },
+          select: {
+            chave_produto_config_produto_gravity: true,
+            ativo_config_produto_gravity: true,
+            data_atualizacao_config_produto_gravity: true,
+          },
           take: 50,
         },
       },
@@ -220,7 +224,12 @@ adminRouter.get('/tenants/:id', async (req, res, next) => {
           created_at: s.data_criacao_assinatura_produto_gravity,
           updated_at: s.data_atualizacao_assinatura_produto_gravity,
         })),
-        product_configs: product_configs_organizacao,
+        // DTO: ConfiguracaoProduto rename → contrato legado
+        product_configs: product_configs_organizacao.map((pc) => ({
+          product_key: pc.chave_produto_config_produto_gravity,
+          is_active: pc.ativo_config_produto_gravity,
+          updated_at: pc.data_atualizacao_config_produto_gravity,
+        })),
       },
     })
   } catch (err) {

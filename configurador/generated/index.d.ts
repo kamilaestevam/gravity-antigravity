@@ -10254,61 +10254,61 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoProdutoMinAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_key: string | null
-    is_active: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_config_produto_gravity: string | null
+    id_organizacao_config_produto_gravity: string | null
+    chave_produto_config_produto_gravity: string | null
+    ativo_config_produto_gravity: boolean | null
+    data_criacao_config_produto_gravity: Date | null
+    data_atualizacao_config_produto_gravity: Date | null
   }
 
   export type ConfiguracaoProdutoMaxAggregateOutputType = {
-    id: string | null
-    tenant_id: string | null
-    product_key: string | null
-    is_active: boolean | null
-    created_at: Date | null
-    updated_at: Date | null
+    id_config_produto_gravity: string | null
+    id_organizacao_config_produto_gravity: string | null
+    chave_produto_config_produto_gravity: string | null
+    ativo_config_produto_gravity: boolean | null
+    data_criacao_config_produto_gravity: Date | null
+    data_atualizacao_config_produto_gravity: Date | null
   }
 
   export type ConfiguracaoProdutoCountAggregateOutputType = {
-    id: number
-    tenant_id: number
-    product_key: number
-    config: number
-    is_active: number
-    created_at: number
-    updated_at: number
+    id_config_produto_gravity: number
+    id_organizacao_config_produto_gravity: number
+    chave_produto_config_produto_gravity: number
+    configuracao_config_produto_gravity: number
+    ativo_config_produto_gravity: number
+    data_criacao_config_produto_gravity: number
+    data_atualizacao_config_produto_gravity: number
     _all: number
   }
 
 
   export type ConfiguracaoProdutoMinAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_key?: true
-    is_active?: true
-    created_at?: true
-    updated_at?: true
+    id_config_produto_gravity?: true
+    id_organizacao_config_produto_gravity?: true
+    chave_produto_config_produto_gravity?: true
+    ativo_config_produto_gravity?: true
+    data_criacao_config_produto_gravity?: true
+    data_atualizacao_config_produto_gravity?: true
   }
 
   export type ConfiguracaoProdutoMaxAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_key?: true
-    is_active?: true
-    created_at?: true
-    updated_at?: true
+    id_config_produto_gravity?: true
+    id_organizacao_config_produto_gravity?: true
+    chave_produto_config_produto_gravity?: true
+    ativo_config_produto_gravity?: true
+    data_criacao_config_produto_gravity?: true
+    data_atualizacao_config_produto_gravity?: true
   }
 
   export type ConfiguracaoProdutoCountAggregateInputType = {
-    id?: true
-    tenant_id?: true
-    product_key?: true
-    config?: true
-    is_active?: true
-    created_at?: true
-    updated_at?: true
+    id_config_produto_gravity?: true
+    id_organizacao_config_produto_gravity?: true
+    chave_produto_config_produto_gravity?: true
+    configuracao_config_produto_gravity?: true
+    ativo_config_produto_gravity?: true
+    data_criacao_config_produto_gravity?: true
+    data_atualizacao_config_produto_gravity?: true
     _all?: true
   }
 
@@ -10385,13 +10385,13 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoProdutoGroupByOutputType = {
-    id: string
-    tenant_id: string
-    product_key: string
-    config: JsonValue
-    is_active: boolean
-    created_at: Date
-    updated_at: Date
+    id_config_produto_gravity: string
+    id_organizacao_config_produto_gravity: string
+    chave_produto_config_produto_gravity: string
+    configuracao_config_produto_gravity: JsonValue
+    ativo_config_produto_gravity: boolean
+    data_criacao_config_produto_gravity: Date
+    data_atualizacao_config_produto_gravity: Date
     _count: ConfiguracaoProdutoCountAggregateOutputType | null
     _min: ConfiguracaoProdutoMinAggregateOutputType | null
     _max: ConfiguracaoProdutoMaxAggregateOutputType | null
@@ -10412,35 +10412,35 @@ export namespace Prisma {
 
 
   export type ConfiguracaoProdutoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_key?: boolean
-    config?: boolean
-    is_active?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_config_produto_gravity?: boolean
+    id_organizacao_config_produto_gravity?: boolean
+    chave_produto_config_produto_gravity?: boolean
+    configuracao_config_produto_gravity?: boolean
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: boolean
+    data_atualizacao_config_produto_gravity?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["configuracaoProduto"]>
 
   export type ConfiguracaoProdutoSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    tenant_id?: boolean
-    product_key?: boolean
-    config?: boolean
-    is_active?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_config_produto_gravity?: boolean
+    id_organizacao_config_produto_gravity?: boolean
+    chave_produto_config_produto_gravity?: boolean
+    configuracao_config_produto_gravity?: boolean
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: boolean
+    data_atualizacao_config_produto_gravity?: boolean
     tenant?: boolean | OrganizacaoDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["configuracaoProduto"]>
 
   export type ConfiguracaoProdutoSelectScalar = {
-    id?: boolean
-    tenant_id?: boolean
-    product_key?: boolean
-    config?: boolean
-    is_active?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    id_config_produto_gravity?: boolean
+    id_organizacao_config_produto_gravity?: boolean
+    chave_produto_config_produto_gravity?: boolean
+    configuracao_config_produto_gravity?: boolean
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: boolean
+    data_atualizacao_config_produto_gravity?: boolean
   }
 
   export type ConfiguracaoProdutoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10456,13 +10456,13 @@ export namespace Prisma {
       tenant: Prisma.$OrganizacaoPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: string
-      tenant_id: string
-      product_key: string
-      config: Prisma.JsonValue
-      is_active: boolean
-      created_at: Date
-      updated_at: Date
+      id_config_produto_gravity: string
+      id_organizacao_config_produto_gravity: string
+      chave_produto_config_produto_gravity: string
+      configuracao_config_produto_gravity: Prisma.JsonValue
+      ativo_config_produto_gravity: boolean
+      data_criacao_config_produto_gravity: Date
+      data_atualizacao_config_produto_gravity: Date
     }, ExtArgs["result"]["configuracaoProduto"]>
     composites: {}
   }
@@ -10546,8 +10546,8 @@ export namespace Prisma {
      * // Get first 10 ConfiguracaoProdutos
      * const configuracaoProdutos = await prisma.configuracaoProduto.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const configuracaoProdutoWithIdOnly = await prisma.configuracaoProduto.findMany({ select: { id: true } })
+     * // Only select the `id_config_produto_gravity`
+     * const configuracaoProdutoWithId_config_produto_gravityOnly = await prisma.configuracaoProduto.findMany({ select: { id_config_produto_gravity: true } })
      * 
      */
     findMany<T extends ConfiguracaoProdutoFindManyArgs>(args?: SelectSubset<T, ConfiguracaoProdutoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConfiguracaoProdutoPayload<ExtArgs>, T, "findMany">>
@@ -10591,9 +10591,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many ConfiguracaoProdutos and only return the `id`
-     * const configuracaoProdutoWithIdOnly = await prisma.configuracaoProduto.createManyAndReturn({ 
-     *   select: { id: true },
+     * // Create many ConfiguracaoProdutos and only return the `id_config_produto_gravity`
+     * const configuracaoProdutoWithId_config_produto_gravityOnly = await prisma.configuracaoProduto.createManyAndReturn({ 
+     *   select: { id_config_produto_gravity: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -10857,13 +10857,13 @@ export namespace Prisma {
    * Fields of the ConfiguracaoProduto model
    */ 
   interface ConfiguracaoProdutoFieldRefs {
-    readonly id: FieldRef<"ConfiguracaoProduto", 'String'>
-    readonly tenant_id: FieldRef<"ConfiguracaoProduto", 'String'>
-    readonly product_key: FieldRef<"ConfiguracaoProduto", 'String'>
-    readonly config: FieldRef<"ConfiguracaoProduto", 'Json'>
-    readonly is_active: FieldRef<"ConfiguracaoProduto", 'Boolean'>
-    readonly created_at: FieldRef<"ConfiguracaoProduto", 'DateTime'>
-    readonly updated_at: FieldRef<"ConfiguracaoProduto", 'DateTime'>
+    readonly id_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'String'>
+    readonly id_organizacao_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'String'>
+    readonly chave_produto_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'String'>
+    readonly configuracao_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'Json'>
+    readonly ativo_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'Boolean'>
+    readonly data_criacao_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'DateTime'>
+    readonly data_atualizacao_config_produto_gravity: FieldRef<"ConfiguracaoProduto", 'DateTime'>
   }
     
 
@@ -26526,13 +26526,13 @@ export namespace Prisma {
 
 
   export const ConfiguracaoProdutoScalarFieldEnum: {
-    id: 'id',
-    tenant_id: 'tenant_id',
-    product_key: 'product_key',
-    config: 'config',
-    is_active: 'is_active',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    id_config_produto_gravity: 'id_config_produto_gravity',
+    id_organizacao_config_produto_gravity: 'id_organizacao_config_produto_gravity',
+    chave_produto_config_produto_gravity: 'chave_produto_config_produto_gravity',
+    configuracao_config_produto_gravity: 'configuracao_config_produto_gravity',
+    ativo_config_produto_gravity: 'ativo_config_produto_gravity',
+    data_criacao_config_produto_gravity: 'data_criacao_config_produto_gravity',
+    data_atualizacao_config_produto_gravity: 'data_atualizacao_config_produto_gravity'
   };
 
   export type ConfiguracaoProdutoScalarFieldEnum = (typeof ConfiguracaoProdutoScalarFieldEnum)[keyof typeof ConfiguracaoProdutoScalarFieldEnum]
@@ -27696,50 +27696,50 @@ export namespace Prisma {
     AND?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
     OR?: ConfiguracaoProdutoWhereInput[]
     NOT?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
-    id?: StringFilter<"ConfiguracaoProduto"> | string
-    tenant_id?: StringFilter<"ConfiguracaoProduto"> | string
-    product_key?: StringFilter<"ConfiguracaoProduto"> | string
-    config?: JsonFilter<"ConfiguracaoProduto">
-    is_active?: BoolFilter<"ConfiguracaoProduto"> | boolean
-    created_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
-    updated_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    id_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
+    id_organizacao_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
+    chave_produto_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
+    configuracao_config_produto_gravity?: JsonFilter<"ConfiguracaoProduto">
+    ativo_config_produto_gravity?: BoolFilter<"ConfiguracaoProduto"> | boolean
+    data_criacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
   }
 
   export type ConfiguracaoProdutoOrderByWithRelationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_key?: SortOrder
-    config?: SortOrder
-    is_active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_config_produto_gravity?: SortOrder
+    id_organizacao_config_produto_gravity?: SortOrder
+    chave_produto_config_produto_gravity?: SortOrder
+    configuracao_config_produto_gravity?: SortOrder
+    ativo_config_produto_gravity?: SortOrder
+    data_criacao_config_produto_gravity?: SortOrder
+    data_atualizacao_config_produto_gravity?: SortOrder
     tenant?: OrganizacaoOrderByWithRelationInput
   }
 
   export type ConfiguracaoProdutoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    tenant_id_product_key?: ConfiguracaoProdutoTenant_idProduct_keyCompoundUniqueInput
+    id_config_produto_gravity?: string
+    id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity?: ConfiguracaoProdutoId_organizacao_config_produto_gravityChave_produto_config_produto_gravityCompoundUniqueInput
     AND?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
     OR?: ConfiguracaoProdutoWhereInput[]
     NOT?: ConfiguracaoProdutoWhereInput | ConfiguracaoProdutoWhereInput[]
-    tenant_id?: StringFilter<"ConfiguracaoProduto"> | string
-    product_key?: StringFilter<"ConfiguracaoProduto"> | string
-    config?: JsonFilter<"ConfiguracaoProduto">
-    is_active?: BoolFilter<"ConfiguracaoProduto"> | boolean
-    created_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
-    updated_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    id_organizacao_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
+    chave_produto_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
+    configuracao_config_produto_gravity?: JsonFilter<"ConfiguracaoProduto">
+    ativo_config_produto_gravity?: BoolFilter<"ConfiguracaoProduto"> | boolean
+    data_criacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
     tenant?: XOR<OrganizacaoRelationFilter, OrganizacaoWhereInput>
-  }, "id" | "tenant_id_product_key">
+  }, "id_config_produto_gravity" | "id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity">
 
   export type ConfiguracaoProdutoOrderByWithAggregationInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_key?: SortOrder
-    config?: SortOrder
-    is_active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_config_produto_gravity?: SortOrder
+    id_organizacao_config_produto_gravity?: SortOrder
+    chave_produto_config_produto_gravity?: SortOrder
+    configuracao_config_produto_gravity?: SortOrder
+    ativo_config_produto_gravity?: SortOrder
+    data_criacao_config_produto_gravity?: SortOrder
+    data_atualizacao_config_produto_gravity?: SortOrder
     _count?: ConfiguracaoProdutoCountOrderByAggregateInput
     _max?: ConfiguracaoProdutoMaxOrderByAggregateInput
     _min?: ConfiguracaoProdutoMinOrderByAggregateInput
@@ -27749,13 +27749,13 @@ export namespace Prisma {
     AND?: ConfiguracaoProdutoScalarWhereWithAggregatesInput | ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
     OR?: ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
     NOT?: ConfiguracaoProdutoScalarWhereWithAggregatesInput | ConfiguracaoProdutoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
-    tenant_id?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
-    product_key?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
-    config?: JsonWithAggregatesFilter<"ConfiguracaoProduto">
-    is_active?: BoolWithAggregatesFilter<"ConfiguracaoProduto"> | boolean
-    created_at?: DateTimeWithAggregatesFilter<"ConfiguracaoProduto"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"ConfiguracaoProduto"> | Date | string
+    id_config_produto_gravity?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
+    id_organizacao_config_produto_gravity?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
+    chave_produto_config_produto_gravity?: StringWithAggregatesFilter<"ConfiguracaoProduto"> | string
+    configuracao_config_produto_gravity?: JsonWithAggregatesFilter<"ConfiguracaoProduto">
+    ativo_config_produto_gravity?: BoolWithAggregatesFilter<"ConfiguracaoProduto"> | boolean
+    data_criacao_config_produto_gravity?: DateTimeWithAggregatesFilter<"ConfiguracaoProduto"> | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeWithAggregatesFilter<"ConfiguracaoProduto"> | Date | string
   }
 
   export type ProdutoGravityWorkspaceWhereInput = {
@@ -29800,72 +29800,72 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoProdutoCreateInput = {
-    id?: string
-    product_key: string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_config_produto_gravity?: string
+    chave_produto_config_produto_gravity: string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: Date | string
+    data_atualizacao_config_produto_gravity?: Date | string
     tenant: OrganizacaoCreateNestedOneWithoutProduct_configs_organizacaoInput
   }
 
   export type ConfiguracaoProdutoUncheckedCreateInput = {
-    id?: string
-    tenant_id: string
-    product_key: string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_config_produto_gravity?: string
+    id_organizacao_config_produto_gravity: string
+    chave_produto_config_produto_gravity: string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: Date | string
+    data_atualizacao_config_produto_gravity?: Date | string
   }
 
   export type ConfiguracaoProdutoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_key?: StringFieldUpdateOperationsInput | string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
     tenant?: OrganizacaoUpdateOneRequiredWithoutProduct_configs_organizacaoNestedInput
   }
 
   export type ConfiguracaoProdutoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_key?: StringFieldUpdateOperationsInput | string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ConfiguracaoProdutoCreateManyInput = {
-    id?: string
-    tenant_id: string
-    product_key: string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_config_produto_gravity?: string
+    id_organizacao_config_produto_gravity: string
+    chave_produto_config_produto_gravity: string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: Date | string
+    data_atualizacao_config_produto_gravity?: Date | string
   }
 
   export type ConfiguracaoProdutoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_key?: StringFieldUpdateOperationsInput | string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ConfiguracaoProdutoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    tenant_id?: StringFieldUpdateOperationsInput | string
-    product_key?: StringFieldUpdateOperationsInput | string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    id_organizacao_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityWorkspaceCreateInput = {
@@ -32134,37 +32134,37 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type ConfiguracaoProdutoTenant_idProduct_keyCompoundUniqueInput = {
-    tenant_id: string
-    product_key: string
+  export type ConfiguracaoProdutoId_organizacao_config_produto_gravityChave_produto_config_produto_gravityCompoundUniqueInput = {
+    id_organizacao_config_produto_gravity: string
+    chave_produto_config_produto_gravity: string
   }
 
   export type ConfiguracaoProdutoCountOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_key?: SortOrder
-    config?: SortOrder
-    is_active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_config_produto_gravity?: SortOrder
+    id_organizacao_config_produto_gravity?: SortOrder
+    chave_produto_config_produto_gravity?: SortOrder
+    configuracao_config_produto_gravity?: SortOrder
+    ativo_config_produto_gravity?: SortOrder
+    data_criacao_config_produto_gravity?: SortOrder
+    data_atualizacao_config_produto_gravity?: SortOrder
   }
 
   export type ConfiguracaoProdutoMaxOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_key?: SortOrder
-    is_active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_config_produto_gravity?: SortOrder
+    id_organizacao_config_produto_gravity?: SortOrder
+    chave_produto_config_produto_gravity?: SortOrder
+    ativo_config_produto_gravity?: SortOrder
+    data_criacao_config_produto_gravity?: SortOrder
+    data_atualizacao_config_produto_gravity?: SortOrder
   }
 
   export type ConfiguracaoProdutoMinOrderByAggregateInput = {
-    id?: SortOrder
-    tenant_id?: SortOrder
-    product_key?: SortOrder
-    is_active?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    id_config_produto_gravity?: SortOrder
+    id_organizacao_config_produto_gravity?: SortOrder
+    chave_produto_config_produto_gravity?: SortOrder
+    ativo_config_produto_gravity?: SortOrder
+    data_criacao_config_produto_gravity?: SortOrder
+    data_atualizacao_config_produto_gravity?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> = 
     | PatchUndefined<
@@ -34789,21 +34789,21 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoProdutoCreateWithoutTenantInput = {
-    id?: string
-    product_key: string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_config_produto_gravity?: string
+    chave_produto_config_produto_gravity: string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: Date | string
+    data_atualizacao_config_produto_gravity?: Date | string
   }
 
   export type ConfiguracaoProdutoUncheckedCreateWithoutTenantInput = {
-    id?: string
-    product_key: string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_config_produto_gravity?: string
+    chave_produto_config_produto_gravity: string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: Date | string
+    data_atualizacao_config_produto_gravity?: Date | string
   }
 
   export type ConfiguracaoProdutoCreateOrConnectWithoutTenantInput = {
@@ -34989,13 +34989,13 @@ export namespace Prisma {
     AND?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
     OR?: ConfiguracaoProdutoScalarWhereInput[]
     NOT?: ConfiguracaoProdutoScalarWhereInput | ConfiguracaoProdutoScalarWhereInput[]
-    id?: StringFilter<"ConfiguracaoProduto"> | string
-    tenant_id?: StringFilter<"ConfiguracaoProduto"> | string
-    product_key?: StringFilter<"ConfiguracaoProduto"> | string
-    config?: JsonFilter<"ConfiguracaoProduto">
-    is_active?: BoolFilter<"ConfiguracaoProduto"> | boolean
-    created_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
-    updated_at?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    id_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
+    id_organizacao_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
+    chave_produto_config_produto_gravity?: StringFilter<"ConfiguracaoProduto"> | string
+    configuracao_config_produto_gravity?: JsonFilter<"ConfiguracaoProduto">
+    ativo_config_produto_gravity?: BoolFilter<"ConfiguracaoProduto"> | boolean
+    data_criacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFilter<"ConfiguracaoProduto"> | Date | string
   }
 
   export type ProdutoGravityWorkspaceUpsertWithWhereUniqueWithoutTenantInput = {
@@ -36706,12 +36706,12 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoProdutoCreateManyTenantInput = {
-    id?: string
-    product_key: string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: boolean
-    created_at?: Date | string
-    updated_at?: Date | string
+    id_config_produto_gravity?: string
+    chave_produto_config_produto_gravity: string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: boolean
+    data_criacao_config_produto_gravity?: Date | string
+    data_atualizacao_config_produto_gravity?: Date | string
   }
 
   export type ProdutoGravityWorkspaceCreateManyTenantInput = {
@@ -36869,30 +36869,30 @@ export namespace Prisma {
   }
 
   export type ConfiguracaoProdutoUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_key?: StringFieldUpdateOperationsInput | string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ConfiguracaoProdutoUncheckedUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_key?: StringFieldUpdateOperationsInput | string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ConfiguracaoProdutoUncheckedUpdateManyWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    product_key?: StringFieldUpdateOperationsInput | string
-    config?: JsonNullValueInput | InputJsonValue
-    is_active?: BoolFieldUpdateOperationsInput | boolean
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    id_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    chave_produto_config_produto_gravity?: StringFieldUpdateOperationsInput | string
+    configuracao_config_produto_gravity?: JsonNullValueInput | InputJsonValue
+    ativo_config_produto_gravity?: BoolFieldUpdateOperationsInput | boolean
+    data_criacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
+    data_atualizacao_config_produto_gravity?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ProdutoGravityWorkspaceUpdateWithoutTenantInput = {

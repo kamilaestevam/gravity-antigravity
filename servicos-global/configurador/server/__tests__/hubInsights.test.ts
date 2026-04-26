@@ -118,7 +118,7 @@ describe('GET /api/v1/hub/insights', () => {
 
   it('busca insights quando há produtos ativos', async () => {
     prismaMock.configuracaoProduto.findMany.mockResolvedValue([
-      { product_key: 'pedido', is_active: true },
+      { chave_produto_config_produto_gravity: 'pedido', ativo_config_produto_gravity: true },
     ])
 
     // Mock fetch para o endpoint de KPIs do pedido
@@ -157,7 +157,7 @@ describe('GET /api/v1/hub/insights', () => {
     await request.get('/api/v1/hub/insights')
     expect(prismaMock.configuracaoProduto.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { tenant_id: 'tenant-001', is_active: true },
+        where: { id_organizacao_config_produto_gravity: 'tenant-001', ativo_config_produto_gravity: true },
       }),
     )
   })
@@ -168,7 +168,7 @@ describe('GET /api/v1/hub/insights', () => {
     await request.get('/api/v1/hub/insights')
     expect(prismaMock.configuracaoProduto.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { tenant_id: 'tenant-999', is_active: true },
+        where: { id_organizacao_config_produto_gravity: 'tenant-999', ativo_config_produto_gravity: true },
       }),
     )
   })
@@ -179,7 +179,7 @@ describe('GET /api/v1/hub/insights', () => {
     authOverride = { userId: 'user-001', clerkUserId: 'clerk_001', tenantId: 'tenant-001', role: 'SUPER_ADMIN' }
 
     prismaMock.configuracaoProduto.findMany.mockResolvedValue([
-      { product_key: 'pedido', is_active: true },
+      { chave_produto_config_produto_gravity: 'pedido', ativo_config_produto_gravity: true },
     ])
 
     fetchMock.mockImplementation(async (url: string) => {
@@ -211,8 +211,8 @@ describe('GET /api/v1/hub/insights', () => {
 
   it('retorna insights de fallback + context quando todos os produtos falham', async () => {
     prismaMock.configuracaoProduto.findMany.mockResolvedValue([
-      { product_key: 'pedido', is_active: true },
-      { product_key: 'bid-cambio', is_active: true },
+      { chave_produto_config_produto_gravity: 'pedido', ativo_config_produto_gravity: true },
+      { chave_produto_config_produto_gravity: 'bid-cambio', ativo_config_produto_gravity: true },
     ])
 
     // All fetches fail
@@ -229,8 +229,8 @@ describe('GET /api/v1/hub/insights', () => {
 
   it('retorna insights parciais quando apenas 1 produto falha', async () => {
     prismaMock.configuracaoProduto.findMany.mockResolvedValue([
-      { product_key: 'pedido', is_active: true },
-      { product_key: 'bid-cambio', is_active: true },
+      { chave_produto_config_produto_gravity: 'pedido', ativo_config_produto_gravity: true },
+      { chave_produto_config_produto_gravity: 'bid-cambio', ativo_config_produto_gravity: true },
     ])
 
     fetchMock.mockImplementation(async (url: string) => {
@@ -275,7 +275,7 @@ describe('GET /api/v1/hub/insights', () => {
 
   it('inclui feature discovery cards quando há dados suficientes', async () => {
     prismaMock.configuracaoProduto.findMany.mockResolvedValue([
-      { product_key: 'pedido', is_active: true },
+      { chave_produto_config_produto_gravity: 'pedido', ativo_config_produto_gravity: true },
     ])
 
     fetchMock.mockImplementation(async (url: string) => {
@@ -309,7 +309,7 @@ describe('GET /api/v1/hub/insights', () => {
 
   it('retorna insights ordenados por score (descendente)', async () => {
     prismaMock.configuracaoProduto.findMany.mockResolvedValue([
-      { product_key: 'pedido', is_active: true },
+      { chave_produto_config_produto_gravity: 'pedido', ativo_config_produto_gravity: true },
     ])
 
     fetchMock.mockImplementation(async (url: string) => {

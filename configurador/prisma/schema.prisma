@@ -66,13 +66,13 @@ enum APITokenServico {
 // ---------------------------------------------------------------------------
 
 model Organizacao {
-  id_organizacao     String       @id @default(cuid())
+  id_organizacao           String            @id @default(cuid())
   nome_organizacao         String
-  subdominio_organizacao   String       @unique
+  subdominio_organizacao   String            @unique
   status_organizacao       OrganizacaoStatus @default(CONFIGURACAO_PENDENTE)
-  clerk_org_id       String?      @unique
-  stripe_customer_id String?      @unique
-  suid_empresa_organizacao String?      @unique
+  clerk_org_id             String?           @unique
+  stripe_customer_id       String?           @unique
+  suid_empresa_organizacao String?           @unique
 
   // Dados cadastrais da organização
   cnpj_organizacao         String?
@@ -105,9 +105,9 @@ model Organizacao {
 // ---------------------------------------------------------------------------
 
 model Usuario {
-  id_usuario             String   @id @default(cuid())
+  id_usuario             String      @id @default(cuid())
   id_organizacao_usuario String
-  clerk_user_id          String   @unique
+  clerk_user_id          String      @unique
   email_usuario          String
   nome_usuario           String
   tipo_usuario           UsuarioTipo @default(PADRAO)
@@ -150,10 +150,10 @@ model AssinaturaProdutoGravity {
   stripe_subscription_id String? @unique
   stripe_price_id        String?
 
-  data_fim_teste_assinatura_produto_gravity     DateTime?
+  data_fim_teste_assinatura_produto_gravity      DateTime?
   data_inicio_periodo_assinatura_produto_gravity DateTime?
-  data_fim_periodo_assinatura_produto_gravity   DateTime?
-  data_cancelamento_assinatura_produto_gravity  DateTime?
+  data_fim_periodo_assinatura_produto_gravity    DateTime?
+  data_cancelamento_assinatura_produto_gravity   DateTime?
 
   // Timestamps
   data_criacao_assinatura_produto_gravity     DateTime @default(now())
@@ -209,10 +209,10 @@ model UsuarioPermissao {
 // ---------------------------------------------------------------------------
 
 model PermissaoAdminGravity {
-  id_permissao_admin_gravity        String @id @default(cuid())
-  id_admin_permissao_admin_gravity  String // clerk_id do Admin Gravity
-  recurso_permissao_admin_gravity   String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
-  acao_permissao_admin_gravity      String // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
+  id_permissao_admin_gravity            String @id @default(cuid())
+  id_admin_permissao_admin_gravity      String // clerk_id do Admin Gravity
+  recurso_permissao_admin_gravity       String // ex: 'tenants', 'billing', 'deploy', 'usuarios'
+  acao_permissao_admin_gravity          String // 'READ' | 'WRITE' | 'DELETE' | 'MANAGE'
   concedido_por_permissao_admin_gravity String // clerk_id do Super Admin que concedeu
 
   // Timestamps
@@ -296,25 +296,25 @@ model UsuarioWorkspace {
 // ---------------------------------------------------------------------------
 
 model ConfiguracaoProduto {
-  id          String  @id @default(cuid())
-  tenant_id   String
-  product_key String
-  config      Json    @default("{}")
-  is_active   Boolean @default(true)
+  id_config_produto_gravity             String  @id @default(cuid())
+  id_organizacao_config_produto_gravity String
+  chave_produto_config_produto_gravity  String
+  configuracao_config_produto_gravity   Json    @default("{}")
+  ativo_config_produto_gravity          Boolean @default(true)
 
   // Timestamps
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  data_criacao_config_produto_gravity     DateTime @default(now())
+  data_atualizacao_config_produto_gravity DateTime @updatedAt
 
   // Relações
-  tenant Organizacao @relation(fields: [tenant_id], references: [id_organizacao], onDelete: Cascade)
+  tenant Organizacao @relation(fields: [id_organizacao_config_produto_gravity], references: [id_organizacao], onDelete: Cascade)
 
-  // Apenas uma config por produto por tenant
-  @@unique([tenant_id, product_key])
-  // Índices obrigatórios
-  @@index([tenant_id])
-  @@index([tenant_id, product_key])
-  @@index([tenant_id, is_active])
+  // Apenas uma config por produto por tenant — `map` explícito para evitar colisão pós truncamento PG (63 chars)
+  @@unique([id_organizacao_config_produto_gravity, chave_produto_config_produto_gravity], map: "cpg_org_chave_unq")
+  // Índices obrigatórios — `map` explícito pelo mesmo motivo
+  @@index([id_organizacao_config_produto_gravity], map: "cpg_org_idx")
+  @@index([id_organizacao_config_produto_gravity, chave_produto_config_produto_gravity], map: "cpg_org_chave_idx")
+  @@index([id_organizacao_config_produto_gravity, ativo_config_produto_gravity], map: "cpg_org_ativo_idx")
   @@map("config_produto_gravity")
 }
 
@@ -380,9 +380,9 @@ enum ProdutoGravityLimiteUsuario {
 }
 
 model ProdutoGravity {
-  id          String        @id @default(cuid())
+  id          String               @id @default(cuid())
   name        String
-  slug        String        @unique
+  slug        String               @unique
   description String
   status      StatusProdutoGravity @default(ATIVO)
   launch_date DateTime?
@@ -394,18 +394,18 @@ model ProdutoGravity {
 
   // Billing
   billing_type     TipoCobrancaGravity @default(MENSAL)
-  unit_price       Decimal     @db.Decimal(15, 2)
-  unit_currency    String      @default("BRL")
-  minimum_price    Decimal     @default(0) @db.Decimal(15, 2)
-  minimum_currency String      @default("BRL")
-  total_price      Decimal?    @db.Decimal(15, 2)
-  total_currency   String      @default("BRL")
+  unit_price       Decimal             @db.Decimal(15, 2)
+  unit_currency    String              @default("BRL")
+  minimum_price    Decimal             @default(0) @db.Decimal(15, 2)
+  minimum_currency String              @default("BRL")
+  total_price      Decimal?            @db.Decimal(15, 2)
+  total_currency   String              @default("BRL")
 
   // Users
   user_limit_type     ProdutoGravityLimiteUsuario @default(ILIMITADO)
   base_users_qty      Int?
-  extra_user_price    Decimal?      @db.Decimal(15, 2)
-  extra_user_currency String        @default("BRL")
+  extra_user_price    Decimal?                    @db.Decimal(15, 2)
+  extra_user_currency String                      @default("BRL")
 
   // Support
   helpdesk_hours      Int      @default(0)
@@ -507,16 +507,16 @@ enum DeployStatus {
 }
 
 model Deploy {
-  id                  String            @id @default(cuid()) @map("id_deploy")
-  deploy_number       Int               @default(autoincrement())
-  area                String            @map("area_deploy") // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
-  version             String            @map("versao_deploy") // semver (v1.2.3) ou git sha (8f3a1c2)
-  description         String            @map("descricao_deploy") // resumo das alterações (changelog curto)
+  id                  String         @id @default(cuid()) @map("id_deploy")
+  deploy_number       Int            @default(autoincrement())
+  area                String         @map("area_deploy") // ex: 'configurador', 'pedido', 'bid-frete', 'nucleo-global', 'devops'
+  version             String         @map("versao_deploy") // semver (v1.2.3) ou git sha (8f3a1c2)
+  description         String         @map("descricao_deploy") // resumo das alterações (changelog curto)
   environment         DeployAmbiente @default(PRODUCAO) @map("ambiente_deploy")
-  status              DeployStatus      @default(SUCESSO) @map("status_deploy")
-  deployed_by         String            @map("quem_deploy") // nome legível do responsável (snapshot no momento do deploy)
-  deployed_by_user_id String?           @map("id_usuario_deploy") // FK opcional para Usuario (pode ser null se deploy veio de CI)
-  deployed_at         DateTime          @default(now()) @map("data_execucao_deploy")
+  status              DeployStatus   @default(SUCESSO) @map("status_deploy")
+  deployed_by         String         @map("quem_deploy") // nome legível do responsável (snapshot no momento do deploy)
+  deployed_by_user_id String?        @map("id_usuario_deploy") // FK opcional para Usuario (pode ser null se deploy veio de CI)
+  deployed_at         DateTime       @default(now()) @map("data_execucao_deploy")
 
   created_at DateTime @default(now()) @map("data_criacao_deploy")
 
@@ -757,18 +757,18 @@ enum FaturaStatusGravity {
 }
 
 model FaturaProdutosGravity {
-  id                                        String       @id @default(cuid())
+  id                                        String              @id @default(cuid())
   tenant_id                                 String
   numero_fatura_servicos_gravity            String
   status_fatura_servicos_gravity            FaturaStatusGravity @default(DRAFT)
   organizacao_fatura_servicos_gravity       String
   email_organizacao_fatura_servicos_gravity String?
-  valor_total_fatura_servicos_gravity       Decimal      @db.Decimal(18, 2)
-  moeda_fatura_servicos_gravity             String       @default("brl")
+  valor_total_fatura_servicos_gravity       Decimal             @db.Decimal(18, 2)
+  moeda_fatura_servicos_gravity             String              @default("brl")
   competencia_fatura_servicos_gravity       String?
-  data_fatura_servicos_gravity              DateTime     @default(now())
-  created_at                                DateTime     @default(now())
-  updated_at                                DateTime     @updatedAt
+  data_fatura_servicos_gravity              DateTime            @default(now())
+  created_at                                DateTime            @default(now())
+  updated_at                                DateTime            @updatedAt
 
   @@index([tenant_id])
   @@index([status_fatura_servicos_gravity])

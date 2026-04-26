@@ -285,9 +285,19 @@ export const productCatalogService = {
     const results = await Promise.all(
       productKeys.map(key =>
         prisma.configuracaoProduto.upsert({
-          where: { tenant_id_product_key: { tenant_id: tenantId, product_key: key } },
-          create: { tenant_id: tenantId, product_key: key, config: {}, is_active: true },
-          update: { is_active: true },
+          where: {
+            id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
+              id_organizacao_config_produto_gravity: tenantId,
+              chave_produto_config_produto_gravity: key,
+            },
+          },
+          create: {
+            id_organizacao_config_produto_gravity: tenantId,
+            chave_produto_config_produto_gravity: key,
+            configuracao_config_produto_gravity: {},
+            ativo_config_produto_gravity: true,
+          },
+          update: { ativo_config_produto_gravity: true },
         }),
       ),
     )

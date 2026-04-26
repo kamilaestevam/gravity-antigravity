@@ -39,17 +39,22 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
       }),
       // Fallback: produtos contratados no tenant mas ainda não ativados no workspace
       prisma.configuracaoProduto.findMany({
-        where: { tenant_id: req.auth.tenantId, is_active: true },
+        where: {
+          id_organizacao_config_produto_gravity: req.auth.tenantId,
+          ativo_config_produto_gravity: true,
+        },
       }),
     ])
 
     // Merge: prefere companyProduct; preenche com productConfig se não existir
     const companyKeys = new Set(companyProducts.map(cp => cp.product_key))
-    const fallbackConfigs = tenantConfigs.filter(tc => !companyKeys.has(tc.product_key))
+    const fallbackConfigs = tenantConfigs.filter(
+      tc => !companyKeys.has(tc.chave_produto_config_produto_gravity),
+    )
 
     const allKeys = [
       ...companyProducts.map(cp => cp.product_key),
-      ...fallbackConfigs.map(tc => tc.product_key),
+      ...fallbackConfigs.map(tc => tc.chave_produto_config_produto_gravity),
     ]
 
     // Enriquece com dados do catálogo
@@ -66,12 +71,13 @@ companyProductsRouter.get('/', requireAuth, async (req, res, next) => {
         activated_at: cp.created_at,
         catalog: catalogMap.get(cp.product_key) ?? null,
       })),
+      // DTO: ConfiguracaoProduto rename → contrato legado
       ...fallbackConfigs.map(tc => ({
-        id: tc.id,
-        product_key: tc.product_key,
+        id: tc.id_config_produto_gravity,
+        product_key: tc.chave_produto_config_produto_gravity,
         is_active: true,
-        activated_at: tc.created_at,
-        catalog: catalogMap.get(tc.product_key) ?? null,
+        activated_at: tc.data_criacao_config_produto_gravity,
+        catalog: catalogMap.get(tc.chave_produto_config_produto_gravity) ?? null,
       })),
     ]
 
@@ -106,13 +112,13 @@ companyProductsRouter.post('/', requireAuth, async (req, res, next) => {
     // Verifica se o tenant contratou o produto
     const tenantProduct = await prisma.configuracaoProduto.findUnique({
       where: {
-        tenant_id_product_key: {
-          tenant_id: req.auth.tenantId,
-          product_key,
+        id_organizacao_config_produto_gravity_chave_produto_config_produto_gravity: {
+          id_organizacao_config_produto_gravity: req.auth.tenantId,
+          chave_produto_config_produto_gravity: product_key,
         },
       },
     })
-    if (!tenantProduct || !tenantProduct.is_active) {
+    if (!tenantProduct || !tenantProduct.ativo_config_produto_gravity) {
       throw new AppError(
         'Produto não contratado pelo tenant. Contrate primeiro via Store.',
         403,

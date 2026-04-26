@@ -45,8 +45,8 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
       tenantService.getTenantById(tenantId),
       tenantService.getCompanies(tenantId),
       prisma.configuracaoProduto.findMany({
-        where: { tenant_id: tenantId },
-        orderBy: { created_at: 'desc' },
+        where: { id_organizacao_config_produto_gravity: tenantId },
+        orderBy: { data_criacao_config_produto_gravity: 'desc' },
       }).catch(() => []),
       prisma.produtoGravity.findMany({
         select: { id: true, name: true, slug: true, description: true, status: true },
@@ -64,12 +64,13 @@ hubRouter.get('/init', requireAuth, async (req, res, next) => {
     // Enriquece produtos contratados com dados do catálogo
     const catalogMap = new Map(mergedCatalog.map((p: { slug: string }) => [p.slug, p]))
 
+    // DTO: ConfiguracaoProduto Prisma rename → contrato legado do hub
     const products = configs.map(c => ({
-      product_key: c.product_key,
-      is_active: c.is_active,
-      config: c.config,
-      subscribed_at: c.created_at,
-      catalog: catalogMap.get(c.product_key) ?? null,
+      product_key: c.chave_produto_config_produto_gravity,
+      is_active: c.ativo_config_produto_gravity,
+      config: c.configuracao_config_produto_gravity,
+      subscribed_at: c.data_criacao_config_produto_gravity,
+      catalog: catalogMap.get(c.chave_produto_config_produto_gravity) ?? null,
     }))
 
     // Workspace preferido — valida que ainda aponta para company ATIVA
@@ -140,11 +141,14 @@ hubRouter.get('/insights', requireAuth, async (req, res) => {
 
     // Busca produtos ativos do tenant (leve — Prisma com select mínimo)
     const configs = await prisma.configuracaoProduto.findMany({
-      where: { tenant_id: tenantId, is_active: true },
-      select: { product_key: true },
+      where: {
+        id_organizacao_config_produto_gravity: tenantId,
+        ativo_config_produto_gravity: true,
+      },
+      select: { chave_produto_config_produto_gravity: true },
     })
 
-    const activeProductKeys = new Set(configs.map(c => c.product_key))
+    const activeProductKeys = new Set(configs.map(c => c.chave_produto_config_produto_gravity))
 
     const insights = await generateHubInsights(
       tenantId,
